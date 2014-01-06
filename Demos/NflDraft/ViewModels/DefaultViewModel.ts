@@ -11,6 +11,7 @@
 
 module NflDraft.ViewModels {
     export class DefaultViewModel extends Fayde.MVVM.ViewModelBase {
+        private _interval_id: number;
         MyTeam: Models.FantasyTeam;
         Rounds: Fayde.Collections.ObservableCollection<Models.Round> = new Fayde.Collections.ObservableCollection<Models.Round>();
         DraftSelections: Fayde.Collections.ObservableCollection<Models.DraftSelection> = new Fayde.Collections.ObservableCollection<Models.DraftSelection>();
@@ -34,7 +35,6 @@ module NflDraft.ViewModels {
                 this.OnPropertyChanged("SelectedPlayer");
             }
         }
-        private _interval_id: number;
         private _current_draft_spot: Models.DraftSpot = null;
         get CurrentDraftSpot(): Models.DraftSpot {
             return this._current_draft_spot;
@@ -61,6 +61,21 @@ module NflDraft.ViewModels {
                 e.parameter.Text = "";
             }
         }
+        private _draft_player_command: Fayde.Input.ICommand = null;
+        get DraftPlayerCommand(): Fayde.Input.ICommand {
+            if (this._draft_player_command === null) {
+                this._draft_player_command = new Fayde.MVVM.RelayCommand(
+                    () => this.DraftPlayer(),
+                    () => this.CanDraftPlayer());
+            }
+            return this._draft_player_command;
+        }
+        DraftPlayer() {
+            alert("Selecting Player");
+        }
+        CanDraftPlayer() {
+            return false;
+        }
 
         constructor() {
             super();
@@ -68,7 +83,7 @@ module NflDraft.ViewModels {
         }
 
         Load() {
-            var positions = ["QB", "RB", "RB", "WR", "WR", "TE"];
+            var positions = ["QB", "RB", "RB", "WR", "WR", "TE", "BE", "BE"];
             var fantasy_positions = new Fayde.Collections.ObservableCollection<Models.FantasyPosition>();
             for (var i = 0; i < positions.length; i++) {
                 fantasy_positions.Add(new Models.FantasyPosition(positions[i]));
@@ -151,7 +166,7 @@ module NflDraft.ViewModels {
                 this.Rounds.Add(r);
             }
 
-            this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE", "K", "DEF");
+            this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE");
 
             var fp = [
                 { "Name": "Adrian Peterson", "Team": _teams[27], "Headshot": "Images/Player Headshots/adrian_peterson.png", "Positions": "RB", "ADP": 1.50 },
@@ -241,12 +256,12 @@ module NflDraft.ViewModels {
             this.CurrentDraftSpot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
             this.SelectedPlayer = this.FantasyPlayers.GetValueAt(0);
             this.CurrentPositionFilter = "ALL";
-            //this.MyTeam.Roster[0].Player = this.FantasyPlayers.GetValueAt(0);
             this._interval_id = setInterval(() => this.DoWork(), 1000);
         }
 
         DoWork() {
             var current = this.Countdown;
+            var draft_finished = false;
             if (current == 0) {
                 var spot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
                 var ds = new Models.DraftSelection();
@@ -256,7 +271,7 @@ module NflDraft.ViewModels {
                 if (spot.Team === this.MyTeam) {
                     for (var i = 0; i < this.MyTeam.Roster.Count; i++) {
                         var fantasy_position = this.MyTeam.Roster.GetValueAt(i);
-                        if (fantasy_position.Position === fp.PrimaryPosition && fantasy_position.Player === undefined) {
+                        if (fantasy_position.Position === "BE" || (fantasy_position.Position === fp.PrimaryPosition && fantasy_position.Player === undefined)) {
                             fantasy_position.Player = fp;
                             break;
                         }
@@ -267,14 +282,17 @@ module NflDraft.ViewModels {
                 this.Rounds.GetValueAt(0).DraftSpots.RemoveAt(0);
                 if (this.Rounds.GetValueAt(0).DraftSpots.Count == 0)
                     this.Rounds.RemoveAt(0);
-                this.CurrentDraftSpot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
-                current = 10;
+                draft_finished = this.Rounds.Count == 0 || this.FantasyPlayers.Count == 0;
+                if (!draft_finished) {
+                    this.CurrentDraftSpot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
+                    current = 10;
+                }
             }
             else
                 current = current - 1;
             this.Countdown = current;
 
-            if (this.Rounds.Count == 0 || this.FantasyPlayers.Count == 0) {
+            if (draft_finished) {
                 clearInterval(this._interval_id);
             }
         }

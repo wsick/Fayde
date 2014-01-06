@@ -31,6 +31,12 @@ var Fayde;
         var i = reg.Interfaces;
         if (!i)
             i = [];
+        for (var j = 0, len = i.length; j < len; j++) {
+            if (!i[j]) {
+                console.warn("Registering undefined interface on type.", type);
+                break;
+            }
+        }
 
         var bc = Object.getPrototypeOf(type.prototype).constructor;
 
@@ -98,7 +104,7 @@ var Fayde;
             if (!type)
                 return;
             var t = type;
-            var anns = (t).Annotations;
+            var anns = t.Annotations;
             var annotation;
             if (anns && (annotation = anns[name]))
                 return annotation;
@@ -172,7 +178,7 @@ var Fayde;
         if (typeof val === "number")
             return val;
         if (val instanceof Thickness)
-            return (val).Left;
+            return val.Left;
         return parseFloat(val.toString());
     };
     converters[Date] = function (val) {
@@ -189,7 +195,7 @@ var Fayde;
         return new RegExp(val);
     };
     function ConvertAnyToType(val, type) {
-        var converter = (converters)[type];
+        var converter = converters[type];
         if (converter)
             return converter(val);
         if (type instanceof Enum) {
@@ -197,7 +203,7 @@ var Fayde;
                 return 0;
             if (typeof val === "number")
                 return val;
-            var enumo = (type).Object;
+            var enumo = type.Object;
             return enumo[val];
         }
         return val;
@@ -254,7 +260,7 @@ var Fayde;
             }
             NotifyCollectionChangedEventArgs.Reset = function () {
                 var args = new NotifyCollectionChangedEventArgs();
-                Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Reset, writable: false });
+                Object.defineProperty(args, "Action", { value: 4 /* Reset */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "OldItems", { value: null, writable: false });
@@ -263,7 +269,7 @@ var Fayde;
             };
             NotifyCollectionChangedEventArgs.Replace = function (newValue, oldValue, index) {
                 var args = new NotifyCollectionChangedEventArgs();
-                Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Replace, writable: false });
+                Object.defineProperty(args, "Action", { value: 3 /* Replace */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
                 Object.defineProperty(args, "OldItems", { value: [oldValue], writable: false });
@@ -272,7 +278,7 @@ var Fayde;
             };
             NotifyCollectionChangedEventArgs.Add = function (newValue, index) {
                 var args = new NotifyCollectionChangedEventArgs();
-                Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Add, writable: false });
+                Object.defineProperty(args, "Action", { value: 1 /* Add */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
                 Object.defineProperty(args, "OldItems", { value: null, writable: false });
@@ -281,7 +287,7 @@ var Fayde;
             };
             NotifyCollectionChangedEventArgs.AddRange = function (newValues, index) {
                 var args = new NotifyCollectionChangedEventArgs();
-                Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Add, writable: false });
+                Object.defineProperty(args, "Action", { value: 1 /* Add */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
                 Object.defineProperty(args, "OldItems", { value: null, writable: false });
@@ -290,7 +296,7 @@ var Fayde;
             };
             NotifyCollectionChangedEventArgs.Remove = function (oldValue, index) {
                 var args = new NotifyCollectionChangedEventArgs();
-                Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Remove, writable: false });
+                Object.defineProperty(args, "Action", { value: 2 /* Remove */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: index, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "OldItems", { value: [oldValue], writable: false });
@@ -417,6 +423,25 @@ Object.defineProperty(Array.prototype, "GetEnumerator", {
 });
 var Fayde;
 (function (Fayde) {
+    var PropertyChangedEventArgs = (function (_super) {
+        __extends(PropertyChangedEventArgs, _super);
+        function PropertyChangedEventArgs(propertyName) {
+            _super.call(this);
+            Object.defineProperty(this, "PropertyName", { value: propertyName, writable: false });
+        }
+        return PropertyChangedEventArgs;
+    })(EventArgs);
+    Fayde.PropertyChangedEventArgs = PropertyChangedEventArgs;
+    Fayde.RegisterType(PropertyChangedEventArgs, {
+        Name: "PropertyChangedEventArgs",
+        Namespace: "Fayde",
+        XmlNamespace: Fayde.XMLNS
+    });
+
+    Fayde.INotifyPropertyChanged_ = Fayde.RegisterInterface("INotifyPropertyChanged");
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     (function (Collections) {
         var ObservableCollection = (function () {
             function ObservableCollection() {
@@ -448,11 +473,11 @@ var Fayde;
                     throw new IndexOutOfRangeException(index);
                 var oldValue = ht[index];
                 ht[index] = value;
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Replace(value, oldValue, index));
+                this.CollectionChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Replace(value, oldValue, index));
             };
             ObservableCollection.prototype.Add = function (value) {
                 var index = this._ht.push(value) - 1;
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+                this.CollectionChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Add(value, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.AddRange = function (values) {
@@ -461,7 +486,7 @@ var Fayde;
                 for (var i = 0; i < len; i++) {
                     this._ht.push(values[i]);
                 }
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
+                this.CollectionChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.Insert = function (value, index) {
@@ -470,9 +495,9 @@ var Fayde;
                     throw new IndexOutOfRangeException(index);
                 if (index >= ht.length)
                     ht.push(value);
-else
+                else
                     ht.splice(index, 0, value);
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+                this.CollectionChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Add(value, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.IndexOf = function (value) {
@@ -486,19 +511,19 @@ else
                 if (index < 0)
                     return;
                 this._ht.splice(index, 1);
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(value, index));
+                this.CollectionChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Remove(value, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.RemoveAt = function (index) {
                 if (index < 0 || index >= this._ht.length)
                     throw new IndexOutOfRangeException(index);
                 var item = this._ht.splice(index, 1)[0];
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(item, index));
+                this.CollectionChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Remove(item, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.Clear = function () {
                 this._ht = [];
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Reset());
+                this.CollectionChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Reset());
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype._RaisePropertyChanged = function (propertyName) {
@@ -511,7 +536,7 @@ else
             Namespace: "Fayde.Collections",
             XmlNamespace: Fayde.XMLNS,
             Name: "ObservableCollection",
-            Interfaces: [Fayde.IEnumerable_, Collections.INotifyCollectionChanged_, Fayde.INotifyPropertyChanged_]
+            Interfaces: [Fayde.IEnumerable_, Fayde.Collections.INotifyCollectionChanged_, Fayde.INotifyPropertyChanged_]
         });
     })(Fayde.Collections || (Fayde.Collections = {}));
     var Collections = Fayde.Collections;
@@ -778,7 +803,7 @@ var Fayde;
         });
 
         XamlObject.prototype.Clone = function () {
-            var xobj = new (this).constructor();
+            var xobj = new this.constructor();
             xobj.CloneCore(this);
             return xobj;
         };
@@ -798,6 +823,7 @@ var Fayde;
         XmlNamespace: Fayde.XMLNS
     });
 })(Fayde || (Fayde = {}));
+
 var DependencyProperty = (function () {
     function DependencyProperty() {
         this.IsReadOnly = false;
@@ -933,7 +959,7 @@ var DependencyProperty = (function () {
         var ownerType = this.OwnerType;
         if (!ownerType || typeof ownerType !== "function")
             throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
-        var registeredDPs = (ownerType)._RegisteredDPs;
+        var registeredDPs = ownerType._RegisteredDPs;
         if (!registeredDPs) {
             var registeredDPs = {};
             Object.defineProperty(ownerType, "_RegisteredDPs", {
@@ -953,10 +979,10 @@ var DependencyProperty = (function () {
 
         var propd = this;
         var getter = function () {
-            return (this).GetValue(propd);
+            return this.GetValue(propd);
         };
         var setter = function (value) {
-            (this).SetValue(propd, value);
+            this.SetValue(propd, value);
         };
         if (this.IsReadOnly)
             setter = function (value) {
@@ -982,10 +1008,10 @@ var DependencyProperty = (function () {
 
         var propd = this;
         var getter = function () {
-            return (this).GetValue(propd);
+            return this.GetValue(propd);
         };
         var setter = function (value) {
-            (this).SetValue(propd, value);
+            this.SetValue(propd, value);
         };
         Object.defineProperty(type.prototype, this.Name, {
             get: getter,
@@ -1010,14 +1036,14 @@ var DependencyProperty = (function () {
     DependencyProperty.GetDependencyProperty = function (ownerType, name, noError) {
         if (!ownerType)
             return undefined;
-        var reg = (ownerType)._RegisteredDPs;
+        var reg = ownerType._RegisteredDPs;
         var propd;
         if (reg)
             propd = reg[name];
         if (!propd)
-            propd = DependencyProperty.GetDependencyProperty((ownerType)._BaseClass, name, true);
+            propd = DependencyProperty.GetDependencyProperty(ownerType._BaseClass, name, true);
         if (!propd && !noError)
-            throw new Exception("Cannot locate dependency property [" + (ownerType)._TypeName + "].[" + name + "]");
+            throw new Exception("Cannot locate dependency property [" + ownerType._TypeName + "].[" + name + "]");
         return propd;
     };
     DependencyProperty.UnsetValue = {};
@@ -1039,8 +1065,9 @@ var ImmutableDependencyProperty = (function (_super) {
     }
     ImmutableDependencyProperty.prototype.Initialize = function (dobj) {
         var storage = Fayde.Providers.GetStorage(dobj, this);
-        storage.Precedence = Fayde.Providers.PropertyPrecedence.LocalValue;
-        var obj = new (this.GetTargetType())();
+        storage.Precedence = 1 /* LocalValue */;
+        var type = this.GetTargetType();
+        var obj = new type();
         Object.defineProperty(dobj, this.Name, {
             value: obj,
             writable: false
@@ -1068,7 +1095,7 @@ var Fayde;
         var PropertyPrecedence = Providers.PropertyPrecedence;
 
         function GetStorage(dobj, propd) {
-            var arr = (dobj)._PropertyStorage;
+            var arr = dobj._PropertyStorage;
             var storage = arr[propd._ID];
             if (!storage)
                 arr[propd._ID] = storage = propd.Store.CreateStorage(dobj, propd);
@@ -1091,12 +1118,12 @@ var Fayde;
             };
             PropertyStore.prototype.GetValuePrecedence = function (storage) {
                 if (storage.Local !== undefined)
-                    return PropertyPrecedence.LocalValue;
+                    return 1 /* LocalValue */;
                 if (storage.LocalStyleValue !== undefined)
-                    return PropertyPrecedence.LocalStyle;
+                    return 2 /* LocalStyle */;
                 if (storage.ImplicitStyleValue !== undefined)
-                    return PropertyPrecedence.ImplicitStyle;
-                return PropertyPrecedence.DefaultValue;
+                    return 3 /* ImplicitStyle */;
+                return 6 /* DefaultValue */;
             };
 
             PropertyStore.prototype.SetLocalValue = function (storage, newValue) {
@@ -1116,7 +1143,7 @@ var Fayde;
                 if (!isValidOut.IsValid)
                     return;
 
-                var precDiff = storage.Precedence - PropertyPrecedence.LocalValue;
+                var precDiff = storage.Precedence - 1 /* LocalValue */;
                 if (!propd.AlwaysChange && precDiff < 0) {
                     storage.Local = newValue;
                     return;
@@ -1125,13 +1152,13 @@ var Fayde;
                 var oldValue = undefined;
                 if (precDiff > 0)
                     oldValue = this.GetValue(storage);
-else
+                else
                     oldValue = storage.Local;
                 storage.Local = newValue;
-                this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldValue, newValue);
+                this.OnPropertyChanged(storage, 1 /* LocalValue */, oldValue, newValue);
             };
             PropertyStore.prototype.SetLocalStyleValue = function (storage, newValue) {
-                var precDiff = storage.Precedence - PropertyPrecedence.LocalStyle;
+                var precDiff = storage.Precedence - 2 /* LocalStyle */;
                 if (precDiff < 0) {
                     storage.LocalStyleValue = newValue;
                     return;
@@ -1140,13 +1167,13 @@ else
                 var oldValue = undefined;
                 if (precDiff > 0)
                     oldValue = this.GetValue(storage);
-else
+                else
                     oldValue = storage.LocalStyleValue;
                 storage.LocalStyleValue = newValue;
-                this.OnPropertyChanged(storage, PropertyPrecedence.LocalStyle, oldValue, newValue);
+                this.OnPropertyChanged(storage, 2 /* LocalStyle */, oldValue, newValue);
             };
             PropertyStore.prototype.SetImplicitStyle = function (storage, newValue) {
-                var precDiff = storage.Precedence - PropertyPrecedence.ImplicitStyle;
+                var precDiff = storage.Precedence - 3 /* ImplicitStyle */;
                 if (precDiff < 0) {
                     storage.ImplicitStyleValue = newValue;
                     return;
@@ -1155,10 +1182,10 @@ else
                 var oldValue = undefined;
                 if (precDiff > 0)
                     oldValue = this.GetValue(storage);
-else
+                else
                     oldValue = storage.ImplicitStyleValue;
                 storage.ImplicitStyleValue = newValue;
-                this.OnPropertyChanged(storage, PropertyPrecedence.ImplicitStyle, oldValue, newValue);
+                this.OnPropertyChanged(storage, 3 /* ImplicitStyle */, oldValue, newValue);
             };
 
             PropertyStore.prototype.ClearValue = function (storage) {
@@ -1166,7 +1193,7 @@ else
                 if (oldLocal === undefined)
                     return;
                 storage.Local = undefined;
-                this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldLocal, undefined);
+                this.OnPropertyChanged(storage, 1 /* LocalValue */, oldLocal, undefined);
             };
 
             PropertyStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
@@ -1182,10 +1209,10 @@ else
 
                 if (!storage.Property.IsCustom) {
                     if (oldValue instanceof Fayde.XamlObject)
-                        (oldValue).XamlNode.Detach();
+                        oldValue.XamlNode.Detach();
                     if (newValue instanceof Fayde.XamlObject) {
                         var error = new BError();
-                        if (!(newValue).XamlNode.AttachTo(storage.OwnerNode, error))
+                        if (!newValue.XamlNode.AttachTo(storage.OwnerNode, error))
                             error.ThrowException();
                     }
                 }
@@ -1232,7 +1259,7 @@ else
                 return {
                     OwnerNode: dobj.XamlNode,
                     Property: propd,
-                    Precedence: PropertyPrecedence.DefaultValue,
+                    Precedence: 6 /* DefaultValue */,
                     Animations: undefined,
                     Local: undefined,
                     LocalStyleValue: undefined,
@@ -1277,24 +1304,24 @@ var Fayde;
             };
             DataContextStore.prototype.GetValuePrecedence = function (storage) {
                 var prec = _super.prototype.GetValuePrecedence.call(this, storage);
-                if (prec < Providers.PropertyPrecedence.InheritedDataContext)
+                if (prec < 5 /* InheritedDataContext */)
                     return prec;
                 if (storage.InheritedValue !== undefined)
-                    return Providers.PropertyPrecedence.InheritedDataContext;
-                return Providers.PropertyPrecedence.DefaultValue;
+                    return 5 /* InheritedDataContext */;
+                return 6 /* DefaultValue */;
             };
             DataContextStore.prototype.OnInheritedChanged = function (storage, newInherited) {
                 var oldInherited = storage.InheritedValue;
                 storage.InheritedValue = newInherited;
-                if (storage.Precedence >= Providers.PropertyPrecedence.InheritedDataContext && oldInherited !== newInherited)
-                    this.OnPropertyChanged(storage, Providers.PropertyPrecedence.InheritedDataContext, oldInherited, newInherited);
+                if (storage.Precedence >= 5 /* InheritedDataContext */ && oldInherited !== newInherited)
+                    this.OnPropertyChanged(storage, 5 /* InheritedDataContext */, oldInherited, newInherited);
             };
 
             DataContextStore.prototype.CreateStorage = function (dobj, propd) {
                 return {
                     OwnerNode: dobj.XamlNode,
                     Property: propd,
-                    Precedence: Providers.PropertyPrecedence.DefaultValue,
+                    Precedence: 6 /* DefaultValue */,
                     Animations: undefined,
                     Local: undefined,
                     LocalStyleValue: undefined,
@@ -1307,7 +1334,7 @@ var Fayde;
             DataContextStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
                 var args = _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
                 if (args) {
-                    if (effectivePrecedence > Providers.PropertyPrecedence.LocalValue && this.TryUpdateDataContextExpression(storage, args.NewValue))
+                    if (effectivePrecedence > 1 /* LocalValue */ && this.TryUpdateDataContextExpression(storage, args.NewValue))
                         return;
                     storage.OwnerNode.OnDataContextChanged(args.OldValue, args.NewValue);
                 }
@@ -1316,7 +1343,7 @@ var Fayde;
 
             DataContextStore.prototype.TryUpdateDataContextExpression = function (storage, newDataContext) {
                 var val = storage.InheritedValue;
-                var exprs = (storage.OwnerNode.XObject)._Expressions;
+                var exprs = storage.OwnerNode.XObject._Expressions;
                 var dcexpr = exprs[storage.Property._ID];
                 if (!dcexpr)
                     return false;
@@ -1324,7 +1351,7 @@ var Fayde;
                 return true;
             };
             return DataContextStore;
-        })(Providers.PropertyStore);
+        })(Fayde.Providers.PropertyStore);
         Providers.DataContextStore = DataContextStore;
         DataContextStore.Instance = new DataContextStore();
     })(Fayde.Providers || (Fayde.Providers = {}));
@@ -1341,7 +1368,7 @@ var Fayde;
             var propd = DependencyObject.DataContextProperty;
             var storage = Fayde.Providers.GetStorage(this.XObject, propd);
             var newInherited = newParentNode ? newParentNode.DataContext : undefined;
-            (propd.Store).OnInheritedChanged(storage, newInherited);
+            propd.Store.OnInheritedChanged(storage, newInherited);
         };
 
         Object.defineProperty(DONode.prototype, "DataContext", {
@@ -1351,14 +1378,14 @@ var Fayde;
             set: function (value) {
                 var propd = DependencyObject.DataContextProperty;
                 var storage = Fayde.Providers.GetStorage(this.XObject, propd);
-                (propd.Store).OnInheritedChanged(storage, value);
+                propd.Store.OnInheritedChanged(storage, value);
             },
             enumerable: true,
             configurable: true
         });
         DONode.prototype.OnDataContextChanged = function (oldDataContext, newDataContext) {
             var dcpid = DependencyObject.DataContextProperty._ID.toString();
-            var exprs = (this.XObject)._Expressions;
+            var exprs = this.XObject._Expressions;
             var expr;
             for (var id in exprs) {
                 expr = exprs[id];
@@ -1400,7 +1427,7 @@ var Fayde;
             if (!propd)
                 throw new ArgumentException("No property specified.");
             if (propd.IsReadOnly)
-                throw new InvalidOperationException("DependencyProperty '" + (propd.OwnerType)._TypeName + "." + propd.Name + "' is read only.");
+                throw new InvalidOperationException("DependencyProperty '" + propd.OwnerType._TypeName + "." + propd.Name + "' is read only.");
             this.SetValueInternal(propd, value);
         };
         DependencyObject.prototype.SetValueInternal = function (propd, value) {
@@ -1408,9 +1435,9 @@ var Fayde;
             if (value instanceof Fayde.Expression)
                 expression = value;
             if (expression instanceof Fayde.Data.BindingExpressionBase) {
-                var binding = (expression).ParentBinding;
+                var binding = expression.ParentBinding;
                 var path = binding.Path.Path;
-                if ((!path || path === ".") && binding.Mode === Fayde.Data.BindingMode.TwoWay)
+                if ((!path || path === ".") && binding.Mode === 0 /* TwoWay */)
                     throw new ArgumentException("TwoWay bindings require a non-empty Path.");
                 binding.Seal();
             }
@@ -1432,10 +1459,10 @@ var Fayde;
                 value = expression.GetValue(propd);
             } else if (existing) {
                 if (existing instanceof Fayde.Data.BindingExpressionBase) {
-                    var binding = (existing).ParentBinding;
-                    if (binding.Mode === Fayde.Data.BindingMode.TwoWay) {
+                    var binding = existing.ParentBinding;
+                    if (binding.Mode === 0 /* TwoWay */) {
                         updateTwoWay = !existing.IsUpdating && !propd.IsCustom;
-                    } else if (!existing.IsUpdating || binding.Mode === Fayde.Data.BindingMode.OneTime) {
+                    } else if (!existing.IsUpdating || binding.Mode === 2 /* OneTime */) {
                         this._RemoveExpression(propd);
                     }
                 } else if (!existing.IsUpdating) {
@@ -1447,7 +1474,7 @@ var Fayde;
             try  {
                 propd.Store.SetLocalValue(storage, value);
                 if (updateTwoWay)
-                    (existing)._TryUpdateSourceObject(value);
+                    existing._TryUpdateSourceObject(value);
             } catch (err) {
                 if (!addingExpression)
                     throw err;
@@ -1456,7 +1483,7 @@ var Fayde;
                 console.warn(msg);
                 propd.Store.SetLocalValue(storage, propd.DefaultValue);
                 if (updateTwoWay)
-                    (existing)._TryUpdateSourceObject(value);
+                    existing._TryUpdateSourceObject(value);
             }
         };
         DependencyObject.prototype.SetCurrentValue = function (propd, value) {
@@ -1578,16 +1605,16 @@ var Fayde;
             };
             InheritedStore.prototype.GetValuePrecedence = function (storage) {
                 var prec = _super.prototype.GetValuePrecedence.call(this, storage);
-                if (prec < Providers.PropertyPrecedence.Inherited)
+                if (prec < 4 /* Inherited */)
                     return prec;
                 if (storage.InheritedValue !== undefined)
-                    return Providers.PropertyPrecedence.Inherited;
-                return Providers.PropertyPrecedence.DefaultValue;
+                    return 4 /* Inherited */;
+                return 6 /* DefaultValue */;
             };
 
             InheritedStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
                 var args = _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
-                if (effectivePrecedence <= Providers.PropertyPrecedence.Inherited)
+                if (effectivePrecedence <= 4 /* Inherited */)
                     this.Propagate(storage.OwnerNode, storage.Property, newValue);
                 return args;
             };
@@ -1596,7 +1623,7 @@ var Fayde;
                 return {
                     OwnerNode: dobj.XamlNode,
                     Property: propd,
-                    Precedence: Providers.PropertyPrecedence.DefaultValue,
+                    Precedence: 6 /* DefaultValue */,
                     Animations: undefined,
                     Local: undefined,
                     LocalStyleValue: undefined,
@@ -1609,7 +1636,7 @@ var Fayde;
             InheritedStore.PropagateInheritedOnAdd = function (dobj, subtreeNode) {
                 var destination = subtreeNode.XObject;
                 var store = InheritedStore.Instance;
-                var arr = (destination)._PropertyStorage;
+                var arr = destination._PropertyStorage;
                 var storage;
 
                 var allProps = Fayde.InheritableOwner.AllInheritedProperties;
@@ -1620,12 +1647,12 @@ var Fayde;
                 for (var i = 0; i < len; i++) {
                     propd = allProps[i];
                     sourceNode = dobj.XamlNode;
-                    while (sourceNode && !((sourceNode.XObject).IsInheritable(propd))) {
+                    while (sourceNode && !(sourceNode.XObject.IsInheritable(propd))) {
                         sourceNode = sourceNode.ParentNode;
                     }
                     if (!sourceNode)
                         continue;
-                    newValue = (sourceNode.XObject).GetValue(propd);
+                    newValue = sourceNode.XObject.GetValue(propd);
                     if (newValue === propd.DefaultValue)
                         continue;
 
@@ -1658,10 +1685,10 @@ var Fayde;
             };
             InheritedStore.prototype.SetInheritedValue = function (don, propd, newValue) {
                 var dobj = don.XObject;
-                if (!(dobj).IsInheritable(propd))
+                if (!dobj.IsInheritable(propd))
                     return false;
-                var storage = Providers.GetStorage(dobj, propd);
-                if (storage.Precedence < Providers.PropertyPrecedence.Inherited) {
+                var storage = Fayde.Providers.GetStorage(dobj, propd);
+                if (storage.Precedence < 4 /* Inherited */) {
                     storage.InheritedValue = newValue;
                     return true;
                 }
@@ -1669,12 +1696,12 @@ var Fayde;
                 if (oldValue === undefined)
                     oldValue = propd.DefaultValue;
                 storage.InheritedValue = newValue;
-                storage.Precedence = Providers.PropertyPrecedence.Inherited;
-                this.OnPropertyChanged(storage, Providers.PropertyPrecedence.Inherited, oldValue, newValue);
+                storage.Precedence = 4 /* Inherited */;
+                this.OnPropertyChanged(storage, 4 /* Inherited */, oldValue, newValue);
                 return true;
             };
             return InheritedStore;
-        })(Providers.PropertyStore);
+        })(Fayde.Providers.PropertyStore);
         Providers.InheritedStore = InheritedStore;
         InheritedStore.Instance = new InheritedStore();
     })(Fayde.Providers || (Fayde.Providers = {}));
@@ -1996,49 +2023,49 @@ var Fayde;
         };
 
         InheritableOwner._FlowDirectionPropertyChanged = function (dobj, args) {
-            var feNode = (dobj).XamlNode;
+            var feNode = dobj.XamlNode;
             if (feNode._FlowDirectionChanged)
                 feNode._FlowDirectionChanged(args);
         };
 
         InheritableOwner._FontFamilyPropertyChanged = function (dobj, args) {
-            if ((dobj).FontChanged)
-                (dobj).FontChanged(args);
+            if (dobj.FontChanged)
+                dobj.FontChanged(args);
         };
 
         InheritableOwner._FontSizePropertyChanged = function (dobj, args) {
-            if ((dobj).FontChanged)
-                (dobj).FontChanged(args);
+            if (dobj.FontChanged)
+                dobj.FontChanged(args);
         };
 
         InheritableOwner._FontStretchPropertyChanged = function (dobj, args) {
-            if ((dobj).FontChanged)
-                (dobj).FontChanged(args);
+            if (dobj.FontChanged)
+                dobj.FontChanged(args);
         };
 
         InheritableOwner._FontStylePropertyChanged = function (dobj, args) {
-            if ((dobj).FontChanged)
-                (dobj).FontChanged(args);
+            if (dobj.FontChanged)
+                dobj.FontChanged(args);
         };
 
         InheritableOwner._FontWeightPropertyChanged = function (dobj, args) {
-            if ((dobj).FontChanged)
-                (dobj).FontChanged(args);
+            if (dobj.FontChanged)
+                dobj.FontChanged(args);
         };
 
         InheritableOwner._ForegroundPropertyChanged = function (dobj, args) {
-            if ((dobj).FontChanged)
-                (dobj).FontChanged(args);
+            if (dobj.FontChanged)
+                dobj.FontChanged(args);
         };
 
         InheritableOwner._TextDecorationsPropertyChanged = function (dobj, args) {
-            if ((dobj).FontChanged)
-                (dobj).FontChanged(args);
+            if (dobj.FontChanged)
+                dobj.FontChanged(args);
         };
 
         InheritableOwner._LanguagePropertyChanged = function (dobj, args) {
-            if ((dobj).FontChanged)
-                (dobj).FontChanged(args);
+            if (dobj.FontChanged)
+                dobj.FontChanged(args);
         };
         InheritableOwner.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () {
             return Boolean;
@@ -2046,7 +2073,7 @@ var Fayde;
 
         InheritableOwner.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () {
             return new Enum(Fayde.FlowDirection);
-        }, InheritableOwner, Fayde.FlowDirection.LeftToRight, InheritableOwner._FlowDirectionPropertyChanged);
+        }, InheritableOwner, 0 /* LeftToRight */, InheritableOwner._FlowDirectionPropertyChanged);
 
         InheritableOwner.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () {
             return String;
@@ -2074,7 +2101,7 @@ var Fayde;
 
         InheritableOwner.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () {
             return new Enum(Fayde.TextDecorations);
-        }, InheritableOwner, Fayde.TextDecorations.None, InheritableOwner._TextDecorationsPropertyChanged);
+        }, InheritableOwner, 0 /* None */, InheritableOwner._TextDecorationsPropertyChanged);
 
         InheritableOwner.LanguageProperty = DependencyProperty.RegisterInheritable("Language", function () {
             return String;
@@ -2108,8 +2135,7 @@ var Fayde;
             this.IsTopLevel = false;
             this.IsMouseOver = false;
             this.IsLoaded = false;
-            this.LayoutUpdater = new Fayde.LayoutUpdater(this);
-            this.LayoutUpdater.SetContainerMode(false);
+            this.LayoutUpdater = xobj.CreateLayoutUpdater(this);
         }
         UINode.prototype.SetSurfaceFromVisualParent = function () {
             if (this._Surface)
@@ -2134,7 +2160,7 @@ var Fayde;
         };
 
         UINode.prototype.GetInheritedEnumerator = function () {
-            return this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.Logical);
+            return this.GetVisualTreeEnumerator(0 /* Logical */);
         };
 
         UINode.prototype.OnIsAttachedChanged = function (newIsAttached) {
@@ -2187,7 +2213,7 @@ var Fayde;
         UINode.prototype._EmitFocusChange = function (type) {
             if (type === "got")
                 this._EmitGotFocus();
-else if (type === "lost")
+            else if (type === "lost")
                 this._EmitLostFocus();
         };
         UINode.prototype._EmitLostFocus = function () {
@@ -2221,7 +2247,7 @@ else if (type === "lost")
         UINode.prototype._EmitMouseEvent = function (type, isLeftButton, isRightButton, args) {
             var x = this.XObject;
             switch (type) {
-                case Fayde.Input.MouseInputType.MouseUp:
+                case 1 /* MouseUp */:
                     if (isLeftButton) {
                         x.OnMouseLeftButtonUp(args);
                         x.MouseLeftButtonUp.Raise(x, args);
@@ -2230,7 +2256,7 @@ else if (type === "lost")
                         x.MouseRightButtonUp.Raise(x, args);
                     }
                     break;
-                case Fayde.Input.MouseInputType.MouseDown:
+                case 2 /* MouseDown */:
                     if (isLeftButton) {
                         x.OnMouseLeftButtonDown(args);
                         x.MouseLeftButtonDown.Raise(x, args);
@@ -2239,21 +2265,21 @@ else if (type === "lost")
                         x.MouseRightButtonDown.Raise(x, args);
                     }
                     break;
-                case Fayde.Input.MouseInputType.MouseLeave:
+                case 3 /* MouseLeave */:
                     this.IsMouseOver = false;
                     x.OnMouseLeave(args);
                     x.MouseLeave.Raise(x, args);
                     break;
-                case Fayde.Input.MouseInputType.MouseEnter:
+                case 4 /* MouseEnter */:
                     this.IsMouseOver = true;
                     x.OnMouseEnter(args);
                     x.MouseEnter.Raise(x, args);
                     break;
-                case Fayde.Input.MouseInputType.MouseMove:
+                case 5 /* MouseMove */:
                     x.OnMouseMove(args);
                     x.MouseMove.Raise(x, args);
                     break;
-                case Fayde.Input.MouseInputType.MouseWheel:
+                case 6 /* MouseWheel */:
                     x.OnMouseWheel(args);
                     x.MouseWheel.Raise(x, args);
                     break;
@@ -2265,20 +2291,20 @@ else if (type === "lost")
         UINode.prototype._EmitTouchEvent = function (type, args) {
             var x = this.XObject;
             switch (type) {
-                case Fayde.Input.TouchInputType.TouchDown:
+                case 1 /* TouchDown */:
                     x.OnTouchDown(args);
                     x.TouchDown.Raise(x, args);
                     break;
-                case Fayde.Input.TouchInputType.TouchUp:
+                case 2 /* TouchUp */:
                     x.OnTouchUp(args);
                     x.TouchUp.Raise(x, args);
-                case Fayde.Input.TouchInputType.TouchMove:
+                case 3 /* TouchMove */:
                     x.OnTouchMove(args);
                     x.TouchMove.Raise(x, args);
-                case Fayde.Input.TouchInputType.TouchEnter:
+                case 4 /* TouchEnter */:
                     x.OnTouchEnter(args);
                     x.TouchEnter.Raise(x, args);
-                case Fayde.Input.TouchInputType.TouchLeave:
+                case 5 /* TouchLeave */:
                     x.OnTouchLeave(args);
                     x.TouchLeave.Raise(x, args);
                 default:
@@ -2312,22 +2338,21 @@ else if (type === "lost")
             this._Surface.ReleaseMouseCapture(this);
         };
 
-        UINode.prototype._ResortChildrenByZIndex = function () {
-            Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
+        UINode.prototype.ResortChildrenByZIndex = function () {
         };
 
         UINode.prototype.InvalidateParent = function (r) {
             var vpNode = this.VisualParentNode;
             if (vpNode)
                 vpNode.LayoutUpdater.Invalidate(r);
-else if (this.IsAttached)
+            else if (this.IsAttached)
                 this._Surface._Invalidate(r);
         };
         UINode.prototype.InvalidateClip = function (oldClip, newClip) {
             var lu = this.LayoutUpdater;
             if (!newClip)
                 rect.clear(lu.ClipBounds);
-else
+            else
                 rect.copyTo(newClip.GetBounds(), lu.ClipBounds);
             this.InvalidateParent(lu.SurfaceBoundsWithChildren);
             lu.UpdateBounds(true);
@@ -2442,6 +2467,9 @@ else
         }
         UIElement.prototype.CreateNode = function () {
             return new UINode(this);
+        };
+        UIElement.prototype.CreateLayoutUpdater = function (uin) {
+            return new Fayde.LayoutUpdater(uin);
         };
 
         Object.defineProperty(UIElement.prototype, "VisualParent", {
@@ -2613,20 +2641,27 @@ else
             if (newTriggers instanceof Fayde.TriggerCollection)
                 newTriggers.AttachTarget(this);
         };
+
+        UIElement.prototype.MeasureOverride = function (availableSize) {
+            return undefined;
+        };
+        UIElement.prototype.ArrangeOverride = function (finalSize) {
+            return undefined;
+        };
         UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () {
             return Fayde.Media.Geometry;
         }, UIElement, undefined, function (d, args) {
-            return (d)._ClipChanged(args);
+            return d._ClipChanged(args);
         });
         UIElement.EffectProperty = DependencyProperty.Register("Effect", function () {
             return Fayde.Media.Effects.Effect;
         }, UIElement, undefined, function (d, args) {
-            return (d)._EffectChanged(args);
+            return d._EffectChanged(args);
         });
         UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () {
             return Boolean;
         }, UIElement, true, function (d, args) {
-            return (d)._IsHitTestVisibleChanged(args);
+            return d._IsHitTestVisibleChanged(args);
         });
         UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () {
             return Fayde.Media.Brush;
@@ -2634,22 +2669,22 @@ else
         UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () {
             return Number;
         }, UIElement, 1.0, function (d, args) {
-            return (d).XamlNode.InvalidateOpacity();
+            return d.XamlNode.InvalidateOpacity();
         });
         UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () {
             return Fayde.Media.Projection;
         }, UIElement, undefined, function (d, args) {
-            return (d).XamlNode.LayoutUpdater.UpdateProjection();
+            return d.XamlNode.LayoutUpdater.UpdateProjection();
         });
         UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () {
             return Fayde.Media.Transform;
         }, UIElement, undefined, function (d, args) {
-            return (d).XamlNode.LayoutUpdater.UpdateTransform();
+            return d.XamlNode.LayoutUpdater.UpdateTransform();
         });
         UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () {
             return Point;
         }, UIElement, undefined, function (d, args) {
-            return (d).XamlNode.LayoutUpdater.UpdateTransform();
+            return d.XamlNode.LayoutUpdater.UpdateTransform();
         });
         UIElement.TagProperty = DependencyProperty.Register("Tag", function () {
             return Object;
@@ -2657,13 +2692,13 @@ else
         UIElement.TriggersProperty = DependencyProperty.RegisterCore("Triggers", function () {
             return Fayde.TriggerCollection;
         }, UIElement, undefined, function (d, args) {
-            return (d)._TriggersChanged(args);
+            return d._TriggersChanged(args);
         });
         UIElement.UseLayoutRoundingProperty = Fayde.InheritableOwner.UseLayoutRoundingProperty.ExtendTo(UIElement);
         UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () {
             return new Enum(Fayde.Visibility);
-        }, UIElement, Fayde.Visibility.Visible, function (d, args) {
-            return (d).XamlNode.InvalidateVisibility(args.NewValue);
+        }, UIElement, 0 /* Visible */, function (d, args) {
+            return d.XamlNode.InvalidateVisibility(args.NewValue);
         });
         return UIElement;
     })(Fayde.DependencyObject);
@@ -2686,7 +2721,7 @@ var Fayde;
                 return storage.Local;
             };
             ImmutableStore.prototype.GetValuePrecedence = function (storage) {
-                return Providers.PropertyPrecedence.LocalValue;
+                return 1 /* LocalValue */;
             };
             ImmutableStore.prototype.SetLocalValue = function (storage, newValue) {
                 console.warn("Trying to set value for immutable property.");
@@ -2721,7 +2756,7 @@ var Fayde;
                 }
             };
             return ImmutableStore;
-        })(Providers.PropertyStore);
+        })(Fayde.Providers.PropertyStore);
         Providers.ImmutableStore = ImmutableStore;
         ImmutableStore.Instance = new ImmutableStore();
     })(Fayde.Providers || (Fayde.Providers = {}));
@@ -2741,7 +2776,7 @@ var Fayde;
                 return 0.0;
             };
             ActualSizeStore.prototype.GetValuePrecedence = function (storage) {
-                return Providers.PropertyPrecedence.LocalValue;
+                return 1 /* LocalValue */;
             };
 
             ActualSizeStore.prototype.SetLocalValue = function (storage, newValue) {
@@ -2749,7 +2784,7 @@ var Fayde;
                 storage.Local = newValue;
                 if (oldValue === newValue)
                     return;
-                this.OnPropertyChanged(storage, Providers.PropertyPrecedence.LocalValue, oldValue, newValue);
+                this.OnPropertyChanged(storage, 1 /* LocalValue */, oldValue, newValue);
             };
             ActualSizeStore.prototype.SetLocalStyleValue = function (storage, newValue) {
             };
@@ -2759,11 +2794,1447 @@ var Fayde;
             ActualSizeStore.prototype.ClearValue = function (storage, notifyListeners) {
             };
             return ActualSizeStore;
-        })(Providers.PropertyStore);
+        })(Fayde.Providers.PropertyStore);
         Providers.ActualSizeStore = ActualSizeStore;
         ActualSizeStore.Instance = new ActualSizeStore();
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var _Dirty;
+    (function (_Dirty) {
+        _Dirty[_Dirty["Transform"] = 1 << 0] = "Transform";
+        _Dirty[_Dirty["LocalTransform"] = 1 << 1] = "LocalTransform";
+        _Dirty[_Dirty["LocalProjection"] = 1 << 2] = "LocalProjection";
+        _Dirty[_Dirty["Clip"] = 1 << 3] = "Clip";
+        _Dirty[_Dirty["LocalClip"] = 1 << 4] = "LocalClip";
+        _Dirty[_Dirty["LayoutClip"] = 1 << 5] = "LayoutClip";
+        _Dirty[_Dirty["RenderVisibility"] = 1 << 6] = "RenderVisibility";
+        _Dirty[_Dirty["HitTestVisibility"] = 1 << 7] = "HitTestVisibility";
+        _Dirty[_Dirty["Measure"] = 1 << 8] = "Measure";
+        _Dirty[_Dirty["Arrange"] = 1 << 9] = "Arrange";
+        _Dirty[_Dirty["ChildrenZIndices"] = 1 << 10] = "ChildrenZIndices";
+        _Dirty[_Dirty["Bounds"] = 1 << 20] = "Bounds";
+        _Dirty[_Dirty["NewBounds"] = 1 << 21] = "NewBounds";
+        _Dirty[_Dirty["Invalidate"] = 1 << 22] = "Invalidate";
+        _Dirty[_Dirty["InUpDirtyList"] = 1 << 30] = "InUpDirtyList";
+        _Dirty[_Dirty["InDownDirtyList"] = 1 << 31] = "InDownDirtyList";
+
+        _Dirty[_Dirty["DownDirtyState"] = _Dirty.Transform | _Dirty.LocalTransform | _Dirty.LocalProjection | _Dirty.Clip | _Dirty.LocalClip | _Dirty.LayoutClip | _Dirty.RenderVisibility | _Dirty.HitTestVisibility | _Dirty.ChildrenZIndices] = "DownDirtyState";
+        _Dirty[_Dirty["UpDirtyState"] = _Dirty.Bounds | _Dirty.Invalidate] = "UpDirtyState";
+    })(_Dirty || (_Dirty = {}));
+
+    var UIElementFlags;
+    (function (UIElementFlags) {
+        UIElementFlags[UIElementFlags["None"] = 0] = "None";
+
+        UIElementFlags[UIElementFlags["RenderVisible"] = 0x02] = "RenderVisible";
+        UIElementFlags[UIElementFlags["HitTestVisible"] = 0x04] = "HitTestVisible";
+        UIElementFlags[UIElementFlags["TotalRenderVisible"] = 0x08] = "TotalRenderVisible";
+        UIElementFlags[UIElementFlags["TotalHitTestVisible"] = 0x10] = "TotalHitTestVisible";
+
+        UIElementFlags[UIElementFlags["DirtyArrangeHint"] = 0x800] = "DirtyArrangeHint";
+        UIElementFlags[UIElementFlags["DirtyMeasureHint"] = 0x1000] = "DirtyMeasureHint";
+        UIElementFlags[UIElementFlags["DirtySizeHint"] = 0x2000] = "DirtySizeHint";
+    })(UIElementFlags || (UIElementFlags = {}));
+
+    var maxPassCount = 250;
+    var LayoutUpdater = (function () {
+        function LayoutUpdater(uin) {
+            this.LayoutClip = undefined;
+            this.CompositeLayoutClip = undefined;
+            this.LayoutSlot = undefined;
+            this.PreviousConstraint = undefined;
+            this.LastRenderSize = undefined;
+            this.HiddenDesire = size.createNegativeInfinite();
+            this.DesiredSize = new size();
+            this.RenderSize = new size();
+            this.VisualOffset = new Point();
+            this.ActualHeight = NaN;
+            this.ActualWidth = NaN;
+            this.AbsoluteXform = mat3.identity();
+            this.LayoutXform = mat3.identity();
+            this.LocalXform = mat3.identity();
+            this.RenderXform = mat3.identity();
+            this.CarrierXform = null;
+            this.LocalProjection = mat4.identity();
+            this.AbsoluteProjection = mat4.identity();
+            this.RenderProjection = mat4.identity();
+            this.CarrierProjection = null;
+            this.TotalOpacity = 1.0;
+            this.TotalIsRenderVisible = true;
+            this.TotalIsHitTestVisible = true;
+            this.TotalRenderProjection = false;
+            this.Extents = new rect();
+            this.ExtentsWithChildren = new rect();
+            this.GlobalBoundsWithChildren = new rect();
+            this.SurfaceBoundsWithChildren = new rect();
+            this.EffectPadding = new Thickness();
+            this.ClipBounds = new rect();
+            this.IsContainer = false;
+            this.IsLayoutContainer = false;
+            this.BreaksLayoutClipRender = false;
+            this.CanHitElement = false;
+            this.ShouldSkipHitTest = false;
+            this.IsNeverInsideObject = false;
+            this.Flags = 2 /* RenderVisible */ | 4 /* HitTestVisible */;
+            this.DirtyFlags = 0;
+            this.InUpDirty = false;
+            this.InDownDirty = false;
+            this.DirtyRegion = new rect();
+            this._ForceInvalidateOfNewBounds = false;
+            this.Node = uin;
+        }
+        LayoutUpdater.prototype.OnIsAttachedChanged = function (newIsAttached, visualParentNode) {
+            this.UpdateTotalRenderVisibility();
+            this.UpdateTotalHitTestVisibility();
+            if (!newIsAttached) {
+                this._CacheInvalidateHint();
+                var surface = this.Surface;
+                if (surface)
+                    surface.OnNodeDetached(this);
+            }
+        };
+        LayoutUpdater.prototype.OnAddedToTree = function () {
+            this.UpdateTotalRenderVisibility();
+            this.UpdateTotalHitTestVisibility();
+            this.Invalidate();
+
+            this.LayoutClip = undefined;
+
+            size.clear(this.RenderSize);
+            this.UpdateTransform();
+            this.UpdateProjection();
+            this.InvalidateMeasure();
+            this.InvalidateArrange();
+            if (this._HasFlag(8192 /* DirtySizeHint */) || this.LastRenderSize !== undefined)
+                this._PropagateFlagUp(8192 /* DirtySizeHint */);
+        };
+        LayoutUpdater.prototype.OnRemovedFromTree = function () {
+            this.LayoutSlot = new rect();
+            this.LayoutClip = undefined;
+        };
+
+        LayoutUpdater.prototype.SetContainerMode = function (isLayoutContainer, isContainer) {
+            if (isLayoutContainer != null)
+                this.IsLayoutContainer = isLayoutContainer;
+            if (isContainer != null)
+                this.IsContainer = isContainer;
+            else
+                this.IsContainer = isLayoutContainer;
+        };
+
+        LayoutUpdater.prototype.HasMeasureArrangeHint = function () {
+            return (this.Flags & (4096 /* DirtyMeasureHint */ | 2048 /* DirtyArrangeHint */)) > 0;
+        };
+        LayoutUpdater.prototype.ProcessDown = function () {
+            var thisNode = this.Node;
+            var thisUie = thisNode.XObject;
+            var visualParentNode = thisNode.VisualParentNode;
+            var visualParentLu;
+            if (visualParentNode)
+                visualParentLu = visualParentNode.LayoutUpdater;
+
+            if (this.DirtyFlags & _Dirty.RenderVisibility) {
+                this.DirtyFlags &= ~_Dirty.RenderVisibility;
+
+                var ovisible = this.TotalIsRenderVisible;
+
+                this.UpdateBounds();
+
+                if (visualParentLu)
+                    visualParentLu.UpdateBounds();
+
+                this.UpdateRenderVisibility(visualParentLu);
+
+                if (!this.TotalIsRenderVisible)
+                    this._CacheInvalidateHint();
+
+                if (ovisible !== this.TotalIsRenderVisible)
+                    this._AddDirtyElement(_Dirty.NewBounds);
+
+                this._PropagateDirtyFlagToChildren(_Dirty.RenderVisibility);
+            }
+
+            if (this.DirtyFlags & _Dirty.HitTestVisibility) {
+                this.DirtyFlags &= ~_Dirty.HitTestVisibility;
+
+                this.UpdateHitTestVisibility(visualParentLu);
+                this._PropagateDirtyFlagToChildren(_Dirty.HitTestVisibility);
+            }
+
+            var isLT = this.DirtyFlags & _Dirty.LocalTransform;
+            var isLP = this.DirtyFlags & _Dirty.LocalProjection;
+            var isT = isLT || isLP || this.DirtyFlags & _Dirty.Transform;
+            this.DirtyFlags &= ~(_Dirty.LocalTransform | _Dirty.LocalProjection | _Dirty.Transform);
+
+            if (isLT) {
+                this.ComputeLocalTransform(thisUie);
+            }
+            if (isLP) {
+                this.ComputeLocalProjection(thisUie);
+            }
+            if (isT) {
+                this.ComputeTransform(thisNode, visualParentLu);
+
+                if (visualParentLu)
+                    visualParentLu.UpdateBounds();
+                this._PropagateDirtyFlagToChildren(_Dirty.Transform);
+            }
+
+            var isLocalClip = this.DirtyFlags & _Dirty.LocalClip;
+            var isLayoutClip = this.DirtyFlags & _Dirty.LayoutClip;
+            var isClip = isLocalClip || this.DirtyFlags & _Dirty.Clip;
+            this.DirtyFlags &= ~(_Dirty.LocalClip | _Dirty.LayoutClip | _Dirty.Clip);
+
+            if (isLayoutClip) {
+                this.ComputeLayoutClip(visualParentLu);
+                this._PropagateDirtyFlagToChildren(_Dirty.LayoutClip);
+            }
+
+            if (this.DirtyFlags & _Dirty.ChildrenZIndices) {
+                this.DirtyFlags &= ~_Dirty.ChildrenZIndices;
+                thisNode.ResortChildrenByZIndex();
+            }
+
+            return !(this.DirtyFlags & _Dirty.DownDirtyState);
+        };
+        LayoutUpdater.prototype.ProcessUp = function () {
+            var thisNode = this.Node;
+            var visualParentNode = thisNode.VisualParentNode;
+            var visualParentLu;
+            if (visualParentNode)
+                visualParentLu = visualParentNode.LayoutUpdater;
+
+            var invalidateSubtreePaint = false;
+            if (this.DirtyFlags & _Dirty.Bounds) {
+                this.DirtyFlags &= ~_Dirty.Bounds;
+
+                var oextents = rect.copyTo(this.ExtentsWithChildren);
+                var oglobalbounds = rect.copyTo(this.GlobalBoundsWithChildren);
+                var osubtreebounds = rect.copyTo(this.SurfaceBoundsWithChildren);
+
+                this.ComputeBounds();
+
+                if (!rect.isEqual(oglobalbounds, this.GlobalBoundsWithChildren)) {
+                    if (visualParentLu) {
+                        visualParentLu.UpdateBounds();
+                        visualParentLu.Invalidate(osubtreebounds);
+                        visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
+                    }
+                }
+
+                invalidateSubtreePaint = !rect.isEqual(oextents, this.ExtentsWithChildren) || this._ForceInvalidateOfNewBounds;
+                this._ForceInvalidateOfNewBounds = false;
+            }
+
+            if (this.DirtyFlags & _Dirty.NewBounds) {
+                if (visualParentLu)
+                    visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
+                else if (thisNode.IsTopLevel)
+                    invalidateSubtreePaint = true;
+                this.DirtyFlags &= ~_Dirty.NewBounds;
+            }
+            if (invalidateSubtreePaint)
+                this.Invalidate(this.SurfaceBoundsWithChildren);
+
+            if (this.DirtyFlags & _Dirty.Invalidate) {
+                this.DirtyFlags &= ~_Dirty.Invalidate;
+                var dirty = this.DirtyRegion;
+                if (visualParentLu) {
+                    visualParentLu.Invalidate(dirty);
+                } else {
+                    if (thisNode.IsAttached) {
+                        this.Surface._Invalidate(dirty);
+                    }
+                }
+                rect.clear(dirty);
+            }
+            return !(this.DirtyFlags & _Dirty.UpDirtyState);
+        };
+        LayoutUpdater.prototype._PropagateDirtyFlagToChildren = function (dirt) {
+            var enumerator = this.Node.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                enumerator.Current.LayoutUpdater._AddDirtyElement(dirt);
+            }
+        };
+        LayoutUpdater.prototype._AddDirtyElement = function (dirt) {
+            if (this.Node.VisualParentNode == null && !this.Node.IsTopLevel)
+                return;
+            this.DirtyFlags |= dirt;
+            var s = this.Surface;
+            if (dirt & _Dirty.DownDirtyState && !this.InDownDirty) {
+                s._DownDirty.push(this);
+                this.InDownDirty = true;
+            }
+            if (dirt & _Dirty.UpDirtyState && !this.InUpDirty) {
+                s._UpDirty.push(this);
+                this.InUpDirty = true;
+            }
+        };
+
+        LayoutUpdater.prototype.FullInvalidate = function (invTransforms) {
+            this.Invalidate();
+            if (invTransforms) {
+                this.UpdateTransform();
+                this.UpdateProjection();
+            }
+            this.UpdateBounds(true);
+        };
+        LayoutUpdater.prototype.Invalidate = function (r) {
+            if (!r)
+                r = this.SurfaceBoundsWithChildren;
+            if (!this.TotalIsRenderVisible || (this.TotalOpacity * 255) < 0.5)
+                return;
+
+            if (this.Node.IsAttached) {
+                this._AddDirtyElement(_Dirty.Invalidate);
+                this.InvalidateBitmapCache();
+                rect.union(this.DirtyRegion, r);
+            }
+        };
+        LayoutUpdater.prototype._CacheInvalidateHint = function () {
+        };
+        LayoutUpdater.prototype.ComputeComposite = function () {
+        };
+        LayoutUpdater.prototype.InvalidateBitmapCache = function () {
+        };
+        LayoutUpdater.prototype.InvalidateMeasure = function () {
+            this.DirtyFlags |= _Dirty.Measure;
+            this._PropagateFlagUp(4096 /* DirtyMeasureHint */);
+        };
+        LayoutUpdater.prototype.InvalidateArrange = function () {
+            this.DirtyFlags |= _Dirty.Arrange;
+            this._PropagateFlagUp(2048 /* DirtyArrangeHint */);
+        };
+        LayoutUpdater.prototype.InvalidateSubtreePaint = function () {
+            this.Invalidate(this.SurfaceBoundsWithChildren);
+        };
+        LayoutUpdater.prototype.InvalidateVisibility = function (newVisibility) {
+            if (newVisibility === 0 /* Visible */)
+                this.Flags |= 2 /* RenderVisible */;
+            else
+                this.Flags &= ~2 /* RenderVisible */;
+        };
+        LayoutUpdater.prototype.InvalidateHitTestVisibility = function (newHitTestVisibility) {
+            if (newHitTestVisibility)
+                this.Flags |= 4 /* HitTestVisible */;
+            else
+                this.Flags &= ~4 /* HitTestVisible */;
+        };
+        LayoutUpdater.prototype.InvalidateChildrenZIndices = function () {
+            if (this.Node.IsAttached)
+                this._AddDirtyElement(_Dirty.ChildrenZIndices);
+        };
+
+        LayoutUpdater.prototype.UpdateClip = function () {
+            if (this.Node.IsAttached)
+                this._AddDirtyElement(_Dirty.LocalClip);
+        };
+        LayoutUpdater.prototype.SetLayoutClip = function (layoutClip) {
+            var old = this.LayoutClip;
+            this.LayoutClip = layoutClip;
+            if (old === layoutClip)
+                return;
+            if (old && layoutClip && rect.isEqual(old, layoutClip))
+                return;
+            if (this.Node.IsAttached)
+                this._AddDirtyElement(_Dirty.LayoutClip);
+        };
+        LayoutUpdater.prototype.ComputeLayoutClip = function (vpLu) {
+            if (this.BreaksLayoutClipRender) {
+                this.CompositeLayoutClip = undefined;
+                return;
+            }
+
+            var vpcomposite = (vpLu) ? vpLu.CompositeLayoutClip : undefined;
+            var local = this.LayoutClip;
+
+            if (vpcomposite && local)
+                this.CompositeLayoutClip = rect.intersection(rect.copyTo(local), vpcomposite);
+            else if (vpcomposite)
+                this.CompositeLayoutClip = rect.copyTo(vpcomposite);
+            else if (local)
+                this.CompositeLayoutClip = rect.copyTo(local);
+            else
+                this.CompositeLayoutClip = undefined;
+        };
+
+        LayoutUpdater.prototype.UpdateTransform = function () {
+            if (this.Node.IsAttached)
+                this._AddDirtyElement(_Dirty.LocalTransform);
+        };
+        LayoutUpdater.prototype.ComputeLocalTransform = function (uie) {
+            var transform = uie.RenderTransform;
+            if (!transform)
+                return;
+
+            var transformOrigin;
+            if (uie instanceof Fayde.Controls.TextBlock)
+                transformOrigin = this.GetTextBlockTransformOrigin(uie);
+            else
+                transformOrigin = this.GetTransformOrigin(uie);
+            mat3.identity(this.LocalXform);
+            var render = mat3.create();
+            mat3.set(transform.Value._Raw, render);
+
+            mat3.translate(this.LocalXform, transformOrigin.X, transformOrigin.Y);
+            mat3.multiply(this.LocalXform, render, this.LocalXform);
+            mat3.translate(this.LocalXform, -transformOrigin.X, -transformOrigin.Y);
+        };
+        LayoutUpdater.prototype.ComputeLocalProjection = function (uie) {
+            var projection = uie.Projection;
+            if (!projection) {
+                Fayde.Controls.Panel.SetZ(uie, NaN);
+                return;
+            }
+
+            projection.SetObjectSize(this.GetBrushSize());
+            var z = projection.GetDistanceFromXYPlane();
+            Fayde.Controls.Panel.SetZ(uie, z);
+        };
+        LayoutUpdater.prototype.ComputeTransform = function (uin, vplu) {
+            var uie = uin.XObject;
+            var projection = uie.Projection;
+
+            var oldProjection = mat4.clone(this.LocalProjection);
+            var old = mat3.clone(this.AbsoluteXform);
+
+            mat4.identity(this.LocalProjection);
+            if (vplu) {
+                mat3.set(vplu.AbsoluteXform, this.AbsoluteXform);
+                mat4.set(vplu.AbsoluteProjection, this.AbsoluteProjection);
+                this.TotalRenderProjection = vplu.TotalRenderProjection;
+            } else {
+                mat3.identity(this.AbsoluteXform);
+                mat4.identity(this.AbsoluteProjection);
+                this.TotalRenderProjection = false;
+            }
+            var carrierProjection = this.CarrierProjection;
+            var carrierXform = this.CarrierXform;
+            if (carrierProjection)
+                mat4.set(carrierProjection, this.LocalProjection);
+
+            var renderXform = this.RenderXform;
+            if (carrierXform)
+                mat3.set(carrierXform, renderXform);
+            else
+                mat3.identity(renderXform);
+
+            mat3.multiply(renderXform, this.LayoutXform, renderXform);
+            mat3.multiply(renderXform, this.LocalXform, renderXform);
+
+            var m = mat3.toAffineMat4(renderXform);
+            mat4.multiply(this.LocalProjection, m, this.LocalProjection);
+
+            if (false) {
+            } else {
+                mat3.multiply(this.RenderXform, this.AbsoluteXform, this.AbsoluteXform);
+            }
+
+            if (projection) {
+                m = projection.GetTransform();
+                mat4.multiply(m, this.LocalProjection, this.LocalProjection);
+                this.TotalRenderProjection = true;
+            }
+
+            mat4.multiply(this.LocalProjection, this.AbsoluteProjection, this.AbsoluteProjection);
+
+            if (uin instanceof Fayde.Controls.Primitives.PopupNode) {
+                var popupChildNode = uin.SubtreeNode;
+                if (popupChildNode)
+                    popupChildNode.LayoutUpdater.UpdateTransform();
+            }
+            if (!mat4.equal(oldProjection, this.LocalProjection)) {
+                if (vplu)
+                    vplu.Invalidate(this.SurfaceBoundsWithChildren);
+                else if (uin.IsTopLevel)
+                    this.InvalidateSubtreePaint();
+
+                if (uin.IsAttached)
+                    this._AddDirtyElement(_Dirty.NewBounds);
+            }
+
+            mat4.set(this.LocalProjection, this.RenderProjection);
+
+            this.UpdateBounds();
+
+            this.ComputeComposite();
+
+            this.PostComputeTransform(!!projection);
+        };
+        LayoutUpdater.prototype.PostComputeTransform = function (hasProjection) {
+        };
+        LayoutUpdater.prototype.UpdateProjection = function () {
+            if (this.Node.IsAttached)
+                this._AddDirtyElement(_Dirty.LocalProjection);
+        };
+        LayoutUpdater.prototype.TransformPoint = function (p) {
+            var inverse = mat4.inverse(this.AbsoluteProjection, mat4.create());
+            if (!inverse) {
+                Warn("Could not get inverse of Absolute Projection for UIElement.");
+                return;
+            }
+
+            var p4 = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
+            var m20 = inverse[2];
+            var m21 = inverse[6];
+            var m22 = inverse[10];
+            var m23 = inverse[14];
+            p4[2] = -(m20 * p4[0] + m21 * p4[1] + m23) / m22;
+
+            mat4.transformVec4(inverse, p4);
+            p.X = p4[0] / p4[3];
+            p.Y = p4[1] / p4[3];
+        };
+        LayoutUpdater.prototype.TransformToVisual = function (toUin) {
+            var result = mat4.create();
+
+            if (toUin) {
+                var inverse = mat4.create();
+                mat4.inverse(toUin.LayoutUpdater.AbsoluteProjection, inverse);
+                mat4.multiply(this.AbsoluteProjection, inverse, result);
+            } else {
+                mat4.set(this.AbsoluteProjection, result);
+            }
+
+            var raw = mat4.toAffineMat3(result);
+            if (raw) {
+                var mt = new Fayde.Media.MatrixTransform();
+                mt.SetStoreValue(Fayde.Media.MatrixTransform.MatrixProperty, new Fayde.Media.Matrix(raw));
+                return mt;
+            }
+
+            return new Fayde.Media.InternalTransform(result);
+        };
+        LayoutUpdater.prototype.GetTransformOrigin = function (uie) {
+            var userXformOrigin = uie.RenderTransformOrigin;
+            if (!userXformOrigin)
+                return { X: 0, Y: 0 };
+            return { X: this.ActualWidth * userXformOrigin.X, Y: this.ActualHeight * userXformOrigin.Y };
+        };
+        LayoutUpdater.prototype.GetTextBlockTransformOrigin = function (tb) {
+            var userXformOrigin = tb.RenderTransformOrigin;
+            if (!userXformOrigin)
+                return { X: 0, Y: 0 };
+            var xformSize = this.CoerceSize(this.RenderSize);
+            return {
+                X: xformSize.Width * userXformOrigin.X,
+                Y: xformSize.Height * userXformOrigin.Y
+            };
+        };
+
+        LayoutUpdater.prototype.UpdateRenderVisibility = function (vpLu) {
+            var uie = this.Node.XObject;
+            if (vpLu) {
+                var vp = vpLu.Node.XObject;
+                this.TotalOpacity = vpLu.TotalOpacity * uie.Opacity;
+                this.TotalIsRenderVisible = (vp.Visibility === 0) && (uie.Visibility === 0);
+            } else {
+                this.TotalOpacity = uie.Opacity;
+                this.TotalIsRenderVisible = (uie.Visibility === 0);
+            }
+        };
+        LayoutUpdater.prototype.UpdateTotalRenderVisibility = function () {
+            if (this.Node.IsAttached)
+                this._AddDirtyElement(_Dirty.RenderVisibility);
+        };
+        LayoutUpdater.prototype.UpdateHitTestVisibility = function (vpLu) {
+            var uie = this.Node.XObject;
+            if (vpLu) {
+                this.TotalIsHitTestVisible = vpLu.TotalIsHitTestVisible && uie.IsHitTestVisible;
+            } else {
+                this.TotalIsHitTestVisible = uie.IsHitTestVisible;
+            }
+        };
+        LayoutUpdater.prototype.UpdateTotalHitTestVisibility = function () {
+            if (this.Node.IsAttached)
+                this._AddDirtyElement(_Dirty.HitTestVisibility);
+        };
+
+        LayoutUpdater.prototype.UpdateBounds = function (forceRedraw) {
+            if (this.Node.IsAttached)
+                this._AddDirtyElement(_Dirty.Bounds);
+            this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
+        };
+        LayoutUpdater.prototype.ComputeBounds = function () {
+            var s = this.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+            if (isNaN(s.Width))
+                s.Width = 0;
+            if (isNaN(s.Height))
+                s.Height = 0;
+            this.ComputeExtents(s);
+            this.ComputePaintBounds();
+        };
+        LayoutUpdater.prototype.ComputeExtents = function (actualSize) {
+            var e = this.Extents;
+            var ewc = this.ExtentsWithChildren;
+            e.X = ewc.X = 0;
+            e.Y = ewc.Y = 0;
+            e.Width = ewc.Width = actualSize.Width;
+            e.Height = ewc.Height = actualSize.Height;
+
+            var node = this.Node;
+            var enumerator = node.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var item = enumerator.Current;
+                var itemlu = item.LayoutUpdater;
+                if (itemlu.TotalIsRenderVisible)
+                    rect.union(ewc, itemlu.GlobalBoundsWithChildren);
+            }
+        };
+        LayoutUpdater.prototype.ComputePaintBounds = function () {
+            rect.copyGrowTransform4(this.GlobalBoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.LocalProjection);
+            rect.copyGrowTransform4(this.SurfaceBoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteProjection);
+        };
+        LayoutUpdater.prototype.IntersectBoundsWithClipPath = function (dest, xform) {
+            var isClipEmpty = rect.isEmpty(this.ClipBounds);
+            var isLayoutClipEmpty = this.LayoutClip ? rect.isEmpty(this.LayoutClip) : true;
+
+            if ((!isClipEmpty || !isLayoutClipEmpty) && !this.TotalIsRenderVisible) {
+                rect.clear(dest);
+                return dest;
+            }
+
+            rect.copyGrowTransform(dest, this.Extents, this.EffectPadding, null);
+
+            if (!isClipEmpty)
+                rect.intersection(dest, this.ClipBounds);
+            if (!isLayoutClipEmpty)
+                rect.intersection(dest, this.LayoutClip);
+
+            return rect.transform(dest, xform);
+        };
+
+        LayoutUpdater.prototype._UpdateActualSize = function () {
+            var last = this.LastRenderSize;
+            var fe = this.Node.XObject;
+            var s = this.ComputeActualSize();
+            this.ActualWidth = s.Width;
+            this.ActualHeight = s.Height;
+            if (last && size.isEqual(last, s))
+                return;
+
+            var propd = Fayde.FrameworkElement.ActualWidthProperty;
+            propd.Store.SetLocalValue(Fayde.Providers.GetStorage(fe, propd), s.Width);
+            var propd = Fayde.FrameworkElement.ActualHeightProperty;
+            propd.Store.SetLocalValue(Fayde.Providers.GetStorage(fe, propd), s.Height);
+
+            this.LastRenderSize = undefined;
+            return {
+                Element: fe,
+                PreviousSize: last,
+                NewSize: s
+            };
+        };
+        LayoutUpdater.prototype.ComputeActualSize = function () {
+            var node = this.Node;
+
+            if (node.XObject.Visibility !== 0 /* Visible */)
+                return new size();
+
+            var parentNode = node.VisualParentNode;
+            if ((parentNode && !(parentNode.XObject instanceof Fayde.Controls.Canvas)) || this.IsLayoutContainer)
+                return size.copyTo(this.RenderSize);
+
+            return this.CoerceSize(new size());
+        };
+        LayoutUpdater.prototype.GetBrushSize = function () {
+            return {
+                Width: this.ActualWidth,
+                Height: this.ActualHeight
+            };
+        };
+        LayoutUpdater.prototype.CoerceSize = function (s) {
+            var fe = this.Node.XObject;
+            var spw = fe.Width;
+            var sph = fe.Height;
+            var minw = fe.MinWidth;
+            var minh = fe.MinHeight;
+            var cw = minw;
+            var ch = minh;
+
+            cw = Math.max(cw, s.Width);
+            ch = Math.max(ch, s.Height);
+
+            if (!isNaN(spw))
+                cw = spw;
+
+            if (!isNaN(sph))
+                ch = sph;
+
+            cw = Math.max(Math.min(cw, fe.MaxWidth), minw);
+            ch = Math.max(Math.min(ch, fe.MaxHeight), minh);
+
+            if (fe.UseLayoutRounding) {
+                cw = Math.round(cw);
+                ch = Math.round(ch);
+            }
+
+            s.Width = cw;
+            s.Height = ch;
+            return s;
+        };
+
+        LayoutUpdater.prototype._HasFlag = function (flag) {
+            return (this.Flags & flag) === flag;
+        };
+        LayoutUpdater.prototype._PropagateFlagUp = function (flag) {
+            this.Flags |= flag;
+            var node = this.Node;
+            var lu;
+            while ((node = node.VisualParentNode) && (lu = node.LayoutUpdater) && !lu._HasFlag(flag)) {
+                lu.Flags |= flag;
+            }
+        };
+
+        LayoutUpdater.prototype.UpdateLayer = function (pass, error) {
+            var elNode = this.Node;
+            var parentNode;
+            while (parentNode = elNode.VisualParentNode)
+                elNode = parentNode;
+            var element = elNode.XObject;
+            var layout = elNode.LayoutUpdater;
+
+            var lu;
+            while (pass.Count < maxPassCount) {
+                while (lu = pass.ArrangeList.shift()) {
+                    lu._PropagateFlagUp(2048 /* DirtyArrangeHint */);
+                }
+                while (lu = pass.SizeList.shift()) {
+                    lu._PropagateFlagUp(8192 /* DirtySizeHint */);
+                }
+                pass.Count = pass.Count + 1;
+
+                var flag = 0 /* None */;
+                if (element.Visibility === 0 /* Visible */) {
+                    if (layout._HasFlag(4096 /* DirtyMeasureHint */))
+                        flag = 4096 /* DirtyMeasureHint */;
+                    else if (layout._HasFlag(2048 /* DirtyArrangeHint */))
+                        flag = 2048 /* DirtyArrangeHint */;
+                    else if (layout._HasFlag(8192 /* DirtySizeHint */))
+                        flag = 8192 /* DirtySizeHint */;
+                }
+
+                if (flag !== 0 /* None */) {
+                    var measureWalker = Fayde.DeepTreeWalker(elNode);
+                    var childNode;
+                    while (childNode = measureWalker.Step()) {
+                        lu = childNode.LayoutUpdater;
+                        if (childNode.XObject.Visibility !== 0 /* Visible */ || !lu._HasFlag(flag)) {
+                            measureWalker.SkipBranch();
+                            continue;
+                        }
+                        lu.Flags &= ~flag;
+                        switch (flag) {
+                            case 4096 /* DirtyMeasureHint */:
+                                if (lu.DirtyFlags & _Dirty.Measure)
+                                    pass.MeasureList.push(lu);
+                                break;
+                            case 2048 /* DirtyArrangeHint */:
+                                if (lu.DirtyFlags & _Dirty.Arrange)
+                                    pass.ArrangeList.push(lu);
+                                break;
+                            case 8192 /* DirtySizeHint */:
+                                if (lu.LastRenderSize !== undefined)
+                                    pass.SizeList.push(lu);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                if (flag === 4096 /* DirtyMeasureHint */) {
+                    if (Fayde.Layout.Debug)
+                        console.log("[MEASURE PASS] " + pass.MeasureList.length);
+                    while (lu = pass.MeasureList.shift()) {
+                        if (Fayde.Layout.Debug)
+                            console.log("[DOMEASURE] " + lu._DebugToString());
+                        lu._DoMeasureWithError(error);
+                        pass.Updated = true;
+                    }
+                } else if (flag === 2048 /* DirtyArrangeHint */) {
+                    if (Fayde.Layout.Debug)
+                        console.log("[ARRANGE PASS] " + pass.ArrangeList.length);
+                    while (lu = pass.ArrangeList.shift()) {
+                        if (Fayde.Layout.Debug)
+                            console.log("[DOARRANGE] " + lu._DebugToString());
+                        lu._DoArrangeWithError(error);
+                        pass.Updated = true;
+                        if (layout._HasFlag(4096 /* DirtyMeasureHint */))
+                            break;
+                    }
+                } else if (flag === 8192 /* DirtySizeHint */) {
+                    var changes = [];
+                    while (lu = pass.SizeList.pop()) {
+                        pass.Updated = true;
+                        changes.push(lu._UpdateActualSize());
+                    }
+                    var change;
+                    while (change = changes.pop()) {
+                        change.Element.SizeChanged.Raise(change.Element, new Fayde.SizeChangedEventArgs(change.PreviousSize, change.NewSize));
+                    }
+                } else {
+                    break;
+                }
+            }
+        };
+        LayoutUpdater.prototype._DoMeasureWithError = function (error) {
+            var last = this.PreviousConstraint;
+            var node = this.Node;
+            var visualParentNode = node.VisualParentNode;
+
+            if (!node.IsAttached && !last && !visualParentNode && this.IsLayoutContainer) {
+                last = size.createInfinite();
+            }
+
+            if (last) {
+                var previousDesired = size.copyTo(this.DesiredSize);
+                this._Measure(last, error);
+                if (size.isEqual(previousDesired, this.DesiredSize))
+                    return;
+            }
+
+            if (visualParentNode)
+                visualParentNode.LayoutUpdater.InvalidateMeasure();
+
+            this.DirtyFlags &= ~_Dirty.Measure;
+        };
+        LayoutUpdater.prototype._Measure = function (availableSize, error) {
+            if (error.Message)
+                return;
+
+            var node = this.Node;
+            var fe = node.XObject;
+
+            if (isNaN(availableSize.Width) || isNaN(availableSize.Height)) {
+                error.Message = "Cannot call Measure using a size with NaN values";
+                LayoutUpdater.LayoutExceptionUpdater = this;
+                return;
+            }
+
+            var last = this.PreviousConstraint;
+            var shouldMeasure = (this.DirtyFlags & _Dirty.Measure) > 0;
+            shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
+
+            if (fe.Visibility !== 0 /* Visible */) {
+                this.PreviousConstraint = availableSize;
+                size.clear(this.DesiredSize);
+                return;
+            }
+
+            node.ApplyTemplateWithError(error);
+
+            if (!shouldMeasure)
+                return;
+
+            if (Fayde.Layout.Debug)
+                console.log(new Array(Fayde.Layout.DebugIndent).join("\t") + "[MEASURING] " + this._DebugToString());
+
+            this.PreviousConstraint = availableSize;
+
+            this.InvalidateArrange();
+            this.UpdateBounds();
+
+            var s = size.copyTo(availableSize);
+            var margin = fe.Margin;
+            if (margin)
+                size.shrinkByThickness(s, margin);
+            this.CoerceSize(s);
+
+            Fayde.Layout.DebugIndent++;
+            var s = this.MeasureOverride(s, error);
+            Fayde.Layout.DebugIndent--;
+
+            if (error.Message)
+                return;
+
+            this.DirtyFlags &= ~_Dirty.Measure;
+            this.HiddenDesire = size.copyTo(s);
+
+            var visualParentNode = node.VisualParentNode;
+            if (!visualParentNode || visualParentNode instanceof Fayde.Controls.CanvasNode) {
+                if (node instanceof Fayde.Controls.CanvasNode || !this.IsLayoutContainer) {
+                    size.clear(this.DesiredSize);
+                    return;
+                }
+            }
+
+            this.CoerceSize(s);
+            if (margin)
+                size.growByThickness(s, margin);
+            size.min(s, availableSize);
+
+            if (fe.UseLayoutRounding) {
+                s.Width = Math.round(s.Width);
+                s.Height = Math.round(s.Height);
+            }
+
+            size.copyTo(s, this.DesiredSize);
+        };
+        LayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
+            var node = this.Node;
+            var uie = node.XObject;
+            var desired = uie.MeasureOverride(availableSize);
+            if (!!desired)
+                return desired;
+
+            desired = new size();
+
+            availableSize = size.copyTo(availableSize);
+            size.max(availableSize, desired);
+
+            var enumerator = node.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = enumerator.Current;
+                var childLu = childNode.LayoutUpdater;
+                childLu._Measure(availableSize, error);
+                desired = size.copyTo(childLu.DesiredSize);
+            }
+
+            size.min(desired, availableSize);
+            return desired;
+        };
+
+        LayoutUpdater.prototype._DoArrangeWithError = function (error) {
+            var last = this.LayoutSlot;
+            if (last === null)
+                last = undefined;
+
+            var n = this.Node;
+            var fe = n.XObject;
+            var visualParentNode = n.VisualParentNode;
+            if (!visualParentNode) {
+                var surface = this.Surface;
+                var desired;
+                if (this.IsLayoutContainer) {
+                    desired = size.copyTo(this.DesiredSize);
+                    if (n.IsAttached && n.IsTopLevel && !n.ParentNode) {
+                        var measure = this.PreviousConstraint;
+                        if (measure)
+                            size.max(desired, measure);
+                        else
+                            desired = size.copyTo(surface.Extents);
+                    }
+                } else {
+                    desired = size.fromRaw(fe.ActualWidth, fe.ActualHeight);
+                }
+
+                var viewport = rect.fromSize(desired);
+                viewport.X = Fayde.Controls.Canvas.GetLeft(fe);
+                viewport.Y = Fayde.Controls.Canvas.GetTop(fe);
+                last = viewport;
+            }
+
+            if (last) {
+                this._Arrange(last, error);
+            } else {
+                if (visualParentNode)
+                    visualParentNode.LayoutUpdater.InvalidateArrange();
+            }
+        };
+        LayoutUpdater.prototype._Arrange = function (finalRect, error) {
+            if (error.Message)
+                return;
+
+            var node = this.Node;
+            var fe = node.XObject;
+
+            if (fe.UseLayoutRounding) {
+                rect.round(finalRect);
+            }
+
+            if (finalRect.Width < 0 || finalRect.Height < 0 || !isFinite(finalRect.Width) || !isFinite(finalRect.Height) || isNaN(finalRect.Width) || isNaN(finalRect.Height)) {
+                var desired = this.DesiredSize;
+                error.Number = BError.Argument;
+                error.Message = "Invalid arguments to Arrange. Desired = " + desired.toString();
+                return;
+            }
+
+            if (fe.Visibility !== 0 /* Visible */) {
+                this.LayoutSlot = finalRect;
+                return;
+            }
+
+            var slot = this.LayoutSlot;
+            var shouldArrange = (this.DirtyFlags & _Dirty.Arrange) > 0 || !slot || !rect.isEqual(slot, finalRect);
+            if (!shouldArrange)
+                return;
+
+            if (Fayde.Layout.Debug)
+                console.log(new Array(Fayde.Layout.DebugIndent).join("\t") + "[ARRANGING] " + this._DebugToString());
+
+            var measure = this.PreviousConstraint;
+            if (this.IsContainer && !measure) {
+                this._Measure(size.fromRect(finalRect), error);
+            }
+            measure = this.PreviousConstraint;
+
+            this.SetLayoutClip(undefined);
+
+            var childRect = rect.copyTo(finalRect);
+            var margin = fe.Margin;
+            if (margin)
+                rect.shrinkByThickness(childRect, margin);
+
+            this.UpdateTransform();
+            this.UpdateProjection();
+            this.UpdateBounds();
+
+            var offer = size.copyTo(this.HiddenDesire);
+
+            var stretched = this.CoerceSize(size.fromRect(childRect));
+            var framework = this.CoerceSize(new size());
+
+            var horiz = fe.HorizontalAlignment;
+            var vert = fe.VerticalAlignment;
+
+            if (horiz === 3 /* Stretch */)
+                framework.Width = Math.max(framework.Width, stretched.Width);
+
+            if (vert === 3 /* Stretch */)
+                framework.Height = Math.max(framework.Height, stretched.Height);
+
+            size.max(offer, framework);
+
+            this.LayoutSlot = finalRect;
+
+            Fayde.Layout.DebugIndent++;
+            var response = this.ArrangeOverride(offer, error);
+            Fayde.Layout.DebugIndent--;
+
+            if (horiz === 3 /* Stretch */)
+                response.Width = Math.max(response.Width, framework.Width);
+
+            if (vert === 3 /* Stretch */)
+                response.Height = Math.max(response.Height, framework.Height);
+
+            var flipHoriz = false;
+            var flowDirection = fe.FlowDirection;
+            var visualParentNode = node.VisualParentNode;
+            if (visualParentNode)
+                flipHoriz = visualParentNode.XObject.FlowDirection !== flowDirection;
+            else if (node.ParentNode instanceof Fayde.Controls.Primitives.PopupNode)
+                flipHoriz = node.ParentNode.XObject.FlowDirection !== flowDirection;
+            else
+                flipHoriz = flowDirection === 1 /* RightToLeft */;
+
+            var layoutXform = mat3.identity(this.LayoutXform);
+            mat3.translate(layoutXform, childRect.X, childRect.Y);
+            if (flipHoriz) {
+                mat3.translate(layoutXform, offer.Width, 0);
+                mat3.scale(layoutXform, -1, 1);
+            }
+
+            if (error.Message)
+                return;
+
+            this.DirtyFlags &= ~_Dirty.Arrange;
+            var visualOffset = this.VisualOffset;
+            visualOffset.X = childRect.X;
+            visualOffset.Y = childRect.Y;
+
+            var oldSize = size.copyTo(this.RenderSize);
+
+            if (fe.UseLayoutRounding) {
+                response.Width = Math.round(response.Width);
+                response.Height = Math.round(response.Height);
+            }
+
+            size.copyTo(response, this.RenderSize);
+            var constrainedResponse = this.CoerceSize(size.copyTo(response));
+            size.min(constrainedResponse, response);
+
+            if (!visualParentNode || visualParentNode instanceof Fayde.Controls.CanvasNode) {
+                if (!this.IsLayoutContainer) {
+                    size.clear(this.RenderSize);
+                    return;
+                }
+            }
+
+            var isTopLevel = node.IsAttached && node.IsTopLevel;
+            if (!isTopLevel) {
+                switch (horiz) {
+                    case 0 /* Left */:
+                        break;
+                    case 2 /* Right */:
+                        visualOffset.X += childRect.Width - constrainedResponse.Width;
+                        break;
+                    case 1 /* Center */:
+                        visualOffset.X += (childRect.Width - constrainedResponse.Width) * 0.5;
+                        break;
+                    default:
+                        visualOffset.X += Math.max((childRect.Width - constrainedResponse.Width) * 0.5, 0);
+                        break;
+                }
+
+                switch (vert) {
+                    case 0 /* Top */:
+                        break;
+                    case 2 /* Bottom */:
+                        visualOffset.Y += childRect.Height - constrainedResponse.Height;
+                        break;
+                    case 1 /* Center */:
+                        visualOffset.Y += (childRect.Height - constrainedResponse.Height) * 0.5;
+                        break;
+                    default:
+                        visualOffset.Y += Math.max((childRect.Height - constrainedResponse.Height) * 0.5, 0);
+                        break;
+                }
+            }
+
+            if (fe.UseLayoutRounding) {
+                visualOffset.X = Math.round(visualOffset.X);
+                visualOffset.Y = Math.round(visualOffset.Y);
+            }
+
+            layoutXform = mat3.identity(this.LayoutXform);
+            mat3.translate(layoutXform, visualOffset.X, visualOffset.Y);
+            if (flipHoriz) {
+                mat3.translate(layoutXform, response.Width, 0);
+                mat3.scale(layoutXform, -1, 1);
+            }
+
+            var element = new rect();
+            element.Width = response.Width;
+            element.Height = response.Height;
+            var layoutClip = rect.copyTo(childRect);
+            layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
+            layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
+            if (fe.UseLayoutRounding) {
+                layoutClip.X = Math.round(layoutClip.X);
+                layoutClip.Y = Math.round(layoutClip.Y);
+            }
+
+            var oldLayoutClip = this.LayoutClip;
+            if (((!isTopLevel && !rect.isRectContainedIn(element, layoutClip)) || !size.isEqual(constrainedResponse, response)) && !(node instanceof Fayde.Controls.CanvasNode) && ((visualParentNode && !(visualParentNode instanceof Fayde.Controls.CanvasNode)) || this.IsContainer)) {
+                var frameworkClip = this.CoerceSize(size.createInfinite());
+                var frect = rect.fromSize(frameworkClip);
+                rect.intersection(layoutClip, frect);
+                this.SetLayoutClip(layoutClip);
+            }
+
+            if (!size.isEqual(oldSize, response)) {
+                if (!this.LastRenderSize) {
+                    this.LastRenderSize = oldSize;
+                    this._PropagateFlagUp(8192 /* DirtySizeHint */);
+                }
+            }
+        };
+        LayoutUpdater.prototype.ArrangeOverride = function (finalSize, error) {
+            var node = this.Node;
+            var uie = node.XObject;
+            var arranged = uie.ArrangeOverride(finalSize);
+            if (!!arranged)
+                return arranged;
+
+            arranged = size.copyTo(finalSize);
+
+            var enumerator = node.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = enumerator.Current;
+                var childRect = rect.fromSize(finalSize);
+                childNode.LayoutUpdater._Arrange(childRect, error);
+                size.max(arranged, finalSize);
+            }
+
+            return arranged;
+        };
+
+        LayoutUpdater.prototype.DoRender = function (ctx, r) {
+            if (!this.TotalIsRenderVisible)
+                return;
+            if ((this.TotalOpacity * 255) < 0.5)
+                return;
+
+            var region = rect.copyTo(this.SurfaceBoundsWithChildren);
+            rect.roundOut(region);
+            rect.intersection(region, r);
+            if (rect.isEmpty(region))
+                return;
+
+            ctx.save();
+
+            ctx.pretransformMatrix(this.RenderXform);
+            ctx.globalAlpha = this.TotalOpacity;
+
+            var uie = this.Node.XObject;
+            var clip = uie.Clip;
+            if (clip)
+                ctx.clipGeometry(clip);
+
+            if (Fayde.Render.Debug)
+                console.log(new Array(Fayde.Render.DebugIndent).join("\t") + "[RENDER] " + this._DebugToString());
+
+            var effect = uie.Effect;
+            if (effect) {
+                ctx.save();
+                effect.PreRender(ctx);
+            }
+            this.Render(ctx, region);
+            if (effect) {
+                ctx.restore();
+            }
+
+            Fayde.Render.DebugIndent++;
+            var enumerator = this.Node.GetVisualTreeEnumerator(2 /* ZFoward */);
+            while (enumerator.MoveNext()) {
+                enumerator.Current.LayoutUpdater.DoRender(ctx, region);
+            }
+            Fayde.Render.DebugIndent--;
+
+            ctx.restore();
+        };
+        LayoutUpdater.prototype.Render = function (ctx, region) {
+        };
+
+        LayoutUpdater.prototype.FindElementsInHostCoordinates = function (p) {
+            var uinlist = [];
+            this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist, false);
+            return uinlist;
+        };
+        LayoutUpdater.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist, applyXform) {
+            if (this.ShouldSkipHitTest)
+                return;
+            if (!this.TotalIsRenderVisible)
+                return;
+            if (!this.TotalIsHitTestVisible)
+                return;
+            if (this.SurfaceBoundsWithChildren.Height <= 0)
+                return;
+
+            var thisNode = this.Node;
+
+            ctx.save();
+            if (applyXform)
+                ctx.pretransformMatrix(this.RenderXform);
+
+            if (!this._InsideClip(ctx, p.X, p.Y)) {
+                ctx.restore();
+                return;
+            }
+
+            uinlist.unshift(thisNode);
+            var enumerator = thisNode.GetVisualTreeEnumerator(2 /* ZFoward */);
+            while (enumerator.MoveNext()) {
+                enumerator.Current.LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist, true);
+            }
+
+            if (thisNode === uinlist[0]) {
+                if (!this.CanHitElement || !this.InsideObject(ctx, p.X, p.Y))
+                    uinlist.shift();
+            }
+
+            ctx.restore();
+        };
+        LayoutUpdater.prototype.HitTestPoint = function (ctx, p, uinlist) {
+            if (this.ShouldSkipHitTest)
+                return;
+            if (!this.TotalIsRenderVisible)
+                return;
+            if (!this.TotalIsHitTestVisible)
+                return;
+
+            ctx.save();
+            ctx.pretransformMatrix(this.RenderXform);
+
+            if (!this._InsideClip(ctx, p.X, p.Y)) {
+                ctx.restore();
+                return;
+            }
+
+            var thisNode = this.Node;
+
+            uinlist.unshift(thisNode);
+            var hit = false;
+            var enumerator = thisNode.GetVisualTreeEnumerator(3 /* ZReverse */);
+            while (enumerator.MoveNext()) {
+                var childNode = enumerator.Current;
+                childNode.LayoutUpdater.HitTestPoint(ctx, p, uinlist);
+                if (thisNode !== uinlist[0]) {
+                    hit = true;
+                    break;
+                }
+            }
+
+            if (!hit && !(this.CanHitElement && this.InsideObject(ctx, p.X, p.Y))) {
+                if (uinlist.shift() !== thisNode) {
+                    throw new Exception("Look at my code! -> FENode._HitTestPoint");
+                }
+            }
+
+            ctx.restore();
+        };
+        LayoutUpdater.prototype.InsideObject = function (ctx, x, y) {
+            if (this.IsNeverInsideObject)
+                return false;
+
+            var bounds = rect.copyTo(this.Extents);
+            rect.transform(bounds, ctx.currentTransform);
+            if (!rect.containsPointXY(bounds, x, y))
+                return false;
+
+            return this._InsideLayoutClip(ctx, x, y);
+        };
+        LayoutUpdater.prototype._InsideClip = function (ctx, x, y) {
+            var clip = this.Node.XObject.Clip;
+            if (!clip)
+                return true;
+
+            var bounds = clip.GetBounds();
+            rect.transform(bounds, ctx.currentTransform);
+            if (!rect.containsPointXY(bounds, x, y))
+                return false;
+
+            clip.Draw(ctx);
+            return ctx.isPointInPath(x, y);
+        };
+        LayoutUpdater.prototype._InsideLayoutClip = function (ctx, x, y) {
+            var layoutClip = this.LayoutClip;
+            if (!layoutClip)
+                return true;
+
+            var layoutClipBounds = rect.copyTo(layoutClip);
+            rect.transform(layoutClipBounds, ctx.currentTransform);
+            return rect.containsPointXY(layoutClipBounds, x, y);
+        };
+        LayoutUpdater.prototype.RenderLayoutClip = function (ctx) {
+            var composite = this.CompositeLayoutClip;
+            if (composite) {
+                ctx.beginPath();
+                ctx.rect(composite.X, composite.Y, composite.Width, composite.Height);
+                ctx.clip();
+            }
+        };
+
+        LayoutUpdater.prototype._DebugLayout = function () {
+            var str = this._SerializeDirt();
+            str += this._SerializeFlags();
+            str += " (";
+            str += this.HiddenDesire.toString();
+            str += " ";
+            str += this.RenderSize.toString();
+            str += ")";
+            return str;
+        };
+        LayoutUpdater.prototype._SerializeDirt = function () {
+            var curdirt = this.DirtyFlags;
+
+            var down = "";
+            if (curdirt & _Dirty.ChildrenZIndices) {
+                curdirt &= ~_Dirty.ChildrenZIndices;
+                down += "ZI+";
+            }
+            if (curdirt & _Dirty.Arrange) {
+                curdirt &= ~_Dirty.Arrange;
+                down += "A+";
+            }
+            if (curdirt & _Dirty.Measure) {
+                curdirt &= ~_Dirty.Measure;
+                down += "M+";
+            }
+            if (curdirt & _Dirty.HitTestVisibility) {
+                curdirt &= ~_Dirty.HitTestVisibility;
+                down += "HTV+";
+            }
+            if (curdirt & _Dirty.RenderVisibility) {
+                curdirt &= ~_Dirty.RenderVisibility;
+                down += "RV+";
+            }
+            if (curdirt & _Dirty.LocalClip) {
+                curdirt &= ~_Dirty.LocalClip;
+                down += "LC+";
+            }
+            if (curdirt & _Dirty.Clip) {
+                curdirt &= ~_Dirty.Clip;
+                down += "C+";
+            }
+            if (curdirt & _Dirty.LocalProjection) {
+                curdirt &= ~_Dirty.LocalProjection;
+                down += "LP+";
+            }
+            if (curdirt & _Dirty.LocalTransform) {
+                curdirt &= ~_Dirty.LocalTransform;
+                down += "LT+";
+            }
+            if (curdirt & _Dirty.Transform) {
+                curdirt &= ~_Dirty.Transform;
+                down += "T+";
+            }
+            if (down)
+                down = down.substr(0, down.length - 1);
+
+            var up = "";
+            if (curdirt & _Dirty.Invalidate) {
+                curdirt &= ~_Dirty.Invalidate;
+                up += "I+";
+            }
+            if (curdirt & _Dirty.Bounds) {
+                curdirt &= ~_Dirty.Bounds;
+                up += "B+";
+            }
+            if (up)
+                up = up.substr(0, up.length - 1);
+
+            return "[" + down + ":" + up + "]";
+        };
+        LayoutUpdater.prototype._SerializeFlags = function () {
+            var flags = this.Flags;
+            var str = "";
+            if (flags & 8192 /* DirtySizeHint */) {
+                flags &= ~8192 /* DirtySizeHint */;
+                str += "S+";
+            }
+            if (flags & 4096 /* DirtyMeasureHint */) {
+                flags &= ~4096 /* DirtyMeasureHint */;
+                str += "M+";
+            }
+            if (flags & 2048 /* DirtyArrangeHint */) {
+                flags &= ~2048 /* DirtyArrangeHint */;
+                str += "A+";
+            }
+            if (flags & 16 /* TotalHitTestVisible */) {
+                flags &= ~16 /* TotalHitTestVisible */;
+                str += "THT+";
+            }
+            if (flags & 8 /* TotalRenderVisible */) {
+                flags &= ~8 /* TotalRenderVisible */;
+                str += "TRV+";
+            }
+            if (flags & 4 /* HitTestVisible */) {
+                flags &= ~4 /* HitTestVisible */;
+                str += "HT+";
+            }
+            if (flags & 2 /* RenderVisible */) {
+                flags &= ~2 /* RenderVisible */;
+                str += "RV+";
+            }
+
+            if (str)
+                str = str.substring(0, str.length - 1);
+
+            return "[" + str + "]";
+        };
+
+        LayoutUpdater.prototype._DebugToString = function () {
+            var xobj = this.Node.XObject;
+            var ctor = xobj.constructor;
+            var o = {
+                "ID": xobj._ID,
+                "Type": ctor._TypeName
+            };
+            return JSON.stringify(o);
+        };
+        LayoutUpdater.LayoutExceptionUpdater = undefined;
+        return LayoutUpdater;
+    })();
+    Fayde.LayoutUpdater = LayoutUpdater;
+    Fayde.RegisterType(LayoutUpdater, {
+        Name: "LayoutUpdater",
+        Namespace: "Fayde"
+    });
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -2928,7 +4399,7 @@ var Fayde;
                 return true;
             if (propd === FrameworkElement.LanguageProperty)
                 return true;
-            return (_super.prototype).IsInheritable.call(this, propd);
+            return _super.prototype.IsInheritable.call(this, propd);
         };
 
         FrameworkElement.prototype.OnApplyTemplate = function () {
@@ -2941,37 +4412,6 @@ var Fayde;
 
         FrameworkElement.prototype.UpdateLayout = function () {
             this.XamlNode.UpdateLayout();
-        };
-
-        FrameworkElement.prototype._MeasureOverride = function (availableSize, error) {
-            var desired = new size();
-
-            availableSize = size.copyTo(availableSize);
-            size.max(availableSize, desired);
-
-            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var childNode = enumerator.Current;
-                var childLu = childNode.LayoutUpdater;
-                childLu._Measure(availableSize, error);
-                desired = size.copyTo(childLu.DesiredSize);
-            }
-
-            size.min(desired, availableSize);
-            return desired;
-        };
-        FrameworkElement.prototype._ArrangeOverride = function (finalSize, error) {
-            var arranged = size.copyTo(finalSize);
-
-            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var childNode = enumerator.Current;
-                var childRect = rect.fromSize(finalSize);
-                childNode.LayoutUpdater._Arrange(childRect, error);
-                size.max(arranged, finalSize);
-            }
-
-            return arranged;
         };
 
         FrameworkElement.prototype._StyleChanged = function (args) {
@@ -3001,53 +4441,53 @@ var Fayde;
         FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () {
             return Length;
         }, FrameworkElement, NaN, function (d, args) {
-            return (d)._HeightChanged(args);
+            return d._HeightChanged(args);
         });
         FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", function () {
             return new Enum(Fayde.HorizontalAlignment);
-        }, FrameworkElement, Fayde.HorizontalAlignment.Stretch, function (d, args) {
-            return (d)._AlignmentChanged(args);
+        }, FrameworkElement, 3 /* Stretch */, function (d, args) {
+            return d._AlignmentChanged(args);
         });
         FrameworkElement.LanguageProperty = Fayde.InheritableOwner.LanguageProperty.ExtendTo(FrameworkElement);
         FrameworkElement.MarginProperty = DependencyProperty.RegisterCore("Margin", function () {
             return Thickness;
         }, FrameworkElement, undefined, function (d, args) {
-            return (d).XamlNode._SizeChanged(args);
+            return d.XamlNode._SizeChanged(args);
         });
         FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () {
             return Number;
         }, FrameworkElement, Number.POSITIVE_INFINITY, function (d, args) {
-            return (d).XamlNode._SizeChanged(args);
+            return d.XamlNode._SizeChanged(args);
         });
         FrameworkElement.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () {
             return Number;
         }, FrameworkElement, Number.POSITIVE_INFINITY, function (d, args) {
-            return (d).XamlNode._SizeChanged(args);
+            return d.XamlNode._SizeChanged(args);
         });
         FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", function () {
             return Number;
         }, FrameworkElement, 0.0, function (d, args) {
-            return (d).XamlNode._SizeChanged(args);
+            return d.XamlNode._SizeChanged(args);
         });
         FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", function () {
             return Number;
         }, FrameworkElement, 0.0, function (d, args) {
-            return (d).XamlNode._SizeChanged(args);
+            return d.XamlNode._SizeChanged(args);
         });
         FrameworkElement.StyleProperty = DependencyProperty.Register("Style", function () {
             return Fayde.Style;
         }, FrameworkElement, undefined, function (d, args) {
-            return (d)._StyleChanged(args);
+            return d._StyleChanged(args);
         });
         FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", function () {
             return new Enum(Fayde.VerticalAlignment);
-        }, FrameworkElement, Fayde.VerticalAlignment.Stretch, function (d, args) {
-            return (d)._AlignmentChanged(args);
+        }, FrameworkElement, 3 /* Stretch */, function (d, args) {
+            return d._AlignmentChanged(args);
         });
         FrameworkElement.WidthProperty = DependencyProperty.Register("Width", function () {
             return Length;
         }, FrameworkElement, NaN, function (d, args) {
-            return (d)._WidthChanged(args);
+            return d._WidthChanged(args);
         });
         FrameworkElement.ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", function () {
             return Fayde.ResourceDictionary;
@@ -3067,76 +4507,13 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var BorderNode = (function (_super) {
-            __extends(BorderNode, _super);
-            function BorderNode(xobj) {
-                _super.call(this, xobj);
-                this.LayoutUpdater.SetContainerMode(true);
-            }
-            return BorderNode;
-        })(Fayde.FENode);
-        Controls.BorderNode = BorderNode;
-        Fayde.RegisterType(BorderNode, {
-            Name: "BorderNode",
-            Namespace: "Fayde.Controls"
-        });
-
         var Border = (function (_super) {
             __extends(Border, _super);
             function Border() {
                 _super.apply(this, arguments);
             }
-            Border.prototype.CreateNode = function () {
-                return new BorderNode(this);
-            };
-
-            Border.prototype._MeasureOverride = function (availableSize, error) {
-                var padding = this.Padding;
-                var borderThickness = this.BorderThickness;
-                var border = null;
-                if (padding && borderThickness) {
-                    border = padding.Plus(borderThickness);
-                } else if (padding) {
-                    border = padding.Clone();
-                } else if (borderThickness) {
-                    border = borderThickness.Clone();
-                }
-
-                var desired = new size();
-                if (border)
-                    availableSize = size.shrinkByThickness(size.copyTo(availableSize), border);
-
-                var child = this.Child;
-                if (child) {
-                    var lu = child.XamlNode.LayoutUpdater;
-                    lu._Measure(availableSize, error);
-                    desired = size.copyTo(lu.DesiredSize);
-                }
-                if (border)
-                    size.growByThickness(desired, border);
-                size.min(desired, availableSize);
-                return desired;
-            };
-            Border.prototype._ArrangeOverride = function (finalSize, error) {
-                var child = this.Child;
-                if (child) {
-                    var padding = this.Padding;
-                    var borderThickness = this.BorderThickness;
-                    var border = null;
-                    if (padding && borderThickness) {
-                        border = padding.Plus(borderThickness);
-                    } else if (padding) {
-                        border = padding;
-                    } else if (borderThickness) {
-                        border = borderThickness;
-                    }
-
-                    var childRect = rect.fromSize(finalSize);
-                    if (border)
-                        rect.shrinkByThickness(childRect, border);
-                    child.XamlNode.LayoutUpdater._Arrange(childRect, error);
-                }
-                return finalSize;
+            Border.prototype.CreateLayoutUpdater = function (node) {
+                return new BorderLayoutUpdater(node);
             };
 
             Border.prototype._ChildChanged = function (args) {
@@ -3190,46 +4567,25 @@ var Fayde;
             Border.prototype._PaddingChanged = function (args) {
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
             };
-
-            Border.prototype.Render = function (ctx, lu, region) {
-                var borderBrush = this.BorderBrush;
-                var extents = lu.Extents;
-                var backgroundBrush = this.Background;
-
-                if (!backgroundBrush && !borderBrush)
-                    return;
-                if (rect.isEmpty(extents))
-                    return;
-
-                var thickness = this.BorderThickness;
-
-                var fillOnly = !borderBrush || !thickness || thickness.IsEmpty();
-                if (fillOnly && !backgroundBrush)
-                    return;
-                ctx.save();
-                lu.RenderLayoutClip(ctx);
-                render(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
-                ctx.restore();
-            };
             Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () {
                 return Fayde.Media.Brush;
             }, Border, undefined, function (d, args) {
-                return (d)._BackgroundChanged(args);
+                return d._BackgroundChanged(args);
             });
             Border.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () {
                 return Fayde.Media.Brush;
             }, Border, undefined, function (d, args) {
-                return (d)._BorderBrushChanged(args);
+                return d._BorderBrushChanged(args);
             });
             Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () {
                 return Thickness;
             }, Border, undefined, function (d, args) {
-                return (d)._BorderThicknessChanged(args);
+                return d._BorderThicknessChanged(args);
             });
             Border.ChildProperty = DependencyProperty.Register("Child", function () {
                 return Fayde.UIElement;
             }, Border, undefined, function (d, args) {
-                return (d)._ChildChanged(args);
+                return d._ChildChanged(args);
             });
             Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () {
                 return CornerRadius;
@@ -3237,7 +4593,7 @@ var Fayde;
             Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () {
                 return Thickness;
             }, Border, undefined, function (d, args) {
-                return (d)._PaddingChanged(args);
+                return d._PaddingChanged(args);
             });
 
             Border.Annotations = { ContentProperty: Border.ChildProperty };
@@ -3250,38 +4606,211 @@ var Fayde;
             XmlNamespace: Fayde.XMLNS
         });
 
-        function render(ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
-            thickness = thickness || new Thickness();
-            var ia = cornerRadius ? cornerRadius.Clone() : new CornerRadius();
-            ia.TopLeft = Math.max(ia.TopLeft - Math.max(thickness.Left, thickness.Top) * 0.5, 0);
-            ia.TopRight = Math.max(ia.TopRight - Math.max(thickness.Right, thickness.Top) * 0.5, 0);
-            ia.BottomRight = Math.max(ia.BottomRight - Math.max(thickness.Right, thickness.Bottom) * 0.5, 0);
-            ia.BottomLeft = Math.max(ia.BottomLeft - Math.max(thickness.Left, thickness.Bottom) * 0.5, 0);
-
-            var oa = cornerRadius ? cornerRadius.Clone() : new CornerRadius();
-            oa.TopLeft = oa.TopLeft ? Math.max(oa.TopLeft + Math.max(thickness.Left, thickness.Top) * 0.5, 0) : 0;
-            oa.TopRight = oa.TopRight ? Math.max(oa.TopRight + Math.max(thickness.Right, thickness.Top) * 0.5, 0) : 0;
-            oa.BottomRight = oa.BottomRight ? Math.max(oa.BottomRight + Math.max(thickness.Right, thickness.Bottom) * 0.5, 0) : 0;
-            oa.BottomLeft = oa.BottomLeft ? Math.max(oa.BottomLeft + Math.max(thickness.Left, thickness.Bottom) * 0.5, 0) : 0;
-
-            var fillExtents = rect.shrinkByThickness(extents.Clone(), thickness);
-
-            ctx.beginPath();
-            if (borderBrush && !rect.isEmpty(extents)) {
-                borderBrush.SetupBrush(ctx, extents);
-                ctx.fillStyle = borderBrush.ToHtml5Object();
-                drawRect(ctx, extents, oa);
-                drawRect(ctx, fillExtents, ia);
-                ctx.fill("evenodd");
+        var BorderLayoutUpdater = (function (_super) {
+            __extends(BorderLayoutUpdater, _super);
+            function BorderLayoutUpdater(node) {
+                _super.call(this, node);
+                this.SetContainerMode(true);
             }
-            ctx.beginPath();
-            if (backgroundBrush && !rect.isEmpty(fillExtents)) {
-                backgroundBrush.SetupBrush(ctx, fillExtents);
-                ctx.fillStyle = backgroundBrush.ToHtml5Object();
-                drawRect(ctx, fillExtents, ia);
-                ctx.fill("evenodd");
-            }
+            BorderLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
+                var b = this.Node.XObject;
+                var padding = b.Padding;
+                var borderThickness = b.BorderThickness;
+                var border = null;
+                if (padding && borderThickness) {
+                    border = padding.Plus(borderThickness);
+                } else if (padding) {
+                    border = padding.Clone();
+                } else if (borderThickness) {
+                    border = borderThickness.Clone();
+                }
+
+                var desired = new size();
+                if (border)
+                    availableSize = size.shrinkByThickness(size.copyTo(availableSize), border);
+
+                var child = b.Child;
+                if (child) {
+                    var lu = child.XamlNode.LayoutUpdater;
+                    lu._Measure(availableSize, error);
+                    desired = size.copyTo(lu.DesiredSize);
+                }
+                if (border)
+                    size.growByThickness(desired, border);
+                size.min(desired, availableSize);
+                return desired;
+            };
+            BorderLayoutUpdater.prototype.ArrangeOverride = function (finalSize, error) {
+                var b = this.Node.XObject;
+                var child = b.Child;
+                if (child) {
+                    var padding = b.Padding;
+                    var borderThickness = b.BorderThickness;
+                    var border = null;
+                    if (padding && borderThickness) {
+                        border = padding.Plus(borderThickness);
+                    } else if (padding) {
+                        border = padding;
+                    } else if (borderThickness) {
+                        border = borderThickness;
+                    }
+
+                    var childRect = rect.fromSize(finalSize);
+                    if (border)
+                        rect.shrinkByThickness(childRect, border);
+                    child.XamlNode.LayoutUpdater._Arrange(childRect, error);
+                }
+                return finalSize;
+            };
+
+            BorderLayoutUpdater.prototype.Render = function (ctx, region) {
+                var border = this.Node.XObject;
+                var borderBrush = border.BorderBrush;
+                var extents = this.Extents;
+                var backgroundBrush = border.Background;
+
+                if (!backgroundBrush && !borderBrush)
+                    return;
+                if (rect.isEmpty(extents))
+                    return;
+
+                var thickness = border.BorderThickness;
+
+                var fillOnly = !borderBrush || !thickness || thickness.IsEmpty();
+                if (fillOnly && !backgroundBrush)
+                    return;
+                ctx.save();
+                this.RenderLayoutClip(ctx);
+                if (!this._Renderer)
+                    this._Renderer = getRenderer(ctx);
+                this._Renderer.Initialize(extents, backgroundBrush, borderBrush, thickness, border.CornerRadius);
+                this._Renderer.Render(ctx);
+                ctx.restore();
+            };
+            return BorderLayoutUpdater;
+        })(Fayde.LayoutUpdater);
+        Controls.BorderLayoutUpdater = BorderLayoutUpdater;
+
+        function getRenderer(ctx) {
+            if (ctx.hasFillRule)
+                return new BorderRenderer();
+            return new BorderRendererShim();
         }
+
+        var BorderRenderer = (function () {
+            function BorderRenderer() {
+            }
+            BorderRenderer.prototype.Initialize = function (extents, backgroundBrush, borderBrush, thickness, cr) {
+                this.Thickness = thickness = thickness || new Thickness();
+                this.Extents = extents;
+                this.FillExtents = rect.shrinkByThickness(extents.Clone(), thickness);
+                this.BackgroundBrush = backgroundBrush;
+                this.BorderBrush = borderBrush;
+
+                var ia = this.InnerCornerRadius = cr ? cr.Clone() : new CornerRadius();
+                ia.TopLeft = Math.max(ia.TopLeft - Math.max(thickness.Left, thickness.Top) * 0.5, 0);
+                ia.TopRight = Math.max(ia.TopRight - Math.max(thickness.Right, thickness.Top) * 0.5, 0);
+                ia.BottomRight = Math.max(ia.BottomRight - Math.max(thickness.Right, thickness.Bottom) * 0.5, 0);
+                ia.BottomLeft = Math.max(ia.BottomLeft - Math.max(thickness.Left, thickness.Bottom) * 0.5, 0);
+
+                var oa = this.OuterCornerRadius = cr ? cr.Clone() : new CornerRadius();
+                oa.TopLeft = oa.TopLeft ? Math.max(oa.TopLeft + Math.max(thickness.Left, thickness.Top) * 0.5, 0) : 0;
+                oa.TopRight = oa.TopRight ? Math.max(oa.TopRight + Math.max(thickness.Right, thickness.Top) * 0.5, 0) : 0;
+                oa.BottomRight = oa.BottomRight ? Math.max(oa.BottomRight + Math.max(thickness.Right, thickness.Bottom) * 0.5, 0) : 0;
+                oa.BottomLeft = oa.BottomLeft ? Math.max(oa.BottomLeft + Math.max(thickness.Left, thickness.Bottom) * 0.5, 0) : 0;
+            };
+            BorderRenderer.prototype.Render = function (ctx) {
+                var borderBrush = this.BorderBrush;
+                var extents = this.Extents;
+                var fillExtents = this.FillExtents;
+                if (borderBrush && !rect.isEmpty(extents)) {
+                    ctx.beginPath();
+                    drawRect(ctx, extents, this.OuterCornerRadius);
+                    drawRect(ctx, fillExtents, this.InnerCornerRadius);
+                    ctx.fillEx(borderBrush, extents, "evenodd");
+                }
+                var backgroundBrush = this.BackgroundBrush;
+                if (backgroundBrush && !rect.isEmpty(fillExtents)) {
+                    ctx.beginPath();
+                    drawRect(ctx, fillExtents, this.InnerCornerRadius);
+                    ctx.fillEx(backgroundBrush, fillExtents);
+                }
+            };
+            return BorderRenderer;
+        })();
+        var BorderRendererShim = (function (_super) {
+            __extends(BorderRendererShim, _super);
+            function BorderRendererShim() {
+                _super.apply(this, arguments);
+            }
+            BorderRendererShim.prototype.Initialize = function (extents, backgroundBrush, borderBrush, thickness, cr) {
+                if (!thickness) {
+                    _super.prototype.Initialize.call(this, extents, backgroundBrush, borderBrush, undefined, cr);
+                    return this.Pattern = null;
+                }
+
+                var ot = this.Thickness;
+                var oextents = this.Extents;
+                var ofillExtents = this.FillExtents;
+                var oocr = this.OuterCornerRadius;
+                var oicr = this.InnerCornerRadius;
+                var obb = this.BorderBrush;
+
+                _super.prototype.Initialize.call(this, extents, backgroundBrush, borderBrush, thickness, cr);
+
+                if (this.Thickness.IsBalanced()) {
+                    var icr = this.InnerCornerRadius;
+                    var ocr = this.OuterCornerRadius;
+                    this.MiddleCornerRadius = new CornerRadius((icr.TopLeft + ocr.TopLeft) / 2.0, (icr.TopRight + ocr.TopRight) / 2.0, (icr.BottomRight + ocr.BottomRight) / 2.0, (icr.BottomLeft + ocr.BottomLeft) / 2.0);
+                    this.StrokeExtents = rect.shrinkBy(extents.Clone(), thickness.Left / 2.0, thickness.Top / 2.0, thickness.Right / 2.0, thickness.Bottom / 2.0);
+                }
+
+                if (!Thickness.Equals(ot, this.Thickness) || !rect.isEqual(oextents, this.Extents) || !rect.isEqual(ofillExtents, this.FillExtents) || !CornerRadius.Equals(oocr, this.OuterCornerRadius) || !CornerRadius.Equals(oicr, this.InnerCornerRadius) || obb !== this.BorderBrush)
+                    return this.Pattern = null;
+            };
+            BorderRendererShim.prototype.Render = function (ctx) {
+                var backgroundBrush = this.BackgroundBrush;
+                if (!isBrushTransparent(backgroundBrush))
+                    return _super.prototype.Render.call(this, ctx);
+                var fillExtents = this.FillExtents;
+                var icr = this.InnerCornerRadius;
+
+                this.RenderBorder(ctx);
+                if (backgroundBrush && !rect.isEmpty(fillExtents)) {
+                    ctx.beginPath();
+                    drawRect(ctx, fillExtents, icr);
+                    ctx.fillEx(backgroundBrush, fillExtents);
+                }
+            };
+            BorderRendererShim.prototype.RenderBorder = function (ctx) {
+                var borderBrush = this.BorderBrush;
+                if (!borderBrush)
+                    return;
+                var extents = this.Extents;
+                if (rect.isEmpty(extents))
+                    return;
+
+                var thickness = this.Thickness;
+                if (thickness.IsBalanced()) {
+                    ctx.beginPath();
+                    drawRect(ctx, this.StrokeExtents, this.MiddleCornerRadius);
+                    ctx.strokeEx(borderBrush, { thickness: thickness.Left, endCap: 0, startCap: 0, miterLimit: 0, join: 0 }, this.StrokeExtents);
+                    return;
+                }
+
+                var ocr = this.OuterCornerRadius;
+                var pattern = this.Pattern;
+                if (!pattern)
+                    pattern = this.Pattern = createBorderPattern(ctx, borderBrush, extents, this.FillExtents, ocr, this.InnerCornerRadius);
+
+                ctx.beginPath();
+                ctx.fillStyle = pattern;
+                drawRect(ctx, extents, ocr);
+                ctx.fill();
+            };
+            return BorderRendererShim;
+        })(BorderRenderer);
+
         var ARC_TO_BEZIER = 0.55228475;
         function drawRect(ctx, extents, cr) {
             if (!cr || cr.IsZero()) {
@@ -3316,6 +4845,32 @@ var Fayde;
             ctx.lineTo(extents.X, extents.Y + tll);
             ctx.bezierCurveTo(extents.X, extents.Y + tll - tll * ARC_TO_BEZIER, extents.X + tlt - tlt * ARC_TO_BEZIER, extents.Y, extents.X + tlt, extents.Y);
         }
+        function createBorderPattern(ctx, borderBrush, extents, fillExtents, oa, ia) {
+            var tempCtx = ctx.createTemporaryContext(extents.Width, extents.Height);
+            tempCtx.beginPath();
+            drawRect(tempCtx, extents, oa);
+            tempCtx.fillEx(borderBrush, extents);
+            tempCtx.globalCompositeOperation = "xor";
+            tempCtx.beginPath();
+            drawRect(tempCtx, fillExtents, ia);
+            tempCtx.fill();
+            return tempCtx.createPattern(tempCtx.canvas, "no-repeat");
+        }
+        function isBrushTransparent(brush) {
+            if (!brush)
+                return true;
+            if (brush instanceof Fayde.Media.SolidColorBrush)
+                return brush.Color.A < 1.0;
+            if (brush instanceof Fayde.Media.LinearGradientBrush) {
+                var enumerator = brush.GradientStops.GetEnumerator();
+                while (enumerator.MoveNext()) {
+                    if (enumerator.Current.Color.A < 1.0)
+                        return true;
+                }
+                return false;
+            }
+            return true;
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -3334,7 +4889,7 @@ var Fayde;
             };
             IsEnabledStore.prototype.GetValuePrecedence = function (storage) {
                 if (storage.InheritedValue === false)
-                    return Providers.PropertyPrecedence.IsEnabled;
+                    return 0 /* IsEnabled */;
                 return _super.prototype.GetValuePrecedence.call(this, storage);
             };
 
@@ -3343,7 +4898,7 @@ var Fayde;
                 storage.Local = newValue;
                 if (oldValue === newValue || storage.InheritedValue === false)
                     return;
-                this.OnPropertyChanged(storage, Providers.PropertyPrecedence.LocalValue, oldValue, newValue);
+                this.OnPropertyChanged(storage, 1 /* LocalValue */, oldValue, newValue);
             };
 
             IsEnabledStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
@@ -3356,7 +4911,7 @@ var Fayde;
                 return {
                     OwnerNode: dobj.XamlNode,
                     Property: propd,
-                    Precedence: Providers.PropertyPrecedence.DefaultValue,
+                    Precedence: 6 /* DefaultValue */,
                     InheritedValue: true,
                     Animations: undefined,
                     Local: undefined,
@@ -3376,20 +4931,21 @@ var Fayde;
                 }
                 if (oldInherited === newInherited)
                     return;
-                this.OnPropertyChanged(storage, Providers.PropertyPrecedence.IsEnabled, oldInherited, newInherited);
+                this.OnPropertyChanged(storage, 0 /* IsEnabled */, oldInherited, newInherited);
             };
             IsEnabledStore.EmitInheritedChanged = function (cn, value) {
                 var propd = Fayde.Controls.Control.IsEnabledProperty;
                 var storage = Fayde.Providers.GetStorage(cn.XObject, propd);
-                (propd.Store).EmitInheritedChanged(storage, value);
+                propd.Store.EmitInheritedChanged(storage, value);
             };
             return IsEnabledStore;
-        })(Providers.PropertyStore);
+        })(Fayde.Providers.PropertyStore);
         Providers.IsEnabledStore = IsEnabledStore;
         IsEnabledStore.Instance = new IsEnabledStore();
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));
+
 var Nullstone = (function () {
     function Nullstone() {
     }
@@ -3407,14 +4963,14 @@ var Nullstone = (function () {
     Nullstone.DoesInheritFrom = function (t, type) {
         var temp = t;
         while (temp && temp !== type) {
-            temp = (temp)._BaseClass;
+            temp = temp._BaseClass;
         }
         return temp != null;
     };
     Nullstone.GetPropertyDescriptor = function (obj, name) {
         if (!obj)
             return;
-        var type = (obj).constructor;
+        var type = obj.constructor;
         var propDesc = Object.getOwnPropertyDescriptor(type.prototype, name);
         if (propDesc)
             return propDesc;
@@ -3488,29 +5044,29 @@ var Fayde;
             }
             Keyboard.RefreshModifiers = function (e) {
                 if (e.Shift)
-                    Keyboard.Modifiers |= ModifierKeys.Shift;
-else
-                    Keyboard.Modifiers &= ~ModifierKeys.Shift;
+                    Keyboard.Modifiers |= 4 /* Shift */;
+                else
+                    Keyboard.Modifiers &= ~4 /* Shift */;
                 if (e.Ctrl)
-                    Keyboard.Modifiers |= ModifierKeys.Control;
-else
-                    Keyboard.Modifiers &= ~ModifierKeys.Control;
+                    Keyboard.Modifiers |= 2 /* Control */;
+                else
+                    Keyboard.Modifiers &= ~2 /* Control */;
                 if (e.Alt)
-                    Keyboard.Modifiers |= ModifierKeys.Alt;
-else
-                    Keyboard.Modifiers &= ~ModifierKeys.Alt;
+                    Keyboard.Modifiers |= 1 /* Alt */;
+                else
+                    Keyboard.Modifiers &= ~1 /* Alt */;
             };
 
             Keyboard.HasControl = function () {
-                return (Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control;
+                return (Keyboard.Modifiers & 2 /* Control */) === 2 /* Control */;
             };
             Keyboard.HasAlt = function () {
-                return (Keyboard.Modifiers & ModifierKeys.Alt) === ModifierKeys.Alt;
+                return (Keyboard.Modifiers & 1 /* Alt */) === 1 /* Alt */;
             };
             Keyboard.HasShift = function () {
-                return (Keyboard.Modifiers & ModifierKeys.Shift) === ModifierKeys.Shift;
+                return (Keyboard.Modifiers & 4 /* Shift */) === 4 /* Shift */;
             };
-            Keyboard.Modifiers = ModifierKeys.None;
+            Keyboard.Modifiers = 0 /* None */;
             return Keyboard;
         })();
         Input.Keyboard = Keyboard;
@@ -3626,7 +5182,7 @@ var Fayde;
             Control.prototype.IsInheritable = function (propd) {
                 if (ControlInheritedProperties.indexOf(propd) > -1)
                     return true;
-                return (_super.prototype).IsInheritable.call(this, propd);
+                return _super.prototype.IsInheritable.call(this, propd);
             };
 
             Object.defineProperty(Control.prototype, "IsFocused", {
@@ -3735,7 +5291,7 @@ var Fayde;
             Control.BorderThicknessProperty = DependencyProperty.RegisterCore("BorderThickness", function () {
                 return Thickness;
             }, Control, undefined, function (d, args) {
-                return (d)._BorderThicknessChanged(args);
+                return d._BorderThicknessChanged(args);
             });
             Control.FontFamilyProperty = Fayde.InheritableOwner.FontFamilyProperty.ExtendTo(Control);
             Control.FontSizeProperty = Fayde.InheritableOwner.FontSizeProperty.ExtendTo(Control);
@@ -3745,13 +5301,13 @@ var Fayde;
             Control.ForegroundProperty = Fayde.InheritableOwner.ForegroundProperty.ExtendTo(Control);
             Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () {
                 return new Enum(Fayde.HorizontalAlignment);
-            }, Control, Fayde.HorizontalAlignment.Center, function (d, args) {
-                return (d)._ContentAlignmentChanged(args);
+            }, Control, 1 /* Center */, function (d, args) {
+                return d._ContentAlignmentChanged(args);
             });
             Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", function () {
                 return Boolean;
             }, Control, true, function (d, args) {
-                return (d)._IsEnabledChanged(args);
+                return d._IsEnabledChanged(args);
             });
             Control.IsTabStopProperty = DependencyProperty.Register("IsTabStop", function () {
                 return Boolean;
@@ -3759,23 +5315,23 @@ var Fayde;
             Control.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () {
                 return Thickness;
             }, Control, undefined, function (d, args) {
-                return (d)._BorderThicknessChanged(args);
+                return d._BorderThicknessChanged(args);
             });
             Control.TabIndexProperty = DependencyProperty.Register("TabIndex", function () {
                 return Number;
             }, Control);
             Control.TabNavigationProperty = DependencyProperty.Register("TabNavigation", function () {
                 return new Enum(Fayde.Input.KeyboardNavigationMode);
-            }, Control, Fayde.Input.KeyboardNavigationMode.Local);
+            }, Control, 5 /* Local */);
             Control.TemplateProperty = DependencyProperty.Register("Template", function () {
-                return Controls.ControlTemplate;
+                return Fayde.Controls.ControlTemplate;
             }, Control, undefined, function (d, args) {
-                return (d)._TemplateChanged(args);
+                return d._TemplateChanged(args);
             });
             Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () {
                 return new Enum(Fayde.VerticalAlignment);
-            }, Control, Fayde.VerticalAlignment.Center, function (d, args) {
-                return (d)._ContentAlignmentChanged(args);
+            }, Control, 1 /* Center */, function (d, args) {
+                return d._ContentAlignmentChanged(args);
             });
             Control.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () {
                 return Function;
@@ -3816,14 +5372,14 @@ var Fayde;
                 if (content instanceof Fayde.UIElement)
                     return content;
 
-                var presenter = new Controls.ContentPresenter();
+                var presenter = new Fayde.Controls.ContentPresenter();
                 presenter.TemplateOwner = this.XObject;
-                presenter.SetValue(Controls.ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(ContentControl.ContentProperty, Controls.ContentPresenter.ContentProperty));
-                presenter.SetValue(Controls.ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(ContentControl.ContentTemplateProperty, Controls.ContentPresenter.ContentTemplateProperty));
+                presenter.SetValue(Fayde.Controls.ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(ContentControl.ContentProperty, Fayde.Controls.ContentPresenter.ContentProperty));
+                presenter.SetValue(Fayde.Controls.ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(ContentControl.ContentTemplateProperty, Fayde.Controls.ContentPresenter.ContentTemplateProperty));
                 return presenter;
             };
             return ContentControlNode;
-        })(Controls.ControlNode);
+        })(Fayde.Controls.ControlNode);
         Controls.ContentControlNode = ContentControlNode;
         Fayde.RegisterType(ContentControlNode, {
             Name: "ContentControlNode",
@@ -3847,17 +5403,17 @@ var Fayde;
             ContentControl.ContentProperty = DependencyProperty.Register("Content", function () {
                 return Object;
             }, ContentControl, undefined, function (d, args) {
-                return (d).OnContentChanged(args.OldValue, args.NewValue);
+                return d.OnContentChanged(args.OldValue, args.NewValue);
             });
             ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
                 return Fayde.DataTemplate;
             }, ContentControl, undefined, function (d, args) {
-                return (d).OnContentTemplateChanged(args.OldValue, args.NewValue);
+                return d.OnContentTemplateChanged(args.OldValue, args.NewValue);
             });
 
             ContentControl.Annotations = { ContentProperty: ContentControl.ContentProperty };
             return ContentControl;
-        })(Controls.Control);
+        })(Fayde.Controls.Control);
         Controls.ContentControl = ContentControl;
         Fayde.RegisterType(ContentControl, {
             Name: "ContentControl",
@@ -4002,7 +5558,7 @@ var Fayde;
 
                     this._SuspendStateChanges = true;
                     try  {
-                        if (this.ClickMode === Controls.ClickMode.Hover && this.IsEnabled) {
+                        if (this.ClickMode === 2 /* Hover */ && this.IsEnabled) {
                             this.SetValueInternal(ButtonBase.IsPressedProperty, true);
                             this.OnClick();
                         }
@@ -4016,7 +5572,7 @@ var Fayde;
 
                     this._SuspendStateChanges = true;
                     try  {
-                        if (this.ClickMode === Controls.ClickMode.Hover && this.IsEnabled)
+                        if (this.ClickMode === 2 /* Hover */ && this.IsEnabled)
                             this.SetValueInternal(ButtonBase.IsPressedProperty, false);
                     } finally {
                         this._SuspendStateChanges = false;
@@ -4028,7 +5584,7 @@ var Fayde;
 
                     this._MousePosition = e.GetPosition(this);
 
-                    if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== Controls.ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
+                    if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== 2 /* Hover */ && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
                         this.SetValueInternal(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
                     }
                 };
@@ -4039,7 +5595,7 @@ var Fayde;
                     if (!this.IsEnabled)
                         return;
                     var clickMode = this.ClickMode;
-                    if (clickMode === Controls.ClickMode.Hover)
+                    if (clickMode === 2 /* Hover */)
                         return;
 
                     e.Handled = true;
@@ -4054,7 +5610,7 @@ var Fayde;
                         this.UpdateVisualState();
                     }
 
-                    if (clickMode === Controls.ClickMode.Press)
+                    if (clickMode === 1 /* Press */)
                         this.OnClick();
                 };
                 ButtonBase.prototype.OnMouseLeftButtonUp = function (e) {
@@ -4064,11 +5620,11 @@ var Fayde;
                     if (!this.IsEnabled)
                         return;
                     var clickMode = this.ClickMode;
-                    if (clickMode === Controls.ClickMode.Hover)
+                    if (clickMode === 2 /* Hover */)
                         return;
 
                     e.Handled = true;
-                    if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === Controls.ClickMode.Release)
+                    if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === 0 /* Release */)
                         this.OnClick();
 
                     if (!this._IsSpaceKeyDown) {
@@ -4088,7 +5644,7 @@ var Fayde;
 
                     this._SuspendStateChanges = true;
                     try  {
-                        if (this.ClickMode !== Controls.ClickMode.Hover) {
+                        if (this.ClickMode !== 2 /* Hover */) {
                             this.SetValueInternal(ButtonBase.IsPressedProperty, false);
                             this._ReleaseMouseCaptureInternal();
                             this._IsSpaceKeyDown = false;
@@ -4161,12 +5717,12 @@ var Fayde;
                         this.IsEnabled = cmd.CanExecute(args.NewValue);
                 };
                 ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () {
-                    return new Enum(Controls.ClickMode);
-                }, ButtonBase, Controls.ClickMode.Release);
+                    return new Enum(Fayde.Controls.ClickMode);
+                }, ButtonBase, 0 /* Release */);
                 ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () {
                     return Boolean;
                 }, ButtonBase, false, function (d, args) {
-                    return (d).OnIsPressedChanged(args);
+                    return d.OnIsPressedChanged(args);
                 });
                 ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () {
                     return Boolean;
@@ -4174,15 +5730,15 @@ var Fayde;
                 ButtonBase.CommandProperty = DependencyProperty.RegisterCore("Command", function () {
                     return Fayde.Input.ICommand_;
                 }, ButtonBase, undefined, function (d, args) {
-                    return (d).OnCommandChanged(args);
+                    return d.OnCommandChanged(args);
                 });
                 ButtonBase.CommandParameterProperty = DependencyProperty.RegisterCore("CommandParameter", function () {
                     return Object;
                 }, ButtonBase, undefined, function (d, args) {
-                    return (d).OnCommandParameterChanged(args);
+                    return d.OnCommandParameterChanged(args);
                 });
                 return ButtonBase;
-            })(Controls.ContentControl);
+            })(Fayde.Controls.ContentControl);
             Primitives.ButtonBase = ButtonBase;
             Fayde.RegisterType(ButtonBase, {
                 Name: "ButtonBase",
@@ -4201,7 +5757,7 @@ var Fayde;
             __extends(Button, _super);
             function Button() {
                 _super.call(this);
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             Button.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
@@ -4213,7 +5769,7 @@ var Fayde;
                 this.IsTabStop = e.NewValue;
             };
             return Button;
-        })(Controls.Primitives.ButtonBase);
+        })(Fayde.Controls.Primitives.ButtonBase);
         Controls.Button = Button;
         Fayde.RegisterType(Button, {
             Name: "Button",
@@ -4416,15 +5972,15 @@ var Fayde;
             PanelChildrenNode.prototype.GetVisualTreeEnumerator = function (direction) {
                 switch (direction) {
                     default:
-                    case Fayde.VisualTreeDirection.Logical:
+                    case 0 /* Logical */:
                         return Fayde.ArrayEx.GetEnumerator(this._Nodes);
-                    case Fayde.VisualTreeDirection.LogicalReverse:
+                    case 1 /* LogicalReverse */:
                         return Fayde.ArrayEx.GetEnumerator(this._Nodes, true);
-                    case Fayde.VisualTreeDirection.ZFoward:
+                    case 2 /* ZFoward */:
                         if (this._ZSorted.length !== this._Nodes.length)
                             this.ResortByZIndex();
                         return Fayde.ArrayEx.GetEnumerator(this._ZSorted);
-                    case Fayde.VisualTreeDirection.ZReverse:
+                    case 3 /* ZReverse */:
                         if (this._ZSorted.length !== this._Nodes.length)
                             this.ResortByZIndex();
                         return Fayde.ArrayEx.GetEnumerator(this._ZSorted, true);
@@ -4449,13 +6005,13 @@ var Fayde;
                 var node = this.XamlNode;
                 if (!node.ParentNode.AttachVisualChild(value, error))
                     return false;
-                node.AddNode((value).XamlNode);
+                node.AddNode(value.XamlNode);
                 return _super.prototype.AddingToCollection.call(this, value, error);
             };
             PanelChildrenCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
                 var node = this.XamlNode;
                 node.ParentNode.DetachVisualChild(value, null);
-                node.RemoveNode((value).XamlNode);
+                node.RemoveNode(value.XamlNode);
                 _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
             };
             return PanelChildrenCollection;
@@ -4469,7 +6025,6 @@ var Fayde;
             __extends(PanelNode, _super);
             function PanelNode(xobj) {
                 _super.call(this, xobj);
-                this.LayoutUpdater.SetContainerMode(true, true);
             }
             PanelNode.prototype.AttachVisualChild = function (uie, error) {
                 this.OnVisualChildAttached(uie);
@@ -4484,45 +6039,17 @@ var Fayde;
                 return true;
             };
             PanelNode.prototype._InvalidateChildrenZIndices = function () {
-                if (this.IsAttached) {
-                }
+                var lu = this.LayoutUpdater;
+                lu.InvalidateChildrenZIndices();
             };
-            PanelNode.prototype._ResortChildrenByZIndex = function () {
-                (this.XObject.Children).XamlNode.ResortByZIndex();
+            PanelNode.prototype.ResortChildrenByZIndex = function () {
+                this.XObject.Children.XamlNode.ResortByZIndex();
             };
 
             PanelNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
                 this.SetSurfaceFromVisualParent();
                 this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
                 _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
-            };
-
-            PanelNode.prototype.PostInsideObject = function (ctx, lu, x, y) {
-                return this.XObject.Background != null;
-            };
-
-            PanelNode.prototype.ComputeBounds = function (baseComputer, lu) {
-                rect.clear(lu.Extents);
-                rect.clear(lu.ExtentsWithChildren);
-
-                var enumerator = this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.Logical);
-                while (enumerator.MoveNext()) {
-                    var item = enumerator.Current;
-                    var itemlu = item.LayoutUpdater;
-                    if (itemlu.TotalIsRenderVisible)
-                        rect.union(lu.ExtentsWithChildren, itemlu.GlobalBoundsWithChildren);
-                }
-
-                if (this.XObject.Background) {
-                    rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);
-                    rect.union(lu.ExtentsWithChildren, lu.Extents);
-                }
-
-                rect.copyGrowTransform(lu.Bounds, lu.Extents, lu.EffectPadding, lu.AbsoluteXform);
-                rect.copyGrowTransform(lu.BoundsWithChildren, lu.ExtentsWithChildren, lu.EffectPadding, lu.AbsoluteXform);
-
-                lu.ComputeGlobalBounds();
-                lu.ComputeSurfaceBounds();
             };
 
             PanelNode.prototype.GetVisualTreeEnumerator = function (direction) {
@@ -4539,9 +6066,11 @@ var Fayde;
         function zIndexPropertyChanged(dobj, args) {
             var xn = dobj.XamlNode;
             if (xn instanceof Fayde.UINode)
-                (xn).LayoutUpdater.Invalidate();
-            if (xn.IsAttached)
-                (xn.ParentNode)._InvalidateChildrenZIndices();
+                xn.LayoutUpdater.Invalidate();
+            if (xn.IsAttached) {
+                var panelNode = xn.VisualParentNode;
+                panelNode._InvalidateChildrenZIndices();
+            }
         }
         var Panel = (function (_super) {
             __extends(Panel, _super);
@@ -4553,6 +6082,9 @@ var Fayde;
             }
             Panel.prototype.CreateNode = function () {
                 return new PanelNode(this);
+            };
+            Panel.prototype.CreateLayoutUpdater = function (node) {
+                return new PanelLayoutUpdater(node);
             };
 
             Panel.GetZIndex = function (uie) {
@@ -4586,24 +6118,6 @@ var Fayde;
                 lu.UpdateBounds();
                 lu.Invalidate();
             };
-            Panel.prototype._MeasureOverride = function (availableSize, error) {
-                return new size();
-            };
-            Panel.prototype.Render = function (ctx, lu, region) {
-                var background = this.Background;
-                if (!background)
-                    return;
-
-                var framework = lu.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
-                if (framework.Width <= 0 || framework.Height <= 0)
-                    return;
-
-                var area = rect.fromSize(framework);
-                ctx.save();
-                lu.RenderLayoutClip(ctx);
-                ctx.fillRectEx(background, area);
-                ctx.restore();
-            };
             Panel.ZIndexProperty = DependencyProperty.RegisterAttached("ZIndex", function () {
                 return Number;
             }, Panel, 0, zIndexPropertyChanged);
@@ -4614,7 +6128,7 @@ var Fayde;
             Panel.BackgroundProperty = DependencyProperty.Register("Background", function () {
                 return Fayde.Media.Brush;
             }, Panel, undefined, function (d, args) {
-                return (d)._BackgroundChanged(args);
+                return d._BackgroundChanged(args);
             });
             Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemHost", function () {
                 return Boolean;
@@ -4632,6 +6146,46 @@ var Fayde;
             Namespace: "Fayde.Controls",
             XmlNamespace: Fayde.XMLNS
         });
+
+        var PanelLayoutUpdater = (function (_super) {
+            __extends(PanelLayoutUpdater, _super);
+            function PanelLayoutUpdater(node) {
+                _super.call(this, node);
+                this.SetContainerMode(true, true);
+            }
+            PanelLayoutUpdater.prototype.InsideObject = function (ctx, x, y) {
+                if (!_super.prototype.InsideObject.call(this, ctx, x, y))
+                    return false;
+                return this.Node.XObject.Background != null;
+            };
+
+            PanelLayoutUpdater.prototype.ComputeExtents = function (actualSize) {
+                if (!this.Node.XObject.Background) {
+                    actualSize.Width = 0;
+                    actualSize.Height = 0;
+                }
+                return _super.prototype.ComputeExtents.call(this, actualSize);
+            };
+
+            PanelLayoutUpdater.prototype.Render = function (ctx, region) {
+                var panel = this.Node.XObject;
+                var background = panel.Background;
+                if (!background)
+                    return;
+
+                var framework = this.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+                if (framework.Width <= 0 || framework.Height <= 0)
+                    return;
+
+                var area = rect.fromSize(framework);
+                ctx.save();
+                this.RenderLayoutClip(ctx);
+                ctx.fillRectEx(background, area);
+                ctx.restore();
+            };
+            return PanelLayoutUpdater;
+        })(Fayde.LayoutUpdater);
+        Controls.PanelLayoutUpdater = PanelLayoutUpdater;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -4642,17 +6196,18 @@ var Fayde;
             __extends(CanvasNode, _super);
             function CanvasNode(xobj) {
                 _super.call(this, xobj);
-                this.LayoutUpdater.BreaksLayoutClipRender = true;
             }
             CanvasNode.prototype.AttachVisualChild = function (uie, error) {
                 if (!_super.prototype.AttachVisualChild.call(this, uie, error))
                     return false;
                 this._UpdateIsLayoutContainerOnAdd(uie);
+                return true;
             };
             CanvasNode.prototype.DetachVisualChild = function (uie, error) {
                 if (!_super.prototype.DetachVisualChild.call(this, uie, error))
                     return false;
                 this._UpdateIsLayoutContainerOnRemove(uie);
+                return true;
             };
             CanvasNode.prototype._UpdateIsLayoutContainerOnAdd = function (uie) {
                 var lu = this.LayoutUpdater;
@@ -4663,7 +6218,7 @@ var Fayde;
                 while (childNode = walker.Step()) {
                     if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {
                         lu.IsLayoutContainer = true;
-                        break;
+                        return;
                     }
                 }
             };
@@ -4674,31 +6229,13 @@ var Fayde;
                 var walker = Fayde.DeepTreeWalker(this);
                 var childNode;
                 while (childNode = walker.Step()) {
-                    if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {
-                        lu.IsLayoutContainer = true;
-                        break;
-                    }
+                    if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer)
+                        return;
                 }
                 lu.IsLayoutContainer = false;
             };
-
-            CanvasNode.prototype.ComputeBounds = function (baseComputer, lu) {
-                var surface = this._Surface;
-                if (surface && this.IsAttached && this.IsTopLevel) {
-                    var surfaceSize = surface.Extents;
-                    rect.set(lu.Extents, 0, 0, surfaceSize.Width, surfaceSize.Height);
-                    rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
-                    rect.copyTo(lu.Extents, lu.Bounds);
-                    rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
-
-                    lu.ComputeGlobalBounds();
-                    lu.ComputeSurfaceBounds();
-                } else {
-                    _super.prototype.ComputeBounds.call(this, baseComputer, lu);
-                }
-            };
             return CanvasNode;
-        })(Controls.PanelNode);
+        })(Fayde.Controls.PanelNode);
         Controls.CanvasNode = CanvasNode;
         Fayde.RegisterType(CanvasNode, {
             Name: "CanvasNode",
@@ -4746,6 +6283,13 @@ var Fayde;
             function Canvas() {
                 _super.apply(this, arguments);
             }
+            Canvas.prototype.CreateNode = function () {
+                return new CanvasNode(this);
+            };
+            Canvas.prototype.CreateLayoutUpdater = function (node) {
+                return new CanvasLayoutUpdater(node);
+            };
+
             Canvas.GetTop = function (d) {
                 return d.GetValue(Canvas.TopProperty);
             };
@@ -4759,18 +6303,39 @@ var Fayde;
             Canvas.SetLeft = function (d, value) {
                 d.SetValue(Canvas.LeftProperty, value);
             };
+            Canvas.TopProperty = DependencyProperty.RegisterAttached("Top", function () {
+                return Number;
+            }, Canvas, 0.0, invalidateTopLeft);
 
-            Canvas.prototype._MeasureOverride = function (availableSize, error) {
+            Canvas.LeftProperty = DependencyProperty.RegisterAttached("Left", function () {
+                return Number;
+            }, Canvas, 0.0, invalidateTopLeft);
+            return Canvas;
+        })(Fayde.Controls.Panel);
+        Controls.Canvas = Canvas;
+        Fayde.RegisterType(Canvas, {
+            Name: "Canvas",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
+        var CanvasLayoutUpdater = (function (_super) {
+            __extends(CanvasLayoutUpdater, _super);
+            function CanvasLayoutUpdater(node) {
+                _super.call(this, node);
+                this.BreaksLayoutClipRender = true;
+            }
+            CanvasLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
                 var childSize = size.createInfinite();
-                var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+                var enumerator = this.Node.GetVisualTreeEnumerator();
                 while (enumerator.MoveNext()) {
                     var childNode = enumerator.Current;
                     childNode.LayoutUpdater._Measure(childSize, error);
                 }
                 return new size();
             };
-            Canvas.prototype._ArrangeOverride = function (finalSize, error) {
-                var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            CanvasLayoutUpdater.prototype.ArrangeOverride = function (finalSize, error) {
+                var enumerator = this.Node.GetVisualTreeEnumerator();
                 while (enumerator.MoveNext()) {
                     var childNode = enumerator.Current;
                     var lu = childNode.LayoutUpdater;
@@ -4781,21 +6346,19 @@ var Fayde;
                 }
                 return finalSize;
             };
-            Canvas.TopProperty = DependencyProperty.RegisterAttached("Top", function () {
-                return Number;
-            }, Canvas, 0.0, invalidateTopLeft);
 
-            Canvas.LeftProperty = DependencyProperty.RegisterAttached("Left", function () {
-                return Number;
-            }, Canvas, 0.0, invalidateTopLeft);
-            return Canvas;
-        })(Controls.Panel);
-        Controls.Canvas = Canvas;
-        Fayde.RegisterType(Canvas, {
-            Name: "Canvas",
-            Namespace: "Fayde.Controls",
-            XmlNamespace: Fayde.XMLNS
-        });
+            CanvasLayoutUpdater.prototype.ComputeBounds = function () {
+                _super.prototype.ComputeBounds.call(this);
+                var surface = this.Surface;
+                var node = this.Node;
+                if (surface && node.IsAttached && node.IsTopLevel) {
+                    var full = surface.Extents;
+                    rect.set(this.SurfaceBoundsWithChildren, 0, 0, full.Width, full.Height);
+                }
+            };
+            return CanvasLayoutUpdater;
+        })(Fayde.Controls.PanelLayoutUpdater);
+        Controls.CanvasLayoutUpdater = CanvasLayoutUpdater;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -4810,7 +6373,7 @@ var Fayde;
                     this.Checked = new Fayde.RoutedEvent();
                     this.Indeterminate = new Fayde.RoutedEvent();
                     this.Unchecked = new Fayde.RoutedEvent();
-                    this.DefaultStyleKey = (this).constructor;
+                    this.DefaultStyleKey = this.constructor;
                 }
                 ToggleButton.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
@@ -4865,13 +6428,13 @@ var Fayde;
                 ToggleButton.IsCheckedProperty = DependencyProperty.RegisterCore("IsChecked", function () {
                     return Boolean;
                 }, ToggleButton, false, function (d, args) {
-                    return (d).OnIsCheckedChanged(args);
+                    return d.OnIsCheckedChanged(args);
                 });
                 ToggleButton.IsThreeStateProperty = DependencyProperty.RegisterCore("IsThreeState", function () {
                     return Boolean;
                 }, ToggleButton, false);
                 return ToggleButton;
-            })(Primitives.ButtonBase);
+            })(Fayde.Controls.Primitives.ButtonBase);
             Primitives.ToggleButton = ToggleButton;
             Fayde.RegisterType(ToggleButton, {
                 Name: "ToggleButton",
@@ -4890,10 +6453,10 @@ var Fayde;
             __extends(CheckBox, _super);
             function CheckBox() {
                 _super.call(this);
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             return CheckBox;
-        })(Controls.Primitives.ToggleButton);
+        })(Fayde.Controls.Primitives.ToggleButton);
         Controls.CheckBox = CheckBox;
         Fayde.RegisterType(CheckBox, {
             Name: "CheckBox",
@@ -4925,19 +6488,19 @@ var Fayde;
                     listener.ColumnDefinitionChanged(this);
             };
             ColumnDefinition.WidthProperty = DependencyProperty.Register("Width", function () {
-                return Controls.GridLength;
+                return Fayde.Controls.GridLength;
             }, ColumnDefinition, undefined, function (d, args) {
-                return (d)._WidthsChanged(args);
+                return d._WidthsChanged(args);
             });
             ColumnDefinition.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () {
                 return Number;
             }, ColumnDefinition, Number.POSITIVE_INFINITY, function (d, args) {
-                return (d)._WidthsChanged(args);
+                return d._WidthsChanged(args);
             });
             ColumnDefinition.MinWidthProperty = DependencyProperty.Register("MinWidth", function () {
                 return Number;
             }, ColumnDefinition, 0.0, function (d, args) {
-                return (d)._WidthsChanged(args);
+                return d._WidthsChanged(args);
             });
             ColumnDefinition.ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", function () {
                 return Number;
@@ -4957,17 +6520,17 @@ var Fayde;
             var s = o.toString();
             var cd = new ColumnDefinition();
             if (s.toLowerCase() === "auto") {
-                cd.Width = new Controls.GridLength(0, Controls.GridUnitType.Auto);
+                cd.Width = new Fayde.Controls.GridLength(0, 0 /* Auto */);
                 return cd;
             }
             if (s === "*") {
-                cd.Width = new Controls.GridLength(1, Controls.GridUnitType.Star);
+                cd.Width = new Fayde.Controls.GridLength(1, 2 /* Star */);
                 return cd;
             }
             var v = parseFloat(s);
             if (isNaN(v))
                 throw new XamlParseException("Invalid ColumnDefinition: '" + s + "'.");
-            cd.Width = new Controls.GridLength(v, s[s.length - 1] === "*" ? Controls.GridUnitType.Star : Controls.GridUnitType.Pixel);
+            cd.Width = new Fayde.Controls.GridLength(v, s[s.length - 1] === "*" ? 2 /* Star */ : 1 /* Pixel */);
             return cd;
         }
         Fayde.RegisterTypeConverter(ColumnDefinition, ConvertColumnDefinition);
@@ -5019,7 +6582,7 @@ var Fayde;
             if (!o || o instanceof ColumnDefinitionCollection)
                 return o;
             if (typeof o === "string") {
-                var tokens = (o).split(" ");
+                var tokens = o.split(" ");
                 var len = tokens.length;
                 var cdc = new ColumnDefinitionCollection();
                 var cd;
@@ -5046,7 +6609,7 @@ var Fayde;
             ItemsControlNode.prototype.GetDefaultVisualTree = function () {
                 var presenter = this._Presenter;
                 if (!presenter) {
-                    this._Presenter = presenter = new Controls.ItemsPresenter();
+                    this._Presenter = presenter = new Fayde.Controls.ItemsPresenter();
                     presenter.TemplateOwner = this.XObject;
                 }
                 return presenter;
@@ -5069,7 +6632,7 @@ var Fayde;
             };
             ItemsControlNode._DefaultPosition = { Index: -1, Offset: 1 };
             return ItemsControlNode;
-        })(Controls.ControlNode);
+        })(Fayde.Controls.ControlNode);
         Controls.ItemsControlNode = ItemsControlNode;
         Fayde.RegisterType(ItemsControlNode, {
             Name: "ItemsControlNode",
@@ -5083,8 +6646,8 @@ var Fayde;
                 this._ItemsIsDataBound = false;
                 this._Items = null;
                 this._DisplayMemberTemplate = null;
-                this.DefaultStyleKey = (this).constructor;
-                var icg = new Controls.ItemContainerGenerator(this);
+                this.DefaultStyleKey = this.constructor;
+                var icg = new Fayde.Controls.ItemContainerGenerator(this);
                 icg.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
                 Object.defineProperty(this, "ItemContainerGenerator", {
                     value: icg,
@@ -5099,12 +6662,12 @@ var Fayde;
                 get: function () {
                     var items = this._Items;
                     if (!items) {
-                        this._Items = items = new Controls.ItemCollection();
+                        this._Items = items = new Fayde.Controls.ItemCollection();
                         this._ItemsIsDataBound = true;
                         items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
 
                         var storage = Fayde.Providers.GetStorage(this, ItemsControl.ItemsProperty);
-                        storage.Precedence = Fayde.Providers.PropertyPrecedence.LocalValue;
+                        storage.Precedence = 1 /* LocalValue */;
                         storage.Local = items;
                     }
                     return items;
@@ -5135,7 +6698,8 @@ var Fayde;
             Object.defineProperty(ItemsControl.prototype, "$DisplayMemberTemplate", {
                 get: function () {
                     if (!this._DisplayMemberTemplate) {
-                        this._DisplayMemberTemplate = Fayde.Xaml.Load("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + this.DisplayMemberPath + "}\" /></Grid></DataTemplate>");
+                        var dmp = this.DisplayMemberPath || "";
+                        this._DisplayMemberTemplate = Fayde.Xaml.Load("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
                     }
                     return this._DisplayMemberTemplate;
                 },
@@ -5154,13 +6718,13 @@ var Fayde;
             });
 
             ItemsControl.GetItemsOwner = function (uie) {
-                if (!(uie instanceof Controls.Panel))
+                if (!(uie instanceof Fayde.Controls.Panel))
                     return null;
                 var panel = uie;
                 if (!panel.IsItemsHost)
                     return null;
                 var presenter = panel.TemplateOwner;
-                if (!(presenter instanceof Controls.ItemsPresenter))
+                if (!(presenter instanceof Fayde.Controls.ItemsPresenter))
                     return null;
                 var ic = presenter.TemplateOwner;
                 if (ic instanceof ItemsControl)
@@ -5187,13 +6751,13 @@ var Fayde;
 
             ItemsControl.prototype.OnItemsSourceChanged = function (e) {
                 if (!e.OldValue && Nullstone.ImplementsInterface(e.OldValue, Fayde.Collections.INotifyCollectionChanged_)) {
-                    (e.OldValue).CollectionChanged.Unsubscribe(this._CollectionChanged, this);
+                    e.OldValue.CollectionChanged.Unsubscribe(this._CollectionChanged, this);
                 }
 
                 if (e.NewValue != null) {
                     var source = e.NewValue;
                     if (Nullstone.ImplementsInterface(source, Fayde.Collections.INotifyCollectionChanged_)) {
-                        (source).CollectionChanged.Subscribe(this._CollectionChanged, this);
+                        source.CollectionChanged.Subscribe(this._CollectionChanged, this);
                     }
 
                     this.$Items.IsReadOnly = true;
@@ -5203,10 +6767,10 @@ var Fayde;
                     var enumerator;
                     if (source instanceof Array)
                         enumerator = Fayde.ArrayEx.GetEnumerator(source);
-else if (source instanceof Fayde.XamlObjectCollection)
-                        enumerator = (source).GetEnumerator();
-else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
-                        enumerator = (source).GetEnumerator();
+                    else if (source instanceof Fayde.XamlObjectCollection)
+                        enumerator = source.GetEnumerator();
+                    else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
+                        enumerator = source.GetEnumerator();
 
                     if (enumerator) {
                         var items = this.$Items;
@@ -5226,7 +6790,7 @@ else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
             ItemsControl.prototype._CollectionChanged = function (sender, e) {
                 var index;
                 switch (e.Action) {
-                    case Fayde.Collections.NotifyCollectionChangedAction.Add:
+                    case 1 /* Add */:
                         var enumerator = Fayde.ArrayEx.GetEnumerator(e.NewItems);
                         index = e.NewStartingIndex;
                         while (enumerator.MoveNext()) {
@@ -5234,13 +6798,13 @@ else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
                             index++;
                         }
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Remove:
+                    case 2 /* Remove */:
                         var enumerator = Fayde.ArrayEx.GetEnumerator(e.OldItems);
                         while (enumerator.MoveNext()) {
                             this.$Items.RemoveAtImpl(e.OldStartingIndex);
                         }
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Replace:
+                    case 3 /* Replace */:
                         var enumerator = Fayde.ArrayEx.GetEnumerator(e.NewItems);
                         index = e.NewStartingIndex;
                         while (enumerator.MoveNext()) {
@@ -5248,7 +6812,7 @@ else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
                             index++;
                         }
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Reset:
+                    case 4 /* Reset */:
                         this.$Items.ClearImpl();
                         var enumerator = this.ItemsSource.GetEnumerator();
                         while (enumerator.MoveNext()) {
@@ -5276,7 +6840,7 @@ else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
             ItemsControl.prototype.ClearContainerForItem = function (container, item) {
             };
             ItemsControl.prototype.GetContainerForItem = function () {
-                return new Controls.ContentPresenter();
+                return new Fayde.Controls.ContentPresenter();
             };
             ItemsControl.prototype.IsItemItsOwnContainer = function (item) {
                 return item instanceof Fayde.FrameworkElement;
@@ -5290,22 +6854,22 @@ else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
             };
             ItemsControl.prototype.OnItemContainerGeneratorChanged = function (sender, e) {
                 var panel = this.Panel;
-                if (!panel || panel instanceof Controls.VirtualizingPanel)
+                if (!panel || panel instanceof Fayde.Controls.VirtualizingPanel)
                     return;
 
                 switch (e.Action) {
-                    case Fayde.Collections.NotifyCollectionChangedAction.Reset:
+                    case 4 /* Reset */:
                         var count = panel.Children.Count;
                         if (count > 0)
                             this.RemoveItemsFromPresenter({ Index: 0, Offset: 0 }, count);
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Add:
+                    case 1 /* Add */:
                         this.AddItemsToPresenter(e.Position, e.ItemCount);
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Remove:
+                    case 2 /* Remove */:
                         this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Replace:
+                    case 3 /* Replace */:
                         this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
                         this.AddItemsToPresenter(e.Position, e.ItemCount);
                         break;
@@ -5322,7 +6886,7 @@ else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
             };
             ItemsControl.prototype.AddItemsToPresenter = function (position, count) {
                 var panel = this.Panel;
-                if (!panel || panel instanceof Controls.VirtualizingPanel)
+                if (!panel || panel instanceof Fayde.Controls.VirtualizingPanel)
                     return;
 
                 var icg = this.ItemContainerGenerator;
@@ -5335,8 +6899,8 @@ else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
                     for (var i = 0; i < count; i++) {
                         var item = items.GetValueAt(newIndex + i);
                         var container = icg.GenerateNext({ Value: null });
-                        if (container instanceof Controls.ContentControl)
-                            (container)._ContentSetsParent = false;
+                        if (container instanceof Fayde.Controls.ContentControl)
+                            container._ContentSetsParent = false;
 
                         if (container instanceof Fayde.FrameworkElement && !(item instanceof Fayde.FrameworkElement))
                             container.DataContext = item;
@@ -5350,7 +6914,7 @@ else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
             };
             ItemsControl.prototype.RemoveItemsFromPresenter = function (position, count) {
                 var panel = this.Panel;
-                if (!panel || panel instanceof Controls.VirtualizingPanel)
+                if (!panel || panel instanceof Fayde.Controls.VirtualizingPanel)
                     return;
 
                 while (count > 0) {
@@ -5363,10 +6927,10 @@ else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
                     return;
 
                 var presenter;
-                if (element instanceof Controls.ContentPresenter)
+                if (element instanceof Fayde.Controls.ContentPresenter)
                     presenter = element;
                 var control;
-                if (element instanceof Controls.ContentControl)
+                if (element instanceof Fayde.Controls.ContentControl)
                     control = element;
 
                 var template;
@@ -5384,28 +6948,28 @@ else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
             ItemsControl.DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", function () {
                 return String;
             }, ItemsControl, null, function (d, args) {
-                return (d).OnDisplayMemberPathChanged(args);
+                return d.OnDisplayMemberPathChanged(args);
             });
             ItemsControl.ItemsPanelProperty = DependencyProperty.Register("ItemsPanel", function () {
-                return Controls.ItemsPanelTemplate;
+                return Fayde.Controls.ItemsPanelTemplate;
             }, ItemsControl);
             ItemsControl.ItemsSourceProperty = DependencyProperty.Register("ItemsSource", function () {
                 return Fayde.IEnumerable_;
             }, ItemsControl, null, function (d, args) {
-                return (d).OnItemsSourceChanged(args);
+                return d.OnItemsSourceChanged(args);
             });
             ItemsControl.ItemTemplateProperty = DependencyProperty.Register("ItemTemplate", function () {
                 return Fayde.DataTemplate;
             }, ItemsControl, undefined, function (d, args) {
-                return (d).OnItemTemplateChanged(args);
+                return d.OnItemTemplateChanged(args);
             });
             ItemsControl.ItemsProperty = DependencyProperty.RegisterImmutable("Items", function () {
-                return Controls.ItemCollection;
+                return Fayde.Controls.ItemCollection;
             }, ItemsControl);
 
             ItemsControl.Annotations = { ContentProperty: ItemsControl.ItemsProperty };
             return ItemsControl;
-        })(Controls.Control);
+        })(Fayde.Controls.Control);
         Controls.ItemsControl = ItemsControl;
         Fayde.RegisterType(ItemsControl, {
             Name: "ItemsControl",
@@ -5429,7 +6993,7 @@ var Fayde;
                     this._SelectedItemsIsInvalid = false;
                     this.$TemplateScrollViewer = null;
                     this._SelectedValueWalker = null;
-                    this._Selection = new Primitives.SelectorSelection(this);
+                    this._Selection = new Fayde.Controls.Primitives.SelectorSelection(this);
                 }
                 Object.defineProperty(Selector.prototype, "SynchronizeWithCurrentItem", {
                     get: function () {
@@ -5456,8 +7020,8 @@ var Fayde;
                         throw new ArgumentException("Setting IsSynchronizedWithCurrentItem to 'true' is not supported");
 
                     if (args.NewValue == null && Nullstone.ImplementsInterface(this.ItemsSource, Fayde.Data.ICollectionView_))
-                        this.SelectedItem = (this.ItemsSource).CurrentItem;
-else
+                        this.SelectedItem = this.ItemsSource.CurrentItem;
+                    else
                         this.SelectedItem = null;
                 };
                 Selector.prototype._OnSelectedIndexChanged = function (args) {
@@ -5467,7 +7031,7 @@ else
                     var items = this.Items;
                     if (args.NewValue < 0 || args.NewValue >= items.Count)
                         this._Selection.ClearSelection();
-else
+                    else
                         this._Selection.Select(items.GetValueAt(args.NewValue));
                 };
                 Selector.prototype._OnSelectedItemChanged = function (args) {
@@ -5476,11 +7040,11 @@ else
 
                     if (args.NewValue == null)
                         this._Selection.ClearSelection();
-else if (this.Items.IndexOf(args.NewValue) !== -1)
+                    else if (this.Items.IndexOf(args.NewValue) !== -1)
                         this._Selection.Select(args.NewValue);
-else if (this.Items.IndexOf(args.OldValue) !== -1)
+                    else if (this.Items.IndexOf(args.OldValue) !== -1)
                         this._Selection.Select(args.OldValue);
-else
+                    else
                         this._Selection.ClearSelection();
                 };
                 Selector.prototype._OnSelectedValueChanged = function (args) {
@@ -5499,7 +7063,7 @@ else
                 Selector.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
                     var temp = this.GetTemplateChild("ScrollViewer");
-                    var tsv = (temp instanceof Controls.ScrollViewer) ? temp : null;
+                    var tsv = (temp instanceof Fayde.Controls.ScrollViewer) ? temp : null;
                     this.$TemplateScrollViewer = tsv;
                     if (tsv) {
                         tsv.$TemplatedParentHandlesScrolling = true;
@@ -5516,9 +7080,9 @@ else
 
                     var item;
                     switch (e.Action) {
-                        case Fayde.Collections.NotifyCollectionChangedAction.Add:
+                        case 1 /* Add */:
                             var lbi;
-                            if (e.NewItems[0] instanceof Controls.ListBoxItem)
+                            if (e.NewItems[0] instanceof Fayde.Controls.ListBoxItem)
                                 lbi = e.NewItems[0];
                             if (lbi != null && lbi.IsSelected && !this.SelectedItems.Contains(lbi)) {
                                 this._Selection.Select(lbi);
@@ -5526,26 +7090,26 @@ else
                                 this._Selection.Select(this.SelectedItem);
                             }
                             break;
-                        case Fayde.Collections.NotifyCollectionChangedAction.Reset:
+                        case 4 /* Reset */:
                             var o;
                             var itemsSource = this.ItemsSource;
                             if (Nullstone.ImplementsInterface(itemsSource, Fayde.Data.ICollectionView_) && this.SynchronizeWithCurrentItem)
-                                o = (itemsSource).CurrentItem;
-else
+                                o = itemsSource.CurrentItem;
+                            else
                                 o = this.SelectedItem;
                             if (this.Items.Contains(o))
                                 this._Selection.Select(o);
-else
+                            else
                                 this._Selection.ClearSelection();
                             break;
-                        case Fayde.Collections.NotifyCollectionChangedAction.Remove:
+                        case 2 /* Remove */:
                             item = e.OldItems[0];
                             if (this.SelectedItems.Contains(item))
                                 this._Selection.Unselect(item);
-else if (e.OldStartingIndex <= this.SelectedIndex)
+                            else if (e.OldStartingIndex <= this.SelectedIndex)
                                 this._Selection.Select(this.SelectedItem);
                             break;
-                        case Fayde.Collections.NotifyCollectionChangedAction.Replace:
+                        case 3 /* Replace */:
                             item = e.OldItems[0];
                             this._Selection.Unselect(item);
                             break;
@@ -5570,7 +7134,7 @@ else if (e.OldStartingIndex <= this.SelectedIndex)
                         view.CurrentChanged.Subscribe(this._OnCurrentItemChanged, this);
                         if (this.SynchronizeWithCurrentItem)
                             this._Selection.SelectOnly(view.CurrentItem);
-else
+                        else
                             this._Selection.ClearSelection();
                     } else {
                         this._Selection.ClearSelection();
@@ -5644,7 +7208,7 @@ else
                         if (oldValue == null)
                             continue;
                         lbi = null;
-                        if (oldValue instanceof Controls.ListBoxItem)
+                        if (oldValue instanceof Fayde.Controls.ListBoxItem)
                             lbi = oldValue;
                         lbi = lbi || this.ItemContainerGenerator.ContainerFromItem(oldValue);
                         if (lbi)
@@ -5658,7 +7222,7 @@ else
                         if (newValue == null)
                             continue;
                         lbi = null;
-                        if (newValue instanceof Controls.ListBoxItem)
+                        if (newValue instanceof Fayde.Controls.ListBoxItem)
                             lbi = newValue;
                         lbi = lbi || this.ItemContainerGenerator.ContainerFromItem(newValue);
                         if (lbi) {
@@ -5667,7 +7231,7 @@ else
                         }
                     }
 
-                    var args = new Primitives.SelectionChangedEventArgs(oldVals, newVals);
+                    var args = new Fayde.Controls.Primitives.SelectionChangedEventArgs(oldVals, newVals);
                     this.OnSelectionChanged(args);
                     this.SelectionChanged.Raise(this, args);
                 };
@@ -5690,33 +7254,33 @@ else
                 Selector.IsSynchronizedWithCurrentItemProperty = DependencyProperty.Register("IsSynchronizedWithCurrentItem", function () {
                     return Boolean;
                 }, Selector, null, function (d, args) {
-                    return (d)._OnIsSynchronizedWithCurrentItemChanged(args);
+                    return d._OnIsSynchronizedWithCurrentItemChanged(args);
                 });
                 Selector.SelectedIndexProperty = DependencyProperty.Register("SelectedIndex", function () {
                     return Number;
                 }, Selector, -1, function (d, args) {
-                    return (d)._OnSelectedIndexChanged(args);
+                    return d._OnSelectedIndexChanged(args);
                 });
                 Selector.SelectedItemProperty = DependencyProperty.Register("SelectedItem", function () {
                     return Object;
                 }, Selector, undefined, function (d, args) {
-                    return (d)._OnSelectedItemChanged(args);
+                    return d._OnSelectedItemChanged(args);
                 });
                 Selector.SelectedValueProperty = DependencyProperty.Register("SelectedValue", function () {
                     return Object;
                 }, Selector, undefined, function (d, args) {
-                    return (d)._OnSelectedValueChanged(args);
+                    return d._OnSelectedValueChanged(args);
                 });
                 Selector.SelectedValuePathProperty = DependencyProperty.Register("SelectedValuePath", function () {
                     return String;
                 }, Selector, "", function (d, args) {
-                    return (d)._OnSelectedValuePathChanged(args);
+                    return d._OnSelectedValuePathChanged(args);
                 });
                 Selector.IsSelectionActiveProperty = DependencyProperty.RegisterReadOnlyCore("IsSelectionActive", function () {
                     return Boolean;
                 }, Selector);
                 return Selector;
-            })(Controls.ItemsControl);
+            })(Fayde.Controls.ItemsControl);
             Primitives.Selector = Selector;
             Fayde.RegisterType(Selector, {
                 Name: "Selector",
@@ -5741,7 +7305,7 @@ var Fayde;
                 this.$SelectionBoxItem = null;
                 this.$SelectionBoxItemTemplate = null;
                 this._FocusedIndex = -1;
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             ComboBox.prototype._IsDropDownOpenChanged = function (args) {
                 var open = args.NewValue;
@@ -5755,8 +7319,8 @@ var Fayde;
                     this._FocusedIndex = this.Items.Count > 0 ? Math.max(this.SelectedIndex, 0) : -1;
                     if (this._FocusedIndex > -1) {
                         var focusedItem = this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex);
-                        if (focusedItem instanceof Controls.ComboBoxItem)
-                            (focusedItem).Focus();
+                        if (focusedItem instanceof Fayde.Controls.ComboBoxItem)
+                            focusedItem.Focus();
                     }
 
                     this.LayoutUpdated.Subscribe(this._UpdatePopupSizeAndPosition, this);
@@ -5785,9 +7349,9 @@ var Fayde;
                 _super.prototype.OnApplyTemplate.call(this);
                 this.UpdateVisualState(false);
 
-                this.$ContentPresenter = this._GetChildOfType("ContentPresenter", Controls.ContentPresenter);
-                this.$Popup = this._GetChildOfType("Popup", Controls.Primitives.Popup);
-                this.$DropDownToggle = this._GetChildOfType("DropDownToggle", Controls.Primitives.ToggleButton);
+                this.$ContentPresenter = this._GetChildOfType("ContentPresenter", Fayde.Controls.ContentPresenter);
+                this.$Popup = this._GetChildOfType("Popup", Fayde.Controls.Primitives.Popup);
+                this.$DropDownToggle = this._GetChildOfType("DropDownToggle", Fayde.Controls.Primitives.ToggleButton);
 
                 if (this.$ContentPresenter != null)
                     this._NullSelFallback = this.$ContentPresenter.Content;
@@ -5800,7 +7364,7 @@ var Fayde;
                     var child = this.$Popup.Child;
                     if (child != null) {
                         child.KeyDown.Subscribe(this._OnChildKeyDown, this);
-                        (child).SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
+                        child.SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
                     }
                 }
 
@@ -5826,10 +7390,10 @@ var Fayde;
                 }
             };
             ComboBox.prototype.IsItemItsOwnContainer = function (item) {
-                return item instanceof Controls.ComboBoxItem;
+                return item instanceof Fayde.Controls.ComboBoxItem;
             };
             ComboBox.prototype.GetContainerForItem = function () {
-                return new Controls.ComboBoxItem();
+                return new Fayde.Controls.ComboBoxItem();
             };
             ComboBox.prototype.PrepareContainerForItem = function (container, item) {
                 _super.prototype.PrepareContainerForItem.call(this, container, item);
@@ -5845,7 +7409,7 @@ var Fayde;
                 var isEnabled = this.IsEnabled;
                 if (this.IsDropDownOpen && isEnabled)
                     return gotoFunc("FocusedDropDown");
-else if (this.IsFocused && isEnabled)
+                else if (this.IsFocused && isEnabled)
                     return gotoFunc("Focused");
                 return gotoFunc("Unfocused");
             };
@@ -5879,18 +7443,18 @@ else if (this.IsFocused && isEnabled)
                 e.Handled = true;
 
                 var key = e.Key;
-                if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
-                    if (key === Fayde.Input.Key.Left)
-                        key = Fayde.Input.Key.Right;
-else if (key === Fayde.Input.Key.Right)
-                        key = Fayde.Input.Key.Left;
+                if (this.FlowDirection === 1 /* RightToLeft */) {
+                    if (key === 14 /* Left */)
+                        key = 16 /* Right */;
+                    else if (key === 16 /* Right */)
+                        key = 14 /* Left */;
                 }
                 switch (key) {
-                    case Fayde.Input.Key.Escape:
+                    case 8 /* Escape */:
                         this.IsDropDownOpen = false;
                         break;
-                    case Fayde.Input.Key.Enter:
-                    case Fayde.Input.Key.Space:
+                    case 3 /* Enter */:
+                    case 9 /* Space */:
                         if (this.IsDropDownOpen && this._FocusedIndex !== this.SelectedIndex) {
                             this.SelectedIndex = this._FocusedIndex;
                             this.IsDropDownOpen = false;
@@ -5898,23 +7462,23 @@ else if (key === Fayde.Input.Key.Right)
                             this.IsDropDownOpen = true;
                         }
                         break;
-                    case Fayde.Input.Key.Right:
-                    case Fayde.Input.Key.Down:
+                    case 16 /* Right */:
+                    case 17 /* Down */:
                         if (this.IsDropDownOpen) {
                             if (this._FocusedIndex < (this.Items.Count - 1)) {
                                 this._FocusedIndex++;
-                                (this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex)).Focus();
+                                this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex).Focus();
                             }
                         } else {
                             this.SelectedIndex = Math.min(this.SelectedIndex + 1, this.Items.Count - 1);
                         }
                         break;
-                    case Fayde.Input.Key.Left:
-                    case Fayde.Input.Key.Up:
+                    case 14 /* Left */:
+                    case 15 /* Up */:
                         if (this.IsDropDownOpen) {
                             if (this._FocusedIndex > 0) {
                                 this._FocusedIndex--;
-                                (this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex)).Focus();
+                                this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex).Focus();
                             }
                         } else {
                             this.SelectedIndex = Math.max(this.SelectedIndex - 1, 0);
@@ -5971,13 +7535,13 @@ else if (key === Fayde.Input.Key.Right)
                 }
 
                 var content = selectedItem;
-                if (content instanceof Controls.ComboBoxItem)
+                if (content instanceof Fayde.Controls.ComboBoxItem)
                     content = content.Content;
 
                 var icg = this.ItemContainerGenerator;
                 var selectedIndex = this.SelectedIndex;
                 var temp = icg.ContainerFromIndex(selectedIndex);
-                if (temp instanceof Controls.ComboBoxItem)
+                if (temp instanceof Fayde.Controls.ComboBoxItem)
                     this.$DisplayedItem = temp;
 
                 this.$SelectionBoxItem = content;
@@ -5987,19 +7551,19 @@ else if (key === Fayde.Input.Key.Right)
                     this.$SelectionBoxItemTemplate = this.$DisplayedItem.ContentTemplate;
                     if (content instanceof Fayde.UIElement)
                         this.$DisplayedItem.Content = null;
-else
+                    else
                         this.$DisplayedItem = null;
                 } else {
                     temp = icg.ContainerFromIndex(selectedIndex);
                     var container;
-                    if (temp instanceof Controls.ComboBoxItem)
+                    if (temp instanceof Fayde.Controls.ComboBoxItem)
                         container = temp;
                     if (!container) {
                         var position = icg.GeneratorPositionFromIndex(selectedIndex);
                         var state = icg.StartAt(position, false, true);
                         try  {
                             temp = icg.GenerateNext({ Value: null });
-                            if (temp instanceof Controls.ComboBoxItem)
+                            if (temp instanceof Fayde.Controls.ComboBoxItem)
                                 container = temp;
                         } finally {
                             state.Dispose();
@@ -6038,7 +7602,7 @@ else
                 var topLeft = xform.Transform(offset);
                 bottomRight = xform.Transform(bottomRight);
 
-                var isRightToLeft = (this.FlowDirection === Fayde.FlowDirection.RightToLeft);
+                var isRightToLeft = (this.FlowDirection === 1 /* RightToLeft */);
                 if (isRightToLeft) {
                     var left = bottomRight.X;
                     bottomRight.X = topLeft.X;
@@ -6081,21 +7645,21 @@ else
             ComboBox.IsDropDownOpenProperty = DependencyProperty.Register("IsDropDownOpen", function () {
                 return Boolean;
             }, ComboBox, false, function (d, args) {
-                return (d)._IsDropDownOpenChanged(args);
+                return d._IsDropDownOpenChanged(args);
             });
             ComboBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () {
                 return Fayde.Style;
             }, ComboBox, undefined, function (d, args) {
-                return (d).OnItemContainerStyleChanged(args);
+                return d.OnItemContainerStyleChanged(args);
             });
             ComboBox.MaxDropDownHeightProperty = DependencyProperty.Register("MaxDropDownHeight", function () {
                 return Number;
             }, ComboBox, Number.POSITIVE_INFINITY, function (d, args) {
-                return (d)._MaxDropDownHeightChanged(args);
+                return d._MaxDropDownHeightChanged(args);
             });
-            ComboBox.IsSelectionActiveProperty = Controls.Primitives.Selector.IsSelectionActiveProperty;
+            ComboBox.IsSelectionActiveProperty = Fayde.Controls.Primitives.Selector.IsSelectionActiveProperty;
             return ComboBox;
-        })(Controls.Primitives.Selector);
+        })(Fayde.Controls.Primitives.Selector);
         Controls.ComboBox = ComboBox;
         Fayde.RegisterType(ComboBox, {
             Name: "ComboBox",
@@ -6113,7 +7677,7 @@ var Fayde;
             function ListBoxItem() {
                 _super.call(this);
                 this.ParentSelectorChanged = new MulticastEvent();
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             Object.defineProperty(ListBoxItem.prototype, "ParentSelector", {
                 get: function () {
@@ -6180,10 +7744,10 @@ var Fayde;
             ListBoxItem.IsSelectedProperty = DependencyProperty.RegisterCore("IsSelected", function () {
                 return Boolean;
             }, ListBoxItem, null, function (d, args) {
-                return (d).OnIsSelectedChanged(args);
+                return d.OnIsSelectedChanged(args);
             });
             return ListBoxItem;
-        })(Controls.ContentControl);
+        })(Fayde.Controls.ContentControl);
         Controls.ListBoxItem = ListBoxItem;
         Fayde.RegisterType(ListBoxItem, {
             Name: "ListBoxItem",
@@ -6200,15 +7764,15 @@ var Fayde;
             __extends(ComboBoxItem, _super);
             function ComboBoxItem() {
                 _super.call(this);
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             ComboBoxItem.prototype.OnMouseLeftButtonUp = function (e) {
                 _super.prototype.OnMouseLeftButtonUp.call(this, e);
-                if (this.ParentSelector instanceof Controls.ComboBox)
-                    (this.ParentSelector).IsDropDownOpen = false;
+                if (this.ParentSelector instanceof Fayde.Controls.ComboBox)
+                    this.ParentSelector.IsDropDownOpen = false;
             };
             return ComboBoxItem;
-        })(Controls.ListBoxItem);
+        })(Fayde.Controls.ListBoxItem);
         Controls.ComboBoxItem = ComboBoxItem;
         Fayde.RegisterType(ComboBoxItem, {
             Name: "ComboBoxItem",
@@ -6239,12 +7803,12 @@ var Fayde;
                     return false;
 
                 var xobj = this.XObject;
-                if (xobj.TemplateOwner instanceof Controls.ContentControl) {
+                if (xobj.TemplateOwner instanceof Fayde.Controls.ContentControl) {
                     if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === DependencyProperty.UnsetValue) {
-                        xobj.SetValue(ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(Controls.ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+                        xobj.SetValue(ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(Fayde.Controls.ContentControl.ContentProperty, ContentPresenter.ContentProperty));
                     }
                     if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === DependencyProperty.UnsetValue) {
-                        xobj.SetValue(ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(Controls.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+                        xobj.SetValue(ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(Fayde.Controls.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
                     }
                 }
 
@@ -6254,7 +7818,7 @@ var Fayde;
 
                 if (content instanceof Fayde.UIElement)
                     this._ContentRoot = content;
-else
+                else
                     this._ContentRoot = (xobj.ContentTemplate || this.FallbackTemplate).GetVisualTree(xobj);
 
                 if (!this._ContentRoot)
@@ -6288,7 +7852,7 @@ else
 
                 if (newContent && !newUie)
                     this.XObject.DataContext = newContent;
-else
+                else
                     this.XObject.DataContext = undefined;
 
                 this.LayoutUpdater.InvalidateMeasure();
@@ -6317,12 +7881,12 @@ else
             ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () {
                 return Object;
             }, ContentPresenter, undefined, function (d, args) {
-                return ((d).XamlNode)._ContentChanged(args);
+                return d.XamlNode._ContentChanged(args);
             });
             ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
                 return Fayde.DataTemplate;
             }, ContentPresenter, undefined, function (d, args) {
-                return ((d).XamlNode)._ContentTemplateChanged();
+                return d.XamlNode._ContentTemplateChanged();
             });
 
             ContentPresenter.Annotations = { ContentProperty: ContentPresenter.ContentProperty };
@@ -6415,7 +7979,7 @@ var Fayde;
                 return 0;
             }
 
-            var val = new (resolution.Type)();
+            var val = new resolution.Type();
 
             if (val instanceof FrameworkTemplate)
                 return createTemplate(val, el, ctx);
@@ -6480,7 +8044,7 @@ var Fayde;
             var text = el.textContent.trim();
             if (text)
                 return Fayde.ConvertAnyToType(text, type);
-            return new (type)();
+            return new type();
         }
         function createTemplate(ft, el, ctx) {
             Object.defineProperty(ft, "ResourceChain", { value: ctx.ResourceChain.slice(0), writable: false });
@@ -6501,7 +8065,7 @@ var Fayde;
                 });
             }
 
-            var childProcessor = createXamlChildProcessor(ft, (ft).constructor, ctx);
+            var childProcessor = createXamlChildProcessor(ft, ft.constructor, ctx);
 
             var attrs = el.attributes;
             var len = attrs.length;
@@ -6536,7 +8100,7 @@ var Fayde;
                     } else {
                         var contentTargetType = contentPropd.GetTargetType();
                         if (Nullstone.DoesInheritFrom(contentTargetType, Fayde.XamlObjectCollection)) {
-                            contentCollection = new (contentTargetType)();
+                            contentCollection = new contentTargetType();
                             dobj.SetValue(contentPropd, contentCollection);
                         }
                     }
@@ -6559,11 +8123,11 @@ var Fayde;
                         TemplateBindingSource: ctx.TemplateBindingSource,
                         ObjectStack: ctx.ObjectStack
                     };
-                    var result = Xaml.MarkupExpressionParser.Parse(value, parseCtx);
+                    var result = Fayde.Xaml.MarkupExpressionParser.Parse(value, parseCtx);
                     if (result !== undefined) {
                         if (!propd) {
                             if (result instanceof Fayde.EventBinding)
-                                return (result).Transmute(parseCtx);
+                                return result.Transmute(parseCtx);
                             return result;
                         }
                         if (result) {
@@ -6575,8 +8139,8 @@ var Fayde;
                                 return result;
                             }
                         }
-                        if ((result instanceof Xaml.TemplateBinding) || (result instanceof Fayde.Data.Binding))
-                            return (result).Transmute(parseCtx);
+                        if ((result instanceof Fayde.Xaml.TemplateBinding) || (result instanceof Fayde.Data.Binding))
+                            return result.Transmute(parseCtx);
                         result = Fayde.ConvertAnyToType(result, tt);
                         return result;
                     }
@@ -6648,7 +8212,7 @@ var Fayde;
                     var resElement = getResourcesChildElement(el);
                     var rd;
                     if (resElement) {
-                        rd = (dobj).Resources;
+                        rd = dobj.Resources;
                         if (rd) {
                             ctx.ResourceChain.push(rd);
                             processResourceDictionary(resElement, rd, ctx);
@@ -6758,7 +8322,7 @@ var Fayde;
                             if (propd.IsAttached) {
                                 var propTargetType = propd.GetTargetType();
                                 if (Nullstone.DoesInheritFrom(propTargetType, Fayde.XamlObjectCollection)) {
-                                    val = new (propTargetType)();
+                                    val = new propTargetType();
                                     dobj.SetValue(propd, val);
                                     this.ProcessCollection(el, val);
                                     return;
@@ -6873,7 +8437,7 @@ var Fayde;
                 while (curElement) {
                     if (curElement.localName === "ResourceDictionary") {
                         if (src = curElement.getAttribute("Source"))
-                            rdResources.push(Xaml.RegisterResourceDictionary(new Uri(src)));
+                            rdResources.push(Fayde.Xaml.RegisterResourceDictionary(new Uri(src)));
                         childEl = curElement.firstElementChild;
                         while (childEl) {
                             if (childEl.localName === "ResourceDictionary.MergedDictionaries") {
@@ -6902,7 +8466,7 @@ var Fayde;
 
                     next = curElement.nextElementSibling;
                     if (!next)
-                        next = (curElement.parentNode).nextElementSibling;
+                        next = curElement.parentNode.nextElementSibling;
                     curElement = next;
                 }
 
@@ -6915,7 +8479,7 @@ var Fayde;
                 if (resolution === undefined)
                     throw new XamlParseException("Could not resolve application type '" + nsUri + ":" + el.localName + "'");
 
-                var app = new (resolution.Type)();
+                var app = new resolution.Type();
                 theme.Create();
                 Object.defineProperty(app, "Theme", { value: theme, writable: false });
                 Fayde.Application.Current = app;
@@ -7023,9 +8587,9 @@ var Fayde;
             }
         }
         function loadResourceDictionary(rd) {
-            if ((rd)._IsSourceLoaded)
+            if (rd._IsSourceLoaded)
                 return;
-            var resource = Xaml.MapResourceDictionary(rd.Source);
+            var resource = Fayde.Xaml.MapResourceDictionary(rd.Source);
             if (!resource)
                 return;
             var doc = resource.Document;
@@ -7040,7 +8604,7 @@ var Fayde;
                 TemplateBindingSource: null
             };
             validateDocument(ctx.Document);
-            (rd)._IsSourceLoaded = true;
+            rd._IsSourceLoaded = true;
             processResourceDictionary(ctx.Document.documentElement, rd, ctx);
         }
         function createObjectInResources(el, rd, ctx) {
@@ -7154,7 +8718,7 @@ var Fayde;
                 var fragment = source.Fragment;
                 TimelineProfile.Navigate(true, fragment);
 
-                var targetUri = new Uri(fragment, UriKind.Relative);
+                var targetUri = new Uri(fragment, 1 /* Relative */);
                 if (this.UriMapper)
                     targetUri = this.UriMapper.MapUri(targetUri);
                 var target = targetUri.toString();
@@ -7198,13 +8762,13 @@ var Fayde;
             Frame.SourceProperty = DependencyProperty.Register("Source", function () {
                 return Uri;
             }, Frame, undefined, function (d, args) {
-                return (d).SourcePropertyChanged(args);
+                return d.SourcePropertyChanged(args);
             });
             Frame.UriMapperProperty = DependencyProperty.Register("UriMapper", function () {
                 return Fayde.Navigation.UriMapper;
             }, Frame);
             return Frame;
-        })(Controls.ContentControl);
+        })(Fayde.Controls.ContentControl);
         Controls.Frame = Frame;
         Fayde.RegisterType(Frame, {
             Name: "Frame",
@@ -7217,136 +8781,6 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var GridNode = (function (_super) {
-            __extends(GridNode, _super);
-            function GridNode(xobj) {
-                _super.call(this, xobj);
-            }
-            GridNode.prototype.ComputeBounds = function (baseComputer, lu) {
-                if (this.XObject.ShowGridLines) {
-                    rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);
-                    rect.union(lu.ExtentsWithChildren, lu.Extents);
-                    lu.IntersectBoundsWithClipPath(lu.Bounds, lu.AbsoluteXform);
-                    rect.union(lu.BoundsWithChildren, lu.Bounds);
-
-                    lu.ComputeGlobalBounds();
-                    lu.ComputeSurfaceBounds();
-                } else {
-                    _super.prototype.ComputeBounds.call(this, baseComputer, lu);
-                }
-            };
-            return GridNode;
-        })(Controls.PanelNode);
-        Controls.GridNode = GridNode;
-        Fayde.RegisterType(GridNode, {
-            Name: "GridNode",
-            Namespace: "Fayde.Controls"
-        });
-
-        function createSegment(offered, min, max, unitType) {
-            if (offered == null)
-                offered = 0.0;
-            if (min == null)
-                min = 0.0;
-            if (max == null)
-                max = Number.POSITIVE_INFINITY;
-            if (unitType == null)
-                unitType = Controls.GridUnitType.Pixel;
-
-            if (offered < min)
-                offered = min;
-else if (offered > max)
-                offered = max;
-
-            return {
-                DesiredSize: 0,
-                OfferedSize: offered,
-                OriginalSize: offered,
-                Min: min,
-                Max: max,
-                Stars: 0,
-                Type: unitType,
-                Clamp: function (value) {
-                    if (value < this.Min)
-                        return this.Min;
-                    if (value > this.Max)
-                        return this.Max;
-                    return value;
-                },
-                SetOfferedToDesired: function () {
-                    return this.OfferedSize = this.DesiredSize;
-                },
-                SetDesiredToOffered: function () {
-                    return this.DesiredSize = this.OfferedSize;
-                }
-            };
-        }
-
-        function createGridChildPlacement(matrix, row, col, size) {
-            return {
-                Matrix: matrix,
-                Row: row,
-                Col: col,
-                Size: size
-            };
-        }
-
-        function walkGrid(grid, rowMatrix, colMatrix) {
-            var haa = false;
-            var hsa = false;
-            var has = false;
-
-            var starCol = false;
-            var starRow = false;
-            var autoCol = false;
-            var autoRow = false;
-
-            var col = 0;
-            var row = 0;
-            var colspan = 1;
-            var rowspan = 1;
-
-            var rowCount = rowMatrix.length;
-            var colCount = colMatrix.length;
-
-            var childNode = null;
-            var child;
-            var enumerator = grid.XamlNode.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.Logical);
-            while (enumerator.MoveNext()) {
-                childNode = enumerator.Current;
-                child = childNode.XObject;
-
-                starCol = false;
-                starRow = false;
-                autoCol = false;
-                autoRow = false;
-
-                col = Math.min(Grid.GetColumn(child), colCount - 1);
-                row = Math.min(Grid.GetRow(child), rowCount - 1);
-                colspan = Math.min(Grid.GetColumnSpan(child), colCount - col);
-                rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
-
-                for (var r = row; r < row + rowspan; r++) {
-                    starRow = starRow || (rowMatrix[r][r].Type === Controls.GridUnitType.Star);
-                    autoRow = autoRow || (rowMatrix[r][r].Type === Controls.GridUnitType.Auto);
-                }
-                for (var c = col; c < col + colspan; c++) {
-                    starCol = starCol || (colMatrix[c][c].Type === Controls.GridUnitType.Star);
-                    autoCol = autoCol || (colMatrix[c][c].Type === Controls.GridUnitType.Auto);
-                }
-
-                haa = haa || (autoRow && autoCol && !starRow && !starCol);
-                hsa = hsa || (starRow && autoCol);
-                has = has || (autoRow && starCol);
-            }
-
-            return {
-                HasAutoAuto: haa,
-                HasStarAuto: hsa,
-                HasAutoStar: has
-            };
-        }
-
         var Grid = (function (_super) {
             __extends(Grid, _super);
             function Grid() {
@@ -7354,8 +8788,8 @@ else if (offered > max)
                 Grid.ColumnDefinitionsProperty.Initialize(this).Listen(this);
                 Grid.RowDefinitionsProperty.Initialize(this).Listen(this);
             }
-            Grid.prototype.CreateNode = function () {
-                return new GridNode(this);
+            Grid.prototype.CreateLayoutUpdater = function (node) {
+                return new GridLayoutUpdater(node);
             };
 
             Grid._AttachedPropChanged = function (d, args) {
@@ -7394,16 +8828,144 @@ else if (offered > max)
                 d.SetValue(Grid.RowSpanProperty, value);
             };
 
-            Grid.prototype._MeasureOverride = function (availableSize, error) {
+            Grid.prototype._ShowGridLinesChanged = function (args) {
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.Invalidate();
+                lu.InvalidateMeasure();
+            };
+            Grid.prototype.RowDefinitionsChanged = function (rowDefinitions) {
+                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            };
+            Grid.prototype.ColumnDefinitionsChanged = function (colDefinitions) {
+                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            };
+            Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () {
+                return Number;
+            }, Grid, 0, Grid._AttachedPropChanged);
+
+            Grid.ColumnSpanProperty = DependencyProperty.RegisterAttached("ColumnSpan", function () {
+                return Number;
+            }, Grid, 1, Grid._AttachedPropChanged);
+
+            Grid.RowProperty = DependencyProperty.RegisterAttached("Row", function () {
+                return Number;
+            }, Grid, 0, Grid._AttachedPropChanged);
+
+            Grid.RowSpanProperty = DependencyProperty.RegisterAttached("RowSpan", function () {
+                return Number;
+            }, Grid, 1, Grid._AttachedPropChanged);
+
+            Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterImmutable("ColumnDefinitions", function () {
+                return Fayde.Controls.ColumnDefinitionCollection;
+            }, Grid);
+            Grid.RowDefinitionsProperty = DependencyProperty.RegisterImmutable("RowDefinitions", function () {
+                return Fayde.Controls.RowDefinitionCollection;
+            }, Grid);
+            Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () {
+                return Boolean;
+            }, Grid, false, function (d, args) {
+                return d._ShowGridLinesChanged(args);
+            });
+            return Grid;
+        })(Fayde.Controls.Panel);
+        Controls.Grid = Grid;
+        Fayde.RegisterType(Grid, {
+            Name: "Grid",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
+        var GridLayoutUpdater = (function (_super) {
+            __extends(GridLayoutUpdater, _super);
+            function GridLayoutUpdater() {
+                _super.apply(this, arguments);
+                this._Measurer = new GridMeasurer();
+            }
+            GridLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
+                return this._Measurer.Measure(this.Node.XObject, availableSize, error);
+            };
+            GridLayoutUpdater.prototype.ArrangeOverride = function (finalSize, error) {
+                return this._Measurer.Arrange(this.Node.XObject, finalSize, error);
+            };
+
+            GridLayoutUpdater.prototype.Render = function (ctx, region) {
+                var grid = this.Node.XObject;
+
+                var background = grid.Background;
+                var showGridLines = grid.ShowGridLines;
+                if (!background && !showGridLines)
+                    return;
+
+                var framework = this.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+                if (framework.Width <= 0 || framework.Height <= 0)
+                    return;
+
+                var area = rect.fromSize(framework);
+                ctx.save();
+                this.RenderLayoutClip(ctx);
+                if (background)
+                    ctx.fillRectEx(background, area);
+                if (showGridLines) {
+                    var cuml = -1;
+                    var cols = grid.ColumnDefinitions;
+                    if (cols) {
+                        var enumerator = cols.GetEnumerator();
+                        while (enumerator.MoveNext()) {
+                            cuml += enumerator.Current.ActualWidth;
+                            ctx.beginPath();
+                            ctx.setLineDash([5]);
+                            ctx.moveTo(cuml, 0);
+                            ctx.lineTo(cuml, framework.Height);
+                            ctx.stroke();
+                        }
+                    }
+                    var rows = grid.RowDefinitions;
+                    if (rows) {
+                        cuml = -1;
+                        var enumerator2 = rows.GetEnumerator();
+                        while (enumerator2.MoveNext()) {
+                            cuml += enumerator2.Current.ActualHeight;
+                            ctx.beginPath();
+                            ctx.setLineDash([5]);
+                            ctx.moveTo(0, cuml);
+                            ctx.lineTo(framework.Width, cuml);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                ctx.restore();
+            };
+
+            GridLayoutUpdater.prototype.ComputeExtents = function (actualSize) {
+                if (!this.Node.XObject.ShowGridLines)
+                    return _super.prototype.ComputeExtents.call(this, actualSize);
+
+                var e = this.Extents;
+                var ewc = this.ExtentsWithChildren;
+                e.X = ewc.X = 0;
+                e.Y = ewc.Y = 0;
+                ewc.Width = ewc.Width = actualSize.Width;
+                ewc.Height = ewc.Height = actualSize.Height;
+            };
+            return GridLayoutUpdater;
+        })(Fayde.Controls.PanelLayoutUpdater);
+        Controls.GridLayoutUpdater = GridLayoutUpdater;
+
+        var GridMeasurer = (function () {
+            function GridMeasurer() {
+                this._RowMatrix = [];
+                this._ColMatrix = [];
+            }
+            GridMeasurer.prototype.Measure = function (grid, availableSize, error) {
                 var totalSize = size.copyTo(availableSize);
-                var cols = this.ColumnDefinitions;
-                var rows = this.RowDefinitions;
+                var cols = grid.ColumnDefinitions;
+                var rows = grid.RowDefinitions;
                 var colCount = cols ? cols.Count : 0;
                 var rowCount = rows ? rows.Count : 0;
                 var totalStars = new size();
                 var emptyRows = rowCount === 0;
                 var emptyCols = colCount === 0;
-                var hasChildren = this.Children.Count > 0;
+                var hasChildren = grid.Children.Count > 0;
 
                 if (emptyRows)
                     rowCount = 1;
@@ -7415,12 +8977,12 @@ else if (offered > max)
                 var rm = this._RowMatrix;
                 var cm = this._ColMatrix;
 
-                var defaultGridLength = new Controls.GridLength(1.0, Controls.GridUnitType.Star);
+                var defaultGridLength = new Fayde.Controls.GridLength(1.0, 2 /* Star */);
 
                 var i = 0;
                 var cell = null;
                 if (emptyRows) {
-                    cell = createSegment(0.0, 0, Number.POSITIVE_INFINITY, Controls.GridUnitType.Star);
+                    cell = createSegment(0.0, 0, Number.POSITIVE_INFINITY, 2 /* Star */);
                     cell.Stars = 1.0;
                     rm[0][0] = cell;
                     totalStars.Height += 1.0;
@@ -7434,16 +8996,16 @@ else if (offered > max)
                         height = rowdef.Height;
                         if (!height)
                             height = defaultGridLength;
-                        rowdef.SetValueInternal(Controls.RowDefinition.ActualHeightProperty, Number.POSITIVE_INFINITY);
+                        rowdef.SetValueInternal(Fayde.Controls.RowDefinition.ActualHeightProperty, Number.POSITIVE_INFINITY);
                         cell = createSegment(0.0, rowdef.MinHeight, rowdef.MaxHeight, height.Type);
 
-                        if (height.Type === Controls.GridUnitType.Pixel) {
+                        if (height.Type === 1 /* Pixel */) {
                             cell.OfferedSize = cell.Clamp(height.Value);
-                            rowdef.SetValueInternal(Controls.RowDefinition.ActualHeightProperty, cell.SetDesiredToOffered());
-                        } else if (height.Type === Controls.GridUnitType.Star) {
+                            rowdef.SetValueInternal(Fayde.Controls.RowDefinition.ActualHeightProperty, cell.SetDesiredToOffered());
+                        } else if (height.Type === 2 /* Star */) {
                             cell.Stars = height.Value;
                             totalStars.Height += height.Value;
-                        } else if (height.Type === Controls.GridUnitType.Auto) {
+                        } else if (height.Type === 0 /* Auto */) {
                             cell.OfferedSize = cell.Clamp(0);
                             cell.SetDesiredToOffered();
                         }
@@ -7454,7 +9016,7 @@ else if (offered > max)
                 }
 
                 if (emptyCols) {
-                    cell = createSegment(0.0, 0, Number.POSITIVE_INFINITY, Controls.GridUnitType.Star);
+                    cell = createSegment(0.0, 0, Number.POSITIVE_INFINITY, 2 /* Star */);
                     cell.Stars = 1.0;
                     cm[0][0] = cell;
                     totalStars.Width += 1.0;
@@ -7468,16 +9030,16 @@ else if (offered > max)
                         var width = coldef.Width;
                         if (!width)
                             width = defaultGridLength;
-                        coldef.SetValueInternal(Controls.ColumnDefinition.ActualWidthProperty, Number.POSITIVE_INFINITY);
+                        coldef.SetValueInternal(Fayde.Controls.ColumnDefinition.ActualWidthProperty, Number.POSITIVE_INFINITY);
                         cell = createSegment(0.0, coldef.MinWidth, coldef.MaxWidth, width.Type);
 
-                        if (width.Type === Controls.GridUnitType.Pixel) {
+                        if (width.Type === 1 /* Pixel */) {
                             cell.OfferedSize = cell.Clamp(width.Value);
-                            coldef.SetValueInternal(Controls.ColumnDefinition.ActualWidthProperty, cell.SetDesiredToOffered());
-                        } else if (width.Type === Controls.GridUnitType.Star) {
+                            coldef.SetValueInternal(Fayde.Controls.ColumnDefinition.ActualWidthProperty, cell.SetDesiredToOffered());
+                        } else if (width.Type === 2 /* Star */) {
                             cell.Stars = width.Value;
                             totalStars.Width += width.Value;
-                        } else if (width.Type === Controls.GridUnitType.Auto) {
+                        } else if (width.Type === 0 /* Auto */) {
                             cell.OfferedSize = cell.Clamp(0);
                             cell.SetDesiredToOffered();
                         }
@@ -7516,7 +9078,7 @@ else if (offered > max)
                 var rowspan = 0;
 
                 var node = null;
-                var gridState = walkGrid(this, rm, cm);
+                var gridState = walkGrid(grid, rm, cm);
                 for (i = 0; i < 6; i++) {
                     var autoAuto = i === 0;
                     var starAuto = i === 1;
@@ -7526,11 +9088,11 @@ else if (offered > max)
                     var remainingStar = i === 5;
 
                     if (hasChildren) {
-                        this._ExpandStarCols(totalSize);
-                        this._ExpandStarRows(totalSize);
+                        this._ExpandStarCols(grid, totalSize);
+                        this._ExpandStarRows(grid, totalSize);
                     }
 
-                    var e4 = this.XamlNode.GetVisualTreeEnumerator();
+                    var e4 = grid.XamlNode.GetVisualTreeEnumerator();
                     while (e4.MoveNext()) {
                         childNode = e4.Current;
                         child = childNode.XObject;
@@ -7548,12 +9110,12 @@ else if (offered > max)
                         rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
 
                         for (r = row; r < row + rowspan; r++) {
-                            starRow = starRow || (rm[r][r].Type === Controls.GridUnitType.Star);
-                            autoRow = autoRow || (rm[r][r].Type === Controls.GridUnitType.Auto);
+                            starRow = starRow || (rm[r][r].Type === 2 /* Star */);
+                            autoRow = autoRow || (rm[r][r].Type === 0 /* Auto */);
                         }
                         for (c = col; c < col + colspan; c++) {
-                            starCol = starCol || (cm[c][c].Type === Controls.GridUnitType.Star);
-                            autoCol = autoCol || (cm[c][c].Type === Controls.GridUnitType.Auto);
+                            starCol = starCol || (cm[c][c].Type === 2 /* Star */);
+                            autoCol = autoCol || (cm[c][c].Type === 0 /* Auto */);
                         }
 
                         if (autoRow && autoCol && !starRow && !starCol) {
@@ -7634,9 +9196,9 @@ else if (offered > max)
                 }
                 return gridSize;
             };
-            Grid.prototype._ArrangeOverride = function (finalSize, error) {
-                var cols = this.ColumnDefinitions;
-                var rows = this.RowDefinitions;
+            GridMeasurer.prototype.Arrange = function (grid, finalSize, error) {
+                var cols = grid.ColumnDefinitions;
+                var rows = grid.RowDefinitions;
 
                 this._RestoreMeasureResults();
 
@@ -7654,25 +9216,25 @@ else if (offered > max)
                 }
 
                 if (totalConsumed.Width !== finalSize.Width)
-                    this._ExpandStarCols(finalSize);
+                    this._ExpandStarCols(grid, finalSize);
                 if (totalConsumed.Height !== finalSize.Height)
-                    this._ExpandStarRows(finalSize);
+                    this._ExpandStarRows(grid, finalSize);
 
                 var i = 0;
                 var enumerator = cols.GetEnumerator();
                 while (enumerator.MoveNext()) {
-                    enumerator.Current.SetValueInternal(Controls.ColumnDefinition.ActualWidthProperty, cm[i][i].OfferedSize);
+                    enumerator.Current.SetValueInternal(Fayde.Controls.ColumnDefinition.ActualWidthProperty, cm[i][i].OfferedSize);
                     i++;
                 }
 
                 i = 0;
                 var enumerator2 = rows.GetEnumerator();
                 while (enumerator2.MoveNext()) {
-                    enumerator2.Current.SetValueInternal(Controls.RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
+                    enumerator2.Current.SetValueInternal(Fayde.Controls.RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
                     i++;
                 }
 
-                var enumerator3 = this.XamlNode.GetVisualTreeEnumerator();
+                var enumerator3 = grid.XamlNode.GetVisualTreeEnumerator();
                 var childNode;
                 var child;
                 while (enumerator3.MoveNext()) {
@@ -7704,55 +9266,9 @@ else if (offered > max)
                 return finalSize;
             };
 
-            Grid.prototype.Render = function (ctx, lu, region) {
-                var background = this.Background;
-                var showGridLines = this.ShowGridLines;
-                if (!background && !showGridLines)
-                    return;
-
-                var framework = lu.CoerceSize(size.fromRaw(lu.ActualWidth, lu.ActualHeight));
-                if (framework.Width <= 0 || framework.Height <= 0)
-                    return;
-
-                var area = rect.fromSize(framework);
-                ctx.save();
-                lu.RenderLayoutClip(ctx);
-                if (background)
-                    ctx.fillRectEx(background, area);
-                if (showGridLines) {
-                    var cuml = -1;
-                    var cols = this.ColumnDefinitions;
-                    if (cols) {
-                        var enumerator = cols.GetEnumerator();
-                        while (enumerator.MoveNext()) {
-                            cuml += enumerator.Current.ActualWidth;
-                            ctx.beginPath();
-                            ctx.setLineDash([5]);
-                            ctx.moveTo(cuml, 0);
-                            ctx.lineTo(cuml, framework.Height);
-                            ctx.stroke();
-                        }
-                    }
-                    var rows = this.RowDefinitions;
-                    if (rows) {
-                        cuml = -1;
-                        var enumerator2 = rows.GetEnumerator();
-                        while (enumerator2.MoveNext()) {
-                            cuml += enumerator2.Current.ActualHeight;
-                            ctx.beginPath();
-                            ctx.setLineDash([5]);
-                            ctx.moveTo(0, cuml);
-                            ctx.lineTo(framework.Width, cuml);
-                            ctx.stroke();
-                        }
-                    }
-                }
-                ctx.restore();
-            };
-
-            Grid.prototype._ExpandStarRows = function (availableSize) {
+            GridMeasurer.prototype._ExpandStarRows = function (grid, availableSize) {
                 availableSize = size.copyTo(availableSize);
-                var rows = this.RowDefinitions;
+                var rows = grid.RowDefinitions;
                 var rowsCount = rows ? rows.Count : 0;
 
                 var rm = this._RowMatrix;
@@ -7760,12 +9276,12 @@ else if (offered > max)
                 var cur = null;
                 for (i = 0; i < rm.length; i++) {
                     cur = rm[i][i];
-                    if (cur.Type === Controls.GridUnitType.Star)
+                    if (cur.Type === 2 /* Star */)
                         cur.OfferedSize = 0;
-else
+                    else
                         availableSize.Height = Math.max(availableSize.Height - cur.OfferedSize, 0);
                 }
-                availableSize.Height = this._AssignSize(rm, 0, rm.length - 1, availableSize.Height, Controls.GridUnitType.Star, false);
+                availableSize.Height = this._AssignSize(rm, 0, rm.length - 1, availableSize.Height, 2 /* Star */, false);
 
                 var row = null;
                 i = 0;
@@ -7773,14 +9289,14 @@ else
                 while (enumerator.MoveNext()) {
                     row = enumerator.Current;
                     cur = rm[i][i];
-                    if (cur.Type === Controls.GridUnitType.Star)
-                        row.SetValueInternal(Controls.RowDefinition.ActualHeightProperty, cur.OfferedSize);
+                    if (cur.Type === 2 /* Star */)
+                        row.SetValueInternal(Fayde.Controls.RowDefinition.ActualHeightProperty, cur.OfferedSize);
                     i++;
                 }
             };
-            Grid.prototype._ExpandStarCols = function (availableSize) {
+            GridMeasurer.prototype._ExpandStarCols = function (grid, availableSize) {
                 availableSize = size.copyTo(availableSize);
-                var cols = this.ColumnDefinitions;
+                var cols = grid.ColumnDefinitions;
                 var columnsCount = cols ? cols.Count : 0;
 
                 var i = 0;
@@ -7788,12 +9304,12 @@ else
                 var cm = this._ColMatrix;
                 for (i = 0; i < cm.length; i++) {
                     cur = cm[i][i];
-                    if (cur.Type === Controls.GridUnitType.Star)
+                    if (cur.Type === 2 /* Star */)
                         cur.OfferedSize = 0;
-else
+                    else
                         availableSize.Width = Math.max(availableSize.Width - cur.OfferedSize, 0);
                 }
-                availableSize.Width = this._AssignSize(cm, 0, cm.length - 1, availableSize.Width, Controls.GridUnitType.Star, false);
+                availableSize.Width = this._AssignSize(cm, 0, cm.length - 1, availableSize.Width, 2 /* Star */, false);
 
                 var col = null;
                 i = 0;
@@ -7801,12 +9317,12 @@ else
                 while (enumerator.MoveNext()) {
                     col = enumerator.Current;
                     cur = cm[i][i];
-                    if (cur.Type === Controls.GridUnitType.Star)
-                        col.SetValueInternal(Controls.ColumnDefinition.ActualWidthProperty, cur.OfferedSize);
+                    if (cur.Type === 2 /* Star */)
+                        col.SetValueInternal(Fayde.Controls.ColumnDefinition.ActualWidthProperty, cur.OfferedSize);
                     i++;
                 }
             };
-            Grid.prototype._AllocateDesiredSize = function (rowCount, colCount) {
+            GridMeasurer.prototype._AllocateDesiredSize = function (rowCount, colCount) {
                 var matrix;
                 for (var i = 0; i < 2; i++) {
                     matrix = i === 0 ? this._RowMatrix : this._ColMatrix;
@@ -7816,7 +9332,7 @@ else
                         for (var col = row; col >= 0; col--) {
                             var spansStar = false;
                             for (var j = row; j >= col; j--) {
-                                spansStar = spansStar || (matrix[j][j].Type === Controls.GridUnitType.Star);
+                                spansStar = spansStar || (matrix[j][j].Type === 2 /* Star */);
                             }
                             var current = matrix[row][col].DesiredSize;
                             var totalAllocated = 0;
@@ -7826,10 +9342,10 @@ else
                             if (totalAllocated < current) {
                                 var additional = current - totalAllocated;
                                 if (spansStar) {
-                                    additional = this._AssignSize(matrix, col, row, additional, Controls.GridUnitType.Star, true);
+                                    additional = this._AssignSize(matrix, col, row, additional, 2 /* Star */, true);
                                 } else {
-                                    additional = this._AssignSize(matrix, col, row, additional, Controls.GridUnitType.Pixel, true);
-                                    additional = this._AssignSize(matrix, col, row, additional, Controls.GridUnitType.Auto, true);
+                                    additional = this._AssignSize(matrix, col, row, additional, 1 /* Pixel */, true);
+                                    additional = this._AssignSize(matrix, col, row, additional, 0 /* Auto */, true);
                                 }
                             }
                         }
@@ -7844,7 +9360,7 @@ else
                     matrix[c][c].OfferedSize = matrix[c][c].DesiredSize;
                 }
             };
-            Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desiredSize) {
+            GridMeasurer.prototype._AssignSize = function (matrix, start, end, size, unitType, desiredSize) {
                 var count = 0;
                 var assigned = false;
                 var segmentSize = 0;
@@ -7854,7 +9370,7 @@ else
                     cur = matrix[i][i];
                     segmentSize = desiredSize ? cur.DesiredSize : cur.OfferedSize;
                     if (segmentSize < cur.Max)
-                        count += (unitType === Controls.GridUnitType.Star) ? cur.Stars : 1;
+                        count += (unitType === 2 /* Star */) ? cur.Stars : 1;
                 }
                 do {
                     assigned = false;
@@ -7865,20 +9381,20 @@ else
                         if (!(cur.Type === unitType && segmentSize < cur.Max))
                             continue;
                         var newSize = segmentSize;
-                        newSize += contribution * (unitType === Controls.GridUnitType.Star ? cur.Stars : 1);
+                        newSize += contribution * (unitType === 2 /* Star */ ? cur.Stars : 1);
                         newSize = Math.min(newSize, cur.Max);
                         assigned = assigned || (newSize > segmentSize);
                         size -= newSize - segmentSize;
                         if (desiredSize)
                             cur.DesiredSize = newSize;
-else
+                        else
                             cur.OfferedSize = newSize;
                     }
                 } while(assigned);
                 return size;
             };
 
-            Grid.prototype._CreateMatrices = function (rowCount, colCount) {
+            GridMeasurer.prototype._CreateMatrices = function (rowCount, colCount) {
                 var rm = this._RowMatrix = [];
                 for (var r = 0; r < rowCount; r++) {
                     rm.push([]);
@@ -7895,7 +9411,7 @@ else
                     }
                 }
             };
-            Grid.prototype._SaveMeasureResults = function () {
+            GridMeasurer.prototype._SaveMeasureResults = function () {
                 var i;
                 var j;
                 var rm = this._RowMatrix;
@@ -7912,7 +9428,7 @@ else
                     }
                 }
             };
-            Grid.prototype._RestoreMeasureResults = function () {
+            GridMeasurer.prototype._RestoreMeasureResults = function () {
                 var i;
                 var j;
                 var rm = this._RowMatrix;
@@ -7929,53 +9445,112 @@ else
                     }
                 }
             };
+            return GridMeasurer;
+        })();
 
-            Grid.prototype._ShowGridLinesChanged = function (args) {
-                var lu = this.XamlNode.LayoutUpdater;
-                lu.Invalidate();
-                lu.InvalidateMeasure();
+        function createSegment(offered, min, max, unitType) {
+            if (offered == null)
+                offered = 0.0;
+            if (min == null)
+                min = 0.0;
+            if (max == null)
+                max = Number.POSITIVE_INFINITY;
+            if (unitType == null)
+                unitType = 1 /* Pixel */;
+
+            if (offered < min)
+                offered = min;
+            else if (offered > max)
+                offered = max;
+
+            return {
+                DesiredSize: 0,
+                OfferedSize: offered,
+                OriginalSize: offered,
+                Min: min,
+                Max: max,
+                Stars: 0,
+                Type: unitType,
+                Clamp: function (value) {
+                    if (value < this.Min)
+                        return this.Min;
+                    if (value > this.Max)
+                        return this.Max;
+                    return value;
+                },
+                SetOfferedToDesired: function () {
+                    return this.OfferedSize = this.DesiredSize;
+                },
+                SetDesiredToOffered: function () {
+                    return this.DesiredSize = this.OfferedSize;
+                }
             };
-            Grid.prototype.RowDefinitionsChanged = function (rowDefinitions) {
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
+
+        function createGridChildPlacement(matrix, row, col, size) {
+            return {
+                Matrix: matrix,
+                Row: row,
+                Col: col,
+                Size: size
             };
-            Grid.prototype.ColumnDefinitionsChanged = function (colDefinitions) {
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
+
+        function walkGrid(grid, rowMatrix, colMatrix) {
+            var haa = false;
+            var hsa = false;
+            var has = false;
+
+            var starCol = false;
+            var starRow = false;
+            var autoCol = false;
+            var autoRow = false;
+
+            var col = 0;
+            var row = 0;
+            var colspan = 1;
+            var rowspan = 1;
+
+            var rowCount = rowMatrix.length;
+            var colCount = colMatrix.length;
+
+            var childNode = null;
+            var child;
+            var enumerator = grid.XamlNode.GetVisualTreeEnumerator(0 /* Logical */);
+            while (enumerator.MoveNext()) {
+                childNode = enumerator.Current;
+                child = childNode.XObject;
+
+                starCol = false;
+                starRow = false;
+                autoCol = false;
+                autoRow = false;
+
+                col = Math.min(Grid.GetColumn(child), colCount - 1);
+                row = Math.min(Grid.GetRow(child), rowCount - 1);
+                colspan = Math.min(Grid.GetColumnSpan(child), colCount - col);
+                rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
+
+                for (var r = row; r < row + rowspan; r++) {
+                    starRow = starRow || (rowMatrix[r][r].Type === 2 /* Star */);
+                    autoRow = autoRow || (rowMatrix[r][r].Type === 0 /* Auto */);
+                }
+                for (var c = col; c < col + colspan; c++) {
+                    starCol = starCol || (colMatrix[c][c].Type === 2 /* Star */);
+                    autoCol = autoCol || (colMatrix[c][c].Type === 0 /* Auto */);
+                }
+
+                haa = haa || (autoRow && autoCol && !starRow && !starCol);
+                hsa = hsa || (starRow && autoCol);
+                has = has || (autoRow && starCol);
+            }
+
+            return {
+                HasAutoAuto: haa,
+                HasStarAuto: hsa,
+                HasAutoStar: has
             };
-            Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () {
-                return Number;
-            }, Grid, 0, Grid._AttachedPropChanged);
-
-            Grid.ColumnSpanProperty = DependencyProperty.RegisterAttached("ColumnSpan", function () {
-                return Number;
-            }, Grid, 1, Grid._AttachedPropChanged);
-
-            Grid.RowProperty = DependencyProperty.RegisterAttached("Row", function () {
-                return Number;
-            }, Grid, 0, Grid._AttachedPropChanged);
-
-            Grid.RowSpanProperty = DependencyProperty.RegisterAttached("RowSpan", function () {
-                return Number;
-            }, Grid, 1, Grid._AttachedPropChanged);
-
-            Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterImmutable("ColumnDefinitions", function () {
-                return Controls.ColumnDefinitionCollection;
-            }, Grid);
-            Grid.RowDefinitionsProperty = DependencyProperty.RegisterImmutable("RowDefinitions", function () {
-                return Controls.RowDefinitionCollection;
-            }, Grid);
-            Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () {
-                return Boolean;
-            }, Grid, false, function (d, args) {
-                return (d)._ShowGridLinesChanged(args);
-            });
-            return Grid;
-        })(Controls.Panel);
-        Controls.Grid = Grid;
-        Fayde.RegisterType(Grid, {
-            Name: "Grid",
-            Namespace: "Fayde.Controls",
-            XmlNamespace: Fayde.XMLNS
-        });
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -7997,7 +9572,7 @@ var Fayde;
         var GridLength = (function () {
             function GridLength(value, unitType) {
                 this.Value = value == null ? 0 : value;
-                this.Type = unitType == null ? GridUnitType.Auto : unitType;
+                this.Type = unitType == null ? 0 /* Auto */ : unitType;
             }
             GridLength.Equals = function (gl1, gl2) {
                 return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
@@ -8017,10 +9592,10 @@ var Fayde;
         Fayde.RegisterTypeConverter(GridLength, function (val) {
             if (!val || val.toLowerCase() === "auto")
                 return new GridLength();
-            var type = GridUnitType.Pixel;
+            var type = 1 /* Pixel */;
             if (val[val.length - 1] === "*") {
                 val = val.substr(0, val.length - 1);
-                type = GridUnitType.Star;
+                type = 2 /* Star */;
             }
             var v = parseFloat(val);
             if (isNaN(v))
@@ -8057,7 +9632,7 @@ var Fayde;
 
             HeaderedItemsControl.prototype.PrepareContainerForItem = function (element, item) {
                 var control = element;
-                if (!(control instanceof Controls.Control))
+                if (!(control instanceof Fayde.Controls.Control))
                     control = null;
 
                 var ics = this.ItemContainerStyle;
@@ -8075,7 +9650,7 @@ var Fayde;
                     return;
                 var itemTemplate = parentItemsControl.ItemTemplate;
                 if (itemTemplate != null)
-                    control.SetValue(Controls.ItemsControl.ItemTemplateProperty, itemTemplate);
+                    control.SetValue(Fayde.Controls.ItemsControl.ItemTemplateProperty, itemTemplate);
                 if (parentItemContainerStyle != null && HeaderedItemsControl.HasDefaultValue(control, HeaderedItemsControl.ItemContainerStyleProperty))
                     control.SetValue(HeaderedItemsControl.ItemContainerStyleProperty, parentItemContainerStyle);
                 if (control._HeaderIsItem || HeaderedItemsControl.HasDefaultValue(control, HeaderedItemsControl.HeaderProperty)) {
@@ -8089,10 +9664,10 @@ var Fayde;
                 var hierarchicalDataTemplate = itemTemplate;
                 if (!(hierarchicalDataTemplate instanceof Fayde.HierarchicalDataTemplate))
                     return;
-                if (hierarchicalDataTemplate.ItemsSource != null && HeaderedItemsControl.HasDefaultValue(control, Controls.ItemsControl.ItemsSourceProperty)) {
+                if (hierarchicalDataTemplate.ItemsSource != null && HeaderedItemsControl.HasDefaultValue(control, Fayde.Controls.ItemsControl.ItemsSourceProperty)) {
                     var itemssourcebinding = hierarchicalDataTemplate.ItemsSource;
                     var headeredItemsControl = control;
-                    var dp = Controls.ItemsControl.ItemsSourceProperty;
+                    var dp = Fayde.Controls.ItemsControl.ItemsSourceProperty;
                     var binding1 = new Fayde.Data.Binding();
                     binding1.Converter = itemssourcebinding.Converter;
                     binding1.ConverterCulture = itemssourcebinding.ConverterCulture;
@@ -8105,7 +9680,7 @@ var Fayde;
                     headeredItemsControl.SetBinding(dp, binding1);
                 }
                 if (hierarchicalDataTemplate.IsItemTemplateSet && control.ItemTemplate === itemTemplate) {
-                    control.ClearValue(Controls.ItemsControl.ItemTemplateProperty);
+                    control.ClearValue(Fayde.Controls.ItemsControl.ItemTemplateProperty);
                     if (hierarchicalDataTemplate.ItemTemplate != null)
                         control.ItemTemplate = hierarchicalDataTemplate.ItemTemplate;
                 }
@@ -8122,20 +9697,20 @@ var Fayde;
             HeaderedItemsControl.HeaderProperty = DependencyProperty.Register("Header", function () {
                 return Object;
             }, HeaderedItemsControl, undefined, function (d, args) {
-                return (d).OnHeaderChanged(args.OldValue, args.NewValue);
+                return d.OnHeaderChanged(args.OldValue, args.NewValue);
             });
 
             HeaderedItemsControl.HeaderTemplateProperty = DependencyProperty.Register("HeaderTemplate", function () {
                 return Fayde.DataTemplate;
             }, HeaderedItemsControl, undefined, function (d, args) {
-                return (d).OnHeaderTemplateChanged(args.OldValue, args.NewValue);
+                return d.OnHeaderTemplateChanged(args.OldValue, args.NewValue);
             });
 
             HeaderedItemsControl.ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", function () {
                 return Fayde.Style;
             }, HeaderedItemsControl);
             return HeaderedItemsControl;
-        })(Controls.ItemsControl);
+        })(Fayde.Controls.ItemsControl);
         Controls.HeaderedItemsControl = HeaderedItemsControl;
         Fayde.RegisterType(HeaderedItemsControl, {
             Name: "HeaderedItemsControl",
@@ -8165,7 +9740,7 @@ var Fayde;
                 if (!container)
                     return;
                 var ih = Fayde.VisualTreeHelper.GetParent(container);
-                if (ih instanceof Controls.Panel)
+                if (ih instanceof Fayde.Controls.Panel)
                     return ih;
                 return;
             };
@@ -8184,7 +9759,7 @@ var Fayde;
                     return;
                 var cur = itemsHost;
                 while (cur != null && cur !== this.ItemsControl) {
-                    if (cur instanceof Controls.ScrollViewer)
+                    if (cur instanceof Fayde.Controls.ScrollViewer)
                         return cur;
                     cur = Fayde.VisualTreeHelper.GetParent(cur);
                 }
@@ -8221,7 +9796,7 @@ var Fayde;
             __extends(HyperlinkButton, _super);
             function HyperlinkButton() {
                 _super.call(this);
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             HyperlinkButton.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
@@ -8241,7 +9816,7 @@ var Fayde;
                     return;
                 }
                 var targetUie = this.FindName(targetName);
-                if (targetUie instanceof Controls.Frame) {
+                if (targetUie instanceof Fayde.Controls.Frame) {
                     window.location.href = this.NavigateUri.toString();
                 } else {
                     window.open(this.NavigateUri.toString(), targetName);
@@ -8254,7 +9829,7 @@ var Fayde;
                 return String;
             }, HyperlinkButton);
             return HyperlinkButton;
-        })(Controls.Primitives.ButtonBase);
+        })(Fayde.Controls.Primitives.ButtonBase);
         Controls.HyperlinkButton = HyperlinkButton;
         Fayde.RegisterType(HyperlinkButton, {
             Name: "HyperlinkButton",
@@ -8343,140 +9918,6 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        function computeMatrix(width, height, sw, sh, stretch, alignX, alignY) {
-            var sx = width / sw;
-            var sy = height / sh;
-            if (width === 0)
-                sx = 1.0;
-            if (height === 0)
-                sy = 1.0;
-
-            if (stretch === Fayde.Media.Stretch.Fill) {
-                return mat3.createScale(sx, sy);
-            }
-
-            var scale = 1.0;
-            var dx = 0.0;
-            var dy = 0.0;
-            switch (stretch) {
-                case Fayde.Media.Stretch.Uniform:
-                    scale = sx < sy ? sx : sy;
-                    break;
-                case Fayde.Media.Stretch.UniformToFill:
-                    scale = sx < sy ? sy : sx;
-                    break;
-                case Fayde.Media.Stretch.None:
-                    break;
-            }
-
-            switch (alignX) {
-                case Fayde.Media.AlignmentX.Left:
-                    dx = 0.0;
-                    break;
-                case Fayde.Media.AlignmentX.Center:
-                    dx = (width - (scale * sw)) / 2;
-                    break;
-                case Fayde.Media.AlignmentX.Right:
-                default:
-                    dx = width - (scale * sw);
-                    break;
-            }
-
-            switch (alignY) {
-                case Fayde.Media.AlignmentY.Top:
-                    dy = 0.0;
-                    break;
-                case Fayde.Media.AlignmentY.Center:
-                    dy = (height - (scale * sh)) / 2;
-                    break;
-                case Fayde.Media.AlignmentY.Bottom:
-                default:
-                    dy = height - (scale * sh);
-                    break;
-            }
-            var m = mat3.createScale(scale, scale);
-            mat3.translate(m, dx, dy);
-            return m;
-        }
-        function calculateRenderMetrics(img, source, lu) {
-            var stretch = img.Stretch;
-            var specified = size.fromRaw(img.ActualWidth, img.ActualHeight);
-            var stretched = lu.CoerceSize(size.copyTo(specified));
-            var adjust = !size.isEqual(specified, lu.RenderSize);
-
-            var pixelWidth = source.PixelWidth;
-            var pixelHeight = source.PixelHeight;
-            if (pixelWidth === 0 || pixelHeight === 0)
-                return null;
-
-            if (stretch !== Fayde.Media.Stretch.UniformToFill)
-                size.min(specified, stretched);
-
-            var paint = rect.fromSize(specified);
-            var image = new rect();
-            image.Width = pixelWidth;
-            image.Height = pixelHeight;
-
-            if (stretch === Fayde.Media.Stretch.None)
-                rect.union(paint, image);
-
-            var matrix = computeMatrix(paint.Width, paint.Height, image.Width, image.Height, stretch, Fayde.Media.AlignmentX.Center, Fayde.Media.AlignmentY.Center);
-
-            if (adjust) {
-                (img)._MeasureOverride(specified, null);
-                rect.set(paint, (stretched.Width - specified.Width) * 0.5, (stretched.Height - specified.Height) * 0.5, specified.Width, specified.Height);
-            }
-
-            var overlap = RectOverlap.In;
-            if (stretch === Fayde.Media.Stretch.UniformToFill || adjust) {
-                var bounds = rect.copyTo(paint);
-                rect.roundOut(bounds);
-                var box = rect.copyTo(image);
-                rect.transform(box, matrix);
-                rect.roundIn(box);
-                overlap = rect.rectIn(bounds, box);
-            }
-
-            return {
-                Matrix: matrix,
-                Overlap: overlap
-            };
-        }
-
-        var ImageNode = (function (_super) {
-            __extends(ImageNode, _super);
-            function ImageNode(xobj) {
-                _super.call(this, xobj);
-                this.LayoutUpdater.CanHitElement = true;
-            }
-            ImageNode.prototype.PostInsideObject = function (ctx, lu, x, y) {
-                var img = this.XObject;
-                var source = img.Source;
-                if (!source)
-                    return false;
-                var stretch = img.Stretch;
-                if (stretch === Fayde.Media.Stretch.Fill || stretch === Fayde.Media.Stretch.UniformToFill)
-                    return true;
-                var metrics = calculateRenderMetrics(img, source, lu);
-                if (!metrics)
-                    return null;
-
-                var irect = new rect();
-                irect.Width = source.PixelWidth;
-                irect.Height = source.PixelHeight;
-                rect.transform(irect, metrics.Matrix);
-                var np = new Point(x, y);
-                lu.TransformPoint(np);
-                return rect.containsPoint(irect, np);
-            };
-            return ImageNode;
-        })(Fayde.FENode);
-        Controls.ImageNode = ImageNode;
-        Fayde.RegisterType(ImageNode, {
-            Name: "ImageNode",
-            Namespace: "Fayde.Controls"
-        });
-
         var Image = (function (_super) {
             __extends(Image, _super);
             function Image() {
@@ -8484,8 +9925,8 @@ var Fayde;
                 this.ImageOpened = new MulticastEvent();
                 this.ImageFailed = new MulticastEvent();
             }
-            Image.prototype.CreateNode = function () {
-                return new ImageNode(this);
+            Image.prototype.CreateLayoutUpdater = function (node) {
+                return new ImageLayoutUpdater(node);
             };
 
             Image._SourceCoercer = function (d, propd, value) {
@@ -8496,7 +9937,7 @@ var Fayde;
                 return value;
             };
 
-            Image.prototype._MeasureOverride = function (availableSize, error) {
+            Image.prototype.MeasureOverride = function (availableSize) {
                 var desired = size.copyTo(availableSize);
                 var shapeBounds = new rect();
                 var source = this.Source;
@@ -8524,19 +9965,19 @@ var Fayde;
                     sy = sx;
 
                 switch (this.Stretch) {
-                    case Fayde.Media.Stretch.Uniform:
+                    case 2 /* Uniform */:
                         sx = sy = Math.min(sx, sy);
                         break;
-                    case Fayde.Media.Stretch.UniformToFill:
+                    case 3 /* UniformToFill */:
                         sx = sy = Math.max(sx, sy);
                         break;
-                    case Fayde.Media.Stretch.Fill:
+                    case 1 /* Fill */:
                         if (!isFinite(availableSize.Width))
                             sx = sy;
                         if (!isFinite(availableSize.Height))
                             sy = sx;
                         break;
-                    case Fayde.Media.Stretch.None:
+                    case 0 /* None */:
                         sx = sy = 1.0;
                         break;
                 }
@@ -8545,7 +9986,7 @@ var Fayde;
                 desired.Height = shapeBounds.Height * sy;
                 return desired;
             };
-            Image.prototype._ArrangeOverride = function (finalSize, error) {
+            Image.prototype.ArrangeOverride = function (finalSize) {
                 var arranged = size.copyTo(finalSize);
                 var shapeBounds = new rect();
                 var source = this.Source;
@@ -8568,13 +10009,13 @@ var Fayde;
                     sy = arranged.Height / shapeBounds.Height;
 
                 switch (this.Stretch) {
-                    case Fayde.Media.Stretch.Uniform:
+                    case 2 /* Uniform */:
                         sx = sy = Math.min(sx, sy);
                         break;
-                    case Fayde.Media.Stretch.UniformToFill:
+                    case 3 /* UniformToFill */:
                         sx = sy = Math.max(sx, sy);
                         break;
-                    case Fayde.Media.Stretch.None:
+                    case 0 /* None */:
                         sx = sy = 1.0;
                         break;
                     default:
@@ -8586,55 +10027,15 @@ var Fayde;
                 return arranged;
             };
 
-            Image.prototype.Render = function (ctx, lu, region) {
-                var source = this.Source;
-                if (!source)
-                    return;
-
-                source.Lock();
-                var metrics = calculateRenderMetrics(this, source, lu);
-                if (!metrics) {
-                    source.Unlock();
-                    return;
-                }
-
-                ctx.save();
-                if (lu.CompositeLayoutClip || metrics.Overlap !== RectOverlap.In)
-                    lu.RenderLayoutClip(ctx);
-                ctx.pretransformMatrix(metrics.Matrix);
-                ctx.drawImage(source.Image, 0, 0);
-
-                ctx.restore();
-
-                source.Unlock();
-            };
-            Image.prototype.ComputeActualSize = function (baseComputer, lu) {
-                var result = baseComputer.call(lu);
-
-                var vpNode = this.XamlNode.VisualParentNode;
-                if (parent && !(parent instanceof Controls.Canvas))
-                    if (lu.LayoutSlot !== undefined)
-                        return result;
-
-                var source = this.Source;
-                if (source) {
-                    var available = lu.CoerceSize(size.createInfinite());
-                    result = this._MeasureOverride(available, null);
-                    lu.CoerceSize(result);
-                }
-
-                return result;
-            };
-
             Image.prototype._SourceChanged = function (args) {
                 var lu = this.XamlNode.LayoutUpdater;
 
                 var oldSource = args.OldValue;
                 var newSource = args.NewValue;
                 if (oldSource instanceof Fayde.Media.Imaging.BitmapSource)
-                    (oldSource).Unlisten(this);
+                    oldSource.Unlisten(this);
                 if (newSource instanceof Fayde.Media.Imaging.BitmapSource) {
-                    (newSource).Listen(this);
+                    newSource.Listen(this);
                 } else {
                     lu.UpdateBounds();
                     lu.Invalidate();
@@ -8656,12 +10057,12 @@ var Fayde;
             Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () {
                 return Fayde.Media.Imaging.ImageSource;
             }, Image, undefined, function (d, args) {
-                return (d)._SourceChanged(args);
+                return d._SourceChanged(args);
             }, Image._SourceCoercer);
 
             Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () {
                 return new Enum(Fayde.Media.Stretch);
-            }, Image, Fayde.Media.Stretch.Uniform);
+            }, Image, 2 /* Uniform */);
             return Image;
         })(Fayde.FrameworkElement);
         Controls.Image = Image;
@@ -8670,6 +10071,183 @@ var Fayde;
             Namespace: "Fayde.Controls",
             XmlNamespace: Fayde.XMLNS
         });
+
+        var ImageLayoutUpdater = (function (_super) {
+            __extends(ImageLayoutUpdater, _super);
+            function ImageLayoutUpdater(node) {
+                _super.call(this, node);
+                this.CanHitElement = true;
+            }
+            ImageLayoutUpdater.prototype.InsideObject = function (ctx, x, y) {
+                if (!_super.prototype.InsideObject.call(this, ctx, x, y))
+                    return false;
+
+                var img = this.Node.XObject;
+                var source = img.Source;
+                if (!source)
+                    return false;
+                var stretch = img.Stretch;
+                if (stretch === 1 /* Fill */ || stretch === 3 /* UniformToFill */)
+                    return true;
+                var metrics = calculateRenderMetrics(img, source, this);
+                if (!metrics)
+                    return null;
+
+                var irect = new rect();
+                irect.Width = source.PixelWidth;
+                irect.Height = source.PixelHeight;
+                rect.transform(irect, metrics.Matrix);
+                var np = new Point(x, y);
+                this.TransformPoint(np);
+                return rect.containsPoint(irect, np);
+            };
+
+            ImageLayoutUpdater.prototype.ComputeActualSize = function () {
+                var result = _super.prototype.ComputeActualSize.call(this);
+
+                var node = this.Node;
+                var img = node.XObject;
+
+                if (parent && !(parent instanceof Fayde.Controls.Canvas))
+                    if (this.LayoutSlot !== undefined)
+                        return result;
+
+                var source = img.Source;
+                if (source) {
+                    var available = this.CoerceSize(size.createInfinite());
+                    result = img.MeasureOverride(available);
+                    this.CoerceSize(result);
+                }
+
+                return result;
+            };
+
+            ImageLayoutUpdater.prototype.Render = function (ctx, region) {
+                var img = this.Node.XObject;
+                var source = img.Source;
+                if (!source)
+                    return;
+
+                source.Lock();
+                var metrics = calculateRenderMetrics(img, source, this);
+                if (!metrics) {
+                    source.Unlock();
+                    return;
+                }
+
+                ctx.save();
+                if (this.CompositeLayoutClip || metrics.Overlap !== RectOverlap.In)
+                    this.RenderLayoutClip(ctx);
+                ctx.pretransformMatrix(metrics.Matrix);
+                ctx.drawImage(source.Image, 0, 0);
+
+                ctx.restore();
+
+                source.Unlock();
+            };
+            return ImageLayoutUpdater;
+        })(Fayde.LayoutUpdater);
+        Controls.ImageLayoutUpdater = ImageLayoutUpdater;
+
+        function computeMatrix(width, height, sw, sh, stretch, alignX, alignY) {
+            var sx = width / sw;
+            var sy = height / sh;
+            if (width === 0)
+                sx = 1.0;
+            if (height === 0)
+                sy = 1.0;
+
+            if (stretch === 1 /* Fill */) {
+                return mat3.createScale(sx, sy);
+            }
+
+            var scale = 1.0;
+            var dx = 0.0;
+            var dy = 0.0;
+            switch (stretch) {
+                case 2 /* Uniform */:
+                    scale = sx < sy ? sx : sy;
+                    break;
+                case 3 /* UniformToFill */:
+                    scale = sx < sy ? sy : sx;
+                    break;
+                case 0 /* None */:
+                    break;
+            }
+
+            switch (alignX) {
+                case 0 /* Left */:
+                    dx = 0.0;
+                    break;
+                case 1 /* Center */:
+                    dx = (width - (scale * sw)) / 2;
+                    break;
+                case 2 /* Right */:
+                default:
+                    dx = width - (scale * sw);
+                    break;
+            }
+
+            switch (alignY) {
+                case 0 /* Top */:
+                    dy = 0.0;
+                    break;
+                case 1 /* Center */:
+                    dy = (height - (scale * sh)) / 2;
+                    break;
+                case 2 /* Bottom */:
+                default:
+                    dy = height - (scale * sh);
+                    break;
+            }
+            var m = mat3.createScale(scale, scale);
+            mat3.translate(m, dx, dy);
+            return m;
+        }
+        function calculateRenderMetrics(img, source, lu) {
+            var stretch = img.Stretch;
+            var specified = size.fromRaw(img.ActualWidth, img.ActualHeight);
+            var stretched = lu.CoerceSize(size.copyTo(specified));
+            var adjust = !size.isEqual(specified, lu.RenderSize);
+
+            var pixelWidth = source.PixelWidth;
+            var pixelHeight = source.PixelHeight;
+            if (pixelWidth === 0 || pixelHeight === 0)
+                return null;
+
+            if (stretch !== 3 /* UniformToFill */)
+                size.min(specified, stretched);
+
+            var paint = rect.fromSize(specified);
+            var image = new rect();
+            image.Width = pixelWidth;
+            image.Height = pixelHeight;
+
+            if (stretch === 0 /* None */)
+                rect.union(paint, image);
+
+            var matrix = computeMatrix(paint.Width, paint.Height, image.Width, image.Height, stretch, 1 /* Center */, 1 /* Center */);
+
+            if (adjust) {
+                img.MeasureOverride(specified);
+                rect.set(paint, (stretched.Width - specified.Width) * 0.5, (stretched.Height - specified.Height) * 0.5, specified.Width, specified.Height);
+            }
+
+            var overlap = RectOverlap.In;
+            if (stretch === 3 /* UniformToFill */ || adjust) {
+                var bounds = rect.copyTo(paint);
+                rect.roundOut(bounds);
+                var box = rect.copyTo(image);
+                rect.transform(box, matrix);
+                rect.roundIn(box);
+                overlap = rect.rectIn(bounds, box);
+            }
+
+            return {
+                Matrix: matrix,
+                Overlap: overlap
+            };
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -8761,7 +10339,7 @@ var Fayde;
                     throw new IndexOutOfRangeException(index);
                 if (index >= ht.length)
                     ht.push(value);
-else
+                else
                     ht.splice(index, 0, value);
                 this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Add(value, index));
             };
@@ -8880,7 +10458,7 @@ var Fayde;
                 }
 
                 if (container instanceof Fayde.FrameworkElement && !(item instanceof Fayde.UIElement))
-                    (container).DataContext = item;
+                    container.DataContext = item;
 
                 this._Items[index] = item;
                 this._Containers[index] = container;
@@ -9006,7 +10584,7 @@ var Fayde;
                 var position;
 
                 switch (e.Action) {
-                    case Fayde.Collections.NotifyCollectionChangedAction.Add:
+                    case 1 /* Add */:
                         itemCount = e.NewItems.length;
                         Fayde.ArrayEx.Fill(this._Containers, e.NewStartingIndex, itemCount, null);
                         Fayde.ArrayEx.Fill(this._Items, e.NewStartingIndex, itemCount, null);
@@ -9014,13 +10592,13 @@ var Fayde;
                         position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                         position.Offset = 1;
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Remove:
+                    case 2 /* Remove */:
                         itemCount = (e.OldItems) ? e.OldItems.length : 1;
                         itemUICount = this._GetNumAlreadyRealizedItems(e.OldItems);
                         position = this.GeneratorPositionFromIndex(e.OldStartingIndex);
                         this.Remove(position, itemUICount);
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Replace:
+                    case 3 /* Replace */:
                         itemCount = 1;
                         itemUICount = 1;
                         position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
@@ -9033,7 +10611,7 @@ var Fayde;
                             state.Dispose();
                         }
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Reset:
+                    case 4 /* Reset */:
                         itemCount = (e.OldItems) ? e.OldItems.length : 0;
                         itemUICount = this._RealizedCount;
                         position = { Index: -1, Offset: 0 };
@@ -9044,7 +10622,7 @@ var Fayde;
                         break;
                 }
 
-                var args = new Controls.Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position);
+                var args = new Fayde.Controls.Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position);
                 this.ItemsChanged.Raise(this, args);
             };
             ItemContainerGenerator.prototype._GetNumAlreadyRealizedItems = function (items) {
@@ -9093,7 +10671,7 @@ var Fayde;
             }
             ItemsPanelTemplate.prototype.GetVisualTree = function (bindingSource) {
                 var panel = _super.prototype.GetVisualTree.call(this, bindingSource);
-                if (!(panel instanceof Controls.Panel))
+                if (!(panel instanceof Fayde.Controls.Panel))
                     throw new XamlParseException("The root element of an ItemsPanelTemplate must be a Panel subclass.");
                 return panel;
             };
@@ -9151,7 +10729,7 @@ var Fayde;
 
                 var xobj = this.XObject;
                 var ic = xobj.TemplateOwner;
-                if (!(ic instanceof Controls.ItemsControl))
+                if (!(ic instanceof Fayde.Controls.ItemsControl))
                     return false;
 
                 if (ic.ItemsPanel)
@@ -9159,9 +10737,9 @@ var Fayde;
 
                 if (!this._ElementRoot) {
                     var template;
-                    if (ic instanceof Controls.ListBox)
+                    if (ic instanceof Fayde.Controls.ListBox)
                         template = this.VirtualizingStackPanelFallbackTemplate;
-else
+                    else
                         template = this.StackPanelFallbackTemplate;
                     this._ElementRoot = template.GetVisualTree(xobj);
                 }
@@ -9229,7 +10807,7 @@ var Fayde;
 
                 var ihro = { Value: null };
                 var lbiro = { Value: null };
-                var virtualizing = Controls.VirtualizingStackPanel.GetIsVirtualizing(this);
+                var virtualizing = Fayde.Controls.VirtualizingStackPanel.GetIsVirtualizing(this);
                 if (this._IsOnCurrentPage(item, ihro, lbiro))
                     return;
                 var ihr = ihro.Value;
@@ -9332,8 +10910,8 @@ var Fayde;
                 lbiro.Width = lbi.RenderSize.Width;
                 lbiro.Height = lbi.RenderSize.Height;
 
-                if (itemsHost instanceof Controls.Control) {
-                    var padding = (itemsHost).Padding;
+                if (itemsHost instanceof Fayde.Controls.Control) {
+                    var padding = itemsHost.Padding;
                     if (padding) {
                         ihro.X = ihro.X + padding.Left;
                         ihro.Y = ihro.Y + padding.Top;
@@ -9389,13 +10967,13 @@ var Fayde;
                 var handled = false;
                 var newFocusedIndex = -1;
                 switch (args.Key) {
-                    case Fayde.Input.Key.Space:
-                    case Fayde.Input.Key.Enter:
-                        if (Fayde.Input.Key.Enter !== args.Key || Fayde.Input.KeyboardNavigation.GetAcceptsReturn(this)) {
+                    case 9 /* Space */:
+                    case 3 /* Enter */:
+                        if (3 /* Enter */ !== args.Key || Fayde.Input.KeyboardNavigation.GetAcceptsReturn(this)) {
                             if (!Fayde.Input.Keyboard.HasAlt()) {
                                 var focusedEl = this.XamlNode.GetFocusedElement();
                                 var lbi;
-                                if (focusedEl instanceof Controls.ListBoxItem)
+                                if (focusedEl instanceof Fayde.Controls.ListBoxItem)
                                     lbi = focusedEl;
                                 if (lbi) {
                                     if (Fayde.Input.Keyboard.HasControl() && lbi.IsSelected) {
@@ -9408,44 +10986,44 @@ var Fayde;
                             }
                         }
                         break;
-                    case Fayde.Input.Key.Home:
+                    case 13 /* Home */:
                         newFocusedIndex = 0;
                         break;
-                    case Fayde.Input.Key.End:
+                    case 12 /* End */:
                         newFocusedIndex = this.Items.Count - 1;
                         break;
-                    case Fayde.Input.Key.PageUp:
+                    case 10 /* PageUp */:
                         newFocusedIndex = this._NavigateByPage(false);
                         break;
-                    case Fayde.Input.Key.PageDown:
+                    case 11 /* PageDown */:
                         newFocusedIndex = this._NavigateByPage(true);
                         break;
-                    case Fayde.Input.Key.Left:
+                    case 14 /* Left */:
                         if (this._GetIsVerticalOrientation()) {
-                            this._ScrollInDirection(Fayde.Input.Key.Left);
+                            this._ScrollInDirection(14 /* Left */);
                         } else {
                             newFocusedIndex = this._FocusedIndex - 1;
                         }
                         break;
-                    case Fayde.Input.Key.Up:
+                    case 15 /* Up */:
                         if (this._GetIsVerticalOrientation()) {
                             newFocusedIndex = this._FocusedIndex - 1;
                         } else {
-                            this._ScrollInDirection(Fayde.Input.Key.Up);
+                            this._ScrollInDirection(15 /* Up */);
                         }
                         break;
-                    case Fayde.Input.Key.Right:
+                    case 16 /* Right */:
                         if (this._GetIsVerticalOrientation()) {
-                            this._ScrollInDirection(Fayde.Input.Key.Right);
+                            this._ScrollInDirection(16 /* Right */);
                         } else {
                             newFocusedIndex = this._FocusedIndex + 1;
                         }
                         break;
-                    case Fayde.Input.Key.Down:
+                    case 17 /* Down */:
                         if (this._GetIsVerticalOrientation()) {
                             newFocusedIndex = this._FocusedIndex + 1;
                         } else {
-                            this._ScrollInDirection(Fayde.Input.Key.Down);
+                            this._ScrollInDirection(17 /* Down */);
                         }
                         break;
                 }
@@ -9467,18 +11045,18 @@ var Fayde;
             };
             ListBox.prototype._GetIsVerticalOrientation = function () {
                 var p = this.Panel;
-                if (p instanceof Controls.StackPanel)
-                    return (p).Orientation === Fayde.Orientation.Vertical;
-                if (p instanceof Controls.VirtualizingStackPanel)
-                    return (p).Orientation === Fayde.Orientation.Vertical;
+                if (p instanceof Fayde.Controls.StackPanel)
+                    return p.Orientation === 1 /* Vertical */;
+                if (p instanceof Fayde.Controls.VirtualizingStackPanel)
+                    return p.Orientation === 1 /* Vertical */;
                 return true;
             };
 
             ListBox.prototype.IsItemItsOwnContainer = function (item) {
-                return item instanceof Controls.ListBoxItem;
+                return item instanceof Fayde.Controls.ListBoxItem;
             };
             ListBox.prototype.GetContainerForItem = function () {
-                var item = new Controls.ListBoxItem();
+                var item = new Fayde.Controls.ListBoxItem();
                 var ics = this.ItemContainerStyle;
                 if (ics != null)
                     item.Style = ics;
@@ -9510,16 +11088,16 @@ var Fayde;
             ListBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () {
                 return Fayde.Style;
             }, ListBox, undefined, function (d, args) {
-                return (d).OnItemContainerStyleChanged(args);
+                return d.OnItemContainerStyleChanged(args);
             });
             ListBox.SelectionModeProperty = DependencyProperty.Register("SelectionMode", function () {
-                return new Enum(Controls.SelectionMode);
+                return new Enum(Fayde.Controls.SelectionMode);
             }, ListBox, undefined, function (d, args) {
-                return (d)._Selection.Mode = args.NewValue;
+                return d._Selection.Mode = args.NewValue;
             });
-            ListBox.IsSelectionActiveProperty = Controls.Primitives.Selector.IsSelectionActiveProperty;
+            ListBox.IsSelectionActiveProperty = Fayde.Controls.Primitives.Selector.IsSelectionActiveProperty;
             return ListBox;
-        })(Controls.Primitives.Selector);
+        })(Fayde.Controls.Primitives.Selector);
         Controls.ListBox = ListBox;
         Fayde.RegisterType(ListBox, {
             Name: "ListBox",
@@ -9532,36 +11110,13 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var MENode = (function (_super) {
-            __extends(MENode, _super);
-            function MENode(xobj) {
-                _super.call(this, xobj);
-            }
-            MENode.prototype.PostInsideObject = function (ctx, lu, x, y) {
-                return false;
-            };
-            return MENode;
-        })(Fayde.FENode);
-        Controls.MENode = MENode;
-        Fayde.RegisterType(MENode, {
-            Name: "MENode",
-            Namespace: "Fayde.Controls"
-        });
-
         var MediaElement = (function (_super) {
             __extends(MediaElement, _super);
             function MediaElement() {
                 _super.apply(this, arguments);
             }
-            MediaElement.prototype.CreateNode = function () {
-                return new MENode(this);
-            };
-
-            MediaElement.prototype._MeasureOverride = function (availableSize, error) {
-                return availableSize;
-            };
-            MediaElement.prototype._ArrangeOverride = function (finalSize, error) {
-                return finalSize;
+            MediaElement.prototype.CreateLayoutUpdater = function (node) {
+                return new MediaElementLayoutUpdater(node);
             };
             return MediaElement;
         })(Fayde.FrameworkElement);
@@ -9571,35 +11126,38 @@ var Fayde;
             Namespace: "Fayde.Controls",
             XmlNamespace: Fayde.XMLNS
         });
+
+        var MediaElementLayoutUpdater = (function (_super) {
+            __extends(MediaElementLayoutUpdater, _super);
+            function MediaElementLayoutUpdater() {
+                _super.apply(this, arguments);
+            }
+            MediaElementLayoutUpdater.prototype.InsideObject = function (ctx, x, y) {
+                return false;
+            };
+
+            MediaElementLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
+                return availableSize;
+            };
+            MediaElementLayoutUpdater.prototype.ArrangeOverride = function (finalSize, error) {
+                return finalSize;
+            };
+            return MediaElementLayoutUpdater;
+        })(Fayde.LayoutUpdater);
+        Controls.MediaElementLayoutUpdater = MediaElementLayoutUpdater;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var UCNode = (function (_super) {
-            __extends(UCNode, _super);
-            function UCNode(xobj) {
-                _super.call(this, xobj);
-                this._IsParsing = false;
-                this.LayoutUpdater.BreaksLayoutClipRender = true;
-                this.LayoutUpdater.SetContainerMode(true);
-            }
-            return UCNode;
-        })(Controls.ControlNode);
-        Controls.UCNode = UCNode;
-        Fayde.RegisterType(UCNode, {
-            Name: "UCNode",
-            Namespace: "Fayde.Controls"
-        });
-
         var UserControl = (function (_super) {
             __extends(UserControl, _super);
             function UserControl() {
                 _super.apply(this, arguments);
             }
-            UserControl.prototype.CreateNode = function () {
-                return new UCNode(this);
+            UserControl.prototype.CreateLayoutUpdater = function (node) {
+                return new UserControlLayoutUpdater(node);
             };
 
             UserControl.prototype.InitializeComponent = function () {
@@ -9608,8 +11166,6 @@ var Fayde;
 
             UserControl.prototype._InvalidateContent = function (args) {
                 var node = this.XamlNode;
-                if (node._IsParsing)
-                    return;
                 var error = new BError();
                 if (args.OldValue instanceof Fayde.UIElement)
                     node.DetachVisualChild(args.OldValue, error);
@@ -9619,27 +11175,50 @@ var Fayde;
                     error.ThrowException();
                 node.LayoutUpdater.UpdateBounds();
             };
+            UserControl.ContentProperty = DependencyProperty.Register("Content", function () {
+                return Object;
+            }, UserControl, undefined, function (d, args) {
+                return d._InvalidateContent(args);
+            });
 
-            UserControl.prototype._MeasureOverride = function (availableSize, error) {
+            UserControl.Annotations = { ContentProperty: UserControl.ContentProperty };
+            return UserControl;
+        })(Fayde.Controls.Control);
+        Controls.UserControl = UserControl;
+        Fayde.RegisterType(UserControl, {
+            Name: "UserControl",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
+        var UserControlLayoutUpdater = (function (_super) {
+            __extends(UserControlLayoutUpdater, _super);
+            function UserControlLayoutUpdater(node) {
+                _super.call(this, node);
+                this.BreaksLayoutClipRender = true;
+                this.SetContainerMode(true);
+            }
+            UserControlLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
                 var desired;
                 availableSize = size.copyTo(availableSize);
 
-                var padding = this.Padding;
-                var borderThickness = this.BorderThickness;
+                var uc = this.Node.XObject;
+                var padding = uc.Padding;
+                var borderThickness = uc.BorderThickness;
                 var border = null;
                 if (!padding)
                     border = borderThickness;
-else if (!borderThickness)
+                else if (!borderThickness)
                     border = padding;
-else
+                else
                     border = padding.Plus(borderThickness);
 
                 if (border)
                     size.shrinkByThickness(availableSize, border);
 
-                var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+                var enumerator = this.Node.GetVisualTreeEnumerator();
                 while (enumerator.MoveNext()) {
-                    var childLu = (enumerator.Current).LayoutUpdater;
+                    var childLu = enumerator.Current.LayoutUpdater;
                     childLu._Measure(availableSize, error);
                     desired = size.copyTo(childLu.DesiredSize);
                 }
@@ -9649,22 +11228,23 @@ else
                     size.growByThickness(desired, border);
                 return desired;
             };
-            UserControl.prototype._ArrangeOverride = function (finalSize, error) {
-                var padding = this.Padding;
-                var borderThickness = this.BorderThickness;
+            UserControlLayoutUpdater.prototype.ArrangeOverride = function (finalSize, error) {
+                var uc = this.Node.XObject;
+                var padding = uc.Padding;
+                var borderThickness = uc.BorderThickness;
                 var border = null;
                 if (!padding)
                     border = borderThickness;
-else if (!borderThickness)
+                else if (!borderThickness)
                     border = padding;
-else
+                else
                     border = padding.Plus(borderThickness);
 
                 var arranged = null;
 
-                var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+                var enumerator = this.Node.GetVisualTreeEnumerator();
                 while (enumerator.MoveNext()) {
-                    var childLu = (enumerator.Current).LayoutUpdater;
+                    var childLu = enumerator.Current.LayoutUpdater;
                     var childRect = rect.fromSize(finalSize);
                     if (border)
                         rect.shrinkByThickness(childRect, border);
@@ -9677,21 +11257,9 @@ else
                     return arranged;
                 return finalSize;
             };
-            UserControl.ContentProperty = DependencyProperty.Register("Content", function () {
-                return Object;
-            }, UserControl, undefined, function (d, args) {
-                return (d)._InvalidateContent(args);
-            });
-
-            UserControl.Annotations = { ContentProperty: UserControl.ContentProperty };
-            return UserControl;
-        })(Controls.Control);
-        Controls.UserControl = UserControl;
-        Fayde.RegisterType(UserControl, {
-            Name: "UserControl",
-            Namespace: "Fayde.Controls",
-            XmlNamespace: Fayde.XMLNS
-        });
+            return UserControlLayoutUpdater;
+        })(Fayde.LayoutUpdater);
+        Controls.UserControlLayoutUpdater = UserControlLayoutUpdater;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -9707,7 +11275,7 @@ var Fayde;
                 return String;
             }, Page);
             return Page;
-        })(Controls.UserControl);
+        })(Fayde.Controls.UserControl);
         Controls.Page = Page;
         Fayde.RegisterType(Page, {
             Name: "Page",
@@ -9937,7 +11505,7 @@ var Fayde;
                 this.PlatformKeyCode = keyCode;
                 this.Key = key;
                 if (this.Key == null)
-                    this.Key = Key.Unknown;
+                    this.Key = 255 /* Unknown */;
                 this.Char = c;
             }
             return KeyEventArgs;
@@ -9981,7 +11549,7 @@ var Fayde;
                 this._Undo = [];
                 this._Redo = [];
                 this._Buffer = "";
-                this._Emit = TextBoxEmitChangedType.NOTHING;
+                this._Emit = 0 /* NOTHING */;
                 this._NeedIMReset = false;
                 this._Selecting = false;
                 this._Captured = false;
@@ -10112,7 +11680,7 @@ var Fayde;
             });
             Object.defineProperty(TextBoxBase.prototype, "TextDecorations", {
                 get: function () {
-                    return Fayde.TextDecorations.None;
+                    return 0 /* None */;
                 },
                 enumerable: true,
                 configurable: true
@@ -10129,18 +11697,18 @@ var Fayde;
                 if (view)
                     view.SetTextBox(null);
 
-                view = this.$View = new Controls.Internal.TextBoxView();
+                view = this.$View = new Fayde.Controls.Internal.TextBoxView();
                 view.SetEnableCursor(!this.$IsReadOnly);
                 view.SetTextBox(this);
 
-                if (ce instanceof Controls.ContentPresenter) {
-                    (ce).SetValue(Controls.ContentPresenter.ContentProperty, view);
-                } else if (ce instanceof Controls.ContentControl) {
-                    (ce).SetValue(Controls.ContentControl.ContentProperty, view);
-                } else if (ce instanceof Controls.Border) {
-                    (ce).SetValue(Controls.Border.ChildProperty, view);
-                } else if (ce instanceof Controls.Panel) {
-                    (ce).Children.Add(view);
+                if (ce instanceof Fayde.Controls.ContentPresenter) {
+                    ce.SetValue(Fayde.Controls.ContentPresenter.ContentProperty, view);
+                } else if (ce instanceof Fayde.Controls.ContentControl) {
+                    ce.SetValue(Fayde.Controls.ContentControl.ContentProperty, view);
+                } else if (ce instanceof Fayde.Controls.Border) {
+                    ce.SetValue(Fayde.Controls.Border.ChildProperty, view);
+                } else if (ce instanceof Fayde.Controls.Panel) {
+                    ce.Children.Add(view);
                 } else {
                     Warn("TextBox does not have a valid content element.");
                     view.SetTextBox(null);
@@ -10196,7 +11764,7 @@ var Fayde;
                 }
             };
             TextBoxBase.prototype._SelectionStartChanged = function (newValue) {
-                var changed = TextBoxModelChangedType.Nothing;
+                var changed = 0 /* Nothing */;
 
                 var length = Math.abs(this._SelectionCursor - this._SelectionAnchor);
                 var start = newValue;
@@ -10213,7 +11781,7 @@ var Fayde;
                 }
 
                 if (this._SelectionAnchor != start) {
-                    changed = TextBoxModelChangedType.Selection;
+                    changed = 3 /* Selection */;
                     this.$HasOffset = false;
                 }
 
@@ -10223,11 +11791,11 @@ var Fayde;
                 this._Emit |= TextBoxEmitChangedType.SELECTION;
                 this._SyncAndEmit();
 
-                if (changed !== TextBoxModelChangedType.Nothing)
+                if (changed !== 0 /* Nothing */)
                     this._ModelChanged(changed, newValue);
             };
             TextBoxBase.prototype._SelectionLengthChanged = function (newValue) {
-                var changed = TextBoxModelChangedType.Nothing;
+                var changed = 0 /* Nothing */;
 
                 var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
                 var length = newValue;
@@ -10237,7 +11805,7 @@ var Fayde;
                     return;
                 }
                 if (this._SelectionCursor != (start + length)) {
-                    changed = TextBoxModelChangedType.Selection;
+                    changed = 3 /* Selection */;
                     this.$HasOffset = false;
                 }
 
@@ -10246,7 +11814,7 @@ var Fayde;
                 this._Emit |= TextBoxEmitChangedType.SELECTION;
                 this._SyncAndEmit();
 
-                if (changed !== TextBoxModelChangedType.Nothing)
+                if (changed !== 0 /* Nothing */)
                     this._ModelChanged(changed, newValue);
             };
             TextBoxBase.prototype._TextChanged = function (newValue) {
@@ -10270,7 +11838,7 @@ var Fayde;
 
                     this._SyncAndEmit(false);
                 }
-                this._ModelChanged(TextBoxModelChangedType.Text, newValue);
+                this._ModelChanged(6 /* Text */, newValue);
             };
 
             TextBoxBase.prototype._BatchPush = function () {
@@ -10287,7 +11855,7 @@ var Fayde;
                 if (syncText === undefined)
                     syncText = true;
 
-                if (this._Batch != 0 || this._Emit === TextBoxEmitChangedType.NOTHING)
+                if (this._Batch != 0 || this._Emit === 0 /* NOTHING */)
                     return;
 
                 if (syncText && (this._Emit & TextBoxEmitChangedType.TEXT))
@@ -10304,7 +11872,7 @@ var Fayde;
                         this._EmitSelectionChanged();
                 }
 
-                this._Emit = TextBoxEmitChangedType.NOTHING;
+                this._Emit = 0 /* NOTHING */;
             };
 
             TextBoxBase.prototype._SyncText = function () {
@@ -10457,7 +12025,7 @@ var Fayde;
                     this._Selecting = true;
 
                     this._BatchPush();
-                    this._Emit = TextBoxEmitChangedType.NOTHING;
+                    this._Emit = 0 /* NOTHING */;
                     this.SelectionStart = cursor;
                     this.SelectionLength = 0;
                     this._BatchPop();
@@ -10485,7 +12053,7 @@ var Fayde;
                     cursor = this.$View.GetCursorFromXY(p.X, p.Y);
 
                     this._BatchPush();
-                    this._Emit = TextBoxEmitChangedType.NOTHING;
+                    this._Emit = 0 /* NOTHING */;
                     this.SelectionStart = Math.min(anchor, cursor);
                     this.SelectionLength = Math.abs(cursor - anchor);
                     this._SelectionAnchor = anchor;
@@ -10519,24 +12087,24 @@ var Fayde;
 
             TextBoxBase.prototype.OnKeyDown = function (args) {
                 switch (args.Key) {
-                    case Key.Shift:
-                    case Key.Ctrl:
-                    case Key.Alt:
+                    case 4 /* Shift */:
+                    case 5 /* Ctrl */:
+                    case 6 /* Alt */:
                         return;
                 }
 
                 var handled = false;
-                this._Emit = TextBoxEmitChangedType.NOTHING;
+                this._Emit = 0 /* NOTHING */;
 
                 this._BatchPush();
 
                 switch (args.Key) {
-                    case Key.Back:
+                    case 1 /* Back */:
                         if (this.$IsReadOnly)
                             break;
                         handled = this._KeyDownBackSpace(args.Modifiers);
                         break;
-                    case Key.Delete:
+                    case 19 /* Delete */:
                         if (this.$IsReadOnly)
                             break;
                         if (args.Modifiers.Shift) {
@@ -10545,48 +12113,48 @@ var Fayde;
                             handled = this._KeyDownDelete(args.Modifiers);
                         }
                         break;
-                    case Key.Insert:
+                    case 18 /* Insert */:
                         if (args.Modifiers.Shift) {
                             handled = true;
                         } else if (args.Modifiers.Ctrl) {
                             handled = true;
                         }
                         break;
-                    case Key.PageDown:
+                    case 11 /* PageDown */:
                         handled = this._KeyDownPageDown(args.Modifiers);
                         break;
-                    case Key.PageUp:
+                    case 10 /* PageUp */:
                         handled = this._KeyDownPageUp(args.Modifiers);
                         break;
-                    case Key.Home:
+                    case 13 /* Home */:
                         handled = this._KeyDownHome(args.Modifiers);
                         break;
-                    case Key.End:
+                    case 12 /* End */:
                         handled = this._KeyDownEnd(args.Modifiers);
                         break;
-                    case Key.Left:
+                    case 14 /* Left */:
                         handled = this._KeyDownLeft(args.Modifiers);
                         break;
-                    case Key.Right:
+                    case 16 /* Right */:
                         handled = this._KeyDownRight(args.Modifiers);
                         break;
-                    case Key.Down:
+                    case 17 /* Down */:
                         handled = this._KeyDownDown(args.Modifiers);
                         break;
-                    case Key.Up:
+                    case 15 /* Up */:
                         handled = this._KeyDownUp(args.Modifiers);
                         break;
                     default:
                         if (args.Modifiers.Ctrl) {
                             switch (args.Key) {
-                                case Key.A:
+                                case 30 /* A */:
                                     handled = true;
                                     this.SelectAll();
                                     break;
-                                case Key.C:
+                                case 32 /* C */:
                                     handled = true;
                                     break;
-                                case Key.X:
+                                case 53 /* X */:
                                     if (this.$IsReadOnly)
                                         break;
 
@@ -10594,13 +12162,13 @@ var Fayde;
                                     this._SelectedTextChanged("");
                                     handled = true;
                                     break;
-                                case Key.Y:
+                                case 54 /* Y */:
                                     if (!this.$IsReadOnly) {
                                         handled = true;
                                         this.Redo();
                                     }
                                     break;
-                                case Key.Z:
+                                case 55 /* Z */:
                                     if (!this.$IsReadOnly) {
                                         handled = true;
                                         this.Undo();
@@ -10628,10 +12196,10 @@ var Fayde;
                 if (this.$IsReadOnly || args.Modifiers.Alt || args.Modifiers.Ctrl)
                     return;
 
-                this._Emit = TextBoxEmitChangedType.NOTHING;
+                this._Emit = 0 /* NOTHING */;
                 this._BatchPush();
 
-                if (args.Key === Key.Enter) {
+                if (args.Key === 3 /* Enter */) {
                     this._KeyDownChar('\r');
                 } else if (args.Char != null && !args.Modifiers.Ctrl && !args.Modifiers.Alt) {
                     this._KeyDownChar(args.Char);
@@ -10704,7 +12272,7 @@ var Fayde;
                 } else if (this._Buffer && cursor < this._Buffer.length) {
                     if (this._Buffer.charAt(cursor) === '\r' && this._Buffer.charAt(cursor + 1) === '\n')
                         length = 2;
-else
+                    else
                         length = 1;
                     start = cursor;
                 }
@@ -10854,7 +12422,7 @@ else
                 } else {
                     if (cursor >= 2 && this._Buffer && this._Buffer.charAt(cursor - 2) === '\r' && this._Buffer.charAt(cursor - 1) === '\n')
                         cursor -= 2;
-else if (cursor > 0)
+                    else if (cursor > 0)
                         cursor--;
                 }
 
@@ -10887,7 +12455,7 @@ else if (cursor > 0)
                 } else {
                     if (this._Buffer && this._Buffer.charAt(cursor) === '\r' && this._Buffer.charAt(cursor + 1) === '\n')
                         cursor += 2;
-else if (cursor < this._Buffer.length)
+                    else if (cursor < this._Buffer.length)
                         cursor++;
                 }
 
@@ -11006,7 +12574,7 @@ else if (cursor < this._Buffer.length)
                 return true;
             };
             return TextBoxBase;
-        })(Controls.Control);
+        })(Fayde.Controls.Control);
         Controls.TextBoxBase = TextBoxBase;
         Fayde.RegisterType(TextBoxBase, {
             Name: "TextBoxBase",
@@ -11021,9 +12589,9 @@ var Fayde;
         var PasswordBox = (function (_super) {
             __extends(PasswordBox, _super);
             function PasswordBox() {
-                _super.call(this, Controls.TextBoxEmitChangedType.TEXT, PasswordBox.PasswordProperty);
+                _super.call(this, Fayde.Controls.TextBoxEmitChangedType.TEXT, PasswordBox.PasswordProperty);
                 this.PasswordChangedEvent = new Fayde.RoutedEvent();
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             Object.defineProperty(PasswordBox.prototype, "DisplayText", {
                 get: function () {
@@ -11072,12 +12640,12 @@ var Fayde;
                 this._SelectionBackgroundListener = null;
                 if (newBrush) {
                     this._SelectionBackgroundListener = newBrush.Listen(function (brush) {
-                        _this._ModelChanged(Controls.TextBoxModelChangedType.Brush, newBrush);
+                        _this._ModelChanged(4 /* Brush */, newBrush);
                         _this.XamlNode.LayoutUpdater.Invalidate();
                     });
                 }
 
-                this._ModelChanged(Controls.TextBoxModelChangedType.Brush, newBrush);
+                this._ModelChanged(4 /* Brush */, newBrush);
                 this.XamlNode.LayoutUpdater.Invalidate();
             };
 
@@ -11089,12 +12657,12 @@ var Fayde;
                 this._SelectionForegroundListener = null;
                 if (newBrush) {
                     this._SelectionForegroundListener = newBrush.Listen(function (brush) {
-                        _this._ModelChanged(Controls.TextBoxModelChangedType.Brush, newBrush);
+                        _this._ModelChanged(4 /* Brush */, newBrush);
                         _this.XamlNode.LayoutUpdater.Invalidate();
                     });
                 }
 
-                this._ModelChanged(Controls.TextBoxModelChangedType.Brush, newBrush);
+                this._ModelChanged(4 /* Brush */, newBrush);
                 this.XamlNode.LayoutUpdater.Invalidate();
             };
             PasswordBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () {
@@ -11106,30 +12674,30 @@ var Fayde;
             PasswordBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () {
                 return Number;
             }, PasswordBox, 0, function (d, args) {
-                return (d).$MaxLength = args.NewValue;
+                return d.$MaxLength = args.NewValue;
             }, undefined, undefined, positiveIntValidator);
             PasswordBox.PasswordCharProperty = DependencyProperty.Register("PasswordChar", function () {
                 return String;
             }, PasswordBox, String.fromCharCode(9679), function (d, args) {
-                return (d)._ModelChanged(Controls.TextBoxModelChangedType.Text, args.NewValue);
+                return d._ModelChanged(6 /* Text */, args.NewValue);
             });
             PasswordBox.PasswordProperty = DependencyProperty.Register("Password", function () {
                 return String;
             }, PasswordBox, undefined, function (d, args) {
-                return (d)._TextChanged(args.NewValue);
+                return d._TextChanged(args.NewValue);
             });
             PasswordBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () {
                 return Fayde.Media.Brush;
             }, PasswordBox, undefined, function (d, args) {
-                return (d)._SelectionForegroundChanged(args);
+                return d._SelectionForegroundChanged(args);
             });
             PasswordBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () {
                 return Fayde.Media.Brush;
             }, PasswordBox, undefined, function (d, args) {
-                return (d)._SelectionBackgroundChanged(args);
+                return d._SelectionBackgroundChanged(args);
             });
             return PasswordBox;
-        })(Controls.TextBoxBase);
+        })(Fayde.Controls.TextBoxBase);
         Controls.PasswordBox = PasswordBox;
         Fayde.RegisterType(PasswordBox, {
             Name: "PasswordBox",
@@ -11254,16 +12822,13 @@ var Fayde;
                     this._Catcher = null;
                 }
                 PopupNode.prototype.GetInheritedEnumerator = function () {
-                    var popup = (this.XObject);
+                    var popup = this.XObject;
                     if (!popup)
                         return Fayde.ArrayEx.EmptyEnumerator;
                     var child = popup.Child;
                     if (!child)
                         return Fayde.ArrayEx.EmptyEnumerator;
                     return Fayde.ArrayEx.GetEnumerator([popup.Child.XamlNode]);
-                };
-
-                PopupNode.prototype.ComputeBounds = function (baseComputer, lu) {
                 };
 
                 PopupNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
@@ -11290,8 +12855,8 @@ var Fayde;
                     if (this._IsCatchingClick) {
                         var root = this._VisualChild;
                         if (!root) {
-                            var root = new Controls.Canvas();
-                            var clickCatcher = new Controls.Canvas();
+                            var root = new Fayde.Controls.Canvas();
+                            var clickCatcher = new Fayde.Controls.Canvas();
                             clickCatcher.Background = Fayde.Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
                             clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
                             clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
@@ -11329,30 +12894,6 @@ var Fayde;
                 };
                 PopupNode.prototype._RaiseClickedOutside = function (sender, e) {
                     this.XObject.ClickedOutside.Raise(this, EventArgs.Empty);
-                };
-
-                PopupNode.prototype.PostCompute = function (lu, hasLocalProjection) {
-                    var child = this.XObject.Child;
-                    if (!child)
-                        return;
-                    var childLu = child.XamlNode.LayoutUpdater;
-                    var popup = this.XObject;
-                    if (lu.TotalRenderProjection) {
-                        var projection = mat4.clone(lu.AbsoluteProjection);
-                        var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
-                        mat4.multiply(m, projection, projection);
-
-                        childLu.CarrierProjection = projection;
-                        childLu.CarrierXform = null;
-                        childLu.UpdateProjection();
-                    } else {
-                        var xform = mat3.clone(lu.AbsoluteXform);
-                        mat3.translate(xform, popup.HorizontalOffset, popup.VerticalOffset);
-
-                        childLu.CarrierProjection = null;
-                        childLu.CarrierXform = xform;
-                        childLu.UpdateTransform();
-                    }
                 };
 
                 PopupNode.prototype.OnHorizontalOffsetChanged = function (args) {
@@ -11428,6 +12969,9 @@ var Fayde;
                 Popup.prototype.CreateNode = function () {
                     return new PopupNode(this);
                 };
+                Popup.prototype.CreateLayoutUpdater = function (node) {
+                    return new PopupLayoutUpdater(node);
+                };
 
                 Popup.prototype._OnChildChanged = function (args) {
                     var oldFE;
@@ -11450,22 +12994,22 @@ var Fayde;
                 Popup.ChildProperty = DependencyProperty.Register("Child", function () {
                     return Fayde.UIElement;
                 }, Popup, undefined, function (d, args) {
-                    return (d)._OnChildChanged(args);
+                    return d._OnChildChanged(args);
                 });
                 Popup.HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", function () {
                     return Number;
                 }, Popup, 0.0, function (d, args) {
-                    return (d).XamlNode.OnHorizontalOffsetChanged(args);
+                    return d.XamlNode.OnHorizontalOffsetChanged(args);
                 });
                 Popup.VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", function () {
                     return Number;
                 }, Popup, 0.0, function (d, args) {
-                    return (d).XamlNode.OnVerticalOffsetChanged(args);
+                    return d.XamlNode.OnVerticalOffsetChanged(args);
                 });
                 Popup.IsOpenProperty = DependencyProperty.Register("IsOpen", function () {
                     return Boolean;
                 }, Popup, false, function (d, args) {
-                    return (d)._OnIsOpenChanged(args);
+                    return d._OnIsOpenChanged(args);
                 });
 
                 Popup.Annotations = { ContentProperty: Popup.ChildProperty };
@@ -11477,6 +13021,41 @@ var Fayde;
                 Namespace: "Fayde.Controls.Primitives",
                 XmlNamespace: Fayde.XMLNS
             });
+
+            var PopupLayoutUpdater = (function (_super) {
+                __extends(PopupLayoutUpdater, _super);
+                function PopupLayoutUpdater() {
+                    _super.apply(this, arguments);
+                }
+                PopupLayoutUpdater.prototype.ComputeBounds = function () {
+                };
+
+                PopupLayoutUpdater.prototype.PostComputeTransform = function (hasProjection) {
+                    var popup = this.Node.XObject;
+                    var child = popup.Child;
+                    if (!child)
+                        return;
+                    var childLu = child.XamlNode.LayoutUpdater;
+                    if (this.TotalRenderProjection) {
+                        var projection = mat4.clone(this.AbsoluteProjection);
+                        var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
+                        mat4.multiply(m, projection, projection);
+
+                        childLu.CarrierProjection = projection;
+                        childLu.CarrierXform = null;
+                        childLu.UpdateProjection();
+                    } else {
+                        var xform = mat3.clone(this.AbsoluteXform);
+                        mat3.translate(xform, popup.HorizontalOffset, popup.VerticalOffset);
+
+                        childLu.CarrierProjection = null;
+                        childLu.CarrierXform = xform;
+                        childLu.UpdateTransform();
+                    }
+                };
+                return PopupLayoutUpdater;
+            })(Fayde.LayoutUpdater);
+            Primitives.PopupLayoutUpdater = PopupLayoutUpdater;
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -11606,27 +13185,27 @@ var Fayde;
                 RangeBase.MinimumProperty = DependencyProperty.Register("Minimum", function () {
                     return Number;
                 }, RangeBase, 0, function (d, args) {
-                    return (d)._OnMinimumChanged(args);
+                    return d._OnMinimumChanged(args);
                 });
                 RangeBase.MaximumProperty = DependencyProperty.Register("Maximum", function () {
                     return Number;
                 }, RangeBase, 1, function (d, args) {
-                    return (d)._OnMaximumChanged(args);
+                    return d._OnMaximumChanged(args);
                 });
                 RangeBase.LargeChangeProperty = DependencyProperty.Register("LargeChange", function () {
                     return Number;
                 }, RangeBase, 1, function (d, args) {
-                    return (d)._OnLargeChangeChanged(args);
+                    return d._OnLargeChangeChanged(args);
                 });
                 RangeBase.SmallChangeProperty = DependencyProperty.Register("SmallChange", function () {
                     return Number;
                 }, RangeBase, 0.1, function (d, args) {
-                    return (d)._OnSmallChangeChanged(args);
+                    return d._OnSmallChangeChanged(args);
                 });
                 RangeBase.ValueProperty = DependencyProperty.Register("Value", function () {
                     return Number;
                 }, RangeBase, 0, function (d, args) {
-                    return (d)._OnValueChanged(args);
+                    return d._OnValueChanged(args);
                 });
                 return RangeBase;
             })(Fayde.Controls.Control);
@@ -11677,8 +13256,8 @@ var Fayde;
                     this._IntervalID = null;
                     this._NewInterval = null;
                     this._ElementRoot = null;
-                    this.ClickMode = Controls.ClickMode.Press;
-                    this.DefaultStyleKey = (this).constructor;
+                    this.ClickMode = 1 /* Press */;
+                    this.DefaultStyleKey = this.constructor;
                 }
                 RepeatButton.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
@@ -11705,7 +13284,7 @@ var Fayde;
                     this._UpdateRepeatState();
                 };
                 RepeatButton.prototype.OnKeyDown = function (e) {
-                    if (e.Key === Fayde.Input.Key.Space && this.ClickMode !== Controls.ClickMode.Hover) {
+                    if (e.Key === 9 /* Space */ && this.ClickMode !== 2 /* Hover */) {
                         this._KeyboardCausingRepeat = true;
                         this._UpdateRepeatState();
                     }
@@ -11713,7 +13292,7 @@ var Fayde;
                 };
                 RepeatButton.prototype.OnKeyUp = function (e) {
                     _super.prototype.OnKeyUp.call(this, e);
-                    if (e.Key === Fayde.Input.Key.Space && this.ClickMode !== Controls.ClickMode.Hover) {
+                    if (e.Key === 9 /* Space */ && this.ClickMode !== 2 /* Hover */) {
                         this._KeyboardCausingRepeat = false;
                         this._UpdateRepeatState();
                     }
@@ -11721,7 +13300,7 @@ var Fayde;
                 };
                 RepeatButton.prototype.OnLostFocus = function (e) {
                     _super.prototype.OnLostFocus.call(this, e);
-                    if (this.ClickMode !== Controls.ClickMode.Hover) {
+                    if (this.ClickMode !== 2 /* Hover */) {
                         this._KeyboardCausingRepeat = false;
                         this._MouseCausingRepeat = false;
                         this._UpdateRepeatState();
@@ -11729,7 +13308,7 @@ var Fayde;
                 };
                 RepeatButton.prototype.OnMouseEnter = function (e) {
                     _super.prototype.OnMouseEnter.call(this, e);
-                    if (this.ClickMode === Controls.ClickMode.Hover) {
+                    if (this.ClickMode === 2 /* Hover */) {
                         this._MouseCausingRepeat = true;
                         this._UpdateRepeatState();
                     }
@@ -11738,7 +13317,7 @@ var Fayde;
                 };
                 RepeatButton.prototype.OnMouseLeave = function (e) {
                     _super.prototype.OnMouseLeave.call(this, e);
-                    if (this.ClickMode === Controls.ClickMode.Hover) {
+                    if (this.ClickMode === 2 /* Hover */) {
                         this._MouseCausingRepeat = false;
                         this._UpdateRepeatState();
                     }
@@ -11748,7 +13327,7 @@ var Fayde;
                     if (e.Handled)
                         return;
                     _super.prototype.OnMouseLeftButtonDown.call(this, e);
-                    if (this.ClickMode !== Controls.ClickMode.Hover) {
+                    if (this.ClickMode !== 2 /* Hover */) {
                         this._MouseCausingRepeat = true;
                         this._UpdateRepeatState();
                     }
@@ -11757,7 +13336,7 @@ var Fayde;
                     if (e.Handled)
                         return;
                     _super.prototype.OnMouseLeftButtonUp.call(this, e);
-                    if (this.ClickMode !== Controls.ClickMode.Hover) {
+                    if (this.ClickMode !== 2 /* Hover */) {
                         this._MouseCausingRepeat = false;
                         this._UpdateRepeatState();
                     }
@@ -11826,15 +13405,15 @@ var Fayde;
                 RepeatButton.DelayProperty = DependencyProperty.Register("Delay", function () {
                     return Number;
                 }, RepeatButton, 500, function (d, args) {
-                    return (d).OnDelayChanged(args);
+                    return d.OnDelayChanged(args);
                 });
                 RepeatButton.IntervalProperty = DependencyProperty.Register("Interval", function () {
                     return Number;
                 }, RepeatButton, 33, function (d, args) {
-                    return (d).OnIntervalChanged(args);
+                    return d.OnIntervalChanged(args);
                 });
                 return RepeatButton;
-            })(Primitives.ButtonBase);
+            })(Fayde.Controls.Primitives.ButtonBase);
             Primitives.RepeatButton = RepeatButton;
             Fayde.RegisterType(RepeatButton, {
                 Name: "RepeatButton",
@@ -11856,7 +13435,7 @@ var Fayde;
                     _super.call(this);
                     this._DragValue = 0;
                     this.Scroll = new Fayde.RoutedEvent();
-                    this.DefaultStyleKey = (this).constructor;
+                    this.DefaultStyleKey = this.constructor;
                     this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
                 }
                 Object.defineProperty(ScrollBar.prototype, "IsDragging", {
@@ -11880,17 +13459,17 @@ var Fayde;
                 ScrollBar.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
                     this.$HorizontalTemplate = this._GetChildOfType("HorizontalRoot", Fayde.FrameworkElement);
-                    this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalLargeIncrease", Primitives.RepeatButton);
-                    this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalLargeDecrease", Primitives.RepeatButton);
-                    this.$HorizontalSmallIncrease = this._GetChildOfType("HorizontalSmallIncrease", Primitives.RepeatButton);
-                    this.$HorizontalSmallDecrease = this._GetChildOfType("HorizontalSmallDecrease", Primitives.RepeatButton);
-                    this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Primitives.Thumb);
+                    this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalLargeIncrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalLargeDecrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$HorizontalSmallIncrease = this._GetChildOfType("HorizontalSmallIncrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$HorizontalSmallDecrease = this._GetChildOfType("HorizontalSmallDecrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Fayde.Controls.Primitives.Thumb);
                     this.$VerticalTemplate = this._GetChildOfType("VerticalRoot", Fayde.FrameworkElement);
-                    this.$VerticalLargeIncrease = this._GetChildOfType("VerticalLargeIncrease", Primitives.RepeatButton);
-                    this.$VerticalLargeDecrease = this._GetChildOfType("VerticalLargeDecrease", Primitives.RepeatButton);
-                    this.$VerticalSmallIncrease = this._GetChildOfType("VerticalSmallIncrease", Primitives.RepeatButton);
-                    this.$VerticalSmallDecrease = this._GetChildOfType("VerticalSmallDecrease", Primitives.RepeatButton);
-                    this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Primitives.Thumb);
+                    this.$VerticalLargeIncrease = this._GetChildOfType("VerticalLargeIncrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$VerticalLargeDecrease = this._GetChildOfType("VerticalLargeDecrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$VerticalSmallIncrease = this._GetChildOfType("VerticalSmallIncrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$VerticalSmallDecrease = this._GetChildOfType("VerticalSmallDecrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Fayde.Controls.Primitives.Thumb);
 
                     if (this.$HorizontalThumb) {
                         this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
@@ -11958,7 +13537,7 @@ var Fayde;
                     var min = this.Minimum;
                     var diff = max - min;
                     var trackLength = this._GetTrackLength();
-                    var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
+                    var isHorizontal = this.Orientation === 0 /* Horizontal */;
                     if (this.$VerticalThumb && !isHorizontal) {
                         change = num * e.VerticalChange / (trackLength - this.$VerticalThumb.ActualHeight) * diff;
                     }
@@ -11970,12 +13549,12 @@ var Fayde;
                         var num1 = Math.min(max, Math.max(min, this._DragValue));
                         if (num1 !== this.Value) {
                             this.Value = num1;
-                            this._RaiseScroll(Primitives.ScrollEventType.ThumbTrack);
+                            this._RaiseScroll(5 /* ThumbTrack */);
                         }
                     }
                 };
                 ScrollBar.prototype._OnThumbDragCompleted = function (sender, e) {
-                    this._RaiseScroll(Primitives.ScrollEventType.EndScroll);
+                    this._RaiseScroll(8 /* EndScroll */);
                 };
 
                 ScrollBar.prototype._SmallDecrement = function (sender, e) {
@@ -11983,7 +13562,7 @@ var Fayde;
                     var num = Math.max(curValue - this.SmallChange, this.Minimum);
                     if (curValue !== num) {
                         this.Value = num;
-                        this._RaiseScroll(Primitives.ScrollEventType.SmallDecrement);
+                        this._RaiseScroll(0 /* SmallDecrement */);
                     }
                 };
                 ScrollBar.prototype._SmallIncrement = function (sender, e) {
@@ -11991,7 +13570,7 @@ var Fayde;
                     var num = Math.min(curValue + this.SmallChange, this.Maximum);
                     if (curValue !== num) {
                         this.Value = num;
-                        this._RaiseScroll(Primitives.ScrollEventType.SmallIncrement);
+                        this._RaiseScroll(1 /* SmallIncrement */);
                     }
                 };
                 ScrollBar.prototype._LargeDecrement = function (sender, e) {
@@ -11999,7 +13578,7 @@ var Fayde;
                     var num = Math.max(curValue - this.LargeChange, this.Minimum);
                     if (curValue !== num) {
                         this.Value = num;
-                        this._RaiseScroll(Primitives.ScrollEventType.LargeDecrement);
+                        this._RaiseScroll(2 /* LargeDecrement */);
                     }
                 };
                 ScrollBar.prototype._LargeIncrement = function (sender, e) {
@@ -12007,7 +13586,7 @@ var Fayde;
                     var num = Math.min(curValue + this.LargeChange, this.Maximum);
                     if (curValue !== num) {
                         this.Value = num;
-                        this._RaiseScroll(Primitives.ScrollEventType.LargeIncrement);
+                        this._RaiseScroll(3 /* LargeIncrement */);
                     }
                 };
 
@@ -12015,12 +13594,12 @@ var Fayde;
                     this._UpdateTrackLayout(this._GetTrackLength());
                 };
                 ScrollBar.prototype._OnOrientationChanged = function () {
-                    var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
+                    var isHorizontal = this.Orientation === 0 /* Horizontal */;
                     if (this.$HorizontalTemplate) {
-                        this.$HorizontalTemplate.Visibility = isHorizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
+                        this.$HorizontalTemplate.Visibility = isHorizontal ? 0 /* Visible */ : 1 /* Collapsed */;
                     }
                     if (this.$VerticalTemplate) {
-                        this.$VerticalTemplate.Visibility = isHorizontal ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
+                        this.$VerticalTemplate.Visibility = isHorizontal ? 1 /* Collapsed */ : 0 /* Visible */;
                     }
                     this._UpdateTrackLayout(this._GetTrackLength());
                 };
@@ -12031,7 +13610,7 @@ var Fayde;
                     var multiplier = (val - min) / (max - min);
                     var thumbSize = this._UpdateThumbSize(trackLength);
 
-                    var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
+                    var isHorizontal = this.Orientation === 0 /* Horizontal */;
                     if (isHorizontal && this.$HorizontalLargeDecrease && this.$HorizontalThumb) {
                         this.$HorizontalLargeDecrease.Width = Math.max(0, multiplier * (trackLength - thumbSize));
                     } else if (!isHorizontal && this.$VerticalLargeDecrease && this.$VerticalThumb) {
@@ -12042,7 +13621,7 @@ var Fayde;
                     var result = Number.NaN;
                     var hideThumb = trackLength <= 0;
                     if (trackLength > 0) {
-                        var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
+                        var isHorizontal = this.Orientation === 0 /* Horizontal */;
                         var max = this.Maximum;
                         var min = this.Minimum;
                         if (isHorizontal && this.$HorizontalThumb) {
@@ -12051,7 +13630,7 @@ var Fayde;
                             if (max - min === 0 || result > this.ActualWidth || trackLength <= this.$HorizontalThumb.MinWidth) {
                                 hideThumb = true;
                             } else {
-                                this.$HorizontalThumb.Visibility = Fayde.Visibility.Visible;
+                                this.$HorizontalThumb.Visibility = 0 /* Visible */;
                                 this.$HorizontalThumb.Width = result;
                             }
                         } else if (!isHorizontal && this.$VerticalThumb) {
@@ -12060,24 +13639,24 @@ var Fayde;
                             if (max - min === 0 || result > this.ActualHeight || trackLength <= this.$VerticalThumb.MinHeight) {
                                 hideThumb = true;
                             } else {
-                                this.$VerticalThumb.Visibility = Fayde.Visibility.Visible;
+                                this.$VerticalThumb.Visibility = 0 /* Visible */;
                                 this.$VerticalThumb.Height = result;
                             }
                         }
                     }
                     if (hideThumb) {
                         if (this.$HorizontalThumb) {
-                            this.$HorizontalThumb.Visibility = Fayde.Visibility.Collapsed;
+                            this.$HorizontalThumb.Visibility = 1 /* Collapsed */;
                         }
                         if (this.$VerticalThumb) {
-                            this.$VerticalThumb.Visibility = Fayde.Visibility.Collapsed;
+                            this.$VerticalThumb.Visibility = 1 /* Collapsed */;
                         }
                     }
                     return result;
                 };
                 ScrollBar.prototype._GetTrackLength = function () {
                     var actual = NaN;
-                    if (this.Orientation === Fayde.Orientation.Horizontal) {
+                    if (this.Orientation === 0 /* Horizontal */) {
                         actual = this.ActualWidth;
                         if (this.$HorizontalSmallDecrease) {
                             var thickness = this.$HorizontalSmallDecrease.Margin;
@@ -12105,22 +13684,22 @@ var Fayde;
                     return trackLength * viewportSize / (viewportSize + this.Maximum - this.Minimum);
                 };
                 ScrollBar.prototype._RaiseScroll = function (type) {
-                    var args = new Primitives.ScrollEventArgs(type, this.Value);
+                    var args = new Fayde.Controls.Primitives.ScrollEventArgs(type, this.Value);
                     args.OriginalSource = this;
                     this.Scroll.Raise(this, args);
                 };
                 ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () {
                     return new Enum(Fayde.Orientation);
-                }, ScrollBar, Fayde.Orientation.Horizontal, function (d, args) {
-                    return (d)._OnOrientationChanged();
+                }, ScrollBar, 0 /* Horizontal */, function (d, args) {
+                    return d._OnOrientationChanged();
                 });
                 ScrollBar.ViewportSizeProperty = DependencyProperty.Register("ViewportSize", function () {
                     return Number;
                 }, ScrollBar, 0, function (d, args) {
-                    return (d)._UpdateTrackLayout((d)._GetTrackLength());
+                    return d._UpdateTrackLayout(d._GetTrackLength());
                 });
                 return ScrollBar;
-            })(Primitives.RangeBase);
+            })(Fayde.Controls.Primitives.RangeBase);
             Primitives.ScrollBar = ScrollBar;
             Fayde.RegisterType(ScrollBar, {
                 Name: "ScrollBar",
@@ -12235,7 +13814,7 @@ var Fayde;
                     this._SelectedItems = [];
                     this._SelectedItem = null;
                     this._IsUpdating = false;
-                    this.Mode = Controls.SelectionMode.Single;
+                    this.Mode = 0 /* Single */;
                     this._Owner = owner;
                     this._Owner.SelectedItems.CollectionChanged.Subscribe(this._HandleOwnerSelectionChanged, this);
                 }
@@ -12250,27 +13829,27 @@ var Fayde;
                 SelectorSelection.prototype._HandleOwnerSelectionChanged = function (sender, e) {
                     if (this._IsUpdating)
                         return;
-                    if (this.Mode === Controls.SelectionMode.Single)
+                    if (this.Mode === 0 /* Single */)
                         throw new InvalidOperationException("SelectedItems cannot be modified directly when in Single select mode");
                     try  {
                         var items = this._SelectedItems;
                         this._IsUpdating = true;
                         switch (e.Action) {
-                            case Fayde.Collections.NotifyCollectionChangedAction.Add:
+                            case 1 /* Add */:
                                 if (items.indexOf(e.NewItems[0]) < 0)
                                     this.AddToSelected(e.NewItems[0]);
                                 break;
-                            case Fayde.Collections.NotifyCollectionChangedAction.Remove:
+                            case 2 /* Remove */:
                                 if (items.indexOf(e.OldItems[0]) > -1)
                                     this.RemoveFromSelected(e.OldItems[0]);
                                 break;
-                            case Fayde.Collections.NotifyCollectionChangedAction.Replace:
+                            case 3 /* Replace */:
                                 if (items.indexOf(e.OldItems[0]) > -1)
                                     this.RemoveFromSelected(e.OldItems[0]);
                                 if (items.indexOf(e.NewItems[0]) < 0)
                                     this.AddToSelected(e.NewItems[0]);
                                 break;
-                            case Fayde.Collections.NotifyCollectionChangedAction.Reset:
+                            case 4 /* Reset */:
                                 var ownerItems = this._Owner.SelectedItems;
 
                                 var item;
@@ -12347,22 +13926,22 @@ var Fayde;
                         this._IsUpdating = true;
 
                         switch (this.Mode) {
-                            case Controls.SelectionMode.Single:
+                            case 0 /* Single */:
                                 if (selected) {
                                     if (Fayde.Input.Keyboard.HasControl())
                                         this.ClearSelection(ignoreSelectedValue);
-else
+                                    else
                                         this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
                                 } else {
                                     this.ReplaceSelection(item);
                                 }
                                 break;
-                            case Controls.SelectionMode.Extended:
+                            case 2 /* Extended */:
                                 if (Fayde.Input.Keyboard.HasShift()) {
                                     var sIndex = ownerItems.IndexOf(this._SelectedItem);
                                     if (selectedItems.length === 0)
                                         this.SelectRange(0, ownerItems.IndexOf(item));
-else
+                                    else
                                         this.SelectRange(sIndex, ownerItems.IndexOf(item));
                                 } else if (Fayde.Input.Keyboard.HasControl()) {
                                     if (!selected)
@@ -12370,14 +13949,14 @@ else
                                 } else {
                                     if (selected)
                                         this.RemoveFromSelected(item);
-else
+                                    else
                                         this.AddToSelected(item);
                                 }
                                 break;
-                            case Controls.SelectionMode.Multiple:
+                            case 1 /* Multiple */:
                                 if (selectedItems.indexOf(item) > -1)
                                     this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
-else
+                                else
                                     this.AddToSelected(item);
                                 break;
                             default:
@@ -12401,7 +13980,7 @@ else
                         var index = newlySelected.indexOf(item);
                         if (index > -1)
                             newlySelected.splice(index, 1);
-else
+                        else
                             newlyUnselected.push(item);
                     }
 
@@ -12422,7 +14001,7 @@ else
                 SelectorSelection.prototype.SelectAll = function (items) {
                     try  {
                         this._IsUpdating = true;
-                        if (this.Mode === Controls.SelectionMode.Single)
+                        if (this.Mode === 0 /* Single */)
                             throw new NotSupportedException("Cannot call SelectAll when in Single select mode");
 
                         var selectedItems = this._SelectedItems;
@@ -12564,7 +14143,7 @@ var Fayde;
                     this.DragCompleted = new Fayde.RoutedEvent();
                     this.DragDelta = new Fayde.RoutedEvent();
                     this.DragStarted = new Fayde.RoutedEvent();
-                    this.DefaultStyleKey = (this).constructor;
+                    this.DefaultStyleKey = this.constructor;
                 }
                 Thumb.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
@@ -12640,13 +14219,13 @@ var Fayde;
                 };
 
                 Thumb.prototype._RaiseDragStarted = function () {
-                    this.DragStarted.Raise(this, new Primitives.DragStartedEventArgs(this._Origin.X, this._Origin.Y));
+                    this.DragStarted.Raise(this, new Fayde.Controls.Primitives.DragStartedEventArgs(this._Origin.X, this._Origin.Y));
                 };
                 Thumb.prototype._RaiseDragDelta = function (x, y) {
-                    this.DragDelta.Raise(this, new Primitives.DragDeltaEventArgs(x, y));
+                    this.DragDelta.Raise(this, new Fayde.Controls.Primitives.DragDeltaEventArgs(x, y));
                 };
                 Thumb.prototype._RaiseDragCompleted = function (canceled) {
-                    this.DragCompleted.Raise(this, new Primitives.DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
+                    this.DragCompleted.Raise(this, new Fayde.Controls.Primitives.DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
                 };
 
                 Thumb.prototype.GoToStateCommon = function (gotoFunc) {
@@ -12661,13 +14240,13 @@ var Fayde;
                 Thumb.IsDraggingProperty = DependencyProperty.RegisterReadOnly("IsDragging", function () {
                     return Boolean;
                 }, Thumb, false, function (d, args) {
-                    return (d).OnDraggingChanged(args);
+                    return d.OnDraggingChanged(args);
                 });
                 Thumb.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () {
                     return Boolean;
                 }, Thumb);
                 return Thumb;
-            })(Controls.Control);
+            })(Fayde.Controls.Control);
             Primitives.Thumb = Thumb;
             Fayde.RegisterType(Thumb, {
                 Name: "Thumb",
@@ -12686,7 +14265,7 @@ var Fayde;
             __extends(ProgressBar, _super);
             function ProgressBar() {
                 _super.call(this);
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             ProgressBar.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
@@ -12732,10 +14311,10 @@ var Fayde;
                 var margin = indicator.Margin;
                 var outerWidth = (margin) ? margin.Left + margin.Right : 0.0;
                 var padding = null;
-                if (parent instanceof Controls.Border)
-                    padding = (parent).Padding;
-else if (parent instanceof Controls.Control)
-                    padding = (parent).Padding;
+                if (parent instanceof Fayde.Controls.Border)
+                    padding = parent.Padding;
+                else if (parent instanceof Fayde.Controls.Control)
+                    padding = parent.Padding;
 
                 if (padding) {
                     outerWidth += padding.Left;
@@ -12745,23 +14324,23 @@ else if (parent instanceof Controls.Control)
                 var progress = 1.0;
                 if (!this.IsIndeterminate && max !== min)
                     progress = (val - min) / (max - min);
-                var fullWidth = Math.max(0, (parent).ActualWidth - outerWidth);
+                var fullWidth = Math.max(0, parent.ActualWidth - outerWidth);
                 indicator.Width = fullWidth * progress;
             };
 
             ProgressBar.prototype.GoToStates = function (gotoFunc) {
                 if (this.IsIndeterminate)
                     gotoFunc("Indeterminate");
-else
+                else
                     gotoFunc("Determinate");
             };
             ProgressBar.IsIndeterminateProperty = DependencyProperty.Register("IsIndeterminate", function () {
                 return Boolean;
             }, ProgressBar, false, function (d, args) {
-                return (d)._IsIndeterminateChanged(args);
+                return d._IsIndeterminateChanged(args);
             });
             return ProgressBar;
-        })(Controls.Primitives.RangeBase);
+        })(Fayde.Controls.Primitives.RangeBase);
         Controls.ProgressBar = ProgressBar;
         Fayde.RegisterType(ProgressBar, {
             Name: "ProgressBar",
@@ -12779,7 +14358,7 @@ var Fayde;
             function RadioButton() {
                 _super.call(this);
                 RadioButton.Register("", this);
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             RadioButton.Register = function (groupName, radioButton) {
                 if (!groupName)
@@ -12857,12 +14436,12 @@ var Fayde;
             RadioButton.GroupNameProperty = DependencyProperty.RegisterReadOnly("GroupName", function () {
                 return String;
             }, RadioButton, false, function (d, args) {
-                return (d).OnGroupNameChanged(args);
+                return d.OnGroupNameChanged(args);
             });
 
             RadioButton._GroupNameToElements = [];
             return RadioButton;
-        })(Controls.Primitives.ToggleButton);
+        })(Fayde.Controls.Primitives.ToggleButton);
         Controls.RadioButton = RadioButton;
         Fayde.RegisterType(RadioButton, {
             Name: "RadioButton",
@@ -12892,7 +14471,7 @@ var Fayde;
                 _super.apply(this, arguments);
             }
             return RichTextBox;
-        })(Controls.Control);
+        })(Fayde.Controls.Control);
         Controls.RichTextBox = RichTextBox;
         Fayde.RegisterType(RichTextBox, {
             Name: "RichTextBox",
@@ -12924,19 +14503,19 @@ var Fayde;
                     listener.RowDefinitionChanged(this);
             };
             RowDefinition.HeightProperty = DependencyProperty.Register("Height", function () {
-                return Controls.GridLength;
+                return Fayde.Controls.GridLength;
             }, RowDefinition, undefined, function (d, args) {
-                return (d)._HeightsChanged(args);
+                return d._HeightsChanged(args);
             });
             RowDefinition.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () {
                 return Number;
             }, RowDefinition, Number.POSITIVE_INFINITY, function (d, args) {
-                return (d)._HeightsChanged(args);
+                return d._HeightsChanged(args);
             });
             RowDefinition.MinHeightProperty = DependencyProperty.Register("MinHeight", function () {
                 return Number;
             }, RowDefinition, 0.0, function (d, args) {
-                return (d)._HeightsChanged(args);
+                return d._HeightsChanged(args);
             });
             RowDefinition.ActualHeightProperty = DependencyProperty.RegisterReadOnly("ActualHeight", function () {
                 return Number;
@@ -12956,17 +14535,17 @@ var Fayde;
             var s = o.toString();
             var rd = new RowDefinition();
             if (s.toLowerCase() === "auto") {
-                rd.Height = new Controls.GridLength(0, Controls.GridUnitType.Auto);
+                rd.Height = new Fayde.Controls.GridLength(0, 0 /* Auto */);
                 return rd;
             }
             if (s === "*") {
-                rd.Height = new Controls.GridLength(1, Controls.GridUnitType.Star);
+                rd.Height = new Fayde.Controls.GridLength(1, 2 /* Star */);
                 return rd;
             }
             var v = parseFloat(s);
             if (isNaN(v))
                 throw new XamlParseException("Invalid RowDefinition: '" + s + "'.");
-            rd.Height = new Controls.GridLength(v, s[s.length - 1] === "*" ? Controls.GridUnitType.Star : Controls.GridUnitType.Pixel);
+            rd.Height = new Fayde.Controls.GridLength(v, s[s.length - 1] === "*" ? 2 /* Star */ : 1 /* Pixel */);
             return rd;
         }
         Fayde.RegisterTypeConverter(RowDefinition, ConvertRowDefinition);
@@ -13018,7 +14597,7 @@ var Fayde;
             if (!o || o instanceof RowDefinitionCollection)
                 return o;
             if (typeof o === "string") {
-                var tokens = (o).split(" ");
+                var tokens = o.split(" ");
                 var len = tokens.length;
                 var rdc = new RowDefinitionCollection();
                 var rd;
@@ -13041,7 +14620,7 @@ var Fayde;
             __extends(ScrollContentPresenter, _super);
             function ScrollContentPresenter() {
                 _super.apply(this, arguments);
-                this._ScrollData = new Controls.Primitives.ScrollData();
+                this._ScrollData = new Fayde.Controls.Primitives.ScrollData();
                 this._IsClipPropertySet = false;
                 this._ClippingRectangle = null;
             }
@@ -13216,20 +14795,20 @@ var Fayde;
                 _super.prototype.OnApplyTemplate.call(this);
 
                 var sv;
-                if (this.TemplateOwner instanceof Controls.ScrollViewer)
+                if (this.TemplateOwner instanceof Fayde.Controls.ScrollViewer)
                     sv = this.TemplateOwner;
-else
+                else
                     return;
 
                 var content = this.Content;
                 var info;
-                if (Nullstone.ImplementsInterface(content, Controls.Primitives.IScrollInfo_))
+                if (Nullstone.ImplementsInterface(content, Fayde.Controls.Primitives.IScrollInfo_))
                     info = content;
                 if (!info) {
-                    if (content instanceof Controls.ItemsPresenter) {
+                    if (content instanceof Fayde.Controls.ItemsPresenter) {
                         var presenter = content;
                         var er = presenter.ElementRoot;
-                        if (Nullstone.ImplementsInterface(er, Controls.Primitives.IScrollInfo_))
+                        if (Nullstone.ImplementsInterface(er, Fayde.Controls.Primitives.IScrollInfo_))
                             info = er;
                     }
                 }
@@ -13237,18 +14816,72 @@ else
                 if (!info)
                     info = this;
 
-                info.CanHorizontallyScroll = sv.HorizontalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
-                info.CanVerticallyScroll = sv.VerticalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
+                info.CanHorizontallyScroll = sv.HorizontalScrollBarVisibility !== 0 /* Disabled */;
+                info.CanVerticallyScroll = sv.VerticalScrollBarVisibility !== 0 /* Disabled */;
                 info.ScrollOwner = sv;
                 sv.ScrollInfo = info;
                 sv.InvalidateScrollInfo();
             };
+            ScrollContentPresenter.prototype._UpdateClip = function (arrangeSize) {
+                if (!this._IsClipPropertySet) {
+                    this._ClippingRectangle = new Fayde.Media.RectangleGeometry();
+                    this.Clip = this._ClippingRectangle;
+                    this._IsClipPropertySet = true;
+                }
 
-            ScrollContentPresenter.prototype._MeasureOverride = function (availableSize, error) {
+                var content;
+                if (this.TemplateOwner instanceof Fayde.Controls.ScrollViewer && (content = this.Content) && (content instanceof Fayde.Controls.Internal.TextBoxView || content instanceof Fayde.Controls._RichTextBoxView)) {
+                    this._ClippingRectangle.Rect = this._CalculateTextBoxClipRect(arrangeSize);
+                } else {
+                    this._ClippingRectangle.Rect = rect.fromSize(arrangeSize);
+                }
+            };
+            ScrollContentPresenter.prototype._CalculateTextBoxClipRect = function (arrangeSize) {
+                var left = 0;
+                var right = 0;
+                var sd = this._ScrollData;
+                var width = sd.ExtentWidth;
+                var num = sd.ViewportWidth;
+                var x = sd.OffsetX;
+                var templatedParent;
+                if (this.TemplateOwner instanceof Fayde.Controls.ScrollViewer)
+                    templatedParent = this.TemplateOwner;
+
+                var to = templatedParent.TemplateOwner;
+                var textWrapping = 0 /* NoWrap */;
+                var horizontalScrollBarVisibility = 0 /* Disabled */;
+                if (to instanceof Fayde.Controls.TextBox) {
+                    var textbox = to;
+                    textWrapping = textbox.TextWrapping;
+                    horizontalScrollBarVisibility = textbox.HorizontalScrollBarVisibility;
+                } else if (to instanceof Fayde.Controls.RichTextBox) {
+                    var richtextbox = to;
+                    textWrapping = richtextbox.TextWrapping;
+                    horizontalScrollBarVisibility = richtextbox.HorizontalScrollBarVisibility;
+                }
+
+                var padding = templatedParent.Padding;
+                if (textWrapping !== 1 /* Wrap */) {
+                    if (num > width || x === 0)
+                        left = padding.Left + 1;
+                    if (num > width || horizontalScrollBarVisibility !== 0 /* Disabled */ && Math.abs(width - x + num) <= 1)
+                        right = padding.Right + 1;
+                } else {
+                    left = padding.Left + 1;
+                    right = padding.Right + 1;
+                }
+                left = Math.max(0, left);
+                right = Math.max(0, right);
+                var r = new rect();
+                rect.set(r, -left, 0, arrangeSize.Width + left + right, arrangeSize.Height);
+                return r;
+            };
+
+            ScrollContentPresenter.prototype.MeasureOverride = function (availableSize) {
                 var scrollOwner = this.ScrollOwner;
-                var cr = (this.XamlNode).ContentRoot;
+                var cr = this.XamlNode.ContentRoot;
                 if (!scrollOwner || !cr)
-                    return _super.prototype._MeasureOverride.call(this, availableSize, error);
+                    return _super.prototype.MeasureOverride.call(this, availableSize);
 
                 var ideal = size.createInfinite();
                 if (!this.CanHorizontallyScroll)
@@ -13266,11 +14899,11 @@ else
                 desired.Height = Math.min(desired.Height, sd.ExtentHeight);
                 return desired;
             };
-            ScrollContentPresenter.prototype._ArrangeOverride = function (finalSize, error) {
+            ScrollContentPresenter.prototype.ArrangeOverride = function (finalSize) {
                 var scrollOwner = this.ScrollOwner;
-                var cr = (this.XamlNode).ContentRoot;
+                var cr = this.XamlNode.ContentRoot;
                 if (!scrollOwner || !cr)
-                    return _super.prototype._ArrangeOverride.call(this, finalSize, error);
+                    return _super.prototype.ArrangeOverride.call(this, finalSize);
 
                 if (this._ClampOffsets())
                     scrollOwner.InvalidateScrollInfo();
@@ -13321,68 +14954,14 @@ else
                 }
                 return changed;
             };
-            ScrollContentPresenter.prototype._UpdateClip = function (arrangeSize) {
-                if (!this._IsClipPropertySet) {
-                    this._ClippingRectangle = new Fayde.Media.RectangleGeometry();
-                    this.Clip = this._ClippingRectangle;
-                    this._IsClipPropertySet = true;
-                }
-
-                var content;
-                if (this.TemplateOwner instanceof Fayde.Controls.ScrollViewer && (content = this.Content) && (content instanceof Fayde.Controls.Internal.TextBoxView || content instanceof Fayde.Controls._RichTextBoxView)) {
-                    this._ClippingRectangle.Rect = this._CalculateTextBoxClipRect(arrangeSize);
-                } else {
-                    this._ClippingRectangle.Rect = rect.fromSize(arrangeSize);
-                }
-            };
-            ScrollContentPresenter.prototype._CalculateTextBoxClipRect = function (arrangeSize) {
-                var left = 0;
-                var right = 0;
-                var sd = this._ScrollData;
-                var width = sd.ExtentWidth;
-                var num = sd.ViewportWidth;
-                var x = sd.OffsetX;
-                var templatedParent;
-                if (this.TemplateOwner instanceof Controls.ScrollViewer)
-                    templatedParent = this.TemplateOwner;
-
-                var to = templatedParent.TemplateOwner;
-                var textWrapping = Controls.TextWrapping.NoWrap;
-                var horizontalScrollBarVisibility = Controls.ScrollBarVisibility.Disabled;
-                if (to instanceof Controls.TextBox) {
-                    var textbox = to;
-                    textWrapping = textbox.TextWrapping;
-                    horizontalScrollBarVisibility = textbox.HorizontalScrollBarVisibility;
-                } else if (to instanceof Controls.RichTextBox) {
-                    var richtextbox = to;
-                    textWrapping = richtextbox.TextWrapping;
-                    horizontalScrollBarVisibility = richtextbox.HorizontalScrollBarVisibility;
-                }
-
-                var padding = templatedParent.Padding;
-                if (textWrapping !== Controls.TextWrapping.Wrap) {
-                    if (num > width || x === 0)
-                        left = padding.Left + 1;
-                    if (num > width || horizontalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled && Math.abs(width - x + num) <= 1)
-                        right = padding.Right + 1;
-                } else {
-                    left = padding.Left + 1;
-                    right = padding.Right + 1;
-                }
-                left = Math.max(0, left);
-                right = Math.max(0, right);
-                var r = new rect();
-                rect.set(r, -left, 0, arrangeSize.Width + left + right, arrangeSize.Height);
-                return r;
-            };
             return ScrollContentPresenter;
-        })(Controls.ContentPresenter);
+        })(Fayde.Controls.ContentPresenter);
         Controls.ScrollContentPresenter = ScrollContentPresenter;
         Fayde.RegisterType(ScrollContentPresenter, {
             Name: "ScrollContentPresenter",
             Namespace: "Fayde.Controls",
             XmlNamespace: Fayde.XMLNS,
-            Interfaces: [Controls.Primitives.IScrollInfo_]
+            Interfaces: [Fayde.Controls.Primitives.IScrollInfo_]
         });
 
         function validateInputOffset(offset) {
@@ -13431,7 +15010,7 @@ var Fayde;
                 _super.call(this);
                 this.$TemplatedParentHandlesScrolling = false;
 
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             ScrollViewer._ScrollBarVisibilityChanged = function (d, args) {
                 if (!d)
@@ -13441,14 +15020,14 @@ var Fayde;
                     sv.XamlNode.LayoutUpdater.InvalidateMeasure();
                     var scrollInfo = sv.ScrollInfo;
                     if (scrollInfo) {
-                        scrollInfo.CanHorizontallyScroll = sv.HorizontalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
-                        scrollInfo.CanVerticallyScroll = sv.VerticalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
+                        scrollInfo.CanHorizontallyScroll = sv.HorizontalScrollBarVisibility !== 0 /* Disabled */;
+                        scrollInfo.CanVerticallyScroll = sv.VerticalScrollBarVisibility !== 0 /* Disabled */;
                     }
                     sv._UpdateScrollBarVisibility();
                     return;
                 }
 
-                if (d instanceof Controls.ListBox) {
+                if (d instanceof Fayde.Controls.ListBox) {
                     var listbox = d;
                     if (listbox.$TemplateScrollViewer)
                         listbox.$TemplateScrollViewer.SetValue(args.Property, args.NewValue);
@@ -13497,8 +15076,8 @@ var Fayde;
                 set: function (value) {
                     this._ScrollInfo = value;
                     if (value) {
-                        value.CanHorizontallyScroll = this.HorizontalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
-                        value.CanVerticallyScroll = this.VerticalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
+                        value.CanHorizontallyScroll = this.HorizontalScrollBarVisibility !== 0 /* Disabled */;
+                        value.CanVerticallyScroll = this.VerticalScrollBarVisibility !== 0 /* Disabled */;
                     }
                 },
                 enumerable: true,
@@ -13512,8 +15091,8 @@ var Fayde;
                     this.SetValueInternal(ScrollViewer.ExtentHeightProperty, scrollInfo.ExtentHeight);
                     this.SetValueInternal(ScrollViewer.ViewportWidthProperty, scrollInfo.ViewportWidth);
                     this.SetValueInternal(ScrollViewer.ViewportHeightProperty, scrollInfo.ViewportHeight);
-                    this._UpdateScrollBar(Fayde.Orientation.Horizontal, scrollInfo.HorizontalOffset);
-                    this._UpdateScrollBar(Fayde.Orientation.Vertical, scrollInfo.VerticalOffset);
+                    this._UpdateScrollBar(0 /* Horizontal */, scrollInfo.HorizontalOffset);
+                    this._UpdateScrollBar(1 /* Vertical */, scrollInfo.VerticalOffset);
                     this._UpdateScrollBarVisibility();
                 }
 
@@ -13535,18 +15114,18 @@ var Fayde;
                 var lu = this.XamlNode.LayoutUpdater;
                 var scrollInfo = this.ScrollInfo;
 
-                var horizontalVisibility = Fayde.Visibility.Visible;
+                var horizontalVisibility = 0 /* Visible */;
                 var hsbv = this.HorizontalScrollBarVisibility;
                 switch (hsbv) {
-                    case Controls.ScrollBarVisibility.Visible:
+                    case 3 /* Visible */:
                         break;
-                    case Controls.ScrollBarVisibility.Disabled:
-                    case Controls.ScrollBarVisibility.Hidden:
-                        horizontalVisibility = Fayde.Visibility.Collapsed;
+                    case 0 /* Disabled */:
+                    case 2 /* Hidden */:
+                        horizontalVisibility = 1 /* Collapsed */;
                         break;
-                    case Controls.ScrollBarVisibility.Auto:
+                    case 1 /* Auto */:
                     default:
-                        horizontalVisibility = (!scrollInfo || scrollInfo.ExtentWidth <= scrollInfo.ViewportWidth) ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
+                        horizontalVisibility = (!scrollInfo || scrollInfo.ExtentWidth <= scrollInfo.ViewportWidth) ? 1 /* Collapsed */ : 0 /* Visible */;
                         break;
                 }
 
@@ -13555,18 +15134,18 @@ var Fayde;
                     lu.InvalidateMeasure();
                 }
 
-                var verticalVisibility = Fayde.Visibility.Visible;
+                var verticalVisibility = 0 /* Visible */;
                 var vsbv = this.VerticalScrollBarVisibility;
                 switch (vsbv) {
-                    case Controls.ScrollBarVisibility.Visible:
+                    case 3 /* Visible */:
                         break;
-                    case Controls.ScrollBarVisibility.Disabled:
-                    case Controls.ScrollBarVisibility.Hidden:
-                        verticalVisibility = Fayde.Visibility.Collapsed;
+                    case 0 /* Disabled */:
+                    case 2 /* Hidden */:
+                        verticalVisibility = 1 /* Collapsed */;
                         break;
-                    case Controls.ScrollBarVisibility.Auto:
+                    case 1 /* Auto */:
                     default:
-                        verticalVisibility = (!scrollInfo || scrollInfo.ExtentHeight <= scrollInfo.ViewportHeight) ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
+                        verticalVisibility = (!scrollInfo || scrollInfo.ExtentHeight <= scrollInfo.ViewportHeight) ? 1 /* Collapsed */ : 0 /* Visible */;
                         break;
                 }
 
@@ -13578,7 +15157,7 @@ var Fayde;
             ScrollViewer.prototype._UpdateScrollBar = function (orientation, value) {
                 try  {
                     var scrollInfo = this.ScrollInfo;
-                    if (orientation === Fayde.Orientation.Horizontal) {
+                    if (orientation === 0 /* Horizontal */) {
                         this.SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
                         if (this.$HorizontalScrollBar) {
                             this.$HorizontalScrollBar.Value = value;
@@ -13602,17 +15181,17 @@ var Fayde;
             ScrollViewer.prototype.OnApplyTemplate = function () {
                 var _this = this;
                 _super.prototype.OnApplyTemplate.call(this);
-                this.$ScrollContentPresenter = this._GetChildOfType("ScrollContentPresenter", Controls.ScrollContentPresenter);
-                this.$HorizontalScrollBar = this._GetChildOfType("HorizontalScrollBar", Controls.Primitives.ScrollBar);
+                this.$ScrollContentPresenter = this._GetChildOfType("ScrollContentPresenter", Fayde.Controls.ScrollContentPresenter);
+                this.$HorizontalScrollBar = this._GetChildOfType("HorizontalScrollBar", Fayde.Controls.Primitives.ScrollBar);
                 if (this.$HorizontalScrollBar) {
                     this.$HorizontalScrollBar.Scroll.Subscribe(function (sender, e) {
-                        return _this._HandleScroll(Fayde.Orientation.Horizontal, e);
+                        return _this._HandleScroll(0 /* Horizontal */, e);
                     }, this);
                 }
-                this.$VerticalScrollBar = this._GetChildOfType("VerticalScrollBar", Controls.Primitives.ScrollBar);
+                this.$VerticalScrollBar = this._GetChildOfType("VerticalScrollBar", Fayde.Controls.Primitives.ScrollBar);
                 if (this.$VerticalScrollBar) {
                     this.$VerticalScrollBar.Scroll.Subscribe(function (sender, e) {
-                        return _this._HandleScroll(Fayde.Orientation.Vertical, e);
+                        return _this._HandleScroll(1 /* Vertical */, e);
                     }, this);
                 }
                 this._UpdateScrollBarVisibility();
@@ -13633,7 +15212,7 @@ var Fayde;
                 if ((e.Delta > 0 && scrollInfo.VerticalOffset !== 0) || (e.Delta < 0 && scrollInfo.VerticalOffset < this.ScrollableHeight)) {
                     if (e.Delta >= 0)
                         scrollInfo.MouseWheelUp();
-else
+                    else
                         scrollInfo.MouseWheelDown();
                     e.Handled = true;
                 }
@@ -13649,117 +15228,117 @@ else
                 if (!this.$TemplatedParentHandlesScrolling)
                     return;
 
-                var orientation = Fayde.Orientation.Vertical;
-                var scrollEventType = Controls.Primitives.ScrollEventType.ThumbTrack;
+                var orientation = 1 /* Vertical */;
+                var scrollEventType = 5 /* ThumbTrack */;
 
                 switch (e.Key) {
-                    case Fayde.Input.Key.PageUp:
-                        scrollEventType = Controls.Primitives.ScrollEventType.LargeDecrement;
+                    case 10 /* PageUp */:
+                        scrollEventType = 2 /* LargeDecrement */;
                         break;
-                    case Fayde.Input.Key.PageDown:
-                        scrollEventType = Controls.Primitives.ScrollEventType.LargeIncrement;
+                    case 11 /* PageDown */:
+                        scrollEventType = 3 /* LargeIncrement */;
                         break;
-                    case Fayde.Input.Key.End:
+                    case 12 /* End */:
                         if (!e.Modifiers.Ctrl)
-                            orientation = Fayde.Orientation.Horizontal;
-                        scrollEventType = Controls.Primitives.ScrollEventType.Last;
+                            orientation = 0 /* Horizontal */;
+                        scrollEventType = 7 /* Last */;
                         break;
-                    case Fayde.Input.Key.Home:
+                    case 13 /* Home */:
                         if (!e.Modifiers.Ctrl)
-                            orientation = Fayde.Orientation.Horizontal;
-                        scrollEventType = Controls.Primitives.ScrollEventType.First;
+                            orientation = 0 /* Horizontal */;
+                        scrollEventType = 6 /* First */;
                         break;
-                    case Fayde.Input.Key.Left:
-                        orientation = Fayde.Orientation.Horizontal;
-                        scrollEventType = Controls.Primitives.ScrollEventType.SmallDecrement;
-                    case Fayde.Input.Key.Up:
-                        scrollEventType = Controls.Primitives.ScrollEventType.SmallDecrement;
+                    case 14 /* Left */:
+                        orientation = 0 /* Horizontal */;
+                        scrollEventType = 0 /* SmallDecrement */;
+                    case 15 /* Up */:
+                        scrollEventType = 0 /* SmallDecrement */;
                         break;
-                    case Fayde.Input.Key.Right:
-                        orientation = Fayde.Orientation.Horizontal;
-                        scrollEventType = Controls.Primitives.ScrollEventType.SmallIncrement;
-                    case Fayde.Input.Key.Down:
-                        scrollEventType = Controls.Primitives.ScrollEventType.SmallIncrement;
+                    case 16 /* Right */:
+                        orientation = 0 /* Horizontal */;
+                        scrollEventType = 1 /* SmallIncrement */;
+                    case 17 /* Down */:
+                        scrollEventType = 1 /* SmallIncrement */;
                         break;
                 }
-                if (scrollEventType !== Controls.Primitives.ScrollEventType.ThumbTrack) {
-                    this._HandleScroll(orientation, new Controls.Primitives.ScrollEventArgs(scrollEventType, 0));
+                if (scrollEventType !== 5 /* ThumbTrack */) {
+                    this._HandleScroll(orientation, new Fayde.Controls.Primitives.ScrollEventArgs(scrollEventType, 0));
                     e.Handled = true;
                 }
             };
 
             ScrollViewer.prototype.ScrollInDirection = function (key) {
                 switch (key) {
-                    case Fayde.Input.Key.PageUp:
+                    case 10 /* PageUp */:
                         this.PageUp();
                         break;
-                    case Fayde.Input.Key.PageDown:
+                    case 11 /* PageDown */:
                         this.PageDown();
                         break;
-                    case Fayde.Input.Key.End:
+                    case 12 /* End */:
                         this.PageEnd();
                         break;
-                    case Fayde.Input.Key.Home:
+                    case 13 /* Home */:
                         this.PageHome();
                         break;
-                    case Fayde.Input.Key.Left:
+                    case 14 /* Left */:
                         this.LineLeft();
                         break;
-                    case Fayde.Input.Key.Up:
+                    case 15 /* Up */:
                         this.LineUp();
                         break;
-                    case Fayde.Input.Key.Right:
+                    case 16 /* Right */:
                         this.LineRight();
                         break;
-                    case Fayde.Input.Key.Down:
+                    case 17 /* Down */:
                         this.LineDown();
                         break;
                 }
             };
             ScrollViewer.prototype.ScrollToHorizontalOffset = function (offset) {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.ThumbPosition, offset));
+                this._HandleHorizontalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(4 /* ThumbPosition */, offset));
             };
             ScrollViewer.prototype.ScrollToVerticalOffset = function (offset) {
-                this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.ThumbPosition, offset));
+                this._HandleVerticalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(4 /* ThumbPosition */, offset));
             };
 
             ScrollViewer.prototype.LineUp = function () {
-                this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.SmallDecrement, 0));
+                this._HandleVerticalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(0 /* SmallDecrement */, 0));
             };
             ScrollViewer.prototype.LineDown = function () {
-                this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.SmallIncrement, 0));
+                this._HandleVerticalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(1 /* SmallIncrement */, 0));
             };
             ScrollViewer.prototype.LineLeft = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.SmallDecrement, 0));
+                this._HandleHorizontalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(0 /* SmallDecrement */, 0));
             };
             ScrollViewer.prototype.LineRight = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.SmallIncrement, 0));
+                this._HandleHorizontalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(1 /* SmallIncrement */, 0));
             };
 
             ScrollViewer.prototype.PageHome = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.First, 0));
+                this._HandleHorizontalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(6 /* First */, 0));
             };
             ScrollViewer.prototype.PageEnd = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.Last, 0));
+                this._HandleHorizontalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(7 /* Last */, 0));
             };
 
             ScrollViewer.prototype.PageUp = function () {
-                this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.LargeDecrement, 0));
+                this._HandleVerticalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(2 /* LargeDecrement */, 0));
             };
             ScrollViewer.prototype.PageDown = function () {
-                this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.LargeIncrement, 0));
+                this._HandleVerticalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(3 /* LargeIncrement */, 0));
             };
             ScrollViewer.prototype.PageLeft = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.LargeDecrement, 0));
+                this._HandleHorizontalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(2 /* LargeDecrement */, 0));
             };
             ScrollViewer.prototype.PageRight = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.LargeIncrement, 0));
+                this._HandleHorizontalScroll(new Fayde.Controls.Primitives.ScrollEventArgs(3 /* LargeIncrement */, 0));
             };
 
             ScrollViewer.prototype._HandleScroll = function (orientation, e) {
-                if (orientation !== Fayde.Orientation.Horizontal)
+                if (orientation !== 0 /* Horizontal */)
                     this._HandleVerticalScroll(e);
-else
+                else
                     this._HandleHorizontalScroll(e);
             };
             ScrollViewer.prototype._HandleHorizontalScroll = function (e) {
@@ -13769,26 +15348,26 @@ else
                 var offset = scrollInfo.HorizontalOffset;
                 var newValue = offset;
                 switch (e.ScrollEventType) {
-                    case Controls.Primitives.ScrollEventType.SmallDecrement:
+                    case 0 /* SmallDecrement */:
                         scrollInfo.LineLeft();
                         break;
-                    case Controls.Primitives.ScrollEventType.SmallIncrement:
+                    case 1 /* SmallIncrement */:
                         scrollInfo.LineRight();
                         break;
-                    case Controls.Primitives.ScrollEventType.LargeDecrement:
+                    case 2 /* LargeDecrement */:
                         scrollInfo.PageLeft();
                         break;
-                    case Controls.Primitives.ScrollEventType.LargeIncrement:
+                    case 3 /* LargeIncrement */:
                         scrollInfo.PageRight();
                         break;
-                    case Controls.Primitives.ScrollEventType.ThumbPosition:
-                    case Controls.Primitives.ScrollEventType.ThumbTrack:
+                    case 4 /* ThumbPosition */:
+                    case 5 /* ThumbTrack */:
                         newValue = e.Value;
                         break;
-                    case Controls.Primitives.ScrollEventType.First:
+                    case 6 /* First */:
                         newValue = Number.NEGATIVE_INFINITY;
                         break;
-                    case Controls.Primitives.ScrollEventType.Last:
+                    case 7 /* Last */:
                         newValue = Number.POSITIVE_INFINITY;
                         break;
                 }
@@ -13804,26 +15383,26 @@ else
                 var offset = scrollInfo.VerticalOffset;
                 var newValue = offset;
                 switch (e.ScrollEventType) {
-                    case Controls.Primitives.ScrollEventType.SmallDecrement:
+                    case 0 /* SmallDecrement */:
                         scrollInfo.LineUp();
                         break;
-                    case Controls.Primitives.ScrollEventType.SmallIncrement:
+                    case 1 /* SmallIncrement */:
                         scrollInfo.LineDown();
                         break;
-                    case Controls.Primitives.ScrollEventType.LargeDecrement:
+                    case 2 /* LargeDecrement */:
                         scrollInfo.PageUp();
                         break;
-                    case Controls.Primitives.ScrollEventType.LargeIncrement:
+                    case 3 /* LargeIncrement */:
                         scrollInfo.PageDown();
                         break;
-                    case Controls.Primitives.ScrollEventType.ThumbPosition:
-                    case Controls.Primitives.ScrollEventType.ThumbTrack:
+                    case 4 /* ThumbPosition */:
+                    case 5 /* ThumbTrack */:
                         newValue = e.Value;
                         break;
-                    case Controls.Primitives.ScrollEventType.First:
+                    case 6 /* First */:
                         newValue = Number.NEGATIVE_INFINITY;
                         break;
-                    case Controls.Primitives.ScrollEventType.Last:
+                    case 7 /* Last */:
                         newValue = Number.POSITIVE_INFINITY;
                         break;
                 }
@@ -13833,12 +15412,12 @@ else
                     scrollInfo.SetVerticalOffset(newValue);
             };
             ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () {
-                return new Enum(Controls.ScrollBarVisibility);
-            }, ScrollViewer, Controls.ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
+                return new Enum(Fayde.Controls.ScrollBarVisibility);
+            }, ScrollViewer, 0 /* Disabled */, ScrollViewer._ScrollBarVisibilityChanged);
 
             ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () {
-                return new Enum(Controls.ScrollBarVisibility);
-            }, ScrollViewer, Controls.ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
+                return new Enum(Fayde.Controls.ScrollBarVisibility);
+            }, ScrollViewer, 0 /* Disabled */, ScrollViewer._ScrollBarVisibilityChanged);
 
             ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", function () {
                 return new Enum(Fayde.Visibility);
@@ -13871,7 +15450,7 @@ else
                 return Number;
             }, ScrollViewer);
             return ScrollViewer;
-        })(Controls.ContentControl);
+        })(Fayde.Controls.ContentControl);
         Controls.ScrollViewer = ScrollViewer;
         Fayde.RegisterType(ScrollViewer, {
             Name: "ScrollViewer",
@@ -13897,7 +15476,7 @@ var Fayde;
             function Slider() {
                 _super.call(this);
                 this._DragValue = 0;
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
                 this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
             }
             Slider.prototype._GetChildOfType = function (name, type) {
@@ -13909,13 +15488,13 @@ var Fayde;
             Slider.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
                 this.$HorizontalTemplate = this._GetChildOfType("HorizontalTemplate", Fayde.FrameworkElement);
-                this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalTrackLargeChangeIncreaseRepeatButton", Controls.Primitives.RepeatButton);
-                this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalTrackLargeChangeDecreaseRepeatButton", Controls.Primitives.RepeatButton);
-                this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Controls.Primitives.Thumb);
+                this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalTrackLargeChangeIncreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
+                this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalTrackLargeChangeDecreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
+                this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Fayde.Controls.Primitives.Thumb);
                 this.$VerticalTemplate = this._GetChildOfType("VerticalTemplate", Fayde.FrameworkElement);
-                this.$VerticalLargeIncrease = this._GetChildOfType("VerticalTrackLargeChangeIncreaseRepeatButton", Controls.Primitives.RepeatButton);
-                this.$VerticalLargeDecrease = this._GetChildOfType("VerticalTrackLargeChangeDecreaseRepeatButton", Controls.Primitives.RepeatButton);
-                this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Controls.Primitives.Thumb);
+                this.$VerticalLargeIncrease = this._GetChildOfType("VerticalTrackLargeChangeIncreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
+                this.$VerticalLargeDecrease = this._GetChildOfType("VerticalTrackLargeChangeDecreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
+                this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Fayde.Controls.Primitives.Thumb);
 
                 if (this.$HorizontalThumb != null) {
                     this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
@@ -13977,11 +15556,11 @@ var Fayde;
                 this._UpdateTrackLayout();
             };
             Slider.prototype._OnOrientationChanged = function () {
-                var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
+                var isHorizontal = this.Orientation === 0 /* Horizontal */;
                 if (this.$HorizontalTemplate != null)
-                    this.$HorizontalTemplate.Visibility = isHorizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
+                    this.$HorizontalTemplate.Visibility = isHorizontal ? 0 /* Visible */ : 1 /* Collapsed */;
                 if (this.$VerticalTemplate != null)
-                    this.$VerticalTemplate.Visibility = !isHorizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
+                    this.$VerticalTemplate.Visibility = !isHorizontal ? 0 /* Visible */ : 1 /* Collapsed */;
                 this._UpdateTrackLayout();
             };
             Slider.prototype._UpdateTrackLayout = function () {
@@ -13989,9 +15568,9 @@ var Fayde;
                 var min = this.Minimum;
                 var val = this.Value;
 
-                var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
+                var isHorizontal = this.Orientation === 0 /* Horizontal */;
                 var temp = isHorizontal ? this.$HorizontalTemplate : this.$VerticalTemplate;
-                if (!(temp instanceof Controls.Grid))
+                if (!(temp instanceof Fayde.Controls.Grid))
                     return;
                 var templateGrid = temp;
 
@@ -14006,13 +15585,13 @@ var Fayde;
                     thumb = this.$HorizontalThumb;
 
                     if (coldefs && coldefs.Count === 3) {
-                        (coldefs.GetValueAt(0)).Width = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Star : Controls.GridUnitType.Auto);
-                        (coldefs.GetValueAt(2)).Width = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Auto : Controls.GridUnitType.Star);
+                        coldefs.GetValueAt(0).Width = new Fayde.Controls.GridLength(1, isReversed ? 2 /* Star */ : 0 /* Auto */);
+                        coldefs.GetValueAt(2).Width = new Fayde.Controls.GridLength(1, isReversed ? 0 /* Auto */ : 2 /* Star */);
 
                         if (largeDecrease != null)
-                            Controls.Grid.SetColumn(largeDecrease, isReversed ? 2 : 0);
+                            Fayde.Controls.Grid.SetColumn(largeDecrease, isReversed ? 2 : 0);
                         if (largeIncrease != null)
-                            Controls.Grid.SetColumn(largeIncrease, isReversed ? 0 : 2);
+                            Fayde.Controls.Grid.SetColumn(largeIncrease, isReversed ? 0 : 2);
                     }
                 } else {
                     var rowdefs = templateGrid.RowDefinitions;
@@ -14021,13 +15600,13 @@ var Fayde;
                     thumb = this.$VerticalThumb;
 
                     if (rowdefs && rowdefs.Count === 3) {
-                        (rowdefs.GetValueAt(0)).Height = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Auto : Controls.GridUnitType.Star);
-                        (rowdefs.GetValueAt(2)).Height = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Star : Controls.GridUnitType.Auto);
+                        rowdefs.GetValueAt(0).Height = new Fayde.Controls.GridLength(1, isReversed ? 0 /* Auto */ : 2 /* Star */);
+                        rowdefs.GetValueAt(2).Height = new Fayde.Controls.GridLength(1, isReversed ? 2 /* Star */ : 0 /* Auto */);
 
                         if (largeDecrease != null)
-                            Controls.Grid.SetRow(largeDecrease, isReversed ? 0 : 2);
+                            Fayde.Controls.Grid.SetRow(largeDecrease, isReversed ? 0 : 2);
                         if (largeIncrease != null)
-                            Controls.Grid.SetRow(largeIncrease, isReversed ? 2 : 0);
+                            Fayde.Controls.Grid.SetRow(largeIncrease, isReversed ? 2 : 0);
                     }
                 }
 
@@ -14037,7 +15616,7 @@ var Fayde;
                 if (largeDecrease != null && thumb != null) {
                     if (isHorizontal)
                         largeDecrease.Width = Math.max(0, percent * (this.ActualWidth - thumb.ActualWidth));
-else
+                    else
                         largeDecrease.Height = Math.max(0, percent * (this.ActualHeight - thumb.ActualHeight));
                 }
             };
@@ -14048,7 +15627,7 @@ else
             };
             Slider.prototype._OnThumbDragDelta = function (sender, e) {
                 var offset = 0;
-                var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
+                var isHorizontal = this.Orientation === 0 /* Horizontal */;
                 if (isHorizontal && this.$HorizontalThumb != null) {
                     offset = e.HorizontalChange / (this.ActualWidth - this.$HorizontalThumb.ActualWidth) * (this.Maximum - this.Minimum);
                 } else if (!isHorizontal && this.$VerticalThumb != null) {
@@ -14064,13 +15643,13 @@ else
 
             Slider.prototype.OnMouseEnter = function (e) {
                 _super.prototype.OnMouseEnter.call(this, e);
-                if ((this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) || (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+                if ((this.Orientation === 0 /* Horizontal */ && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) || (this.Orientation === 1 /* Vertical */ && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
                     this.UpdateVisualState();
                 }
             };
             Slider.prototype.OnMouseLeave = function (e) {
                 _super.prototype.OnMouseLeave.call(this, e);
-                if ((this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) || (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+                if ((this.Orientation === 0 /* Horizontal */ && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) || (this.Orientation === 1 /* Vertical */ && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
                     this.UpdateVisualState();
                 }
             };
@@ -14095,18 +15674,18 @@ else
                     return;
 
                 switch (e.Key) {
-                    case Fayde.Input.Key.Left:
-                    case Fayde.Input.Key.Down:
+                    case 14 /* Left */:
+                    case 17 /* Down */:
                         this.Value += (this.IsDirectionReversed ? this.SmallChange : -this.SmallChange);
                         break;
-                    case Fayde.Input.Key.Right:
-                    case Fayde.Input.Key.Up:
+                    case 16 /* Right */:
+                    case 15 /* Up */:
                         this.Value += (this.IsDirectionReversed ? -this.SmallChange : this.SmallChange);
                         break;
-                    case Fayde.Input.Key.Home:
+                    case 13 /* Home */:
                         this.Value = this.Minimum;
                         break;
-                    case Fayde.Input.Key.End:
+                    case 12 /* End */:
                         this.Value = this.Maximum;
                         break;
                 }
@@ -14123,20 +15702,20 @@ else
             Slider.IsDirectionReversedProperty = DependencyProperty.RegisterCore("IsDirectionReversed", function () {
                 return Boolean;
             }, Slider, false, function (d, args) {
-                return (d)._UpdateTrackLayout();
+                return d._UpdateTrackLayout();
             });
             Slider.IsFocusedProperty = DependencyProperty.RegisterReadOnlyCore("IsFocused", function () {
                 return Boolean;
             }, Slider, false, function (d, args) {
-                return (d).UpdateVisualState();
+                return d.UpdateVisualState();
             });
             Slider.OrientationProperty = DependencyProperty.RegisterCore("Orientation", function () {
                 return new Enum(Fayde.Orientation);
-            }, Slider, Fayde.Orientation.Horizontal, function (d, args) {
-                return (d)._OnOrientationChanged();
+            }, Slider, 0 /* Horizontal */, function (d, args) {
+                return d._OnOrientationChanged();
             });
             return Slider;
-        })(Controls.Primitives.RangeBase);
+        })(Fayde.Controls.Primitives.RangeBase);
         Controls.Slider = Slider;
         Fayde.RegisterType(Slider, {
             Name: "Slider",
@@ -14154,33 +15733,57 @@ var Fayde;
             function StackPanel() {
                 _super.apply(this, arguments);
             }
+            StackPanel.prototype.CreateLayoutUpdater = function (node) {
+                return new StackPanelLayoutUpdater(node);
+            };
+
             StackPanel.prototype._OrientationChanged = function (args) {
                 var lu = this.XamlNode.LayoutUpdater;
                 lu.InvalidateMeasure();
                 lu.InvalidateArrange();
             };
-            StackPanel.prototype._MeasureOverride = function (availableSize, error) {
+            StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () {
+                return new Enum(Fayde.Orientation);
+            }, StackPanel, 1 /* Vertical */, function (d, args) {
+                return d._OrientationChanged(args);
+            });
+            return StackPanel;
+        })(Fayde.Controls.Panel);
+        Controls.StackPanel = StackPanel;
+        Fayde.RegisterType(StackPanel, {
+            Name: "StackPanel",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
+        var StackPanelLayoutUpdater = (function (_super) {
+            __extends(StackPanelLayoutUpdater, _super);
+            function StackPanelLayoutUpdater() {
+                _super.apply(this, arguments);
+            }
+            StackPanelLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
+                var sp = this.Node.XObject;
                 var childAvailable = size.createInfinite();
                 var measured = new size();
 
-                var isVertical = this.Orientation === Fayde.Orientation.Vertical;
+                var isVertical = sp.Orientation === 1 /* Vertical */;
                 if (isVertical) {
                     childAvailable.Width = availableSize.Width;
-                    var width = this.Width;
+                    var width = sp.Width;
                     if (!isNaN(width))
                         childAvailable.Width = width;
-                    childAvailable.Width = Math.min(childAvailable.Width, this.MaxWidth);
-                    childAvailable.Width = Math.max(childAvailable.Width, this.MinWidth);
+                    childAvailable.Width = Math.min(childAvailable.Width, sp.MaxWidth);
+                    childAvailable.Width = Math.max(childAvailable.Width, sp.MinWidth);
                 } else {
                     childAvailable.Height = availableSize.Height;
-                    var height = this.Height;
+                    var height = sp.Height;
                     if (!isNaN(height))
                         childAvailable.Height = height;
-                    childAvailable.Height = Math.min(childAvailable.Height, this.MaxHeight);
-                    childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
+                    childAvailable.Height = Math.min(childAvailable.Height, sp.MaxHeight);
+                    childAvailable.Height = Math.max(childAvailable.Height, sp.MinHeight);
                 }
 
-                var enumerator = this.Children.GetEnumerator();
+                var enumerator = sp.Children.GetEnumerator();
                 var child;
                 var childNode;
                 var childLu;
@@ -14203,15 +15806,16 @@ var Fayde;
 
                 return measured;
             };
-            StackPanel.prototype._ArrangeOverride = function (finalSize, error) {
+            StackPanelLayoutUpdater.prototype.ArrangeOverride = function (finalSize, error) {
+                var sp = this.Node.XObject;
                 var arranged = size.copyTo(finalSize);
-                var isVertical = this.Orientation === Fayde.Orientation.Vertical;
+                var isVertical = sp.Orientation === 1 /* Vertical */;
                 if (isVertical)
                     arranged.Height = 0;
-else
+                else
                     arranged.Width = 0;
 
-                var enumerator = this.Children.GetEnumerator();
+                var enumerator = sp.Children.GetEnumerator();
                 var child;
                 var childNode;
                 var childLu;
@@ -14250,24 +15854,14 @@ else
 
                 if (isVertical)
                     arranged.Height = Math.max(arranged.Height, finalSize.Height);
-else
+                else
                     arranged.Width = Math.max(arranged.Width, finalSize.Width);
 
                 return arranged;
             };
-            StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () {
-                return new Enum(Fayde.Orientation);
-            }, StackPanel, Fayde.Orientation.Vertical, function (d, args) {
-                return (d)._OrientationChanged(args);
-            });
-            return StackPanel;
-        })(Controls.Panel);
-        Controls.StackPanel = StackPanel;
-        Fayde.RegisterType(StackPanel, {
-            Name: "StackPanel",
-            Namespace: "Fayde.Controls",
-            XmlNamespace: Fayde.XMLNS
-        });
+            return StackPanelLayoutUpdater;
+        })(Fayde.Controls.PanelLayoutUpdater);
+        Controls.StackPanelLayoutUpdater = StackPanelLayoutUpdater;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -14292,22 +15886,6 @@ var Fayde;
                 var inlines = xobj.Inlines;
                 if (inlines)
                     return inlines.GetNodeEnumerator();
-            };
-
-            TextBlockNode.prototype.ComputeBounds = function (baseComputer, lu) {
-                rect.copyTo(this._Layout.RenderExtents, lu.Extents);
-                var padding = this.XObject.Padding;
-                if (padding) {
-                    lu.Extents.X += padding.Left;
-                    lu.Extents.Y += padding.Top;
-                }
-                rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
-
-                lu.IntersectBoundsWithClipPath(lu.Bounds, lu.AbsoluteXform);
-                rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
-
-                lu.ComputeGlobalBounds();
-                lu.ComputeSurfaceBounds();
             };
 
             TextBlockNode.prototype.Measure = function (constraint) {
@@ -14357,6 +15935,17 @@ var Fayde;
                 if (padding)
                     size.growByThickness(result, padding);
                 return result;
+            };
+            TextBlockNode.prototype.Render = function (ctx) {
+                var tb = this.XObject;
+                var padding = tb.Padding;
+                var offset = null;
+                if (padding)
+                    offset = new Point(padding.Left, padding.Top);
+                if (tb.FlowDirection === 1 /* RightToLeft */) {
+                    NotImplemented("TextBlock._Render: Right to left");
+                }
+                this._Layout.Render(ctx, null, offset);
             };
 
             TextBlockNode.prototype._FontChanged = function (args) {
@@ -14448,7 +16037,7 @@ var Fayde;
             };
             TextBlockNode.prototype._UpdateLayoutAttributesForInline = function (item, length, runs) {
                 if (item instanceof Fayde.Documents.Run) {
-                    var text = (item).Text;
+                    var text = item.Text;
                     if (text && text.length) {
                         runs.push(new Fayde.Text.TextLayoutAttributes(item, length));
                         length += text.length;
@@ -14457,7 +16046,7 @@ var Fayde;
                     runs.push(new Fayde.Text.TextLayoutAttributes(item, length));
                     length += 1;
                 } else if (item instanceof Fayde.Documents.Span) {
-                    var inlines = (item).Inlines;
+                    var inlines = item.Inlines;
                     var enumerator = inlines.GetEnumerator();
                     while (enumerator.MoveNext()) {
                         length = this._UpdateLayoutAttributesForInline(enumerator.Current, length, runs);
@@ -14472,7 +16061,7 @@ var Fayde;
                 var block = "";
                 var enumerator = inlines.GetEnumerator();
                 while (enumerator.MoveNext()) {
-                    block += (enumerator.Current)._SerializeText();
+                    block += enumerator.Current._SerializeText();
                 }
                 return block;
             };
@@ -14552,8 +16141,11 @@ var Fayde;
             TextBlock.prototype.CreateNode = function () {
                 return new TextBlockNode(this);
             };
+            TextBlock.prototype.CreateLayoutUpdater = function (node) {
+                return new TextBlockLayoutUpdater(node);
+            };
 
-            TextBlock.prototype._MeasureOverride = function (availableSize, error) {
+            TextBlock.prototype.MeasureOverride = function (availableSize) {
                 var constraint = size.copyTo(availableSize);
                 var padding = this.Padding;
                 if (padding)
@@ -14563,31 +16155,13 @@ var Fayde;
                     size.growByThickness(desired, padding);
                 return desired;
             };
-            TextBlock.prototype._ArrangeOverride = function (finalSize, error) {
+            TextBlock.prototype.ArrangeOverride = function (finalSize) {
                 var constraint = size.copyTo(finalSize);
                 var padding = this.Padding;
                 if (padding)
                     size.shrinkByThickness(constraint, padding);
                 this.XamlNode.Arrange(constraint, padding);
                 return finalSize;
-            };
-
-            TextBlock.prototype.Render = function (ctx, lu, region) {
-                ctx.save();
-                lu.RenderLayoutClip(ctx);
-                var padding = this.Padding;
-                var offset = null;
-                if (padding)
-                    offset = new Point(padding.Left, padding.Top);
-                if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
-                    NotImplemented("TextBlock._Render: Right to left");
-                }
-                this.XamlNode._Layout.Render(ctx, null, offset);
-                ctx.restore();
-            };
-
-            TextBlock.prototype.ComputeActualSize = function (baseComputer, lu) {
-                return this.XamlNode.ComputeActualSize(lu, this.Padding);
             };
 
             TextBlock.prototype.FontChanged = function (args) {
@@ -14613,12 +16187,12 @@ var Fayde;
             TextBlock.prototype.IsInheritable = function (propd) {
                 if (TextBlockInheritedProps.indexOf(propd) > -1)
                     return true;
-                return (_super.prototype).IsInheritable.call(this, propd);
+                return _super.prototype.IsInheritable.call(this, propd);
             };
             TextBlock.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () {
                 return Thickness;
             }, TextBlock, undefined, function (d, args) {
-                return (d).XamlNode._InvalidateDirty(true);
+                return d.XamlNode._InvalidateDirty(true);
             });
             TextBlock.FontFamilyProperty = Fayde.InheritableOwner.FontFamilyProperty.ExtendTo(TextBlock);
             TextBlock.FontSizeProperty = Fayde.InheritableOwner.FontSizeProperty.ExtendTo(TextBlock);
@@ -14630,35 +16204,35 @@ var Fayde;
             TextBlock.TextProperty = DependencyProperty.Register("Text", function () {
                 return String;
             }, TextBlock, "", function (d, args) {
-                return (d).XamlNode._TextChanged(args);
+                return d.XamlNode._TextChanged(args);
             });
             TextBlock.InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", function () {
                 return Fayde.Documents.InlineCollection;
             }, TextBlock);
             TextBlock.LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", function () {
                 return new Enum(Fayde.LineStackingStrategy);
-            }, TextBlock, Fayde.LineStackingStrategy.MaxHeight, function (d, args) {
-                return (d).XamlNode._LineStackingStrategyChanged(args);
+            }, TextBlock, 0 /* MaxHeight */, function (d, args) {
+                return d.XamlNode._LineStackingStrategyChanged(args);
             });
             TextBlock.LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", function () {
                 return Number;
             }, TextBlock, NaN, function (d, args) {
-                return (d).XamlNode._LineHeightChanged(args);
+                return d.XamlNode._LineHeightChanged(args);
             });
             TextBlock.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () {
                 return new Enum(Fayde.TextAlignment);
-            }, TextBlock, Fayde.TextAlignment.Left, function (d, args) {
-                return (d).XamlNode._TextAlignmentChanged(args);
+            }, TextBlock, 0 /* Left */, function (d, args) {
+                return d.XamlNode._TextAlignmentChanged(args);
             });
             TextBlock.TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", function () {
-                return new Enum(Controls.TextTrimming);
-            }, TextBlock, Controls.TextTrimming.None, function (d, args) {
-                return (d).XamlNode._TextTrimmingChanged(args);
+                return new Enum(Fayde.Controls.TextTrimming);
+            }, TextBlock, 0 /* None */, function (d, args) {
+                return d.XamlNode._TextTrimmingChanged(args);
             });
             TextBlock.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () {
-                return new Enum(Controls.TextWrapping);
-            }, TextBlock, Controls.TextWrapping.NoWrap, function (d, args) {
-                return (d).XamlNode._TextWrappingChanged(args);
+                return new Enum(Fayde.Controls.TextWrapping);
+            }, TextBlock, 0 /* NoWrap */, function (d, args) {
+                return d.XamlNode._TextWrappingChanged(args);
             });
 
             TextBlock.Annotations = { ContentProperty: TextBlock.InlinesProperty };
@@ -14679,6 +16253,39 @@ var Fayde;
             TextBlock.FontWeightProperty,
             TextBlock.ForegroundProperty
         ];
+
+        var TextBlockLayoutUpdater = (function (_super) {
+            __extends(TextBlockLayoutUpdater, _super);
+            function TextBlockLayoutUpdater() {
+                _super.apply(this, arguments);
+            }
+            TextBlockLayoutUpdater.prototype.ComputeActualSize = function () {
+                var node = this.Node;
+                var tb = node.XObject;
+                return node.ComputeActualSize(this, tb.Padding);
+            };
+
+            TextBlockLayoutUpdater.prototype.ComputeExtents = function (actualSize) {
+                var node = this.Node;
+                rect.copyTo(node._Layout.RenderExtents, this.Extents);
+                var padding = node.XObject.Padding;
+                if (padding) {
+                    this.Extents.X += padding.Left;
+                    this.Extents.Y += padding.Top;
+                }
+                rect.copyTo(this.Extents, this.ExtentsWithChildren);
+            };
+
+            TextBlockLayoutUpdater.prototype.Render = function (ctx, region) {
+                ctx.save();
+                this.RenderLayoutClip(ctx);
+                var node = this.Node;
+                node.Render(ctx);
+                ctx.restore();
+            };
+            return TextBlockLayoutUpdater;
+        })(Fayde.LayoutUpdater);
+        Controls.TextBlockLayoutUpdater = TextBlockLayoutUpdater;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -14688,10 +16295,10 @@ var Fayde;
         var TextBox = (function (_super) {
             __extends(TextBox, _super);
             function TextBox() {
-                _super.call(this, Controls.TextBoxEmitChangedType.TEXT | Controls.TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);
+                _super.call(this, Fayde.Controls.TextBoxEmitChangedType.TEXT | Fayde.Controls.TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);
                 this.SelectionChanged = new Fayde.RoutedEvent();
                 this.TextChanged = new Fayde.RoutedEvent();
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             TextBox.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
@@ -14700,14 +16307,14 @@ var Fayde;
                 if (!ce)
                     return;
 
-                var ceType = (ce).constructor;
+                var ceType = ce.constructor;
                 var propd = DependencyProperty.GetDependencyProperty(ceType, "VerticalScrollBarVisibility", true);
                 if (propd)
                     ce.SetValueInternal(propd, this.VerticalScrollBarVisibility);
 
                 propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility", true);
                 if (propd) {
-                    var vis = (this.TextWrapping === Controls.TextWrapping.Wrap) ? Controls.ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
+                    var vis = (this.TextWrapping === 1 /* Wrap */) ? 0 /* Disabled */ : this.HorizontalScrollBarVisibility;
                     ce.SetValueInternal(propd, vis);
                 }
             };
@@ -14770,7 +16377,7 @@ var Fayde;
                     this.$View.SetEnableCursor(!this.$IsReadOnly);
             };
             TextBox.prototype._FontChanged = function (args) {
-                this._ModelChanged(Controls.TextBoxModelChangedType.Font, args.NewValue);
+                this._ModelChanged(5 /* Font */, args.NewValue);
             };
 
             TextBox.prototype._SelectionBackgroundChanged = function (args) {
@@ -14781,12 +16388,12 @@ var Fayde;
                 this._SelectionBackgroundListener = null;
                 if (newBrush) {
                     this._SelectionBackgroundListener = newBrush.Listen(function (brush) {
-                        _this._ModelChanged(Controls.TextBoxModelChangedType.Brush, newBrush);
+                        _this._ModelChanged(4 /* Brush */, newBrush);
                         _this.XamlNode.LayoutUpdater.Invalidate();
                     });
                 }
 
-                this._ModelChanged(Controls.TextBoxModelChangedType.Brush, newBrush);
+                this._ModelChanged(4 /* Brush */, newBrush);
                 this.XamlNode.LayoutUpdater.Invalidate();
             };
 
@@ -14798,40 +16405,40 @@ var Fayde;
                 this._SelectionForegroundListener = null;
                 if (newBrush) {
                     this._SelectionForegroundListener = newBrush.Listen(function (brush) {
-                        _this._ModelChanged(Controls.TextBoxModelChangedType.Brush, newBrush);
+                        _this._ModelChanged(4 /* Brush */, newBrush);
                         _this.XamlNode.LayoutUpdater.Invalidate();
                     });
                 }
 
-                this._ModelChanged(Controls.TextBoxModelChangedType.Brush, newBrush);
+                this._ModelChanged(4 /* Brush */, newBrush);
                 this.XamlNode.LayoutUpdater.Invalidate();
             };
             TextBox.prototype._TextAlignmentChanged = function (args) {
-                this._ModelChanged(Controls.TextBoxModelChangedType.TextAlignment, args.NewValue);
+                this._ModelChanged(1 /* TextAlignment */, args.NewValue);
             };
             TextBox.prototype._TextWrappingChanged = function (args) {
                 var ce = this.$ContentElement;
                 if (ce) {
-                    var ceType = (ce).constructor;
+                    var ceType = ce.constructor;
                     var propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility", true);
                     if (propd) {
-                        var vis = (args.NewValue === Controls.TextWrapping.Wrap) ? Controls.ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
+                        var vis = (args.NewValue === 1 /* Wrap */) ? 0 /* Disabled */ : this.HorizontalScrollBarVisibility;
                         ce.SetValueInternal(propd, vis);
                     }
                 }
-                this._ModelChanged(Controls.TextBoxModelChangedType.TextWrapping, args.NewValue);
+                this._ModelChanged(2 /* TextWrapping */, args.NewValue);
             };
             TextBox.prototype._HorizontalScrollBarVisibilityChanged = function (args) {
                 var ce = this.$ContentElement;
                 if (!ce)
                     return;
 
-                var ceType = (ce).constructor;
+                var ceType = ce.constructor;
                 var propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility");
                 if (!propd)
                     return;
 
-                var vis = (this.TextWrapping === Controls.TextWrapping.Wrap) ? Controls.ScrollBarVisibility.Disabled : args.NewValue;
+                var vis = (this.TextWrapping === 1 /* Wrap */) ? 0 /* Disabled */ : args.NewValue;
                 ce.SetValueInternal(propd, vis);
             };
             TextBox.prototype._VerticalScrollBarVisibilityChanged = function (args) {
@@ -14839,7 +16446,7 @@ var Fayde;
                 if (!ce)
                     return;
 
-                var ceType = (ce).constructor;
+                var ceType = ce.constructor;
                 var propd = DependencyProperty.GetDependencyProperty(ceType, "VerticalScrollBarVisibility");
                 if (!propd)
                     return;
@@ -14875,7 +16482,7 @@ var Fayde;
             TextBox.AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", function () {
                 return Boolean;
             }, TextBox, false, function (d, args) {
-                return (d).$AcceptsReturn = (args.NewValue === true);
+                return d.$AcceptsReturn = (args.NewValue === true);
             });
             TextBox.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () {
                 return Fayde.Media.Brush;
@@ -14883,22 +16490,22 @@ var Fayde;
             TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () {
                 return Number;
             }, TextBox, 0, function (d, args) {
-                return (d).$MaxLength = args.NewValue;
+                return d.$MaxLength = args.NewValue;
             }, undefined, undefined, positiveIntValidator);
             TextBox.IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", function () {
                 return Boolean;
             }, TextBox, undefined, function (d, args) {
-                return (d)._IsReadOnlyChanged(args);
+                return d._IsReadOnlyChanged(args);
             });
             TextBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () {
                 return Fayde.Media.Brush;
             }, TextBox, undefined, function (d, args) {
-                return (d)._SelectionForegroundChanged(args);
+                return d._SelectionForegroundChanged(args);
             });
             TextBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () {
                 return Fayde.Media.Brush;
             }, TextBox, undefined, function (d, args) {
-                return (d)._SelectionBackgroundChanged(args);
+                return d._SelectionBackgroundChanged(args);
             });
             TextBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () {
                 return Number;
@@ -14906,40 +16513,40 @@ var Fayde;
             TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () {
                 return Number;
             }, TextBox, 0, function (d, args) {
-                return (d)._SelectionLengthChanged(args.NewValue);
+                return d._SelectionLengthChanged(args.NewValue);
             }, undefined, true, positiveIntValidator);
             TextBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () {
                 return Number;
             }, TextBox, 0, function (d, args) {
-                return (d)._SelectionStartChanged(args.NewValue);
+                return d._SelectionStartChanged(args.NewValue);
             }, undefined, true, positiveIntValidator);
             TextBox.TextProperty = DependencyProperty.Register("Text", function () {
                 return String;
             }, TextBox, undefined, function (d, args) {
-                return (d)._TextChanged(args.NewValue);
+                return d._TextChanged(args.NewValue);
             });
             TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () {
                 return new Enum(Fayde.TextAlignment);
-            }, TextBox, Fayde.TextAlignment.Left, function (d, args) {
-                return (d)._TextAlignmentChanged(args);
+            }, TextBox, 0 /* Left */, function (d, args) {
+                return d._TextAlignmentChanged(args);
             });
             TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () {
-                return new Enum(Controls.TextWrapping);
-            }, TextBox, Controls.TextWrapping.NoWrap, function (d, args) {
-                return (d)._TextWrappingChanged(args);
+                return new Enum(Fayde.Controls.TextWrapping);
+            }, TextBox, 0 /* NoWrap */, function (d, args) {
+                return d._TextWrappingChanged(args);
             });
             TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", function () {
-                return new Enum(Controls.ScrollBarVisibility);
-            }, TextBox, Controls.ScrollBarVisibility.Hidden, function (d, args) {
-                return (d)._HorizontalScrollBarVisibilityChanged(args);
+                return new Enum(Fayde.Controls.ScrollBarVisibility);
+            }, TextBox, 2 /* Hidden */, function (d, args) {
+                return d._HorizontalScrollBarVisibilityChanged(args);
             });
             TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", function () {
-                return new Enum(Controls.ScrollBarVisibility);
-            }, TextBox, Controls.ScrollBarVisibility.Hidden, function (d, args) {
-                return (d)._VerticalScrollBarVisibilityChanged(args);
+                return new Enum(Fayde.Controls.ScrollBarVisibility);
+            }, TextBox, 2 /* Hidden */, function (d, args) {
+                return d._VerticalScrollBarVisibilityChanged(args);
             });
             return TextBox;
-        })(Controls.TextBoxBase);
+        })(Fayde.Controls.TextBoxBase);
         Controls.TextBox = TextBox;
         Fayde.RegisterType(TextBox, {
             Name: "TextBox",
@@ -14965,19 +16572,6 @@ var Fayde;
             var CURSOR_BLINK_ON_MULTIPLIER = 4;
             var CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
 
-            var TextBoxViewNode = (function (_super) {
-                __extends(TextBoxViewNode, _super);
-                function TextBoxViewNode(xobj) {
-                    _super.call(this, xobj);
-                }
-                return TextBoxViewNode;
-            })(Fayde.FENode);
-            Internal.TextBoxViewNode = TextBoxViewNode;
-            Fayde.RegisterType(TextBoxViewNode, {
-                Name: "TextBoxViewNode",
-                Namespace: "Fayde.Controls"
-            });
-
             var TextBoxView = (function (_super) {
                 __extends(TextBoxView, _super);
                 function TextBoxView() {
@@ -14992,8 +16586,8 @@ var Fayde;
                     this._TextBox = null;
                     this._Dirty = false;
                 }
-                TextBoxView.prototype.CreateNode = function () {
-                    return new TextBoxViewNode(this);
+                TextBoxView.prototype.CreateLayoutUpdater = function (node) {
+                    return new TextBoxViewLayoutUpdater(node);
                 };
 
                 TextBoxView.prototype.SetTextBox = function (textBox) {
@@ -15032,7 +16626,7 @@ var Fayde;
                     this._EnableCursor = value;
                     if (value)
                         this._ResetCursorBlink(false);
-else
+                    else
                         this._EndCursorBlink();
                 };
 
@@ -15073,7 +16667,7 @@ else
                         if (this._EnableCursor) {
                             if (delay)
                                 this._DelayCursorBlink();
-else
+                            else
                                 this._BeginCursorBlink();
                         } else {
                             this._UpdateCursor(false);
@@ -15132,14 +16726,7 @@ else
                     this._Layout.Text = text ? text : "", -1;
                 };
 
-                TextBoxView.prototype.ComputeActualSize = function (baseComputer, lu) {
-                    if (lu.LayoutSlot !== undefined)
-                        return baseComputer.call(lu);
-
-                    this.Layout(size.createInfinite());
-                    return this._Layout.ActualExtents;
-                };
-                TextBoxView.prototype._MeasureOverride = function (availableSize, error) {
+                TextBoxView.prototype.MeasureOverride = function (availableSize) {
                     this.Layout(availableSize);
                     var desired = size.copyTo(this._Layout.ActualExtents);
                     if (!isFinite(availableSize.Width))
@@ -15147,7 +16734,7 @@ else
                     size.min(desired, availableSize);
                     return desired;
                 };
-                TextBoxView.prototype._ArrangeOverride = function (finalSize, error) {
+                TextBoxView.prototype.ArrangeOverride = function (finalSize) {
                     this.Layout(finalSize);
                     var arranged = size.copyTo(this._Layout.ActualExtents);
                     size.max(arranged, finalSize);
@@ -15172,24 +16759,76 @@ else
                     return this._Layout.GetCursorFromXY(null, x, y);
                 };
 
-                TextBoxView.prototype.Render = function (ctx, lu, region) {
-                    var renderSize = lu.RenderSize;
+                TextBoxView.prototype.OnLostFocus = function (e) {
+                    this._EndCursorBlink();
+                };
+                TextBoxView.prototype.OnGotFocus = function (e) {
+                    this._ResetCursorBlink(false);
+                };
+                TextBoxView.prototype.OnMouseLeftButtonDown = function (e) {
+                    this._TextBox.OnMouseLeftButtonDown(e);
+                };
+                TextBoxView.prototype.OnMouseLeftButtonUp = function (e) {
+                    this._TextBox.OnMouseLeftButtonUp(e);
+                };
 
+                TextBoxView.prototype.OnTextModelChanged = function (args) {
+                    var lu = this.XamlNode.LayoutUpdater;
+                    switch (args.Changed) {
+                        case 1 /* TextAlignment */:
+                            if (this._Layout.SetTextAlignment(args.NewValue))
+                                this._Dirty = true;
+                            break;
+                        case 2 /* TextWrapping */:
+                            if (this._Layout.SetTextWrapping(args.NewValue))
+                                this._Dirty = true;
+                            break;
+                        case 3 /* Selection */:
+                            if (this._HadSelectedText || this._TextBox.HasSelectedText) {
+                                this._HadSelectedText = this._TextBox.HasSelectedText;
+                                this._SelectionChanged = true;
+                                this._ResetCursorBlink(false);
+                            } else {
+                                this._ResetCursorBlink(true);
+                                return;
+                            }
+                            break;
+                        case 4 /* Brush */:
+                            break;
+                        case 5 /* Font */:
+                            this._Layout.ResetState();
+                            this._Dirty = true;
+                            break;
+                        case 6 /* Text */:
+                            this._UpdateText();
+                            this._Dirty = true;
+                            break;
+                        default:
+                            return;
+                    }
+                    if (this._Dirty) {
+                        lu.InvalidateMeasure();
+                        lu.UpdateBounds(true);
+                    }
+                    lu.Invalidate();
+                };
+
+                TextBoxView.prototype.ComputeActualExtents = function () {
+                    this.Layout(size.createInfinite());
+                    return this._Layout.ActualExtents;
+                };
+                TextBoxView.prototype.PreRender = function () {
                     this._UpdateCursor(false);
 
                     if (this._SelectionChanged) {
                         this._Layout.Select(this._TextBox.SelectionStart, this._TextBox.SelectionLength);
                         this._SelectionChanged = false;
                     }
-                    ctx.save();
-                    lu.RenderLayoutClip(ctx);
-                    this._Layout.AvailableWidth = renderSize.Width;
-                    this._RenderImpl(ctx, region);
-                    ctx.restore();
                 };
-                TextBoxView.prototype._RenderImpl = function (ctx, region) {
-                    ctx.save();
-                    if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
+                TextBoxView.prototype.Render = function (ctx, region, renderSize) {
+                    this._Layout.AvailableWidth = renderSize.Width;
+
+                    if (this.FlowDirection === 1 /* RightToLeft */) {
                     }
                     this._Layout.Render(ctx);
                     if (this._CursorVisible) {
@@ -15207,61 +16846,6 @@ else
                         }
                         ctx.stroke();
                     }
-                    ctx.restore();
-                };
-
-                TextBoxView.prototype.OnLostFocus = function (e) {
-                    this._EndCursorBlink();
-                };
-                TextBoxView.prototype.OnGotFocus = function (e) {
-                    this._ResetCursorBlink(false);
-                };
-                TextBoxView.prototype.OnMouseLeftButtonDown = function (e) {
-                    this._TextBox.OnMouseLeftButtonDown(e);
-                };
-                TextBoxView.prototype.OnMouseLeftButtonUp = function (e) {
-                    this._TextBox.OnMouseLeftButtonUp(e);
-                };
-
-                TextBoxView.prototype.OnTextModelChanged = function (args) {
-                    var lu = this.XamlNode.LayoutUpdater;
-                    switch (args.Changed) {
-                        case Controls.TextBoxModelChangedType.TextAlignment:
-                            if (this._Layout.SetTextAlignment(args.NewValue))
-                                this._Dirty = true;
-                            break;
-                        case Controls.TextBoxModelChangedType.TextWrapping:
-                            if (this._Layout.SetTextWrapping(args.NewValue))
-                                this._Dirty = true;
-                            break;
-                        case Controls.TextBoxModelChangedType.Selection:
-                            if (this._HadSelectedText || this._TextBox.HasSelectedText) {
-                                this._HadSelectedText = this._TextBox.HasSelectedText;
-                                this._SelectionChanged = true;
-                                this._ResetCursorBlink(false);
-                            } else {
-                                this._ResetCursorBlink(true);
-                                return;
-                            }
-                            break;
-                        case Controls.TextBoxModelChangedType.Brush:
-                            break;
-                        case Controls.TextBoxModelChangedType.Font:
-                            this._Layout.ResetState();
-                            this._Dirty = true;
-                            break;
-                        case Controls.TextBoxModelChangedType.Text:
-                            this._UpdateText();
-                            this._Dirty = true;
-                            break;
-                        default:
-                            return;
-                    }
-                    if (this._Dirty) {
-                        lu.InvalidateMeasure();
-                        lu.UpdateBounds(true);
-                    }
-                    lu.Invalidate();
                 };
                 return TextBoxView;
             })(Fayde.FrameworkElement);
@@ -15270,6 +16854,29 @@ else
                 Name: "TextBoxView",
                 Namespace: "Fayde.Controls"
             });
+
+            var TextBoxViewLayoutUpdater = (function (_super) {
+                __extends(TextBoxViewLayoutUpdater, _super);
+                function TextBoxViewLayoutUpdater() {
+                    _super.apply(this, arguments);
+                }
+                TextBoxViewLayoutUpdater.prototype.ComputeActualSize = function () {
+                    if (this.LayoutSlot !== undefined)
+                        return _super.prototype.ComputeActualSize.call(this);
+                    return this.Node.XObject.ComputeActualExtents();
+                };
+
+                TextBoxViewLayoutUpdater.prototype.Render = function (ctx, region) {
+                    var tbv = this.Node.XObject;
+                    tbv.PreRender();
+                    ctx.save();
+                    this.RenderLayoutClip(ctx);
+                    tbv.Render(ctx, region, this.RenderSize);
+                    ctx.restore();
+                };
+                return TextBoxViewLayoutUpdater;
+            })(Fayde.LayoutUpdater);
+            Internal.TextBoxViewLayoutUpdater = TextBoxViewLayoutUpdater;
         })(Controls.Internal || (Controls.Internal = {}));
         var Internal = Controls.Internal;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -15293,13 +16900,13 @@ var Fayde;
                 return Boolean;
             }, ToolTip);
             ToolTip.PlacementProperty = DependencyProperty.Register("Placement", function () {
-                return new Enum(Controls.PlacementMode);
+                return new Enum(Fayde.Controls.PlacementMode);
             }, ToolTip);
             ToolTip.PlacementTargetProperty = DependencyProperty.Register("PlacementTarget", function () {
                 return Fayde.UIElement;
             }, ToolTip);
             return ToolTip;
-        })(Controls.ContentControl);
+        })(Fayde.Controls.ContentControl);
         Controls.ToolTip = ToolTip;
         Fayde.RegisterType(ToolTip, {
             Name: "ToolTip",
@@ -15345,7 +16952,7 @@ var Fayde;
                 get: function () {
                     var icg = this._ICG;
                     if (!icg) {
-                        var icOwner = Controls.ItemsControl.GetItemsOwner(this);
+                        var icOwner = Fayde.Controls.ItemsControl.GetItemsOwner(this);
                         if (!icOwner)
                             throw new InvalidOperationException("VirtualizingPanels must be in the Template of an ItemsControl in order to generate items");
                         var icg = this._ICG = icOwner.ItemContainerGenerator;
@@ -15375,7 +16982,7 @@ var Fayde;
             };
             VirtualizingPanel.prototype.OnItemContainerGeneratorChanged = function (sender, e) {
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
-                if (e.Action === Fayde.Collections.NotifyCollectionChangedAction.Reset) {
+                if (e.Action === 4 /* Reset */) {
                     this.Children.Clear();
                     this.ItemContainerGenerator.RemoveAll();
                     this.OnClearChildren();
@@ -15385,7 +16992,7 @@ var Fayde;
             VirtualizingPanel.prototype.OnItemsChanged = function (sender, e) {
             };
             return VirtualizingPanel;
-        })(Controls.Panel);
+        })(Fayde.Controls.Panel);
         Controls.VirtualizingPanel = VirtualizingPanel;
         Fayde.RegisterType(VirtualizingPanel, {
             Name: "VirtualizingPanel",
@@ -15503,51 +17110,51 @@ var Fayde;
                 configurable: true
             });
             VirtualizingStackPanel.prototype.LineUp = function () {
-                if (this.Orientation === Fayde.Orientation.Horizontal)
+                if (this.Orientation === 0 /* Horizontal */)
                     this.SetVerticalOffset(this._VerticalOffset - LineDelta);
-else
+                else
                     this.SetVerticalOffset(this._VerticalOffset - 1);
             };
             VirtualizingStackPanel.prototype.LineDown = function () {
-                if (this.Orientation === Fayde.Orientation.Horizontal)
+                if (this.Orientation === 0 /* Horizontal */)
                     this.SetVerticalOffset(this._VerticalOffset + LineDelta);
-else
+                else
                     this.SetVerticalOffset(this._VerticalOffset + 1);
             };
             VirtualizingStackPanel.prototype.LineLeft = function () {
-                if (this.Orientation === Fayde.Orientation.Vertical)
+                if (this.Orientation === 1 /* Vertical */)
                     this.SetHorizontalOffset(this._HorizontalOffset - LineDelta);
-else
+                else
                     this.SetHorizontalOffset(this._HorizontalOffset - 1);
             };
             VirtualizingStackPanel.prototype.LineRight = function () {
-                if (this.Orientation === Fayde.Orientation.Vertical)
+                if (this.Orientation === 1 /* Vertical */)
                     this.SetHorizontalOffset(this._HorizontalOffset + LineDelta);
-else
+                else
                     this.SetHorizontalOffset(this._HorizontalOffset + 1);
             };
             VirtualizingStackPanel.prototype.MouseWheelUp = function () {
-                if (this.Orientation === Fayde.Orientation.Horizontal)
+                if (this.Orientation === 0 /* Horizontal */)
                     this.SetVerticalOffset(this._VerticalOffset - LineDelta * Wheelitude);
-else
+                else
                     this.SetVerticalOffset(this._VerticalOffset - Wheelitude);
             };
             VirtualizingStackPanel.prototype.MouseWheelDown = function () {
-                if (this.Orientation === Fayde.Orientation.Horizontal)
+                if (this.Orientation === 0 /* Horizontal */)
                     this.SetVerticalOffset(this._VerticalOffset + LineDelta * Wheelitude);
-else
+                else
                     this.SetVerticalOffset(this._VerticalOffset + Wheelitude);
             };
             VirtualizingStackPanel.prototype.MouseWheelLeft = function () {
-                if (this.Orientation === Fayde.Orientation.Vertical)
+                if (this.Orientation === 1 /* Vertical */)
                     this.SetHorizontalOffset(this._HorizontalOffset - LineDelta * Wheelitude);
-else
+                else
                     this.SetHorizontalOffset(this._HorizontalOffset - Wheelitude);
             };
             VirtualizingStackPanel.prototype.MouseWheelRight = function () {
-                if (this.Orientation === Fayde.Orientation.Vertical)
+                if (this.Orientation === 1 /* Vertical */)
                     this.SetHorizontalOffset(this._HorizontalOffset + LineDelta * Wheelitude);
-else
+                else
                     this.SetHorizontalOffset(this._HorizontalOffset + Wheelitude);
             };
             VirtualizingStackPanel.prototype.PageUp = function () {
@@ -15566,7 +17173,7 @@ else
                 var exposed = new rect();
 
                 var uin = uie.XamlNode;
-                var isVertical = this.Orientation === Fayde.Orientation.Vertical;
+                var isVertical = this.Orientation === 1 /* Vertical */;
                 var enumerator = this.Children.GetEnumerator();
                 while (enumerator.MoveNext()) {
                     var child = enumerator.Current;
@@ -15593,7 +17200,7 @@ else
 
                     if (isVertical)
                         exposed.Y += childRenderSize.Height;
-else
+                    else
                         exposed.X += childRenderSize.Width;
                 }
 
@@ -15602,16 +17209,16 @@ else
             VirtualizingStackPanel.prototype.SetHorizontalOffset = function (offset) {
                 if (offset < 0 || this._ViewportWidth >= this._ExtentWidth)
                     offset = 0;
-else if ((offset + this._ViewportWidth) >= this._ExtentWidth)
+                else if ((offset + this._ViewportWidth) >= this._ExtentWidth)
                     offset = this._ExtentWidth - this._ViewportWidth;
 
                 if (this._HorizontalOffset === offset)
                     return;
                 this._HorizontalOffset = offset;
 
-                if (this.Orientation === Fayde.Orientation.Horizontal)
+                if (this.Orientation === 0 /* Horizontal */)
                     this.XamlNode.LayoutUpdater.InvalidateMeasure();
-else
+                else
                     this.XamlNode.LayoutUpdater.InvalidateArrange();
 
                 var scrollOwner = this.ScrollOwner;
@@ -15621,16 +17228,16 @@ else
             VirtualizingStackPanel.prototype.SetVerticalOffset = function (offset) {
                 if (offset < 0 || this._ViewportHeight >= this._ExtentHeight)
                     offset = 0;
-else if ((offset + this._ViewportHeight) >= this._ExtentHeight)
+                else if ((offset + this._ViewportHeight) >= this._ExtentHeight)
                     offset = this._ExtentHeight - this._ViewportHeight;
 
                 if (this._VerticalOffset === offset)
                     return;
                 this._VerticalOffset = offset;
 
-                if (this.Orientation === Fayde.Orientation.Vertical)
+                if (this.Orientation === 1 /* Vertical */)
                     this.XamlNode.LayoutUpdater.InvalidateMeasure();
-else
+                else
                     this.XamlNode.LayoutUpdater.InvalidateArrange();
 
                 var scrollOwner = this.ScrollOwner;
@@ -15652,8 +17259,8 @@ else
                 d.SetValue(VirtualizingStackPanel.VirtualizationModeProperty, value);
             };
 
-            VirtualizingStackPanel.prototype._MeasureOverride = function (availableSize, error) {
-                var owner = Controls.ItemsControl.GetItemsOwner(this);
+            VirtualizingStackPanel.prototype.MeasureOverride = function (availableSize) {
+                var owner = Fayde.Controls.ItemsControl.GetItemsOwner(this);
                 var measured = new size();
                 var invalidate = false;
                 var nvisible = 0;
@@ -15662,7 +17269,7 @@ else
                 var index;
                 var constraint = availableSize.Clone();
                 var scrollOwner = this.ScrollOwner;
-                var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
+                var isHorizontal = this.Orientation === 0 /* Horizontal */;
                 if (isHorizontal) {
                     if (scrollOwner && this._CanVerticallyScroll)
                         constraint.Height = Number.POSITIVE_INFINITY;
@@ -15692,7 +17299,7 @@ else
                             if (isNewlyRealized.Value || insertAt >= children.Count || children.GetValueAt(insertAt) !== child) {
                                 if (insertAt < children.Count)
                                     this.InsertInternalChild(insertAt, child);
-else
+                                else
                                     this.AddInternalChild(child);
                                 generator.PrepareItemContainer(child);
                             }
@@ -15768,12 +17375,12 @@ else
 
                 return measured;
             };
-            VirtualizingStackPanel.prototype._ArrangeOverride = function (finalSize, error) {
+            VirtualizingStackPanel.prototype.ArrangeOverride = function (finalSize) {
                 var arranged = size.copyTo(finalSize);
-                var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
+                var isHorizontal = this.Orientation === 0 /* Horizontal */;
                 if (!isHorizontal)
                     arranged.Height = 0;
-else
+                else
                     arranged.Width = 0;
 
                 var enumerator = this.Children.GetEnumerator();
@@ -15791,7 +17398,7 @@ else
                             childFinal.X = -this._HorizontalOffset;
                             childFinal.Y = arranged.Height;
                         }
-                        childLu._Arrange(childFinal, error);
+                        child.Arrange(childFinal);
                         arranged.Width = Math.max(arranged.Width, s.Width);
                         arranged.Height += s.Height;
                     } else {
@@ -15811,14 +17418,14 @@ else
 
                 if (!isHorizontal)
                     arranged.Height = Math.max(arranged.Height, finalSize.Height);
-else
+                else
                     arranged.Width = Math.max(arranged.Width, finalSize.Width);
                 return arranged;
             };
 
             VirtualizingStackPanel.prototype.RemoveUnusedContainers = function (first, count) {
                 var generator = this.ItemContainerGenerator;
-                var owner = Controls.ItemsControl.GetItemsOwner(this);
+                var owner = Fayde.Controls.ItemsControl.GetItemsOwner(this);
                 var mode = VirtualizingStackPanel.GetVirtualizationMode(this);
 
                 var last = first + count - 1;
@@ -15833,9 +17440,9 @@ else
                         var args = this.OnCleanUpVirtualizedItem(children.GetValueAt(pos.Index), owner.Items.GetValueAt(item));
                         if (!args.Cancel) {
                             this.RemoveInternalChildRange(pos.Index, 1);
-                            if (mode === VirtualizationMode.Recycling)
+                            if (mode === 1 /* Recycling */)
                                 generator.Recycle(pos, 1);
-else
+                            else
                                 generator.Remove(pos, 1);
                         }
                     }
@@ -15861,7 +17468,7 @@ else
             };
             VirtualizingStackPanel.prototype.OnItemsChanged = function (sender, e) {
                 var generator = this.ItemContainerGenerator;
-                var owner = Controls.ItemsControl.GetItemsOwner(this);
+                var owner = Fayde.Controls.ItemsControl.GetItemsOwner(this);
                 var orientation = this.Orientation;
 
                 var index;
@@ -15869,25 +17476,25 @@ else
                 var viewable;
 
                 switch (e.Action) {
-                    case Fayde.Collections.NotifyCollectionChangedAction.Add:
+                    case 1 /* Add */:
                         var index = generator.IndexFromGeneratorPosition(e.Position);
-                        if (orientation === Fayde.Orientation.Horizontal)
+                        if (orientation === 0 /* Horizontal */)
                             offset = this.HorizontalOffset;
-else
+                        else
                             offset = this.VerticalOffset;
 
                         if (index <= offset) {
                             offset += e.ItemCount;
                         }
 
-                        if (orientation === Fayde.Orientation.Horizontal)
+                        if (orientation === 0 /* Horizontal */)
                             this.SetHorizontalOffset(offset);
-else
+                        else
                             this.SetVerticalOffset(offset);
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Remove:
+                    case 2 /* Remove */:
                         index = generator.IndexFromGeneratorPosition(e.Position);
-                        if (orientation === Fayde.Orientation.Horizontal) {
+                        if (orientation === 0 /* Horizontal */) {
                             offset = this.HorizontalOffset;
                             viewable = this.ViewportWidth;
                         } else {
@@ -15902,17 +17509,17 @@ else
                         offset = Math.min(offset, owner.Items.Count - viewable);
                         offset = Math.max(offset, 0);
 
-                        if (orientation === Fayde.Orientation.Horizontal)
+                        if (orientation === 0 /* Horizontal */)
                             this.SetHorizontalOffset(offset);
-else
+                        else
                             this.SetVerticalOffset(offset);
 
                         this.RemoveInternalChildRange(e.Position.Index, e.ItemUICount);
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Replace:
+                    case 3 /* Replace */:
                         this.RemoveInternalChildRange(e.Position.Index, e.ItemUICount);
                         break;
-                    case Fayde.Collections.NotifyCollectionChangedAction.Reset:
+                    case 4 /* Reset */:
                         break;
                 }
 
@@ -15924,25 +17531,25 @@ else
             };
             VirtualizingStackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () {
                 return new Enum(Fayde.Orientation);
-            }, VirtualizingStackPanel, Fayde.Orientation.Vertical, function (d, args) {
-                return (d).XamlNode.LayoutUpdater.InvalidateMeasure();
+            }, VirtualizingStackPanel, 1 /* Vertical */, function (d, args) {
+                return d.XamlNode.LayoutUpdater.InvalidateMeasure();
             });
 
             VirtualizingStackPanel.IsVirtualizingProperty = DependencyProperty.RegisterAttached("IsVirtualizing", function () {
-                return new Boolean();
+                return new Boolean;
             }, VirtualizingStackPanel, false);
 
             VirtualizingStackPanel.VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", function () {
                 return new Enum(VirtualizationMode);
-            }, VirtualizingStackPanel, VirtualizationMode.Recycling);
+            }, VirtualizingStackPanel, 1 /* Recycling */);
             return VirtualizingStackPanel;
-        })(Controls.VirtualizingPanel);
+        })(Fayde.Controls.VirtualizingPanel);
         Controls.VirtualizingStackPanel = VirtualizingStackPanel;
         Fayde.RegisterType(VirtualizingStackPanel, {
             Name: "VirtualizingStackPanel",
             Namespace: "Fayde.Controls",
             XmlNamespace: Fayde.XMLNS,
-            Interfaces: [Controls.Primitives.IScrollInfo_]
+            Interfaces: [Fayde.Controls.Primitives.IScrollInfo_]
         });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -15955,7 +17562,7 @@ var Fayde;
         if (value === null)
             return null;
         if (value instanceof Fayde.XamlObject)
-            return (value).Clone();
+            return value.Clone();
 
         if (typeof value === "number" || typeof value === "string")
             return value;
@@ -15975,7 +17582,7 @@ var Fayde;
             case "GridLength":
             case "CornerRadius":
             case "Thickness":
-                return (value).Clone();
+                return value.Clone();
         }
 
         return new value.constructor();
@@ -16157,7 +17764,7 @@ var Fayde;
             }
 
             if (typeof etarget === "function") {
-                (etarget).call(context, cargs);
+                etarget.call(context, cargs);
             } else if (Nullstone.DoesInheritFrom(etarget, Fayde.Input.ICommand_)) {
                 var ecmd = etarget;
                 if (ecmd.CanExecute.call(context, cargs))
@@ -16182,13 +17789,13 @@ var Fayde;
             if (binding.RelativeSource) {
                 var source;
                 switch (binding.RelativeSource.Mode) {
-                    case Fayde.Data.RelativeSourceMode.Self:
+                    case 2 /* Self */:
                         source = target;
                         break;
-                    case Fayde.Data.RelativeSourceMode.TemplatedParent:
+                    case 1 /* TemplatedParent */:
                         source = target.TemplateOwner;
                         break;
-                    case Fayde.Data.RelativeSourceMode.FindAncestor:
+                    case 3 /* FindAncestor */:
                         break;
                 }
                 return source;
@@ -16207,7 +17814,7 @@ var Fayde;
                 return sourceNode.XObject;
             if (xnode.XObject.TemplateOwner)
                 xobj = xnode.XObject.TemplateOwner;
-else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItemsOwner(parentNode.XObject))
+            else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItemsOwner(parentNode.XObject))
                 xnode = parentNode;
             break;
         }
@@ -16272,25 +17879,6 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    var PropertyChangedEventArgs = (function (_super) {
-        __extends(PropertyChangedEventArgs, _super);
-        function PropertyChangedEventArgs(propertyName) {
-            _super.call(this);
-            Object.defineProperty(this, "PropertyName", { value: propertyName, writable: false });
-        }
-        return PropertyChangedEventArgs;
-    })(EventArgs);
-    Fayde.PropertyChangedEventArgs = PropertyChangedEventArgs;
-    Fayde.RegisterType(PropertyChangedEventArgs, {
-        Name: "PropertyChangedEventArgs",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
-
-    Fayde.INotifyPropertyChanged_ = Fayde.RegisterInterface("INotifyPropertyChanged");
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
     var LayoutInformation = (function () {
         function LayoutInformation() {
         }
@@ -16315,1436 +17903,6 @@ var Fayde;
         Name: "LayoutInformation",
         Namespace: "Fayde",
         XmlNamespace: Fayde.XMLNS
-    });
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var _Dirty;
-    (function (_Dirty) {
-        _Dirty[_Dirty["Transform"] = 1 << 0] = "Transform";
-        _Dirty[_Dirty["LocalTransform"] = 1 << 1] = "LocalTransform";
-        _Dirty[_Dirty["LocalProjection"] = 1 << 2] = "LocalProjection";
-        _Dirty[_Dirty["Clip"] = 1 << 3] = "Clip";
-        _Dirty[_Dirty["LocalClip"] = 1 << 4] = "LocalClip";
-        _Dirty[_Dirty["LayoutClip"] = 1 << 5] = "LayoutClip";
-        _Dirty[_Dirty["RenderVisibility"] = 1 << 6] = "RenderVisibility";
-        _Dirty[_Dirty["HitTestVisibility"] = 1 << 7] = "HitTestVisibility";
-        _Dirty[_Dirty["Measure"] = 1 << 8] = "Measure";
-        _Dirty[_Dirty["Arrange"] = 1 << 9] = "Arrange";
-        _Dirty[_Dirty["ChildrenZIndices"] = 1 << 10] = "ChildrenZIndices";
-        _Dirty[_Dirty["Bounds"] = 1 << 20] = "Bounds";
-        _Dirty[_Dirty["NewBounds"] = 1 << 21] = "NewBounds";
-        _Dirty[_Dirty["Invalidate"] = 1 << 22] = "Invalidate";
-        _Dirty[_Dirty["InUpDirtyList"] = 1 << 30] = "InUpDirtyList";
-        _Dirty[_Dirty["InDownDirtyList"] = 1 << 31] = "InDownDirtyList";
-
-        _Dirty[_Dirty["DownDirtyState"] = _Dirty.Transform | _Dirty.LocalTransform | _Dirty.LocalProjection | _Dirty.Clip | _Dirty.LocalClip | _Dirty.LayoutClip | _Dirty.RenderVisibility | _Dirty.HitTestVisibility | _Dirty.ChildrenZIndices] = "DownDirtyState";
-        _Dirty[_Dirty["UpDirtyState"] = _Dirty.Bounds | _Dirty.Invalidate] = "UpDirtyState";
-    })(_Dirty || (_Dirty = {}));
-
-    var UIElementFlags;
-    (function (UIElementFlags) {
-        UIElementFlags[UIElementFlags["None"] = 0] = "None";
-
-        UIElementFlags[UIElementFlags["RenderVisible"] = 0x02] = "RenderVisible";
-        UIElementFlags[UIElementFlags["HitTestVisible"] = 0x04] = "HitTestVisible";
-        UIElementFlags[UIElementFlags["TotalRenderVisible"] = 0x08] = "TotalRenderVisible";
-        UIElementFlags[UIElementFlags["TotalHitTestVisible"] = 0x10] = "TotalHitTestVisible";
-
-        UIElementFlags[UIElementFlags["DirtyArrangeHint"] = 0x800] = "DirtyArrangeHint";
-        UIElementFlags[UIElementFlags["DirtyMeasureHint"] = 0x1000] = "DirtyMeasureHint";
-        UIElementFlags[UIElementFlags["DirtySizeHint"] = 0x2000] = "DirtySizeHint";
-    })(UIElementFlags || (UIElementFlags = {}));
-
-    var maxPassCount = 250;
-    var LayoutUpdater = (function () {
-        function LayoutUpdater(Node) {
-            this.Node = Node;
-            this.LayoutClip = undefined;
-            this.CompositeLayoutClip = undefined;
-            this.LayoutSlot = undefined;
-            this.PreviousConstraint = undefined;
-            this.LastRenderSize = undefined;
-            this.HiddenDesire = size.createNegativeInfinite();
-            this.DesiredSize = new size();
-            this.RenderSize = new size();
-            this.VisualOffset = new Point();
-            this.ActualHeight = NaN;
-            this.ActualWidth = NaN;
-            this.AbsoluteXform = mat3.identity();
-            this.LayoutXform = mat3.identity();
-            this.LocalXform = mat3.identity();
-            this.RenderXform = mat3.identity();
-            this.CarrierXform = null;
-            this.LocalProjection = mat4.identity();
-            this.AbsoluteProjection = mat4.identity();
-            this.RenderProjection = mat4.identity();
-            this.CarrierProjection = null;
-            this.TotalOpacity = 1.0;
-            this.TotalIsRenderVisible = true;
-            this.TotalIsHitTestVisible = true;
-            this.TotalRenderProjection = false;
-            this.Extents = new rect();
-            this.ExtentsWithChildren = new rect();
-            this.Bounds = new rect();
-            this.BoundsWithChildren = new rect();
-            this.GlobalBounds = new rect();
-            this.GlobalBoundsWithChildren = new rect();
-            this.SurfaceBounds = new rect();
-            this.SurfaceBoundsWithChildren = new rect();
-            this.EffectPadding = new Thickness();
-            this.ClipBounds = new rect();
-            this.IsContainer = false;
-            this.IsLayoutContainer = false;
-            this.BreaksLayoutClipRender = false;
-            this.CanHitElement = false;
-            this.ShouldSkipHitTest = false;
-            this.IsNeverInsideObject = false;
-            this.Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
-            this.DirtyFlags = 0;
-            this.InUpDirty = false;
-            this.InDownDirty = false;
-            this.DirtyRegion = new rect();
-            this._ForceInvalidateOfNewBounds = false;
-        }
-        LayoutUpdater.prototype.OnIsAttachedChanged = function (newIsAttached, visualParentNode) {
-            this.UpdateTotalRenderVisibility();
-            this.UpdateTotalHitTestVisibility();
-            if (!newIsAttached) {
-                this._CacheInvalidateHint();
-                var surface = this.Surface;
-                if (surface)
-                    surface.OnNodeDetached(this);
-            }
-        };
-        LayoutUpdater.prototype.OnAddedToTree = function () {
-            this.UpdateTotalRenderVisibility();
-            this.UpdateTotalHitTestVisibility();
-            this.Invalidate();
-
-            this.LayoutClip = undefined;
-
-            size.clear(this.RenderSize);
-            this.UpdateTransform();
-            this.UpdateProjection();
-            this.InvalidateMeasure();
-            this.InvalidateArrange();
-            if (this._HasFlag(UIElementFlags.DirtySizeHint) || this.LastRenderSize !== undefined)
-                this._PropagateFlagUp(UIElementFlags.DirtySizeHint);
-        };
-        LayoutUpdater.prototype.OnRemovedFromTree = function () {
-            this.LayoutSlot = new rect();
-            this.LayoutClip = undefined;
-        };
-
-        LayoutUpdater.prototype.SetContainerMode = function (isLayoutContainer, isContainer) {
-            if (isLayoutContainer != null)
-                this.IsLayoutContainer = isLayoutContainer;
-            if (isContainer != null)
-                this.IsContainer = isContainer;
-else
-                this.IsContainer = isLayoutContainer;
-        };
-
-        LayoutUpdater.prototype.HasMeasureArrangeHint = function () {
-            return (this.Flags & (UIElementFlags.DirtyMeasureHint | UIElementFlags.DirtyArrangeHint)) > 0;
-        };
-        LayoutUpdater.prototype.ProcessDown = function () {
-            var thisNode = this.Node;
-            var thisUie = thisNode.XObject;
-            var visualParentNode = thisNode.VisualParentNode;
-            var visualParentLu;
-            if (visualParentNode)
-                visualParentLu = visualParentNode.LayoutUpdater;
-
-            if (this.DirtyFlags & _Dirty.RenderVisibility) {
-                this.DirtyFlags &= ~_Dirty.RenderVisibility;
-
-                var ovisible = this.TotalIsRenderVisible;
-
-                this.UpdateBounds();
-
-                if (visualParentLu)
-                    visualParentLu.UpdateBounds();
-
-                this.UpdateRenderVisibility(visualParentLu);
-
-                if (!this.TotalIsRenderVisible)
-                    this._CacheInvalidateHint();
-
-                if (ovisible !== this.TotalIsRenderVisible)
-                    this._AddDirtyElement(_Dirty.NewBounds);
-
-                this._PropagateDirtyFlagToChildren(_Dirty.RenderVisibility);
-            }
-
-            if (this.DirtyFlags & _Dirty.HitTestVisibility) {
-                this.DirtyFlags &= ~_Dirty.HitTestVisibility;
-
-                this.UpdateHitTestVisibility(visualParentLu);
-                this._PropagateDirtyFlagToChildren(_Dirty.HitTestVisibility);
-            }
-
-            var isLT = this.DirtyFlags & _Dirty.LocalTransform;
-            var isLP = this.DirtyFlags & _Dirty.LocalProjection;
-            var isT = isLT || isLP || this.DirtyFlags & _Dirty.Transform;
-            this.DirtyFlags &= ~(_Dirty.LocalTransform | _Dirty.LocalProjection | _Dirty.Transform);
-
-            if (isLT) {
-                this.ComputeLocalTransform(thisUie);
-            }
-            if (isLP) {
-                this.ComputeLocalProjection(thisUie);
-            }
-            if (isT) {
-                this.ComputeTransform(thisNode, visualParentLu);
-
-                if (visualParentLu)
-                    visualParentLu.UpdateBounds();
-                this._PropagateDirtyFlagToChildren(_Dirty.Transform);
-            }
-
-            var isLocalClip = this.DirtyFlags & _Dirty.LocalClip;
-            var isLayoutClip = this.DirtyFlags & _Dirty.LayoutClip;
-            var isClip = isLocalClip || this.DirtyFlags & _Dirty.Clip;
-            this.DirtyFlags &= ~(_Dirty.LocalClip | _Dirty.LayoutClip | _Dirty.Clip);
-
-            if (isLayoutClip) {
-                this.ComputeLayoutClip(visualParentLu);
-                this._PropagateDirtyFlagToChildren(_Dirty.LayoutClip);
-            }
-
-            if (this.DirtyFlags & _Dirty.ChildrenZIndices) {
-                this.DirtyFlags &= ~_Dirty.ChildrenZIndices;
-                thisNode._ResortChildrenByZIndex();
-            }
-
-            return !(this.DirtyFlags & _Dirty.DownDirtyState);
-        };
-        LayoutUpdater.prototype.ProcessUp = function () {
-            var thisNode = this.Node;
-            var visualParentNode = thisNode.VisualParentNode;
-            var visualParentLu;
-            if (visualParentNode)
-                visualParentLu = visualParentNode.LayoutUpdater;
-
-            var invalidateSubtreePaint = false;
-            if (this.DirtyFlags & _Dirty.Bounds) {
-                this.DirtyFlags &= ~_Dirty.Bounds;
-
-                var oextents = rect.copyTo(this.ExtentsWithChildren);
-                var oglobalbounds = rect.copyTo(this.GlobalBoundsWithChildren);
-                var osubtreebounds = rect.copyTo(this.SurfaceBoundsWithChildren);
-
-                if ((thisNode).ComputeBounds)
-                    (thisNode).ComputeBounds(this.ComputeBounds, this);
-else
-                    this.ComputeBounds();
-
-                if (!rect.isEqual(oglobalbounds, this.GlobalBoundsWithChildren)) {
-                    if (visualParentLu) {
-                        visualParentLu.UpdateBounds();
-                        visualParentLu.Invalidate(osubtreebounds);
-                        visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
-                    }
-                }
-
-                invalidateSubtreePaint = !rect.isEqual(oextents, this.ExtentsWithChildren) || this._ForceInvalidateOfNewBounds;
-                this._ForceInvalidateOfNewBounds = false;
-            }
-
-            if (this.DirtyFlags & _Dirty.NewBounds) {
-                if (visualParentLu)
-                    visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
-else if (thisNode.IsTopLevel)
-                    invalidateSubtreePaint = true;
-                this.DirtyFlags &= ~_Dirty.NewBounds;
-            }
-            if (invalidateSubtreePaint)
-                this.Invalidate(this.SurfaceBoundsWithChildren);
-
-            if (this.DirtyFlags & _Dirty.Invalidate) {
-                this.DirtyFlags &= ~_Dirty.Invalidate;
-                var dirty = this.DirtyRegion;
-                if (visualParentLu) {
-                    visualParentLu.Invalidate(dirty);
-                } else {
-                    if (thisNode.IsAttached) {
-                        this.Surface._Invalidate(dirty);
-                    }
-                }
-                rect.clear(dirty);
-            }
-            return !(this.DirtyFlags & _Dirty.UpDirtyState);
-        };
-        LayoutUpdater.prototype._PropagateDirtyFlagToChildren = function (dirt) {
-            var enumerator = this.Node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                (enumerator.Current).LayoutUpdater._AddDirtyElement(dirt);
-            }
-        };
-        LayoutUpdater.prototype._AddDirtyElement = function (dirt) {
-            if (this.Node.VisualParentNode == null && !this.Node.IsTopLevel)
-                return;
-            this.DirtyFlags |= dirt;
-            var s = this.Surface;
-            if (dirt & _Dirty.DownDirtyState && !this.InDownDirty) {
-                (s)._DownDirty.push(this);
-                this.InDownDirty = true;
-            }
-            if (dirt & _Dirty.UpDirtyState && !this.InUpDirty) {
-                (s)._UpDirty.push(this);
-                this.InUpDirty = true;
-            }
-        };
-
-        LayoutUpdater.prototype.FullInvalidate = function (invTransforms) {
-            this.Invalidate();
-            if (invTransforms) {
-                this.UpdateTransform();
-                this.UpdateProjection();
-            }
-            this.UpdateBounds(true);
-        };
-        LayoutUpdater.prototype.Invalidate = function (r) {
-            if (!r)
-                r = this.SurfaceBounds;
-            if (!this.TotalIsRenderVisible || (this.TotalOpacity * 255) < 0.5)
-                return;
-
-            if (this.Node.IsAttached) {
-                this._AddDirtyElement(_Dirty.Invalidate);
-                this.InvalidateBitmapCache();
-                if (false) {
-                    rect.union(this.DirtyRegion, this.SurfaceBoundsWithChildren);
-                } else {
-                    rect.union(this.DirtyRegion, r);
-                }
-            }
-        };
-        LayoutUpdater.prototype._CacheInvalidateHint = function () {
-        };
-        LayoutUpdater.prototype.ComputeComposite = function () {
-        };
-        LayoutUpdater.prototype.InvalidateBitmapCache = function () {
-        };
-        LayoutUpdater.prototype.InvalidateMeasure = function () {
-            this.DirtyFlags |= _Dirty.Measure;
-            this._PropagateFlagUp(UIElementFlags.DirtyMeasureHint);
-        };
-        LayoutUpdater.prototype.InvalidateArrange = function () {
-            this.DirtyFlags |= _Dirty.Arrange;
-            this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
-        };
-        LayoutUpdater.prototype.InvalidateSubtreePaint = function () {
-            this.Invalidate(this.SurfaceBoundsWithChildren);
-        };
-        LayoutUpdater.prototype.InvalidateVisibility = function (newVisibility) {
-            if (newVisibility === Fayde.Visibility.Visible)
-                this.Flags |= UIElementFlags.RenderVisible;
-else
-                this.Flags &= ~UIElementFlags.RenderVisible;
-        };
-        LayoutUpdater.prototype.InvalidateHitTestVisibility = function (newHitTestVisibility) {
-            if (newHitTestVisibility)
-                this.Flags |= UIElementFlags.HitTestVisible;
-else
-                this.Flags &= ~UIElementFlags.HitTestVisible;
-        };
-
-        LayoutUpdater.prototype.UpdateClip = function () {
-            if (this.Node.IsAttached)
-                this._AddDirtyElement(_Dirty.LocalClip);
-        };
-        LayoutUpdater.prototype.SetLayoutClip = function (layoutClip) {
-            var old = this.LayoutClip;
-            this.LayoutClip = layoutClip;
-            if (old === layoutClip)
-                return;
-            if (old && layoutClip && rect.isEqual(old, layoutClip))
-                return;
-            if (this.Node.IsAttached)
-                this._AddDirtyElement(_Dirty.LayoutClip);
-        };
-        LayoutUpdater.prototype.ComputeLayoutClip = function (vpLu) {
-            if (this.BreaksLayoutClipRender) {
-                this.CompositeLayoutClip = undefined;
-                return;
-            }
-
-            var vpcomposite = (vpLu) ? vpLu.CompositeLayoutClip : undefined;
-            var local = this.LayoutClip;
-
-            if (vpcomposite && local)
-                this.CompositeLayoutClip = rect.intersection(rect.copyTo(local), vpcomposite);
-else if (vpcomposite)
-                this.CompositeLayoutClip = rect.copyTo(vpcomposite);
-else if (local)
-                this.CompositeLayoutClip = rect.copyTo(local);
-else
-                this.CompositeLayoutClip = undefined;
-        };
-
-        LayoutUpdater.prototype.UpdateTransform = function () {
-            if (this.Node.IsAttached)
-                this._AddDirtyElement(_Dirty.LocalTransform);
-        };
-        LayoutUpdater.prototype.ComputeLocalTransform = function (uie) {
-            var transform = uie.RenderTransform;
-            if (!transform)
-                return;
-
-            var transformOrigin;
-            if (uie instanceof Fayde.Controls.TextBlock)
-                transformOrigin = this.GetTextBlockTransformOrigin(uie);
-else
-                transformOrigin = this.GetTransformOrigin(uie);
-            mat3.identity(this.LocalXform);
-            var render = mat3.create();
-            mat3.set(transform.Value._Raw, render);
-
-            mat3.translate(this.LocalXform, transformOrigin.X, transformOrigin.Y);
-            mat3.multiply(this.LocalXform, render, this.LocalXform);
-            mat3.translate(this.LocalXform, -transformOrigin.X, -transformOrigin.Y);
-        };
-        LayoutUpdater.prototype.ComputeLocalProjection = function (uie) {
-            var projection = uie.Projection;
-            if (!projection) {
-                Fayde.Controls.Panel.SetZ(uie, NaN);
-                return;
-            }
-
-            var objectSize = (uie instanceof Fayde.Shapes.Shape) ? this._GetShapeBrushSize(uie) : this._GetBrushSize();
-            projection.SetObjectSize(objectSize);
-            var z = projection.GetDistanceFromXYPlane();
-            Fayde.Controls.Panel.SetZ(uie, z);
-        };
-        LayoutUpdater.prototype.ComputeTransform = function (uin, vplu) {
-            var uie = uin.XObject;
-            var projection = uie.Projection;
-
-            var oldProjection = mat4.clone(this.LocalProjection);
-            var old = mat3.clone(this.AbsoluteXform);
-
-            mat4.identity(this.LocalProjection);
-            if (vplu) {
-                mat3.set(vplu.AbsoluteXform, this.AbsoluteXform);
-                mat4.set(vplu.AbsoluteProjection, this.AbsoluteProjection);
-                this.TotalRenderProjection = vplu.TotalRenderProjection;
-            } else {
-                mat3.identity(this.AbsoluteXform);
-                mat4.identity(this.AbsoluteProjection);
-                this.TotalRenderProjection = false;
-            }
-            var carrierProjection = this.CarrierProjection;
-            var carrierXform = this.CarrierXform;
-            if (carrierProjection)
-                mat4.set(carrierProjection, this.LocalProjection);
-
-            var renderXform = this.RenderXform;
-            if (carrierXform)
-                mat3.set(carrierXform, renderXform);
-else
-                mat3.identity(renderXform);
-
-            mat3.multiply(renderXform, this.LayoutXform, renderXform);
-            mat3.multiply(renderXform, this.LocalXform, renderXform);
-
-            var m = mat3.toAffineMat4(renderXform);
-            mat4.multiply(this.LocalProjection, m, this.LocalProjection);
-
-            if (false) {
-            } else {
-                mat3.multiply(this.RenderXform, this.AbsoluteXform, this.AbsoluteXform);
-            }
-
-            if (projection) {
-                m = projection.GetTransform();
-                mat4.multiply(m, this.LocalProjection, this.LocalProjection);
-                this.TotalRenderProjection = true;
-            }
-
-            mat4.multiply(this.LocalProjection, this.AbsoluteProjection, this.AbsoluteProjection);
-
-            if (uin instanceof Fayde.Controls.Primitives.PopupNode) {
-                var popupChildNode = (uin).SubtreeNode;
-                if (popupChildNode)
-                    popupChildNode.LayoutUpdater.UpdateTransform();
-            }
-            if (!mat4.equal(oldProjection, this.LocalProjection)) {
-                if (vplu)
-                    vplu.Invalidate(this.SurfaceBoundsWithChildren);
-else if (uin.IsTopLevel)
-                    this.InvalidateSubtreePaint();
-
-                if (uin.IsAttached)
-                    this._AddDirtyElement(_Dirty.NewBounds);
-            }
-
-            mat4.set(this.LocalProjection, this.RenderProjection);
-
-            this.UpdateBounds();
-
-            this.ComputeComposite();
-
-            var post = uin;
-            if (post.PostCompute)
-                post.PostCompute(this, projection != null);
-        };
-        LayoutUpdater.prototype.UpdateProjection = function () {
-            if (this.Node.IsAttached)
-                this._AddDirtyElement(_Dirty.LocalProjection);
-        };
-        LayoutUpdater.prototype.TransformPoint = function (p) {
-            var inverse = mat4.inverse(this.AbsoluteProjection, mat4.create());
-            if (!inverse) {
-                Warn("Could not get inverse of Absolute Projection for UIElement.");
-                return;
-            }
-
-            var p4 = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
-            var m20 = inverse[2];
-            var m21 = inverse[6];
-            var m22 = inverse[10];
-            var m23 = inverse[14];
-            p4[2] = -(m20 * p4[0] + m21 * p4[1] + m23) / m22;
-
-            mat4.transformVec4(inverse, p4);
-            p.X = p4[0] / p4[3];
-            p.Y = p4[1] / p4[3];
-        };
-        LayoutUpdater.prototype.TransformToVisual = function (toUin) {
-            var result = mat4.create();
-
-            if (toUin) {
-                var inverse = mat4.create();
-                mat4.inverse(toUin.LayoutUpdater.AbsoluteProjection, inverse);
-                mat4.multiply(this.AbsoluteProjection, inverse, result);
-            } else {
-                mat4.set(this.AbsoluteProjection, result);
-            }
-
-            var raw = mat4.toAffineMat3(result);
-            if (raw) {
-                var mt = new Fayde.Media.MatrixTransform();
-                mt.SetStoreValue(Fayde.Media.MatrixTransform.MatrixProperty, new Fayde.Media.Matrix(raw));
-                return mt;
-            }
-
-            return new Fayde.Media.InternalTransform(result);
-        };
-        LayoutUpdater.prototype.GetTransformOrigin = function (uie) {
-            var userXformOrigin = uie.RenderTransformOrigin;
-            if (!userXformOrigin)
-                return { X: 0, Y: 0 };
-            return { X: this.ActualWidth * userXformOrigin.X, Y: this.ActualHeight * userXformOrigin.Y };
-        };
-        LayoutUpdater.prototype.GetTextBlockTransformOrigin = function (tb) {
-            var userXformOrigin = tb.RenderTransformOrigin;
-            if (!userXformOrigin)
-                return { X: 0, Y: 0 };
-            var xformSize = this.CoerceSize(this.RenderSize);
-            return {
-                X: xformSize.Width * userXformOrigin.X,
-                Y: xformSize.Height * userXformOrigin.Y
-            };
-        };
-
-        LayoutUpdater.prototype.UpdateRenderVisibility = function (vpLu) {
-            var uie = this.Node.XObject;
-            if (vpLu) {
-                var vp = vpLu.Node.XObject;
-                this.TotalOpacity = vpLu.TotalOpacity * uie.Opacity;
-                this.TotalIsRenderVisible = (vp.Visibility === 0) && (uie.Visibility === 0);
-            } else {
-                this.TotalOpacity = uie.Opacity;
-                this.TotalIsRenderVisible = (uie.Visibility === 0);
-            }
-        };
-        LayoutUpdater.prototype.UpdateTotalRenderVisibility = function () {
-            if (this.Node.IsAttached)
-                this._AddDirtyElement(_Dirty.RenderVisibility);
-        };
-        LayoutUpdater.prototype.UpdateHitTestVisibility = function (vpLu) {
-            var uie = this.Node.XObject;
-            if (vpLu) {
-                this.TotalIsHitTestVisible = vpLu.TotalIsHitTestVisible && uie.IsHitTestVisible;
-            } else {
-                this.TotalIsHitTestVisible = uie.IsHitTestVisible;
-            }
-        };
-        LayoutUpdater.prototype.UpdateTotalHitTestVisibility = function () {
-            if (this.Node.IsAttached)
-                this._AddDirtyElement(_Dirty.HitTestVisibility);
-        };
-
-        LayoutUpdater.prototype.UpdateBounds = function (forceRedraw) {
-            if (this.Node.IsAttached)
-                this._AddDirtyElement(_Dirty.Bounds);
-            this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
-        };
-        LayoutUpdater.prototype.ComputeBounds = function () {
-            var s = this.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
-            if (isNaN(s.Width))
-                s.Width = 0;
-            if (isNaN(s.Height))
-                s.Height = 0;
-
-            rect.set(this.Extents, 0, 0, s.Width, s.Height);
-            rect.copyTo(this.Extents, this.ExtentsWithChildren);
-
-            var node = this.Node;
-            var enumerator = node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var item = enumerator.Current;
-                var itemlu = item.LayoutUpdater;
-                if (itemlu.TotalIsRenderVisible)
-                    rect.union(this.ExtentsWithChildren, itemlu.GlobalBoundsWithChildren);
-            }
-
-            this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
-            rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteXform);
-
-            this.ComputeGlobalBounds();
-            this.ComputeSurfaceBounds();
-        };
-        LayoutUpdater.prototype.ComputeGlobalBounds = function () {
-            this.IntersectBoundsWithClipPath(this.GlobalBounds, this.LocalXform);
-            rect.copyGrowTransform4(this.GlobalBoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.LocalProjection);
-        };
-        LayoutUpdater.prototype.ComputeSurfaceBounds = function () {
-            this.IntersectBoundsWithClipPath(this.SurfaceBounds, this.AbsoluteXform);
-            rect.copyGrowTransform4(this.SurfaceBoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteProjection);
-        };
-        LayoutUpdater.prototype.IntersectBoundsWithClipPath = function (dest, xform) {
-            var isClipEmpty = rect.isEmpty(this.ClipBounds);
-            var isLayoutClipEmpty = this.LayoutClip ? rect.isEmpty(this.LayoutClip) : true;
-
-            if ((!isClipEmpty || !isLayoutClipEmpty) && !this.TotalIsRenderVisible) {
-                rect.clear(dest);
-                return dest;
-            }
-
-            rect.copyGrowTransform(dest, this.Extents, this.EffectPadding, null);
-
-            if (!isClipEmpty)
-                rect.intersection(dest, this.ClipBounds);
-            if (!isLayoutClipEmpty)
-                rect.intersection(dest, this.LayoutClip);
-
-            return rect.transform(dest, xform);
-        };
-
-        LayoutUpdater.prototype._UpdateActualSize = function () {
-            var last = this.LastRenderSize;
-            var fe = this.Node.XObject;
-            var s;
-            if ((fe).ComputeActualSize)
-                s = (fe).ComputeActualSize(this._ComputeActualSize, this);
-else
-                s = this._ComputeActualSize();
-            this.ActualWidth = s.Width;
-            this.ActualHeight = s.Height;
-            if (last && size.isEqual(last, s))
-                return;
-
-            var propd = Fayde.FrameworkElement.ActualWidthProperty;
-            propd.Store.SetLocalValue(Fayde.Providers.GetStorage(fe, propd), s.Width);
-            var propd = Fayde.FrameworkElement.ActualHeightProperty;
-            propd.Store.SetLocalValue(Fayde.Providers.GetStorage(fe, propd), s.Height);
-
-            this.LastRenderSize = undefined;
-            return {
-                Element: fe,
-                PreviousSize: last,
-                NewSize: s
-            };
-        };
-        LayoutUpdater.prototype._ComputeActualSize = function () {
-            var node = this.Node;
-
-            if (node.XObject.Visibility !== Fayde.Visibility.Visible)
-                return new size();
-
-            var parentNode = node.VisualParentNode;
-            if ((parentNode && !(parentNode.XObject instanceof Fayde.Controls.Canvas)) || this.IsLayoutContainer)
-                return size.copyTo(this.RenderSize);
-
-            return this.CoerceSize(new size());
-        };
-        LayoutUpdater.prototype._GetBrushSize = function () {
-            return {
-                Width: this.ActualWidth,
-                Height: this.ActualHeight
-            };
-        };
-        LayoutUpdater.prototype._GetShapeBrushSize = function (shape) {
-            return size.fromRect(shape.XamlNode.GetStretchExtents(shape, this));
-        };
-        LayoutUpdater.prototype.CoerceSize = function (s) {
-            var fe = this.Node.XObject;
-            var spw = fe.Width;
-            var sph = fe.Height;
-            var minw = fe.MinWidth;
-            var minh = fe.MinHeight;
-            var cw = minw;
-            var ch = minh;
-
-            cw = Math.max(cw, s.Width);
-            ch = Math.max(ch, s.Height);
-
-            if (!isNaN(spw))
-                cw = spw;
-
-            if (!isNaN(sph))
-                ch = sph;
-
-            cw = Math.max(Math.min(cw, fe.MaxWidth), minw);
-            ch = Math.max(Math.min(ch, fe.MaxHeight), minh);
-
-            if (fe.UseLayoutRounding) {
-                cw = Math.round(cw);
-                ch = Math.round(ch);
-            }
-
-            s.Width = cw;
-            s.Height = ch;
-            return s;
-        };
-
-        LayoutUpdater.prototype._HasFlag = function (flag) {
-            return (this.Flags & flag) === flag;
-        };
-        LayoutUpdater.prototype._PropagateFlagUp = function (flag) {
-            this.Flags |= flag;
-            var node = this.Node;
-            var lu;
-            while ((node = node.VisualParentNode) && (lu = node.LayoutUpdater) && !lu._HasFlag(flag)) {
-                lu.Flags |= flag;
-            }
-        };
-
-        LayoutUpdater.prototype.UpdateLayer = function (pass, error) {
-            var elNode = this.Node;
-            var parentNode;
-            while (parentNode = elNode.VisualParentNode)
-                elNode = parentNode;
-            var element = elNode.XObject;
-            var layout = elNode.LayoutUpdater;
-
-            var lu;
-            while (pass.Count < maxPassCount) {
-                while (lu = pass.ArrangeList.shift()) {
-                    lu._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
-                }
-                while (lu = pass.SizeList.shift()) {
-                    lu._PropagateFlagUp(UIElementFlags.DirtySizeHint);
-                }
-                pass.Count = pass.Count + 1;
-
-                var flag = UIElementFlags.None;
-                if (element.Visibility === Fayde.Visibility.Visible) {
-                    if (layout._HasFlag(UIElementFlags.DirtyMeasureHint))
-                        flag = UIElementFlags.DirtyMeasureHint;
-else if (layout._HasFlag(UIElementFlags.DirtyArrangeHint))
-                        flag = UIElementFlags.DirtyArrangeHint;
-else if (layout._HasFlag(UIElementFlags.DirtySizeHint))
-                        flag = UIElementFlags.DirtySizeHint;
-                }
-
-                if (flag !== UIElementFlags.None) {
-                    var measureWalker = Fayde.DeepTreeWalker(elNode);
-                    var childNode;
-                    while (childNode = measureWalker.Step()) {
-                        lu = childNode.LayoutUpdater;
-                        if (childNode.XObject.Visibility !== Fayde.Visibility.Visible || !lu._HasFlag(flag)) {
-                            measureWalker.SkipBranch();
-                            continue;
-                        }
-                        lu.Flags &= ~flag;
-                        switch (flag) {
-                            case UIElementFlags.DirtyMeasureHint:
-                                if (lu.DirtyFlags & _Dirty.Measure)
-                                    pass.MeasureList.push(lu);
-                                break;
-                            case UIElementFlags.DirtyArrangeHint:
-                                if (lu.DirtyFlags & _Dirty.Arrange)
-                                    pass.ArrangeList.push(lu);
-                                break;
-                            case UIElementFlags.DirtySizeHint:
-                                if (lu.LastRenderSize !== undefined)
-                                    pass.SizeList.push(lu);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-
-                if (flag === UIElementFlags.DirtyMeasureHint) {
-                    if (Fayde.Layout.Debug)
-                        console.log("[MEASURE PASS] " + pass.MeasureList.length);
-                    while (lu = pass.MeasureList.shift()) {
-                        if (Fayde.Layout.Debug)
-                            console.log("[DOMEASURE] " + lu._DebugToString());
-                        lu._DoMeasureWithError(error);
-                        pass.Updated = true;
-                    }
-                } else if (flag === UIElementFlags.DirtyArrangeHint) {
-                    if (Fayde.Layout.Debug)
-                        console.log("[ARRANGE PASS] " + pass.ArrangeList.length);
-                    while (lu = pass.ArrangeList.shift()) {
-                        if (Fayde.Layout.Debug)
-                            console.log("[DOARRANGE] " + lu._DebugToString());
-                        lu._DoArrangeWithError(error);
-                        pass.Updated = true;
-                        if (layout._HasFlag(UIElementFlags.DirtyMeasureHint))
-                            break;
-                    }
-                } else if (flag === UIElementFlags.DirtySizeHint) {
-                    var changes = [];
-                    while (lu = pass.SizeList.pop()) {
-                        pass.Updated = true;
-                        changes.push(lu._UpdateActualSize());
-                    }
-                    var change;
-                    while (change = changes.pop()) {
-                        change.Element.SizeChanged.Raise(change.Element, new Fayde.SizeChangedEventArgs(change.PreviousSize, change.NewSize));
-                    }
-                } else {
-                    break;
-                }
-            }
-        };
-        LayoutUpdater.prototype._DoMeasureWithError = function (error) {
-            var last = this.PreviousConstraint;
-            var node = this.Node;
-            var visualParentNode = node.VisualParentNode;
-
-            if (!node.IsAttached && !last && !visualParentNode && this.IsLayoutContainer) {
-                last = size.createInfinite();
-            }
-
-            if (last) {
-                var previousDesired = size.copyTo(this.DesiredSize);
-                this._Measure(last, error);
-                if (size.isEqual(previousDesired, this.DesiredSize))
-                    return;
-            }
-
-            if (visualParentNode)
-                visualParentNode.LayoutUpdater.InvalidateMeasure();
-
-            this.DirtyFlags &= ~_Dirty.Measure;
-        };
-        LayoutUpdater.prototype._Measure = function (availableSize, error) {
-            if (error.Message)
-                return;
-
-            var node = this.Node;
-            var fe = node.XObject;
-
-            if (isNaN(availableSize.Width) || isNaN(availableSize.Height)) {
-                error.Message = "Cannot call Measure using a size with NaN values";
-                LayoutUpdater.LayoutExceptionUpdater = this;
-                return;
-            }
-
-            var last = this.PreviousConstraint;
-            var shouldMeasure = (this.DirtyFlags & _Dirty.Measure) > 0;
-            shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
-
-            if (fe.Visibility !== Fayde.Visibility.Visible) {
-                this.PreviousConstraint = availableSize;
-                size.clear(this.DesiredSize);
-                return;
-            }
-
-            node.ApplyTemplateWithError(error);
-
-            if (!shouldMeasure)
-                return;
-
-            if (Fayde.Layout.Debug)
-                console.log(new Array(Fayde.Layout.DebugIndent).join("\t") + "[MEASURING] " + this._DebugToString());
-
-            this.PreviousConstraint = availableSize;
-
-            this.InvalidateArrange();
-            this.UpdateBounds();
-
-            var s = size.copyTo(availableSize);
-            var margin = fe.Margin;
-            if (margin)
-                size.shrinkByThickness(s, margin);
-            this.CoerceSize(s);
-
-            Fayde.Layout.DebugIndent++;
-            if ((fe).MeasureOverride) {
-                s = (fe).MeasureOverride(s);
-            } else {
-                s = (fe)._MeasureOverride(s, error);
-            }
-            Fayde.Layout.DebugIndent--;
-
-            if (error.Message)
-                return;
-
-            this.DirtyFlags &= ~_Dirty.Measure;
-            this.HiddenDesire = size.copyTo(s);
-
-            var visualParentNode = node.VisualParentNode;
-            if (!visualParentNode || visualParentNode instanceof Fayde.Controls.CanvasNode) {
-                if (node instanceof Fayde.Controls.CanvasNode || !this.IsLayoutContainer) {
-                    size.clear(this.DesiredSize);
-                    return;
-                }
-            }
-
-            this.CoerceSize(s);
-            if (margin)
-                size.growByThickness(s, margin);
-            size.min(s, availableSize);
-
-            if (fe.UseLayoutRounding) {
-                s.Width = Math.round(s.Width);
-                s.Height = Math.round(s.Height);
-            }
-
-            size.copyTo(s, this.DesiredSize);
-        };
-        LayoutUpdater.prototype._DoArrangeWithError = function (error) {
-            var last = this.LayoutSlot;
-            if (last === null)
-                last = undefined;
-
-            var n = this.Node;
-            var fe = n.XObject;
-            var visualParentNode = n.VisualParentNode;
-            if (!visualParentNode) {
-                var surface = this.Surface;
-                var desired;
-                if (this.IsLayoutContainer) {
-                    desired = size.copyTo(this.DesiredSize);
-                    if (n.IsAttached && n.IsTopLevel && !n.ParentNode) {
-                        var measure = this.PreviousConstraint;
-                        if (measure)
-                            size.max(desired, measure);
-else
-                            desired = size.copyTo(surface.Extents);
-                    }
-                } else {
-                    desired.Width = fe.ActualWidth;
-                    desired.Height = fe.ActualHeight;
-                }
-
-                var viewport = rect.fromSize(desired);
-                viewport.X = Fayde.Controls.Canvas.GetLeft(fe);
-                viewport.Y = Fayde.Controls.Canvas.GetTop(fe);
-                last = viewport;
-            }
-
-            if (last) {
-                this._Arrange(last, error);
-            } else {
-                if (visualParentNode)
-                    visualParentNode.LayoutUpdater.InvalidateArrange();
-            }
-        };
-        LayoutUpdater.prototype._Arrange = function (finalRect, error) {
-            if (error.Message)
-                return;
-
-            var node = this.Node;
-            var fe = node.XObject;
-
-            if (fe.UseLayoutRounding) {
-                rect.round(finalRect);
-            }
-
-            if (finalRect.Width < 0 || finalRect.Height < 0 || !isFinite(finalRect.Width) || !isFinite(finalRect.Height) || isNaN(finalRect.Width) || isNaN(finalRect.Height)) {
-                var desired = this.DesiredSize;
-                error.Number = BError.Argument;
-                error.Message = "Invalid arguments to Arrange. Desired = " + desired.toString();
-                return;
-            }
-
-            if (fe.Visibility !== Fayde.Visibility.Visible) {
-                this.LayoutSlot = finalRect;
-                return;
-            }
-
-            var slot = this.LayoutSlot;
-            var shouldArrange = (this.DirtyFlags & _Dirty.Arrange) > 0 || !slot || !rect.isEqual(slot, finalRect);
-            if (!shouldArrange)
-                return;
-
-            if (Fayde.Layout.Debug)
-                console.log(new Array(Fayde.Layout.DebugIndent).join("\t") + "[ARRANGING] " + this._DebugToString());
-
-            var measure = this.PreviousConstraint;
-            if (this.IsContainer && !measure) {
-                this._Measure(size.fromRect(finalRect), error);
-            }
-            measure = this.PreviousConstraint;
-
-            this.SetLayoutClip(undefined);
-
-            var childRect = rect.copyTo(finalRect);
-            var margin = fe.Margin;
-            if (margin)
-                rect.shrinkByThickness(childRect, margin);
-
-            this.UpdateTransform();
-            this.UpdateProjection();
-            this.UpdateBounds();
-
-            var offer = size.copyTo(this.HiddenDesire);
-
-            var stretched = this.CoerceSize(size.fromRect(childRect));
-            var framework = this.CoerceSize(new size());
-
-            var horiz = fe.HorizontalAlignment;
-            var vert = fe.VerticalAlignment;
-
-            if (horiz === Fayde.HorizontalAlignment.Stretch)
-                framework.Width = Math.max(framework.Width, stretched.Width);
-
-            if (vert === Fayde.VerticalAlignment.Stretch)
-                framework.Height = Math.max(framework.Height, stretched.Height);
-
-            size.max(offer, framework);
-
-            this.LayoutSlot = finalRect;
-
-            Fayde.Layout.DebugIndent++;
-            var response;
-            if ((fe).ArrangeOverride) {
-                response = (fe).ArrangeOverride(offer);
-            } else {
-                response = (fe)._ArrangeOverride(offer, error);
-            }
-            Fayde.Layout.DebugIndent--;
-
-            if (horiz === Fayde.HorizontalAlignment.Stretch)
-                response.Width = Math.max(response.Width, framework.Width);
-
-            if (vert === Fayde.VerticalAlignment.Stretch)
-                response.Height = Math.max(response.Height, framework.Height);
-
-            var flipHoriz = false;
-            var flowDirection = fe.FlowDirection;
-            var visualParentNode = node.VisualParentNode;
-            if (visualParentNode)
-                flipHoriz = visualParentNode.XObject.FlowDirection !== flowDirection;
-else if (node.ParentNode instanceof Fayde.Controls.Primitives.PopupNode)
-                flipHoriz = (node.ParentNode).XObject.FlowDirection !== flowDirection;
-else
-                flipHoriz = flowDirection === Fayde.FlowDirection.RightToLeft;
-
-            var layoutXform = mat3.identity(this.LayoutXform);
-            mat3.translate(layoutXform, childRect.X, childRect.Y);
-            if (flipHoriz) {
-                mat3.translate(layoutXform, offer.Width, 0);
-                mat3.scale(layoutXform, -1, 1);
-            }
-
-            if (error.Message)
-                return;
-
-            this.DirtyFlags &= ~_Dirty.Arrange;
-            var visualOffset = this.VisualOffset;
-            visualOffset.X = childRect.X;
-            visualOffset.Y = childRect.Y;
-
-            var oldSize = size.copyTo(this.RenderSize);
-
-            if (fe.UseLayoutRounding) {
-                response.Width = Math.round(response.Width);
-                response.Height = Math.round(response.Height);
-            }
-
-            size.copyTo(response, this.RenderSize);
-            var constrainedResponse = this.CoerceSize(size.copyTo(response));
-            size.min(constrainedResponse, response);
-
-            if (!visualParentNode || visualParentNode instanceof Fayde.Controls.CanvasNode) {
-                if (!this.IsLayoutContainer) {
-                    size.clear(this.RenderSize);
-                    return;
-                }
-            }
-
-            var isTopLevel = node.IsAttached && node.IsTopLevel;
-            if (!isTopLevel) {
-                switch (horiz) {
-                    case Fayde.HorizontalAlignment.Left:
-                        break;
-                    case Fayde.HorizontalAlignment.Right:
-                        visualOffset.X += childRect.Width - constrainedResponse.Width;
-                        break;
-                    case Fayde.HorizontalAlignment.Center:
-                        visualOffset.X += (childRect.Width - constrainedResponse.Width) * 0.5;
-                        break;
-                    default:
-                        visualOffset.X += Math.max((childRect.Width - constrainedResponse.Width) * 0.5, 0);
-                        break;
-                }
-
-                switch (vert) {
-                    case Fayde.VerticalAlignment.Top:
-                        break;
-                    case Fayde.VerticalAlignment.Bottom:
-                        visualOffset.Y += childRect.Height - constrainedResponse.Height;
-                        break;
-                    case Fayde.VerticalAlignment.Center:
-                        visualOffset.Y += (childRect.Height - constrainedResponse.Height) * 0.5;
-                        break;
-                    default:
-                        visualOffset.Y += Math.max((childRect.Height - constrainedResponse.Height) * 0.5, 0);
-                        break;
-                }
-            }
-
-            if (fe.UseLayoutRounding) {
-                visualOffset.X = Math.round(visualOffset.X);
-                visualOffset.Y = Math.round(visualOffset.Y);
-            }
-
-            layoutXform = mat3.identity(this.LayoutXform);
-            mat3.translate(layoutXform, visualOffset.X, visualOffset.Y);
-            if (flipHoriz) {
-                mat3.translate(layoutXform, response.Width, 0);
-                mat3.scale(layoutXform, -1, 1);
-            }
-
-            var element = new rect();
-            element.Width = response.Width;
-            element.Height = response.Height;
-            var layoutClip = rect.copyTo(childRect);
-            layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
-            layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
-            if (fe.UseLayoutRounding) {
-                layoutClip.X = Math.round(layoutClip.X);
-                layoutClip.Y = Math.round(layoutClip.Y);
-            }
-
-            var oldLayoutClip = this.LayoutClip;
-            if (((!isTopLevel && !rect.isRectContainedIn(element, layoutClip)) || !size.isEqual(constrainedResponse, response)) && !(node instanceof Fayde.Controls.CanvasNode) && ((visualParentNode && !(visualParentNode instanceof Fayde.Controls.CanvasNode)) || this.IsContainer)) {
-                var frameworkClip = this.CoerceSize(size.createInfinite());
-                var frect = rect.fromSize(frameworkClip);
-                rect.intersection(layoutClip, frect);
-                this.SetLayoutClip(layoutClip);
-            }
-
-            if (!size.isEqual(oldSize, response)) {
-                if (!this.LastRenderSize) {
-                    this.LastRenderSize = oldSize;
-                    this._PropagateFlagUp(UIElementFlags.DirtySizeHint);
-                }
-            }
-        };
-
-        LayoutUpdater.prototype.DoRender = function (ctx, r) {
-            if (!this.TotalIsRenderVisible)
-                return;
-            if ((this.TotalOpacity * 255) < 0.5)
-                return;
-
-            var region = new rect();
-            if (false) {
-            } else {
-                rect.copyTo(this.ExtentsWithChildren, region);
-                rect.transform(region, this.RenderXform);
-                rect.transform(region, ctx.currentTransform);
-                rect.roundOut(region);
-                rect.intersection(region, r);
-            }
-
-            if (rect.isEmpty(region))
-                return;
-
-            ctx.save();
-
-            ctx.pretransformMatrix(this.RenderXform);
-            ctx.globalAlpha = this.TotalOpacity;
-
-            var uie = this.Node.XObject;
-            var clip = uie.Clip;
-            if (clip)
-                ctx.clipGeometry(clip);
-
-            var effect = uie.Effect;
-            if (effect) {
-                ctx.save();
-                effect.PreRender(ctx);
-            }
-            if ((uie).Render)
-                (uie).Render(ctx, this, region);
-            if (effect) {
-                ctx.restore();
-            }
-
-            var enumerator = this.Node.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.ZFoward);
-            while (enumerator.MoveNext()) {
-                (enumerator.Current).LayoutUpdater.DoRender(ctx, region);
-            }
-
-            ctx.restore();
-        };
-
-        LayoutUpdater.prototype.FindElementsInHostCoordinates = function (p) {
-            var uinlist = [];
-            this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist, false);
-            return uinlist;
-        };
-        LayoutUpdater.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist, applyXform) {
-            if (this.ShouldSkipHitTest)
-                return;
-            if (!this.TotalIsRenderVisible)
-                return;
-            if (!this.TotalIsHitTestVisible)
-                return;
-            if (this.SurfaceBoundsWithChildren.Height <= 0)
-                return;
-
-            var thisNode = this.Node;
-
-            ctx.save();
-            if (applyXform)
-                ctx.transformMatrix(this.RenderXform);
-
-            if (!this._InsideClip(ctx, p.X, p.Y)) {
-                ctx.restore();
-                return;
-            }
-
-            uinlist.unshift(thisNode);
-            var enumerator = thisNode.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.ZFoward);
-            while (enumerator.MoveNext()) {
-                (enumerator.Current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist, true);
-            }
-
-            if (thisNode === uinlist[0]) {
-                if (!this.CanHitElement || !this._InsideObject(ctx, p.X, p.Y))
-                    uinlist.shift();
-            }
-
-            ctx.restore();
-        };
-        LayoutUpdater.prototype.HitTestPoint = function (ctx, p, uinlist) {
-            if (this.ShouldSkipHitTest)
-                return;
-            if (!this.TotalIsRenderVisible)
-                return;
-            if (!this.TotalIsHitTestVisible)
-                return;
-
-            ctx.save();
-            ctx.transformMatrix(this.RenderXform);
-
-            if (!this._InsideClip(ctx, p.X, p.Y)) {
-                ctx.restore();
-                return;
-            }
-
-            var thisNode = this.Node;
-
-            uinlist.unshift(thisNode);
-            var hit = false;
-            var enumerator = thisNode.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.ZReverse);
-            while (enumerator.MoveNext()) {
-                var childNode = (enumerator.Current);
-                childNode.LayoutUpdater.HitTestPoint(ctx, p, uinlist);
-                if (thisNode !== uinlist[0]) {
-                    hit = true;
-                    break;
-                }
-            }
-
-            if (!hit && !(this.CanHitElement && this._InsideObject(ctx, p.X, p.Y))) {
-                if (uinlist.shift() !== thisNode) {
-                    throw new Exception("Look at my code! -> FENode._HitTestPoint");
-                }
-            }
-
-            ctx.restore();
-        };
-        LayoutUpdater.prototype._InsideObject = function (ctx, x, y) {
-            if (this.IsNeverInsideObject)
-                return false;
-
-            var bounds = new rect();
-            var fe = this.Node.XObject;
-            rect.set(bounds, 0, 0, fe.ActualWidth, fe.ActualHeight);
-
-            rect.transform(bounds, ctx.currentTransform);
-            if (!rect.containsPointXY(bounds, x, y))
-                return false;
-
-            if (!this._InsideLayoutClip(ctx, x, y))
-                return false;
-
-            if ((this.Node).PostInsideObject)
-                return (this.Node).PostInsideObject(ctx, this, x, y);
-            return true;
-        };
-        LayoutUpdater.prototype._InsideClip = function (ctx, x, y) {
-            var clip = this.Node.XObject.Clip;
-            if (!clip)
-                return true;
-
-            var bounds = clip.GetBounds();
-            rect.transform(bounds, ctx.currentTransform);
-            if (!rect.containsPointXY(bounds, x, y))
-                return false;
-
-            clip.Draw(ctx);
-            return ctx.isPointInPath(x, y);
-        };
-        LayoutUpdater.prototype._InsideLayoutClip = function (ctx, x, y) {
-            var layoutClip = this.LayoutClip;
-            if (!layoutClip)
-                return true;
-
-            var layoutClipBounds = rect.copyTo(layoutClip);
-            rect.transform(layoutClipBounds, ctx.currentTransform);
-            return rect.containsPointXY(layoutClipBounds, x, y);
-        };
-        LayoutUpdater.prototype.RenderLayoutClip = function (ctx) {
-            var composite = this.CompositeLayoutClip;
-            if (composite) {
-                ctx.beginPath();
-                ctx.rect(composite.X, composite.Y, composite.Width, composite.Height);
-                ctx.clip();
-            }
-        };
-
-        LayoutUpdater.prototype._DebugLayout = function () {
-            var str = this._SerializeDirt();
-            str += this._SerializeFlags();
-            str += " (";
-            str += this.HiddenDesire.toString();
-            str += " ";
-            str += this.RenderSize.toString();
-            str += ")";
-            return str;
-        };
-        LayoutUpdater.prototype._SerializeDirt = function () {
-            var curdirt = this.DirtyFlags;
-
-            var down = "";
-            if (curdirt & _Dirty.ChildrenZIndices) {
-                curdirt &= ~_Dirty.ChildrenZIndices;
-                down += "ZI+";
-            }
-            if (curdirt & _Dirty.Arrange) {
-                curdirt &= ~_Dirty.Arrange;
-                down += "A+";
-            }
-            if (curdirt & _Dirty.Measure) {
-                curdirt &= ~_Dirty.Measure;
-                down += "M+";
-            }
-            if (curdirt & _Dirty.HitTestVisibility) {
-                curdirt &= ~_Dirty.HitTestVisibility;
-                down += "HTV+";
-            }
-            if (curdirt & _Dirty.RenderVisibility) {
-                curdirt &= ~_Dirty.RenderVisibility;
-                down += "RV+";
-            }
-            if (curdirt & _Dirty.LocalClip) {
-                curdirt &= ~_Dirty.LocalClip;
-                down += "LC+";
-            }
-            if (curdirt & _Dirty.Clip) {
-                curdirt &= ~_Dirty.Clip;
-                down += "C+";
-            }
-            if (curdirt & _Dirty.LocalProjection) {
-                curdirt &= ~_Dirty.LocalProjection;
-                down += "LP+";
-            }
-            if (curdirt & _Dirty.LocalTransform) {
-                curdirt &= ~_Dirty.LocalTransform;
-                down += "LT+";
-            }
-            if (curdirt & _Dirty.Transform) {
-                curdirt &= ~_Dirty.Transform;
-                down += "T+";
-            }
-            if (down)
-                down = down.substr(0, down.length - 1);
-
-            var up = "";
-            if (curdirt & _Dirty.Invalidate) {
-                curdirt &= ~_Dirty.Invalidate;
-                up += "I+";
-            }
-            if (curdirt & _Dirty.Bounds) {
-                curdirt &= ~_Dirty.Bounds;
-                up += "B+";
-            }
-            if (up)
-                up = up.substr(0, up.length - 1);
-
-            return "[" + down + ":" + up + "]";
-        };
-        LayoutUpdater.prototype._SerializeFlags = function () {
-            var flags = this.Flags;
-            var str = "";
-            if (flags & UIElementFlags.DirtySizeHint) {
-                flags &= ~UIElementFlags.DirtySizeHint;
-                str += "S+";
-            }
-            if (flags & UIElementFlags.DirtyMeasureHint) {
-                flags &= ~UIElementFlags.DirtyMeasureHint;
-                str += "M+";
-            }
-            if (flags & UIElementFlags.DirtyArrangeHint) {
-                flags &= ~UIElementFlags.DirtyArrangeHint;
-                str += "A+";
-            }
-            if (flags & UIElementFlags.TotalHitTestVisible) {
-                flags &= ~UIElementFlags.TotalHitTestVisible;
-                str += "THT+";
-            }
-            if (flags & UIElementFlags.TotalRenderVisible) {
-                flags &= ~UIElementFlags.TotalRenderVisible;
-                str += "TRV+";
-            }
-            if (flags & UIElementFlags.HitTestVisible) {
-                flags &= ~UIElementFlags.HitTestVisible;
-                str += "HT+";
-            }
-            if (flags & UIElementFlags.RenderVisible) {
-                flags &= ~UIElementFlags.RenderVisible;
-                str += "RV+";
-            }
-
-            if (str)
-                str = str.substring(0, str.length - 1);
-
-            return "[" + str + "]";
-        };
-
-        LayoutUpdater.prototype._DebugToString = function () {
-            var xobj = this.Node.XObject;
-            var ctor = (xobj).constructor;
-            var o = {
-                "ID": (xobj)._ID,
-                "Type": ctor._TypeName
-            };
-            return JSON.stringify(o);
-        };
-        LayoutUpdater.LayoutExceptionUpdater = undefined;
-        return LayoutUpdater;
-    })();
-    Fayde.LayoutUpdater = LayoutUpdater;
-    Fayde.RegisterType(LayoutUpdater, {
-        Name: "LayoutUpdater",
-        Namespace: "Fayde"
     });
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -17795,9 +17953,9 @@ var Fayde;
         var StyleIndex = Providers.StyleIndex;
         (function (StyleMask) {
             StyleMask[StyleMask["None"] = 0] = "None";
-            StyleMask[StyleMask["VisualTree"] = 1 << StyleIndex.VisualTree] = "VisualTree";
-            StyleMask[StyleMask["ApplicationResources"] = 1 << StyleIndex.ApplicationResources] = "ApplicationResources";
-            StyleMask[StyleMask["GenericXaml"] = 1 << StyleIndex.GenericXaml] = "GenericXaml";
+            StyleMask[StyleMask["VisualTree"] = 1 << 0 /* VisualTree */] = "VisualTree";
+            StyleMask[StyleMask["ApplicationResources"] = 1 << 1 /* ApplicationResources */] = "ApplicationResources";
+            StyleMask[StyleMask["GenericXaml"] = 1 << 2 /* GenericXaml */] = "GenericXaml";
             StyleMask[StyleMask["All"] = StyleMask.VisualTree | StyleMask.ApplicationResources | StyleMask.GenericXaml] = "All";
         })(Providers.StyleMask || (Providers.StyleMask = {}));
         var StyleMask = Providers.StyleMask;
@@ -17810,7 +17968,7 @@ var Fayde;
                     styles = ImplicitStyleBroker.GetImplicitStyles(fe, mask);
                 if (styles) {
                     var error = new BError();
-                    var len = StyleIndex.Count;
+                    var len = 3 /* Count */;
                     for (var i = 0; i < len; i++) {
                         var style = styles[i];
                         if (!style)
@@ -17828,19 +17986,19 @@ var Fayde;
                 if (!styles)
                     return;
 
-                var oldStyles = (fe.XamlNode)._ImplicitStyles;
+                var oldStyles = fe.XamlNode._ImplicitStyles;
                 var newStyles = [null, null, null];
                 if (oldStyles) {
-                    newStyles[StyleIndex.GenericXaml] = oldStyles[StyleIndex.GenericXaml];
-                    newStyles[StyleIndex.ApplicationResources] = oldStyles[StyleIndex.ApplicationResources];
-                    newStyles[StyleIndex.VisualTree] = oldStyles[StyleIndex.VisualTree];
+                    newStyles[2 /* GenericXaml */] = oldStyles[2 /* GenericXaml */];
+                    newStyles[1 /* ApplicationResources */] = oldStyles[1 /* ApplicationResources */];
+                    newStyles[0 /* VisualTree */] = oldStyles[0 /* VisualTree */];
                 }
                 if (mask & StyleMask.GenericXaml)
-                    newStyles[StyleIndex.GenericXaml] = styles[StyleIndex.GenericXaml];
+                    newStyles[2 /* GenericXaml */] = styles[2 /* GenericXaml */];
                 if (mask & StyleMask.ApplicationResources)
-                    newStyles[StyleIndex.ApplicationResources] = styles[StyleIndex.ApplicationResources];
+                    newStyles[1 /* ApplicationResources */] = styles[1 /* ApplicationResources */];
                 if (mask & StyleMask.VisualTree)
-                    newStyles[StyleIndex.VisualTree] = styles[StyleIndex.VisualTree];
+                    newStyles[0 /* VisualTree */] = styles[0 /* VisualTree */];
 
                 ImplicitStyleBroker.ApplyStyles(fe, mask, styles);
             };
@@ -17853,11 +18011,11 @@ var Fayde;
                 var newStyles = oldStyles.slice(0);
 
                 if (mask & StyleMask.GenericXaml)
-                    newStyles[StyleIndex.GenericXaml] = null;
+                    newStyles[2 /* GenericXaml */] = null;
                 if (mask & StyleMask.ApplicationResources)
-                    newStyles[StyleIndex.ApplicationResources] = null;
+                    newStyles[1 /* ApplicationResources */] = null;
                 if (mask & StyleMask.VisualTree)
-                    newStyles[StyleIndex.VisualTree] = null;
+                    newStyles[0 /* VisualTree */] = null;
 
                 ImplicitStyleBroker.ApplyStyles(fe, holder._StyleMask & ~mask, newStyles);
             };
@@ -17867,7 +18025,7 @@ var Fayde;
                 var oldStyles = holder._ImplicitStyles;
                 var isChanged = !oldStyles || mask !== holder._StyleMask;
                 if (!isChanged) {
-                    for (var i = 0; i < StyleIndex.Count; i++) {
+                    for (var i = 0; i < 3 /* Count */; i++) {
                         if (styles[i] !== oldStyles[i]) {
                             isChanged = true;
                             break;
@@ -17877,7 +18035,7 @@ var Fayde;
                 if (!isChanged)
                     return;
 
-                var arr = (fe)._PropertyStorage;
+                var arr = fe._PropertyStorage;
 
                 var oldWalker = Fayde.MultipleStylesWalker(oldStyles);
                 var newWalker = Fayde.MultipleStylesWalker(styles);
@@ -17916,8 +18074,8 @@ var Fayde;
             };
 
             ImplicitStyleBroker.GetImplicitStyles = function (fe, mask) {
-                var feType = (fe).constructor;
-                var feTypeName = (feType)._TypeName;
+                var feType = fe.constructor;
+                var feTypeName = feType._TypeName;
 
                 var app = Fayde.Application.Current;
 
@@ -17925,7 +18083,7 @@ var Fayde;
                 if (app) {
                     if ((mask & StyleMask.GenericXaml) != 0) {
                         if (fe instanceof Fayde.Controls.Control) {
-                            genericXamlStyle = (fe).GetDefaultStyle();
+                            genericXamlStyle = fe.GetDefaultStyle();
                             if (!genericXamlStyle) {
                                 var styleKey = fe.DefaultStyleKey;
                                 if (styleKey)
@@ -17975,9 +18133,9 @@ var Fayde;
                 }
 
                 var styles = [];
-                styles[StyleIndex.GenericXaml] = genericXamlStyle;
-                styles[StyleIndex.ApplicationResources] = appResourcesStyle;
-                styles[StyleIndex.VisualTree] = visualTreeStyle;
+                styles[2 /* GenericXaml */] = genericXamlStyle;
+                styles[1 /* ApplicationResources */] = appResourcesStyle;
+                styles[0 /* VisualTree */] = visualTreeStyle;
                 return styles;
             };
             return ImplicitStyleBroker;
@@ -17994,7 +18152,7 @@ var Fayde;
             }
             LocalStyleBroker.Set = function (fe, newStyle) {
                 var holder = fe.XamlNode;
-                var arr = (fe)._PropertyStorage;
+                var arr = fe._PropertyStorage;
 
                 var oldWalker = Fayde.SingleStyleWalker(holder._LocalStyle);
                 var newWalker = Fayde.SingleStyleWalker(newStyle);
@@ -18067,7 +18225,7 @@ var Fayde;
                     var cycleFound = false;
                     if (rd === subtreeRoot)
                         cycleFound = true;
-else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
+                    else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
                         cycleFound = true;
 
                     if (cycleFound) {
@@ -18148,7 +18306,7 @@ else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
 
             var index = this._Keys.indexOf(key);
             var error = new BError();
-            if (value instanceof Fayde.XamlObject && !(value).XamlNode.AttachTo(this.XamlNode, error)) {
+            if (value instanceof Fayde.XamlObject && !value.XamlNode.AttachTo(this.XamlNode, error)) {
                 if (error.Message)
                     throw new Exception(error.Message);
                 return false;
@@ -18162,7 +18320,7 @@ else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
                 this._Keys[index] = key;
                 this._Values[index] = value;
                 if (oldValue instanceof Fayde.XamlObject)
-                    (oldValue).XamlNode.Detach();
+                    oldValue.XamlNode.Detach();
             }
             return true;
         };
@@ -18173,7 +18331,7 @@ else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
             this._Keys.splice(index, 1);
             var oldvalue = this._Values.splice(index, 1)[0];
             if (oldvalue instanceof Fayde.XamlObject)
-                (oldvalue).XamlNode.Detach();
+                oldvalue.XamlNode.Detach();
         };
 
         ResourceDictionary.prototype.GetEnumerator = function (reverse) {
@@ -18192,6 +18350,7 @@ else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
         Interfaces: [Fayde.IEnumerable_]
     });
 })(Fayde || (Fayde = {}));
+
 var MulticastEvent = (function () {
     function MulticastEvent() {
         this._Listeners = [];
@@ -18324,7 +18483,7 @@ var Fayde;
             set: function (value) {
                 if (this._IsCancelable)
                     this._Cancel = value;
-else if (value)
+                else if (value)
                     throw new InvalidOperationException("Not cancelable.");
             },
             enumerable: true,
@@ -18352,7 +18511,7 @@ var Fayde;
                 return;
             var enumerator = this.GetEnumerator();
             while (enumerator.MoveNext()) {
-                (enumerator.Current)._Seal(targetType);
+                enumerator.Current._Seal(targetType);
             }
             this._IsSealed = true;
         };
@@ -18462,12 +18621,12 @@ var Fayde;
         };
 
         Style.prototype.Validate = function (instance, error) {
-            var parentType = (instance).constructor;
+            var parentType = instance.constructor;
 
             if (this._IsSealed) {
                 if (!(instance instanceof this.TargetType)) {
                     error.Number = BError.XamlParse;
-                    error.Message = "Style.TargetType (" + (this.TargetType)._TypeName + ") is not a subclass of (" + (parentType)._TypeName + ")";
+                    error.Message = "Style.TargetType (" + this.TargetType._TypeName + ") is not a subclass of (" + parentType._TypeName + ")";
                     return false;
                 }
                 return true;
@@ -18497,12 +18656,12 @@ var Fayde;
                         return false;
                     } else if (!Nullstone.DoesInheritFrom(parentType, targetType)) {
                         error.Number = BError.XamlParse;
-                        error.Message = "Style.TargetType (" + (targetType)._TypeName + ") is not a subclass of (" + (parentType)._TypeName + ")";
+                        error.Message = "Style.TargetType (" + targetType._TypeName + ") is not a subclass of (" + parentType._TypeName + ")";
                         return false;
                     }
                 } else if (!targetType || !Nullstone.DoesInheritFrom(parentType, targetType)) {
                     error.Number = BError.InvalidOperation;
-                    error.Message = "Style.TargetType (" + (targetType ? (targetType)._TypeName : "<Not Specified>") + ") is not a subclass of (" + (parentType)._TypeName + ")";
+                    error.Message = "Style.TargetType (" + (targetType ? targetType._TypeName : "<Not Specified>") + ") is not a subclass of (" + parentType._TypeName + ")";
                     return false;
                 }
                 parentType = targetType;
@@ -18650,6 +18809,12 @@ var Fayde;
         function TriggerActionCollection() {
             _super.apply(this, arguments);
         }
+        TriggerActionCollection.prototype.Fire = function () {
+            var enumerator = this.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                enumerator.Current.Fire();
+            }
+        };
         return TriggerActionCollection;
     })(Fayde.XamlObjectCollection);
     Fayde.TriggerActionCollection = TriggerActionCollection;
@@ -18680,8 +18845,9 @@ var Fayde;
     var EventTrigger = (function (_super) {
         __extends(EventTrigger, _super);
         function EventTrigger() {
-            _super.apply(this, arguments);
+            _super.call(this);
             this._IsAttached = false;
+            EventTrigger.ActionsProperty.Initialize(this);
         }
         EventTrigger.prototype.Attach = function (target) {
             if (this._IsAttached)
@@ -18703,12 +18869,8 @@ var Fayde;
 
         EventTrigger.prototype._FireActions = function (sender, e) {
             var actions = this.Actions;
-            if (!actions)
-                return;
-            var enumerator = actions.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (enumerator.Current);
-            }
+            if (actions)
+                actions.Fire();
         };
 
         EventTrigger.prototype._ParseEventName = function (target) {
@@ -18716,9 +18878,9 @@ var Fayde;
             var tokens = routedEventName.split(".");
             if (tokens.length === 1)
                 routedEventName = tokens[0];
-else if (tokens.length === 2)
+            else if (tokens.length === 2)
                 routedEventName = tokens[1];
-else
+            else
                 return undefined;
 
             var evt = target[routedEventName];
@@ -18726,7 +18888,7 @@ else
                 return evt;
             return undefined;
         };
-        EventTrigger.ActionsProperty = DependencyProperty.Register("Actions", function () {
+        EventTrigger.ActionsProperty = DependencyProperty.RegisterImmutable("Actions", function () {
             return TriggerActionCollection;
         }, EventTrigger);
         EventTrigger.RoutedEventProperty = DependencyProperty.Register("RoutedEvent", function () {
@@ -18777,13 +18939,13 @@ else
         TriggerCollection.prototype.AttachTarget = function (target) {
             var enumerator = this.GetEnumerator();
             while (enumerator.MoveNext()) {
-                (enumerator.Current).Attach(target);
+                enumerator.Current.Attach(target);
             }
         };
         TriggerCollection.prototype.DetachTarget = function (target) {
             var enumerator = this.GetEnumerator();
             while (enumerator.MoveNext()) {
-                (enumerator.Current).Detach(target);
+                enumerator.Current.Detach(target);
             }
         };
         return TriggerCollection;
@@ -18803,14 +18965,14 @@ var Fayde;
         VisualTreeHelper.GetParent = function (d) {
             if (!(d instanceof Fayde.FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
-            var parentNode = (d).XamlNode.VisualParentNode;
+            var parentNode = d.XamlNode.VisualParentNode;
             if (parentNode)
                 return parentNode.XObject;
         };
         VisualTreeHelper.GetParentOfType = function (d, type) {
             if (!(d instanceof Fayde.FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
-            var curNode = (d).XamlNode;
+            var curNode = d.XamlNode;
             while ((curNode = curNode.VisualParentNode)) {
                 if (curNode instanceof type)
                     return curNode.XObject;
@@ -18820,7 +18982,7 @@ var Fayde;
         VisualTreeHelper.GetRoot = function (d) {
             if (!(d instanceof Fayde.FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
-            var rootNode = (d).XamlNode.GetVisualRoot();
+            var rootNode = d.XamlNode.GetVisualRoot();
             if (rootNode)
                 return rootNode.XObject;
         };
@@ -18832,7 +18994,7 @@ var Fayde;
             var subtreeNode = feNode.SubtreeNode;
             var subtree = subtreeNode.XObject;
             if (subtree instanceof Fayde.XamlObjectCollection)
-                return (subtree).GetValueAt(childIndex);
+                return subtree.GetValueAt(childIndex);
 
             if ((subtree instanceof Fayde.UIElement) && childIndex === 0)
                 return subtree;
@@ -18847,7 +19009,7 @@ var Fayde;
             var subtreeNode = feNode.SubtreeNode;
             var subtree = subtreeNode.XObject;
             if (subtreeNode.XObject instanceof Fayde.XamlObjectCollection)
-                return (subtree).Count;
+                return subtree.Count;
 
             if (subtree instanceof Fayde.UIElement)
                 return 1;
@@ -18863,11 +19025,11 @@ var Fayde;
         VisualTreeHelper.__Debug = function (ui, func) {
             var uin;
             if (ui instanceof Fayde.UIElement) {
-                uin = (ui).XamlNode;
+                uin = ui.XamlNode;
             } else if (ui instanceof Fayde.UINode) {
                 uin = ui;
             } else if (ui instanceof Fayde.LayoutUpdater) {
-                uin = (ui).Node;
+                uin = ui.Node;
             }
 
             var topNode;
@@ -18897,8 +19059,8 @@ var Fayde;
             }
 
             var cur = curNode.XObject;
-            str += (cur).constructor._TypeName;
-            var id = (cur)._ID;
+            str += cur.constructor._TypeName;
+            var id = cur._ID;
             if (id)
                 str += "[" + id + "]";
             var name = curNode.Name;
@@ -18906,9 +19068,9 @@ var Fayde;
             var ns = curNode.NameScope;
             if (!ns)
                 str += "^";
-else if (ns.IsRoot)
+            else if (ns.IsRoot)
                 str += "+";
-else
+            else
                 str += "-";
             str += name + "]";
             ;
@@ -18933,9 +19095,9 @@ else
                 return "";
             var uie = uin.XObject;
             var str = "(";
-            if (uie.Visibility === Fayde.Visibility.Visible)
+            if (uie.Visibility === 0 /* Visible */)
                 str += "Visible";
-else
+            else
                 str += "Collapsed";
 
             var lu = uin.LayoutUpdater;
@@ -18957,7 +19119,7 @@ else
         };
         VisualTreeHelper.__DebugGrid = function (uin, tabIndex) {
             var grid;
-            if (uin instanceof Fayde.Controls.GridNode)
+            if (uin.XObject instanceof Fayde.Controls.Grid)
                 grid = uin.XObject;
             if (!grid)
                 return "";
@@ -19005,7 +19167,7 @@ else
         VisualTreeHelper.__DebugUIElementLayout = function (uin, tabIndex) {
             if (!uin)
                 return "";
-            return (uin.LayoutUpdater)._DebugLayout();
+            return uin.LayoutUpdater._DebugLayout();
         };
 
         VisualTreeHelper.__DebugLayout = function (ui) {
@@ -19021,7 +19183,7 @@ else
             var walker = Fayde.DeepTreeWalker(topNode);
             var curNode;
             while (curNode = walker.Step()) {
-                if ((curNode.XObject)._ID === id)
+                if (curNode.XObject._ID === id)
                     return curNode.XObject;
             }
         };
@@ -19098,7 +19260,7 @@ var Fayde;
 
     function DeepTreeWalker(topNode, direction) {
         var last = undefined;
-        var dir = Fayde.VisualTreeDirection.Logical;
+        var dir = 0 /* Logical */;
         var walkList = [topNode];
         if (direction)
             dir = direction;
@@ -19149,18 +19311,18 @@ var Fayde;
     function getParentNavigationMode(uin) {
         while (uin) {
             if (uin instanceof Fayde.Controls.ControlNode)
-                return (uin).XObject.TabNavigation;
-            return Fayde.Input.KeyboardNavigationMode.Local;
+                return uin.XObject.TabNavigation;
+            return 5 /* Local */;
         }
-        return Fayde.Input.KeyboardNavigationMode.Local;
+        return 5 /* Local */;
     }
     function getActiveNavigationMode(uin) {
         while (uin) {
             if (uin instanceof Fayde.Controls.ControlNode)
-                return (uin).XObject.TabNavigation;
+                return uin.XObject.TabNavigation;
             uin = uin.VisualParentNode;
         }
-        return Fayde.Input.KeyboardNavigationMode.Local;
+        return 5 /* Local */;
     }
     function walkChildren(root, cur, forwards) {
         var walker = new TabNavigationWalker(root, cur, forwards);
@@ -19198,27 +19360,27 @@ var Fayde;
                     curIndex = i;
             }
 
-            if (curIndex !== -1 && getActiveNavigationMode(this._Root) === Fayde.Input.KeyboardNavigationMode.Once) {
+            if (curIndex !== -1 && getActiveNavigationMode(this._Root) === 1 /* Once */) {
                 if (!this._Forwards && this._Root instanceof Fayde.Controls.ControlNode)
-                    return (this._Root).TabTo();
+                    return this._Root.TabTo();
                 return false;
             }
 
             var len = this._TabSorted.length;
             if (len > 0) {
                 for (var j = 0; j < len; j++) {
-                    if ((j + curIndex + 1) === len && getActiveNavigationMode(this._Root) !== Fayde.Input.KeyboardNavigationMode.Cycle)
+                    if ((j + curIndex + 1) === len && getActiveNavigationMode(this._Root) !== 2 /* Cycle */)
                         break;
                     childNode = this._TabSorted[(j + curIndex + 1) % len];
                     childIsControl = childNode instanceof Fayde.Controls.ControlNode;
 
-                    if (childIsControl && !(childNode).XObject.IsEnabled)
+                    if (childIsControl && !childNode.XObject.IsEnabled)
                         continue;
 
                     if (!this._Forwards && walkChildren(childNode))
                         return true;
 
-                    if (childIsControl && (childNode).TabTo())
+                    if (childIsControl && childNode.TabTo())
                         return true;
 
                     if (this._Forwards && walkChildren(childNode))
@@ -19228,7 +19390,7 @@ var Fayde;
 
             if (curIndex !== -1 && !this._Forwards) {
                 if (this._Root instanceof Fayde.Controls.ControlNode)
-                    return (this._Root).TabTo();
+                    return this._Root.TabTo();
             }
 
             return false;
@@ -19239,7 +19401,7 @@ var Fayde;
             var cur = uin;
             var root = uin;
 
-            if ((root.VisualParentNode && getParentNavigationMode(root.VisualParentNode) === Fayde.Input.KeyboardNavigationMode.Once) || (!forwards && root && root.VisualParentNode)) {
+            if ((root.VisualParentNode && getParentNavigationMode(root.VisualParentNode) === 1 /* Once */) || (!forwards && root && root.VisualParentNode)) {
                 while (root = root.VisualParentNode)
                     if (root instanceof Fayde.Controls.ControlNode || !root.VisualParentNode)
                         break;
@@ -19248,7 +19410,7 @@ var Fayde;
             do {
                 focused = focused || walkChildren(root, cur, forwards);
 
-                if (!focused && getActiveNavigationMode(root) === Fayde.Input.KeyboardNavigationMode.Cycle)
+                if (!focused && getActiveNavigationMode(root) === 2 /* Cycle */)
                     return true;
 
                 cur = root;
@@ -19277,15 +19439,15 @@ var Fayde;
                 this._FallbackValue = undefined;
                 this._TargetNullValue = undefined;
                 this._BindsDirectlyToSource = false;
-                this._Mode = Data.BindingMode.OneWay;
+                this._Mode = 1 /* OneWay */;
                 this._NotifyOnValidationError = false;
-                this._UpdateSourceTrigger = Data.UpdateSourceTrigger.Default;
+                this._UpdateSourceTrigger = 0 /* Default */;
                 this._ValidatesOnExceptions = false;
                 this._ValidatesOnDataErrors = false;
                 this._ValidatesOnNotifyDataErrors = true;
                 if (!path)
                     path = "";
-                this._Path = new Data.PropertyPath(path);
+                this._Path = new Fayde.Data.PropertyPath(path);
             }
             Object.defineProperty(Binding.prototype, "BindsDirectlyToSource", {
                 get: function () {
@@ -19501,7 +19663,7 @@ var Fayde;
             };
 
             Binding.prototype.Transmute = function (ctx) {
-                return new Data.BindingExpression(this, ctx.Owner, ctx.Property);
+                return new Fayde.Data.BindingExpression(this, ctx.Owner, ctx.Property);
             };
             return Binding;
         })();
@@ -19548,14 +19710,14 @@ var Fayde;
                     writable: false
                 });
 
-                if (target instanceof Fayde.Controls.TextBox && binding.Mode === Data.BindingMode.TwoWay)
+                if (target instanceof Fayde.Controls.TextBox && binding.Mode === 0 /* TwoWay */)
                     this._TwoWayTextBox = target;
 
                 this._IsDataContextBound = !binding.ElementName && !binding.Source && !binding.RelativeSource;
 
                 var bindsToView = propd === Fayde.DependencyObject.DataContextProperty || propd.GetTargetType() === Fayde.IEnumerable_ || propd.GetTargetType() === Fayde.Data.ICollectionView_;
-                var walker = this.PropertyPathWalker = new Data.PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this._IsDataContextBound);
-                if (binding.Mode !== Data.BindingMode.OneTime)
+                var walker = this.PropertyPathWalker = new Fayde.Data.PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this._IsDataContextBound);
+                if (binding.Mode !== 2 /* OneTime */)
                     walker.Listen(this);
             };
 
@@ -19581,7 +19743,7 @@ var Fayde;
                 if (this.IsAttached)
                     return;
                 if (Fayde.Data.Debug && window.console)
-                    console.log("[BINDING] OnAttached: [" + (element).constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
+                    console.log("[BINDING] OnAttached: [" + element.constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
 
                 _super.prototype.OnAttached.call(this, element);
 
@@ -19595,13 +19757,13 @@ var Fayde;
                     });
                 } else if (this.ParentBinding.RelativeSource) {
                     switch (this.ParentBinding.RelativeSource.Mode) {
-                        case Data.RelativeSourceMode.Self:
+                        case 2 /* Self */:
                             source = this.Target;
                             break;
-                        case Data.RelativeSourceMode.TemplatedParent:
+                        case 1 /* TemplatedParent */:
                             source = this.Target.TemplateOwner;
                             break;
-                        case Data.RelativeSourceMode.FindAncestor:
+                        case 3 /* FindAncestor */:
                             break;
                     }
                 } else {
@@ -19612,7 +19774,7 @@ var Fayde;
                 if (this._TwoWayTextBox)
                     this._TwoWayTextBox.LostFocus.Subscribe(this._TextBoxLostFocus, this);
 
-                if (this.ParentBinding.Mode === Data.BindingMode.TwoWay && this.Property.IsCustom) {
+                if (this.ParentBinding.Mode === 0 /* TwoWay */ && this.Property.IsCustom) {
                     this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
                 }
             };
@@ -19636,7 +19798,7 @@ var Fayde;
                         return sourceNode.XObject;
                     if (xnode.XObject.TemplateOwner)
                         xobj = xnode.XObject.TemplateOwner;
-else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItemsOwner(parentNode.XObject))
+                    else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItemsOwner(parentNode.XObject))
                         xnode = parentNode;
                     break;
                 }
@@ -19647,7 +19809,7 @@ else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItems
                 if (!this.IsAttached)
                     return;
                 if (Fayde.Data.Debug && window.console)
-                    console.log("[BINDING] OnDetached: [" + (element).constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
+                    console.log("[BINDING] OnDetached: [" + element.constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
 
                 _super.prototype.OnDetached.call(this, element);
 
@@ -19674,12 +19836,12 @@ else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItems
                 return this._UpdateSourceObject(undefined, true);
             };
             BindingExpressionBase.prototype._TryUpdateSourceObject = function (value) {
-                if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === Data.UpdateSourceTrigger.Default)
+                if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === 0 /* Default */)
                     this._UpdateSourceObject(value, false);
             };
             BindingExpressionBase.prototype._UpdateSourceCallback = function (sender, args) {
                 try  {
-                    if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === Data.UpdateSourceTrigger.Default)
+                    if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === 0 /* Default */)
                         this._UpdateSourceObject(this.Target.GetValue(this.Property), false);
                 } catch (err) {
                     console.warn("[BINDING] UpdateSource: " + err.toString());
@@ -19693,7 +19855,7 @@ else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItems
                     value = this.Target.GetValue(this.Property);
                 force = force === true;
                 var binding = this.ParentBinding;
-                if (binding.Mode !== Data.BindingMode.TwoWay)
+                if (binding.Mode !== 0 /* TwoWay */)
                     return;
 
                 var dataError;
@@ -19746,7 +19908,7 @@ else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItems
             };
             BindingExpressionBase.prototype.OnDataContextChanged = function (newDataContext) {
                 if (Fayde.Data.Debug && window.console)
-                    console.log("[BINDING] DataContextChanged: [" + (this.Target)._ID + ":" + (this.Target).constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
+                    console.log("[BINDING] DataContextChanged: [" + this.Target._ID + ":" + this.Target.constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
 
                 if (this._DataContext === newDataContext)
                     return;
@@ -19758,7 +19920,7 @@ else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItems
                     Fayde.Data.DataContextCounter++;
                 try  {
                     this.PropertyPathWalker.Update(newDataContext);
-                    if (this.ParentBinding.Mode === Data.BindingMode.OneTime)
+                    if (this.ParentBinding.Mode === 2 /* OneTime */)
                         this.Refresh();
                 } catch (err) {
                     console.warn("[BINDING] DataContextChanged Error: " + err.message);
@@ -19785,7 +19947,7 @@ else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItems
                     if (this.ParentBinding.ValidatesOnExceptions) {
                         exception = err;
                         if (exception instanceof TargetInvocationException)
-                            exception = (exception).InnerException;
+                            exception = exception.InnerException;
                     }
                 } finally {
                     this.IsUpdating = oldUpdating;
@@ -19802,10 +19964,11 @@ else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItems
                 return value;
             };
             BindingExpressionBase.prototype._ConvertToType = function (propd, value) {
+                var targetType = this.Property.GetTargetType();
                 try  {
                     var binding = this.ParentBinding;
                     if (!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
-                        value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
+                        value = binding.Converter.Convert(value, targetType, binding.ConverterParameter, binding.ConverterCulture);
                     }
                     if (value === DependencyProperty.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
                         value = binding.FallbackValue;
@@ -19825,9 +19988,9 @@ else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItems
                     }
                 } catch (err) {
                     console.warn("[BINDING]" + err.toString());
-                    return Fayde.ConvertAnyToType(binding.FallbackValue, propd.GetTargetType());
+                    value = binding.FallbackValue;
                 }
-                return value;
+                return Fayde.ConvertAnyToType(value, targetType);
             };
 
             BindingExpressionBase.prototype._MaybeEmitError = function (message, exception) {
@@ -19857,7 +20020,7 @@ var Fayde;
                 _super.call(this, binding, target, propd);
             }
             return BindingExpression;
-        })(Data.BindingExpressionBase);
+        })(Fayde.Data.BindingExpressionBase);
         Data.BindingExpression = BindingExpression;
         Fayde.RegisterType(BindingExpression, {
             Name: "BindingExpression",
@@ -19878,7 +20041,7 @@ var Fayde;
                 return Object;
             }, CollectionViewSource);
             CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () {
-                return Data.ICollectionView_;
+                return Fayde.Data.ICollectionView_;
             }, CollectionViewSource);
             return CollectionViewSource;
         })(Fayde.DependencyObject);
@@ -19947,8 +20110,7 @@ var Fayde;
                     Fayde.Media,
                     Fayde.Controls.Primitives,
                     Fayde.Shapes,
-                    window
-                ];
+                    window];
             }
 
             var len = lookupNamespaces.length;
@@ -20023,7 +20185,7 @@ var Fayde;
                 return false;
             }
 
-            if ((value = (data.collection).GetValueAt(data.i)) == null)
+            if ((value = data.collection.GetValueAt(data.i)) == null)
                 return false;
 
             if (value instanceof Fayde.DependencyObject) {
@@ -20054,7 +20216,7 @@ var Fayde;
             }
 
             if (data.index === data.end) {
-                data.type = (data.lu).constructor;
+                data.type = data.lu.constructor;
             } else {
                 c = data.path.charAt(data.index);
                 if (c === '.') {
@@ -20070,7 +20232,7 @@ var Fayde;
                         data.type = lookupType(name);
                         data.explicitType = true;
                         if (!data.type)
-                            data.type = (data.lu).constructor;
+                            data.type = data.lu.constructor;
                     }
                     data.index++;
                     start = data.index;
@@ -20088,7 +20250,7 @@ var Fayde;
                     if (data.index === start)
                         return false;
                 } else {
-                    data.type = (data.lu).constructor;
+                    data.type = data.lu.constructor;
                     data.explicitType = false;
                 }
 
@@ -20098,13 +20260,13 @@ var Fayde;
             }
             name = data.path.slice(start, data.index);
             if ((data.res = DependencyProperty.GetDependencyProperty(data.type, name)) == null && data.lu)
-                data.res = DependencyProperty.GetDependencyProperty((data.lu).constructor, name);
+                data.res = DependencyProperty.GetDependencyProperty(data.lu.constructor, name);
 
             if (data.res == null)
                 return false;
 
             if (!data.res.IsAttached && !(data.lu instanceof data.type)) {
-                if ((data.res = DependencyProperty.GetDependencyProperty((data.lu).constructor, name)) == null)
+                if ((data.res = DependencyProperty.GetDependencyProperty(data.lu.constructor, name)) == null)
                     return false;
             }
 
@@ -20216,7 +20378,7 @@ var Fayde;
                     } else if (c === '\'') {
                         if (!propertyPath.ExpandedPath)
                             Warn("The ' character is not legal in property paths.");
-else
+                        else
                             data.tickOpen = !data.tickOpen;
                     } else if (c === '.') {
                         success = handlePeriod(data);
@@ -20271,7 +20433,7 @@ var Fayde;
                 this.Path = path;
             }
             PropertyPathParser.prototype.Step = function (data) {
-                var type = PropertyNodeType.None;
+                var type = 0 /* None */;
                 var path = this.Path;
                 if (path.length === 0) {
                     data.typeName = null;
@@ -20282,7 +20444,7 @@ var Fayde;
 
                 var end = 0;
                 if (path.charAt(0) === '(') {
-                    type = PropertyNodeType.AttachedProperty;
+                    type = 1 /* AttachedProperty */;
                     end = path.indexOf(')');
                     if (end === -1)
                         throw new ArgumentException("Invalid property path. Attached property is missing the closing bracket");
@@ -20325,7 +20487,7 @@ var Fayde;
                         end++;
                     path = path.substr(end + 1);
                 } else if (path.charAt(0) === '[') {
-                    type = PropertyNodeType.Indexed;
+                    type = 2 /* Indexed */;
                     end = path.indexOf(']');
 
                     data.typeName = null;
@@ -20335,7 +20497,7 @@ var Fayde;
                     if (path.charAt(0) === '.')
                         path = path.substr(1);
                 } else {
-                    type = PropertyNodeType.Property;
+                    type = 3 /* Property */;
                     end = indexOfAny(path, ['.', '[']);
 
                     if (end === -1) {
@@ -20345,7 +20507,7 @@ var Fayde;
                         data.propertyName = path.substr(0, end);
                         if (path.charAt(end) === '.')
                             path = path.substr(end + 1);
-else
+                        else
                             path = path.substr(end);
                     }
 
@@ -20402,18 +20564,18 @@ var Fayde;
                         index: undefined
                     };
                     var type;
-                    var parser = new Data.PropertyPathParser(path);
-                    while ((type = parser.Step(data)) !== Data.PropertyNodeType.None) {
+                    var parser = new Fayde.Data.PropertyPathParser(path);
+                    while ((type = parser.Step(data)) !== 0 /* None */) {
                         var isViewProperty = false;
 
                         var node = createCollectionViewNode(bindDirectlyToSource, isViewProperty);
                         lastCVNode = node;
                         switch (type) {
-                            case Data.PropertyNodeType.AttachedProperty:
-                            case Data.PropertyNodeType.Property:
+                            case 1 /* AttachedProperty */:
+                            case 3 /* Property */:
                                 node.Next = createStandardNode(data.typeName, data.propertyName);
                                 break;
-                            case Data.PropertyNodeType.Indexed:
+                            case 2 /* Indexed */:
                                 node.Next = createIndexedNode(data.index);
                                 break;
                             default:
@@ -20422,7 +20584,7 @@ var Fayde;
 
                         if (this.FinalNode)
                             this.FinalNode.Next = node;
-else
+                        else
                             this.Node = node;
                         this.FinalNode = node.Next;
                     }
@@ -20554,11 +20716,11 @@ else
                 if (value == null || !Nullstone.Equals(value, this._Source)) {
                     var oldSource = this._Source;
                     if (oldSource && Nullstone.ImplementsInterface(oldSource, Fayde.INotifyPropertyChanged_))
-                        (oldSource).PropertyChanged.Unsubscribe(this.OnSourcePropertyChanged, this);
+                        oldSource.PropertyChanged.Unsubscribe(this.OnSourcePropertyChanged, this);
 
                     this._Source = value;
                     if (this._Source && Nullstone.ImplementsInterface(this._Source, Fayde.INotifyPropertyChanged_)) {
-                        (this._Source).PropertyChanged.Subscribe(this.OnSourcePropertyChanged, this);
+                        this._Source.PropertyChanged.Subscribe(this.OnSourcePropertyChanged, this);
                     }
 
                     this.OnSourceChanged(oldSource, this._Source);
@@ -20603,14 +20765,14 @@ else
             }
             StandardPropertyPathNode.prototype.SetValue = function (value) {
                 if (this.DependencyProperty)
-                    (this.Source).SetValue(this.DependencyProperty, value);
-else if (this.PropertyInfo)
+                    this.Source.SetValue(this.DependencyProperty, value);
+                else if (this.PropertyInfo)
                     this.PropertyInfo.SetValue(this.Source, value);
             };
             StandardPropertyPathNode.prototype.UpdateValue = function () {
                 if (this.DependencyProperty) {
                     this.ValueType = this.DependencyProperty.GetTargetType();
-                    this.UpdateValueAndIsBroken((this.Source).GetValue(this.DependencyProperty), this._CheckIsBroken());
+                    this.UpdateValueAndIsBroken(this.Source.GetValue(this.DependencyProperty), this._CheckIsBroken());
                 } else if (this.PropertyInfo) {
                     this.ValueType = null;
                     try  {
@@ -20711,10 +20873,10 @@ else if (this.PropertyInfo)
                 } else {
                     var usableSource = this.Source;
                     var view;
-                    if (this.Source instanceof Data.CollectionViewSource) {
+                    if (this.Source instanceof Fayde.Data.CollectionViewSource) {
                         usableSource = null;
                         view = this.Source.View;
-                    } else if (Nullstone.ImplementsInterface(this.Source, Data.ICollectionView_)) {
+                    } else if (Nullstone.ImplementsInterface(this.Source, Fayde.Data.ICollectionView_)) {
                         view = this.Source;
                     }
 
@@ -20737,11 +20899,11 @@ else if (this.PropertyInfo)
             };
 
             CollectionViewNode.prototype.ConnectViewHandlers = function (source, view) {
-                if (source instanceof Data.CollectionViewSource) {
-                    this._ViewPropertyListener = Data.CollectionViewSource.ViewProperty.Store.ListenToChanged(source, Data.CollectionViewSource.ViewProperty, this.ViewChanged, this);
+                if (source instanceof Fayde.Data.CollectionViewSource) {
+                    this._ViewPropertyListener = Fayde.Data.CollectionViewSource.ViewProperty.Store.ListenToChanged(source, Fayde.Data.CollectionViewSource.ViewProperty, this.ViewChanged, this);
                     view = source.View;
                 }
-                if (Nullstone.ImplementsInterface(view, Data.ICollectionView_)) {
+                if (Nullstone.ImplementsInterface(view, Fayde.Data.ICollectionView_)) {
                     this._View = view;
                     this._View.CurrentChanged.Subscribe(this.ViewCurrentChanged, this);
                 }
@@ -20771,7 +20933,7 @@ else if (this.PropertyInfo)
                 var val = parseInt(index, 10);
                 if (isNaN(val))
                     this._Index = index;
-else
+                else
                     this._Index = val;
             }
             Object.defineProperty(IndexedPropertyPathNode.prototype, "Index", {
@@ -20823,7 +20985,7 @@ else
                 }
 
                 if (Nullstone.ImplementsInterface(newSource, Fayde.Collections.INotifyCollectionChanged_)) {
-                    (newSource).CollectionChanged.Subscribe(this.CollectionChanged, this);
+                    newSource.CollectionChanged.Subscribe(this.CollectionChanged, this);
                 }
 
                 this._GetIndexer();
@@ -20851,7 +21013,7 @@ var Fayde;
     (function (Data) {
         var RelativeSource = (function () {
             function RelativeSource(mode) {
-                this.Mode = Data.RelativeSourceMode.TemplatedParent;
+                this.Mode = 1 /* TemplatedParent */;
                 this.AncestorLevel = 1;
                 this.AncestorType = null;
                 if (mode)
@@ -20951,14 +21113,14 @@ var Fayde;
             });
             Object.defineProperty(TextElement.prototype, "Direction", {
                 get: function () {
-                    return Fayde.FlowDirection.LeftToRight;
+                    return 0 /* LeftToRight */;
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(TextElement.prototype, "IsUnderlined", {
                 get: function () {
-                    return (this.TextDecorations & Fayde.TextDecorations.Underline) > 0;
+                    return (this.TextDecorations & 1 /* Underline */) > 0;
                 },
                 enumerable: true,
                 configurable: true
@@ -21024,7 +21186,7 @@ var Fayde;
                 _super.apply(this, arguments);
             }
             return Block;
-        })(Documents.TextElement);
+        })(Fayde.Documents.TextElement);
         Documents.Block = Block;
         Fayde.RegisterType(Block, {
             Name: "Block",
@@ -21080,7 +21242,7 @@ var Fayde;
                 this.Autogen = false;
             }
             return Inline;
-        })(Documents.TextElement);
+        })(Fayde.Documents.TextElement);
         Documents.Inline = Inline;
         Fayde.RegisterType(Inline, {
             Name: "Inline",
@@ -21135,7 +21297,7 @@ var Fayde;
                 _super.apply(this, arguments);
             }
             return LineBreak;
-        })(Documents.Inline);
+        })(Fayde.Documents.Inline);
         Documents.LineBreak = LineBreak;
         Fayde.RegisterType(LineBreak, {
             Name: "LineBreak",
@@ -21157,7 +21319,7 @@ var Fayde;
                 coll.Listen(this);
             }
             Paragraph.prototype.CreateNode = function () {
-                return new Documents.TextElementNode(this, "Inlines");
+                return new Fayde.Documents.TextElementNode(this, "Inlines");
             };
 
             Paragraph.prototype.InlinesChanged = function (newInline, isAdd) {
@@ -21165,12 +21327,12 @@ var Fayde;
                     Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
             };
             Paragraph.InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", function () {
-                return Documents.InlineCollection;
+                return Fayde.Documents.InlineCollection;
             }, Paragraph);
 
             Paragraph.Annotations = { ContentProperty: Paragraph.InlinesProperty };
             return Paragraph;
-        })(Documents.Block);
+        })(Fayde.Documents.Block);
         Documents.Paragraph = Paragraph;
         Fayde.RegisterType(Paragraph, {
             Name: "Paragraph",
@@ -21195,14 +21357,14 @@ var Fayde;
             Run.prototype.IsInheritable = function (propd) {
                 if (propd === Run.FlowDirectionProperty)
                     return true;
-                return (_super.prototype).IsInheritable.call(this, propd);
+                return _super.prototype.IsInheritable.call(this, propd);
             };
             Run.FlowDirectionProperty = Fayde.InheritableOwner.FlowDirectionProperty.ExtendTo(Run);
             Run.TextProperty = DependencyProperty.Register("Text", function () {
                 return String;
             }, Run);
             return Run;
-        })(Documents.Inline);
+        })(Fayde.Documents.Inline);
         Documents.Run = Run;
         Fayde.RegisterType(Run, {
             Name: "Run",
@@ -21224,7 +21386,7 @@ var Fayde;
                 coll.Listen(this);
             }
             Section.prototype.CreateNode = function () {
-                return new Documents.TextElementNode(this, "Blocks");
+                return new Fayde.Documents.TextElementNode(this, "Blocks");
             };
 
             Section.prototype.BlocksChanged = function (newBlock, isAdd) {
@@ -21232,12 +21394,12 @@ var Fayde;
                     Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this, newBlock.XamlNode);
             };
             Section.BlocksProperty = DependencyProperty.RegisterImmutable("Blocks", function () {
-                return Documents.BlockCollection;
+                return Fayde.Documents.BlockCollection;
             }, Section);
 
             Section.Annotations = { ContentProperty: Section.BlocksProperty };
             return Section;
-        })(Documents.TextElement);
+        })(Fayde.Documents.TextElement);
         Documents.Section = Section;
         Fayde.RegisterType(Section, {
             Name: "Section",
@@ -21259,7 +21421,7 @@ var Fayde;
                 coll.Listen(this);
             }
             Span.prototype.CreateNode = function () {
-                return new Documents.TextElementNode(this, "Inlines");
+                return new Fayde.Documents.TextElementNode(this, "Inlines");
             };
 
             Span.prototype.InlinesChanged = function (newInline, isAdd) {
@@ -21271,17 +21433,17 @@ var Fayde;
                 var str = "";
                 var enumerator = this.Inlines.GetEnumerator();
                 while (enumerator.MoveNext()) {
-                    str += (enumerator.Current)._SerializeText();
+                    str += enumerator.Current._SerializeText();
                 }
                 return str;
             };
             Span.InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", function () {
-                return Documents.InlineCollection;
+                return Fayde.Documents.InlineCollection;
             }, Span);
 
             Span.Annotations = { ContentProperty: Span.InlinesProperty };
             return Span;
-        })(Documents.Inline);
+        })(Fayde.Documents.Inline);
         Documents.Span = Span;
         Fayde.RegisterType(Span, {
             Name: "Span",
@@ -21300,7 +21462,7 @@ var Fayde;
                 _super.apply(this, arguments);
             }
             return Underline;
-        })(Documents.Span);
+        })(Fayde.Documents.Span);
         Documents.Underline = Underline;
         Fayde.RegisterType(Underline, {
             Name: "Underline",
@@ -21310,6 +21472,7 @@ var Fayde;
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));
+
 var Fayde;
 (function (Fayde) {
     var Application = (function (_super) {
@@ -21433,13 +21596,13 @@ var Fayde;
     function doOnReady(onReady) {
         if (document.addEventListener) {
             document.addEventListener("DOMContentLoaded", function () {
-                (document).removeEventListener("DOMContentLoaded", arguments.callee, false);
+                document.removeEventListener("DOMContentLoaded", arguments.callee, false);
                 onReady();
             }, false);
         } else if (document.attachEvent) {
             document.attachEvent("onreadystatechange", function () {
                 if (document.readyState === "complete") {
-                    (document).detachEvent("onreadystatechange", arguments.callee);
+                    document.detachEvent("onreadystatechange", arguments.callee);
                     onReady();
                 }
             });
@@ -21470,7 +21633,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     var requestAnimFrame = (function () {
-        return window.requestAnimationFrame || (window).webkitRequestAnimationFrame || (window).mozRequestAnimationFrame || (window).oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
+        return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
             window.setTimeout(callback, 1000 / 200);
         };
     })();
@@ -21563,7 +21726,7 @@ var Fayde;
             };
 
             var surface = this.Surface;
-            var layers = (surface)._Layers;
+            var layers = surface._Layers;
             var layerCount = layers.length;
             var children;
             for (var i = 0; i < layerCount; i++) {
@@ -21592,8 +21755,8 @@ var Fayde;
                 Node: node,
                 Visual: uie,
                 Children: [],
-                ID: (uie)._ID,
-                TypeName: (uie).constructor._TypeName,
+                ID: uie._ID,
+                TypeName: uie.constructor._TypeName,
                 Name: uie.Name
             };
         };
@@ -21609,7 +21772,7 @@ var Fayde;
         };
         DebugInterop.prototype.GenerateDPCache = function () {
             var dpCache = [];
-            var reg = (DependencyProperty)._IDs;
+            var reg = DependencyProperty._IDs;
             for (var id in reg) {
                 dpCache.push(reg[id]);
             }
@@ -21619,7 +21782,7 @@ var Fayde;
         DebugInterop.prototype.GetStorages = function (id) {
             var c = this.GetById(id);
             var uie = c.Visual;
-            var storage = (uie)._PropertyStorage;
+            var storage = uie._PropertyStorage;
             var value;
             var arr = [];
             for (var key in storage) {
@@ -21635,7 +21798,7 @@ var Fayde;
                     Local: s.Local,
                     LocalStyleValue: s.LocalStyleValue,
                     ImplicitStyleValue: s.ImplicitStyleValue,
-                    InheritedValue: (s).InheritedValue
+                    InheritedValue: s.InheritedValue
                 };
             });
             var visited = [];
@@ -21676,7 +21839,7 @@ var Fayde;
             var child;
             for (var i = 0; i < len; i++) {
                 child = children[i];
-                if ((child.Visual)._ID === id)
+                if (child.Visual._ID === id)
                     return child;
                 found = this.GetById(id, child);
                 if (found)
@@ -21706,14 +21869,14 @@ var Fayde;
             if (!this._CachedHitTest)
                 return "[]";
             var mapped = this._CachedHitTest.map(function (uin) {
-                return (uin.XObject)._ID;
+                return uin.XObject._ID;
             });
             return JSON.stringify(mapped);
         };
 
         DebugInterop._StringifyReplacer = function (key, value, visited) {
             if (value instanceof Fayde.Media.SolidColorBrush) {
-                var color = (value).Color;
+                var color = value.Color;
                 return {
                     Color: color.toString()
                 };
@@ -21726,7 +21889,7 @@ var Fayde;
                 var targetType = propd.GetTargetType();
                 var targetTypeName;
                 if (targetType instanceof Enum) {
-                    targetType = (targetType).Object;
+                    targetType = targetType.Object;
                     targetTypeName = "Enum";
                 } else {
                     targetTypeName = targetType ? targetType._TypeName : null;
@@ -21758,7 +21921,7 @@ var Exception = (function () {
         this.Message = message;
     }
     Exception.prototype.toString = function () {
-        var typeName = (this).constructor._TypeName;
+        var typeName = this.constructor._TypeName;
         if (typeName)
             return typeName + ": " + this.Message;
         return this.Message;
@@ -21957,7 +22120,7 @@ var Fayde;
                 var walker = Fayde.DeepTreeWalker(ctrlNode);
                 var uin;
                 while (uin = walker.Step()) {
-                    if (uin.XObject.Visibility !== Fayde.Visibility.Visible) {
+                    if (uin.XObject.Visibility !== 0 /* Visible */) {
                         walker.SkipBranch();
                         continue;
                     }
@@ -22083,7 +22246,7 @@ var Fayde;
                 this._MouseInterop = Fayde.Input.CreateMouseInterop();
                 this._TouchInterop = Fayde.Input.CreateTouchInterop();
 
-                this._Focus = new Engine.FocusManager(this._State = {
+                this._Focus = new Fayde.Engine.FocusManager(this._State = {
                     IsUserInitiated: false,
                     IsFirstUserInitiated: false
                 });
@@ -22129,7 +22292,7 @@ var Fayde;
                 var focusToRoot = this._Focus.GetFocusToRoot();
                 if (focusToRoot)
                     this._EmitKeyDown(focusToRoot, args);
-                if (!args.Handled && args.Key === Fayde.Input.Key.Tab) {
+                if (!args.Handled && args.Key === 2 /* Tab */) {
                     if (!this._Focus.TabFocus(args.Modifiers.Shift))
                         this._Focus.FocusAnyLayer(this._Surface.GetLayers());
                 }
@@ -22152,14 +22315,14 @@ var Fayde;
 
             InputManager.prototype.HandleMousePress = function (button, pos) {
                 this.SetIsUserInitiatedEvent(true);
-                var handled = this.HandleMouseEvent(Fayde.Input.MouseInputType.MouseDown, button, pos);
+                var handled = this.HandleMouseEvent(2 /* MouseDown */, button, pos);
                 this.UpdateCursorFromInputList();
                 this.SetIsUserInitiatedEvent(false);
                 return handled;
             };
             InputManager.prototype.HandleMouseRelease = function (button, pos) {
                 this.SetIsUserInitiatedEvent(true);
-                this.HandleMouseEvent(Fayde.Input.MouseInputType.MouseUp, button, pos);
+                this.HandleMouseEvent(1 /* MouseUp */, button, pos);
                 this.UpdateCursorFromInputList();
                 this.SetIsUserInitiatedEvent(false);
                 if (this._Captured)
@@ -22179,12 +22342,12 @@ var Fayde;
                 var indices = { Index1: -1, Index2: -1 };
                 findFirstCommonElement(this._InputList, newInputList, indices);
                 if (emitLeave === undefined || emitLeave === true)
-                    this._EmitMouseList(Fayde.Input.MouseInputType.MouseLeave, button, pos, delta, this._InputList, indices.Index1);
+                    this._EmitMouseList(3 /* MouseLeave */, button, pos, delta, this._InputList, indices.Index1);
                 if (emitEnter === undefined || emitEnter === true)
-                    this._EmitMouseList(Fayde.Input.MouseInputType.MouseEnter, button, pos, delta, newInputList, indices.Index2);
+                    this._EmitMouseList(4 /* MouseEnter */, button, pos, delta, newInputList, indices.Index2);
 
                 var handled = false;
-                if (type !== Fayde.Input.MouseInputType.NoOp)
+                if (type !== 0 /* NoOp */)
                     handled = this._EmitMouseList(type, button, pos, delta, this._Captured ? this._CapturedInputList : newInputList);
                 this._InputList = newInputList;
 
@@ -22214,11 +22377,11 @@ var Fayde;
                     return true;
                 for (var i = 0; i < endIndex; i++) {
                     node = list[i];
-                    if (type === Fayde.Input.MouseInputType.MouseLeave)
+                    if (type === 3 /* MouseLeave */)
                         args.Source = node.XObject;
                     if (node._EmitMouseEvent(type, isL, isR, args))
                         handled = true;
-                    if (type === Fayde.Input.MouseInputType.MouseLeave)
+                    if (type === 3 /* MouseLeave */)
                         args = this._MouseInterop.CreateEventArgs(type, pos, delta);
                 }
                 return handled;
@@ -22252,7 +22415,7 @@ var Fayde;
                     return;
                 if (this._EmittingMouseEvent)
                     this._PendingReleaseCapture = true;
-else
+                else
                     this._PerformReleaseCapture();
             };
             InputManager.prototype._PerformCapture = function (uin) {
@@ -22271,7 +22434,7 @@ else
                 this._PendingReleaseCapture = false;
                 oldCaptured._EmitLostMouseCapture(this._CurrentPos);
 
-                this.HandleMouseEvent(Fayde.Input.MouseInputType.NoOp, null, this._CurrentPos, undefined, false, true);
+                this.HandleMouseEvent(0 /* NoOp */, null, this._CurrentPos, undefined, false, true);
             };
             return InputManager;
         })();
@@ -22301,7 +22464,7 @@ var Fayde;
             Inspection.TryHandle = function (type, isLeftButton, isRightButton, args, htlist) {
                 if (!Fayde.IsInspectionOn)
                     return false;
-                if (type !== Fayde.Input.MouseInputType.MouseDown)
+                if (type !== 2 /* MouseDown */)
                     return false;
                 if (!isRightButton)
                     return false;
@@ -22367,10 +22530,10 @@ var Fayde;
 
             var str = "";
 
-            var id = (cur)._ID;
+            var id = cur._ID;
             if (id)
                 str += "[" + id + "] ";
-            str += (cur).constructor._TypeName;
+            str += cur.constructor._TypeName;
 
             var name = uin.Name;
             if (name) {
@@ -22378,9 +22541,9 @@ var Fayde;
                 var ns = uin.NameScope;
                 if (!ns)
                     str += "^";
-else if (ns.IsRoot)
+                else if (ns.IsRoot)
                     str += "+";
-else
+                else
                     str += "-";
                 str += name + "]";
             }
@@ -22464,7 +22627,7 @@ var Fayde;
             var node = layer.XamlNode;
             if (this._RootLayer === layer)
                 this._Layers.unshift(node);
-else
+            else
                 this._Layers.push(node);
             node.IsTopLevel = true;
             node.SetSurface(this);
@@ -22630,7 +22793,7 @@ else
                 r = rect.fromSize(this.Extents);
             if (!this._InvalidatedRect)
                 this._InvalidatedRect = rect.copyTo(r);
-else
+            else
                 rect.union(this._InvalidatedRect, r);
         };
         Surface.prototype.Render = function () {
@@ -22640,6 +22803,7 @@ else
             this._InvalidatedRect = null;
             if (!(r.Width > 0 && r.Height > 0))
                 return;
+            rect.roundOut(r);
 
              {
                 var ctx = this._RenderContext;
@@ -22741,7 +22905,7 @@ else
                 var walker = Fayde.DeepTreeWalker(layers[i]);
                 var curNode;
                 while (curNode = walker.Step()) {
-                    if ((curNode.XObject)._ID === id)
+                    if (curNode.XObject._ID === id)
                         return curNode.XObject;
                 }
             }
@@ -22763,13 +22927,13 @@ var Fayde;
     (function (Input) {
         (function (InteractionHelper) {
             function GetLogicalKey(flowDirection, key) {
-                if (flowDirection !== Fayde.FlowDirection.RightToLeft)
+                if (flowDirection !== 1 /* RightToLeft */)
                     return key;
                 switch (key) {
-                    case Input.Key.Left:
-                        return Input.Key.Right;
-                    case Input.Key.Right:
-                        return Input.Key.Left;
+                    case 14 /* Left */:
+                        return 16 /* Right */;
+                    case 16 /* Right */:
+                        return 14 /* Left */;
                     default:
                         return key;
                 }
@@ -22832,11 +22996,11 @@ var Fayde;
             }, KeyboardNavigation);
 
             KeyboardNavigation.ControlTabNavigationProperty = DependencyProperty.RegisterAttached("ControlTabNavigation", function () {
-                return new Enum(Input.KeyboardNavigationMode);
+                return new Enum(Fayde.Input.KeyboardNavigationMode);
             }, KeyboardNavigation);
 
             KeyboardNavigation.DirectionalNavigationProperty = DependencyProperty.RegisterAttached("DirectionalNavigation", function () {
-                return new Enum(Input.KeyboardNavigationMode);
+                return new Enum(Fayde.Input.KeyboardNavigationMode);
             }, KeyboardNavigation);
 
             KeyboardNavigation.IsTabStopProperty = DependencyProperty.RegisterAttached("IsTabStop", function () {
@@ -22848,7 +23012,7 @@ var Fayde;
             }, KeyboardNavigation);
 
             KeyboardNavigation.TabNavigationProperty = DependencyProperty.RegisterAttached("TabNavigation", function () {
-                return new Enum(Input.KeyboardNavigationMode);
+                return new Enum(Fayde.Input.KeyboardNavigationMode);
             }, KeyboardNavigation);
             return KeyboardNavigation;
         })();
@@ -22867,98 +23031,98 @@ var Fayde;
         function CreateKeyInterop() {
             if (navigator.appName === "Microsoft Internet Explorer")
                 return new IEKeyInterop();
-else if (navigator.appName === "Netscape")
+            else if (navigator.appName === "Netscape")
                 return new NetscapeKeyInterop();
             return new KeyInterop();
         }
         Input.CreateKeyInterop = CreateKeyInterop;
 
         var keyFromKeyCode = [];
-        keyFromKeyCode[8] = Input.Key.Back;
-        keyFromKeyCode[9] = Input.Key.Tab;
-        keyFromKeyCode[13] = Input.Key.Enter;
-        keyFromKeyCode[16] = Input.Key.Shift;
-        keyFromKeyCode[17] = Input.Key.Ctrl;
-        keyFromKeyCode[18] = Input.Key.Alt;
+        keyFromKeyCode[8] = 1 /* Back */;
+        keyFromKeyCode[9] = 2 /* Tab */;
+        keyFromKeyCode[13] = 3 /* Enter */;
+        keyFromKeyCode[16] = 4 /* Shift */;
+        keyFromKeyCode[17] = 5 /* Ctrl */;
+        keyFromKeyCode[18] = 6 /* Alt */;
 
-        keyFromKeyCode[20] = Input.Key.CapsLock;
-        keyFromKeyCode[27] = Input.Key.Escape;
-        keyFromKeyCode[32] = Input.Key.Space;
-        keyFromKeyCode[33] = Input.Key.PageUp;
-        keyFromKeyCode[34] = Input.Key.PageDown;
-        keyFromKeyCode[35] = Input.Key.End;
-        keyFromKeyCode[36] = Input.Key.Home;
-        keyFromKeyCode[37] = Input.Key.Left;
-        keyFromKeyCode[38] = Input.Key.Up;
-        keyFromKeyCode[39] = Input.Key.Right;
-        keyFromKeyCode[40] = Input.Key.Down;
-        keyFromKeyCode[45] = Input.Key.Insert;
-        keyFromKeyCode[46] = Input.Key.Delete;
-        keyFromKeyCode[48] = Input.Key.D0;
-        keyFromKeyCode[49] = Input.Key.D1;
-        keyFromKeyCode[50] = Input.Key.D2;
-        keyFromKeyCode[51] = Input.Key.D3;
-        keyFromKeyCode[52] = Input.Key.D4;
-        keyFromKeyCode[53] = Input.Key.D5;
-        keyFromKeyCode[54] = Input.Key.D6;
-        keyFromKeyCode[55] = Input.Key.D7;
-        keyFromKeyCode[56] = Input.Key.D8;
-        keyFromKeyCode[57] = Input.Key.D9;
+        keyFromKeyCode[20] = 7 /* CapsLock */;
+        keyFromKeyCode[27] = 8 /* Escape */;
+        keyFromKeyCode[32] = 9 /* Space */;
+        keyFromKeyCode[33] = 10 /* PageUp */;
+        keyFromKeyCode[34] = 11 /* PageDown */;
+        keyFromKeyCode[35] = 12 /* End */;
+        keyFromKeyCode[36] = 13 /* Home */;
+        keyFromKeyCode[37] = 14 /* Left */;
+        keyFromKeyCode[38] = 15 /* Up */;
+        keyFromKeyCode[39] = 16 /* Right */;
+        keyFromKeyCode[40] = 17 /* Down */;
+        keyFromKeyCode[45] = 18 /* Insert */;
+        keyFromKeyCode[46] = 19 /* Delete */;
+        keyFromKeyCode[48] = 20 /* D0 */;
+        keyFromKeyCode[49] = 21 /* D1 */;
+        keyFromKeyCode[50] = 22 /* D2 */;
+        keyFromKeyCode[51] = 23 /* D3 */;
+        keyFromKeyCode[52] = 24 /* D4 */;
+        keyFromKeyCode[53] = 25 /* D5 */;
+        keyFromKeyCode[54] = 26 /* D6 */;
+        keyFromKeyCode[55] = 27 /* D7 */;
+        keyFromKeyCode[56] = 28 /* D8 */;
+        keyFromKeyCode[57] = 29 /* D9 */;
 
-        keyFromKeyCode[65] = Input.Key.A;
-        keyFromKeyCode[66] = Input.Key.B;
-        keyFromKeyCode[67] = Input.Key.C;
-        keyFromKeyCode[68] = Input.Key.D;
-        keyFromKeyCode[69] = Input.Key.E;
-        keyFromKeyCode[70] = Input.Key.F;
-        keyFromKeyCode[71] = Input.Key.G;
-        keyFromKeyCode[72] = Input.Key.H;
-        keyFromKeyCode[73] = Input.Key.I;
-        keyFromKeyCode[74] = Input.Key.J;
-        keyFromKeyCode[75] = Input.Key.K;
-        keyFromKeyCode[76] = Input.Key.L;
-        keyFromKeyCode[77] = Input.Key.M;
-        keyFromKeyCode[78] = Input.Key.N;
-        keyFromKeyCode[79] = Input.Key.O;
-        keyFromKeyCode[80] = Input.Key.P;
-        keyFromKeyCode[81] = Input.Key.Q;
-        keyFromKeyCode[82] = Input.Key.R;
-        keyFromKeyCode[83] = Input.Key.S;
-        keyFromKeyCode[84] = Input.Key.T;
-        keyFromKeyCode[85] = Input.Key.U;
-        keyFromKeyCode[86] = Input.Key.V;
-        keyFromKeyCode[87] = Input.Key.W;
-        keyFromKeyCode[88] = Input.Key.X;
-        keyFromKeyCode[89] = Input.Key.Y;
-        keyFromKeyCode[90] = Input.Key.Z;
+        keyFromKeyCode[65] = 30 /* A */;
+        keyFromKeyCode[66] = 31 /* B */;
+        keyFromKeyCode[67] = 32 /* C */;
+        keyFromKeyCode[68] = 33 /* D */;
+        keyFromKeyCode[69] = 34 /* E */;
+        keyFromKeyCode[70] = 35 /* F */;
+        keyFromKeyCode[71] = 36 /* G */;
+        keyFromKeyCode[72] = 37 /* H */;
+        keyFromKeyCode[73] = 38 /* I */;
+        keyFromKeyCode[74] = 39 /* J */;
+        keyFromKeyCode[75] = 40 /* K */;
+        keyFromKeyCode[76] = 41 /* L */;
+        keyFromKeyCode[77] = 42 /* M */;
+        keyFromKeyCode[78] = 43 /* N */;
+        keyFromKeyCode[79] = 44 /* O */;
+        keyFromKeyCode[80] = 45 /* P */;
+        keyFromKeyCode[81] = 46 /* Q */;
+        keyFromKeyCode[82] = 47 /* R */;
+        keyFromKeyCode[83] = 48 /* S */;
+        keyFromKeyCode[84] = 49 /* T */;
+        keyFromKeyCode[85] = 50 /* U */;
+        keyFromKeyCode[86] = 51 /* V */;
+        keyFromKeyCode[87] = 52 /* W */;
+        keyFromKeyCode[88] = 53 /* X */;
+        keyFromKeyCode[89] = 54 /* Y */;
+        keyFromKeyCode[90] = 55 /* Z */;
 
-        keyFromKeyCode[96] = Input.Key.NumPad0;
-        keyFromKeyCode[97] = Input.Key.NumPad1;
-        keyFromKeyCode[98] = Input.Key.NumPad2;
-        keyFromKeyCode[99] = Input.Key.NumPad3;
-        keyFromKeyCode[100] = Input.Key.NumPad4;
-        keyFromKeyCode[101] = Input.Key.NumPad5;
-        keyFromKeyCode[102] = Input.Key.NumPad6;
-        keyFromKeyCode[103] = Input.Key.NumPad7;
-        keyFromKeyCode[104] = Input.Key.NumPad8;
-        keyFromKeyCode[105] = Input.Key.NumPad9;
-        keyFromKeyCode[106] = Input.Key.Multiply;
-        keyFromKeyCode[107] = Input.Key.Add;
-        keyFromKeyCode[109] = Input.Key.Subtract;
-        keyFromKeyCode[110] = Input.Key.Decimal;
-        keyFromKeyCode[111] = Input.Key.Divide;
-        keyFromKeyCode[112] = Input.Key.F1;
-        keyFromKeyCode[113] = Input.Key.F2;
-        keyFromKeyCode[114] = Input.Key.F3;
-        keyFromKeyCode[115] = Input.Key.F4;
-        keyFromKeyCode[116] = Input.Key.F5;
-        keyFromKeyCode[117] = Input.Key.F6;
-        keyFromKeyCode[118] = Input.Key.F7;
-        keyFromKeyCode[119] = Input.Key.F8;
-        keyFromKeyCode[120] = Input.Key.F9;
-        keyFromKeyCode[121] = Input.Key.F10;
-        keyFromKeyCode[122] = Input.Key.F11;
-        keyFromKeyCode[123] = Input.Key.F12;
+        keyFromKeyCode[96] = 68 /* NumPad0 */;
+        keyFromKeyCode[97] = 69 /* NumPad1 */;
+        keyFromKeyCode[98] = 70 /* NumPad2 */;
+        keyFromKeyCode[99] = 71 /* NumPad3 */;
+        keyFromKeyCode[100] = 72 /* NumPad4 */;
+        keyFromKeyCode[101] = 73 /* NumPad5 */;
+        keyFromKeyCode[102] = 74 /* NumPad6 */;
+        keyFromKeyCode[103] = 75 /* NumPad7 */;
+        keyFromKeyCode[104] = 76 /* NumPad8 */;
+        keyFromKeyCode[105] = 77 /* NumPad9 */;
+        keyFromKeyCode[106] = 78 /* Multiply */;
+        keyFromKeyCode[107] = 79 /* Add */;
+        keyFromKeyCode[109] = 80 /* Subtract */;
+        keyFromKeyCode[110] = 81 /* Decimal */;
+        keyFromKeyCode[111] = 82 /* Divide */;
+        keyFromKeyCode[112] = 56 /* F1 */;
+        keyFromKeyCode[113] = 57 /* F2 */;
+        keyFromKeyCode[114] = 58 /* F3 */;
+        keyFromKeyCode[115] = 59 /* F4 */;
+        keyFromKeyCode[116] = 60 /* F5 */;
+        keyFromKeyCode[117] = 61 /* F6 */;
+        keyFromKeyCode[118] = 62 /* F7 */;
+        keyFromKeyCode[119] = 63 /* F8 */;
+        keyFromKeyCode[120] = 64 /* F9 */;
+        keyFromKeyCode[121] = 65 /* F10 */;
+        keyFromKeyCode[122] = 66 /* F11 */;
+        keyFromKeyCode[123] = 67 /* F12 */;
 
         var KeyInterop = (function () {
             function KeyInterop() {
@@ -23005,7 +23169,7 @@ else if (navigator.appName === "Netscape")
         udkie[94] = 54;
         udkie[38] = 55;
         udkie[42] = 56;
-        udkie[34] = Input.Key.Unknown;
+        udkie[34] = 255 /* Unknown */;
         var IEKeyInterop = (function (_super) {
             __extends(IEKeyInterop, _super);
             function IEKeyInterop() {
@@ -23027,12 +23191,12 @@ else if (navigator.appName === "Netscape")
                     keyCode = unshifted;
 
                 var args = new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e["char"]);
-                if (args.Key === Input.Key.Unknown && e.key) {
+                if (args.Key === 255 /* Unknown */ && e.key) {
                     args.Char = e.key;
                     var code = args.Char.toUpperCase().charCodeAt(0);
                     args.Key = keyFromKeyCode[code];
                     if (args.Key == null)
-                        args.Key = Input.Key.Unknown;
+                        args.Key = 255 /* Unknown */;
                 }
                 return args;
             };
@@ -23050,20 +23214,20 @@ else if (navigator.appName === "Netscape")
         })(KeyInterop);
 
         var sknet = [];
-        sknet[8] = Input.Key.Back;
-        sknet[9] = Input.Key.Tab;
-        sknet[20] = Input.Key.CapsLock;
-        sknet[27] = Input.Key.Escape;
-        sknet[33] = Input.Key.PageUp;
-        sknet[34] = Input.Key.PageDown;
-        sknet[35] = Input.Key.End;
-        sknet[36] = Input.Key.Home;
-        sknet[37] = Input.Key.Left;
-        sknet[38] = Input.Key.Up;
-        sknet[39] = Input.Key.Right;
-        sknet[40] = Input.Key.Down;
-        sknet[45] = Input.Key.Insert;
-        sknet[46] = Input.Key.Delete;
+        sknet[8] = 1 /* Back */;
+        sknet[9] = 2 /* Tab */;
+        sknet[20] = 7 /* CapsLock */;
+        sknet[27] = 8 /* Escape */;
+        sknet[33] = 10 /* PageUp */;
+        sknet[34] = 11 /* PageDown */;
+        sknet[35] = 12 /* End */;
+        sknet[36] = 13 /* Home */;
+        sknet[37] = 14 /* Left */;
+        sknet[38] = 15 /* Up */;
+        sknet[39] = 16 /* Right */;
+        sknet[40] = 17 /* Down */;
+        sknet[45] = 18 /* Insert */;
+        sknet[46] = 19 /* Delete */;
 
         var udknet = [];
         udknet[41] = 48;
@@ -23075,7 +23239,7 @@ else if (navigator.appName === "Netscape")
         udknet[94] = 54;
         udknet[38] = 55;
         udknet[42] = 56;
-        udknet[34] = Input.Key.Unknown;
+        udknet[34] = 255 /* Unknown */;
         var NetscapeKeyInterop = (function (_super) {
             __extends(NetscapeKeyInterop, _super);
             function NetscapeKeyInterop() {
@@ -23187,7 +23351,7 @@ var Fayde;
         function CreateMouseInterop() {
             if (navigator.appName === "Microsoft Internet Explorer")
                 return new IEMouseInterop();
-else if (navigator.appName === "Netscape")
+            else if (navigator.appName === "Netscape")
                 return new NetscapeMouseInterop();
             return new MouseInterop();
         }
@@ -23278,12 +23442,12 @@ else if (navigator.appName === "Netscape")
             MouseInterop.prototype._HandleOut = function (evt) {
                 Fayde.Input.Keyboard.RefreshModifiers(createModifiers(evt));
                 var pos = this._GetMousePosition(evt);
-                this._Input.HandleMouseEvent(MouseInputType.MouseLeave, null, pos);
+                this._Input.HandleMouseEvent(3 /* MouseLeave */, null, pos);
             };
             MouseInterop.prototype._HandleMove = function (evt) {
                 Fayde.Input.Keyboard.RefreshModifiers(createModifiers(evt));
                 var pos = this._GetMousePosition(evt);
-                this._Input.HandleMouseEvent(MouseInputType.MouseMove, null, pos);
+                this._Input.HandleMouseEvent(5 /* MouseMove */, null, pos);
                 this._Input.UpdateCursorFromInputList();
             };
             MouseInterop.prototype._HandleWheel = function (evt) {
@@ -23291,28 +23455,28 @@ else if (navigator.appName === "Netscape")
                 var delta = 0;
                 if (evt.wheelDelta)
                     delta = evt.wheelDelta / 120;
-else if (evt.detail)
+                else if (evt.detail)
                     delta = -evt.detail / 3;
                 if (evt.preventDefault)
                     evt.preventDefault();
                 evt.returnValue = false;
-                this._Input.HandleMouseEvent(MouseInputType.MouseWheel, null, this._GetMousePosition(evt), delta);
+                this._Input.HandleMouseEvent(6 /* MouseWheel */, null, this._GetMousePosition(evt), delta);
                 this._Input.UpdateCursorFromInputList();
             };
 
             MouseInterop.prototype.CreateEventArgs = function (type, pos, delta) {
                 switch (type) {
-                    case MouseInputType.MouseUp:
+                    case 1 /* MouseUp */:
                         return new Fayde.Input.MouseButtonEventArgs(pos);
-                    case MouseInputType.MouseDown:
+                    case 2 /* MouseDown */:
                         return new Fayde.Input.MouseButtonEventArgs(pos);
-                    case MouseInputType.MouseLeave:
+                    case 3 /* MouseLeave */:
                         return new Fayde.Input.MouseEventArgs(pos);
-                    case MouseInputType.MouseEnter:
+                    case 4 /* MouseEnter */:
                         return new Fayde.Input.MouseEventArgs(pos);
-                    case MouseInputType.MouseMove:
+                    case 5 /* MouseMove */:
                         return new Fayde.Input.MouseEventArgs(pos);
-                    case MouseInputType.MouseWheel:
+                    case 6 /* MouseWheel */:
                         return new Fayde.Input.MouseWheelEventArgs(pos, delta);
                 }
             };
@@ -23521,10 +23685,10 @@ var Fayde;
                     this._HasCompleted = true;
                     var fill = this.FillBehavior;
                     switch (fill) {
-                        case Animation.FillBehavior.HoldEnd:
+                        case 0 /* HoldEnd */:
                             this.HoldEnd();
                             break;
-                        case Animation.FillBehavior.Stop:
+                        case 1 /* Stop */:
                             this.Stop();
                             break;
                     }
@@ -23624,7 +23788,7 @@ var Fayde;
                 Timeline.prototype.GetNaturalDurationCore = function () {
                     return Duration.Automatic;
                 };
-                Timeline.DEFAULT_REPEAT_BEHAVIOR = Animation.RepeatBehavior.FromIterationCount(1);
+                Timeline.DEFAULT_REPEAT_BEHAVIOR = Fayde.Media.Animation.RepeatBehavior.FromIterationCount(1);
                 Timeline.AutoReverseProperty = DependencyProperty.Register("AutoReverse", function () {
                     return Boolean;
                 }, Timeline, false);
@@ -23635,14 +23799,14 @@ var Fayde;
                     return Duration;
                 }, Timeline);
                 Timeline.RepeatBehaviorProperty = DependencyProperty.Register("RepeatBehavior", function () {
-                    return Animation.RepeatBehavior;
+                    return Fayde.Media.Animation.RepeatBehavior;
                 }, Timeline);
                 Timeline.SpeedRatioProperty = DependencyProperty.Register("SpeedRatio", function () {
                     return Number;
                 }, Timeline, 1.0);
                 Timeline.FillBehaviorProperty = DependencyProperty.Register("FillBehavior", function () {
-                    return new Enum(Animation.FillBehavior);
-                }, Timeline, Animation.FillBehavior.HoldEnd);
+                    return new Enum(Fayde.Media.Animation.FillBehavior);
+                }, Timeline, 0 /* HoldEnd */);
                 return Timeline;
             })(Fayde.DependencyObject);
             Animation.Timeline = Timeline;
@@ -23691,9 +23855,9 @@ var Fayde;
                     var animStorage = this._AnimStorage;
                     if (!animStorage)
                         return;
-                    if (Animation.AnimationStore.Detach(animStorage) || animStorage.IsDisabled)
+                    if (Fayde.Media.Animation.AnimationStore.Detach(animStorage) || animStorage.IsDisabled)
                         return;
-                    Animation.AnimationStore.ApplyStop(animStorage);
+                    Fayde.Media.Animation.AnimationStore.ApplyStop(animStorage);
                 };
                 AnimationBase.prototype.UpdateInternal = function (clockData) {
                     if (this._IsHolding)
@@ -23706,7 +23870,7 @@ var Fayde;
                     animStorage.CurrentValue = this.GetCurrentValue(animStorage.BaseValue, animStorage.StopValue !== undefined ? animStorage.StopValue : animStorage.BaseValue, clockData);
                     if (oldValue === animStorage.CurrentValue || animStorage.CurrentValue === undefined)
                         return;
-                    Animation.AnimationStore.ApplyCurrent(animStorage);
+                    Fayde.Media.Animation.AnimationStore.ApplyCurrent(animStorage);
                 };
                 AnimationBase.prototype.GetNaturalDurationCore = function () {
                     return new Duration(TimeSpan.FromArgs(0, 0, 0, 1));
@@ -23724,13 +23888,13 @@ var Fayde;
                     if (this.HasManualTarget) {
                         targetObject = this.ManualTarget;
                     } else {
-                        var name = Animation.Storyboard.GetTargetName(this);
+                        var name = Fayde.Media.Animation.Storyboard.GetTargetName(this);
                         if (name) {
                             var n = this.XamlNode.FindName(name);
                             targetObject = n.XObject;
                         }
                     }
-                    var targetPropertyPath = Animation.Storyboard.GetTargetProperty(this);
+                    var targetPropertyPath = Fayde.Media.Animation.Storyboard.GetTargetProperty(this);
 
                     var refobj = { Value: targetObject };
                     var targetProperty = targetPropertyPath.TryResolveDependencyProperty(refobj, promotedValues);
@@ -23746,13 +23910,13 @@ var Fayde;
                         return false;
                     }
 
-                    this._AnimStorage = Animation.AnimationStore.Create(targetObject, targetProperty);
+                    this._AnimStorage = Fayde.Media.Animation.AnimationStore.Create(targetObject, targetProperty);
                     this._AnimStorage.Animation = this;
-                    Animation.AnimationStore.Attach(this._AnimStorage);
+                    Fayde.Media.Animation.AnimationStore.Attach(this._AnimStorage);
                     return true;
                 };
                 return AnimationBase;
-            })(Animation.Timeline);
+            })(Fayde.Media.Animation.Timeline);
             Animation.AnimationBase = AnimationBase;
             Fayde.RegisterType(AnimationBase, {
                 Name: "AnimationBase",
@@ -23777,10 +23941,10 @@ var Fayde;
                         var targetType = propd.GetTargetType();
                         if (targetType === Number)
                             baseValue = 0;
-else if (targetType === String)
+                        else if (targetType === String)
                             baseValue = "";
-else
-                            baseValue = new (targetType)();
+                        else
+                            baseValue = new targetType();
                     }
                     return {
                         Animation: undefined,
@@ -23838,7 +24002,7 @@ else
                     if (cv === undefined)
                         return;
                     var storage = animStorage.PropStorage;
-                    if (Media.Animation.Debug && window.console) {
+                    if (Fayde.Media.Animation.Debug && window.console) {
                         console.log("ANIMATION:ApplyCurrent:" + storage.OwnerNode.Name + "->" + storage.Property.Name + "=" + cv);
                     }
                     storage.Property.Store.SetLocalValue(storage, animStorage.CurrentValue);
@@ -23846,7 +24010,7 @@ else
                 AnimationStore.ApplyStop = function (animStorage) {
                     var storage = animStorage.PropStorage;
                     var sv = animStorage.StopValue;
-                    if (Media.Animation.Debug && window.console) {
+                    if (Fayde.Media.Animation.Debug && window.console) {
                         console.log("ANIMATION:ApplyStop:" + storage.OwnerNode.Name + "->" + storage.Property.Name + "=" + (sv != null ? sv.toString() : ""));
                     }
                     storage.Property.Store.SetLocalValue(storage, animStorage.StopValue);
@@ -23873,7 +24037,7 @@ var Fayde;
                 AnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
                     var keyFrames = this.KeyFrames;
 
-                    var sortedList = Animation.KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
+                    var sortedList = Fayde.Media.Animation.KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
 
                     var count = sortedList.length;
                     for (var j = 0; j < count; j++) {
@@ -23899,8 +24063,8 @@ var Fayde;
                         baseValue = defaultOriginValue;
                         keyStartTime = new TimeSpan();
                     } else {
-                        if (prevFrame instanceof Animation.ObjectKeyFrame) {
-                            baseValue = (prevFrame).ConvertedValue;
+                        if (prevFrame instanceof Fayde.Media.Animation.ObjectKeyFrame) {
+                            baseValue = prevFrame.ConvertedValue;
                         } else {
                             baseValue = prevFrame.Value;
                         }
@@ -23914,7 +24078,7 @@ var Fayde;
                         var keyDuration = keyEndTime.Ticks - keyStartTime.Ticks;
                         if (keyDuration <= 0)
                             progress = 1.0;
-else
+                        else
                             progress = (clockData.CurrentTime.Ticks - keyStartTime.Ticks) / keyDuration;
                     }
 
@@ -23922,12 +24086,12 @@ else
                 };
                 AnimationUsingKeyFrames.prototype.GetNaturalDurationCore = function () {
                     var keyFrames = this.KeyFrames;
-                    var sortedList = Animation.KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
+                    var sortedList = Fayde.Media.Animation.KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
                     var len = sortedList.length;
                     var ts;
                     if (len > 0)
                         ts = sortedList[len - 1]._ResolvedKeyTime;
-else
+                    else
                         ts = new TimeSpan();
                     return new Duration(ts);
                 };
@@ -23939,10 +24103,10 @@ else
                     this.KeyFrames.Remove(kf);
                 };
                 AnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterImmutable("KeyFrames", function () {
-                    return Animation.KeyFrameCollection;
+                    return Fayde.Media.Animation.KeyFrameCollection;
                 }, AnimationUsingKeyFrames);
                 return AnimationUsingKeyFrames;
-            })(Animation.AnimationBase);
+            })(Fayde.Media.Animation.AnimationBase);
             Animation.AnimationUsingKeyFrames = AnimationUsingKeyFrames;
             Fayde.RegisterType(AnimationUsingKeyFrames, {
                 Name: "AnimationUsingKeyFrames",
@@ -23969,7 +24133,7 @@ var Fayde;
                         sb.Begin();
                 };
                 BeginStoryboard.StoryboardProperty = DependencyProperty.Register("Storyboard", function () {
-                    return Media.Animation.Storyboard;
+                    return Fayde.Media.Animation.Storyboard;
                 }, BeginStoryboard);
 
                 BeginStoryboard.Annotations = { ContentProperty: BeginStoryboard.StoryboardProperty };
@@ -24003,15 +24167,15 @@ var Fayde;
                     var start = new Color();
                     if (this._FromCached)
                         start = this._FromCached;
-else if (defaultOriginalValue instanceof Color)
+                    else if (defaultOriginalValue instanceof Color)
                         start = defaultOriginalValue;
 
                     var end = start;
                     if (this._ToCached)
                         end = this._ToCached;
-else if (this._ByCached)
+                    else if (this._ByCached)
                         end = start.Add(this._ByCached);
-else if (defaultDestinationValue instanceof Color)
+                    else if (defaultDestinationValue instanceof Color)
                         end = defaultDestinationValue;
 
                     var easingFunc = this._EasingCached;
@@ -24036,25 +24200,25 @@ else if (defaultDestinationValue instanceof Color)
                 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () {
                     return Color;
                 }, ColorAnimation, null, function (d, args) {
-                    return (d)._ByChanged(args);
+                    return d._ByChanged(args);
                 });
                 ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () {
-                    return Animation.EasingFunctionBase;
+                    return Fayde.Media.Animation.EasingFunctionBase;
                 }, ColorAnimation, undefined, function (d, args) {
-                    return (d)._EasingChanged(args);
+                    return d._EasingChanged(args);
                 });
                 ColorAnimation.FromProperty = DependencyProperty.Register("From", function () {
                     return Color;
                 }, ColorAnimation, null, function (d, args) {
-                    return (d)._FromChanged(args);
+                    return d._FromChanged(args);
                 });
                 ColorAnimation.ToProperty = DependencyProperty.Register("To", function () {
                     return Color;
                 }, ColorAnimation, null, function (d, args) {
-                    return (d)._ToChanged(args);
+                    return d._ToChanged(args);
                 });
                 return ColorAnimation;
-            })(Animation.AnimationBase);
+            })(Fayde.Media.Animation.AnimationBase);
             Animation.ColorAnimation = ColorAnimation;
             Fayde.RegisterType(ColorAnimation, {
                 Name: "ColorAnimation",
@@ -24075,9 +24239,9 @@ var Fayde;
                 function ColorAnimationUsingKeyFrames() {
                     _super.apply(this, arguments);
                 }
-                ColorAnimationUsingKeyFrames.Annotations = { ContentProperty: Animation.AnimationUsingKeyFrames.KeyFramesProperty };
+                ColorAnimationUsingKeyFrames.Annotations = { ContentProperty: Fayde.Media.Animation.AnimationUsingKeyFrames.KeyFramesProperty };
                 return ColorAnimationUsingKeyFrames;
-            })(Animation.AnimationUsingKeyFrames);
+            })(Fayde.Media.Animation.AnimationUsingKeyFrames);
             Animation.ColorAnimationUsingKeyFrames = ColorAnimationUsingKeyFrames;
             Fayde.RegisterType(ColorAnimationUsingKeyFrames, {
                 Name: "ColorAnimationUsingKeyFrames",
@@ -24103,7 +24267,7 @@ var Fayde;
                 KeyFrame.prototype.CoerceKeyTime = function (dobj, propd, value, coerced, error) {
                     if (!value)
                         coerced.Value = this.KeyTime;
-else
+                    else
                         coerced.Value = value;
                     return true;
                 };
@@ -24207,7 +24371,7 @@ else
                 KeyFrame.KeyTimeProperty = DependencyProperty.Register("KeyTime", function () {
                     return KeyTime;
                 }, KeyFrame, undefined, function (d, args) {
-                    return (d).InvalidateKeyFrame();
+                    return d.InvalidateKeyFrame();
                 });
                 return KeyFrame;
             })(Fayde.DependencyObject);
@@ -24248,7 +24412,7 @@ else
 
                     for (; i >= 0; i--) {
                         keyFrame = sortedList[i];
-                        valuePropd = DependencyProperty.GetDependencyProperty((keyFrame).constructor, "Value");
+                        valuePropd = DependencyProperty.GetDependencyProperty(keyFrame.constructor, "Value");
                         if (keyFrame.GetValue(valuePropd) !== undefined) {
                             currentKeyFrame = keyFrame;
                             break;
@@ -24257,7 +24421,7 @@ else
 
                     for (i--; i >= 0; i--) {
                         keyFrame = sortedList[i];
-                        valuePropd = DependencyProperty.GetDependencyProperty((keyFrame).constructor, "Value");
+                        valuePropd = DependencyProperty.GetDependencyProperty(keyFrame.constructor, "Value");
                         if (keyFrame.GetValue(valuePropd) !== undefined) {
                             previousKeyFrame = keyFrame;
                             break;
@@ -24323,7 +24487,7 @@ var Fayde;
                     return Color;
                 }, ColorKeyFrame);
                 return ColorKeyFrame;
-            })(Animation.KeyFrame);
+            })(Fayde.Media.Animation.KeyFrame);
             Animation.ColorKeyFrame = ColorKeyFrame;
             Fayde.RegisterType(ColorKeyFrame, {
                 Name: "ColorKeyFrame",
@@ -24369,7 +24533,7 @@ var Fayde;
                     return Color.LERP(start, end, keyFrameProgress);
                 };
                 EasingColorKeyFrame.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () {
-                    return Animation.EasingFunctionBase;
+                    return Fayde.Media.Animation.EasingFunctionBase;
                 }, EasingColorKeyFrame);
                 return EasingColorKeyFrame;
             })(ColorKeyFrame);
@@ -24416,7 +24580,7 @@ var Fayde;
                     return Color.LERP(start, end, splineProgress);
                 };
                 SplineColorKeyFrame.KeySplineProperty = DependencyProperty.Register("KeySpline", function () {
-                    return Animation.KeySpline;
+                    return Fayde.Media.Animation.KeySpline;
                 }, SplineColorKeyFrame);
                 return SplineColorKeyFrame;
             })(ColorKeyFrame);
@@ -24551,15 +24715,15 @@ var Fayde;
                     var start = 0.0;
                     if (this._FromCached != null)
                         start = this._FromCached;
-else if (defaultOriginalValue != null && typeof defaultOriginalValue === "number")
+                    else if (defaultOriginalValue != null && typeof defaultOriginalValue === "number")
                         start = defaultOriginalValue;
 
                     var end = start;
                     if (this._ToCached != null)
                         end = this._ToCached;
-else if (this._ByCached != null)
+                    else if (this._ByCached != null)
                         end = start + this._ByCached;
-else if (defaultDestinationValue != null && typeof defaultDestinationValue === "number")
+                    else if (defaultDestinationValue != null && typeof defaultDestinationValue === "number")
                         end = defaultDestinationValue;
 
                     var easingFunc = this._EasingCached;
@@ -24584,25 +24748,25 @@ else if (defaultDestinationValue != null && typeof defaultDestinationValue === "
                 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () {
                     return Number;
                 }, DoubleAnimation, null, function (d, args) {
-                    return (d)._ByChanged(args);
+                    return d._ByChanged(args);
                 });
                 DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () {
-                    return Animation.EasingFunctionBase;
+                    return Fayde.Media.Animation.EasingFunctionBase;
                 }, DoubleAnimation, undefined, function (d, args) {
-                    return (d)._EasingChanged(args);
+                    return d._EasingChanged(args);
                 });
                 DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () {
                     return Number;
                 }, DoubleAnimation, null, function (d, args) {
-                    return (d)._FromChanged(args);
+                    return d._FromChanged(args);
                 });
                 DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () {
                     return Number;
                 }, DoubleAnimation, null, function (d, args) {
-                    return (d)._ToChanged(args);
+                    return d._ToChanged(args);
                 });
                 return DoubleAnimation;
-            })(Animation.AnimationBase);
+            })(Fayde.Media.Animation.AnimationBase);
             Animation.DoubleAnimation = DoubleAnimation;
             Fayde.RegisterType(DoubleAnimation, {
                 Name: "DoubleAnimation",
@@ -24623,9 +24787,9 @@ var Fayde;
                 function DoubleAnimationUsingKeyFrames() {
                     _super.apply(this, arguments);
                 }
-                DoubleAnimationUsingKeyFrames.Annotations = { ContentProperty: Animation.AnimationUsingKeyFrames.KeyFramesProperty };
+                DoubleAnimationUsingKeyFrames.Annotations = { ContentProperty: Fayde.Media.Animation.AnimationUsingKeyFrames.KeyFramesProperty };
                 return DoubleAnimationUsingKeyFrames;
-            })(Animation.AnimationUsingKeyFrames);
+            })(Fayde.Media.Animation.AnimationUsingKeyFrames);
             Animation.DoubleAnimationUsingKeyFrames = DoubleAnimationUsingKeyFrames;
             Fayde.RegisterType(DoubleAnimationUsingKeyFrames, {
                 Name: "DoubleAnimationUsingKeyFrames",
@@ -24650,7 +24814,7 @@ var Fayde;
                     return Number;
                 }, DoubleKeyFrame);
                 return DoubleKeyFrame;
-            })(Animation.KeyFrame);
+            })(Fayde.Media.Animation.KeyFrame);
             Animation.DoubleKeyFrame = DoubleKeyFrame;
             Fayde.RegisterType(DoubleKeyFrame, {
                 Name: "DoubleKeyFrame",
@@ -24701,7 +24865,7 @@ var Fayde;
                     return start + (end - start) * keyFrameProgress;
                 };
                 EasingDoubleKeyFrame.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () {
-                    return Animation.EasingFunctionBase;
+                    return Fayde.Media.Animation.EasingFunctionBase;
                 }, EasingDoubleKeyFrame);
                 return EasingDoubleKeyFrame;
             })(DoubleKeyFrame);
@@ -24759,7 +24923,7 @@ var Fayde;
                     return start + (end - start) * splineProgress;
                 };
                 SplineDoubleKeyFrame.KeySplineProperty = DependencyProperty.Register("KeySpline", function () {
-                    return Animation.KeySpline;
+                    return Fayde.Media.Animation.KeySpline;
                 }, SplineDoubleKeyFrame);
                 return SplineDoubleKeyFrame;
             })(DoubleKeyFrame);
@@ -24786,11 +24950,11 @@ var Fayde;
                 EasingFunctionBase.prototype.Ease = function (normalizedTime) {
                     var easingMode = this.EasingMode;
                     switch (easingMode) {
-                        case Animation.EasingMode.EaseIn:
+                        case 1 /* EaseIn */:
                             return this.EaseInCore(normalizedTime);
-                        case Animation.EasingMode.EaseOut:
+                        case 0 /* EaseOut */:
                             return this.EaseInCore(1.0 - normalizedTime);
-                        case Animation.EasingMode.EaseInOut:
+                        case 2 /* EaseInOut */:
                             return normalizedTime <= 0.5 ? this.EaseInCore(normalizedTime * 2) * 0.5 : 1.0 - this.EaseInCore(((1.0 - normalizedTime) * 2) * 0.5);
                         default:
                             return 0.0;
@@ -24800,7 +24964,7 @@ var Fayde;
                     return t;
                 };
                 EasingFunctionBase.EasingModeProperty = DependencyProperty.Register("EasingMode", function () {
-                    return new Enum(Animation.EasingMode);
+                    return new Enum(Fayde.Media.Animation.EasingMode);
                 }, EasingFunctionBase);
                 return EasingFunctionBase;
             })(Fayde.DependencyObject);
@@ -24827,7 +24991,7 @@ var Fayde;
                     return Number;
                 }, BackEase);
                 return BackEase;
-            })(Animation.EasingFunctionBase);
+            })(Fayde.Media.Animation.EasingFunctionBase);
             Animation.BackEase = BackEase;
             Fayde.RegisterType(BackEase, {
                 Name: "BackEase",
@@ -24871,7 +25035,7 @@ var Fayde;
                     return Number;
                 }, BounceEase, 2);
                 return BounceEase;
-            })(Animation.EasingFunctionBase);
+            })(Fayde.Media.Animation.EasingFunctionBase);
             Animation.BounceEase = BounceEase;
             Fayde.RegisterType(BounceEase, {
                 Name: "BounceEase",
@@ -24888,7 +25052,7 @@ var Fayde;
                     return 1 - Math.sqrt(1 - (t * t));
                 };
                 return CircleEase;
-            })(Animation.EasingFunctionBase);
+            })(Fayde.Media.Animation.EasingFunctionBase);
             Animation.CircleEase = CircleEase;
             Fayde.RegisterType(CircleEase, {
                 Name: "CircleEase",
@@ -24905,7 +25069,7 @@ var Fayde;
                     return t * t * t;
                 };
                 return CubicEase;
-            })(Animation.EasingFunctionBase);
+            })(Fayde.Media.Animation.EasingFunctionBase);
             Animation.CubicEase = CubicEase;
             Fayde.RegisterType(CubicEase, {
                 Name: "CubicEase",
@@ -24931,7 +25095,7 @@ var Fayde;
                     return Number;
                 }, ElasticEase);
                 return ElasticEase;
-            })(Animation.EasingFunctionBase);
+            })(Fayde.Media.Animation.EasingFunctionBase);
             Animation.ElasticEase = ElasticEase;
             Fayde.RegisterType(ElasticEase, {
                 Name: "ElasticEase",
@@ -24952,7 +25116,7 @@ var Fayde;
                     return Number;
                 }, ExponentialEase);
                 return ExponentialEase;
-            })(Animation.EasingFunctionBase);
+            })(Fayde.Media.Animation.EasingFunctionBase);
             Animation.ExponentialEase = ExponentialEase;
             Fayde.RegisterType(ExponentialEase, {
                 Name: "ExponentialEase",
@@ -24972,7 +25136,7 @@ var Fayde;
                     return Number;
                 }, PowerEase);
                 return PowerEase;
-            })(Animation.EasingFunctionBase);
+            })(Fayde.Media.Animation.EasingFunctionBase);
             Animation.PowerEase = PowerEase;
             Fayde.RegisterType(PowerEase, {
                 Name: "PowerEase",
@@ -24989,7 +25153,7 @@ var Fayde;
                     return t * t;
                 };
                 return QuadraticEase;
-            })(Animation.EasingFunctionBase);
+            })(Fayde.Media.Animation.EasingFunctionBase);
             Animation.QuadraticEase = QuadraticEase;
             Fayde.RegisterType(QuadraticEase, {
                 Name: "QuadraticEase",
@@ -25006,7 +25170,7 @@ var Fayde;
                     return t * t * t * t;
                 };
                 return QuarticEase;
-            })(Animation.EasingFunctionBase);
+            })(Fayde.Media.Animation.EasingFunctionBase);
             Animation.QuarticEase = QuarticEase;
             Fayde.RegisterType(QuarticEase, {
                 Name: "QuarticEase",
@@ -25023,7 +25187,7 @@ var Fayde;
                     return t * t * t * t * t;
                 };
                 return QuinticEase;
-            })(Animation.EasingFunctionBase);
+            })(Fayde.Media.Animation.EasingFunctionBase);
             Animation.QuinticEase = QuinticEase;
             Fayde.RegisterType(QuinticEase, {
                 Name: "QuinticEase",
@@ -25040,7 +25204,7 @@ var Fayde;
                     return 1 - (Math.sin(1 - t) * (Math.PI / 2));
                 };
                 return SineEase;
-            })(Animation.EasingFunctionBase);
+            })(Fayde.Media.Animation.EasingFunctionBase);
             Animation.SineEase = SineEase;
             Fayde.RegisterType(SineEase, {
                 Name: "SineEase",
@@ -25069,7 +25233,7 @@ var Fayde;
                         return 0.0;
                     if (!this._QuadraticsArray)
                         this._RegenerateQuadratics();
-                    return Animation.Curves.QuadraticArrayYForX(this._QuadraticsArray, linearProgress, KeySpline.TOTAL_COUNT);
+                    return Fayde.Media.Animation.Curves.QuadraticArrayYForX(this._QuadraticsArray, linearProgress, KeySpline.TOTAL_COUNT);
                 };
                 KeySpline.prototype.InvalidateControlPoints = function () {
                     this._QuadraticsArray = null;
@@ -25085,8 +25249,8 @@ var Fayde;
                     };
 
                     var carr = [];
-                    Animation.Curves.SubdivideCubicAtLevel(carr, KeySpline.PRECISION_LEVEL, src);
-                    this._QuadraticsArray = Animation.Curves.ConvertCubicsToQuadratics(carr, KeySpline.TOTAL_COUNT);
+                    Fayde.Media.Animation.Curves.SubdivideCubicAtLevel(carr, KeySpline.PRECISION_LEVEL, src);
+                    this._QuadraticsArray = Fayde.Media.Animation.Curves.ConvertCubicsToQuadratics(carr, KeySpline.TOTAL_COUNT);
                 };
                 KeySpline.PRECISION_LEVEL = 4;
                 KeySpline.TOTAL_COUNT = Math.pow(2, KeySpline.PRECISION_LEVEL);
@@ -25094,12 +25258,12 @@ var Fayde;
                 KeySpline.ControlPoint1Property = DependencyProperty.RegisterCore("ControlPoint1", function () {
                     return Point;
                 }, KeySpline, undefined, function (d, args) {
-                    return (d).InvalidateControlPoints();
+                    return d.InvalidateControlPoints();
                 });
                 KeySpline.ControlPoint2Property = DependencyProperty.RegisterCore("ControlPoint2", function () {
                     return Point;
                 }, KeySpline, undefined, function (d, args) {
-                    return (d).InvalidateControlPoints();
+                    return d.InvalidateControlPoints();
                 });
                 return KeySpline;
             })(Fayde.DependencyObject);
@@ -25138,9 +25302,9 @@ var Fayde;
                     }
                     return _super.prototype.Resolve.call(this, target, propd);
                 };
-                ObjectAnimationUsingKeyFrames.Annotations = { ContentProperty: Animation.AnimationUsingKeyFrames.KeyFramesProperty };
+                ObjectAnimationUsingKeyFrames.Annotations = { ContentProperty: Fayde.Media.Animation.AnimationUsingKeyFrames.KeyFramesProperty };
                 return ObjectAnimationUsingKeyFrames;
-            })(Animation.AnimationUsingKeyFrames);
+            })(Fayde.Media.Animation.AnimationUsingKeyFrames);
             Animation.ObjectAnimationUsingKeyFrames = ObjectAnimationUsingKeyFrames;
             Fayde.RegisterType(ObjectAnimationUsingKeyFrames, {
                 Name: "ObjectAnimationUsingKeyFrames",
@@ -25166,7 +25330,7 @@ var Fayde;
                     return Object;
                 }, ObjectKeyFrame);
                 return ObjectKeyFrame;
-            })(Animation.KeyFrame);
+            })(Fayde.Media.Animation.KeyFrame);
             Animation.ObjectKeyFrame = ObjectKeyFrame;
             Fayde.RegisterType(ObjectKeyFrame, {
                 Name: "ObjectKeyFrame",
@@ -25214,15 +25378,15 @@ var Fayde;
                     var start = new Point();
                     if (this._FromCached != null)
                         start = this._FromCached;
-else if (defaultOriginalValue instanceof Point)
+                    else if (defaultOriginalValue instanceof Point)
                         start = defaultOriginalValue;
 
                     var end = start;
                     if (this._ToCached != null)
                         end = this._ToCached;
-else if (this._ByCached != null)
+                    else if (this._ByCached != null)
                         end = new Point(start.X + this._ByCached.X, start.Y + this._ByCached.Y);
-else if (defaultDestinationValue instanceof Point)
+                    else if (defaultDestinationValue instanceof Point)
                         end = defaultDestinationValue;
 
                     var easingFunc = this._EasingCached;
@@ -25247,25 +25411,25 @@ else if (defaultDestinationValue instanceof Point)
                 PointAnimation.ByProperty = DependencyProperty.Register("By", function () {
                     return Point;
                 }, PointAnimation, null, function (d, args) {
-                    return (d)._ByChanged(args);
+                    return d._ByChanged(args);
                 });
                 PointAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () {
-                    return Animation.EasingFunctionBase;
+                    return Fayde.Media.Animation.EasingFunctionBase;
                 }, PointAnimation, undefined, function (d, args) {
-                    return (d)._EasingChanged(args);
+                    return d._EasingChanged(args);
                 });
                 PointAnimation.FromProperty = DependencyProperty.Register("From", function () {
                     return Point;
                 }, PointAnimation, null, function (d, args) {
-                    return (d)._FromChanged(args);
+                    return d._FromChanged(args);
                 });
                 PointAnimation.ToProperty = DependencyProperty.Register("To", function () {
                     return Point;
                 }, PointAnimation, null, function (d, args) {
-                    return (d)._ToChanged(args);
+                    return d._ToChanged(args);
                 });
                 return PointAnimation;
-            })(Animation.AnimationBase);
+            })(Fayde.Media.Animation.AnimationBase);
             Animation.PointAnimation = PointAnimation;
             Fayde.RegisterType(PointAnimation, {
                 Name: "PointAnimation",
@@ -25286,9 +25450,9 @@ var Fayde;
                 function PointAnimationUsingKeyFrames() {
                     _super.apply(this, arguments);
                 }
-                PointAnimationUsingKeyFrames.Annotations = { ContentProperty: Animation.AnimationUsingKeyFrames.KeyFramesProperty };
+                PointAnimationUsingKeyFrames.Annotations = { ContentProperty: Fayde.Media.Animation.AnimationUsingKeyFrames.KeyFramesProperty };
                 return PointAnimationUsingKeyFrames;
-            })(Animation.AnimationUsingKeyFrames);
+            })(Fayde.Media.Animation.AnimationUsingKeyFrames);
             Animation.PointAnimationUsingKeyFrames = PointAnimationUsingKeyFrames;
             Fayde.RegisterType(PointAnimationUsingKeyFrames, {
                 Name: "PointAnimationUsingKeyFrames",
@@ -25313,7 +25477,7 @@ var Fayde;
                     return Point;
                 }, PointKeyFrame);
                 return PointKeyFrame;
-            })(Animation.KeyFrame);
+            })(Fayde.Media.Animation.KeyFrame);
             Animation.PointKeyFrame = PointKeyFrame;
             Fayde.RegisterType(PointKeyFrame, {
                 Name: "PointKeyFrame",
@@ -25359,7 +25523,7 @@ var Fayde;
                     return Point.LERP(start, end, keyFrameProgress);
                 };
                 EasingPointKeyFrame.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () {
-                    return Animation.EasingFunctionBase;
+                    return Fayde.Media.Animation.EasingFunctionBase;
                 }, EasingPointKeyFrame);
                 return EasingPointKeyFrame;
             })(PointKeyFrame);
@@ -25415,7 +25579,7 @@ var Fayde;
                     return Point.LERP(start, end, splineProgress);
                 };
                 SplinePointKeyFrame.KeySplineProperty = DependencyProperty.Register("KeySpline", function () {
-                    return Animation.KeySpline;
+                    return Fayde.Media.Animation.KeySpline;
                 }, SplinePointKeyFrame);
                 return SplinePointKeyFrame;
             })(PointKeyFrame);
@@ -25461,7 +25625,7 @@ var Fayde;
                 };
 
                 Storyboard.prototype.Begin = function () {
-                    if (Media.Animation.Debug && window.console) {
+                    if (Fayde.Media.Animation.Debug && window.console) {
                         console.log("ANIMATION:Begin:" + this.__DebugString());
                     }
                     this.Reset();
@@ -25479,32 +25643,32 @@ var Fayde;
                     _super.prototype.Pause.call(this);
                     var enumerator = this.Children.GetEnumerator();
                     while (enumerator.MoveNext()) {
-                        (enumerator.Current).Pause();
+                        enumerator.Current.Pause();
                     }
                 };
                 Storyboard.prototype.Resume = function () {
                     _super.prototype.Resume.call(this);
                     var enumerator = this.Children.GetEnumerator();
                     while (enumerator.MoveNext()) {
-                        (enumerator.Current).Resume();
+                        enumerator.Current.Resume();
                     }
                 };
                 Storyboard.prototype.Stop = function () {
-                    if (Media.Animation.Debug && window.console) {
+                    if (Fayde.Media.Animation.Debug && window.console) {
                         console.log("ANIMATION:Stop:" + this.__DebugString());
                     }
                     _super.prototype.Stop.call(this);
                     Fayde.Application.Current.UnregisterStoryboard(this);
                     var enumerator = this.Children.GetEnumerator();
                     while (enumerator.MoveNext()) {
-                        (enumerator.Current).Stop();
+                        enumerator.Current.Stop();
                     }
                 };
 
                 Storyboard.prototype.UpdateInternal = function (clockData) {
                     var enumerator = this.Children.GetEnumerator();
                     while (enumerator.MoveNext()) {
-                        (enumerator.Current).Update(clockData.CurrentTime.Ticks);
+                        enumerator.Current.Update(clockData.CurrentTime.Ticks);
                     }
                 };
 
@@ -25520,7 +25684,7 @@ var Fayde;
                             return Duration.Forever;
 
                         var spanTicks = dur.TimeSpan.Ticks;
-                        var repeat = timeline.RepeatBehavior || Animation.Timeline.DEFAULT_REPEAT_BEHAVIOR;
+                        var repeat = timeline.RepeatBehavior || Fayde.Media.Animation.Timeline.DEFAULT_REPEAT_BEHAVIOR;
                         if (repeat.IsForever)
                             return Duration.Forever;
                         if (repeat.HasCount)
@@ -25553,7 +25717,7 @@ var Fayde;
                         animation = enumerator.Current;
                         cur = "";
                         cur += "(";
-                        cur += (animation).constructor._TypeName;
+                        cur += animation.constructor._TypeName;
                         cur += ":";
                         cur += Storyboard.GetTargetName(animation);
                         cur += ":";
@@ -25574,12 +25738,12 @@ var Fayde;
                 }, Storyboard);
 
                 Storyboard.ChildrenProperty = DependencyProperty.RegisterImmutable("Children", function () {
-                    return Animation.TimelineCollection;
+                    return Fayde.Media.Animation.TimelineCollection;
                 }, Storyboard);
 
                 Storyboard.Annotations = { ContentProperty: Storyboard.ChildrenProperty };
                 return Storyboard;
-            })(Animation.Timeline);
+            })(Fayde.Media.Animation.Timeline);
             Animation.Storyboard = Storyboard;
             Fayde.RegisterType(Storyboard, {
                 Name: "Storyboard",
@@ -25677,7 +25841,7 @@ var Fayde;
             Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () {
                 return Fayde.Media.Transform;
             }, Brush, undefined, function (d, args) {
-                return (d)._TransformChanged(args);
+                return d._TransformChanged(args);
             });
             return Brush;
         })(Fayde.DependencyObject);
@@ -25731,7 +25895,7 @@ var Fayde;
             });
             Object.defineProperty(InternalTransform.prototype, "Value", {
                 get: function () {
-                    return Media.Matrix3D.FromRaw(this._Raw);
+                    return Fayde.Media.Matrix3D.FromRaw(this._Raw);
                 },
                 enumerable: true,
                 configurable: true
@@ -25754,7 +25918,7 @@ var Fayde;
             };
 
             InternalTransform.prototype.CreateMatrix3DProjection = function () {
-                var projection = new Media.Matrix3DProjection();
+                var projection = new Fayde.Media.Matrix3DProjection();
                 projection.ProjectionMatrix = this.Inverse.Value;
                 return projection;
             };
@@ -25800,9 +25964,9 @@ var Fayde;
                         listener.EffectChanged(this);
                 };
                 Effect.EffectMappingProperty = DependencyProperty.Register("EffectMapping", function () {
-                    return Media.GeneralTransform;
+                    return Fayde.Media.GeneralTransform;
                 }, Effect, undefined, function (d, args) {
-                    return (d)._EffectChanged(args);
+                    return d._EffectChanged(args);
                 });
                 return Effect;
             })(Fayde.DependencyObject);
@@ -25829,10 +25993,10 @@ var Fayde;
                 BlurEffect.RadiusProperty = DependencyProperty.Register("Radius", function () {
                     return Number;
                 }, BlurEffect, undefined, function (d, args) {
-                    return (d)._EffectChanged(args);
+                    return d._EffectChanged(args);
                 });
                 return BlurEffect;
-            })(Effects.Effect);
+            })(Fayde.Media.Effects.Effect);
             Effects.BlurEffect = BlurEffect;
             Fayde.RegisterType(BlurEffect, {
                 Name: "BlurEffect",
@@ -26172,30 +26336,30 @@ var Fayde;
                 DropShadowEffect.BlurRadiusProperty = DependencyProperty.Register("BlurRadius", function () {
                     return Number;
                 }, DropShadowEffect, 5.0, function (d, args) {
-                    return (d)._EffectChanged(args);
+                    return d._EffectChanged(args);
                 });
                 DropShadowEffect.ColorProperty = DependencyProperty.Register("Color", function () {
                     return Color;
                 }, DropShadowEffect, Color.KnownColors.Black, function (d, args) {
-                    return (d)._EffectChanged(args);
+                    return d._EffectChanged(args);
                 });
                 DropShadowEffect.DirectionProperty = DependencyProperty.Register("Direction", function () {
                     return Number;
                 }, DropShadowEffect, 315.0, function (d, args) {
-                    return (d)._EffectChanged(args);
+                    return d._EffectChanged(args);
                 });
                 DropShadowEffect.OpacityProperty = DependencyProperty.Register("Opacity", function () {
                     return Number;
                 }, DropShadowEffect, 1.0, function (d, args) {
-                    return (d)._EffectChanged(args);
+                    return d._EffectChanged(args);
                 });
                 DropShadowEffect.ShadowDepthProperty = DependencyProperty.Register("ShadowDepth", function () {
                     return Number;
                 }, DropShadowEffect, 5.0, function (d, args) {
-                    return (d)._EffectChanged(args);
+                    return d._EffectChanged(args);
                 });
                 return DropShadowEffect;
-            })(Effects.Effect);
+            })(Fayde.Media.Effects.Effect);
             Effects.DropShadowEffect = DropShadowEffect;
             Fayde.RegisterType(DropShadowEffect, {
                 Name: "DropShadowEffect",
@@ -26298,9 +26462,9 @@ var Fayde;
                 return path.Serialize();
             };
             Geometry.TransformProperty = DependencyProperty.Register("Transform", function () {
-                return Media.Transform;
+                return Fayde.Media.Transform;
             }, Geometry, undefined, function (d, args) {
-                return (d)._TransformChanged(args);
+                return d._TransformChanged(args);
             });
             return Geometry;
         })(Fayde.DependencyObject);
@@ -26378,20 +26542,20 @@ var Fayde;
             EllipseGeometry.CenterProperty = DependencyProperty.Register("Center", function () {
                 return Point;
             }, EllipseGeometry, undefined, function (d, args) {
-                return (d)._InvalidateGeometry();
+                return d._InvalidateGeometry();
             });
             EllipseGeometry.RadiusXProperty = DependencyProperty.Register("RadiusX", function () {
                 return Number;
             }, EllipseGeometry, 0.0, function (d, args) {
-                return (d)._InvalidateGeometry();
+                return d._InvalidateGeometry();
             });
             EllipseGeometry.RadiusYProperty = DependencyProperty.Register("RadiusY", function () {
                 return Number;
             }, EllipseGeometry, 0.0, function (d, args) {
-                return (d)._InvalidateGeometry();
+                return d._InvalidateGeometry();
             });
             return EllipseGeometry;
-        })(Media.Geometry);
+        })(Fayde.Media.Geometry);
         Media.EllipseGeometry = EllipseGeometry;
         Fayde.RegisterType(EllipseGeometry, {
             Name: "EllipseGeometry",
@@ -26477,7 +26641,7 @@ var Fayde;
                 var bounds = new rect();
                 var enumerator = this.Children.GetEnumerator();
                 while (enumerator.MoveNext()) {
-                    rect.unionLogical(bounds, (enumerator.Current).GetBounds(pars));
+                    rect.unionLogical(bounds, enumerator.Current.GetBounds(pars));
                 }
                 return bounds;
             };
@@ -26489,7 +26653,7 @@ var Fayde;
                 }
                 var enumerator = this.Children.GetEnumerator();
                 while (enumerator.MoveNext()) {
-                    (enumerator.Current).Draw(ctx);
+                    enumerator.Current.Draw(ctx);
                 }
                 if (transform != null)
                     ctx.restore();
@@ -26500,12 +26664,12 @@ var Fayde;
             };
             GeometryGroup.FillRulleProperty = DependencyProperty.Register("FillRule", function () {
                 return new Enum(Fayde.Shapes.FillRule);
-            }, GeometryGroup, Fayde.Shapes.FillRule.EvenOdd);
+            }, GeometryGroup, 0 /* EvenOdd */);
             GeometryGroup.ChildrenProperty = DependencyProperty.RegisterImmutable("Children", function () {
-                return Media.GeometryCollection;
+                return Fayde.Media.GeometryCollection;
             }, GeometryGroup);
             return GeometryGroup;
-        })(Media.Geometry);
+        })(Fayde.Media.Geometry);
         Media.GeometryGroup = GeometryGroup;
         Fayde.RegisterType(GeometryGroup, {
             Name: "GeometryGroup",
@@ -26529,12 +26693,12 @@ var Fayde;
             GradientBrush.prototype.CreateBrush = function (ctx, bounds) {
                 var spread = this.SpreadMethod;
                 switch (spread) {
-                    case Media.GradientSpreadMethod.Pad:
+                    case 0 /* Pad */:
                     default:
                         return this._CreatePad(ctx, bounds);
-                    case Media.GradientSpreadMethod.Repeat:
+                    case 2 /* Repeat */:
                         return this._CreateRepeat(ctx, bounds);
-                    case Media.GradientSpreadMethod.Reflect:
+                    case 1 /* Reflect */:
                         return this._CreateReflect(ctx, bounds);
                 }
             };
@@ -26548,7 +26712,7 @@ var Fayde;
             GradientBrush.prototype._GetMappingModeTransform = function (bounds) {
                 if (!bounds)
                     return mat3.identity();
-                if (this.MappingMode === Media.BrushMappingMode.Absolute)
+                if (this.MappingMode === 0 /* Absolute */)
                     return mat3.identity();
                 return mat3.createScale(bounds.Width, bounds.Height);
             };
@@ -26557,22 +26721,22 @@ var Fayde;
                 this.InvalidateBrush();
             };
             GradientBrush.GradientStopsProperty = DependencyProperty.RegisterImmutable("GradientStops", function () {
-                return Media.GradientStopCollection;
+                return Fayde.Media.GradientStopCollection;
             }, GradientBrush);
             GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () {
-                return new Enum(Media.BrushMappingMode);
-            }, GradientBrush, Media.BrushMappingMode.RelativeToBoundingBox, function (d, args) {
-                return (d).InvalidateBrush();
+                return new Enum(Fayde.Media.BrushMappingMode);
+            }, GradientBrush, 1 /* RelativeToBoundingBox */, function (d, args) {
+                return d.InvalidateBrush();
             });
             GradientBrush.SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", function () {
-                return new Enum(Media.GradientSpreadMethod);
-            }, GradientBrush, Media.GradientSpreadMethod.Pad, function (d, args) {
-                return (d).InvalidateBrush();
+                return new Enum(Fayde.Media.GradientSpreadMethod);
+            }, GradientBrush, 0 /* Pad */, function (d, args) {
+                return d.InvalidateBrush();
             });
 
             GradientBrush.Annotations = { ContentProperty: GradientBrush.GradientStopsProperty };
             return GradientBrush;
-        })(Media.Brush);
+        })(Fayde.Media.Brush);
         Media.GradientBrush = GradientBrush;
         Fayde.RegisterType(GradientBrush, {
             Name: "GradientBrush",
@@ -26592,12 +26756,12 @@ var Fayde;
                 if (dir.y === 0) {
                     if (dir.x < 0)
                         GradientMetrics.W(dir, first, last, bounds);
-else
+                    else
                         GradientMetrics.E(dir, first, last, bounds);
                 } else if (dir.x === 0) {
                     if (dir.y < 0)
                         GradientMetrics.N(dir, first, last, bounds);
-else
+                    else
                         GradientMetrics.S(dir, first, last, bounds);
                 } else if (dir.x < 0 && dir.y < 0) {
                     GradientMetrics.NW(dir, first, last, bounds);
@@ -26727,12 +26891,12 @@ var Fayde;
             GradientStop.ColorProperty = DependencyProperty.Register("Color", function () {
                 return Color;
             }, GradientStop, undefined, function (d, args) {
-                return (d)._GradientStopChanged();
+                return d._GradientStopChanged();
             });
             GradientStop.OffsetProperty = DependencyProperty.Register("Offset", function () {
                 return Number;
             }, GradientStop, 0.0, function (d, args) {
-                return (d)._GradientStopChanged();
+                return d._GradientStopChanged();
             });
             return GradientStop;
         })(Fayde.DependencyObject);
@@ -26902,7 +27066,7 @@ var Fayde;
                     return Number;
                 }, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
                 return BitmapSource;
-            })(Imaging.ImageSource);
+            })(Fayde.Media.Imaging.ImageSource);
             Imaging.BitmapSource = BitmapSource;
             Fayde.RegisterType(BitmapSource, {
                 Name: "BitmapSource",
@@ -26930,7 +27094,7 @@ var Uri = (function () {
     function Uri(originalString, kind) {
         this._OriginalString = originalString;
         if (kind == null)
-            kind = UriKind.RelativeOrAbsolute;
+            kind = 2 /* RelativeOrAbsolute */;
         this._Kind = kind;
     }
     Object.defineProperty(Uri.prototype, "OriginalString", {
@@ -27001,7 +27165,7 @@ var Fayde;
                     var uri = args.NewValue;
                     if (Uri.IsNullOrEmpty(uri))
                         this.ResetImage();
-else
+                    else
                         this.UriSourceChanged(args.OldValue, uri);
                 };
                 BitmapImage.prototype._OnErrored = function (e) {
@@ -27015,10 +27179,10 @@ else
                 BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () {
                     return Uri;
                 }, BitmapImage, undefined, function (d, args) {
-                    return (d)._UriSourceChanged(args);
+                    return d._UriSourceChanged(args);
                 }, undefined, true);
                 return BitmapImage;
-            })(Imaging.BitmapSource);
+            })(Fayde.Media.Imaging.BitmapSource);
             Imaging.BitmapImage = BitmapImage;
             Fayde.RegisterType(BitmapImage, {
                 Name: "BitmapImage",
@@ -27026,7 +27190,7 @@ else
                 XmlNamespace: Fayde.XMLNS
             });
 
-            Fayde.RegisterTypeConverter(Imaging.ImageSource, function (val) {
+            Fayde.RegisterTypeConverter(Fayde.Media.Imaging.ImageSource, function (val) {
                 var bi = new BitmapImage();
                 bi.UriSource = Fayde.ConvertAnyToType(val, Uri);
                 return bi;
@@ -27047,7 +27211,7 @@ var Fayde;
             if (height === 0)
                 sy = 1.0;
 
-            if (stretch === Media.Stretch.Fill) {
+            if (stretch === 1 /* Fill */) {
                 return mat3.createScale(sx, sy);
             }
 
@@ -27055,37 +27219,37 @@ var Fayde;
             var dx = 0.0;
             var dy = 0.0;
             switch (stretch) {
-                case Media.Stretch.Uniform:
+                case 2 /* Uniform */:
                     scale = sx < sy ? sx : sy;
                     break;
-                case Media.Stretch.UniformToFill:
+                case 3 /* UniformToFill */:
                     scale = sx < sy ? sy : sx;
                     break;
-                case Media.Stretch.None:
+                case 0 /* None */:
                     break;
             }
 
             switch (alignX) {
-                case Media.AlignmentX.Left:
+                case 0 /* Left */:
                     dx = 0.0;
                     break;
-                case Media.AlignmentX.Center:
+                case 1 /* Center */:
                     dx = (width - (scale * sw)) / 2;
                     break;
-                case Media.AlignmentX.Right:
+                case 2 /* Right */:
                 default:
                     dx = width - (scale * sw);
                     break;
             }
 
             switch (alignY) {
-                case Media.AlignmentY.Top:
+                case 0 /* Top */:
                     dy = 0.0;
                     break;
-                case Media.AlignmentY.Center:
+                case 1 /* Center */:
                     dy = (height - (scale * sh)) / 2;
                     break;
-                case Media.AlignmentY.Bottom:
+                case 2 /* Bottom */:
                 default:
                     dy = height - (scale * sh);
                     break;
@@ -27122,22 +27286,22 @@ var Fayde;
             TileBrush.prototype.DrawTile = function (canvasCtx, bounds) {
             };
             TileBrush.AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", function () {
-                return new Enum(Media.AlignmentX);
-            }, TileBrush, Media.AlignmentX.Center, function (d, args) {
-                return (d).InvalidateBrush();
+                return new Enum(Fayde.Media.AlignmentX);
+            }, TileBrush, 1 /* Center */, function (d, args) {
+                return d.InvalidateBrush();
             });
             TileBrush.AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", function () {
-                return new Enum(Media.AlignmentY);
-            }, TileBrush, Media.AlignmentY.Center, function (d, args) {
-                return (d).InvalidateBrush();
+                return new Enum(Fayde.Media.AlignmentY);
+            }, TileBrush, 1 /* Center */, function (d, args) {
+                return d.InvalidateBrush();
             });
             TileBrush.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () {
-                return new Enum(Media.Stretch);
-            }, TileBrush, Media.Stretch.Fill, function (d, args) {
-                return (d).InvalidateBrush();
+                return new Enum(Fayde.Media.Stretch);
+            }, TileBrush, 1 /* Fill */, function (d, args) {
+                return d.InvalidateBrush();
             });
             return TileBrush;
-        })(Media.Brush);
+        })(Fayde.Media.Brush);
         Media.TileBrush = TileBrush;
         Fayde.RegisterType(TileBrush, {
             Name: "TileBrush",
@@ -27186,10 +27350,10 @@ var Fayde;
                 };
                 ImageBrush.prototype._ImageSourceChanged = function (args) {
                     var oldSrc;
-                    if ((oldSrc = args.OldValue) && (oldSrc instanceof Imaging.BitmapSource))
+                    if ((oldSrc = args.OldValue) && (oldSrc instanceof Fayde.Media.Imaging.BitmapSource))
                         oldSrc.Unlisten(this);
                     var newSrc;
-                    if ((newSrc = args.NewValue) && (newSrc instanceof Imaging.BitmapSource))
+                    if ((newSrc = args.NewValue) && (newSrc instanceof Fayde.Media.Imaging.BitmapSource))
                         newSrc.Listen(this);
                     this.InvalidateBrush();
                 };
@@ -27203,12 +27367,12 @@ var Fayde;
                     this.InvalidateBrush();
                 };
                 ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () {
-                    return Imaging.ImageSource;
+                    return Fayde.Media.Imaging.ImageSource;
                 }, ImageBrush, undefined, function (d, args) {
-                    return (d)._ImageSourceChanged(args);
+                    return d._ImageSourceChanged(args);
                 }, ImageBrush._SourceCoercer);
                 return ImageBrush;
-            })(Media.TileBrush);
+            })(Fayde.Media.TileBrush);
             Imaging.ImageBrush = ImageBrush;
             Fayde.RegisterType(ImageBrush, {
                 Name: "ImageBrush",
@@ -27248,7 +27412,7 @@ var Fayde;
                 var first = { x: start.X, y: start.Y };
                 var last = { x: end.X, y: end.Y };
 
-                Media.GradientMetrics.Calculate(dir, first, last, bounds);
+                Fayde.Media.GradientMetrics.Calculate(dir, first, last, bounds);
 
                 var grd = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
 
@@ -27297,15 +27461,15 @@ var Fayde;
             LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () {
                 return Point;
             }, LinearGradientBrush, undefined, function (d, args) {
-                return (d).InvalidateBrush();
+                return d.InvalidateBrush();
             });
             LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterCore("EndPoint", function () {
                 return Point;
             }, LinearGradientBrush, undefined, function (d, args) {
-                return (d).InvalidateBrush();
+                return d.InvalidateBrush();
             });
             return LinearGradientBrush;
-        })(Media.GradientBrush);
+        })(Fayde.Media.GradientBrush);
         Media.LinearGradientBrush = LinearGradientBrush;
         Fayde.RegisterType(LinearGradientBrush, {
             Name: "LinearGradientBrush",
@@ -27335,15 +27499,15 @@ var Fayde;
             LineGeometry.StartPointProperty = DependencyProperty.Register("StartPoint", function () {
                 return Point;
             }, LineGeometry, undefined, function (d, args) {
-                return (d)._InvalidateGeometry();
+                return d._InvalidateGeometry();
             });
             LineGeometry.EndPointProperty = DependencyProperty.Register("EndPoint", function () {
                 return Point;
             }, LineGeometry, undefined, function (d, args) {
-                return (d)._InvalidateGeometry();
+                return d._InvalidateGeometry();
             });
             return LineGeometry;
-        })(Media.Geometry);
+        })(Fayde.Media.Geometry);
         Media.LineGeometry = LineGeometry;
         Fayde.RegisterType(LineGeometry, {
             Name: "LineGeometry",
@@ -27824,12 +27988,12 @@ var Fayde;
                 return this.ProjectionMatrix;
             };
             Matrix3DProjection.ProjectionMatrixProperty = DependencyProperty.Register("ProjectionMatrix", function () {
-                return Media.Matrix3D;
+                return Fayde.Media.Matrix3D;
             }, Matrix3DProjection, undefined, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
             return Matrix3DProjection;
-        })(Media.Projection);
+        })(Fayde.Media.Projection);
         Media.Matrix3DProjection = Matrix3DProjection;
         Fayde.RegisterType(Matrix3DProjection, {
             Name: "Matrix3DProjection",
@@ -27861,7 +28025,7 @@ var Fayde;
                 var cp = new Point();
                 var cp1, cp2, cp3;
                 var start = new Point();
-                var fillRule = Fayde.Shapes.FillRule.EvenOdd;
+                var fillRule = 0 /* EvenOdd */;
                 var cbz = false;
                 var qbz = false;
                 var cbzp = new Point();
@@ -27880,10 +28044,10 @@ var Fayde;
                         case 'F':
                             c = this.str.charAt(this.index);
                             if (c === '0')
-                                fillRule = Fayde.Shapes.FillRule.EvenOdd;
-else if (c === '1')
-                                fillRule = Fayde.Shapes.FillRule.NonZero;
-else
+                                fillRule = 0 /* EvenOdd */;
+                            else if (c === '1')
+                                fillRule = 1 /* NonZero */;
+                            else
                                 return null;
                             this.index++;
                             c = this.str.charAt(this.index);
@@ -28106,9 +28270,9 @@ else
 
                                 var angle = this.ParseDouble();
                                 var is_large = this.ParseDouble() !== 0;
-                                var sweep = Fayde.Shapes.SweepDirection.Counterclockwise;
+                                var sweep = 0 /* Counterclockwise */;
                                 if (this.ParseDouble() !== 0)
-                                    sweep = Fayde.Shapes.SweepDirection.Clockwise;
+                                    sweep = 1 /* Clockwise */;
 
                                 if ((cp2 = this.ParsePoint()) == null)
                                     break;
@@ -28138,7 +28302,7 @@ else
                             break;
                     }
                 }
-                var pg = new Media.PathGeometry();
+                var pg = new Fayde.Media.PathGeometry();
                 pg.OverridePath(path);
                 pg.FillRule = fillRule;
                 return pg;
@@ -28193,11 +28357,11 @@ else
 
                     if (code >= 48 && code <= 57)
                         temp += c;
-else if (code === 46)
+                    else if (code === 46)
                         temp += c;
-else if (c === 'E' || c === 'e')
+                    else if (c === 'E' || c === 'e')
                         temp += c;
-else
+                    else
                         break;
                     this.index++;
                 }
@@ -28250,7 +28414,7 @@ else
             return MediaParser;
         })();
 
-        Fayde.RegisterTypeConverter(Media.Geometry, ParseGeometry);
+        Fayde.RegisterTypeConverter(Fayde.Media.Geometry, ParseGeometry);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -28274,7 +28438,7 @@ var Fayde;
 
                 var enumerator = this.Segments.GetEnumerator();
                 while (enumerator.MoveNext()) {
-                    (enumerator.Current)._Append(p);
+                    enumerator.Current._Append(p);
                 }
                 if (this.IsClosed)
                     p.Close();
@@ -28312,20 +28476,20 @@ var Fayde;
             PathFigure.IsClosedProperty = DependencyProperty.RegisterCore("IsClosed", function () {
                 return Boolean;
             }, PathFigure, false, function (d, args) {
-                return (d).InvalidatePathFigure();
+                return d.InvalidatePathFigure();
             });
             PathFigure.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () {
                 return Point;
             }, PathFigure, undefined, function (d, args) {
-                return (d).InvalidatePathFigure();
+                return d.InvalidatePathFigure();
             });
             PathFigure.IsFilledProperty = DependencyProperty.RegisterCore("IsFilled", function () {
                 return Boolean;
             }, PathFigure, true, function (d, args) {
-                return (d).InvalidatePathFigure();
+                return d.InvalidatePathFigure();
             });
             PathFigure.SegmentsProperty = DependencyProperty.RegisterImmutable("Segments", function () {
-                return Media.PathSegmentCollection;
+                return Fayde.Media.PathSegmentCollection;
             }, PathFigure);
             return PathFigure;
         })(Fayde.DependencyObject);
@@ -28409,7 +28573,7 @@ var Fayde;
 
                 var enumerator = figures.GetEnumerator();
                 while (enumerator.MoveNext()) {
-                    (enumerator.Current).MergeInto(p);
+                    enumerator.Current.MergeInto(p);
                 }
                 return p;
             };
@@ -28421,14 +28585,14 @@ var Fayde;
             PathGeometry.Annotations = { ContentProperty: PathGeometry.FiguresProperty };
             PathGeometry.FillRuleProperty = DependencyProperty.Register("FillRule", function () {
                 return new Enum(Fayde.Shapes.FillRule);
-            }, PathGeometry, Fayde.Shapes.FillRule.EvenOdd, function (d, args) {
-                return (d)._InvalidateGeometry();
+            }, PathGeometry, 0 /* EvenOdd */, function (d, args) {
+                return d._InvalidateGeometry();
             });
             PathGeometry.FiguresProperty = DependencyProperty.RegisterImmutable("Figures", function () {
-                return Media.PathFigureCollection;
+                return Fayde.Media.PathFigureCollection;
             }, PathGeometry);
             return PathGeometry;
-        })(Media.Geometry);
+        })(Fayde.Media.Geometry);
         Media.PathGeometry = PathGeometry;
         Fayde.RegisterType(PathGeometry, {
             Name: "PathGeometry",
@@ -28544,9 +28708,9 @@ var Fayde;
             }, ArcSegment);
             ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () {
                 return new Enum(Fayde.Shapes.SweepDirection);
-            }, ArcSegment, Fayde.Shapes.SweepDirection.Counterclockwise);
+            }, ArcSegment, 0 /* Counterclockwise */);
             return ArcSegment;
-        })(Media.PathSegment);
+        })(Fayde.Media.PathSegment);
         Media.ArcSegment = ArcSegment;
         Fayde.RegisterType(ArcSegment, {
             Name: "ArcSegment",
@@ -28583,7 +28747,7 @@ var Fayde;
                 return Point;
             }, BezierSegment);
             return BezierSegment;
-        })(Media.PathSegment);
+        })(Fayde.Media.PathSegment);
         Media.BezierSegment = BezierSegment;
         Fayde.RegisterType(BezierSegment, {
             Name: "BezierSegment",
@@ -28606,7 +28770,7 @@ var Fayde;
                 return Point;
             }, LineSegment);
             return LineSegment;
-        })(Media.PathSegment);
+        })(Fayde.Media.PathSegment);
         Media.LineSegment = LineSegment;
         Fayde.RegisterType(LineSegment, {
             Name: "LineSegment",
@@ -28643,7 +28807,7 @@ var Fayde;
             }, PolyBezierSegment);
             PolyBezierSegment.Annotations = { ContentProperty: PolyBezierSegment.PointsProperty };
             return PolyBezierSegment;
-        })(Media.PathSegment);
+        })(Fayde.Media.PathSegment);
         Media.PolyBezierSegment = PolyBezierSegment;
         Fayde.RegisterType(PolyBezierSegment, {
             Name: "PolyBezierSegment",
@@ -28671,7 +28835,7 @@ var Fayde;
             }, PolyLineSegment);
             PolyLineSegment.Annotations = { ContentProperty: PolyLineSegment.PointsProperty };
             return PolyLineSegment;
-        })(Media.PathSegment);
+        })(Fayde.Media.PathSegment);
         Media.PolyLineSegment = PolyLineSegment;
         Fayde.RegisterType(PolyLineSegment, {
             Name: "PolyLineSegment",
@@ -28723,7 +28887,7 @@ var Fayde;
             }, PolyQuadraticBezierSegment);
             PolyQuadraticBezierSegment.Annotations = { ContentProperty: PolyQuadraticBezierSegment.PointsProperty };
             return PolyQuadraticBezierSegment;
-        })(Media.PathSegment);
+        })(Fayde.Media.PathSegment);
         Media.PolyQuadraticBezierSegment = PolyQuadraticBezierSegment;
         Fayde.RegisterType(PolyQuadraticBezierSegment, {
             Name: "PolyQuadraticBezierSegment",
@@ -28754,7 +28918,7 @@ var Fayde;
                 return Point;
             }, QuadraticBezierSegment);
             return QuadraticBezierSegment;
-        })(Media.PathSegment);
+        })(Fayde.Media.PathSegment);
         Media.QuadraticBezierSegment = QuadraticBezierSegment;
         Fayde.RegisterType(QuadraticBezierSegment, {
             Name: "QuadraticBezierSegment",
@@ -28850,75 +29014,75 @@ var Fayde;
                 var viewport = mat4.createViewport(ow, oh);
                 mat4.multiply(m, viewport, m);
 
-                var r = new Media.Matrix3D();
+                var r = new Fayde.Media.Matrix3D();
                 r._Raw = m;
                 return r;
             };
             PlaneProjection.CenterOfRotationXProperty = DependencyProperty.Register("CenterOfRotationX", function () {
                 return Number;
             }, PlaneProjection, 0.5, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
             PlaneProjection.CenterOfRotationYProperty = DependencyProperty.Register("CenterOfRotationY", function () {
                 return Number;
             }, PlaneProjection, 0.5, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
             PlaneProjection.CenterOfRotationZProperty = DependencyProperty.Register("CenterOfRotationZ", function () {
                 return Number;
             }, PlaneProjection, 0.5, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
 
             PlaneProjection.GlobalOffsetXProperty = DependencyProperty.Register("GlobalOffsetX", function () {
                 return Number;
             }, PlaneProjection, 0.0, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
             PlaneProjection.GlobalOffsetYProperty = DependencyProperty.Register("GlobalOffsetY", function () {
                 return Number;
             }, PlaneProjection, 0.0, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
             PlaneProjection.GlobalOffsetZProperty = DependencyProperty.Register("GlobalOffsetZ", function () {
                 return Number;
             }, PlaneProjection, 0.0, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
 
             PlaneProjection.LocalOffsetXProperty = DependencyProperty.Register("LocalOffsetX", function () {
                 return Number;
             }, PlaneProjection, 0.0, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
             PlaneProjection.LocalOffsetYProperty = DependencyProperty.Register("LocalOffsetY", function () {
                 return Number;
             }, PlaneProjection, 0.0, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
             PlaneProjection.LocalOffsetZProperty = DependencyProperty.Register("LocalOffsetZ", function () {
                 return Number;
             }, PlaneProjection, 0.0, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
 
             PlaneProjection.RotationXProperty = DependencyProperty.Register("RotationX", function () {
                 return Number;
             }, PlaneProjection, 0.0, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
             PlaneProjection.RotationYProperty = DependencyProperty.Register("RotationY", function () {
                 return Number;
             }, PlaneProjection, 0.0, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
             PlaneProjection.RotationZProperty = DependencyProperty.Register("RotationZ", function () {
                 return Number;
             }, PlaneProjection, 0.0, function (d, args) {
-                return (d)._InvalidateProjection();
+                return d._InvalidateProjection();
             });
             return PlaneProjection;
-        })(Media.Projection);
+        })(Fayde.Media.Projection);
         Media.PlaneProjection = PlaneProjection;
         Fayde.RegisterType(PlaneProjection, {
             Name: "PlaneProjection",
@@ -28942,25 +29106,25 @@ var Fayde;
             RadialGradientBrush.CenterProperty = DependencyProperty.RegisterCore("Center", function () {
                 return Point;
             }, RadialGradientBrush, undefined, function (d, args) {
-                return (d).InvalidateBrush();
+                return d.InvalidateBrush();
             });
             RadialGradientBrush.GradientOriginProperty = DependencyProperty.RegisterCore("GradientOrigin", function () {
                 return Point;
             }, RadialGradientBrush, undefined, function (d, args) {
-                return (d).InvalidateBrush();
+                return d.InvalidateBrush();
             });
             RadialGradientBrush.RadiusXProperty = DependencyProperty.RegisterCore("RadiusX", function () {
                 return Number;
             }, RadialGradientBrush, 0.5, function (d, args) {
-                return (d).InvalidateBrush();
+                return d.InvalidateBrush();
             });
             RadialGradientBrush.RadiusYProperty = DependencyProperty.RegisterCore("RadiusY", function () {
                 return Number;
             }, RadialGradientBrush, 0.5, function (d, args) {
-                return (d).InvalidateBrush();
+                return d.InvalidateBrush();
             });
             return RadialGradientBrush;
-        })(Media.GradientBrush);
+        })(Fayde.Media.GradientBrush);
         Media.RadialGradientBrush = RadialGradientBrush;
         Fayde.RegisterType(RadialGradientBrush, {
             Name: "RadialGradientBrush",
@@ -28993,20 +29157,20 @@ var Fayde;
             RectangleGeometry.RectProperty = DependencyProperty.RegisterCore("Rect", function () {
                 return rect;
             }, RectangleGeometry, undefined, function (d, args) {
-                return (d)._InvalidateGeometry();
+                return d._InvalidateGeometry();
             });
             RectangleGeometry.RadiusXProperty = DependencyProperty.RegisterCore("RadiusX", function () {
                 return Number;
             }, RectangleGeometry, 0, function (d, args) {
-                return (d)._InvalidateGeometry();
+                return d._InvalidateGeometry();
             });
             RectangleGeometry.RadiusYProperty = DependencyProperty.RegisterCore("RadiusY", function () {
                 return Number;
             }, RectangleGeometry, 0, function (d, args) {
-                return (d)._InvalidateGeometry();
+                return d._InvalidateGeometry();
             });
             return RectangleGeometry;
-        })(Media.Geometry);
+        })(Fayde.Media.Geometry);
         Media.RectangleGeometry = RectangleGeometry;
         Fayde.RegisterType(RectangleGeometry, {
             Name: "RectangleGeometry",
@@ -29045,10 +29209,10 @@ var Fayde;
             SolidColorBrush.ColorProperty = DependencyProperty.Register("Color", function () {
                 return Color;
             }, SolidColorBrush, undefined, function (d, args) {
-                return (d).InvalidateBrush();
+                return d.InvalidateBrush();
             });
             return SolidColorBrush;
-        })(Media.Brush);
+        })(Fayde.Media.Brush);
         Media.SolidColorBrush = SolidColorBrush;
         Fayde.RegisterType(SolidColorBrush, {
             Name: "SolidColorBrush",
@@ -29059,14 +29223,14 @@ var Fayde;
         function brushConverter(val) {
             if (!val)
                 return undefined;
-            if (val instanceof Media.Brush)
+            if (val instanceof Fayde.Media.Brush)
                 return val;
             var scb = new SolidColorBrush();
             scb.Color = Fayde.ConvertAnyToType(val, Color);
             return scb;
         }
 
-        Fayde.RegisterTypeConverter(Media.Brush, brushConverter);
+        Fayde.RegisterTypeConverter(Fayde.Media.Brush, brushConverter);
         Fayde.RegisterTypeConverter(SolidColorBrush, brushConverter);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
@@ -29084,7 +29248,7 @@ var Fayde;
                 d.SetValue(TextOptions.TextHintingModeProperty, value);
             };
             TextOptions.TextHintingModeProperty = DependencyProperty.RegisterAttached("TextHintingMode", function () {
-                return new Enum(Media.TextHintingMode);
+                return new Enum(Fayde.Media.TextHintingMode);
             }, TextOptions);
             return TextOptions;
         })();
@@ -29111,7 +29275,7 @@ var Fayde;
                 get: function () {
                     var val = this._Value;
                     if (!val) {
-                        this._Value = val = new Media.Matrix();
+                        this._Value = val = new Fayde.Media.Matrix();
                         val._Raw = this._BuildValue();
                     }
                     return val;
@@ -29179,7 +29343,7 @@ var Fayde;
                 return undefined;
             };
             return Transform;
-        })(Media.GeneralTransform);
+        })(Fayde.Media.GeneralTransform);
         Media.Transform = Transform;
         Fayde.RegisterType(Transform, {
             Name: "Transform",
@@ -29214,9 +29378,9 @@ var Fayde;
                 this._InvalidateValue();
             };
             MatrixTransform.MatrixProperty = DependencyProperty.RegisterFull("Matrix", function () {
-                return Media.Matrix;
+                return Fayde.Media.Matrix;
             }, MatrixTransform, undefined, function (d, args) {
-                return (d)._MatrixChanged(args);
+                return d._MatrixChanged(args);
             });
             return MatrixTransform;
         })(Transform);
@@ -29253,20 +29417,20 @@ var Fayde;
             RotateTransform.AngleProperty = DependencyProperty.Register("Angle", function () {
                 return Number;
             }, RotateTransform, 0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             RotateTransform.CenterXProperty = DependencyProperty.Register("CenterX", function () {
                 return Number;
             }, RotateTransform, 0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             RotateTransform.CenterYProperty = DependencyProperty.Register("CenterY", function () {
                 return Number;
             }, RotateTransform, 0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             return RotateTransform;
-        })(Media.Transform);
+        })(Fayde.Media.Transform);
         Media.RotateTransform = RotateTransform;
         Fayde.RegisterType(RotateTransform, {
             Name: "RotateTransform",
@@ -29293,25 +29457,25 @@ var Fayde;
             ScaleTransform.CenterXProperty = DependencyProperty.Register("CenterX", function () {
                 return Number;
             }, ScaleTransform, 0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             ScaleTransform.CenterYProperty = DependencyProperty.Register("CenterY", function () {
                 return Number;
             }, ScaleTransform, 0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             ScaleTransform.ScaleXProperty = DependencyProperty.Register("ScaleX", function () {
                 return Number;
             }, ScaleTransform, 1.0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             ScaleTransform.ScaleYProperty = DependencyProperty.Register("ScaleY", function () {
                 return Number;
             }, ScaleTransform, 1.0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             return ScaleTransform;
-        })(Media.Transform);
+        })(Fayde.Media.Transform);
         Media.ScaleTransform = ScaleTransform;
         Fayde.RegisterType(ScaleTransform, {
             Name: "ScaleTransform",
@@ -29340,25 +29504,25 @@ var Fayde;
             SkewTransform.AngleXProperty = DependencyProperty.Register("AngleX", function () {
                 return Number;
             }, SkewTransform, 0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             SkewTransform.AngleYProperty = DependencyProperty.Register("AngleY", function () {
                 return Number;
             }, SkewTransform, 0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             SkewTransform.CenterXProperty = DependencyProperty.Register("CenterX", function () {
                 return Number;
             }, SkewTransform, 0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             SkewTransform.CenterYProperty = DependencyProperty.Register("CenterY", function () {
                 return Number;
             }, SkewTransform, 0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             return SkewTransform;
-        })(Media.Transform);
+        })(Fayde.Media.Transform);
         Media.SkewTransform = SkewTransform;
         Fayde.RegisterType(SkewTransform, {
             Name: "SkewTransform",
@@ -29377,15 +29541,15 @@ var Fayde;
             TranslateTransform.XProperty = DependencyProperty.Register("X", function () {
                 return Number;
             }, TranslateTransform, 0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             TranslateTransform.YProperty = DependencyProperty.Register("Y", function () {
                 return Number;
             }, TranslateTransform, 0, function (d, args) {
-                return (d)._InvalidateValue();
+                return d._InvalidateValue();
             });
             return TranslateTransform;
-        })(Media.Transform);
+        })(Fayde.Media.Transform);
         Media.TranslateTransform = TranslateTransform;
         Fayde.RegisterType(TranslateTransform, {
             Name: "TranslateTransform",
@@ -29454,7 +29618,7 @@ var Fayde;
                 var enumerator = this.Children.GetEnumerator(true);
                 var cur = mat3.identity();
                 while (enumerator.MoveNext()) {
-                    mat3.multiply((enumerator.Current).Value._Raw, cur, cur);
+                    mat3.multiply(enumerator.Current.Value._Raw, cur, cur);
                 }
                 return cur;
             };
@@ -29464,7 +29628,7 @@ var Fayde;
 
             TransformGroup.Annotations = { ContentProperty: TransformGroup.ChildrenProperty };
             return TransformGroup;
-        })(Media.Transform);
+        })(Fayde.Media.Transform);
         Media.TransformGroup = TransformGroup;
         Fayde.RegisterType(TransformGroup, {
             Name: "TransformGroup",
@@ -29484,7 +29648,7 @@ var Fayde;
                     _super.apply(this, arguments);
                 }
                 VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () {
-                    return Media.Animation.Storyboard;
+                    return Fayde.Media.Animation.Storyboard;
                 }, VisualState);
 
                 VisualState.Annotations = { ContentProperty: VisualState.StoryboardProperty };
@@ -29561,13 +29725,13 @@ var Fayde;
                         storyboard = newStoryboards[i];
                         if (storyboard == null)
                             continue;
-                        res.Set((storyboard)._ID, storyboard);
+                        res.Set(storyboard._ID, storyboard);
                         try  {
                             storyboard.Begin();
                         } catch (err) {
                             for (var j = 0; j <= i; j++) {
                                 if (newStoryboards[j] != null)
-                                    res.Set((newStoryboards[j])._ID, undefined);
+                                    res.Set(newStoryboards[j]._ID, undefined);
                             }
                             throw err;
                         }
@@ -29590,7 +29754,7 @@ var Fayde;
                         storyboard = enumerator.Current;
                         if (!storyboard)
                             continue;
-                        element.Resources.Set((storyboard)._ID, undefined);
+                        element.Resources.Set(storyboard._ID, undefined);
                         storyboard.Stop();
                     }
                     this._CurrentStoryboards = [];
@@ -29603,7 +29767,7 @@ var Fayde;
                     this.CurrentStateChanged.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
                 };
                 VisualStateGroup.StatesProperty = DependencyProperty.RegisterImmutable("States", function () {
-                    return VSM.VisualStateCollection;
+                    return Fayde.Media.VSM.VisualStateCollection;
                 }, VisualStateGroup);
 
                 VisualStateGroup.TransitionsProperty = DependencyProperty.RegisterImmutable("Transitions", function () {
@@ -29696,8 +29860,8 @@ var Fayde;
                     if (lastState === state)
                         return true;
 
-                    if (Media.VSM.Debug && window.console) {
-                        console.log("VSM:GoToState:[" + (control)._ID + "]" + (lastState ? lastState.Name : "()") + "-->" + state.Name);
+                    if (Fayde.Media.VSM.Debug && window.console) {
+                        console.log("VSM:GoToState:[" + control._ID + "]" + (lastState ? lastState.Name : "()") + "-->" + state.Name);
                     }
 
                     var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
@@ -29752,13 +29916,13 @@ var Fayde;
                         return false;
                     var enumerator = groups.GetEnumerator();
                     while (enumerator.MoveNext()) {
-                        (enumerator.Current).StopCurrentStoryboards(root);
+                        enumerator.Current.StopCurrentStoryboards(root);
                     }
                 };
 
                 VisualStateManager._GetTemplateRoot = function (control) {
                     if (control instanceof Fayde.Controls.UserControl)
-                        return (control).XamlNode.TemplateRoot;
+                        return control.XamlNode.TemplateRoot;
 
                     var enumerator = control.XamlNode.GetVisualTreeEnumerator();
                     var node = null;
@@ -29807,12 +29971,12 @@ var Fayde;
                         var transToState = group.GetState(transition.To);
                         if (from === transFromState)
                             score += 1;
-else if (transFromState != null)
+                        else if (transFromState != null)
                             continue;
 
                         if (to === transToState)
                             score += 2;
-else if (transToState != null)
+                        else if (transToState != null)
                             continue;
 
                         if (score > bestScore) {
@@ -29825,7 +29989,7 @@ else if (transToState != null)
                     return defaultTransition;
                 };
                 VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group, state, transition) {
-                    var dynamic = new Media.Animation.Storyboard();
+                    var dynamic = new Fayde.Media.Animation.Storyboard();
                     if (transition != null) {
                         dynamic.Duration = transition.GeneratedDuration;
                     } else {
@@ -29840,7 +30004,7 @@ else if (transToState != null)
                     return dynamic;
                 };
                 VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttachedCore("VisualStateGroups", function () {
-                    return VSM.VisualStateGroupCollection;
+                    return Fayde.Media.VSM.VisualStateGroupCollection;
                 }, VisualStateManager);
 
                 VisualStateManager.CustomVisualStateManagerProperty = DependencyProperty.RegisterAttachedCore("CustomVisualStateManager", function () {
@@ -29971,7 +30135,7 @@ var Fayde;
                 _super.apply(this, arguments);
             }
             return ViewModelBase;
-        })(MVVM.ObservableObject);
+        })(Fayde.MVVM.ObservableObject);
         MVVM.ViewModelBase = ViewModelBase;
         Fayde.RegisterType(ViewModelBase, {
             Name: "ViewModelBase",
@@ -30186,6 +30350,14 @@ var CornerRadius = (function () {
         return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
     };
 
+    CornerRadius.Equals = function (cr1, cr2) {
+        if (cr1 == null && cr2 == null)
+            return true;
+        if (cr1 == null || cr2 == null)
+            return false;
+        return cr1.TopLeft === cr2.TopLeft && cr1.TopRight === cr2.TopRight && cr1.BottomRight === cr2.BottomRight && cr1.BottomLeft === cr2.BottomLeft;
+    };
+
     CornerRadius.prototype.Clone = function () {
         return new CornerRadius(this.TopLeft, this.TopRight, this.BottomRight, this.BottomLeft);
     };
@@ -30252,7 +30424,7 @@ var DateTime = (function () {
         }
         this._InternalDate = null;
         var ticks = null;
-        var kind = DateTimeKind.Unspecified;
+        var kind = 1 /* Unspecified */;
         var year = 0;
         var month = 0;
         var day = 0;
@@ -30310,14 +30482,14 @@ var DateTime = (function () {
         }
         switch (kind) {
             case 0:
-                this._Kind = DateTimeKind.Local;
+                this._Kind = 0 /* Local */;
                 break;
             default:
             case 1:
-                this._Kind = DateTimeKind.Unspecified;
+                this._Kind = 1 /* Unspecified */;
                 break;
             case 2:
-                this._Kind = DateTimeKind.Utc;
+                this._Kind = 2 /* Utc */;
                 break;
         }
     }
@@ -30467,7 +30639,7 @@ var DurationType;
 
 var Duration = (function () {
     function Duration(ts) {
-        this._Type = DurationType.TimeSpan;
+        this._Type = 2 /* TimeSpan */;
         this._TimeSpan = ts;
     }
     Duration.prototype.Clone = function () {
@@ -30486,7 +30658,7 @@ var Duration = (function () {
     });
     Object.defineProperty(Duration.prototype, "TimeSpan", {
         get: function () {
-            if (this._Type === DurationType.TimeSpan)
+            if (this._Type === 2 /* TimeSpan */)
                 return this._TimeSpan;
             throw new InvalidOperationException("Duration does not have a TimeSpan.");
         },
@@ -30495,21 +30667,21 @@ var Duration = (function () {
     });
     Object.defineProperty(Duration.prototype, "HasTimeSpan", {
         get: function () {
-            return this._Type === DurationType.TimeSpan;
+            return this._Type === 2 /* TimeSpan */;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Duration.prototype, "IsForever", {
         get: function () {
-            return this._Type === DurationType.Forever;
+            return this._Type === 1 /* Forever */;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Duration.prototype, "IsAutomatic", {
         get: function () {
-            return this._Type === DurationType.Automatic;
+            return this._Type === 0 /* Automatic */;
         },
         enumerable: true,
         configurable: true
@@ -30517,7 +30689,7 @@ var Duration = (function () {
 
     Object.defineProperty(Duration.prototype, "IsZero", {
         get: function () {
-            return this._Type === DurationType.TimeSpan && this._TimeSpan.Ticks === 0;
+            return this._Type === 2 /* TimeSpan */ && this._TimeSpan.Ticks === 0;
         },
         enumerable: true,
         configurable: true
@@ -30525,12 +30697,12 @@ var Duration = (function () {
 
     Duration.Automatic = (function () {
         var d = new Duration();
-        (d)._Type = DurationType.Automatic;
+        d._Type = 0 /* Automatic */;
         return d;
     })();
     Duration.Forever = (function () {
         var d = new Duration();
-        (d)._Type = DurationType.Forever;
+        d._Type = 1 /* Forever */;
         return d;
     })();
     return Duration;
@@ -30670,6 +30842,7 @@ Fayde.RegisterTypeConverter(Length, function (val) {
         return val;
     return parseFloat(val.toString());
 });
+
 var Point = (function () {
     function Point(x, y) {
         this.X = x == null ? 0 : x;
@@ -31762,6 +31935,7 @@ Fayde.RegisterType(rect, {
     Namespace: "window",
     XmlNamespace: Fayde.XMLNSX
 });
+
 var size = (function () {
     function size() {
         this.Width = 0;
@@ -32216,7 +32390,7 @@ var Fayde;
             if (!data)
                 return null;
 
-            if ((window).JSON && JSON.parse) {
+            if (window.JSON && JSON.parse) {
                 try  {
                     return JSON.parse(data);
                 } catch (err) {
@@ -32291,6 +32465,12 @@ Fayde.RegisterType(BError, {
 });
 var Fayde;
 (function (Fayde) {
+    (function (Render) {
+        Render.Debug = false;
+        Render.DebugIndent = 0;
+    })(Fayde.Render || (Fayde.Render = {}));
+    var Render = Fayde.Render;
+
     (function (Layout) {
         Layout.Debug = false;
         Layout.DebugIndent = 0;
@@ -32507,6 +32687,9 @@ var PropertyInfo = (function () {
         if (isType)
             o = new typeOrObj();
 
+        if (!(o instanceof Object))
+            return null;
+
         var nameClosure = name;
         var propDesc = Nullstone.GetPropertyDescriptor(o, name);
         if (propDesc) {
@@ -32590,8 +32773,12 @@ var StringEx = (function () {
             items[_i] = arguments[_i + 1];
         }
         var args = arguments;
-        return format.replace(/{(\d+)}/g, function (match, num) {
-            var i = parseInt(num);
+        return format.replace(/{(\d+)}/g, function (match) {
+            var matches = [];
+            for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                matches[_i] = arguments[_i + 1];
+            }
+            var i = parseInt(matches[0]);
             return typeof items[i] != 'undefined' ? items[i] : match;
         });
     };
@@ -32683,110 +32870,161 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Shapes) {
-        var ShapeNode = (function (_super) {
-            __extends(ShapeNode, _super);
-            function ShapeNode(xobj) {
-                _super.call(this, xobj);
-            }
-            ShapeNode.prototype.PostInsideObject = function (ctx, lu, x, y) {
-                var shape = this.XObject;
-                var extents = rect.copyTo(this.GetStretchExtents(shape, lu));
-                rect.transform(extents, ctx.currentTransform);
-                if (!rect.containsPointXY(extents, x, y))
-                    return false;
-                return shape._InsideShape(ctx, lu, x, y);
-            };
-
-            ShapeNode.prototype.ComputeBounds = function (baseComputer, lu) {
-                this.IntersectBaseBoundsWithClipPath(lu, lu.Bounds, this.GetStretchExtents(this.XObject, lu), lu.AbsoluteXform);
-                rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
-                lu.ComputeGlobalBounds();
-                lu.ComputeSurfaceBounds();
-            };
-            ShapeNode.prototype.IntersectBaseBoundsWithClipPath = function (lu, dest, baseBounds, xform) {
-                var isClipEmpty = rect.isEmpty(lu.ClipBounds);
-                var isLayoutClipEmpty = lu.LayoutClip ? rect.isEmpty(lu.LayoutClip) : true;
-
-                if ((!isClipEmpty || !isLayoutClipEmpty) && !lu.TotalIsRenderVisible) {
-                    rect.clear(dest);
-                    return;
-                }
-
-                rect.copyGrowTransform(dest, baseBounds, lu.EffectPadding, xform);
-
-                if (!isClipEmpty)
-                    rect.intersection(dest, lu.ClipBounds);
-                if (!isLayoutClipEmpty)
-                    rect.intersection(dest, lu.LayoutClip);
-            };
-
-            ShapeNode.prototype.UpdateStretch = function () {
-                var lu = this.LayoutUpdater;
-                rect.clear(lu.Extents);
-                rect.clear(lu.ExtentsWithChildren);
-            };
-            ShapeNode.prototype.GetStretchExtents = function (shape, lu) {
-                if (rect.isEmpty(lu.Extents)) {
-                    rect.copyTo(shape._ComputeStretchBounds(), lu.Extents);
-                    rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
-                }
-                return lu.Extents;
-            };
-            return ShapeNode;
-        })(Fayde.FENode);
-        Shapes.ShapeNode = ShapeNode;
-
-        function isSignificant(dx, x) {
-            return Math.abs(x) < 0.000019 && (Math.abs(dx) * x - x) > 1.0;
-        }
-
         var Shape = (function (_super) {
             __extends(Shape, _super);
             function Shape() {
                 _super.apply(this, arguments);
-                this._ShapeFlags = Shapes.ShapeFlags.None;
-                this._StretchXform = mat3.identity();
-                this._NaturalBounds = new rect();
-                this._Path = null;
-                this._Fill = null;
-                this._Stroke = null;
             }
-            Shape.prototype.CreateNode = function () {
-                return new ShapeNode(this);
+            Shape.prototype.CreateLayoutUpdater = function (node) {
+                return new ShapeLayoutUpdater(node);
             };
 
-            Shape.prototype._InsideShape = function (ctx, lu, x, y) {
-                if (this._ShapeFlags & Shapes.ShapeFlags.Empty)
-                    return false;
-                var ret = false;
-                ctx.save();
-                ctx.pretransformMatrix(this._StretchXform);
-                if (this._Fill || this._Stroke) {
-                    this._DrawPath(ctx);
-                    if (this._Fill) {
-                        ret = ret || ctx.isPointInPath(x, y);
-                    } else if (!ret) {
-                        ret = ret || ctx.isPointInStrokeEx(this._CreateStrokeParameters(), x, y);
-                    }
-                }
-                ctx.restore();
-                return ret;
+            Shape._StrokePropertyChanged = function (dobj, args) {
+                var shape = dobj;
+                var lu = shape.XamlNode.LayoutUpdater;
+                lu[args.Property.Name] = args.NewValue;
+                lu.InvalidateNaturalBounds();
             };
-            Shape.prototype._MeasureOverride = function (availableSize, error) {
-                var shapeBounds = this._GetNaturalBounds();
+
+            Shape.prototype._FillChanged = function (args) {
+                var newBrush = args.NewValue;
+                if (this._FillListener)
+                    this._FillListener.Detach();
+                this._FillListener = null;
+                if (newBrush)
+                    this._FillListener = newBrush.Listen(function (brush) {
+                        return lu.Invalidate();
+                    });
+
+                var lu = this.XamlNode.LayoutUpdater;
+                if (lu.Fill || newBrush)
+                    lu.InvalidateNaturalBounds();
+                lu.Fill = newBrush;
+                lu.CanHitElement = !!lu.Stroke || !!lu.Fill;
+            };
+
+            Shape.prototype._StrokeChanged = function (args) {
+                var newBrush = args.NewValue;
+                if (this._StrokeListener)
+                    this._StrokeListener.Detach();
+                this._StrokeListener = null;
+                if (newBrush)
+                    this._StrokeListener = newBrush.Listen(function (brush) {
+                        return lu.Invalidate();
+                    });
+
+                var lu = this.XamlNode.LayoutUpdater;
+                if (lu.Stroke || newBrush)
+                    lu.InvalidateNaturalBounds();
+                lu.Stroke = newBrush;
+                lu.CanHitElement = !!lu.Stroke || !!lu.Fill;
+            };
+            Shape.prototype._StretchChanged = function (args) {
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.Stretch = args.NewValue;
+                lu.InvalidateMeasure();
+                lu.InvalidateStretch();
+            };
+
+            Shape.prototype._WidthChanged = function (args) {
+                _super.prototype._WidthChanged.call(this, args);
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.InvalidateStretch();
+            };
+            Shape.prototype._HeightChanged = function (args) {
+                _super.prototype._HeightChanged.call(this, args);
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.InvalidateStretch();
+            };
+            Shape.FillProperty = DependencyProperty.Register("Fill", function () {
+                return Fayde.Media.Brush;
+            }, Shape, undefined, function (d, args) {
+                return d._FillChanged(args);
+            });
+
+            Shape.StretchProperty = DependencyProperty.Register("Stretch", function () {
+                return new Enum(Fayde.Media.Stretch);
+            }, Shape, 0 /* None */, function (d, args) {
+                return d._StretchChanged(args);
+            });
+            Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () {
+                return Fayde.Media.Brush;
+            }, Shape, undefined, function (d, args) {
+                return d._StrokeChanged(args);
+            });
+            Shape.StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", function () {
+                return Number;
+            }, Shape, 1.0, Shape._StrokePropertyChanged);
+            Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () {
+                return Fayde.Shapes.DoubleCollection;
+            }, Shape, undefined, Shape._StrokePropertyChanged);
+            Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () {
+                return new Enum(Fayde.Shapes.PenLineCap);
+            }, Shape, 0 /* Flat */, Shape._StrokePropertyChanged);
+            Shape.StrokeDashOffsetProperty = DependencyProperty.Register("StrokeDashOffset", function () {
+                return Number;
+            }, Shape, 0.0, function (d, args) {
+                return Shape._StrokePropertyChanged;
+            });
+            Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () {
+                return new Enum(Fayde.Shapes.PenLineCap);
+            }, Shape, 0 /* Flat */, Shape._StrokePropertyChanged);
+            Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () {
+                return new Enum(Fayde.Shapes.PenLineJoin);
+            }, Shape, 0 /* Miter */, Shape._StrokePropertyChanged);
+            Shape.StrokeMiterLimitProperty = DependencyProperty.Register("StrokeMiterLimit", function () {
+                return Number;
+            }, Shape, 10.0, Shape._StrokePropertyChanged);
+            Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () {
+                return new Enum(Fayde.Shapes.PenLineCap);
+            }, Shape, 0 /* Flat */, Shape._StrokePropertyChanged);
+            return Shape;
+        })(Fayde.FrameworkElement);
+        Shapes.Shape = Shape;
+        Fayde.RegisterType(Shape, {
+            Name: "Shape",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
+
+        var ShapeLayoutUpdater = (function (_super) {
+            __extends(ShapeLayoutUpdater, _super);
+            function ShapeLayoutUpdater() {
+                _super.apply(this, arguments);
+                this.NaturalBounds = new rect();
+                this.StretchXform = mat3.identity();
+                this.Path = null;
+                this.SFlags = 0 /* None */;
+                this.Stroke = null;
+                this.Fill = null;
+                this.Stretch = 0 /* None */;
+                this.FillRule = 1 /* NonZero */;
+                this.StrokeThickness = 1;
+                this.StrokeStartLineCap = 0 /* Flat */;
+                this.StrokeEndLineCap = 0 /* Flat */;
+                this.StrokeLineJoin = 0 /* Miter */;
+                this.StrokeMiterLimit = 10;
+                this.StrokeDashArray = null;
+                this.StrokeDashCap = 0 /* Flat */;
+                this.StrokeDashOffset = 0;
+            }
+            ShapeLayoutUpdater.prototype.GetFillRule = function () {
+                return this.FillRule === 0 /* EvenOdd */ ? "evenodd" : "nonzero";
+            };
+            ShapeLayoutUpdater.prototype.GetBrushSize = function () {
+                return size.fromRect(this.Extents);
+            };
+
+            ShapeLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
+                var shapeBounds = this.GetNaturalBounds();
                 if (!shapeBounds)
                     return new size();
                 var sx = 0.0;
                 var sy = 0.0;
 
-                var desired;
-                if (this instanceof Shapes.Rectangle || this instanceof Shapes.Ellipse)
-                    desired = new size();
-else
-                    desired = size.copyTo(availableSize);
-
+                var desired = size.copyTo(availableSize);
                 var stretch = this.Stretch;
-                if (stretch === Fayde.Media.Stretch.None) {
+                if (stretch === 0 /* None */) {
                     return size.fromRaw(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
                 }
 
@@ -32806,13 +33044,13 @@ else
                     sy = sx;
 
                 switch (stretch) {
-                    case Fayde.Media.Stretch.Uniform:
+                    case 2 /* Uniform */:
                         sx = sy = Math.min(sx, sy);
                         break;
-                    case Fayde.Media.Stretch.UniformToFill:
+                    case 3 /* UniformToFill */:
                         sx = sy = Math.max(sx, sy);
                         break;
-                    case Fayde.Media.Stretch.Fill:
+                    case 1 /* Fill */:
                         if (!isFinite(availableSize.Width))
                             sx = 1.0;
                         if (!isFinite(availableSize.Height))
@@ -32826,19 +33064,19 @@ else
                 desired.Height = shapeBounds.Height * sy;
                 return desired;
             };
-            Shape.prototype._ArrangeOverride = function (finalSize, error) {
+            ShapeLayoutUpdater.prototype.ArrangeOverride = function (finalSize, error) {
                 var sx = 1.0;
                 var sy = 1.0;
 
-                var shapeBounds = this._GetNaturalBounds();
+                var shapeBounds = this.GetNaturalBounds();
                 if (!shapeBounds)
                     return new size();
 
-                this._InvalidateStretch();
+                this.InvalidateStretch();
 
                 var arranged;
                 var stretch = this.Stretch;
-                if (stretch === Fayde.Media.Stretch.None) {
+                if (stretch === 0 /* None */) {
                     arranged = size.fromRaw(Math.max(finalSize.Width, shapeBounds.X + shapeBounds.Width), Math.max(finalSize.Height, shapeBounds.Y + shapeBounds.Height));
                 } else {
                     arranged = size.copyTo(finalSize);
@@ -32855,10 +33093,10 @@ else
                     sy = arranged.Height / shapeBounds.Height;
 
                 switch (stretch) {
-                    case Fayde.Media.Stretch.Uniform:
+                    case 2 /* Uniform */:
                         sx = sy = Math.min(sx, sy);
                         break;
-                    case Fayde.Media.Stretch.UniformToFill:
+                    case 3 /* UniformToFill */:
                         sx = sy = Math.max(sx, sy);
                         break;
                     default:
@@ -32869,43 +33107,156 @@ else
                 arranged.Height = shapeBounds.Height * sy;
                 return arranged;
             };
-            Shape.prototype.Render = function (ctx, lu, region) {
-                if (this._ShapeFlags & Shapes.ShapeFlags.Empty)
-                    return;
-                var area = this.XamlNode.GetStretchExtents(this, lu);
-                ctx.save();
-                ctx.pretransformMatrix(this._StretchXform);
-                this._DrawPath(ctx);
-                if (this._Fill != null)
-                    ctx.fillEx(this._Fill, area);
-                ctx.strokeEx(this._Stroke, this._CreateStrokeParameters(), area);
-                ctx.restore();
+
+            ShapeLayoutUpdater.prototype.GetNaturalBounds = function () {
+                if (rect.isEmpty(this.NaturalBounds))
+                    this.NaturalBounds = this.ComputeShapeBoundsImpl(false);
+                return this.NaturalBounds;
+            };
+            ShapeLayoutUpdater.prototype.InvalidateNaturalBounds = function () {
+                rect.clear(this.NaturalBounds);
+                this.InvalidateStretch();
+                this.Invalidate();
+            };
+            ShapeLayoutUpdater.prototype.InvalidateStretch = function () {
+                rect.clear(this.Extents);
+                rect.clear(this.ExtentsWithChildren);
+                this.StretchXform = mat3.identity();
+                this.InvalidatePathCache();
+            };
+            ShapeLayoutUpdater.prototype.InvalidatePathCache = function (free) {
+                this.Path = null;
+                if (!free)
+                    this.UpdateBounds(true);
             };
 
-            Shape.prototype._GetFillRule = function () {
-                return Shapes.FillRule.NonZero;
+            ShapeLayoutUpdater.prototype.ComputeExtents = function (actualSize) {
+                if (rect.isEmpty(this.Extents)) {
+                    rect.copyTo(this.ComputeStretchBounds(actualSize), this.Extents);
+                    rect.copyTo(this.Extents, this.ExtentsWithChildren);
+                }
             };
-            Shape.prototype._BuildPath = function () {
-                return undefined;
+            ShapeLayoutUpdater.prototype.ComputeStretchBounds = function (actualSize) {
+                var shapeBounds = this.GetNaturalBounds();
+                if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
+                    this.SFlags = 1 /* Empty */;
+                    return new rect();
+                }
+
+                var stretch = this.Stretch;
+                if (stretch === 0 /* None */) {
+                    rect.transform(shapeBounds, this.StretchXform);
+                    return shapeBounds;
+                }
+
+                var node = this.Node;
+                var shape = node.XObject;
+
+                var specified = size.fromRaw(shape.Width, shape.Height);
+
+                if (specified.Width <= 0.0 || specified.Height <= 0.0) {
+                    this.SFlags = 1 /* Empty */;
+                    return new rect();
+                }
+
+                var framework = size.copyTo(actualSize);
+                if (node.VisualParentNode instanceof Fayde.Controls.CanvasNode) {
+                    framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
+                    framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
+                    if (!isNaN(specified.Width))
+                        framework.Width = specified.Width;
+                    if (!isNaN(specified.Height))
+                        framework.Height = specified.Height;
+                } else if (!this.PreviousConstraint) {
+                    framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
+                    framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
+                }
+
+                if (framework.Width === 0.0 || framework.Height === 0.0) {
+                    this.SFlags = 1 /* Empty */;
+                    return new rect();
+                }
+
+                var logicalBounds = this.ComputeShapeBoundsImpl(true);
+
+                var adjX = logicalBounds.Width !== 0.0;
+                var adjY = logicalBounds.Height !== 0.0;
+
+                var diffX = shapeBounds.Width - logicalBounds.Width;
+                var diffY = shapeBounds.Height - logicalBounds.Height;
+                var sw = adjX ? (framework.Width - diffX) / logicalBounds.Width : 1.0;
+                var sh = adjY ? (framework.Height - diffY) / logicalBounds.Height : 1.0;
+
+                var center = false;
+                switch (stretch) {
+                    case 1 /* Fill */:
+                        center = true;
+                        break;
+                    case 2 /* Uniform */:
+                        sw = sh = (sw < sh) ? sw : sh;
+                        center = true;
+                        break;
+                    case 3 /* UniformToFill */:
+                        sw = sh = (sw > sh) ? sw : sh;
+                        break;
+                }
+
+                if ((adjX && isSignificant(sw - 1, shapeBounds.Width)) || (adjY && isSignificant(sh - 1, shapeBounds.Height))) {
+                    var temp = mat3.createScale(adjX ? sw : 1.0, adjY ? sh : 1.0);
+                    var stretchBounds = this.ComputeShapeBoundsImpl(false, temp);
+                    if (stretchBounds.Width !== shapeBounds.Width && stretchBounds.Height !== shapeBounds.Height) {
+                        sw *= adjX ? (framework.Width - stretchBounds.Width + logicalBounds.Width * sw) / (logicalBounds.Width * sw) : 1.0;
+                        sh *= adjY ? (framework.Height - stretchBounds.Height + logicalBounds.Height * sh) / (logicalBounds.Height * sh) : 1.0;
+                        switch (stretch) {
+                            case 2 /* Uniform */:
+                                sw = sh = (sw < sh) ? sw : sh;
+                                break;
+                            case 3 /* UniformToFill */:
+                                sw = sh = (sw > sh) ? sw : sh;
+                                break;
+                        }
+                    }
+                }
+
+                var autoDim = isNaN(specified.Width);
+                var x = (!autoDim || adjX) ? shapeBounds.X : 0;
+                var y = (!autoDim || adjY) ? shapeBounds.Y : 0;
+
+                var st = this.StretchXform;
+                if (!(this instanceof Fayde.Shapes.Line) || !autoDim)
+                    mat3.translate(st, -x, -y);
+                mat3.translate(st, adjX ? -shapeBounds.Width * 0.5 : 0.0, adjY ? -shapeBounds.Height * 0.5 : 0.0);
+                mat3.scale(st, adjX ? sw : 1.0, adjY ? sh : 1.0);
+                if (center) {
+                    mat3.translate(st, adjX ? framework.Width * 0.5 : 0, adjY ? framework.Height * 0.5 : 0);
+                } else {
+                    mat3.translate(st, adjX ? (logicalBounds.Width * sw + diffX) * 0.5 : 0, adjY ? (logicalBounds.Height * sh + diffY) * 0.5 : 0);
+                }
+
+                rect.transform(shapeBounds, this.StretchXform = st);
+                return shapeBounds;
             };
-            Shape.prototype._DrawPath = function (ctx) {
-                this._Path = this._Path || this._BuildPath();
-                this._Path.Draw(ctx);
+            ShapeLayoutUpdater.prototype.ComputeShapeBounds = function (logical) {
+                return this.ComputeShapeBoundsImpl(logical);
+            };
+            ShapeLayoutUpdater.prototype.ComputeShapeBoundsImpl = function (logical, matrix) {
+                this.Path = this.Path || this.BuildPath();
+                if (!this.Path || (this.SFlags & 1 /* Empty */))
+                    return new rect();
+                return this.Path.CalculateBounds(this.CreateStrokeParameters(logical));
             };
 
-            Shape.prototype.ComputeActualSize = function (baseComputer, lu) {
-                var desired = baseComputer.call(lu);
+            ShapeLayoutUpdater.prototype.ComputeActualSize = function () {
+                var desired = _super.prototype.ComputeActualSize.call(this);
 
-                var node = this.XamlNode;
-                var lu = node.LayoutUpdater;
-
-                var shapeBounds = this._GetNaturalBounds();
+                var shapeBounds = this.GetNaturalBounds();
                 var sx = 1.0;
                 var sy = 1.0;
 
+                var node = this.Node;
                 var visualParentNode = node.VisualParentNode;
                 if (visualParentNode != null && !(visualParentNode instanceof Fayde.Controls.CanvasNode)) {
-                    if (lu.PreviousConstraint !== undefined || lu.LayoutSlot !== undefined) {
+                    if (this.PreviousConstraint !== undefined || this.LayoutSlot !== undefined) {
                         return desired;
                     }
                 }
@@ -32917,7 +33268,7 @@ else
                     return desired;
 
                 var stretch = this.Stretch;
-                if (stretch === Fayde.Media.Stretch.None && shapeBounds.Width > 0 && shapeBounds.Height > 0)
+                if (stretch === 0 /* None */ && shapeBounds.Width > 0 && shapeBounds.Height > 0)
                     return size.fromRect(shapeBounds);
 
                 if (!isFinite(desired.Width))
@@ -32931,10 +33282,10 @@ else
                     sy = desired.Height / shapeBounds.Height;
 
                 switch (stretch) {
-                    case Fayde.Media.Stretch.Uniform:
+                    case 2 /* Uniform */:
                         sx = sy = Math.min(sx, sy);
                         break;
-                    case Fayde.Media.Stretch.UniformToFill:
+                    case 3 /* UniformToFill */:
                         sx = sy = Math.max(sx, sy);
                         break;
                     default:
@@ -32945,267 +33296,88 @@ else
                 desired.Height = Math.min(desired.Height, shapeBounds.Height * sy);
                 return desired;
             };
-            Shape.prototype._ComputeStretchBounds = function () {
-                var shapeBounds = this._GetNaturalBounds();
-                if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
-                    this._ShapeFlags = Shapes.ShapeFlags.Empty;
-                    return new rect();
+
+            ShapeLayoutUpdater.prototype.InsideObject = function (ctx, x, y) {
+                if (!_super.prototype.InsideObject.call(this, ctx, x, y))
+                    return false;
+                return this.InsideShape(ctx, x, y);
+            };
+            ShapeLayoutUpdater.prototype.InsideShape = function (ctx, x, y) {
+                if (this.SFlags & 1 /* Empty */)
+                    return false;
+                if (!this.Fill && !this.Stroke)
+                    return false;
+                ctx.save();
+                ctx.pretransformMatrix(this.StretchXform);
+                this.Draw(ctx);
+                var ret = false;
+                if (this.Fill) {
+                    ret = ctx.isPointInPath(x, y);
+                } else if (!ret) {
+                    ret = ctx.isPointInStrokeEx(this.CreateStrokeParameters(), x, y);
                 }
-
-                var specified = size.fromRaw(this.Width, this.Height);
-                var autoDim = isNaN(specified.Width);
-                var framework = size.fromRaw(this.ActualWidth, this.ActualHeight);
-
-                if (specified.Width <= 0.0 || specified.Height <= 0.0) {
-                    this._ShapeFlags = Shapes.ShapeFlags.Empty;
-                    return new rect();
-                }
-
-                var node = this.XamlNode;
-                var lu = node.LayoutUpdater;
-                var vpNode = node.VisualParentNode;
-                if (vpNode instanceof Fayde.Controls.CanvasNode) {
-                    framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
-                    framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
-                    if (!isNaN(specified.Width))
-                        framework.Width = specified.Width;
-                    if (!isNaN(specified.Height))
-                        framework.Height = specified.Height;
-                } else if (!lu.PreviousConstraint) {
-                    framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
-                    framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
-                }
-
-                var stretch = this.Stretch;
-                if (stretch === Fayde.Media.Stretch.None) {
-                    rect.transform(shapeBounds, this._StretchXform);
-                    return shapeBounds;
-                }
-
-                if (framework.Width === 0.0 || framework.Height === 0.0) {
-                    this._ShapeFlags = Shapes.ShapeFlags.Empty;
-                    return new rect();
-                }
-
-                var logicalBounds = this._ComputeShapeBoundsImpl(true, null);
-
-                var adjX = logicalBounds.Width !== 0.0;
-                var adjY = logicalBounds.Height !== 0.0;
-
-                var diffX = shapeBounds.Width - logicalBounds.Width;
-                var diffY = shapeBounds.Height - logicalBounds.Height;
-                var sw = adjX ? (framework.Width - diffX) / logicalBounds.Width : 1.0;
-                var sh = adjY ? (framework.Height - diffY) / logicalBounds.Height : 1.0;
-
-                var center = false;
-                switch (stretch) {
-                    case Fayde.Media.Stretch.Fill:
-                        center = true;
-                        break;
-                    case Fayde.Media.Stretch.Uniform:
-                        sw = sh = (sw < sh) ? sw : sh;
-                        center = true;
-                        break;
-                    case Fayde.Media.Stretch.UniformToFill:
-                        sw = sh = (sw > sh) ? sw : sh;
-                        break;
-                }
-
-                if ((adjX && isSignificant(sw - 1, shapeBounds.Width)) || (adjY && isSignificant(sh - 1, shapeBounds.Height))) {
-                    var temp = mat3.createScale(adjX ? sw : 1.0, adjY ? sh : 1.0);
-                    var stretchBounds = this._ComputeShapeBoundsImpl(false, temp);
-                    if (stretchBounds.Width !== shapeBounds.Width && stretchBounds.Height !== shapeBounds.Height) {
-                        sw *= adjX ? (framework.Width - stretchBounds.Width + logicalBounds.Width * sw) / (logicalBounds.Width * sw) : 1.0;
-                        sh *= adjY ? (framework.Height - stretchBounds.Height + logicalBounds.Height * sh) / (logicalBounds.Height * sh) : 1.0;
-                        switch (stretch) {
-                            case Fayde.Media.Stretch.Uniform:
-                                sw = sh = (sw < sh) ? sw : sh;
-                                break;
-                            case Fayde.Media.Stretch.UniformToFill:
-                                sw = sh = (sw > sh) ? sw : sh;
-                                break;
-                        }
-                    }
-                }
-
-                var x = (!autoDim || adjX) ? shapeBounds.X : 0;
-                var y = (!autoDim || adjY) ? shapeBounds.Y : 0;
-
-                var st = this._StretchXform;
-                if (!(this instanceof Shapes.Line) || !autoDim)
-                    mat3.translate(st, -x, -y);
-                mat3.translate(st, adjX ? -shapeBounds.Width * 0.5 : 0.0, adjY ? -shapeBounds.Height * 0.5 : 0.0);
-                mat3.scale(st, adjX ? sw : 1.0, adjY ? sh : 1.0);
-                if (center) {
-                    mat3.translate(st, adjX ? framework.Width * 0.5 : 0, adjY ? framework.Height * 0.5 : 0);
-                } else {
-                    mat3.translate(st, adjX ? (logicalBounds.Width * sw + diffX) * 0.5 : 0, adjY ? (logicalBounds.Height * sh + diffY) * 0.5 : 0);
-                }
-                this._StretchXform = st;
-
-                rect.transform(shapeBounds, this._StretchXform);
-                return shapeBounds;
-            };
-            Shape.prototype._GetNaturalBounds = function () {
-                if (rect.isEmpty(this._NaturalBounds))
-                    this._NaturalBounds = this._ComputeShapeBoundsImpl(false);
-                return this._NaturalBounds;
-            };
-            Shape.prototype._ComputeShapeBounds = function (logical) {
-                return this._ComputeShapeBoundsImpl(logical, null);
-            };
-            Shape.prototype._ComputeShapeBoundsImpl = function (logical, matrix) {
-                this._Path = this._Path || this._BuildPath();
-                if (!this._Path || (this._ShapeFlags & Shapes.ShapeFlags.Empty))
-                    return new rect();
-                return this._Path.CalculateBounds(this._CreateStrokeParameters(logical));
+                ctx.restore();
+                return ret;
             };
 
-            Shape.prototype._InvalidateStretch = function () {
-                this.XamlNode.UpdateStretch();
-                this._StretchXform = mat3.identity();
-                this._InvalidatePathCache();
-            };
-            Shape.prototype._InvalidatePathCache = function (free) {
-                this._Path = null;
-                if (!free)
-                    this.XamlNode.LayoutUpdater.UpdateBounds(true);
-            };
-            Shape.prototype._InvalidateNaturalBounds = function () {
-                rect.clear(this._NaturalBounds);
-                this._InvalidateStretch();
-                this.XamlNode.LayoutUpdater.Invalidate();
-            };
-
-            Shape.prototype._FillChanged = function (args) {
-                var lu = this.XamlNode.LayoutUpdater;
-
-                var newBrush = args.NewValue;
-                if (this._FillListener)
-                    this._FillListener.Detach();
-                this._FillListener = null;
-                if (newBrush)
-                    this._FillListener = newBrush.Listen(function (brush) {
-                        return lu.Invalidate();
-                    });
-
-                if (this._Fill || newBrush)
-                    this._InvalidateNaturalBounds();
-                this._Fill = newBrush;
-
-                lu.CanHitElement = this._Stroke != null || this._Fill != null;
+            ShapeLayoutUpdater.prototype.Render = function (ctx, region) {
+                if (this.SFlags & 1 /* Empty */)
+                    return;
+                if (!this.Fill && !this.Stroke)
+                    return false;
+                var extents = this.Extents;
+                ctx.save();
+                ctx.pretransformMatrix(this.StretchXform);
+                this.Draw(ctx);
+                if (!!this.Fill)
+                    ctx.fillEx(this.Fill, extents, this.GetFillRule());
+                ctx.strokeEx(this.Stroke, this.CreateStrokeParameters(), extents);
+                ctx.restore();
             };
 
-            Shape.prototype._StrokeChanged = function (args) {
-                var lu = this.XamlNode.LayoutUpdater;
-
-                var newBrush = args.NewValue;
-                if (this._StrokeListener)
-                    this._StrokeListener.Detach();
-                this._StrokeListener = null;
-                if (newBrush)
-                    this._StrokeListener = newBrush.Listen(function (brush) {
-                        return lu.Invalidate();
-                    });
-
-                if (this._Stroke || newBrush)
-                    this._InvalidateNaturalBounds();
-                this._Stroke = newBrush;
-
-                lu.CanHitElement = this._Stroke != null || this._Fill != null;
+            ShapeLayoutUpdater.prototype.Draw = function (ctx) {
+                this.Path = this.Path || this.BuildPath();
+                this.Path.Draw(ctx);
             };
-            Shape.prototype._StretchChanged = function (args) {
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
-                this._InvalidateStretch();
+            ShapeLayoutUpdater.prototype.BuildPath = function () {
+                return undefined;
             };
 
-            Shape.prototype._WidthChanged = function (args) {
-                _super.prototype._WidthChanged.call(this, args);
-                this._InvalidateStretch();
+            ShapeLayoutUpdater.prototype.CreateStrokeParameters = function (logical) {
+                var thickness = (logical || !this.Stroke) ? 0.0 : this.StrokeThickness;
+                if (!(thickness > 0))
+                    return;
+                return {
+                    thickness: thickness,
+                    startCap: this.StrokeStartLineCap,
+                    endCap: this.StrokeEndLineCap,
+                    join: this.StrokeLineJoin,
+                    miterLimit: this.StrokeMiterLimit
+                };
             };
-            Shape.prototype._HeightChanged = function (args) {
-                _super.prototype._HeightChanged.call(this, args);
-                this._InvalidateStretch();
-            };
+            return ShapeLayoutUpdater;
+        })(Fayde.LayoutUpdater);
+        Shapes.ShapeLayoutUpdater = ShapeLayoutUpdater;
 
-            Shape.prototype._CreateStrokeParameters = function (logical) {
-                if (logical)
-                    return null;
-                var thickness = this._Stroke ? this.StrokeThickness : 0.0;
-                if (thickness > 0)
-                    return {
-                        thickness: thickness,
-                        startCap: this.StrokeStartLineCap,
-                        endCap: this.StrokeEndLineCap,
-                        join: this.StrokeLineJoin,
-                        miterLimit: this.StrokeMiterLimit
-                    };
-                return null;
-            };
-            Shape.FillProperty = DependencyProperty.Register("Fill", function () {
-                return Fayde.Media.Brush;
-            }, Shape, undefined, function (d, args) {
-                return (d)._FillChanged(args);
-            });
+        function isSignificant(dx, x) {
+            return Math.abs(x) < 0.000019 && (Math.abs(dx) * x - x) > 1.0;
+        }
+        function intersectBaseBoundsWithClipPath(lu, dest, baseBounds, xform) {
+            var isClipEmpty = rect.isEmpty(lu.ClipBounds);
+            var isLayoutClipEmpty = lu.LayoutClip ? rect.isEmpty(lu.LayoutClip) : true;
 
-            Shape.StretchProperty = DependencyProperty.Register("Stretch", function () {
-                return new Enum(Fayde.Media.Stretch);
-            }, Shape, Fayde.Media.Stretch.None, function (d, args) {
-                return (d)._StretchChanged(args);
-            });
-            Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () {
-                return Fayde.Media.Brush;
-            }, Shape, undefined, function (d, args) {
-                return (d)._StrokeChanged(args);
-            });
-            Shape.StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", function () {
-                return Number;
-            }, Shape, 1.0, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () {
-                return Shapes.DoubleCollection;
-            }, Shape, undefined, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () {
-                return new Enum(Shapes.PenLineCap);
-            }, Shape, Shapes.PenLineCap.Flat, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            Shape.StrokeDashOffsetProperty = DependencyProperty.Register("StrokeDashOffset", function () {
-                return Number;
-            }, Shape, 0.0, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () {
-                return new Enum(Shapes.PenLineCap);
-            }, Shape, Shapes.PenLineCap.Flat, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () {
-                return new Enum(Shapes.PenLineJoin);
-            }, Shape, Shapes.PenLineJoin.Miter, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            Shape.StrokeMiterLimitProperty = DependencyProperty.Register("StrokeMiterLimit", function () {
-                return Number;
-            }, Shape, 10.0, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () {
-                return new Enum(Shapes.PenLineCap);
-            }, Shape, Shapes.PenLineCap.Flat, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            return Shape;
-        })(Fayde.FrameworkElement);
-        Shapes.Shape = Shape;
-        Fayde.RegisterType(Shape, {
-            Name: "Shape",
-            Namespace: "Fayde.Shapes",
-            XmlNamespace: Fayde.XMLNS
-        });
+            if ((!isClipEmpty || !isLayoutClipEmpty) && !lu.TotalIsRenderVisible) {
+                rect.clear(dest);
+                return;
+            }
+
+            rect.copyGrowTransform(dest, baseBounds, lu.EffectPadding, xform);
+
+            if (!isClipEmpty)
+                rect.intersection(dest, lu.ClipBounds);
+            if (!isLayoutClipEmpty)
+                rect.intersection(dest, lu.LayoutClip);
+        }
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));
@@ -33216,35 +33388,117 @@ var Fayde;
             __extends(Ellipse, _super);
             function Ellipse() {
                 _super.call(this);
-                this.Stretch = Fayde.Media.Stretch.Fill;
+                this.Stretch = 1 /* Fill */;
             }
-            Ellipse.prototype._BuildPath = function () {
-                var stretch = this.Stretch;
-                var t = this._Stroke != null ? this.StrokeThickness : 0.0;
+            Ellipse.prototype.CreateLayoutUpdater = function (node) {
+                return new EllipseLayoutUpdater(node);
+            };
+            return Ellipse;
+        })(Fayde.Shapes.Shape);
+        Shapes.Ellipse = Ellipse;
+        Fayde.RegisterType(Ellipse, {
+            Name: "Ellipse",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
+
+        var EllipseLayoutUpdater = (function (_super) {
+            __extends(EllipseLayoutUpdater, _super);
+            function EllipseLayoutUpdater() {
+                _super.apply(this, arguments);
+            }
+            EllipseLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
+                return _super.prototype.MeasureOverride.call(this, new size(), error);
+            };
+
+            EllipseLayoutUpdater.prototype.ComputeStretchBounds = function () {
+                return this.ComputeShapeBounds(false);
+            };
+            EllipseLayoutUpdater.prototype.ComputeShapeBounds = function (logical) {
                 var irect = new rect();
                 irect.Width = this.ActualWidth;
                 irect.Height = this.ActualHeight;
+                this.SFlags = 2 /* Normal */;
 
-                switch (stretch) {
-                    case Fayde.Media.Stretch.None:
-                        irect.Width = irect.Height = 0;
+                var node = this.Node;
+                var ellipse = node.XObject;
+                var width = ellipse.Width;
+                var height = ellipse.Height;
+                if (irect.Width < 0.0 || irect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
+                    this.SFlags = 1 /* Empty */;
+                    return new rect();
+                }
+
+                var vpNode = node.VisualParentNode;
+                if (vpNode instanceof Fayde.Controls.CanvasNode) {
+                    if (isNaN(width) !== isNaN(height)) {
+                        this.SFlags = 1 /* Empty */;
+                        return new rect();
+                    }
+                }
+
+                var t = this.Stroke != null ? this.StrokeThickness : 0.0;
+                switch (this.Stretch) {
+                    case 0 /* None */:
+                        irect.Width = irect.Height = 0.0;
                         break;
-                    case Fayde.Media.Stretch.Uniform:
+                    case 2 /* Uniform */:
                         irect.Width = irect.Height = Math.min(irect.Width, irect.Height);
                         break;
-                    case Fayde.Media.Stretch.UniformToFill:
+                    case 3 /* UniformToFill */:
                         irect.Width = irect.Height = Math.max(irect.Width, irect.Height);
                         break;
-                    case Fayde.Media.Stretch.Fill:
+                    case 1 /* Fill */:
                         break;
                 }
 
                 if (t >= irect.Width || t >= irect.Height) {
                     irect.Width = Math.max(irect.Width, t + t * 0.001);
                     irect.Height = Math.max(irect.Height, t + t * 0.001);
-                    this._ShapeFlags = Shapes.ShapeFlags.Degenerate;
+
+                    this.SFlags = 4 /* Degenerate */;
                 } else {
-                    this._ShapeFlags = Shapes.ShapeFlags.Normal;
+                    this.SFlags = 2 /* Normal */;
+                }
+
+                return irect;
+            };
+            EllipseLayoutUpdater.prototype.ComputeShapeBoundsImpl = function (logical, matrix) {
+                var r = new rect();
+                if (logical) {
+                    r.Width = 1.0;
+                    r.Height = 1.0;
+                }
+                return r;
+            };
+
+            EllipseLayoutUpdater.prototype.BuildPath = function () {
+                var stretch = this.Stretch;
+                var t = !!this.Stroke ? this.StrokeThickness : 0.0;
+                var irect = new rect();
+                irect.Width = this.ActualWidth;
+                irect.Height = this.ActualHeight;
+
+                switch (stretch) {
+                    case 0 /* None */:
+                        irect.Width = irect.Height = 0;
+                        break;
+                    case 2 /* Uniform */:
+                        irect.Width = irect.Height = Math.min(irect.Width, irect.Height);
+                        break;
+                    case 3 /* UniformToFill */:
+                        irect.Width = irect.Height = Math.max(irect.Width, irect.Height);
+                        break;
+                    case 1 /* Fill */:
+                        break;
+                }
+
+                if (t >= irect.Width || t >= irect.Height) {
+                    irect.Width = Math.max(irect.Width, t + t * 0.001);
+                    irect.Height = Math.max(irect.Height, t + t * 0.001);
+                    this.SFlags = 4 /* Degenerate */;
+                } else {
+                    this.SFlags = 2 /* Normal */;
                 }
 
                 var ht = -t / 2;
@@ -33254,74 +33508,9 @@ var Fayde;
                 path.Ellipse(irect.X, irect.Y, irect.Width, irect.Height);
                 return path;
             };
-
-            Ellipse.prototype._ComputeStretchBounds = function () {
-                return this._ComputeShapeBounds(false);
-            };
-            Ellipse.prototype._ComputeShapeBounds = function (logical) {
-                var irect = new rect();
-                irect.Width = this.ActualWidth;
-                irect.Height = this.ActualHeight;
-                this._ShapeFlags = Shapes.ShapeFlags.Normal;
-
-                var width = this.Width;
-                var height = this.Height;
-                if (irect.Width < 0.0 || irect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
-                    this._ShapeFlags = Shapes.ShapeFlags.Empty;
-                    return new rect();
-                }
-
-                var node = this.XamlNode;
-                var vpNode = node.VisualParentNode;
-                if (vpNode instanceof Fayde.Controls.CanvasNode) {
-                    if (isNaN(width) !== isNaN(height)) {
-                        this._ShapeFlags = Shapes.ShapeFlags.Empty;
-                        return new rect();
-                    }
-                }
-
-                var t = this._Stroke != null ? this.StrokeThickness : 0.0;
-                switch (this.Stretch) {
-                    case Fayde.Media.Stretch.None:
-                        irect.Width = irect.Height = 0.0;
-                        break;
-                    case Fayde.Media.Stretch.Uniform:
-                        irect.Width = irect.Height = Math.min(irect.Width, irect.Height);
-                        break;
-                    case Fayde.Media.Stretch.UniformToFill:
-                        irect.Width = irect.Height = Math.max(irect.Width, irect.Height);
-                        break;
-                    case Fayde.Media.Stretch.Fill:
-                        break;
-                }
-
-                if (t >= irect.Width || t >= irect.Height) {
-                    irect.Width = Math.max(irect.Width, t + t * 0.001);
-                    irect.Height = Math.max(irect.Height, t + t * 0.001);
-
-                    this._ShapeFlags = Shapes.ShapeFlags.Degenerate;
-                } else {
-                    this._ShapeFlags = Shapes.ShapeFlags.Normal;
-                }
-
-                return irect;
-            };
-            Ellipse.prototype._ComputeShapeBoundsImpl = function (logical, matrix) {
-                var r = new rect();
-                if (logical) {
-                    r.Width = 1.0;
-                    r.Height = 1.0;
-                }
-                return r;
-            };
-            return Ellipse;
-        })(Shapes.Shape);
-        Shapes.Ellipse = Ellipse;
-        Fayde.RegisterType(Ellipse, {
-            Name: "Ellipse",
-            Namespace: "Fayde.Shapes",
-            XmlNamespace: Fayde.XMLNS
-        });
+            return EllipseLayoutUpdater;
+        })(Fayde.Shapes.ShapeLayoutUpdater);
+        Shapes.EllipseLayoutUpdater = EllipseLayoutUpdater;
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));
@@ -33333,8 +33522,48 @@ var Fayde;
             function Line() {
                 _super.apply(this, arguments);
             }
-            Line.prototype._BuildPath = function () {
-                this._ShapeFlags = Shapes.ShapeFlags.Normal;
+            Line.prototype.CreateLayoutUpdater = function (node) {
+                return new LineLayoutUpdater(node);
+            };
+
+            Line._InvalidateCoordinate = function (dobj, args) {
+                var lu = dobj.XamlNode.LayoutUpdater;
+                lu[args.Property.Name] = args.NewValue || 0;
+                lu.InvalidateNaturalBounds();
+            };
+
+            Line.X1Property = DependencyProperty.Register("X1", function () {
+                return Number;
+            }, Line, 0.0, Line._InvalidateCoordinate);
+            Line.Y1Property = DependencyProperty.Register("Y1", function () {
+                return Number;
+            }, Line, 0.0, Line._InvalidateCoordinate);
+            Line.X2Property = DependencyProperty.Register("X2", function () {
+                return Number;
+            }, Line, 0.0, Line._InvalidateCoordinate);
+            Line.Y2Property = DependencyProperty.Register("Y2", function () {
+                return Number;
+            }, Line, 0.0, Line._InvalidateCoordinate);
+            return Line;
+        })(Fayde.Shapes.Shape);
+        Shapes.Line = Line;
+        Fayde.RegisterType(Line, {
+            Name: "Line",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
+
+        var LineLayoutUpdater = (function (_super) {
+            __extends(LineLayoutUpdater, _super);
+            function LineLayoutUpdater() {
+                _super.apply(this, arguments);
+                this.X1 = 0;
+                this.Y1 = 0;
+                this.X2 = 0;
+                this.Y2 = 0;
+            }
+            LineLayoutUpdater.prototype.BuildPath = function () {
+                this.SFlags = 2 /* Normal */;
 
                 var x1 = this.X1;
                 var y1 = this.Y1;
@@ -33346,54 +33575,9 @@ var Fayde;
                 path.Line(x2, y2);
                 return path;
             };
-
-            Line.prototype._ComputeShapeBounds = function (logical) {
-                var shapeBounds = new rect();
-
-                var thickness = 0;
-                if (!logical)
-                    thickness = this.StrokeThickness;
-
-                if (thickness <= 0.0 && !logical)
-                    return shapeBounds;
-
-                var x1 = this.X1;
-                var y1 = this.Y1;
-                var x2 = this.X2;
-                var y2 = this.Y2;
-
-                rect.set(shapeBounds, Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
-
-                return shapeBounds;
-            };
-            Line.X1Property = DependencyProperty.Register("X1", function () {
-                return Number;
-            }, Line, 0.0, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            Line.Y1Property = DependencyProperty.Register("Y1", function () {
-                return Number;
-            }, Line, 0.0, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            Line.X2Property = DependencyProperty.Register("X2", function () {
-                return Number;
-            }, Line, 0.0, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            Line.Y2Property = DependencyProperty.Register("Y2", function () {
-                return Number;
-            }, Line, 0.0, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            });
-            return Line;
-        })(Shapes.Shape);
-        Shapes.Line = Line;
-        Fayde.RegisterType(Line, {
-            Name: "Line",
-            Namespace: "Fayde.Shapes",
-            XmlNamespace: Fayde.XMLNS
-        });
+            return LineLayoutUpdater;
+        })(Fayde.Shapes.ShapeLayoutUpdater);
+        Shapes.LineLayoutUpdater = LineLayoutUpdater;
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));
@@ -33405,69 +33589,74 @@ var Fayde;
             function Path() {
                 _super.apply(this, arguments);
             }
+            Path.prototype.CreateLayoutUpdater = function (node) {
+                return new PathLayoutUpdater(node);
+            };
+
             Path._DataCoercer = function (d, propd, value) {
                 if (typeof value === "string")
                     return Fayde.Media.ParseGeometry(value);
                 return value;
             };
 
-            Path.prototype._GetFillRule = function () {
-                var geom = this.Data;
-                if (!geom)
-                    return _super.prototype._GetFillRule.call(this);
-                return (geom).FillRule;
-            };
-            Path.prototype._DrawPath = function (ctx) {
-                var geom = this.Data;
-                if (!geom)
-                    return;
-                geom.Draw(ctx);
-            };
-            Path.prototype._ComputeShapeBoundsImpl = function (logical, matrix) {
-                var geom = this.Data;
-                if (!geom) {
-                    this._ShapeFlags = Shapes.ShapeFlags.Empty;
-                    return new rect();
-                }
-                if (logical)
-                    return geom.GetBounds();
-
-                var thickness = (logical || this._Stroke != null) ? 0.0 : this.StrokeThickness;
-                var pars = {
-                    thickness: thickness,
-                    startCap: this.StrokeStartLineCap,
-                    endCap: this.StrokeEndLineCap,
-                    join: this.StrokeLineJoin,
-                    miterLimit: this.StrokeMiterLimit
-                };
-                return geom.GetBounds(pars);
-            };
-
             Path.prototype._OnDataChanged = function (args) {
                 var old = args.OldValue;
                 if (old instanceof Fayde.Media.Geometry)
-                    (old).Unlisten(this);
+                    old.Unlisten(this);
                 this.GeometryChanged(args.NewValue);
                 var n = args.NewValue;
                 if (n instanceof Fayde.Media.Geometry)
-                    (n).Listen(this);
+                    n.Listen(this);
+
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.Data = args.NewValue;
             };
             Path.prototype.GeometryChanged = function (newGeometry) {
-                this._InvalidateNaturalBounds();
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.InvalidateNaturalBounds();
             };
             Path.DataProperty = DependencyProperty.RegisterFull("Data", function () {
                 return Fayde.Media.Geometry;
             }, Path, undefined, function (d, args) {
-                return (d)._OnDataChanged(args);
+                return d._OnDataChanged(args);
             }, Path._DataCoercer, undefined, undefined, false);
             return Path;
-        })(Shapes.Shape);
+        })(Fayde.Shapes.Shape);
         Shapes.Path = Path;
         Fayde.RegisterType(Path, {
             Name: "Path",
             Namespace: "Fayde.Shapes",
             XmlNamespace: Fayde.XMLNS
         });
+
+        var PathLayoutUpdater = (function (_super) {
+            __extends(PathLayoutUpdater, _super);
+            function PathLayoutUpdater() {
+                _super.apply(this, arguments);
+                this.Data = null;
+            }
+            PathLayoutUpdater.prototype.ComputeShapeBoundsImpl = function (logical, matrix) {
+                var geom = this.Data;
+                if (!geom) {
+                    this.SFlags = 1 /* Empty */;
+                    return new rect();
+                }
+                return geom.GetBounds(this.CreateStrokeParameters(logical));
+            };
+            PathLayoutUpdater.prototype.Draw = function (ctx) {
+                var geom = this.Data;
+                if (geom)
+                    geom.Draw(ctx);
+            };
+            PathLayoutUpdater.prototype.GetFillRule = function () {
+                var geom = this.Data;
+                if (!geom)
+                    return _super.prototype.GetFillRule.call(this);
+                return geom.FillRule === 0 /* EvenOdd */ ? "evenodd" : "nonzero";
+            };
+            return PathLayoutUpdater;
+        })(Fayde.Shapes.ShapeLayoutUpdater);
+        Shapes.PathLayoutUpdater = PathLayoutUpdater;
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));
@@ -33507,22 +33696,23 @@ var Fayde;
                 var added = value;
                 this._ht[index] = added;
 
-                var owner = this.Owner;
-                if (owner)
-                    owner._InvalidateNaturalBounds();
+                var oc = this.OnChanged;
+                if (oc)
+                    oc();
             };
             PointCollection.prototype.Add = function (value) {
                 this._ht.push(value);
 
-                var owner = this.Owner;
-                if (owner)
-                    owner._InvalidateNaturalBounds();
+                var oc = this.OnChanged;
+                if (oc)
+                    oc();
             };
             PointCollection.prototype.AddRange = function (points) {
                 this._ht.push.apply(this._ht, points);
-                var owner = this.Owner;
-                if (owner)
-                    owner._InvalidateNaturalBounds();
+
+                var oc = this.OnChanged;
+                if (oc)
+                    oc();
             };
             PointCollection.prototype.Insert = function (index, value) {
                 if (index < 0)
@@ -33532,9 +33722,9 @@ var Fayde;
                     index = len;
                 this._ht.splice(index, 0, value);
 
-                var owner = this.Owner;
-                if (owner)
-                    owner._InvalidateNaturalBounds();
+                var oc = this.OnChanged;
+                if (oc)
+                    oc();
             };
             PointCollection.prototype.Remove = function (value) {
                 var index = this.IndexOf(value);
@@ -33542,25 +33732,25 @@ var Fayde;
                     return;
                 this.RemoveAt(index);
 
-                var owner = this.Owner;
-                if (owner)
-                    owner._InvalidateNaturalBounds();
+                var oc = this.OnChanged;
+                if (oc)
+                    oc();
             };
             PointCollection.prototype.RemoveAt = function (index) {
                 if (index < 0 || index >= this._ht.length)
                     return;
                 var value = this._ht.splice(index, 1)[0];
 
-                var owner = this.Owner;
-                if (owner)
-                    owner._InvalidateNaturalBounds();
+                var oc = this.OnChanged;
+                if (oc)
+                    oc();
             };
             PointCollection.prototype.Clear = function () {
                 this._ht = [];
 
-                var owner = this.Owner;
-                if (owner)
-                    owner._InvalidateNaturalBounds();
+                var oc = this.OnChanged;
+                if (oc)
+                    oc();
             };
             PointCollection.prototype.IndexOf = function (value) {
                 var count = this._ht.length;
@@ -33601,35 +33791,73 @@ var Fayde;
             __extends(Polygon, _super);
             function Polygon() {
                 _super.call(this);
-                this.Points = new Shapes.PointCollection();
+                this.Points = new Fayde.Shapes.PointCollection();
             }
+            Polygon.prototype.CreateLayoutUpdater = function (node) {
+                return new PolygonLayoutUpdater(node);
+            };
+
             Polygon._PointsCoercer = function (d, propd, value) {
                 if (typeof value === "string")
-                    value = Shapes.PointCollection.FromData(value);
+                    value = Fayde.Shapes.PointCollection.FromData(value);
                 if (value instanceof Array)
-                    value = Shapes.PointCollection.FromArray(value);
+                    value = Fayde.Shapes.PointCollection.FromArray(value);
                 return value;
             };
 
             Polygon.prototype._PointsChanged = function (args) {
+                var lu = this.XamlNode.LayoutUpdater;
+
                 var oldColl = args.OldValue;
                 var newColl = args.NewValue;
-                if (oldColl instanceof Shapes.PointCollection)
-                    (oldColl).Owner = null;
-                if (newColl instanceof Shapes.PointCollection)
-                    (newColl).Owner = this;
-                this._InvalidateNaturalBounds();
-            };
+                if (oldColl instanceof Fayde.Shapes.PointCollection)
+                    oldColl.OnChanged = null;
+                if (newColl instanceof Fayde.Shapes.PointCollection)
+                    newColl.OnChanged = function () {
+                        return lu.InvalidateNaturalBounds();
+                    };
 
-            Polygon.prototype._BuildPath = function () {
+                lu.Points = args.NewValue;
+                lu.InvalidateNaturalBounds();
+            };
+            Polygon.prototype._FillRuleChanged = function (args) {
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.FillRule = args.NewValue;
+                lu.Invalidate();
+            };
+            Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () {
+                return new Enum(Fayde.Shapes.FillRule);
+            }, Polygon, 0 /* EvenOdd */, function (d, args) {
+                return d._FillRuleChanged(args);
+            });
+            Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () {
+                return Fayde.Shapes.PointCollection;
+            }, Polygon, undefined, function (d, args) {
+                return d._PointsChanged(args);
+            }, Polygon._PointsCoercer);
+            return Polygon;
+        })(Fayde.Shapes.Shape);
+        Shapes.Polygon = Polygon;
+        Fayde.RegisterType(Polygon, {
+            Name: "Polygon",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
+
+        var PolygonLayoutUpdater = (function (_super) {
+            __extends(PolygonLayoutUpdater, _super);
+            function PolygonLayoutUpdater() {
+                _super.apply(this, arguments);
+            }
+            PolygonLayoutUpdater.prototype.BuildPath = function () {
                 var points = this.Points;
                 var count;
                 if (!points || (count = points.Count) < 2) {
-                    this._ShapeFlags = Shapes.ShapeFlags.Empty;
+                    this.SFlags = 1 /* Empty */;
                     return;
                 }
 
-                this._ShapeFlags = Shapes.ShapeFlags.Normal;
+                this.SFlags = 2 /* Normal */;
 
                 var path = new Fayde.Path.RawPath();
                 var enumerator = points.GetEnumerator();
@@ -33651,28 +33879,9 @@ var Fayde;
                 path.Close();
                 return path;
             };
-            Polygon.prototype._FillRuleChanged = function (args) {
-                this.XamlNode.LayoutUpdater.Invalidate();
-            };
-            Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () {
-                return new Enum(Shapes.FillRule);
-            }, Polygon, Shapes.FillRule.EvenOdd, function (d, args) {
-                return (d)._FillRuleChanged(args);
-            });
-            Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () {
-                return Shapes.PointCollection;
-            }, Polygon, undefined, function (d, args) {
-                return (d)._PointsChanged(args);
-            }, Polygon._PointsCoercer);
-            return Polygon;
-        })(Shapes.Shape);
-        Shapes.Polygon = Polygon;
-        Fayde.RegisterType(Polygon, {
-            Name: "Polygon",
-            Namespace: "Fayde.Shapes",
-            XmlNamespace: Fayde.XMLNS
-        });
-
+            return PolygonLayoutUpdater;
+        })(Fayde.Shapes.ShapeLayoutUpdater);
+        Shapes.PolygonLayoutUpdater = PolygonLayoutUpdater;
         function extendLine(p1, p2, thickness) {
             var t5 = thickness * 5.0;
             var dx = p1.X - p2.X;
@@ -33726,35 +33935,73 @@ var Fayde;
             __extends(Polyline, _super);
             function Polyline() {
                 _super.call(this);
-                this.Points = new Shapes.PointCollection();
+                this.Points = new Fayde.Shapes.PointCollection();
             }
+            Polyline.prototype.CreateLayoutUpdater = function (node) {
+                return new PolylineLayoutUpdater(node);
+            };
+
             Polyline._PointsCoercer = function (d, propd, value) {
                 if (typeof value === "string")
-                    value = Shapes.PointCollection.FromData(value);
+                    value = Fayde.Shapes.PointCollection.FromData(value);
                 if (value instanceof Array)
-                    value = Shapes.PointCollection.FromArray(value);
+                    value = Fayde.Shapes.PointCollection.FromArray(value);
                 return value;
             };
 
             Polyline.prototype._PointsChanged = function (args) {
+                var lu = this.XamlNode.LayoutUpdater;
+
                 var oldColl = args.OldValue;
                 var newColl = args.NewValue;
-                if (oldColl instanceof Shapes.PointCollection)
-                    (oldColl).Owner = null;
-                if (newColl instanceof Shapes.PointCollection)
-                    (newColl).Owner = this;
-                this._InvalidateNaturalBounds();
-            };
+                if (oldColl instanceof Fayde.Shapes.PointCollection)
+                    oldColl.OnChanged = null;
+                if (newColl instanceof Fayde.Shapes.PointCollection)
+                    newColl.OnChanged = function () {
+                        return lu.InvalidateNaturalBounds();
+                    };
 
-            Polyline.prototype._BuildPath = function () {
+                lu.Points = args.NewValue;
+                lu.InvalidateNaturalBounds();
+            };
+            Polyline.prototype._FillRuleChanged = function (args) {
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.FillRule = args.NewValue;
+                lu.Invalidate();
+            };
+            Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () {
+                return new Enum(Fayde.Shapes.FillRule);
+            }, Polyline, 0 /* EvenOdd */, function (d, args) {
+                return d._FillRuleChanged(args);
+            });
+            Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () {
+                return Fayde.Shapes.PointCollection;
+            }, Polyline, undefined, function (d, args) {
+                return d._PointsChanged(args);
+            }, Polyline._PointsCoercer);
+            return Polyline;
+        })(Fayde.Shapes.Shape);
+        Shapes.Polyline = Polyline;
+        Fayde.RegisterType(Polyline, {
+            Name: "Polyline",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
+
+        var PolylineLayoutUpdater = (function (_super) {
+            __extends(PolylineLayoutUpdater, _super);
+            function PolylineLayoutUpdater() {
+                _super.apply(this, arguments);
+            }
+            PolylineLayoutUpdater.prototype.BuildPath = function () {
                 var points = this.Points;
                 var count;
                 if (!points || (count = points.Count) < 2) {
-                    this._ShapeFlags = Shapes.ShapeFlags.Empty;
+                    this.SFlags = 1 /* Empty */;
                     return;
                 }
 
-                this._ShapeFlags = Shapes.ShapeFlags.Normal;
+                this.SFlags = 2 /* Normal */;
 
                 var path = new Fayde.Path.RawPath();
                 var enumerator = points.GetEnumerator();
@@ -33768,27 +34015,9 @@ var Fayde;
                 path.Close();
                 return path;
             };
-            Polyline.prototype._FillRuleChanged = function (args) {
-                this.XamlNode.LayoutUpdater.Invalidate();
-            };
-            Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () {
-                return new Enum(Shapes.FillRule);
-            }, Polyline, Shapes.FillRule.EvenOdd, function (d, args) {
-                return (d)._FillRuleChanged(args);
-            });
-            Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () {
-                return Shapes.PointCollection;
-            }, Polyline, undefined, function (d, args) {
-                return (d)._PointsChanged(args);
-            }, Polyline._PointsCoercer);
-            return Polyline;
-        })(Shapes.Shape);
-        Shapes.Polyline = Polyline;
-        Fayde.RegisterType(Polyline, {
-            Name: "Polyline",
-            Namespace: "Fayde.Shapes",
-            XmlNamespace: Fayde.XMLNS
-        });
+            return PolylineLayoutUpdater;
+        })(Fayde.Shapes.ShapeLayoutUpdater);
+        Shapes.PolylineLayoutUpdater = PolylineLayoutUpdater;
 
         function extendLine(p1, p2, thickness) {
             var t5 = thickness * 5.0;
@@ -33843,145 +34072,162 @@ var Fayde;
             __extends(Rectangle, _super);
             function Rectangle() {
                 _super.call(this);
-                this.Stretch = Fayde.Media.Stretch.Fill;
+                this.Stretch = 1 /* Fill */;
             }
-            Rectangle.prototype._BuildPath = function () {
-                var stretch = this.Stretch;
-                var t = this._Stroke != null ? this.StrokeThickness : 0.0;
-                var irect = new rect();
-                irect.Width = this.ActualWidth;
-                irect.Height = this.ActualHeight;
-
-                switch (stretch) {
-                    case Fayde.Media.Stretch.None:
-                        irect.Width = irect.Height = 0;
-                        break;
-                    case Fayde.Media.Stretch.Uniform:
-                        irect.Width = irect.Height = Math.min(irect.Width, irect.Height);
-                        break;
-                    case Fayde.Media.Stretch.UniformToFill:
-                        irect.Width = irect.Height = Math.max(irect.Width, irect.Height);
-                        break;
-                    case Fayde.Media.Stretch.Fill:
-                        break;
-                }
-
-                if (irect.Width === 0)
-                    irect.X = t * 0.5;
-                if (irect.Height === 0)
-                    irect.Y = t * 0.5;
-
-                var ta;
-                if (t >= irect.Width || t >= irect.Height) {
-                    ta = t * 0.001;
-                    rect.growBy(irect, ta, ta, ta, ta);
-                    this._ShapeFlags = Shapes.ShapeFlags.Degenerate;
-                } else {
-                    ta = -t * 0.5;
-                    rect.growBy(irect, ta, ta, ta, ta);
-                    this._ShapeFlags = Shapes.ShapeFlags.Normal;
-                }
-
-                var radiusX = Math.min(Math.abs(this.RadiusX), irect.Width / 2.0);
-                if (isNaN(radiusX))
-                    radiusX = 0;
-                var radiusY = Math.min(Math.abs(this.RadiusY), irect.Height / 2.0);
-                if (isNaN(radiusY))
-                    radiusX = 0;
-
-                var path = new Fayde.Path.RawPath();
-                path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
-                return path;
-            };
-
-            Rectangle.prototype._ComputeShapeBounds = function (logical) {
-                var irect = new rect();
-                irect.Width = this.ActualWidth;
-                irect.Height = this.ActualHeight;
-                this._ShapeFlags = Shapes.ShapeFlags.Normal;
-
-                var width = this.Width;
-                var height = this.Height;
-                if (irect.Width < 0.0 || irect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
-                    this._ShapeFlags = Shapes.ShapeFlags.Empty;
-                    return new rect();
-                }
-
-                var node = this.XamlNode;
-                var vpNode = node.VisualParentNode;
-                if (vpNode instanceof Fayde.Controls.CanvasNode) {
-                    if (isNaN(width) !== isNaN(height)) {
-                        this._ShapeFlags = Shapes.ShapeFlags.Empty;
-                        return new rect();
-                    }
-                }
-
-                var t = this._Stroke != null ? this.StrokeThickness : 0.0;
-                switch (this.Stretch) {
-                    case Fayde.Media.Stretch.None:
-                        irect.Width = irect.Height = 0.0;
-                        break;
-                    case Fayde.Media.Stretch.Uniform:
-                        irect.Width = irect.Height = Math.min(irect.Width, irect.Height);
-                        break;
-                    case Fayde.Media.Stretch.UniformToFill:
-                        irect.Width = irect.Height = Math.max(irect.Width, irect.Height);
-                        break;
-                    case Fayde.Media.Stretch.Fill:
-                        break;
-                }
-
-                if (irect.Width === 0)
-                    irect.X = t * 0.5;
-                if (irect.Height === 0)
-                    irect.Y = t * 0.5;
-
-                if (t >= irect.Width || t >= irect.Height) {
-                    var g = t * 0.5005;
-                    rect.growBy(irect, g, g, g, g);
-                    this._ShapeFlags = Shapes.ShapeFlags.Degenerate;
-                } else {
-                    this._ShapeFlags = Shapes.ShapeFlags.Normal;
-                }
-
-                return irect;
-            };
-            Rectangle.prototype._ComputeShapeBoundsImpl = function (logical, matrix) {
-                var r = new rect();
-                if (logical) {
-                    r.Width = 1.0;
-                    r.Height = 1.0;
-                }
-                return r;
-            };
-            Rectangle.prototype._ComputeStretchBounds = function () {
-                return this._ComputeShapeBounds(false);
+            Rectangle.prototype.CreateLayoutUpdater = function (node) {
+                return new RectangleLayoutUpdater(node);
             };
 
             Rectangle.prototype._RadiusChanged = function (args) {
                 var lu = this.XamlNode.LayoutUpdater;
+                lu[args.Property.Name] = args.NewValue;
                 lu.InvalidateMeasure();
-                this._InvalidatePathCache();
+                lu.InvalidatePathCache();
                 lu.Invalidate();
             };
             Rectangle.RadiusXProperty = DependencyProperty.Register("RadiusX", function () {
                 return Number;
             }, Rectangle, 0.0, function (d, args) {
-                return (d)._RadiusChanged(args);
+                return d._RadiusChanged(args);
             });
             Rectangle.RadiusYProperty = DependencyProperty.Register("RadiusY", function () {
                 return Number;
             }, Rectangle, 0.0, function (d, args) {
-                return (d)._RadiusChanged(args);
+                return d._RadiusChanged(args);
             });
             return Rectangle;
-        })(Shapes.Shape);
+        })(Fayde.Shapes.Shape);
         Shapes.Rectangle = Rectangle;
         Fayde.RegisterType(Rectangle, {
             Name: "Rectangle",
             Namespace: "Fayde.Shapes",
             XmlNamespace: Fayde.XMLNS
         });
+
+        var RectangleLayoutUpdater = (function (_super) {
+            __extends(RectangleLayoutUpdater, _super);
+            function RectangleLayoutUpdater() {
+                _super.apply(this, arguments);
+                this.RadiusX = 0;
+                this.RadiusY = 0;
+            }
+            RectangleLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
+                return _super.prototype.MeasureOverride.call(this, new size(), error);
+            };
+
+            RectangleLayoutUpdater.prototype.ComputeStretchBounds = function () {
+                return this.ComputeShapeBounds(false);
+            };
+            RectangleLayoutUpdater.prototype.ComputeShapeBounds = function (logical) {
+                var bounds = new rect();
+                bounds.Width = this.ActualWidth;
+                bounds.Height = this.ActualHeight;
+                this.SFlags = 2 /* Normal */;
+
+                var node = this.Node;
+                var shape = node.XObject;
+                var width = shape.Width;
+                var height = shape.Height;
+                if (bounds.Width < 0.0 || bounds.Height < 0.0 || width <= 0.0 || height <= 0.0) {
+                    this.SFlags = 1 /* Empty */;
+                    return new rect();
+                }
+
+                var vpNode = node.VisualParentNode;
+                if (vpNode instanceof Fayde.Controls.CanvasNode) {
+                    if (isNaN(width) !== isNaN(height)) {
+                        this.SFlags = 1 /* Empty */;
+                        return new rect();
+                    }
+                }
+
+                var t = !!this.Stroke ? this.StrokeThickness : 0.0;
+                switch (this.Stretch) {
+                    case 0 /* None */:
+                        bounds.Width = bounds.Height = 0.0;
+                        break;
+                    case 2 /* Uniform */:
+                        bounds.Width = bounds.Height = Math.min(bounds.Width, bounds.Height);
+                        break;
+                    case 3 /* UniformToFill */:
+                        bounds.Width = bounds.Height = Math.max(bounds.Width, bounds.Height);
+                        break;
+                    case 1 /* Fill */:
+                        break;
+                }
+
+                if (bounds.Width === 0)
+                    bounds.X = t * 0.5;
+                if (bounds.Height === 0)
+                    bounds.Y = t * 0.5;
+
+                if (t >= bounds.Width || t >= bounds.Height) {
+                    var g = t * 0.5005;
+                    rect.growBy(bounds, g, g, g, g);
+                    this.SFlags = 4 /* Degenerate */;
+                } else {
+                    this.SFlags = 2 /* Normal */;
+                }
+
+                return bounds;
+            };
+            RectangleLayoutUpdater.prototype.ComputeShapeBoundsImpl = function (logical, matrix) {
+                var r = new rect();
+                r.Width = r.Height = logical ? 1.0 : 0.0;
+                return r;
+            };
+
+            RectangleLayoutUpdater.prototype.BuildPath = function () {
+                var t = !!this.Stroke ? this.StrokeThickness : 0.0;
+
+                var bounds = new rect();
+                bounds.Width = this.ActualWidth;
+                bounds.Height = this.ActualHeight;
+
+                switch (this.Stretch) {
+                    case 0 /* None */:
+                        bounds.Width = bounds.Height = 0;
+                        break;
+                    case 2 /* Uniform */:
+                        bounds.Width = bounds.Height = Math.min(bounds.Width, bounds.Height);
+                        break;
+                    case 3 /* UniformToFill */:
+                        bounds.Width = bounds.Height = Math.max(bounds.Width, bounds.Height);
+                        break;
+                    case 1 /* Fill */:
+                        break;
+                }
+
+                if (bounds.Width === 0)
+                    bounds.X = t * 0.5;
+                if (bounds.Height === 0)
+                    bounds.Y = t * 0.5;
+
+                var ta;
+                if (t >= bounds.Width || t >= bounds.Height) {
+                    ta = t * 0.001;
+                    rect.growBy(bounds, ta, ta, ta, ta);
+                    this.SFlags = 4 /* Degenerate */;
+                } else {
+                    ta = -t * 0.5;
+                    rect.growBy(bounds, ta, ta, ta, ta);
+                    this.SFlags = 2 /* Normal */;
+                }
+
+                var radiusX = Math.min(Math.abs(this.RadiusX), bounds.Width / 2.0);
+                if (isNaN(radiusX))
+                    radiusX = 0;
+                var radiusY = Math.min(Math.abs(this.RadiusY), bounds.Height / 2.0);
+                if (isNaN(radiusY))
+                    radiusX = 0;
+
+                var path = new Fayde.Path.RawPath();
+                path.RoundedRect(bounds.X, bounds.Y, bounds.Width, bounds.Height, radiusX, radiusY);
+                return path;
+            };
+            return RectangleLayoutUpdater;
+        })(Fayde.Shapes.ShapeLayoutUpdater);
+        Shapes.RectangleLayoutUpdater = RectangleLayoutUpdater;
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));
@@ -34113,7 +34359,7 @@ var Fayde;
             });
             Object.defineProperty(TextLayoutAttributes.prototype, "IsUnderlined", {
                 get: function () {
-                    return (this._Source.TextDecorations & Fayde.TextDecorations.Underline) === Fayde.TextDecorations.Underline;
+                    return (this._Source.TextDecorations & 1 /* Underline */) === 1 /* Underline */;
                 },
                 enumerable: true,
                 configurable: true
@@ -34396,7 +34642,7 @@ var Fayde;
             if (!isFinite(availWidth)) {
                 if (!isFinite(maxWidth))
                     return actualWidth;
-else
+                else
                     return Math.min(actualWidth, maxWidth);
             }
             return availWidth;
@@ -34459,10 +34705,10 @@ else
                 this._SelectionLength = 0;
                 this._Text = null;
                 this.AvailableWidth = Number.POSITIVE_INFINITY;
-                this._Strategy = Fayde.LineStackingStrategy.MaxHeight;
-                this._Alignment = Fayde.TextAlignment.Left;
-                this._Trimming = Fayde.Controls.TextTrimming.None;
-                this._Wrapping = Fayde.Controls.TextWrapping.NoWrap;
+                this._Strategy = 0 /* MaxHeight */;
+                this._Alignment = 0 /* Left */;
+                this._Trimming = 0 /* None */;
+                this._Wrapping = 0 /* NoWrap */;
                 this._MaxHeight = Number.POSITIVE_INFINITY;
                 this._MaxWidth = Number.POSITIVE_INFINITY;
                 this._BaseDescent = 0.0;
@@ -34576,11 +34822,11 @@ else
             });
             TextLayout.prototype.SetTextWrapping = function (wrapping) {
                 switch (wrapping) {
-                    case Fayde.Controls.TextWrapping.NoWrap:
-                    case Fayde.Controls.TextWrapping.Wrap:
+                    case 0 /* NoWrap */:
+                    case 1 /* Wrap */:
                         break;
                     default:
-                        wrapping = Fayde.Controls.TextWrapping.Wrap;
+                        wrapping = 1 /* Wrap */;
                         break;
                 }
 
@@ -34814,12 +35060,12 @@ else
                     BreakOps: null,
                     Font: new Font()
                 };
-                if (this._Wrapping === Fayde.Controls.TextWrapping.Wrap)
+                if (this._Wrapping === 1 /* Wrap */)
                     word.BreakOps = [];
-else
+                else
                     word.BreakOps = null;
                 var layoutWordFunc;
-                layoutWordFunc = this._Wrapping === Fayde.Controls.TextWrapping.NoWrap ? layoutWordNoWrap : layoutWordWrap;
+                layoutWordFunc = this._Wrapping === 0 /* NoWrap */ ? layoutWordNoWrap : layoutWordWrap;
 
                 var line = new TextLayoutLine(this, 0, 0);
                 if (this._OverrideLineHeight()) {
@@ -34955,12 +35201,12 @@ else
                 var deltax = 0.0;
                 var width;
                 switch (this._Alignment) {
-                    case Fayde.TextAlignment.Center:
+                    case 1 /* Center */:
                         width = getWidthConstraint(this.AvailableWidth, this._MaxWidth, this._ActualWidth);
                         if (lineWidth < width)
                             deltax = (width - lineWidth) / 2.0;
                         break;
-                    case Fayde.TextAlignment.Right:
+                    case 2 /* Right */:
                         width = getWidthConstraint(this.AvailableWidth, this._MaxWidth, this._ActualWidth);
                         if (lineWidth < width)
                             deltax = width - lineWidth;
@@ -35018,7 +35264,7 @@ else
             };
 
             TextLayout.prototype._OverrideLineHeight = function () {
-                return this._Strategy === Fayde.LineStackingStrategy.BlockLineHeight && this._LineHeight !== 0;
+                return this._Strategy === 1 /* BlockLineHeight */ && this._LineHeight !== 0;
             };
             TextLayout.prototype._GetLineHeightOverride = function () {
                 if (isNaN(this._LineHeight))
@@ -35047,7 +35293,7 @@ var Fayde;
             __extends(HeaderedContentControl, _super);
             function HeaderedContentControl() {
                 _super.call(this);
-                this.DefaultStyleKey = (this).constructor;
+                this.DefaultStyleKey = this.constructor;
             }
             HeaderedContentControl.prototype.OnHeaderChanged = function (oldHeader, newHeader) {
             };
@@ -35056,16 +35302,16 @@ var Fayde;
             HeaderedContentControl.HeaderProperty = DependencyProperty.Register("Header", function () {
                 return Object;
             }, HeaderedContentControl, undefined, function (d, args) {
-                return (d).OnHeaderChanged(args.OldValue, args.NewValue);
+                return d.OnHeaderChanged(args.OldValue, args.NewValue);
             });
 
             HeaderedContentControl.HeaderTemplateProperty = DependencyProperty.Register("HeaderTemplate", function () {
                 return Fayde.DataTemplate;
             }, HeaderedContentControl, undefined, function (d, args) {
-                return (d).OnHeaderTemplateChanged(args.OldValue, args.NewValue);
+                return d.OnHeaderTemplateChanged(args.OldValue, args.NewValue);
             });
             return HeaderedContentControl;
-        })(Controls.ContentControl);
+        })(Fayde.Controls.ContentControl);
         Controls.HeaderedContentControl = HeaderedContentControl;
         Fayde.RegisterType(HeaderedContentControl, {
             Name: "HeaderedContentControl",
@@ -35086,6 +35332,8 @@ var Fayde;
         Ex.Fill(c);
         Ex.Stroke(c);
         Ex.Clip(c);
+        Ex.FillRule(c);
+        Ex.Temporary(c);
         return c;
     }
     Fayde.ExtendRenderContext = ExtendRenderContext;
@@ -35100,10 +35348,10 @@ var Fayde;
             if (mozct) {
                 Object.defineProperty(ctx, "currentTransform", {
                     get: function () {
-                        return (ctx).mozCurrentTransform;
+                        return ctx.mozCurrentTransform;
                     },
                     set: function (value) {
-                        (ctx).mozCurrentTransform = value;
+                        ctx.mozCurrentTransform = value;
                     }
                 });
                 return true;
@@ -35124,9 +35372,19 @@ var Fayde;
                 super_.restore.call(ctx);
             };
 
+            ctx.setTransform = function (m11, m12, m21, m22, dx, dy) {
+                ctx.currentTransform = mat3.create([m11, m12, dx, m21, m22, dy, 0, 0, 1]);
+                super_.setTransform.call(ctx, m11, m12, m21, m22, dx, dy);
+            };
+
+            ctx.resetTransform = function () {
+                ctx.currentTransform = mat3.identity();
+                if (super_.resetTransform)
+                    super_.resetTransform.call(ctx);
+            };
             ctx.transform = function (m11, m12, m21, m22, dx, dy) {
                 var ct = ctx.currentTransform;
-                mat3.multiply(ct, mat3.create([m11, m12, dx, m21, m22, dy]), ct);
+                mat3.multiply(ct, mat3.create([m11, m12, dx, m21, m22, dy, 0, 0, 1]), ct);
                 super_.transform.call(ctx, m11, m12, m21, m22, dx, dy);
                 ctx.currentTransform = ct;
             };
@@ -35155,7 +35413,6 @@ var Fayde;
                 var ct = ctx.currentTransform;
                 mat3.multiply(ct, mat, ct);
                 ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-                ctx.currentTransform = ct;
             };
             ctx.transformTransform = function (transform) {
                 var v = transform.Value;
@@ -35168,7 +35425,6 @@ var Fayde;
                 var ct = ctx.currentTransform;
                 mat3.multiply(mat, ct, ct);
                 ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-                ctx.currentTransform = ct;
             };
             ctx.pretransformTransform = function (transform) {
                 var v = transform.Value;
@@ -35192,17 +35448,23 @@ var Fayde;
         }
         Ex.Clear = Clear;
         function Fill(ctx) {
-            ctx.fillEx = function (brush, r) {
+            ctx.fillEx = function (brush, r, fillRule) {
                 brush.SetupBrush(ctx, r);
                 ctx.fillStyle = brush.ToHtml5Object();
-                ctx.fill();
+                if (!fillRule)
+                    return ctx.fill();
+                ctx.fillRule = ctx.msFillRule = fillRule;
+                ctx.fill(fillRule);
             };
-            ctx.fillRectEx = function (brush, r) {
+            ctx.fillRectEx = function (brush, r, fillRule) {
                 brush.SetupBrush(ctx, r);
                 ctx.fillStyle = brush.ToHtml5Object();
                 ctx.beginPath();
                 ctx.rect(r.X, r.Y, r.Width, r.Height);
-                ctx.fill();
+                if (!fillRule)
+                    return ctx.fill();
+                ctx.fillRule = ctx.msFillRule = fillRule;
+                ctx.fill(fillRule);
             };
         }
         Ex.Fill = Fill;
@@ -35257,7 +35519,34 @@ var Fayde;
             };
         }
         Ex.Clip = Clip;
+        function FillRule(ctx) {
+            ctx.hasFillRule = true;
+            if (navigator.appName === "Microsoft Internet Explorer") {
+                var version = getIEVersion();
+                ctx.hasFillRule = version < 0 || version > 10;
+            }
+        }
+        Ex.FillRule = FillRule;
+        function Temporary(ctx) {
+            var tempCanvas = document.createElement("canvas");
+            var tempContext;
+            ctx.createTemporaryContext = function (width, height) {
+                if (!tempContext)
+                    tempContext = Fayde.ExtendRenderContext(tempCanvas.getContext("2d"));
+                tempCanvas.width = width;
+                tempCanvas.height = height;
+                return tempContext;
+            };
+        }
+        Ex.Temporary = Temporary;
     })(Ex || (Ex = {}));
+
+    function getIEVersion() {
+        var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(navigator.userAgent) != null)
+            return parseFloat(RegExp.$1);
+        return -1;
+    }
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -35414,7 +35703,7 @@ var Fayde;
         function getCapSpread(x, y, thickness, cap, vector) {
             var hs = thickness / 2.0;
             switch (cap) {
-                case Fayde.Shapes.PenLineCap.Round:
+                case 2 /* Round */:
                     return {
                         x1: x - hs,
                         x2: x + hs,
@@ -35422,7 +35711,7 @@ var Fayde;
                         y2: y + hs
                     };
                     break;
-                case Fayde.Shapes.PenLineCap.Square:
+                case 1 /* Square */:
                     var ed = normalizeVector(vector);
                     var edo = perpendicularVector(ed);
                     return {
@@ -35432,7 +35721,7 @@ var Fayde;
                         y2: y + hs * (ed[1] - edo[1])
                     };
                     break;
-                case Fayde.Shapes.PenLineCap.Flat:
+                case 0 /* Flat */:
                 default:
                     var ed = normalizeVector(vector);
                     var edo = perpendicularVector(ed);
@@ -35497,10 +35786,10 @@ var Fayde;
                 if (ea < 0)
                     ea = (2 * Math.PI) + ea;
 
-                line = Path.Line(a[0], a[1]);
+                line = Fayde.Path.Line(a[0], a[1]);
                 line.sx = prevX;
                 line.sy = prevY;
-                arc = Path.Arc(c[0], c[1], radius, sa, ea, cc);
+                arc = Fayde.Path.Arc(c[0], c[1], radius, sa, ea, cc);
                 inited = true;
             }
 
@@ -35694,6 +35983,7 @@ var Fayde;
         }
         Path.CubicBezier = CubicBezier;
 
+        
         function getMaxima(x1, x2, x3, x4, y1, y2, y3, y4) {
             return {
                 x: cod(x1, x2, x3, x4),
@@ -35923,6 +36213,7 @@ var Fayde;
         }
         Path.QuadraticBezier = QuadraticBezier;
 
+        
         function getMaxima(x1, x2, x3, y1, y2, y3) {
             return {
                 x: cod(x1, x2, x3),
@@ -35952,10 +36243,10 @@ var Fayde;
         var TouchInputType = Input.TouchInputType;
 
         function CreateTouchInterop() {
-            if (navigator.msPointerEnabled || (navigator).pointerEnabled)
-                return new Input.TouchInternal.PointerTouchInterop();
+            if (navigator.msPointerEnabled || navigator.pointerEnabled)
+                return new Fayde.Input.TouchInternal.PointerTouchInterop();
             if ("ontouchstart" in window)
-                return new Input.TouchInternal.NonPointerTouchInterop();
+                return new Fayde.Input.TouchInternal.NonPointerTouchInterop();
             return new DummyTouchInterop();
         }
         Input.CreateTouchInterop = CreateTouchInterop;
@@ -36028,7 +36319,7 @@ var Fayde;
                     this._CapturedInputList = null;
                     Object.defineProperty(this, "Device", { value: this.CreateTouchDevice(), writable: false });
                     this._FinishReleaseCaptureFunc = function () {
-                        return touchHandler.HandleTouches(Fayde.Input.TouchInputType.NoOp, [_this], false, true);
+                        return touchHandler.HandleTouches(0 /* NoOp */, [_this], false, true);
                     };
                 }
                 ActiveTouchBase.prototype.Capture = function (uie) {
@@ -36046,7 +36337,7 @@ var Fayde;
                         return;
                     if (this._IsEmitting)
                         this._PendingReleaseCapture = true;
-else
+                    else
                         this._PerformReleaseCapture();
                 };
                 ActiveTouchBase.prototype._PerformCapture = function (uin) {
@@ -36075,12 +36366,12 @@ else
                     var indices = { Index1: -1, Index2: -1 };
                     findFirstCommonElement(this.InputList, newInputList, indices);
                     if (emitLeave !== false)
-                        this._EmitList(Fayde.Input.TouchInputType.TouchLeave, this.InputList, indices.Index1);
+                        this._EmitList(5 /* TouchLeave */, this.InputList, indices.Index1);
                     if (emitEnter !== false)
-                        this._EmitList(Fayde.Input.TouchInputType.TouchEnter, newInputList, indices.Index2);
+                        this._EmitList(4 /* TouchEnter */, newInputList, indices.Index2);
 
                     var handled = false;
-                    if (type !== Fayde.Input.TouchInputType.NoOp)
+                    if (type !== 0 /* NoOp */)
                         handled = this._EmitList(type, this._Captured ? this._CapturedInputList : newInputList);
                     this.InputList = newInputList;
 
@@ -36104,11 +36395,11 @@ else
                         args.Source = node.XObject;
                     for (var i = 0; i < endIndex; i++) {
                         node = list[i];
-                        if (type === Fayde.Input.TouchInputType.TouchLeave)
+                        if (type === 5 /* TouchLeave */)
                             args.Source = node.XObject;
                         if (node._EmitTouchEvent(type, args))
                             handled = true;
-                        if (type === Fayde.Input.TouchInputType.TouchLeave)
+                        if (type === 5 /* TouchLeave */)
                             args = new Fayde.Input.TouchEventArgs(this.Device);
                     }
                     return handled;
@@ -36125,7 +36416,7 @@ else
                     return this.CreateTouchPoint(p);
                 };
                 ActiveTouchBase.prototype.CreateTouchPoint = function (p) {
-                    return new Input.TouchPoint(p, 0);
+                    return new Fayde.Input.TouchPoint(p, 0);
                 };
 
                 ActiveTouchBase.prototype.CreateTouchDevice = function () {
@@ -36243,10 +36534,10 @@ var Fayde;
                 };
                 PointerActiveTouch.prototype.CreateTouchPoint = function (p) {
                     var to = this.TouchObject;
-                    return new Input.TouchPoint(p, to.pressure);
+                    return new Fayde.Input.TouchPoint(p, to.pressure);
                 };
                 return PointerActiveTouch;
-            })(TouchInternal.ActiveTouchBase);
+            })(Fayde.Input.TouchInternal.ActiveTouchBase);
 
             var PointerTouchInterop = (function (_super) {
                 __extends(PointerTouchInterop, _super);
@@ -36257,7 +36548,7 @@ var Fayde;
                     var _this = this;
                     _super.prototype.Register.call(this, input, canvas);
                     canvas.style.msTouchAction = "none";
-                    (canvas.style).touchAction = "none";
+                    canvas.style.touchAction = "none";
 
                     canvas.addEventListener("selectstart", function (e) {
                         e.preventDefault();
@@ -36298,44 +36589,44 @@ var Fayde;
                 };
 
                 PointerTouchInterop.prototype._HandlePointerDown = function (e) {
-                    if (e.pointerType === "mouse")
+                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
                         return;
                     e.preventDefault();
                     Fayde.Engine.Inspection.Kill();
 
                     var cur = this.GetActiveTouch(e);
                     this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(Fayde.Input.TouchInputType.TouchDown, [cur]);
+                    this.HandleTouches(1 /* TouchDown */, [cur]);
                     this.Input.SetIsUserInitiatedEvent(false);
                 };
                 PointerTouchInterop.prototype._HandlePointerUp = function (e) {
-                    if (e.pointerType === "mouse")
+                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(Fayde.Input.TouchInputType.TouchUp, [cur]);
+                    this.HandleTouches(2 /* TouchUp */, [cur]);
                     this.Input.SetIsUserInitiatedEvent(false);
                     var index = this.ActiveTouches.indexOf(cur);
                     if (index > -1)
                         this.ActiveTouches.splice(index, 1);
                 };
                 PointerTouchInterop.prototype._HandlePointerMove = function (e) {
-                    if (e.pointerType === "mouse")
+                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
                         return;
                     var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(Fayde.Input.TouchInputType.TouchMove, [cur]);
+                    this.HandleTouches(3 /* TouchMove */, [cur]);
                 };
                 PointerTouchInterop.prototype._HandlePointerEnter = function (e) {
-                    if (e.pointerType === "mouse")
+                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
                         return;
                     var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(Fayde.Input.TouchInputType.TouchEnter, [cur]);
+                    this.HandleTouches(4 /* TouchEnter */, [cur]);
                 };
                 PointerTouchInterop.prototype._HandlePointerLeave = function (e) {
-                    if (e.pointerType === "mouse")
+                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
                         return;
                     var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(Fayde.Input.TouchInputType.TouchLeave, [cur]);
+                    this.HandleTouches(5 /* TouchLeave */, [cur]);
                 };
 
                 PointerTouchInterop.prototype.GetActiveTouch = function (e) {
@@ -36356,7 +36647,7 @@ var Fayde;
                     return null;
                 };
                 return PointerTouchInterop;
-            })(TouchInternal.TouchInteropBase);
+            })(Fayde.Input.TouchInternal.TouchInteropBase);
             TouchInternal.PointerTouchInterop = PointerTouchInterop;
         })(Input.TouchInternal || (Input.TouchInternal = {}));
         var TouchInternal = Input.TouchInternal;
@@ -36379,10 +36670,10 @@ var Fayde;
                 };
                 NonPointerActiveTouch.prototype.CreateTouchPoint = function (p) {
                     var to = this.TouchObject;
-                    return new Input.TouchPoint(p, to.force);
+                    return new Fayde.Input.TouchPoint(p, to.force);
                 };
                 return NonPointerActiveTouch;
-            })(TouchInternal.ActiveTouchBase);
+            })(Fayde.Input.TouchInternal.ActiveTouchBase);
 
             var NonPointerTouchInterop = (function (_super) {
                 __extends(NonPointerTouchInterop, _super);
@@ -36418,29 +36709,29 @@ var Fayde;
                     this.ActiveTouches = this.ActiveTouches.concat(newTouches);
 
                     this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(Input.TouchInputType.TouchDown, newTouches);
+                    this.HandleTouches(1 /* TouchDown */, newTouches);
                     this.Input.SetIsUserInitiatedEvent(false);
                 };
                 NonPointerTouchInterop.prototype._HandleTouchEnd = function (e) {
                     var oldTouches = this.TouchArrayFromList(e.changedTouches);
 
                     this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(Input.TouchInputType.TouchUp, oldTouches);
+                    this.HandleTouches(2 /* TouchUp */, oldTouches);
                     this.Input.SetIsUserInitiatedEvent(false);
 
                     removeFromArray(this.ActiveTouches, oldTouches);
                 };
                 NonPointerTouchInterop.prototype._HandleTouchMove = function (e) {
                     var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(Input.TouchInputType.TouchMove, touches);
+                    this.HandleTouches(3 /* TouchMove */, touches);
                 };
                 NonPointerTouchInterop.prototype._HandleTouchEnter = function (e) {
                     var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(Input.TouchInputType.TouchEnter, touches);
+                    this.HandleTouches(4 /* TouchEnter */, touches);
                 };
                 NonPointerTouchInterop.prototype._HandleTouchLeave = function (e) {
                     var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(Input.TouchInputType.TouchLeave, touches);
+                    this.HandleTouches(5 /* TouchLeave */, touches);
                 };
 
                 NonPointerTouchInterop.prototype.TouchArrayFromList = function (list) {
@@ -36466,7 +36757,7 @@ var Fayde;
                     return null;
                 };
                 return NonPointerTouchInterop;
-            })(TouchInternal.TouchInteropBase);
+            })(Fayde.Input.TouchInternal.TouchInteropBase);
             TouchInternal.NonPointerTouchInterop = NonPointerTouchInterop;
 
             function removeFromArray(arr, toRemove) {
@@ -36527,6 +36818,8 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Path) {
+        
+
         var RawPath = (function () {
             function RawPath() {
                 this._Path = [];
@@ -36548,57 +36841,57 @@ var Fayde;
                 configurable: true
             });
             RawPath.prototype.Move = function (x, y) {
-                this._Path.push(Path.Move(x, y));
+                this._Path.push(Fayde.Path.Move(x, y));
                 this._EndX = x;
                 this._EndY = y;
             };
             RawPath.prototype.Line = function (x, y) {
-                this._Path.push(Path.Line(x, y));
+                this._Path.push(Fayde.Path.Line(x, y));
                 this._EndX = x;
                 this._EndY = y;
             };
             RawPath.prototype.Rect = function (x, y, width, height) {
-                this._Path.push(Path.Rect(x, y, width, height));
+                this._Path.push(Fayde.Path.Rect(x, y, width, height));
             };
             RawPath.prototype.RoundedRectFull = function (x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
-                this._Path.push(Path.RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft));
+                this._Path.push(Fayde.Path.RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft));
                 this._EndX = x;
                 this._EndY = y;
             };
             RawPath.prototype.RoundedRect = function (x, y, width, height, radiusX, radiusY) {
-                this._Path.push(Path.RectRounded(x, y, width, height, radiusX, radiusY));
+                this._Path.push(Fayde.Path.RectRounded(x, y, width, height, radiusX, radiusY));
                 this._EndX = x;
                 this._EndY = y;
             };
             RawPath.prototype.QuadraticBezier = function (cpx, cpy, x, y) {
-                this._Path.push(Path.QuadraticBezier(cpx, cpy, x, y));
+                this._Path.push(Fayde.Path.QuadraticBezier(cpx, cpy, x, y));
                 this._EndX = x;
                 this._EndY = y;
             };
             RawPath.prototype.CubicBezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
-                this._Path.push(Path.CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y));
+                this._Path.push(Fayde.Path.CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y));
                 this._EndX = x;
                 this._EndY = y;
             };
             RawPath.prototype.Ellipse = function (x, y, width, height) {
-                this._Path.push(Path.Ellipse(x, y, width, height));
+                this._Path.push(Fayde.Path.Ellipse(x, y, width, height));
                 this._EndX = x;
                 this._EndY = y;
             };
             RawPath.prototype.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
-                this._Path.push(Path.EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey));
+                this._Path.push(Fayde.Path.EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey));
             };
             RawPath.prototype.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
-                this._Path.push(Path.Arc(x, y, r, sAngle, eAngle, aClockwise));
+                this._Path.push(Fayde.Path.Arc(x, y, r, sAngle, eAngle, aClockwise));
             };
             RawPath.prototype.ArcTo = function (cpx, cpy, x, y, radius) {
-                var arcto = Path.ArcTo(cpx, cpy, x, y, radius);
+                var arcto = Fayde.Path.ArcTo(cpx, cpy, x, y, radius);
                 this._Path.push(arcto);
                 this._EndX = arcto.ex;
                 this._EndY = arcto.ey;
             };
             RawPath.prototype.Close = function () {
-                this._Path.push(Path.Close());
+                this._Path.push(Fayde.Path.Close());
             };
 
             RawPath.prototype.Draw = function (ctx) {
@@ -36675,14 +36968,16 @@ var Fayde;
             var hs = pars.thickness / 2.0;
             var cap = pars.startCap || pars.endCap || 0;
             switch (cap) {
-                case Fayde.Shapes.PenLineCap.Round:
+                case 2 /* Round */:
                     box.l = Math.min(box.l, entry.sx - hs);
                     box.r = Math.max(box.r, entry.sx + hs);
                     box.t = Math.min(box.t, entry.sy - hs);
                     box.b = Math.max(box.b, entry.sy + hs);
                     break;
-                case Fayde.Shapes.PenLineCap.Square:
+                case 1 /* Square */:
                     if (!(v = entry.getStartVector()))
+                        return;
+                    if (!v[0] || !v[1])
                         return;
                     var sd = Vector.reverse(Vector.normalize(v.slice(0)));
                     var sdo = Vector.orthogonal(sd.slice(0));
@@ -36697,9 +36992,11 @@ var Fayde;
                     box.t = Math.min(box.t, y1, y2);
                     box.b = Math.max(box.b, y1, y2);
                     break;
-                case Fayde.Shapes.PenLineCap.Flat:
+                case 0 /* Flat */:
                 default:
                     if (!(v = entry.getStartVector()))
+                        return;
+                    if (!v[0] || !v[1])
                         return;
                     var sdo = Vector.orthogonal(Vector.normalize(v.slice(0)));
 
@@ -36723,13 +37020,13 @@ var Fayde;
             var hs = pars.thickness / 2.0;
             var cap = pars.startCap || pars.endCap || 0;
             switch (cap) {
-                case Fayde.Shapes.PenLineCap.Round:
+                case 2 /* Round */:
                     box.l = Math.min(box.l, ex - hs);
                     box.r = Math.max(box.r, ex + hs);
                     box.t = Math.min(box.t, ey - hs);
                     box.b = Math.max(box.b, ey + hs);
                     break;
-                case Fayde.Shapes.PenLineCap.Square:
+                case 1 /* Square */:
                     if (!(v = entry.getEndVector()))
                         return;
                     var ed = Vector.normalize(v.slice(0));
@@ -36745,7 +37042,7 @@ var Fayde;
                     box.t = Math.min(box.t, y1, y2);
                     box.b = Math.max(box.b, y1, y2);
                     break;
-                case Fayde.Shapes.PenLineCap.Flat:
+                case 0 /* Flat */:
                 default:
                     if (!(v = entry.getEndVector()))
                         return;
@@ -36765,13 +37062,13 @@ var Fayde;
         }
         function expandLineJoin(box, previous, entry, pars) {
             var hs = pars.thickness / 2.0;
-            if (pars.join === Fayde.Shapes.PenLineJoin.Round) {
+            if (pars.join === 2 /* Round */) {
                 box.l = Math.min(box.l, entry.sx - hs);
                 box.r = Math.max(box.r, entry.sx + hs);
                 box.t = Math.min(box.t, entry.sy - hs);
                 box.b = Math.max(box.b, entry.sy + hs);
             }
-            var tips = (pars.join === Fayde.Shapes.PenLineJoin.Miter) ? findMiterTips(previous, entry, hs, pars.miterLimit) : findBevelTips(previous, entry, hs);
+            var tips = (pars.join === 0 /* Miter */) ? findMiterTips(previous, entry, hs, pars.miterLimit) : findBevelTips(previous, entry, hs);
             if (!tips)
                 return;
             var x1 = tips[0].x;
@@ -36799,7 +37096,7 @@ var Fayde;
                 entry.sy = cury;
 
                 if (!entry.isSingle) {
-                    if (!(entry).isMove && isLastEntryMove) {
+                    if (!entry.isMove && isLastEntryMove) {
                         sx = entry.sx;
                         sy = entry.sy;
                         expandStartCap(box, entry, pars);
@@ -36812,7 +37109,7 @@ var Fayde;
 
                 curx = entry.ex || 0;
                 cury = entry.ey || 0;
-                isLastEntryMove = !!(entry).isMove;
+                isLastEntryMove = !!entry.isMove;
                 last = entry;
             }
 
@@ -36833,6 +37130,8 @@ var Fayde;
                 return null;
             Vector.reverse(av);
             var tau = Vector.angleBetween(av, bv) / 2;
+            if (isNaN(tau))
+                return null;
 
             var miterRatio = 1 / Math.sin(tau);
             if (miterRatio > miterLimit)
@@ -36883,7 +37182,7 @@ var Fayde;
     (function (Path) {
         function RectRounded(x, y, width, height, radiusX, radiusY) {
             if (radiusX === 0.0 && radiusY === 0.0)
-                return Path.Rect(x, y, width, height);
+                return Fayde.Path.Rect(x, y, width, height);
 
             var left = x;
             var top = y;
@@ -37187,7 +37486,7 @@ var Fayde;
                 if (pkgstr[pkgstr.length - 1] !== "/")
                     pkgstr += "/";
 
-                this._Script = Fayde.Xaml.RegisterResource(Xaml.ResourceType.Script, pkgstr + "source.js", "package:" + pkgstr, "source");
+                this._Script = Fayde.Xaml.RegisterResource(0 /* Script */, pkgstr + "source.js", "package:" + pkgstr, "source");
                 this._GenericXaml = Fayde.Xaml.RegisterResourceDictionary(new Uri(pkgstr + "generic.xml"));
             };
 
@@ -37363,7 +37662,7 @@ var Fayde;
                     if (c === quoteTerm) {
                         if (val[i - 1] === "\\")
                             i++;
-else
+                        else
                             inQuote = false;
                     }
                 } else if (c === "'" || c === "\"") {
@@ -37408,9 +37707,9 @@ else
             for (var i = len - 1; i >= 0; i--) {
                 cur = objs[i];
                 if (cur instanceof Fayde.FrameworkElement) {
-                    o = (cur).Resources.Get(key);
+                    o = cur.Resources.Get(key);
                 } else if (cur instanceof Fayde.Application) {
-                    o = (cur).Resources.Get(key);
+                    o = cur.Resources.Get(key);
                 }
                 if (o !== undefined)
                     return o;
@@ -37423,7 +37722,7 @@ else
             throw new XamlParseException("Could not resolve StaticResource: '" + key + "'.");
         }
         function parseTemplateBinding(val, ctx) {
-            return new Xaml.TemplateBinding(val);
+            return new Fayde.Xaml.TemplateBinding(val);
         }
         function parseRelativeSource(val, ctx) {
             var tokens = val.split(",");
@@ -37444,7 +37743,7 @@ else
                     case "Mode":
                         rs.Mode = Fayde.Data.RelativeSourceMode[value];
                         if (rs.Mode == null)
-                            rs.Mode = Fayde.Data.RelativeSourceMode.Self;
+                            rs.Mode = 2 /* Self */;
                         break;
                     case "AncestorLevel":
                         rs.AncestorLevel = parseInt(value);
@@ -37552,14 +37851,14 @@ else
         bindingPropertyFuncs["Mode"] = function (binding, key, oVal, strVal) {
             var mode = Fayde.Data.BindingMode[strVal];
             if (mode == null)
-                mode = Fayde.Data.BindingMode.OneWay;
+                mode = 1 /* OneWay */;
             binding.Mode = mode;
         };
 
         bindingPropertyFuncs["UpdateSourceTrigger"] = function (binding, key, oVal, strVal) {
             var ust = Fayde.Data.UpdateSourceTrigger[strVal];
             if (ust == null)
-                Fayde.Data.UpdateSourceTrigger.Default;
+                0 /* Default */;
             binding.UpdateSourceTrigger = ust;
         };
 
@@ -37589,13 +37888,13 @@ else
         eventBindingPropertyFuncs["Command"] = function (binding, key, oVal, strVal) {
             if (!oVal || typeof oVal === "string")
                 binding.CommandBinding = new Fayde.Data.Binding(strVal);
-else if (oVal instanceof Fayde.Data.Binding)
+            else if (oVal instanceof Fayde.Data.Binding)
                 binding.CommandBinding = oVal;
         };
         eventBindingPropertyFuncs["CommandParameter"] = function (binding, key, oVal, strVal) {
             if (!oVal || typeof oVal === "string")
                 binding.CommandParameterBinding = new Fayde.Data.Binding(strVal);
-else if (oVal instanceof Fayde.Data.Binding)
+            else if (oVal instanceof Fayde.Data.Binding)
                 binding.CommandParameterBinding = oVal;
         };
         eventBindingPropertyFuncs["Filter"] = function (binding, key, oVal, strVal) {
@@ -37718,9 +38017,9 @@ var Fayde;
         var scriptresources = [];
         function MapResource(type, namespaceURI, localName) {
             var r;
-            if (type === ResourceType.Xaml) {
+            if (type === 1 /* Xaml */) {
                 r = xamlresources;
-            } else if (type === ResourceType.Script) {
+            } else if (type === 0 /* Script */) {
                 r = scriptresources;
             } else {
                 return undefined;
@@ -37739,9 +38038,9 @@ var Fayde;
 
         function RegisterResource(type, url, namespaceURI, localName) {
             var r;
-            if (type === ResourceType.Xaml) {
+            if (type === 1 /* Xaml */) {
                 r = xamlresources;
-            } else if (type === ResourceType.Script) {
+            } else if (type === 0 /* Script */) {
                 r = scriptresources;
             } else {
                 return undefined;
@@ -37753,9 +38052,9 @@ var Fayde;
                 names = r[nsuri] = [];
             var res = names[localName];
             if (!res) {
-                if (type === ResourceType.Xaml) {
+                if (type === 1 /* Xaml */) {
                     names[localName] = res = new XamlResource(url);
-                } else if (type === ResourceType.Script) {
+                } else if (type === 0 /* Script */) {
                     names[localName] = res = new ScriptResource(url);
                 }
             }
@@ -37821,7 +38120,7 @@ var Fayde;
                     return;
                 if (this._Xaml.Error)
                     this._OnError(this._Xaml.Error);
-else
+                else
                     this._OnSuccess(this._Xaml.Document);
             };
             return PageResolver;
@@ -37888,14 +38187,14 @@ var Fayde;
             }
             Source.prototype.RegisterSource = function (namespace) {
                 if (this.Source)
-                    this._Resource = Fayde.Xaml.RegisterResource(Xaml.ResourceType.Script, this.Source.toString(), namespace, this.Name);
+                    this._Resource = Fayde.Xaml.RegisterResource(0 /* Script */, this.Source.toString(), namespace, this.Name);
             };
 
             Source.prototype.LoadAsync = function (onLoaded) {
                 var _this = this;
                 if (!this._Resource)
                     onLoaded(this);
-else
+                else
                     this._Resource.LoadAsync(function () {
                         return onLoaded(_this);
                     });
@@ -37923,7 +38222,7 @@ else
             }
             XamlSource.prototype.RegisterSource = function (namespace) {
                 if (this.Source)
-                    (this)._Resource = Fayde.Xaml.RegisterResource(Xaml.ResourceType.Xaml, this.Source.toString(), namespace, this.Name);
+                    this._Resource = Fayde.Xaml.RegisterResource(1 /* Xaml */, this.Source.toString(), namespace, this.Name);
                 var enumerator = this.CodeSources.GetEnumerator();
                 while (enumerator.MoveNext()) {
                     enumerator.Current.RegisterSource(namespace);
@@ -37933,7 +38232,7 @@ else
             XamlSource.prototype.LoadAsync = function (onLoaded) {
                 var _this = this;
                 var loaders = [];
-                var res = (this)._Resource;
+                var res = this._Resource;
                 if (res)
                     loaders.push(res);
                 var enumerator = this.CodeSources.GetEnumerator();
@@ -37970,7 +38269,7 @@ var Fayde;
             TemplateBinding.prototype.Transmute = function (ctx) {
                 if (!ctx.TemplateBindingSource)
                     throw new XamlParseException("{TemplateBinding} can only be used within a ControlTemplate.");
-                var propd = DependencyProperty.GetDependencyProperty((ctx.TemplateBindingSource).constructor, this.Property);
+                var propd = DependencyProperty.GetDependencyProperty(ctx.TemplateBindingSource.constructor, this.Property);
                 return new Fayde.TemplateBindingExpression(propd, ctx.Property);
             };
             return TemplateBinding;
