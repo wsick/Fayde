@@ -208,16 +208,20 @@ module Fayde {
         if (converter)
             return converter(val);
         if (type instanceof Enum) {
-            if (!val) //Handles 0, "", null, undefined
-                return 0;
-            if (typeof val === "number")
-                return val;
             var enumo = (<Enum><any>type).Object;
-            return enumo[val];
+            if (enumo.Converter)
+                return enumo.Converter(val);
+            val = val || 0;
+            if (typeof val === "string")
+                return enumo[val];
+            return val;
         }
         return val;
     }
     export function RegisterTypeConverter(type: Function, converter: (val: any) => any) {
         converters[type] = converter;
+    }
+    export function RegisterEnumConverter(e: any, converter: (val: any) => any) {
+        e.Converter = converter;
     }
 }
