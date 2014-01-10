@@ -4,7 +4,7 @@ module Fayde {
     export class Style extends DependencyObject {
         private _IsSealed: boolean = false;
 
-        static SettersProperty = DependencyProperty.RegisterImmutable("Setters", () => SetterCollection, Style);
+        static SettersProperty = DependencyProperty.RegisterImmutable<SetterCollection>("Setters", () => SetterCollection, Style);
         static BasedOnProperty: DependencyProperty = DependencyProperty.Register("BasedOn", () => Style, Style);
         static TargetTypeProperty: DependencyProperty = DependencyProperty.Register("TargetType", () => Function, Style);
         Setters: SetterCollection;
@@ -15,7 +15,7 @@ module Fayde {
 
         constructor() {
             super();
-            var coll = Style.SettersProperty.Initialize<SetterCollection>(this);
+            var coll = Style.SettersProperty.Initialize(this);
             coll.AttachTo(this);
         }
 

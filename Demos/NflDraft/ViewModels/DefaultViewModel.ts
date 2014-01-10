@@ -11,6 +11,7 @@
 
 module NflDraft.ViewModels {
     export class DefaultViewModel extends Fayde.MVVM.ViewModelBase {
+        private _interval_id: number;
         MyTeam: Models.FantasyTeam;
         Rounds: Fayde.Collections.ObservableCollection<Models.Round> = new Fayde.Collections.ObservableCollection<Models.Round>();
         DraftSelections: Fayde.Collections.ObservableCollection<Models.DraftSelection> = new Fayde.Collections.ObservableCollection<Models.DraftSelection>();
@@ -18,14 +19,6 @@ module NflDraft.ViewModels {
         FantasyTeams: Array<Models.FantasyTeam> = new Array<Models.FantasyTeam>();
         FantasyPlayers: Fayde.Collections.ObservableCollection<Models.FantasyPlayer> = new Fayde.Collections.ObservableCollection<Models.FantasyPlayer>();
         ChatMessages: Fayde.Collections.ObservableCollection<Models.ChatMessage> = new Fayde.Collections.ObservableCollection<Models.ChatMessage>();
-        private _draftComplete: boolean;
-        get DraftComplete(): boolean {
-            return this._draftComplete;
-        }
-        set DraftComplete(value: boolean) {
-            this._draftComplete = value;
-            this.OnPropertyChanged("DraftComplete");
-        }
         private _countdown: number;
         get Countdown(): number {
             return this._countdown;
@@ -37,10 +30,27 @@ module NflDraft.ViewModels {
         private _selectedPlayer: Models.FantasyPlayer;
         get SelectedPlayer(): Models.FantasyPlayer { return this._selectedPlayer; }
         set SelectedPlayer(value: Models.FantasyPlayer) {
-            this._selectedPlayer = value;
-            this.OnPropertyChanged("SelectedPlayer");
+            if (value != null) {
+                this._selectedPlayer = value;
+                this.OnPropertyChanged("SelectedPlayer");
+            }
         }
-        private _interval_id: number;
+        private _current_draft_spot: Models.DraftSpot = null;
+        get CurrentDraftSpot(): Models.DraftSpot {
+            return this._current_draft_spot;
+        }
+        set CurrentDraftSpot(value: Models.DraftSpot) {
+            this._current_draft_spot = value;
+            this.OnPropertyChanged("CurrentDraftSpot");
+        }
+        private _current_position_filter: string;
+        get CurrentPositionFilter(): string {
+            return this._current_position_filter;
+        }
+        set CurrentPositionFilter(value: string) {
+            this._current_position_filter = value;
+            this.OnPropertyChanged("CurrentPositionFilter");
+        }
 
         ChatSubmitted(e: Fayde.IEventBindingArgs<Fayde.Input.KeyEventArgs>) {
             if (e.args.Key === Fayde.Input.Key.Enter) {
@@ -51,6 +61,21 @@ module NflDraft.ViewModels {
                 e.parameter.Text = "";
             }
         }
+        private _draft_player_command: Fayde.Input.ICommand = null;
+        get DraftPlayerCommand(): Fayde.Input.ICommand {
+            if (this._draft_player_command === null) {
+                this._draft_player_command = new Fayde.MVVM.RelayCommand(
+                    () => this.DraftPlayer(),
+                    () => this.CanDraftPlayer());
+            }
+            return this._draft_player_command;
+        }
+        DraftPlayer() {
+            alert("Selecting Player");
+        }
+        CanDraftPlayer() {
+            return false;
+        }
 
         constructor() {
             super();
@@ -58,10 +83,16 @@ module NflDraft.ViewModels {
         }
 
         Load() {
+            var positions = ["QB", "RB", "RB", "WR", "WR", "TE", "BE", "BE"];
+            var fantasy_positions = new Fayde.Collections.ObservableCollection<Models.FantasyPosition>();
+            for (var i = 0; i < positions.length; i++) {
+                fantasy_positions.Add(new Models.FantasyPosition(positions[i]));
+            }
+
             var ft = ["Victorious Secret", "Somewhere Over Dwayne Bowe", "The Blair Walsh Project", "Forgetting Brandon Marshall", "Show Me Your TDs",
                 "Boston Tebow Party", "Saved by the Le'Von Bell", "Stafford Infection", "I Pitta the Fool", "Cruz Control"];
             for (var i = 0; i < ft.length; i++) {
-                this.FantasyTeams.push(new Models.FantasyTeam(ft[i]));
+                this.FantasyTeams.push(new Models.FantasyTeam(ft[i], fantasy_positions));
             }
             this.MyTeam = this.FantasyTeams[0];
 
@@ -109,13 +140,14 @@ module NflDraft.ViewModels {
             }
 
             var overall = 1;
-            for (var i = 0; i < 4; i++) {
+            for (var i = 0; i < 3; i++) {
                 var r = new Models.Round();
                 r.RoundNumber = i + 1;
                 r.DraftSpots = new Fayde.Collections.ObservableCollection<Models.DraftSpot>();
                 if (i % 2 == 0) {
                     for (var j = 1; j <= 10; j++) {
                         var ds = new Models.DraftSpot();
+                        ds.Round = r;
                         ds.Overall = overall;
                         ds.Team = this.FantasyTeams[j - 1];
                         r.DraftSpots.Add(ds);
@@ -124,6 +156,7 @@ module NflDraft.ViewModels {
                 } else {
                     for (var j = 10; j >= 1; j--) {
                         var ds = new Models.DraftSpot();
+                        ds.Round = r;
                         ds.Overall = overall;
                         ds.Team = this.FantasyTeams[j - 1];
                         r.DraftSpots.Add(ds);
@@ -133,48 +166,53 @@ module NflDraft.ViewModels {
                 this.Rounds.Add(r);
             }
 
-            this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE", "K", "DEF");
+            this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE");
 
-            var fp = [{
-                "Name": "Arian Foster", "Team": _teams[8], "Headshot": "Images/Player Headshots/arian_foster.png", "Positions": "RB", "Birthdate": new Date("1986-08-24"), "Height": "6'11\"", "Weight": "228", "ADP": 1.8,
+            var fp = [
+                { "Name": "Adrian Peterson", "Team": _teams[27], "Headshot": "Images/Player Headshots/adrian_peterson.png", "Positions": "RB", "ADP": 1.50 },
+                { "Name": "Arian Foster", "Team": _teams[8], "Headshot": "Images/Player Headshots/arian_foster.png", "Positions": "RB", "Birthdate": new Date("1986-08-24"), "Height": "6'11\"", "Weight": "228", "ADP": 1.8,
                 "Projected":
                     { "Year": 2013, "Team": _teams[8], "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "FumblesLost": 2, "Targets": 58, "Receptions": 40, "ReceivingYards": 240, "ReceivingTouchdowns": 2 },
                 "Stats":
                    [{ "Year": 2009, "Team": _teams[8], "GamesPlayed": 6, "RushingAttempts": 54, "RushingYards": 257, "RushingTouchdowns": 3, "FumblesLost": 1, "Targets": 9, "Receptions": 8, "ReceivingYards": 93, "ReceivingTouchdowns": 0 },
                     { "Year": 2010, "Team": _teams[8], "GamesPlayed": 16, "RushingAttempts": 327, "RushingYards": 1616, "RushingTouchdowns": 16, "FumblesLost": 2, "Targets": 84, "Receptions": 66, "ReceivingYards": 604, "ReceivingTouchdowns": 2 },
                     { "Year": 2011, "Team": _teams[8], "GamesPlayed": 13, "RushingAttempts": 278, "RushingYards": 1224, "RushingTouchdowns": 10, "FumblesLost": 3, "Targets": 71, "Receptions": 53, "ReceivingYards": 617, "ReceivingTouchdowns": 2 },
-                    { "Year": 2012, "Team": _teams[8], "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "FumblesLost": 2, "Targets": 58, "Receptions": 40, "ReceivingYards": 240, "ReceivingTouchdowns": 2 }]
-            },
-                { "Name": "Aaron Rodgers", "Team": _teams[10], "Headshot": "Images/Player Headshots/aaron_rodgers.png", "Positions": "QB", "ADP": 1.91 },
+                    { "Year": 2012, "Team": _teams[8], "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "FumblesLost": 2, "Targets": 58, "Receptions": 40, "ReceivingYards": 240, "ReceivingTouchdowns": 2 }] },
                 { "Name": "Ray Rice", "Team": _teams[18], "Headshot": "Images/Player Headshots/ray_rice.png", "Positions": "RB", "ADP": 3.25 },
-                { "Name": "LeSean McCoy", "Team": _teams[19], "Headshot": "Images/Player Headshots/lesean_mccoy.png", "Positions": "RB", "ADP": 5.11 },
-                { "Name": "Cam Newton", "Team": _teams[20], "Headshot": "Images/Player Headshots/cam_newton.png", "Positions": "QB", "ADP": 9.2 },
-                { "Name": "Tom Brady", "Team": _teams[5], "Headshot": "Images/Player Headshots/tom_brady.png", "Positions": "QB", "ADP": 5.97 },
-                { "Name": "Drew Brees", "Team": _teams[0], "Headshot": "Images/Player Headshots/drew_brees.png", "Positions": "QB", "ADP": 6.21 },
-                { "Name": "Matthew Stafford", "Team": _teams[1], "Headshot": "Images/Player Headshots/matthew_stafford.png", "Positions": "QB", "ADP": 9.9 },
-                { "Name": "Calvin Johnson", "Team": _teams[1], "Headshot": "Images/Player Headshots/calvin_johnson.png", "Positions": "WR", "ADP": 7.86 },
-                { "Name": "Chris Johnson", "Team": _teams[2], "Headshot": "Images/Player Headshots/chris_johnson.png", "Positions": "RB", "ADP": 11.4 },
-                { "Name": "Darren McFadden", "Team": _teams[3], "Headshot": "Images/Player Headshots/darren_mcfadden.png", "Positions": "RB", "ADP": 13.79 },
-                { "Name": "Larry Fitzgerald", "Team": _teams[4], "Headshot": "Images/Player Headshots/larry_fitzgerald.png", "Positions": "WR", "ADP": 13.81 },
-                { "Name": "Rob Gronkowski", "Team": _teams[5], "Headshot": "Images/Player Headshots/rob_gronkowski.png", "Positions": "TE", "ADP": 14.26 },
-                { "Name": "Julio Jones", "Team": _teams[6], "Headshot": "Images/Player Headshots/julio_jones.png", "Positions": "WR", "ADP": 19.79 },
-                { "Name": "Jimmy Graham", "Team": _teams[0], "Headshot": "Images/Player Headshots/jimmy_graham.png", "Positions": "TE", "ADP": 19.76 },
-                { "Name": "Matt Forte", "Team": _teams[7], "Headshot": "Images/Player Headshots/matt_forte.png", "Positions": "RB", "ADP": 16.71 },
-                { "Name": "Andre Johnson", "Team": _teams[8], "Headshot": "Images/Player Headshots/andre_johnson.png", "Positions": "WR", "ADP": 18.43 },
-                { "Name": "Roddy White", "Team": _teams[6], "Headshot": "Images/Player Headshots/roddy_white.png", "Positions": "WR", "ADP": 22.64 },
-                { "Name": "A.J. Green", "Team": _teams[9], "Headshot": "Images/Player Headshots/aj_green.png", "Positions": "WR", "ADP": 26.17 },
-                { "Name": "Greg Jennings", "Team": _teams[10], "Headshot": "Images/Player Headshots/greg_jennings.png", "Positions": "WR", "ADP": 22.38 },
-                { "Name": "DeMarco Murray", "Team": _teams[11], "Headshot": "Images/Player Headshots/demarco_murray.png", "Positions": "RB", "ADP": 25.86 },
+                { "Name": "Doug Martin", "Team": _teams[21], "Headshot": "Images/Player Headshots/doug_martin.png", "Positions": "RB", "ADP": 28.45 },
                 { "Name": "Jamaal Charles", "Team": _teams[12], "Headshot": "Images/Player Headshots/jamaal_charles.png", "Positions": "RB", "ADP": 28.45 },
-                { "Name": "Wes Welker", "Team": _teams[5], "Headshot": "Images/Player Headshots/wes_welker.png", "Positions": "WR", "ADP": 23.36 },
-                { "Name": "Mike Wallace", "Team": _teams[17], "Headshot": "Images/Player Headshots/mike_wallace.png", "Positions": "WR", "ADP": 32.73 }];
+                { "Name": "Trent Richardson", "Team": _teams[25], "Headshot": "Images/Player Headshots/trent_richardson.png", "Positions": "RB", "ADP": 28.45 },
+                { "Name": "C.J. Spiller", "Team": _teams[15], "Headshot": "Images/Player Headshots/cj_spiller.png", "Positions": "RB", "ADP": 28.45 },
+                { "Name": "LeSean McCoy", "Team": _teams[19], "Headshot": "Images/Player Headshots/lesean_mccoy.png", "Positions": "RB", "ADP": 5.11 },
+                { "Name": "Aaron Rodgers", "Team": _teams[10], "Headshot": "Images/Player Headshots/aaron_rodgers.png", "Positions": "QB", "ADP": 1.91 },
+                { "Name": "Calvin Johnson", "Team": _teams[1], "Headshot": "Images/Player Headshots/calvin_johnson.png", "Positions": "WR", "ADP": 7.86 },
+                { "Name": "Marshawn Lynch", "Team": _teams[24], "Headshot": "Images/Player Headshots/marshawn_lynch.png", "Positions": "RB", "ADP": 7.86 },
+                { "Name": "Drew Brees", "Team": _teams[0], "Headshot": "Images/Player Headshots/drew_brees.png", "Positions": "QB", "ADP": 6.21 },
+                { "Name": "Brandon Marshall", "Team": _teams[7], "Headshot": "Images/Player Headshots/brandon_marshall.png", "Positions": "WR", "ADP": 6.21 },
+                { "Name": "Stephen Jackson", "Team": _teams[6], "Headshot": "Images/Player Headshots/stephen_jackson.png", "Positions": "RB", "ADP": 6.21 },
+                { "Name": "Dez Bryant", "Team": _teams[11], "Headshot": "Images/Player Headshots/dez_bryant.png", "Positions": "WR", "ADP": 6.21 },
+                { "Name": "Darren Sproles", "Team": _teams[0], "Headshot": "Images/Player Headshots/darren_sproles.png", "Positions": "RB", "ADP": 6.21 },
+                { "Name": "Peyton Manning", "Team": _teams[29], "Headshot": "Images/Player Headshots/peyton_manning.png", "Positions": "QB", "ADP": 6.21 },
+                { "Name": "A.J. Green", "Team": _teams[9], "Headshot": "Images/Player Headshots/aj_green.png", "Positions": "WR", "ADP": 26.17 },
+                { "Name": "Reggie Bush", "Team": _teams[1], "Headshot": "Images/Player Headshots/reggie_bush.png", "Positions": "RB", "ADP": 26.17 },
+                { "Name": "Matt Forte", "Team": _teams[7], "Headshot": "Images/Player Headshots/matt_forte.png", "Positions": "RB", "ADP": 16.71 },
+                { "Name": "Tom Brady", "Team": _teams[5], "Headshot": "Images/Player Headshots/tom_brady.png", "Positions": "QB", "ADP": 5.97 },
+                { "Name": "Alfred Morris", "Team": _teams[26], "Headshot": "Images/Player Headshots/alfred_morris.png", "Positions": "RB", "ADP": 5.97 },
+                { "Name": "Andre Johnson", "Team": _teams[8], "Headshot": "Images/Player Headshots/andre_johnson.png", "Positions": "WR", "ADP": 18.43 },
+                { "Name": "Cam Newton", "Team": _teams[20], "Headshot": "Images/Player Headshots/cam_newton.png", "Positions": "QB", "ADP": 9.2 },
+                { "Name": "Roddy White", "Team": _teams[6], "Headshot": "Images/Player Headshots/roddy_white.png", "Positions": "WR", "ADP": 22.64 },
+                { "Name": "Randall Cobb", "Team": _teams[10], "Headshot": "Images/Player Headshots/randall_cobb.png", "Positions": "WR", "ADP": 22.64 },
+                { "Name": "Jimmy Graham", "Team": _teams[0], "Headshot": "Images/Player Headshots/jimmy_graham.png", "Positions": "TE", "ADP": 19.76 },
+                { "Name": "Julio Jones", "Team": _teams[6], "Headshot": "Images/Player Headshots/julio_jones.png", "Positions": "WR", "ADP": 19.79 },
+                { "Name": "Demaryius Thomas", "Team": _teams[29], "Headshot": "Images/Player Headshots/demaryius_thomas.png", "Positions": "WR", "ADP": 19.79 },
+                { "Name": "Darren McFadden", "Team": _teams[3], "Headshot": "Images/Player Headshots/darren_mcfadden.png", "Positions": "RB", "ADP": 13.79 }];
             for (var i = 0; i < fp.length; i++) {
                 var fantasyPlayer = new Models.FantasyPlayer();
                 fantasyPlayer.Birthdate = fp[i]["Birthdate"];
                 fantasyPlayer.Headshot = fp[i]["Headshot"];
                 fantasyPlayer.Height = fp[i]["Height"];
                 fantasyPlayer.Name = fp[i]["Name"];
-                fantasyPlayer.Positions = fp[i]["Positions"].split(',');
+                fantasyPlayer.PrimaryPosition = fp[i]["Positions"];
                 fantasyPlayer.Team = fp[i]["Team"];
                 fantasyPlayer.Weight = fp[i]["Weight"];
                 fantasyPlayer.ADP = fp[i]["ADP"];
@@ -214,30 +252,47 @@ module NflDraft.ViewModels {
                 this.FantasyPlayers.Add(fantasyPlayer);
             }
 
-            this.Countdown = 3;
+            this.Countdown = 10;
+            this.CurrentDraftSpot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
             this.SelectedPlayer = this.FantasyPlayers.GetValueAt(0);
+            this.CurrentPositionFilter = "ALL";
             this._interval_id = setInterval(() => this.DoWork(), 1000);
         }
 
         DoWork() {
             var current = this.Countdown;
+            var draft_finished = false;
             if (current == 0) {
                 var spot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
                 var ds = new Models.DraftSelection();
+                var fp = this.FantasyPlayers.GetValueAt(0);
                 ds.DraftSpot = spot;
-                ds.FantasyPlayer = this.FantasyPlayers.GetValueAt(0);
+                ds.FantasyPlayer = fp;
+                if (spot.Team === this.MyTeam) {
+                    for (var i = 0; i < this.MyTeam.Roster.Count; i++) {
+                        var fantasy_position = this.MyTeam.Roster.GetValueAt(i);
+                        if (fantasy_position.Position === "BE" || (fantasy_position.Position === fp.PrimaryPosition && fantasy_position.Player === undefined)) {
+                            fantasy_position.Player = fp;
+                            break;
+                        }
+                    }    
+                }
                 this.FantasyPlayers.RemoveAt(0);
                 this.DraftSelections.Add(ds);
                 this.Rounds.GetValueAt(0).DraftSpots.RemoveAt(0);
                 if (this.Rounds.GetValueAt(0).DraftSpots.Count == 0)
                     this.Rounds.RemoveAt(0);
-                current = 3;
+                draft_finished = this.Rounds.Count == 0 || this.FantasyPlayers.Count == 0;
+                if (!draft_finished) {
+                    this.CurrentDraftSpot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
+                    current = 10;
+                }
             }
             else
                 current = current - 1;
             this.Countdown = current;
 
-            if (this.Rounds.Count == 0 || this.FantasyPlayers.Count == 0) {
+            if (draft_finished) {
                 clearInterval(this._interval_id);
             }
         }

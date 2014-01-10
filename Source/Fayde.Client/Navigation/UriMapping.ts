@@ -77,7 +77,7 @@ module Fayde.Navigation {
         }
 
         return {
-            Match(): string {
+            Match: function (): string {
                 var tokens: ITokenInfo[] = [];
                 if (matchTemplate.length === 0) {
                     if (actual.length === 0)

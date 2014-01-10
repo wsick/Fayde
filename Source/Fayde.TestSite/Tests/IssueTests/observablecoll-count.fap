@@ -1,0 +1,22 @@
+<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:local="folder:Tests/IssueTests"
+    Theme="/Fayde/Theme.Metro.xml">
+    <Application.Sources>
+        <Namespace Name="folder:Tests/IssueTests">
+            <Source Name="TestViewModel" Source="IssueTests/TestViewModel.js" />
+        </Namespace>
+    </Application.Sources>
+    <Grid>
+        <Grid.DataContext>
+            <local:TestViewModel />
+        </Grid.DataContext>
+        <StackPanel>
+            <TextBlock Text="{Binding ObsItems.Count}" />
+            <Button Content="Add Item" Click="{EventBinding AddObservableItem}" />
+            <ListBox ItemsSource="{Binding ObsItems}">
+            </ListBox>
+        </StackPanel>
+    </Grid>
+</Application>

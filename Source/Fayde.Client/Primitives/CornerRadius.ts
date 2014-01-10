@@ -27,6 +27,17 @@ class CornerRadius implements ICloneable {
         return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
     }
 
+    static Equals(cr1: CornerRadius, cr2: CornerRadius): boolean {
+        if (cr1 == null && cr2 == null)
+            return true;
+        if (cr1 == null || cr2 == null)
+            return false;
+        return cr1.TopLeft === cr2.TopLeft
+            && cr1.TopRight === cr2.TopRight
+            && cr1.BottomRight === cr2.BottomRight
+            && cr1.BottomLeft === cr2.BottomLeft;
+    }
+
     Clone(): CornerRadius {
         return new CornerRadius(this.TopLeft, this.TopRight, this.BottomRight, this.BottomLeft);
     }

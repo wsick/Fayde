@@ -6,14 +6,14 @@ module Fayde.Documents {
             return new TextElementNode(this, "Inlines");
         }
         
-        static InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", () => InlineCollection, Span);
+        static InlinesProperty = DependencyProperty.RegisterImmutable<InlineCollection>("Inlines", () => InlineCollection, Span);
 
         static Annotations = { ContentProperty: Span.InlinesProperty }
 
         Inlines: InlineCollection;
         constructor() {
             super();
-            var coll = Span.InlinesProperty.Initialize<InlineCollection>(this);
+            var coll = Span.InlinesProperty.Initialize(this);
             coll.AttachTo(this);
             coll.Listen(this);
         }

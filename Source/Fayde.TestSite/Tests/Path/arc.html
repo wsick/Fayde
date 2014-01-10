@@ -30,7 +30,7 @@
             var strokePars = randomStrokeParameters();
 
             ctx.clearRect(0, 0, config.w, config.h);
-            path.DrawCanvasCtx(ctx);
+            path.Draw(ctx);
             pathStroke(ctx, "rgb(0,0,0)", strokePars);
 
             drawStartPoint(ctx, ra.x + ra.r * Math.cos(ra.sa), ra.y + ra.r * Math.sin(ra.sa));

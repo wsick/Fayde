@@ -47,7 +47,7 @@ module Fayde.Controls {
         static ItemsPanelProperty = DependencyProperty.Register("ItemsPanel", () => ItemsPanelTemplate, ItemsControl);
         static ItemsSourceProperty = DependencyProperty.Register("ItemsSource", () => IEnumerable_, ItemsControl, null, (d, args) => (<ItemsControl>d).OnItemsSourceChanged(args));
         static ItemTemplateProperty = DependencyProperty.Register("ItemTemplate", () => DataTemplate, ItemsControl, undefined, (d, args) => (<ItemsControl>d).OnItemTemplateChanged(args));
-        static ItemsProperty = DependencyProperty.RegisterImmutable("Items", () => ItemCollection, ItemsControl);
+        static ItemsProperty = DependencyProperty.RegisterImmutable<ItemCollection>("Items", () => ItemCollection, ItemsControl);
         DisplayMemberPath: string;
         ItemsPanel: ItemsPanelTemplate;
         ItemTemplate: DataTemplate;
@@ -75,7 +75,8 @@ module Fayde.Controls {
         }
         get $DisplayMemberTemplate(): DataTemplate {
             if (!this._DisplayMemberTemplate) {
-                this._DisplayMemberTemplate = <DataTemplate>Xaml.Load("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + this.DisplayMemberPath + "}\" /></Grid></DataTemplate>");
+                var dmp = this.DisplayMemberPath || "";
+                this._DisplayMemberTemplate = <DataTemplate>Xaml.Load("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
             }
             return this._DisplayMemberTemplate;
         }
@@ -149,8 +150,8 @@ module Fayde.Controls {
 
                 var enumerator: IEnumerator<any>;
                 if (source instanceof Array) enumerator = ArrayEx.GetEnumerator(<any[]>source);
-                else if (source instanceof XamlObjectCollection) enumerator = (<XamlObjectCollection>source).GetEnumerator();
-                else if (Nullstone.ImplementsInterface(source, IEnumerable_)) enumerator = (<IEnumerable>source).GetEnumerator();
+                else if (source instanceof XamlObjectCollection) enumerator = (<XamlObjectCollection<any>>source).GetEnumerator();
+                else if (Nullstone.ImplementsInterface(source, IEnumerable_)) enumerator = (<IEnumerable<any>>source).GetEnumerator();
                 
                 if (enumerator) {
                     var items = this.$Items;

@@ -101,8 +101,8 @@ class DependencyProperty {
         return propd;
     }
 
-    static RegisterImmutable(name: string, getTargetType: () => IType, ownerType: any): ImmutableDependencyProperty {
-        var propd = new ImmutableDependencyProperty();
+    static RegisterImmutable<T>(name: string, getTargetType: () => IType, ownerType: any): ImmutableDependencyProperty<T> {
+        var propd = new ImmutableDependencyProperty<T>();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
         propd.OwnerType = ownerType;
@@ -236,12 +236,13 @@ Fayde.RegisterType(DependencyProperty, {
 	Namespace: "Fayde"
 });
 
-class ImmutableDependencyProperty extends DependencyProperty {
+class ImmutableDependencyProperty<T> extends DependencyProperty {
     IsImmutable: boolean = true;
-    Initialize<T>(dobj: Fayde.DependencyObject): T {
+    Initialize(dobj: Fayde.DependencyObject): T {
         var storage = Fayde.Providers.GetStorage(dobj, this);
         storage.Precedence = Fayde.Providers.PropertyPrecedence.LocalValue;
-        var obj: T = new (<any>this.GetTargetType())();
+        var type = <any>this.GetTargetType();
+        var obj: T = new type();
         Object.defineProperty(dobj, this.Name, {
             value: obj,
             writable: false

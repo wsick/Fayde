@@ -147,7 +147,6 @@
     <TypeScriptCompile Include="Engine\FocusManager.ts" />
     <TypeScriptCompile Include="Engine\InputManager.ts" />
     <TypeScriptCompile Include="Engine\Inspection.ts" />
-    <TypeScriptCompile Include="Engine\RenderContext.ts" />
     <TypeScriptCompile Include="Engine\Surface.ts" />
     <TypeScriptCompile Include="Input\ICommand.ts" />
     <TypeScriptCompile Include="Input\InteractionHelper.ts" />
@@ -270,6 +269,7 @@
     <TypeScriptCompile Include="Text\TextAttributes.ts" />
     <TypeScriptCompile Include="Text\TextLayout.ts" />
     <TypeScriptCompile Include="Controls\HeaderedContentControl.ts" />
+    <TypeScriptCompile Include="Engine\RenderContextEx.ts" />
     <Content Include="Fayde.d.ts" />
     <Content Include="Fayde.js" />
     <Content Include="Fayde.js.map" />

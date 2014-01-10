@@ -4,12 +4,12 @@
 module Fayde.Media {
     export class GeometryGroup extends Geometry implements IGeometryListener {
         static FillRulleProperty: DependencyProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), GeometryGroup, Shapes.FillRule.EvenOdd);
-        static ChildrenProperty = DependencyProperty.RegisterImmutable("Children", () => GeometryCollection, GeometryGroup);
+        static ChildrenProperty = DependencyProperty.RegisterImmutable<GeometryCollection>("Children", () => GeometryCollection, GeometryGroup);
         FillRule: Shapes.FillRule;
         Children: GeometryCollection;
         constructor() {
             super();
-            var coll = GeometryGroup.ChildrenProperty.Initialize<GeometryCollection>(this);
+            var coll = GeometryGroup.ChildrenProperty.Initialize(this);
             coll.AttachTo(this);
             coll.Listen(this);
         }
@@ -22,18 +22,18 @@ module Fayde.Media {
             }
             return bounds;
         }
-        Draw(ctx: RenderContext) {
+        Draw(ctx: RenderContextEx) {
             var transform = this.Transform;
             if (transform != null) {
-                ctx.Save();
-                ctx.Transform(transform);
+                ctx.save();
+                ctx.transformTransform(transform);
             }
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
                 (<Geometry>enumerator.Current).Draw(ctx);
             }
             if (transform != null)
-                ctx.Restore();
+                ctx.restore();
         }
 
         GeometryChanged(newGeometry: Geometry) { this._InvalidateGeometry(); }

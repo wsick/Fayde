@@ -11,7 +11,7 @@ module Fayde.Media.Animation {
         static GetTargetProperty(d: DependencyObject): Data.PropertyPath { return d.GetValue(Storyboard.TargetPropertyProperty); }
         static SetTargetProperty(d: DependencyObject, value: Data.PropertyPath) { return d.SetValue(Storyboard.TargetPropertyProperty, value); }
 
-        static ChildrenProperty = DependencyProperty.RegisterImmutable("Children", () => TimelineCollection, Storyboard);
+        static ChildrenProperty = DependencyProperty.RegisterImmutable<TimelineCollection>("Children", () => TimelineCollection, Storyboard);
 
         TargetName: string;
         TargetProperty: Data.PropertyPath;
@@ -23,7 +23,7 @@ module Fayde.Media.Animation {
         constructor() {
             super();
 
-            var coll = Storyboard.ChildrenProperty.Initialize<TimelineCollection>(this);
+            var coll = Storyboard.ChildrenProperty.Initialize(this);
             coll.AttachTo(this);
         }
 

@@ -5,13 +5,13 @@ module Fayde.Media {
         private _OverridePath: Path.RawPath = null;
         static Annotations = { ContentProperty: PathGeometry.FiguresProperty }
         static FillRuleProperty: DependencyProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), PathGeometry, Shapes.FillRule.EvenOdd, (d, args) => (<Geometry>d)._InvalidateGeometry());
-        static FiguresProperty = DependencyProperty.RegisterImmutable("Figures", () => PathFigureCollection, PathGeometry);
+        static FiguresProperty = DependencyProperty.RegisterImmutable<PathFigureCollection>("Figures", () => PathFigureCollection, PathGeometry);
         FillRule: Shapes.FillRule;
         Figures: PathFigureCollection;
 
         constructor() {
             super();
-            var coll = PathGeometry.FiguresProperty.Initialize<PathFigureCollection>(this);
+            var coll = PathGeometry.FiguresProperty.Initialize(this);
             coll.AttachTo(this);
             coll.Listen(this);
         }

@@ -78,13 +78,13 @@ module Fayde.Media {
     });
 
     export class PolyBezierSegment extends PathSegment {
-        static PointsProperty = DependencyProperty.RegisterImmutable("Points", () => Shapes.PointCollection, PolyBezierSegment);
+        static PointsProperty = DependencyProperty.RegisterImmutable<Shapes.PointCollection>("Points", () => Shapes.PointCollection, PolyBezierSegment);
         static Annotations = { ContentProperty: PolyBezierSegment.PointsProperty }
         Points: Shapes.PointCollection;
 
         constructor() {
             super();
-            PolyBezierSegment.PointsProperty.Initialize<Shapes.PointCollection>(this);
+            PolyBezierSegment.PointsProperty.Initialize(this);
         }
 
         _Append(path: Path.RawPath) {
@@ -113,13 +113,13 @@ module Fayde.Media {
     });
 
     export class PolyLineSegment extends PathSegment {
-        static PointsProperty = DependencyProperty.RegisterImmutable("Points", () => Shapes.PointCollection, PolyLineSegment);
+        static PointsProperty = DependencyProperty.RegisterImmutable<Shapes.PointCollection>("Points", () => Shapes.PointCollection, PolyLineSegment);
         static Annotations = { ContentProperty: PolyLineSegment.PointsProperty }
         Points: Shapes.PointCollection;
 
         constructor() {
             super();
-            PolyLineSegment.PointsProperty.Initialize<Shapes.PointCollection>(this);
+            PolyLineSegment.PointsProperty.Initialize(this);
         }
 
         _Append(path: Path.RawPath) {
@@ -139,13 +139,13 @@ module Fayde.Media {
     });
 
     export class PolyQuadraticBezierSegment extends PathSegment {
-        static PointsProperty = DependencyProperty.RegisterImmutable("Points", () => Shapes.PointCollection, PolyQuadraticBezierSegment);
+        static PointsProperty = DependencyProperty.RegisterImmutable<Shapes.PointCollection>("Points", () => Shapes.PointCollection, PolyQuadraticBezierSegment);
         static Annotations = { ContentProperty: PolyQuadraticBezierSegment.PointsProperty }
         Points: Shapes.PointCollection;
 
         constructor() {
             super();
-            PolyQuadraticBezierSegment.PointsProperty.Initialize<Shapes.PointCollection>(this);
+            PolyQuadraticBezierSegment.PointsProperty.Initialize(this);
         }
 
         _Append(path: Path.RawPath) {

@@ -32,7 +32,7 @@
             var strokePars = randomStrokeParameters();
 
             ctx.clearRect(0, 0, config.w, config.h);
-            path.DrawCanvasCtx(ctx);
+            path.Draw(ctx);
             pathStroke(ctx, "rgb(0,0,0)", strokePars);
 
             drawGuideLine(ctx, s.x, s.y, ra.cpx, ra.cpy, 1);

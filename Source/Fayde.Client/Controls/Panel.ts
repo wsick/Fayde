@@ -78,11 +78,10 @@ module Fayde.Controls {
     	Namespace: "Fayde.Controls"
     });
 
-    export class PanelNode extends FENode implements IBoundsComputable, IPostInsideObject {
+    export class PanelNode extends FENode {
         XObject: Panel;
         constructor(xobj: Panel) {
             super(xobj);
-            this.LayoutUpdater.SetContainerMode(true, true);
         }
         AttachVisualChild(uie: UIElement, error: BError): boolean {
             this.OnVisualChildAttached(uie);
@@ -97,11 +96,10 @@ module Fayde.Controls {
             return true;
         }
         _InvalidateChildrenZIndices() {
-            if (this.IsAttached) {
-                //TODO: Invalidate ChildrenZIndices
-            }
+            var lu = this.LayoutUpdater;
+            lu.InvalidateChildrenZIndices();
         }
-        _ResortChildrenByZIndex() {
+        ResortChildrenByZIndex() {
             (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
         }
 
@@ -111,34 +109,6 @@ module Fayde.Controls {
             super.OnIsAttachedChanged(newIsAttached);
         }
 
-        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): boolean {
-            return this.XObject.Background != null;
-        }
-
-        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
-            rect.clear(lu.Extents);
-            rect.clear(lu.ExtentsWithChildren);
-
-            var enumerator = this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
-            while (enumerator.MoveNext()) {
-                var item = <UINode>enumerator.Current;
-                var itemlu = item.LayoutUpdater;
-                if (itemlu.TotalIsRenderVisible)
-                    rect.union(lu.ExtentsWithChildren, itemlu.GlobalBoundsWithChildren);
-            }
-
-            if (this.XObject.Background) {
-                rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);
-                rect.union(lu.ExtentsWithChildren, lu.Extents);
-            }
-
-            rect.copyGrowTransform(lu.Bounds, lu.Extents, lu.EffectPadding, lu.AbsoluteXform);
-            rect.copyGrowTransform(lu.BoundsWithChildren, lu.ExtentsWithChildren, lu.EffectPadding, lu.AbsoluteXform);
-
-            lu.ComputeGlobalBounds();
-            lu.ComputeSurfaceBounds();
-        }
-        
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator<FENode> {
             return this.XObject.Children.XamlNode.GetVisualTreeEnumerator(direction);
         }
@@ -152,19 +122,22 @@ module Fayde.Controls {
         var xn = dobj.XamlNode;
         if (xn instanceof UINode)
             (<UINode>xn).LayoutUpdater.Invalidate();
-        if (xn.IsAttached)
-            (<PanelNode>xn.ParentNode)._InvalidateChildrenZIndices();
+        if (xn.IsAttached) {
+            var panelNode = <PanelNode>(<UINode>xn).VisualParentNode;
+            panelNode._InvalidateChildrenZIndices();
+        }
     }
-    export class Panel extends FrameworkElement implements IMeasurableHidden {
+    export class Panel extends FrameworkElement {
         XamlNode: PanelNode;
         CreateNode(): PanelNode { return new PanelNode(this); }
+        CreateLayoutUpdater(node: PanelNode) { return new PanelLayoutUpdater(node); }
 
         static ZIndexProperty: DependencyProperty = DependencyProperty.RegisterAttached("ZIndex", () => { return Number; }, Panel, 0, zIndexPropertyChanged);
         static ZProperty: DependencyProperty = DependencyProperty.RegisterAttached("Z", () => { return Number; }, Panel, NaN);
         
         static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel, undefined, (d, args) => (<Panel>d)._BackgroundChanged(args));
         static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
-        static ChildrenProperty = DependencyProperty.RegisterImmutable("Children", () => PanelChildrenCollection, Panel);
+        static ChildrenProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<UIElement>>("Children", () => PanelChildrenCollection, Panel);
         Background: Media.Brush;
         IsItemsHost: boolean;
         Children: XamlObjectCollection<UIElement>;
@@ -175,7 +148,7 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            var coll = Panel.ChildrenProperty.Initialize<PanelChildrenCollection>(this);
+            var coll = Panel.ChildrenProperty.Initialize(this);
             var error = new BError();
             this.XamlNode.SetSubtreeNode(coll.XamlNode, error);
         }
@@ -201,29 +174,49 @@ module Fayde.Controls {
             lu.UpdateBounds();
             lu.Invalidate();
         }
-        _MeasureOverride(availableSize: size, error: BError): size {
-            //Abstract Method
-            return new size();
-        }
-        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
-            var background = this.Background;
-            if (!background)
-                return;
-
-            var framework = lu.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
-            if (framework.Width <= 0 || framework.Height <= 0)
-                return;
-
-            var area = rect.fromSize(framework);
-            ctx.Save();
-            lu.RenderLayoutClip(ctx);
-            ctx.FillRect(background, area);
-            ctx.Restore();
-        }
     }
     Fayde.RegisterType(Panel, {
     	Name: "Panel",
     	Namespace: "Fayde.Controls",
     	XmlNamespace: Fayde.XMLNS
     });
+
+    export class PanelLayoutUpdater extends LayoutUpdater {
+        constructor(node: PanelNode) {
+            super(node);
+            this.SetContainerMode(true, true);
+        }
+
+        InsideObject(ctx: RenderContextEx, x: number, y: number): boolean {
+            if (!super.InsideObject(ctx, x, y))
+                return false;
+            return (<Panel>this.Node.XObject).Background != null;
+        }
+
+        ComputeExtents(actualSize: size) {
+            if (!(<Panel>this.Node.XObject).Background) {
+                //initialize extents as empty if no background
+                actualSize.Width = 0;
+                actualSize.Height = 0;
+            }
+            return super.ComputeExtents(actualSize);
+        }
+
+        Render(ctx: RenderContextEx, region: rect) {
+            var panel = <Panel>this.Node.XObject;
+            var background = panel.Background;
+            if (!background)
+                return;
+
+            var framework = this.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+            if (framework.Width <= 0 || framework.Height <= 0)
+                return;
+
+            var area = rect.fromSize(framework);
+            ctx.save();
+            this.RenderLayoutClip(ctx);
+            ctx.fillRectEx(background, area);
+            ctx.restore();
+        }
+    }
 }

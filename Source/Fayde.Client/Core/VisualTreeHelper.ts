@@ -48,7 +48,7 @@ module Fayde {
             var subtreeNode = feNode.SubtreeNode;
             var subtree = subtreeNode.XObject;
             if (subtreeNode.XObject instanceof XamlObjectCollection)
-                return (<XamlObjectCollection>subtree).Count;
+                return (<XamlObjectCollection<DependencyObject>>subtree).Count;
 
             if (subtree instanceof UIElement)
                 return 1;
@@ -156,7 +156,7 @@ module Fayde {
         }
         private static __DebugGrid(uin: UINode, tabIndex: number): string {
             var grid: Controls.Grid;
-            if (uin instanceof Controls.GridNode)
+            if (uin.XObject instanceof Controls.Grid)
                 grid = <Controls.Grid>uin.XObject;
             if (!grid)
                 return "";

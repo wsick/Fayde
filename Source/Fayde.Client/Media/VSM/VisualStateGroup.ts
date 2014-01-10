@@ -15,10 +15,10 @@ module Fayde.Media.VSM {
     }
 
     export class VisualStateGroup extends DependencyObject {
-        static StatesProperty = DependencyProperty.RegisterImmutable("States", () => VisualStateCollection, VisualStateGroup);
+        static StatesProperty = DependencyProperty.RegisterImmutable<VisualStateCollection>("States", () => VisualStateCollection, VisualStateGroup);
         States: VisualStateCollection;
 
-        static TransitionsProperty = DependencyProperty.RegisterImmutable("Transitions", () => XamlObjectCollection, VisualStateGroup);
+        static TransitionsProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<VisualTransition>>("Transitions", () => XamlObjectCollection, VisualStateGroup);
         Transitions: XamlObjectCollection<VisualTransition>;
 
         static Annotations = { ContentProperty: VisualStateGroup.StatesProperty };
@@ -29,8 +29,8 @@ module Fayde.Media.VSM {
 
         constructor() {
             super();
-            VisualStateGroup.StatesProperty.Initialize<VisualStateCollection>(this);
-            VisualStateGroup.TransitionsProperty.Initialize<VisualTransition>(this);
+            VisualStateGroup.StatesProperty.Initialize(this);
+            VisualStateGroup.TransitionsProperty.Initialize(this);
         }
 
         GetState(stateName: string): VisualState {

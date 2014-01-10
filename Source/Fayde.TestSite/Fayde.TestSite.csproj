@@ -92,6 +92,7 @@
     <Content Include="Tests\App\Fayde.Controls.Input\source.js" />
     <Content Include="Tests\App\Fayde.Controls.Input\generic.xml" />
     <Content Include="Tests\IssueTests\DoubleListBoxViewModel.js" />
+    <None Include="Tests\IssueTests\observablecoll-count.fap" />
     <Content Include="Tests\IssueTests\TestViewModel.js" />
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
@@ -113,6 +114,7 @@
     <Content Include="Tests\Path\multientry.html" />
     <Content Include="Tests\Path\quad-bezier.html" />
     <Content Include="Tests\Path\util.js" />
+    <TypeScriptCompile Include="Tests\Shapes\map.fap.ts" />
     <Content Include="Tests\Shapes\shape-stretch.fap">
       <SubType>Designer</SubType>
     </Content>

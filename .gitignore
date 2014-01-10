@@ -57,3 +57,14 @@ Source/Fayde.Debugger/scripts/panel/broker.js
 Source/Fayde.Debugger/scripts/panel/helper.js
 Source/Fayde.Debugger/scripts/panel/interop.js
 Source/Fayde.Debugger/scripts/panel/page.js
+Source/Fayde.Tests/scripts/Fayde.d.ts
+Source/Fayde.Tests/scripts/Fayde.js
+Source/Fayde.Tests/BindingTests.js
+Source/Fayde.Tests/ItemsControlTests.js
+Source/Fayde.Tests/MarkupExpressionTests.js
+Source/Fayde.Tests/PrimitivesTests.js
+Source/Fayde.Tests/ProviderTests.js
+Source/Fayde.Tests/TimelineTests.js
+Source/Fayde.Tests/TransformTests.js
+Source/Fayde.Tests/TypeConverterTests.js
+Source/Fayde.Tests/UriMapperTests.js

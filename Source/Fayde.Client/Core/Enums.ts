@@ -20,6 +20,11 @@ module Fayde {
         Namespace: "Fayde",
         XmlNamespace: Fayde.XMLNS
     });
+    Fayde.RegisterEnumConverter(Visibility, function (val: any): any {
+        if (val === "true" || val === true || val === Visibility.Visible)
+            return Visibility.Visible;
+        return Visibility.Collapsed;
+    });
 
     export var CursorType = {
         Default: "",

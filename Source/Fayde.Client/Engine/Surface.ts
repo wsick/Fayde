@@ -5,7 +5,7 @@ var resizeTimeout: number;
 module Fayde {
     export class Surface {
         static TestCanvas: HTMLCanvasElement = <HTMLCanvasElement>document.createElement("canvas");
-        TestRenderContext: Fayde.RenderContext = new Fayde.RenderContext(Surface.TestCanvas.getContext("2d"));
+        TestRenderContext = Fayde.ExtendRenderContext(Surface.TestCanvas.getContext("2d"));
 
         private _App: Application;
         _RootLayer: Fayde.UIElement;
@@ -18,7 +18,7 @@ module Fayde {
         private _PercentageHeight: number = 0;
         private _Extents: size = null;
         private _InvalidatedRect: rect;
-        private _RenderContext: Fayde.RenderContext;
+        private _RenderContext: RenderContextEx;
 
         private _InputMgr: Engine.InputManager;
 
@@ -39,7 +39,7 @@ module Fayde {
         Register(canvas: HTMLCanvasElement, width?: number, widthType?: string, height?: number, heightType?: string) {
             this._Canvas = canvas;
             this._Ctx = this._Canvas.getContext("2d");
-            this._RenderContext = new Fayde.RenderContext(this._Ctx);
+            this._RenderContext = Fayde.ExtendRenderContext(this._Ctx);
 
             this._ResizeCanvas();
             document.body.onresize = (e) => this._HandleResize(window.event ? <any>window.event : e);
@@ -257,6 +257,7 @@ module Fayde {
             this._InvalidatedRect = null;
             if (!(r.Width > 0 && r.Height > 0))
                 return;
+            rect.roundOut(r);
 
             //var startRenderTime;
             //var isRenderPassTimed;
@@ -264,7 +265,19 @@ module Fayde {
             //startRenderTime = new Date().getTime();
 
             //if (window.RenderDebug) RenderDebug.Count = 0;
-            this._RenderContext.DoRender(this._Layers, r);
+            {
+                var ctx = this._RenderContext;
+                ctx.clear(r);
+                ctx.save();
+                ctx.clipRect(r);
+                var layers = this._Layers;
+                if (layers) {
+                    for (var i = 0, len = layers.length; i < len; i++) {
+                        layers[i].LayoutUpdater.DoRender(ctx, r);
+                    }
+                }
+                ctx.restore();
+            }
             //if (window.RenderDebug) RenderDebug("UIElement Count: " + RenderDebug.Count);
 
             //if (isRenderPassTimed)

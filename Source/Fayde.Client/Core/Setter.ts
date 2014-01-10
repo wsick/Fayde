@@ -4,6 +4,7 @@
 module Fayde {
     export class SetterCollection extends XamlObjectCollection<Setter> {
         private _IsSealed: boolean = false;
+        XamlNode: XamlNode;
 
         _Seal(targetType: Function) {
             if (this._IsSealed)

@@ -25,7 +25,7 @@
             var strokePars = randomStrokeParameters();
 
             ctx.clearRect(0, 0, config.w, config.h);
-            path.DrawCanvasCtx(ctx);
+            path.Draw(ctx);
             pathStroke(ctx, "rgba(0,0,0,0.7)", strokePars);
 
             var entries = path._Path;

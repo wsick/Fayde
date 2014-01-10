@@ -2,7 +2,7 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 
 module Fayde.Controls {
-    export class TextBlockNode extends FENode implements IBoundsComputable, Documents.IInlinesChangedListener {
+    export class TextBlockNode extends FENode implements Documents.IInlinesChangedListener {
         XObject: TextBlock;
         private _ActualWidth: number = 0.0;
         private _ActualHeight: number = 0.0;
@@ -22,22 +22,6 @@ module Fayde.Controls {
             var inlines = xobj.Inlines;
             if (inlines)
                 return <IEnumerator<DONode>>inlines.GetNodeEnumerator();
-        }
-
-        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
-            rect.copyTo(this._Layout.RenderExtents, lu.Extents);
-            var padding = this.XObject.Padding;
-            if (padding) {
-                lu.Extents.X += padding.Left;
-                lu.Extents.Y += padding.Top;
-            }
-            rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
-
-            lu.IntersectBoundsWithClipPath(lu.Bounds, lu.AbsoluteXform);
-            rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
-
-            lu.ComputeGlobalBounds();
-            lu.ComputeSurfaceBounds();
         }
 
         Measure(constraint: size): size {
@@ -84,6 +68,16 @@ module Fayde.Controls {
             var result = size.fromRaw(this._ActualWidth, this._ActualHeight);
             if (padding) size.growByThickness(result, padding);
             return result;
+        }
+        Render(ctx: RenderContextEx) {
+            var tb = this.XObject;
+            var padding = tb.Padding;
+            var offset: Point = null;
+            if (padding) offset = new Point(padding.Left, padding.Top);
+            if (tb.FlowDirection === Fayde.FlowDirection.RightToLeft) {
+                NotImplemented("TextBlock._Render: Right to left");
+            }
+            this._Layout.Render(ctx, null, offset);
         }
 
         _FontChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -264,9 +258,10 @@ module Fayde.Controls {
     	Namespace: "Fayde.Controls"
     });
 
-    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, IFontChangeable {
+    export class TextBlock extends FrameworkElement implements IFontChangeable {
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
+        CreateLayoutUpdater(node: TextBlockNode) { return new TextBlockLayoutUpdater(node); }
 
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true));
         static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextBlock);
@@ -277,7 +272,7 @@ module Fayde.Controls {
         static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty.ExtendTo(TextBlock);
         static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(TextBlock);
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBlock, "", (d, args) => (<TextBlock>d).XamlNode._TextChanged(args));
-        static InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", () => Documents.InlineCollection, TextBlock);
+        static InlinesProperty = DependencyProperty.RegisterImmutable<Documents.InlineCollection>("Inlines", () => Documents.InlineCollection, TextBlock);
         static LineStackingStrategyProperty: DependencyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", () => new Enum(LineStackingStrategy), TextBlock, LineStackingStrategy.MaxHeight, (d, args) => (<TextBlock>d).XamlNode._LineStackingStrategyChanged(args));
         static LineHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("LineHeight", () => Number, TextBlock, NaN, (d, args) => (<TextBlock>d).XamlNode._LineHeightChanged(args));
         static TextAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("TextAlignment", () => new Enum(TextAlignment), TextBlock, TextAlignment.Left, (d, args) => (<TextBlock>d).XamlNode._TextAlignmentChanged(args));
@@ -303,13 +298,13 @@ module Fayde.Controls {
 
         constructor() {
             super();
-
-            var inlines = TextBlock.InlinesProperty.Initialize<Documents.InlineCollection>(this);
+            
+            var inlines = TextBlock.InlinesProperty.Initialize(this);
             inlines.AttachTo(this);
             inlines.Listen(this.XamlNode);
         }
 
-        _MeasureOverride(availableSize: size, error: BError): size {
+        MeasureOverride(availableSize: size): size {
             var constraint = size.copyTo(availableSize);
             var padding = this.Padding;
             if (padding) size.shrinkByThickness(constraint, padding);
@@ -317,29 +312,12 @@ module Fayde.Controls {
             if (padding) size.growByThickness(desired, padding);
             return desired;
         }
-        _ArrangeOverride(finalSize: size, error: BError): size {
+        ArrangeOverride(finalSize: size): size {
             var constraint = size.copyTo(finalSize);
             var padding = this.Padding;
             if (padding) size.shrinkByThickness(constraint, padding);
             this.XamlNode.Arrange(constraint, padding);
             return finalSize;
-        }
-
-        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
-            ctx.Save();
-            lu.RenderLayoutClip(ctx);
-            var padding = this.Padding;
-            var offset: Point = null;
-            if (padding) offset = new Point(padding.Left, padding.Top);
-            if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
-                NotImplemented("TextBlock._Render: Right to left");
-            }
-            this.XamlNode._Layout.Render(ctx, null, offset);
-            ctx.Restore();
-        }
-
-        ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater): size {
-            return this.XamlNode.ComputeActualSize(lu, this.Padding);
         }
 
         private _ForegroundListener: Media.IBrushChangedListener;
@@ -364,7 +342,7 @@ module Fayde.Controls {
         IsInheritable(propd: DependencyProperty): boolean {
             if (TextBlockInheritedProps.indexOf(propd) > -1)
                 return true;
-            return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
+            return super.IsInheritable(propd);
         }
     }
     Fayde.RegisterType(TextBlock, {
@@ -381,4 +359,31 @@ module Fayde.Controls {
         TextBlock.FontWeightProperty,
         TextBlock.ForegroundProperty
     ];
+
+    export class TextBlockLayoutUpdater extends LayoutUpdater {
+        ComputeActualSize(): size {
+            var node = <TextBlockNode>this.Node;
+            var tb = <TextBlock>node.XObject;
+            return node.ComputeActualSize(this, tb.Padding);
+        }
+
+        ComputeExtents(actualSize: size) {
+            var node = <TextBlockNode>this.Node;
+            rect.copyTo(node._Layout.RenderExtents, this.Extents);
+            var padding = node.XObject.Padding;
+            if (padding) {
+                this.Extents.X += padding.Left;
+                this.Extents.Y += padding.Top;
+            }
+            rect.copyTo(this.Extents, this.ExtentsWithChildren);
+        }
+
+        Render(ctx: RenderContextEx, region: rect) {
+            ctx.save();
+            this.RenderLayoutClip(ctx);
+            var node = <TextBlockNode>this.Node;
+            node.Render(ctx);
+            ctx.restore();
+        }
+    }
 }

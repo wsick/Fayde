@@ -14,7 +14,7 @@ module Fayde.Media.Effects {
 
         Padding(): Thickness { return new Thickness(); }
         GetPadding(thickness: Thickness): boolean { return false; }
-        PreRender(ctx: RenderContext) {
+        PreRender(ctx: RenderContextEx) {
             //Abstract Method
         }
 

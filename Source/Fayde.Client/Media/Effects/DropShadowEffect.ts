@@ -73,7 +73,7 @@ module Fayde.Media.Effects {
             }
             return flag;
         }
-        PreRender(ctx: RenderContext) {
+        PreRender(ctx: RenderContextEx) {
             var color = this.Color;
             var opacity = color.A * this.Opacity;
 
@@ -83,12 +83,10 @@ module Fayde.Media.Effects {
             var offsetX = Math.cos(direction) * depth;
             var offsetY = -Math.sin(direction) * depth;
 
-            var canvasCtx = ctx.CanvasContext;
-
-            canvasCtx.shadowColor = "rgba(" + color.R + "," + color.G + "," + color.B + "," + opacity + ")";
-            canvasCtx.shadowBlur = radius;
-            canvasCtx.shadowOffsetX = offsetX;
-            canvasCtx.shadowOffsetY = offsetY;
+            ctx.shadowColor = "rgba(" + color.R + "," + color.G + "," + color.B + "," + opacity + ")";
+            ctx.shadowBlur = radius;
+            ctx.shadowOffsetX = offsetX;
+            ctx.shadowOffsetY = offsetY;
         }
     }
     Fayde.RegisterType(DropShadowEffect, {

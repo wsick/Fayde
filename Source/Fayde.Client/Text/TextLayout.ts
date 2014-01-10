@@ -24,12 +24,12 @@ module Fayde.Text {
             this._Selected = selected == true;
             this._Advance = Surface.MeasureWidth(text, font);
         }
-        _Render(ctx: RenderContext, origin: Point, attrs: ITextAttributes, x: number, y: number) {
+        _Render(ctx: RenderContextEx, origin: Point, attrs: ITextAttributes, x: number, y: number) {
             if (this._Text.length == 0 || this._Advance == 0.0)
                 return;
             var font = attrs.Font;
             var y0 = font._Ascender();
-            ctx.Translate(x, y - y0);
+            ctx.translate(x, y - y0);
 
             var fontHeight = font.GetActualHeight();
             var area = new rect();
@@ -43,35 +43,33 @@ module Fayde.Text {
             
             var brush = attrs.GetBackground(this._Selected);
             if (brush) {
-                ctx.FillRect(brush, area); //selection background
+                ctx.fillRectEx(brush, area); //selection background
             }
 
-            var canvasCtx = ctx.CanvasContext;
             brush = attrs.GetForeground(this._Selected);
+            var brushHtml5 = "#000000";
             if (brush) {
-                brush.SetupBrush(canvasCtx, area);
-                var brushHtml5 = brush.ToHtml5Object();
-                canvasCtx.fillStyle = brushHtml5;
-            } else {
-                canvasCtx.fillStyle = "#000000";
+                brush.SetupBrush(ctx, area);
+                brushHtml5 = brush.ToHtml5Object();
             }
-            canvasCtx.font = font.ToHtml5Object();
-            canvasCtx.textAlign = "left";
+            ctx.fillStyle = brushHtml5;
+            ctx.font = font.ToHtml5Object();
+            ctx.textAlign = "left";
             if (isFirefox) {
-                canvasCtx.textBaseline = "bottom";
-                canvasCtx.fillText(this._Text, 0, fontHeight);
+                ctx.textBaseline = "bottom";
+                ctx.fillText(this._Text, 0, fontHeight);
             } else {
-                canvasCtx.textBaseline = "top";
-                canvasCtx.fillText(this._Text, 0, 0);
+                ctx.textBaseline = "top";
+                ctx.fillText(this._Text, 0, 0);
             }
 
             if (attrs.IsUnderlined) {
-                canvasCtx.beginPath();
-                canvasCtx.moveTo(0, fontHeight);
-                canvasCtx.lineTo(this._Advance, fontHeight);
-                canvasCtx.lineWidth = 2;
-                canvasCtx.strokeStyle = brushHtml5;
-                canvasCtx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, fontHeight);
+                ctx.lineTo(this._Advance, fontHeight);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = brushHtml5;
+                ctx.stroke();
             }
         }
     }
@@ -129,16 +127,16 @@ module Fayde.Text {
         _ClearCache() {
             this._Clusters = [];
         }
-        _Render(ctx: RenderContext, origin: Point, x: number, y: number) {
+        _Render(ctx: RenderContextEx, origin: Point, x: number, y: number) {
             var x0 = x;
             if (this._Clusters.length === 0)
                 this._GenerateCache();
 
             for (var i = 0; i < this._Clusters.length; i++) {
                 var cluster = this._Clusters[i];
-                ctx.Save();
+                ctx.save();
                 cluster._Render(ctx, origin, this._Attrs, x0, y);
-                ctx.Restore();
+                ctx.restore();
                 x0 += cluster._Advance;
             }
         }
@@ -787,7 +785,7 @@ module Fayde.Text {
             }
             return deltax;
         }
-        Render(ctx: RenderContext, origin?: Point, offset?: Point) {
+        Render(ctx: RenderContextEx, origin?: Point, offset?: Point) {
             //if origin is null -> {0,0}
             //if offset is null -> {0,0}
             var line: TextLayoutLine;

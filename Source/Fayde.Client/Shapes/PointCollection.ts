@@ -4,7 +4,7 @@ module Fayde.Shapes {
     export class PointCollection implements IEnumerable<Point> {
         private _ht: Point[] = [];
 
-        Owner: Shape;
+        OnChanged: () => void;
         
         get Count() { return this._ht.length; }
 
@@ -26,20 +26,21 @@ module Fayde.Shapes {
             var removed = this._ht[index];
             var added = value;
             this._ht[index] = added;
-            
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
+
+            var oc = this.OnChanged;
+            if (oc) oc();
         }
         Add(value: Point) {
             this._ht.push(value);
-
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
+            
+            var oc = this.OnChanged;
+            if (oc) oc();
         }
         AddRange(points: Point[]) {
             this._ht.push.apply(this._ht, points);
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
+            
+            var oc = this.OnChanged;
+            if (oc) oc();
         }
         Insert(index: number, value: Point) {
             if (index < 0)
@@ -48,32 +49,32 @@ module Fayde.Shapes {
             if (index > len)
                 index = len;
             this._ht.splice(index, 0, value);
-
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
+            
+            var oc = this.OnChanged;
+            if (oc) oc();
         }
         Remove(value: Point) {
             var index = this.IndexOf(value);
             if (index === -1)
                 return;
             this.RemoveAt(index);
-
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
+            
+            var oc = this.OnChanged;
+            if (oc) oc();
         }
         RemoveAt(index: number) {
             if (index < 0 || index >= this._ht.length)
                 return;
             var value = this._ht.splice(index, 1)[0];
-
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
+            
+            var oc = this.OnChanged;
+            if (oc) oc();
         }
         Clear() {
             this._ht = [];
-
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
+            
+            var oc = this.OnChanged;
+            if (oc) oc();
         }
         IndexOf(value: Point): number {
             var count = this._ht.length;

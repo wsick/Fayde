@@ -52,7 +52,7 @@
             path.Line(sx + dx, sy + dy);
             path.Line(sx + dx + dx, sy);
             var pars = bevelstroke(30);
-            path.DrawCanvasCtx(ctx);
+            path.Draw(ctx);
             pathStroke(ctx, "rgb(0,0,0)", pars);
             drawPoint(ctx, sx + dx, sy + dy, "red");
         }

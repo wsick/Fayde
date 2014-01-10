@@ -122,6 +122,7 @@ class rect implements ICloneable {
             dest.Width = 0;
         if (dest.Height < 0)
             dest.Height = 0;
+        return dest;
     }
     static growByThickness(dest: rect, thickness) {
         dest.X -= thickness.Left;
@@ -132,6 +133,7 @@ class rect implements ICloneable {
             dest.Width = 0;
         if (dest.Height < 0)
             dest.Height = 0;
+        return dest;
     }
     static shrinkBy(dest: rect, left: number, top: number, right: number, bottom: number) {
         dest.X += left;
@@ -142,8 +144,9 @@ class rect implements ICloneable {
             dest.Width = 0;
         if (dest.Height < 0)
             dest.Height = 0;
+        return dest;
     }
-    static shrinkByThickness(dest: rect, thickness) {
+    static shrinkByThickness(dest: rect, thickness: Thickness) {
         dest.X += thickness.Left;
         dest.Y += thickness.Top;
         dest.Width -= thickness.Left + thickness.Right;
@@ -152,6 +155,7 @@ class rect implements ICloneable {
             dest.Width = 0;
         if (dest.Height < 0)
             dest.Height = 0;
+        return dest;
     }
     static extendTo(rect1: rect, x: number, y: number) {
         var rx = rect1.X;

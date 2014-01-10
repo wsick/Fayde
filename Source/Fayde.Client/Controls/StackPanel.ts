@@ -1,7 +1,9 @@
 /// <reference path="Panel.ts" />
 
 module Fayde.Controls {
-    export class StackPanel extends Panel implements IMeasurableHidden, IArrangeableHidden {
+    export class StackPanel extends Panel {
+        CreateLayoutUpdater(node: PanelNode) { return new StackPanelLayoutUpdater(node); }
+
         static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), StackPanel, Orientation.Vertical, (d, args) => (<StackPanel>d)._OrientationChanged(args));
         Orientation: Orientation;
 
@@ -10,28 +12,37 @@ module Fayde.Controls {
             lu.InvalidateMeasure();
             lu.InvalidateArrange();
         }
-        _MeasureOverride(availableSize: size, error: BError): size {
+    }
+    Fayde.RegisterType(StackPanel, {
+    	Name: "StackPanel",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
+
+    export class StackPanelLayoutUpdater extends PanelLayoutUpdater {
+        MeasureOverride(availableSize: size, error: BError): size {
+            var sp = <StackPanel>this.Node.XObject;
             var childAvailable = size.createInfinite();
             var measured = new size();
 
-            var isVertical = this.Orientation === Orientation.Vertical;
+            var isVertical = sp.Orientation === Orientation.Vertical;
             if (isVertical) {
                 childAvailable.Width = availableSize.Width;
-                var width = this.Width;
+                var width = sp.Width;
                 if (!isNaN(width))
                     childAvailable.Width = width;
-                childAvailable.Width = Math.min(childAvailable.Width, this.MaxWidth);
-                childAvailable.Width = Math.max(childAvailable.Width, this.MinWidth);
+                childAvailable.Width = Math.min(childAvailable.Width, sp.MaxWidth);
+                childAvailable.Width = Math.max(childAvailable.Width, sp.MinWidth);
             } else {
                 childAvailable.Height = availableSize.Height;
-                var height = this.Height;
+                var height = sp.Height;
                 if (!isNaN(height))
                     childAvailable.Height = height;
-                childAvailable.Height = Math.min(childAvailable.Height, this.MaxHeight);
-                childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
+                childAvailable.Height = Math.min(childAvailable.Height, sp.MaxHeight);
+                childAvailable.Height = Math.max(childAvailable.Height, sp.MinHeight);
             }
 
-            var enumerator = this.Children.GetEnumerator();
+            var enumerator = sp.Children.GetEnumerator();
             var child: UIElement;
             var childNode: UINode;
             var childLu: LayoutUpdater;
@@ -54,15 +65,16 @@ module Fayde.Controls {
 
             return measured;
         }
-        _ArrangeOverride(finalSize: size, error: BError): size {
+        ArrangeOverride(finalSize: size, error: BError): size {
+            var sp = <StackPanel>this.Node.XObject;
             var arranged = size.copyTo(finalSize);
-            var isVertical = this.Orientation === Orientation.Vertical;
+            var isVertical = sp.Orientation === Orientation.Vertical;
             if (isVertical)
                 arranged.Height = 0;
             else
                 arranged.Width = 0;
-            
-            var enumerator = this.Children.GetEnumerator();
+
+            var enumerator = sp.Children.GetEnumerator();
             var child: UIElement;
             var childNode: UINode;
             var childLu: LayoutUpdater;
@@ -107,9 +119,4 @@ module Fayde.Controls {
             return arranged;
         }
     }
-    Fayde.RegisterType(StackPanel, {
-    	Name: "StackPanel",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
 }
