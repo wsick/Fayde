@@ -149,7 +149,8 @@ module Fayde {
 
         window.onload = onReady;
     }
-    doOnReady(() => {
+    doOnReady(Run);
+    export function Run() {
         if (isReady) return;
         isReady = true;
         var url = document.body.getAttribute("faydeapp");
@@ -168,5 +169,5 @@ module Fayde {
                 console.log("An error occurred retrieving the application. " + error);
             });
         request.Get(url);
-    });
+    }
 }
