@@ -177,7 +177,6 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
-          <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <Border Margin="0, 0, 0, 10" DataContext="{Binding SelectedPlayer}" BorderThickness="0, 0, 0, 1" BorderBrush="Black">
           <Border.Background>
@@ -539,47 +538,16 @@
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
-        <Border Grid.Row="4" Background="White" CornerRadius="0, 0, 3, 3">
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <CheckBox Margin="6">Autopick</CheckBox>
-            <CheckBox Grid.Column="1" Margin="6">View Drafted Players</CheckBox>
-            <HyperlinkButton Grid.Column="2" HorizontalAlignment="Right" Margin="6">League Rules</HyperlinkButton>
-            <CheckBox Grid.Column="3" Margin="6">Mute</CheckBox>
-          </Grid>
-        </Border>
       </Grid>
     </ScrollViewer>
     <Grid Grid.Column="2">
       <Grid.RowDefinitions>
         <RowDefinition Height="*" MinHeight="150"/>
-        <RowDefinition Height="*" MinHeight="150"/>
-        <RowDefinition Height="*" MinHeight="150"/>
-        <RowDefinition Height="*" MinHeight="150"/>
+        <RowDefinition Height="190"/>
+        <RowDefinition Height="250"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Grid Background="Black" Margin="5">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Border Margin="1" Background="{StaticResource GrayGradient}" BorderBrush="{StaticResource MediumGrayBrush}" BorderThickness="1, 1, 0, 0">
-          <TextBlock Foreground="White" FontWeight="Bold" Padding="3" Text="Draft Queue">
-            <TextBlock.Effect>
-              <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"/>
-            </TextBlock.Effect>
-          </TextBlock>
-        </Border>
-        <ListBox Grid.Row="1" Margin="1, 0, 1, 1" Background="{StaticResource MediumGrayBrush}" BorderThickness="0">
-
-        </ListBox>
-      </Grid>
-      <Grid Grid.Row="1" Background="Black" Margin="5, 0, 5, 5">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -620,7 +588,7 @@
           </ListBox.ItemTemplate>
         </ListBox>
       </Grid>
-      <Grid Grid.Row="2" Background="Black" Margin="5, 0, 5, 5">
+      <Grid Grid.Row="1" Background="Black" Margin="5, 0, 5, 5">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -656,7 +624,7 @@
           </ListBox.ItemTemplate>
         </ListBox>
       </Grid>
-      <Grid Grid.Row="3" Background="Black" Margin="5, 0, 5, 5">
+      <Grid Grid.Row="2" Background="Black" Margin="5, 0, 5, 5">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -695,7 +663,7 @@
         </ListBox>
         <Image HorizontalAlignment="Left" Margin="-4, -8, 5, -10" Width="36" Height="36" Source="Images/chat.png"/>
       </Grid>
-      <TextBox x:Name="ChatTextbox" Grid.Row="4" KeyDown="{EventBinding ChatSubmitted, CommandParameter={Binding ElementName=ChatTextbox}}" Margin="5, 0, 5, 5" TextBlock.Foreground="White" Background="{StaticResource MediumGrayBrush}" BorderBrush="Black"></TextBox>
+      <TextBox x:Name="ChatTextbox" Grid.Row="3" KeyDown="{EventBinding ChatSubmitted, CommandParameter={Binding ElementName=ChatTextbox}}" Margin="5, 0, 5, 5" TextBlock.Foreground="White" Background="{StaticResource MediumGrayBrush}" BorderBrush="Black"></TextBox>
     </Grid>
   </Grid>
 </Application>

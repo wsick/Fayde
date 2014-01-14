@@ -65,13 +65,13 @@ module NflDraft.ViewModels {
         get DraftPlayerCommand(): Fayde.Input.ICommand {
             if (this._draft_player_command === null) {
                 this._draft_player_command = new Fayde.MVVM.RelayCommand(
-                    () => this.DraftPlayer(),
+                    p => this.DraftPlayer(p),
                     () => this.CanDraftPlayer());
             }
             return this._draft_player_command;
         }
-        DraftPlayer() {
-            this.SelectPlayer(this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0), this.SelectedPlayer);
+        DraftPlayer(player: Models.FantasyPlayer) {
+            this.SelectPlayer(this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0), player);
         }
         CanDraftPlayer() {
             return this.CurrentDraftSpot.Team === this.MyTeam;
