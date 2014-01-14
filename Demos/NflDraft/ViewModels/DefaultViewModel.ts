@@ -71,28 +71,29 @@ module NflDraft.ViewModels {
             return this._draft_player_command;
         }
         DraftPlayer() {
-            alert("Selecting Player");
+            this.SelectPlayer(this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0), this.SelectedPlayer);
         }
         CanDraftPlayer() {
-            return false;
+            return this.CurrentDraftSpot.Team === this.MyTeam;
         }
 
         constructor() {
             super();
             this.Load();
         }
-
-        Load() {
+        FantasyPositions() {
             var positions = ["QB", "RB", "RB", "WR", "WR", "TE", "BE", "BE"];
             var fantasy_positions = new Fayde.Collections.ObservableCollection<Models.FantasyPosition>();
             for (var i = 0; i < positions.length; i++) {
                 fantasy_positions.Add(new Models.FantasyPosition(positions[i]));
             }
-
+            return fantasy_positions;
+        }
+        Load() {
             var ft = ["Victorious Secret", "Somewhere Over Dwayne Bowe", "The Blair Walsh Project", "Forgetting Brandon Marshall", "Show Me Your TDs",
                 "Boston Tebow Party", "Saved by the Le'Von Bell", "Stafford Infection", "I Pitta the Fool", "Cruz Control"];
             for (var i = 0; i < ft.length; i++) {
-                this.FantasyTeams.push(new Models.FantasyTeam(ft[i], fantasy_positions));
+                this.FantasyTeams.push(new Models.FantasyTeam(ft[i], this.FantasyPositions()));
             }
             this.MyTeam = this.FantasyTeams[0];
 
@@ -256,45 +257,62 @@ module NflDraft.ViewModels {
             this.CurrentDraftSpot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
             this.SelectedPlayer = this.FantasyPlayers.GetValueAt(0);
             this.CurrentPositionFilter = "ALL";
-            this._interval_id = setInterval(() => this.DoWork(), 1000);
+            this._interval_id = setInterval(() => this.DraftLoop(), 1000);
         }
-
-        DoWork() {
+        DraftLoop() {
             var current = this.Countdown;
-            var draft_finished = false;
             if (current == 0) {
                 var spot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
-                var ds = new Models.DraftSelection();
-                var fp = this.FantasyPlayers.GetValueAt(0);
-                ds.DraftSpot = spot;
-                ds.FantasyPlayer = fp;
-                if (spot.Team === this.MyTeam) {
-                    for (var i = 0; i < this.MyTeam.Roster.Count; i++) {
-                        var fantasy_position = this.MyTeam.Roster.GetValueAt(i);
-                        if (fantasy_position.Position === "BE" || (fantasy_position.Position === fp.PrimaryPosition && fantasy_position.Player === undefined)) {
-                            fantasy_position.Player = fp;
-                            break;
-                        }
-                    }    
-                }
-                this.FantasyPlayers.RemoveAt(0);
-                this.DraftSelections.Add(ds);
-                this.Rounds.GetValueAt(0).DraftSpots.RemoveAt(0);
-                if (this.Rounds.GetValueAt(0).DraftSpots.Count == 0)
-                    this.Rounds.RemoveAt(0);
-                draft_finished = this.Rounds.Count == 0 || this.FantasyPlayers.Count == 0;
-                if (!draft_finished) {
-                    this.CurrentDraftSpot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
-                    current = 10;
-                }
+                this.SelectPlayer(spot, this.FantasyPlayers.GetValueAt(0));
             }
             else
-                current = current - 1;
-            this.Countdown = current;
+                this.Countdown = this.Countdown - 1;
 
-            if (draft_finished) {
+            if (this.DraftFinished()) {
                 clearInterval(this._interval_id);
             }
+        }
+        DraftFinished() {
+            return this.Rounds.Count == 0 || this.FantasyPlayers.Count == 0;
+        }
+        SelectPlayer(spot: Models.DraftSpot, player: Models.FantasyPlayer) {
+            this.RemovePlayerAvailability(player);
+            this.AddDraftSelection(spot, player);
+            this.UpdateTeamRoster(spot.Team, player);            
+
+            this.Rounds.GetValueAt(0).DraftSpots.RemoveAt(0);
+            if (this.Rounds.GetValueAt(0).DraftSpots.Count == 0)
+                this.Rounds.RemoveAt(0);
+
+            if (!this.DraftFinished()) {
+                this.CurrentDraftSpot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
+                this.Countdown = 10;
+            }    
+        }
+        AddDraftSelection(spot: Models.DraftSpot, player: Models.FantasyPlayer) {
+            var ds = new Models.DraftSelection();
+            ds.DraftSpot = spot;
+            ds.FantasyPlayer = player;
+            this.DraftSelections.Add(ds);
+        }
+        UpdateTeamRoster(team: Models.FantasyTeam, player: Models.FantasyPlayer) {
+            for (var i = 0; i < team.Roster.Count; i++) {
+                var fantasy_position = team.Roster.GetValueAt(i);
+                if ((fantasy_position.Position === "BE" || fantasy_position.Position === player.PrimaryPosition) && fantasy_position.Player === undefined) {
+                    fantasy_position.Player = player;
+                    break;
+                }
+            }
+        }
+        RemovePlayerAvailability(player) {
+            var playerIndex = 0;
+            for (var i = 0; i < this.FantasyPlayers.Count; i++) {
+                if (this.FantasyPlayers.GetValueAt(i).Name === player.Name) {
+                    playerIndex = i;
+                    break;
+                }
+            }
+            this.FantasyPlayers.RemoveAt(playerIndex);
         }
     }
     Fayde.RegisterType(DefaultViewModel, {

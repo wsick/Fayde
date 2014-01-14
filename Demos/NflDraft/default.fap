@@ -58,6 +58,7 @@
       <GradientStop Color="Transparent" Offset=".8"/>
       <GradientStop Color="{StaticResource DarkGray}" Offset="1"/>
     </LinearGradientBrush>
+    
     <res:AgeValueConverter x:Key="ageValueConverter" />
     <res:DateValueConverter x:Key="dateValueConverter" />
     <res:DoubleValueConverter x:Key="doubleValueConverter" />
@@ -110,7 +111,7 @@
                 </Grid>
               </Border>
             </Border>
-            <Button Margin="5" Content="Draft Player" Command="{Binding SelectPlayerCommand}"></Button>
+            <Button Margin="5" Content="Draft Player" Command="{Binding ElementName=LayoutRoot, Path=DataContext.DraftPlayerCommand}"></Button>
             <ListBox x:Name="RoundsListBox" ItemsSource="{Binding Rounds}" BorderThickness="1, 1, 1, 0" BorderBrush="Black" Padding="0" Margin="5" Background="{StaticResource DarkGrayBrush}">
               <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -625,7 +626,7 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Border Margin="1" Background="{StaticResource GrayGradient}" BorderBrush="{StaticResource MediumGrayBrush}" BorderThickness="1, 1, 0, 0">
-          <TextBlock Foreground="White" FontWeight="Bold" Padding="3" Text="Team Rosters">
+          <TextBlock Foreground="White" FontWeight="Bold" Padding="3" Text="{Binding MyTeam.Name, StringFormat='My Roster ({0})'}">
             <TextBlock.Effect>
               <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"/>
             </TextBlock.Effect>

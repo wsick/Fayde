@@ -8337,7 +8337,9 @@ var Fayde;
                             if (hasSetContent)
                                 throw new XamlParseException("Content has already been set.");
                             hasSetContent = true;
-                            app.MainSurface.Attach(createObject(el, ctx));
+                            var rootVisual = createObject(el, ctx);
+                            rootVisual.XamlNode.NameScope = ctx.NameScope;
+                            app.MainSurface.Attach(rootVisual);
                         } else {
                             if (contentCollection) {
                                 contentCollection.Add(createObject(el, ctx));
