@@ -117,6 +117,7 @@ module Fayde {
                         source = target.TemplateOwner;
                         break;
                     case Data.RelativeSourceMode.FindAncestor:
+                        console.log("FindAncestor is not fully implemented.");
                         //TODO: Implement
                         break;
                 }

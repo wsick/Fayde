@@ -453,7 +453,9 @@ module Fayde.Xaml {
                         if (hasSetContent)
                             throw new XamlParseException("Content has already been set.");
                         hasSetContent = true;
-                        app.MainSurface.Attach(createObject(el, ctx));
+                        var rootVisual: UIElement = createObject(el, ctx);
+                        rootVisual.XamlNode.NameScope = ctx.NameScope;
+                        app.MainSurface.Attach(rootVisual);
                     } else {
                         if (contentCollection) {
                             contentCollection.Add(createObject(el, ctx));
@@ -619,7 +621,6 @@ module Fayde.Xaml {
             childProcessor.Process(el);
             app.Sources._ht = appSources;
             app.Libraries._ht = appLibraries;
-            app.RootVisual.XamlNode.NameScope = ctx.NameScope;
             ctx.ObjectStack.pop();
             TimelineProfile.Parse(false, "App");
             Application.Current.Start();

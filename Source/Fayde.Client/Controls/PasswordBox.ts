@@ -2,13 +2,15 @@
 
 module Fayde.Controls {
     export class PasswordBox extends TextBoxBase implements Text.ITextAttributesSource {
-        static BaselineOffsetProperty: DependencyProperty = DependencyProperty.Register("BaselineOffset", () => Number, PasswordBox);
-        static CaretBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, PasswordBox);
-        static MaxLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, PasswordBox, 0, (d, args) => (<PasswordBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);
-        static PasswordCharProperty: DependencyProperty = DependencyProperty.Register("PasswordChar", () => String, PasswordBox, String.fromCharCode(9679), (d, args) => (<PasswordBox>d)._ModelChanged(TextBoxModelChangedType.Text, args.NewValue));
-        static PasswordProperty: DependencyProperty = DependencyProperty.Register("Password", () => String, PasswordBox, undefined, (d, args) => (<PasswordBox>d)._TextChanged(args.NewValue));
-        static SelectionForegroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, PasswordBox, undefined, (d, args) => (<PasswordBox>d)._SelectionForegroundChanged(args));
-        static SelectionBackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, PasswordBox, undefined, (d, args) => (<PasswordBox>d)._SelectionBackgroundChanged(args));
+        static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, PasswordBox);
+        static CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, PasswordBox);
+        static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, PasswordBox, 0, (d, args) => (<PasswordBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);
+        static PasswordCharProperty = DependencyProperty.Register("PasswordChar", () => String, PasswordBox, String.fromCharCode(9679), (d, args) => (<PasswordBox>d)._ModelChanged(TextBoxModelChangedType.Text, args.NewValue));
+        static PasswordProperty = DependencyProperty.Register("Password", () => String, PasswordBox, undefined, (d, args) => (<PasswordBox>d)._TextChanged(args.NewValue));
+        static SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, PasswordBox, undefined, (d, args) => (<PasswordBox>d)._SelectionForegroundChanged(args));
+        static SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, PasswordBox, undefined, (d, args) => (<PasswordBox>d)._SelectionBackgroundChanged(args));
+        static SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, PasswordBox, 0, (d, args) => (<PasswordBox>d)._SelectionLengthChanged(args.NewValue), undefined, true, positiveIntValidator);
+        static SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, PasswordBox, 0, (d, args) => (<PasswordBox>d)._SelectionStartChanged(args.NewValue), undefined, true, positiveIntValidator);
         BaselineOffset: number;
         CaretBrush: Media.Brush;
         MaxLength; number;
@@ -16,6 +18,8 @@ module Fayde.Controls {
         Password: string;
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
+        SelectionLength: number;
+        SelectionStart: number;
         
         PasswordChangedEvent: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
 
