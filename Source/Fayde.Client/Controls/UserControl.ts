@@ -24,11 +24,7 @@ module Fayde.Controls {
             node.LayoutUpdater.UpdateBounds();
         }
     }
-    Fayde.RegisterType(UserControl, {
-    	Name: "UserControl",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(UserControl, "Fayde.Controls", Fayde.XMLNS);
 
     export class UserControlLayoutUpdater extends LayoutUpdater {
         constructor(node: UINode) {

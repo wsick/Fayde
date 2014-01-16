@@ -24,10 +24,7 @@ module Fayde.Xaml {
             return uie;
         }
     }
-    Fayde.RegisterType(FrameworkTemplate, {
-        Name: "FrameworkTemplate",
-        Namespace: "Fayde.Xaml"
-    });
+    Fayde.RegisterType(FrameworkTemplate, "Fayde.Xaml");
 
 
     interface IOutValue {

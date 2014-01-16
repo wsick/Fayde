@@ -52,11 +52,7 @@ module Fayde {
             return true;
         }
     }
-    Fayde.RegisterType(ResourceDictionaryCollection, {
-        Name: "ResourceDictionaryCollection",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ResourceDictionaryCollection, "Fayde", Fayde.XMLNS);
 
     export class ResourceDictionary extends XamlObject implements IEnumerable<any> {
         private _Keys: any[] = [];
@@ -133,10 +129,6 @@ module Fayde {
             return Fayde.ArrayEx.GetNodeEnumerator<any, U>(this._Values, reverse);
         }
     }
-    Fayde.RegisterType(ResourceDictionary, {
-        Name: "ResourceDictionary",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS,
-        Interfaces: [IEnumerable_]
-    });
+    Fayde.RegisterType(ResourceDictionary, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterTypeInterfaces(ResourceDictionary, [IEnumerable_]);
 }

@@ -142,11 +142,7 @@ class DateTime {
     }
     get Year(): number { return this._InternalDate.getFullYear(); }
 }
-Fayde.RegisterType(DateTime, {
-    Name: "DateTime",
-    Namespace: "Fayde",
-    XmlNamespace: Fayde.XMLNS
-});
+Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
 
 class DateTimeFormatInfo {
     AbbreviatedMonthNames: string[] = [];

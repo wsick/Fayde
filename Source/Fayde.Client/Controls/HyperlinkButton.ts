@@ -49,9 +49,5 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(HyperlinkButton, {
-    	Name: "HyperlinkButton",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(HyperlinkButton, "Fayde.Controls", Fayde.XMLNS);
 }

@@ -83,10 +83,7 @@ module Fayde.Controls {
 
         CanCaptureMouse(): boolean { return this.XObject.IsEnabled; }
     }
-    Fayde.RegisterType(ControlNode, {
-    	Name: "ControlNode",
-    	Namespace: "Fayde.Controls"
-    });
+    Fayde.RegisterType(ControlNode, "Fayde.Controls");
 
     export class Control extends FrameworkElement implements Providers.IIsPropertyInheritable {
         XamlNode: ControlNode;
@@ -221,11 +218,7 @@ module Fayde.Controls {
             this.XamlNode.LayoutUpdater.InvalidateArrange();
         }
     }
-    Fayde.RegisterType(Control, {
-    	Name: "Control",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Control, "Fayde.Controls", Fayde.XMLNS);
 
     Control.IsEnabledProperty.Store = Providers.IsEnabledStore.Instance;
 

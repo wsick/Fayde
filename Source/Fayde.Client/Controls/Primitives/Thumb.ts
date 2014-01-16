@@ -112,9 +112,5 @@ module Fayde.Controls.Primitives {
             return gotoFunc("Normal");
         }
     }
-    Fayde.RegisterType(Thumb, {
-    	Name: "Thumb",
-    	Namespace: "Fayde.Controls.Primitives",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Thumb, "Fayde.Controls.Primitives", Fayde.XMLNS);
 }

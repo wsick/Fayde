@@ -13,9 +13,5 @@ module Fayde.Controls {
             return uie;
         }
     }
-    Fayde.RegisterType(ControlTemplate, {
-    	Name: "ControlTemplate",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ControlTemplate, "Fayde.Controls", Fayde.XMLNS);
 }

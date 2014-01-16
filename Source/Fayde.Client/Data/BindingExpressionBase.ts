@@ -383,8 +383,5 @@ module Fayde.Data {
             NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
         }
     }
-    Fayde.RegisterType(BindingExpressionBase, {
-    	Name: "BindingExpressionBase",
-    	Namespace: "Fayde.Data"
-    });
+    Fayde.RegisterType(BindingExpressionBase, "Fayde.Data");
 }

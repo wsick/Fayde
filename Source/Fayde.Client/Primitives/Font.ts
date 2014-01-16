@@ -131,8 +131,4 @@ class Font {
         return result;
     }
 }
-Fayde.RegisterType(Font, {
-	Name: "Font",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(Font, "window", Fayde.XMLNSX);

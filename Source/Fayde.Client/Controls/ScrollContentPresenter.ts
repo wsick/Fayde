@@ -260,12 +260,8 @@ module Fayde.Controls {
             return changed;
         }
     }
-    Fayde.RegisterType(ScrollContentPresenter, {
-        Name: "ScrollContentPresenter",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS,
-        Interfaces: [Primitives.IScrollInfo_]
-    });
+    Fayde.RegisterType(ScrollContentPresenter, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterTypeInterfaces(ScrollContentPresenter, [Primitives.IScrollInfo_]);
     
     function validateInputOffset(offset: number) {
         if (!isNaN(offset))

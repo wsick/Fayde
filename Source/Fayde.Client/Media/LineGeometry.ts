@@ -17,9 +17,5 @@ module Fayde.Media {
             return p;
         }
     }
-    Fayde.RegisterType(LineGeometry, {
-    	Name: "LineGeometry",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(LineGeometry, "Fayde.Media", Fayde.XMLNS);
 }

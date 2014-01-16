@@ -9,9 +9,5 @@ module Fayde.Controls {
             super();
         }
     }
-    Fayde.RegisterType(Page, {
-    	Name: "Page",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Page, "Fayde.Controls", Fayde.XMLNS);
 }

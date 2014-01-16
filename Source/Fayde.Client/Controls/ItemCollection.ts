@@ -151,9 +151,5 @@ module Fayde.Controls {
                 throw new InvalidOperationException("The collection is readonly.");
         }
     }
-    Fayde.RegisterType(ItemCollection, {
-    	Name: "ItemCollection",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ItemCollection, "Fayde.Controls", Fayde.XMLNS);
 }

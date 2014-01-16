@@ -119,11 +119,7 @@ module Fayde {
             return this.MainSurface.__GetById(id);
         }
     }
-    Fayde.RegisterType(Application, {
-        Name: "Application",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Application, "Fayde", Fayde.XMLNS);
 
     var isReady = false;
     function doOnReady(onReady: () => void) {

@@ -100,9 +100,5 @@ module Fayde.Controls {
             //TODO: Show default content uri in Content when in design mode
         }
     }
-    Fayde.RegisterType(Frame, {
-    	Name: "Frame",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Frame, "Fayde.Controls", Fayde.XMLNS);
 }

@@ -16,11 +16,7 @@ module Fayde.Media {
         Listen(listener: IPathSegmentListener) { this._Listener = listener; }
         Unlisten(listener: IPathSegmentListener) { if (this._Listener === listener) this._Listener = null; }
     }
-    Fayde.RegisterType(PathSegment, {
-    	Name: "PathSegment",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(PathSegment, "Fayde.Media", Fayde.XMLNS);
 
     export class PathSegmentCollection extends XamlObjectCollection<PathSegment> implements IPathSegmentListener {
         private _Listener: IPathSegmentListener;
@@ -48,9 +44,5 @@ module Fayde.Media {
             if (listener) listener.PathSegmentChanged(newPathSegment);
         }
     }
-    Fayde.RegisterType(PathSegmentCollection, {
-    	Name: "PathSegmentCollection",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(PathSegmentCollection, "Fayde.Media", Fayde.XMLNS);
 }

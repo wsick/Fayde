@@ -5,7 +5,7 @@
 module Fayde.Collections {
     export class ObservableCollection<T> implements IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {
         private _ht: T[] = [];
-        
+
         GetEnumerator(): IEnumerator<T> {
             return ArrayEx.GetEnumerator(this._ht);
         }
@@ -83,10 +83,6 @@ module Fayde.Collections {
             this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-    Fayde.RegisterType(ObservableCollection, {
-        Namespace: "Fayde.Collections",
-        XmlNamespace: Fayde.XMLNS,
-        Name: "ObservableCollection",
-        Interfaces: [IEnumerable_, INotifyCollectionChanged_, INotifyPropertyChanged_]
-    });
+    Fayde.RegisterType(ObservableCollection, "Fayde.Collections", Fayde.XMLNS);
+    Fayde.RegisterTypeInterfaces(ObservableCollection, [IEnumerable_, INotifyCollectionChanged_, INotifyPropertyChanged_]);
 }

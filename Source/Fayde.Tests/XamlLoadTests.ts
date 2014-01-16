@@ -282,11 +282,7 @@ class TestControl extends Fayde.Controls.ContentControl {
         this.CallbackFired = true;
     }
 }
-Fayde.RegisterType(TestControl, {
-    Name: "TestControl",
-    Namespace: "window",
-    XmlNamespace: "http://schemas.test.com/"
-});
+Fayde.RegisterType(TestControl, "window", "http://schemas.test.com/");
 
 test("Events", () => {
     var xaml = "<test:TestControl xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" xmlns:test=\"http://schemas.test.com/\">"

@@ -13,11 +13,7 @@ module Fayde.Controls {
             lu.InvalidateArrange();
         }
     }
-    Fayde.RegisterType(StackPanel, {
-    	Name: "StackPanel",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(StackPanel, "Fayde.Controls", Fayde.XMLNS);
 
     export class StackPanelLayoutUpdater extends PanelLayoutUpdater {
         MeasureOverride(availableSize: size, error: BError): size {

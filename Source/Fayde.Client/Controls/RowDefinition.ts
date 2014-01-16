@@ -26,11 +26,7 @@ module Fayde.Controls {
             if (listener) listener.RowDefinitionChanged(this);
         }
     }
-    Fayde.RegisterType(RowDefinition, {
-    	Name: "RowDefinition",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(RowDefinition, "Fayde.Controls", Fayde.XMLNS);
 
     function ConvertRowDefinition(o: any): RowDefinition {
         if (!o || o instanceof RowDefinition)
@@ -81,11 +77,7 @@ module Fayde.Controls {
             if (listener) listener.RowDefinitionsChanged(this);
         }
     }
-    Fayde.RegisterType(RowDefinitionCollection, {
-    	Name: "RowDefinitionCollection",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(RowDefinitionCollection, "Fayde.Controls", Fayde.XMLNS);
 
     function ConvertRowDefinitionCollection(o: any): RowDefinitionCollection {
         if (!o || o instanceof RowDefinitionCollection)

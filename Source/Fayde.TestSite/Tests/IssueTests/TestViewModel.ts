@@ -33,9 +33,5 @@ module Tests.IssueTests {
             Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem"]);
         })();
     }
-    Fayde.RegisterType(TestViewModel, {
-        Name: "TestViewModel",
-        Namespace: "Tests.IssueTests",
-        XmlNamespace: "folder:Tests/IssueTests"
-    });
+    Fayde.RegisterType(TestViewModel, "Tests.IssueTests", "folder:Tests/IssueTests");
 }

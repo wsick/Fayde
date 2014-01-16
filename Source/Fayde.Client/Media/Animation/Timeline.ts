@@ -170,17 +170,9 @@ module Fayde.Media.Animation {
         }
         GetNaturalDurationCore(): Duration { return Duration.Automatic; }
     }
-    Fayde.RegisterType(Timeline, {
-    	Name: "Timeline",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Timeline, "Fayde.Media.Animation", Fayde.XMLNS);
 
     export class TimelineCollection extends XamlObjectCollection<Timeline> {
     }
-    Fayde.RegisterType(TimelineCollection, {
-    	Name: "TimelineCollection",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TimelineCollection, "Fayde.Media.Animation", Fayde.XMLNS);
 }

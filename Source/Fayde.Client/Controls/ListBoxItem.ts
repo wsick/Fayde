@@ -69,9 +69,5 @@ module Fayde.Controls {
             this.UpdateVisualState();
         }
     }
-    Fayde.RegisterType(ListBoxItem, {
-    	Name: "ListBoxItem",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ListBoxItem, "Fayde.Controls", Fayde.XMLNS);
 }

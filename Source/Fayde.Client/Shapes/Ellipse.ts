@@ -9,11 +9,7 @@ module Fayde.Shapes {
             this.Stretch = Media.Stretch.Fill;
         }
     }
-    Fayde.RegisterType(Ellipse, {
-    	Name: "Ellipse",
-    	Namespace: "Fayde.Shapes",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Ellipse, "Fayde.Shapes", Fayde.XMLNS);
 
     export class EllipseLayoutUpdater extends ShapeLayoutUpdater {
         MeasureOverride(availableSize: size, error: BError): size {

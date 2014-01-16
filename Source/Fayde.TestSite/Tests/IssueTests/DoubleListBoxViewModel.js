@@ -1,3 +1,4 @@
+/// <reference path="../../../jsbin/Fayde.d.ts" />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -6,7 +7,6 @@ var __extends = this.__extends || function (d, b) {
 };
 var Tests;
 (function (Tests) {
-    /// <reference path="../../../jsbin/Fayde.d.ts" />
     (function (IssueTests) {
         var RelayCommand = Fayde.MVVM.RelayCommand;
 
@@ -49,11 +49,7 @@ var Tests;
             return DoubleListBoxViewModel;
         })(Fayde.MVVM.ViewModelBase);
         IssueTests.DoubleListBoxViewModel = DoubleListBoxViewModel;
-        Fayde.RegisterType(DoubleListBoxViewModel, {
-            Name: "DoubleListBoxViewModel",
-            Namespace: "Tests.IssueTests",
-            XmlNamespace: "folder:Tests/IssueTests"
-        });
+        Fayde.RegisterType(DoubleListBoxViewModel, "Tests.IssueTests", "folder:Tests/IssueTests");
     })(Tests.IssueTests || (Tests.IssueTests = {}));
     var IssueTests = Tests.IssueTests;
 })(Tests || (Tests = {}));

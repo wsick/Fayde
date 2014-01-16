@@ -14,9 +14,5 @@ module Fayde.Xaml {
             return new TemplateBindingExpression(propd, ctx.Property);
         }
     }
-    Fayde.RegisterType(TemplateBinding, {
-        Name: "TemplateBinding",
-        Namespace: "Fayde.Xaml",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TemplateBinding, "Fayde.Xaml", Fayde.XMLNS);
 }

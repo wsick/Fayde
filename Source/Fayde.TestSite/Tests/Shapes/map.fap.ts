@@ -28,9 +28,5 @@ module Fayde.TestSite.Tests.Shapes {
             Fayde.Controls.Canvas.SetZIndex(path, 0);
         }
     }
-    Fayde.RegisterType(App, {
-        Name: "App",
-        Namespace: "Fayde.TestSite.Tests",
-        XmlNamespace: "http://schemas.wsick.com/fayde/tests"
-    });
+    Fayde.RegisterType(App, "Fayde.TestSite.Tests", "http://schemas.wsick.com/fayde/tests");
 }

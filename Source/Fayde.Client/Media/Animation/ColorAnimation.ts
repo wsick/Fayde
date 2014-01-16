@@ -55,9 +55,5 @@ module Fayde.Media.Animation {
             this._EasingCached = args.NewValue;
         }
     }
-    Fayde.RegisterType(ColorAnimation, {
-    	Name: "ColorAnimation",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ColorAnimation, "Fayde.Media.Animation", Fayde.XMLNS);
 }

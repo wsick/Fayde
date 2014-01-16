@@ -24,7 +24,7 @@ var Tests;
                 if (!this || !(this instanceof TestViewModel))
                     alert("ERROR: this is not scoped to TestViewModel.");
                 if (e.sender)
-                    alert("TestMethod called. [" + e.sender.constructor._TypeName + "]");
+                    alert("TestMethod called. [" + e.sender.constructor.name + "]");
                 else if (e.parameter)
                     alert("TestMethod called. [" + e.parameter.Name + "]");
             };
@@ -37,11 +37,7 @@ var Tests;
             return TestViewModel;
         })(Fayde.MVVM.ViewModelBase);
         IssueTests.TestViewModel = TestViewModel;
-        Fayde.RegisterType(TestViewModel, {
-            Name: "TestViewModel",
-            Namespace: "Tests.IssueTests",
-            XmlNamespace: "folder:Tests/IssueTests"
-        });
+        Fayde.RegisterType(TestViewModel, "Tests.IssueTests", "folder:Tests/IssueTests");
     })(Tests.IssueTests || (Tests.IssueTests = {}));
     var IssueTests = Tests.IssueTests;
 })(Tests || (Tests = {}));

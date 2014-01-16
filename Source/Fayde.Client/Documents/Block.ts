@@ -7,11 +7,7 @@ module Fayde.Documents {
 
     export class Block extends TextElement {
     }
-    Fayde.RegisterType(Block, {
-    	Name: "Block",
-    	Namespace: "Fayde.Documents",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Block, "Fayde.Documents", Fayde.XMLNS);
     
     export class BlockCollection extends XamlObjectCollection<Block> {
         private _Listener: IBlocksChangedListener;
@@ -31,9 +27,5 @@ module Fayde.Documents {
             if (listener) listener.BlocksChanged(value, false);
         }
     }
-    Fayde.RegisterType(BlockCollection, {
-    	Name: "BlockCollection",
-    	Namespace: "Fayde.Documents",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(BlockCollection, "Fayde.Documents", Fayde.XMLNS);
 }

@@ -1497,8 +1497,5 @@ module Fayde {
             return JSON.stringify(o);
         }
     }
-    Fayde.RegisterType(LayoutUpdater, {
-    	Name: "LayoutUpdater",
-    	Namespace: "Fayde"
-    });
+    Fayde.RegisterType(LayoutUpdater, "Fayde");
 }

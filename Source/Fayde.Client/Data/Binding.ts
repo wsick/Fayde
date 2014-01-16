@@ -147,9 +147,5 @@ module Fayde.Data {
             return new Data.BindingExpression(this, ctx.Owner, ctx.Property);
         }
     }
-    Fayde.RegisterType(Binding, {
-    	Name: "Binding",
-    	Namespace: "Fayde.Data",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Binding, "Fayde.Data", Fayde.XMLNS);
 }

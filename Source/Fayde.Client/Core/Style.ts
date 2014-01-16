@@ -86,9 +86,5 @@ module Fayde {
             return true;
         }
     }
-    Fayde.RegisterType(Style, {
-    	Name: "Style",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Style, "Fayde", Fayde.XMLNS);
 }

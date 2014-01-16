@@ -25,10 +25,6 @@ module Fayde.MVVM {
             this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-    Fayde.RegisterType(ObservableObject, {
-        Name: "ObservableObject",
-        Namespace: "Fayde.MVVM",
-        XmlNamespace: Fayde.XMLNS,
-        Interfaces: [INotifyPropertyChanged_]
-    });
+    Fayde.RegisterType(ObservableObject, "Fayde.MVVM", Fayde.XMLNS);
+    Fayde.RegisterTypeInterfaces(ObservableObject, [INotifyPropertyChanged_]);
 }

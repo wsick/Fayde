@@ -6,9 +6,5 @@ module Fayde {
         Source: any = null;
         OriginalSource: any = null;
     }
-    Fayde.RegisterType(RoutedEventArgs, {
-    	Name: "RoutedEventArgs",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(RoutedEventArgs, "Fayde", Fayde.XMLNS);
 }

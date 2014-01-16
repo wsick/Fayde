@@ -357,9 +357,5 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(ComboBox, {
-    	Name: "ComboBox",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ComboBox, "Fayde.Controls", Fayde.XMLNS);
 }

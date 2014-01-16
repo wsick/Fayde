@@ -266,9 +266,5 @@ module Fayde.Controls.Primitives {
         NotifyListItemGotFocus(lbi: ListBoxItem) { }
         NotifyListItemLostFocus(lbi: ListBoxItem) { }
     }
-    Fayde.RegisterType(Selector, {
-    	Name: "Selector",
-    	Namespace: "Fayde.Controls.Primitives",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Selector, "Fayde.Controls.Primitives", Fayde.XMLNS);
 }

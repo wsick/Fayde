@@ -30,10 +30,7 @@ module Fayde.Controls {
             xobj.AddItemsToPresenter(ItemsControlNode._DefaultPosition, xobj.Items.Count);
         }
     }
-    Fayde.RegisterType(ItemsControlNode, {
-    	Name: "ItemsControlNode",
-    	Namespace: "Fayde.Controls"
-    });
+    Fayde.RegisterType(ItemsControlNode, "Fayde.Controls");
 
     export class ItemsControl extends Control {
         private _ItemsIsDataBound: boolean = false;
@@ -333,9 +330,5 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(ItemsControl, {
-    	Name: "ItemsControl",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ItemsControl, "Fayde.Controls", Fayde.XMLNS);
 }

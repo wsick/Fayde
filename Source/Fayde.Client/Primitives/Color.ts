@@ -227,11 +227,7 @@ class Color implements ICloneable {
         YellowGreen: Color.FromHex("#FF9ACD32")
     }
 }
-Fayde.RegisterType(Color, {
-	Name: "Color",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNS
-});
+Fayde.RegisterType(Color, "window", Fayde.XMLNS);
 
 Fayde.RegisterTypeConverter(Color, (val: any): Color => {
     if (!val)

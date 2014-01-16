@@ -266,10 +266,7 @@ module Fayde.Controls.Internal {
             }
         }
     }
-    Fayde.RegisterType(TextBoxView, {
-        Name: "TextBoxView",
-        Namespace: "Fayde.Controls"
-    });
+    Fayde.RegisterType(TextBoxView, "Fayde.Controls");
 
     export class TextBoxViewLayoutUpdater extends LayoutUpdater {
         ComputeActualSize() {

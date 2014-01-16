@@ -42,11 +42,7 @@ class CornerRadius implements ICloneable {
         return new CornerRadius(this.TopLeft, this.TopRight, this.BottomRight, this.BottomLeft);
     }
 }
-Fayde.RegisterType(CornerRadius, {
-	Name: "CornerRadius",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(CornerRadius, "window", Fayde.XMLNSX);
 
 Fayde.RegisterTypeConverter(CornerRadius, (val: any): CornerRadius => {
     if (!val)

@@ -15,9 +15,5 @@ module Fayde {
             return new EventBindingExpression(this);
         }
     }
-    Fayde.RegisterType(EventBinding, {
-    	Name: "EventBinding",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(EventBinding, "Fayde", Fayde.XMLNS);
 }

@@ -13,9 +13,5 @@ module Fayde.Controls {
             return panel;
         }
     }
-    Fayde.RegisterType(ItemsPanelTemplate, {
-        Name: "ItemsPanelTemplate",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ItemsPanelTemplate, "Fayde.Controls", Fayde.XMLNS);
 }

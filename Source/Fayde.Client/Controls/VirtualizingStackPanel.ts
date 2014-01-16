@@ -460,10 +460,6 @@ module Fayde.Controls {
             if (scrollOwner) scrollOwner.InvalidateScrollInfo();
         }
     }
-    Fayde.RegisterType(VirtualizingStackPanel, {
-        Name: "VirtualizingStackPanel",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS,
-        Interfaces: [Primitives.IScrollInfo_]
-    });
+    Fayde.RegisterType(VirtualizingStackPanel, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterTypeInterfaces(VirtualizingStackPanel, [Primitives.IScrollInfo_]);
 }

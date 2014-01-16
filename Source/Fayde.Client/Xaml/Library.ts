@@ -46,9 +46,5 @@ module Fayde.Xaml {
             onLoaded(this);
         }
     }
-    Fayde.RegisterType(Library, {
-        Name: "Library",
-        Namespace: "Fayde.Xaml",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Library, "Fayde.Xaml", Fayde.XMLNS);
 }

@@ -36,11 +36,7 @@ class Point implements ICloneable, IPoint {
         return new Point(x, y);
     }
 }
-Fayde.RegisterType(Point, {
-	Name: "Point",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(Point, "window", Fayde.XMLNSX);
 
 Fayde.RegisterTypeConverter(Point, (val: any): Point => {
     if (!val)

@@ -48,11 +48,7 @@ class Thickness implements ICloneable {
             && thickness1.Bottom === thickness2.Bottom;
     }
 }
-Fayde.RegisterType(Thickness, {
-	Name: "Thickness",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(Thickness, "window", Fayde.XMLNSX);
 
 Fayde.RegisterTypeConverter(Thickness, (val: any): Thickness => {
     if (!val)

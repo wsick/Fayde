@@ -55,9 +55,5 @@ module Fayde.Media.Animation {
             this._EasingCached = args.NewValue;
         }
     }
-    Fayde.RegisterType(DoubleAnimation, {
-    	Name: "DoubleAnimation",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(DoubleAnimation, "Fayde.Media.Animation", Fayde.XMLNS);
 }

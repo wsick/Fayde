@@ -24,11 +24,7 @@ module Fayde.Media {
             return color.toString();
         }
     }
-    Fayde.RegisterType(SolidColorBrush, {
-    	Name: "SolidColorBrush",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(SolidColorBrush, "Fayde.Media", Fayde.XMLNS);
 
     function brushConverter(val: any): Brush {
         if (!val)

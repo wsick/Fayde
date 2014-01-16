@@ -26,11 +26,7 @@ module Fayde.Shapes {
             lu.Invalidate();
         }
     }
-    Fayde.RegisterType(Rectangle, {
-        Name: "Rectangle",
-        Namespace: "Fayde.Shapes",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Rectangle, "Fayde.Shapes", Fayde.XMLNS);
 
     export class RectangleLayoutUpdater extends ShapeLayoutUpdater {
         RadiusX: number = 0;

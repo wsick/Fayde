@@ -47,10 +47,7 @@ module Fayde.Controls {
             lu.IsLayoutContainer = false;
         }
     }
-    Fayde.RegisterType(CanvasNode, {
-    	Name: "CanvasNode",
-    	Namespace: "Fayde.Controls"
-    });
+    Fayde.RegisterType(CanvasNode, "Fayde.Controls");
 
     function invalidateTopLeft(d: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
         if (!(d instanceof UIElement))
@@ -99,11 +96,7 @@ module Fayde.Controls {
         static GetLeft(d: DependencyObject): number { return d.GetValue(Canvas.LeftProperty); }
         static SetLeft(d: DependencyObject, value: number) { d.SetValue(Canvas.LeftProperty, value); }
     }
-    Fayde.RegisterType(Canvas, {
-    	Name: "Canvas",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Canvas, "Fayde.Controls", Fayde.XMLNS);
 
     export class CanvasLayoutUpdater extends PanelLayoutUpdater {
         constructor(node: PanelNode) {

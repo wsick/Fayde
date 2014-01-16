@@ -305,9 +305,5 @@ module Fayde.Controls.Primitives {
             return true;
         }
     }
-    Fayde.RegisterType(SelectorSelection, {
-    	Name: "SelectorSelection",
-    	Namespace: "Fayde.Controls.Primitives",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(SelectorSelection, "Fayde.Controls.Primitives", Fayde.XMLNS);
 }

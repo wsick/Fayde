@@ -37,9 +37,5 @@ module Tests.IssueTests {
                 this.AllItems.RemoveAt(0);
         }
     }
-    Fayde.RegisterType(DoubleListBoxViewModel, {
-        Name: "DoubleListBoxViewModel",
-        Namespace: "Tests.IssueTests",
-        XmlNamespace: "folder:Tests/IssueTests"
-    });
+    Fayde.RegisterType(DoubleListBoxViewModel, "Tests.IssueTests", "folder:Tests/IssueTests");
 }

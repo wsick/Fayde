@@ -39,11 +39,7 @@ module Fayde.Xaml {
             Runtime.LoadBatchAsync(loaders, () => onLoaded(this));
         }
     }
-    Fayde.RegisterType(Namespace, {
-        Name: "Namespace",
-        Namespace: "Fayde.Xaml",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Namespace, "Fayde.Xaml", Fayde.XMLNS);
 
 
     export class Source extends DependencyObject implements Runtime.ILoadAsyncable {
@@ -66,11 +62,7 @@ module Fayde.Xaml {
                 this._Resource.LoadAsync(() => onLoaded(this));
         }
     }
-    Fayde.RegisterType(Source, {
-        Name: "Source",
-        Namespace: "Fayde.Xaml",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Source, "Fayde.Xaml", Fayde.XMLNS);
 
     export class XamlSource extends Source {
         static CodeSourcesProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<Source>>("CodeSources", () => XamlObjectCollection, XamlSource);
@@ -104,9 +96,5 @@ module Fayde.Xaml {
             Runtime.LoadBatchAsync(loaders, () => onLoaded(this));
         }
     }
-    Fayde.RegisterType(XamlSource, {
-        Name: "XamlSource",
-        Namespace: "Fayde.Xaml",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(XamlSource, "Fayde.Xaml", Fayde.XMLNS);
 }

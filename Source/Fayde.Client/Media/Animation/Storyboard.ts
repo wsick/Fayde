@@ -136,9 +136,5 @@ module Fayde.Media.Animation {
             return "[" + anims.join(",") + "]";
         }
     }
-    Fayde.RegisterType(Storyboard, {
-    	Name: "Storyboard",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Storyboard, "Fayde.Media.Animation", Fayde.XMLNS);
 }

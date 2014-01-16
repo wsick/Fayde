@@ -278,9 +278,5 @@ module Fayde.Controls.Primitives {
             this.Scroll.Raise(this, args);
         }
     }
-    Fayde.RegisterType(ScrollBar, {
-    	Name: "ScrollBar",
-    	Namespace: "Fayde.Controls.Primitives",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ScrollBar, "Fayde.Controls.Primitives", Fayde.XMLNS);
 }

@@ -26,11 +26,7 @@ module Fayde.Controls {
             return new Controls.GridLength(this.Value, this.Type);
         }
     }
-    Fayde.RegisterType(GridLength, {
-    	Name: "GridLength",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(GridLength, "Fayde.Controls", Fayde.XMLNS);
 
     Fayde.RegisterTypeConverter(GridLength, (val: string): GridLength => {
         if (!val || val.toLowerCase() === "auto")

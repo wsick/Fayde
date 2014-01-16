@@ -22,7 +22,7 @@ class Nullstone {
     static DoesInheritFrom(t: IType, type: any): boolean {
         var temp = t;
         while (temp && temp !== type) {
-            temp = (<any>temp)._BaseClass;
+            temp = (<any>temp).$$parent;
         }
         return temp != null;
     }
@@ -51,12 +51,12 @@ class Nullstone {
             return false;
         var is: IInterfaceDeclaration[];
         do {
-            is = curType._Interfaces;
+            is = curType.$$interfaces;
             if (!is)
                 continue;
             if (is.indexOf(i) > -1)
                 return true;
-        } while (curType = curType._BaseClass);
+        } while (curType = curType.$$parent);
         return false;
     }
 }

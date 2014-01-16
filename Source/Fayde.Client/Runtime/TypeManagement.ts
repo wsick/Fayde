@@ -19,50 +19,41 @@ module Fayde {
         }
     }
 
-    export function RegisterType(type: Function, reg: any) {
-        var t = <any>type;
+    export function RegisterType(type: Function, ns?: string, xmlns?: string) {
+        if (ns) {
+            Object.defineProperty(type, "$$ns", { value: ns, writable: false });
+            var jarr = jsNamespaces[ns];
+            if (!jarr) jarr = jsNamespaces[ns] = [];
+            jarr[name] = type;
+        }
 
-        var name = reg.Name;
-        if (!name)
-            throw new Error("Type Name not specified.");
-        var ns = reg.Namespace;
-        if (!ns)
-            throw new Error("Type Namespace not specified.");
+        var bc = <Function>Object.getPrototypeOf(type.prototype).constructor;
+        Object.defineProperty(type, "$$parent", { value: bc, writable: false });
 
-        var xn = reg.XmlNamespace;
-        if (!xn) xn = "";
-        
-        var i = reg.Interfaces;
-        if (!i) i = [];
-        for (var j = 0, len = i.length; j < len; j++) {
-            if (!i[j]) {
+        RegisterTypeName(type, xmlns);
+    }
+    export function RegisterTypeInterfaces(type: Function, interfaces: IInterfaceDeclaration[]) {
+        if (!interfaces)
+            return;
+        for (var j = 0, len = interfaces.length; j < len; j++) {
+            if (!interfaces[j]) {
                 console.warn("Registering undefined interface on type.", type);
                 break;
             }
         }
-
-        var bc = <Function>Object.getPrototypeOf(type.prototype).constructor;
-
-        Object.defineProperty(t, "_BaseClass", { value: bc, writable: false });
-        Object.defineProperty(t, "_JsNamespace", { value: ns, writable: false });
-        Object.defineProperty(t, "_Interfaces", { value: i, writable: false });
-
-        var jarr = jsNamespaces[ns];
-        if (!jarr) jarr = jsNamespaces[ns] = [];
-        jarr[name] = t;
-
-        RegisterName(type, xn, name);
+        Object.defineProperty(type, "$$interfaces", { value: interfaces, writable: false });
     }
-    export function RegisterName(type: Function, nsName: string, localName?: string) {
+    export function RegisterTypeName(type: Function, xmlns: string, localName?: string) {
         localName = localName || ensureFunctionName(type);
 
-        if (!nsName)
+        if (!xmlns)
             return;
-        Object.defineProperty(type, "$$xmlns", { value: nsName, writable: false });
-        var xarr = xmlNamespaces[nsName];
-        if (!xarr) xarr = xmlNamespaces[nsName] = [];
+        Object.defineProperty(type, "$$xmlns", { value: xmlns, writable: false });
+        var xarr = xmlNamespaces[xmlns];
+        if (!xarr) xarr = xmlNamespaces[xmlns] = [];
         xarr[localName] = type;
     }
+
     export function RegisterEnum(e: any, reg: any) {
         var name = reg.Name;
         var ns = reg.Namespace;
@@ -123,7 +114,7 @@ module Fayde {
             var annotation: any;
             if (anns && (annotation = anns[name]))
                 return annotation;
-            return TypeResolver.GetAnnotation(t._BaseClass, name);
+            return TypeResolver.GetAnnotation(t.$$parent, name);
         },
         Resolve: function (xmlns: string, xmlname: string): ITypeResolution {
             var isSystem = false;

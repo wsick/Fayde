@@ -11,12 +11,8 @@ class TestConverter implements Fayde.Data.IValueConverter {
         return value;
     }
 }
-Fayde.RegisterType(TestConverter, {
-    Name: "TestConverter",
-    Namespace: "window",
-    XmlNamespace: "http://schemas.test.com",
-    Interfaces: [Fayde.Data.IValueConverter_]
-});
+Fayde.RegisterType(TestConverter, "window", "http://schemas.test.com");
+Fayde.RegisterTypeInterfaces(TestConverter, [Fayde.Data.IValueConverter_]);
 
 test("x:Null", () => {
     var xaml = "<Border xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Tag=\"{x:Null}\"></Border>";
