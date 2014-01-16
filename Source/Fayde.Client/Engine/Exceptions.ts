@@ -6,7 +6,7 @@ class Exception {
         this.Message = message;
     }
     toString(): string {
-        var typeName = (<any>this).constructor._TypeName;
+        var typeName = (<any>this).constructor.name;
         if (typeName)
             return typeName + ": " + this.Message;
         return this.Message;

@@ -68,7 +68,7 @@ module Fayde {
             if (!propd)
                 throw new ArgumentException("No property specified.");
             if (propd.IsReadOnly)
-                throw new InvalidOperationException("DependencyProperty '" + (<any>propd.OwnerType)._TypeName + "." + propd.Name + "' is read only.");
+                throw new InvalidOperationException("DependencyProperty '" + (<any>propd.OwnerType).name + "." + propd.Name + "' is read only.");
             this.SetValueInternal(propd, value);
         }
         SetValueInternal(propd: DependencyProperty, value: any) {

@@ -35,9 +35,8 @@ module Fayde {
 
             if (this._IsSealed) {
                 if (!(instance instanceof this.TargetType)) {
-                    //if (!Nullstone.DoesInheritFrom(parentType, style.TargetType)) {
                     error.Number = BError.XamlParse;
-                    error.Message = "Style.TargetType (" + (<any>this.TargetType)._TypeName + ") is not a subclass of (" + (<any>parentType)._TypeName + ")";
+                    error.Message = "Style.TargetType (" + (<any>this.TargetType).name + ") is not a subclass of (" + (<any>parentType).name + ")";
                     return false;
                 }
                 return true;
@@ -70,12 +69,12 @@ module Fayde {
                         return false;
                     } else if (!Nullstone.DoesInheritFrom(parentType, targetType)) {
                         error.Number = BError.XamlParse; 
-                        error.Message = "Style.TargetType (" + (<any>targetType)._TypeName + ") is not a subclass of (" + (<any>parentType)._TypeName + ")";
+                        error.Message = "Style.TargetType (" + (<any>targetType).name + ") is not a subclass of (" + (<any>parentType).name + ")";
                         return false;
                     }
                 } else if (!targetType || !Nullstone.DoesInheritFrom(parentType, targetType)) {
                     error.Number = BError.InvalidOperation;
-                    error.Message = "Style.TargetType (" + (targetType ? (<any>targetType)._TypeName : "<Not Specified>") + ") is not a subclass of (" + (<any>parentType)._TypeName + ")";
+                    error.Message = "Style.TargetType (" + (targetType ? (<any>targetType).name : "<Not Specified>") + ") is not a subclass of (" + (<any>parentType).name + ")";
                     return false;
                 }
                 parentType = targetType;

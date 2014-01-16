@@ -82,7 +82,7 @@ module Fayde {
                 Visual: uie,
                 Children: [],
                 ID: (<any>uie)._ID,
-                TypeName: (<any>uie).constructor._TypeName,
+                TypeName: (<any>uie).constructor.name,
                 Name: uie.Name,
             };
         }
@@ -212,14 +212,14 @@ module Fayde {
                 if (targetType instanceof Enum) {
                     targetType = (<Enum>targetType).Object;
                     targetTypeName = "Enum";
-                    //targetTypeName = targetType ? ("Enum: " + targetType._TypeName) : null;
+                    //targetTypeName = targetType ? ("Enum: " + targetType.name) : null;
                 } else {
-                    targetTypeName = targetType ? targetType._TypeName : null;
+                    targetTypeName = targetType ? targetType.name : null;
                 }
                 return {
                     ID: propd._ID,
                     Name: propd.Name,
-                    OwnerTypeName: ownerType ? ownerType._TypeName : null,
+                    OwnerTypeName: ownerType ? ownerType.name : null,
                     TargetTypeName: targetTypeName,
                     IsReadOnly: propd.IsReadOnly === true,
                     IsAttached: propd.IsAttached === true,

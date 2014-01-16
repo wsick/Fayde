@@ -44,20 +44,24 @@ module Fayde {
         var bc = <Function>Object.getPrototypeOf(type.prototype).constructor;
 
         Object.defineProperty(t, "_BaseClass", { value: bc, writable: false });
-        Object.defineProperty(t, "_TypeName", { value: name, writable: false });
         Object.defineProperty(t, "_JsNamespace", { value: ns, writable: false });
-        Object.defineProperty(t, "_XmlNamespace", { value: xn, writable: false });
         Object.defineProperty(t, "_Interfaces", { value: i, writable: false });
 
         var jarr = jsNamespaces[ns];
         if (!jarr) jarr = jsNamespaces[ns] = [];
         jarr[name] = t;
 
-        if (xn) {
-            var xarr = xmlNamespaces[xn];
-            if (!xarr) xarr = xmlNamespaces[xn] = [];
-            xarr[name] = t;
-        }
+        RegisterName(type, xn, name);
+    }
+    export function RegisterName(type: Function, nsName: string, localName?: string) {
+        localName = localName || ensureFunctionName(type);
+
+        if (!nsName)
+            return;
+        Object.defineProperty(type, "$$xmlns", { value: nsName, writable: false });
+        var xarr = xmlNamespaces[nsName];
+        if (!xarr) xarr = xmlNamespaces[nsName] = [];
+        xarr[localName] = type;
     }
     export function RegisterEnum(e: any, reg: any) {
         var name = reg.Name;
@@ -223,5 +227,16 @@ module Fayde {
     }
     export function RegisterEnumConverter(e: any, converter: (val: any) => any) {
         e.Converter = converter;
+    }
+
+
+    function ensureFunctionName(type: Function): string {
+        var t = <any>type;
+        if (!t)
+            return "";
+        var name = t.name;
+        if (name)
+            return name;
+        return t.name = t.toString().match(/function ([^\(]+)/);
     }
 }

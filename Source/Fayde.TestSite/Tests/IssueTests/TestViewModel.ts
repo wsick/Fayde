@@ -22,7 +22,7 @@ module Tests.IssueTests {
             if (!this || !(this instanceof TestViewModel))
                 alert("ERROR: this is not scoped to TestViewModel.");
             if (e.sender)
-                alert("TestMethod called. [" + e.sender.constructor._TypeName + "]");
+                alert("TestMethod called. [" + e.sender.constructor.name + "]");
             else if (e.parameter)
                 alert("TestMethod called. [" + e.parameter.Name + "]");
         }

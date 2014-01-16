@@ -123,7 +123,7 @@ module Fayde.Media.Animation {
                 animation = enumerator.Current;
                 cur = "";
                 cur += "(";
-                cur += (<any>animation).constructor._TypeName;
+                cur += (<any>animation).constructor.name;
                 cur += ":";
                 cur += Storyboard.GetTargetName(animation);
                 cur += ":";

@@ -227,7 +227,7 @@ class DependencyProperty {
         if (!propd)
             propd = DependencyProperty.GetDependencyProperty((<any>ownerType)._BaseClass, name, true);
         if (!propd && !noError)
-            throw new Exception("Cannot locate dependency property [" + (<any>ownerType)._TypeName + "].[" + name + "]");
+            throw new Exception("Cannot locate dependency property [" + (<any>ownerType).name + "].[" + name + "]");
         return propd;
     }
 }
