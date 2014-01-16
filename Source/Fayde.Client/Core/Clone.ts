@@ -11,7 +11,7 @@ module Fayde {
             return value;
         if (value.Clone instanceof Function)
             return (<ICloneable>value).Clone();
-        return extend({}, value);
+        return extend(new value.constructor(), value);
     }
 
     function extend(obj: any, ...args: any[]): any {
