@@ -145,11 +145,8 @@ module Fayde.Controls {
                 this._ItemsIsDataBound = true;
                 this.$Items.ClearImpl();
 
-                var enumerator: IEnumerator<any>;
-                var en: IEnumerable<any>;
-                if (source instanceof Array) enumerator = ArrayEx.GetEnumerator(<any[]>source);
-                else enumerator = (en = IEnumerable_.As(source)) ? en.GetEnumerator() : null;
-                
+                var en = IEnumerable_.As(source);
+                var enumerator = en ? en.GetEnumerator() : undefined;
                 if (enumerator) {
                     var items = this.$Items;
                     while (enumerator.MoveNext()) {
