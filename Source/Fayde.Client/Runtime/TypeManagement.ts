@@ -25,9 +25,7 @@ module Fayde {
             var type = o.constructor;
             while (type) {
                 var is: IInterfaceDeclaration<any>[] = type.$$interfaces;
-                if (!is)
-                    continue;
-                if (is.indexOf(this) > -1)
+                if (is && is.indexOf(this) > -1)
                     return true;
                 type = GetTypeParent(type);
             }
