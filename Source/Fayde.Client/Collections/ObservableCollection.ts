@@ -84,5 +84,4 @@ module Fayde.Collections {
         }
     }
     Fayde.RegisterType(ObservableCollection, "Fayde.Collections", Fayde.XMLNS);
-    Fayde.RegisterTypeInterfaces(ObservableCollection, [IEnumerable_, INotifyCollectionChanged_, INotifyPropertyChanged_]);
 }

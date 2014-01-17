@@ -461,5 +461,5 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(VirtualizingStackPanel, "Fayde.Controls", Fayde.XMLNS);
-    Fayde.RegisterTypeInterfaces(VirtualizingStackPanel, [Primitives.IScrollInfo_]);
+    Fayde.RegisterTypeInterfaces(VirtualizingStackPanel, Primitives.IScrollInfo_);
 }

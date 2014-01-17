@@ -130,5 +130,4 @@ module Fayde {
         }
     }
     Fayde.RegisterType(ResourceDictionary, "Fayde", Fayde.XMLNS);
-    Fayde.RegisterTypeInterfaces(ResourceDictionary, [IEnumerable_]);
 }

@@ -128,5 +128,4 @@ module Fayde {
         }
     }
     Fayde.RegisterType(XamlObjectCollection, "Fayde");
-    Fayde.RegisterTypeInterfaces(XamlObjectCollection, [IEnumerable_]);
 }

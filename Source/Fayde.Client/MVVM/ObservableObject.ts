@@ -26,5 +26,4 @@ module Fayde.MVVM {
         }
     }
     Fayde.RegisterType(ObservableObject, "Fayde.MVVM", Fayde.XMLNS);
-    Fayde.RegisterTypeInterfaces(ObservableObject, [INotifyPropertyChanged_]);
 }

@@ -15,5 +15,5 @@ module Fayde.MVVM {
         CanExecuteChanged: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
     }
     Fayde.RegisterType(RelayCommand, "Fayde.MVVM", Fayde.XMLNS);
-    Fayde.RegisterTypeInterfaces(RelayCommand, [Input.ICommand_]);
+    Fayde.RegisterTypeInterfaces(RelayCommand, Input.ICommand_);
 }

@@ -48,7 +48,7 @@ module Fayde {
 
         RegisterTypeName(type, xmlns);
     }
-    export function RegisterTypeInterfaces(type: Function, interfaces: IInterfaceDeclaration<any>[]) {
+    export function RegisterTypeInterfaces(type: Function, ...interfaces: IInterfaceDeclaration<any>[]) {
         if (!interfaces)
             return;
         for (var j = 0, len = interfaces.length; j < len; j++) {
