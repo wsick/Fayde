@@ -9,8 +9,8 @@ module Fayde.Collections {
         GetEnumerator(): IEnumerator<T> {
             return ArrayEx.GetEnumerator(this._ht);
         }
-        CollectionChanged: MulticastEvent<NotifyCollectionChangedEventArgs> = new MulticastEvent<NotifyCollectionChangedEventArgs>();
-        PropertyChanged: MulticastEvent<PropertyChangedEventArgs> = new MulticastEvent<PropertyChangedEventArgs>();
+        CollectionChanged = new MulticastEvent<NotifyCollectionChangedEventArgs>();
+        PropertyChanged = new MulticastEvent<PropertyChangedEventArgs>();
 
         get Count(): number { return this._ht.length; }
 
