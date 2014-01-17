@@ -1,6 +1,6 @@
+/// <reference path="../scripts/Fayde.d.ts" />
 var NflDraft;
 (function (NflDraft) {
-    /// <reference path="../scripts/Fayde.d.ts" />
     (function (Resources) {
         var TimeValueConverter = (function () {
             function TimeValueConverter() {
@@ -20,12 +20,8 @@ var NflDraft;
             return TimeValueConverter;
         })();
         Resources.TimeValueConverter = TimeValueConverter;
-        Fayde.RegisterType(TimeValueConverter, {
-            Name: "TimeValueConverter",
-            Namespace: "NflDraft.Resources",
-            XmlNamespace: "folder:Resources",
-            Interfaces: [Fayde.Data.IValueConverter_]
-        });
+        Fayde.RegisterType(TimeValueConverter, "NflDraft.Resources", "folder:Resources");
+        Fayde.RegisterTypeInterfaces(TimeValueConverter, Fayde.Data.IValueConverter_);
     })(NflDraft.Resources || (NflDraft.Resources = {}));
     var Resources = NflDraft.Resources;
 })(NflDraft || (NflDraft = {}));

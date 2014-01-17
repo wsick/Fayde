@@ -10,10 +10,6 @@ module NflDraft.Resources {
             throw NotImplemented("This ValueConverter only does conversion. It cannot convert back.");
         }
     }
-    Fayde.RegisterType(DoubleValueConverter, {
-        Name: "DoubleValueConverter",
-        Namespace: "NflDraft.Resources",
-        XmlNamespace: "folder:Resources",
-        Interfaces: [Fayde.Data.IValueConverter_]
-    });
+    Fayde.RegisterType(DoubleValueConverter, "NflDraft.Resources", "folder:Resources");
+    Fayde.RegisterTypeInterfaces(DoubleValueConverter, Fayde.Data.IValueConverter_);
 }

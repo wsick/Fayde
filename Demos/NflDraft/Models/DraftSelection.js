@@ -1,7 +1,7 @@
+/// <reference path="DraftSpot.ts" />
+/// <reference path="FantasyPlayer.ts" />
 var NflDraft;
 (function (NflDraft) {
-    /// <reference path="DraftSpot.ts" />
-    /// <reference path="FantasyPlayer.ts" />
     (function (Models) {
         var DraftSelection = (function () {
             function DraftSelection() {

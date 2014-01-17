@@ -1,18 +1,26 @@
-interface IInterfaceDeclaration extends IType {
+interface IInterfaceDeclaration<T> extends IType {
     Name: string;
+    Is(o: any): boolean;
+    As(o: any): T;
 }
 interface IType {
 }
 declare module Fayde {
     var XMLNS: string;
     var XMLNSX: string;
-    class Interface implements IInterfaceDeclaration {
+    class Interface<T> implements IInterfaceDeclaration<T> {
         public Name: string;
         constructor(name: string);
+        public Is(o: any): boolean;
+        public As(o: any): T;
     }
-    function RegisterType(type: Function, reg: any): void;
+    function RegisterType(type: Function, ns?: string, xmlns?: string): void;
+    function RegisterTypeInterfaces(type: Function, ...interfaces: IInterfaceDeclaration<any>[]): void;
+    function RegisterTypeName(type: Function, xmlns: string, localName?: string): void;
+    function GetTypeName(type: Function): string;
+    function GetTypeParent(type: Function): Function;
     function RegisterEnum(e: any, reg: any): void;
-    function RegisterInterface(name: string): IInterfaceDeclaration;
+    function RegisterInterface<T>(name: string): IInterfaceDeclaration<T>;
     interface ITypeResolution {
         IsPrimitive: boolean;
         IsSystem: boolean;
@@ -31,12 +39,13 @@ declare module Fayde {
     var TypeResolver: ITypeResolver;
     function ConvertAnyToType(val: any, type: Function): any;
     function RegisterTypeConverter(type: Function, converter: (val: any) => any): void;
+    function RegisterEnumConverter(e: any, converter: (val: any) => any): void;
 }
 declare module Fayde.Collections {
     interface INotifyCollectionChanged {
         CollectionChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
     }
-    var INotifyCollectionChanged_: IInterfaceDeclaration;
+    var INotifyCollectionChanged_: IInterfaceDeclaration<INotifyCollectionChanged>;
 }
 declare class EventArgs {
     static Empty: EventArgs;
@@ -65,12 +74,12 @@ declare module Fayde {
     interface IEnumerable<T> {
         GetEnumerator(reverse?: boolean): IEnumerator<T>;
     }
-    var IEnumerable_: IInterfaceDeclaration;
+    var IEnumerable_: IInterfaceDeclaration<IEnumerable<any>>;
     interface IEnumerator<T> {
         Current: T;
         MoveNext(): boolean;
     }
-    var IEnumerator_: IInterfaceDeclaration;
+    var IEnumerator_: IInterfaceDeclaration<IEnumerator<any>>;
     class ArrayEx {
         static EmptyEnumerator: IEnumerator<any>;
         static AsEnumerable<T>(arr: T[]): IEnumerable<T>;
@@ -89,7 +98,7 @@ declare module Fayde {
     interface INotifyPropertyChanged {
         PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
     }
-    var INotifyPropertyChanged_: IInterfaceDeclaration;
+    var INotifyPropertyChanged_: IInterfaceDeclaration<INotifyPropertyChanged>;
 }
 declare module Fayde.Collections {
     class ObservableCollection<T> implements Fayde.IEnumerable<T>, Collections.INotifyCollectionChanged, Fayde.INotifyPropertyChanged {
@@ -883,7 +892,6 @@ declare class Nullstone {
     static DoesInheritFrom(t: IType, type: any): boolean;
     static GetPropertyDescriptor(obj: any, name: string): PropertyDescriptor;
     static HasProperty(obj: any, name: string): boolean;
-    static ImplementsInterface(obj: any, i: IInterfaceDeclaration): boolean;
 }
 declare function NotImplemented(str: string): void;
 declare function Warn(str: string): void;
@@ -2062,6 +2070,8 @@ declare module Fayde.Controls {
         static PasswordProperty: DependencyProperty;
         static SelectionForegroundProperty: DependencyProperty;
         static SelectionBackgroundProperty: DependencyProperty;
+        static SelectionLengthProperty: DependencyProperty;
+        static SelectionStartProperty: DependencyProperty;
         public BaselineOffset: number;
         public CaretBrush: Fayde.Media.Brush;
         public MaxLength: any;
@@ -2070,6 +2080,8 @@ declare module Fayde.Controls {
         public Password: string;
         public SelectionForeground: Fayde.Media.Brush;
         public SelectionBackground: Fayde.Media.Brush;
+        public SelectionLength: number;
+        public SelectionStart: number;
         public PasswordChangedEvent: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         constructor();
         public DisplayText : string;
@@ -2131,7 +2143,7 @@ declare module Fayde.Controls.Primitives {
         ViewportHeight: number;
         ViewportWidth: number;
     }
-    var IScrollInfo_: IInterfaceDeclaration;
+    var IScrollInfo_: IInterfaceDeclaration<IScrollInfo>;
 }
 declare module Fayde.Controls.Primitives {
     class ItemsChangedEventArgs extends EventArgs {
@@ -2937,7 +2949,7 @@ declare module Fayde {
     interface IEventFilter {
         Filter(sender: any, e: EventArgs, parameter: any): boolean;
     }
-    var IEventFilter_: IInterfaceDeclaration;
+    var IEventFilter_: IInterfaceDeclaration<IEventFilter>;
     class EventBinding implements Fayde.Xaml.IMarkup {
         public CommandBinding: Fayde.Data.Binding;
         public CommandParameterBinding: Fayde.Data.Binding;
@@ -3241,7 +3253,7 @@ declare module Fayde.Data {
         Convert(value: any, targetType: IType, parameter: any, culture: any): any;
         ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any;
     }
-    var IValueConverter_: IInterfaceDeclaration;
+    var IValueConverter_: IInterfaceDeclaration<IValueConverter>;
     class Binding implements Fayde.Xaml.IMarkup {
         private _IsSealed;
         private _StringFormat;
@@ -3360,7 +3372,7 @@ declare module Fayde.Data {
         CurrentItem: any;
         MoveCurrentTo(item: any): boolean;
     }
-    var ICollectionView_: IInterfaceDeclaration;
+    var ICollectionView_: IInterfaceDeclaration<ICollectionView>;
 }
 declare module Fayde.Data {
     class PropertyPath implements ICloneable {
@@ -3427,8 +3439,6 @@ declare module Fayde.Data {
         public Node: IPropertyPathNode;
         public FinalNode: IPropertyPathNode;
         private _Listener;
-        private _Value;
-        public Value : any;
         public IsPathBroken : boolean;
         constructor(path: string, bindDirectlyToSource?: boolean, bindsToView?: boolean, isDataContextBound?: boolean);
         public GetValue(item: any): any;
@@ -3609,6 +3619,7 @@ declare module Fayde {
         private __DebugLayers();
         private __GetById(id);
     }
+    function Run(): void;
 }
 declare module Fayde {
     interface ITimerListener {
@@ -3822,7 +3833,7 @@ declare module Fayde.Input {
         CanExecute(parameter: any): boolean;
         CanExecuteChanged: MulticastEvent<EventArgs>;
     }
-    var ICommand_: IInterfaceDeclaration;
+    var ICommand_: IInterfaceDeclaration<ICommand>;
 }
 declare module Fayde.Input {
     module InteractionHelper {
@@ -6483,7 +6494,7 @@ declare module Fayde.Xaml {
     interface IMarkup {
         Transmute(ctx: ITransmuteContext): Fayde.Expression;
     }
-    var IMarkup_: IInterfaceDeclaration;
+    var IMarkup_: IInterfaceDeclaration<IMarkup>;
     class MarkupExpressionParser {
         static Parse(value: string, ctx: IMarkupParseContext): any;
     }

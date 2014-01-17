@@ -1,6 +1,6 @@
+/// <reference path="../scripts/Fayde.d.ts" />
 var NflDraft;
 (function (NflDraft) {
-    /// <reference path="../scripts/Fayde.d.ts" />
     (function (Resources) {
         var DateValueConverter = (function () {
             function DateValueConverter() {
@@ -16,12 +16,9 @@ var NflDraft;
             return DateValueConverter;
         })();
         Resources.DateValueConverter = DateValueConverter;
-        Fayde.RegisterType(DateValueConverter, {
-            Name: "DateValueConverter",
-            Namespace: "NflDraft.Resources",
-            XmlNamespace: "folder:Resources",
-            Interfaces: [Fayde.Data.IValueConverter_]
-        });
+        Fayde.RegisterType(DateValueConverter, "NflDraft.Resources", "folder:Resources");
+        Fayde.RegisterTypeInterfaces(DateValueConverter, Fayde.Data.IValueConverter_);
     })(NflDraft.Resources || (NflDraft.Resources = {}));
     var Resources = NflDraft.Resources;
 })(NflDraft || (NflDraft = {}));
+//# sourceMappingURL=DateValueConverter.js.map

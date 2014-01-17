@@ -10,10 +10,6 @@ module NflDraft.Resources {
             throw NotImplemented("This ValueConverter only does conversion. It cannot convert back.");
         }
     }
-    Fayde.RegisterType(DateValueConverter, {
-        Name: "DateValueConverter",
-        Namespace: "NflDraft.Resources",
-        XmlNamespace: "folder:Resources",
-        Interfaces: [Fayde.Data.IValueConverter_]
-    });
+    Fayde.RegisterType(DateValueConverter, "NflDraft.Resources", "folder:Resources");
+    Fayde.RegisterTypeInterfaces(DateValueConverter, Fayde.Data.IValueConverter_);
 }

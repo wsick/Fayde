@@ -1,6 +1,6 @@
+/// <reference path="../scripts/Fayde.d.ts" />
 var NflDraft;
 (function (NflDraft) {
-    /// <reference path="../scripts/Fayde.d.ts" />
     (function (Resources) {
         var DoubleValueConverter = (function () {
             function DoubleValueConverter() {
@@ -16,12 +16,8 @@ var NflDraft;
             return DoubleValueConverter;
         })();
         Resources.DoubleValueConverter = DoubleValueConverter;
-        Fayde.RegisterType(DoubleValueConverter, {
-            Name: "DoubleValueConverter",
-            Namespace: "NflDraft.Resources",
-            XmlNamespace: "folder:Resources",
-            Interfaces: [Fayde.Data.IValueConverter_]
-        });
+        Fayde.RegisterType(DoubleValueConverter, "NflDraft.Resources", "folder:Resources");
+        Fayde.RegisterTypeInterfaces(DoubleValueConverter, Fayde.Data.IValueConverter_);
     })(NflDraft.Resources || (NflDraft.Resources = {}));
     var Resources = NflDraft.Resources;
 })(NflDraft || (NflDraft = {}));

@@ -13,10 +13,6 @@ module NflDraft.Resources {
             throw NotImplemented("This ValueConverter only does conversion. It cannot convert back.");
         }
     }
-    Fayde.RegisterType(TimeValueConverter, {
-        Name: "TimeValueConverter",
-        Namespace: "NflDraft.Resources",
-        XmlNamespace: "folder:Resources",
-        Interfaces: [Fayde.Data.IValueConverter_]
-    });
+    Fayde.RegisterType(TimeValueConverter, "NflDraft.Resources", "folder:Resources");
+    Fayde.RegisterTypeInterfaces(TimeValueConverter, Fayde.Data.IValueConverter_);
 }

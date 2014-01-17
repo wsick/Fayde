@@ -297,9 +297,5 @@ module NflDraft.ViewModels {
             }
         }
     }
-    Fayde.RegisterType(DefaultViewModel, {
-        Name: "DefaultViewModel",
-        Namespace: "NflDraft.ViewModels",
-        XmlNamespace: "folder:ViewModels"
-    });
+    Fayde.RegisterType(DefaultViewModel, "NflDraft.ViewModels", "folder:ViewModels");
 }

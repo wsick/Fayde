@@ -1,6 +1,6 @@
+/// <reference path="../scripts/Fayde.d.ts" />
 var NflDraft;
 (function (NflDraft) {
-    /// <reference path="../scripts/Fayde.d.ts" />
     (function (Resources) {
         var AgeValueConverter = (function () {
             function AgeValueConverter() {
@@ -22,12 +22,8 @@ var NflDraft;
             return AgeValueConverter;
         })();
         Resources.AgeValueConverter = AgeValueConverter;
-        Fayde.RegisterType(AgeValueConverter, {
-            Name: "AgeValueConverter",
-            Namespace: "NflDraft.Resources",
-            XmlNamespace: "folder:Resources",
-            Interfaces: [Fayde.Data.IValueConverter_]
-        });
+        Fayde.RegisterType(AgeValueConverter, "NflDraft.Resources", "folder:Resources");
+        Fayde.RegisterTypeInterfaces(AgeValueConverter, Fayde.Data.IValueConverter_);
     })(NflDraft.Resources || (NflDraft.Resources = {}));
     var Resources = NflDraft.Resources;
 })(NflDraft || (NflDraft = {}));

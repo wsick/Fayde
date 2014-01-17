@@ -16,10 +16,6 @@ module NflDraft.Resources {
             throw NotImplemented("This ValueConverter only does conversion. It cannot convert back.");
         }
     }
-    Fayde.RegisterType(AgeValueConverter, {
-        Name: "AgeValueConverter",
-        Namespace: "NflDraft.Resources",
-        XmlNamespace: "folder:Resources",
-        Interfaces: [Fayde.Data.IValueConverter_]
-    });
+    Fayde.RegisterType(AgeValueConverter, "NflDraft.Resources", "folder:Resources");
+    Fayde.RegisterTypeInterfaces(AgeValueConverter, Fayde.Data.IValueConverter_);
 }
