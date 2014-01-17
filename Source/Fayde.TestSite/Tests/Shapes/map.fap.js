@@ -39,11 +39,7 @@ var Fayde;
                     return App;
                 })(Fayde.Application);
                 Shapes.App = App;
-                Fayde.RegisterType(App, {
-                    Name: "App",
-                    Namespace: "Fayde.TestSite.Tests",
-                    XmlNamespace: "http://schemas.wsick.com/fayde/tests"
-                });
+                Fayde.RegisterType(App, "Fayde.TestSite.Tests", "http://schemas.wsick.com/fayde/tests");
             })(Tests.Shapes || (Tests.Shapes = {}));
             var Shapes = Tests.Shapes;
         })(TestSite.Tests || (TestSite.Tests = {}));
