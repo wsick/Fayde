@@ -142,7 +142,7 @@
     <TypeScriptCompile Include="Resources\DoubleValueConverter.ts" />
     <TypeScriptCompile Include="Models\ChatMessage.ts" />
     <TypeScriptCompile Include="Models\FantasyPosition.ts" />
-    <Content Include="Resources\DateValueConverter.ts" />
+    <TypeScriptCompile Include="Resources\DateValueConverter.ts" />
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />
     <Content Include="scripts\Theme.Metro.xml" />
