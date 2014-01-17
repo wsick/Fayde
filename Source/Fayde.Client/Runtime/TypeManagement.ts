@@ -27,9 +27,6 @@ module Fayde {
             jarr[name] = type;
         }
 
-        var bc = <Function>Object.getPrototypeOf(type.prototype).constructor;
-        Object.defineProperty(type, "$$parent", { value: bc, writable: false });
-
         RegisterTypeName(type, xmlns);
     }
     export function RegisterTypeInterfaces(type: Function, interfaces: IInterfaceDeclaration[]) {
@@ -52,6 +49,16 @@ module Fayde {
         var xarr = xmlNamespaces[xmlns];
         if (!xarr) xarr = xmlNamespaces[xmlns] = [];
         xarr[localName] = type;
+    }
+    export function GetTypeParent(type: Function): Function {
+        if (type === Object)
+            return null;
+        var p = (<any>type).$$parent;
+        if (!p) {
+            p = <Function>Object.getPrototypeOf(type.prototype).constructor;
+            Object.defineProperty(type, "$$parent", { value: p, writable: false });
+        }
+        return p;
     }
 
     export function RegisterEnum(e: any, reg: any) {
@@ -114,7 +121,7 @@ module Fayde {
             var annotation: any;
             if (anns && (annotation = anns[name]))
                 return annotation;
-            return TypeResolver.GetAnnotation(t.$$parent, name);
+            return TypeResolver.GetAnnotation(GetTypeParent(t), name);
         },
         Resolve: function (xmlns: string, xmlname: string): ITypeResolution {
             var isSystem = false;

@@ -20,9 +20,9 @@ class Nullstone {
         return false;
     }
     static DoesInheritFrom(t: IType, type: any): boolean {
-        var temp = t;
+        var temp = <Function><any>t;
         while (temp && temp !== type) {
-            temp = (<any>temp).$$parent;
+            temp = Fayde.GetTypeParent(temp);
         }
         return temp != null;
     }
@@ -56,7 +56,7 @@ class Nullstone {
                 continue;
             if (is.indexOf(i) > -1)
                 return true;
-        } while (curType = curType.$$parent);
+        } while (curType = Fayde.GetTypeParent(curType));
         return false;
     }
 }

@@ -225,7 +225,7 @@ class DependencyProperty {
         if (reg)
             propd = reg[name];
         if (!propd)
-            propd = DependencyProperty.GetDependencyProperty((<any>ownerType).$$parent, name, true);
+            propd = DependencyProperty.GetDependencyProperty(Fayde.GetTypeParent(ownerType), name, true);
         if (!propd && !noError)
             throw new Exception("Cannot locate dependency property [" + (<any>ownerType).name + "].[" + name + "]");
         return propd;
