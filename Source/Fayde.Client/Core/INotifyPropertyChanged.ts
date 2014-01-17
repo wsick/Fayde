@@ -15,4 +15,7 @@ module Fayde {
         PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
     }
     export var INotifyPropertyChanged_ = Fayde.RegisterInterface<INotifyPropertyChanged>("INotifyPropertyChanged");
+    INotifyPropertyChanged_.Is = (o: any): boolean => {
+        return o && o.PropertyChanged instanceof MulticastEvent;
+    };
 }
