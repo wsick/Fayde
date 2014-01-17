@@ -33,5 +33,5 @@ module Fayde.Controls.Primitives {
         ViewportHeight: number;
         ViewportWidth: number;
     }
-    export var IScrollInfo_ = Fayde.RegisterInterface("IScrollInfo");
+    export var IScrollInfo_ = Fayde.RegisterInterface<IScrollInfo>("IScrollInfo");
 }

@@ -14,5 +14,5 @@ module Fayde {
     export interface INotifyPropertyChanged {
         PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
     }
-    export var INotifyPropertyChanged_ = Fayde.RegisterInterface("INotifyPropertyChanged");
+    export var INotifyPropertyChanged_ = Fayde.RegisterInterface<INotifyPropertyChanged>("INotifyPropertyChanged");
 }

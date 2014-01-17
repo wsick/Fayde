@@ -6,5 +6,5 @@ module Fayde.Data {
         CurrentItem: any;
         MoveCurrentTo(item: any): boolean;
     }
-    export var ICollectionView_ = Fayde.RegisterInterface("ICollectionView");
+    export var ICollectionView_ = Fayde.RegisterInterface<ICollectionView>("ICollectionView");
 }

@@ -1,6 +1,8 @@
 
-interface IInterfaceDeclaration extends IType {
+interface IInterfaceDeclaration<T> extends IType {
     Name: string;
+    Is(o: any): boolean;
+    As(o: any): T;
 }
 interface IType {
 }
@@ -12,10 +14,29 @@ module Fayde {
     var jsNamespaces: any[][] = [];
     var xmlNamespaces: any[][] = [];
 
-    export class Interface implements IInterfaceDeclaration {
+    export class Interface<T> implements IInterfaceDeclaration<T> {
         Name: string;
         constructor(name: string) {
             Object.defineProperty(this, "Name", { value: name, writable: false });
+        }
+        Is(o: any): boolean {
+            if (!o)
+                return false;
+            var type = o.constructor;
+            while (type) {
+                var is: IInterfaceDeclaration<any>[] = type.$$interfaces;
+                if (!is)
+                    continue;
+                if (is.indexOf(this) > -1)
+                    return true;
+                type = GetTypeParent(type);
+            }
+            return false;
+        }
+        As(o: any): T {
+            if (!this.Is(o))
+                return;
+            return <T>o;
         }
     }
 
@@ -29,7 +50,7 @@ module Fayde {
 
         RegisterTypeName(type, xmlns);
     }
-    export function RegisterTypeInterfaces(type: Function, interfaces: IInterfaceDeclaration[]) {
+    export function RegisterTypeInterfaces(type: Function, interfaces: IInterfaceDeclaration<any>[]) {
         if (!interfaces)
             return;
         for (var j = 0, len = interfaces.length; j < len; j++) {
@@ -87,8 +108,8 @@ module Fayde {
             xarr[name] = e;
         }
     }
-    export function RegisterInterface(name: string): IInterfaceDeclaration {
-        return new Interface(name);
+    export function RegisterInterface<T>(name: string): IInterfaceDeclaration<T> {
+        return new Interface<T>(name);
     }
     var PRIMITIVE_MAPPINGS = [];
     PRIMITIVE_MAPPINGS["String"] = String;

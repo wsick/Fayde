@@ -4,7 +4,7 @@ module Fayde {
     export interface IEventFilter {
         Filter(sender: any, e: EventArgs, parameter: any): boolean;
     }
-    export var IEventFilter_ = Fayde.RegisterInterface("IEventFilter");
+    export var IEventFilter_ = Fayde.RegisterInterface<IEventFilter>("IEventFilter");
 
     export class EventBinding implements Xaml.IMarkup {
         CommandBinding: Data.Binding = null;

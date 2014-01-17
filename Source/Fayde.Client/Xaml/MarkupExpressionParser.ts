@@ -17,7 +17,7 @@ module Fayde.Xaml {
     export interface IMarkup {
         Transmute(ctx: ITransmuteContext): Expression;
     }
-    export var IMarkup_ = Fayde.RegisterInterface("IMarkup");
+    export var IMarkup_ = Fayde.RegisterInterface<IMarkup>("IMarkup");
     interface IInnerExpressionValue {
         strVal: string;
         objVal: string;
