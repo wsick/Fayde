@@ -41,7 +41,7 @@ module Fayde {
         Object.defineProperty(type, "$$interfaces", { value: interfaces, writable: false });
     }
     export function RegisterTypeName(type: Function, xmlns: string, localName?: string) {
-        localName = localName || ensureFunctionName(type);
+        localName = localName || GetTypeName(type);
 
         if (!xmlns)
             return;
@@ -49,6 +49,15 @@ module Fayde {
         var xarr = xmlNamespaces[xmlns];
         if (!xarr) xarr = xmlNamespaces[xmlns] = [];
         xarr[localName] = type;
+    }
+    export function GetTypeName(type: Function): string {
+        var t = <any>type;
+        if (!t)
+            return "";
+        var name = t.name;
+        if (name)
+            return name;
+        return t.name = t.toString().match(/function ([^\(]+)/);
     }
     export function GetTypeParent(type: Function): Function {
         if (type === Object)
@@ -225,16 +234,5 @@ module Fayde {
     }
     export function RegisterEnumConverter(e: any, converter: (val: any) => any) {
         e.Converter = converter;
-    }
-
-
-    function ensureFunctionName(type: Function): string {
-        var t = <any>type;
-        if (!t)
-            return "";
-        var name = t.name;
-        if (name)
-            return name;
-        return t.name = t.toString().match(/function ([^\(]+)/);
     }
 }
