@@ -24,7 +24,7 @@ module Fayde.Controls.Primitives {
         private _SelectedValueWalker: Data.PropertyPathWalker = null;
 
         private get SynchronizeWithCurrentItem(): boolean {
-            if (!Nullstone.ImplementsInterface(this.ItemsSource, Data.ICollectionView_))
+            if (!Data.ICollectionView_.Is(this.ItemsSource))
                 return false;
             return this.IsSynchronizedWithCurrentItem !== false;
         }
@@ -44,10 +44,11 @@ module Fayde.Controls.Primitives {
             if (args.NewValue === true)
                 throw new ArgumentException("Setting IsSynchronizedWithCurrentItem to 'true' is not supported");
 
-            if (args.NewValue == null && Nullstone.ImplementsInterface(this.ItemsSource, Data.ICollectionView_))
-                this.SelectedItem = (<Data.ICollectionView>this.ItemsSource).CurrentItem;
-            else
-                this.SelectedItem = null;
+            if (args.NewValue != null)
+                return this.SelectedItem = null;
+            var icv = Data.ICollectionView_.As(this.ItemsSource);
+            if (icv)
+                this.SelectedItem = icv.CurrentItem;
         }
         private _OnSelectedIndexChanged(args: IDependencyPropertyChangedEventArgs) {
             if (this._Selection.IsUpdating || this._Initializing)
@@ -115,10 +116,10 @@ module Fayde.Controls.Primitives {
                     }
                     break;
                 case Collections.NotifyCollectionChangedAction.Reset:
-                    var o;
-                    var itemsSource = this.ItemsSource;
-                    if (Nullstone.ImplementsInterface(itemsSource, Data.ICollectionView_) && this.SynchronizeWithCurrentItem)
-                        o = (<Data.ICollectionView>itemsSource).CurrentItem;
+                    var o: any;
+                    var icv = Data.ICollectionView_.As(this.ItemsSource);
+                    if (icv && this.SynchronizeWithCurrentItem)
+                        o = icv.CurrentItem;
                     else
                         o = this.SelectedItem;
                     if (this.Items.Contains(o))
@@ -146,12 +147,11 @@ module Fayde.Controls.Primitives {
         OnItemsSourceChanged(args: IDependencyPropertyChangedEventArgs) {
             super.OnItemsSourceChanged(args);
 
-            var view: Data.ICollectionView;
-            if (Nullstone.ImplementsInterface(args.OldValue, Data.ICollectionView_)) view = args.OldValue;
+            var view = Data.ICollectionView_.As(args.OldValue);
             if (view)
                 view.CurrentChanged.Unsubscribe(this._OnCurrentItemChanged, this);
-
-            if (Nullstone.ImplementsInterface(args.NewValue, Data.ICollectionView_)) view = args.NewValue;
+            
+            view = Data.ICollectionView_.As(args.NewValue);
             if (view) {
                 view.CurrentChanged.Subscribe(this._OnCurrentItemChanged, this);
                 if (this.SynchronizeWithCurrentItem)

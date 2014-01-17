@@ -4,13 +4,13 @@ module Fayde {
     export interface IEnumerable<T> {
         GetEnumerator(reverse?: boolean): IEnumerator<T>;
     }
-    export var IEnumerable_ = Fayde.RegisterInterface<IEnumerable>("IEnumerable");
+    export var IEnumerable_ = Fayde.RegisterInterface<IEnumerable<any>>("IEnumerable");
 
     export interface IEnumerator<T> {
         Current: T;
         MoveNext(): boolean;
     }
-    export var IEnumerator_ = Fayde.RegisterInterface<IEnumerator>("IEnumerator");
+    export var IEnumerator_ = Fayde.RegisterInterface<IEnumerator<any>>("IEnumerator");
 
     export class ArrayEx {
         static EmptyEnumerator: IEnumerator<any> = {

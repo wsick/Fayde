@@ -131,24 +131,24 @@ module Fayde.Controls {
         }
 
         OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs) {
-            if (!e.OldValue && Nullstone.ImplementsInterface(e.OldValue, Collections.INotifyCollectionChanged_)) {
-                (<Collections.INotifyCollectionChanged>e.OldValue).CollectionChanged.Unsubscribe(this._CollectionChanged, this);
-            }
+            var cc = Collections.INotifyCollectionChanged_.As(e.OldValue);
+            if (cc)
+                cc.CollectionChanged.Unsubscribe(this._CollectionChanged, this);
 
             if (e.NewValue != null) {
                 var source = e.NewValue;
-                if (Nullstone.ImplementsInterface(source, Collections.INotifyCollectionChanged_)) {
-                    (<Collections.INotifyCollectionChanged>source).CollectionChanged.Subscribe(this._CollectionChanged, this);
-                }
+                cc = Collections.INotifyCollectionChanged_.As(source);
+                if (cc)
+                    cc.CollectionChanged.Subscribe(this._CollectionChanged, this);
 
                 this.$Items.IsReadOnly = true;
                 this._ItemsIsDataBound = true;
                 this.$Items.ClearImpl();
 
                 var enumerator: IEnumerator<any>;
+                var en: IEnumerable<any>;
                 if (source instanceof Array) enumerator = ArrayEx.GetEnumerator(<any[]>source);
-                else if (source instanceof XamlObjectCollection) enumerator = (<XamlObjectCollection<any>>source).GetEnumerator();
-                else if (Nullstone.ImplementsInterface(source, IEnumerable_)) enumerator = (<IEnumerable<any>>source).GetEnumerator();
+                else enumerator = (en = IEnumerable_.As(source)) ? en.GetEnumerator() : null;
                 
                 if (enumerator) {
                     var items = this.$Items;

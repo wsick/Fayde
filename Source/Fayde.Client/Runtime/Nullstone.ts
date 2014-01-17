@@ -43,22 +43,6 @@ class Nullstone {
         var type = obj.constructor;
         return type.prototype.hasOwnProperty(name);
     }
-    static ImplementsInterface(obj: any, i: IInterfaceDeclaration<any>): boolean {
-        if (!obj)
-            return false;
-        var curType: any = obj.constructor;
-        if (!curType)
-            return false;
-        var is: IInterfaceDeclaration<any>[];
-        do {
-            is = curType.$$interfaces;
-            if (!is)
-                continue;
-            if (is.indexOf(i) > -1)
-                return true;
-        } while (curType = Fayde.GetTypeParent(curType));
-        return false;
-    }
 }
 
 function NotImplemented(str: string) {

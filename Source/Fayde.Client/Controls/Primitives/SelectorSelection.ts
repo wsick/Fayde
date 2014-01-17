@@ -295,9 +295,7 @@ module Fayde.Controls.Primitives {
             this.UpdateCollectionView(item);
         }
         UpdateCollectionView(item: any) {
-            var icv: Data.ICollectionView;
-            var is = this._Owner.ItemsSource;
-            if (Nullstone.ImplementsInterface(is, Data.ICollectionView_)) icv = <Data.ICollectionView>is;
+            var icv = Data.ICollectionView_.As(this._Owner.ItemsSource);
             if (icv) {
                 icv.MoveCurrentTo(item);
                 return item === icv.CurrentItem;

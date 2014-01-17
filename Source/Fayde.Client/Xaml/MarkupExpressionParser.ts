@@ -365,9 +365,8 @@ module Fayde.Xaml {
     };
 
     bindingPropertyFuncs["Converter"] = function (binding: Data.Binding, key: string, oVal: any, strVal: string) {
-        if (!Nullstone.ImplementsInterface(oVal, Data.IValueConverter_))
+        if (oVal != null && !(binding.Converter = Data.IValueConverter_.As(oVal)))
             throw new Exception("Binding Converter must implement IValueConverter.");
-        binding.Converter = oVal;
     };
 
     bindingPropertyFuncs["ConverterCulture"] = function (binding: Data.Binding, key: string, oVal: any, strVal: string) {
@@ -392,8 +391,7 @@ module Fayde.Xaml {
             binding.CommandParameterBinding = oVal;
     };
     eventBindingPropertyFuncs["Filter"] = function (binding: EventBinding, key: string, oVal: any, strVal: string) {
-        if (!Nullstone.ImplementsInterface(oVal, Fayde.IEventFilter_))
+        if (oVal != null && !(binding.Filter = Fayde.IEventFilter_.As(oVal)))
             throw new Exception("EventBinding Filter must implement IEventFilter.");
-        binding.Filter = oVal;
     };
 }

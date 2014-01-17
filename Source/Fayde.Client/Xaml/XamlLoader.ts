@@ -239,7 +239,7 @@ module Fayde.Xaml {
                         return result;
                     }
                     if (result) {
-                        if (tt instanceof Interface && Nullstone.ImplementsInterface(result, <Interface>tt)) {
+                        if (tt instanceof Interface && (<Interface<any>>tt).Is(result)) {
                             return result;
                         } else if (tt instanceof Enum) {
                         } else if (tt === Object) {

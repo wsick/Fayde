@@ -103,16 +103,9 @@ module Fayde.Controls {
                 return;
 
             var content = this.Content;
-            var info: Primitives.IScrollInfo;
-            if (Nullstone.ImplementsInterface(content, Primitives.IScrollInfo_))
-                info = content;
-            if (!info) {
-                if (content instanceof ItemsPresenter) {
-                    var presenter = <ItemsPresenter>content;
-                    var er = presenter.ElementRoot;
-                    if (Nullstone.ImplementsInterface(er, Primitives.IScrollInfo_))
-                        info = <Primitives.IScrollInfo><any>er;
-                }
+            var info = Primitives.IScrollInfo_.As(content);
+            if (!info && content instanceof ItemsPresenter) {
+                info = Primitives.IScrollInfo_.As((<ItemsPresenter>content).ElementRoot);
             }
 
             if (!info)

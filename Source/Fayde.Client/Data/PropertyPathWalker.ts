@@ -159,15 +159,15 @@ module Fayde.Data {
         SetValue(value: any) { throw new Exception("No override for abstract method: PropertyPathNode.SetValue"); }
 
         SetSource(value: any) {
-            if (value == null || !Nullstone.Equals(value, this._Source)) {
+            if (value == null || value !== this._Source) {
                 var oldSource = this._Source;
-                if (oldSource && Nullstone.ImplementsInterface(oldSource, INotifyPropertyChanged_))
-                    (<INotifyPropertyChanged>oldSource).PropertyChanged.Unsubscribe(this.OnSourcePropertyChanged, this);
-
+                var npc = INotifyPropertyChanged_.As(oldSource);
+                if (npc)
+                    npc.PropertyChanged.Unsubscribe(this.OnSourcePropertyChanged, this);
                 this._Source = value;
-                if (this._Source && Nullstone.ImplementsInterface(this._Source, INotifyPropertyChanged_)) {
-                    (<INotifyPropertyChanged>this._Source).PropertyChanged.Subscribe(this.OnSourcePropertyChanged, this);
-                }
+                npc = INotifyPropertyChanged_.As(this._Source);
+                if (npc)
+                    npc.PropertyChanged.Subscribe(this.OnSourcePropertyChanged, this);
 
                 this.OnSourceChanged(oldSource, this._Source);
                 this.UpdateValue();
@@ -317,8 +317,8 @@ module Fayde.Data {
                 var view: ICollectionView;
                 if (src instanceof CollectionViewSource)
                     src = view = src.View;
-                else if (Nullstone.ImplementsInterface(src, ICollectionView_))
-                    view = <ICollectionView>src;
+                else
+                    view = ICollectionView_.As(src);
                 if (view && !this.BindToView)
                     src = view.CurrentItem;
             }
@@ -332,11 +332,9 @@ module Fayde.Data {
                 this._ViewPropertyListener = CollectionViewSource.ViewProperty.Store.ListenToChanged(source, CollectionViewSource.ViewProperty, this.ViewChanged, this);
                 view = source.View;
             }
-            if (Nullstone.ImplementsInterface(view, ICollectionView_)) {
-                this._View = view;
+            this._View = ICollectionView_.As(view);
+            if (this._View)
                 this._View.CurrentChanged.Subscribe(this.ViewCurrentChanged, this);
-            }
-
         }
         DisconnectViewHandlers(onlyView?: boolean) {
             if (!onlyView)
@@ -401,11 +399,13 @@ module Fayde.Data {
         OnSourceChanged(oldSource: any, newSource: any) {
             super.OnSourceChanged(oldSource, newSource);
 
-            if (Nullstone.ImplementsInterface(oldSource, Collections.INotifyCollectionChanged_))
-                (<Collections.INotifyCollectionChanged>oldSource).CollectionChanged.Unsubscribe(this.CollectionChanged, this);
+            var cc = Collections.INotifyCollectionChanged_.As(oldSource);
+            if (cc)
+                cc.CollectionChanged.Unsubscribe(this.CollectionChanged, this);
 
-            if (Nullstone.ImplementsInterface(newSource, Collections.INotifyCollectionChanged_))
-                (<Collections.INotifyCollectionChanged>newSource).CollectionChanged.Subscribe(this.CollectionChanged, this);
+            cc = Collections.INotifyCollectionChanged_.As(newSource);
+            if (cc)
+                cc.CollectionChanged.Subscribe(this.CollectionChanged, this);
 
             this._GetIndexer();
         }
