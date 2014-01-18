@@ -94,6 +94,7 @@
     <Content Include="Tests\IssueTests\DoubleListBoxViewModel.js" />
     <None Include="Tests\IssueTests\observablecoll-count.fap" />
     <Content Include="Tests\IssueTests\TestViewModel.js" />
+    <TypeScriptCompile Include="Tests\main.ts" />
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -115,6 +116,8 @@
     <Content Include="Tests\Path\quad-bezier.html" />
     <Content Include="Tests\Path\util.js" />
     <TypeScriptCompile Include="Tests\Shapes\map.fap.ts" />
+    <Content Include="scripts\require.d.ts" />
+    <Content Include="scripts\require.js" />
     <Content Include="Tests\Shapes\shape-stretch.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -160,6 +163,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Tests\test.aspx" />
+    <Content Include="scripts\text.js" />
     <Content Include="xamlload.html" />
     <Content Include="Tests\IssueTests\double-listbox.fap">
       <SubType>Designer</SubType>
