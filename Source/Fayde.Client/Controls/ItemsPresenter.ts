@@ -4,15 +4,15 @@
 
 module Fayde.Controls {
     var spxd = new Xaml.XamlDocument("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>");
-    var spft = <ItemsPanelTemplate>Xaml.Load(spxd.Document);
+    var spft: ItemsPanelTemplate;
 
     var vspxd = new Xaml.XamlDocument("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>");
-    var vspft = <ItemsPanelTemplate>Xaml.Load(vspxd.Document);
+    var vspft: ItemsPanelTemplate;
 
     function getFallbackTemplate(ic: ItemsControl): ItemsPanelTemplate {
         if (ic instanceof ListBox)
-            return vspft;
-        return spft;
+            return vspft = vspft || <ItemsPanelTemplate>Xaml.Load(vspxd.Document);
+        return spft = spft || <ItemsPanelTemplate>Xaml.Load(spxd.Document);
     }
 
     export class ItemsPresenterNode extends FENode {

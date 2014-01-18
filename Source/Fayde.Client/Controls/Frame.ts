@@ -4,8 +4,11 @@
 /// <reference path="Page.ts" />
 
 module Fayde.Controls {
-    var errorxd = new Xaml.XamlDocument("<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\"><TextBlock Text=\"An error occurred navigating.\" /></Page>");
-    var errorPage = <Page>Xaml.Load(errorxd.Document);
+    var errorxd = new Xaml.XamlDocument("<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" Title=\"Error\"><TextBlock Text=\"An error occurred navigating.\" /></Page>");
+    var errorPage: Page;
+    function getErrorPage(): Page {
+        return errorPage = errorPage || <Page>Xaml.Load(errorxd.Document);
+    }
 
     export class Frame extends ContentControl {
         static IsDeepLinkedProperty: DependencyProperty = DependencyProperty.Register("IsDeepLinked", () => Boolean, Frame, true);
@@ -73,17 +76,17 @@ module Fayde.Controls {
         private _HandleSuccess(xo: XamlObject) {
             if (!(xo instanceof Page))
                 return this._HandleError("Xaml must be a Page.");
-            var page = <Page>xo;
-            this.Content = page;
-            document.title = page.Title;
+            this._SetPage(<Page>xo);
             TimelineProfile.Navigate(false);
             TimelineProfile.IsNextLayoutPassProfiled = true;
         }
         private _HandleError(error: string) {
-            document.title = "Error";
-            errorPage.DataContext = error;
-            this.Content = errorPage;
+            this._SetPage(getErrorPage());
             TimelineProfile.Navigate(false);
+        }
+        private _SetPage(page: Page) {
+            document.title = page.Title;
+            this.Content = page;
         }
 
         private SourcePropertyChanged(args: IDependencyPropertyChangedEventArgs) {

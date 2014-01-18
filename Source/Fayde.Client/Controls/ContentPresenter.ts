@@ -4,7 +4,10 @@
 
 module Fayde.Controls {
     var fxd = new Xaml.XamlDocument("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
-    var fallbackTemplate = <DataTemplate>Xaml.Load(fxd.Document);
+    var fallbackTemplate: DataTemplate;
+    function getFallbackTemplate(): DataTemplate {
+        return fallbackTemplate = fallbackTemplate || <DataTemplate>Xaml.Load(fxd.Document);
+    }
 
     export class ContentPresenterNode extends FENode {
         private _ContentRoot: UIElement;
@@ -38,7 +41,7 @@ module Fayde.Controls {
             if (content instanceof UIElement)
                 this._ContentRoot = content;
             else
-                this._ContentRoot = (xobj.ContentTemplate || fallbackTemplate).GetVisualTree(xobj);
+                this._ContentRoot = (xobj.ContentTemplate || getFallbackTemplate()).GetVisualTree(xobj);
 
             if (!this._ContentRoot)
                 return false;
