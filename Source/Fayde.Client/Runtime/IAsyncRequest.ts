@@ -1,11 +1,11 @@
-interface IPromise<T> {
-    success(callback: (result: T) => void): IPromise<T>;
-    error(callback: (error: any) => void): IPromise<T>;
+interface IAsyncRequest<T> {
+    success(callback: (result: T) => void): IAsyncRequest<T>;
+    error(callback: (error: any) => void): IAsyncRequest<T>;
 }
 interface IDeferrable<T> {
     resolve: (result: T) => void;
     reject: (error: any) => void;
-    promise: IPromise<T>;
+    promise: IAsyncRequest<T>;
 }
 function defer<T>(): IDeferrable<T> {
     var resolved = false;
@@ -15,13 +15,13 @@ function defer<T>(): IDeferrable<T> {
 
     var s: (result: T) => void;
     var e: (error: any) => void;
-    var p: IPromise<T> = {
-        success: function (callback: (result: T) => void): IPromise<T> {
+    var p: IAsyncRequest<T> = {
+        success: function (callback: (result: T) => void): IAsyncRequest<T> {
             s = callback;
             if (resolved) callback(resolvedobj);
             return this;
         },
-        error: function (callback: (error: any) => void): IPromise<T> {
+        error: function (callback: (error: any) => void): IAsyncRequest<T> {
             e = callback;
             if (errored) callback(errorobj);
             return this;

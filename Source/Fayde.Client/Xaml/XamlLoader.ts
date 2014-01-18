@@ -40,9 +40,9 @@ module Fayde.Xaml {
         TemplateBindingSource: DependencyObject;
     }
 
-    export function LoadAsync(xaml: string): IPromise<XamlObject>;
-    export function LoadAsync(doc: Document): IPromise<XamlObject>;
-    export function LoadAsync(o: any): IPromise<XamlObject> {
+    export function LoadAsync(xaml: string): IAsyncRequest<XamlObject>;
+    export function LoadAsync(doc: Document): IAsyncRequest<XamlObject>;
+    export function LoadAsync(o: any): IAsyncRequest<XamlObject> {
         var doc: Document;
         if (typeof o === "string")
             doc = parser.parseFromString(<string>o, "text/xml");
