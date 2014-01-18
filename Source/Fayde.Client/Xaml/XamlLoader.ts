@@ -52,6 +52,7 @@ module Fayde.Xaml {
         var deps = CollectDependencies(doc);
         var d = defer<XamlObject>();
         require(deps, () => {
+            //TODO: recursively resolve all xamls
             d.resolve(Load(doc));
         });
         return d.promise;
