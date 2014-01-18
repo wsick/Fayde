@@ -18,6 +18,7 @@
   <ItemGroup>
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />
+    <Content Include="scripts\require.d.ts" />
     <Content Include="scripts\Theme.Metro.xml" />
     <Content Include="scripts\Theme.Silverlight.xml" />
     <Content Include="XamlLoadTests.js">

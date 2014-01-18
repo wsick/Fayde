@@ -42,7 +42,7 @@ module Fayde.Xaml {
         }
 
         private _OnLoaded(onLoaded: (state: any) => void) {
-            this._ResourceDictionary = <ResourceDictionary>Xaml.LoadDocument(this._GenericXaml.Document);
+            this._ResourceDictionary = <ResourceDictionary>Xaml.Load(this._GenericXaml.Document);
             onLoaded(this);
         }
     }

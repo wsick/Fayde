@@ -73,10 +73,10 @@ module Fayde.Controls {
                 throw new InvalidOperationException("Cannot resolve empty url.");
             this._PageResolver = Xaml.PageResolver.Resolve(target, (xaml) => this._HandleSuccess(xaml), (error) => this._HandleError(error));
         }
-        private _HandleSuccess(xaml: Document) {
+        private _HandleSuccess(doc: Document) {
             this._PageResolver = null;
             TimelineProfile.Parse(true, "Page");
-            var page = <Page>Xaml.LoadDocument(xaml);
+            var page = <Page>Xaml.Load(doc);
             TimelineProfile.Parse(false, "Page");
             this.Content = page;
             document.title = page.Title;

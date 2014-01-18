@@ -1,4 +1,5 @@
 /// <reference path="../Core/XamlObject.ts" />
+/// <reference path="../require.d.ts" />
 
 module Fayde.Xaml {
     var parser = new DOMParser();
@@ -38,20 +39,33 @@ module Fayde.Xaml {
         ObjectStack: any[];
         TemplateBindingSource: DependencyObject;
     }
-    export function Load(xaml: string): XamlObject {
-        var ctx: IXamlLoadContext = {
-            Document: parser.parseFromString(xaml, "text/xml"),
-            ResourceChain: [],
-            NameScope: new NameScope(true),
-            ObjectStack: [],
-            TemplateBindingSource: null,
-        };
-        validateDocument(ctx.Document);
-        var xo = <XamlObject>createObject(ctx.Document.documentElement, ctx);
-        xo.XamlNode.NameScope = ctx.NameScope;
-        return xo;
+
+    export function LoadAsync(xaml: string): IPromise<XamlObject>;
+    export function LoadAsync(doc: Document): IPromise<XamlObject>;
+    export function LoadAsync(o: any): IPromise<XamlObject> {
+        var doc: Document;
+        if (typeof o === "string")
+            doc = parser.parseFromString(<string>o, "text/xml");
+        else if (o instanceof Document)
+            doc = <Document>o;
+
+        var deps = CollectDependencies(doc);
+        var d = defer<XamlObject>();
+        require(deps, () => {
+            d.resolve(Load(doc));
+        });
+        return d.promise;
     }
-    export function LoadDocument(doc: Document): XamlObject {
+
+    export function Load(xaml: string): XamlObject;
+    export function Load(doc: Document): XamlObject;
+    export function Load(o: any): XamlObject {
+        var doc: Document;
+        if (typeof o === "string")
+            doc = parser.parseFromString(<string>o, "text/xml");
+        else if (o instanceof Document)
+            doc = <Document>o;
+
         var ctx: IXamlLoadContext = {
             Document: doc,
             ResourceChain: [],
@@ -64,6 +78,7 @@ module Fayde.Xaml {
         xo.XamlNode.NameScope = ctx.NameScope;
         return xo;
     }
+
     function createObject(el: Element, ctx: IXamlLoadContext): any {
         var resolution = TypeResolver.Resolve(el.namespaceURI, el.localName);
         if (resolution === undefined)
