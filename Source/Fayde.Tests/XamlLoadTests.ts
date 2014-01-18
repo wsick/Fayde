@@ -295,3 +295,17 @@ test("Events", () => {
     button.Click.Raise(button, new Fayde.RoutedEventArgs());
     ok(tc.CallbackFired, "Raise");
 });
+
+test("DependencyCollector", () => {
+    var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" xmlns:test=\"testfolder\">"
+        + "<test:SomeControl test:SomeClass.SomeProperty=\"3\">"
+        + "<test:SomeControl.SubProperty></test:SomeControl.SubProperty>"
+        + "</test:SomeControl>"
+        + "</Grid>";
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(xaml, "text/xml");
+    var deps = Fayde.Xaml.CollectDependencies(doc);
+    strictEqual(deps.length, 2, "#1");
+    ok(deps.indexOf("testfolder/SomeControl") > -1, "#2");
+    ok(deps.indexOf("testfolder/SomeClass") > -1, "#3");
+});

@@ -16,6 +16,7 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Xaml\DependencyCollector.ts" />
     <TypeScriptCompile Include="Collections\INotifyCollectionChanged.ts" />
     <TypeScriptCompile Include="Collections\NotifyCollectionChangedEventArgs.ts" />
     <TypeScriptCompile Include="Collections\ObservableCollection.ts" />
@@ -295,6 +296,8 @@
     <TypeScriptCompile Include="Path\RectRoundedFull.ts" />
     <TypeScriptCompile Include="Path\Ellipse.ts" />
     <TypeScriptCompile Include="Primitives\Vector.ts" />
+    <TypeScriptCompile Include="Runtime\IPromise.ts" />
+    <Content Include="require.d.ts" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />
     <TypeScriptCompile Include="Xaml\Library.ts" />
