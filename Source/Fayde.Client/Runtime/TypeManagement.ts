@@ -139,6 +139,7 @@ module Fayde {
         GetAnnotation(type: Function, name: string): any;
         Resolve(xmlns: string, xmlname: string): ITypeResolution;
         ResolveFullyQualifiedName(xmlname: string, resolver: INamespacePrefixResolver): ITypeResolution;
+        FormatXmlTypeName(nsUri: string, localName: string): string;
     }
     export var TypeResolver: ITypeResolver = {
         GetAnnotation: function (type: Function, name: string): any {
@@ -179,12 +180,13 @@ module Fayde {
                 }
                 isSimple = SIMPLES[xmlname] === true;
             }
+            var t: any;
             var xarr = xmlNamespaces[xmlns];
-            if (xarr) {
-                var t = xarr[xmlname];
-                if (t)
-                    return { IsSystem: isSystem, IsPrimitive: false, IsSimple: isSimple, IsEnum: t.IsEnum === true, Type: t };
-            }
+            if (xarr)
+                t = xarr[xmlname];
+            t = t || require(this.FormatXmlTypeName(xmlns, xmlname));
+            if (t)
+                return { IsSystem: isSystem, IsPrimitive: false, IsSimple: isSimple, IsEnum: t.IsEnum === true, Type: t };
             return undefined;
         },
         ResolveFullyQualifiedName: function (xmlname: string, resolver: INamespacePrefixResolver): ITypeResolution {
@@ -196,6 +198,9 @@ module Fayde {
                 typeName = tokens[1];
             }
             return TypeResolver.Resolve(ns, typeName);
+        },
+        FormatXmlTypeName: function (nsUri: string, localName: string): string {
+            return nsUri + "/" + localName;
         }
     }
 

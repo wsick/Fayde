@@ -13,14 +13,12 @@ module Fayde.Xaml {
             el = el.nextElementSibling;
         }
     }
-
     function getAttributeDependencies(el: Element, list: string[]) {
         var attrs = el.attributes;
         for (var i = 0, len = attrs.length; i < len; i++) {
             addDependency(attrs[i], list);
         }
     }
-
     var W3URI = "http://www.w3.org/2000/xmlns/";
     function addDependency(node: Node, list: string[]) {
         var nsUri = node.namespaceURI;
@@ -28,9 +26,7 @@ module Fayde.Xaml {
             return;
         var ln = node.localName;
         var index = ln.indexOf(".");
-        if (index > -1)
-            ln = ln.substr(0, index);
-        var format = nsUri + "/" + ln;
+        var format = TypeResolver.FormatXmlTypeName(nsUri, index > -1 ? ln.substr(0, index) : ln);
         if (list.indexOf(format) > -1)
             return;
         list.push(format);

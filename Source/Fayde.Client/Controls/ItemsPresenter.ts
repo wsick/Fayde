@@ -1,29 +1,28 @@
 /// <reference path="../Core/FrameworkElement.ts" />
+/// <reference path="../Xaml/XamlDocument.ts" />
+/// <reference path="../Xaml/XamlLoader.ts" />
 
 module Fayde.Controls {
+    var spxd = new Xaml.XamlDocument("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>");
+    var spft = <ItemsPanelTemplate>Xaml.Load(spxd.Document);
+
+    var vspxd = new Xaml.XamlDocument("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>");
+    var vspft = <ItemsPanelTemplate>Xaml.Load(vspxd.Document);
+
+    function getFallbackTemplate(ic: ItemsControl): ItemsPanelTemplate {
+        if (ic instanceof ListBox)
+            return vspft;
+        return spft;
+    }
+
     export class ItemsPresenterNode extends FENode {
         XObject: ItemsPresenter;
         private _ElementRoot: Panel;
-        private _SPFT: ItemsPanelTemplate;
-        private _VSPFT: ItemsPanelTemplate;
         constructor(xobj: ItemsPresenter) {
             super(xobj);
         }
-
+        
         get ElementRoot(): Panel { return this._ElementRoot; }
-
-        get StackPanelFallbackTemplate(): ItemsPanelTemplate {
-            var spft = this._SPFT;
-            if (!spft)
-                spft = this._SPFT = <ItemsPanelTemplate>Xaml.Load("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>");
-            return spft;
-        }
-        get VirtualizingStackPanelFallbackTemplate(): ItemsPanelTemplate {
-            var vspft = this._VSPFT;
-            if (!vspft)
-                vspft = this._VSPFT = <ItemsPanelTemplate>Xaml.Load("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>");
-            return vspft;
-        }
 
         DoApplyTemplateWithError(error: BError): boolean {
             if (this._ElementRoot)
@@ -36,15 +35,8 @@ module Fayde.Controls {
 
             if (ic.ItemsPanel)
                 this._ElementRoot = ic.ItemsPanel.GetVisualTree(xobj);
-
-            if (!this._ElementRoot) {
-                var template: ItemsPanelTemplate;
-                if (ic instanceof ListBox)
-                    template = this.VirtualizingStackPanelFallbackTemplate;
-                else
-                    template = this.StackPanelFallbackTemplate;
-                this._ElementRoot = <Panel>template.GetVisualTree(xobj);
-            }
+            if (!this._ElementRoot)
+                this._ElementRoot = getFallbackTemplate(ic).GetVisualTree(xobj);
 
             this._ElementRoot.IsItemsHost = true;
             if (!this.FinishApplyTemplateWithError(this._ElementRoot, error))

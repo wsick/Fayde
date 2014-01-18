@@ -5,7 +5,7 @@ interface IAsyncRequest<T> {
 interface IDeferrable<T> {
     resolve: (result: T) => void;
     reject: (error: any) => void;
-    promise: IAsyncRequest<T>;
+    request: IAsyncRequest<T>;
 }
 function defer<T>(): IDeferrable<T> {
     var resolved = false;
@@ -15,6 +15,7 @@ function defer<T>(): IDeferrable<T> {
 
     var s: (result: T) => void;
     var e: (error: any) => void;
+    var c: () => void;
     var p: IAsyncRequest<T> = {
         success: function (callback: (result: T) => void): IAsyncRequest<T> {
             s = callback;
@@ -29,11 +30,13 @@ function defer<T>(): IDeferrable<T> {
     };
 
     var d: IDeferrable<T> = {
-        promise: p,
+        request: p,
         resolve: function (result: T) {
+            resolved = true;
             s && s(resolvedobj = result);
         },
         reject: function (error: any) {
+            errored = true;
             e && e(errorobj = error);
         }
     };

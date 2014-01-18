@@ -1,6 +1,11 @@
 /// <reference path="../Core/FrameworkElement.ts" />
+/// <reference path="../Xaml/XamlDocument.ts" />
+/// <reference path="../Xaml/XamlLoader.ts" />
 
 module Fayde.Controls {
+    var fxd = new Xaml.XamlDocument("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
+    var fallbackTemplate = <DataTemplate>Xaml.Load(fxd.Document);
+
     export class ContentPresenterNode extends FENode {
         private _ContentRoot: UIElement;
         get ContentRoot(): UIElement { return this._ContentRoot; }
@@ -33,7 +38,7 @@ module Fayde.Controls {
             if (content instanceof UIElement)
                 this._ContentRoot = content;
             else
-                this._ContentRoot = (xobj.ContentTemplate || this.FallbackTemplate).GetVisualTree(xobj);
+                this._ContentRoot = (xobj.ContentTemplate || fallbackTemplate).GetVisualTree(xobj);
 
             if (!this._ContentRoot)
                 return false;
@@ -45,10 +50,6 @@ module Fayde.Controls {
             if (this._ContentRoot)
                 this.DetachVisualChild(this._ContentRoot, null);
             this._ContentRoot = null;
-        }
-        
-        get FallbackTemplate(): DataTemplate {
-            return <DataTemplate>Xaml.Load("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
         }
 
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {

@@ -9,7 +9,7 @@ module Fayde {
         static Version: string = "0.9.6.0";
         static Current: Application;
         MainSurface: Surface;
-        Loaded: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        Loaded = new MulticastEvent<EventArgs>();
         Address: Uri = null;
         DebugInterop: DebugInterop;
         private _IsRunning: boolean = false;
@@ -17,13 +17,9 @@ module Fayde {
         private _ClockTimer: ClockTimer = new ClockTimer();
 
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, Application);
+        static ThemeProperty = DependencyProperty.Register("Theme", () => Theme, Application);
         Resources: ResourceDictionary;
-        static SourcesProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<Xaml.Namespace>>("Sources", () => XamlObjectCollection, Application);
-        Sources: XamlObjectCollection<Xaml.Namespace>;
-        static LibrariesProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<Xaml.Library>>("Libraries", () => XamlObjectCollection, Application);
-        Libraries: XamlObjectCollection<Xaml.Library>;
-
-        Theme: Xaml.Theme;
+        Theme: Theme;
 
         constructor() {
             super();
@@ -32,8 +28,6 @@ module Fayde {
             this.MainSurface = new Surface(this);
             this.DebugInterop = new DebugInterop(this);
             this.Address = new Uri(document.URL);
-            Application.SourcesProperty.Initialize(this);
-            Application.LibrariesProperty.Initialize(this);
         }
 
         get RootVisual(): UIElement { return this.MainSurface._RootLayer; }
@@ -98,17 +92,18 @@ module Fayde {
 
         GetImplicitStyle(type: any): Style {
             var theme = this.Theme;
-            var rd: ResourceDictionary;
             var style: Style;
-            if (theme && (rd = theme.Resources) && (style = <Style>rd.Get(type)) && (style instanceof Style))
+            if (theme && (style = theme.GetImplicitStyle(type)))
                 return style;
 
+            /*
             var enumerator = this.Libraries.GetEnumerator();
             while (enumerator.MoveNext()) {
                 style = enumerator.Current.GetImplicitStyle(type);
                 if (style)
                     return style;
             }
+            */
             return undefined;
         }
 
@@ -146,24 +141,26 @@ module Fayde {
         window.onload = onReady;
     }
     doOnReady(Run);
-    export function Run() {
-        if (isReady) return;
+    export function Run(loaded?: (app: Application) => void) {
+        if (isReady) return loaded && loaded(Fayde.Application.Current);
         isReady = true;
         var url = document.body.getAttribute("faydeapp");
         if (!url)
             return;
+        
         var canvas = document.getElementsByTagName("canvas")[0];
         if (!canvas)
             document.body.appendChild(canvas = document.createElement("canvas"));
 
-        var request = new AjaxRequest(
-            (result) => {
-                Xaml.LoadApplication(result.GetData(), canvas);
-            },
-            (error) => {
+        Xaml.LoadApplicationAsync(url)
+            .success(app => {
+                app.MainSurface.Register(canvas);
+                app.Start();
+                loaded && loaded(app);
+            })
+            .error(error => {
                 alert("An error occurred retrieving the application.");
                 console.log("An error occurred retrieving the application. " + error);
             });
-        request.Get(url);
     }
 }

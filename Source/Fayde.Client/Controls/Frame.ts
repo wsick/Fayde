@@ -1,13 +1,11 @@
 /// <reference path="ContentControl.ts" />
+/// <reference path="../Xaml/XamlDocument.ts" />
+/// <reference path="../Xaml/XamlLoader.ts" />
+/// <reference path="Page.ts" />
 
 module Fayde.Controls {
-    var ERROR_PAGE_XAML = "<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\"><TextBlock Text=\"An error occurred navigating.\" /></Page>";
-    var ERROR_PAGE: Page = undefined;
-    function getErrorPage(): Page {
-        if (!ERROR_PAGE)
-            ERROR_PAGE = <Fayde.Controls.Page>Fayde.Xaml.Load(ERROR_PAGE_XAML);
-        return ERROR_PAGE;
-    }
+    var errorxd = new Xaml.XamlDocument("<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\"><TextBlock Text=\"An error occurred navigating.\" /></Page>");
+    var errorPage = <Page>Xaml.Load(errorxd.Document);
 
     export class Frame extends ContentControl {
         static IsDeepLinkedProperty: DependencyProperty = DependencyProperty.Register("IsDeepLinked", () => Boolean, Frame, true);
@@ -20,7 +18,6 @@ module Fayde.Controls {
         UriMapper: Navigation.UriMapper;
 
         private _NavService: Navigation.NavigationService = new Navigation.NavigationService();
-        private _PageResolver: any;
 
         //Navigated = new MulticastEvent();
         //Navigating = new MulticastEvent();
@@ -43,10 +40,7 @@ module Fayde.Controls {
             //TODO: Implement
         }
         StopLoading() {
-            if (this._PageResolver) {
-                this._PageResolver.Stop();
-                this._PageResolver = null;
-            }
+            //TODO: Implement
         }
         private _FrameLoaded(sender, e: RoutedEventArgs) {
             if (this.IsDeepLinked) {
@@ -71,24 +65,24 @@ module Fayde.Controls {
             var target = targetUri.toString();
             if (!target)
                 throw new InvalidOperationException("Cannot resolve empty url.");
-            this._PageResolver = Xaml.PageResolver.Resolve(target, (xaml) => this._HandleSuccess(xaml), (error) => this._HandleError(error));
+
+            Xaml.LoadAsync(target)
+                .success(xo => this._HandleSuccess(xo))
+                .error(error => this._HandleError(error));
         }
-        private _HandleSuccess(doc: Document) {
-            this._PageResolver = null;
-            TimelineProfile.Parse(true, "Page");
-            var page = <Page>Xaml.Load(doc);
-            TimelineProfile.Parse(false, "Page");
+        private _HandleSuccess(xo: XamlObject) {
+            if (!(xo instanceof Page))
+                return this._HandleError("Xaml must be a Page.");
+            var page = <Page>xo;
             this.Content = page;
             document.title = page.Title;
             TimelineProfile.Navigate(false);
             TimelineProfile.IsNextLayoutPassProfiled = true;
         }
         private _HandleError(error: string) {
-            this._PageResolver = null;
             document.title = "Error";
-            var page = getErrorPage();
-            page.DataContext = error;
-            this.Content = page;
+            errorPage.DataContext = error;
+            this.Content = errorPage;
             TimelineProfile.Navigate(false);
         }
 
