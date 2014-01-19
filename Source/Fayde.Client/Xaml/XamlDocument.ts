@@ -36,21 +36,48 @@ module Fayde.Xaml {
                 return d.request;
             }
 
-            require([xamlUrl, url], (xaml: string, jsmodule: any) => {
-                var xd = new XamlDocument(xaml);
+            var xamldone = false;
+            var jsdone = false;
+
+            function tryFinishResolve() {
+                if (!jsdone || !xamldone)
+                    return;
                 xd.Resolve()
                     .success(o => d.resolve(regXds[xamlUrl] = xd))
                     .error(d.reject);
-            });
+            }
+            (<Function>require)([xamlUrl],
+                (xaml: string) => {
+                    xamldone = true;
+                    xd = new XamlDocument(xaml);
+                    tryFinishResolve();
+                },
+                (err: RequireError) => {
+                    xamldone = true;
+                    tryFinishResolve();
+                });
+            (<Function>require)([url],
+                (jsmodule: any) => {
+                    jsdone = true;
+                    tryFinishResolve();
+                },
+                (err: RequireError) => {
+                    jsdone = true;
+                    tryFinishResolve();
+                });
 
             return d.request;
         }
         Resolve(): IAsyncRequest<any> {
             var d = defer<any>();
             addDependencies(this.Document.documentElement, this._RequiredDependencies);
-            resolveRecursive(this._RequiredDependencies)
-                .success(xds => d.resolve(this))
-                .error(errors => d.reject(errors));
+            if (this._RequiredDependencies.length > 0) {
+                resolveRecursive(this._RequiredDependencies)
+                    .success(xds => d.resolve(this))
+                    .error(errors => d.reject(errors));
+            } else {
+                d.resolve(this);
+            }
             return d.request;
         }
     }
