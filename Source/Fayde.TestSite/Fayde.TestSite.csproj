@@ -68,20 +68,20 @@
     <Content Include="Images\twitter.png" />
     <Content Include="Media\freeze_gopher.mp3" />
     <Content Include="Silverlight.js" />
-    <Content Include="default2.fap">
+    <Content Include="Tests\Toy\default2.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="default3.fap">
+    <Content Include="Tests\Toy\default3.fap">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Media\test_movie.mp4" />
-    <Content Include="default6.fap">
+    <Content Include="Tests\Toy\default6.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="default7.fap">
+    <Content Include="Tests\Toy\default7.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="default8.fap">
+    <Content Include="Tests\Toy\default8.fap">
       <SubType>Designer</SubType>
     </Content>
     <TypeScriptCompile Include="Tests\IssueTests\TestViewModel.ts" />
