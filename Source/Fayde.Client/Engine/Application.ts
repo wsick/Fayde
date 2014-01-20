@@ -18,9 +18,9 @@ module Fayde {
         private _RootVisual: UIElement;
 
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, Application);
-        static ThemeProperty = DependencyProperty.Register("Theme", () => Xaml.Theme, Application);
+        static ThemeProperty = DependencyProperty.Register("Theme", () => Theme, Application);
         Resources: ResourceDictionary;
-        Theme: Xaml.Theme;
+        Theme: Theme;
 
         constructor() {
             super();
