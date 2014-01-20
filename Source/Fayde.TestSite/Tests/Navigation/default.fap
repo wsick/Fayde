@@ -5,7 +5,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="TestResourceDictionary.xml" />
+                <ResourceDictionary Source="Navigation/TestResourceDictionary.xml" />
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="LogoIcon" TargetType="ContentControl">
                 <Setter Property="Height" Value="45" />
@@ -228,7 +228,7 @@
                         <TextBlock x:Name="ApplicationNameTextBlock" Style="{StaticResource ApplicationNameStyle}" Text="Welcome to Fayde" />
                     </StackPanel>
                 </Border>
-                <Border x:Name="LinksBorder" Grid.Row="1" Margin="0,0,10,0" 
+                <Border x:Name="LinksBorder" Grid.Row="1" Margin="0,0,10,0"
                         Height="82" HorizontalAlignment="Left" VerticalAlignment="Top"
                         BorderThickness="30,0,0,0">
                     <Border.BorderBrush>
@@ -245,8 +245,8 @@
                     <Frame x:Name="ContentFrame">
                         <Frame.UriMapper>
                             <UriMapper>
-                                <UriMapping Uri="" MappedUri="Views/Home.fayde" />
-                                <UriMapping Uri="/{pageName}" MappedUri="Views/{pageName}.fayde" />
+                                <UriMapping Uri="" MappedUri="Navigation/Views/Home.fayde" />
+                                <UriMapping Uri="/{pageName}" MappedUri="Navigation/Views/{pageName}.fayde" />
                             </UriMapper>
                         </Frame.UriMapper>
                     </Frame>
