@@ -8,7 +8,7 @@
             var ta = document.getElementById("ta");
             var divLoadMsg = document.getElementById("divLoadMsg");
             var start = new Date().getTime();
-            try{
+            try {
                 var obj = Fayde.Xaml.Load(ta.value);
             } catch (err) {
                 divLoadMsg.innerText = err.toString();
