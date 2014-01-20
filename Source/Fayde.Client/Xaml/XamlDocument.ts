@@ -48,7 +48,7 @@ module Fayde.Xaml {
                     return;
                 if (!xd && !js) {
                     d.reject("No module found at '" + url + "'.");
-                } else if (!js) {
+                } else if (xd) {
                     xd.Resolve()
                         .success(o => d.resolve(regXds[xamlUrl] = xd))
                         .error(d.reject);
