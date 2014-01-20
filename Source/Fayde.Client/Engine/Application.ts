@@ -17,9 +17,9 @@ module Fayde {
         private _ClockTimer: ClockTimer = new ClockTimer();
 
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, Application);
-        static ThemeProperty = DependencyProperty.Register("Theme", () => Theme, Application);
+        static ThemeProperty = DependencyProperty.Register("Theme", () => Xaml.Theme, Application);
         Resources: ResourceDictionary;
-        Theme: Theme;
+        Theme: Xaml.Theme;
 
         constructor() {
             super();

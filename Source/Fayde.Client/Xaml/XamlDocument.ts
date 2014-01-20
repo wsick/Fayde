@@ -26,10 +26,13 @@ module Fayde.Xaml {
                 return null;
             return regXds[url] = new XamlDocument(xaml);
         }
-        static Resolve(url: string): IAsyncRequest<XamlDocument> {
+        static Resolve(url: string, isApp?: boolean): IAsyncRequest<XamlDocument> {
             var d = defer<XamlDocument>();
 
             var xamlUrl = "text!" + url;
+            if (url.substr(0, 5) === "text!")
+                xamlUrl = url;
+
             var xd = regXds[xamlUrl];
             if (xd) {
                 d.resolve(xd);
@@ -37,12 +40,12 @@ module Fayde.Xaml {
             }
 
             var xamldone = false;
-            var jsdone = false;
+            var jsdone = xamlUrl === url;
 
             function tryFinishResolve() {
                 if (!jsdone || !xamldone)
                     return;
-                xd.Resolve()
+                xd.Resolve(isApp)
                     .success(o => d.resolve(regXds[xamlUrl] = xd))
                     .error(d.reject);
             }
@@ -56,6 +59,9 @@ module Fayde.Xaml {
                     xamldone = true;
                     tryFinishResolve();
                 });
+            
+            if (jsdone)
+                return d.request;
             (<Function>require)([url],
                 (jsmodule: any) => {
                     jsdone = true;
@@ -68,8 +74,9 @@ module Fayde.Xaml {
 
             return d.request;
         }
-        Resolve(): IAsyncRequest<any> {
+        Resolve(isApp?: boolean): IAsyncRequest<any> {
             var d = defer<any>();
+            if (isApp) addThemeDependency(this.Document.documentElement, this._RequiredDependencies);
             addDependencies(this.Document.documentElement, this._RequiredDependencies);
             if (this._RequiredDependencies.length > 0) {
                 resolveRecursive(this._RequiredDependencies)
@@ -85,7 +92,7 @@ module Fayde.Xaml {
     function resolveRecursive(deps: string[]): IAsyncRequest<XamlDocument[]> {
         var d = defer<XamlDocument[]>();
 
-        var xds: XamlDocument[];
+        var xds: XamlDocument[] = [];
         var errors: any[] = [];
         for (var i = 0, len = deps.length; i < len; i++) {
             Xaml.XamlDocument.Resolve(deps[i])
@@ -110,8 +117,12 @@ module Fayde.Xaml {
         return d.request;
     }
 
-    //TODO: We need to collect Application.Theme
     //TODO: We need to collect ResourceDictionary.Source
+    function addThemeDependency(el: Element, list: string[]) {
+        var theme = el.getAttribute("Theme");
+        if (theme)
+            list.push("text!" + theme);
+    }
     function addDependencies(el: Element, list: string[]) {
         while (el) {
             addDependency(el, list);

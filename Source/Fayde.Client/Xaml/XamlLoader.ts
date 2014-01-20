@@ -39,7 +39,7 @@ module Fayde.Xaml {
     }
     export function LoadApplicationAsync(url: string): IAsyncRequest<Application> {
         var d = defer<Application>();
-        XamlDocument.Resolve(url)
+        XamlDocument.Resolve(url, true)
             .success(xd => {
                 TimelineProfile.Parse(true, "App");
                 var app = <Application>Load(xd.Document);
@@ -599,4 +599,48 @@ module Fayde.Xaml {
         }
         return null;
     }
+
+
+    /// THEME
+    export class Theme {
+        private _Uri: Uri = null;
+        get Uri(): Uri { return this._Uri; }
+        set Uri(value: Uri) {
+            this._Uri = value;
+            this._Load();
+        }
+        Resources: ResourceDictionary = null;
+
+        private _Load() {
+            var uri = this.Uri;
+            if (!uri)
+                return;
+            var xd = Xaml.XamlDocument.Get(uri.toString());
+            var rd = <ResourceDictionary>Load(xd.Document);
+            if (!(rd instanceof ResourceDictionary))
+                throw new Exception("Theme root must be a ResourceDictionary.");
+            Object.defineProperty(this, "Resources", { value: rd, writable: false });
+        }
+
+        GetImplicitStyle(type: any): Style {
+            var rd = this.Resources;
+            if (!rd)
+                return;
+            var style = <Style>rd.Get(type);
+            if (style instanceof Style)
+                return style;
+            return undefined;
+        }
+    }
+    Fayde.RegisterType(Theme, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterTypeConverter(Theme, (val: any): Theme => {
+        if (!val)
+            return undefined;
+        if (typeof val === "string") {
+            var theme = new Theme();
+            theme.Uri = new Uri(val);
+            return theme;
+        }
+        return val;
+    });
 }
