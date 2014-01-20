@@ -65,7 +65,7 @@ module NflDraft.ViewModels {
         get DraftPlayerCommand(): Fayde.Input.ICommand {
             if (this._draft_player_command === null) {
                 this._draft_player_command = new Fayde.MVVM.RelayCommand(
-                    p => this.DraftPlayer(p),
+                    () => this.DraftPlayer(this.SelectedPlayer),
                     () => this.CanDraftPlayer());
             }
             return this._draft_player_command;
@@ -170,8 +170,18 @@ module NflDraft.ViewModels {
             this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE");
 
             var fp = [
-                { "Name": "Adrian Peterson", "Team": _teams[27], "Headshot": "Images/Player Headshots/adrian_peterson.png", "Positions": "RB", "ADP": 1.50 },
-                { "Name": "Arian Foster", "Team": _teams[8], "Headshot": "Images/Player Headshots/arian_foster.png", "Positions": "RB", "Birthdate": new Date("1986-08-24"), "Height": "6'11\"", "Weight": "228", "ADP": 1.8,
+                {
+                  "Name": "Adrian Peterson", "Team": _teams[27], "Headshot": "Images/Player Headshots/adrian_peterson.png", "Positions": "RB", "Birthdate": new Date("1985-03-21"), "Height": "6'1\"", "Weight": "217", "ADP": 1.50,
+                    "Projected":
+                    { "Year": 2013, "Team": _teams[27], "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "FumblesLost": 2, "Targets": 58, "Receptions": 40, "ReceivingYards": 240, "ReceivingTouchdowns": 2 },
+                    "Stats":
+                       [{ "Year": 2007, "Team": _teams[27], "GamesPlayed": 14, "RushingAttempts": 238, "RushingYards": 1341, "RushingTouchdowns": 12, "FumblesLost": 3, "Targets": 29, "Receptions": 19, "ReceivingYards": 268, "ReceivingTouchdowns": 1 },
+                        { "Year": 2008, "Team": _teams[27], "GamesPlayed": 16, "RushingAttempts": 363, "RushingYards": 1760, "RushingTouchdowns": 10, "FumblesLost": 4, "Targets": 39, "Receptions": 21, "ReceivingYards": 125, "ReceivingTouchdowns": 0 },
+                        { "Year": 2009, "Team": _teams[27], "GamesPlayed": 16, "RushingAttempts": 314, "RushingYards": 1383, "RushingTouchdowns": 18, "FumblesLost": 5, "Targets": 57, "Receptions": 43, "ReceivingYards": 436, "ReceivingTouchdowns": 0 },
+                        { "Year": 2010, "Team": _teams[27], "GamesPlayed": 15, "RushingAttempts": 283, "RushingYards": 1298, "RushingTouchdowns": 12, "FumblesLost": 1, "Targets": 50, "Receptions": 36, "ReceivingYards": 341, "ReceivingTouchdowns": 1 },
+                        { "Year": 2011, "Team": _teams[27], "GamesPlayed": 12, "RushingAttempts": 208, "RushingYards": 970, "RushingTouchdowns": 12, "FumblesLost": 0, "Targets": 23, "Receptions": 18, "ReceivingYards": 139, "ReceivingTouchdowns": 1 },
+                        { "Year": 2012, "Team": _teams[27], "GamesPlayed": 16, "RushingAttempts": 348, "RushingYards": 1266, "RushingTouchdowns": 12, "FumblesLost": 2, "Targets": 51, "Receptions": 40, "ReceivingYards": 217, "ReceivingTouchdowns": 1 }] },
+                { "Name": "Arian Foster", "Team": _teams[8], "Headshot": "Images/Player Headshots/arian_foster.png", "Positions": "RB", "Birthdate": new Date("1986-08-24"), "Height": "6'1\"", "Weight": "228", "ADP": 1.8,
                 "Projected":
                     { "Year": 2013, "Team": _teams[8], "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "FumblesLost": 2, "Targets": 58, "Receptions": 40, "ReceivingYards": 240, "ReceivingTouchdowns": 2 },
                 "Stats":
@@ -179,9 +189,35 @@ module NflDraft.ViewModels {
                     { "Year": 2010, "Team": _teams[8], "GamesPlayed": 16, "RushingAttempts": 327, "RushingYards": 1616, "RushingTouchdowns": 16, "FumblesLost": 2, "Targets": 84, "Receptions": 66, "ReceivingYards": 604, "ReceivingTouchdowns": 2 },
                     { "Year": 2011, "Team": _teams[8], "GamesPlayed": 13, "RushingAttempts": 278, "RushingYards": 1224, "RushingTouchdowns": 10, "FumblesLost": 3, "Targets": 71, "Receptions": 53, "ReceivingYards": 617, "ReceivingTouchdowns": 2 },
                     { "Year": 2012, "Team": _teams[8], "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "FumblesLost": 2, "Targets": 58, "Receptions": 40, "ReceivingYards": 240, "ReceivingTouchdowns": 2 }] },
-                { "Name": "Ray Rice", "Team": _teams[18], "Headshot": "Images/Player Headshots/ray_rice.png", "Positions": "RB", "ADP": 3.25 },
-                { "Name": "Doug Martin", "Team": _teams[21], "Headshot": "Images/Player Headshots/doug_martin.png", "Positions": "RB", "ADP": 28.45 },
-                { "Name": "Jamaal Charles", "Team": _teams[12], "Headshot": "Images/Player Headshots/jamaal_charles.png", "Positions": "RB", "ADP": 28.45 },
+                {
+                    "Name": "Ray Rice", "Team": _teams[18], "Headshot": "Images/Player Headshots/ray_rice.png", "Positions": "RB", "Birthdate": new Date("1987-01-22"), "Height": "5'8\"", "Weight": "212", "ADP": 3.25,
+                    "Projected":
+                    { "Year": 2013, "Team": _teams[18], "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "FumblesLost": 2, "Targets": 58, "Receptions": 40, "ReceivingYards": 240, "ReceivingTouchdowns": 2 },
+                    "Stats":
+                    [{ "Year": 2008, "Team": _teams[18], "GamesPlayed": 13, "RushingAttempts": 107, "RushingYards": 454, "RushingTouchdowns": 0, "FumblesLost": 1, "Targets": 43, "Receptions": 33, "ReceivingYards": 273, "ReceivingTouchdowns": 0 },
+                        { "Year": 2009, "Team": _teams[18], "GamesPlayed": 16, "RushingAttempts": 254, "RushingYards": 1339, "RushingTouchdowns": 7, "FumblesLost": 2, "Targets": 103, "Receptions": 78, "ReceivingYards": 702, "ReceivingTouchdowns": 1 },
+                        { "Year": 2010, "Team": _teams[18], "GamesPlayed": 16, "RushingAttempts": 307, "RushingYards": 1220, "RushingTouchdowns": 5, "FumblesLost": 0, "Targets": 82, "Receptions": 63, "ReceivingYards": 556, "ReceivingTouchdowns": 1 },
+                        { "Year": 2011, "Team": _teams[18], "GamesPlayed": 16, "RushingAttempts": 291, "RushingYards": 1364, "RushingTouchdowns": 12, "FumblesLost": 2, "Targets": 104, "Receptions": 76, "ReceivingYards": 704, "ReceivingTouchdowns": 3 },
+                        { "Year": 2012, "Team": _teams[18], "GamesPlayed": 16, "RushingAttempts": 257, "RushingYards": 1143, "RushingTouchdowns": 9, "FumblesLost": 0, "Targets": 84, "Receptions": 61, "ReceivingYards": 478, "ReceivingTouchdowns": 1 }]
+                },
+                {
+                    "Name": "Doug Martin", "Team": _teams[21], "Headshot": "Images/Player Headshots/doug_martin.png", "Positions": "RB", "Birthdate": new Date("1989-01-13"), "Height": "5'9\"", "Weight": "215", "ADP": 28.45,
+                    "Projected":
+                    { "Year": 2013, "Team": _teams[21], "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "FumblesLost": 2, "Targets": 58, "Receptions": 40, "ReceivingYards": 240, "ReceivingTouchdowns": 2 },
+                    "Stats":
+                    [{ "Year": 2012, "Team": _teams[21], "GamesPlayed": 16, "RushingAttempts": 319, "RushingYards": 1454, "RushingTouchdowns": 11, "FumblesLost": 1, "Targets": 71, "Receptions": 49, "ReceivingYards": 472, "ReceivingTouchdowns": 1 }]
+                },
+                {
+                    "Name": "Jamaal Charles", "Team": _teams[12], "Headshot": "Images/Player Headshots/jamaal_charles.png", "Positions": "RB", "Birthdate": new Date("1986-12-27"), "Height": "5'11\"", "Weight": "199", "ADP": 28.45,
+                    "Projected":
+                    { "Year": 2013, "Team": _teams[12], "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "FumblesLost": 2, "Targets": 58, "Receptions": 40, "ReceivingYards": 240, "ReceivingTouchdowns": 2 },
+                    "Stats":
+                    [{ "Year": 2008, "Team": _teams[12], "GamesPlayed": 16, "RushingAttempts": 67, "RushingYards": 357, "RushingTouchdowns": 0, "FumblesLost": 1, "Targets": 40, "Receptions": 27, "ReceivingYards": 273, "ReceivingTouchdowns": 1 },
+                        { "Year": 2009, "Team": _teams[12], "GamesPlayed": 15, "RushingAttempts": 190, "RushingYards": 1120, "RushingTouchdowns": 7, "FumblesLost": 2, "Targets": 55, "Receptions": 40, "ReceivingYards": 702, "ReceivingTouchdowns": 1 },
+                        { "Year": 2010, "Team": _teams[12], "GamesPlayed": 16, "RushingAttempts": 230, "RushingYards": 1467, "RushingTouchdowns": 5, "FumblesLost": 1, "Targets": 66, "Receptions": 45, "ReceivingYards": 556, "ReceivingTouchdowns": 3 },
+                        { "Year": 2011, "Team": _teams[12], "GamesPlayed": 2, "RushingAttempts": 12, "RushingYards": 83, "RushingTouchdowns": 0, "FumblesLost": 1, "Targets": 6, "Receptions": 5, "ReceivingYards": 704, "ReceivingTouchdowns": 1 },
+                        { "Year": 2012, "Team": _teams[12], "GamesPlayed": 16, "RushingAttempts": 285, "RushingYards": 1509, "RushingTouchdowns": 5, "FumblesLost": 3, "Targets": 48, "Receptions": 35, "ReceivingYards": 478, "ReceivingTouchdowns": 1 }]
+                },
                 { "Name": "Trent Richardson", "Team": _teams[25], "Headshot": "Images/Player Headshots/trent_richardson.png", "Positions": "RB", "ADP": 28.45 },
                 { "Name": "C.J. Spiller", "Team": _teams[15], "Headshot": "Images/Player Headshots/cj_spiller.png", "Positions": "RB", "ADP": 28.45 },
                 { "Name": "LeSean McCoy", "Team": _teams[19], "Headshot": "Images/Player Headshots/lesean_mccoy.png", "Positions": "RB", "ADP": 5.11 },
@@ -193,7 +229,26 @@ module NflDraft.ViewModels {
                 { "Name": "Stephen Jackson", "Team": _teams[6], "Headshot": "Images/Player Headshots/stephen_jackson.png", "Positions": "RB", "ADP": 6.21 },
                 { "Name": "Dez Bryant", "Team": _teams[11], "Headshot": "Images/Player Headshots/dez_bryant.png", "Positions": "WR", "ADP": 6.21 },
                 { "Name": "Darren Sproles", "Team": _teams[0], "Headshot": "Images/Player Headshots/darren_sproles.png", "Positions": "RB", "ADP": 6.21 },
-                { "Name": "Peyton Manning", "Team": _teams[29], "Headshot": "Images/Player Headshots/peyton_manning.png", "Positions": "QB", "ADP": 6.21 },
+                {
+                    "Name": "Peyton Manning", "Team": _teams[29], "Headshot": "Images/Player Headshots/peyton_manning.png", "Positions": "QB", "Birthdate": new Date("1976-03-24"), "Height": "6'5\"", "Weight": "230", "ADP": 6.21,
+                    "Projected":
+                    { "Year": 2013, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 32, "RushingYards": -31, "RushingTouchdowns": 1, "FumblesLost": 3, "Completions": 450, "PassingAttempts": 659, "PassingYards": 5477, "PassingTouchdowns": 55, "Interceptions": 10, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                    "Stats":
+                    [{ "Year": 1998, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 15, "RushingYards": 62, "RushingTouchdowns": 0, "FumblesLost": 0, "Completions": 326, "PassingAttempts": 575, "PassingYards": 3739, "PassingTouchdowns": 26, "Interceptions": 28, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 1999, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 35, "RushingYards": 73, "RushingTouchdowns": 2, "FumblesLost": 2, "Completions": 331, "PassingAttempts": 533, "PassingYards": 4135, "PassingTouchdowns": 26, "Interceptions": 15, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2000, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 37, "RushingYards": 116, "RushingTouchdowns": 1, "FumblesLost": 1, "Completions": 357, "PassingAttempts": 571, "PassingYards": 4413, "PassingTouchdowns": 33, "Interceptions": 15, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2001, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 35, "RushingYards": 157, "RushingTouchdowns": 4, "FumblesLost": 1, "Completions": 343, "PassingAttempts": 547, "PassingYards": 4131, "PassingTouchdowns": 26, "Interceptions": 23, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2002, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 38, "RushingYards": 148, "RushingTouchdowns": 2, "FumblesLost": 0, "Completions": 392, "PassingAttempts": 591, "PassingYards": 4200, "PassingTouchdowns": 27, "Interceptions": 19, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2003, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 28, "RushingYards": 26, "RushingTouchdowns": 0, "FumblesLost": 0, "Completions": 379, "PassingAttempts": 566, "PassingYards": 4267, "PassingTouchdowns": 29, "Interceptions": 10, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2004, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 25, "RushingYards": 38, "RushingTouchdowns": 0, "FumblesLost": 1, "Completions": 336, "PassingAttempts": 497, "PassingYards": 4557, "PassingTouchdowns": 49, "Interceptions": 10, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2005, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 33, "RushingYards": 45, "RushingTouchdowns": 0, "FumblesLost": 1, "Completions": 305, "PassingAttempts": 453, "PassingYards": 3747, "PassingTouchdowns": 28, "Interceptions": 10, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2006, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 23, "RushingYards": 36, "RushingTouchdowns": 4, "FumblesLost": 0, "Completions": 362, "PassingAttempts": 557, "PassingYards": 4397, "PassingTouchdowns": 31, "Interceptions": 9, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2007, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 20, "RushingYards": -5, "RushingTouchdowns": 3, "FumblesLost": 0, "Completions": 337, "PassingAttempts": 515, "PassingYards": 4040, "PassingTouchdowns": 31, "Interceptions": 14, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2008, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 20, "RushingYards": 21, "RushingTouchdowns": 1, "FumblesLost": 0, "Completions": 371, "PassingAttempts": 555, "PassingYards": 4002, "PassingTouchdowns": 27, "Interceptions": 12, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2009, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 19, "RushingYards": -13, "RushingTouchdowns": 0, "FumblesLost": 0, "Completions": 393, "PassingAttempts": 571, "PassingYards": 4500, "PassingTouchdowns": 33, "Interceptions": 16, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2010, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 18, "RushingYards": 18, "RushingTouchdowns": 0, "FumblesLost": 0, "Completions": 450, "PassingAttempts": 679, "PassingYards": 4700, "PassingTouchdowns": 33, "Interceptions": 17, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 },
+                        { "Year": 2012, "Team": _teams[29], "GamesPlayed": 16, "RushingAttempts": 23, "RushingYards": 6, "RushingTouchdowns": 0, "FumblesLost": 0, "Completions": 400, "PassingAttempts": 583, "PassingYards": 4659, "PassingTouchdowns": 37, "Interceptions": 11, "Targets": 0, "Receptions": 0, "ReceivingYards": 0, "ReceivingTouchdowns": 0 }]
+                },
                 { "Name": "A.J. Green", "Team": _teams[9], "Headshot": "Images/Player Headshots/aj_green.png", "Positions": "WR", "ADP": 26.17 },
                 { "Name": "Reggie Bush", "Team": _teams[1], "Headshot": "Images/Player Headshots/reggie_bush.png", "Positions": "RB", "ADP": 26.17 },
                 { "Name": "Matt Forte", "Team": _teams[7], "Headshot": "Images/Player Headshots/matt_forte.png", "Positions": "RB", "ADP": 16.71 },
@@ -229,6 +284,11 @@ module NflDraft.ViewModels {
                     projected.Receptions = fp[i]["Projected"]["Receptions"];
                     projected.ReceivingYards = fp[i]["Projected"]["ReceivingYards"];
                     projected.ReceivingTouchdowns = fp[i]["Projected"]["ReceivingTouchdowns"];
+                    projected.Completions = fp[i]["Projected"]["Completions"];
+                    projected.PassingAttempts = fp[i]["Projected"]["PassingAttempts"];
+                    projected.PassingYards = fp[i]["Projected"]["PassingYards"];
+                    projected.PassingTouchdowns = fp[i]["Projected"]["PassingTouchdowns"];
+                    projected.Interceptions = fp[i]["Projected"]["Interceptions"];
                     fantasyPlayer.Projected = projected;
                 }
                 fantasyPlayer.Stats = new Array<Models.Stats>();
@@ -247,6 +307,11 @@ module NflDraft.ViewModels {
                         s.Receptions = hash["Receptions"];
                         s.ReceivingYards = hash["ReceivingYards"];
                         s.ReceivingTouchdowns = hash["ReceivingTouchdowns"];
+                        s.Completions = hash["Completions"];
+                        s.PassingAttempts = hash["PassingAttempts"];
+                        s.PassingYards = hash["PassingYards"];
+                        s.PassingTouchdowns = hash["PassingTouchdowns"];
+                        s.Interceptions = hash["Interceptions"];
                         fantasyPlayer.Stats.push(s);
                     }
                 }

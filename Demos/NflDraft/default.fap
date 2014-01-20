@@ -140,23 +140,18 @@
                         <DataTemplate>
                           <Border Background="Black" BorderBrush="Black" BorderThickness="0, 0, 0, 1">
                             <Border Background="{StaticResource GrayGradient}" BorderBrush="{StaticResource MediumGrayBrush}" BorderThickness="1, 1, 0, 0">
-                              <Grid>
-                                <Grid.ColumnDefinitions>
-                                  <ColumnDefinition Width="45"></ColumnDefinition>
-                                  <ColumnDefinition Width="*"></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                  <Image Source="Images/helmet.png" Margin="10, 3, 0, 3"/>
-                                  <TextBlock FontSize="12" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Overall}">
-                                    <TextBlock.Effect>
-                                      <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
-                                    </TextBlock.Effect>
-                                  </TextBlock>
-                                  <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="12" Foreground="White" FontWeight="Bold" Margin="5, 0, 0, 0" Padding="3" Text="{Binding Team.Name}">
-                                    <TextBlock.Effect>
-                                      <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
-                                    </TextBlock.Effect>
-                                  </TextBlock>
-                              </Grid>
+                              <StackPanel Orientation="Horizontal">
+                                <TextBlock FontSize="12" Foreground="White" FontWeight="Bold" Margin="5, 0, 0, 0" Padding="3" Text="{Binding Overall, StringFormat='{0} ) '}">
+                                  <TextBlock.Effect>
+                                    <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
+                                  </TextBlock.Effect>
+                                </TextBlock>
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="12" Foreground="White" FontWeight="Bold" Padding="3" Text="{Binding Team.Name}">
+                                  <TextBlock.Effect>
+                                    <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
+                                  </TextBlock.Effect>
+                                </TextBlock>
+                              </StackPanel>
                             </Border>
                           </Border>
                         </DataTemplate>
@@ -173,10 +168,11 @@
     <ScrollViewer Grid.Column="1" Margin="5" Padding="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" BorderThickness="0">
       <Grid>
         <Grid.RowDefinitions>
-          <RowDefinition Height="180"/>
+          <RowDefinition Height="280"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Border Margin="0, 0, 0, 10" DataContext="{Binding SelectedPlayer}" BorderThickness="0, 0, 0, 1" BorderBrush="Black">
           <Border.Background>
@@ -262,7 +258,11 @@
               </Grid>
             </Border>
             <Border Grid.Column="2" Margin="10, 10, 10, 10" Background="#44E0E0E0" BorderBrush="#E0E0E0" BorderThickness="1">
-              <StackPanel Orientation="Vertical">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
                 <Grid Margin="5, 5, 5, 0">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
@@ -339,7 +339,7 @@
                     </TextBlock.Effect>
                   </TextBlock>
                 </Grid>
-                <ListBox Margin="5" ItemsSource="{Binding Stats}" Background="Transparent" BorderThickness="0" Padding="0">
+                <ListBox Grid.Row="1" Margin="5" ItemsSource="{Binding Stats}" Background="Transparent" BorderThickness="0" Padding="0">
                   <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                       <Setter Property="Padding" Value="0"/>
@@ -413,11 +413,11 @@
                     </DataTemplate>
                   </ListBox.ItemTemplate>
                 </ListBox>
-              </StackPanel>
+              </Grid>
             </Border>
           </Grid>
         </Border>
-        <Border Grid.Row="1" Background="Silver" CornerRadius="3, 3, 0, 0">
+        <Border Grid.Row="1" Background="#E0E0E0" CornerRadius="3, 3, 0, 0">
           <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
@@ -492,43 +492,43 @@
                       Margin="1, 1, 1, 0" BorderThickness="1">
                 <StackPanel Orientation="Horizontal">
                   <StackPanel Margin="2" Width="240" Orientation="Horizontal">
-                    <TextBlock FontSize="12" Foreground="{StaticResource DarkGrayBrush}" FontWeight="Bold" Text="{Binding Name}">
+                    <TextBlock FontSize="12" FontWeight="Bold" Text="{Binding Name}">
                       <TextBlock.Effect>
-                        <DropShadowEffect Color="White" BlurRadius="2" ShadowDepth="2"></DropShadowEffect>
+                        <DropShadowEffect Color="White" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
                       </TextBlock.Effect>
                     </TextBlock>
-                    <TextBlock FontSize="12" Margin="10, 0, 0, 0" Foreground="{StaticResource DarkGrayBrush}" Text="{Binding Team.Abbreviation}">
+                    <TextBlock FontSize="12" Margin="10, 0, 0, 0" Text="{Binding Team.Abbreviation}">
                       <TextBlock.Effect>
-                        <DropShadowEffect Color="White" BlurRadius="2" ShadowDepth="2"></DropShadowEffect>
+                        <DropShadowEffect Color="White" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
                       </TextBlock.Effect>
                     </TextBlock>
-                    <TextBlock FontSize="12" Foreground="{StaticResource DarkGrayBrush}" Text=" - ">
+                    <TextBlock FontSize="12" Text=" - ">
                       <TextBlock.Effect>
-                        <DropShadowEffect Color="White" BlurRadius="2" ShadowDepth="2"></DropShadowEffect>
+                        <DropShadowEffect Color="White" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
                       </TextBlock.Effect>
                     </TextBlock>
-                    <TextBlock FontSize="12" Foreground="{StaticResource DarkGrayBrush}" Text="{Binding PrimaryPosition}">
+                    <TextBlock FontSize="12" Text="{Binding PrimaryPosition}">
                       <TextBlock.Effect>
-                        <DropShadowEffect Color="White" BlurRadius="2" ShadowDepth="2"></DropShadowEffect>
+                        <DropShadowEffect Color="White" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
                       </TextBlock.Effect>
                     </TextBlock>
                   </StackPanel>
-                  <TextBlock FontSize="12" Margin="2" Width="50" Foreground="{StaticResource DarkGrayBrush}" Text="{Binding Team.ByeWeek}">
+                  <TextBlock FontSize="12" Margin="2" Width="50" Text="{Binding Team.ByeWeek}">
                     <TextBlock.Effect>
-                      <DropShadowEffect Color="White" BlurRadius="2" ShadowDepth="2"></DropShadowEffect>
+                      <DropShadowEffect Color="White" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
                     </TextBlock.Effect>
                   </TextBlock>
-                  <TextBlock FontSize="12" Margin="2" Width="70" Foreground="{StaticResource DarkGrayBrush}" Text="{Binding Projected.FantasyPoints}">
+                  <TextBlock FontSize="12" Margin="2" Width="70" Text="{Binding Projected.FantasyPoints, Converter={StaticResource doubleValueConverter}}">
                     <TextBlock.Effect>
-                      <DropShadowEffect Color="White" BlurRadius="2" ShadowDepth="2"></DropShadowEffect>
+                      <DropShadowEffect Color="White" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
                     </TextBlock.Effect>
                   </TextBlock>
-                  <TextBlock FontSize="12" Margin="2" Width="70" Foreground="{StaticResource DarkGrayBrush}" Text="{Binding LastSeason.FantasyPoints}">
+                  <TextBlock FontSize="12" Margin="2" Width="70" Text="{Binding LastSeason.FantasyPoints, Converter={StaticResource doubleValueConverter}}">
                     <TextBlock.Effect>
-                      <DropShadowEffect Color="White" BlurRadius="2" ShadowDepth="2"></DropShadowEffect>
+                      <DropShadowEffect Color="White" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
                     </TextBlock.Effect>
                   </TextBlock>
-                  <TextBlock FontSize="12" Margin="2" Width="50" Foreground="{StaticResource DarkGrayBrush}" Text="{Binding ADP}">
+                  <TextBlock FontSize="12" Margin="2" Width="50" Text="{Binding ADP}">
                     <TextBlock.Effect>
                       <DropShadowEffect Color="White" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
                     </TextBlock.Effect>
@@ -538,13 +538,20 @@
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
+        <Border Grid.Row="4" Background="{StaticResource BlueGradient}" BorderThickness="0, 1, 0, 1" CornerRadius="0, 0, 3, 3" BorderBrush="{StaticResource DarkGrayBrush}">
+          <TextBlock Width="230" Margin="2" Padding="2" FontWeight="Bold" Foreground="White" Text="Fayde">
+            <TextBlock.Effect>
+              <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
+            </TextBlock.Effect>
+          </TextBlock>
+        </Border>  
       </Grid>
     </ScrollViewer>
     <Grid Grid.Column="2">
       <Grid.RowDefinitions>
-        <RowDefinition Height="*" MinHeight="150"/>
-        <RowDefinition Height="190"/>
-        <RowDefinition Height="250"/>
+        <RowDefinition Height="2*" MinHeight="150"/>
+        <RowDefinition Height="*" MaxHeight="188"/>
+        <RowDefinition Height="*" MaxHeight="250"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Grid Background="Black" Margin="5">
@@ -600,7 +607,7 @@
             </TextBlock.Effect>
           </TextBlock>
         </Border>
-        <ListBox Grid.Row="1" Margin="1, 0, 1, 1" ItemsSource="{Binding MyTeam.Roster}" Background="{StaticResource MediumGrayBrush}" BorderThickness="0">
+        <ListBox Grid.Row="1" Margin="1, 0, 1, 1" ItemsSource="{Binding MyTeam.Roster}" Background="{StaticResource MediumGrayBrush}" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
               <Setter Property="Padding" Value="0"/>
@@ -663,7 +670,7 @@
         </ListBox>
         <Image HorizontalAlignment="Left" Margin="-4, -8, 5, -10" Width="36" Height="36" Source="Images/chat.png"/>
       </Grid>
-      <TextBox x:Name="ChatTextbox" Grid.Row="3" KeyDown="{EventBinding ChatSubmitted, CommandParameter={Binding ElementName=ChatTextbox}}" Margin="5, 0, 5, 5" TextBlock.Foreground="White" Background="{StaticResource MediumGrayBrush}" BorderBrush="Black"></TextBox>
+      <TextBox x:Name="ChatTextbox" Grid.Row="3" KeyDown="{EventBinding ChatSubmitted, CommandParameter={Binding ElementName=ChatTextbox}}" Margin="5, 0, 5, 5" Foreground="White" FontSize="18" Background="{StaticResource MediumGrayBrush}" BorderBrush="Black"></TextBox>
     </Grid>
   </Grid>
 </Application>
