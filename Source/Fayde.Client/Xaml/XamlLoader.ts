@@ -39,7 +39,7 @@ module Fayde.Xaml {
     }
     export function LoadApplicationAsync(url: string): IAsyncRequest<Application> {
         var d = defer<Application>();
-        XamlDocument.Resolve(url, true)
+        XamlDocument.Resolve(url)
             .success(xd => {
                 TimelineProfile.Parse(true, "App");
                 var app = <Application>Load(xd.Document);
@@ -460,7 +460,7 @@ module Fayde.Xaml {
                         hasSetContent = true;
                         var rootVisual: UIElement = createObject(el, ctx);
                         rootVisual.XamlNode.NameScope = ctx.NameScope;
-                        app.MainSurface.Attach(rootVisual);
+                        app.$$SetRootVisual(rootVisual);
                     } else {
                         if (contentCollection) {
                             contentCollection.Add(createObject(el, ctx));
@@ -603,6 +603,9 @@ module Fayde.Xaml {
 
     /// THEME
     export class Theme {
+        private _IsLoaded = false;
+        private _LoadError: any = null;
+
         private _Uri: Uri = null;
         get Uri(): Uri { return this._Uri; }
         set Uri(value: Uri) {
@@ -611,15 +614,46 @@ module Fayde.Xaml {
         }
         Resources: ResourceDictionary = null;
 
+        private _ActiveDeferrable: IDeferrable<Theme> = null;
+        Resolve(): IAsyncRequest<Theme> {
+            var d = defer<Theme>();
+            if (this._IsLoaded) {
+                if (!this._LoadError)
+                    d.resolve(this);
+                else
+                    d.reject(this._LoadError);
+            } else {
+                this._ActiveDeferrable = d;
+            }
+            return d.request;
+        }
+
         private _Load() {
             var uri = this.Uri;
             if (!uri)
                 return;
-            var xd = Xaml.XamlDocument.Get(uri.toString());
+            Xaml.XamlDocument.Resolve("text!" + uri.toString())
+                .success(xd => this._HandleSuccess(xd))
+                .error(error => this._HandleError(error));
+        }
+        private _HandleSuccess(xd: XamlDocument) {
             var rd = <ResourceDictionary>Load(xd.Document);
             if (!(rd instanceof ResourceDictionary))
-                throw new Exception("Theme root must be a ResourceDictionary.");
+                return this._HandleError("Theme root must be a ResourceDictionary.");
             Object.defineProperty(this, "Resources", { value: rd, writable: false });
+            this._IsLoaded = true;
+            if (this._ActiveDeferrable) {
+                this._ActiveDeferrable.resolve(this);
+                this._ActiveDeferrable = null;
+            }
+        }
+        private _HandleError(error: any) {
+            this._LoadError = error;
+            this._IsLoaded = true;
+            if (this._ActiveDeferrable) {
+                this._ActiveDeferrable.reject(error);
+                this._ActiveDeferrable = null;
+            }
         }
 
         GetImplicitStyle(type: any): Style {

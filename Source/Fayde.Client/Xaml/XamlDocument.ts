@@ -26,7 +26,7 @@ module Fayde.Xaml {
                 return null;
             return regXds[url] = new XamlDocument(xaml);
         }
-        static Resolve(url: string, isApp?: boolean): IAsyncRequest<XamlDocument> {
+        static Resolve(url: string): IAsyncRequest<XamlDocument> {
             var d = defer<XamlDocument>();
 
             var xamlUrl = "text!" + url;
@@ -45,7 +45,7 @@ module Fayde.Xaml {
             function tryFinishResolve() {
                 if (!jsdone || !xamldone)
                     return;
-                xd.Resolve(isApp)
+                xd.Resolve()
                     .success(o => d.resolve(regXds[xamlUrl] = xd))
                     .error(d.reject);
             }
@@ -74,9 +74,8 @@ module Fayde.Xaml {
 
             return d.request;
         }
-        Resolve(isApp?: boolean): IAsyncRequest<any> {
+        Resolve(): IAsyncRequest<any> {
             var d = defer<any>();
-            if (isApp) addThemeDependency(this.Document.documentElement, this._RequiredDependencies);
             addDependencies(this.Document.documentElement, this._RequiredDependencies);
             if (this._RequiredDependencies.length > 0) {
                 resolveRecursive(this._RequiredDependencies)
@@ -117,12 +116,8 @@ module Fayde.Xaml {
         return d.request;
     }
 
+    //TODO: We need to collect Application.Theme
     //TODO: We need to collect ResourceDictionary.Source
-    function addThemeDependency(el: Element, list: string[]) {
-        var theme = el.getAttribute("Theme");
-        if (theme)
-            list.push("text!" + theme);
-    }
     function addDependencies(el: Element, list: string[]) {
         while (el) {
             addDependency(el, list);

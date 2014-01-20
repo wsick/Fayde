@@ -15,6 +15,7 @@ module Fayde {
         private _IsRunning: boolean = false;
         private _Storyboards: ITimeline[] = [];
         private _ClockTimer: ClockTimer = new ClockTimer();
+        private _RootVisual: UIElement;
 
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, Application);
         static ThemeProperty = DependencyProperty.Register("Theme", () => Xaml.Theme, Application);
@@ -32,6 +33,13 @@ module Fayde {
 
         get RootVisual(): UIElement { return this.MainSurface._RootLayer; }
 
+        $$SetRootVisual(value: UIElement) {
+            this._RootVisual = value;
+        }
+        Attach(canvas: HTMLCanvasElement) {
+            this.MainSurface.Register(canvas);
+            this.MainSurface.Attach(this._RootVisual);
+        }
         Start() {
             this._ClockTimer.RegisterTimer(this);
             this.Loaded.RaiseAsync(this, EventArgs.Empty);
@@ -154,9 +162,17 @@ module Fayde {
 
         Xaml.LoadApplicationAsync(url)
             .success(app => {
-                app.MainSurface.Register(canvas);
-                app.Start();
-                loaded && loaded(app);
+                Application.Current = app;
+                app.Theme.Resolve()
+                    .success(theme => {
+                        app.Attach(canvas);
+                        app.Start();
+                        loaded && loaded(app);
+                    })
+                    .error(error => {
+                        alert("An error occurred loading the theme.");
+                        console.log("An error occurred loading the theme. " + error);
+                    });
             })
             .error(error => {
                 alert("An error occurred retrieving the application.");

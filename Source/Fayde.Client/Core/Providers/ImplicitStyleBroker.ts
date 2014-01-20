@@ -133,8 +133,7 @@ module Fayde.Providers {
         private static GetImplicitStyles(fe: FrameworkElement, mask: StyleMask) {
             var feType = (<any>fe).constructor;
 
-            var felu = fe.XamlNode.LayoutUpdater;
-            var app: Application = felu.Surface ? felu.Surface.App : null;
+            var app = Application.Current;
 
             var genericXamlStyle: Style = undefined;
             if (app) {
