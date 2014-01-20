@@ -1,3 +1,18 @@
+/// <reference path="require.d.ts" />
+declare module Fayde.Xaml {
+    class XamlDocument {
+        private _RequiredDependencies;
+        public Document: Document;
+        constructor(xaml: string);
+        static Get(url: Uri): XamlDocument;
+        static Get(url: string): XamlDocument;
+        static Resolve(url: string): IAsyncRequest<XamlDocument>;
+        public Resolve(): IAsyncRequest<any>;
+    }
+}
+declare module Fayde.Xaml {
+    function CollectDependencies(doc: Document): string[];
+}
 interface IInterfaceDeclaration<T> extends IType {
     Name: string;
     Is(o: any): boolean;
@@ -35,6 +50,7 @@ declare module Fayde {
         GetAnnotation(type: Function, name: string): any;
         Resolve(xmlns: string, xmlname: string): ITypeResolution;
         ResolveFullyQualifiedName(xmlname: string, resolver: INamespacePrefixResolver): ITypeResolution;
+        FormatXmlTypeName(nsUri: string, localName: string): string;
     }
     var TypeResolver: ITypeResolver;
     function ConvertAnyToType(val: any, type: Function): any;
@@ -1431,6 +1447,17 @@ declare module Fayde.Controls {
         public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
     }
 }
+declare module Fayde.Xaml {
+    class FrameworkTemplate extends Fayde.XamlObject {
+        private ResourceChain;
+        private TemplateElement;
+        constructor();
+        public GetVisualTree(bindingSource: Fayde.DependencyObject): Fayde.UIElement;
+    }
+    function LoadApplicationAsync(url: string): IAsyncRequest<Fayde.Application>;
+    function LoadAsync(url: string): IAsyncRequest<Fayde.XamlObject>;
+    function Load(doc: Document): Fayde.XamlObject;
+}
 declare module Fayde.Controls {
     class ContentPresenterNode extends Fayde.FENode {
         private _ContentRoot;
@@ -1439,7 +1466,6 @@ declare module Fayde.Controls {
         constructor(xobj: ContentPresenter);
         public DoApplyTemplateWithError(error: BError): boolean;
         public ClearRoot(): void;
-        public FallbackTemplate : Fayde.DataTemplate;
         public _ContentChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _ContentTemplateChanged(): void;
     }
@@ -1455,30 +1481,35 @@ declare module Fayde.Controls {
         };
     }
 }
-declare module Fayde.Xaml {
-    class FrameworkTemplate extends Fayde.XamlObject {
-        private ResourceChain;
-        private TemplateElement;
-        constructor();
-        public GetVisualTree(bindingSource: Fayde.DependencyObject): Fayde.UIElement;
-    }
-    function Load(xaml: string): Fayde.XamlObject;
-    function LoadDocument(doc: Document): Fayde.XamlObject;
-    function LoadApplication(xaml: string, canvas: HTMLCanvasElement): void;
-    class Theme implements Fayde.Runtime.ILoadAsyncable {
-        public Resources: Fayde.ResourceDictionary;
-        public Url: string;
-        private _Xaml;
-        constructor(url: string);
-        public Create(): void;
-        public LoadAsync(onLoaded: (state: any) => void): void;
-    }
-}
 declare module Fayde.Controls {
     class ControlTemplate extends Fayde.Xaml.FrameworkTemplate {
         public TargetType: Function;
         constructor();
         public GetVisualTree(bindingSource: Fayde.DependencyObject): Fayde.UIElement;
+    }
+}
+declare module Fayde.Controls {
+    class UserControl extends Controls.Control {
+        static ContentProperty: DependencyProperty;
+        public Content: any;
+        static Annotations: {
+            ContentProperty: DependencyProperty;
+        };
+        public CreateLayoutUpdater(node: Fayde.UINode): UserControlLayoutUpdater;
+        public InitializeComponent(): void;
+        private _InvalidateContent(args);
+    }
+    class UserControlLayoutUpdater extends Fayde.LayoutUpdater {
+        constructor(node: Fayde.UINode);
+        public MeasureOverride(availableSize: size, error: BError): size;
+        public ArrangeOverride(finalSize: size, error: BError): size;
+    }
+}
+declare module Fayde.Controls {
+    class Page extends Controls.UserControl {
+        static TitleProperty: DependencyProperty;
+        public Title: string;
+        constructor();
     }
 }
 declare module Fayde.Controls {
@@ -1492,7 +1523,6 @@ declare module Fayde.Controls {
         public Source: Uri;
         public UriMapper: Fayde.Navigation.UriMapper;
         private _NavService;
-        private _PageResolver;
         constructor();
         public Navigate(uri: Uri): void;
         public GoForward(): void;
@@ -1501,8 +1531,9 @@ declare module Fayde.Controls {
         private _FrameLoaded(sender, e);
         private _HandleDeepLink();
         private _LoadContent(source);
-        private _HandleSuccess(xaml);
+        private _HandleSuccess(xo);
         private _HandleError(error);
+        private _SetPage(page);
         private SourcePropertyChanged(args);
     }
 }
@@ -1769,12 +1800,8 @@ declare module Fayde.Controls {
     class ItemsPresenterNode extends Fayde.FENode {
         public XObject: ItemsPresenter;
         private _ElementRoot;
-        private _SPFT;
-        private _VSPFT;
         constructor(xobj: ItemsPresenter);
         public ElementRoot : Controls.Panel;
-        public StackPanelFallbackTemplate : Controls.ItemsPanelTemplate;
-        public VirtualizingStackPanelFallbackTemplate : Controls.ItemsPanelTemplate;
         public DoApplyTemplateWithError(error: BError): boolean;
     }
     class ItemsPresenter extends Fayde.FrameworkElement {
@@ -1817,30 +1844,6 @@ declare module Fayde.Controls {
         public InsideObject(ctx: Fayde.RenderContextEx, x: number, y: number): boolean;
         public MeasureOverride(availableSize: size, error: BError): size;
         public ArrangeOverride(finalSize: size, error: BError): size;
-    }
-}
-declare module Fayde.Controls {
-    class UserControl extends Controls.Control {
-        static ContentProperty: DependencyProperty;
-        public Content: any;
-        static Annotations: {
-            ContentProperty: DependencyProperty;
-        };
-        public CreateLayoutUpdater(node: Fayde.UINode): UserControlLayoutUpdater;
-        public InitializeComponent(): void;
-        private _InvalidateContent(args);
-    }
-    class UserControlLayoutUpdater extends Fayde.LayoutUpdater {
-        constructor(node: Fayde.UINode);
-        public MeasureOverride(availableSize: size, error: BError): size;
-        public ArrangeOverride(finalSize: size, error: BError): size;
-    }
-}
-declare module Fayde.Controls {
-    class Page extends Controls.UserControl {
-        static TitleProperty: DependencyProperty;
-        public Title: string;
-        constructor();
     }
 }
 declare module Fayde {
@@ -3598,15 +3601,16 @@ declare module Fayde {
         private _IsRunning;
         private _Storyboards;
         private _ClockTimer;
+        private _RootVisual;
         static ResourcesProperty: ImmutableDependencyProperty<Fayde.ResourceDictionary>;
+        static ThemeProperty: DependencyProperty;
         public Resources: Fayde.ResourceDictionary;
-        static SourcesProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Fayde.Xaml.Namespace>>;
-        public Sources: Fayde.XamlObjectCollection<Fayde.Xaml.Namespace>;
-        static LibrariesProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Fayde.Xaml.Library>>;
-        public Libraries: Fayde.XamlObjectCollection<Fayde.Xaml.Library>;
-        public Theme: Fayde.Xaml.Theme;
+        public Theme: Fayde.Theme;
         constructor();
         public RootVisual : Fayde.UIElement;
+        public Resolve(): IAsyncRequest<Application>;
+        public $$SetRootVisual(value: Fayde.UIElement): void;
+        public Attach(canvas: HTMLCanvasElement): void;
         public Start(): void;
         public OnTicked(lastTime: number, nowTime: number): void;
         private StopEngine();
@@ -3619,7 +3623,7 @@ declare module Fayde {
         private __DebugLayers();
         private __GetById(id);
     }
-    function Run(): void;
+    function Run(loaded?: (app: Application) => void): void;
 }
 declare module Fayde {
     interface ITimerListener {
@@ -3798,6 +3802,7 @@ declare module Fayde {
         public HitTestCallback: (inputList: Fayde.UINode[]) => void;
         constructor(app: Fayde.Application);
         public Extents : size;
+        public App : Fayde.Application;
         public Register(canvas: HTMLCanvasElement, width?: number, widthType?: string, height?: number, heightType?: string): void;
         public Attach(uie: Fayde.UIElement): void;
         public GetLayers(): Fayde.UINode[];
@@ -5622,30 +5627,6 @@ declare class TimeSpan {
     public IsZero(): boolean;
     public GetJsDelay(): number;
 }
-declare module Fayde {
-    class AjaxRequest {
-        public OnSuccess: (result: IAjaxResult) => void;
-        public OnError: (error: string) => void;
-        private xmlhttp;
-        constructor(OnSuccess: (result: IAjaxResult) => void, OnError: (error: string) => void);
-        public Get(url: string, query?: string): void;
-        public Post(url: string, query: string, data: any): void;
-        public Cancel(): void;
-        private _PrepareRequest();
-        private _HandleStateChange();
-    }
-    interface IAjaxResult {
-        GetData(): string;
-        CreateJson(): any;
-        GetHeader(name: string): string;
-    }
-}
-declare module Fayde.Runtime {
-    interface ILoadAsyncable {
-        LoadAsync(onLoaded: (state: any) => void): any;
-    }
-    function LoadBatchAsync(loaders: ILoadAsyncable[], onLoaded: () => void): void;
-}
 declare class BError {
     static Argument: number;
     static InvalidOperation: number;
@@ -6160,6 +6141,21 @@ declare module Fayde {
     }
     function ExtendRenderContext(ctx: CanvasRenderingContext2D): RenderContextEx;
 }
+declare module Fayde {
+    class Theme {
+        private _IsLoaded;
+        private _LoadError;
+        private _Uri;
+        public Uri : Uri;
+        public Resources: Fayde.ResourceDictionary;
+        private _ActiveDeferrable;
+        public Resolve(): IAsyncRequest<Theme>;
+        private _Load();
+        private _HandleSuccess(xobj);
+        private _HandleError(error);
+        public GetImplicitStyle(type: any): Fayde.Style;
+    }
+}
 declare module Fayde.Path {
     interface IArc extends Path.IPathEntry {
         x: number;
@@ -6463,19 +6459,17 @@ declare module Vector {
     function isClockwiseTo(v1: number[], v2: number[]): boolean;
     function intersection(s1: number[], d1: number[], s2: number[], d2: number[]): number[];
 }
-declare module Fayde.Xaml {
-    class Library extends Fayde.DependencyObject implements Fayde.Runtime.ILoadAsyncable {
-        static PackageUriProperty: DependencyProperty;
-        public PackageUri: Uri;
-        private _Script;
-        private _GenericXaml;
-        private _ResourceDictionary;
-        public Register(): void;
-        public GetImplicitStyle(type: any): Fayde.Style;
-        public LoadAsync(onLoaded: (state: any) => void): void;
-        private _OnLoaded(onLoaded);
-    }
+interface IAsyncRequest<T> {
+    success(callback: (result: T) => void): IAsyncRequest<T>;
+    error(callback: (error: any) => void): IAsyncRequest<T>;
 }
+interface IDeferrable<T> {
+    resolve: (result: T) => void;
+    reject: (error: any) => void;
+    request: IAsyncRequest<T>;
+}
+declare function defer<T>(): IDeferrable<T>;
+declare function deferArray<S, T>(arr: S[], resolver: (s: S) => IAsyncRequest<T>): IAsyncRequest<T[]>;
 declare module Fayde.Xaml {
     interface IMarkupParseContext {
         Owner: Fayde.DependencyObject;
@@ -6497,70 +6491,6 @@ declare module Fayde.Xaml {
     var IMarkup_: IInterfaceDeclaration<IMarkup>;
     class MarkupExpressionParser {
         static Parse(value: string, ctx: IMarkupParseContext): any;
-    }
-}
-declare module Fayde.Xaml {
-    enum ResourceType {
-        Script = 0,
-        Xaml = 1,
-    }
-    interface IResource extends Fayde.Runtime.ILoadAsyncable {
-        Url: string;
-        LoadAsync(onLoaded: (resource: IResource) => void): any;
-    }
-    interface IXamlResource extends IResource {
-        Document: Document;
-    }
-    function MapResource(type: ResourceType, namespaceURI: string, localName: string): IResource;
-    function RegisterResource(type: ResourceType, url: string, namespaceURI: string, localName: string): IResource;
-    function RegisterRootResource(url: string, namespaceURI: string): IResource;
-    function RegisterResourceDictionary(source: Uri): IXamlResource;
-    function MapResourceDictionary(source: Uri): IXamlResource;
-    class PageResolver {
-        private _Url;
-        private _Xaml;
-        private _Script;
-        private _OnSuccess;
-        private _OnError;
-        static Resolve(url: string, onSuccess: (xaml: Document) => void, onError: (error: string) => void): PageResolver;
-        public Stop(): void;
-        private _TryFinish();
-    }
-}
-declare module Fayde.Xaml {
-    class Namespace extends Fayde.DependencyObject implements Fayde.Runtime.ILoadAsyncable {
-        static NameProperty: DependencyProperty;
-        static SourceProperty: DependencyProperty;
-        static SourcesProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Source>>;
-        public Name: string;
-        public Source: Uri;
-        public Sources: Fayde.XamlObjectCollection<Source>;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Source>>;
-        };
-        private _Resource;
-        constructor();
-        public RegisterSource(): void;
-        public LoadAsync(onLoaded: (state: any) => void): void;
-    }
-    class Source extends Fayde.DependencyObject implements Fayde.Runtime.ILoadAsyncable {
-        static NameProperty: DependencyProperty;
-        static SourceProperty: DependencyProperty;
-        public Name: string;
-        public Source: Uri;
-        private _Resource;
-        public RegisterSource(namespace: string): void;
-        public LoadAsync(onLoaded: (state: any) => void): void;
-    }
-    class XamlSource extends Source {
-        static CodeSourcesProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Source>>;
-        public CodeSources: Fayde.XamlObjectCollection<Source>;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Source>>;
-        };
-        constructor();
-        public RegisterSource(namespace: string): void;
-        public LoadAsync(onLoaded: (state: any) => void): void;
     }
 }
 declare module Fayde.Xaml {

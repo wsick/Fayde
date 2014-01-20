@@ -1,3 +1,180 @@
+/// <reference path="../require.d.ts" />
+var Fayde;
+(function (Fayde) {
+    (function (Xaml) {
+        var W3URI = "http://www.w3.org/2000/xmlns/";
+        var parser = new DOMParser();
+
+        var regXds = [];
+
+        var XamlDocument = (function () {
+            function XamlDocument(xaml) {
+                this._RequiredDependencies = [];
+                this.Document = parser.parseFromString(xaml, "text/xml");
+            }
+            XamlDocument.Get = function (url) {
+                if (url instanceof Uri)
+                    url = url.toString();
+                url = "text!" + url;
+                var xd = regXds[url];
+                if (xd)
+                    return xd;
+                var xaml = require(url);
+                if (xaml)
+                    return null;
+                return regXds[url] = new XamlDocument(xaml);
+            };
+            XamlDocument.Resolve = function (url) {
+                var d = defer();
+
+                var xamlUrl = "text!" + url;
+                if (url.substr(0, 5) === "text!")
+                    xamlUrl = url;
+
+                var xd = regXds[xamlUrl];
+                if (xd) {
+                    d.resolve(xd);
+                    return d.request;
+                }
+
+                var xamldone = false;
+                var jsdone = xamlUrl === url;
+                var js = null;
+
+                function tryFinishResolve() {
+                    if (!jsdone || !xamldone)
+                        return;
+                    if (!xd && !js) {
+                        d.reject("No module found at '" + url + "'.");
+                    } else if (xd) {
+                        xd.Resolve().success(function (o) {
+                            return d.resolve(regXds[xamlUrl] = xd);
+                        }).error(d.reject);
+                    } else {
+                        d.resolve(null);
+                    }
+                }
+                require([xamlUrl], function (xaml) {
+                    xamldone = true;
+                    xd = new XamlDocument(xaml);
+                    tryFinishResolve();
+                }, function (err) {
+                    xamldone = true;
+                    tryFinishResolve();
+                });
+
+                if (jsdone)
+                    return d.request;
+                require([url], function (jsmodule) {
+                    jsdone = true;
+                    js = jsmodule;
+                    tryFinishResolve();
+                }, function (err) {
+                    jsdone = true;
+                    tryFinishResolve();
+                });
+
+                return d.request;
+            };
+            XamlDocument.prototype.Resolve = function () {
+                var _this = this;
+                var d = defer();
+                addDependencies(this.Document.documentElement, this._RequiredDependencies);
+                if (this._RequiredDependencies.length > 0) {
+                    deferArray(this._RequiredDependencies, Xaml.XamlDocument.Resolve).success(function (xds) {
+                        return d.resolve(_this);
+                    }).error(function (errors) {
+                        return d.reject(errors);
+                    });
+                } else {
+                    d.resolve(this);
+                }
+                return d.request;
+            };
+            return XamlDocument;
+        })();
+        Xaml.XamlDocument = XamlDocument;
+
+        function addDependencies(el, list) {
+            while (el) {
+                getDependency(el, list);
+                getAttributeDependencies(el, list);
+                getResourceDictionaryDependency(el, list);
+                addDependencies(el.firstElementChild, list);
+                el = el.nextElementSibling;
+            }
+        }
+        function getResourceDictionaryDependency(el, list) {
+            if (el.localName !== "ResourceDictionary")
+                return;
+            if (el.namespaceURI !== Fayde.XMLNS)
+                return;
+            var srcAttr = el.getAttribute("Source");
+            if (!srcAttr)
+                return;
+            list.push("text!" + srcAttr);
+        }
+        function getAttributeDependencies(el, list) {
+            var attrs = el.attributes;
+            for (var i = 0, len = attrs.length; i < len; i++) {
+                getDependency(attrs[i], list);
+            }
+        }
+        function getDependency(node, list) {
+            var nsUri = node.namespaceURI;
+            if (!nsUri || nsUri === W3URI || nsUri === Fayde.XMLNS || nsUri === Fayde.XMLNSX)
+                return;
+            var ln = node.localName;
+            var index = ln.indexOf(".");
+            if (index > -1)
+                ln = ln.substr(0, index);
+            var format = nsUri + "/" + ln;
+            if (list.indexOf(format) > -1)
+                return;
+            list.push(format);
+        }
+    })(Fayde.Xaml || (Fayde.Xaml = {}));
+    var Xaml = Fayde.Xaml;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Xaml) {
+        function CollectDependencies(doc) {
+            var list = [];
+            addDependencies(doc.documentElement, list);
+            return list;
+        }
+        Xaml.CollectDependencies = CollectDependencies;
+
+        function addDependencies(el, list) {
+            while (el) {
+                addDependency(el, list);
+                getAttributeDependencies(el, list);
+                addDependencies(el.firstElementChild, list);
+                el = el.nextElementSibling;
+            }
+        }
+        function getAttributeDependencies(el, list) {
+            var attrs = el.attributes;
+            for (var i = 0, len = attrs.length; i < len; i++) {
+                addDependency(attrs[i], list);
+            }
+        }
+        var W3URI = "http://www.w3.org/2000/xmlns/";
+        function addDependency(node, list) {
+            var nsUri = node.namespaceURI;
+            if (!nsUri || nsUri === W3URI || nsUri === Fayde.XMLNS || nsUri === Fayde.XMLNSX)
+                return;
+            var ln = node.localName;
+            var index = ln.indexOf(".");
+            var format = Fayde.TypeResolver.FormatXmlTypeName(nsUri, index > -1 ? ln.substr(0, index) : ln);
+            if (list.indexOf(format) > -1)
+                return;
+            list.push(format);
+        }
+    })(Fayde.Xaml || (Fayde.Xaml = {}));
+    var Xaml = Fayde.Xaml;
+})(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
     Fayde.XMLNS = "http://schemas.wsick.com/fayde";
@@ -172,12 +349,13 @@ var Fayde;
                 }
                 isSimple = SIMPLES[xmlname] === true;
             }
+            var t;
             var xarr = xmlNamespaces[xmlns];
-            if (xarr) {
-                var t = xarr[xmlname];
-                if (t)
-                    return { IsSystem: isSystem, IsPrimitive: false, IsSimple: isSimple, IsEnum: t.IsEnum === true, Type: t };
-            }
+            if (xarr)
+                t = xarr[xmlname];
+            t = t || require(this.FormatXmlTypeName(xmlns, xmlname));
+            if (t)
+                return { IsSystem: isSystem, IsPrimitive: false, IsSimple: isSimple, IsEnum: t.IsEnum === true, Type: t };
             return undefined;
         },
         ResolveFullyQualifiedName: function (xmlname, resolver) {
@@ -189,6 +367,9 @@ var Fayde;
                 typeName = tokens[1];
             }
             return Fayde.TypeResolver.Resolve(ns, typeName);
+        },
+        FormatXmlTypeName: function (nsUri, localName) {
+            return nsUri + "/" + localName;
         }
     };
 
@@ -6746,7 +6927,8 @@ var Fayde;
                 get: function () {
                     if (!this._DisplayMemberTemplate) {
                         var dmp = this.DisplayMemberPath || "";
-                        this._DisplayMemberTemplate = Fayde.Xaml.Load("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
+                        var xd = new Fayde.Xaml.XamlDocument("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
+                        this._DisplayMemberTemplate = Fayde.Xaml.Load(xd.Document);
                     }
                     return this._DisplayMemberTemplate;
                 },
@@ -7820,125 +8002,11 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
-/// <reference path="../Core/FrameworkElement.ts" />
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        var ContentPresenterNode = (function (_super) {
-            __extends(ContentPresenterNode, _super);
-            function ContentPresenterNode(xobj) {
-                _super.call(this, xobj);
-            }
-            Object.defineProperty(ContentPresenterNode.prototype, "ContentRoot", {
-                get: function () {
-                    return this._ContentRoot;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            ContentPresenterNode.prototype.DoApplyTemplateWithError = function (error) {
-                if (this._ContentRoot)
-                    return false;
-
-                var xobj = this.XObject;
-                if (xobj.TemplateOwner instanceof Fayde.Controls.ContentControl) {
-                    if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === DependencyProperty.UnsetValue) {
-                        xobj.SetValue(ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(Fayde.Controls.ContentControl.ContentProperty, ContentPresenter.ContentProperty));
-                    }
-                    if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === DependencyProperty.UnsetValue) {
-                        xobj.SetValue(ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(Fayde.Controls.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
-                    }
-                }
-
-                var content = xobj.Content;
-                if (!content)
-                    return false;
-
-                if (content instanceof Fayde.UIElement)
-                    this._ContentRoot = content;
-                else
-                    this._ContentRoot = (xobj.ContentTemplate || this.FallbackTemplate).GetVisualTree(xobj);
-
-                if (!this._ContentRoot)
-                    return false;
-
-                return this.AttachVisualChild(this._ContentRoot, error);
-            };
-
-            ContentPresenterNode.prototype.ClearRoot = function () {
-                if (this._ContentRoot)
-                    this.DetachVisualChild(this._ContentRoot, null);
-                this._ContentRoot = null;
-            };
-
-            Object.defineProperty(ContentPresenterNode.prototype, "FallbackTemplate", {
-                get: function () {
-                    return Fayde.Xaml.Load("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            ContentPresenterNode.prototype._ContentChanged = function (args) {
-                var newContent = args.NewValue;
-                var newUie;
-                if (newContent instanceof Fayde.UIElement)
-                    newUie = newContent;
-
-                if (newUie || args.OldValue instanceof Fayde.UIElement)
-                    this.ClearRoot();
-
-                if (newContent && !newUie)
-                    this.XObject.DataContext = newContent;
-                else
-                    this.XObject.DataContext = undefined;
-
-                this.LayoutUpdater.InvalidateMeasure();
-            };
-            ContentPresenterNode.prototype._ContentTemplateChanged = function () {
-                this.ClearRoot();
-                this.LayoutUpdater.InvalidateMeasure();
-            };
-            return ContentPresenterNode;
-        })(Fayde.FENode);
-        Controls.ContentPresenterNode = ContentPresenterNode;
-        Fayde.RegisterType(ContentPresenterNode, "Fayde.Controls");
-
-        var ContentPresenter = (function (_super) {
-            __extends(ContentPresenter, _super);
-            function ContentPresenter() {
-                _super.apply(this, arguments);
-            }
-            ContentPresenter.prototype.CreateNode = function () {
-                return new ContentPresenterNode(this);
-            };
-
-            ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () {
-                return Object;
-            }, ContentPresenter, undefined, function (d, args) {
-                return d.XamlNode._ContentChanged(args);
-            });
-            ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
-                return Fayde.DataTemplate;
-            }, ContentPresenter, undefined, function (d, args) {
-                return d.XamlNode._ContentTemplateChanged();
-            });
-
-            ContentPresenter.Annotations = { ContentProperty: ContentPresenter.ContentProperty };
-            return ContentPresenter;
-        })(Fayde.FrameworkElement);
-        Controls.ContentPresenter = ContentPresenter;
-        Fayde.RegisterType(ContentPresenter, "Fayde.Controls", Fayde.XMLNS);
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
 /// <reference path="../Core/XamlObject.ts" />
+/// <reference path="../require.d.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Xaml) {
-        var parser = new DOMParser();
-
         var FrameworkTemplate = (function (_super) {
             __extends(FrameworkTemplate, _super);
             function FrameworkTemplate() {
@@ -7964,21 +8032,27 @@ var Fayde;
         Xaml.FrameworkTemplate = FrameworkTemplate;
         Fayde.RegisterType(FrameworkTemplate, "Fayde.Xaml");
 
-        function Load(xaml) {
-            var ctx = {
-                Document: parser.parseFromString(xaml, "text/xml"),
-                ResourceChain: [],
-                NameScope: new Fayde.NameScope(true),
-                ObjectStack: [],
-                TemplateBindingSource: null
-            };
-            validateDocument(ctx.Document);
-            var xo = createObject(ctx.Document.documentElement, ctx);
-            xo.XamlNode.NameScope = ctx.NameScope;
-            return xo;
+        
+        function LoadApplicationAsync(url) {
+            var d = defer();
+            Fayde.Xaml.XamlDocument.Resolve(url).success(function (xd) {
+                TimelineProfile.Parse(true, "App");
+                var app = Load(xd.Document);
+                TimelineProfile.Parse(false, "App");
+                d.resolve(app);
+            }).error(d.reject);
+            return d.request;
         }
-        Xaml.Load = Load;
-        function LoadDocument(doc) {
+        Xaml.LoadApplicationAsync = LoadApplicationAsync;
+        function LoadAsync(url) {
+            var d = defer();
+            Fayde.Xaml.XamlDocument.Resolve(url).success(function (xd) {
+                d.resolve(Load(xd.Document));
+            }).error(d.reject);
+            return d.request;
+        }
+        Xaml.LoadAsync = LoadAsync;
+        function Load(doc) {
             var ctx = {
                 Document: doc,
                 ResourceChain: [],
@@ -7991,7 +8065,8 @@ var Fayde;
             xo.XamlNode.NameScope = ctx.NameScope;
             return xo;
         }
-        Xaml.LoadDocument = LoadDocument;
+        Xaml.Load = Load;
+
         function createObject(el, ctx) {
             var resolution = Fayde.TypeResolver.Resolve(el.namespaceURI, el.localName);
             if (resolution === undefined)
@@ -8379,7 +8454,7 @@ var Fayde;
                             hasSetContent = true;
                             var rootVisual = createObject(el, ctx);
                             rootVisual.XamlNode.NameScope = ctx.NameScope;
-                            app.MainSurface.Attach(rootVisual);
+                            app.$$SetRootVisual(rootVisual);
                         } else {
                             if (contentCollection) {
                                 contentCollection.Add(createObject(el, ctx));
@@ -8414,180 +8489,6 @@ var Fayde;
             if (!docEl.isDefaultNamespace(Fayde.XMLNS))
                 throw new XamlParseException("Invalid default namespace in XAML document.");
         }
-
-        /// APPLICATION
-        function LoadApplication(xaml, canvas) {
-            TimelineProfile.Parse(true, "App");
-            var appLoader = createAppLoader(xaml, canvas);
-            appLoader.Load();
-        }
-        Xaml.LoadApplication = LoadApplication;
-
-        function createAppLoader(xaml, canvas) {
-            var appSources = [];
-            var appLibraries = [];
-            var rdResources = [];
-            var theme;
-            var ctx = {
-                Document: parser.parseFromString(xaml, "text/xml"),
-                ResourceChain: [],
-                NameScope: new Fayde.NameScope(true),
-                ObjectStack: [],
-                TemplateBindingSource: null
-            };
-            validateDocument(ctx.Document);
-            var appEl = ctx.Document.documentElement;
-            var appNsUri = appEl.namespaceURI;
-
-            function preloadLibraries() {
-                var curEl = getElementNS(appEl, appNsUri, appEl.localName + ".Libraries");
-                if (!curEl)
-                    return;
-                curEl = curEl.firstElementChild;
-                var library;
-                while (curEl) {
-                    library = createObject(curEl, ctx);
-                    library.Register();
-                    appLibraries.push(library);
-                    curEl = curEl.nextElementSibling;
-                }
-            }
-            function registerSources() {
-                var themeUrl = appEl.getAttributeNS(appNsUri, "Theme");
-                if (!themeUrl)
-                    themeUrl = appEl.getAttribute("Theme");
-                theme = new Theme(themeUrl);
-
-                var curElement = getElementNS(appEl, appNsUri, appEl.localName + ".Sources");
-                if (!curElement)
-                    return;
-
-                curElement = curElement.firstElementChild;
-                var nsSource;
-                while (curElement) {
-                    nsSource = createObject(curElement, ctx);
-                    nsSource.RegisterSource();
-                    appSources.push(nsSource);
-                    curElement = curElement.nextElementSibling;
-                }
-            }
-            function preloadResourceDictionaries() {
-                var curElement = getElementNS(appEl, appNsUri, appEl.localName + ".Resources");
-                if (curElement)
-                    parseResources(curElement);
-            }
-            function parseResources(resel) {
-                var curElement = resel.firstElementChild;
-                var src;
-                var childEl;
-                while (curElement) {
-                    if (curElement.localName === "ResourceDictionary") {
-                        if (src = curElement.getAttribute("Source"))
-                            rdResources.push(Fayde.Xaml.RegisterResourceDictionary(new Uri(src)));
-                        childEl = curElement.firstElementChild;
-                        while (childEl) {
-                            if (childEl.localName === "ResourceDictionary.MergedDictionaries") {
-                                parseResources(childEl);
-                                break;
-                            }
-                            childEl = childEl.nextElementSibling;
-                        }
-                    }
-                    curElement = curElement.nextElementSibling;
-                }
-            }
-            function collectDependencies() {
-                var deps = [];
-
-                var next;
-                var attrs;
-                var curElement = ctx.Document.documentElement;
-                var nsUri;
-                while (curElement) {
-                    nsUri = curElement.namespaceURI;
-                    if (nsUri !== null && nsUri !== Fayde.XMLNS && nsUri !== Fayde.XMLNSX)
-                        deps.push({ NamespaceUri: curElement.namespaceURI, Name: curElement.localName });
-
-                    attrs = curElement.attributes;
-
-                    //TODO: Finish finding needed dependencies in attributes
-                    next = curElement.nextElementSibling;
-                    if (!next)
-                        next = curElement.parentNode.nextElementSibling;
-                    curElement = next;
-                }
-
-                return deps;
-            }
-            function finishLoad() {
-                var el = ctx.Document.documentElement;
-                var nsUri = el.namespaceURI || Fayde.XMLNS;
-                var resolution = Fayde.TypeResolver.Resolve(nsUri, el.localName);
-                if (resolution === undefined)
-                    throw new XamlParseException("Could not resolve application type '" + nsUri + ":" + el.localName + "'");
-
-                var app = new resolution.Type();
-                theme.Create();
-                Object.defineProperty(app, "Theme", { value: theme, writable: false });
-                Fayde.Application.Current = app;
-                if (!(app instanceof Fayde.Application))
-                    throw new XamlParseException("Root Element must be an Application.");
-
-                app.Sources._ht = appSources;
-                app.Libraries._ht = appLibraries;
-                app.MainSurface.Register(canvas);
-
-                ctx.ObjectStack.push(app);
-                var childProcessor = createXamlChildProcessor(app, resolution.Type, ctx);
-                childProcessor.Process(el);
-                app.Sources._ht = appSources;
-                app.Libraries._ht = appLibraries;
-                ctx.ObjectStack.pop();
-                TimelineProfile.Parse(false, "App");
-                Fayde.Application.Current.Start();
-            }
-
-            return {
-                Load: function () {
-                    preloadLibraries();
-                    registerSources();
-                    preloadResourceDictionaries();
-                    collectDependencies();
-                    var loaders = appSources.slice(0);
-                    loaders.push.apply(loaders, appLibraries);
-                    loaders.push.apply(loaders, rdResources);
-                    loaders.push(theme);
-                    Fayde.Runtime.LoadBatchAsync(loaders, function () {
-                        return finishLoad();
-                    });
-                }
-            };
-        }
-
-        /// THEME
-        var Theme = (function () {
-            function Theme(url) {
-                this.Url = url;
-            }
-            Theme.prototype.Create = function () {
-                var rd = Load(this._Xaml);
-                Object.defineProperty(this, "Resources", { value: rd, writable: false });
-            };
-
-            Theme.prototype.LoadAsync = function (onLoaded) {
-                var _this = this;
-                var request = new Fayde.AjaxRequest(function (result) {
-                    _this._Xaml = result.GetData();
-                    onLoaded(_this);
-                }, function (error) {
-                    console.warn("Could not load Theme: " + error);
-                    onLoaded(_this);
-                });
-                request.Get(this.Url);
-            };
-            return Theme;
-        })();
-        Xaml.Theme = Theme;
 
         /// RESOURCE DICTIONARY
         function processResourceDictionary(el, rd, ctx) {
@@ -8637,10 +8538,10 @@ var Fayde;
         function loadResourceDictionary(rd) {
             if (rd._IsSourceLoaded)
                 return;
-            var resource = Fayde.Xaml.MapResourceDictionary(rd.Source);
-            if (!resource)
+            var xd = Fayde.Xaml.XamlDocument.Get(rd.Source);
+            if (!xd)
                 return;
-            var doc = resource.Document;
+            var doc = xd.Document;
             if (!doc)
                 return;
 
@@ -8695,6 +8596,119 @@ var Fayde;
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
+/// <reference path="../Core/FrameworkElement.ts" />
+/// <reference path="../Xaml/XamlDocument.ts" />
+/// <reference path="../Xaml/XamlLoader.ts" />
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        var fxd = new Fayde.Xaml.XamlDocument("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
+        var fallbackTemplate;
+        function getFallbackTemplate() {
+            return fallbackTemplate = fallbackTemplate || Fayde.Xaml.Load(fxd.Document);
+        }
+
+        var ContentPresenterNode = (function (_super) {
+            __extends(ContentPresenterNode, _super);
+            function ContentPresenterNode(xobj) {
+                _super.call(this, xobj);
+            }
+            Object.defineProperty(ContentPresenterNode.prototype, "ContentRoot", {
+                get: function () {
+                    return this._ContentRoot;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            ContentPresenterNode.prototype.DoApplyTemplateWithError = function (error) {
+                if (this._ContentRoot)
+                    return false;
+
+                var xobj = this.XObject;
+                if (xobj.TemplateOwner instanceof Fayde.Controls.ContentControl) {
+                    if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === DependencyProperty.UnsetValue) {
+                        xobj.SetValue(ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(Fayde.Controls.ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+                    }
+                    if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === DependencyProperty.UnsetValue) {
+                        xobj.SetValue(ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(Fayde.Controls.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+                    }
+                }
+
+                var content = xobj.Content;
+                if (!content)
+                    return false;
+
+                if (content instanceof Fayde.UIElement)
+                    this._ContentRoot = content;
+                else
+                    this._ContentRoot = (xobj.ContentTemplate || getFallbackTemplate()).GetVisualTree(xobj);
+
+                if (!this._ContentRoot)
+                    return false;
+
+                return this.AttachVisualChild(this._ContentRoot, error);
+            };
+
+            ContentPresenterNode.prototype.ClearRoot = function () {
+                if (this._ContentRoot)
+                    this.DetachVisualChild(this._ContentRoot, null);
+                this._ContentRoot = null;
+            };
+
+            ContentPresenterNode.prototype._ContentChanged = function (args) {
+                var newContent = args.NewValue;
+                var newUie;
+                if (newContent instanceof Fayde.UIElement)
+                    newUie = newContent;
+
+                if (newUie || args.OldValue instanceof Fayde.UIElement)
+                    this.ClearRoot();
+
+                if (newContent && !newUie)
+                    this.XObject.DataContext = newContent;
+                else
+                    this.XObject.DataContext = undefined;
+
+                this.LayoutUpdater.InvalidateMeasure();
+            };
+            ContentPresenterNode.prototype._ContentTemplateChanged = function () {
+                this.ClearRoot();
+                this.LayoutUpdater.InvalidateMeasure();
+            };
+            return ContentPresenterNode;
+        })(Fayde.FENode);
+        Controls.ContentPresenterNode = ContentPresenterNode;
+        Fayde.RegisterType(ContentPresenterNode, "Fayde.Controls");
+
+        var ContentPresenter = (function (_super) {
+            __extends(ContentPresenter, _super);
+            function ContentPresenter() {
+                _super.apply(this, arguments);
+            }
+            ContentPresenter.prototype.CreateNode = function () {
+                return new ContentPresenterNode(this);
+            };
+
+            ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () {
+                return Object;
+            }, ContentPresenter, undefined, function (d, args) {
+                return d.XamlNode._ContentChanged(args);
+            });
+            ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
+                return Fayde.DataTemplate;
+            }, ContentPresenter, undefined, function (d, args) {
+                return d.XamlNode._ContentTemplateChanged();
+            });
+
+            ContentPresenter.Annotations = { ContentProperty: ContentPresenter.ContentProperty };
+            return ContentPresenter;
+        })(Fayde.FrameworkElement);
+        Controls.ContentPresenter = ContentPresenter;
+        Fayde.RegisterType(ContentPresenter, "Fayde.Controls", Fayde.XMLNS);
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
 /// <reference path="../Xaml/XamlLoader.ts" />
 var Fayde;
 (function (Fayde) {
@@ -8715,16 +8729,148 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
-/// <reference path="ContentControl.ts" />
+/// <reference path="Control.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var ERROR_PAGE_XAML = "<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\"><TextBlock Text=\"An error occurred navigating.\" /></Page>";
-        var ERROR_PAGE = undefined;
+        var UserControl = (function (_super) {
+            __extends(UserControl, _super);
+            function UserControl() {
+                _super.apply(this, arguments);
+            }
+            UserControl.prototype.CreateLayoutUpdater = function (node) {
+                return new UserControlLayoutUpdater(node);
+            };
+
+            UserControl.prototype.InitializeComponent = function () {
+                this.ApplyTemplate();
+            };
+
+            UserControl.prototype._InvalidateContent = function (args) {
+                var node = this.XamlNode;
+                var error = new BError();
+                if (args.OldValue instanceof Fayde.UIElement)
+                    node.DetachVisualChild(args.OldValue, error);
+                if (args.NewValue instanceof Fayde.UIElement)
+                    node.AttachVisualChild(args.NewValue, error);
+                if (error.Message)
+                    error.ThrowException();
+                node.LayoutUpdater.UpdateBounds();
+            };
+            UserControl.ContentProperty = DependencyProperty.Register("Content", function () {
+                return Object;
+            }, UserControl, undefined, function (d, args) {
+                return d._InvalidateContent(args);
+            });
+
+            UserControl.Annotations = { ContentProperty: UserControl.ContentProperty };
+            return UserControl;
+        })(Fayde.Controls.Control);
+        Controls.UserControl = UserControl;
+        Fayde.RegisterType(UserControl, "Fayde.Controls", Fayde.XMLNS);
+
+        var UserControlLayoutUpdater = (function (_super) {
+            __extends(UserControlLayoutUpdater, _super);
+            function UserControlLayoutUpdater(node) {
+                _super.call(this, node);
+                this.BreaksLayoutClipRender = true;
+                this.SetContainerMode(true);
+            }
+            UserControlLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
+                var desired;
+                availableSize = size.copyTo(availableSize);
+
+                var uc = this.Node.XObject;
+                var padding = uc.Padding;
+                var borderThickness = uc.BorderThickness;
+                var border = null;
+                if (!padding)
+                    border = borderThickness;
+                else if (!borderThickness)
+                    border = padding;
+                else
+                    border = padding.Plus(borderThickness);
+
+                if (border)
+                    size.shrinkByThickness(availableSize, border);
+
+                var enumerator = this.Node.GetVisualTreeEnumerator();
+                while (enumerator.MoveNext()) {
+                    var childLu = enumerator.Current.LayoutUpdater;
+                    childLu._Measure(availableSize, error);
+                    desired = size.copyTo(childLu.DesiredSize);
+                }
+                if (!desired)
+                    desired = new size();
+                if (border)
+                    size.growByThickness(desired, border);
+                return desired;
+            };
+            UserControlLayoutUpdater.prototype.ArrangeOverride = function (finalSize, error) {
+                var uc = this.Node.XObject;
+                var padding = uc.Padding;
+                var borderThickness = uc.BorderThickness;
+                var border = null;
+                if (!padding)
+                    border = borderThickness;
+                else if (!borderThickness)
+                    border = padding;
+                else
+                    border = padding.Plus(borderThickness);
+
+                var arranged = null;
+
+                var enumerator = this.Node.GetVisualTreeEnumerator();
+                while (enumerator.MoveNext()) {
+                    var childLu = enumerator.Current.LayoutUpdater;
+                    var childRect = rect.fromSize(finalSize);
+                    if (border)
+                        rect.shrinkByThickness(childRect, border);
+                    childLu._Arrange(childRect, error);
+                    arranged = size.fromRect(childRect);
+                    if (border)
+                        size.growByThickness(arranged, border);
+                }
+                if (arranged)
+                    return arranged;
+                return finalSize;
+            };
+            return UserControlLayoutUpdater;
+        })(Fayde.LayoutUpdater);
+        Controls.UserControlLayoutUpdater = UserControlLayoutUpdater;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+/// <reference path="UserControl.ts" />
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        var Page = (function (_super) {
+            __extends(Page, _super);
+            function Page() {
+                _super.call(this);
+            }
+            Page.TitleProperty = DependencyProperty.Register("Title", function () {
+                return String;
+            }, Page);
+            return Page;
+        })(Fayde.Controls.UserControl);
+        Controls.Page = Page;
+        Fayde.RegisterType(Page, "Fayde.Controls", Fayde.XMLNS);
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+/// <reference path="ContentControl.ts" />
+/// <reference path="../Xaml/XamlDocument.ts" />
+/// <reference path="../Xaml/XamlLoader.ts" />
+/// <reference path="Page.ts" />
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        var errorxd = new Fayde.Xaml.XamlDocument("<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" Title=\"Error\"><TextBlock Text=\"An error occurred navigating.\" /></Page>");
+        var errorPage;
         function getErrorPage() {
-            if (!ERROR_PAGE)
-                ERROR_PAGE = Fayde.Xaml.Load(ERROR_PAGE_XAML);
-            return ERROR_PAGE;
+            return errorPage = errorPage || Fayde.Xaml.Load(errorxd.Document);
         }
 
         var Frame = (function (_super) {
@@ -8749,10 +8895,7 @@ var Fayde;
                 //TODO: Implement
             };
             Frame.prototype.StopLoading = function () {
-                if (this._PageResolver) {
-                    this._PageResolver.Stop();
-                    this._PageResolver = null;
-                }
+                //TODO: Implement
             };
             Frame.prototype._FrameLoaded = function (sender, e) {
                 if (this.IsDeepLinked) {
@@ -8778,29 +8921,27 @@ var Fayde;
                 var target = targetUri.toString();
                 if (!target)
                     throw new InvalidOperationException("Cannot resolve empty url.");
-                this._PageResolver = Fayde.Xaml.PageResolver.Resolve(target, function (xaml) {
-                    return _this._HandleSuccess(xaml);
-                }, function (error) {
+
+                Fayde.Xaml.LoadAsync(target).success(function (xo) {
+                    return _this._HandleSuccess(xo);
+                }).error(function (error) {
                     return _this._HandleError(error);
                 });
             };
-            Frame.prototype._HandleSuccess = function (xaml) {
-                this._PageResolver = null;
-                TimelineProfile.Parse(true, "Page");
-                var page = Fayde.Xaml.LoadDocument(xaml);
-                TimelineProfile.Parse(false, "Page");
-                this.Content = page;
-                document.title = page.Title;
+            Frame.prototype._HandleSuccess = function (xo) {
+                if (!(xo instanceof Fayde.Controls.Page))
+                    return this._HandleError("Xaml must be a Page.");
+                this._SetPage(xo);
                 TimelineProfile.Navigate(false);
                 TimelineProfile.IsNextLayoutPassProfiled = true;
             };
             Frame.prototype._HandleError = function (error) {
-                this._PageResolver = null;
-                document.title = "Error";
-                var page = getErrorPage();
-                page.DataContext = error;
-                this.Content = page;
+                this._SetPage(getErrorPage());
                 TimelineProfile.Navigate(false);
+            };
+            Frame.prototype._SetPage = function (page) {
+                document.title = page.Title;
+                this.Content = page;
             };
 
             Frame.prototype.SourcePropertyChanged = function (args) {
@@ -10736,9 +10877,23 @@ var Fayde;
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
 /// <reference path="../Core/FrameworkElement.ts" />
+/// <reference path="../Xaml/XamlDocument.ts" />
+/// <reference path="../Xaml/XamlLoader.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        var spxd = new Fayde.Xaml.XamlDocument("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>");
+        var spft;
+
+        var vspxd = new Fayde.Xaml.XamlDocument("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>");
+        var vspft;
+
+        function getFallbackTemplate(ic) {
+            if (ic instanceof Fayde.Controls.ListBox)
+                return vspft = vspft || Fayde.Xaml.Load(vspxd.Document);
+            return spft = spft || Fayde.Xaml.Load(spxd.Document);
+        }
+
         var ItemsPresenterNode = (function (_super) {
             __extends(ItemsPresenterNode, _super);
             function ItemsPresenterNode(xobj) {
@@ -10747,27 +10902,6 @@ var Fayde;
             Object.defineProperty(ItemsPresenterNode.prototype, "ElementRoot", {
                 get: function () {
                     return this._ElementRoot;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(ItemsPresenterNode.prototype, "StackPanelFallbackTemplate", {
-                get: function () {
-                    var spft = this._SPFT;
-                    if (!spft)
-                        spft = this._SPFT = Fayde.Xaml.Load("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>");
-                    return spft;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(ItemsPresenterNode.prototype, "VirtualizingStackPanelFallbackTemplate", {
-                get: function () {
-                    var vspft = this._VSPFT;
-                    if (!vspft)
-                        vspft = this._VSPFT = Fayde.Xaml.Load("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>");
-                    return vspft;
                 },
                 enumerable: true,
                 configurable: true
@@ -10784,15 +10918,8 @@ var Fayde;
 
                 if (ic.ItemsPanel)
                     this._ElementRoot = ic.ItemsPanel.GetVisualTree(xobj);
-
-                if (!this._ElementRoot) {
-                    var template;
-                    if (ic instanceof Fayde.Controls.ListBox)
-                        template = this.VirtualizingStackPanelFallbackTemplate;
-                    else
-                        template = this.StackPanelFallbackTemplate;
-                    this._ElementRoot = template.GetVisualTree(xobj);
-                }
+                if (!this._ElementRoot)
+                    this._ElementRoot = getFallbackTemplate(ic).GetVisualTree(xobj);
 
                 this._ElementRoot.IsItemsHost = true;
                 if (!this.FinishApplyTemplateWithError(this._ElementRoot, error))
@@ -11183,137 +11310,6 @@ var Fayde;
             return MediaElementLayoutUpdater;
         })(Fayde.LayoutUpdater);
         Controls.MediaElementLayoutUpdater = MediaElementLayoutUpdater;
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-/// <reference path="Control.ts" />
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        var UserControl = (function (_super) {
-            __extends(UserControl, _super);
-            function UserControl() {
-                _super.apply(this, arguments);
-            }
-            UserControl.prototype.CreateLayoutUpdater = function (node) {
-                return new UserControlLayoutUpdater(node);
-            };
-
-            UserControl.prototype.InitializeComponent = function () {
-                this.ApplyTemplate();
-            };
-
-            UserControl.prototype._InvalidateContent = function (args) {
-                var node = this.XamlNode;
-                var error = new BError();
-                if (args.OldValue instanceof Fayde.UIElement)
-                    node.DetachVisualChild(args.OldValue, error);
-                if (args.NewValue instanceof Fayde.UIElement)
-                    node.AttachVisualChild(args.NewValue, error);
-                if (error.Message)
-                    error.ThrowException();
-                node.LayoutUpdater.UpdateBounds();
-            };
-            UserControl.ContentProperty = DependencyProperty.Register("Content", function () {
-                return Object;
-            }, UserControl, undefined, function (d, args) {
-                return d._InvalidateContent(args);
-            });
-
-            UserControl.Annotations = { ContentProperty: UserControl.ContentProperty };
-            return UserControl;
-        })(Fayde.Controls.Control);
-        Controls.UserControl = UserControl;
-        Fayde.RegisterType(UserControl, "Fayde.Controls", Fayde.XMLNS);
-
-        var UserControlLayoutUpdater = (function (_super) {
-            __extends(UserControlLayoutUpdater, _super);
-            function UserControlLayoutUpdater(node) {
-                _super.call(this, node);
-                this.BreaksLayoutClipRender = true;
-                this.SetContainerMode(true);
-            }
-            UserControlLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
-                var desired;
-                availableSize = size.copyTo(availableSize);
-
-                var uc = this.Node.XObject;
-                var padding = uc.Padding;
-                var borderThickness = uc.BorderThickness;
-                var border = null;
-                if (!padding)
-                    border = borderThickness;
-                else if (!borderThickness)
-                    border = padding;
-                else
-                    border = padding.Plus(borderThickness);
-
-                if (border)
-                    size.shrinkByThickness(availableSize, border);
-
-                var enumerator = this.Node.GetVisualTreeEnumerator();
-                while (enumerator.MoveNext()) {
-                    var childLu = enumerator.Current.LayoutUpdater;
-                    childLu._Measure(availableSize, error);
-                    desired = size.copyTo(childLu.DesiredSize);
-                }
-                if (!desired)
-                    desired = new size();
-                if (border)
-                    size.growByThickness(desired, border);
-                return desired;
-            };
-            UserControlLayoutUpdater.prototype.ArrangeOverride = function (finalSize, error) {
-                var uc = this.Node.XObject;
-                var padding = uc.Padding;
-                var borderThickness = uc.BorderThickness;
-                var border = null;
-                if (!padding)
-                    border = borderThickness;
-                else if (!borderThickness)
-                    border = padding;
-                else
-                    border = padding.Plus(borderThickness);
-
-                var arranged = null;
-
-                var enumerator = this.Node.GetVisualTreeEnumerator();
-                while (enumerator.MoveNext()) {
-                    var childLu = enumerator.Current.LayoutUpdater;
-                    var childRect = rect.fromSize(finalSize);
-                    if (border)
-                        rect.shrinkByThickness(childRect, border);
-                    childLu._Arrange(childRect, error);
-                    arranged = size.fromRect(childRect);
-                    if (border)
-                        size.growByThickness(arranged, border);
-                }
-                if (arranged)
-                    return arranged;
-                return finalSize;
-            };
-            return UserControlLayoutUpdater;
-        })(Fayde.LayoutUpdater);
-        Controls.UserControlLayoutUpdater = UserControlLayoutUpdater;
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-/// <reference path="UserControl.ts" />
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        var Page = (function (_super) {
-            __extends(Page, _super);
-            function Page() {
-                _super.call(this);
-            }
-            Page.TitleProperty = DependencyProperty.Register("Title", function () {
-                return String;
-            }, Page);
-            return Page;
-        })(Fayde.Controls.UserControl);
-        Controls.Page = Page;
-        Fayde.RegisterType(Page, "Fayde.Controls", Fayde.XMLNS);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -18355,7 +18351,10 @@ var Fayde;
             var index = this._Keys.indexOf(key);
             if (index > -1)
                 return this._Values[index];
-            return this.MergedDictionaries.Get(key);
+            var md = this._MergedDictionaries;
+            if (md)
+                return md.Get(key);
+            return undefined;
         };
         ResourceDictionary.prototype.Set = function (key, value) {
             if (key === undefined)
@@ -21478,8 +21477,6 @@ var Fayde;
             this.MainSurface = new Fayde.Surface(this);
             this.DebugInterop = new Fayde.DebugInterop(this);
             this.Address = new Uri(document.URL);
-            Application.SourcesProperty.Initialize(this);
-            Application.LibrariesProperty.Initialize(this);
         }
         Object.defineProperty(Application.prototype, "RootVisual", {
             get: function () {
@@ -21489,6 +21486,23 @@ var Fayde;
             configurable: true
         });
 
+        Application.prototype.Resolve = function () {
+            var _this = this;
+            var d = defer();
+
+            this.Theme.Resolve().success(function (theme) {
+                return d.resolve(_this);
+            }).error(d.reject);
+
+            return d.request;
+        };
+        Application.prototype.$$SetRootVisual = function (value) {
+            this._RootVisual = value;
+        };
+        Application.prototype.Attach = function (canvas) {
+            this.MainSurface.Register(canvas);
+            this.MainSurface.Attach(this._RootVisual);
+        };
         Application.prototype.Start = function () {
             this._ClockTimer.RegisterTimer(this);
             this.Loaded.RaiseAsync(this, EventArgs.Empty);
@@ -21549,17 +21563,18 @@ var Fayde;
 
         Application.prototype.GetImplicitStyle = function (type) {
             var theme = this.Theme;
-            var rd;
             var style;
-            if (theme && (rd = theme.Resources) && (style = rd.Get(type)) && (style instanceof Fayde.Style))
+            if (theme && (style = theme.GetImplicitStyle(type)))
                 return style;
 
+            /*
             var enumerator = this.Libraries.GetEnumerator();
             while (enumerator.MoveNext()) {
-                style = enumerator.Current.GetImplicitStyle(type);
-                if (style)
-                    return style;
+            style = enumerator.Current.GetImplicitStyle(type);
+            if (style)
+            return style;
             }
+            */
             return undefined;
         };
 
@@ -21574,13 +21589,8 @@ var Fayde;
         Application.ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", function () {
             return Fayde.ResourceDictionary;
         }, Application);
-
-        Application.SourcesProperty = DependencyProperty.RegisterImmutable("Sources", function () {
-            return Fayde.XamlObjectCollection;
-        }, Application);
-
-        Application.LibrariesProperty = DependencyProperty.RegisterImmutable("Libraries", function () {
-            return Fayde.XamlObjectCollection;
+        Application.ThemeProperty = DependencyProperty.Register("Theme", function () {
+            return Fayde.Theme;
         }, Application);
         return Application;
     })(Fayde.DependencyObject);
@@ -21611,24 +21621,31 @@ var Fayde;
         window.onload = onReady;
     }
     doOnReady(Run);
-    function Run() {
+    function Run(loaded) {
         if (isReady)
-            return;
+            return loaded && loaded(Fayde.Application.Current);
         isReady = true;
         var url = document.body.getAttribute("faydeapp");
         if (!url)
             return;
+
         var canvas = document.getElementsByTagName("canvas")[0];
         if (!canvas)
             document.body.appendChild(canvas = document.createElement("canvas"));
 
-        var request = new Fayde.AjaxRequest(function (result) {
-            Fayde.Xaml.LoadApplication(result.GetData(), canvas);
-        }, function (error) {
+        Fayde.Xaml.LoadApplicationAsync(url).success(function (app) {
+            (Application.Current = app).Resolve().success(function (app) {
+                app.Attach(canvas);
+                app.Start();
+                loaded && loaded(app);
+            }).error(function (error) {
+                alert("An error occurred loading the application.");
+                console.log("An error occurred loading the application. " + error);
+            });
+        }).error(function (error) {
             alert("An error occurred retrieving the application.");
             console.log("An error occurred retrieving the application. " + error);
         });
-        request.Get(url);
     }
     Fayde.Run = Run;
 })(Fayde || (Fayde = {}));
@@ -22545,6 +22562,13 @@ var Fayde;
                 if (!this._Extents)
                     this._Extents = size.fromRaw(this._Canvas.offsetWidth, this._Canvas.offsetHeight);
                 return this._Extents;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Surface.prototype, "App", {
+            get: function () {
+                return this._App;
             },
             enumerable: true,
             configurable: true
@@ -32014,111 +32038,6 @@ Fayde.RegisterTypeConverter(TimeSpan, function (val) {
 
     return TimeSpan.FromArgs(days, hours, minutes, seconds, milliseconds);
 });
-var Fayde;
-(function (Fayde) {
-    var AjaxRequest = (function () {
-        function AjaxRequest(OnSuccess, OnError) {
-            this.OnSuccess = OnSuccess;
-            this.OnError = OnError;
-            this.xmlhttp = null;
-        }
-        AjaxRequest.prototype.Get = function (url, query) {
-            this._PrepareRequest();
-            var fullUrl = url;
-            if (query)
-                fullUrl += "?" + query;
-            this.xmlhttp.open("GET", fullUrl, true);
-            this.xmlhttp.send();
-        };
-        AjaxRequest.prototype.Post = function (url, query, data) {
-            this._PrepareRequest();
-            var fullUrl = url;
-            if (query)
-                fullUrl += "?" + query;
-            this.xmlhttp.open("POST", fullUrl, true);
-            this.xmlhttp.send(data);
-        };
-        AjaxRequest.prototype.Cancel = function () {
-            this.xmlhttp.abort();
-        };
-
-        AjaxRequest.prototype._PrepareRequest = function () {
-            var _this = this;
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = function () {
-                return _this._HandleStateChange();
-            };
-            this.xmlhttp = xmlhttp;
-        };
-        AjaxRequest.prototype._HandleStateChange = function () {
-            if (this.xmlhttp.readyState === 4) {
-                var req = this.xmlhttp;
-                this.xmlhttp = undefined;
-                if (req.status === 200) {
-                    this.OnSuccess(new AjaxResult(req));
-                } else {
-                    this.OnError("Unsuccessful request: " + req.status);
-                }
-            }
-        };
-        return AjaxRequest;
-    })();
-    Fayde.AjaxRequest = AjaxRequest;
-
-    var AjaxResult = (function () {
-        function AjaxResult(xmlhttp) {
-            this.xmlhttp = xmlhttp;
-        }
-        AjaxResult.prototype.GetData = function () {
-            var data = this.xmlhttp.responseText;
-            if (!data)
-                return null;
-            return data;
-        };
-        AjaxResult.prototype.CreateJson = function () {
-            var data = this.xmlhttp.responseText;
-            if (!data)
-                return null;
-
-            if (window.JSON && JSON.parse) {
-                try  {
-                    return JSON.parse(data);
-                } catch (err) {
-                }
-            }
-
-            try  {
-                return new Function("return " + data)();
-            } catch (err) {
-                throw new InvalidJsonException(data, err);
-            }
-        };
-        AjaxResult.prototype.GetHeader = function (name) {
-            return this.xmlhttp.getResponseHeader(name);
-        };
-        return AjaxResult;
-    })();
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Runtime) {
-        function LoadBatchAsync(loaders, onLoaded) {
-            var loadedcount = 0;
-            var count = loaders.length;
-            if (count === 0)
-                return onLoaded();
-            for (var i = 0; i < count; i++) {
-                loaders[i].LoadAsync(function (state) {
-                    loadedcount++;
-                    if (loadedcount >= count)
-                        onLoaded();
-                });
-            }
-        }
-        Runtime.LoadBatchAsync = LoadBatchAsync;
-    })(Fayde.Runtime || (Fayde.Runtime = {}));
-    var Runtime = Fayde.Runtime;
-})(Fayde || (Fayde = {}));
 /// <reference path="../Runtime/TypeManagement.ts" />
 var BError = (function () {
     function BError() {
@@ -35242,6 +35161,96 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    var Theme = (function () {
+        function Theme() {
+            this._IsLoaded = false;
+            this._LoadError = null;
+            this._Uri = null;
+            this.Resources = null;
+            this._ActiveDeferrable = null;
+        }
+        Object.defineProperty(Theme.prototype, "Uri", {
+            get: function () {
+                return this._Uri;
+            },
+            set: function (value) {
+                this._Uri = value;
+                this._Load();
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        Theme.prototype.Resolve = function () {
+            var d = defer();
+            if (this._IsLoaded) {
+                if (!this._LoadError)
+                    d.resolve(this);
+                else
+                    d.reject(this._LoadError);
+            } else {
+                this._ActiveDeferrable = d;
+            }
+            return d.request;
+        };
+
+        Theme.prototype._Load = function () {
+            var _this = this;
+            var uri = this.Uri;
+            if (!uri)
+                return;
+            Fayde.Xaml.LoadAsync("text!" + uri.toString()).success(function (xobj) {
+                return _this._HandleSuccess(xobj);
+            }).error(function (error) {
+                return _this._HandleError(error);
+            });
+        };
+        Theme.prototype._HandleSuccess = function (xobj) {
+            var rd = xobj;
+            if (!(rd instanceof Fayde.ResourceDictionary))
+                return this._HandleError("Theme root must be a ResourceDictionary.");
+            Object.defineProperty(this, "Resources", { value: rd, writable: false });
+            this._IsLoaded = true;
+            if (this._ActiveDeferrable) {
+                this._ActiveDeferrable.resolve(this);
+                this._ActiveDeferrable = null;
+            }
+        };
+        Theme.prototype._HandleError = function (error) {
+            this._LoadError = error;
+            this._IsLoaded = true;
+            if (this._ActiveDeferrable) {
+                this._ActiveDeferrable.reject(error);
+                this._ActiveDeferrable = null;
+            }
+        };
+
+        Theme.prototype.GetImplicitStyle = function (type) {
+            var rd = this.Resources;
+            if (!rd)
+                return;
+            var style = rd.Get(type);
+            if (style instanceof Fayde.Style)
+                return style;
+            return undefined;
+        };
+        return Theme;
+    })();
+    Fayde.Theme = Theme;
+    Fayde.RegisterType(Theme, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterTypeConverter(Theme, function (val) {
+        if (!val)
+            return undefined;
+        if (typeof val === "string") {
+            var theme = new Theme();
+            theme.Uri = new Uri(val);
+            return theme;
+        }
+        return val;
+    });
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     (function (Path) {
         function Arc(x, y, radius, sa, ea, cc) {
             var inited = false;
@@ -37209,65 +37218,68 @@ var Vector;
     }
     Vector.intersection = intersection;
 })(Vector || (Vector = {}));
-/// <reference path="../Core/DependencyObject.ts" />
-var Fayde;
-(function (Fayde) {
-    (function (Xaml) {
-        var Library = (function (_super) {
-            __extends(Library, _super);
-            function Library() {
-                _super.apply(this, arguments);
-            }
-            Library.prototype.Register = function () {
-                var pkg = this.PackageUri;
-                if (!pkg)
-                    return;
-                var pkgstr = pkg.OriginalString;
-                if (pkgstr[pkgstr.length - 1] !== "/")
-                    pkgstr += "/";
+function defer() {
+    var resolved = false;
+    var errored = false;
+    var resolvedobj = undefined;
+    var errorobj = undefined;
 
-                this._Script = Fayde.Xaml.RegisterResource(0 /* Script */, pkgstr + "source.js", "package:" + pkgstr, "source");
-                this._GenericXaml = Fayde.Xaml.RegisterResourceDictionary(new Uri(pkgstr + "generic.xml"));
-            };
+    var s;
+    var e;
+    var c;
+    var p = {
+        success: function (callback) {
+            s = callback;
+            if (resolved)
+                callback(resolvedobj);
+            return this;
+        },
+        error: function (callback) {
+            e = callback;
+            if (errored)
+                callback(errorobj);
+            return this;
+        }
+    };
 
-            Library.prototype.GetImplicitStyle = function (type) {
-                var rd = this._ResourceDictionary;
-                if (!rd)
-                    return undefined;
-                var s = rd.Get(type);
-                if (!s)
-                    return undefined;
-                if (s instanceof Fayde.Style)
-                    return s;
-                return undefined;
-            };
+    var d = {
+        request: p,
+        resolve: function (result) {
+            resolved = true;
+            resolvedobj = result;
+            s && s(result);
+        },
+        reject: function (error) {
+            errored = true;
+            errorobj = error;
+            e && e(error);
+        }
+    };
+    return d;
+}
+function deferArray(arr, resolver) {
+    var d = defer();
 
-            Library.prototype.LoadAsync = function (onLoaded) {
-                var _this = this;
-                var loaders = [];
-                if (this._GenericXaml)
-                    loaders.push(this._GenericXaml);
-                if (this._Script)
-                    loaders.push(this._Script);
-                Fayde.Runtime.LoadBatchAsync(loaders, function () {
-                    return _this._OnLoaded(onLoaded);
-                });
-            };
+    var ts = [];
+    var errors = [];
+    for (var i = 0, len = arr.length; i < len; i++) {
+        resolver(arr[i]).success(tryFinish).error(function (error) {
+            errors.push(error);
+            tryFinish(null);
+        });
+    }
 
-            Library.prototype._OnLoaded = function (onLoaded) {
-                this._ResourceDictionary = Fayde.Xaml.LoadDocument(this._GenericXaml.Document);
-                onLoaded(this);
-            };
-            Library.PackageUriProperty = DependencyProperty.Register("PackageUri", function () {
-                return Uri;
-            }, Library);
-            return Library;
-        })(Fayde.DependencyObject);
-        Xaml.Library = Library;
-        Fayde.RegisterType(Library, "Fayde.Xaml", Fayde.XMLNS);
-    })(Fayde.Xaml || (Fayde.Xaml = {}));
-    var Xaml = Fayde.Xaml;
-})(Fayde || (Fayde = {}));
+    function tryFinish(t) {
+        ts.push(t);
+        if (ts.length === arr.length) {
+            if (errors.length > 0)
+                return d.reject(errors);
+            d.resolve(ts);
+        }
+    }
+
+    return d.request;
+}
 var Fayde;
 (function (Fayde) {
     (function (Xaml) {
@@ -37636,352 +37648,6 @@ var Fayde;
             if (oVal != null && !(binding.Filter = Fayde.IEventFilter_.As(oVal)))
                 throw new Exception("EventBinding Filter must implement IEventFilter.");
         };
-    })(Fayde.Xaml || (Fayde.Xaml = {}));
-    var Xaml = Fayde.Xaml;
-})(Fayde || (Fayde = {}));
-/// <reference path="../Runtime/TypeManagement.ts" />
-var Fayde;
-(function (Fayde) {
-    (function (Xaml) {
-        (function (ResourceType) {
-            ResourceType[ResourceType["Script"] = 0] = "Script";
-            ResourceType[ResourceType["Xaml"] = 1] = "Xaml";
-        })(Xaml.ResourceType || (Xaml.ResourceType = {}));
-        var ResourceType = Xaml.ResourceType;
-
-        var XamlResource = (function () {
-            function XamlResource(url) {
-                this._IsLoaded = false;
-                this._Xaml = null;
-                this._Error = null;
-                Object.defineProperty(this, "Url", { value: url, writable: false });
-            }
-            Object.defineProperty(XamlResource.prototype, "Document", {
-                get: function () {
-                    return this._Document;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(XamlResource.prototype, "IsLoaded", {
-                get: function () {
-                    return this._IsLoaded;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(XamlResource.prototype, "Error", {
-                get: function () {
-                    return this._Error;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            XamlResource.prototype.LoadAsync = function (onLoaded) {
-                var _this = this;
-                if (this._IsLoaded && this._Document) {
-                    onLoaded(this);
-                    return;
-                }
-                var request = new Fayde.AjaxRequest(function (result) {
-                    _this._Xaml = result.GetData();
-                    var parser = new DOMParser();
-                    _this._Document = parser.parseFromString(_this._Xaml, "text/xml");
-                    _this._IsLoaded = true;
-                    onLoaded(_this);
-                }, function (error) {
-                    _this._IsLoaded = true;
-                    console.warn("Could not load xaml resource: " + error.toString());
-                    _this._Error = error;
-                    onLoaded(_this);
-                });
-                request.Get(this.Url);
-            };
-            return XamlResource;
-        })();
-        var ScriptResource = (function () {
-            function ScriptResource(url) {
-                this._IsLoaded = false;
-                this._Script = null;
-                Object.defineProperty(this, "Url", { value: url, writable: false });
-            }
-            Object.defineProperty(ScriptResource.prototype, "IsLoaded", {
-                get: function () {
-                    return this._IsLoaded;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            ScriptResource.prototype.LoadAsync = function (onLoaded) {
-                var _this = this;
-                if (this._IsLoaded && this._Script) {
-                    onLoaded(this);
-                    return;
-                }
-                var script = this._Script = document.createElement("script");
-                script.type = "text/javascript";
-                script.src = this.Url;
-                script.onreadystatechange = function (e) {
-                    if (_this._IsLoaded || script.readyState !== "completed")
-                        return;
-                    _this._IsLoaded = true;
-                    onLoaded(_this);
-                };
-                script.onload = function () {
-                    if (_this._IsLoaded)
-                        return;
-                    _this._IsLoaded = true;
-                    onLoaded(_this);
-                };
-                script.onerror = function (error) {
-                    _this._Error = "Could not load script file.";
-                    _this._IsLoaded = true;
-                    onLoaded(_this);
-                };
-                var head = document.getElementsByTagName("head")[0];
-                head.appendChild(script);
-            };
-            return ScriptResource;
-        })();
-
-        var entireNamespaceName = "$_root_$";
-
-        var xamlresources = [];
-        var scriptresources = [];
-        function MapResource(type, namespaceURI, localName) {
-            var r;
-            if (type === 1 /* Xaml */) {
-                r = xamlresources;
-            } else if (type === 0 /* Script */) {
-                r = scriptresources;
-            } else {
-                return undefined;
-            }
-
-            var nsuri = namespaceURI.toLowerCase();
-            var names = r[nsuri];
-            if (!names)
-                return undefined;
-            var resource = names[localName];
-            if (!resource)
-                resource = names[entireNamespaceName];
-            return resource;
-        }
-        Xaml.MapResource = MapResource;
-
-        function RegisterResource(type, url, namespaceURI, localName) {
-            var r;
-            if (type === 1 /* Xaml */) {
-                r = xamlresources;
-            } else if (type === 0 /* Script */) {
-                r = scriptresources;
-            } else {
-                return undefined;
-            }
-
-            var nsuri = namespaceURI.toLowerCase();
-            var names = r[nsuri];
-            if (!names)
-                names = r[nsuri] = [];
-            var res = names[localName];
-            if (!res) {
-                if (type === 1 /* Xaml */) {
-                    names[localName] = res = new XamlResource(url);
-                } else if (type === 0 /* Script */) {
-                    names[localName] = res = new ScriptResource(url);
-                }
-            }
-            return res;
-        }
-        Xaml.RegisterResource = RegisterResource;
-        function RegisterRootResource(url, namespaceURI) {
-            var r = scriptresources;
-            var nsuri = namespaceURI.toLowerCase();
-            var names = r[nsuri];
-            if (!names)
-                names = r[nsuri] = [];
-            var res = names[entireNamespaceName];
-            if (!res)
-                res = names[entireNamespaceName] = new ScriptResource(url);
-            return res;
-        }
-        Xaml.RegisterRootResource = RegisterRootResource;
-
-        var rdresources = [];
-        function RegisterResourceDictionary(source) {
-            var url = source.toString();
-            if (!url)
-                return null;
-            var r = rdresources[url];
-            if (!r)
-                rdresources[url] = r = new XamlResource(url);
-            return r;
-        }
-        Xaml.RegisterResourceDictionary = RegisterResourceDictionary;
-        function MapResourceDictionary(source) {
-            var url;
-            if (!source || !(url = source.toString()))
-                return null;
-            return rdresources[url];
-        }
-        Xaml.MapResourceDictionary = MapResourceDictionary;
-
-        var PageResolver = (function () {
-            function PageResolver() {
-            }
-            PageResolver.Resolve = function (url, onSuccess, onError) {
-                var resolver = new PageResolver();
-                resolver._OnSuccess = onSuccess;
-                resolver._OnError = onError;
-                resolver._Url = url;
-                resolver._Xaml = new XamlResource(url);
-                resolver._Script = new ScriptResource(url + ".js");
-                resolver._Xaml.LoadAsync(function (xr) {
-                    return resolver._TryFinish();
-                });
-                resolver._Script.LoadAsync(function (sr) {
-                    return resolver._TryFinish();
-                });
-                return resolver;
-            };
-
-            PageResolver.prototype.Stop = function () {
-                //Nothing for now
-            };
-
-            PageResolver.prototype._TryFinish = function () {
-                if (!this._Xaml.IsLoaded || !this._Script.IsLoaded)
-                    return;
-                if (this._Xaml.Error)
-                    this._OnError(this._Xaml.Error);
-                else
-                    this._OnSuccess(this._Xaml.Document);
-            };
-            return PageResolver;
-        })();
-        Xaml.PageResolver = PageResolver;
-    })(Fayde.Xaml || (Fayde.Xaml = {}));
-    var Xaml = Fayde.Xaml;
-})(Fayde || (Fayde = {}));
-/// <reference path="../Runtime/TypeManagement.ts" />
-/// <reference path="../Core/DependencyObject.ts" />
-var Fayde;
-(function (Fayde) {
-    (function (Xaml) {
-        var Namespace = (function (_super) {
-            __extends(Namespace, _super);
-            function Namespace() {
-                _super.call(this);
-                Namespace.SourcesProperty.Initialize(this);
-            }
-            Namespace.prototype.RegisterSource = function () {
-                if (this.Source)
-                    this._Resource = Fayde.Xaml.RegisterRootResource(this.Source.toString(), this.Name);
-                var enumerator = this.Sources.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    enumerator.Current.RegisterSource(this.Name);
-                }
-            };
-
-            Namespace.prototype.LoadAsync = function (onLoaded) {
-                var _this = this;
-                var loaders = [];
-                if (this._Resource)
-                    loaders.push(this._Resource);
-                var enumerator = this.Sources.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    loaders.push(enumerator.Current);
-                }
-                Fayde.Runtime.LoadBatchAsync(loaders, function () {
-                    return onLoaded(_this);
-                });
-            };
-            Namespace.NameProperty = DependencyProperty.Register("Name", function () {
-                return String;
-            }, Namespace);
-            Namespace.SourceProperty = DependencyProperty.Register("Source", function () {
-                return Uri;
-            }, Namespace);
-            Namespace.SourcesProperty = DependencyProperty.RegisterImmutable("Sources", function () {
-                return Fayde.XamlObjectCollection;
-            }, Namespace);
-
-            Namespace.Annotations = { ContentProperty: Namespace.SourcesProperty };
-            return Namespace;
-        })(Fayde.DependencyObject);
-        Xaml.Namespace = Namespace;
-        Fayde.RegisterType(Namespace, "Fayde.Xaml", Fayde.XMLNS);
-
-        var Source = (function (_super) {
-            __extends(Source, _super);
-            function Source() {
-                _super.apply(this, arguments);
-            }
-            Source.prototype.RegisterSource = function (namespace) {
-                if (this.Source)
-                    this._Resource = Fayde.Xaml.RegisterResource(0 /* Script */, this.Source.toString(), namespace, this.Name);
-            };
-
-            Source.prototype.LoadAsync = function (onLoaded) {
-                var _this = this;
-                if (!this._Resource)
-                    onLoaded(this);
-                else
-                    this._Resource.LoadAsync(function () {
-                        return onLoaded(_this);
-                    });
-            };
-            Source.NameProperty = DependencyProperty.Register("Name", function () {
-                return String;
-            }, Source);
-            Source.SourceProperty = DependencyProperty.Register("Source", function () {
-                return Uri;
-            }, Source);
-            return Source;
-        })(Fayde.DependencyObject);
-        Xaml.Source = Source;
-        Fayde.RegisterType(Source, "Fayde.Xaml", Fayde.XMLNS);
-
-        var XamlSource = (function (_super) {
-            __extends(XamlSource, _super);
-            function XamlSource() {
-                _super.call(this);
-                XamlSource.CodeSourcesProperty.Initialize(this);
-            }
-            XamlSource.prototype.RegisterSource = function (namespace) {
-                if (this.Source)
-                    this._Resource = Fayde.Xaml.RegisterResource(1 /* Xaml */, this.Source.toString(), namespace, this.Name);
-                var enumerator = this.CodeSources.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    enumerator.Current.RegisterSource(namespace);
-                }
-            };
-
-            XamlSource.prototype.LoadAsync = function (onLoaded) {
-                var _this = this;
-                var loaders = [];
-                var res = this._Resource;
-                if (res)
-                    loaders.push(res);
-                var enumerator = this.CodeSources.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    loaders.push(enumerator.Current);
-                }
-                Fayde.Runtime.LoadBatchAsync(loaders, function () {
-                    return onLoaded(_this);
-                });
-            };
-            XamlSource.CodeSourcesProperty = DependencyProperty.RegisterImmutable("CodeSources", function () {
-                return Fayde.XamlObjectCollection;
-            }, XamlSource);
-
-            XamlSource.Annotations = { ContentProperty: XamlSource.CodeSourcesProperty };
-            return XamlSource;
-        })(Source);
-        Xaml.XamlSource = XamlSource;
-        Fayde.RegisterType(XamlSource, "Fayde.Xaml", Fayde.XMLNS);
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
