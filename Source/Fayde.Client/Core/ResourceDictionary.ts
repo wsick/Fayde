@@ -69,6 +69,7 @@ module Fayde {
             }
             return md;
         }
+
         Source: Uri;
 
         get Count(): number { return this._Values.length; }
@@ -84,7 +85,10 @@ module Fayde {
             var index = this._Keys.indexOf(key);
             if (index > -1)
                 return this._Values[index];
-            return this.MergedDictionaries.Get(key);
+            var md = this._MergedDictionaries;
+            if (md)
+                return md.Get(key);
+            return undefined;
         }
         Set(key: any, value: any): boolean {
             if (key === undefined)

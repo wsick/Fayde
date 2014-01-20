@@ -42,3 +42,28 @@ function defer<T>(): IDeferrable<T> {
     };
     return d;
 }
+function deferArray<S, T>(arr: S[], resolver: (s: S) => IAsyncRequest<T>): IAsyncRequest<T[]> {
+    var d = defer<T[]>();
+
+    var ts: T[] = [];
+    var errors: any[] = [];
+    for (var i = 0, len = arr.length; i < len; i++) {
+        resolver(arr[i])
+            .success(tryFinish)
+            .error(error => {
+                errors.push(error);
+                tryFinish(null);
+            });
+    }
+
+    function tryFinish(t: T) {
+        ts.push(t);
+        if (ts.length === arr.length) {
+            if (errors.length > 0)
+                return d.reject(errors);
+            d.resolve(ts);
+        }
+    }
+
+    return d.request;
+}

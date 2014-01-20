@@ -33,6 +33,15 @@ module Fayde {
 
         get RootVisual(): UIElement { return this.MainSurface._RootLayer; }
 
+        Resolve(): IAsyncRequest<Application> {
+            var d = defer<Application>();
+
+            this.Theme.Resolve()
+                .success(theme => d.resolve(this))
+                .error(d.reject);
+
+            return d.request;
+        }
         $$SetRootVisual(value: UIElement) {
             this._RootVisual = value;
         }
@@ -155,23 +164,22 @@ module Fayde {
         var url = document.body.getAttribute("faydeapp");
         if (!url)
             return;
-        
+
         var canvas = document.getElementsByTagName("canvas")[0];
         if (!canvas)
             document.body.appendChild(canvas = document.createElement("canvas"));
 
         Xaml.LoadApplicationAsync(url)
             .success(app => {
-                Application.Current = app;
-                app.Theme.Resolve()
-                    .success(theme => {
+                (Application.Current = app).Resolve()
+                    .success(app => {
                         app.Attach(canvas);
                         app.Start();
                         loaded && loaded(app);
                     })
                     .error(error => {
-                        alert("An error occurred loading the theme.");
-                        console.log("An error occurred loading the theme. " + error);
+                        alert("An error occurred loading the application.");
+                        console.log("An error occurred loading the application. " + error);
                     });
             })
             .error(error => {

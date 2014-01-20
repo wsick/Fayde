@@ -41,13 +41,20 @@ module Fayde.Xaml {
 
             var xamldone = false;
             var jsdone = xamlUrl === url;
+            var js: any = null;
 
             function tryFinishResolve() {
                 if (!jsdone || !xamldone)
                     return;
-                xd.Resolve()
-                    .success(o => d.resolve(regXds[xamlUrl] = xd))
-                    .error(d.reject);
+                if (!xd && !js) {
+                    d.reject("No module found at '" + url + "'.");
+                } else if (!js) {
+                    xd.Resolve()
+                        .success(o => d.resolve(regXds[xamlUrl] = xd))
+                        .error(d.reject);
+                } else {
+                    d.resolve(null);
+                }
             }
             (<Function>require)([xamlUrl],
                 (xaml: string) => {
@@ -65,6 +72,7 @@ module Fayde.Xaml {
             (<Function>require)([url],
                 (jsmodule: any) => {
                     jsdone = true;
+                    js = jsmodule;
                     tryFinishResolve();
                 },
                 (err: RequireError) => {
@@ -78,7 +86,7 @@ module Fayde.Xaml {
             var d = defer<any>();
             addDependencies(this.Document.documentElement, this._RequiredDependencies);
             if (this._RequiredDependencies.length > 0) {
-                resolveRecursive(this._RequiredDependencies)
+                deferArray(this._RequiredDependencies, Xaml.XamlDocument.Resolve)
                     .success(xds => d.resolve(this))
                     .error(errors => d.reject(errors));
             } else {
@@ -88,51 +96,32 @@ module Fayde.Xaml {
         }
     }
 
-    function resolveRecursive(deps: string[]): IAsyncRequest<XamlDocument[]> {
-        var d = defer<XamlDocument[]>();
-
-        var xds: XamlDocument[] = [];
-        var errors: any[] = [];
-        for (var i = 0, len = deps.length; i < len; i++) {
-            Xaml.XamlDocument.Resolve(deps[i])
-                .success(xd => {
-                    tryFinish(xd);
-                })
-                .error(error => {
-                    errors.push(error);
-                    tryFinish(null);
-                });
-        }
-
-        function tryFinish(xd: XamlDocument) {
-            xds.push(xd);
-            if (xds.length === deps.length) {
-                if (errors.length > 0)
-                    return d.reject(errors);
-                d.resolve(xds);
-            }
-        }
-
-        return d.request;
-    }
-
-    //TODO: We need to collect Application.Theme
-    //TODO: We need to collect ResourceDictionary.Source
     function addDependencies(el: Element, list: string[]) {
         while (el) {
-            addDependency(el, list);
+            getDependency(el, list);
             getAttributeDependencies(el, list);
+            getResourceDictionaryDependency(el, list);
             addDependencies(el.firstElementChild, list);
             el = el.nextElementSibling;
         }
     }
+    function getResourceDictionaryDependency(el: Element, list: string[]) {
+        if (el.localName !== "ResourceDictionary")
+            return;
+        if (el.namespaceURI !== Fayde.XMLNS)
+            return;
+        var srcAttr = el.getAttribute("Source");
+        if (!srcAttr)
+            return;
+        list.push("text!" + srcAttr);
+    }
     function getAttributeDependencies(el: Element, list: string[]) {
         var attrs = el.attributes;
         for (var i = 0, len = attrs.length; i < len; i++) {
-            addDependency(attrs[i], list);
+            getDependency(attrs[i], list);
         }
     }
-    function addDependency(node: Node, list: string[]) {
+    function getDependency(node: Node, list: string[]) {
         var nsUri = node.namespaceURI;
         if (!nsUri || nsUri === W3URI ||  nsUri === Fayde.XMLNS || nsUri === Fayde.XMLNSX)
             return;
