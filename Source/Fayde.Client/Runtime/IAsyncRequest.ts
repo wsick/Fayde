@@ -33,11 +33,13 @@ function defer<T>(): IDeferrable<T> {
         request: p,
         resolve: function (result: T) {
             resolved = true;
-            s && s(resolvedobj = result);
+            resolvedobj = result;
+            s && s(result);
         },
         reject: function (error: any) {
             errored = true;
-            e && e(errorobj = error);
+            errorobj = error;
+            e && e(error);
         }
     };
     return d;
