@@ -30,8 +30,6 @@ module Fayde.Xaml {
             var d = defer<XamlDocument>();
 
             var xamlUrl = "text!" + url;
-            if (url.substr(0, 5) === "text!")
-                xamlUrl = url;
 
             var xd = regXds[xamlUrl];
             if (xd) {
@@ -39,56 +37,25 @@ module Fayde.Xaml {
                 return d.request;
             }
 
-            var xamldone = false;
-            var jsdone = xamlUrl === url;
-            var js: any = null;
-
-            function tryFinishResolve() {
-                if (!jsdone || !xamldone)
-                    return;
-                if (!xd && !js) {
-                    d.reject("No module found at '" + url + "'.");
-                } else if (xd) {
+            (<Function>require)([xamlUrl],
+                (xaml: string) => {
+                    xd = new XamlDocument(xaml);
                     xd.Resolve()
                         .success(o => d.resolve(regXds[xamlUrl] = xd))
                         .error(d.reject);
-                } else {
-                    d.resolve(null);
-                }
-            }
-            (<Function>require)([xamlUrl],
-                (xaml: string) => {
-                    xamldone = true;
-                    xd = new XamlDocument(xaml);
-                    tryFinishResolve();
-                },
-                (err: RequireError) => {
-                    xamldone = true;
-                    tryFinishResolve();
-                });
+                }, d.reject);
             
-            if (jsdone)
-                return d.request;
-            (<Function>require)([url],
-                (jsmodule: any) => {
-                    jsdone = true;
-                    js = jsmodule;
-                    tryFinishResolve();
-                },
-                (err: RequireError) => {
-                    jsdone = true;
-                    tryFinishResolve();
-                });
 
             return d.request;
         }
         Resolve(): IAsyncRequest<any> {
             var d = defer<any>();
-            addDependencies(this.Document.documentElement, this._RequiredDependencies);
-            if (this._RequiredDependencies.length > 0) {
-                deferArray(this._RequiredDependencies, Xaml.XamlDocument.Resolve)
-                    .success(xds => d.resolve(this))
-                    .error(errors => d.reject(errors));
+            var deps = this._RequiredDependencies;
+            addDependencies(this.Document.documentElement, deps);
+            if (deps.length > 0) {
+                deferArray(deps, resolveDependency)
+                    .success(ds => d.resolve(this))
+                    .error(d.reject);
             } else {
                 d.resolve(this);
             }
@@ -96,6 +63,15 @@ module Fayde.Xaml {
         }
     }
 
+    function resolveDependency(dep: string): IAsyncRequest<any> {
+        if (dep.indexOf("library:") === 0)
+            return Library.Resolve(dep);
+        
+        var d = defer<any>();
+        (<Function>require)(dep, d.resolve, d.reject);
+        return d.request;
+    }
+    
     function addDependencies(el: Element, list: string[]) {
         while (el) {
             getDependency(el, list);
@@ -132,6 +108,33 @@ module Fayde.Xaml {
         var format = nsUri + "/" + ln;
         if (list.indexOf(format) > -1)
             return;
-        list.push(format);
+        if (nsUri.indexOf("library:") === 0)
+            list.push(nsUri);
+        else
+            list.push(format);
+    }
+
+    var libraries: Library[] = [];
+    export class Library {
+        constructor(public Module: any) { }
+
+        static Get(url: string): Library {
+            url = url.substr("library:".length);
+            return libraries[url];
+        }
+        static Resolve(url: string): IAsyncRequest<Library> {
+            url = url.substr("library:".length);
+            
+            var d = defer<Library>();
+
+            var library = libraries[url];
+            if (library) {
+                d.resolve(library);
+                return d.request;
+            }
+
+            (<Function>require)(url, (jsmodule: any) => d.resolve(new Library(jsmodule)), d.reject);
+            return d.request;
+        }
     }
 }

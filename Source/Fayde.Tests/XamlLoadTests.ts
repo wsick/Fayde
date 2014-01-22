@@ -5,7 +5,8 @@ QUnit.module("Xaml Load Tests");
 
 test("Valid XAML Document", () => {
     try {
-        var root = <Fayde.Controls.Border>Fayde.Xaml.Load("<Border />");
+        var xaml = "<Border />";
+        var root = <Fayde.Controls.Border>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
         ok(false, "An error should let us know that there is no valid default namespace.");
     } catch (err) {
         ok(err instanceof XamlParseException, "An error should let us know that there is no valid default namespace.");
@@ -13,14 +14,16 @@ test("Valid XAML Document", () => {
 });
 
 test("Basic Load", () => {
-    var root = <Fayde.Controls.Border>Fayde.Xaml.Load("<Border xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" />");
+    var xaml = "<Border xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" />";
+    var root = <Fayde.Controls.Border>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
 
     strictEqual((<any>root).constructor, Fayde.Controls.Border, "Root Object should be a Border.");
     equal(root.Child, null, "Border should not have a child.");
 });
 
 test("Basic attribute", () => {
-    var root = <Fayde.Controls.TextBlock>Fayde.Xaml.Load("<TextBlock xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Text=\"Testing!\" HorizontalAlignment=\"Right\" />");
+    var xaml = "<TextBlock xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Text=\"Testing!\" HorizontalAlignment=\"Right\" />";
+    var root = <Fayde.Controls.TextBlock>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
 
     strictEqual(root.Text, "Testing!", "TextBlock should have Text property set to 'Testing!'.");
     strictEqual(root.HorizontalAlignment, Fayde.HorizontalAlignment.Right, "Enum Attribute");
@@ -36,7 +39,7 @@ test("Simple tag", () => {
         + "</SolidColorBrush>"
         + "</StackPanel.Background>"
         + "</StackPanel>";
-    var sp = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(xaml);
+    var sp = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     var bg = <Fayde.Media.SolidColorBrush>sp.Background;
     strictEqual(bg.Color.ToHexStringNoAlpha(), "#aabbcc", "Color");
 });
@@ -47,19 +50,21 @@ test("Enum tag", () => {
         + "<Orientation>Horizontal</Orientation>"
         + "</StackPanel.Orientation>"
         + "</StackPanel>";
-    var sp = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(xaml);
+    var sp = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     strictEqual(sp.Orientation, Fayde.Orientation.Horizontal, "Orientation");
 });
 
 test("Border with Child", () => {
-    var root = <Fayde.Controls.Border>Fayde.Xaml.Load("<Border xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\"><TextBlock Text=\"Hey!\" /></Border>");
+    var xaml = "<Border xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\"><TextBlock Text=\"Hey!\" /></Border>";
+    var root = <Fayde.Controls.Border>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     var child = <Fayde.Controls.TextBlock>root.Child;
     strictEqual((<any>child).constructor, Fayde.Controls.TextBlock, "Border Child should be a TextBlock.");
     strictEqual(child.Text, "Hey!", "Border Child should have Text property set to 'Hey!'");
 });
 
 test("Panel with Children", () => {
-    var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load("<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\"><Border /><TextBlock /></StackPanel>");
+    var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\"><Border /><TextBlock /></StackPanel>";
+    var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     strictEqual(root.Children.Count, 2, "There should be 2 children in StackPanel.");
     var child1 = <Fayde.Controls.Border>root.Children.GetValueAt(0);
     var child2 = <Fayde.Controls.TextBlock>root.Children.GetValueAt(1);
@@ -69,7 +74,7 @@ test("Panel with Children", () => {
 
 test("ContentControl", () => {
     var xaml = "<CheckBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">Hey</CheckBox>";
-    var checkbox = <Fayde.Controls.CheckBox>Fayde.Xaml.Load(xaml);
+    var checkbox = <Fayde.Controls.CheckBox>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     strictEqual(checkbox.Content, "Hey", "Text Content");
 });
 
@@ -79,7 +84,7 @@ test("FrameworkElement Resources", () => {
         + "<x:Thickness x:Key=\"SomeThickness\">1,2,3,4</x:Thickness>"
         + "</StackPanel.Resources>"
         + "</StackPanel>";
-    var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(xaml);
+    var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     var resources = root.Resources;
     ok(resources.Contains("SomeThickness"), "Resources should contain a resource with a key 'SomeThickness'");
     var thickness = <Thickness>resources.Get("SomeThickness");
@@ -97,7 +102,7 @@ test("Style", () => {
         + "</Style>"
         + "</StackPanel.Resources>"
         + "</StackPanel>";
-    var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(xaml);
+    var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
 
     var resources = root.Resources;
     var style = <Fayde.Style>resources.Get("SomeStyle");
@@ -126,7 +131,7 @@ test("Setter+Template Binding", () => {
         + "</CheckBox.Style>"
         + "</CheckBox>";
 
-    var checkbox = <Fayde.Controls.CheckBox>Fayde.Xaml.Load(xaml);
+    var checkbox = <Fayde.Controls.CheckBox>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     checkbox.ApplyTemplate();
     var cp = <Fayde.Controls.ContentPresenter>Fayde.VisualTreeHelper.GetChild(checkbox, 0);
     strictEqual(cp.HorizontalAlignment, Fayde.HorizontalAlignment.Right, "HorizontalAlignment");
@@ -146,23 +151,23 @@ test("Setter+Template Binding", () => {
         + "</Style>"
         + "</CheckBox.Style>"
         + "</CheckBox>";
-    checkbox = <Fayde.Controls.CheckBox>Fayde.Xaml.Load(xaml);
+    checkbox = <Fayde.Controls.CheckBox>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     checkbox.ApplyTemplate();
     var r = <Fayde.Shapes.Rectangle>Fayde.VisualTreeHelper.GetChild(checkbox, 0);
     strictEqual(r.StrokeThickness, 1, "StrokeThickness");
 });
 
 QUnit.asyncTest("Theme", 1, () => {
-    var theme = new Fayde.Xaml.Theme("scripts/Theme.Metro.xml");
-    theme.LoadAsync((state: any) => {
-        try {
-            theme.Create();
-            ok(true, "Create Theme");
-        } catch (err) {
-            ok(false, "Create Theme: " + err.toString());
-        }
-        start();
-    });
+    var theme = <Fayde.Theme>Fayde.ConvertAnyToType("scripts/Theme.Metro.xml", Fayde.Theme);
+    theme.Resolve()
+        .success(res => {
+            ok(true, "Theme resolved.");
+            start();
+        })
+        .error(error => {
+            ok(false, error);
+            start();
+        });
 });
 
 test("DataTemplate", () => {
@@ -172,7 +177,7 @@ test("DataTemplate", () => {
 
     var dt: Fayde.DataTemplate;
     try {
-        dt = <Fayde.DataTemplate>Fayde.Xaml.Load(xaml);
+        dt = <Fayde.DataTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     } catch (err) {
         ok(false, "Loading a DataTemplate should not error. " + err.toString());
     }
@@ -189,7 +194,7 @@ test("HierarchicalDataTemplate", () => {
 
     var hdt: Fayde.HierarchicalDataTemplate;
     try {
-        hdt = <Fayde.HierarchicalDataTemplate>Fayde.Xaml.Load(xaml);
+        hdt = <Fayde.HierarchicalDataTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     } catch (err) {
         ok(false, "Loading a HierarchicalDataTemplate should not error. " + err.toString());
     }
@@ -208,7 +213,7 @@ test("ControlTemplate", () => {
 
     var ct: Fayde.Controls.ControlTemplate;
     try {
-        ct = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(xaml);
+        ct = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
         ok(false, "Loading a ControlTemplate should error if no TargetType is specified.");
     } catch (err) {
         ok(err instanceof XamlParseException, "Loading a ControlTemplate should error if no TargetType is specified.");
@@ -219,7 +224,7 @@ test("ControlTemplate", () => {
         + "</ControlTemplate>";
     
     try {
-        ct = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(xaml);
+        ct = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
         ok(true, "Loading a ControlTemplate with a TargetType should succeed.");
     } catch (err) {
         ok(false, "Loading a ControlTemplate with a TargetType should succeed.");
@@ -239,7 +244,7 @@ test("ItemsPanelTemplate", () => {
     
     var ipt: Fayde.Controls.ItemsPanelTemplate;
     try {
-        ipt = <Fayde.Controls.ItemsPanelTemplate>Fayde.Xaml.Load(xaml);
+        ipt = <Fayde.Controls.ItemsPanelTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
         var tempPanel = ipt.GetVisualTree(null);
         ok(false, "Getting the visual tree for an ItemsPanelTemplate with a non-Panel root visual should error.");
     } catch (err) {
@@ -251,7 +256,7 @@ test("ItemsPanelTemplate", () => {
         + "</ItemsPanelTemplate>";
 
     try {
-        ipt = <Fayde.Controls.ItemsPanelTemplate>Fayde.Xaml.Load(xaml);
+        ipt = <Fayde.Controls.ItemsPanelTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     } catch (err) {
         ok(false, "Loading a ItemsPanelTemplate should not error. " + err.toString());
     }
@@ -270,7 +275,7 @@ test("VisualStateManager", () => {
         + "</VisualStateManager.VisualStateGroups>"
         + "</Grid>";
 
-    var root = <Fayde.Controls.Grid>Fayde.Xaml.Load(xaml);
+    var root = <Fayde.Controls.Grid>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     var groups = Fayde.Media.VSM.VisualStateManager.GetVisualStateGroups(root);
     strictEqual((<any>groups).constructor, Fayde.Media.VSM.VisualStateGroupCollection, "VisualStateGroups on Grid should be a VisualStateGroupCollection.");
     strictEqual(groups.Count, 1, "There should be 1 VisualStateGroup in collection.");
@@ -290,22 +295,8 @@ test("Events", () => {
         + "<Button Click=\"TestCallback\" />"
         + "</test:TestControl.Content>"
         + "</test:TestControl>";
-    var tc = <TestControl>Fayde.Xaml.Load(xaml);
+    var tc = <TestControl>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     var button = <Fayde.Controls.Button>tc.Content;
     button.Click.Raise(button, new Fayde.RoutedEventArgs());
     ok(tc.CallbackFired, "Raise");
-});
-
-test("DependencyCollector", () => {
-    var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" xmlns:test=\"testfolder\">"
-        + "<test:SomeControl test:SomeClass.SomeProperty=\"3\">"
-        + "<test:SomeControl.SubProperty></test:SomeControl.SubProperty>"
-        + "</test:SomeControl>"
-        + "</Grid>";
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(xaml, "text/xml");
-    var deps = Fayde.Xaml.CollectDependencies(doc);
-    strictEqual(deps.length, 2, "#1");
-    ok(deps.indexOf("testfolder/SomeControl") > -1, "#2");
-    ok(deps.indexOf("testfolder/SomeClass") > -1, "#3");
 });

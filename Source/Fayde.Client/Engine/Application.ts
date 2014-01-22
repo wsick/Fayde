@@ -130,6 +130,22 @@ module Fayde {
         private __GetById(id: number): UIElement {
             return this.MainSurface.__GetById(id);
         }
+
+        static GetAsync(url: string): IAsyncRequest<Application> {
+            var d = defer<Application>();
+            Xaml.XamlDocument.Resolve(url)
+                .success(xd => {
+                    TimelineProfile.Parse(true, "App");
+                    var app = <Application>Xaml.Load(xd.Document);
+                    TimelineProfile.Parse(false, "App");
+                    if (!(app instanceof Application))
+                        d.reject("Xaml must be an Application.");
+                    else
+                        d.resolve(app);
+                })
+                .error(d.reject);
+            return d.request;
+        }
     }
     Fayde.RegisterType(Application, "Fayde", Fayde.XMLNS);
 
@@ -155,7 +171,7 @@ module Fayde {
             });
         }
 
-        window.onload = onReady;
+        window.onload = () => onReady();
     }
     doOnReady(Run);
     export function Run(loaded?: (app: Application) => void) {
@@ -169,7 +185,7 @@ module Fayde {
         if (!canvas)
             document.body.appendChild(canvas = document.createElement("canvas"));
 
-        Xaml.LoadApplicationAsync(url)
+        Application.GetAsync(url)
             .success(app => {
                 (Application.Current = app).Resolve()
                     .success(app => {

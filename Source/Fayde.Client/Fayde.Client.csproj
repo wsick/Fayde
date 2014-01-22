@@ -17,7 +17,6 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Xaml\XamlDocument.ts" />
-    <TypeScriptCompile Include="Xaml\DependencyCollector.ts" />
     <TypeScriptCompile Include="Collections\INotifyCollectionChanged.ts" />
     <TypeScriptCompile Include="Collections\NotifyCollectionChangedEventArgs.ts" />
     <TypeScriptCompile Include="Collections\ObservableCollection.ts" />

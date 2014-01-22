@@ -63,10 +63,12 @@ test("Inherited", () => {
     
     var Controls = Fayde.Controls;
     var root2 = new Controls.Control();
-    root2.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load("<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid><Border x:Name=\"TheBorder\" /></Grid></ControlTemplate>");
+    var xaml = "<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid><Border x:Name=\"TheBorder\" /></Grid></ControlTemplate>";
+    root2.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
 
     var child2 = new Controls.Control();
-    child2.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load("<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid /></ControlTemplate>");
+    var xaml = "<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid /></ControlTemplate>";
+    child2.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     root2.ApplyTemplate();
     
     strictEqual(root2.FontSize, Font.DEFAULT_SIZE, "Root FontSize should be default.");
@@ -236,10 +238,12 @@ test("DataContext", () => {
 test("IsEnabled", () => {
     var Controls = Fayde.Controls;
     var root = new Controls.Control();
-    root.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load("<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid><Border x:Name=\"TheBorder\" /></Grid></ControlTemplate>");
+    var xaml = "<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid><Border x:Name=\"TheBorder\" /></Grid></ControlTemplate>";
+    root.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
     
     var child = new Controls.Control();
-    child.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load("<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid /></ControlTemplate>");
+    xaml = "<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid /></ControlTemplate>";
+    child.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
 
     root.ApplyTemplate();
     var theBorder = <Fayde.Controls.Border>root.GetTemplateChild("TheBorder");

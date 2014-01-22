@@ -117,7 +117,7 @@ test("UI Items", () => {
 
 test("Virtualizing Non-UI Items", () => {
     var ic = new Fayde.Controls.ItemsControl();
-    ic.ItemsPanel = <Fayde.Controls.ItemsPanelTemplate>Fayde.Xaml.Load("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>");
+    ic.ItemsPanel = <Fayde.Controls.ItemsPanelTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>").Document);
     ic.Measure(size.createInfinite());
     var icg = ic.ItemContainerGenerator;
 

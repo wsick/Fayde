@@ -69,14 +69,12 @@ module Fayde.Controls {
             if (!target)
                 throw new InvalidOperationException("Cannot resolve empty url.");
 
-            Xaml.LoadAsync(target)
-                .success(xo => this._HandleSuccess(xo))
+            Page.GetAsync(target)
+                .success(page => this._HandleSuccess(page))
                 .error(error => this._HandleError(error));
         }
-        private _HandleSuccess(xo: XamlObject) {
-            if (!(xo instanceof Page))
-                return this._HandleError("Xaml must be a Page.");
-            this._SetPage(<Page>xo);
+        private _HandleSuccess(page: Page) {
+            this._SetPage(page);
             TimelineProfile.Navigate(false);
             TimelineProfile.IsNextLayoutPassProfiled = true;
         }

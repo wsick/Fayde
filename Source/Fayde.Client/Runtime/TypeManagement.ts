@@ -139,7 +139,6 @@ module Fayde {
         GetAnnotation(type: Function, name: string): any;
         Resolve(xmlns: string, xmlname: string): ITypeResolution;
         ResolveFullyQualifiedName(xmlname: string, resolver: INamespacePrefixResolver): ITypeResolution;
-        FormatXmlTypeName(nsUri: string, localName: string): string;
     }
     export var TypeResolver: ITypeResolver = {
         GetAnnotation: function (type: Function, name: string): any {
@@ -184,7 +183,7 @@ module Fayde {
             var xarr = xmlNamespaces[xmlns];
             if (xarr)
                 t = xarr[xmlname];
-            t = t || require(this.FormatXmlTypeName(xmlns, xmlname));
+            t = t || tryGetLibraryClass(xmlns, xmlname) || tryGetRequireClass(xmlns, xmlname);
             if (t)
                 return { IsSystem: isSystem, IsPrimitive: false, IsSimple: isSimple, IsEnum: t.IsEnum === true, Type: t };
             return undefined;
@@ -198,10 +197,19 @@ module Fayde {
                 typeName = tokens[1];
             }
             return TypeResolver.Resolve(ns, typeName);
-        },
-        FormatXmlTypeName: function (nsUri: string, localName: string): string {
-            return nsUri + "/" + localName;
         }
+    }
+
+    function tryGetLibraryClass(xmlns: string, xmlname: string): any {
+        if (xmlns.indexOf("library:") !== 0)
+            return undefined;
+        var library = Xaml.Library.Get(xmlns);
+        if (library && library.Module)
+            return library.Module[xmlname];
+    }
+    function tryGetRequireClass(xmlns: string, xmlname: string): any {
+        var format = xmlns + "/" + xmlname;
+        return require(format);
     }
 
     var converters: any = [];

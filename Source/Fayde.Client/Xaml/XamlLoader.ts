@@ -37,27 +37,6 @@ module Fayde.Xaml {
         ObjectStack: any[];
         TemplateBindingSource: DependencyObject;
     }
-    export function LoadApplicationAsync(url: string): IAsyncRequest<Application> {
-        var d = defer<Application>();
-        XamlDocument.Resolve(url)
-            .success(xd => {
-                TimelineProfile.Parse(true, "App");
-                var app = <Application>Load(xd.Document);
-                TimelineProfile.Parse(false, "App");
-                d.resolve(app);
-            })
-            .error(d.reject);
-        return d.request;
-    }
-    export function LoadAsync(url: string): IAsyncRequest<XamlObject> {
-        var d = defer<XamlObject>();
-        XamlDocument.Resolve(url)
-            .success(xd => {
-                d.resolve(Load(xd.Document));
-            })
-            .error(d.reject);
-        return d.request;
-    }
     export function Load(doc: Document): XamlObject {
         var ctx: IXamlLoadContext = {
             Document: doc,

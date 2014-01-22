@@ -29,12 +29,12 @@ module Fayde {
             var uri = this.Uri;
             if (!uri)
                 return;
-            Xaml.LoadAsync("text!" + uri.toString())
-                .success(xobj => this._HandleSuccess(xobj))
+            Xaml.XamlDocument.Resolve("text!" + uri.toString())
+                .success(xd => this._HandleSuccess(xd))
                 .error(error => this._HandleError(error));
         }
-        private _HandleSuccess(xobj: XamlObject) {
-            var rd = <ResourceDictionary>xobj;
+        private _HandleSuccess(xd: Xaml.XamlDocument) {
+            var rd = <ResourceDictionary>Xaml.Load(xd.Document);
             if (!(rd instanceof ResourceDictionary))
                 return this._HandleError("Theme root must be a ResourceDictionary.");
             Object.defineProperty(this, "Resources", { value: rd, writable: false });
