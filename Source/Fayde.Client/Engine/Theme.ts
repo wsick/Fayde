@@ -29,7 +29,7 @@ module Fayde {
             var uri = this.Uri;
             if (!uri)
                 return;
-            Xaml.XamlDocument.Resolve("text!" + uri.toString())
+            Xaml.XamlDocument.Resolve(uri.toString())
                 .success(xd => this._HandleSuccess(xd))
                 .error(error => this._HandleError(error));
         }
