@@ -1,13 +1,6 @@
 /// <reference path="../scripts/qunit.d.ts" />
 /// <reference path="../scripts/Fayde.d.ts" />
-
-class TestControl extends Fayde.Controls.ContentControl {
-    CallbackFired: boolean = false;
-    TestCallback(sender: any, e: EventArgs) {
-        this.CallbackFired = true;
-    }
-}
-Fayde.RegisterType(TestControl, "window", "http://schemas.test.com/");
+/// <amd-dependency path="../mocks/TestControl" />
 
 export function run() {
     QUnit.module("Xaml Load Tests");

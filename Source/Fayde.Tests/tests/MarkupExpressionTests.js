@@ -1,20 +1,7 @@
 /// <reference path="../scripts/qunit.d.ts" />
 /// <reference path="../scripts/Fayde.d.ts" />
-define(["require", "exports"], function(require, exports) {
-    var TestConverter = (function () {
-        function TestConverter() {
-        }
-        TestConverter.prototype.Convert = function (value, targetType, parameter, culture) {
-            return value;
-        };
-        TestConverter.prototype.ConvertBack = function (value, targetType, parameter, culture) {
-            return value;
-        };
-        return TestConverter;
-    })();
-    Fayde.RegisterType(TestConverter, "window", "http://schemas.test.com");
-    Fayde.RegisterTypeInterfaces(TestConverter, Fayde.Data.IValueConverter_);
-
+/// <amd-dependency path="../mocks/TestConverter" />
+define(["require", "exports", "../mocks/TestConverter"], function(require, exports) {
     function run() {
         QUnit.module("Markup Expression Tests");
         test("x:Null", function () {

@@ -18,6 +18,8 @@
   <ItemGroup>
     <TypeScriptCompile Include="main.ts" />
     <TypeScriptCompile Include="runner.ts" />
+    <TypeScriptCompile Include="mocks\TestControl.ts" />
+    <TypeScriptCompile Include="mocks\TestConverter.ts" />
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\qunit-1.13.0.css" />
     <Content Include="scripts\qunit-1.13.0.js" />
