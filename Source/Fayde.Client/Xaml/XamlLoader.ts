@@ -25,10 +25,6 @@ module Fayde.Xaml {
     }
     Fayde.RegisterType(FrameworkTemplate, "Fayde.Xaml");
 
-    interface IOutValue {
-        Value: any
-    }
-
     /// LOAD
     interface IXamlLoadContext {
         Document: Document;
@@ -563,19 +559,5 @@ module Fayde.Xaml {
         if (keyn)
             return keyn.value;
         return "";
-    }
-
-
-    /// XML UTILITIES
-    function getElementNS(parentEl: Element, namespaceURI: string, localName: string): Element {
-        var nsUri: string;
-        var curElement = parentEl.firstElementChild;
-        while (curElement) {
-            nsUri = curElement.namespaceURI || Fayde.XMLNS;
-            if (nsUri === namespaceURI && curElement.localName === localName)
-                return curElement;
-            curElement = curElement.nextElementSibling;
-        }
-        return null;
     }
 }
