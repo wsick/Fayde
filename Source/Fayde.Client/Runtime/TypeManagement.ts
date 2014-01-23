@@ -203,7 +203,7 @@ module Fayde {
     function tryGetLibraryClass(xmlns: string, xmlname: string): any {
         if (xmlns.indexOf("library:") !== 0)
             return undefined;
-        var library = Xaml.Library.Get(xmlns);
+        var library = Library.Get(xmlns);
         if (library && library.Module)
             return library.Module[xmlname];
     }
