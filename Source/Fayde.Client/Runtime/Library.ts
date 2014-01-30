@@ -57,20 +57,21 @@ module Fayde {
             if (this._IsLoading || this._IsLoaded)
                 return;
             this._IsLoading = true;
-            var m = defer<any>();
-            (<Function>require)([this._ModuleUrl], res => m.resolve(this.Module = res), m.reject);
-            var iars: IAsyncRequest<any>[] = [m.request];
-            
-            if (!!this._ThemeUrl) {
-                this.Theme = new Theme(new Uri(this._ThemeUrl));
-                iars.push(this.Theme.Resolve(ctx));
-            }
 
-            deferArraySimple(iars)
-                .success(res => this._FinishLoad(ctx))
-                .error(error => this._FinishLoad(ctx, this._LoadError = error));
+            (<Function>require)([this._ModuleUrl], res => {
+                this.Module = res;
+                if (!this._ThemeUrl) {
+                    this._FinishLoad(ctx);
+                    return;
+                }
+                (this.Theme = Theme.Get(this._ThemeUrl))
+                    .Resolve(ctx)
+                    .success(res => this._FinishLoad(ctx))
+                    .error(error => this._FinishLoad(ctx, error));
+            }, error => this._FinishLoad(ctx, error));
         }
         private _FinishLoad(ctx: ILibraryAsyncContext, error?: any) {
+            this._LoadError = error;
             var index = ctx.Resolving.indexOf(this);
             if (index > -1)
                 ctx.Resolving.splice(index, 1);

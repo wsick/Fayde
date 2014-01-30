@@ -27,6 +27,9 @@ require.config({
         },
         "runner": {
             deps: ["Fayde"]
+        },
+        "mocks/Fayde.Controls.Input/source.js": {
+            exports: "Fayde.Controls.Input"
         }
     }
 });
