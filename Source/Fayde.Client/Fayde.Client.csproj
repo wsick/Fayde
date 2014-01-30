@@ -303,15 +303,6 @@
     <TypeScriptCompile Include="Xaml\MarkupExpressionParser.ts" />
     <TypeScriptCompile Include="Xaml\TemplateBinding.ts" />
     <TypeScriptCompile Include="Xaml\XamlLoader.ts" />
-    <Content Include="web.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="web.Debug.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
