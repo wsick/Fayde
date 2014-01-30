@@ -88,7 +88,9 @@
     <Content Include="Tests\Navigation\TestResourceDictionary.xml" />
     <TypeScriptCompile Include="Tests\IssueTests\DoubleListBoxViewModel.ts" />
     <Content Include="Tests\App\Fayde.Controls.Input\source.js" />
-    <Content Include="Tests\App\Fayde.Controls.Input\generic.xml" />
+    <Content Include="Tests\App\Fayde.Controls.Input\generic.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Tests\IssueTests\DoubleListBoxViewModel.js" />
     <None Include="Tests\IssueTests\observablecoll-count.fap" />
     <Content Include="Tests\IssueTests\TestViewModel.js" />

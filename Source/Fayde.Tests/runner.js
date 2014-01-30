@@ -1,4 +1,4 @@
-define(["require", "exports", "tests/PrimitivesTests", "tests/TypeConverterTests", "tests/MarkupExpressionTests", "tests/XamlNodeTests", "tests/ProviderTests", "tests/XamlLoadTests", "tests/TransformTests", "tests/TimelineTests", "tests/ItemsControlTests", "tests/BindingTests", "tests/UriMapperTests"], function(require, exports, PrimitivesTests, TypeConverterTests, MarkupExpressionTests, XamlNodeTests, ProviderTests, XamlLoadTests, TransformTests, TimelineTests, ItemsControlTests, BindingTests, UriMapperTests) {
+define(["require", "exports", "tests/PrimitivesTests", "tests/TypeConverterTests", "tests/MarkupExpressionTests", "tests/XamlNodeTests", "tests/ProviderTests", "tests/XamlLoadTests", "tests/TransformTests", "tests/TimelineTests", "tests/ItemsControlTests", "tests/BindingTests", "tests/UriMapperTests", "tests/DependencyLoadTests"], function(require, exports, PrimitivesTests, TypeConverterTests, MarkupExpressionTests, XamlNodeTests, ProviderTests, XamlLoadTests, TransformTests, TimelineTests, ItemsControlTests, BindingTests, UriMapperTests, DependencyLoadTests) {
     function run() {
         PrimitivesTests.run();
         TypeConverterTests.run();
@@ -11,6 +11,7 @@ define(["require", "exports", "tests/PrimitivesTests", "tests/TypeConverterTests
         ItemsControlTests.run();
         BindingTests.run();
         UriMapperTests.run();
+        DependencyLoadTests.run();
 
         QUnit.load();
         QUnit.start();

@@ -26,7 +26,7 @@ module Fayde.Xaml {
                 return null;
             return regXds[url] = new XamlDocument(xaml);
         }
-        static Resolve(url: string): IAsyncRequest<XamlDocument> {
+        static Resolve(url: string, ctx?: ILibraryAsyncContext): IAsyncRequest<XamlDocument> {
             var d = defer<XamlDocument>();
 
             var xamlUrl = "text!" + url;
@@ -40,18 +40,19 @@ module Fayde.Xaml {
             (<Function>require)([xamlUrl],
                 (xaml: string) => {
                     xd = new XamlDocument(xaml);
-                    xd.Resolve()
+                    xd.Resolve(ctx)
                         .success(o => d.resolve(regXds[xamlUrl] = xd))
                         .error(d.reject);
                 }, d.reject);
-            
+
 
             return d.request;
         }
-        Resolve(): IAsyncRequest<any> {
+        Resolve(ctx: ILibraryAsyncContext): IAsyncRequest<any> {
             var d = defer<any>();
             var deps = this._RequiredDependencies;
             addDependencies(this.Document.documentElement, deps);
+            ignoreCircularReferences(deps, ctx);
             if (deps.length > 0) {
                 deferArray(deps, resolveDependency)
                     .success(ds => d.resolve(this))
@@ -64,12 +65,31 @@ module Fayde.Xaml {
     }
 
     function resolveDependency(dep: string): IAsyncRequest<any> {
-        if (dep.indexOf("library:") === 0)
-            return Library.Resolve(dep);
-        
         var d = defer<any>();
-        (<Function>require)(dep, d.resolve, d.reject);
+
+        if (dep.indexOf("lib:") === 0) {
+            var library = Library.Get(dep);
+            if (!library) {
+                d.reject("Could not resolve library: '" + dep + "'.");
+                return d.request;
+            }
+            return library.Resolve();
+        }
+
+        (<Function>require)([dep], d.resolve, d.reject);
         return d.request;
+    }
+    function ignoreCircularReferences(list: string[], ctx: ILibraryAsyncContext) {
+        if (!ctx)
+            return;
+        var index: number;
+        for (var i = 0; i < list.length;i++) {
+            var lib = Library.Get(list[i]);
+            if (lib && (index = ctx.Resolving.indexOf(lib)) > -1) {
+                list.splice(index, 1);
+                i--;
+            }
+        }
     }
     
     function addDependencies(el: Element, list: string[]) {
@@ -106,11 +126,14 @@ module Fayde.Xaml {
         if (index > -1)
             ln = ln.substr(0, index);
         var format = nsUri + "/" + ln;
-        if (list.indexOf(format) > -1)
-            return;
-        if (nsUri.indexOf("library:") === 0)
+        if (nsUri.indexOf("lib:") === 0) {
+            if (list.indexOf(nsUri) > -1)
+                return;
             list.push(nsUri);
-        else
+        } else {
+            if (list.indexOf(format) > -1)
+                return;
             list.push(format);
+        }
     }
 }

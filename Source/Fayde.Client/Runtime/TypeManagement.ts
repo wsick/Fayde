@@ -183,7 +183,7 @@ module Fayde {
             var xarr = xmlNamespaces[xmlns];
             if (xarr)
                 t = xarr[xmlname];
-            t = t || tryGetLibraryClass(xmlns, xmlname) || tryGetRequireClass(xmlns, xmlname);
+            t = t || Library.TryGetClass(xmlns, xmlname) || tryGetRequireClass(xmlns, xmlname);
             if (t)
                 return { IsSystem: isSystem, IsPrimitive: false, IsSimple: isSimple, IsEnum: t.IsEnum === true, Type: t };
             return undefined;
@@ -200,13 +200,6 @@ module Fayde {
         }
     }
 
-    function tryGetLibraryClass(xmlns: string, xmlname: string): any {
-        if (xmlns.indexOf("library:") !== 0)
-            return undefined;
-        var library = Library.Get(xmlns);
-        if (library && library.Module)
-            return library.Module[xmlname];
-    }
     function tryGetRequireClass(xmlns: string, xmlname: string): any {
         var format = xmlns + "/" + xmlname;
         return require(format);

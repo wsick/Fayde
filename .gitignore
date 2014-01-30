@@ -58,3 +58,4 @@ Source/Fayde.Tests/TimelineTests.js
 Source/Fayde.Tests/TransformTests.js
 Source/Fayde.Tests/TypeConverterTests.js
 Source/Fayde.Tests/UriMapperTests.js
+Source/Fayde.Tests/tests/DependencyLoadTests.js

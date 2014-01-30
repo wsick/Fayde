@@ -1,11 +1,8 @@
 ﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    xmlns:i="http://schemas.wsick.com/fayde/controls/input"
+    xmlns:i="lib:Fayde.Controls.Input"
     Theme="/Fayde/Theme.Metro.xml">
-    <Application.Libraries>
-        <Library PackageUri="App/Fayde.Controls.Input" />
-    </Application.Libraries>
     <Grid Background="Yellow">
         <i:ContextMenuService.ContextMenu>
             <i:ContextMenu>

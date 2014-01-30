@@ -9,6 +9,7 @@ import TimelineTests = require("tests/TimelineTests");
 import ItemsControlTests = require("tests/ItemsControlTests");
 import BindingTests = require("tests/BindingTests");
 import UriMapperTests = require("tests/UriMapperTests");
+import DependencyLoadTests = require("tests/DependencyLoadTests");
 
 export function run() {
     PrimitivesTests.run();
@@ -22,6 +23,7 @@ export function run() {
     ItemsControlTests.run();
     BindingTests.run();
     UriMapperTests.run();
+    DependencyLoadTests.run();
 
     QUnit.load();
     QUnit.start();

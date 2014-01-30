@@ -1,35 +1,54 @@
 module Fayde {
+    interface IThemeHash {
+        [id: string]: Theme;
+    }
+    var themes: IThemeHash = <any>[];
     export class Theme {
-        private _IsLoaded = false;
-        private _LoadError: any = null;
+        constructor(uri?: Uri) {
+            if (uri)
+                this.Uri = uri;
+        }
 
-        private _Uri: Uri = null;
+        private _Uri: Uri;
         get Uri(): Uri { return this._Uri; }
         set Uri(value: Uri) {
+            if (this._Uri) //readonly once it has been set
+                return;
             this._Uri = value;
-            this._Load();
+            themes[value.toString()] = this;
         }
         Resources: ResourceDictionary = null;
 
-        private _ActiveDeferrable: IDeferrable<Theme> = null;
-        Resolve(): IAsyncRequest<Theme> {
+        static Get(url: string): Theme {
+            return themes[url]
+                || new Theme(new Uri(url));
+        }
+        
+        private _IsLoaded = false;
+        private _LoadError: any = null;
+        private _Deferrables: IDeferrable<Theme>[] = [];
+        Resolve(ctx?: ILibraryAsyncContext): IAsyncRequest<Theme> {
+            ctx = ctx || { Resolving: [] };
+            this._Load(ctx);
+
             var d = defer<Theme>();
             if (this._IsLoaded) {
-                if (!this._LoadError)
-                    d.resolve(this);
-                else
-                    d.reject(this._LoadError);
-            } else {
-                this._ActiveDeferrable = d;
+                d.resolve(this);
+                return d.request;
             }
+            if (this._LoadError) {
+                d.reject(this._LoadError);
+                return d.request;
+            }
+            this._Deferrables.push(d);
             return d.request;
         }
 
-        private _Load() {
+        private _Load(ctx: ILibraryAsyncContext) {
             var uri = this.Uri;
             if (!uri)
                 return;
-            Xaml.XamlDocument.Resolve(uri.toString())
+            Xaml.XamlDocument.Resolve(uri.toString(), ctx)
                 .success(xd => this._HandleSuccess(xd))
                 .error(error => this._HandleError(error));
         }
@@ -39,18 +58,18 @@ module Fayde {
                 return this._HandleError("Theme root must be a ResourceDictionary.");
             Object.defineProperty(this, "Resources", { value: rd, writable: false });
             this._IsLoaded = true;
-            if (this._ActiveDeferrable) {
-                this._ActiveDeferrable.resolve(this);
-                this._ActiveDeferrable = null;
+            for (var i = 0, ds = this._Deferrables, len = ds.length; i < len; i++) {
+                ds[i].resolve(this);
             }
+            this._Deferrables = [];
         }
         private _HandleError(error: any) {
             this._LoadError = error;
             this._IsLoaded = true;
-            if (this._ActiveDeferrable) {
-                this._ActiveDeferrable.reject(error);
-                this._ActiveDeferrable = null;
+            for (var i = 0, ds = this._Deferrables, len = ds.length; i < len; i++) {
+                ds[i].reject(error);
             }
+            this._Deferrables = [];
         }
 
         GetImplicitStyle(type: any): Style {
