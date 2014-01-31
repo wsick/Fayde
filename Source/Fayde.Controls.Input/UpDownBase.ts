@@ -35,7 +35,7 @@ module Fayde.Controls.Input {
             this.ValueChanging.Raise(this, e);
         }
         OnValueChanged(e: RoutedPropertyChangedEventArgs<T>) {
-            this.ValueChanged.Raise(this, e);
+            (<RoutedEvent<RoutedPropertyChangedEventArgs<T>>>this.ValueChanged).Raise(this, e); //WTF: compiler choking without cast for some odd reason
             this.SetTextBoxText();
         }
 
