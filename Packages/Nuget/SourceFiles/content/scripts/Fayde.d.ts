@@ -1,3 +1,4 @@
+/// <reference path="require.d.ts" />
 declare module Fayde.Xaml {
     class XamlDocument {
         private _RequiredDependencies;
