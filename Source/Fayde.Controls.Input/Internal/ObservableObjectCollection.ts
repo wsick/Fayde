@@ -35,8 +35,4 @@ module Fayde.Controls.Input.Internal {
             super.Clear();
         }
     }
-    Fayde.RegisterType(ObservableObjectCollection, {
-        Name: "ObservableObjectCollection",
-        Namespace: "Fayde.Controls.Input.Internal"
-    });
 }

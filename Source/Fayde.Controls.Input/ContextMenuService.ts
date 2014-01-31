@@ -1,5 +1,4 @@
 /// <reference path="Fayde.d.ts" />
-/// <reference path="_.ts" />
 
 module Fayde.Controls.Input {
     export class ContextMenuService {
@@ -18,9 +17,4 @@ module Fayde.Controls.Input {
                 newMenu.Owner = fe;
         }
     }
-    Fayde.RegisterType(ContextMenuService, {
-        Name: "ContextMenuService",
-        Namespace: "Fayde.Controls.Input",
-        XmlNamespace: Input.XMLNS
-    });
 }

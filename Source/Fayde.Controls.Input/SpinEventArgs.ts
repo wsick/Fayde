@@ -1,5 +1,4 @@
 /// <reference path="Fayde.d.ts" />
-/// <reference path="_.ts" />
 
 module Fayde.Controls.Input {
     export class SpinEventArgs extends RoutedEventArgs {
@@ -9,8 +8,4 @@ module Fayde.Controls.Input {
             Object.defineProperty(this, "Direction", { value: direction, writable: false });
         }
     }
-    Fayde.RegisterType(SpinEventArgs, {
-        Name: "SpinEventArgs",
-        Namespace: "Fayde.Controls.Input"
-    });
 }
