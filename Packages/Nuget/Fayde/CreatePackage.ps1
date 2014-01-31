@@ -1,5 +1,5 @@
 $scriptsdestdir = $PWD.Path + "\SourceFiles\content\scripts"
-copy ($PWD.Path + "\..\..\Source\jsbin\*") $scriptsdestdir
+copy ($PWD.Path + "\..\..\..\Source\jsbin\*") $scriptsdestdir
 
 $vpath = $PWD.Path + "\version.txt"
 $versionstring = Get-Content $vpath
