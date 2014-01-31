@@ -40,9 +40,5 @@ module Fayde.Controls {
         }
         OnItemsChanged(sender: any, e: Primitives.ItemsChangedEventArgs) { }
     }
-    Fayde.RegisterType(VirtualizingPanel, {
-    	Name: "VirtualizingPanel",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(VirtualizingPanel, "Fayde.Controls", Fayde.XMLNS);
 }

@@ -2,11 +2,7 @@
 
 class Length {
 }
-Fayde.RegisterType(Length, {
-    Name: "Length",
-    Namespace: "window",
-    XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(Length, "window", Fayde.XMLNSX);
 Fayde.RegisterTypeConverter(Length, (val: any): number => {
     if (!val || val.toString().toLowerCase() === "auto")
         return Number.NaN;

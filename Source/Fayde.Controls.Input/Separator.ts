@@ -1,5 +1,4 @@
 /// <reference path="Fayde.d.ts" />
-/// <reference path="_.ts" />
 
 module Fayde.Controls.Input {
     export class Separator extends Control {
@@ -8,9 +7,4 @@ module Fayde.Controls.Input {
             this.DefaultStyleKey = (<any>this).constructor;
         }
     }
-    Fayde.RegisterType(Separator, {
-        Name: "Separator",
-        Namespace: "Fayde.Controls.Input",
-        XmlNamespace: Input.XMLNS
-    });
 }

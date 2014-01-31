@@ -7,10 +7,7 @@ module Fayde.Collections {
         Replace = 3,
         Reset = 4,
     }
-    Fayde.RegisterEnum(NotifyCollectionChangedAction, {
-        Name: "NotifyCollectionChangedAction",
-        Namespace: "Fayde.Collections"
-    });
+    Fayde.RegisterEnum(NotifyCollectionChangedAction, "NotifyCollectionChangedAction");
 
     export class NotifyCollectionChangedEventArgs extends EventArgs {
         Action: NotifyCollectionChangedAction;

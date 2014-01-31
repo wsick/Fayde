@@ -123,7 +123,7 @@ module Fayde.Media.Animation {
                 animation = enumerator.Current;
                 cur = "";
                 cur += "(";
-                cur += (<any>animation).constructor._TypeName;
+                cur += (<any>animation).constructor.name;
                 cur += ":";
                 cur += Storyboard.GetTargetName(animation);
                 cur += ":";
@@ -136,9 +136,5 @@ module Fayde.Media.Animation {
             return "[" + anims.join(",") + "]";
         }
     }
-    Fayde.RegisterType(Storyboard, {
-    	Name: "Storyboard",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Storyboard, "Fayde.Media.Animation", Fayde.XMLNS);
 }

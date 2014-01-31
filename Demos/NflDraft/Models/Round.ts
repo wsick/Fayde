@@ -1,8 +1,7 @@
-/// <reference path="DraftSpot.ts" />
+import DraftSpot = require("Models/DraftSpot");
 
-module NflDraft.Models {
-    export class Round {
-        RoundNumber: number;
-        DraftSpots: Fayde.Collections.ObservableCollection<DraftSpot>;
-    }
+class Round {
+    RoundNumber: number;
+    DraftSpots: Fayde.Collections.ObservableCollection<DraftSpot>;
 }
+export = Round;

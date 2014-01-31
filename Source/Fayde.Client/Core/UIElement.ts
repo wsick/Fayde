@@ -306,10 +306,7 @@ module Fayde {
             return this.LayoutUpdater.TransformToVisual(uin);
         }
     }
-    Fayde.RegisterType(UINode, {
-    	Name: "UINode",
-    	Namespace: "Fayde"
-    });
+    Fayde.RegisterType(UINode, "Fayde");
 
     export class UIElement extends DependencyObject implements Providers.IIsPropertyInheritable {
         XamlNode: UINode;
@@ -487,9 +484,5 @@ module Fayde {
             return undefined;
         }
     }
-    Fayde.RegisterType(UIElement, {
-    	Name: "UIElement",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(UIElement, "Fayde", Fayde.XMLNS);
 }

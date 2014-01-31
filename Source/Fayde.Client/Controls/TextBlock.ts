@@ -253,10 +253,7 @@ module Fayde.Controls {
             lu.Invalidate();
         }
     }
-    Fayde.RegisterType(TextBlockNode, {
-    	Name: "TextBlockNode",
-    	Namespace: "Fayde.Controls"
-    });
+    Fayde.RegisterType(TextBlockNode, "Fayde.Controls");
 
     export class TextBlock extends FrameworkElement implements IFontChangeable {
         XamlNode: TextBlockNode;
@@ -345,11 +342,7 @@ module Fayde.Controls {
             return super.IsInheritable(propd);
         }
     }
-    Fayde.RegisterType(TextBlock, {
-    	Name: "TextBlock",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TextBlock, "Fayde.Controls", Fayde.XMLNS);
 
     var TextBlockInheritedProps = [
         TextBlock.FontFamilyProperty,

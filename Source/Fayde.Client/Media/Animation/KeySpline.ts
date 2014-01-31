@@ -38,9 +38,5 @@ module Fayde.Media.Animation {
             this._QuadraticsArray = Curves.ConvertCubicsToQuadratics(carr, KeySpline.TOTAL_COUNT);
         }
     }
-    Fayde.RegisterType(KeySpline, {
-    	Name: "KeySpline",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(KeySpline, "Fayde.Media.Animation", Fayde.XMLNS);
 }

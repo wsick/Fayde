@@ -11,9 +11,5 @@ module Fayde.Media.VSM {
         GeneratedEasingFunction: Animation.EasingFunctionBase;
         get IsDefault(): boolean { return this.From == null && this.To == null; }
     }
-    Fayde.RegisterType(VisualTransition, {
-    	Name: "VisualTransition",
-    	Namespace: "Fayde.Media.VSM",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(VisualTransition, "Fayde.Media.VSM", Fayde.XMLNS);
 }

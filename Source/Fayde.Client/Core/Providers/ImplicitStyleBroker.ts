@@ -132,7 +132,6 @@ module Fayde.Providers {
 
         private static GetImplicitStyles(fe: FrameworkElement, mask: StyleMask) {
             var feType = (<any>fe).constructor;
-            var feTypeName = (<any>feType)._TypeName;
 
             var app = Application.Current;
 
@@ -156,7 +155,7 @@ module Fayde.Providers {
                 if ((mask & StyleMask.ApplicationResources) != 0) {
                     appResourcesStyle = <Style>rd.Get(feType);
                     if (!appResourcesStyle)
-                        appResourcesStyle = <Style>rd.Get(feTypeName);
+                        appResourcesStyle = <Style>rd.Get(feType);
                     //if (appResourcesStyle)
                     //appResourcesStyle._ResChain = [rd];
                 }
@@ -183,7 +182,7 @@ module Fayde.Providers {
                     if (rd) {
                         visualTreeStyle = <Style>rd.Get(feType);
                         if (!visualTreeStyle)
-                            visualTreeStyle = <Style>rd.Get(feTypeName);
+                            visualTreeStyle = <Style>rd.Get(feType);
                         if (visualTreeStyle)
                             break;
                     }

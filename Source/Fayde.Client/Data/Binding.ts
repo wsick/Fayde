@@ -5,7 +5,7 @@ module Fayde.Data {
         Convert(value: any, targetType: IType, parameter: any, culture: any): any;
         ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any;
     }
-    export var IValueConverter_ = Fayde.RegisterInterface("IValueConverter");
+    export var IValueConverter_ = Fayde.RegisterInterface<IValueConverter>("IValueConverter");
 
     export class Binding implements Xaml.IMarkup {
         private _IsSealed: boolean = false;
@@ -147,9 +147,5 @@ module Fayde.Data {
             return new Data.BindingExpression(this, ctx.Owner, ctx.Property);
         }
     }
-    Fayde.RegisterType(Binding, {
-    	Name: "Binding",
-    	Namespace: "Fayde.Data",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Binding, "Fayde.Data", Fayde.XMLNS);
 }

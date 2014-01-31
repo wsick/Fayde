@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Fayde</id>
+    <version>0.9.7.3</version>
+    <authors>Bradley Sickes</authors>
+    <owners>Bradley Sickes</owners>
+    <projectUrl>http://fayde.wsick.com/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Fayde is a cross platform, cross browser XAML engine.</description>
+    <tags>fayde xaml silverlight</tags>
+    <dependencies>
+      <dependency id="RequireJS" version="2.1.10" />
+      <dependency id="RequireJS.Text" version="2.0.7" />
+      <dependency id="requirejs.TypeScript.DefinitelyTyped" version="0.1.7" />
+    </dependencies>
+  </metadata>
+</package>

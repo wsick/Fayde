@@ -127,9 +127,5 @@ module Fayde {
             return this._ht.slice(0);
         }
     }
-    Fayde.RegisterType(XamlObjectCollection, {
-        Name: "XamlObjectCollection",
-        Namespace: "Fayde",
-        Interfaces: [IEnumerable_]
-    });
+    Fayde.RegisterType(XamlObjectCollection, "Fayde");
 }

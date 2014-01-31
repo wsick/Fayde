@@ -9,9 +9,5 @@ module Fayde.Data {
             if (mode) this.Mode = mode;
         }
     }
-    Fayde.RegisterType(RelativeSource, {
-        Name: "RelativeSource",
-        Namespace: "Fayde.Data",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(RelativeSource, "Fayde.Data", Fayde.XMLNS);
 }

@@ -40,11 +40,8 @@ module Fayde {
             super.OnDataContextChanged(oldDataContext, newDataContext);
         }
     }
-    Fayde.RegisterType(DONode, {
-    	Name: "DONode",
-    	Namespace: "Fayde"
-    });
-
+    Fayde.RegisterType(DONode, "Fayde");
+    
     export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
         private _Expressions: Expression[] = [];
         _PropertyStorage: Providers.IPropertyStorage[] = [];
@@ -68,7 +65,7 @@ module Fayde {
             if (!propd)
                 throw new ArgumentException("No property specified.");
             if (propd.IsReadOnly)
-                throw new InvalidOperationException("DependencyProperty '" + (<any>propd.OwnerType)._TypeName + "." + propd.Name + "' is read only.");
+                throw new InvalidOperationException("DependencyProperty '" + (<any>propd.OwnerType).name + "." + propd.Name + "' is read only.");
             this.SetValueInternal(propd, value);
         }
         SetValueInternal(propd: DependencyProperty, value: any) {
@@ -211,11 +208,7 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(DependencyObject, {
-    	Name: "DependencyObject",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(DependencyObject, "Fayde", Fayde.XMLNS);
 
     DependencyObject.DataContextProperty.Store = Fayde.Providers.DataContextStore.Instance;
 }

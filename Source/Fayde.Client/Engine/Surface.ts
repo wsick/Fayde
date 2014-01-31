@@ -34,6 +34,7 @@ module Fayde {
                 this._Extents = size.fromRaw(this._Canvas.offsetWidth, this._Canvas.offsetHeight);
             return this._Extents;
         }
+        get App(): Application { return this._App; }
 
         // INITIALIZATION
         Register(canvas: HTMLCanvasElement, width?: number, widthType?: string, height?: number, heightType?: string) {

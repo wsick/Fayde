@@ -210,9 +210,4 @@ module Fayde.Controls.Input {
             while ((!menuItem2 || (!menuItem2.IsEnabled || !menuItem2.Focus())) && index !== num);
         }
     }
-    Fayde.RegisterType(ContextMenu, {
-        Name: "ContextMenu",
-        Namespace: "Fayde.Controls.Input",
-        XmlNamespace: Input.XMLNS
-    });
 }

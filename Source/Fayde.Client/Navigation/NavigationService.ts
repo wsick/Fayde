@@ -24,9 +24,5 @@ module Fayde.Navigation {
             this.LocationChanged.Raise(this, EventArgs.Empty);
         }
     }
-    Fayde.RegisterType(NavigationService, {
-    	Name: "NavigationService",
-    	Namespace: "Fayde.Navigation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(NavigationService, "Fayde.Navigation", Fayde.XMLNS);
 }

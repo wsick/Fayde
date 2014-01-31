@@ -16,9 +16,5 @@ module Fayde.Media {
             return undefined;
         }
     }
-    Fayde.RegisterType(RadialGradientBrush, {
-        Name: "RadialGradientBrush",
-        Namespace: "Fayde.Media",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(RadialGradientBrush, "Fayde.Media", Fayde.XMLNS);
 }

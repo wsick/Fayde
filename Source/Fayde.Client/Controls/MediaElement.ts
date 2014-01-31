@@ -4,11 +4,7 @@ module Fayde.Controls {
     export class MediaElement extends FrameworkElement {
         CreateLayoutUpdater(node: UINode) { return new MediaElementLayoutUpdater(node); }
     }
-    Fayde.RegisterType(MediaElement, {
-    	Name: "MediaElement",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(MediaElement, "Fayde.Controls", Fayde.XMLNS);
     
     export class MediaElementLayoutUpdater extends LayoutUpdater {
         InsideObject(ctx: RenderContextEx, x: number, y: number) {

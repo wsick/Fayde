@@ -4,30 +4,27 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var NflDraft;
-(function (NflDraft) {
-    (function (Models) {
-        var FantasyPosition = (function (_super) {
-            __extends(FantasyPosition, _super);
-            function FantasyPosition(position) {
-                _super.call(this);
-                this.Position = position;
-            }
-            Object.defineProperty(FantasyPosition.prototype, "Player", {
-                get: function () {
-                    return this._player;
-                },
-                set: function (value) {
-                    this._player = value;
-                    this.OnPropertyChanged("Player");
-                },
-                enumerable: true,
-                configurable: true
-            });
-            return FantasyPosition;
-        })(Fayde.MVVM.ObservableObject);
-        Models.FantasyPosition = FantasyPosition;
-    })(NflDraft.Models || (NflDraft.Models = {}));
-    var Models = NflDraft.Models;
-})(NflDraft || (NflDraft = {}));
+define(["require", "exports", "Models/Player"], function(require, exports, Player) {
+    var FantasyPosition = (function (_super) {
+        __extends(FantasyPosition, _super);
+        function FantasyPosition(position) {
+            _super.call(this);
+            this.Position = position;
+        }
+        Object.defineProperty(FantasyPosition.prototype, "Player", {
+            get: function () {
+                return this._player;
+            },
+            set: function (value) {
+                this._player = value;
+                this.OnPropertyChanged("Player");
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return FantasyPosition;
+    })(Fayde.MVVM.ObservableObject);
+    
+    return FantasyPosition;
+});
 //# sourceMappingURL=FantasyPosition.js.map

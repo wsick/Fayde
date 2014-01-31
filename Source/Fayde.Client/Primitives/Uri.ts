@@ -5,11 +5,7 @@ enum UriKind {
     Relative = 1,
     RelativeOrAbsolute = 2,
 }
-Fayde.RegisterEnum(UriKind, {
-    Name: "UriKind",
-    Namespace: "window",
-    XmlNamespace: Fayde.XMLNS
-});
+Fayde.RegisterEnum(UriKind, "UriKind", Fayde.XMLNS);
 
 class Uri implements ICloneable {
     private _OriginalString: string;
@@ -50,11 +46,7 @@ class Uri implements ICloneable {
         return uri1.toString() === uri2.toString();
     }
 }
-Fayde.RegisterType(Uri, {
-	Name: "Uri",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(Uri, "window", Fayde.XMLNSX);
 Fayde.RegisterTypeConverter(Uri, (val: any): any => {
     if (val == null)
         val = "";

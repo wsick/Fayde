@@ -15,9 +15,5 @@ module Fayde.Documents {
             return super.IsInheritable(propd);
         }
     }
-    Fayde.RegisterType(Run, {
-    	Name: "Run",
-    	Namespace: "Fayde.Documents",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Run, "Fayde.Documents", Fayde.XMLNS);
 }

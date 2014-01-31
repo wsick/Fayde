@@ -5,11 +5,7 @@ module Fayde {
     export class TriggerAction extends DependencyObject {
         Fire() { }
     }
-    Fayde.RegisterType(TriggerAction, {
-    	Name: "TriggerAction",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TriggerAction, "Fayde", Fayde.XMLNS);
     
     export class TriggerActionCollection extends XamlObjectCollection<TriggerAction> {
         Fire() {
@@ -19,22 +15,14 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(TriggerActionCollection, {
-    	Name: "TriggerActionCollection",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TriggerActionCollection, "Fayde", Fayde.XMLNS);
 
     
     export class TriggerBase extends DependencyObject {
         Attach(target: XamlObject) { }
         Detach(target: XamlObject) { }
     }
-    Fayde.RegisterType(TriggerBase, {
-    	Name: "TriggerBase",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TriggerBase, "Fayde", Fayde.XMLNS);
     
     export class EventTrigger extends TriggerBase {
         static ActionsProperty = DependencyProperty.RegisterImmutable<TriggerActionCollection>("Actions", () => TriggerActionCollection, EventTrigger);
@@ -91,11 +79,7 @@ module Fayde {
             return undefined;
         }
     }
-    Fayde.RegisterType(EventTrigger, {
-    	Name: "EventTrigger",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(EventTrigger, "Fayde", Fayde.XMLNS);
 
     export class TriggerCollection extends XamlObjectCollection<TriggerBase> {
         XamlNode: XamlNode;
@@ -132,9 +116,5 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(TriggerCollection, {
-    	Name: "TriggerCollection",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TriggerCollection, "Fayde", Fayde.XMLNS);
 }

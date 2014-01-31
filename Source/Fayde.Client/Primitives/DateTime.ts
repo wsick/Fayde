@@ -9,22 +9,14 @@ enum DayOfWeek {
     Friday,
     Saturday
 }
-Fayde.RegisterEnum(DayOfWeek, {
-    Name: "DayOfWeek",
-    Namespace: "Fayde",
-    XmlNamespace: Fayde.XMLNS
-});
+Fayde.RegisterEnum(DayOfWeek, "DayOfWeek", Fayde.XMLNS);
 
 enum DateTimeKind {
     Local,
     Unspecified,
     Utc
 }
-Fayde.RegisterEnum(DateTimeKind, {
-    Name: "DateTimeKind",
-    Namespace: "Fayde",
-    XmlNamespace: Fayde.XMLNS
-});
+Fayde.RegisterEnum(DateTimeKind, "DateTimeKind", Fayde.XMLNS);
 
 class DateTime {
     static MinValue = new DateTime(-8640000000000000);
@@ -142,11 +134,7 @@ class DateTime {
     }
     get Year(): number { return this._InternalDate.getFullYear(); }
 }
-Fayde.RegisterType(DateTime, {
-    Name: "DateTime",
-    Namespace: "Fayde",
-    XmlNamespace: Fayde.XMLNS
-});
+Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
 
 class DateTimeFormatInfo {
     AbbreviatedMonthNames: string[] = [];

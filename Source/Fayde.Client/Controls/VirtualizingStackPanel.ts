@@ -8,11 +8,7 @@ module Fayde.Controls {
         Standard = 0,
         Recycling = 1,
     }
-    Fayde.RegisterEnum(VirtualizationMode, {
-        Name: "VirtualizationMode",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(VirtualizationMode, "VirtualizationMode",Fayde.XMLNS);
 
     export interface ICancelable {
         Cancel: boolean;
@@ -460,10 +456,6 @@ module Fayde.Controls {
             if (scrollOwner) scrollOwner.InvalidateScrollInfo();
         }
     }
-    Fayde.RegisterType(VirtualizingStackPanel, {
-        Name: "VirtualizingStackPanel",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS,
-        Interfaces: [Primitives.IScrollInfo_]
-    });
+    Fayde.RegisterType(VirtualizingStackPanel, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterTypeInterfaces(VirtualizingStackPanel, Primitives.IScrollInfo_);
 }

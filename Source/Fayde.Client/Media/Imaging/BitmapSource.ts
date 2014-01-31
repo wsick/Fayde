@@ -60,9 +60,5 @@ module Fayde.Media.Imaging {
             }
         }
     }
-    Fayde.RegisterType(BitmapSource, {
-    	Name: "BitmapSource",
-    	Namespace: "Fayde.Media.Imaging",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(BitmapSource, "Fayde.Media.Imaging", Fayde.XMLNS);
 }

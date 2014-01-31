@@ -89,9 +89,5 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(TemplateBindingExpression, {
-    	Name: "TemplateBindingExpression",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TemplateBindingExpression, "Fayde", Fayde.XMLNS);
 }

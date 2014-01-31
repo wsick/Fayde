@@ -1,13 +1,8 @@
 ﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    xmlns:local="folder:Tests/IssueTests"
+    xmlns:local="IssueTests"
     Theme="/Fayde/Theme.Silverlight.xml">
-    <Application.Sources>
-        <Namespace Name="folder:Tests/IssueTests">
-            <Source Name="DoubleListBoxViewModel" Source="IssueTests/DoubleListBoxViewModel.js" />
-        </Namespace>
-    </Application.Sources>
     <Grid>
         <Grid.DataContext>
             <local:DoubleListBoxViewModel />

@@ -12,9 +12,5 @@ module Fayde.Input {
             return this.Device.GetTouchPoint(relativeTo);
         }
     }
-    Fayde.RegisterType(TouchEventArgs, {
-        Name: "TouchEventArgs",
-        Namespace: "Fayde.Input",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TouchEventArgs, "Fayde.Input", Fayde.XMLNS);
 }

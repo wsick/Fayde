@@ -240,9 +240,5 @@ module Fayde.Controls {
             this.SetValueInternal(Slider.IsFocusedProperty, false);
         }
     }
-    Fayde.RegisterType(Slider, {
-    	Name: "Slider",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Slider, "Fayde.Controls", Fayde.XMLNS);
 }

@@ -4,7 +4,7 @@ module Fayde {
     export interface IEventFilter {
         Filter(sender: any, e: EventArgs, parameter: any): boolean;
     }
-    export var IEventFilter_ = Fayde.RegisterInterface("IEventFilter");
+    export var IEventFilter_ = Fayde.RegisterInterface<IEventFilter>("IEventFilter");
 
     export class EventBinding implements Xaml.IMarkup {
         CommandBinding: Data.Binding = null;
@@ -15,9 +15,5 @@ module Fayde {
             return new EventBindingExpression(this);
         }
     }
-    Fayde.RegisterType(EventBinding, {
-    	Name: "EventBinding",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(EventBinding, "Fayde", Fayde.XMLNS);
 }

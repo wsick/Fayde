@@ -17,9 +17,5 @@ module Fayde.Controls {
             this.IsTabStop = e.NewValue;
         }
     }
-    Fayde.RegisterType(Button, {
-    	Name: "Button",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Button, "Fayde.Controls", Fayde.XMLNS);
 }

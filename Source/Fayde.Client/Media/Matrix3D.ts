@@ -101,9 +101,5 @@ module Fayde.Media {
 
         toString(): string { return mat4.str(this._Raw); }
     }
-    Fayde.RegisterType(Matrix3D, {
-    	Name: "Matrix3D",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Matrix3D, "Fayde.Media", Fayde.XMLNS);
 }

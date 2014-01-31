@@ -5,12 +5,12 @@
 module Fayde.Collections {
     export class ObservableCollection<T> implements IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {
         private _ht: T[] = [];
-        
+
         GetEnumerator(): IEnumerator<T> {
             return ArrayEx.GetEnumerator(this._ht);
         }
-        CollectionChanged: MulticastEvent<NotifyCollectionChangedEventArgs> = new MulticastEvent<NotifyCollectionChangedEventArgs>();
-        PropertyChanged: MulticastEvent<PropertyChangedEventArgs> = new MulticastEvent<PropertyChangedEventArgs>();
+        CollectionChanged = new MulticastEvent<NotifyCollectionChangedEventArgs>();
+        PropertyChanged = new MulticastEvent<PropertyChangedEventArgs>();
 
         get Count(): number { return this._ht.length; }
 
@@ -83,10 +83,5 @@ module Fayde.Collections {
             this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-    Fayde.RegisterType(ObservableCollection, {
-        Namespace: "Fayde.Collections",
-        XmlNamespace: Fayde.XMLNS,
-        Name: "ObservableCollection",
-        Interfaces: [IEnumerable_, INotifyCollectionChanged_, INotifyPropertyChanged_]
-    });
+    Fayde.RegisterType(ObservableCollection, "Fayde.Collections", Fayde.XMLNS);
 }

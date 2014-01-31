@@ -93,11 +93,7 @@ module Fayde.Controls {
             return control.ReadLocalValue(propd) === DependencyProperty.UnsetValue;
         }
     }
-    Fayde.RegisterType(HeaderedItemsControl, {
-        Name: "HeaderedItemsControl",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(HeaderedItemsControl, "Fayde.Controls", Fayde.XMLNS);
 
     class ItemsControlHelper {
         private _ItemsHost: Panel;

@@ -40,11 +40,7 @@ module Fayde {
             return true;
         }
     }
-    Fayde.RegisterType(SetterCollection, {
-    	Name: "SetterCollection",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(SetterCollection, "Fayde", Fayde.XMLNS);
 
     export class Setter extends DependencyObject {
         private _IsSealed: boolean = false;
@@ -67,9 +63,5 @@ module Fayde {
             this._IsSealed = true;
         }
     }
-    Fayde.RegisterType(Setter, {
-    	Name: "Setter",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Setter, "Fayde", Fayde.XMLNS);
 }

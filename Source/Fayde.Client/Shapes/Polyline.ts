@@ -40,11 +40,7 @@ module Fayde.Shapes {
             lu.Invalidate();
         }
     }
-    Fayde.RegisterType(Polyline, {
-    	Name: "Polyline",
-    	Namespace: "Fayde.Shapes",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Polyline, "Fayde.Shapes", Fayde.XMLNS);
 
 
     export class PolylineLayoutUpdater extends ShapeLayoutUpdater {

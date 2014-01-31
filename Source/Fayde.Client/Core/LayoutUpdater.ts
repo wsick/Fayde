@@ -1492,13 +1492,10 @@ module Fayde {
             var ctor = (<any>xobj).constructor;
             var o = {
                 "ID": (<any>xobj)._ID,
-                "Type": ctor._TypeName
+                "Type": ctor.name
             };
             return JSON.stringify(o);
         }
     }
-    Fayde.RegisterType(LayoutUpdater, {
-    	Name: "LayoutUpdater",
-    	Namespace: "Fayde"
-    });
+    Fayde.RegisterType(LayoutUpdater, "Fayde");
 }

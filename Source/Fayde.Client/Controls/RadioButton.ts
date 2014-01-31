@@ -90,9 +90,5 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(RadioButton, {
-    	Name: "RadioButton",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(RadioButton, "Fayde.Controls", Fayde.XMLNS);
 }

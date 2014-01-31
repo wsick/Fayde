@@ -53,11 +53,7 @@ module Fayde.Controls {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
     }
-    Fayde.RegisterType(Grid, {
-    	Name: "Grid",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Grid, "Fayde.Controls", Fayde.XMLNS);
 
     export class GridLayoutUpdater extends PanelLayoutUpdater {
         private _Measurer = new GridMeasurer();

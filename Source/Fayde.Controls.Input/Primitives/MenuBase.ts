@@ -1,5 +1,4 @@
 /// <reference path="../Fayde.d.ts" />
-/// <reference path="../_.ts" />
 
 module Fayde.Controls.Input.Primitives {
     export class MenuBase extends Fayde.Controls.ItemsControl {
@@ -33,8 +32,4 @@ module Fayde.Controls.Input.Primitives {
             return control.ReadLocalValue(propd) === DependencyProperty.UnsetValue;
         }
     }
-    Fayde.RegisterType(MenuBase, {
-        Name: "MenuBase",
-        Namespace: Input.XMLNS
-    });
 }

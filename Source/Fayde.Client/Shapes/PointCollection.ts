@@ -88,11 +88,7 @@ module Fayde.Shapes {
 
         GetEnumerator(reverse?: boolean): IEnumerator<Point> { return ArrayEx.GetEnumerator(this._ht, reverse); }
     }
-    Fayde.RegisterType(PointCollection, {
-    	Name: "PointCollection",
-    	Namespace: "Fayde.Shapes",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(PointCollection, "Fayde.Shapes", Fayde.XMLNS);
 
     Fayde.RegisterTypeConverter(PointCollection, (val: string): PointCollection => {
         var pc = new PointCollection();

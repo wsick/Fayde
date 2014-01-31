@@ -139,11 +139,7 @@ module Fayde.Media.Animation {
             return arr;
         }
     }
-    Fayde.RegisterType(KeyFrame, {
-    	Name: "KeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(KeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
 
     export class KeyFrameCollection extends XamlObjectCollection<KeyFrame> {
         private _Resolved: boolean = false;
@@ -224,9 +220,5 @@ module Fayde.Media.Animation {
             return coll._SortedList;
         }
     }
-    Fayde.RegisterType(KeyFrameCollection, {
-    	Name: "KeyFrameCollection",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(KeyFrameCollection, "Fayde.Media.Animation", Fayde.XMLNS);
 }

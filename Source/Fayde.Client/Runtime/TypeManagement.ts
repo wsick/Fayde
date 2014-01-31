@@ -1,6 +1,8 @@
 
-interface IInterfaceDeclaration extends IType {
+interface IInterfaceDeclaration<T> extends IType {
     Name: string;
+    Is(o: any): boolean;
+    As(o: any): T;
 }
 interface IType {
 }
@@ -12,72 +14,94 @@ module Fayde {
     var jsNamespaces: any[][] = [];
     var xmlNamespaces: any[][] = [];
 
-    export class Interface implements IInterfaceDeclaration {
+    export class Interface<T> implements IInterfaceDeclaration<T> {
         Name: string;
         constructor(name: string) {
             Object.defineProperty(this, "Name", { value: name, writable: false });
         }
+        Is(o: any): boolean {
+            if (!o)
+                return false;
+            var type = o.constructor;
+            while (type) {
+                var is: IInterfaceDeclaration<any>[] = type.$$interfaces;
+                if (is && is.indexOf(this) > -1)
+                    return true;
+                type = GetTypeParent(type);
+            }
+            return false;
+        }
+        As(o: any): T {
+            if (!this.Is(o))
+                return;
+            return <T>o;
+        }
     }
 
-    export function RegisterType(type: Function, reg: any) {
-        var t = <any>type;
+    export function RegisterType(type: Function, ns?: string, xmlns?: string) {
+        if (ns) {
+            Object.defineProperty(type, "$$ns", { value: ns, writable: false });
+            var jarr = jsNamespaces[ns];
+            if (!jarr) jarr = jsNamespaces[ns] = [];
+            jarr[name] = type;
+        }
 
-        var name = reg.Name;
-        if (!name)
-            throw new Error("Type Name not specified.");
-        var ns = reg.Namespace;
-        if (!ns)
-            throw new Error("Type Namespace not specified.");
-
-        var xn = reg.XmlNamespace;
-        if (!xn) xn = "";
-        
-        var i = reg.Interfaces;
-        if (!i) i = [];
-        for (var j = 0, len = i.length; j < len; j++) {
-            if (!i[j]) {
+        RegisterTypeName(type, xmlns);
+    }
+    export function RegisterTypeInterfaces(type: Function, ...interfaces: IInterfaceDeclaration<any>[]) {
+        if (!interfaces)
+            return;
+        for (var j = 0, len = interfaces.length; j < len; j++) {
+            if (!interfaces[j]) {
                 console.warn("Registering undefined interface on type.", type);
                 break;
             }
         }
-
-        var bc = <Function>Object.getPrototypeOf(type.prototype).constructor;
-
-        Object.defineProperty(t, "_BaseClass", { value: bc, writable: false });
-        Object.defineProperty(t, "_TypeName", { value: name, writable: false });
-        Object.defineProperty(t, "_JsNamespace", { value: ns, writable: false });
-        Object.defineProperty(t, "_XmlNamespace", { value: xn, writable: false });
-        Object.defineProperty(t, "_Interfaces", { value: i, writable: false });
-
-        var jarr = jsNamespaces[ns];
-        if (!jarr) jarr = jsNamespaces[ns] = [];
-        jarr[name] = t;
-
-        if (xn) {
-            var xarr = xmlNamespaces[xn];
-            if (!xarr) xarr = xmlNamespaces[xn] = [];
-            xarr[name] = t;
-        }
+        Object.defineProperty(type, "$$interfaces", { value: interfaces, writable: false });
     }
-    export function RegisterEnum(e: any, reg: any) {
-        var name = reg.Name;
-        var ns = reg.Namespace;
-        var xn = reg.XmlNamespace;
+    export function RegisterTypeName(type: Function, xmlns: string, localName?: string) {
+        localName = localName || GetTypeName(type);
 
-        e.IsEnum = true;
-
-        var jarr = jsNamespaces[ns];
-        if (!jarr) jarr = jsNamespaces[ns] = [];
-        jarr[name] = e;
-
-        if (xn) {
-            var xarr = xmlNamespaces[xn];
-            if (!xarr) xarr = xmlNamespaces[xn] = [];
-            xarr[name] = e;
-        }
+        if (!xmlns)
+            return;
+        Object.defineProperty(type, "$$xmlns", { value: xmlns, writable: false });
+        var xarr = xmlNamespaces[xmlns];
+        if (!xarr) xarr = xmlNamespaces[xmlns] = [];
+        xarr[localName] = type;
     }
-    export function RegisterInterface(name: string): IInterfaceDeclaration {
-        return new Interface(name);
+    export function GetTypeName(type: Function): string {
+        var t = <any>type;
+        if (!t)
+            return "";
+        var name = t.name;
+        if (name)
+            return name;
+        return t.name = t.toString().match(/function ([^\(]+)/);
+    }
+    export function GetTypeParent(type: Function): Function {
+        if (type === Object)
+            return null;
+        var p = (<any>type).$$parent;
+        if (!p) {
+            p = <Function>Object.getPrototypeOf(type.prototype).constructor;
+            Object.defineProperty(type, "$$parent", { value: p, writable: false });
+        }
+        return p;
+    }
+
+    export function RegisterEnum(e: any, name: string, xmlns?: string) {
+        Object.defineProperty(e, "$$enum", { value: true, writable: false });
+        e.name = name;
+
+        if (!xmlns)
+            return;
+        Object.defineProperty(e, "$$xmlns", { value: xmlns, writable: false });
+        var xarr = xmlNamespaces[xmlns];
+        if (!xarr) xarr = xmlNamespaces[xmlns] = [];
+        xarr[name] = e;
+    }
+    export function RegisterInterface<T>(name: string): IInterfaceDeclaration<T> {
+        return new Interface<T>(name);
     }
     var PRIMITIVE_MAPPINGS = [];
     PRIMITIVE_MAPPINGS["String"] = String;
@@ -119,7 +143,7 @@ module Fayde {
             var annotation: any;
             if (anns && (annotation = anns[name]))
                 return annotation;
-            return TypeResolver.GetAnnotation(t._BaseClass, name);
+            return TypeResolver.GetAnnotation(GetTypeParent(t), name);
         },
         Resolve: function (xmlns: string, xmlname: string): ITypeResolution {
             var isSystem = false;
@@ -149,12 +173,13 @@ module Fayde {
                 }
                 isSimple = SIMPLES[xmlname] === true;
             }
+            var t: any;
             var xarr = xmlNamespaces[xmlns];
-            if (xarr) {
-                var t = xarr[xmlname];
-                if (t)
-                    return { IsSystem: isSystem, IsPrimitive: false, IsSimple: isSimple, IsEnum: t.IsEnum === true, Type: t };
-            }
+            if (xarr)
+                t = xarr[xmlname];
+            t = t || Library.TryGetClass(xmlns, xmlname) || tryGetRequireClass(xmlns, xmlname);
+            if (t)
+                return { IsSystem: isSystem, IsPrimitive: false, IsSimple: isSimple, IsEnum: t.$$enum === true, Type: t };
             return undefined;
         },
         ResolveFullyQualifiedName: function (xmlname: string, resolver: INamespacePrefixResolver): ITypeResolution {
@@ -167,6 +192,11 @@ module Fayde {
             }
             return TypeResolver.Resolve(ns, typeName);
         }
+    }
+
+    function tryGetRequireClass(xmlns: string, xmlname: string): any {
+        var format = xmlns + "/" + xmlname;
+        return require(format);
     }
 
     var converters: any = [];

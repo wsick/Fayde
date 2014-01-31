@@ -30,6 +30,7 @@
     <WarningLevel>4</WarningLevel>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -39,6 +40,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -142,9 +144,13 @@
     <TypeScriptCompile Include="Resources\DoubleValueConverter.ts" />
     <TypeScriptCompile Include="Models\ChatMessage.ts" />
     <TypeScriptCompile Include="Models\FantasyPosition.ts" />
-    <Content Include="Resources\DateValueConverter.ts" />
+    <TypeScriptCompile Include="Resources\DateValueConverter.ts" />
+    <TypeScriptCompile Include="main.ts" />
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />
+    <Content Include="scripts\require.d.ts" />
+    <Content Include="scripts\require.js" />
+    <Content Include="scripts\text.js" />
     <Content Include="scripts\Theme.Metro.xml" />
     <Content Include="scripts\Theme.Silverlight.xml" />
     <Content Include="Web.config" />

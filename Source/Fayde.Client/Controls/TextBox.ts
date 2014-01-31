@@ -216,11 +216,7 @@ module Fayde.Controls {
             return gotoFunc("Normal");
         }
     }
-    Fayde.RegisterType(TextBox, {
-    	Name: "TextBox",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TextBox, "Fayde.Controls", Fayde.XMLNS);
 
     function positiveIntValidator(dobj: DependencyObject, propd: DependencyProperty, value: any): boolean {
         if (typeof value !== 'number')

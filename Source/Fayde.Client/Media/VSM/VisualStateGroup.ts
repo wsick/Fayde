@@ -95,17 +95,9 @@ module Fayde.Media.VSM {
             this.CurrentStateChanged.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
         }
     }
-    Fayde.RegisterType(VisualStateGroup, {
-    	Name: "VisualStateGroup",
-    	Namespace: "Fayde.Media.VSM",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(VisualStateGroup, "Fayde.Media.VSM", Fayde.XMLNS);
 
     export class VisualStateGroupCollection extends XamlObjectCollection<VisualStateGroup> {
     }
-    Fayde.RegisterType(VisualStateGroupCollection, {
-    	Name: "VisualStateGroupCollection",
-    	Namespace: "Fayde.Media.VSM",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(VisualStateGroupCollection, "Fayde.Media.VSM", Fayde.XMLNS);
 }

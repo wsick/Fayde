@@ -77,9 +77,5 @@ module Fayde.Media.Animation {
         AddKeyFrame(kf: KeyFrame) { this.KeyFrames.Add(kf); }
         RemoveKeyFrame(kf: KeyFrame) { this.KeyFrames.Remove(kf); }
     }
-    Fayde.RegisterType(AnimationUsingKeyFrames, {
-    	Name: "AnimationUsingKeyFrames",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(AnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
 }

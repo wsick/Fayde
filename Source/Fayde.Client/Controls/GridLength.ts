@@ -6,11 +6,7 @@ module Fayde.Controls {
         Pixel = 1,
         Star = 2,
     }
-    Fayde.RegisterEnum(GridUnitType, {
-        Name: "GridUnitType",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(GridUnitType, "GridUnitType", Fayde.XMLNS);
 
     export class GridLength implements ICloneable {
         Value: number;
@@ -26,11 +22,7 @@ module Fayde.Controls {
             return new Controls.GridLength(this.Value, this.Type);
         }
     }
-    Fayde.RegisterType(GridLength, {
-    	Name: "GridLength",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(GridLength, "Fayde.Controls", Fayde.XMLNS);
 
     Fayde.RegisterTypeConverter(GridLength, (val: string): GridLength => {
         if (!val || val.toLowerCase() === "auto")

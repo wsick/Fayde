@@ -155,9 +155,5 @@ module Fayde.Controls.Primitives {
             }
         }
     }
-    Fayde.RegisterType(RepeatButton, {
-    	Name: "RepeatButton",
-    	Namespace: "Fayde.Controls.Primitives",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(RepeatButton, "Fayde.Controls.Primitives", Fayde.XMLNS);
 }

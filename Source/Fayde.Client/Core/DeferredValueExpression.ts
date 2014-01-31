@@ -7,8 +7,5 @@ module Fayde {
         }
         toString(): string { return "DeferredValueExpression"; }
     }
-    Fayde.RegisterType(DeferredValueExpression, {
-    	Name: "DeferredValueExpression",
-    	Namespace: "Fayde"
-    });
+    Fayde.RegisterType(DeferredValueExpression, "Fayde");
 }

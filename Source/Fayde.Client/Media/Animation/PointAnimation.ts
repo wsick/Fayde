@@ -55,9 +55,5 @@ module Fayde.Media.Animation {
             this._EasingCached = args.NewValue;
         }
     }
-    Fayde.RegisterType(PointAnimation, {
-    	Name: "PointAnimation",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(PointAnimation, "Fayde.Media.Animation", Fayde.XMLNS);
 }

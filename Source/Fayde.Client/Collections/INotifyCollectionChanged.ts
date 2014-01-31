@@ -4,5 +4,8 @@ module Fayde.Collections {
     export interface INotifyCollectionChanged {
         CollectionChanged: MulticastEvent<NotifyCollectionChangedEventArgs>;
     }
-    export var INotifyCollectionChanged_ = Fayde.RegisterInterface("INotifyCollectionChanged");
+    export var INotifyCollectionChanged_ = Fayde.RegisterInterface<INotifyCollectionChanged>("INotifyCollectionChanged");
+    INotifyCollectionChanged_.Is = (o: any): boolean => {
+        return o && o.CollectionChanged instanceof MulticastEvent;
+    };
 }

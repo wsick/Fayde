@@ -225,16 +225,13 @@ class DependencyProperty {
         if (reg)
             propd = reg[name];
         if (!propd)
-            propd = DependencyProperty.GetDependencyProperty((<any>ownerType)._BaseClass, name, true);
+            propd = DependencyProperty.GetDependencyProperty(Fayde.GetTypeParent(ownerType), name, true);
         if (!propd && !noError)
-            throw new Exception("Cannot locate dependency property [" + (<any>ownerType)._TypeName + "].[" + name + "]");
+            throw new Exception("Cannot locate dependency property [" + (<any>ownerType).name + "].[" + name + "]");
         return propd;
     }
 }
-Fayde.RegisterType(DependencyProperty, {
-	Name: "DependencyProperty",
-	Namespace: "Fayde"
-});
+Fayde.RegisterType(DependencyProperty, "Fayde");
 
 class ImmutableDependencyProperty<T> extends DependencyProperty {
     IsImmutable: boolean = true;
