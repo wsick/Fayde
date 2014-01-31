@@ -90,7 +90,7 @@ module Fayde {
     }
 
     export function RegisterEnum(e: any, name: string, xmlns?: string) {
-        e.IsEnum = true;
+        Object.defineProperty(e, "$$enum", { value: true, writable: false });
         e.name = name;
 
         if (!xmlns)
@@ -179,7 +179,7 @@ module Fayde {
                 t = xarr[xmlname];
             t = t || Library.TryGetClass(xmlns, xmlname) || tryGetRequireClass(xmlns, xmlname);
             if (t)
-                return { IsSystem: isSystem, IsPrimitive: false, IsSimple: isSimple, IsEnum: t.IsEnum === true, Type: t };
+                return { IsSystem: isSystem, IsPrimitive: false, IsSimple: isSimple, IsEnum: t.$$enum === true, Type: t };
             return undefined;
         },
         ResolveFullyQualifiedName: function (xmlname: string, resolver: INamespacePrefixResolver): ITypeResolution {
