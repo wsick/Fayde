@@ -113,15 +113,7 @@ module Fayde {
             if (theme && (style = theme.GetImplicitStyle(type)))
                 return style;
 
-            /*
-            var enumerator = this.Libraries.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                style = enumerator.Current.GetImplicitStyle(type);
-                if (style)
-                    return style;
-            }
-            */
-            return undefined;
+            return Library.GetImplicitStyle(type);
         }
 
         private __DebugLayers(): string {

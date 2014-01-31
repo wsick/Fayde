@@ -35,6 +35,18 @@ module Fayde {
             return libraries[url.substr("lib:".length)];
         }
 
+        static GetImplicitStyle(type: any): Style {
+            for (var id in libraries) {
+                var library = libraries[id];
+                if (!library.Theme)
+                    continue;
+                var style = library.Theme.GetImplicitStyle(type);
+                if (style)
+                    return style;
+            }
+            return undefined;
+        }
+
         Resolve(ctx?: ILibraryAsyncContext): IAsyncRequest<Library> {
             ctx = ctx || { Resolving: [] };
             ctx.Resolving.push(this);
