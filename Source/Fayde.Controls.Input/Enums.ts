@@ -6,26 +6,17 @@ module Fayde.Controls.Input {
         Increase = 1,
         Decrease = 2
     }
-    Fayde.RegisterEnum(ValidSpinDirections, {
-        Name: "ValidSpinDirections",
-        Namespace: "Fayde.Controls.Input"
-    });
+    Fayde.RegisterEnum(ValidSpinDirections, "ValidSpinDirections");
 
     export enum SpinDirection {
         Increase,
         Decrease
     }
-    Fayde.RegisterEnum(SpinDirection, {
-        Name: "SpinDirection",
-        Namespace: "Fayde.Controls.Input"
-    });
+    Fayde.RegisterEnum(SpinDirection, "SpinDirection");
 
     export enum InvalidInputAction {
         UseFallbackItem,
         TextBoxCannotLoseFocus
     }
-    Fayde.RegisterEnum(InvalidInputAction, {
-        Name: "InvalidInputAction",
-        Namespace: "Fayde.Controls.Input"
-    });
+    Fayde.RegisterEnum(InvalidInputAction, "InvalidInputAction");
 }

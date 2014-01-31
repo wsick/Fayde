@@ -8,11 +8,7 @@ module Fayde.Controls {
         Standard = 0,
         Recycling = 1,
     }
-    Fayde.RegisterEnum(VirtualizationMode, {
-        Name: "VirtualizationMode",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(VirtualizationMode, "VirtualizationMode",Fayde.XMLNS);
 
     export interface ICancelable {
         Cancel: boolean;

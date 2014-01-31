@@ -31,7 +31,7 @@ declare module Fayde {
     function RegisterTypeName(type: Function, xmlns: string, localName?: string): void;
     function GetTypeName(type: Function): string;
     function GetTypeParent(type: Function): Function;
-    function RegisterEnum(e: any, reg: any): void;
+    function RegisterEnum(e: any, name: string, xmlns?: string): void;
     function RegisterInterface<T>(name: string): IInterfaceDeclaration<T>;
     interface ITypeResolution {
         IsPrimitive: boolean;
@@ -6485,6 +6485,7 @@ declare module Fayde {
         constructor(moduleUrl: string, themeUrl?: string);
         static TryGetClass(xmlns: string, xmlname: string): any;
         static Get(url: string): Library;
+        static GetImplicitStyle(type: any): Fayde.Style;
         public Resolve(ctx?: ILibraryAsyncContext): IAsyncRequest<Library>;
         private _Load(ctx);
         private _FinishLoad(ctx, error?);

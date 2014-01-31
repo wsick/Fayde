@@ -89,22 +89,16 @@ module Fayde {
         return p;
     }
 
-    export function RegisterEnum(e: any, reg: any) {
-        var name = reg.Name;
-        var ns = reg.Namespace;
-        var xn = reg.XmlNamespace;
-
+    export function RegisterEnum(e: any, name: string, xmlns?: string) {
         e.IsEnum = true;
+        e.name = name;
 
-        var jarr = jsNamespaces[ns];
-        if (!jarr) jarr = jsNamespaces[ns] = [];
-        jarr[name] = e;
-
-        if (xn) {
-            var xarr = xmlNamespaces[xn];
-            if (!xarr) xarr = xmlNamespaces[xn] = [];
-            xarr[name] = e;
-        }
+        if (!xmlns)
+            return;
+        Object.defineProperty(e, "$$xmlns", { value: xmlns, writable: false });
+        var xarr = xmlNamespaces[xmlns];
+        if (!xarr) xarr = xmlNamespaces[xmlns] = [];
+        xarr[name] = e;
     }
     export function RegisterInterface<T>(name: string): IInterfaceDeclaration<T> {
         return new Interface<T>(name);

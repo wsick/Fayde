@@ -10,11 +10,7 @@ module Fayde.Input {
         Contained = 4,
         Local = 5,
     }
-    Fayde.RegisterEnum(KeyboardNavigationMode, {
-        Name: "KeyboardNavigationMode",
-        Namespace: "Fayde.Input",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(KeyboardNavigationMode, "KeyboardNavigationMode", Fayde.XMLNS);
 
     export enum ModifierKeys {
         None = 0,

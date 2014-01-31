@@ -5,11 +5,7 @@ enum UriKind {
     Relative = 1,
     RelativeOrAbsolute = 2,
 }
-Fayde.RegisterEnum(UriKind, {
-    Name: "UriKind",
-    Namespace: "window",
-    XmlNamespace: Fayde.XMLNS
-});
+Fayde.RegisterEnum(UriKind, "UriKind", Fayde.XMLNS);
 
 class Uri implements ICloneable {
     private _OriginalString: string;

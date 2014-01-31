@@ -9,22 +9,14 @@ enum DayOfWeek {
     Friday,
     Saturday
 }
-Fayde.RegisterEnum(DayOfWeek, {
-    Name: "DayOfWeek",
-    Namespace: "Fayde",
-    XmlNamespace: Fayde.XMLNS
-});
+Fayde.RegisterEnum(DayOfWeek, "DayOfWeek", Fayde.XMLNS);
 
 enum DateTimeKind {
     Local,
     Unspecified,
     Utc
 }
-Fayde.RegisterEnum(DateTimeKind, {
-    Name: "DateTimeKind",
-    Namespace: "Fayde",
-    XmlNamespace: Fayde.XMLNS
-});
+Fayde.RegisterEnum(DateTimeKind, "DateTimeKind", Fayde.XMLNS);
 
 class DateTime {
     static MinValue = new DateTime(-8640000000000000);

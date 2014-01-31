@@ -6,11 +6,7 @@ module Fayde.Data {
         Self = 2,
         FindAncestor = 3,
     }
-    Fayde.RegisterEnum(RelativeSourceMode, {
-        Name: "RelativeSourceMode",
-        Namespace: "Fayde.Data",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(RelativeSourceMode, "RelativeSourceMode", Fayde.XMLNS);
 
     export enum BindingMode {
         TwoWay = 0,
@@ -18,20 +14,12 @@ module Fayde.Data {
         OneTime = 2,
         OneWayToSource = 3,
     }
-    Fayde.RegisterEnum(BindingMode, {
-        Name: "BindingMode",
-        Namespace: "Fayde.Data",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(BindingMode, "BindingMode", Fayde.XMLNS);
 
     export enum UpdateSourceTrigger {
         Default = 0,
         PropertyChanged = 1,
         Explicit = 3,
     }
-    Fayde.RegisterEnum(UpdateSourceTrigger, {
-        Name: "UpdateSourceTrigger",
-        Namespace: "Fayde.Data",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(UpdateSourceTrigger, "UpdateSourceTrigger",Fayde.XMLNS);
 }

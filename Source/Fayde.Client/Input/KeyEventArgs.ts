@@ -171,11 +171,7 @@ module Fayde.Input {
         //     A special value indicating the key is out of range of this enumeration.
         Unknown = 255,
     }
-    Fayde.RegisterEnum(Key, {
-        Name: "Key",
-        Namespace: "Fayde.Input",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(Key, "Key", Fayde.XMLNS);
 
     export class KeyboardEventArgs extends RoutedEventArgs {
     }

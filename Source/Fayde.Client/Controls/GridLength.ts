@@ -6,11 +6,7 @@ module Fayde.Controls {
         Pixel = 1,
         Star = 2,
     }
-    Fayde.RegisterEnum(GridUnitType, {
-        Name: "GridUnitType",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(GridUnitType, "GridUnitType", Fayde.XMLNS);
 
     export class GridLength implements ICloneable {
         Value: number;

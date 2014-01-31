@@ -5,21 +5,13 @@ module Fayde {
         Horizontal = 0,
         Vertical = 1,
     }
-    Fayde.RegisterEnum(Orientation, {
-        Name: "Orientation",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(Orientation, "Orientation", Fayde.XMLNS);
 
     export enum Visibility {
         Visible = 0,
         Collapsed = 1,
     }
-    Fayde.RegisterEnum(Visibility, {
-        Name: "Visibility",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(Visibility, "Visibility", Fayde.XMLNS);
     Fayde.RegisterEnumConverter(Visibility, function (val: any): any {
         if (val === "true" || val === true || val === Visibility.Visible)
             return Visibility.Visible;
@@ -37,11 +29,7 @@ module Fayde {
         SizeWE: "w-resize"
         //TODO: Add cursor types
     }
-    Fayde.RegisterEnum(CursorType, {
-        Name: "CursorType",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(CursorType, "CursorType", Fayde.XMLNS);
 
     export enum HorizontalAlignment {
         Left = 0,
@@ -49,11 +37,7 @@ module Fayde {
         Right = 2,
         Stretch = 3,
     }
-    Fayde.RegisterEnum(HorizontalAlignment, {
-        Name: "HorizontalAlignment",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(HorizontalAlignment, "HorizontalAlignment", Fayde.XMLNS);
 
     export enum VerticalAlignment {
         Top = 0,
@@ -61,21 +45,13 @@ module Fayde {
         Bottom = 2,
         Stretch = 3,
     }
-    Fayde.RegisterEnum(VerticalAlignment, {
-        Name: "VerticalAlignment",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(VerticalAlignment, "VerticalAlignment", Fayde.XMLNS);
 
     export enum FlowDirection {
         LeftToRight = 0,
         RightToLeft = 1,
     }
-    Fayde.RegisterEnum(FlowDirection, {
-        Name: "FlowDirection",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(FlowDirection, "FlowDirection", Fayde.XMLNS);
 
     export enum FontWeight {
         Thin = 100,
@@ -89,11 +65,7 @@ module Fayde {
         Black = 900,
         ExtraBlack = 950,
     }
-    Fayde.RegisterEnum(FontWeight, {
-        Name: "FontWeight",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(FontWeight, "FontWeight", Fayde.XMLNS);
 
     export enum TextAlignment {
         Left = 0,
@@ -101,30 +73,18 @@ module Fayde {
         Right = 2,
         Justify = 3,
     }
-    Fayde.RegisterEnum(FontWeight, {
-        Name: "TextAlignment",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(TextAlignment, "TextAlignment", Fayde.XMLNS);
 
     //FLAGS
     export enum TextDecorations {
         None = 0,
         Underline = 1,
     }
-    Fayde.RegisterEnum(TextDecorations, {
-        Name: "TextDecorations",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(TextDecorations, "TextDecorations", Fayde.XMLNS);
 
     export enum LineStackingStrategy {
         MaxHeight = 0,
         BlockLineHeight = 1,
     }
-    Fayde.RegisterEnum(LineStackingStrategy, {
-        Name: "LineStackingStrategy",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(LineStackingStrategy, "LineStackingStrategy", Fayde.XMLNS);
 }
