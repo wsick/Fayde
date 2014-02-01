@@ -41,28 +41,24 @@ module Fayde.Controls.Primitives {
         private _PrepareVisualChild(newChild: UIElement) {
             if (!newChild)
                 return;
-            if (this._IsCatchingClick) {
-                var root = <Canvas>this._VisualChild;
-                if (!root) {
-                    var root = new Canvas();
-                    var clickCatcher = new Canvas();
-                    clickCatcher.Background = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
-                    clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
-                    clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
-                    root.Children.Add(clickCatcher);
-                    this._Catcher = clickCatcher;
-                    this._VisualChild = root;
-                } else {
-                    root.Children.RemoveAt(1);
-                }
+
+            var root = <Canvas>this._VisualChild;
+            if (!root) {
+                root = new Canvas();
                 root.Children.Add(newChild);
-            } else {
-                this._VisualChild = <FrameworkElement>newChild;
+                this._VisualChild = root;
+            }
+
+            if (this._IsCatchingClick && !this._Catcher) {
+                var clickCatcher = new Canvas();
+                clickCatcher.Background = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
+                clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
+                clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
+                root.Children.Insert(0, clickCatcher);
+                this._Catcher = clickCatcher;
             }
         }
         CatchClickedOutside() {
-            if (!this._IsCatchingClick)
-                this._VisualChild = null;
             this._IsCatchingClick = true;
             this._PrepareVisualChild(this.XObject.Child);
         }
