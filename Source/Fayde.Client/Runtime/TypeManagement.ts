@@ -76,7 +76,9 @@ module Fayde {
         var name = t.name;
         if (name)
             return name;
-        return t.name = t.toString().match(/function ([^\(]+)/);
+        var name = t.toString().match(/function ([^\(]+)/)[1];
+        Object.defineProperty(t, "name", { enumerable: false, value: name, writable: false });
+        return name;
     }
     export function GetTypeParent(type: Function): Function {
         if (type === Object)

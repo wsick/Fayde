@@ -217,7 +217,9 @@ var Fayde;
         var name = t.name;
         if (name)
             return name;
-        return t.name = t.toString().match(/function ([^\(]+)/);
+        var name = t.toString().match(/function ([^\(]+)/)[1];
+        Object.defineProperty(t, "name", { enumerable: false, value: name, writable: false });
+        return name;
     }
     Fayde.GetTypeName = GetTypeName;
     function GetTypeParent(type) {
@@ -964,6 +966,16 @@ var Fayde;
         Object.defineProperty(XamlObject.prototype, "Name", {
             get: function () {
                 return this.XamlNode.Name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(XamlObject.prototype, "Parent", {
+            get: function () {
+                var pn = this.XamlNode.ParentNode;
+                if (!pn)
+                    return;
+                return pn.XObject;
             },
             enumerable: true,
             configurable: true
@@ -12459,28 +12471,24 @@ var Fayde;
                 PopupNode.prototype._PrepareVisualChild = function (newChild) {
                     if (!newChild)
                         return;
-                    if (this._IsCatchingClick) {
-                        var root = this._VisualChild;
-                        if (!root) {
-                            var root = new Fayde.Controls.Canvas();
-                            var clickCatcher = new Fayde.Controls.Canvas();
-                            clickCatcher.Background = Fayde.Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
-                            clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
-                            clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
-                            root.Children.Add(clickCatcher);
-                            this._Catcher = clickCatcher;
-                            this._VisualChild = root;
-                        } else {
-                            root.Children.RemoveAt(1);
-                        }
+
+                    var root = this._VisualChild;
+                    if (!root) {
+                        root = new Fayde.Controls.Canvas();
                         root.Children.Add(newChild);
-                    } else {
-                        this._VisualChild = newChild;
+                        this._VisualChild = root;
+                    }
+
+                    if (this._IsCatchingClick && !this._Catcher) {
+                        var clickCatcher = new Fayde.Controls.Canvas();
+                        clickCatcher.Background = Fayde.Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
+                        clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
+                        clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
+                        root.Children.Insert(0, clickCatcher);
+                        this._Catcher = clickCatcher;
                     }
                 };
                 PopupNode.prototype.CatchClickedOutside = function () {
-                    if (!this._IsCatchingClick)
-                        this._VisualChild = null;
                     this._IsCatchingClick = true;
                     this._PrepareVisualChild(this.XObject.Child);
                 };
@@ -16393,20 +16401,198 @@ var Fayde;
         var ToolTip = (function (_super) {
             __extends(ToolTip, _super);
             function ToolTip() {
-                _super.apply(this, arguments);
+                _super.call(this);
+                this._TooltipParent = null;
+                this._TooltipParentDCListener = null;
+                this.PlacementOverride = null;
+                this.PlacementTargetOverride = null;
+                this.Opened = new Fayde.RoutedEvent();
+                this.Closed = new Fayde.RoutedEvent();
+                this._ParentPopup = null;
+                this.DefaultStyleKey = this.constructor;
             }
+            Object.defineProperty(ToolTip.prototype, "TooltipParent", {
+                get: function () {
+                    return this._TooltipParent;
+                },
+                set: function (value) {
+                    if (this._TooltipParentDCListener)
+                        this._TooltipParentDCListener.Detach();
+                    this._TooltipParent = value;
+                    if (this._TooltipParent)
+                        this._TooltipParentDCListener = Fayde.DependencyObject.DataContextProperty.Store.ListenToChanged(this._TooltipParent, Fayde.DependencyObject.DataContextProperty, this.OnTooltipParentDataContextChanged, this);
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            ToolTip.prototype.OnApplyTemplate = function () {
+                _super.prototype.OnApplyTemplate.call(this);
+                this.UpdateVisualState(false);
+            };
+
+            ToolTip.prototype.OnHorizontalOffsetChanged = function (args) {
+                if (args.NewValue !== args.OldValue)
+                    this.OnOffsetChanged(args.NewValue, 0);
+            };
+            ToolTip.prototype.OnVerticalOffsetChanged = function (args) {
+                if (args.NewValue !== args.OldValue)
+                    this.OnOffsetChanged(0, args.NewValue);
+            };
+            ToolTip.prototype.OnIsOpenChanged = function (args) {
+                if (args.NewValue) {
+                    if (!this._ParentPopup)
+                        this.HookupParentPopup();
+                    this._ParentPopup.IsOpen = true;
+                    this.PerformPlacement(this.HorizontalOffset, this.VerticalOffset);
+                } else {
+                    this._ParentPopup.IsOpen = false;
+                }
+                this.UpdateVisualState();
+            };
+            ToolTip.prototype.OnOffsetChanged = function (horizontalOffset, verticalOffset) {
+                if (!this._ParentPopup || !this.IsOpen)
+                    return;
+                this.PerformPlacement(horizontalOffset, verticalOffset);
+            };
+            ToolTip.prototype.OnLayoutUpdated = function (sender, e) {
+                if (this._ParentPopup)
+                    this.PerformPlacement(this.HorizontalOffset, this.VerticalOffset);
+            };
+            ToolTip.prototype.OnTooltipParentDataContextChanged = function (sender, args) {
+                if (this._ParentPopup && this.TooltipParent)
+                    this._ParentPopup.DataContext = this.TooltipParent.DataContext;
+            };
+
+            ToolTip.prototype.HookupParentPopup = function () {
+                console.assert(!this._ParentPopup, "this._parentPopup should be null, we want to set visual tree once");
+
+                var pp = this._ParentPopup = new Fayde.Controls.Primitives.Popup();
+                pp.DataContext = !this.TooltipParent ? null : this.TooltipParent.DataContext;
+
+                pp.Opened.Subscribe(this.OnPopupOpened, this);
+                pp.Closed.Subscribe(this.OnPopupClosed, this);
+                this.IsTabStop = false;
+
+                pp.Child = this;
+
+                pp.IsHitTestVisible = false;
+                this.IsHitTestVisible = false;
+            };
+            ToolTip.prototype.OnPopupOpened = function (sender, e) {
+                var args = new Fayde.RoutedEventArgs();
+                args.OriginalSource = this;
+                this.Opened.Raise(this, args);
+                this.LayoutUpdated.Subscribe(this.OnLayoutUpdated, this);
+            };
+            ToolTip.prototype.OnPopupClosed = function (sender, e) {
+                var args = new Fayde.RoutedEventArgs();
+                args.OriginalSource = this;
+                this.Closed.Raise(this, args);
+                this.LayoutUpdated.Unsubscribe(this.OnLayoutUpdated, this);
+            };
+            ToolTip.prototype.PerformPlacement = function (horizontalOffset, verticalOffset) {
+                if (!this.IsOpen)
+                    return;
+                var root = Fayde.Application.Current.RootVisual;
+                if (!root)
+                    return;
+
+                var mode = this.PlacementOverride != null ? this.PlacementOverride : this.Placement;
+                var target = (this.PlacementTargetOverride || this.PlacementTarget);
+                var targetBounds = new rect();
+
+                var point = Fayde.Controls.ToolTipService.MousePosition;
+                if (mode !== 2 /* Mouse */) {
+                    point = new Point();
+                    try  {
+                        if (target != null) {
+                            targetBounds = new rect();
+                            rect.set(targetBounds, 0, 0, target.ActualWidth, target.ActualHeight);
+                            targetBounds = target.TransformToVisual(null).TransformBounds(targetBounds);
+                            point.X = targetBounds.X;
+                            point.Y = targetBounds.Y;
+                        }
+                    } catch (err) {
+                        console.warn("Could not transform the tooltip point.");
+                        return;
+                    }
+                }
+
+                switch (mode) {
+                    case 4 /* Top */:
+                        point.Y = targetBounds.Y - this.ActualHeight;
+                        break;
+                    case 0 /* Bottom */:
+                        point.Y = targetBounds.Y + targetBounds.Height;
+                        break;
+                    case 3 /* Left */:
+                        point.X = targetBounds.X - this.ActualWidth;
+                        break;
+                    case 1 /* Right */:
+                        point.X = targetBounds.X + targetBounds.Width;
+                        break;
+                    case 2 /* Mouse */:
+                        point.Y += new Fayde.Controls.TextBox().FontSize;
+                        break;
+                    default:
+                        throw new NotSupportedException("PlacementMode '" + mode + "' is not supported.");
+                }
+
+                var rootWidth = root.ActualWidth;
+                if ((point.X + this.ActualWidth) > rootWidth) {
+                    if (mode === 1 /* Right */)
+                        point.X = targetBounds.X - this.ActualWidth;
+                    else
+                        point.X = rootWidth - this.ActualWidth;
+                } else if (point.X < 0) {
+                    if (mode === 3 /* Left */)
+                        point.X = targetBounds.X + targetBounds.Width;
+                    else
+                        point.X = 0;
+                }
+
+                var rootHeight = root.ActualHeight;
+                if ((point.Y + this.ActualHeight) > rootHeight) {
+                    if (mode === 0 /* Bottom */)
+                        point.Y = targetBounds.Y - this.ActualHeight;
+                    else
+                        point.Y = rootHeight - this.ActualHeight;
+                } else if (point.Y < 0) {
+                    if (mode === 4 /* Top */)
+                        point.Y = targetBounds.Y + targetBounds.Height;
+                    else
+                        point.Y = 0;
+                }
+
+                this._ParentPopup.VerticalOffset = point.Y;
+                this._ParentPopup.HorizontalOffset = point.X;
+            };
+
+            ToolTip.prototype.GoToStates = function (gotoFunc) {
+                if (this.IsOpen)
+                    gotoFunc("Open");
+                else
+                    gotoFunc("Closed");
+            };
             ToolTip.HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", function () {
                 return Number;
-            }, ToolTip);
+            }, ToolTip, 0, function (d, args) {
+                return d.OnHorizontalOffsetChanged(args);
+            });
             ToolTip.VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", function () {
                 return Number;
-            }, ToolTip);
+            }, ToolTip, 0, function (d, args) {
+                return d.OnVerticalOffsetChanged(args);
+            });
             ToolTip.IsOpenProperty = DependencyProperty.Register("IsOpen", function () {
                 return Boolean;
-            }, ToolTip);
+            }, ToolTip, false, function (d, args) {
+                return d.OnIsOpenChanged(args);
+            });
             ToolTip.PlacementProperty = DependencyProperty.Register("Placement", function () {
                 return new Enum(Fayde.Controls.PlacementMode);
-            }, ToolTip);
+            }, ToolTip, 0 /* Bottom */);
             ToolTip.PlacementTargetProperty = DependencyProperty.Register("PlacementTarget", function () {
                 return Fayde.UIElement;
             }, ToolTip);
@@ -16417,15 +16603,115 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
+
+var Point = (function () {
+    function Point(x, y) {
+        this.X = x == null ? 0 : x;
+        this.Y = y == null ? 0 : y;
+    }
+    Point.prototype.toString = function () {
+        return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
+    };
+    Point.prototype.Equals = function (other) {
+        return this.X === other.X && this.Y === other.Y;
+    };
+
+    Point.prototype.Clone = function () {
+        return new Point(this.X, this.Y);
+    };
+
+    Point.Equals = function (p1, p2) {
+        if (p1 == null)
+            return p2 == null;
+        if (p2 == null)
+            return false;
+        return p1.X === p2.X && p1.Y === p2.Y;
+    };
+    Point.LERP = function (start, end, p) {
+        var x = start.X + (end.X - start.X) * p;
+        var y = start.Y + (end.Y - start.Y) * p;
+        return new Point(x, y);
+    };
+    return Point;
+})();
+Fayde.RegisterType(Point, "window", Fayde.XMLNSX);
+
+Fayde.RegisterTypeConverter(Point, function (val) {
+    if (!val)
+        return new Point();
+    if (val instanceof Point)
+        return val;
+    var tokens = val.toString().split(",");
+    if (tokens.length === 2) {
+        var x = parseFloat(tokens[0]);
+        var y = parseFloat(tokens[1]);
+        return new Point(x, y);
+    }
+    throw new Exception("Cannot parse Point value '" + val + "'");
+});
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        var AssignedToolTipProperty = DependencyProperty.Register("AssignedToolTip", function () {
+            return Fayde.Controls.ToolTip;
+        }, Fayde.UIElement, null);
+
+        var betweenShowDelay = 100;
+        var initialShowDelay = 400;
+        var showDuration = 5000;
+
+        function toolTipChanged(dobj, args) {
+            var owner = dobj;
+            var tooltip = args.NewValue;
+
+            if (args.OldValue)
+                slave.UnregisterTooltip(owner);
+
+            if (!tooltip)
+                return;
+
+            slave.RegisterTooltip(owner, tooltip);
+            slave.SetRootVisual();
+        }
         var ToolTipService = (function () {
             function ToolTipService() {
             }
+            ToolTipService.GetToolTip = function (dobj) {
+                return dobj.GetValue(ToolTipService.ToolTipProperty);
+            };
+            ToolTipService.SetToolTip = function (dobj, value) {
+                dobj.SetValue(ToolTipService.ToolTipProperty, value);
+            };
+
+            ToolTipService.GetPlacement = function (dobj) {
+                return dobj.GetValue(ToolTipService.PlacementProperty);
+            };
+            ToolTipService.SetPlacement = function (dobj, value) {
+                dobj.SetValue(ToolTipService.PlacementProperty, value);
+            };
+
+            ToolTipService.GetPlacementTarget = function (dobj) {
+                return dobj.GetValue(ToolTipService.PlacementTargetProperty);
+            };
+            ToolTipService.SetPlacementTarget = function (dobj, value) {
+                dobj.SetValue(ToolTipService.PlacementTargetProperty, value);
+            };
+
+            Object.defineProperty(ToolTipService, "MousePosition", {
+                get: function () {
+                    return slave.MousePosition;
+                },
+                enumerable: true,
+                configurable: true
+            });
             ToolTipService.ToolTipProperty = DependencyProperty.RegisterAttached("ToolTip", function () {
                 return Fayde.DependencyObject;
+            }, ToolTipService, undefined, toolTipChanged);
+
+            ToolTipService.PlacementProperty = DependencyProperty.RegisterAttached("Placement", function () {
+                return new Enum(Fayde.Controls.PlacementMode);
             }, ToolTipService);
+
             ToolTipService.PlacementTargetProperty = DependencyProperty.RegisterAttached("PlacementTarget", function () {
                 return Fayde.UIElement;
             }, ToolTipService);
@@ -16433,6 +16719,213 @@ var Fayde;
         })();
         Controls.ToolTipService = ToolTipService;
         Fayde.RegisterType(ToolTipService, "Fayde.Controls", Fayde.XMLNS);
+
+        var ToolTipServiceSlave = (function () {
+            function ToolTipServiceSlave() {
+                this.MousePosition = new Point();
+                this._RootVisual = null;
+                this._CurrentTooltip = null;
+                this._LastEnterSource = null;
+                this._LastOpened = 0;
+                this._OpenInterval = null;
+                this._CloseInterval = null;
+            }
+            ToolTipServiceSlave.prototype.SetRootVisual = function () {
+                if (this._RootVisual || !Fayde.Application.Current)
+                    return;
+                var rv = this._RootVisual = Fayde.Application.Current.RootVisual;
+                if (!rv)
+                    return;
+
+                rv.MouseMove.Subscribe(this.OnRootMouseMove, this);
+            };
+            ToolTipServiceSlave.prototype.OnRootMouseMove = function (sender, e) {
+                this.MousePosition = e.GetPosition(null);
+            };
+
+            ToolTipServiceSlave.prototype.RegisterTooltip = function (owner, tooltip) {
+                console.assert(owner != null, "ToolTip must have an owner");
+                console.assert(tooltip != null, "ToolTip can not be null");
+
+                owner.MouseEnter.Subscribe(this.OnOwnerMouseEnter, this);
+                owner.MouseLeave.Subscribe(this.OnOwnerMouseLeave, this);
+                owner.MouseLeftButtonDown.Subscribe(this.OnOwnerMouseLeftButtonDown, this);
+                owner.KeyDown.Subscribe(this.OnOwnerKeyDown, this);
+                var converted = this.ConvertToToolTip(tooltip);
+                owner.SetValue(AssignedToolTipProperty, converted);
+                if (owner instanceof Fayde.FrameworkElement)
+                    converted.TooltipParent = owner;
+            };
+            ToolTipServiceSlave.prototype.UnregisterTooltip = function (owner) {
+                console.assert(owner != null, "owner element is required");
+
+                var tooltip = owner.GetValue(AssignedToolTipProperty);
+                if (!tooltip || !(tooltip instanceof Fayde.Controls.ToolTip))
+                    return;
+
+                owner.MouseEnter.Unsubscribe(this.OnOwnerMouseEnter, this);
+                owner.MouseLeave.Unsubscribe(this.OnOwnerMouseLeave, this);
+                owner.MouseLeftButtonDown.Unsubscribe(this.OnOwnerMouseLeftButtonDown, this);
+                owner.KeyDown.Unsubscribe(this.OnOwnerKeyDown, this);
+
+                tooltip.TooltipParent = null;
+                if (tooltip.IsOpen) {
+                    if (tooltip === this._CurrentTooltip) {
+                        window.clearInterval(this._CloseInterval);
+                        this._CurrentTooltip = null;
+                        this._Owner = null;
+                        this._LastEnterSource = null;
+                    }
+
+                    tooltip.IsOpen = false;
+                }
+
+                owner.ClearValue(AssignedToolTipProperty);
+            };
+
+            ToolTipServiceSlave.prototype.OnOwnerMouseEnter = function (sender, e) {
+                this.MousePosition = e.GetPosition(null);
+                this.OnOwnerMouseEnterInternal(sender, e.OriginalSource);
+            };
+            ToolTipServiceSlave.prototype.OnOwnerMouseLeave = function (sender, e) {
+                if (!this._CurrentTooltip) {
+                    window.clearInterval(this._OpenInterval);
+                    this._Owner = null;
+                    this._LastEnterSource = null;
+                    return;
+                }
+                this.CloseAutomaticToolTip();
+            };
+            ToolTipServiceSlave.prototype.OnOwnerMouseLeftButtonDown = function (sender, e) {
+                if (this._LastEnterSource && this._LastEnterSource === e.OriginalSource)
+                    return;
+                if (this._Owner !== sender)
+                    return;
+
+                if (!this._CurrentTooltip) {
+                    window.clearInterval(this._OpenInterval);
+                    this._Owner = null;
+                    this._LastEnterSource = null;
+                    return;
+                }
+
+                this.CloseAutomaticToolTip();
+            };
+            ToolTipServiceSlave.prototype.OnOwnerKeyDown = function (sender, e) {
+                if (this._LastEnterSource && this._LastEnterSource === e.OriginalSource)
+                    return;
+                if (this._Owner !== sender)
+                    return;
+
+                if (!this._CurrentTooltip) {
+                    window.clearInterval(this._OpenInterval);
+                    this._Owner = null;
+                    this._LastEnterSource = null;
+                    return;
+                }
+
+                if (isSpecialKey(e.Key))
+                    return;
+
+                this.CloseAutomaticToolTip();
+            };
+            ToolTipServiceSlave.prototype.OnOwnerMouseEnterInternal = function (sender, source) {
+                var _this = this;
+                if (this._LastEnterSource && this._LastEnterSource === source)
+                    return;
+
+                if (this._CurrentTooltip) {
+                    if (sender.GetValue(AssignedToolTipProperty) === this._CurrentTooltip)
+                        return;
+                    this.CloseAutomaticToolTip();
+                }
+
+                this._Owner = sender;
+                this._LastEnterSource = source;
+
+                console.assert(!this._CurrentTooltip);
+
+                this.SetRootVisual();
+
+                var sinceLastOpen = new Date().getTime() - this._LastOpened;
+                if (sinceLastOpen <= betweenShowDelay) {
+                    this.OpenAutomaticToolTip();
+                } else {
+                    this._OpenInterval = window.setInterval(function () {
+                        return _this.OpenAutomaticToolTip();
+                    }, initialShowDelay);
+                }
+            };
+
+            ToolTipServiceSlave.prototype.ConvertToToolTip = function (o) {
+                if (o instanceof Fayde.Controls.ToolTip)
+                    return o;
+
+                if (o instanceof Fayde.FrameworkElement) {
+                    var parent = o.Parent;
+                    if (parent instanceof Fayde.Controls.ToolTip)
+                        return parent;
+                }
+
+                var tooltip = new Fayde.Controls.ToolTip();
+                tooltip.Content = o;
+                return tooltip;
+            };
+
+            ToolTipServiceSlave.prototype.OpenAutomaticToolTip = function () {
+                var _this = this;
+                window.clearInterval(this._OpenInterval);
+
+                console.assert(this._Owner != null, "ToolTip owner was not set prior to starting the open timer");
+
+                var cur = this._CurrentTooltip = this._Owner.GetValue(AssignedToolTipProperty);
+
+                if (cur != null) {
+                    cur.PlacementOverride = ToolTipService.GetPlacement(this._Owner);
+                    cur.PlacementTargetOverride = ToolTipService.GetPlacementTarget(this._Owner) || this._Owner;
+                    cur.IsOpen = true;
+
+                    this._CloseInterval = window.setInterval(function () {
+                        return _this.CloseAutomaticToolTip();
+                    }, showDuration);
+                }
+            };
+            ToolTipServiceSlave.prototype.CloseAutomaticToolTip = function () {
+                window.clearInterval(this._CloseInterval);
+
+                var cur = this._CurrentTooltip;
+                cur.PlacementOverride = null;
+                cur.PlacementTargetOverride = null;
+                cur.IsOpen = false;
+                this._CurrentTooltip = null;
+
+                this._Owner = null;
+                this._LastEnterSource = null;
+
+                this._LastOpened = new Date().getTime();
+            };
+            return ToolTipServiceSlave;
+        })();
+        var slave = new ToolTipServiceSlave();
+
+        var specialKeys = [
+            6 /* Alt */,
+            1 /* Back */,
+            19 /* Delete */,
+            17 /* Down */,
+            12 /* End */,
+            13 /* Home */,
+            18 /* Insert */,
+            14 /* Left */,
+            11 /* PageDown */,
+            10 /* PageUp */,
+            16 /* Right */,
+            9 /* Space */,
+            15 /* Up */
+        ];
+        function isSpecialKey(key) {
+            return specialKeys.indexOf(key) > -1;
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -29572,52 +30065,6 @@ Fayde.RegisterTypeConverter(Length, function (val) {
     if (typeof val === "number")
         return val;
     return parseFloat(val.toString());
-});
-
-var Point = (function () {
-    function Point(x, y) {
-        this.X = x == null ? 0 : x;
-        this.Y = y == null ? 0 : y;
-    }
-    Point.prototype.toString = function () {
-        return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
-    };
-    Point.prototype.Equals = function (other) {
-        return this.X === other.X && this.Y === other.Y;
-    };
-
-    Point.prototype.Clone = function () {
-        return new Point(this.X, this.Y);
-    };
-
-    Point.Equals = function (p1, p2) {
-        if (p1 == null)
-            return p2 == null;
-        if (p2 == null)
-            return false;
-        return p1.X === p2.X && p1.Y === p2.Y;
-    };
-    Point.LERP = function (start, end, p) {
-        var x = start.X + (end.X - start.X) * p;
-        var y = start.Y + (end.Y - start.Y) * p;
-        return new Point(x, y);
-    };
-    return Point;
-})();
-Fayde.RegisterType(Point, "window", Fayde.XMLNSX);
-
-Fayde.RegisterTypeConverter(Point, function (val) {
-    if (!val)
-        return new Point();
-    if (val instanceof Point)
-        return val;
-    var tokens = val.toString().split(",");
-    if (tokens.length === 2) {
-        var x = parseFloat(tokens[0]);
-        var y = parseFloat(tokens[1]);
-        return new Point(x, y);
-    }
-    throw new Exception("Cannot parse Point value '" + val + "'");
 });
 var vec2;
 (function (vec2) {
