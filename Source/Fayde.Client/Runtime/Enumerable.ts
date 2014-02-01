@@ -4,13 +4,16 @@ module Fayde {
     export interface IEnumerable<T> {
         GetEnumerator(reverse?: boolean): IEnumerator<T>;
     }
-    export var IEnumerable_ = Fayde.RegisterInterface("IEnumerable");
+    export var IEnumerable_ = Fayde.RegisterInterface<IEnumerable<any>>("IEnumerable");
+    IEnumerable_.Is = (o: any): boolean => {
+        return o && o.GetEnumerator && typeof o.GetEnumerator === "function";
+    };
 
     export interface IEnumerator<T> {
         Current: T;
         MoveNext(): boolean;
     }
-    export var IEnumerator_ = Fayde.RegisterInterface("IEnumerator");
+    export var IEnumerator_ = Fayde.RegisterInterface<IEnumerator<any>>("IEnumerator");
 
     export class ArrayEx {
         static EmptyEnumerator: IEnumerator<any> = {
@@ -104,11 +107,11 @@ module Fayde {
             }
         }
     }
-}
 
-Object.defineProperty(Array.prototype, "GetEnumerator", {
-    value: function <T>(isReverse?: boolean): Fayde.IEnumerator<T> {
-        return Fayde.ArrayEx.GetEnumerator<T>(this, isReverse);
-    },
-    enumerable: false
-});
+    Object.defineProperty(Array.prototype, "GetEnumerator", {
+        value: function <T>(isReverse?: boolean): IEnumerator<T> {
+            return ArrayEx.GetEnumerator<T>(this, isReverse);
+        },
+        enumerable: false
+    });
+}

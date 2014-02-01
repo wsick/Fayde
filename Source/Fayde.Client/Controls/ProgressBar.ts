@@ -81,9 +81,5 @@ module Fayde.Controls {
                 gotoFunc("Determinate");
         }
     }
-    Fayde.RegisterType(ProgressBar, {
-    	Name: "ProgressBar",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ProgressBar, "Fayde.Controls", Fayde.XMLNS);
 }

@@ -19,11 +19,7 @@ module Fayde.Shapes {
         X2: number;
         Y2: number;
     }
-    Fayde.RegisterType(Line, {
-    	Name: "Line",
-    	Namespace: "Fayde.Shapes",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Line, "Fayde.Shapes", Fayde.XMLNS);
 
     export class LineLayoutUpdater extends ShapeLayoutUpdater {
         X1: number = 0;

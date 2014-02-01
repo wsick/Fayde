@@ -1,12 +1,13 @@
 /// <reference path="ContentControl.ts" />
+/// <reference path="../Xaml/XamlDocument.ts" />
+/// <reference path="../Xaml/XamlLoader.ts" />
+/// <reference path="Page.ts" />
 
 module Fayde.Controls {
-    var ERROR_PAGE_XAML = "<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\"><TextBlock Text=\"An error occurred navigating.\" /></Page>";
-    var ERROR_PAGE: Page = undefined;
+    var errorxd = new Xaml.XamlDocument("<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" Title=\"Error\"><TextBlock Text=\"An error occurred navigating.\" /></Page>");
+    var errorPage: Page;
     function getErrorPage(): Page {
-        if (!ERROR_PAGE)
-            ERROR_PAGE = <Fayde.Controls.Page>Fayde.Xaml.Load(ERROR_PAGE_XAML);
-        return ERROR_PAGE;
+        return errorPage = errorPage || <Page>Xaml.Load(errorxd.Document);
     }
 
     export class Frame extends ContentControl {
@@ -20,7 +21,6 @@ module Fayde.Controls {
         UriMapper: Navigation.UriMapper;
 
         private _NavService: Navigation.NavigationService = new Navigation.NavigationService();
-        private _PageResolver: any;
 
         //Navigated = new MulticastEvent();
         //Navigating = new MulticastEvent();
@@ -43,10 +43,7 @@ module Fayde.Controls {
             //TODO: Implement
         }
         StopLoading() {
-            if (this._PageResolver) {
-                this._PageResolver.Stop();
-                this._PageResolver = null;
-            }
+            //TODO: Implement
         }
         private _FrameLoaded(sender, e: RoutedEventArgs) {
             if (this.IsDeepLinked) {
@@ -71,25 +68,23 @@ module Fayde.Controls {
             var target = targetUri.toString();
             if (!target)
                 throw new InvalidOperationException("Cannot resolve empty url.");
-            this._PageResolver = Xaml.PageResolver.Resolve(target, (xaml) => this._HandleSuccess(xaml), (error) => this._HandleError(error));
+
+            Page.GetAsync(target)
+                .success(page => this._HandleSuccess(page))
+                .error(error => this._HandleError(error));
         }
-        private _HandleSuccess(xaml: Document) {
-            this._PageResolver = null;
-            TimelineProfile.Parse(true, "Page");
-            var page = <Page>Xaml.LoadDocument(xaml);
-            TimelineProfile.Parse(false, "Page");
-            this.Content = page;
-            document.title = page.Title;
+        private _HandleSuccess(page: Page) {
+            this._SetPage(page);
             TimelineProfile.Navigate(false);
             TimelineProfile.IsNextLayoutPassProfiled = true;
         }
         private _HandleError(error: string) {
-            this._PageResolver = null;
-            document.title = "Error";
-            var page = getErrorPage();
-            page.DataContext = error;
-            this.Content = page;
+            this._SetPage(getErrorPage());
             TimelineProfile.Navigate(false);
+        }
+        private _SetPage(page: Page) {
+            document.title = page.Title;
+            this.Content = page;
         }
 
         private SourcePropertyChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -100,9 +95,5 @@ module Fayde.Controls {
             //TODO: Show default content uri in Content when in design mode
         }
     }
-    Fayde.RegisterType(Frame, {
-    	Name: "Frame",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Frame, "Fayde.Controls", Fayde.XMLNS);
 }

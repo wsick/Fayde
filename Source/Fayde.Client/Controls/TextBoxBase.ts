@@ -981,8 +981,5 @@ module Fayde.Controls {
             return true;
         }
     }
-    Fayde.RegisterType(TextBoxBase, {
-    	Name: "TextBoxBase",
-    	Namespace: "Fayde.Controls"
-    });
+    Fayde.RegisterType(TextBoxBase, "Fayde.Controls");
 }

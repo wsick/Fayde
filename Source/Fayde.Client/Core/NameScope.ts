@@ -32,8 +32,5 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(NameScope, {
-    	Name: "NameScope",
-    	Namespace: "Fayde"
-    });
+    Fayde.RegisterType(NameScope, "Fayde");
 }

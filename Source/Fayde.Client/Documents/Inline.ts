@@ -8,11 +8,7 @@ module Fayde.Documents {
     export class Inline extends TextElement {
         Autogen: boolean = false;
     }
-    Fayde.RegisterType(Inline, {
-    	Name: "Inline",
-    	Namespace: "Fayde.Documents",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Inline, "Fayde.Documents", Fayde.XMLNS);
 
     export class InlineCollection extends XamlObjectCollection<Inline> {
         private _Listener: IInlinesChangedListener;
@@ -32,9 +28,5 @@ module Fayde.Documents {
             if (listener) listener.InlinesChanged(value, false);
         }
     }
-    Fayde.RegisterType(InlineCollection, {
-    	Name: "InlineCollection",
-    	Namespace: "Fayde.Documents",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(InlineCollection, "Fayde.Documents", Fayde.XMLNS);
 }

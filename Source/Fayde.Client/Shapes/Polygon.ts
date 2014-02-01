@@ -40,11 +40,7 @@ module Fayde.Shapes {
             lu.Invalidate();
         }
     }
-    Fayde.RegisterType(Polygon, {
-    	Name: "Polygon",
-    	Namespace: "Fayde.Shapes",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Polygon, "Fayde.Shapes", Fayde.XMLNS);
 
     export class PolygonLayoutUpdater extends ShapeLayoutUpdater {
         Points: PointCollection;

@@ -30,11 +30,7 @@ module Fayde.Shapes {
             lu.InvalidateNaturalBounds();
         }
     }
-    Fayde.RegisterType(Path, {
-    	Name: "Path",
-    	Namespace: "Fayde.Shapes",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Path, "Fayde.Shapes", Fayde.XMLNS);
 
     export class PathLayoutUpdater extends ShapeLayoutUpdater {
         Data: Media.Geometry = null;

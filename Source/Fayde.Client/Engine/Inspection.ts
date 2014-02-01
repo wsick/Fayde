@@ -62,7 +62,7 @@ module Fayde.Engine {
 
         var id = (<any>cur)._ID;
         if (id) str += "[" + id + "] ";
-        str += (<any>cur).constructor._TypeName;
+        str += (<any>cur).constructor.name;
         
         var name = uin.Name;
         if (name) {

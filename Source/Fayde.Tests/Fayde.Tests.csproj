@@ -16,67 +16,36 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="main.ts" />
+    <TypeScriptCompile Include="runner.ts" />
+    <TypeScriptCompile Include="mocks\TestControl.ts" />
+    <TypeScriptCompile Include="mocks\TestConverter.ts" />
+    <Content Include="mocks\Fayde.Controls.Input\generic.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="mocks\Fayde.Controls.Input\source.js" />
     <Content Include="scripts\Fayde.d.ts" />
-    <Content Include="scripts\Fayde.js" />
-    <Content Include="scripts\Theme.Metro.xml" />
-    <Content Include="scripts\Theme.Silverlight.xml" />
-    <Content Include="XamlLoadTests.js">
-      <DependentUpon>XamlLoadTests.ts</DependentUpon>
-    </Content>
-    <Content Include="XamlNodeTests.js">
-      <DependentUpon>XamlNodeTests.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="XamlNodeTests.ts" />
-    <TypeScriptCompile Include="XamlLoadTests.ts" />
-    <TypeScriptCompile Include="BindingTests.ts" />
-    <Content Include="BindingTests.js">
-      <DependentUpon>BindingTests.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="ItemsControlTests.ts" />
-    <Content Include="ItemsControlTests.js">
-      <DependentUpon>ItemsControlTests.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="MarkupExpressionTests.ts" />
-    <Content Include="MarkupExpressionTests.js">
-      <DependentUpon>MarkupExpressionTests.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="PrimitivesTests.ts" />
-    <Content Include="PrimitivesTests.js">
-      <DependentUpon>PrimitivesTests.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="ProviderTests.ts" />
-    <Content Include="ProviderTests.js">
-      <DependentUpon>ProviderTests.ts</DependentUpon>
-    </Content>
-    <Content Include="scripts\qunit-1.10.0.d.ts" />
-    <Content Include="scripts\qunit-1.11.0.css" />
-    <Content Include="scripts\qunit-1.11.0.js" />
+    <Content Include="scripts\qunit-1.13.0.css" />
+    <Content Include="scripts\qunit-1.13.0.js" />
+    <Content Include="scripts\qunit.d.ts" />
+    <Content Include="scripts\require.d.ts" />
+    <Content Include="scripts\require.js" />
+    <Content Include="scripts\text.js" />
+    <TypeScriptCompile Include="tests\DependencyLoadTests.ts" />
+    <Content Include="Theme.Metro.xml" />
+    <Content Include="Theme.Silverlight.xml" />
+    <TypeScriptCompile Include="tests\XamlNodeTests.ts" />
+    <TypeScriptCompile Include="tests\XamlLoadTests.ts" />
+    <TypeScriptCompile Include="tests\BindingTests.ts" />
+    <TypeScriptCompile Include="tests\ItemsControlTests.ts" />
+    <TypeScriptCompile Include="tests\MarkupExpressionTests.ts" />
+    <TypeScriptCompile Include="tests\PrimitivesTests.ts" />
+    <TypeScriptCompile Include="tests\ProviderTests.ts" />
     <Content Include="default.html" />
-    <TypeScriptCompile Include="TimelineTests.ts" />
-    <Content Include="TimelineTests.js">
-      <DependentUpon>TimelineTests.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="TransformTests.ts" />
-    <Content Include="TransformTests.js">
-      <DependentUpon>TransformTests.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="TypeConverterTests.ts" />
-    <Content Include="TypeConverterTests.js">
-      <DependentUpon>TypeConverterTests.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="UriMapperTests.ts" />
-    <Content Include="UriMapperTests.js">
-      <DependentUpon>UriMapperTests.ts</DependentUpon>
-    </Content>
-    <Content Include="web.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="web.Debug.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
+    <TypeScriptCompile Include="tests\TimelineTests.ts" />
+    <TypeScriptCompile Include="tests\TransformTests.ts" />
+    <TypeScriptCompile Include="tests\TypeConverterTests.ts" />
+    <TypeScriptCompile Include="tests\UriMapperTests.ts" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -109,18 +78,18 @@
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
+    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
   <PropertyGroup>
-    <PreBuildEvent>cd "$(ProjectDir)"
-xcopy /s /y "..\jsbin\Fayde.d.ts" scripts\
-xcopy /s /y "..\jsbin\Fayde.js" scripts\
-xcopy /s /y "..\jsbin\Theme.*.xml" scripts\</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>

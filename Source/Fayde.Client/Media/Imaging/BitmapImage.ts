@@ -30,11 +30,7 @@ module Fayde.Media.Imaging {
             this.ImageOpened.Raise(this, EventArgs.Empty);
         }
     }
-    Fayde.RegisterType(BitmapImage, {
-    	Name: "BitmapImage",
-    	Namespace: "Fayde.Media.Imaging",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(BitmapImage, "Fayde.Media.Imaging", Fayde.XMLNS);
 
     Fayde.RegisterTypeConverter(ImageSource, (val: any): ImageSource => {
         var bi = new BitmapImage();

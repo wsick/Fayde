@@ -6,94 +6,62 @@ class Exception {
         this.Message = message;
     }
     toString(): string {
-        var typeName = (<any>this).constructor._TypeName;
+        var typeName = (<any>this).constructor.name;
         if (typeName)
             return typeName + ": " + this.Message;
         return this.Message;
     }
 }
-Fayde.RegisterType(Exception, {
-	Name: "Exception",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(Exception, "window", Fayde.XMLNSX);
 
 class ArgumentException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(ArgumentException, {
-	Name: "ArgumentException",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(ArgumentException, "window", Fayde.XMLNSX);
 
 class InvalidOperationException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(InvalidOperationException, {
-	Name: "InvalidOperationException",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(InvalidOperationException, "window", Fayde.XMLNSX);
 
 class XamlParseException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(XamlParseException, {
-	Name: "XamlParseException",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(XamlParseException, "window", Fayde.XMLNSX);
 
 class XamlMarkupParseException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(XamlMarkupParseException, {
-	Name: "XamlMarkupParseException",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(XamlMarkupParseException, "window", Fayde.XMLNSX);
 
 class NotSupportedException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(NotSupportedException, {
-	Name: "NotSupportedException",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(NotSupportedException, "window", Fayde.XMLNSX);
 
 class IndexOutOfRangeException extends Exception {
     constructor(index: number) {
         super(index.toString());
     }
 }
-Fayde.RegisterType(IndexOutOfRangeException, {
-	Name: "IndexOutOfRangeException",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(IndexOutOfRangeException, "window", Fayde.XMLNSX);
 
 class ArgumentOutOfRangeException extends Exception {
     constructor(msg: string) {
         super(msg);
     }
 }
-Fayde.RegisterType(ArgumentOutOfRangeException, {
-	Name: "ArgumentOutOfRangeException",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(ArgumentOutOfRangeException, "window", Fayde.XMLNSX);
 
 class AttachException extends Exception {
     Data: any;
@@ -102,11 +70,7 @@ class AttachException extends Exception {
         this.Data = data;
     }
 }
-Fayde.RegisterType(AttachException, {
-	Name: "AttachException",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(AttachException, "window", Fayde.XMLNSX);
 
 class InvalidJsonException extends Exception {
     JsonText: string;
@@ -117,11 +81,7 @@ class InvalidJsonException extends Exception {
         this.InnerException = innerException;
     }
 }
-Fayde.RegisterType(InvalidJsonException, {
-	Name: "InvalidJsonException",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(InvalidJsonException, "window", Fayde.XMLNSX);
 
 class TargetInvocationException extends Exception {
     InnerException: Exception;
@@ -130,11 +90,7 @@ class TargetInvocationException extends Exception {
         this.InnerException = innerException;
     }
 }
-Fayde.RegisterType(TargetInvocationException, {
-	Name: "TargetInvocationException",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(TargetInvocationException, "window", Fayde.XMLNSX);
 
 class UnknownTypeException extends Exception {
     FullTypeName: string;
@@ -143,8 +99,4 @@ class UnknownTypeException extends Exception {
         this.FullTypeName = fullTypeName;
     }
 }
-Fayde.RegisterType(UnknownTypeException, {
-	Name: "UnknownTypeException",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(UnknownTypeException, "window", Fayde.XMLNSX);

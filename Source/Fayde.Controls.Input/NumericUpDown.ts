@@ -232,11 +232,6 @@ module Fayde.Controls.Input {
             throw new ArgumentException("Invalid decimal places value.");
         }
     }
-    Fayde.RegisterType(NumericUpDown, {
-        Name: "NumericUpDown",
-        Namespace: "Fayde.Controls.Input",
-        XmlNamespace: Input.XMLNS
-    });
 
     function isValidDoubleValue(value: any, outValue: IOutValue): boolean {
         return !isNaN(value) && isFinite(value) && value <= 7.92281625142643E+28 && value >= -7.92281625142643E+28;

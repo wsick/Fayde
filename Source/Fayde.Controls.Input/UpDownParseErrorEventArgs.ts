@@ -1,5 +1,4 @@
 /// <reference path="Fayde.d.ts" />
-/// <reference path="_.ts" />
 
 module Fayde.Controls.Input {
     export class UpDownParseErrorEventArgs extends RoutedEventArgs {
@@ -12,8 +11,4 @@ module Fayde.Controls.Input {
             Object.defineProperty(this, "Error", { value: error, writable: false });
         }
     }
-    Fayde.RegisterType(UpDownParseErrorEventArgs, {
-        Name: "UpDownParseErrorEventArgs",
-        Namespace: Input.XMLNS
-    });
 }

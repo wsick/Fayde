@@ -7,9 +7,5 @@ module Fayde.Media {
 
         CreateProjectionMatrix(): Matrix3D { return this.ProjectionMatrix; }
     }
-    Fayde.RegisterType(Matrix3DProjection, {
-    	Name: "Matrix3DProjection",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Matrix3DProjection, "Fayde.Media", Fayde.XMLNS);
 }

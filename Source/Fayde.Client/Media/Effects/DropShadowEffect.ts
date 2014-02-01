@@ -89,9 +89,5 @@ module Fayde.Media.Effects {
             ctx.shadowOffsetY = offsetY;
         }
     }
-    Fayde.RegisterType(DropShadowEffect, {
-    	Name: "DropShadowEffect",
-    	Namespace: "Fayde.Media.Effects",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(DropShadowEffect, "Fayde.Media.Effects", Fayde.XMLNS);
 }

@@ -15,9 +15,5 @@ module Fayde.Input {
             Object.defineProperty(this, "Force", { value: force, writable: false });
         }
     }
-    Fayde.RegisterType(TouchPoint, {
-        Name: "TouchPoint",
-        Namespace: "Fayde.Input",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TouchPoint, "Fayde.Input", Fayde.XMLNS);
 }

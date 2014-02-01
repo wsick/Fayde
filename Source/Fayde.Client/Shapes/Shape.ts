@@ -85,11 +85,7 @@ module Fayde.Shapes {
         }
 
     }
-    Fayde.RegisterType(Shape, {
-    	Name: "Shape",
-    	Namespace: "Fayde.Shapes",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Shape, "Fayde.Shapes", Fayde.XMLNS);
 
     export class ShapeLayoutUpdater extends LayoutUpdater {
         NaturalBounds = new rect();

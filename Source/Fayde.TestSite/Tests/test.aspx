@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    <script src="/Fayde/Fayde.js"></script>
+    <script data-main="main.js" src="../scripts/require.js"></script>
     <style>
         *
         {

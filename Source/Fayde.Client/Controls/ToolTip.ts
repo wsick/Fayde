@@ -13,9 +13,5 @@ module Fayde.Controls {
         Placement: PlacementMode;
         PlacementTarget: UIElement;
     }
-    Fayde.RegisterType(ToolTip, {
-    	Name: "ToolTip",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ToolTip, "Fayde.Controls", Fayde.XMLNS);
 }

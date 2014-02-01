@@ -11,9 +11,5 @@ module Fayde {
             return uie;
         }
     }
-    Fayde.RegisterType(DataTemplate, {
-    	Name: "DataTemplate",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(DataTemplate, "Fayde", Fayde.XMLNS);
 }

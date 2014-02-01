@@ -9,11 +9,11 @@ module Fayde.Controls.Input {
         static CommandProperty: DependencyProperty = DependencyProperty.Register("Command", () => Fayde.Input.ICommand_, MenuItem, undefined, (d, args) => (<MenuItem>d).OnCommandChanged(args));
         Command: Fayde.Input.ICommand;
         private OnCommandChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldcmd = <Fayde.Input.ICommand>args.OldValue;
-            if (Nullstone.ImplementsInterface(oldcmd, Fayde.Input.ICommand_))
+            var oldcmd = Fayde.Input.ICommand_.As(args.OldValue);
+            if (oldcmd)
                 oldcmd.CanExecuteChanged.Unsubscribe(this._CanExecuteChanged, this);
-            var newcmd = <Fayde.Input.ICommand>args.NewValue;
-            if (Nullstone.ImplementsInterface(newcmd, Fayde.Input.ICommand_))
+            var newcmd = Fayde.Input.ICommand_.As(args.NewValue);
+            if (newcmd)
                 newcmd.CanExecuteChanged.Subscribe(this._CanExecuteChanged, this);
             this.UpdateIsEnabled();
         }
@@ -100,9 +100,4 @@ module Fayde.Controls.Input {
             return gotoFunc("Normal");
         }
     }
-    Fayde.RegisterType(MenuItem, {
-        Name: "MenuItem",
-        Namespace: "Fayde.Controls.Input",
-        XmlNamespace: Input.XMLNS
-    });
 }

@@ -54,9 +54,5 @@ module Fayde.Media {
             }
         }
     }
-    Fayde.RegisterType(Projection, {
-    	Name: "Projection",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Projection, "Fayde.Media", Fayde.XMLNS);
 }

@@ -6,5 +6,5 @@ module Fayde.Input {
         CanExecute(parameter: any): boolean;
         CanExecuteChanged: MulticastEvent<EventArgs>;
     }
-    export var ICommand_ = Fayde.RegisterInterface("ICommand");
+    export var ICommand_ = Fayde.RegisterInterface<ICommand>("ICommand");
 }

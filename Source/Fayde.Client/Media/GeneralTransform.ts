@@ -7,11 +7,7 @@ module Fayde.Media {
         TransformBounds(r: rect): rect { return r; }
         TryTransform(inPoint: Point, outPoint: Point): boolean { return false; }
     }
-    Fayde.RegisterType(GeneralTransform, {
-    	Name: "GeneralTransform",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(GeneralTransform, "Fayde.Media", Fayde.XMLNS);
 
     export class InternalTransform extends GeneralTransform {
         private _Raw: number[];
@@ -46,9 +42,5 @@ module Fayde.Media {
             return projection
         }
     }
-    Fayde.RegisterType(InternalTransform, {
-    	Name: "InternalTransform",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(InternalTransform, "Fayde.Media", Fayde.XMLNS);
 }

@@ -1,13 +1,8 @@
 <Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    xmlns:controls="http://schemas.wsick.com/demos/drawing/controls"
+    xmlns:controls="Controls"
     Theme="scripts/Theme.Metro.xml">
-    <Application.Sources>
-        <Namespace Name="http://schemas.wsick.com/demos/drawing/controls">
-            <Source Name="DrawingPad" Source="Controls/DrawingPad.js" />
-        </Namespace>
-    </Application.Sources>
     <Application.Resources>
     </Application.Resources>
     <Grid x:Name="LayoutRoot" Background="Yellow">

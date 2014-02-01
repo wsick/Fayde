@@ -81,8 +81,5 @@ module Fayde {
         InheritableOwner.UseLayoutRoundingProperty,
         InheritableOwner.TextDecorationsProperty
     ];
-    Fayde.RegisterType(InheritableOwner, {
-    	Name: "InheritableOwner",
-    	Namespace: "Fayde"
-    });
+    Fayde.RegisterType(InheritableOwner, "Fayde");
 }

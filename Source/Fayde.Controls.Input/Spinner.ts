@@ -1,5 +1,4 @@
 /// <reference path="Fayde.d.ts" />
-/// <reference path="_.ts" />
 
 module Fayde.Controls.Input {
     export class Spinner extends Control {
@@ -29,9 +28,4 @@ module Fayde.Controls.Input {
             return gotoFunc(((this.ValidSpinDirection & ValidSpinDirections.Decrease) === ValidSpinDirections.Decrease) ? "DecreaseEnabled" : "DecreaseDisabled");
         }
     }
-    Fayde.RegisterType(Spinner, {
-        Name: "Spinner",
-        Namespace: "Fayde.Controls.Input",
-        XmlNamespace: Input.XMLNS
-    });
 }

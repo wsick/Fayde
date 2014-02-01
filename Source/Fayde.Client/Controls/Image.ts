@@ -135,11 +135,7 @@ module Fayde.Controls {
             lu.Invalidate();
         }
     }
-    Fayde.RegisterType(Image, {
-    	Name: "Image",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Image, "Fayde.Controls", Fayde.XMLNS);
 
     export class ImageLayoutUpdater extends LayoutUpdater {
         constructor(node: UINode) {

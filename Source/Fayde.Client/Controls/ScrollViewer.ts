@@ -380,11 +380,7 @@ module Fayde.Controls {
                 scrollInfo.SetVerticalOffset(newValue);
         }
     }
-    Fayde.RegisterType(ScrollViewer, {
-    	Name: "ScrollViewer",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ScrollViewer, "Fayde.Controls", Fayde.XMLNS);
 
     function areNumbersClose(val1: number, val2: number): boolean {
         if (val1 === val2)

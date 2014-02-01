@@ -6,11 +6,7 @@ module Fayde.Media.Animation {
         Value: any;
         ConvertedValue: any = undefined;
     }
-    Fayde.RegisterType(ObjectKeyFrame, {
-    	Name: "ObjectKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ObjectKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
     
     export class DiscreteObjectKeyFrame extends ObjectKeyFrame {
         InterpolateValue(baseValue: any, keyFrameProgress: number): any {
@@ -19,9 +15,5 @@ module Fayde.Media.Animation {
             return baseValue;
         }
     }
-    Fayde.RegisterType(DiscreteObjectKeyFrame, {
-    	Name: "DiscreteObjectKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(DiscreteObjectKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
 }

@@ -220,8 +220,5 @@ module Fayde {
             xn.IsShareable = true;
         }
     }
-    Fayde.RegisterType(XamlNode, {
-    	Name: "XamlNode",
-    	Namespace: "Fayde"
-    });
+    Fayde.RegisterType(XamlNode, "Fayde");
 }

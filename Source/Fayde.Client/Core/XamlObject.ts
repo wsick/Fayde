@@ -15,6 +15,11 @@ module Fayde {
             return new XamlNode(this);
         }
         get Name() { return this.XamlNode.Name; }
+        get Parent(): XamlObject {
+            var pn = this.XamlNode.ParentNode;
+            if (!pn) return;
+            return pn.XObject;
+        }
 
         Clone(): XamlObject {
             var xobj: XamlObject = new (<any>this).constructor();
@@ -25,9 +30,5 @@ module Fayde {
 
         IsInheritable(propd: DependencyProperty): boolean { return false; }
     }
-    Fayde.RegisterType(XamlObject, {
-    	Name: "XamlObject",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(XamlObject, "Fayde", Fayde.XMLNS);
 }

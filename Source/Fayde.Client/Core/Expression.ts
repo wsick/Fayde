@@ -15,8 +15,5 @@ module Fayde {
         }
         OnDataContextChanged(newDataContext: any) { }
     }
-    Fayde.RegisterType(Expression, {
-    	Name: "Expression",
-    	Namespace: "Fayde"
-    });
+    Fayde.RegisterType(Expression, "Fayde");
 }

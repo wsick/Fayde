@@ -20,9 +20,9 @@ class Nullstone {
         return false;
     }
     static DoesInheritFrom(t: IType, type: any): boolean {
-        var temp = t;
+        var temp = <Function><any>t;
         while (temp && temp !== type) {
-            temp = (<any>temp)._BaseClass;
+            temp = Fayde.GetTypeParent(temp);
         }
         return temp != null;
     }
@@ -42,22 +42,6 @@ class Nullstone {
             return true;
         var type = obj.constructor;
         return type.prototype.hasOwnProperty(name);
-    }
-    static ImplementsInterface(obj: any, i: IInterfaceDeclaration): boolean {
-        if (!obj)
-            return false;
-        var curType: any = obj.constructor;
-        if (!curType)
-            return false;
-        var is: IInterfaceDeclaration[];
-        do {
-            is = curType._Interfaces;
-            if (!is)
-                continue;
-            if (is.indexOf(i) > -1)
-                return true;
-        } while (curType = curType._BaseClass);
-        return false;
     }
 }
 

@@ -31,9 +31,5 @@ module Fayde {
             Object.defineProperty(this, "IsItemContainerStyleSet", { value: false, writable: true });
         }
     }
-    Fayde.RegisterType(HierarchicalDataTemplate, {
-        Name: "HierarchicalDataTemplate",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(HierarchicalDataTemplate, "Fayde", Fayde.XMLNS);
 }

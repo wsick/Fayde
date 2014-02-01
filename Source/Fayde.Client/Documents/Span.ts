@@ -32,9 +32,5 @@ module Fayde.Documents {
             return str;
         }
     }
-    Fayde.RegisterType(Span, {
-    	Name: "Span",
-    	Namespace: "Fayde.Documents",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Span, "Fayde.Documents", Fayde.XMLNS);
 }

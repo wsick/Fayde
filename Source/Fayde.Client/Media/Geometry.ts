@@ -88,11 +88,7 @@ module Fayde.Media {
             return path.Serialize();
         }
     }
-    Fayde.RegisterType(Geometry, {
-    	Name: "Geometry",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Geometry, "Fayde.Media", Fayde.XMLNS);
 
     export class GeometryCollection extends XamlObjectCollection<Geometry> implements IGeometryListener {
         private _Listener: IGeometryListener;
@@ -118,9 +114,5 @@ module Fayde.Media {
             if (listener) listener.GeometryChanged(newGeometry);
         }
     }
-    Fayde.RegisterType(GeometryCollection, {
-    	Name: "GeometryCollection",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(GeometryCollection, "Fayde.Media", Fayde.XMLNS);
 }

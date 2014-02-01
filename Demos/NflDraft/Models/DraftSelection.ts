@@ -1,9 +1,8 @@
-/// <reference path="DraftSpot.ts" />
-/// <reference path="FantasyPlayer.ts" />
+import FantasyPlayer = require("Models/FantasyPlayer");
+import DraftSpot = require("Models/DraftSpot");
 
-module NflDraft.Models {
-    export class DraftSelection {
-        DraftSpot: DraftSpot;
-        FantasyPlayer: FantasyPlayer;
-    }
+class DraftSelection {
+    DraftSpot: DraftSpot;
+    FantasyPlayer: FantasyPlayer;
 }
+export = DraftSelection;

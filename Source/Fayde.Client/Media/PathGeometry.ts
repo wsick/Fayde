@@ -41,9 +41,5 @@ module Fayde.Media {
             this._InvalidateGeometry();
         }
     }
-    Fayde.RegisterType(PathGeometry, {
-    	Name: "PathGeometry",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(PathGeometry, "Fayde.Media", Fayde.XMLNS);
 }

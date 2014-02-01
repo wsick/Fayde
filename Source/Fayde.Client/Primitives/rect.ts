@@ -350,8 +350,4 @@ class rect implements ICloneable {
         return rect.isEqual(src, copy);
     }
 }
-Fayde.RegisterType(rect, {
-	Name: "rect",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(rect, "window", Fayde.XMLNSX);

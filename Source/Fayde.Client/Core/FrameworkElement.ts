@@ -146,10 +146,7 @@ module Fayde {
             this._SizeChanged(args);
         }
     }
-    Fayde.RegisterType(FENode, {
-    	Name: "FENode",
-    	Namespace: "Fayde"
-    });
+    Fayde.RegisterType(FENode, "Fayde");
 
     export class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
         DefaultStyleKey: any;
@@ -231,11 +228,7 @@ module Fayde {
             this.XamlNode._SizeChanged(args);
         }
     }
-    Fayde.RegisterType(FrameworkElement, {
-    	Name: "FrameworkElement",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(FrameworkElement, "Fayde", Fayde.XMLNS);
 
     FrameworkElement.ActualWidthProperty.Store = Providers.ActualSizeStore.Instance;
     FrameworkElement.ActualHeightProperty.Store = Providers.ActualSizeStore.Instance;

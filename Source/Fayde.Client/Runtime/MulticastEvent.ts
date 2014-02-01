@@ -11,26 +11,17 @@ class MulticastEvent<T extends EventArgs> {
         this._Listeners.push({ Closure: closure, Callback: callback });
     }
     Unsubscribe(callback: (sender: any, e: T) => void , closure: any) {
-        var listeners = this._Listeners;
-        var len = listeners.length;
-        var listener: IEventListener<T> = null;
-        var i = 0;
-        while (i < len) {
-            listener = listeners[i];
+        for (var i = 0, listeners = this._Listeners; i < listeners.length; i++) {
+            var listener = listeners[i];
             if (listener.Closure === closure && listener.Callback === callback) {
                 listeners.splice(i, 1);
-                len--;
+                i--;
             }
-            else
-                i++;
         }
     }
     Raise(sender: any, args: T) {
-        var listeners = this._Listeners.slice(0);
-        var len = listeners.length;
-        var listener: IEventListener<T> = null;
-        for (var i = 0; i < len; i++) {
-            listener = listeners[i];
+        for (var i = 0, listeners = this._Listeners.slice(0), len = listeners.length; i < len; i++) {
+            var listener = listeners[i];
             listener.Callback.call(listener.Closure, sender, args);
         }
     }
@@ -38,7 +29,4 @@ class MulticastEvent<T extends EventArgs> {
         window.setTimeout(() => this.Raise(sender, args), 1);
     }
 }
-Fayde.RegisterType(MulticastEvent, {
-	Name: "MulticastEvent",
-	Namespace: "Fayde"
-});
+Fayde.RegisterType(MulticastEvent, "Fayde");

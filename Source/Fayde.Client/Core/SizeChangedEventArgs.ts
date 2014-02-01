@@ -10,9 +10,5 @@ module Fayde {
             Object.defineProperty(this, "NewSize", { value: size.copyTo(newSize), writable: false });
         }
     }
-    Fayde.RegisterType(SizeChangedEventArgs, {
-    	Name: "SizeChangedEventArgs",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(SizeChangedEventArgs, "Fayde", Fayde.XMLNS);
 }

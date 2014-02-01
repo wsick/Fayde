@@ -9,14 +9,13 @@ module Fayde {
             Object.defineProperty(this, "PropertyName", { value: propertyName, writable: false });
         }
     }
-    Fayde.RegisterType(PropertyChangedEventArgs, {
-    	Name: "PropertyChangedEventArgs",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(PropertyChangedEventArgs, "Fayde", Fayde.XMLNS);
 
     export interface INotifyPropertyChanged {
         PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
     }
-    export var INotifyPropertyChanged_ = Fayde.RegisterInterface("INotifyPropertyChanged");
+    export var INotifyPropertyChanged_ = Fayde.RegisterInterface<INotifyPropertyChanged>("INotifyPropertyChanged");
+    INotifyPropertyChanged_.Is = (o: any): boolean => {
+        return o && o.PropertyChanged instanceof MulticastEvent;
+    };
 }

@@ -1,8 +1,7 @@
 /// <reference path="../Core/XamlObject.ts" />
+/// <reference path="../require.d.ts" />
 
 module Fayde.Xaml {
-    var parser = new DOMParser();
-
     export class FrameworkTemplate extends Fayde.XamlObject {
         private ResourceChain: ResourceDictionary[] = [];
         private TemplateElement: Element;
@@ -24,16 +23,9 @@ module Fayde.Xaml {
             return uie;
         }
     }
-    Fayde.RegisterType(FrameworkTemplate, {
-        Name: "FrameworkTemplate",
-        Namespace: "Fayde.Xaml"
-    });
+    Fayde.RegisterType(FrameworkTemplate, "Fayde.Xaml");
 
-
-    interface IOutValue {
-        Value: any
-    }
-
+    /// LOAD
     interface IXamlLoadContext {
         Document: Document;
         ResourceChain: ResourceDictionary[];
@@ -41,20 +33,7 @@ module Fayde.Xaml {
         ObjectStack: any[];
         TemplateBindingSource: DependencyObject;
     }
-    export function Load(xaml: string): XamlObject {
-        var ctx: IXamlLoadContext = {
-            Document: parser.parseFromString(xaml, "text/xml"),
-            ResourceChain: [],
-            NameScope: new NameScope(true),
-            ObjectStack: [],
-            TemplateBindingSource: null,
-        };
-        validateDocument(ctx.Document);
-        var xo = <XamlObject>createObject(ctx.Document.documentElement, ctx);
-        xo.XamlNode.NameScope = ctx.NameScope;
-        return xo;
-    }
-    export function LoadDocument(doc: Document): XamlObject {
+    export function Load(doc: Document): XamlObject {
         var ctx: IXamlLoadContext = {
             Document: doc,
             ResourceChain: [],
@@ -67,6 +46,7 @@ module Fayde.Xaml {
         xo.XamlNode.NameScope = ctx.NameScope;
         return xo;
     }
+
     function createObject(el: Element, ctx: IXamlLoadContext): any {
         var resolution = TypeResolver.Resolve(el.namespaceURI, el.localName);
         if (resolution === undefined)
@@ -242,7 +222,7 @@ module Fayde.Xaml {
                         return result;
                     }
                     if (result) {
-                        if (tt instanceof Interface && Nullstone.ImplementsInterface(result, <Interface>tt)) {
+                        if (tt instanceof Interface && (<Interface<any>>tt).Is(result)) {
                             return result;
                         } else if (tt instanceof Enum) {
                         } else if (tt === Object) {
@@ -455,7 +435,7 @@ module Fayde.Xaml {
                         hasSetContent = true;
                         var rootVisual: UIElement = createObject(el, ctx);
                         rootVisual.XamlNode.NameScope = ctx.NameScope;
-                        app.MainSurface.Attach(rootVisual);
+                        app.$$SetRootVisual(rootVisual);
                     } else {
                         if (contentCollection) {
                             contentCollection.Add(createObject(el, ctx));
@@ -489,187 +469,6 @@ module Fayde.Xaml {
         if (!docEl.isDefaultNamespace(Fayde.XMLNS))
             throw new XamlParseException("Invalid default namespace in XAML document.");
     }
-
-
-    /// APPLICATION
-    export function LoadApplication(xaml: string, canvas: HTMLCanvasElement) {
-        TimelineProfile.Parse(true, "App");
-        var appLoader = createAppLoader(xaml, canvas);
-        appLoader.Load();
-    }
-    interface IAppLoader {
-        Load(): void;
-    }
-    interface IXamlDependency {
-        NamespaceUri: string;
-        Name: string;
-    }
-    function createAppLoader(xaml: string, canvas: HTMLCanvasElement): IAppLoader {
-        var appSources: Namespace[] = [];
-        var appLibraries: Library[] = [];
-        var rdResources: IXamlResource[] = [];
-        var theme: Theme;
-        var ctx: IXamlLoadContext = {
-            Document: parser.parseFromString(xaml, "text/xml"),
-            ResourceChain: [],
-            NameScope: new NameScope(true),
-            ObjectStack: [],
-            TemplateBindingSource: null,
-        };
-        validateDocument(ctx.Document);
-        var appEl = ctx.Document.documentElement;
-        var appNsUri = appEl.namespaceURI;
-
-        function preloadLibraries() {
-            var curEl = getElementNS(appEl, appNsUri, appEl.localName + ".Libraries");
-            if (!curEl)
-                return;
-            curEl = curEl.firstElementChild;
-            var library: Library;
-            while (curEl) {
-                library = createObject(curEl, ctx);
-                library.Register();
-                appLibraries.push(library);
-                curEl = curEl.nextElementSibling;
-            }
-        }
-        function registerSources() {
-            var themeUrl = appEl.getAttributeNS(appNsUri, "Theme")
-            if (!themeUrl) themeUrl = appEl.getAttribute("Theme");
-            theme = new Theme(themeUrl);
-            
-            var curElement = getElementNS(appEl, appNsUri, appEl.localName + ".Sources");
-            if (!curElement)
-                return;
-
-            curElement = curElement.firstElementChild;
-            var nsSource: Namespace;
-            while (curElement) {
-                nsSource = createObject(curElement, ctx);
-                nsSource.RegisterSource();
-                appSources.push(nsSource);
-                curElement = curElement.nextElementSibling;
-            }
-        }
-        function preloadResourceDictionaries() {
-            var curElement = getElementNS(appEl, appNsUri, appEl.localName + ".Resources");
-            if (curElement)
-                parseResources(curElement);
-        }
-        function parseResources(resel: Element) {
-            var curElement = resel.firstElementChild;
-            var src: string;
-            var childEl: Element;
-            while (curElement) {
-                if (curElement.localName === "ResourceDictionary") {
-                    if (src = curElement.getAttribute("Source"))
-                        rdResources.push(Xaml.RegisterResourceDictionary(new Uri(src)));
-                    childEl = curElement.firstElementChild;
-                    while (childEl) {
-                        if (childEl.localName === "ResourceDictionary.MergedDictionaries") {
-                            parseResources(childEl);
-                            break;
-                        }
-                        childEl = childEl.nextElementSibling;
-                    }
-                }
-                curElement = curElement.nextElementSibling;
-            }
-        }
-        function collectDependencies() {
-            var deps: IXamlDependency[] = [];
-
-            var next: Element;
-            var attrs: NamedNodeMap;
-            var curElement: Element = ctx.Document.documentElement;
-            var nsUri: string;
-            while (curElement) {
-                nsUri = curElement.namespaceURI;
-                if (nsUri !== null && nsUri !== Fayde.XMLNS && nsUri !== Fayde.XMLNSX)
-                    deps.push({ NamespaceUri: curElement.namespaceURI, Name: curElement.localName });
-
-                attrs = curElement.attributes;
-                //TODO: Finish finding needed dependencies in attributes
-
-                next = curElement.nextElementSibling;
-                if (!next) next = (<Element>curElement.parentNode).nextElementSibling;
-                curElement = next;
-            }
-
-            return deps;
-        }
-        function finishLoad() {
-            var el = ctx.Document.documentElement;
-            var nsUri = el.namespaceURI || Fayde.XMLNS;
-            var resolution = TypeResolver.Resolve(nsUri, el.localName);
-            if (resolution === undefined)
-                throw new XamlParseException("Could not resolve application type '" + nsUri + ":" + el.localName + "'");
-
-            var app = new (<any>resolution.Type)();
-            theme.Create();
-            Object.defineProperty(app, "Theme", { value: theme, writable: false });
-            Application.Current = app;
-            if (!(app instanceof Application))
-                throw new XamlParseException("Root Element must be an Application.");
-
-            app.Sources._ht = appSources;
-            app.Libraries._ht = appLibraries;
-            app.MainSurface.Register(canvas);
-
-            ctx.ObjectStack.push(app);
-            var childProcessor = createXamlChildProcessor(app, resolution.Type, ctx);
-            childProcessor.Process(el);
-            app.Sources._ht = appSources;
-            app.Libraries._ht = appLibraries;
-            ctx.ObjectStack.pop();
-            TimelineProfile.Parse(false, "App");
-            Application.Current.Start();
-        }
-
-        return {
-            Load: function () {
-                preloadLibraries();
-                registerSources();
-                preloadResourceDictionaries();
-                collectDependencies();
-                var loaders: Fayde.Runtime.ILoadAsyncable[] = appSources.slice(0);
-                loaders.push.apply(loaders, appLibraries);
-                loaders.push.apply(loaders, rdResources);
-                loaders.push(theme);
-                Runtime.LoadBatchAsync(loaders, () => finishLoad());
-            }
-        };
-    }
-
-
-    /// THEME
-    export class Theme implements Runtime.ILoadAsyncable {
-        Resources: ResourceDictionary;
-        Url: string;
-        private _Xaml: string;
-        constructor(url: string) {
-            this.Url = url;
-        }
-
-        Create() {
-            var rd = <ResourceDictionary>Load(this._Xaml);
-            Object.defineProperty(this, "Resources", { value: rd, writable: false });
-        }
-
-        LoadAsync(onLoaded: (state: any) => void) {
-            var request = new AjaxRequest(
-                (result: IAjaxResult) => {
-                    this._Xaml = result.GetData();
-                    onLoaded(this);
-                },
-                (error: string) => {
-                    console.warn("Could not load Theme: " + error);
-                    onLoaded(this);
-                });
-            request.Get(this.Url);
-        }
-    }
-
 
     /// RESOURCE DICTIONARY
     function processResourceDictionary(el: Element, rd: ResourceDictionary, ctx: IXamlLoadContext) {
@@ -719,10 +518,10 @@ module Fayde.Xaml {
     function loadResourceDictionary(rd: ResourceDictionary) {
         if ((<any>rd)._IsSourceLoaded)
             return;
-        var resource = Xaml.MapResourceDictionary(rd.Source);
-        if (!resource)
+        var xd = XamlDocument.Get(rd.Source);
+        if (!xd)
             return;
-        var doc = resource.Document;
+        var doc = xd.Document;
         if (!doc)
             return;
 
@@ -760,19 +559,5 @@ module Fayde.Xaml {
         if (keyn)
             return keyn.value;
         return "";
-    }
-
-
-    /// XML UTILITIES
-    function getElementNS(parentEl: Element, namespaceURI: string, localName: string): Element {
-        var nsUri: string;
-        var curElement = parentEl.firstElementChild;
-        while (curElement) {
-            nsUri = curElement.namespaceURI || Fayde.XMLNS;
-            if (nsUri === namespaceURI && curElement.localName === localName)
-                return curElement;
-            curElement = curElement.nextElementSibling;
-        }
-        return null;
     }
 }

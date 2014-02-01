@@ -5,30 +5,24 @@ module Fayde {
             return undefined;
         if (value === null)
             return null;
-        if (value instanceof XamlObject)
-            return (<XamlObject>value).Clone();
-
-        if (typeof value === "number" || typeof value === "string")
+        if (value instanceof Array)
+            return (<any[]>value).slice(0);
+        if (value !== Object(value)) //primitive
             return value;
+        if (value.Clone instanceof Function)
+            return (<ICloneable>value).Clone();
+        return extend(new value.constructor(), value);
+    }
 
-        var typeName = value.constructor._TypeName;
-        switch (typeName) {
-            case "Uri":
-            case "rect":
-            case "size":
-            case "FontFamily":
-            case "Point":
-            case "Color":
-            case "PropertyPath":
-            case "RepeatBehavior":
-            case "Duration":
-            case "KeyTime":
-            case "GridLength":
-            case "CornerRadius":
-            case "Thickness":
-                return (<ICloneable>value).Clone();
+    function extend(obj: any, ...args: any[]): any {
+        var s: any;
+        for (var i = 0, len = args.length; i < len; i++) {
+            if (s = args[i]) {
+                for (var prop in s) {
+                    obj[prop] = s[prop];
+                }
+            }
         }
-
-        return new value.constructor();
+        return obj;
     }
 }

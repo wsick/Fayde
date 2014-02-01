@@ -39,8 +39,4 @@ module Fayde.Controls.Input.Internal {
             return obj;
         }
     }
-    Fayde.RegisterType(BindingSourceEvaluator, {
-        Name: "BindingSourceEvaluator",
-        Namespace: "Fayde.Controls.Input.Internal"
-    });
 }

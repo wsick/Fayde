@@ -73,9 +73,5 @@ module Fayde.Media.Animation {
             return true;
         }
     }
-    Fayde.RegisterType(AnimationBase, {
-    	Name: "AnimationBase",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(AnimationBase, "Fayde.Media.Animation", Fayde.XMLNS);
 }

@@ -30,10 +30,7 @@ module Fayde.Controls {
             xobj.AddItemsToPresenter(ItemsControlNode._DefaultPosition, xobj.Items.Count);
         }
     }
-    Fayde.RegisterType(ItemsControlNode, {
-    	Name: "ItemsControlNode",
-    	Namespace: "Fayde.Controls"
-    });
+    Fayde.RegisterType(ItemsControlNode, "Fayde.Controls");
 
     export class ItemsControl extends Control {
         private _ItemsIsDataBound: boolean = false;
@@ -76,7 +73,8 @@ module Fayde.Controls {
         get $DisplayMemberTemplate(): DataTemplate {
             if (!this._DisplayMemberTemplate) {
                 var dmp = this.DisplayMemberPath || "";
-                this._DisplayMemberTemplate = <DataTemplate>Xaml.Load("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
+                var xd = new Xaml.XamlDocument("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
+                this._DisplayMemberTemplate = <DataTemplate>Xaml.Load(xd.Document);
             }
             return this._DisplayMemberTemplate;
         }
@@ -134,25 +132,22 @@ module Fayde.Controls {
         }
 
         OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs) {
-            if (!e.OldValue && Nullstone.ImplementsInterface(e.OldValue, Collections.INotifyCollectionChanged_)) {
-                (<Collections.INotifyCollectionChanged>e.OldValue).CollectionChanged.Unsubscribe(this._CollectionChanged, this);
-            }
+            var cc = Collections.INotifyCollectionChanged_.As(e.OldValue);
+            if (cc)
+                cc.CollectionChanged.Unsubscribe(this._CollectionChanged, this);
 
             if (e.NewValue != null) {
                 var source = e.NewValue;
-                if (Nullstone.ImplementsInterface(source, Collections.INotifyCollectionChanged_)) {
-                    (<Collections.INotifyCollectionChanged>source).CollectionChanged.Subscribe(this._CollectionChanged, this);
-                }
+                cc = Collections.INotifyCollectionChanged_.As(source);
+                if (cc)
+                    cc.CollectionChanged.Subscribe(this._CollectionChanged, this);
 
                 this.$Items.IsReadOnly = true;
                 this._ItemsIsDataBound = true;
                 this.$Items.ClearImpl();
 
-                var enumerator: IEnumerator<any>;
-                if (source instanceof Array) enumerator = ArrayEx.GetEnumerator(<any[]>source);
-                else if (source instanceof XamlObjectCollection) enumerator = (<XamlObjectCollection<any>>source).GetEnumerator();
-                else if (Nullstone.ImplementsInterface(source, IEnumerable_)) enumerator = (<IEnumerable<any>>source).GetEnumerator();
-                
+                var en = IEnumerable_.As(source);
+                var enumerator = en ? en.GetEnumerator() : undefined;
                 if (enumerator) {
                     var items = this.$Items;
                     while (enumerator.MoveNext()) {
@@ -333,9 +328,5 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(ItemsControl, {
-    	Name: "ItemsControl",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ItemsControl, "Fayde.Controls", Fayde.XMLNS);
 }

@@ -30,7 +30,7 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerPort>22830</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:59840/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
@@ -47,12 +47,14 @@
     <TypeScriptOutFile>Fayde.Controls.Input.js</TypeScriptOutFile>
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptOutFile>Fayde.Controls.Input.js</TypeScriptOutFile>
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
+    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="ContextMenu.ts" />
@@ -62,7 +64,7 @@
     <Content Include="awaiting-generic.xml">
       <SubType>Designer</SubType>
     </Content>
-    <TypeScriptCompile Include="_.ts" />
+    <Content Include="require.d.ts" />
     <TypeScriptCompile Include="Internal\ObservableObjectCollection.ts" />
     <TypeScriptCompile Include="NumericUpDown.ts" />
     <TypeScriptCompile Include="Internal\InteractionHelper.ts" />
@@ -89,6 +91,7 @@
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy /s /y "$(SolutionDir)..\jsbin\Fayde.d.ts" "$(ProjectDir)"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

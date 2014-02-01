@@ -72,9 +72,9 @@ module Fayde.Controls.Input {
         static ItemsSourceProperty = DependencyProperty.Register("ItemsSource", () => Fayde.IEnumerable_, DomainUpDown, null);
         ItemsSource: Fayde.IEnumerable<any>;
         OnItemsSourceChanged(oldItemsSource: Fayde.IEnumerable<any>, newItemsSource: Fayde.IEnumerable<any>) {
-            if (oldItemsSource && Nullstone.ImplementsInterface(oldItemsSource, Collections.INotifyCollectionChanged_)) {
-                (<Collections.INotifyCollectionChanged><any>oldItemsSource).CollectionChanged.Unsubscribe(this.OnItemsChanged, this);
-            }
+            var oldcc = Collections.INotifyCollectionChanged_.As(oldItemsSource);
+            if (oldcc)
+                oldcc.CollectionChanged.Unsubscribe(this.OnItemsChanged, this);
 
             if (newItemsSource != null) {
                 var index = getIndexOf(newItemsSource, this.Value);
@@ -94,11 +94,12 @@ module Fayde.Controls.Input {
                     } else
                         this.Value = this.IsValidCurrentIndex(this.CurrentIndex) ? Enumerable.ElementAtOrDefault<any>(source, this.CurrentIndex) : Enumerable.FirstOrDefault<any>(source);
                 }
-                if (Nullstone.ImplementsInterface(newItemsSource, Collections.INotifyCollectionChanged_)) {
-                    (<Collections.INotifyCollectionChanged><any>newItemsSource).CollectionChanged.Subscribe(this.OnItemsChanged, this);
-                }
-            } else
+                var newcc = Collections.INotifyCollectionChanged_.As(newItemsSource);
+                if (newcc)
+                    newcc.CollectionChanged.Subscribe(this.OnItemsChanged, this);
+            } else {
                 this._Items.Clear();
+            }
             this.SetValidSpinDirection();
         }
 
@@ -398,11 +399,6 @@ module Fayde.Controls.Input {
             return value === -1 && num === 0 || value >= 0 && value < num;
         }
     }
-    Fayde.RegisterType(DomainUpDown, {
-        Name: "DomainUpDown",
-        Namespace: "Fayde.Controls.Input",
-        XmlNamespace: Input.XMLNS
-    });
 
     function getIndexOf(sequence: Fayde.IEnumerable<any>, item: any): number {
         var i = 0;

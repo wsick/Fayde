@@ -5,11 +5,7 @@ module Fayde.Media.Animation {
         static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Number, DoubleKeyFrame);
         Value: number;
     }
-    Fayde.RegisterType(DoubleKeyFrame, {
-    	Name: "DoubleKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(DoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
 
     export class DiscreteDoubleKeyFrame extends DoubleKeyFrame {
         InterpolateValue(baseValue: number, keyFrameProgress: number): number {
@@ -18,11 +14,7 @@ module Fayde.Media.Animation {
             return baseValue;
         }
     }
-    Fayde.RegisterType(DiscreteDoubleKeyFrame, {
-    	Name: "DiscreteDoubleKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(DiscreteDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
 
     export class EasingDoubleKeyFrame extends DoubleKeyFrame {
         static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, EasingDoubleKeyFrame);
@@ -47,11 +39,7 @@ module Fayde.Media.Animation {
             return start + (end - start) * keyFrameProgress;
         }
     }
-    Fayde.RegisterType(EasingDoubleKeyFrame, {
-    	Name: "EasingDoubleKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(EasingDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
 
     export class LinearDoubleKeyFrame extends DoubleKeyFrame {
         InterpolateValue(baseValue: number, keyFrameProgress: number): number {
@@ -64,11 +52,7 @@ module Fayde.Media.Animation {
             return start + (end - start) * keyFrameProgress;
         }
     }
-    Fayde.RegisterType(LinearDoubleKeyFrame, {
-    	Name: "LinearDoubleKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(LinearDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
     
     export class SplineDoubleKeyFrame extends DoubleKeyFrame {
         static KeySplineProperty: DependencyProperty = DependencyProperty.Register("KeySpline", () => KeySpline, SplineDoubleKeyFrame);
@@ -93,9 +77,5 @@ module Fayde.Media.Animation {
             return start + (end - start) * splineProgress;
         }
     }
-    Fayde.RegisterType(SplineDoubleKeyFrame, {
-    	Name: "SplineDoubleKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(SplineDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
 }

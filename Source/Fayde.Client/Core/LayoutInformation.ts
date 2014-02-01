@@ -17,9 +17,5 @@ module Fayde {
             return uie.XamlNode.LayoutUpdater.LayoutSlot;
         }
     }
-    Fayde.RegisterType(LayoutInformation, {
-    	Name: "LayoutInformation",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(LayoutInformation, "Fayde", Fayde.XMLNS);
 }

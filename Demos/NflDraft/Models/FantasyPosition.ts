@@ -1,22 +1,19 @@
-module NflDraft.Models {
-    export class FantasyPosition extends Fayde.MVVM.ObservableObject {
-        Position: string;
-        private _player: Models.Player;
-        get Player(): Models.Player {
-            return this._player;
-        }
-        set Player(value: Models.Player) {
-            this._player = value;
-            this.OnPropertyChanged("Player");
-        }
+import Player = require("Models/Player");
 
-        constructor(position: string) {
-            super();
-            this.Position = position;
-        }
+class FantasyPosition extends Fayde.MVVM.ObservableObject {
+    Position: string;
+    private _player: Player;
+    get Player(): Player {
+        return this._player;
     }
-    Fayde.RegisterType(FantasyPosition, {
-        Name: "FantasyPosition",
-        Namespace: "NflDraft.Models"
-    });
+    set Player(value: Player) {
+        this._player = value;
+        this.OnPropertyChanged("Player");
+    }
+
+    constructor(position: string) {
+        super();
+        this.Position = position;
+    }
 }
+export = FantasyPosition;

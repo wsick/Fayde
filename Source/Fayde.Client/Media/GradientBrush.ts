@@ -45,9 +45,5 @@ module Fayde.Media {
 
         GradientStopsChanged(newGradientStops: GradientStopCollection) { this.InvalidateBrush(); }
     }
-    Fayde.RegisterType(GradientBrush, {
-    	Name: "GradientBrush",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(GradientBrush, "Fayde.Media", Fayde.XMLNS);
 }

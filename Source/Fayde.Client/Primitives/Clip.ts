@@ -13,8 +13,4 @@ class Clip {
         this.Height = rounded.Height;
     }
 }
-Fayde.RegisterType(Clip, {
-	Name: "Clip",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(Clip, "window", Fayde.XMLNSX);

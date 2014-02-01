@@ -2,14 +2,15 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <ProjectGuid>{83F65AB4-4FD4-4082-A910-519164AFF452}</ProjectGuid>
+    <ProjectGuid>{DEBD089E-1805-4F7E-A589-CA36DB6C692F}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <OutputPath>bin</OutputPath>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <UseIISExpress>false</UseIISExpress>
+    <TypeScriptToolsVersion>0.9</TypeScriptToolsVersion>
+    <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -18,15 +19,20 @@
   <ItemGroup>
     <TypeScriptCompile Include="Controls\DrawingPad.ts" />
     <Content Include="default.html" />
-    <Content Include="scripts\Fayde.d.ts" />
-    <Content Include="scripts\Fayde.js" />
-    <Content Include="scripts\Theme.Metro.xml" />
-    <Content Include="scripts\Theme.Silverlight.xml" />
+    <Content Include="main.js" />
+    <Content Include="Scripts\Fayde.d.ts" />
+    <Content Include="Scripts\Fayde.js" />
+    <Content Include="Scripts\r.js" />
+    <Content Include="Scripts\require.js" />
+    <Content Include="Scripts\text.js" />
+    <Content Include="Scripts\Theme.Metro.xml" />
+    <Content Include="Scripts\Theme.Silverlight.xml" />
+    <Content Include="Scripts\typings\requirejs\require.d.ts" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="default.fap" />
     <Content Include="packages.config" />
+    <Content Include="default.fap" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -49,9 +55,9 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>8895</DevelopmentServerPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost/DrawingSurface</IISUrl>
+          <IISUrl>http://localhost:8882/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
@@ -62,17 +68,17 @@
     </VisualStudio>
   </ProjectExtensions>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <TypeScriptTarget>ES3</TypeScriptTarget>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <TypeScriptTarget>ES3</TypeScriptTarget>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
-  <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
-  <Import Project="packages\Fayde.0.9.6.2\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.6.2\build\Fayde.targets')" />
+  <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
+  <Import Project="packages\Fayde.0.9.7.3\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.7.3\build\Fayde.targets')" />
 </Project>

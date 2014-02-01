@@ -296,11 +296,7 @@ module Fayde.Data {
             return new PropertyPath(this._Path, this._ExpandedPath);
         }
     }
-    Fayde.RegisterType(PropertyPath, {
-    	Name: "PropertyPath",
-    	Namespace: "Fayde.Data",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(PropertyPath, "Fayde.Data", Fayde.XMLNS);
     Fayde.RegisterTypeConverter(PropertyPath, (val: any): any => {
         if (!val)
             return new PropertyPath();

@@ -15,11 +15,7 @@ module Fayde.Navigation {
             return new Uri(result);
         }
     }
-    Fayde.RegisterType(UriMapping, {
-        Name: "UriMapping",
-        Namespace: "Fayde.Navigation",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(UriMapping, "Fayde.Navigation", Fayde.XMLNS);
 
     interface ITokenInfo {
         Identifier: string;

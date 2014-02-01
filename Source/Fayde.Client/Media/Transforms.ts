@@ -25,11 +25,7 @@ module Fayde.Media {
             return m;
         }
     }
-    Fayde.RegisterType(RotateTransform, {
-    	Name: "RotateTransform",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(RotateTransform, "Fayde.Media", Fayde.XMLNS);
 
     export class ScaleTransform extends Transform {
         static CenterXProperty: DependencyProperty = DependencyProperty.Register("CenterX", () => Number, ScaleTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
@@ -54,11 +50,7 @@ module Fayde.Media {
             return m;
         }
     }
-    Fayde.RegisterType(ScaleTransform, {
-    	Name: "ScaleTransform",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ScaleTransform, "Fayde.Media", Fayde.XMLNS);
 
     export class SkewTransform extends Transform {
         static AngleXProperty: DependencyProperty = DependencyProperty.Register("AngleX", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
@@ -85,11 +77,7 @@ module Fayde.Media {
             return m;
         }
     }
-    Fayde.RegisterType(SkewTransform, {
-    	Name: "SkewTransform",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(SkewTransform, "Fayde.Media", Fayde.XMLNS);
 
     export class TranslateTransform extends Transform {
         static XProperty: DependencyProperty = DependencyProperty.Register("X", () => Number, TranslateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
@@ -101,11 +89,7 @@ module Fayde.Media {
             return mat3.createTranslate(this.X, this.Y);
         }
     }
-    Fayde.RegisterType(TranslateTransform, {
-    	Name: "TranslateTransform",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TranslateTransform, "Fayde.Media", Fayde.XMLNS);
 
     export interface ITransformChangedChildListener extends ITransformChangedListener {
         Child: Transform;
@@ -142,11 +126,7 @@ module Fayde.Media {
             this._Relayer = func;
         }
     }
-    Fayde.RegisterType(TransformCollection, {
-    	Name: "TransformCollection",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TransformCollection, "Fayde.Media", Fayde.XMLNS);
 
     export class TransformGroup extends Transform {
         static ChildrenProperty = DependencyProperty.RegisterImmutable<TransformCollection>("Children", () => TransformCollection, TransformGroup);
@@ -172,9 +152,5 @@ module Fayde.Media {
             return cur;
         }
     }
-    Fayde.RegisterType(TransformGroup, {
-    	Name: "TransformGroup",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TransformGroup, "Fayde.Media", Fayde.XMLNS);
 }

@@ -84,9 +84,5 @@ module Fayde.Media {
             this.InvalidateBrush();
         }
     }
-    Fayde.RegisterType(Brush, {
-    	Name: "Brush",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Brush, "Fayde.Media", Fayde.XMLNS);
 }

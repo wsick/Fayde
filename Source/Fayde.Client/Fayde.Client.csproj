@@ -16,6 +16,7 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Xaml\XamlDocument.ts" />
     <TypeScriptCompile Include="Collections\INotifyCollectionChanged.ts" />
     <TypeScriptCompile Include="Collections\NotifyCollectionChangedEventArgs.ts" />
     <TypeScriptCompile Include="Collections\ObservableCollection.ts" />
@@ -241,8 +242,6 @@
     <TypeScriptCompile Include="Primitives\Thickness.ts" />
     <TypeScriptCompile Include="Primitives\TimeSpan.ts" />
     <TypeScriptCompile Include="Primitives\Uri.ts" />
-    <TypeScriptCompile Include="Runtime\AjaxRequest.ts" />
-    <TypeScriptCompile Include="Runtime\BatchLoad.ts" />
     <TypeScriptCompile Include="Runtime\BError.ts" />
     <TypeScriptCompile Include="Runtime\Debug.ts" />
     <TypeScriptCompile Include="Runtime\Enum.ts" />
@@ -270,6 +269,7 @@
     <TypeScriptCompile Include="Text\TextLayout.ts" />
     <TypeScriptCompile Include="Controls\HeaderedContentControl.ts" />
     <TypeScriptCompile Include="Engine\RenderContextEx.ts" />
+    <TypeScriptCompile Include="Engine\Theme.ts" />
     <Content Include="Fayde.d.ts" />
     <Content Include="Fayde.js" />
     <Content Include="Fayde.js.map" />
@@ -295,23 +295,14 @@
     <TypeScriptCompile Include="Path\RectRoundedFull.ts" />
     <TypeScriptCompile Include="Path\Ellipse.ts" />
     <TypeScriptCompile Include="Primitives\Vector.ts" />
+    <TypeScriptCompile Include="Runtime\IAsyncRequest.ts" />
+    <Content Include="require.d.ts" />
+    <TypeScriptCompile Include="Runtime\Library.ts" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />
-    <TypeScriptCompile Include="Xaml\Library.ts" />
     <TypeScriptCompile Include="Xaml\MarkupExpressionParser.ts" />
-    <TypeScriptCompile Include="Xaml\Resources.ts" />
-    <TypeScriptCompile Include="Xaml\Sources.ts" />
     <TypeScriptCompile Include="Xaml\TemplateBinding.ts" />
     <TypeScriptCompile Include="Xaml\XamlLoader.ts" />
-    <Content Include="web.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="web.Debug.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />

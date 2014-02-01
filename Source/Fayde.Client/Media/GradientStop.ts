@@ -23,11 +23,7 @@ module Fayde.Media {
 
         toString(): string { return this.Color.toString() + " @ " + this.Offset.toString(); }
     }
-    Fayde.RegisterType(GradientStop, {
-    	Name: "GradientStop",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(GradientStop, "Fayde.Media", Fayde.XMLNS);
     
     export interface IGradientStopsListener {
         GradientStopsChanged(newGradientStops: GradientStopCollection);
@@ -59,9 +55,5 @@ module Fayde.Media {
             if (listener) listener.GradientStopsChanged(this);
         }
     }
-    Fayde.RegisterType(GradientStopCollection, {
-    	Name: "GradientStopCollection",
-    	Namespace: "Fayde.Media",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(GradientStopCollection, "Fayde.Media", Fayde.XMLNS);
 }

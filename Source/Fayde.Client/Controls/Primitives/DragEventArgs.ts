@@ -12,11 +12,7 @@ module Fayde.Controls.Primitives {
             Object.defineProperty(this, "Canceled", { value: canceled, writable: false });
         }
     }
-    Fayde.RegisterType(DragCompletedEventArgs, {
-    	Name: "DragCompletedEventArgs",
-    	Namespace: "Fayde.Controls.Primitives",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(DragCompletedEventArgs, "Fayde.Controls.Primitives", Fayde.XMLNS);
 
     export class DragDeltaEventArgs extends RoutedEventArgs {
         HorizontalChange: number;
@@ -27,11 +23,7 @@ module Fayde.Controls.Primitives {
             Object.defineProperty(this, "VerticalChange", { value: vertical, writable: false });
         }
     }
-    Fayde.RegisterType(DragDeltaEventArgs, {
-    	Name: "DragDeltaEventArgs",
-    	Namespace: "Fayde.Controls.Primitives",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(DragDeltaEventArgs, "Fayde.Controls.Primitives", Fayde.XMLNS);
 
     export class DragStartedEventArgs extends RoutedEventArgs {
         HorizontalOffset: number;
@@ -42,9 +34,5 @@ module Fayde.Controls.Primitives {
             Object.defineProperty(this, "VerticalOffset", { value: vertical, writable: false });
         }
     }
-    Fayde.RegisterType(DragStartedEventArgs, {
-    	Name: "DragStartedEventArgs",
-    	Namespace: "Fayde.Controls.Primitives",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(DragStartedEventArgs, "Fayde.Controls.Primitives", Fayde.XMLNS);
 }

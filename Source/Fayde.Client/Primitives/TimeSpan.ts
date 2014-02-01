@@ -96,11 +96,7 @@ class TimeSpan {
         return this._Ticks * TimeSpan._TicksPerMillisecond;
     }
 }
-Fayde.RegisterType(TimeSpan, {
-	Name: "TimeSpan",
-	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
-});
+Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
 
 Fayde.RegisterTypeConverter(TimeSpan, (val: any): TimeSpan => {
     if (val instanceof TimeSpan)

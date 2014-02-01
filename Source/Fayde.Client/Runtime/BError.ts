@@ -30,7 +30,3 @@ class BError {
         throw ex;
     }
 }
-Fayde.RegisterType(BError, {
-	Name: "BError",
-	Namespace: "Fayde"
-});

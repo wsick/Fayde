@@ -70,11 +70,7 @@ module Fayde.Controls {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
     }
-    Fayde.RegisterType(Border, {
-        Name: "Border",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Border, "Fayde.Controls", Fayde.XMLNS);
 
     export class BorderLayoutUpdater extends LayoutUpdater {
         private _Renderer: IBorderRenderer;

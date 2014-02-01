@@ -59,8 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ClientBin\WickedSick.LitmusTests.xap" />
-    <Content Include="default.fap.js" />
-    <Content Include="default.html" />
     <Content Include="Images\calvin_johnson.png" />
     <Content Include="Images\github.png" />
     <Content Include="Images\header_overlay.png" />
@@ -70,30 +68,33 @@
     <Content Include="Images\twitter.png" />
     <Content Include="Media\freeze_gopher.mp3" />
     <Content Include="Silverlight.js" />
-    <Content Include="default2.fap">
+    <Content Include="Tests\Toy\default2.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="default3.fap">
+    <Content Include="Tests\Toy\default3.fap">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Media\test_movie.mp4" />
-    <Content Include="default6.fap">
+    <Content Include="Tests\Toy\default6.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="default7.fap">
+    <Content Include="Tests\Toy\default7.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="default8.fap">
+    <Content Include="Tests\Toy\default8.fap">
       <SubType>Designer</SubType>
     </Content>
     <TypeScriptCompile Include="Tests\IssueTests\TestViewModel.ts" />
-    <Content Include="TestResourceDictionary.xml" />
+    <Content Include="Tests\Navigation\TestResourceDictionary.xml" />
     <TypeScriptCompile Include="Tests\IssueTests\DoubleListBoxViewModel.ts" />
     <Content Include="Tests\App\Fayde.Controls.Input\source.js" />
-    <Content Include="Tests\App\Fayde.Controls.Input\generic.xml" />
+    <Content Include="Tests\App\Fayde.Controls.Input\generic.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Tests\IssueTests\DoubleListBoxViewModel.js" />
     <None Include="Tests\IssueTests\observablecoll-count.fap" />
     <Content Include="Tests\IssueTests\TestViewModel.js" />
+    <TypeScriptCompile Include="Tests\main.ts" />
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -114,7 +115,9 @@
     <Content Include="Tests\Path\multientry.html" />
     <Content Include="Tests\Path\quad-bezier.html" />
     <Content Include="Tests\Path\util.js" />
-    <TypeScriptCompile Include="Tests\Shapes\map.fap.ts" />
+    <TypeScriptCompile Include="Tests\Shapes\map.ts" />
+    <Content Include="scripts\require.d.ts" />
+    <Content Include="scripts\require.js" />
     <Content Include="Tests\Shapes\shape-stretch.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -160,6 +163,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Tests\test.aspx" />
+    <Content Include="scripts\text.js" />
     <Content Include="xamlload.html" />
     <Content Include="Tests\IssueTests\double-listbox.fap">
       <SubType>Designer</SubType>
@@ -170,14 +174,27 @@
     <Content Include="Tests\App\library.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\Navigation\default.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Navigation\Views\contact.fayde" />
+    <Content Include="Tests\Navigation\Views\Core.fayde">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Navigation\Views\home.fayde">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Navigation\Views\SDK.fayde" />
+    <Content Include="Tests\Navigation\Views\smoke.fayde">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Navigation\Views\Toolkit.fayde" />
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>
     <None Include="Tests\Shapes\shape-stack.fap">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Views\SDK.fayde" />
-    <None Include="Views\Toolkit.fayde" />
     <Content Include="Tests\tests.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -203,16 +220,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="default.fap">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Views\Core.fayde">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Views\Home.fayde">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Views\contact.fayde" />
     <Content Include="Tests\Controls\scrollviewer.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -243,9 +250,6 @@
     <Content Include="Tests\Media\imaging.fap">
       <SubType>Designer</SubType>
     </Content>
-    <None Include="Views\smoke.fayde">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

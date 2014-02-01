@@ -190,14 +190,12 @@ module Fayde.Controls.Primitives {
         }
 
         private OnCommandChanged(args: IDependencyPropertyChangedEventArgs) {
-            var cmd: Input.ICommand;
-            if (Nullstone.ImplementsInterface(args.OldValue, Input.ICommand_)) {
-                cmd = args.OldValue;
+            var cmd = Input.ICommand_.As(args.OldValue);
+            if (cmd)
                 cmd.CanExecuteChanged.Unsubscribe(this.OnCommandCanExecuteChanged, this);
-            }
 
-            if (Nullstone.ImplementsInterface(args.NewValue, Input.ICommand_)) {
-                cmd = args.NewValue;
+            cmd = Input.ICommand_.As(args.NewValue);
+            if (cmd) {
                 cmd.CanExecuteChanged.Subscribe(this.OnCommandCanExecuteChanged, this);
                 this.IsEnabled = cmd.CanExecute(this.CommandParameter);
             }
@@ -211,9 +209,5 @@ module Fayde.Controls.Primitives {
                 this.IsEnabled = cmd.CanExecute(args.NewValue);
         }
     }
-    Fayde.RegisterType(ButtonBase, {
-    	Name: "ButtonBase",
-    	Namespace: "Fayde.Controls.Primitives",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ButtonBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
 }

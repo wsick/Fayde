@@ -22,10 +22,7 @@ module Fayde.Controls {
             return presenter;
         }
     }
-    Fayde.RegisterType(ContentControlNode, {
-    	Name: "ContentControlNode",
-    	Namespace: "Fayde.Controls"
-    });
+    Fayde.RegisterType(ContentControlNode, "Fayde.Controls");
 
     export class ContentControl extends Control {
         XamlNode: ContentControlNode;
@@ -42,9 +39,5 @@ module Fayde.Controls {
         OnContentChanged(oldContent: any, newContent: any) { }
         OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate) { }
     }
-    Fayde.RegisterType(ContentControl, {
-    	Name: "ContentControl",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ContentControl, "Fayde.Controls", Fayde.XMLNS);
 }

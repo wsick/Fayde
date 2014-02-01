@@ -9,21 +9,18 @@ module Fayde {
         static Version: string = "0.9.6.0";
         static Current: Application;
         MainSurface: Surface;
-        Loaded: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        Loaded = new MulticastEvent<EventArgs>();
         Address: Uri = null;
         DebugInterop: DebugInterop;
         private _IsRunning: boolean = false;
         private _Storyboards: ITimeline[] = [];
         private _ClockTimer: ClockTimer = new ClockTimer();
+        private _RootVisual: UIElement;
 
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, Application);
+        static ThemeProperty = DependencyProperty.Register("Theme", () => Theme, Application);
         Resources: ResourceDictionary;
-        static SourcesProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<Xaml.Namespace>>("Sources", () => XamlObjectCollection, Application);
-        Sources: XamlObjectCollection<Xaml.Namespace>;
-        static LibrariesProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<Xaml.Library>>("Libraries", () => XamlObjectCollection, Application);
-        Libraries: XamlObjectCollection<Xaml.Library>;
-
-        Theme: Xaml.Theme;
+        Theme: Theme;
 
         constructor() {
             super();
@@ -32,12 +29,26 @@ module Fayde {
             this.MainSurface = new Surface(this);
             this.DebugInterop = new DebugInterop(this);
             this.Address = new Uri(document.URL);
-            Application.SourcesProperty.Initialize(this);
-            Application.LibrariesProperty.Initialize(this);
         }
 
         get RootVisual(): UIElement { return this.MainSurface._RootLayer; }
 
+        Resolve(): IAsyncRequest<Application> {
+            var d = defer<Application>();
+
+            this.Theme.Resolve()
+                .success(theme => d.resolve(this))
+                .error(d.reject);
+
+            return d.request;
+        }
+        $$SetRootVisual(value: UIElement) {
+            this._RootVisual = value;
+        }
+        Attach(canvas: HTMLCanvasElement) {
+            this.MainSurface.Register(canvas);
+            this.MainSurface.Attach(this._RootVisual);
+        }
         Start() {
             this._ClockTimer.RegisterTimer(this);
             this.Loaded.RaiseAsync(this, EventArgs.Empty);
@@ -98,18 +109,11 @@ module Fayde {
 
         GetImplicitStyle(type: any): Style {
             var theme = this.Theme;
-            var rd: ResourceDictionary;
             var style: Style;
-            if (theme && (rd = theme.Resources) && (style = <Style>rd.Get(type)) && (style instanceof Style))
+            if (theme && (style = theme.GetImplicitStyle(type)))
                 return style;
 
-            var enumerator = this.Libraries.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                style = enumerator.Current.GetImplicitStyle(type);
-                if (style)
-                    return style;
-            }
-            return undefined;
+            return Library.GetImplicitStyle(type);
         }
 
         private __DebugLayers(): string {
@@ -118,12 +122,24 @@ module Fayde {
         private __GetById(id: number): UIElement {
             return this.MainSurface.__GetById(id);
         }
+
+        static GetAsync(url: string): IAsyncRequest<Application> {
+            var d = defer<Application>();
+            Xaml.XamlDocument.Resolve(url)
+                .success(xd => {
+                    TimelineProfile.Parse(true, "App");
+                    var app = <Application>Xaml.Load(xd.Document);
+                    TimelineProfile.Parse(false, "App");
+                    if (!(app instanceof Application))
+                        d.reject("Xaml must be an Application.");
+                    else
+                        d.resolve(app);
+                })
+                .error(d.reject);
+            return d.request;
+        }
     }
-    Fayde.RegisterType(Application, {
-        Name: "Application",
-        Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Application, "Fayde", Fayde.XMLNS);
 
     var isReady = false;
     function doOnReady(onReady: () => void) {
@@ -147,27 +163,36 @@ module Fayde {
             });
         }
 
-        window.onload = onReady;
+        window.onload = () => onReady();
     }
     doOnReady(Run);
-    export function Run() {
-        if (isReady) return;
+    export function Run(loaded?: (app: Application) => void) {
+        if (isReady) return loaded && loaded(Fayde.Application.Current);
         isReady = true;
         var url = document.body.getAttribute("faydeapp");
         if (!url)
             return;
+
         var canvas = document.getElementsByTagName("canvas")[0];
         if (!canvas)
             document.body.appendChild(canvas = document.createElement("canvas"));
 
-        var request = new AjaxRequest(
-            (result) => {
-                Xaml.LoadApplication(result.GetData(), canvas);
-            },
-            (error) => {
+        Application.GetAsync(url)
+            .success(app => {
+                (Application.Current = app).Resolve()
+                    .success(app => {
+                        app.Attach(canvas);
+                        app.Start();
+                        loaded && loaded(app);
+                    })
+                    .error(error => {
+                        alert("An error occurred loading the application.");
+                        console.log("An error occurred loading the application. " + error);
+                    });
+            })
+            .error(error => {
                 alert("An error occurred retrieving the application.");
                 console.log("An error occurred retrieving the application. " + error);
             });
-        request.Get(url);
     }
 }

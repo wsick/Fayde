@@ -1,5 +1,4 @@
 /// <reference path="Fayde.d.ts" />
-/// <reference path="_.ts" />
 
 module Fayde.Controls.Input {
     export class UpDownBase<T> extends Control {
@@ -8,7 +7,7 @@ module Fayde.Controls.Input {
         _Spinner: Spinner = null;
         private _Text: string = "";
 
-        static SpinnerStyleProperty = DependencyProperty.Register("SpinnerStyle", () => Style, UpDownBase, undefined, (d, args) => (<UpDownBase>d).OnSpinnerStyleChanged(args.OldValue, args.NewValue));
+        static SpinnerStyleProperty = DependencyProperty.Register("SpinnerStyle", () => Style, UpDownBase, undefined, (d, args) => (<UpDownBase<T>>d).OnSpinnerStyleChanged(args.OldValue, args.NewValue));
         SpinnerStyle: Style;
         private OnSpinnerStyleChanged(oldStyle: Style, newStyle: Style) { }
 
@@ -36,7 +35,7 @@ module Fayde.Controls.Input {
             this.ValueChanging.Raise(this, e);
         }
         OnValueChanged(e: RoutedPropertyChangedEventArgs<T>) {
-            this.ValueChanged.Raise(this, e);
+            (<RoutedEvent<RoutedPropertyChangedEventArgs<T>>>this.ValueChanged).Raise(this, e); //WTF: compiler choking without cast for some odd reason
             this.SetTextBoxText();
         }
 
@@ -212,9 +211,4 @@ module Fayde.Controls.Input {
         }
         OnIncrement() { }
     }
-    Fayde.RegisterType(UpDownBase, {
-        Name: "UpDownBase",
-        Namespace: "Fayde.Controls.Input",
-        XmlNamespace: Input.XMLNS
-    });
 }

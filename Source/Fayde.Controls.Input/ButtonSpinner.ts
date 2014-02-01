@@ -116,9 +116,4 @@ module Fayde.Controls.Input {
                 this._DecreaseButton.IsEnabled = (this.ValidSpinDirection & ValidSpinDirections.Decrease) === ValidSpinDirections.Decrease;
         }
     }
-    Fayde.RegisterType(ButtonSpinner, {
-        Name: "ButtonSpinner",
-        Namespace: "Fayde.Controls.Input",
-        XmlNamespace: Input.XMLNS
-    });
 }

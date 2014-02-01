@@ -71,7 +71,7 @@ module Fayde.Data {
             if (this.IsAttached)
                 return;
             if (Fayde.Data.Debug && window.console)
-                console.log("[BINDING] OnAttached: [" + (<any>element).constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
+                console.log("[BINDING] OnAttached: [" + (<any>element).constructor.name + "] {Path=" + this.ParentBinding.Path.Path + "}");
             
             super.OnAttached(element);
             
@@ -135,7 +135,7 @@ module Fayde.Data {
             if (!this.IsAttached)
                 return;
             if (Fayde.Data.Debug && window.console)
-                console.log("[BINDING] OnDetached: [" + (<any>element).constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
+                console.log("[BINDING] OnDetached: [" + (<any>element).constructor.name + "] {Path=" + this.ParentBinding.Path.Path + "}");
             
             super.OnDetached(element);
 
@@ -244,7 +244,7 @@ module Fayde.Data {
         }
         OnDataContextChanged(newDataContext: any) {
             if (Fayde.Data.Debug && window.console)
-                console.log("[BINDING] DataContextChanged: [" + (<any>this.Target)._ID + ":" + (<any>this.Target).constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
+                console.log("[BINDING] DataContextChanged: [" + (<any>this.Target)._ID + ":" + (<any>this.Target).constructor.name + "] {Path=" + this.ParentBinding.Path.Path + "}");
 
             if (this._DataContext === newDataContext)
                 return;
@@ -383,8 +383,5 @@ module Fayde.Data {
             NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
         }
     }
-    Fayde.RegisterType(BindingExpressionBase, {
-    	Name: "BindingExpressionBase",
-    	Namespace: "Fayde.Data"
-    });
+    Fayde.RegisterType(BindingExpressionBase, "Fayde.Data");
 }

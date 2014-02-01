@@ -5,11 +5,7 @@ module Fayde.Media.Animation {
         static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Color, ColorKeyFrame);
         Value: Color;
     }
-    Fayde.RegisterType(ColorKeyFrame, {
-    	Name: "ColorKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(ColorKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
 
     export class DiscreteColorKeyFrame extends ColorKeyFrame {
         InterpolateValue(baseValue: Color, keyFrameProgress: number): Color {
@@ -18,11 +14,7 @@ module Fayde.Media.Animation {
             return baseValue;
         }
     }
-    Fayde.RegisterType(DiscreteColorKeyFrame, {
-    	Name: "DiscreteColorKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(DiscreteColorKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
 
     export class EasingColorKeyFrame extends ColorKeyFrame {
         static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, EasingColorKeyFrame);
@@ -42,22 +34,14 @@ module Fayde.Media.Animation {
             return Color.LERP(start, end, keyFrameProgress);
         }
     }
-    Fayde.RegisterType(EasingColorKeyFrame, {
-    	Name: "EasingColorKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(EasingColorKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
 
     export class LinearColorKeyFrame extends ColorKeyFrame {
         InterpolateValue(baseValue: Color, keyFrameProgress: number): Color {
             return Color.LERP(baseValue, this.Value, keyFrameProgress);
         }
     }
-    Fayde.RegisterType(LinearColorKeyFrame, {
-    	Name: "LinearColorKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(LinearColorKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
 
     export class SplineColorKeyFrame extends ColorKeyFrame {
         static KeySplineProperty: DependencyProperty = DependencyProperty.Register("KeySpline", () => KeySpline, SplineColorKeyFrame);
@@ -77,9 +61,5 @@ module Fayde.Media.Animation {
             return Color.LERP(start, end, splineProgress);
         }
     }
-    Fayde.RegisterType(SplineColorKeyFrame, {
-    	Name: "SplineColorKeyFrame",
-    	Namespace: "Fayde.Media.Animation",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(SplineColorKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
 }

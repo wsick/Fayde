@@ -22,9 +22,5 @@ module Fayde.Documents {
                 Providers.InheritedStore.PropagateInheritedOnAdd(this, newBlock.XamlNode);
         }
     }
-    Fayde.RegisterType(Section, {
-    	Name: "Section",
-    	Namespace: "Fayde.Documents",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Section, "Fayde.Documents", Fayde.XMLNS);
 }

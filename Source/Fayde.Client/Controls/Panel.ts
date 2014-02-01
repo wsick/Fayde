@@ -51,10 +51,7 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(PanelChildrenNode, {
-    	Name: "PanelChildrenNode",
-    	Namespace: "Fayde.Controls"
-    });
+    Fayde.RegisterType(PanelChildrenNode, "Fayde.Controls");
 
     class PanelChildrenCollection extends XamlObjectCollection<UIElement> {
         XamlNode: PanelChildrenNode;
@@ -73,10 +70,7 @@ module Fayde.Controls {
             super.RemovedFromCollection(value, isValueSafe);
         }
     }
-    Fayde.RegisterType(PanelChildrenCollection, {
-    	Name: "PanelChildrenCollection",
-    	Namespace: "Fayde.Controls"
-    });
+    Fayde.RegisterType(PanelChildrenCollection, "Fayde.Controls");
 
     export class PanelNode extends FENode {
         XObject: Panel;
@@ -113,10 +107,7 @@ module Fayde.Controls {
             return this.XObject.Children.XamlNode.GetVisualTreeEnumerator(direction);
         }
     }
-    Fayde.RegisterType(PanelNode, {
-    	Name: "PanelNode",
-    	Namespace: "Fayde.Controls"
-    });
+    Fayde.RegisterType(PanelNode, "Fayde.Controls");
 
     function zIndexPropertyChanged(dobj: DependencyObject, args) {
         var xn = dobj.XamlNode;
@@ -175,11 +166,7 @@ module Fayde.Controls {
             lu.Invalidate();
         }
     }
-    Fayde.RegisterType(Panel, {
-    	Name: "Panel",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(Panel, "Fayde.Controls", Fayde.XMLNS);
 
     export class PanelLayoutUpdater extends LayoutUpdater {
         constructor(node: PanelNode) {
