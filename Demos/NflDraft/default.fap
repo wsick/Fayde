@@ -168,7 +168,7 @@
     <ScrollViewer Grid.Column="1" Margin="5" Padding="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" BorderThickness="0">
       <Grid>
         <Grid.RowDefinitions>
-          <RowDefinition Height="280"/>
+          <RowDefinition Height="200"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -539,7 +539,7 @@
           </ListBox.ItemTemplate>
         </ListBox>
         <Border Grid.Row="4" Background="{StaticResource BlueGradient}" BorderThickness="0, 1, 0, 1" CornerRadius="0, 0, 3, 3" BorderBrush="{StaticResource DarkGrayBrush}">
-          <TextBlock Width="230" Margin="2" Padding="2" FontWeight="Bold" Foreground="White" Text="Fayde">
+          <TextBlock Margin="2" Padding="2" FontWeight="Bold" TextAlignment="Center" Foreground="White" Text="We hope you enjoy this demo to illustrate what Fayde can do!">
             <TextBlock.Effect>
               <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
             </TextBlock.Effect>
