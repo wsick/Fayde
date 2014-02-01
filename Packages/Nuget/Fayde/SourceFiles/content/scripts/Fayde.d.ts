@@ -2818,60 +2818,17 @@ declare module Fayde.Controls {
         static IsOpenProperty: DependencyProperty;
         static PlacementProperty: DependencyProperty;
         static PlacementTargetProperty: DependencyProperty;
-        public HorizontalOffset: number;
-        public VerticalOffset: number;
+        public HorizontalOffset: Number;
+        public VerticalOffset: Number;
         public IsOpen: boolean;
         public Placement: Controls.PlacementMode;
         public PlacementTarget: Fayde.UIElement;
-        private _TooltipParent;
-        private _TooltipParentDCListener;
-        public TooltipParent : Fayde.FrameworkElement;
-        public PlacementOverride: Controls.PlacementMode;
-        public PlacementTargetOverride: Fayde.UIElement;
-        public Opened: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
-        public Closed: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
-        private _ParentPopup;
-        constructor();
-        public OnApplyTemplate(): void;
-        private OnHorizontalOffsetChanged(args);
-        private OnVerticalOffsetChanged(args);
-        private OnIsOpenChanged(args);
-        private OnOffsetChanged(horizontalOffset, verticalOffset);
-        private OnLayoutUpdated(sender, e);
-        private OnTooltipParentDataContextChanged(sender, args);
-        private HookupParentPopup();
-        private OnPopupOpened(sender, e);
-        private OnPopupClosed(sender, e);
-        private PerformPlacement(horizontalOffset, verticalOffset);
-        public GoToStates(gotoFunc: (state: string) => boolean): void;
     }
-}
-interface IPoint {
-    X: number;
-    Y: number;
-}
-declare class Point implements ICloneable, IPoint {
-    public X: number;
-    public Y: number;
-    constructor(x?: number, y?: number);
-    public toString(): string;
-    public Equals(other: Point): boolean;
-    public Clone(): Point;
-    static Equals(p1: Point, p2: Point): boolean;
-    static LERP(start: Point, end: Point, p: number): Point;
 }
 declare module Fayde.Controls {
     class ToolTipService {
         static ToolTipProperty: DependencyProperty;
-        static GetToolTip(dobj: Fayde.DependencyObject): Controls.ToolTip;
-        static SetToolTip(dobj: Fayde.DependencyObject, value: Controls.ToolTip): void;
-        static PlacementProperty: DependencyProperty;
-        static GetPlacement(dobj: Fayde.DependencyObject): Controls.PlacementMode;
-        static SetPlacement(dobj: Fayde.DependencyObject, value: Controls.PlacementMode): void;
         static PlacementTargetProperty: DependencyProperty;
-        static GetPlacementTarget(dobj: Fayde.DependencyObject): Fayde.UIElement;
-        static SetPlacementTarget(dobj: Fayde.DependencyObject, value: Fayde.UIElement): void;
-        static MousePosition : Point;
     }
 }
 declare module Fayde.Controls {
@@ -5498,6 +5455,20 @@ declare class KeyTime implements ICloneable {
     public Percent : number;
 }
 declare class Length {
+}
+interface IPoint {
+    X: number;
+    Y: number;
+}
+declare class Point implements ICloneable, IPoint {
+    public X: number;
+    public Y: number;
+    constructor(x?: number, y?: number);
+    public toString(): string;
+    public Equals(other: Point): boolean;
+    public Clone(): Point;
+    static Equals(p1: Point, p2: Point): boolean;
+    static LERP(start: Point, end: Point, p: number): Point;
 }
 declare module vec2 {
     function createFrom(x: number, y: number): number[];
