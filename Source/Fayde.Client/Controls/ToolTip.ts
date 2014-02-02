@@ -5,7 +5,7 @@ module Fayde.Controls {
         static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, ToolTip, 0, (d, args) => (<ToolTip>d).OnHorizontalOffsetChanged(args));
         static VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", () => Number, ToolTip, 0, (d, args) => (<ToolTip>d).OnVerticalOffsetChanged(args));
         static IsOpenProperty = DependencyProperty.Register("IsOpen", () => Boolean, ToolTip, false, (d, args) => (<ToolTip>d).OnIsOpenChanged(args));
-        static PlacementProperty = DependencyProperty.Register("Placement", () => new Enum(PlacementMode), ToolTip, PlacementMode.Bottom);
+        static PlacementProperty = DependencyProperty.Register("Placement", () => new Enum(PlacementMode), ToolTip, PlacementMode.Mouse);
         static PlacementTargetProperty = DependencyProperty.Register("PlacementTarget", () => UIElement, ToolTip);
         HorizontalOffset: number;
         VerticalOffset: number;

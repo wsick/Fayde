@@ -29,11 +29,15 @@ module Fayde.Controls.Primitives {
         _ChildChanged(oldChild: FrameworkElement, newChild: FrameworkElement) {
             var popup = this.XObject;
             this._Hide();
-            if (oldChild)
+            if (oldChild) {
                 Providers.InheritedStore.ClearInheritedOnRemove(popup, oldChild.XamlNode);
+                oldChild.XamlNode.LayoutUpdater.CarrierProjection = null;
+                oldChild.XamlNode.LayoutUpdater.CarrierXform = null;
+            }
             this._PrepareVisualChild(newChild);
             if (newChild) {
                 Providers.InheritedStore.PropagateInheritedOnAdd(popup, newChild.XamlNode);
+                newChild.XamlNode.LayoutUpdater.CarrierXform = mat3.identity();
                 if (popup.IsOpen)
                     this._Show();
             }
