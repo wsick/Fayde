@@ -57,6 +57,12 @@
     <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Internal\InteractionHelper.ts" />
+    <TypeScriptCompile Include="Internal\NumericExtensions.ts" />
+    <TypeScriptCompile Include="Internal\ItemsControlHelper.ts" />
+    <TypeScriptCompile Include="Internal\ScrollExtensions.ts" />
+    <TypeScriptCompile Include="TreeViewItem.ts" />
+    <TypeScriptCompile Include="TreeView.ts" />
     <TypeScriptCompile Include="Fayde.d.ts" />
     <Content Include="generic.xml">
       <SubType>Designer</SubType>
