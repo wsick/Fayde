@@ -39,9 +39,9 @@
                             <HyperlinkButton Content="HyperlinkButton" Style="{StaticResource SearchButtonStyle}" Margin="0,1,0,4" Grid.Column="1" />
                             <Border BorderBrush="#FFCCCCCC" BorderThickness="1" Grid.ColumnSpan="2" Margin="0" />
                         </Grid>
-                        <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="PASSWORDBOX" Margin="30,10,30,0" />
-                        <PasswordBox Margin="30,5" Style="{StaticResource PasswordBoxStyle}" />
                         -->
+                        <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="PASSWORDBOX" Margin="30,10,30,0" />
+                        <PasswordBox Margin="30,5"  />
                         <TextBlock Style="{StaticResource ControlLabelStyle}" Text="BUTTON" Margin="30,10,30,0" />
                         <Button Content="BUTTON" Margin="30,5" />
                         <TextBlock Style="{StaticResource ControlLabelStyle}" Text="REPEATBUTTON" Margin="30,10,30,0" />

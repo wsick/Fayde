@@ -250,6 +250,12 @@
     <Content Include="Tests\Media\imaging.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\Theme\Metro.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Theme\Silverlight.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
