@@ -291,11 +291,7 @@ module Fayde.Controls.Primitives {
             return arr;
         }
     }
-    Fayde.RegisterType(TabPanel, {
-        Name: "TabPanel",
-        Namespace: "Fayde.Controls.Primitives",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TabPanel, "TabPanel", Fayde.XMLNS);
 
     function getDesiredSizeWithoutMargin(uie: UIElement): size {
         var num = 0.0;

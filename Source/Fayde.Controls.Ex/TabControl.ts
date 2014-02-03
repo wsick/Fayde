@@ -7,11 +7,7 @@ module Fayde.Controls {
         Right,
         Bottom
     }
-    Fayde.RegisterEnum(Dock, {
-        Name: "Dock",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterEnum(Dock, "Dock", Fayde.XMLNS);
 
 
     var ElementTemplateTopName = "TemplateTop";
@@ -444,10 +440,9 @@ module Fayde.Controls {
         private _GetItemAtIndex(index: number): TabItem {
             if (index < 0 || index >= this.Items.Count)
                 return null;
-            var item = this.Items.GetValueAt(index);
+            var item = <TabItem>this.Items.GetValueAt(index);
             if (item instanceof TabItem)
                 return item;
-            return null;
         }
 
         private _ThrowInvalidTabItem(obj: any) {
@@ -456,9 +451,5 @@ module Fayde.Controls {
             throw new ArgumentException("Unable to cast object of type '" + type + "' to type 'System.Windows.Controls.TabItem'.");
         }
     }
-    Fayde.RegisterType(TabControl, {
-        Name: "TabControl",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TabControl, "TabControl", Fayde.XMLNS);
 }
