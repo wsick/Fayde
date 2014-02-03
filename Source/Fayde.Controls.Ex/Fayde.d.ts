@@ -1609,7 +1609,7 @@ declare module Fayde.Controls {
         constructor();
         public OnApplyTemplate(): void;
         public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
-        private static PrepareHeaderedItemsControlContainer(control, item, parentItemsControl, parentItemContainerStyle);
+        static PrepareHeaderedItemsControlContainer(control, item, parentItemsControl, parentItemContainerStyle);
         private static HasDefaultValue(control, propd);
     }
 }

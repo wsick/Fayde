@@ -43,7 +43,7 @@ module Fayde.Controls {
             super.PrepareContainerForItem(element, item);
         }
 
-        private static PrepareHeaderedItemsControlContainer(control: HeaderedItemsControl, item: any, parentItemsControl: ItemsControl, parentItemContainerStyle: Style) {
+        static PrepareHeaderedItemsControlContainer(control: HeaderedItemsControl, item: any, parentItemsControl: ItemsControl, parentItemContainerStyle: Style) {
             if (control === item)
                 return;
             var itemTemplate = parentItemsControl.ItemTemplate;
