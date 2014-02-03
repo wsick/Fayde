@@ -88,9 +88,7 @@ module Fayde.Controls.Primitives {
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            var temp = this.GetTemplateChild("ScrollViewer");
-            var tsv: ScrollViewer = (temp instanceof ScrollViewer) ? <ScrollViewer>temp : null;
-            this.$TemplateScrollViewer = tsv;
+            var tsv = this.$TemplateScrollViewer = <ScrollViewer>this.GetTemplateChild("ScrollViewer", ScrollViewer);
             if (tsv) {
                 tsv.$TemplatedParentHandlesScrolling = true;
                 tsv.HorizontalScrollBarVisibility = Controls.ScrollViewer.GetHorizontalScrollBarVisibility(this);

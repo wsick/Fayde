@@ -22,9 +22,7 @@ module Fayde.Controls.Primitives {
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            var er = this.GetTemplateChild("Root");
-            if (er instanceof FrameworkElement)
-                this._ElementRoot = <FrameworkElement>er;
+            this._ElementRoot = <FrameworkElement>this.GetTemplateChild("Root", FrameworkElement);
             this.UpdateVisualState(false);
         }
 

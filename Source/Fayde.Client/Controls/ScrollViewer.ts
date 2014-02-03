@@ -168,20 +168,14 @@ module Fayde.Controls {
             }
         }
         
-        private _GetChildOfType(name: string, type: Function): any {
-            var temp = this.GetTemplateChild(name);
-            if (temp instanceof type)
-                return temp;
-        }
-
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            this.$ScrollContentPresenter = this._GetChildOfType("ScrollContentPresenter", ScrollContentPresenter);
-            this.$HorizontalScrollBar = this._GetChildOfType("HorizontalScrollBar", Primitives.ScrollBar);
+            this.$ScrollContentPresenter = <ScrollContentPresenter>this.GetTemplateChild("ScrollContentPresenter", ScrollContentPresenter);
+            this.$HorizontalScrollBar = <Primitives.ScrollBar>this.GetTemplateChild("HorizontalScrollBar", Primitives.ScrollBar);
             if (this.$HorizontalScrollBar) {
                 this.$HorizontalScrollBar.Scroll.Subscribe((sender, e: Primitives.ScrollEventArgs) => this._HandleScroll(Orientation.Horizontal, e), this);
             }
-            this.$VerticalScrollBar = this._GetChildOfType("VerticalScrollBar", Primitives.ScrollBar);
+            this.$VerticalScrollBar = <Primitives.ScrollBar>this.GetTemplateChild("VerticalScrollBar", Primitives.ScrollBar);
             if (this.$VerticalScrollBar) {
                 this.$VerticalScrollBar.Scroll.Subscribe((sender, e: Primitives.ScrollEventArgs) => this._HandleScroll(Orientation.Vertical, e), this);
             }

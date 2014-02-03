@@ -132,16 +132,20 @@ module Fayde.Controls {
         Template: ControlTemplate;
         VerticalContentAlignment: VerticalAlignment;
         DefaultStyleKey: Function;
-        
+
         private _IsMouseOver: boolean = false; //Defined in UIElement
         get IsFocused() { return this.XamlNode.IsFocused; }
 
-        GetTemplateChild(childName: string): DependencyObject {
+        GetTemplateChild(childName: string, type?: Function): DependencyObject {
             var root = this.XamlNode.TemplateRoot;
-            if (root) {
-                var n = root.XamlNode.FindName(childName);
-                if (n) return <DependencyObject>n.XObject;
-            }
+            if (!root)
+                return;
+            var n = root.XamlNode.FindName(childName);
+            if (!n)
+                return;
+            var xobj = n.XObject;
+            if (!type || (xobj instanceof type))
+                return <DependencyObject>xobj;
         }
 
         ApplyTemplate(): boolean {
