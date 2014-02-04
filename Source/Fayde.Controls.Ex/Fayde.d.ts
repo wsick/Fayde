@@ -1,3 +1,4 @@
+/// <reference path="require.d.ts" />
 declare module Fayde.Xaml {
     class XamlDocument {
         private _RequiredDependencies;
@@ -1591,26 +1592,6 @@ declare module Fayde.Controls {
         constructor(value?: number, unitType?: GridUnitType);
         static Equals(gl1: GridLength, gl2: GridLength): boolean;
         public Clone(): GridLength;
-    }
-}
-declare module Fayde.Controls {
-    class HeaderedItemsControl extends Controls.ItemsControl {
-        private _HeaderIsItem;
-        private _ItemsControlHelper;
-        static HeaderProperty: DependencyProperty;
-        public Header: any;
-        public OnHeaderChanged(oldHeader: any, newHeader: any): void;
-        static HeaderTemplateProperty: DependencyProperty;
-        public HeaderTemplate: Fayde.DataTemplate;
-        public OnHeaderTemplateChanged(oldHeaderTemplate: Fayde.DataTemplate, newHeaderTemplate: Fayde.DataTemplate): void;
-        static ItemContainerStyleProperty: DependencyProperty;
-        public ItemContainerStyle: Fayde.Style;
-        private OnItemContainerStyleChanged(args);
-        constructor();
-        public OnApplyTemplate(): void;
-        public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
-        static PrepareHeaderedItemsControlContainer(control, item, parentItemsControl, parentItemContainerStyle);
-        private static HasDefaultValue(control, propd);
     }
 }
 declare module Fayde.Controls {

@@ -1,6 +1,6 @@
 /// <reference path="Fayde.d.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export class UpDownParsingEventArgs<T> extends RoutedEventArgs {
         Text: string;
         Value: T = null;

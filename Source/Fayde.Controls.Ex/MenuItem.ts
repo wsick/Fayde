@@ -1,18 +1,18 @@
 /// <reference path="Fayde.d.ts" />
 /// <reference path="Primitives/MenuBase.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export class MenuItem extends Fayde.Controls.HeaderedItemsControl {
         ParentMenuBase: Primitives.MenuBase;
         Click = new RoutedEvent<RoutedEventArgs>();
 
-        static CommandProperty: DependencyProperty = DependencyProperty.Register("Command", () => Fayde.Input.ICommand_, MenuItem, undefined, (d, args) => (<MenuItem>d).OnCommandChanged(args));
-        Command: Fayde.Input.ICommand;
+        static CommandProperty: DependencyProperty = DependencyProperty.Register("Command", () => Input.ICommand_, MenuItem, undefined, (d, args) => (<MenuItem>d).OnCommandChanged(args));
+        Command: Input.ICommand;
         private OnCommandChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldcmd = Fayde.Input.ICommand_.As(args.OldValue);
+            var oldcmd = Input.ICommand_.As(args.OldValue);
             if (oldcmd)
                 oldcmd.CanExecuteChanged.Unsubscribe(this._CanExecuteChanged, this);
-            var newcmd = Fayde.Input.ICommand_.As(args.NewValue);
+            var newcmd = Input.ICommand_.As(args.NewValue);
             if (newcmd)
                 newcmd.CanExecuteChanged.Subscribe(this._CanExecuteChanged, this);
             this.UpdateIsEnabled();
@@ -42,42 +42,42 @@ module Fayde.Controls.Input {
             this.UpdateVisualState(true);
         }
 
-        OnGotFocus(e: Fayde.RoutedEventArgs) {
+        OnGotFocus(e: RoutedEventArgs) {
             super.OnGotFocus(e);
             this.UpdateVisualState(true);
         }
-        OnLostFocus(e: Fayde.RoutedEventArgs) {
+        OnLostFocus(e: RoutedEventArgs) {
             super.OnLostFocus(e);
             this.UpdateVisualState(true);
         }
 
-        OnMouseEnter(e: Fayde.Input.MouseEventArgs) {
+        OnMouseEnter(e: Input.MouseEventArgs) {
             super.OnMouseEnter(e);
             this.Focus();
             this.UpdateVisualState(true);
         }
-        OnMouseLeave(e: Fayde.Input.MouseEventArgs) {
+        OnMouseLeave(e: Input.MouseEventArgs) {
             super.OnMouseLeave(e);
             if (this.ParentMenuBase != null)
                 this.ParentMenuBase.Focus();
             this.UpdateVisualState(true);
         }
-        OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs) {
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
             if (!e.Handled) {
                 this.OnClick();
                 e.Handled = true;
             }
             super.OnMouseLeftButtonDown(e);
         }
-        OnMouseRightButtonDown(e: Fayde.Input.MouseButtonEventArgs) {
+        OnMouseRightButtonDown(e: Input.MouseButtonEventArgs) {
             if (!e.Handled) {
                 this.OnClick();
                 e.Handled = true;
             }
             super.OnMouseRightButtonDown(e);
         }
-        OnKeyDown(e: Fayde.Input.KeyEventArgs) {
-            if (!e.Handled && Fayde.Input.Key.Enter === e.Key) {
+        OnKeyDown(e: Input.KeyEventArgs) {
+            if (!e.Handled && Input.Key.Enter === e.Key) {
                 this.OnClick();
                 e.Handled = true;
             }

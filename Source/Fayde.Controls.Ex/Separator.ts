@@ -1,6 +1,6 @@
 /// <reference path="Fayde.d.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export class Separator extends Control {
         constructor() {
             super();

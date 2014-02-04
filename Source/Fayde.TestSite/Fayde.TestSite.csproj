@@ -68,6 +68,8 @@
     <Content Include="Images\twitter.png" />
     <Content Include="Media\freeze_gopher.mp3" />
     <Content Include="Silverlight.js" />
+    <Content Include="Tests\App\Fayde.Controls\generic.xml" />
+    <Content Include="Tests\App\Fayde.Controls\source.js" />
     <Content Include="Tests\Toy\default2.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -87,10 +89,6 @@
     <TypeScriptCompile Include="Tests\IssueTests\TestViewModel.ts" />
     <Content Include="Tests\Navigation\TestResourceDictionary.xml" />
     <TypeScriptCompile Include="Tests\IssueTests\DoubleListBoxViewModel.ts" />
-    <Content Include="Tests\App\Fayde.Controls.Input\source.js" />
-    <Content Include="Tests\App\Fayde.Controls.Input\generic.xml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Tests\IssueTests\DoubleListBoxViewModel.js" />
     <None Include="Tests\IssueTests\observablecoll-count.fap" />
     <Content Include="Tests\IssueTests\TestViewModel.js" />

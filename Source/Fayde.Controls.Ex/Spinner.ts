@@ -1,6 +1,6 @@
 /// <reference path="Fayde.d.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export class Spinner extends Control {
         static ValidSpinDirectionProperty = DependencyProperty.Register("ValidSpinDirection", () => new Enum(ValidSpinDirections), Spinner, ValidSpinDirections.Increase, (d, args) => (<Spinner>d).OnValidSpinDirectionChanged(args));
         ValidSpinDirection: ValidSpinDirections;

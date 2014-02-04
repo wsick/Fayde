@@ -1,6 +1,6 @@
 /// <reference path="Fayde.d.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export class ContextMenuService {
         static ContextMenuProperty = DependencyProperty.RegisterAttached("ContextMenu", () => ContextMenu, ContextMenuService, undefined, ContextMenuService.OnContextMenuPropertyChanged);
         static GetContextMenu(d: DependencyObject): ContextMenu { return d.GetValue(ContextMenuService.ContextMenuProperty); }

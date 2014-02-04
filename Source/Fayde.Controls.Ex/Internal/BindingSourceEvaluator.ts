@@ -1,6 +1,6 @@
 /// <reference path="../Fayde.d.ts" />
 
-module Fayde.Controls.Input.Internal {
+module Fayde.Controls.Internal {
     export class BindingSourceEvaluator<T> extends FrameworkElement {
         static ValueProperty = DependencyProperty.Register("Value", () => Object, BindingSourceEvaluator);
         Value: T;

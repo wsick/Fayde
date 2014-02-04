@@ -1,6 +1,6 @@
 /// <reference path="UpDownBase.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export class NumericUpDown extends UpDownBase<number> {
         private _LevelsFromRootCall: number = 0;
         private _InitialMin: number = 0.0;

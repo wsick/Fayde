@@ -1,6 +1,6 @@
 /// <reference path="Primitives/MenuBase.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export class ContextMenu extends Primitives.MenuBase {
         static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, ContextMenu, 0.0);
         HorizontalOffset: number;
@@ -34,28 +34,28 @@ module Fayde.Controls.Input {
             this.LayoutUpdated.Subscribe(this._HandleLayoutUpdated, this);
         }
 
-        OnKeyDown(e: Fayde.Input.KeyEventArgs) {
+        OnKeyDown(e: Input.KeyEventArgs) {
             switch (e.Key) {
-                case Fayde.Input.Key.Escape:
+                case Input.Key.Escape:
                     this.ClosePopup();
                     e.Handled = true;
                     break;
-                case Fayde.Input.Key.Up:
+                case Input.Key.Up:
                     this.FocusNextItem(false);
                     e.Handled = true;
                     break;
-                case Fayde.Input.Key.Down:
+                case Input.Key.Down:
                     this.FocusNextItem(true);
                     e.Handled = true;
                     break;
             }
             super.OnKeyDown(e)
         }
-        OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs) {
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
             e.Handled = true;
             super.OnMouseLeftButtonDown(e);
         }
-        OnMouseRightButtonDown(e: Fayde.Input.MouseButtonEventArgs) {
+        OnMouseRightButtonDown(e: Input.MouseButtonEventArgs) {
             e.Handled = true;
             super.OnMouseRightButtonDown(e);
         }

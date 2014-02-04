@@ -1,6 +1,6 @@
 /// <reference path="Fayde.d.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export class UpDownParseErrorEventArgs extends RoutedEventArgs {
         Text: string;
         Error: Error;

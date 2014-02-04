@@ -2,7 +2,7 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:input="http://schemas.wsick.com/fayde/input">
+    xmlns:input="lib:Fayde.Controls">
     <!--  input:ListTimePickerPopup  -->
     <Style TargetType="input:ListTimePickerPopup">
         <Setter Property="IsTabStop" Value="False" />

@@ -1,7 +1,7 @@
 /// <reference path="Fayde.d.ts" />
 /// <reference path="Spinner.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export class ButtonSpinner extends Spinner {
         private IsPressed: boolean = false;
 
@@ -36,25 +36,25 @@ module Fayde.Controls.Input {
 
         GoToStateCommon(gotoFunc: (state: string) => boolean): boolean { return this._Interaction.GoToStateCommon(gotoFunc); }
         
-        OnMouseEnter(e: Fayde.Input.MouseEventArgs) {
+        OnMouseEnter(e: Input.MouseEventArgs) {
             if (!this._Interaction.AllowMouseEnter(e))
                 return;
             this.UpdateVisualState(true);
             super.OnMouseEnter(e);
         }
-        OnMouseLeave(e: Fayde.Input.MouseEventArgs) {
+        OnMouseLeave(e: Input.MouseEventArgs) {
             if (!this._Interaction.AllowMouseLeave(e))
                 return;
             this.UpdateVisualState(true);
             super.OnMouseLeave(e);
         }
-        OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs) {
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
             if (!this._Interaction.AllowMouseLeftButtonDown(e))
                 return;
             this.UpdateVisualState(true);
             super.OnMouseLeftButtonDown(e);
         }
-        OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs) {
+        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {
             super.OnMouseLeftButtonUp(e);
             var position: Point;
             var ib = this._IncreaseButton;

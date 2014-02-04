@@ -1,6 +1,6 @@
 /// <reference path="Fayde.d.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export class UpDownBase<T> extends Control {
         private _IgnoreValueChange: boolean = false;
         _TextBox: TextBox = null;

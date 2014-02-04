@@ -1,6 +1,6 @@
 /// <reference path="../Fayde.d.ts" />
 
-module Fayde.Controls.Input.Primitives {
+module Fayde.Controls.Primitives {
     export class MenuBase extends Fayde.Controls.ItemsControl {
         static ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", () => Style, MenuBase);
         ItemContainerStyle: Style;

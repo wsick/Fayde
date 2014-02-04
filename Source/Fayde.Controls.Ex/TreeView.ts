@@ -93,7 +93,7 @@ module Fayde.Controls {
             if (treeViewItem instanceof TreeViewItem)
                 treeViewItem.ParentItemsControl = this;
             Internal.ItemsControlHelper.PrepareContainerForItemOverride(element, this.ItemContainerStyle);
-            HeaderedItemsControl.PrepareHeaderedItemsControlContainer(element, item, this, this.ItemContainerStyle);
+            HeaderedItemsControl.PrepareHeaderedItemsControlContainer(treeViewItem, item, this, this.ItemContainerStyle);
             super.PrepareContainerForItem(element, item);
         }
         ClearContainerForItem(element: DependencyObject, item: any) {

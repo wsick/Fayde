@@ -51,6 +51,668 @@
         </Grid>
     </ControlTemplate>
 
+    <!--  controls:HeaderedItemsControl  -->
+    <Style TargetType="controls:HeaderedItemsControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:HeaderedItemsControl">
+                    <Grid x:Name="Root">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <ContentControl x:Name="HeaderContent" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" />
+                        <ItemsPresenter x:Name="Items" Grid.Row="1" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  controls:ContextMenu  -->
+    <Style TargetType="controls:ContextMenu">
+        <Setter Property="Background" Value="#FFF5F5F5" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="#FF959595" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:ContextMenu">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="2">
+                        <Border.Effect>
+                            <DropShadowEffect Color="LightGray" ShadowDepth="3" />
+                        </Border.Effect>
+                        <Grid>
+                            <Rectangle RadiusX="2" RadiusY="2" Fill="#FFF1F1F1" Width="28" Margin="2" HorizontalAlignment="Left" />
+                            <Rectangle Fill="#FFE2E3E3" Width="1" Margin="30,2,0,2" HorizontalAlignment="Left" />
+                            <Rectangle Fill="#FFFFFFFF" Width="1" Margin="31,2,0,2" HorizontalAlignment="Left" />
+                            <!--<ScrollViewer
+                                Margin="1,0,1,0"
+                                Grid.ColumnSpan="2"
+                                BorderThickness="0"
+                                VerticalScrollBarVisibility="Auto">-->
+                            <ItemsPresenter Margin="{TemplateBinding Padding}" />
+                            <!--</ScrollViewer>-->
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  controls:MenuItem  -->
+    <Style TargetType="controls:MenuItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Padding" Value="4,3,2,3" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:MenuItem">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="Presenter" Storyboard.TargetProperty="Opacity" To="0.5" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Unfocused" />
+                                <VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="Bg" Storyboard.TargetProperty="Opacity" To="1" />
+                                        <ColorAnimation Duration="0" Storyboard.TargetName="InnerBorder" Storyboard.TargetProperty="(Shape.Stroke).(SolidColorBrush.Color)" To="#40FFFFFF" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Rectangle RadiusX="2" RadiusY="2" Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="1" />
+                        <Rectangle x:Name="Bg" RadiusX="2" RadiusY="2" Stroke="#8071CBF1" StrokeThickness="1" Opacity="0">
+                            <Rectangle.Fill>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="#34C5EBFF" Offset="0" />
+                                        <GradientStop Color="#3481D8FF" Offset="1" />
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <Rectangle x:Name="InnerBorder" RadiusX="2" RadiusY="2" Stroke="Transparent" Margin="1" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="24" />
+                                <ColumnDefinition Width="4" />
+                                <ColumnDefinition Width="*" />
+                                <!--<ColumnDefinition Width="37"/>
+                                <ColumnDefinition Width="Auto"/>-->
+                                <ColumnDefinition Width="17" />
+                            </Grid.ColumnDefinitions>
+                            <ContentPresenter Content="{TemplateBinding Icon}" Margin="1" VerticalAlignment="Center" />
+                            <!--<Border
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                BorderBrush="#FFCDD3E6"
+                                Background="#FFE6EFF4"
+                                x:Name="GlyphPanel"
+                                Width="22"
+                                Height="22"
+                                Margin="1"
+                                Visibility="Collapsed">
+                                <Path
+                                    Data="M0,5.1L1.7,5.2 3.4,7.1 8,0.4 9.2,0 3.3,10.8z"
+                                    Fill="#FF0C12A1"
+                                    x:Name="Glyph"
+                                    Width="9"
+                                    Height="11"
+                                    FlowDirection="LeftToRight"/>
+                            </Border>-->
+                            <ContentPresenter x:Name="Presenter" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" Margin="{TemplateBinding Padding}" Grid.Column="2" />
+                            <!--<TextBlock
+                                Text="{TemplateBinding InputGestureText}"
+                                Margin="{TemplateBinding Padding}"
+                                Grid.Column="4"/>-->
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  controls:Separator  -->
+    <Style TargetType="controls:Separator">
+        <Setter Property="Background" Value="LightGray" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Margin" Value="32,2,2,2" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:Separator">
+                    <Border BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Height="1" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  controls:ButtonSpinner  -->
+    <Style TargetType="controls:ButtonSpinner">
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FFA3AEB9" Offset="0" />
+                    <GradientStop Color="#FF8399A9" Offset="0.375" />
+                    <GradientStop Color="#FF718597" Offset="0.375" />
+                    <GradientStop Color="#FF617584" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:ButtonSpinner">
+                    <Grid>
+                        <Grid.Resources>
+                            <ControlTemplate x:Key="IncreaseButtonTemplate" TargetType="RepeatButton">
+                                <Grid x:Name="Root">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualStateGroup.Transitions>
+                                                <VisualTransition GeneratedDuration="0" />
+                                                <VisualTransition GeneratedDuration="00:00:00.1" To="MouseOver" />
+                                                <VisualTransition GeneratedDuration="00:00:00.1" To="Pressed" />
+                                            </VisualStateGroup.Transitions>
+                                            <VisualState x:Name="Normal" />
+                                            <VisualState x:Name="MouseOver">
+                                                <Storyboard>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="Background" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF448DCA" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#F2FFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#CCFFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#7FFFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState x:Name="Pressed">
+                                                <Storyboard>
+                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Highlight" Storyboard.TargetProperty="(UIElement.Opacity)">
+                                                        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1" />
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="Background" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF448DCA" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#F4FFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#EAFFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#C6FFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#6BFFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState x:Name="Disabled">
+                                                <Storyboard>
+                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="DisabledVisualElement" Storyboard.TargetProperty="Opacity">
+                                                        <SplineDoubleKeyFrame KeyTime="0" Value="1" />
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                        <VisualStateGroup x:Name="FocusStates">
+                                            <VisualState x:Name="Focused">
+                                                <Storyboard>
+                                                    <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetName="FocusVisualElement" Storyboard.TargetProperty="Visibility">
+                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                                    </ObjectAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState x:Name="Unfocused" />
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                    <Rectangle x:Name="Background" Fill="{TemplateBinding Background}" StrokeThickness="1" RadiusX="2" RadiusY="2">
+                                        <Rectangle.Stroke>
+                                            <LinearGradientBrush EndPoint=".5,1" StartPoint=".5,0">
+                                                <GradientStop Color="#FFAEB7BF" Offset="0" />
+                                                <GradientStop Color="#FF919EA7" Offset="0.35" />
+                                                <GradientStop Color="#FF7A8A99" Offset="0.35" />
+                                                <GradientStop Color="#FF647480" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Rectangle.Stroke>
+                                    </Rectangle>
+                                    <Rectangle Margin="1" x:Name="BackgroundGradient" Stroke="#FFFFFFFF" StrokeThickness="1" RadiusX="1" RadiusY="1">
+                                        <Rectangle.Fill>
+                                            <LinearGradientBrush EndPoint=".7,1" StartPoint=".7,0">
+                                                <GradientStop Color="#FFFFFFFF" Offset="0" />
+                                                <GradientStop Color="#F9FFFFFF" Offset="0.375" />
+                                                <GradientStop Color="#E5FFFFFF" Offset="0.625" />
+                                                <GradientStop Color="#C6FFFFFF" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                    <Rectangle Margin="1" x:Name="Highlight" IsHitTestVisible="false" Opacity="0" Stroke="#FF45D6FA" StrokeThickness="1" RadiusX="1" RadiusY="1" />
+                                    <Border x:Name="DisabledVisualElement" IsHitTestVisible="False" Opacity="0" Background="#A5F7F7F7" BorderBrush="#A5F7F7F7" BorderThickness="{TemplateBinding BorderThickness}" />
+                                    <Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Visibility="Collapsed" Stroke="#FF45D6FA" StrokeThickness="1" RadiusX="1" RadiusY="1" />
+                                    <Path HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#FF333333" Stretch="Uniform" Data="F1 M 541.537,173.589L 531.107,173.589L 536.322,167.49L 541.537,173.589 Z " Margin="4,3,4,3" />
+                                </Grid>
+                            </ControlTemplate>
+                            <ControlTemplate x:Key="DecreaseButtonTemplate" TargetType="RepeatButton">
+                                <Grid x:Name="Root">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualStateGroup.Transitions>
+                                                <VisualTransition GeneratedDuration="0" />
+                                                <VisualTransition GeneratedDuration="00:00:00.1" To="MouseOver" />
+                                                <VisualTransition GeneratedDuration="00:00:00.1" To="Pressed" />
+                                            </VisualStateGroup.Transitions>
+                                            <VisualState x:Name="Normal" />
+                                            <VisualState x:Name="MouseOver">
+                                                <Storyboard>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="Background" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF448DCA" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#F2FFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#CCFFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#7FFFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState x:Name="Pressed">
+                                                <Storyboard>
+                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Highlight" Storyboard.TargetProperty="(UIElement.Opacity)">
+                                                        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1" />
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="Background" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF448DCA" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#F4FFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#EAFFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#C6FFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGradient" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)">
+                                                        <SplineColorKeyFrame KeyTime="00:00:00" Value="#6BFFFFFF" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState x:Name="Disabled">
+                                                <Storyboard>
+                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="DisabledVisualElement" Storyboard.TargetProperty="Opacity">
+                                                        <SplineDoubleKeyFrame KeyTime="0" Value="1" />
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                        <VisualStateGroup x:Name="FocusStates">
+                                            <VisualState x:Name="Focused">
+                                                <Storyboard>
+                                                    <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetName="FocusVisualElement" Storyboard.TargetProperty="Visibility">
+                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                                    </ObjectAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState x:Name="Unfocused" />
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                    <Rectangle x:Name="Background" Fill="{TemplateBinding Background}" StrokeThickness="1" RadiusX="2" RadiusY="2">
+                                        <Rectangle.Stroke>
+                                            <LinearGradientBrush EndPoint=".5,1" StartPoint=".5,0">
+                                                <GradientStop Color="#FFAEB7BF" Offset="0" />
+                                                <GradientStop Color="#FF919EA7" Offset="0.35" />
+                                                <GradientStop Color="#FF7A8A99" Offset="0.35" />
+                                                <GradientStop Color="#FF647480" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Rectangle.Stroke>
+                                    </Rectangle>
+                                    <Rectangle Margin="1" x:Name="BackgroundGradient" Stroke="#FFFFFFFF" StrokeThickness="1" RadiusX="1" RadiusY="1">
+                                        <Rectangle.Fill>
+                                            <LinearGradientBrush EndPoint=".7,1" StartPoint=".7,0">
+                                                <GradientStop Color="#FFFFFFFF" Offset="0" />
+                                                <GradientStop Color="#F9FFFFFF" Offset="0.375" />
+                                                <GradientStop Color="#E5FFFFFF" Offset="0.625" />
+                                                <GradientStop Color="#C6FFFFFF" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                    <Rectangle Margin="1" x:Name="Highlight" IsHitTestVisible="false" Opacity="0" Stroke="#FF45D6FA" StrokeThickness="1" RadiusX="1" RadiusY="1" />
+                                    <Border x:Name="DisabledVisualElement" IsHitTestVisible="False" Opacity="0" Background="#A5F7F7F7" BorderBrush="#A5F7F7F7" BorderThickness="{TemplateBinding BorderThickness}" />
+                                    <Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Visibility="Collapsed" Stroke="#FF45D6FA" StrokeThickness="1" RadiusX="1" RadiusY="1" />
+                                    <Path Height="Auto" HorizontalAlignment="Stretch" Margin="4,3,4,3" VerticalAlignment="Stretch" Width="Auto" Fill="#FF333333" Stretch="Uniform" Data="F1 M 531.107,321.943L 541.537,321.943L 536.322,328.042L 531.107,321.943 Z " />
+                                </Grid>
+                            </ControlTemplate>
+                        </Grid.Resources>
+                        <VisualStateManager.VisualStateGroups>
+                            <!-- common states -->
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0" />
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="MouseOverBorder" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)">
+                                            <SplineColorKeyFrame KeyTime="0" Value="#FF99C1E2" />
+                                        </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetName="presentationSite" Storyboard.TargetProperty="Foreground">
+                                            <DiscreteObjectKeyFrame KeyTime="00:00:00">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <SolidColorBrush Color="Gray" />
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetName="ElementContainer" Storyboard.TargetProperty="BorderBrush">
+                                            <DiscreteObjectKeyFrame KeyTime="00:00:00">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <SolidColorBrush Color="Gray" />
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <!-- focus states -->
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetName="FocusVisualElement" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unfocused" />
+                            </VisualStateGroup>
+                            <!-- Increase states -->
+                            <VisualStateGroup x:Name="IncreaseStates">
+                                <VisualState x:Name="IncreaseEnabled" />
+                                <VisualState x:Name="IncreaseDisabled" />
+                            </VisualStateGroup>
+                            <!-- Decrease states-->
+                            <VisualStateGroup x:Name="DecreaseStates">
+                                <VisualState x:Name="DecreaseEnabled" />
+                                <VisualState x:Name="DecreaseDisabled" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border x:Name="ElementContainer" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                            <Border x:Name="MouseOverBorder" BorderThickness="1" BorderBrush="Transparent">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <ContentControl x:Name="presentationSite" Grid.RowSpan="2" IsTabStop="False" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" Content="{TemplateBinding Content}" />
+                                    <Button IsTabStop="False" IsHitTestVisible="True" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Grid Background="Transparent" />
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                    <RepeatButton Grid.Row="0" Grid.Column="1" IsTabStop="False" Template="{StaticResource IncreaseButtonTemplate}" x:Name="IncreaseButton" ClickMode="Press" />
+                                    <RepeatButton Grid.Row="1" Grid.Column="1" IsTabStop="False" Template="{StaticResource DecreaseButtonTemplate}" x:Name="DecreaseButton" ClickMode="Press" />
+                                </Grid>
+                            </Border>
+                        </Border>
+                        <Border x:Name="FocusVisualElement" IsHitTestVisible="false" Visibility="Collapsed" BorderBrush="#FF45D6FA" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1,1,1,1" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  controls:UpDownBase  -->
+    <Style TargetType="controls:UpDownBase">
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Height" Value="22" />
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FFA3AEB9" Offset="0" />
+                    <GradientStop Color="#FF8399A9" Offset="0.375" />
+                    <GradientStop Color="#FF718597" Offset="0.375" />
+                    <GradientStop Color="#FF617584" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:UpDownBase">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0" />
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="DisabledVisualElement" Storyboard.TargetProperty="(UIElement.Opacity)" To="1" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="FocusVisualElement" Storyboard.TargetProperty="Opacity">
+                                            <SplineDoubleKeyFrame KeyTime="0" Value="1" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unfocused" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                            <controls:ButtonSpinner x:Name="Spinner" MinWidth="35" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <TextBox BorderThickness="0" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontStretch="{TemplateBinding FontStretch}" FontStyle="{TemplateBinding FontStyle}" FontWeight="{TemplateBinding FontWeight}" Foreground="{TemplateBinding Foreground}" MinWidth="20" x:Name="Text" AcceptsReturn="False" TextAlignment="Right" TextWrapping="NoWrap">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="TextBox">
+                                                        <ScrollViewer x:Name="ContentElement" Padding="0" BorderThickness="0" />
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </controls:ButtonSpinner>
+                        </Border>
+                        <Border x:Name="DisabledVisualElement" IsHitTestVisible="false" Opacity="0" Background="#A5FFFFFF" CornerRadius="2.5,2.5,2.5,2.5" />
+                        <Border x:Name="FocusVisualElement" IsHitTestVisible="False" Opacity="0" BorderBrush="#FF45D6FA" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1,1,1,1" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  controls:NumericUpDown  -->
+    <Style TargetType="controls:NumericUpDown">
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Height" Value="22" />
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FFA3AEB9" Offset="0" />
+                    <GradientStop Color="#FF8399A9" Offset="0.375" />
+                    <GradientStop Color="#FF718597" Offset="0.375" />
+                    <GradientStop Color="#FF617584" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:NumericUpDown">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0" />
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="DisabledVisualElement" Storyboard.TargetProperty="(UIElement.Opacity)" To="1" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="FocusVisualElement" Storyboard.TargetProperty="Opacity">
+                                            <SplineDoubleKeyFrame KeyTime="0" Value="1" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unfocused" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <controls:ButtonSpinner x:Name="Spinner" MinWidth="35" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                            <TextBox BorderThickness="0" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontStretch="{TemplateBinding FontStretch}" FontStyle="{TemplateBinding FontStyle}" FontWeight="{TemplateBinding FontWeight}" Foreground="{TemplateBinding Foreground}" MinWidth="20" x:Name="Text" AcceptsReturn="False" Text="{TemplateBinding Value}" TextAlignment="Right" TextWrapping="NoWrap">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="TextBox">
+                                                    <ScrollViewer x:Name="ContentElement" Padding="0" BorderThickness="0" />
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </controls:ButtonSpinner>
+                        <Border x:Name="DisabledVisualElement" IsHitTestVisible="false" Opacity="0" Background="#A5FFFFFF" CornerRadius="2.5,2.5,2.5,2.5" />
+                        <Border x:Name="FocusVisualElement" IsHitTestVisible="False" Opacity="0" BorderBrush="#FF45D6FA" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1,1,1,1" />
+                    
+                </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  controls:DomainUpDown  -->
+    <Style TargetType="controls:DomainUpDown">
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Height" Value="22" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FFA3AEB9" Offset="0" />
+                    <GradientStop Color="#FF8399A9" Offset="0.375" />
+                    <GradientStop Color="#FF718597" Offset="0.375" />
+                    <GradientStop Color="#FF617584" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:DomainUpDown">
+                    <Grid x:Name="RootElement">
+                        <VisualStateManager.VisualStateGroups>
+                            <!-- common states -->
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Pressed" />
+                                <VisualState x:Name="MouseOver">
+                                    <!-- composite controls will visualize mouseover state -->
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <!-- composite controls will visualize disabled state -->
+                                </VisualState>
+                            </VisualStateGroup>
+                            <!-- focus states -->
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused">
+                                    <!-- composite controls will gain focus and visualize it -->
+                                </VisualState>
+                                <VisualState x:Name="Unfocused">
+                                    <!-- composite controls will gain focus and visualize it -->
+                                </VisualState>
+                            </VisualStateGroup>
+                            <!-- interaction mode states -->
+                            <VisualStateGroup x:Name="InteractionModeStates">
+                                <VisualState x:Name="Edit">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="Text" Storyboard.TargetProperty="(UIElement.Opacity)" To="1" />
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="Visualization" Storyboard.TargetProperty="(UIElement.Opacity)" To="0" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Display" />
+                            </VisualStateGroup>
+                            <!-- input valid states -->
+                            <VisualStateGroup x:Name="DomainStates">
+                                <VisualState x:Name="ValidDomain">
+                                </VisualState>
+                                <VisualState x:Name="InvalidDomain">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ErrorVisualElement" Storyboard.TargetProperty="(UIElement.Visibility)" Duration="0">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <!-- the actual control -->
+                        <controls:ButtonSpinner x:Name="Spinner" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Style="{TemplateBinding SpinnerStyle}" IsTabStop="False" TabIndex="3">
+                            <Grid>
+                                <ContentControl x:Name="Visualization" Margin="0" Padding="0" Opacity="1" IsTabStop="False" IsHitTestVisible="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Content="{TemplateBinding Value}" ContentTemplate="{TemplateBinding ItemTemplate}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontStretch="{TemplateBinding FontStretch}" Foreground="{TemplateBinding Foreground}" />
+                                <TextBox x:Name="Text" Opacity="0" Margin="0" Padding="0" IsTabStop="True" Background="Red" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" BorderThickness="0" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontStretch="{TemplateBinding FontStretch}" Foreground="{TemplateBinding Foreground}" AcceptsReturn="False" IsHitTestVisible="False" TextWrapping="NoWrap">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="TextBox">
+                                                        <ScrollViewer x:Name="ContentElement" Padding="0" BorderThickness="0" />
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Grid>
+                        </controls:ButtonSpinner>
+                        <Border x:Name="ErrorVisualElement" CornerRadius="1" Visibility="Collapsed" Margin="-2" IsHitTestVisible="False" BorderBrush="Red" BorderThickness="2" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  controls:TabControl  -->
     <Style TargetType="controls:TabControl">
         <Setter Property="IsTabStop" Value="False" />

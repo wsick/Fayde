@@ -1,6 +1,6 @@
 /// <reference path="UpDownBase.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export class DomainUpDown extends UpDownBase<any> {
         private _Items = new Internal.ObservableObjectCollection();
         private _ValueDuringInit: any = null;

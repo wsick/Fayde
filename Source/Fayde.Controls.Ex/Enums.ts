@@ -1,6 +1,6 @@
 /// <reference path="Fayde.d.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls {
     export enum ValidSpinDirections {
         None = 0,
         Increase = 1,
@@ -19,4 +19,12 @@ module Fayde.Controls.Input {
         TextBoxCannotLoseFocus
     }
     Fayde.RegisterEnum(InvalidInputAction, "InvalidInputAction");
+    
+    export enum Dock {
+        Left,
+        Top,
+        Right,
+        Bottom
+    }
+    Fayde.RegisterEnum(Dock, "Dock");
 }

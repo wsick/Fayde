@@ -1,13 +1,4 @@
 module Fayde.Controls {
-    export enum Dock {
-        Left,
-        Top,
-        Right,
-        Bottom
-    }
-    Fayde.RegisterEnum(Dock, "Dock");
-
-
     var ElementTemplateTopName = "TemplateTop";
     var ElementTemplateBottomName = "TemplateBottom";
     var ElementTemplateLeftName = "TemplateLeft";

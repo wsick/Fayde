@@ -57,6 +57,25 @@
     <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="HeaderedItemsControl.ts" />
+    <Content Include="Themes\awaiting-generic.xml" />
+    <TypeScriptCompile Include="ButtonSpinner.ts" />
+    <TypeScriptCompile Include="ContextMenu.ts" />
+    <TypeScriptCompile Include="ContextMenuService.ts" />
+    <TypeScriptCompile Include="DomainUpDown.ts" />
+    <TypeScriptCompile Include="Enums.ts" />
+    <TypeScriptCompile Include="Internal\BindingSourceEvaluator.ts" />
+    <TypeScriptCompile Include="Internal\ObservableObjectCollection.ts" />
+    <TypeScriptCompile Include="MenuItem.ts" />
+    <TypeScriptCompile Include="NumericUpDown.ts" />
+    <TypeScriptCompile Include="Primitives\MenuBase.ts" />
+    <Content Include="require.d.ts" />
+    <TypeScriptCompile Include="Separator.ts" />
+    <TypeScriptCompile Include="SpinEventArgs.ts" />
+    <TypeScriptCompile Include="Spinner.ts" />
+    <TypeScriptCompile Include="UpDownBase.ts" />
+    <TypeScriptCompile Include="UpDownParseErrorEventArgs.ts" />
+    <TypeScriptCompile Include="UpDownParsingEventArgs.ts" />
     <TypeScriptCompile Include="Internal\InteractionHelper.ts" />
     <TypeScriptCompile Include="Internal\NumericExtensions.ts" />
     <TypeScriptCompile Include="Internal\ItemsControlHelper.ts" />
@@ -64,12 +83,13 @@
     <TypeScriptCompile Include="TreeViewItem.ts" />
     <TypeScriptCompile Include="TreeView.ts" />
     <TypeScriptCompile Include="Fayde.d.ts" />
-    <Content Include="generic.xml">
+    <Content Include="Themes\generic.xml">
       <SubType>Designer</SubType>
     </Content>
     <TypeScriptCompile Include="Primitives\TabPanel.ts" />
     <TypeScriptCompile Include="TabControl.ts" />
     <TypeScriptCompile Include="TabItem.ts" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
 </Project>

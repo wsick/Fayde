@@ -1,6 +1,6 @@
 /// <reference path="../Fayde.d.ts" />
 
-module Fayde.Controls.Input.Internal {
+module Fayde.Controls.Internal {
     export class ObservableObjectCollection extends Collections.ObservableCollection<any> {
         IsReadOnly: boolean = false;
 

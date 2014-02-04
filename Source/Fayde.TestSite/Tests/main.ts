@@ -8,7 +8,7 @@ require.config({
     },
     deps: ["text","Fayde"],
     callback: (...modules: any[]) => {
-        modules[1].RegisterLibrary("Fayde.Controls.Input", "App/Fayde.Controls.Input/source.js", "App/Fayde.Controls.Input/generic.xml");
+        modules[1].RegisterLibrary("Fayde.Controls", "App/Fayde.Controls/source.js", "App/Fayde.Controls/generic.xml");
         modules[1].Run();
     },
     shim: {
@@ -17,8 +17,8 @@ require.config({
             init: () => {
             }
         },
-        "App/Fayde.Controls.Input/source.js": {
-            exports: "Fayde.Controls.Input"
+        "App/Fayde.Controls/source.js": {
+            exports: "Fayde.Controls"
         }
     }
 });
