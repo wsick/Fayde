@@ -436,10 +436,12 @@ declare module Fayde.Controls {
         static IsExpandedProperty: DependencyProperty;
         static IsSelectedProperty: DependencyProperty;
         static IsSelectionActiveProperty: DependencyProperty;
-        public HasItems : boolean;
+        public HasItems: boolean;
+        private $SetHasItems(value);
         public IsExpanded: boolean;
         public IsSelected: boolean;
-        public IsSelectionActive : boolean;
+        public IsSelectionActive: boolean;
+        private $SetIsSelectionActive(value);
         private OnHasItemsChanged(e);
         private OnIsExpandedPropertyChanged(e);
         private OnIsSelectedChanged(e);
@@ -476,6 +478,7 @@ declare module Fayde.Controls {
         public IsItemItsOwnContainer(item: any): boolean;
         public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
         public ClearContainerForItem(element: Fayde.DependencyObject, item: any): void;
+        public InvokeItemsChanged(sender: any, e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         public OnExpanded(e: Fayde.RoutedEventArgs): void;
         public OnCollapsed(e: Fayde.RoutedEventArgs): void;

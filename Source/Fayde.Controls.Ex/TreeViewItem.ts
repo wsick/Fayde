@@ -3,27 +3,27 @@ module Fayde.Controls {
     import ScrollExtensions = Internal.ScrollExtensions;
 
     export class TreeViewItem extends HeaderedItemsControl {
-        static HasItemsProperty = DependencyProperty.Register("HasItems", () => Boolean, TreeViewItem, false, (d, args) => (<TreeViewItem>d).OnHasItemsChanged(args));
+        static HasItemsProperty = DependencyProperty.RegisterReadOnly("HasItems", () => Boolean, TreeViewItem, false, (d, args) => (<TreeViewItem>d).OnHasItemsChanged(args));
         static IsExpandedProperty = DependencyProperty.Register("IsExpanded", () => Boolean, TreeViewItem, false, (d, args) => (<TreeViewItem>d).OnIsExpandedPropertyChanged(args));
         static IsSelectedProperty = DependencyProperty.Register("IsSelected", () => Boolean, TreeViewItem, false, (d, args) => (<TreeViewItem>d).OnIsSelectedChanged(args));
-        static IsSelectionActiveProperty = DependencyProperty.Register("IsSelectionActive", () => Boolean, TreeViewItem, false, (d, args) => (<TreeViewItem>d).OnIsSelectionActiveChanged(args));
+        static IsSelectionActiveProperty = DependencyProperty.RegisterReadOnly("IsSelectionActive", () => Boolean, TreeViewItem, false, (d, args) => (<TreeViewItem>d).OnIsSelectionActiveChanged(args));
 
-        get HasItems(): boolean { return this.GetValue(TreeViewItem.HasItemsProperty) === true; }
-        set HasItems(value: boolean) {
+        HasItems: boolean;
+        private $SetHasItems(value: boolean) {
             try {
                 this._AllowWrite = true;
-                this.SetValue(TreeViewItem.HasItemsProperty, value === true);
+                this.SetValueInternal(TreeViewItem.HasItemsProperty, value);
             } finally {
                 this._AllowWrite = false;
             }
         }
         IsExpanded: boolean;
         IsSelected: boolean;
-        get IsSelectionActive(): boolean { return this.GetValue(TreeViewItem.IsSelectionActiveProperty) === true; }
-        set IsSelectionActive(value: boolean) {
+        IsSelectionActive: boolean;
+        private $SetIsSelectionActive(value: boolean) {
             try {
                 this._AllowWrite = true;
-                this.SetValue(TreeViewItem.IsSelectionActiveProperty, value === true);
+                this.SetValueInternal(TreeViewItem.IsSelectionActiveProperty, value === true);
             } finally {
                 this._AllowWrite = false;
             }
@@ -34,7 +34,7 @@ module Fayde.Controls {
                 this.IgnorePropertyChange = false;
             else if (!this._AllowWrite) {
                 this.IgnorePropertyChange = true;
-                this.SetValue(TreeViewItem.HasItemsProperty, e.OldValue);
+                this.SetValueInternal(TreeViewItem.HasItemsProperty, e.OldValue);
                 throw new InvalidOperationException("Cannot set read-only property HasItems.");
             } else
                 this.UpdateVisualState(true);
@@ -75,16 +75,16 @@ module Fayde.Controls {
                 this.IgnorePropertyChange = false;
             else if (!this._AllowWrite) {
                 this.IgnorePropertyChange = true;
-                this.SetValue(TreeViewItem.IsSelectionActiveProperty, e.OldValue);
+                this.SetValueInternal(TreeViewItem.IsSelectionActiveProperty, e.OldValue);
                 throw new InvalidOperationException("Cannot set read-only property IsSelectionActive.");
             } else
                 this.UpdateVisualState(true);
         }
 
-        Collapsed: RoutedEvent<RoutedEventArgs>;
-        Expanded: RoutedEvent<RoutedEventArgs>;
-        Selected: RoutedEvent<RoutedEventArgs>;
-        Unselected: RoutedEvent<RoutedEventArgs>;
+        Collapsed = new RoutedEvent<RoutedEventArgs>();
+        Expanded = new RoutedEvent<RoutedEventArgs>();
+        Selected = new RoutedEvent<RoutedEventArgs>();
+        Unselected = new RoutedEvent<RoutedEventArgs>();
 
         private _AllowWrite = false;
         IgnorePropertyChange: boolean;
@@ -222,11 +222,14 @@ module Fayde.Controls {
             super.ClearContainerForItem(element, item);
         }
 
+        InvokeItemsChanged(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
+            super.InvokeItemsChanged(sender, e);
+            this.$SetHasItems(this.Items.Count > 0);
+        }
         OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
             if (e == null)
                 throw new ArgumentException("e");
             super.OnItemsChanged(e);
-            this.HasItems = this.Items.Count > 0;
             if (e.NewItems != null) {
                 for (var i = 0, items = <TreeViewItem[]>e.NewItems, len = items.length; i < len; i++) {
                     items[i].ParentItemsControl = this;
@@ -294,7 +297,7 @@ module Fayde.Controls {
                 if (!this.Interaction.AllowGotFocus(e) || this.CancelGotFocusBubble)
                     return;
                 this.Select(true);
-                this.IsSelectionActive = true;
+                this.$SetIsSelectionActive(true);
                 this.UpdateVisualState(true);
                 super.OnGotFocus(e);
             } finally {
@@ -306,12 +309,12 @@ module Fayde.Controls {
                 this.Interaction.OnLostFocusBase();
                 super.OnLostFocus(e);
             }
-            this.IsSelectionActive = false;
+            this.$SetIsSelectionActive(false);
             this.UpdateVisualState(true);
         }
         private OnExpanderGotFocus(sender: any, e: RoutedEventArgs) {
             this.CancelGotFocusBubble = true;
-            this.IsSelectionActive = true;
+            this.$SetIsSelectionActive(true);
             this.UpdateVisualState(true);
         }
         OnMouseEnter(e: Input.MouseEventArgs) {

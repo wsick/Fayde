@@ -67,7 +67,7 @@ module Fayde.Controls {
         ItemsControlHelper: Internal.ItemsControlHelper;
         private Interaction: Internal.InteractionHelper;
 
-        private SelectedItemChanged: RoutedPropertyChangedEvent<any>;
+        private SelectedItemChanged = new RoutedPropertyChangedEvent<any>();
 
         constructor() {
             super();
