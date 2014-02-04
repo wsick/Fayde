@@ -1,0 +1,1 @@
+Copy-Item "../../../../Source/Fayde.Controls.Ex/Fayde.Controls.Ex.js" "source.js"

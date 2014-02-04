@@ -2258,48 +2258,38 @@ var Fayde;
             __extends(TreeViewItem, _super);
             function TreeViewItem() {
                 _super.call(this);
+                this.Collapsed = new Fayde.RoutedEvent();
+                this.Expanded = new Fayde.RoutedEvent();
+                this.Selected = new Fayde.RoutedEvent();
+                this.Unselected = new Fayde.RoutedEvent();
                 this._AllowWrite = false;
                 this.DefaultStyleKey = this.constructor;
                 this.Interaction = new Fayde.Controls.Internal.InteractionHelper(this);
             }
-            Object.defineProperty(TreeViewItem.prototype, "HasItems", {
-                get: function () {
-                    return this.GetValue(TreeViewItem.HasItemsProperty) === true;
-                },
-                set: function (value) {
-                    try  {
-                        this._AllowWrite = true;
-                        this.SetValue(TreeViewItem.HasItemsProperty, value === true);
-                    } finally {
-                        this._AllowWrite = false;
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
+            TreeViewItem.prototype.$SetHasItems = function (value) {
+                try  {
+                    this._AllowWrite = true;
+                    this.SetValueInternal(TreeViewItem.HasItemsProperty, value);
+                } finally {
+                    this._AllowWrite = false;
+                }
+            };
 
-            Object.defineProperty(TreeViewItem.prototype, "IsSelectionActive", {
-                get: function () {
-                    return this.GetValue(TreeViewItem.IsSelectionActiveProperty) === true;
-                },
-                set: function (value) {
-                    try  {
-                        this._AllowWrite = true;
-                        this.SetValue(TreeViewItem.IsSelectionActiveProperty, value === true);
-                    } finally {
-                        this._AllowWrite = false;
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
+            TreeViewItem.prototype.$SetIsSelectionActive = function (value) {
+                try  {
+                    this._AllowWrite = true;
+                    this.SetValueInternal(TreeViewItem.IsSelectionActiveProperty, value === true);
+                } finally {
+                    this._AllowWrite = false;
+                }
+            };
 
             TreeViewItem.prototype.OnHasItemsChanged = function (e) {
                 if (this.IgnorePropertyChange)
                     this.IgnorePropertyChange = false;
                 else if (!this._AllowWrite) {
                     this.IgnorePropertyChange = true;
-                    this.SetValue(TreeViewItem.HasItemsProperty, e.OldValue);
+                    this.SetValueInternal(TreeViewItem.HasItemsProperty, e.OldValue);
                     throw new InvalidOperationException("Cannot set read-only property HasItems.");
                 } else
                     this.UpdateVisualState(true);
@@ -2340,7 +2330,7 @@ var Fayde;
                     this.IgnorePropertyChange = false;
                 else if (!this._AllowWrite) {
                     this.IgnorePropertyChange = true;
-                    this.SetValue(TreeViewItem.IsSelectionActiveProperty, e.OldValue);
+                    this.SetValueInternal(TreeViewItem.IsSelectionActiveProperty, e.OldValue);
                     throw new InvalidOperationException("Cannot set read-only property IsSelectionActive.");
                 } else
                     this.UpdateVisualState(true);
@@ -2509,11 +2499,14 @@ var Fayde;
                 _super.prototype.ClearContainerForItem.call(this, element, item);
             };
 
+            TreeViewItem.prototype.InvokeItemsChanged = function (sender, e) {
+                _super.prototype.InvokeItemsChanged.call(this, sender, e);
+                this.$SetHasItems(this.Items.Count > 0);
+            };
             TreeViewItem.prototype.OnItemsChanged = function (e) {
                 if (e == null)
                     throw new ArgumentException("e");
                 _super.prototype.OnItemsChanged.call(this, e);
-                this.HasItems = this.Items.Count > 0;
                 if (e.NewItems != null) {
                     for (var i = 0, items = e.NewItems, len = items.length; i < len; i++) {
                         items[i].ParentItemsControl = this;
@@ -2581,7 +2574,7 @@ var Fayde;
                     if (!this.Interaction.AllowGotFocus(e) || this.CancelGotFocusBubble)
                         return;
                     this.Select(true);
-                    this.IsSelectionActive = true;
+                    this.$SetIsSelectionActive(true);
                     this.UpdateVisualState(true);
                     _super.prototype.OnGotFocus.call(this, e);
                 } finally {
@@ -2593,12 +2586,12 @@ var Fayde;
                     this.Interaction.OnLostFocusBase();
                     _super.prototype.OnLostFocus.call(this, e);
                 }
-                this.IsSelectionActive = false;
+                this.$SetIsSelectionActive(false);
                 this.UpdateVisualState(true);
             };
             TreeViewItem.prototype.OnExpanderGotFocus = function (sender, e) {
                 this.CancelGotFocusBubble = true;
-                this.IsSelectionActive = true;
+                this.$SetIsSelectionActive(true);
                 this.UpdateVisualState(true);
             };
             TreeViewItem.prototype.OnMouseEnter = function (e) {
@@ -2864,7 +2857,7 @@ var Fayde;
                 }
                 return parentItemsControl;
             };
-            TreeViewItem.HasItemsProperty = DependencyProperty.Register("HasItems", function () {
+            TreeViewItem.HasItemsProperty = DependencyProperty.RegisterReadOnly("HasItems", function () {
                 return Boolean;
             }, TreeViewItem, false, function (d, args) {
                 return d.OnHasItemsChanged(args);
@@ -2879,7 +2872,7 @@ var Fayde;
             }, TreeViewItem, false, function (d, args) {
                 return d.OnIsSelectedChanged(args);
             });
-            TreeViewItem.IsSelectionActiveProperty = DependencyProperty.Register("IsSelectionActive", function () {
+            TreeViewItem.IsSelectionActiveProperty = DependencyProperty.RegisterReadOnly("IsSelectionActive", function () {
                 return Boolean;
             }, TreeViewItem, false, function (d, args) {
                 return d.OnIsSelectionActiveChanged(args);
@@ -2918,6 +2911,7 @@ var Fayde;
             __extends(TreeView, _super);
             function TreeView() {
                 _super.call(this);
+                this.SelectedItemChanged = new Fayde.RoutedPropertyChangedEvent();
                 this.DefaultStyleKey = this.constructor;
                 this.ItemsControlHelper = new Fayde.Controls.Internal.ItemsControlHelper(this);
                 this.Interaction = new Fayde.Controls.Internal.InteractionHelper(this);
