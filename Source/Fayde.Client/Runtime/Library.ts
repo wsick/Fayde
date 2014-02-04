@@ -24,9 +24,23 @@ module Fayde {
         }
 
         static TryGetClass(xmlns: string, xmlname: string): any {
+            var libName: string;
+            if (xmlns.indexOf("lib:") === 0)
+                libName = xmlns.substr("lib:".length);
+
             var library = Library.Get(xmlns);
-            if (library && library.Module)
-                return library.Module[xmlname];
+            if (!library || !library.Module) {
+                if (libName)
+                    throw new Exception("Could not find library: '" + libName + "'.");
+                return undefined;
+            }
+
+            var c = library.Module[xmlname];
+            if (c)
+                return c;
+
+            if (libName)
+                throw new Exception("Could not find type [" + xmlname + "] in library: '" + libName + "'.");
         }
 
         static Get(url: string): Library {
