@@ -295,7 +295,7 @@
     <TypeScriptCompile Include="Path\Ellipse.ts" />
     <TypeScriptCompile Include="Primitives\Vector.ts" />
     <TypeScriptCompile Include="Runtime\IAsyncRequest.ts" />
-    <Content Include="require.d.ts" />
+    <TypeScriptCompile Include="require.d.ts" />
     <TypeScriptCompile Include="Runtime\Library.ts" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />

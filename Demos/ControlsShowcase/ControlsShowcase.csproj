@@ -57,27 +57,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="default.html" />
+    <Content Include="lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" />
+    <Content Include="lib\Fayde.Controls\generic.xml" />
+    <Content Include="lib\Fayde.Controls\source.js" />
+    <Content Include="lib\Fayde\Fayde.d.ts" />
+    <Content Include="lib\Fayde\Fayde.js" />
+    <Content Include="lib\Fayde\Theme.Metro.xml" />
+    <Content Include="lib\Fayde\Theme.Silverlight.xml" />
+    <Content Include="lib\requirejs\require.d.ts" />
+    <Content Include="lib\requirejs\require.js" />
+    <Content Include="lib\requirejs\text.js" />
     <Content Include="main.js" />
-    <Content Include="Scripts\Fayde.Controls\generic.xml" />
-    <Content Include="Scripts\Fayde.Controls\source.js" />
-    <Content Include="Scripts\Fayde.d.ts" />
-    <Content Include="Scripts\Fayde.js" />
-    <Content Include="Scripts\r.js" />
-    <Content Include="Scripts\require.js" />
-    <Content Include="Scripts\text.js" />
-    <Content Include="Scripts\Theme.Metro.xml" />
-    <Content Include="Scripts\Theme.Silverlight.xml" />
-    <Content Include="Scripts\typings\requirejs\require.d.ts" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="default.fap" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Web.config" />
-    <Content Include="Scripts\Fayde.Controls\update.ps1" />
+    <Content Include="default.fap" />
+    <Content Include="Views\home.fayde" />
+    <Content Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -86,5 +80,5 @@
     </None>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
-  <Import Project="packages\Fayde.0.9.7.8\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.7.8\build\Fayde.targets')" />
+  <Import Project="packages\Fayde.0.9.7.9\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.7.9\build\Fayde.targets')" />
 </Project>

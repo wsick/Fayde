@@ -1,5 +1,4 @@
 /// <reference path="../Core/XamlObject.ts" />
-/// <reference path="../require.d.ts" />
 
 module Fayde.Xaml {
     export class FrameworkTemplate extends Fayde.XamlObject {

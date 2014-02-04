@@ -6,15 +6,11 @@ require.config({
     },
     deps: ["text","Fayde"],
     callback: function (text, Fayde) {
-        Fayde.RegisterLibrary("Fayde.Controls", "lib/Fayde.Controls/source.js", "lib/Fayde.Controls/generic.xml");
         Fayde.Run();
     },
     shim: {
         "Fayde": {
             exports: "Fayde"
-        },
-        "lib/Fayde.Controls/source.js": {
-            exports: "Fayde.Controls"
         }
     }
 });

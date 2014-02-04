@@ -1,4 +1,4 @@
-$scriptsdestdir = $PWD.Path + "\SourceFiles\content\scripts"
+$scriptsdestdir = $PWD.Path + "\content\lib\Fayde"
 copy ($PWD.Path + "\..\..\..\Source\jsbin\*") $scriptsdestdir
 
 $vpath = $PWD.Path + "\version.txt"
@@ -12,4 +12,4 @@ $revision = ([int]$tokens.Get(3) + 1).ToString()
 
 $newversion = "$major.$minor.$build.$revision"
 Set-Content -Value $newversion $vpath
-nuget pack ".\SourceFiles\Fayde.nuspec" -Version $newversion
+nuget pack ".\Fayde.nuspec" -Version $newversion -OutputDirectory "..\"
