@@ -1,4 +1,3 @@
-/// <reference path="../Fayde.d.ts" />
 
 module Fayde.Controls.Primitives {
     export class TabPanel extends Panel {
@@ -11,8 +10,8 @@ module Fayde.Controls.Primitives {
                 return tabControlParent.TabStripPlacement;
             return Dock.Top;
         }
-
-        _MeasureOverride(availableSize: size): size {
+        
+        MeasureOverride(availableSize: size): size {
             var size = new size();
             var tabAlignment = this.TabAlignment;
             this._NumberOfRows = 1;
@@ -28,7 +27,7 @@ module Fayde.Controls.Primitives {
                 while (childEnumerator.MoveNext()) {
                     element = childEnumerator.Current;
                     element.Measure(availableSize);
-                    if (element.Visibility != Visibility.Collapsed) {
+                    if (element.Visibility !== Visibility.Collapsed) {
                         var sizeWithoutMargin = getDesiredSizeWithoutMargin(element);
                         if (this._RowHeight < sizeWithoutMargin.Height)
                             this._RowHeight = sizeWithoutMargin.Height;
@@ -63,7 +62,7 @@ module Fayde.Controls.Primitives {
             }
             return size;
         }
-        _ArrangeOverride(finalSize: size): size {
+        ArrangeOverride(finalSize: size): size {
             switch (this.TabAlignment) {
                 case Dock.Top:
                 case Dock.Bottom:
@@ -291,7 +290,6 @@ module Fayde.Controls.Primitives {
             return arr;
         }
     }
-    Fayde.RegisterType(TabPanel, "TabPanel", Fayde.XMLNS);
 
     function getDesiredSizeWithoutMargin(uie: UIElement): size {
         var num = 0.0;

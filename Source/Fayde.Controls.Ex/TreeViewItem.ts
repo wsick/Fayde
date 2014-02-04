@@ -1,5 +1,3 @@
-/// <reference path="Fayde.d.ts" />
-
 module Fayde.Controls {
     import NumericExtensions = Internal.NumericExtensions;
     import ScrollExtensions = Internal.ScrollExtensions;
@@ -590,7 +588,6 @@ module Fayde.Controls {
             return parentItemsControl;
         }
     }
-    Fayde.RegisterType(TreeViewItem, "TreeViewItem", Fayde.XMLNS);
 
     function calculateDelta(up: boolean, element: FrameworkElement, scrollHost: ScrollViewer, top: number, bottom: number, closeEdge: IOutValue): number {
         var top1: IOutValue = { Value: 0 };

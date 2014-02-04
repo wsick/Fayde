@@ -1,5 +1,3 @@
-/// <reference path="Fayde.d.ts" />
-
 module Fayde.Controls {
     import NumericExtensions = Internal.NumericExtensions;
     import ScrollExtensions = Internal.ScrollExtensions;
@@ -467,7 +465,6 @@ module Fayde.Controls {
             return false;
         }
     }
-    Fayde.RegisterType(TreeView, "TreeView", Fayde.XMLNS);
 
     function isControlKeyDown(): boolean {
         return (Input.Keyboard.Modifiers & Input.ModifierKeys.Control) === Input.ModifierKeys.Control;

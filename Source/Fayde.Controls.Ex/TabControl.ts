@@ -1,5 +1,3 @@
-/// <reference path="Fayde.d.ts" />
-
 module Fayde.Controls {
     export enum Dock {
         Left,
@@ -7,7 +5,7 @@ module Fayde.Controls {
         Right,
         Bottom
     }
-    Fayde.RegisterEnum(Dock, "Dock", Fayde.XMLNS);
+    Fayde.RegisterEnum(Dock, "Dock");
 
 
     var ElementTemplateTopName = "TemplateTop";
@@ -451,5 +449,4 @@ module Fayde.Controls {
             throw new ArgumentException("Unable to cast object of type '" + type + "' to type 'System.Windows.Controls.TabItem'.");
         }
     }
-    Fayde.RegisterType(TabControl, "TabControl", Fayde.XMLNS);
 }

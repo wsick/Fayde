@@ -1,5 +1,3 @@
-/// <reference path="Fayde.d.ts" />
-
 module Fayde.Controls {
     export class TabItem extends ContentControl {
         static HasHeaderProperty = DependencyProperty.Register("HasHeader", () => Boolean, TabItem, false);
@@ -265,5 +263,4 @@ module Fayde.Controls {
             return null;
         }
     }
-    Fayde.RegisterType(TabItem, "TabItem", Fayde.XMLNS);
 }

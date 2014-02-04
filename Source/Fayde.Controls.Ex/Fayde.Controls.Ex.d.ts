@@ -1,4 +1,3 @@
-/// <reference path="Fayde.d.ts" />
 declare module Fayde.Controls.Internal {
     class InteractionHelper {
         public Control: Controls.Control;
@@ -195,8 +194,8 @@ declare module Fayde.Controls.Primitives {
         private _NumberOfRows;
         private _RowHeight;
         private TabAlignment;
-        public _MeasureOverride(availableSize: size): size;
-        public _ArrangeOverride(finalSize: size): size;
+        public MeasureOverride(availableSize: size): size;
+        public ArrangeOverride(finalSize: size): size;
         private _ArrangeHorizontal(arrangeSize);
         private _ArrangeVertical(arrangeSize);
         private _GetActiveRow(solution);
