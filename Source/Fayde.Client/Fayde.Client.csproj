@@ -35,7 +35,6 @@
     <TypeScriptCompile Include="Controls\Frame.ts" />
     <TypeScriptCompile Include="Controls\Grid.ts" />
     <TypeScriptCompile Include="Controls\GridLength.ts" />
-    <TypeScriptCompile Include="Controls\HeaderedItemsControl.ts" />
     <TypeScriptCompile Include="Controls\HyperlinkButton.ts" />
     <TypeScriptCompile Include="Controls\Image.ts" />
     <TypeScriptCompile Include="Controls\ItemCollection.ts" />
