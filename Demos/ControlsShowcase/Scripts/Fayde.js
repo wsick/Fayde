@@ -19492,7 +19492,7 @@ var Fayde;
             var len = lookupNamespaces.length;
             for (var i = 0; i < len; i++) {
                 var potentialType = lookupNamespaces[i][name];
-                if (potentialType)
+                if (typeof potentialType === "function")
                     return potentialType;
             }
             return eval(name);
