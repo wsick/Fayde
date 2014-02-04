@@ -1888,7 +1888,7 @@ var Fayde;
     var Visibility = Fayde.Visibility;
     Fayde.RegisterEnum(Visibility, "Visibility", Fayde.XMLNS);
     Fayde.RegisterEnumConverter(Visibility, function (val) {
-        if (val === "true" || val === true || val === 0 /* Visible */)
+        if (val === "true" || val === true || val === 0 /* Visible */ || val === "Visible")
             return 0 /* Visible */;
         return 1 /* Collapsed */;
     });
@@ -5268,13 +5268,16 @@ var Fayde;
                 configurable: true
             });
 
-            Control.prototype.GetTemplateChild = function (childName) {
+            Control.prototype.GetTemplateChild = function (childName, type) {
                 var root = this.XamlNode.TemplateRoot;
-                if (root) {
-                    var n = root.XamlNode.FindName(childName);
-                    if (n)
-                        return n.XObject;
-                }
+                if (!root)
+                    return;
+                var n = root.XamlNode.FindName(childName);
+                if (!n)
+                    return;
+                var xobj = n.XObject;
+                if (!type || (xobj instanceof type))
+                    return xobj;
             };
 
             Control.prototype.ApplyTemplate = function () {
@@ -7045,9 +7048,7 @@ var Fayde;
 
                 Selector.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
-                    var temp = this.GetTemplateChild("ScrollViewer");
-                    var tsv = (temp instanceof Fayde.Controls.ScrollViewer) ? temp : null;
-                    this.$TemplateScrollViewer = tsv;
+                    var tsv = this.$TemplateScrollViewer = this.GetTemplateChild("ScrollViewer", Fayde.Controls.ScrollViewer);
                     if (tsv) {
                         tsv.$TemplatedParentHandlesScrolling = true;
                         tsv.HorizontalScrollBarVisibility = Fayde.Controls.ScrollViewer.GetHorizontalScrollBarVisibility(this);
@@ -9476,186 +9477,6 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var HeaderedItemsControl = (function (_super) {
-            __extends(HeaderedItemsControl, _super);
-            function HeaderedItemsControl() {
-                _super.call(this);
-                this._HeaderIsItem = false;
-                this._ItemsControlHelper = new ItemsControlHelper(this);
-            }
-            HeaderedItemsControl.prototype.OnHeaderChanged = function (oldHeader, newHeader) {
-            };
-
-            HeaderedItemsControl.prototype.OnHeaderTemplateChanged = function (oldHeaderTemplate, newHeaderTemplate) {
-            };
-
-            HeaderedItemsControl.prototype.OnItemContainerStyleChanged = function (args) {
-                this._ItemsControlHelper.UpdateItemContainerStyle(args.NewValue);
-            };
-
-            HeaderedItemsControl.prototype.OnApplyTemplate = function () {
-                _super.prototype.OnApplyTemplate.call(this);
-                this._ItemsControlHelper.OnApplyTemplate();
-            };
-
-            HeaderedItemsControl.prototype.PrepareContainerForItem = function (element, item) {
-                var control = element;
-                if (!(control instanceof Fayde.Controls.Control))
-                    control = null;
-
-                var ics = this.ItemContainerStyle;
-                if (ics != null && control != null && control.Style == null)
-                    control.SetValue(Fayde.FrameworkElement.StyleProperty, ics);
-
-                var hic = element;
-                if (hic instanceof HeaderedItemsControl)
-                    HeaderedItemsControl.PrepareHeaderedItemsControlContainer(hic, item, this, ics);
-                _super.prototype.PrepareContainerForItem.call(this, element, item);
-            };
-
-            HeaderedItemsControl.PrepareHeaderedItemsControlContainer = function (control, item, parentItemsControl, parentItemContainerStyle) {
-                if (control === item)
-                    return;
-                var itemTemplate = parentItemsControl.ItemTemplate;
-                if (itemTemplate != null)
-                    control.SetValue(Fayde.Controls.ItemsControl.ItemTemplateProperty, itemTemplate);
-                if (parentItemContainerStyle != null && HeaderedItemsControl.HasDefaultValue(control, HeaderedItemsControl.ItemContainerStyleProperty))
-                    control.SetValue(HeaderedItemsControl.ItemContainerStyleProperty, parentItemContainerStyle);
-                if (control._HeaderIsItem || HeaderedItemsControl.HasDefaultValue(control, HeaderedItemsControl.HeaderProperty)) {
-                    control.Header = item;
-                    control._HeaderIsItem = true;
-                }
-                if (itemTemplate != null)
-                    control.SetValue(HeaderedItemsControl.HeaderTemplateProperty, itemTemplate);
-                if (parentItemContainerStyle != null && control.Style == null)
-                    control.SetValue(Fayde.FrameworkElement.StyleProperty, parentItemContainerStyle);
-                var hierarchicalDataTemplate = itemTemplate;
-                if (!(hierarchicalDataTemplate instanceof Fayde.HierarchicalDataTemplate))
-                    return;
-                if (hierarchicalDataTemplate.ItemsSource != null && HeaderedItemsControl.HasDefaultValue(control, Fayde.Controls.ItemsControl.ItemsSourceProperty)) {
-                    var itemssourcebinding = hierarchicalDataTemplate.ItemsSource;
-                    var headeredItemsControl = control;
-                    var dp = Fayde.Controls.ItemsControl.ItemsSourceProperty;
-                    var binding1 = new Fayde.Data.Binding();
-                    binding1.Converter = itemssourcebinding.Converter;
-                    binding1.ConverterCulture = itemssourcebinding.ConverterCulture;
-                    binding1.ConverterParameter = itemssourcebinding.ConverterParameter;
-                    binding1.Mode = itemssourcebinding.Mode;
-                    binding1.NotifyOnValidationError = itemssourcebinding.NotifyOnValidationError;
-                    binding1.Source = control.Header;
-                    binding1.Path = itemssourcebinding.Path;
-                    binding1.ValidatesOnExceptions = itemssourcebinding.ValidatesOnExceptions;
-                    headeredItemsControl.SetBinding(dp, binding1);
-                }
-                if (hierarchicalDataTemplate.IsItemTemplateSet && control.ItemTemplate === itemTemplate) {
-                    control.ClearValue(Fayde.Controls.ItemsControl.ItemTemplateProperty);
-                    if (hierarchicalDataTemplate.ItemTemplate != null)
-                        control.ItemTemplate = hierarchicalDataTemplate.ItemTemplate;
-                }
-                if (!hierarchicalDataTemplate.IsItemContainerStyleSet || control.ItemContainerStyle !== parentItemContainerStyle)
-                    return;
-                control.ClearValue(HeaderedItemsControl.ItemContainerStyleProperty);
-                if (hierarchicalDataTemplate.ItemContainerStyle == null)
-                    return;
-                control.ItemContainerStyle = hierarchicalDataTemplate.ItemContainerStyle;
-            };
-            HeaderedItemsControl.HasDefaultValue = function (control, propd) {
-                return control.ReadLocalValue(propd) === DependencyProperty.UnsetValue;
-            };
-            HeaderedItemsControl.HeaderProperty = DependencyProperty.Register("Header", function () {
-                return Object;
-            }, HeaderedItemsControl, undefined, function (d, args) {
-                return d.OnHeaderChanged(args.OldValue, args.NewValue);
-            });
-
-            HeaderedItemsControl.HeaderTemplateProperty = DependencyProperty.Register("HeaderTemplate", function () {
-                return Fayde.DataTemplate;
-            }, HeaderedItemsControl, undefined, function (d, args) {
-                return d.OnHeaderTemplateChanged(args.OldValue, args.NewValue);
-            });
-
-            HeaderedItemsControl.ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", function () {
-                return Fayde.Style;
-            }, HeaderedItemsControl);
-            return HeaderedItemsControl;
-        })(Fayde.Controls.ItemsControl);
-        Controls.HeaderedItemsControl = HeaderedItemsControl;
-        Fayde.RegisterType(HeaderedItemsControl, "Fayde.Controls", Fayde.XMLNS);
-
-        var ItemsControlHelper = (function () {
-            function ItemsControlHelper(ItemsControl) {
-                this.ItemsControl = ItemsControl;
-            }
-            Object.defineProperty(ItemsControlHelper.prototype, "ItemsHost", {
-                get: function () {
-                    if (!this._ItemsHost)
-                        this._ItemsHost = this.FindItemsHost();
-                    return this._ItemsHost;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ItemsControlHelper.prototype.FindItemsHost = function () {
-                if (!this.ItemsControl)
-                    return;
-                if (!this.ItemsControl.ItemContainerGenerator)
-                    return;
-                var container = this.ItemsControl.ItemContainerGenerator.ContainerFromIndex(0);
-                if (!container)
-                    return;
-                var ih = Fayde.VisualTreeHelper.GetParent(container);
-                if (ih instanceof Fayde.Controls.Panel)
-                    return ih;
-                return;
-            };
-            Object.defineProperty(ItemsControlHelper.prototype, "ScrollHost", {
-                get: function () {
-                    if (!this._ScrollHost)
-                        this._ScrollHost = this.FindScrollHost();
-                    return this._ScrollHost;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ItemsControlHelper.prototype.FindScrollHost = function () {
-                var itemsHost = this.ItemsHost;
-                if (!itemsHost)
-                    return;
-                var cur = itemsHost;
-                while (cur != null && cur !== this.ItemsControl) {
-                    if (cur instanceof Fayde.Controls.ScrollViewer)
-                        return cur;
-                    cur = Fayde.VisualTreeHelper.GetParent(cur);
-                }
-            };
-
-            ItemsControlHelper.prototype.OnApplyTemplate = function () {
-                this._ItemsHost = null;
-                this._ScrollHost = null;
-            };
-            ItemsControlHelper.prototype.UpdateItemContainerStyle = function (itemContainerStyle) {
-                if (itemContainerStyle == null)
-                    return;
-                var itemsHost = this.ItemsHost;
-                if (itemsHost == null || itemsHost.Children == null)
-                    return;
-                var fe;
-                ;
-                var enumerator = itemsHost.Children.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    fe = enumerator.Current;
-                    if (fe.Style == null)
-                        fe.Style = itemContainerStyle;
-                }
-            };
-            return ItemsControlHelper;
-        })();
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
         var HyperlinkButton = (function (_super) {
             __extends(HyperlinkButton, _super);
             function HyperlinkButton() {
@@ -11329,7 +11150,7 @@ var Fayde;
             TextBoxBase.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
 
-                var ce = this.$ContentElement = this.GetTemplateChild("ContentElement");
+                var ce = this.$ContentElement = this.GetTemplateChild("ContentElement", Fayde.FrameworkElement);
                 if (!ce)
                     return;
 
@@ -12467,11 +12288,15 @@ var Fayde;
                 PopupNode.prototype._ChildChanged = function (oldChild, newChild) {
                     var popup = this.XObject;
                     this._Hide();
-                    if (oldChild)
+                    if (oldChild) {
                         Fayde.Providers.InheritedStore.ClearInheritedOnRemove(popup, oldChild.XamlNode);
+                        oldChild.XamlNode.LayoutUpdater.CarrierProjection = null;
+                        oldChild.XamlNode.LayoutUpdater.CarrierXform = null;
+                    }
                     this._PrepareVisualChild(newChild);
                     if (newChild) {
                         Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(popup, newChild.XamlNode);
+                        newChild.XamlNode.LayoutUpdater.CarrierXform = mat3.identity();
                         if (popup.IsOpen)
                             this._Show();
                     }
@@ -12873,9 +12698,7 @@ var Fayde;
                 }
                 RepeatButton.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
-                    var er = this.GetTemplateChild("Root");
-                    if (er instanceof Fayde.FrameworkElement)
-                        this._ElementRoot = er;
+                    this._ElementRoot = this.GetTemplateChild("Root", Fayde.FrameworkElement);
                     this.UpdateVisualState(false);
                 };
 
@@ -13058,26 +12881,20 @@ var Fayde;
                     configurable: true
                 });
 
-                ScrollBar.prototype._GetChildOfType = function (name, type) {
-                    var temp = this.GetTemplateChild(name);
-                    if (temp instanceof type)
-                        return temp;
-                };
-
                 ScrollBar.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
-                    this.$HorizontalTemplate = this._GetChildOfType("HorizontalRoot", Fayde.FrameworkElement);
-                    this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalLargeIncrease", Fayde.Controls.Primitives.RepeatButton);
-                    this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalLargeDecrease", Fayde.Controls.Primitives.RepeatButton);
-                    this.$HorizontalSmallIncrease = this._GetChildOfType("HorizontalSmallIncrease", Fayde.Controls.Primitives.RepeatButton);
-                    this.$HorizontalSmallDecrease = this._GetChildOfType("HorizontalSmallDecrease", Fayde.Controls.Primitives.RepeatButton);
-                    this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Fayde.Controls.Primitives.Thumb);
-                    this.$VerticalTemplate = this._GetChildOfType("VerticalRoot", Fayde.FrameworkElement);
-                    this.$VerticalLargeIncrease = this._GetChildOfType("VerticalLargeIncrease", Fayde.Controls.Primitives.RepeatButton);
-                    this.$VerticalLargeDecrease = this._GetChildOfType("VerticalLargeDecrease", Fayde.Controls.Primitives.RepeatButton);
-                    this.$VerticalSmallIncrease = this._GetChildOfType("VerticalSmallIncrease", Fayde.Controls.Primitives.RepeatButton);
-                    this.$VerticalSmallDecrease = this._GetChildOfType("VerticalSmallDecrease", Fayde.Controls.Primitives.RepeatButton);
-                    this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Fayde.Controls.Primitives.Thumb);
+                    this.$HorizontalTemplate = this.GetTemplateChild("HorizontalRoot", Fayde.FrameworkElement);
+                    this.$HorizontalLargeIncrease = this.GetTemplateChild("HorizontalLargeIncrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$HorizontalLargeDecrease = this.GetTemplateChild("HorizontalLargeDecrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$HorizontalSmallIncrease = this.GetTemplateChild("HorizontalSmallIncrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$HorizontalSmallDecrease = this.GetTemplateChild("HorizontalSmallDecrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$HorizontalThumb = this.GetTemplateChild("HorizontalThumb", Fayde.Controls.Primitives.Thumb);
+                    this.$VerticalTemplate = this.GetTemplateChild("VerticalRoot", Fayde.FrameworkElement);
+                    this.$VerticalLargeIncrease = this.GetTemplateChild("VerticalLargeIncrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$VerticalLargeDecrease = this.GetTemplateChild("VerticalLargeDecrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$VerticalSmallIncrease = this.GetTemplateChild("VerticalSmallIncrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$VerticalSmallDecrease = this.GetTemplateChild("VerticalSmallDecrease", Fayde.Controls.Primitives.RepeatButton);
+                    this.$VerticalThumb = this.GetTemplateChild("VerticalThumb", Fayde.Controls.Primitives.Thumb);
 
                     if (this.$HorizontalThumb) {
                         this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
@@ -13855,8 +13672,8 @@ var Fayde;
                 if (track)
                     track.SizeChanged.Unsubscribe(this._OnTrackSizeChanged, this);
 
-                track = this._Track = this.GetTemplateChild("ProgressBarTrack");
-                this._Indicator = this.GetTemplateChild("ProgressBarIndicator");
+                track = this._Track = this.GetTemplateChild("ProgressBarTrack", Fayde.FrameworkElement);
+                this._Indicator = this.GetTemplateChild("ProgressBarIndicator", Fayde.FrameworkElement);
 
                 if (track)
                     track.SizeChanged.Subscribe(this._OnTrackSizeChanged, this);
@@ -14719,23 +14536,17 @@ var Fayde;
                 }
             };
 
-            ScrollViewer.prototype._GetChildOfType = function (name, type) {
-                var temp = this.GetTemplateChild(name);
-                if (temp instanceof type)
-                    return temp;
-            };
-
             ScrollViewer.prototype.OnApplyTemplate = function () {
                 var _this = this;
                 _super.prototype.OnApplyTemplate.call(this);
-                this.$ScrollContentPresenter = this._GetChildOfType("ScrollContentPresenter", Fayde.Controls.ScrollContentPresenter);
-                this.$HorizontalScrollBar = this._GetChildOfType("HorizontalScrollBar", Fayde.Controls.Primitives.ScrollBar);
+                this.$ScrollContentPresenter = this.GetTemplateChild("ScrollContentPresenter", Fayde.Controls.ScrollContentPresenter);
+                this.$HorizontalScrollBar = this.GetTemplateChild("HorizontalScrollBar", Fayde.Controls.Primitives.ScrollBar);
                 if (this.$HorizontalScrollBar) {
                     this.$HorizontalScrollBar.Scroll.Subscribe(function (sender, e) {
                         return _this._HandleScroll(0 /* Horizontal */, e);
                     }, this);
                 }
-                this.$VerticalScrollBar = this._GetChildOfType("VerticalScrollBar", Fayde.Controls.Primitives.ScrollBar);
+                this.$VerticalScrollBar = this.GetTemplateChild("VerticalScrollBar", Fayde.Controls.Primitives.ScrollBar);
                 if (this.$VerticalScrollBar) {
                     this.$VerticalScrollBar.Scroll.Subscribe(function (sender, e) {
                         return _this._HandleScroll(1 /* Vertical */, e);
@@ -15022,22 +14833,16 @@ var Fayde;
                 this.DefaultStyleKey = this.constructor;
                 this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
             }
-            Slider.prototype._GetChildOfType = function (name, type) {
-                var temp = this.GetTemplateChild(name);
-                if (temp instanceof type)
-                    return temp;
-            };
-
             Slider.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
-                this.$HorizontalTemplate = this._GetChildOfType("HorizontalTemplate", Fayde.FrameworkElement);
-                this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalTrackLargeChangeIncreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
-                this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalTrackLargeChangeDecreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
-                this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Fayde.Controls.Primitives.Thumb);
-                this.$VerticalTemplate = this._GetChildOfType("VerticalTemplate", Fayde.FrameworkElement);
-                this.$VerticalLargeIncrease = this._GetChildOfType("VerticalTrackLargeChangeIncreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
-                this.$VerticalLargeDecrease = this._GetChildOfType("VerticalTrackLargeChangeDecreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
-                this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Fayde.Controls.Primitives.Thumb);
+                this.$HorizontalTemplate = this.GetTemplateChild("HorizontalTemplate", Fayde.FrameworkElement);
+                this.$HorizontalLargeIncrease = this.GetTemplateChild("HorizontalTrackLargeChangeIncreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
+                this.$HorizontalLargeDecrease = this.GetTemplateChild("HorizontalTrackLargeChangeDecreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
+                this.$HorizontalThumb = this.GetTemplateChild("HorizontalThumb", Fayde.Controls.Primitives.Thumb);
+                this.$VerticalTemplate = this.GetTemplateChild("VerticalTemplate", Fayde.FrameworkElement);
+                this.$VerticalLargeIncrease = this.GetTemplateChild("VerticalTrackLargeChangeIncreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
+                this.$VerticalLargeDecrease = this.GetTemplateChild("VerticalTrackLargeChangeDecreaseRepeatButton", Fayde.Controls.Primitives.RepeatButton);
+                this.$VerticalThumb = this.GetTemplateChild("VerticalThumb", Fayde.Controls.Primitives.Thumb);
 
                 if (this.$HorizontalThumb != null) {
                     this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
@@ -16409,20 +16214,198 @@ var Fayde;
         var ToolTip = (function (_super) {
             __extends(ToolTip, _super);
             function ToolTip() {
-                _super.apply(this, arguments);
+                _super.call(this);
+                this._TooltipParent = null;
+                this._TooltipParentDCListener = null;
+                this.PlacementOverride = null;
+                this.PlacementTargetOverride = null;
+                this.Opened = new Fayde.RoutedEvent();
+                this.Closed = new Fayde.RoutedEvent();
+                this._ParentPopup = null;
+                this.DefaultStyleKey = this.constructor;
             }
+            Object.defineProperty(ToolTip.prototype, "TooltipParent", {
+                get: function () {
+                    return this._TooltipParent;
+                },
+                set: function (value) {
+                    if (this._TooltipParentDCListener)
+                        this._TooltipParentDCListener.Detach();
+                    this._TooltipParent = value;
+                    if (this._TooltipParent)
+                        this._TooltipParentDCListener = Fayde.DependencyObject.DataContextProperty.Store.ListenToChanged(this._TooltipParent, Fayde.DependencyObject.DataContextProperty, this.OnTooltipParentDataContextChanged, this);
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            ToolTip.prototype.OnApplyTemplate = function () {
+                _super.prototype.OnApplyTemplate.call(this);
+                this.UpdateVisualState(false);
+            };
+
+            ToolTip.prototype.OnHorizontalOffsetChanged = function (args) {
+                if (args.NewValue !== args.OldValue)
+                    this.OnOffsetChanged(args.NewValue, 0);
+            };
+            ToolTip.prototype.OnVerticalOffsetChanged = function (args) {
+                if (args.NewValue !== args.OldValue)
+                    this.OnOffsetChanged(0, args.NewValue);
+            };
+            ToolTip.prototype.OnIsOpenChanged = function (args) {
+                if (args.NewValue) {
+                    if (!this._ParentPopup)
+                        this.HookupParentPopup();
+                    this._ParentPopup.IsOpen = true;
+                    this.PerformPlacement(this.HorizontalOffset, this.VerticalOffset);
+                } else {
+                    this._ParentPopup.IsOpen = false;
+                }
+                this.UpdateVisualState();
+            };
+            ToolTip.prototype.OnOffsetChanged = function (horizontalOffset, verticalOffset) {
+                if (!this._ParentPopup || !this.IsOpen)
+                    return;
+                this.PerformPlacement(horizontalOffset, verticalOffset);
+            };
+            ToolTip.prototype.OnLayoutUpdated = function (sender, e) {
+                if (this._ParentPopup)
+                    this.PerformPlacement(this.HorizontalOffset, this.VerticalOffset);
+            };
+            ToolTip.prototype.OnTooltipParentDataContextChanged = function (sender, args) {
+                if (this._ParentPopup && this.TooltipParent)
+                    this._ParentPopup.DataContext = this.TooltipParent.DataContext;
+            };
+
+            ToolTip.prototype.HookupParentPopup = function () {
+                console.assert(!this._ParentPopup, "this._parentPopup should be null, we want to set visual tree once");
+
+                var pp = this._ParentPopup = new Fayde.Controls.Primitives.Popup();
+                pp.DataContext = !this.TooltipParent ? null : this.TooltipParent.DataContext;
+
+                pp.Opened.Subscribe(this.OnPopupOpened, this);
+                pp.Closed.Subscribe(this.OnPopupClosed, this);
+                this.IsTabStop = false;
+
+                pp.Child = this;
+
+                pp.IsHitTestVisible = false;
+                this.IsHitTestVisible = false;
+            };
+            ToolTip.prototype.OnPopupOpened = function (sender, e) {
+                var args = new Fayde.RoutedEventArgs();
+                args.OriginalSource = this;
+                this.Opened.Raise(this, args);
+                this.LayoutUpdated.Subscribe(this.OnLayoutUpdated, this);
+            };
+            ToolTip.prototype.OnPopupClosed = function (sender, e) {
+                var args = new Fayde.RoutedEventArgs();
+                args.OriginalSource = this;
+                this.Closed.Raise(this, args);
+                this.LayoutUpdated.Unsubscribe(this.OnLayoutUpdated, this);
+            };
+            ToolTip.prototype.PerformPlacement = function (horizontalOffset, verticalOffset) {
+                if (!this.IsOpen)
+                    return;
+                var root = Fayde.Application.Current.RootVisual;
+                if (!root)
+                    return;
+
+                var mode = this.PlacementOverride != null ? this.PlacementOverride : this.Placement;
+                var target = (this.PlacementTargetOverride || this.PlacementTarget);
+                var targetBounds = new rect();
+
+                var point = Fayde.Controls.ToolTipService.MousePosition;
+                if (mode !== 2 /* Mouse */) {
+                    point = new Point();
+                    try  {
+                        if (target != null) {
+                            targetBounds = new rect();
+                            rect.set(targetBounds, 0, 0, target.ActualWidth, target.ActualHeight);
+                            targetBounds = target.TransformToVisual(null).TransformBounds(targetBounds);
+                            point.X = targetBounds.X;
+                            point.Y = targetBounds.Y;
+                        }
+                    } catch (err) {
+                        console.warn("Could not transform the tooltip point.");
+                        return;
+                    }
+                }
+
+                switch (mode) {
+                    case 4 /* Top */:
+                        point.Y = targetBounds.Y - this.ActualHeight;
+                        break;
+                    case 0 /* Bottom */:
+                        point.Y = targetBounds.Y + targetBounds.Height;
+                        break;
+                    case 3 /* Left */:
+                        point.X = targetBounds.X - this.ActualWidth;
+                        break;
+                    case 1 /* Right */:
+                        point.X = targetBounds.X + targetBounds.Width;
+                        break;
+                    case 2 /* Mouse */:
+                        point.Y += new Fayde.Controls.TextBox().FontSize;
+                        break;
+                    default:
+                        throw new NotSupportedException("PlacementMode '" + mode + "' is not supported.");
+                }
+
+                var rootWidth = root.ActualWidth;
+                if ((point.X + this.ActualWidth) > rootWidth) {
+                    if (mode === 1 /* Right */)
+                        point.X = targetBounds.X - this.ActualWidth;
+                    else
+                        point.X = rootWidth - this.ActualWidth;
+                } else if (point.X < 0) {
+                    if (mode === 3 /* Left */)
+                        point.X = targetBounds.X + targetBounds.Width;
+                    else
+                        point.X = 0;
+                }
+
+                var rootHeight = root.ActualHeight;
+                if ((point.Y + this.ActualHeight) > rootHeight) {
+                    if (mode === 0 /* Bottom */)
+                        point.Y = targetBounds.Y - this.ActualHeight;
+                    else
+                        point.Y = rootHeight - this.ActualHeight;
+                } else if (point.Y < 0) {
+                    if (mode === 4 /* Top */)
+                        point.Y = targetBounds.Y + targetBounds.Height;
+                    else
+                        point.Y = 0;
+                }
+
+                this._ParentPopup.VerticalOffset = point.Y;
+                this._ParentPopup.HorizontalOffset = point.X;
+            };
+
+            ToolTip.prototype.GoToStates = function (gotoFunc) {
+                if (this.IsOpen)
+                    gotoFunc("Open");
+                else
+                    gotoFunc("Closed");
+            };
             ToolTip.HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", function () {
                 return Number;
-            }, ToolTip);
+            }, ToolTip, 0, function (d, args) {
+                return d.OnHorizontalOffsetChanged(args);
+            });
             ToolTip.VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", function () {
                 return Number;
-            }, ToolTip);
+            }, ToolTip, 0, function (d, args) {
+                return d.OnVerticalOffsetChanged(args);
+            });
             ToolTip.IsOpenProperty = DependencyProperty.Register("IsOpen", function () {
                 return Boolean;
-            }, ToolTip);
+            }, ToolTip, false, function (d, args) {
+                return d.OnIsOpenChanged(args);
+            });
             ToolTip.PlacementProperty = DependencyProperty.Register("Placement", function () {
                 return new Enum(Fayde.Controls.PlacementMode);
-            }, ToolTip);
+            }, ToolTip, 2 /* Mouse */);
             ToolTip.PlacementTargetProperty = DependencyProperty.Register("PlacementTarget", function () {
                 return Fayde.UIElement;
             }, ToolTip);
@@ -16433,15 +16416,115 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
+
+var Point = (function () {
+    function Point(x, y) {
+        this.X = x == null ? 0 : x;
+        this.Y = y == null ? 0 : y;
+    }
+    Point.prototype.toString = function () {
+        return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
+    };
+    Point.prototype.Equals = function (other) {
+        return this.X === other.X && this.Y === other.Y;
+    };
+
+    Point.prototype.Clone = function () {
+        return new Point(this.X, this.Y);
+    };
+
+    Point.Equals = function (p1, p2) {
+        if (p1 == null)
+            return p2 == null;
+        if (p2 == null)
+            return false;
+        return p1.X === p2.X && p1.Y === p2.Y;
+    };
+    Point.LERP = function (start, end, p) {
+        var x = start.X + (end.X - start.X) * p;
+        var y = start.Y + (end.Y - start.Y) * p;
+        return new Point(x, y);
+    };
+    return Point;
+})();
+Fayde.RegisterType(Point, "window", Fayde.XMLNSX);
+
+Fayde.RegisterTypeConverter(Point, function (val) {
+    if (!val)
+        return new Point();
+    if (val instanceof Point)
+        return val;
+    var tokens = val.toString().split(",");
+    if (tokens.length === 2) {
+        var x = parseFloat(tokens[0]);
+        var y = parseFloat(tokens[1]);
+        return new Point(x, y);
+    }
+    throw new Exception("Cannot parse Point value '" + val + "'");
+});
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        var AssignedToolTipProperty = DependencyProperty.Register("AssignedToolTip", function () {
+            return Fayde.Controls.ToolTip;
+        }, Fayde.UIElement, null);
+
+        var betweenShowDelay = 100;
+        var initialShowDelay = 400;
+        var showDuration = 5000;
+
+        function toolTipChanged(dobj, args) {
+            var owner = dobj;
+            var tooltip = args.NewValue;
+
+            if (args.OldValue)
+                slave.UnregisterTooltip(owner);
+
+            if (!tooltip)
+                return;
+
+            slave.RegisterTooltip(owner, tooltip);
+            slave.SetRootVisual();
+        }
         var ToolTipService = (function () {
             function ToolTipService() {
             }
+            ToolTipService.GetToolTip = function (dobj) {
+                return dobj.GetValue(ToolTipService.ToolTipProperty);
+            };
+            ToolTipService.SetToolTip = function (dobj, value) {
+                dobj.SetValue(ToolTipService.ToolTipProperty, value);
+            };
+
+            ToolTipService.GetPlacement = function (dobj) {
+                return dobj.GetValue(ToolTipService.PlacementProperty);
+            };
+            ToolTipService.SetPlacement = function (dobj, value) {
+                dobj.SetValue(ToolTipService.PlacementProperty, value);
+            };
+
+            ToolTipService.GetPlacementTarget = function (dobj) {
+                return dobj.GetValue(ToolTipService.PlacementTargetProperty);
+            };
+            ToolTipService.SetPlacementTarget = function (dobj, value) {
+                dobj.SetValue(ToolTipService.PlacementTargetProperty, value);
+            };
+
+            Object.defineProperty(ToolTipService, "MousePosition", {
+                get: function () {
+                    return slave.MousePosition;
+                },
+                enumerable: true,
+                configurable: true
+            });
             ToolTipService.ToolTipProperty = DependencyProperty.RegisterAttached("ToolTip", function () {
                 return Fayde.DependencyObject;
+            }, ToolTipService, undefined, toolTipChanged);
+
+            ToolTipService.PlacementProperty = DependencyProperty.RegisterAttached("Placement", function () {
+                return new Enum(Fayde.Controls.PlacementMode);
             }, ToolTipService);
+
             ToolTipService.PlacementTargetProperty = DependencyProperty.RegisterAttached("PlacementTarget", function () {
                 return Fayde.UIElement;
             }, ToolTipService);
@@ -16449,6 +16532,213 @@ var Fayde;
         })();
         Controls.ToolTipService = ToolTipService;
         Fayde.RegisterType(ToolTipService, "Fayde.Controls", Fayde.XMLNS);
+
+        var ToolTipServiceSlave = (function () {
+            function ToolTipServiceSlave() {
+                this.MousePosition = new Point();
+                this._RootVisual = null;
+                this._CurrentTooltip = null;
+                this._LastEnterSource = null;
+                this._LastOpened = 0;
+                this._OpenInterval = null;
+                this._CloseInterval = null;
+            }
+            ToolTipServiceSlave.prototype.SetRootVisual = function () {
+                if (this._RootVisual || !Fayde.Application.Current)
+                    return;
+                var rv = this._RootVisual = Fayde.Application.Current.RootVisual;
+                if (!rv)
+                    return;
+
+                rv.MouseMove.Subscribe(this.OnRootMouseMove, this);
+            };
+            ToolTipServiceSlave.prototype.OnRootMouseMove = function (sender, e) {
+                this.MousePosition = e.GetPosition(null);
+            };
+
+            ToolTipServiceSlave.prototype.RegisterTooltip = function (owner, tooltip) {
+                console.assert(owner != null, "ToolTip must have an owner");
+                console.assert(tooltip != null, "ToolTip can not be null");
+
+                owner.MouseEnter.Subscribe(this.OnOwnerMouseEnter, this);
+                owner.MouseLeave.Subscribe(this.OnOwnerMouseLeave, this);
+                owner.MouseLeftButtonDown.Subscribe(this.OnOwnerMouseLeftButtonDown, this);
+                owner.KeyDown.Subscribe(this.OnOwnerKeyDown, this);
+                var converted = this.ConvertToToolTip(tooltip);
+                owner.SetValue(AssignedToolTipProperty, converted);
+                if (owner instanceof Fayde.FrameworkElement)
+                    converted.TooltipParent = owner;
+            };
+            ToolTipServiceSlave.prototype.UnregisterTooltip = function (owner) {
+                console.assert(owner != null, "owner element is required");
+
+                var tooltip = owner.GetValue(AssignedToolTipProperty);
+                if (!tooltip || !(tooltip instanceof Fayde.Controls.ToolTip))
+                    return;
+
+                owner.MouseEnter.Unsubscribe(this.OnOwnerMouseEnter, this);
+                owner.MouseLeave.Unsubscribe(this.OnOwnerMouseLeave, this);
+                owner.MouseLeftButtonDown.Unsubscribe(this.OnOwnerMouseLeftButtonDown, this);
+                owner.KeyDown.Unsubscribe(this.OnOwnerKeyDown, this);
+
+                tooltip.TooltipParent = null;
+                if (tooltip.IsOpen) {
+                    if (tooltip === this._CurrentTooltip) {
+                        window.clearInterval(this._CloseInterval);
+                        this._CurrentTooltip = null;
+                        this._Owner = null;
+                        this._LastEnterSource = null;
+                    }
+
+                    tooltip.IsOpen = false;
+                }
+
+                owner.ClearValue(AssignedToolTipProperty);
+            };
+
+            ToolTipServiceSlave.prototype.OnOwnerMouseEnter = function (sender, e) {
+                this.MousePosition = e.GetPosition(null);
+                this.OnOwnerMouseEnterInternal(sender, e.OriginalSource);
+            };
+            ToolTipServiceSlave.prototype.OnOwnerMouseLeave = function (sender, e) {
+                if (!this._CurrentTooltip) {
+                    window.clearInterval(this._OpenInterval);
+                    this._Owner = null;
+                    this._LastEnterSource = null;
+                    return;
+                }
+                this.CloseAutomaticToolTip();
+            };
+            ToolTipServiceSlave.prototype.OnOwnerMouseLeftButtonDown = function (sender, e) {
+                if (this._LastEnterSource && this._LastEnterSource === e.OriginalSource)
+                    return;
+                if (this._Owner !== sender)
+                    return;
+
+                if (!this._CurrentTooltip) {
+                    window.clearInterval(this._OpenInterval);
+                    this._Owner = null;
+                    this._LastEnterSource = null;
+                    return;
+                }
+
+                this.CloseAutomaticToolTip();
+            };
+            ToolTipServiceSlave.prototype.OnOwnerKeyDown = function (sender, e) {
+                if (this._LastEnterSource && this._LastEnterSource === e.OriginalSource)
+                    return;
+                if (this._Owner !== sender)
+                    return;
+
+                if (!this._CurrentTooltip) {
+                    window.clearInterval(this._OpenInterval);
+                    this._Owner = null;
+                    this._LastEnterSource = null;
+                    return;
+                }
+
+                if (isSpecialKey(e.Key))
+                    return;
+
+                this.CloseAutomaticToolTip();
+            };
+            ToolTipServiceSlave.prototype.OnOwnerMouseEnterInternal = function (sender, source) {
+                var _this = this;
+                if (this._LastEnterSource && this._LastEnterSource === source)
+                    return;
+
+                if (this._CurrentTooltip) {
+                    if (sender.GetValue(AssignedToolTipProperty) === this._CurrentTooltip)
+                        return;
+                    this.CloseAutomaticToolTip();
+                }
+
+                this._Owner = sender;
+                this._LastEnterSource = source;
+
+                console.assert(!this._CurrentTooltip);
+
+                this.SetRootVisual();
+
+                var sinceLastOpen = new Date().getTime() - this._LastOpened;
+                if (sinceLastOpen <= betweenShowDelay) {
+                    this.OpenAutomaticToolTip();
+                } else {
+                    this._OpenInterval = window.setInterval(function () {
+                        return _this.OpenAutomaticToolTip();
+                    }, initialShowDelay);
+                }
+            };
+
+            ToolTipServiceSlave.prototype.ConvertToToolTip = function (o) {
+                if (o instanceof Fayde.Controls.ToolTip)
+                    return o;
+
+                if (o instanceof Fayde.FrameworkElement) {
+                    var parent = o.Parent;
+                    if (parent instanceof Fayde.Controls.ToolTip)
+                        return parent;
+                }
+
+                var tooltip = new Fayde.Controls.ToolTip();
+                tooltip.Content = o;
+                return tooltip;
+            };
+
+            ToolTipServiceSlave.prototype.OpenAutomaticToolTip = function () {
+                var _this = this;
+                window.clearInterval(this._OpenInterval);
+
+                console.assert(this._Owner != null, "ToolTip owner was not set prior to starting the open timer");
+
+                var cur = this._CurrentTooltip = this._Owner.GetValue(AssignedToolTipProperty);
+
+                if (cur != null) {
+                    cur.PlacementOverride = ToolTipService.GetPlacement(this._Owner);
+                    cur.PlacementTargetOverride = ToolTipService.GetPlacementTarget(this._Owner) || this._Owner;
+                    cur.IsOpen = true;
+
+                    this._CloseInterval = window.setInterval(function () {
+                        return _this.CloseAutomaticToolTip();
+                    }, showDuration);
+                }
+            };
+            ToolTipServiceSlave.prototype.CloseAutomaticToolTip = function () {
+                window.clearInterval(this._CloseInterval);
+
+                var cur = this._CurrentTooltip;
+                cur.PlacementOverride = null;
+                cur.PlacementTargetOverride = null;
+                cur.IsOpen = false;
+                this._CurrentTooltip = null;
+
+                this._Owner = null;
+                this._LastEnterSource = null;
+
+                this._LastOpened = new Date().getTime();
+            };
+            return ToolTipServiceSlave;
+        })();
+        var slave = new ToolTipServiceSlave();
+
+        var specialKeys = [
+            6 /* Alt */,
+            1 /* Back */,
+            19 /* Delete */,
+            17 /* Down */,
+            12 /* End */,
+            13 /* Home */,
+            18 /* Insert */,
+            14 /* Left */,
+            11 /* PageDown */,
+            10 /* PageUp */,
+            16 /* Right */,
+            9 /* Space */,
+            15 /* Up */
+        ];
+        function isSpecialKey(key) {
+            return specialKeys.indexOf(key) > -1;
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -24395,8 +24685,13 @@ var Fayde;
                         if (value == null) {
                             keyFrame.ConvertedValue = undefined;
                         } else {
-                            var converted = value;
-
+                            var converted;
+                            try  {
+                                converted = Fayde.ConvertAnyToType(value, propd.GetTargetType());
+                            } catch (err) {
+                                console.warn("Error resolving ObjectAnimation Value.");
+                                return false;
+                            }
                             keyFrame.ConvertedValue = converted;
                         }
                     }
@@ -29588,52 +29883,6 @@ Fayde.RegisterTypeConverter(Length, function (val) {
     if (typeof val === "number")
         return val;
     return parseFloat(val.toString());
-});
-
-var Point = (function () {
-    function Point(x, y) {
-        this.X = x == null ? 0 : x;
-        this.Y = y == null ? 0 : y;
-    }
-    Point.prototype.toString = function () {
-        return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
-    };
-    Point.prototype.Equals = function (other) {
-        return this.X === other.X && this.Y === other.Y;
-    };
-
-    Point.prototype.Clone = function () {
-        return new Point(this.X, this.Y);
-    };
-
-    Point.Equals = function (p1, p2) {
-        if (p1 == null)
-            return p2 == null;
-        if (p2 == null)
-            return false;
-        return p1.X === p2.X && p1.Y === p2.Y;
-    };
-    Point.LERP = function (start, end, p) {
-        var x = start.X + (end.X - start.X) * p;
-        var y = start.Y + (end.Y - start.Y) * p;
-        return new Point(x, y);
-    };
-    return Point;
-})();
-Fayde.RegisterType(Point, "window", Fayde.XMLNSX);
-
-Fayde.RegisterTypeConverter(Point, function (val) {
-    if (!val)
-        return new Point();
-    if (val instanceof Point)
-        return val;
-    var tokens = val.toString().split(",");
-    if (tokens.length === 2) {
-        var x = parseFloat(tokens[0]);
-        var y = parseFloat(tokens[1]);
-        return new Point(x, y);
-    }
-    throw new Exception("Cannot parse Point value '" + val + "'");
 });
 var vec2;
 (function (vec2) {
@@ -36509,7 +36758,9 @@ var Fayde;
                     return o;
             }
 
-            o = Fayde.Application.Current.Resources.Get(key);
+            var app = Fayde.Application.Current;
+            if (app)
+                o = app.Resources.Get(key);
             if (o !== undefined)
                 return o;
 
