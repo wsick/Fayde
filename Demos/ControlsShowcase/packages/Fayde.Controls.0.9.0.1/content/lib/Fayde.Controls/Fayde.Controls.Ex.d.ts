@@ -515,8 +515,8 @@ declare module Fayde.Controls {
         static SelectedValueProperty: DependencyProperty;
         static SelectedValuePathProperty: DependencyProperty;
         static ItemContainerStyleProperty: DependencyProperty;
-        public SelectedItem : any;
-        public SelectedValue : any;
+        public SelectedItem: any;
+        public SelectedValue: any;
         public SelectedValuePath: string;
         public ItemContainerStyle: Fayde.Style;
         private OnSelectedItemChanged(e);

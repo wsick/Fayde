@@ -2916,37 +2916,6 @@ var Fayde;
                 this.ItemsControlHelper = new Fayde.Controls.Internal.ItemsControlHelper(this);
                 this.Interaction = new Fayde.Controls.Internal.InteractionHelper(this);
             }
-            Object.defineProperty(TreeView.prototype, "SelectedItem", {
-                get: function () {
-                    return this.GetValue(TreeView.SelectedItemProperty);
-                },
-                set: function (value) {
-                    try  {
-                        this._AllowWrite = true;
-                        this.SetValue(TreeView.SelectedItemProperty, value);
-                    } finally {
-                        this._AllowWrite = false;
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TreeView.prototype, "SelectedValue", {
-                get: function () {
-                    return this.GetValue(TreeView.SelectedValueProperty);
-                },
-                set: function (value) {
-                    try  {
-                        this._AllowWrite = true;
-                        this.SetValue(TreeView.SelectedValueProperty, value);
-                    } finally {
-                        this._AllowWrite = false;
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
-
             TreeView.prototype.OnSelectedItemChanged = function (e) {
                 if (this._IgnorePropertyChange)
                     this._IgnorePropertyChange = false;
@@ -3384,6 +3353,34 @@ var Fayde;
             return TreeView;
         })(Fayde.Controls.ItemsControl);
         Controls.TreeView = TreeView;
+
+        Object.defineProperty(TreeView.prototype, "SelectedValue", {
+            get: function () {
+                return this.GetValue(TreeView.SelectedValueProperty);
+            },
+            set: function (value) {
+                try  {
+                    this._AllowWrite = true;
+                    this.SetValue(TreeView.SelectedValueProperty, value);
+                } finally {
+                    this._AllowWrite = false;
+                }
+            }
+        });
+
+        Object.defineProperty(TreeView.prototype, "SelectedItem", {
+            get: function () {
+                return this.GetValue(TreeView.SelectedItemProperty);
+            },
+            set: function (value) {
+                try  {
+                    this._AllowWrite = true;
+                    this.SetValue(TreeView.SelectedItemProperty, value);
+                } finally {
+                    this._AllowWrite = false;
+                }
+            }
+        });
 
         function isControlKeyDown() {
             return (Fayde.Input.Keyboard.Modifiers & 2 /* Control */) === 2 /* Control */;

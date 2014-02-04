@@ -8,24 +8,8 @@ module Fayde.Controls {
         static SelectedValuePathProperty = DependencyProperty.Register("SelectedValuePath", () => String, TreeView, "", (d, args) => (<TreeView>d).OnSelectedValuePathChanged(args));
         static ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", () => Style, TreeView, null, (d, args) => (<TreeView>d).OnItemContainerStyleChanged(args));
 
-        get SelectedItem(): any { return this.GetValue(TreeView.SelectedItemProperty); }
-        set SelectedItem(value: any) {
-            try {
-                this._AllowWrite = true;
-                this.SetValue(TreeView.SelectedItemProperty, value);
-            } finally {
-                this._AllowWrite = false;
-            }
-        }
-        get SelectedValue(): any { return this.GetValue(TreeView.SelectedValueProperty); }
-        set SelectedValue(value: any) {
-            try {
-                this._AllowWrite = true;
-                this.SetValue(TreeView.SelectedValueProperty, value);
-            } finally {
-                this._AllowWrite = false;
-            }
-        }
+        SelectedItem: any;
+        SelectedValue: any;
         SelectedValuePath: string;
         ItemContainerStyle: Style;
 
@@ -465,6 +449,30 @@ module Fayde.Controls {
             return false;
         }
     }
+
+    Object.defineProperty(TreeView.prototype, "SelectedValue", {
+        get: function () { return this.GetValue(TreeView.SelectedValueProperty); },
+        set: function (value: any) {
+            try {
+                this._AllowWrite = true;
+                this.SetValue(TreeView.SelectedValueProperty, value);
+            } finally {
+                this._AllowWrite = false;
+            }
+        }
+    });
+    
+    Object.defineProperty(TreeView.prototype, "SelectedItem", {
+        get: function () { return this.GetValue(TreeView.SelectedItemProperty); },
+        set: function (value: any) {
+            try {
+                this._AllowWrite = true;
+                this.SetValue(TreeView.SelectedItemProperty, value);
+            } finally {
+                this._AllowWrite = false;
+            }
+        }
+    });
 
     function isControlKeyDown(): boolean {
         return (Input.Keyboard.Modifiers & Input.ModifierKeys.Control) === Input.ModifierKeys.Control;
