@@ -3394,118 +3394,149 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        (function (Primitives) {
-            var TabPanel = (function (_super) {
-                __extends(TabPanel, _super);
-                function TabPanel() {
-                    _super.apply(this, arguments);
-                    this._NumberOfRows = 1;
-                }
-                Object.defineProperty(TabPanel.prototype, "TabAlignment", {
-                    get: function () {
-                        var tabControlParent = Fayde.VisualTreeHelper.GetParentOfType(this, Fayde.Controls.TabControl);
-                        if (tabControlParent != null)
-                            return tabControlParent.TabStripPlacement;
-                        return 1 /* Top */;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
+        var TabPanel = (function (_super) {
+            __extends(TabPanel, _super);
+            function TabPanel() {
+                _super.apply(this, arguments);
+                this._NumberOfRows = 1;
+            }
+            Object.defineProperty(TabPanel.prototype, "TabAlignment", {
+                get: function () {
+                    var tabControlParent = Fayde.VisualTreeHelper.GetParentOfType(this, Fayde.Controls.TabControl);
+                    if (tabControlParent != null)
+                        return tabControlParent.TabStripPlacement;
+                    return 1 /* Top */;
+                },
+                enumerable: true,
+                configurable: true
+            });
 
-                TabPanel.prototype.MeasureOverride = function (availableSize) {
-                    var size = new size();
-                    var tabAlignment = this.TabAlignment;
-                    this._NumberOfRows = 1;
-                    this._RowHeight = 0.0;
+            TabPanel.prototype.MeasureOverride = function (availableSize) {
+                var size = new size();
+                var tabAlignment = this.TabAlignment;
+                this._NumberOfRows = 1;
+                this._RowHeight = 0.0;
 
-                    var childEnumerator = this.Children.GetEnumerator();
-                    var element;
+                var childEnumerator = this.Children.GetEnumerator();
+                var element;
 
-                    if (tabAlignment == 1 /* Top */ || tabAlignment == 3 /* Bottom */) {
-                        var num1 = 0;
-                        var num2 = 0.0;
-                        var num3 = 0.0;
-                        while (childEnumerator.MoveNext()) {
-                            element = childEnumerator.Current;
-                            element.Measure(availableSize);
-                            if (element.Visibility !== 1 /* Collapsed */) {
-                                var sizeWithoutMargin = getDesiredSizeWithoutMargin(element);
-                                if (this._RowHeight < sizeWithoutMargin.Height)
-                                    this._RowHeight = sizeWithoutMargin.Height;
-                                if (num2 + sizeWithoutMargin.Width > availableSize.Width && num1 > 0) {
-                                    if (num3 < num2)
-                                        num3 = num2;
-                                    num2 = sizeWithoutMargin.Width;
-                                    num1 = 1;
-                                    ++this._NumberOfRows;
-                                } else {
-                                    num2 += sizeWithoutMargin.Width;
-                                    ++num1;
-                                }
-                            }
-                        }
-                        if (num3 < num2)
-                            num3 = num2;
-                        size.Height = this._RowHeight * this._NumberOfRows;
-                        size.Width = !isFinite(size.Width) || isNaN(size.Width) || num3 < availableSize.Width ? num3 : availableSize.Width;
-                    } else if (tabAlignment === 0 /* Left */ || tabAlignment === 2 /* Right */) {
-                        while (childEnumerator.MoveNext()) {
-                            element = childEnumerator.Current;
-                            if (element.Visibility != 1 /* Collapsed */) {
-                                element.Measure(availableSize);
-                                var sizeWithoutMargin = getDesiredSizeWithoutMargin(element);
-                                if (size.Width < sizeWithoutMargin.Width)
-                                    size.Width = sizeWithoutMargin.Width;
-                                size.Height += sizeWithoutMargin.Height;
-                            }
-                        }
-                    }
-                    return size;
-                };
-                TabPanel.prototype.ArrangeOverride = function (finalSize) {
-                    switch (this.TabAlignment) {
-                        case 1 /* Top */:
-                        case 3 /* Bottom */:
-                            this._ArrangeHorizontal(finalSize);
-                            break;
-                        case 0 /* Left */:
-                        case 2 /* Right */:
-                            this._ArrangeVertical(finalSize);
-                            break;
-                    }
-                    return finalSize;
-                };
-
-                TabPanel.prototype._ArrangeHorizontal = function (arrangeSize) {
-                    var tabAlignment = this.TabAlignment;
-                    var flag1 = this._NumberOfRows > 1;
-                    var num = 0;
-                    var solution = [];
-                    var size1 = new size();
-                    var headersSize = this._GetHeadersSize();
-                    if (flag1) {
-                        solution = this._CalculateHeaderDistribution(arrangeSize.Width, headersSize);
-                        num = this._GetActiveRow(solution);
-                        if (tabAlignment === 1 /* Top */)
-                            size1.Height = (this._NumberOfRows - 1.0 - num) * this._RowHeight;
-                        if (tabAlignment === 3 /* Bottom */ && num !== 0)
-                            size1.Height = (this._NumberOfRows - num) * this._RowHeight;
-                    }
-                    var index1 = 0;
-                    var index2 = 0;
-                    var childEnumerator = this.Children.GetEnumerator();
-                    var uie;
+                if (tabAlignment == 1 /* Top */ || tabAlignment == 3 /* Bottom */) {
+                    var num1 = 0;
+                    var num2 = 0.0;
+                    var num3 = 0.0;
                     while (childEnumerator.MoveNext()) {
-                        uie = childEnumerator.Current;
-                        var thickness = uie.GetValue(Fayde.FrameworkElement.MarginProperty);
-                        var left = thickness.Left;
-                        var right = thickness.Right;
-                        var top = thickness.Top;
-                        var bottom = thickness.Bottom;
-                        var flag2 = flag1 && (index2 < solution.length && solution[index2] === index1 || index1 === this.Children.Count - 1);
-                        var size2 = size.fromRaw(headersSize[index1], this._RowHeight);
-                        if (flag2)
-                            size2.Width = arrangeSize.Width - size1.Width;
+                        element = childEnumerator.Current;
+                        element.Measure(availableSize);
+                        if (element.Visibility !== 1 /* Collapsed */) {
+                            var sizeWithoutMargin = getDesiredSizeWithoutMargin(element);
+                            if (this._RowHeight < sizeWithoutMargin.Height)
+                                this._RowHeight = sizeWithoutMargin.Height;
+                            if (num2 + sizeWithoutMargin.Width > availableSize.Width && num1 > 0) {
+                                if (num3 < num2)
+                                    num3 = num2;
+                                num2 = sizeWithoutMargin.Width;
+                                num1 = 1;
+                                ++this._NumberOfRows;
+                            } else {
+                                num2 += sizeWithoutMargin.Width;
+                                ++num1;
+                            }
+                        }
+                    }
+                    if (num3 < num2)
+                        num3 = num2;
+                    size.Height = this._RowHeight * this._NumberOfRows;
+                    size.Width = !isFinite(size.Width) || isNaN(size.Width) || num3 < availableSize.Width ? num3 : availableSize.Width;
+                } else if (tabAlignment === 0 /* Left */ || tabAlignment === 2 /* Right */) {
+                    while (childEnumerator.MoveNext()) {
+                        element = childEnumerator.Current;
+                        if (element.Visibility != 1 /* Collapsed */) {
+                            element.Measure(availableSize);
+                            var sizeWithoutMargin = getDesiredSizeWithoutMargin(element);
+                            if (size.Width < sizeWithoutMargin.Width)
+                                size.Width = sizeWithoutMargin.Width;
+                            size.Height += sizeWithoutMargin.Height;
+                        }
+                    }
+                }
+                return size;
+            };
+            TabPanel.prototype.ArrangeOverride = function (finalSize) {
+                switch (this.TabAlignment) {
+                    case 1 /* Top */:
+                    case 3 /* Bottom */:
+                        this._ArrangeHorizontal(finalSize);
+                        break;
+                    case 0 /* Left */:
+                    case 2 /* Right */:
+                        this._ArrangeVertical(finalSize);
+                        break;
+                }
+                return finalSize;
+            };
+
+            TabPanel.prototype._ArrangeHorizontal = function (arrangeSize) {
+                var tabAlignment = this.TabAlignment;
+                var flag1 = this._NumberOfRows > 1;
+                var num = 0;
+                var solution = [];
+                var size1 = new size();
+                var headersSize = this._GetHeadersSize();
+                if (flag1) {
+                    solution = this._CalculateHeaderDistribution(arrangeSize.Width, headersSize);
+                    num = this._GetActiveRow(solution);
+                    if (tabAlignment === 1 /* Top */)
+                        size1.Height = (this._NumberOfRows - 1.0 - num) * this._RowHeight;
+                    if (tabAlignment === 3 /* Bottom */ && num !== 0)
+                        size1.Height = (this._NumberOfRows - num) * this._RowHeight;
+                }
+                var index1 = 0;
+                var index2 = 0;
+                var childEnumerator = this.Children.GetEnumerator();
+                var uie;
+                while (childEnumerator.MoveNext()) {
+                    uie = childEnumerator.Current;
+                    var thickness = uie.GetValue(Fayde.FrameworkElement.MarginProperty);
+                    var left = thickness.Left;
+                    var right = thickness.Right;
+                    var top = thickness.Top;
+                    var bottom = thickness.Bottom;
+                    var flag2 = flag1 && (index2 < solution.length && solution[index2] === index1 || index1 === this.Children.Count - 1);
+                    var size2 = size.fromRaw(headersSize[index1], this._RowHeight);
+                    if (flag2)
+                        size2.Width = arrangeSize.Width - size1.Width;
+                    var tabItem = uie;
+                    if (tabItem instanceof Fayde.Controls.TabItem) {
+                        if (tabItem.IsSelected)
+                            tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 1);
+                        else
+                            tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 0);
+                    }
+                    var arrSize = new rect();
+                    rect.set(arrSize, size1.Width, size1.Height, size2.Width, size2.Height);
+                    uie.Arrange(arrSize);
+                    var size3 = size2;
+                    size3.Height = Math.max(0.0, size3.Height - top - bottom);
+                    size3.Width = Math.max(0.0, size3.Width - left - right);
+                    size1.Width += size2.Width;
+                    if (flag2) {
+                        if (index2 === num && tabAlignment === 1 /* Top */ || index2 === num - 1 && tabAlignment === 3 /* Bottom */)
+                            size1.Height = 0.0;
+                        else
+                            size1.Height += this._RowHeight;
+                        size1.Width = 0.0;
+                        ++index2;
+                    }
+                    ++index1;
+                }
+            };
+            TabPanel.prototype._ArrangeVertical = function (arrangeSize) {
+                var y = 0.0;
+                var childEnumerator = this.Children.GetEnumerator();
+                var uie;
+                while (childEnumerator.MoveNext()) {
+                    uie = childEnumerator.Current;
+                    if (uie.Visibility !== 1 /* Collapsed */) {
                         var tabItem = uie;
                         if (tabItem instanceof Fayde.Controls.TabItem) {
                             if (tabItem.IsSelected)
@@ -3513,201 +3544,167 @@ var Fayde;
                             else
                                 tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 0);
                         }
+                        var sizeWithoutMargin = getDesiredSizeWithoutMargin(uie);
                         var arrSize = new rect();
-                        rect.set(arrSize, size1.Width, size1.Height, size2.Width, size2.Height);
+                        rect.set(arrSize, 0.0, y, arrangeSize.Width, sizeWithoutMargin.Height);
                         uie.Arrange(arrSize);
-                        var size3 = size2;
-                        size3.Height = Math.max(0.0, size3.Height - top - bottom);
-                        size3.Width = Math.max(0.0, size3.Width - left - right);
-                        size1.Width += size2.Width;
-                        if (flag2) {
-                            if (index2 === num && tabAlignment === 1 /* Top */ || index2 === num - 1 && tabAlignment === 3 /* Bottom */)
-                                size1.Height = 0.0;
-                            else
-                                size1.Height += this._RowHeight;
-                            size1.Width = 0.0;
-                            ++index2;
-                        }
-                        ++index1;
+                        y += sizeWithoutMargin.Height;
                     }
-                };
-                TabPanel.prototype._ArrangeVertical = function (arrangeSize) {
-                    var y = 0.0;
+                }
+            };
+
+            TabPanel.prototype._GetActiveRow = function (solution) {
+                var index = 0;
+                var num = 0;
+                if (solution.length > 0) {
                     var childEnumerator = this.Children.GetEnumerator();
                     var uie;
                     while (childEnumerator.MoveNext()) {
                         uie = childEnumerator.Current;
-                        if (uie.Visibility !== 1 /* Collapsed */) {
-                            var tabItem = uie;
-                            if (tabItem instanceof Fayde.Controls.TabItem) {
-                                if (tabItem.IsSelected)
-                                    tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 1);
-                                else
-                                    tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 0);
+                        if (uie.GetValue(Fayde.Controls.TabItem.IsSelectedProperty))
+                            return index;
+                        if (index < solution.length && solution[index] === num)
+                            ++index;
+                        ++num;
+                    }
+                }
+                if (this.TabAlignment === 1 /* Top */)
+                    index = this._NumberOfRows - 1;
+                return index;
+            };
+            TabPanel.prototype._CalculateHeaderDistribution = function (rowWidthLimit, headerWidth) {
+                var num1 = 0.0;
+                var length1 = headerWidth.length;
+                var length2 = this._NumberOfRows - 1;
+                var num2 = 0.0;
+                var num3 = 0;
+                var numArray1 = new Array(length2);
+                var numArray2 = new Array(length2);
+
+                var numArray3 = new Array(this._NumberOfRows);
+                var numArray4 = numArray3.slice(0);
+                var numArray5 = numArray3.slice(0);
+                var numArray6 = numArray3.slice(0);
+
+                var index1 = 0;
+                for (var index2 = 0; index2 < length1; ++index2) {
+                    if (num2 + headerWidth[index2] > rowWidthLimit && num3 > 0) {
+                        numArray4[index1] = num2;
+                        numArray3[index1] = num3;
+                        var num4 = Math.max(0.0, (rowWidthLimit - num2) / num3);
+                        numArray5[index1] = num4;
+                        numArray1[index1] = index2 - 1;
+                        if (num1 < num4)
+                            num1 = num4;
+                        ++index1;
+                        num2 = headerWidth[index2];
+                        num3 = 1;
+                    } else {
+                        num2 += headerWidth[index2];
+                        if (headerWidth[index2] != 0.0)
+                            ++num3;
+                    }
+                }
+                if (index1 === 0)
+                    return [];
+                numArray4[index1] = num2;
+                numArray3[index1] = num3;
+                var num5 = (rowWidthLimit - num2) / num3;
+                numArray5[index1] = num5;
+                if (num1 < num5)
+                    num1 = num5;
+
+                numArray2 = numArray1.slice(0);
+                numArray6 = numArray5.slice(0);
+                while (true) {
+                    var num4 = 0;
+                    do {
+                        var num6 = 0;
+                        var num7 = 0.0;
+                        for (var index2 = 0; index2 < this._NumberOfRows; ++index2) {
+                            if (num7 < numArray5[index2]) {
+                                num7 = numArray5[index2];
+                                num6 = index2;
                             }
-                            var sizeWithoutMargin = getDesiredSizeWithoutMargin(uie);
-                            var arrSize = new rect();
-                            rect.set(arrSize, 0.0, y, arrangeSize.Width, sizeWithoutMargin.Height);
-                            uie.Arrange(arrSize);
-                            y += sizeWithoutMargin.Height;
                         }
-                    }
-                };
-
-                TabPanel.prototype._GetActiveRow = function (solution) {
-                    var index = 0;
-                    var num = 0;
-                    if (solution.length > 0) {
-                        var childEnumerator = this.Children.GetEnumerator();
-                        var uie;
-                        while (childEnumerator.MoveNext()) {
-                            uie = childEnumerator.Current;
-                            if (uie.GetValue(Fayde.Controls.TabItem.IsSelectedProperty))
-                                return index;
-                            if (index < solution.length && solution[index] === num)
-                                ++index;
-                            ++num;
-                        }
-                    }
-                    if (this.TabAlignment === 1 /* Top */)
-                        index = this._NumberOfRows - 1;
-                    return index;
-                };
-                TabPanel.prototype._CalculateHeaderDistribution = function (rowWidthLimit, headerWidth) {
-                    var num1 = 0.0;
-                    var length1 = headerWidth.length;
-                    var length2 = this._NumberOfRows - 1;
-                    var num2 = 0.0;
-                    var num3 = 0;
-                    var numArray1 = new Array(length2);
-                    var numArray2 = new Array(length2);
-
-                    var numArray3 = new Array(this._NumberOfRows);
-                    var numArray4 = numArray3.slice(0);
-                    var numArray5 = numArray3.slice(0);
-                    var numArray6 = numArray3.slice(0);
-
-                    var index1 = 0;
-                    for (var index2 = 0; index2 < length1; ++index2) {
-                        if (num2 + headerWidth[index2] > rowWidthLimit && num3 > 0) {
-                            numArray4[index1] = num2;
-                            numArray3[index1] = num3;
-                            var num4 = Math.max(0.0, (rowWidthLimit - num2) / num3);
-                            numArray5[index1] = num4;
-                            numArray1[index1] = index2 - 1;
-                            if (num1 < num4)
-                                num1 = num4;
-                            ++index1;
-                            num2 = headerWidth[index2];
-                            num3 = 1;
-                        } else {
-                            num2 += headerWidth[index2];
-                            if (headerWidth[index2] != 0.0)
-                                ++num3;
-                        }
-                    }
-                    if (index1 === 0)
-                        return [];
-                    numArray4[index1] = num2;
-                    numArray3[index1] = num3;
-                    var num5 = (rowWidthLimit - num2) / num3;
-                    numArray5[index1] = num5;
-                    if (num1 < num5)
-                        num1 = num5;
-
-                    numArray2 = numArray1.slice(0);
-                    numArray6 = numArray5.slice(0);
-                    while (true) {
-                        var num4 = 0;
-                        do {
-                            var num6 = 0;
-                            var num7 = 0.0;
-                            for (var index2 = 0; index2 < this._NumberOfRows; ++index2) {
-                                if (num7 < numArray5[index2]) {
-                                    num7 = numArray5[index2];
-                                    num6 = index2;
+                        if (num6 != 0) {
+                            var index2 = num6;
+                            var index3 = index2 - 1;
+                            var index4 = numArray1[index3];
+                            var num8 = headerWidth[index4];
+                            numArray4[index2] += num8;
+                            if (numArray4[index2] <= rowWidthLimit) {
+                                --numArray1[index3];
+                                ++numArray3[index2];
+                                numArray4[index3] -= num8;
+                                --numArray3[index3];
+                                numArray5[index3] = (rowWidthLimit - numArray4[index3]) / numArray3[index3];
+                                numArray5[index2] = (rowWidthLimit - numArray4[index2]) / numArray3[index2];
+                                num4 = 0.0;
+                                for (var index5 = 0; index5 < this._NumberOfRows; ++index5) {
+                                    if (num4 < numArray5[index5])
+                                        num4 = numArray5[index5];
                                 }
-                            }
-                            if (num6 != 0) {
-                                var index2 = num6;
-                                var index3 = index2 - 1;
-                                var index4 = numArray1[index3];
-                                var num8 = headerWidth[index4];
-                                numArray4[index2] += num8;
-                                if (numArray4[index2] <= rowWidthLimit) {
-                                    --numArray1[index3];
-                                    ++numArray3[index2];
-                                    numArray4[index3] -= num8;
-                                    --numArray3[index3];
-                                    numArray5[index3] = (rowWidthLimit - numArray4[index3]) / numArray3[index3];
-                                    numArray5[index2] = (rowWidthLimit - numArray4[index2]) / numArray3[index2];
-                                    num4 = 0.0;
-                                    for (var index5 = 0; index5 < this._NumberOfRows; ++index5) {
-                                        if (num4 < numArray5[index5])
-                                            num4 = numArray5[index5];
-                                    }
-                                } else
-                                    break;
                             } else
                                 break;
-                        } while(num4 >= num1);
-                        num1 = num4;
-                        numArray2 = numArray1.slice(0);
-                        numArray6 = numArray5.slice(0);
-                    }
-
-                    var index6 = 0;
-                    var index7 = 0;
-                    var enumerator = this.Children.GetEnumerator();
-                    var uie;
-                    while (enumerator.MoveNext()) {
-                        uie = enumerator.Current;
-                        if (uie.Visibility === 0 /* Visible */)
-                            headerWidth[index7] += numArray6[index6];
-                        if (index6 < length2 && numArray2[index6] == index7)
-                            ++index6;
-                        ++index7;
-                    }
-                    return numArray2;
-                };
-                TabPanel.prototype._GetHeadersSize = function () {
-                    var arr = [];
-                    var index = 0;
-                    var enumerator = this.Children.GetEnumerator();
-                    var uie;
-                    while (enumerator.MoveNext()) {
-                        uie = enumerator.Current;
-                        if (uie.Visibility === 1 /* Collapsed */) {
-                            arr.push(0.0);
-                        } else {
-                            arr.push(getDesiredSizeWithoutMargin(uie).Width);
-                        }
-                    }
-                    return arr;
-                };
-                return TabPanel;
-            })(Fayde.Controls.Panel);
-            Primitives.TabPanel = TabPanel;
-
-            function getDesiredSizeWithoutMargin(uie) {
-                var num = 0.0;
-                var tabItem = uie;
-                if (tabItem instanceof Fayde.Controls.TabItem && tabItem.IsSelected) {
-                    var panel = tabItem.GetTemplate(tabItem.IsSelected, tabItem.TabStripPlacement);
-                    if (!(panel instanceof Fayde.Controls.Panel))
-                        panel = null;
-                    var fe = ((panel == null || panel.Children.Count <= 0) ? null : panel.Children.GetValueAt(0));
-                    if (fe instanceof Fayde.FrameworkElement)
-                        num += Math.abs(fe.Margin.Left + fe.Margin.Right);
+                        } else
+                            break;
+                    } while(num4 >= num1);
+                    num1 = num4;
+                    numArray2 = numArray1.slice(0);
+                    numArray6 = numArray5.slice(0);
                 }
-                var thickness = uie.GetValue(Fayde.FrameworkElement.MarginProperty);
-                var size = new size();
-                size.Height = Math.max(0.0, uie.DesiredSize.Height - thickness.Top - thickness.Bottom);
-                size.Width = Math.max(0.0, uie.DesiredSize.Width - thickness.Left - thickness.Right + num);
-                return size;
+
+                var index6 = 0;
+                var index7 = 0;
+                var enumerator = this.Children.GetEnumerator();
+                var uie;
+                while (enumerator.MoveNext()) {
+                    uie = enumerator.Current;
+                    if (uie.Visibility === 0 /* Visible */)
+                        headerWidth[index7] += numArray6[index6];
+                    if (index6 < length2 && numArray2[index6] == index7)
+                        ++index6;
+                    ++index7;
+                }
+                return numArray2;
+            };
+            TabPanel.prototype._GetHeadersSize = function () {
+                var arr = [];
+                var index = 0;
+                var enumerator = this.Children.GetEnumerator();
+                var uie;
+                while (enumerator.MoveNext()) {
+                    uie = enumerator.Current;
+                    if (uie.Visibility === 1 /* Collapsed */) {
+                        arr.push(0.0);
+                    } else {
+                        arr.push(getDesiredSizeWithoutMargin(uie).Width);
+                    }
+                }
+                return arr;
+            };
+            return TabPanel;
+        })(Fayde.Controls.Panel);
+        Controls.TabPanel = TabPanel;
+
+        function getDesiredSizeWithoutMargin(uie) {
+            var num = 0.0;
+            var tabItem = uie;
+            if (tabItem instanceof Fayde.Controls.TabItem && tabItem.IsSelected) {
+                var panel = tabItem.GetTemplate(tabItem.IsSelected, tabItem.TabStripPlacement);
+                if (!(panel instanceof Fayde.Controls.Panel))
+                    panel = null;
+                var fe = ((panel == null || panel.Children.Count <= 0) ? null : panel.Children.GetValueAt(0));
+                if (fe instanceof Fayde.FrameworkElement)
+                    num += Math.abs(fe.Margin.Left + fe.Margin.Right);
             }
-        })(Controls.Primitives || (Controls.Primitives = {}));
-        var Primitives = Controls.Primitives;
+            var thickness = uie.GetValue(Fayde.FrameworkElement.MarginProperty);
+            var size = new size();
+            size.Height = Math.max(0.0, uie.DesiredSize.Height - thickness.Top - thickness.Bottom);
+            size.Width = Math.max(0.0, uie.DesiredSize.Width - thickness.Left - thickness.Right + num);
+            return size;
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -3750,18 +3747,18 @@ var Fayde;
                 var contentHost = this._GetContentHost(this.TabStripPlacement);
                 if (contentHost != null)
                     contentHost.Content = null;
-                this._ElementTemplateTop = this.GetTemplateChild("TemplateTop");
-                this._ElementTemplateBottom = this.GetTemplateChild("TemplateBottom");
-                this._ElementTemplateLeft = this.GetTemplateChild("TemplateLeft");
-                this._ElementTemplateRight = this.GetTemplateChild("TemplateRight");
-                this._ElementTabPanelTop = this.GetTemplateChild("TabPanelTop");
-                this._ElementTabPanelBottom = this.GetTemplateChild("TabPanelBottom");
-                this._ElementTabPanelLeft = this.GetTemplateChild("TabPanelLeft");
-                this._ElementTabPanelRight = this.GetTemplateChild("TabPanelRight");
-                this._ElementContentTop = this.GetTemplateChild("ContentTop");
-                this._ElementContentBottom = this.GetTemplateChild("ContentBottom");
-                this._ElementContentLeft = this.GetTemplateChild("ContentLeft");
-                this._ElementContentRight = this.GetTemplateChild("ContentRight");
+                this._ElementTemplateTop = this.GetTemplateChild("TemplateTop", Fayde.FrameworkElement);
+                this._ElementTemplateBottom = this.GetTemplateChild("TemplateBottom", Fayde.FrameworkElement);
+                this._ElementTemplateLeft = this.GetTemplateChild("TemplateLeft", Fayde.FrameworkElement);
+                this._ElementTemplateRight = this.GetTemplateChild("TemplateRight", Fayde.FrameworkElement);
+                this._ElementTabPanelTop = this.GetTemplateChild("TabPanelTop", Fayde.Controls.TabPanel);
+                this._ElementTabPanelBottom = this.GetTemplateChild("TabPanelBottom", Fayde.Controls.TabPanel);
+                this._ElementTabPanelLeft = this.GetTemplateChild("TabPanelLeft", Fayde.Controls.TabPanel);
+                this._ElementTabPanelRight = this.GetTemplateChild("TabPanelRight", Fayde.Controls.TabPanel);
+                this._ElementContentTop = this.GetTemplateChild("ContentTop", Fayde.Controls.ContentPresenter);
+                this._ElementContentBottom = this.GetTemplateChild("ContentBottom", Fayde.Controls.ContentPresenter);
+                this._ElementContentLeft = this.GetTemplateChild("ContentLeft", Fayde.Controls.ContentPresenter);
+                this._ElementContentRight = this.GetTemplateChild("ContentRight", Fayde.Controls.ContentPresenter);
 
                 var enumerator = this.Items.GetEnumerator();
                 while (enumerator.MoveNext()) {

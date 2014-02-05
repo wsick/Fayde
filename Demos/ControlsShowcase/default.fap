@@ -26,16 +26,5 @@
                 </controls:TreeViewItem>
             </controls:TreeView>
         </StackPanel>
-        <StackPanel Margin="5" Grid.Column="2">
-            <TextBlock Text="TabControl" />
-            <controls:TabControl>
-                <controls:TabItem Header="Tab 1">
-                </controls:TabItem>
-                <controls:TabItem Header="Tab 2">
-                </controls:TabItem>
-                <controls:TabItem Header="Tab 3">
-                </controls:TabItem>
-            </controls:TabControl>
-        </StackPanel>
     </Grid>
 </Application>

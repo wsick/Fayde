@@ -559,7 +559,7 @@ declare module Fayde.Controls {
         private FocusLastItem();
     }
 }
-declare module Fayde.Controls.Primitives {
+declare module Fayde.Controls {
     class TabPanel extends Controls.Panel {
         private _NumberOfRows;
         private _RowHeight;
