@@ -6,13 +6,36 @@
     <Application.Resources>
     </Application.Resources>
     <Grid x:Name="LayoutRoot">
-        <controls:TreeView>
-            <controls:TreeViewItem Header="Root">
-                <controls:TreeViewItem Header="Level 2">
-                    <controls:TreeViewItem Header="Level 3 - 1" />
-                    <controls:TreeViewItem Header="Level 3 - 2" />
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="200" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Margin="5">
+            <TextBlock Text="NumericUpDown" />
+            <controls:NumericUpDown DecimalPlaces="1" />
+        </StackPanel>
+        <StackPanel Margin="5" Grid.Column="1">
+            <TextBlock Text="TreeView" />
+            <controls:TreeView>
+                <controls:TreeViewItem Header="Root">
+                    <controls:TreeViewItem Header="Level 2">
+                        <controls:TreeViewItem Header="Level 3 - 1" />
+                        <controls:TreeViewItem Header="Level 3 - 2" />
+                    </controls:TreeViewItem>
                 </controls:TreeViewItem>
-            </controls:TreeViewItem>
-        </controls:TreeView>
+            </controls:TreeView>
+        </StackPanel>
+        <StackPanel Margin="5" Grid.Column="2">
+            <TextBlock Text="TabControl" />
+            <controls:TabControl>
+                <controls:TabItem Header="Tab 1">
+                </controls:TabItem>
+                <controls:TabItem Header="Tab 2">
+                </controls:TabItem>
+                <controls:TabItem Header="Tab 3">
+                </controls:TabItem>
+            </controls:TabControl>
+        </StackPanel>
     </Grid>
 </Application>
