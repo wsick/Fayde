@@ -1,5 +1,5 @@
 
-module Fayde.Controls.Primitives {
+module Fayde.Controls {
     export class TabPanel extends Panel {
         private _NumberOfRows: number = 1;
         private _RowHeight: number;

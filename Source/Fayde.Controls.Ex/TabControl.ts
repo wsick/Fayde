@@ -28,10 +28,10 @@ module Fayde.Controls {
         private _ElementTemplateLeft: FrameworkElement;
         private _ElementTemplateRight: FrameworkElement;
 
-        private _ElementTabPanelTop: Primitives.TabPanel;
-        private _ElementTabPanelBottom: Primitives.TabPanel;
-        private _ElementTabPanelLeft: Primitives.TabPanel;
-        private _ElementTabPanelRight: Primitives.TabPanel;
+        private _ElementTabPanelTop: TabPanel;
+        private _ElementTabPanelBottom: TabPanel;
+        private _ElementTabPanelLeft: TabPanel;
+        private _ElementTabPanelRight: TabPanel;
 
         private _ElementContentTop: ContentPresenter;
         private _ElementContentBottom: ContentPresenter;
@@ -60,18 +60,18 @@ module Fayde.Controls {
             var contentHost = this._GetContentHost(this.TabStripPlacement);
             if (contentHost != null)
                 contentHost.Content = null;
-            this._ElementTemplateTop = <FrameworkElement>this.GetTemplateChild("TemplateTop");
-            this._ElementTemplateBottom = <FrameworkElement>this.GetTemplateChild("TemplateBottom");
-            this._ElementTemplateLeft = <FrameworkElement>this.GetTemplateChild("TemplateLeft");
-            this._ElementTemplateRight = <FrameworkElement>this.GetTemplateChild("TemplateRight");
-            this._ElementTabPanelTop = <Primitives.TabPanel>this.GetTemplateChild("TabPanelTop");
-            this._ElementTabPanelBottom = <Primitives.TabPanel>this.GetTemplateChild("TabPanelBottom");
-            this._ElementTabPanelLeft = <Primitives.TabPanel>this.GetTemplateChild("TabPanelLeft");
-            this._ElementTabPanelRight = <Primitives.TabPanel>this.GetTemplateChild("TabPanelRight");
-            this._ElementContentTop = <ContentPresenter>this.GetTemplateChild("ContentTop");
-            this._ElementContentBottom = <ContentPresenter>this.GetTemplateChild("ContentBottom");
-            this._ElementContentLeft = <ContentPresenter>this.GetTemplateChild("ContentLeft");
-            this._ElementContentRight = <ContentPresenter>this.GetTemplateChild("ContentRight");
+            this._ElementTemplateTop = <FrameworkElement>this.GetTemplateChild("TemplateTop", FrameworkElement);
+            this._ElementTemplateBottom = <FrameworkElement>this.GetTemplateChild("TemplateBottom", FrameworkElement);
+            this._ElementTemplateLeft = <FrameworkElement>this.GetTemplateChild("TemplateLeft", FrameworkElement);
+            this._ElementTemplateRight = <FrameworkElement>this.GetTemplateChild("TemplateRight", FrameworkElement);
+            this._ElementTabPanelTop = <TabPanel>this.GetTemplateChild("TabPanelTop", TabPanel);
+            this._ElementTabPanelBottom = <TabPanel>this.GetTemplateChild("TabPanelBottom", TabPanel);
+            this._ElementTabPanelLeft = <TabPanel>this.GetTemplateChild("TabPanelLeft", TabPanel);
+            this._ElementTabPanelRight = <TabPanel>this.GetTemplateChild("TabPanelRight", TabPanel);
+            this._ElementContentTop = <ContentPresenter>this.GetTemplateChild("ContentTop", ContentPresenter);
+            this._ElementContentBottom = <ContentPresenter>this.GetTemplateChild("ContentBottom", ContentPresenter);
+            this._ElementContentLeft = <ContentPresenter>this.GetTemplateChild("ContentLeft", ContentPresenter);
+            this._ElementContentRight = <ContentPresenter>this.GetTemplateChild("ContentRight", ContentPresenter);
 
             var enumerator = this.Items.GetEnumerator();
             while (enumerator.MoveNext()) {
@@ -383,7 +383,7 @@ module Fayde.Controls {
             tabPanel.Children.Clear();
         }
 
-        private _GetTabPanel(tabPlacement: Dock): Primitives.TabPanel {
+        private _GetTabPanel(tabPlacement: Dock): TabPanel {
             switch (tabPlacement) {
                 case Dock.Left:
                     return this._ElementTabPanelLeft;

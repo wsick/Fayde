@@ -86,7 +86,7 @@
     <Content Include="Themes\generic.xml">
       <SubType>Designer</SubType>
     </Content>
-    <TypeScriptCompile Include="Primitives\TabPanel.ts" />
+    <TypeScriptCompile Include="TabPanel.ts" />
     <TypeScriptCompile Include="TabControl.ts" />
     <TypeScriptCompile Include="TabItem.ts" />
   </ItemGroup>

@@ -774,11 +774,8 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-
-                            <TabPanel x:Name="TabPanelTop" Canvas.ZIndex="1" Margin="2,2,2,-1" />
-
+                            <controls:TabPanel x:Name="TabPanelTop" Canvas.ZIndex="1" Margin="2,2,2,-1" />
                             <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Row="1" MinHeight="10" MinWidth="10" CornerRadius="0,0,3,3">
-
                                 <ContentPresenter x:Name="ContentTop" HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}" Margin="{TemplateBinding Padding}" Cursor="{TemplateBinding Cursor}" />
                             </Border>
                             <Border x:Name="DisabledVisualTop" IsHitTestVisible="False" Opacity="0" Canvas.ZIndex="1" Background="#8CFFFFFF" Grid.RowSpan="2" CornerRadius="0,0,3,3" Grid.Row="1" />
@@ -790,11 +787,8 @@
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-
-                            <TabPanel x:Name="TabPanelBottom" Canvas.ZIndex="1" Grid.Row="1" Margin="2,-1,2,2" />
-
+                            <controls:TabPanel x:Name="TabPanelBottom" Canvas.ZIndex="1" Grid.Row="1" Margin="2,-1,2,2" />
                             <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" MinHeight="10" MinWidth="10" CornerRadius="3,3,0,0">
-
                                 <ContentPresenter x:Name="ContentBottom" HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}" Margin="{TemplateBinding Padding}" Cursor="{TemplateBinding Cursor}" />
                             </Border>
                             <Border x:Name="DisabledVisualBottom" IsHitTestVisible="False" Opacity="0" Canvas.ZIndex="1" Background="#8CFFFFFF" CornerRadius="3,3,0,0" />
@@ -806,11 +800,8 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-
-                            <TabPanel x:Name="TabPanelLeft" Canvas.ZIndex="1" Margin="2,2,-1,2" />
-
+                            <controls:TabPanel x:Name="TabPanelLeft" Canvas.ZIndex="1" Margin="2,2,-1,2" />
                             <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Column="1" MinHeight="10" MinWidth="10" CornerRadius="0,3,3,0">
-
                                 <ContentPresenter x:Name="ContentLeft" HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}" Margin="{TemplateBinding Padding}" Cursor="{TemplateBinding Cursor}" />
                             </Border>
                             <Border x:Name="DisabledVisualLeft" IsHitTestVisible="False" Opacity="0" Canvas.ZIndex="1" Background="#8CFFFFFF" CornerRadius="0,3,3,0" Grid.Column="1" />
@@ -822,11 +813,8 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-
-                            <TabPanel x:Name="TabPanelRight" Grid.Column="1" Canvas.ZIndex="1" Margin="-1,2,2,2" />
-
+                            <controls:TabPanel x:Name="TabPanelRight" Grid.Column="1" Canvas.ZIndex="1" Margin="-1,2,2,2" />
                             <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" MinHeight="10" MinWidth="10" CornerRadius="3,0,0,3">
-
                                 <ContentPresenter x:Name="ContentRight" HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}" Margin="{TemplateBinding Padding}" Cursor="{TemplateBinding Cursor}" />
                             </Border>
                             <Border x:Name="DisabledVisualRight" IsHitTestVisible="False" Opacity="0" Canvas.ZIndex="1" Background="#8CFFFFFF" CornerRadius="3,0,0,3" Margin="0" />
