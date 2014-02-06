@@ -1,4 +1,3 @@
-/// <reference path="../Fayde.d.ts" />
 
 module Fayde.Controls.Primitives {
     export class MenuBase extends Fayde.Controls.ItemsControl {

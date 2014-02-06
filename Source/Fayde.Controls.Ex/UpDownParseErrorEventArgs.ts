@@ -1,4 +1,3 @@
-/// <reference path="Fayde.d.ts" />
 
 module Fayde.Controls {
     export class UpDownParseErrorEventArgs extends RoutedEventArgs {

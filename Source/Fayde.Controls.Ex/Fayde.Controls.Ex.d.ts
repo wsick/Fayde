@@ -1,4 +1,3 @@
-/// <reference path="Fayde.d.ts" />
 declare module Fayde.Controls {
     class HeaderedItemsControl extends Controls.ItemsControl {
         private _HeaderIsItem;

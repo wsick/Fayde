@@ -1,4 +1,3 @@
-/// <reference path="Fayde.d.ts" />
 /// <reference path="Spinner.ts" />
 
 module Fayde.Controls {

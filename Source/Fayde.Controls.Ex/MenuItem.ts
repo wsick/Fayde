@@ -1,4 +1,3 @@
-/// <reference path="Fayde.d.ts" />
 /// <reference path="Primitives/MenuBase.ts" />
 
 module Fayde.Controls {
