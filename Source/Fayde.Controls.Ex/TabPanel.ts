@@ -12,7 +12,7 @@ module Fayde.Controls {
         }
         
         MeasureOverride(availableSize: size): size {
-            var size = new size();
+            var s = new size();
             var tabAlignment = this.TabAlignment;
             this._NumberOfRows = 1;
             this._RowHeight = 0.0;
@@ -46,21 +46,21 @@ module Fayde.Controls {
                 }
                 if (num3 < num2)
                     num3 = num2;
-                size.Height = this._RowHeight * this._NumberOfRows;
-                size.Width = !isFinite(size.Width) || isNaN(size.Width) || num3 < availableSize.Width ? num3 : availableSize.Width;
+                s.Height = this._RowHeight * this._NumberOfRows;
+                s.Width = !isFinite(s.Width) || isNaN(s.Width) || num3 < availableSize.Width ? num3 : availableSize.Width;
             } else if (tabAlignment === Dock.Left || tabAlignment === Dock.Right) {
                 while (childEnumerator.MoveNext()) {
                     element = childEnumerator.Current;
                     if (element.Visibility != Visibility.Collapsed) {
                         element.Measure(availableSize);
                         var sizeWithoutMargin = getDesiredSizeWithoutMargin(element);
-                        if (size.Width < sizeWithoutMargin.Width)
-                            size.Width = sizeWithoutMargin.Width;
-                        size.Height += sizeWithoutMargin.Height;
+                        if (s.Width < sizeWithoutMargin.Width)
+                            s.Width = sizeWithoutMargin.Width;
+                        s.Height += sizeWithoutMargin.Height;
                     }
                 }
             }
-            return size;
+            return s;
         }
         ArrangeOverride(finalSize: size): size {
             switch (this.TabAlignment) {
@@ -97,7 +97,7 @@ module Fayde.Controls {
             var uie: UIElement;
             while (childEnumerator.MoveNext()) {
                 uie = childEnumerator.Current;
-                var thickness = <Thickness>uie.GetValue(FrameworkElement.MarginProperty);
+                var thickness = (<FrameworkElement>uie).Margin || new Thickness();
                 var left = thickness.Left;
                 var right = thickness.Right;
                 var top = thickness.Top;
@@ -302,10 +302,14 @@ module Fayde.Controls {
             if (fe instanceof FrameworkElement)
                 num += Math.abs(fe.Margin.Left + fe.Margin.Right);
         }
-        var thickness = <Thickness>uie.GetValue(FrameworkElement.MarginProperty);
-        var size = new size();
-        size.Height = Math.max(0.0, uie.DesiredSize.Height - thickness.Top - thickness.Bottom);
-        size.Width = Math.max(0.0, uie.DesiredSize.Width - thickness.Left - thickness.Right + num);
-        return size;
+        var s = new size();
+        s.Width = uie.DesiredSize.Width;
+        s.Height = uie.DesiredSize.Height;
+        var thickness = (<FrameworkElement>uie).Margin;
+        if (thickness) {
+            s.Height = Math.max(0.0, uie.DesiredSize.Height - thickness.Top - thickness.Bottom);
+            s.Width = Math.max(0.0, uie.DesiredSize.Width - thickness.Left - thickness.Right + num);
+        }
+        return s;
     }
 }
