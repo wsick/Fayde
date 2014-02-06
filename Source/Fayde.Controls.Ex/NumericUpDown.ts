@@ -205,8 +205,7 @@ module Fayde.Controls {
         }
 
         private _EnsureValidDoubleValue(propd: DependencyProperty, oldValue: number, newValue: number) {
-            var ov: IOutValue = { Value: 0.0 };
-            if (isValidDoubleValue(newValue, ov))
+            if (isValidDoubleValue(newValue))
                 return;
             ++this._LevelsFromRootCall;
             this.SetValue(propd, oldValue);
@@ -214,8 +213,7 @@ module Fayde.Controls {
             throw new ArgumentException("Invalid double value.");
         }
         private _EnsureValidIncrementValue(e: IDependencyPropertyChangedEventArgs) {
-            var ov: IOutValue = { Value: 0 };
-            if (isValidDoubleValue(e.NewValue, ov) && ov.Value > 0.0)
+            if (isValidDoubleValue(e.NewValue))
                 return;
             ++this._LevelsFromRootCall;
             this.SetValue(e.Property, e.OldValue);
@@ -233,7 +231,7 @@ module Fayde.Controls {
         }
     }
 
-    function isValidDoubleValue(value: any, outValue: IOutValue): boolean {
+    function isValidDoubleValue(value: any): boolean {
         return !isNaN(value) && isFinite(value) && value <= 7.92281625142643E+28 && value >= -7.92281625142643E+28;
     }
 }

@@ -1725,8 +1725,7 @@ var Fayde;
             };
 
             NumericUpDown.prototype._EnsureValidDoubleValue = function (propd, oldValue, newValue) {
-                var ov = { Value: 0.0 };
-                if (isValidDoubleValue(newValue, ov))
+                if (isValidDoubleValue(newValue))
                     return;
                 ++this._LevelsFromRootCall;
                 this.SetValue(propd, oldValue);
@@ -1734,8 +1733,7 @@ var Fayde;
                 throw new ArgumentException("Invalid double value.");
             };
             NumericUpDown.prototype._EnsureValidIncrementValue = function (e) {
-                var ov = { Value: 0 };
-                if (isValidDoubleValue(e.NewValue, ov) && ov.Value > 0.0)
+                if (isValidDoubleValue(e.NewValue))
                     return;
                 ++this._LevelsFromRootCall;
                 this.SetValue(e.Property, e.OldValue);
@@ -1784,7 +1782,7 @@ var Fayde;
         })(Fayde.Controls.UpDownBase);
         Controls.NumericUpDown = NumericUpDown;
 
-        function isValidDoubleValue(value, outValue) {
+        function isValidDoubleValue(value) {
             return !isNaN(value) && isFinite(value) && value <= 7.92281625142643E+28 && value >= -7.92281625142643E+28;
         }
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -3412,7 +3410,7 @@ var Fayde;
             });
 
             TabPanel.prototype.MeasureOverride = function (availableSize) {
-                var size = new size();
+                var s = new size();
                 var tabAlignment = this.TabAlignment;
                 this._NumberOfRows = 1;
                 this._RowHeight = 0.0;
@@ -3445,21 +3443,21 @@ var Fayde;
                     }
                     if (num3 < num2)
                         num3 = num2;
-                    size.Height = this._RowHeight * this._NumberOfRows;
-                    size.Width = !isFinite(size.Width) || isNaN(size.Width) || num3 < availableSize.Width ? num3 : availableSize.Width;
+                    s.Height = this._RowHeight * this._NumberOfRows;
+                    s.Width = !isFinite(s.Width) || isNaN(s.Width) || num3 < availableSize.Width ? num3 : availableSize.Width;
                 } else if (tabAlignment === 0 /* Left */ || tabAlignment === 2 /* Right */) {
                     while (childEnumerator.MoveNext()) {
                         element = childEnumerator.Current;
                         if (element.Visibility != 1 /* Collapsed */) {
                             element.Measure(availableSize);
                             var sizeWithoutMargin = getDesiredSizeWithoutMargin(element);
-                            if (size.Width < sizeWithoutMargin.Width)
-                                size.Width = sizeWithoutMargin.Width;
-                            size.Height += sizeWithoutMargin.Height;
+                            if (s.Width < sizeWithoutMargin.Width)
+                                s.Width = sizeWithoutMargin.Width;
+                            s.Height += sizeWithoutMargin.Height;
                         }
                     }
                 }
-                return size;
+                return s;
             };
             TabPanel.prototype.ArrangeOverride = function (finalSize) {
                 switch (this.TabAlignment) {
@@ -3496,7 +3494,7 @@ var Fayde;
                 var uie;
                 while (childEnumerator.MoveNext()) {
                     uie = childEnumerator.Current;
-                    var thickness = uie.GetValue(Fayde.FrameworkElement.MarginProperty);
+                    var thickness = uie.Margin || new Thickness();
                     var left = thickness.Left;
                     var right = thickness.Right;
                     var top = thickness.Top;
@@ -3699,11 +3697,15 @@ var Fayde;
                 if (fe instanceof Fayde.FrameworkElement)
                     num += Math.abs(fe.Margin.Left + fe.Margin.Right);
             }
-            var thickness = uie.GetValue(Fayde.FrameworkElement.MarginProperty);
-            var size = new size();
-            size.Height = Math.max(0.0, uie.DesiredSize.Height - thickness.Top - thickness.Bottom);
-            size.Width = Math.max(0.0, uie.DesiredSize.Width - thickness.Left - thickness.Right + num);
-            return size;
+            var s = new size();
+            s.Width = uie.DesiredSize.Width;
+            s.Height = uie.DesiredSize.Height;
+            var thickness = uie.Margin;
+            if (thickness) {
+                s.Height = Math.max(0.0, uie.DesiredSize.Height - thickness.Top - thickness.Bottom);
+                s.Width = Math.max(0.0, uie.DesiredSize.Width - thickness.Left - thickness.Right + num);
+            }
+            return s;
         }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
