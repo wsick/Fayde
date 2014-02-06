@@ -13,7 +13,9 @@
         </Grid.ColumnDefinitions>
         <StackPanel Margin="5">
             <TextBlock Text="NumericUpDown" />
-            <controls:NumericUpDown DecimalPlaces="1" />
+            <controls:NumericUpDown Margin="3" DecimalPlaces="0" Increment="1" />
+            <controls:NumericUpDown Margin="3" DecimalPlaces="1" Increment="0.1" />
+            <controls:NumericUpDown Margin="3" DecimalPlaces="2" Increment="0.01" />
         </StackPanel>
         <StackPanel Margin="5" Grid.Column="1">
             <TextBlock Text="TreeView" />
@@ -25,6 +27,17 @@
                     </controls:TreeViewItem>
                 </controls:TreeViewItem>
             </controls:TreeView>
+        </StackPanel>
+        <StackPanel Margin="5" Grid.Column="2">
+            <TextBlock Text="TabControl" />
+            <controls:TabControl>
+                <controls:TabItem Header="Tab 1">
+                    
+                </controls:TabItem>
+                <controls:TabItem Header="Tab 2">
+                    
+                </controls:TabItem>
+            </controls:TabControl>
         </StackPanel>
     </Grid>
 </Application>
