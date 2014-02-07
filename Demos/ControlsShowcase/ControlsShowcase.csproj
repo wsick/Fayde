@@ -58,7 +58,9 @@
   <ItemGroup>
     <Content Include="default.html" />
     <Content Include="lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" />
-    <Content Include="lib\Fayde.Controls\generic.xml" />
+    <Content Include="lib\Fayde.Controls\generic.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="lib\Fayde.Controls\source.js" />
     <Content Include="lib\Fayde\Fayde.d.ts" />
     <Content Include="lib\Fayde\Fayde.js" />
@@ -69,7 +71,9 @@
     <Content Include="lib\requirejs\text.js" />
     <Content Include="main.js" />
     <Content Include="Web.config" />
-    <Content Include="default.fap" />
+    <Content Include="default.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\home.fayde" />
     <Content Include="packages.config" />
     <None Include="Web.Debug.config">

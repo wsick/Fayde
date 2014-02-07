@@ -4165,6 +4165,8 @@ var Fayde;
             __extends(TabItem, _super);
             function TabItem() {
                 _super.call(this);
+                this._SelectedElements = new Elements();
+                this._UnselectedElements = new Elements();
                 this._PreviousTemplate = null;
                 this._PreviousHeader = null;
                 this.DefaultStyleKey = this.constructor;
@@ -4192,22 +4194,10 @@ var Fayde;
                 var contentControl = this._GetContentControl(this.IsSelected, this.TabStripPlacement);
                 if (contentControl != null)
                     contentControl.Content = null;
-                this._ElementTemplateTopSelected = this.GetTemplateChild("TemplateTopSelected");
-                this._ElementTemplateBottomSelected = this.GetTemplateChild("TemplateBottomSelected");
-                this._ElementTemplateLeftSelected = this.GetTemplateChild("TemplateLeftSelected");
-                this._ElementTemplateRightSelected = this.GetTemplateChild("TemplateRightSelected");
-                this._ElementTemplateTopUnselected = this.GetTemplateChild("TemplateTopUnselected");
-                this._ElementTemplateBottomUnselected = this.GetTemplateChild("TemplateBottomUnselected");
-                this._ElementTemplateLeftUnselected = this.GetTemplateChild("TemplateLeftUnselected");
-                this._ElementTemplateRightUnselected = this.GetTemplateChild("TemplateRightUnselected");
-                this._ElementHeaderTopSelected = this.GetTemplateChild("HeaderTopSelected");
-                this._ElementHeaderBottomSelected = this.GetTemplateChild("HeaderBottomSelected");
-                this._ElementHeaderLeftSelected = this.GetTemplateChild("HeaderLeftSelected");
-                this._ElementHeaderRightSelected = this.GetTemplateChild("HeaderRightSelected");
-                this._ElementHeaderTopUnselected = this.GetTemplateChild("HeaderTopUnselected");
-                this._ElementHeaderBottomUnselected = this.GetTemplateChild("HeaderBottomUnselected");
-                this._ElementHeaderLeftUnselected = this.GetTemplateChild("HeaderLeftUnselected");
-                this._ElementHeaderRightUnselected = this.GetTemplateChild("HeaderRightUnselected");
+
+                this._SelectedElements.OnApplyTemplate(this, true);
+                this._UnselectedElements.OnApplyTemplate(this, false);
+
                 this._UpdateHeaderVisuals();
                 this.UpdateVisualState(false);
             };
@@ -4245,15 +4235,7 @@ var Fayde;
                 parent.SelectedIndex = -1;
             };
 
-            TabItem.prototype._UpdateHeaderVisuals = function () {
-                var contentControl = this._GetContentControl(this.IsSelected, this.TabStripPlacement);
-                if (contentControl == null)
-                    return;
-                contentControl.Content = this.Header;
-                contentControl.ContentTemplate = this.HeaderTemplate;
-            };
-
-            TabItem.prototype.UpdateTabItemVisuals = function () {
+            TabItem.prototype.UpdateVisualState = function (useTransitions) {
                 var template = this.GetTemplate(this.IsSelected, this.TabStripPlacement);
                 if (this._PreviousTemplate != null && this._PreviousTemplate !== template)
                     this._PreviousTemplate.Visibility = 1 /* Collapsed */;
@@ -4261,10 +4243,19 @@ var Fayde;
                 if (template != null)
                     template.Visibility = 0 /* Visible */;
                 var contentControl = this._GetContentControl(this.IsSelected, this.TabStripPlacement);
-                if (this._PreviousHeader != null && this._PreviousHeader !== contentControl)
+                if (this._PreviousHeader && this._PreviousHeader !== contentControl)
                     this._PreviousHeader.Content = null;
                 this._PreviousHeader = contentControl;
                 this._UpdateHeaderVisuals();
+
+                _super.prototype.UpdateVisualState.call(this, useTransitions);
+            };
+            TabItem.prototype._UpdateHeaderVisuals = function () {
+                var contentControl = this._GetContentControl(this.IsSelected, this.TabStripPlacement);
+                if (!contentControl)
+                    return;
+                contentControl.Content = this.Header;
+                contentControl.ContentTemplate = this.HeaderTemplate;
             };
 
             TabItem.prototype.OnMouseLeave = function (e) {
@@ -4274,7 +4265,7 @@ var Fayde;
                 this.UpdateVisualState();
             };
             TabItem.prototype.OnMouseLeftButtonDown = function (e) {
-                if (!this.IsEnabled || this.TabControlParent == null || (this.IsSelected || e.Handled))
+                if (!this.IsEnabled || !this.TabControlParent || (this.IsSelected || e.Handled))
                     return;
                 this.IsTabStop = true;
                 e.Handled = this.Focus();
@@ -4295,7 +4286,7 @@ var Fayde;
             TabItem.prototype.OnContentChanged = function (oldContent, newContent) {
                 _super.prototype.OnContentChanged.call(this, oldContent, newContent);
                 var parent = this.TabControlParent;
-                if (!parent == null || !this.IsSelected)
+                if (!parent || !this.IsSelected)
                     return;
                 parent.SelectedContent = newContent;
             };
@@ -4328,56 +4319,12 @@ var Fayde;
             };
 
             TabItem.prototype.GetTemplate = function (isSelected, tabPlacement) {
-                switch (tabPlacement) {
-                    case 0 /* Left */:
-                        if (!isSelected)
-                            return this._ElementTemplateLeftUnselected;
-                        else
-                            return this._ElementTemplateLeftSelected;
-                    case 1 /* Top */:
-                        if (!isSelected)
-                            return this._ElementTemplateTopUnselected;
-                        else
-                            return this._ElementTemplateTopSelected;
-                    case 2 /* Right */:
-                        if (!isSelected)
-                            return this._ElementTemplateRightUnselected;
-                        else
-                            return this._ElementTemplateRightSelected;
-                    case 3 /* Bottom */:
-                        if (!isSelected)
-                            return this._ElementTemplateBottomUnselected;
-                        else
-                            return this._ElementTemplateBottomSelected;
-                    default:
-                        return null;
-                }
+                var e = isSelected ? this._SelectedElements : this._UnselectedElements;
+                return e[Fayde.Controls.Dock[tabPlacement]].Template;
             };
             TabItem.prototype._GetContentControl = function (isSelected, tabPlacement) {
-                switch (tabPlacement) {
-                    case 0 /* Left */:
-                        if (!isSelected)
-                            return this._ElementHeaderLeftUnselected;
-                        else
-                            return this._ElementHeaderLeftSelected;
-                    case 1 /* Top */:
-                        if (!isSelected)
-                            return this._ElementHeaderTopUnselected;
-                        else
-                            return this._ElementHeaderTopSelected;
-                    case 2 /* Right */:
-                        if (!isSelected)
-                            return this._ElementHeaderRightUnselected;
-                        else
-                            return this._ElementHeaderRightSelected;
-                    case 3 /* Bottom */:
-                        if (!isSelected)
-                            return this._ElementHeaderBottomUnselected;
-                        else
-                            return this._ElementHeaderBottomSelected;
-                    default:
-                        return null;
-                }
+                var e = isSelected ? this._SelectedElements : this._UnselectedElements;
+                return e[Fayde.Controls.Dock[tabPlacement]].Header;
             };
 
             TabItem.prototype._FindPreviousTabItem = function (startIndex) {
@@ -4392,12 +4339,8 @@ var Fayde;
                 return null;
             };
             TabItem.prototype._FindNextTabItem = function (startIndex) {
-                var parent = this.TabControlParent;
-                var items = parent.Items;
-                var len = items.Count;
-                var tabItem = null;
-                for (var i = startIndex; i < len; i++) {
-                    tabItem = items.GetValueAt(i);
+                for (var i = startIndex, items = this.TabControlParent.Items, len = items.Count; i < len; i++) {
+                    var tabItem = items.GetValueAt(i);
                     if (tabItem.IsEnabled && tabItem.Visibility === 0 /* Visible */)
                         return tabItem;
                 }
@@ -4413,7 +4356,7 @@ var Fayde;
             });
             TabItem.HeaderTemplateProperty = DependencyProperty.Register("HeaderTemplate", function () {
                 return Fayde.DataTemplate;
-            }, TabItem, function (d, args) {
+            }, TabItem, undefined, function (d, args) {
                 return d.OnHeaderTemplateChanged(args.OldValue, args.NewValue);
             });
             TabItem.IsFocusedProperty = DependencyProperty.Register("IsFocused", function () {
@@ -4427,6 +4370,34 @@ var Fayde;
             return TabItem;
         })(Fayde.Controls.ContentControl);
         Controls.TabItem = TabItem;
+
+        var Elements = (function () {
+            function Elements() {
+                this.Top = new Element();
+                this.Bottom = new Element();
+                this.Left = new Element();
+                this.Right = new Element();
+            }
+            Elements.prototype.OnApplyTemplate = function (control, isSelected) {
+                this.Top.OnApplyTemplate(control, isSelected, "Top");
+                this.Bottom.OnApplyTemplate(control, isSelected, "Bottom");
+                this.Left.OnApplyTemplate(control, isSelected, "Left");
+                this.Right.OnApplyTemplate(control, isSelected, "Right");
+            };
+            return Elements;
+        })();
+        var Element = (function () {
+            function Element() {
+                this.Header = null;
+                this.Template = null;
+            }
+            Element.prototype.OnApplyTemplate = function (control, isSelected, dock) {
+                var post = dock + (isSelected ? "Selected" : "Unselected");
+                this.Header = control.GetTemplateChild("Header" + post, Fayde.Controls.ContentControl);
+                this.Template = control.GetTemplateChild("Template" + post, Fayde.FrameworkElement);
+            };
+            return Element;
+        })();
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
