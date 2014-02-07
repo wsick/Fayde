@@ -169,6 +169,13 @@ module Fayde.Media.Animation {
             return d;
         }
         GetNaturalDurationCore(): Duration { return Duration.Automatic; }
+
+        GenerateFrom(): AnimationBase {
+            return undefined;
+        }
+        GenerateTo(isEntering: boolean): AnimationBase {
+            return undefined;
+        }
     }
     Fayde.RegisterType(Timeline, "Fayde.Media.Animation", Fayde.XMLNS);
 

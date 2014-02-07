@@ -23,6 +23,9 @@ module Fayde.Media.VSM {
 
         static Annotations = { ContentProperty: VisualStateGroup.StatesProperty };
         private _CurrentStoryboards: Animation.Storyboard[] = [];
+        get CurrentStoryboards(): Animation.Storyboard[] {
+            return this._CurrentStoryboards.slice(0);
+        }
         CurrentStateChanging: MulticastEvent<VisualStateChangedEventArgs> = new MulticastEvent<VisualStateChangedEventArgs>();
         CurrentStateChanged: MulticastEvent<VisualStateChangedEventArgs> = new MulticastEvent<VisualStateChangedEventArgs>();
         CurrentState: VisualState = null;

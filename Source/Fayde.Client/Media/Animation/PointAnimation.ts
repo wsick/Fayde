@@ -54,6 +54,18 @@ module Fayde.Media.Animation {
         private _EasingChanged(args: IDependencyPropertyChangedEventArgs) {
             this._EasingCached = args.NewValue;
         }
+        
+        GenerateFrom(): AnimationBase {
+            return new PointAnimation();
+        }
+        GenerateTo(isEntering: boolean): AnimationBase {
+            var val = (this.From != null) ? this.From : this.To;
+            if (val == null)
+                return null;
+            var pa = new PointAnimation();
+            pa.To = val;
+            return pa;
+        }
     }
     Fayde.RegisterType(PointAnimation, "Fayde.Media.Animation", Fayde.XMLNS);
 }
