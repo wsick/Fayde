@@ -27,22 +27,16 @@ module Fayde.Controls {
         private $VerticalLargeDecrease: Primitives.RepeatButton;
         private $VerticalThumb: Primitives.Thumb;
 
-        private _GetChildOfType(name: string, type: Function): any {
-            var temp = this.GetTemplateChild(name);
-            if (temp instanceof type)
-                return temp;
-        }
-
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            this.$HorizontalTemplate = this._GetChildOfType("HorizontalTemplate", FrameworkElement);
-            this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalTrackLargeChangeIncreaseRepeatButton", Primitives.RepeatButton);
-            this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalTrackLargeChangeDecreaseRepeatButton", Primitives.RepeatButton);
-            this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Primitives.Thumb);
-            this.$VerticalTemplate = this._GetChildOfType("VerticalTemplate", Fayde.FrameworkElement);
-            this.$VerticalLargeIncrease = this._GetChildOfType("VerticalTrackLargeChangeIncreaseRepeatButton", Primitives.RepeatButton);
-            this.$VerticalLargeDecrease = this._GetChildOfType("VerticalTrackLargeChangeDecreaseRepeatButton", Primitives.RepeatButton);
-            this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Primitives.Thumb);
+            this.$HorizontalTemplate = <FrameworkElement>this.GetTemplateChild("HorizontalTemplate", FrameworkElement);
+            this.$HorizontalLargeIncrease = <Primitives.RepeatButton>this.GetTemplateChild("HorizontalTrackLargeChangeIncreaseRepeatButton", Primitives.RepeatButton);
+            this.$HorizontalLargeDecrease = <Primitives.RepeatButton>this.GetTemplateChild("HorizontalTrackLargeChangeDecreaseRepeatButton", Primitives.RepeatButton);
+            this.$HorizontalThumb = <Primitives.Thumb>this.GetTemplateChild("HorizontalThumb", Primitives.Thumb);
+            this.$VerticalTemplate = <FrameworkElement>this.GetTemplateChild("VerticalTemplate", FrameworkElement);
+            this.$VerticalLargeIncrease = <Primitives.RepeatButton>this.GetTemplateChild("VerticalTrackLargeChangeIncreaseRepeatButton", Primitives.RepeatButton);
+            this.$VerticalLargeDecrease = <Primitives.RepeatButton>this.GetTemplateChild("VerticalTrackLargeChangeDecreaseRepeatButton", Primitives.RepeatButton);
+            this.$VerticalThumb = <Primitives.Thumb>this.GetTemplateChild("VerticalThumb", Primitives.Thumb);
 
             if (this.$HorizontalThumb != null) {
                 this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);

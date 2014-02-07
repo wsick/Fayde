@@ -16,19 +16,25 @@ module Fayde.Controls {
     }
     class PanelChildrenNode extends XamlNode {
         ParentNode: PanelNode;
-        private _Nodes: FENode[] = [];
+        
+        private _Nodes: FENode[] = null;
+        private get Nodes(): FENode[] {
+            if (!this._Nodes) {
+                var nodes = this._Nodes = [];
+                for (var i = 0, uies = (<PanelChildrenCollection>this.XObject)._ht, len = uies.length; i < len; i++) {
+                    nodes.push(<FENode>uies[i].XamlNode);
+                }
+            }
+            return this._Nodes;
+        }
         private _ZSorted: FENode[] = [];
 
-        AddNode(uin: FENode) { this._Nodes.push(uin); }
-        RemoveNode(uin: FENode) {
-            var nodes = this._Nodes;
-            var index = nodes.indexOf(uin);
-            if (index > -1)
-                nodes.splice(index, 1);
+        InvalidateNodeCache() {
+            this._Nodes = null;
         }
 
         ResortByZIndex() {
-            var zs = this._Nodes.slice(0);
+            var zs = this.Nodes.slice(0);
             this._ZSorted = zs;
             if (zs.length > 1)
                 zs.sort(zIndexComparer);
@@ -37,15 +43,15 @@ module Fayde.Controls {
             switch (direction) {
                 default:
                 case VisualTreeDirection.Logical:
-                    return ArrayEx.GetEnumerator(this._Nodes);
+                    return ArrayEx.GetEnumerator(this.Nodes);
                 case VisualTreeDirection.LogicalReverse:
-                    return ArrayEx.GetEnumerator(this._Nodes, true);
+                    return ArrayEx.GetEnumerator(this.Nodes, true);
                 case VisualTreeDirection.ZFoward:
-                    if (this._ZSorted.length !== this._Nodes.length)
+                    if (this._ZSorted.length !== this.Nodes.length)
                         this.ResortByZIndex();
                     return ArrayEx.GetEnumerator(this._ZSorted);
                 case VisualTreeDirection.ZReverse:
-                    if (this._ZSorted.length !== this._Nodes.length)
+                    if (this._ZSorted.length !== this.Nodes.length)
                         this.ResortByZIndex();
                     return ArrayEx.GetEnumerator(this._ZSorted, true);
             }
@@ -60,13 +66,13 @@ module Fayde.Controls {
             var node = this.XamlNode;
             if (!node.ParentNode.AttachVisualChild(value, error))
                 return false;
-            node.AddNode((<FrameworkElement>value).XamlNode);
+            node.InvalidateNodeCache();
             return super.AddingToCollection(value, error);
         }
         RemovedFromCollection(value: UIElement, isValueSafe: boolean) {
             var node = this.XamlNode;
             node.ParentNode.DetachVisualChild(value, null);
-            node.RemoveNode((<FrameworkElement>value).XamlNode);
+            node.InvalidateNodeCache();
             super.RemovedFromCollection(value, isValueSafe);
         }
     }

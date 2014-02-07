@@ -29,11 +29,15 @@ module Fayde.Controls.Primitives {
         _ChildChanged(oldChild: FrameworkElement, newChild: FrameworkElement) {
             var popup = this.XObject;
             this._Hide();
-            if (oldChild)
+            if (oldChild) {
                 Providers.InheritedStore.ClearInheritedOnRemove(popup, oldChild.XamlNode);
+                oldChild.XamlNode.LayoutUpdater.CarrierProjection = null;
+                oldChild.XamlNode.LayoutUpdater.CarrierXform = null;
+            }
             this._PrepareVisualChild(newChild);
             if (newChild) {
                 Providers.InheritedStore.PropagateInheritedOnAdd(popup, newChild.XamlNode);
+                newChild.XamlNode.LayoutUpdater.CarrierXform = mat3.identity();
                 if (popup.IsOpen)
                     this._Show();
             }
@@ -41,28 +45,24 @@ module Fayde.Controls.Primitives {
         private _PrepareVisualChild(newChild: UIElement) {
             if (!newChild)
                 return;
-            if (this._IsCatchingClick) {
-                var root = <Canvas>this._VisualChild;
-                if (!root) {
-                    var root = new Canvas();
-                    var clickCatcher = new Canvas();
-                    clickCatcher.Background = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
-                    clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
-                    clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
-                    root.Children.Add(clickCatcher);
-                    this._Catcher = clickCatcher;
-                    this._VisualChild = root;
-                } else {
-                    root.Children.RemoveAt(1);
-                }
+
+            var root = <Canvas>this._VisualChild;
+            if (!root) {
+                root = new Canvas();
                 root.Children.Add(newChild);
-            } else {
-                this._VisualChild = <FrameworkElement>newChild;
+                this._VisualChild = root;
+            }
+
+            if (this._IsCatchingClick && !this._Catcher) {
+                var clickCatcher = new Canvas();
+                clickCatcher.Background = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
+                clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
+                clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
+                root.Children.Insert(0, clickCatcher);
+                this._Catcher = clickCatcher;
             }
         }
         CatchClickedOutside() {
-            if (!this._IsCatchingClick)
-                this._VisualChild = null;
             this._IsCatchingClick = true;
             this._PrepareVisualChild(this.XObject.Child);
         }

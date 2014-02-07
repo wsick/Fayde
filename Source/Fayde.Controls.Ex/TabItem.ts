@@ -265,9 +265,5 @@ module Fayde.Controls {
             return null;
         }
     }
-    Fayde.RegisterType(TabItem, {
-        Name: "TabItem",
-        Namespace: "Fayde.Controls",
-        XmlNamespace: Fayde.XMLNS
-    });
+    Fayde.RegisterType(TabItem, "TabItem", Fayde.XMLNS);
 }

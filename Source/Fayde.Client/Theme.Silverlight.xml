@@ -1538,7 +1538,6 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <!--
     <Style TargetType="ToolTip">
         <Setter Property="Background" Value="#FFF7F8FA" />
         <Setter Property="Padding" Value="3,0,3,0" />
@@ -1569,7 +1568,6 @@
             </Setter.Value>
         </Setter>
     </Style>
-    -->
     <Style TargetType="ComboBox">
         <Setter Property="Padding" Value="6,2,25,2" />
         <Setter Property="Background" Value="#FF1F3B53" />

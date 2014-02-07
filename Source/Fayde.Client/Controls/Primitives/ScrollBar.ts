@@ -39,26 +39,20 @@ module Fayde.Controls.Primitives {
         private $VerticalLargeDecrease: RepeatButton;
         private $VerticalThumb: Thumb;
         
-        private _GetChildOfType(name: string, type: Function): any {
-            var temp = this.GetTemplateChild(name);
-            if (temp instanceof type)
-                return temp;
-        }
-
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            this.$HorizontalTemplate = this._GetChildOfType("HorizontalRoot", FrameworkElement);
-            this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalLargeIncrease", RepeatButton);
-            this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalLargeDecrease", RepeatButton);
-            this.$HorizontalSmallIncrease = this._GetChildOfType("HorizontalSmallIncrease", RepeatButton);
-            this.$HorizontalSmallDecrease = this._GetChildOfType("HorizontalSmallDecrease", RepeatButton);
-            this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Thumb);
-            this.$VerticalTemplate = this._GetChildOfType("VerticalRoot", Fayde.FrameworkElement);
-            this.$VerticalLargeIncrease = this._GetChildOfType("VerticalLargeIncrease", RepeatButton);
-            this.$VerticalLargeDecrease = this._GetChildOfType("VerticalLargeDecrease", RepeatButton);
-            this.$VerticalSmallIncrease = this._GetChildOfType("VerticalSmallIncrease", RepeatButton);
-            this.$VerticalSmallDecrease = this._GetChildOfType("VerticalSmallDecrease", RepeatButton);
-            this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Thumb);
+            this.$HorizontalTemplate = <FrameworkElement>this.GetTemplateChild("HorizontalRoot", FrameworkElement);
+            this.$HorizontalLargeIncrease = <RepeatButton>this.GetTemplateChild("HorizontalLargeIncrease", RepeatButton);
+            this.$HorizontalLargeDecrease = <RepeatButton>this.GetTemplateChild("HorizontalLargeDecrease", RepeatButton);
+            this.$HorizontalSmallIncrease = <RepeatButton>this.GetTemplateChild("HorizontalSmallIncrease", RepeatButton);
+            this.$HorizontalSmallDecrease = <RepeatButton>this.GetTemplateChild("HorizontalSmallDecrease", RepeatButton);
+            this.$HorizontalThumb = <Thumb>this.GetTemplateChild("HorizontalThumb", Thumb);
+            this.$VerticalTemplate = <FrameworkElement>this.GetTemplateChild("VerticalRoot", FrameworkElement);
+            this.$VerticalLargeIncrease = <RepeatButton>this.GetTemplateChild("VerticalLargeIncrease", RepeatButton);
+            this.$VerticalLargeDecrease = <RepeatButton>this.GetTemplateChild("VerticalLargeDecrease", RepeatButton);
+            this.$VerticalSmallIncrease = <RepeatButton>this.GetTemplateChild("VerticalSmallIncrease", RepeatButton);
+            this.$VerticalSmallDecrease = <RepeatButton>this.GetTemplateChild("VerticalSmallDecrease", RepeatButton);
+            this.$VerticalThumb = <Thumb>this.GetTemplateChild("VerticalThumb", Thumb);
 
             if (this.$HorizontalThumb) {
                 this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);

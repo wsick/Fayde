@@ -91,7 +91,7 @@ module Fayde.Controls {
         OnApplyTemplate() {
             super.OnApplyTemplate();
 
-            var ce = this.$ContentElement = <FrameworkElement>this.GetTemplateChild("ContentElement");
+            var ce = this.$ContentElement = <FrameworkElement>this.GetTemplateChild("ContentElement", FrameworkElement);
             if (!ce)
                 return;
 
