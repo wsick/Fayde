@@ -3,7 +3,7 @@
 import Team = require("Models/Team");
 import Stats = require("Models/Stats");
 
-class Player {
+class Player extends Fayde.MVVM.ObservableObject {
     Team: Team;
     Name: string;
     PrimaryPosition: string;
