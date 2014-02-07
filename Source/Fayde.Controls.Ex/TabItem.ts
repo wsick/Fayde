@@ -171,11 +171,8 @@ module Fayde.Controls {
         }
 
         private _FindPreviousTabItem(startIndex: number): TabItem {
-            var parent = this.TabControlParent;
-            var items = parent.Items;
-            var tabItem: TabItem = null;
-            for (var i = startIndex; i >= 0; i--) {
-                tabItem = <TabItem>items.GetValueAt(i);
+            for (var i = startIndex, items = this.TabControlParent.Items; i >= 0; i--) {
+                var tabItem = <TabItem>items.GetValueAt(i);
                 if (tabItem.IsEnabled && tabItem.Visibility === Visibility.Visible)
                     return tabItem;
             }
