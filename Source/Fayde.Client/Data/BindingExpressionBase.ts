@@ -197,31 +197,10 @@ module Fayde.Data {
             // Otherwise we only update if the textbox is unfocused.
                 if (!force && this._TwoWayTextBox && Application.Current.MainSurface.FocusedNode === this.Target.XamlNode)
                     return;
-
                 if (this.PropertyPathWalker.IsPathBroken)
                     return;
-
-                if (binding.TargetNullValue && binding.TargetNullValue === value)
-                    value = null;
-
-                var converter = binding.Converter;
-                if (converter) {
-                    value = converter.ConvertBack(value, node.ValueType, binding.ConverterParameter, binding.ConverterCulture);
-                }
-
-                if (value instanceof String) {
-                    //TODO: attempt to parse string for target type
-                }
-
-                try {
-                    if (value)
-                        value = this._ConvertFromTargetToSource(value);
-                } catch (err) {
-                    console.warn("[BINDING] ConvertFromTargetToSource: " + err.toString());
-                    return;
-                }
-
-                if (!this._CachedValue && !value)
+                value = this._ConvertFromTargetToSource(binding, node, value);
+                if (this._CachedValue === undefined && value === undefined)
                     return;
 
                 this.IsUpdating = true;
@@ -301,12 +280,19 @@ module Fayde.Data {
             this._MaybeEmitError(dataError, exception);
         }
 
-        private _ConvertFromTargetToSource(value: any): any {
-            NotImplemented("BindingExpressionBase._ConvertFromTargetToSource");
-            return value;
-        }
-        private _ConvertFromSourceToTarget(value: any): any {
-            NotImplemented("BindingExpressionBase._ConvertFromSourceToTarget");
+        private _ConvertFromTargetToSource(binding:Data.Binding, node:IPropertyPathNode, value: any): any {
+            if (binding.TargetNullValue && binding.TargetNullValue === value)
+                value = null;
+
+            var converter = binding.Converter;
+            if (converter) {
+                value = converter.ConvertBack(value, node.ValueType, binding.ConverterParameter, binding.ConverterCulture);
+            }
+            
+            //TODO: attempt to parse string for target type
+            // We don't have a target type for plain objects
+            //if (value instanceof String) { }
+
             return value;
         }
         private _ConvertToType(propd: DependencyProperty, value: any): any {
