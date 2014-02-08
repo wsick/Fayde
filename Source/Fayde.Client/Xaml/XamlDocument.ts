@@ -1,4 +1,3 @@
-/// <reference path="../require.d.ts" />
 
 module Fayde.Xaml {
     var W3URI = "http://www.w3.org/2000/xmlns/";

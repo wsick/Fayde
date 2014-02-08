@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Fayde.Controls</id>
+    <version>0.9.0.2</version>
+    <authors>Bradley Sickles</authors>
+    <owners>Bradley Sickles</owners>
+    <projectUrl>http://fayde.wsick.com/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Controls library for Fayde.</description>
+    <tags>fayde xaml silverlight</tags>
+    <dependencies>
+      <dependency id="Fayde" />
+    </dependencies>
+  </metadata>
+</package>

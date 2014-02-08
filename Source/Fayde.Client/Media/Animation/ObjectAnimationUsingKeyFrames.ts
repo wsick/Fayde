@@ -12,8 +12,13 @@ module Fayde.Media.Animation {
                 if (value == null) {
                     keyFrame.ConvertedValue = undefined;
                 } else {
-                    var converted = value;
-                    //TODO: Convert - return false if error converting
+                    var converted: any;
+                    try {
+                        converted = Fayde.ConvertAnyToType(value, <Function>propd.GetTargetType());
+                    } catch (err) {
+                        console.warn("Error resolving ObjectAnimation Value.");
+                        return false;
+                    }
                     keyFrame.ConvertedValue = converted;
                 }
             }
