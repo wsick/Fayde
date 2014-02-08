@@ -1,4 +1,4 @@
-/// <reference path="../scripts/Fayde.d.ts" />
+/// <reference path="../lib/Fayde/Fayde.d.ts" />
 
 class PlayerOpacityValueConverter implements Fayde.Data.IValueConverter {
     Convert(value: any, targetType: IType, parameter: any, culture: any): any {

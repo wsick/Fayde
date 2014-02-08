@@ -55,3 +55,4 @@ Source/Fayde.Tests/tests/XamlLoadTests.js
 Source/Fayde.Tests/tests/XamlNodeTests.js
 Source/Fayde.Tests/tests/DependencyLoadTests.js
 Demos/ControlsShowcase/packages/*
+Demos/NflDraft/packages/*

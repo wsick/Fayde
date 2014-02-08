@@ -148,14 +148,16 @@
     <TypeScriptCompile Include="Resources\DateValueConverter.ts" />
     <TypeScriptCompile Include="main.ts" />
     <TypeScriptCompile Include="Resources\PlayerOpacityValueConverter.ts" />
-    <Content Include="scripts\Fayde.d.ts" />
-    <Content Include="scripts\Fayde.js" />
-    <Content Include="scripts\require.d.ts" />
-    <Content Include="scripts\require.js" />
-    <Content Include="scripts\text.js" />
-    <Content Include="scripts\Theme.Metro.xml" />
-    <Content Include="scripts\Theme.Silverlight.xml" />
-    <Content Include="Web.config" />
+    <TypeScriptCompile Include="lib\Fayde\Fayde.d.ts" />
+    <Content Include="lib\Fayde\Fayde.js" />
+    <Content Include="lib\Fayde\Theme.Metro.xml" />
+    <Content Include="lib\Fayde\Theme.Silverlight.xml" />
+    <Content Include="lib\requirejs\require.d.ts" />
+    <Content Include="lib\requirejs\require.js" />
+    <Content Include="lib\requirejs\text.js" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -164,6 +166,7 @@
     <Content Include="default.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Views\home.fayde" />
     <Content Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -200,7 +203,13 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="packages\Fayde.0.9.6.0\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.6.0\build\Fayde.targets')" />
+  <Import Project="packages\Fayde.0.9.7.11\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.7.11\build\Fayde.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Fayde.0.9.7.11\build\Fayde.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fayde.0.9.7.11\build\Fayde.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
