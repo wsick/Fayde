@@ -275,7 +275,9 @@ module Fayde.Media.VSM {
         }
         return tuples;
     }
-    function flattenTimeline(callback: (tuple:ITimelineTuple) => void, timeline: Timeline, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath) {
+    function flattenTimeline(callback: (tuple: ITimelineTuple) => void, timeline: Timeline, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath) {
+        if (!timeline)
+            return;
         if (timeline.HasManualTarget) {
             targetObject = timeline.ManualTarget;
         } else {

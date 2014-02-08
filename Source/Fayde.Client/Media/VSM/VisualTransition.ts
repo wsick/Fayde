@@ -5,7 +5,11 @@ module Fayde.Media.VSM {
         From: string = null;
         To: string = null;
         Storyboard: Animation.Storyboard;
-        GeneratedDuration: Duration;
+
+        private _GeneratedDuration: Duration = null;
+        get GeneratedDuration(): Duration { return this._GeneratedDuration; }
+        set GeneratedDuration(value: Duration) { this._GeneratedDuration = Fayde.ConvertAnyToType(value, Duration); }
+
         DynamicStoryboardCompleted: boolean = true;
         ExplicitStoryboardCompleted: boolean = true;
         GeneratedEasingFunction: Animation.EasingFunctionBase;
