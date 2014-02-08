@@ -3333,6 +3333,7 @@ declare module Fayde.Data {
         public GetValue(propd: DependencyProperty): any;
         public OnAttached(element: Fayde.DependencyObject): void;
         private _OnSourceAvailable();
+        private _FindSource();
         private _FindSourceByElementName();
         public OnDetached(element: Fayde.DependencyObject): void;
         public IsBrokenChanged(): void;
@@ -3345,8 +3346,7 @@ declare module Fayde.Data {
         public OnDataContextChanged(newDataContext: any): void;
         private _Invalidate();
         public Refresh(): void;
-        private _ConvertFromTargetToSource(value);
-        private _ConvertFromSourceToTarget(value);
+        private _ConvertFromTargetToSource(binding, node, value);
         private _ConvertToType(propd, value);
         private _MaybeEmitError(message, exception);
         private _AttachToNotifyError(element);
@@ -3471,7 +3471,8 @@ declare module Fayde.Data {
 declare module Fayde.Data {
     class RelativeSource {
         public Mode: Data.RelativeSourceMode;
-        public AncestorLevel: number;
+        private _AncestorLevel;
+        public AncestorLevel : number;
         public AncestorType: Function;
         constructor(mode?: Data.RelativeSourceMode);
     }
