@@ -70,6 +70,7 @@
     <Content Include="Images\fayde.gif" />
     <Content Include="Images\footballfield.png" />
     <Content Include="Images\helmet.png" />
+    <Content Include="Images\history.png" />
     <Content Include="Images\Player Headshots\aaron_rodgers.png" />
     <Content Include="Images\Player Headshots\adrian_peterson.png" />
     <Content Include="Images\Player Headshots\aj_green.png" />
@@ -146,6 +147,7 @@
     <TypeScriptCompile Include="Models\FantasyPosition.ts" />
     <TypeScriptCompile Include="Resources\DateValueConverter.ts" />
     <TypeScriptCompile Include="main.ts" />
+    <TypeScriptCompile Include="Resources\PlayerOpacityValueConverter.ts" />
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />
     <Content Include="scripts\require.d.ts" />
@@ -170,7 +172,9 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
