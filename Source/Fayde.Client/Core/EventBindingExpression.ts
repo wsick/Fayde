@@ -108,20 +108,14 @@ module Fayde {
                 return findSourceByElementName(target, binding.ElementName);
 
             if (binding.RelativeSource) {
-                var source: any;
                 switch (binding.RelativeSource.Mode) {
                     case Data.RelativeSourceMode.Self:
-                        source = target;
-                        break;
+                        return target;
                     case Data.RelativeSourceMode.TemplatedParent:
-                        source = target.TemplateOwner;
-                        break;
+                        return target.TemplateOwner;
                     case Data.RelativeSourceMode.FindAncestor:
-                        console.log("FindAncestor is not fully implemented.");
-                        //TODO: Implement
-                        break;
+                        return findAncestor(target, binding.RelativeSource);
                 }
-                return source;
             }
         }
         return target.XamlNode.DataContext;
@@ -142,5 +136,23 @@ module Fayde {
             break;
         }
         return undefined;
+    }
+    function findAncestor(target: XamlObject, relSource: Data.RelativeSource): XamlObject {
+        if (!(target instanceof DependencyObject))
+            return;
+        var ancestorType = relSource.AncestorType;
+        if (typeof ancestorType !== "function") {
+            console.warn("RelativeSourceMode.FindAncestor with no AncestorType specified.");
+            return;
+        }
+        var ancestorLevel = relSource.AncestorLevel;
+        if (isNaN(ancestorLevel)) {
+            console.warn("RelativeSourceMode.FindAncestor with no AncestorLevel specified.");
+            return;
+        }
+        for (var parent = VisualTreeHelper.GetParent(<DependencyObject>target); parent != null; parent = VisualTreeHelper.GetParent(parent)) {
+            if (parent instanceof ancestorType && --ancestorLevel < 1)
+                return parent;
+        }
     }
 }

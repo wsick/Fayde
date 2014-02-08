@@ -72,30 +72,11 @@ module Fayde.Data {
                 return;
             if (Fayde.Data.Debug && window.console)
                 console.log("[BINDING] OnAttached: [" + (<any>element).constructor.name + "] {Path=" + this.ParentBinding.Path.Path + "}");
-            
+
             super.OnAttached(element);
-            
-            var source: any;
-            if (this.ParentBinding.Source) {
-                source = this.ParentBinding.Source;
-            } else if (this.ParentBinding.ElementName != null) {
-                source = this._FindSourceByElementName();
-                this._SourceAvailableMonitor = this.Target.XamlNode.MonitorIsAttached((newIsAttached) => this._OnSourceAvailable());
-            } else if (this.ParentBinding.RelativeSource) {
-                switch (this.ParentBinding.RelativeSource.Mode) {
-                    case RelativeSourceMode.Self:
-                        source = this.Target;
-                        break;
-                    case RelativeSourceMode.TemplatedParent:
-                        source = this.Target.TemplateOwner;
-                        break;
-                    case RelativeSourceMode.FindAncestor:
-                        //TODO: Implement
-                        break;
-                }
-            } else {
-                source = this._DataContext;
-            }
+
+            this._SourceAvailableMonitor = this.Target.XamlNode.MonitorIsAttached((newIsAttached) => this._OnSourceAvailable());
+            var source = this._FindSource();
             this.PropertyPathWalker.Update(source);
 
             if (this._TwoWayTextBox)
@@ -107,10 +88,28 @@ module Fayde.Data {
         }
         private _OnSourceAvailable() {
             this._SourceAvailableMonitor.Detach();
-            var source = this._FindSourceByElementName();
+            var source = this._FindSource();
             if (source) this.PropertyPathWalker.Update(source);
             this._Invalidate();
             this.Target.SetValue(this.Property, this);
+        }
+        private _FindSource(): any {
+            if (this.ParentBinding.Source) {
+                return this.ParentBinding.Source;
+            } else if (this.ParentBinding.ElementName != null) {
+                return this._FindSourceByElementName();
+            } else if (this.ParentBinding.RelativeSource) {
+                var rs = this.ParentBinding.RelativeSource;
+                switch (rs.Mode) {
+                    case RelativeSourceMode.Self:
+                        return this.Target;
+                    case RelativeSourceMode.TemplatedParent:
+                        return this.Target.TemplateOwner;
+                    case RelativeSourceMode.FindAncestor:
+                        return findAncestor(this.Target, rs);
+                }
+            }
+            return this._DataContext;
         }
         private _FindSourceByElementName(): XamlObject {
             var xobj: XamlObject = this.Target;
@@ -136,7 +135,7 @@ module Fayde.Data {
                 return;
             if (Fayde.Data.Debug && window.console)
                 console.log("[BINDING] OnDetached: [" + (<any>element).constructor.name + "] {Path=" + this.ParentBinding.Path.Path + "}");
-            
+
             super.OnDetached(element);
 
             if (this._TwoWayTextBox)
@@ -158,7 +157,7 @@ module Fayde.Data {
 
             this.Target = undefined;
         }
-        
+
         IsBrokenChanged() { this.Refresh(); }
         ValueChanged() { this.Refresh(); }
         UpdateSource() {
@@ -193,8 +192,8 @@ module Fayde.Data {
             var node = this.PropertyPathWalker.FinalNode;
 
             try {
-            // If the user calls BindingExpresion.UpdateSource (), we must update regardless of focus state.
-            // Otherwise we only update if the textbox is unfocused.
+                // If the user calls BindingExpresion.UpdateSource (), we must update regardless of focus state.
+                // Otherwise we only update if the textbox is unfocused.
                 if (!force && this._TwoWayTextBox && Application.Current.MainSurface.FocusedNode === this.Target.XamlNode)
                     return;
                 if (this.PropertyPathWalker.IsPathBroken)
@@ -214,10 +213,10 @@ module Fayde.Data {
                 }
             } finally {
                 this.IsUpdating = oldUpdating;
-            //TODO: IDataErrorInfo
-            //if (binding.ValidatesOnDataErrors && !exception && node.Source.DoesImplement(IDataErrorInfo) && node.GetPropertyInfo() != null) {
-            //dataError = node.Source[node.GetPropertyInfo().Name];
-            //}
+                //TODO: IDataErrorInfo
+                //if (binding.ValidatesOnDataErrors && !exception && node.Source.DoesImplement(IDataErrorInfo) && node.GetPropertyInfo() != null) {
+                //dataError = node.Source[node.GetPropertyInfo().Name];
+                //}
             }
             this._MaybeEmitError(dataError, exception);
         }
@@ -280,7 +279,7 @@ module Fayde.Data {
             this._MaybeEmitError(dataError, exception);
         }
 
-        private _ConvertFromTargetToSource(binding:Data.Binding, node:IPropertyPathNode, value: any): any {
+        private _ConvertFromTargetToSource(binding: Data.Binding, node: IPropertyPathNode, value: any): any {
             if (binding.TargetNullValue && binding.TargetNullValue === value)
                 value = null;
 
@@ -288,7 +287,7 @@ module Fayde.Data {
             if (converter) {
                 value = converter.ConvertBack(value, node.ValueType, binding.ConverterParameter, binding.ConverterCulture);
             }
-            
+
             //TODO: attempt to parse string for target type
             // We don't have a target type for plain objects
             //if (value instanceof String) { }
@@ -324,7 +323,7 @@ module Fayde.Data {
             }
             return Fayde.ConvertAnyToType(value, <Function>targetType);
         }
-        
+
         private _MaybeEmitError(message: string, exception: Exception) {
             /*
             var fe: FrameworkElement = this.TargetFE;
@@ -370,4 +369,21 @@ module Fayde.Data {
         }
     }
     Fayde.RegisterType(BindingExpressionBase, "Fayde.Data");
+
+    function findAncestor(target: DependencyObject, relSource: RelativeSource): DependencyObject {
+        var ancestorType = relSource.AncestorType;
+        if (typeof ancestorType !== "function") {
+            console.warn("RelativeSourceMode.FindAncestor with no AncestorType specified.");
+            return;
+        }
+        var ancestorLevel = relSource.AncestorLevel;
+        if (isNaN(ancestorLevel)) {
+            console.warn("RelativeSourceMode.FindAncestor with no AncestorLevel specified.");
+            return;
+        }
+        for (var parent = VisualTreeHelper.GetParent(target); parent != null; parent = VisualTreeHelper.GetParent(parent)) {
+            if (parent instanceof ancestorType && --ancestorLevel < 1)
+                return parent;
+        }
+    }
 }
