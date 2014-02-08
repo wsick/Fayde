@@ -112,10 +112,7 @@ module Fayde {
                 childNode.SetIsAttached(newIsAttached);
             }
 
-            var monitors = this._IAMonitors;
-            if (!monitors) return;
-            len = monitors.length;
-            for (var i = 0; i < len; i++) {
+            for (var i = 0, monitors = (this._IAMonitors || []).slice(0), len = monitors.length; i < len; i++) {
                 monitors[i].Callback(newIsAttached);
             }
         }
