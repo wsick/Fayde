@@ -1,7 +1,7 @@
 ﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    xmlns:local="IssueTests"
+    xmlns:local="Binding"
     Theme="/Fayde/Theme.Metro.xml">
     <StackPanel x:Name="RootStackPanel">
         <StackPanel.DataContext>
