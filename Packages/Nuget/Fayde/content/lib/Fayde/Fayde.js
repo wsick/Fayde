@@ -23310,6 +23310,13 @@ var Fayde;
                 Timeline.prototype.GetNaturalDurationCore = function () {
                     return Duration.Automatic;
                 };
+
+                Timeline.prototype.GenerateFrom = function () {
+                    return undefined;
+                };
+                Timeline.prototype.GenerateTo = function (isEntering) {
+                    return undefined;
+                };
                 Timeline.DEFAULT_REPEAT_BEHAVIOR = Fayde.Media.Animation.RepeatBehavior.FromIterationCount(1);
                 Timeline.AutoReverseProperty = DependencyProperty.Register("AutoReverse", function () {
                     return Boolean;
@@ -23699,6 +23706,18 @@ var Fayde;
                 ColorAnimation.prototype._EasingChanged = function (args) {
                     this._EasingCached = args.NewValue;
                 };
+
+                ColorAnimation.prototype.GenerateFrom = function () {
+                    return new ColorAnimation();
+                };
+                ColorAnimation.prototype.GenerateTo = function (isEntering) {
+                    var val = this.From != null ? this.From : this.To;
+                    if (val == null)
+                        return null;
+                    var ca = new ColorAnimation();
+                    ca.To = val;
+                    return ca;
+                };
                 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () {
                     return Color;
                 }, ColorAnimation, null, function (d, args) {
@@ -23737,6 +23756,20 @@ var Fayde;
                 function ColorAnimationUsingKeyFrames() {
                     _super.apply(this, arguments);
                 }
+                ColorAnimationUsingKeyFrames.prototype.GenerateFrom = function () {
+                    return new Fayde.Media.Animation.ColorAnimation();
+                };
+                ColorAnimationUsingKeyFrames.prototype.GenerateTo = function (isEntering) {
+                    var kfs = this.KeyFrames;
+                    if (kfs.Count === 0)
+                        return null;
+                    var val = (kfs.GetValueAt(isEntering ? 0 : kfs.Count - 1)).Value;
+                    if (val == null)
+                        return null;
+                    var ca = new Fayde.Media.Animation.ColorAnimation();
+                    ca.To = val;
+                    return ca;
+                };
                 ColorAnimationUsingKeyFrames.Annotations = { ContentProperty: Fayde.Media.Animation.AnimationUsingKeyFrames.KeyFramesProperty };
                 return ColorAnimationUsingKeyFrames;
             })(Fayde.Media.Animation.AnimationUsingKeyFrames);
@@ -24211,6 +24244,18 @@ var Fayde;
                 DoubleAnimation.prototype._EasingChanged = function (args) {
                     this._EasingCached = args.NewValue;
                 };
+
+                DoubleAnimation.prototype.GenerateFrom = function () {
+                    return new DoubleAnimation();
+                };
+                DoubleAnimation.prototype.GenerateTo = function (isEntering) {
+                    var val = (this.From != null) ? this.From : this.To;
+                    if (val == null)
+                        return null;
+                    var da = new DoubleAnimation();
+                    da.To = val;
+                    return da;
+                };
                 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () {
                     return Number;
                 }, DoubleAnimation, null, function (d, args) {
@@ -24249,6 +24294,20 @@ var Fayde;
                 function DoubleAnimationUsingKeyFrames() {
                     _super.apply(this, arguments);
                 }
+                DoubleAnimationUsingKeyFrames.prototype.GenerateFrom = function () {
+                    return new Fayde.Media.Animation.DoubleAnimation();
+                };
+                DoubleAnimationUsingKeyFrames.prototype.GenerateTo = function (isEntering) {
+                    var kfs = this.KeyFrames;
+                    if (kfs.Count === 0)
+                        return null;
+                    var val = (kfs.GetValueAt(isEntering ? 0 : kfs.Count - 1)).Value;
+                    if (val == null)
+                        return null;
+                    var da = new Fayde.Media.Animation.DoubleAnimation();
+                    da.To = val;
+                    return da;
+                };
                 DoubleAnimationUsingKeyFrames.Annotations = { ContentProperty: Fayde.Media.Animation.AnimationUsingKeyFrames.KeyFramesProperty };
                 return DoubleAnimationUsingKeyFrames;
             })(Fayde.Media.Animation.AnimationUsingKeyFrames);
@@ -24791,6 +24850,18 @@ var Fayde;
                 PointAnimation.prototype._EasingChanged = function (args) {
                     this._EasingCached = args.NewValue;
                 };
+
+                PointAnimation.prototype.GenerateFrom = function () {
+                    return new PointAnimation();
+                };
+                PointAnimation.prototype.GenerateTo = function (isEntering) {
+                    var val = (this.From != null) ? this.From : this.To;
+                    if (val == null)
+                        return null;
+                    var pa = new PointAnimation();
+                    pa.To = val;
+                    return pa;
+                };
                 PointAnimation.ByProperty = DependencyProperty.Register("By", function () {
                     return Point;
                 }, PointAnimation, null, function (d, args) {
@@ -24829,6 +24900,20 @@ var Fayde;
                 function PointAnimationUsingKeyFrames() {
                     _super.apply(this, arguments);
                 }
+                PointAnimationUsingKeyFrames.prototype.GenerateFrom = function () {
+                    return new Fayde.Media.Animation.PointAnimation();
+                };
+                PointAnimationUsingKeyFrames.prototype.GenerateTo = function (isEntering) {
+                    var kfs = this.KeyFrames;
+                    if (kfs.Count === 0)
+                        return null;
+                    var val = (kfs.GetValueAt(isEntering ? 0 : kfs.Count - 1)).Value;
+                    if (val == null)
+                        return null;
+                    var pa = new Fayde.Media.Animation.PointAnimation();
+                    pa.To = val;
+                    return pa;
+                };
                 PointAnimationUsingKeyFrames.Annotations = { ContentProperty: Fayde.Media.Animation.AnimationUsingKeyFrames.KeyFramesProperty };
                 return PointAnimationUsingKeyFrames;
             })(Fayde.Media.Animation.AnimationUsingKeyFrames);
@@ -28825,6 +28910,14 @@ var Fayde;
                     VisualStateGroup.StatesProperty.Initialize(this);
                     VisualStateGroup.TransitionsProperty.Initialize(this);
                 }
+                Object.defineProperty(VisualStateGroup.prototype, "CurrentStoryboards", {
+                    get: function () {
+                        return this._CurrentStoryboards.slice(0);
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
                 VisualStateGroup.prototype.GetState = function (stateName) {
                     var enumerator = this.States.GetEnumerator();
                     var state;
@@ -28986,7 +29079,7 @@ var Fayde;
                         group.RaiseCurrentStateChanging(element, lastState, state, control);
                         group.RaiseCurrentStateChanged(element, lastState, state, control);
                     } else {
-                        var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
+                        var dynamicTransition = genDynamicTransAnimations(element, group, state, transition);
 
                         transition.DynamicStoryboardCompleted = false;
                         var dynamicCompleted = function (sender, e) {
@@ -29099,21 +29192,6 @@ var Fayde;
                         return best;
                     return defaultTransition;
                 };
-                VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group, state, transition) {
-                    var dynamic = new Fayde.Media.Animation.Storyboard();
-                    if (transition != null) {
-                        dynamic.Duration = transition.GeneratedDuration;
-                    } else {
-                        dynamic.Duration = new Duration(new TimeSpan());
-                    }
-
-                    var currentAnimations;
-                    var transitionAnimations;
-                    var newStateAnimations;
-
-                    NotImplemented("VisualStateManager._GenerateDynamicTransitionAnimations");
-                    return dynamic;
-                };
                 VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttachedCore("VisualStateGroups", function () {
                     return Fayde.Media.VSM.VisualStateGroupCollection;
                 }, VisualStateManager);
@@ -29125,6 +29203,130 @@ var Fayde;
             })(Fayde.DependencyObject);
             VSM.VisualStateManager = VisualStateManager;
             Fayde.RegisterType(VisualStateManager, "Fayde.Media.VSM", Fayde.XMLNS);
+
+            var Timeline = Fayde.Media.Animation.Timeline;
+            var Storyboard = Fayde.Media.Animation.Storyboard;
+
+            function genDynamicTransAnimations(root, group, state, transition) {
+                var dynamic = new Fayde.Media.Animation.Storyboard();
+                if (transition != null) {
+                    dynamic.Duration = transition.GeneratedDuration;
+                } else {
+                    dynamic.Duration = new Duration(new TimeSpan());
+                }
+
+                var currentAnimations = flattenTimelines(group.CurrentStoryboards);
+                var transitionAnimations = flattenTimelines([transition != null ? transition.Storyboard : null]);
+                var newStateAnimations = flattenTimelines([state.Storyboard]);
+
+                for (var i = 0, len = transitionAnimations.length; i < len; i++) {
+                    removeTuple(transitionAnimations[i], currentAnimations);
+                    removeTuple(transitionAnimations[i], newStateAnimations);
+                }
+
+                var tuple;
+
+                for (var i = 0, len = newStateAnimations.length; i < len; i++) {
+                    tuple = newStateAnimations[i];
+                    var toAnimation = genToAnimation(root, tuple.timeline, true);
+
+                    if (toAnimation != null) {
+                        ensureTarget(root, tuple.timeline, toAnimation);
+                        toAnimation.Duration = dynamic.Duration;
+                        dynamic.Children.Add(toAnimation);
+                    }
+
+                    removeTuple(tuple, currentAnimations);
+                }
+
+                for (var i = 0, len = currentAnimations.length; i < len; i++) {
+                    tuple = currentAnimations[i];
+                    var fromAnimation = tuple.timeline.GenerateFrom();
+                    if (fromAnimation != null) {
+                        ensureTarget(root, tuple.timeline, fromAnimation);
+                        fromAnimation.Duration = dynamic.Duration;
+
+                        var propertyName = Fayde.Media.Animation.Storyboard.GetTargetProperty(tuple.timeline);
+                        Fayde.Media.Animation.Storyboard.SetTargetProperty(fromAnimation, propertyName);
+                        dynamic.Children.Add(fromAnimation);
+                    }
+                }
+
+                return dynamic;
+            }
+            function ensureTarget(root, source, dest) {
+                if (source.ManualTarget != null) {
+                    Storyboard.SetTarget(dest, source.ManualTarget);
+                } else {
+                    var targetName = Storyboard.GetTargetName(source);
+                    if (targetName)
+                        Storyboard.SetTargetName(dest, targetName);
+                }
+            }
+            function genToAnimation(root, timeline, isEntering) {
+                var result = timeline.GenerateTo(isEntering);
+                if (!result)
+                    return null;
+
+                var targetName = Storyboard.GetTargetName(timeline);
+                Storyboard.SetTargetName(result, targetName);
+                if (targetName) {
+                    var target = root.FindName(targetName);
+                    if (target instanceof Fayde.DependencyObject)
+                        Storyboard.SetTarget(result, target);
+                }
+
+                Storyboard.SetTargetProperty(result, Storyboard.GetTargetProperty(timeline));
+                return result;
+            }
+
+            function flattenTimelines(storyboards) {
+                var tuples = [];
+                for (var i = 0, len = storyboards.length; i < len; i++) {
+                    flattenTimeline(function (tp) {
+                        return tuples.push(tp);
+                    }, storyboards[i], null, null);
+                }
+                return tuples;
+            }
+            function flattenTimeline(callback, timeline, targetObject, targetPropertyPath) {
+                if (!timeline)
+                    return;
+                if (timeline.HasManualTarget) {
+                    targetObject = timeline.ManualTarget;
+                } else {
+                    var targetName = Storyboard.GetTargetName(timeline);
+                    if (targetName) {
+                        var n = timeline.XamlNode.FindName(targetName);
+                        targetObject = (n ? n.XObject : null);
+                    }
+                }
+
+                var pp = Storyboard.GetTargetProperty(timeline);
+                if (pp)
+                    targetPropertyPath = pp;
+
+                if (timeline instanceof Storyboard) {
+                    for (var i = 0, children = timeline.Children, len = children.Count; i < len; i++) {
+                        flattenTimeline(callback, children.GetValueAt(i), targetObject, targetPropertyPath);
+                    }
+                } else {
+                    if (targetPropertyPath && targetObject) {
+                        var oto = { Value: targetObject };
+                        var propd = Fayde.Data.PropertyPath.ResolvePropertyPath(oto, targetPropertyPath, []);
+
+                        if (propd && oto.Value)
+                            callback({ dobj: oto.Value, propd: propd, timeline: timeline });
+                    }
+                }
+            }
+            function removeTuple(tuple, list) {
+                for (var i = 0, len = list.length; i < len; i++) {
+                    var l = list[i];
+                    if (l.dobj === tuple.dobj && l.propd === tuple.propd)
+                        return list.splice(i, 1);
+                }
+            }
         })(Media.VSM || (Media.VSM = {}));
         var VSM = Media.VSM;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -29140,9 +29342,21 @@ var Fayde;
                     _super.apply(this, arguments);
                     this.From = null;
                     this.To = null;
+                    this._GeneratedDuration = null;
                     this.DynamicStoryboardCompleted = true;
                     this.ExplicitStoryboardCompleted = true;
                 }
+                Object.defineProperty(VisualTransition.prototype, "GeneratedDuration", {
+                    get: function () {
+                        return this._GeneratedDuration;
+                    },
+                    set: function (value) {
+                        this._GeneratedDuration = Fayde.ConvertAnyToType(value, Duration);
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
                 Object.defineProperty(VisualTransition.prototype, "IsDefault", {
                     get: function () {
                         return this.From == null && this.To == null;

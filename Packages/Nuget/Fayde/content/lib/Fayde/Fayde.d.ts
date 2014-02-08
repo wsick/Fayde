@@ -3990,6 +3990,8 @@ declare module Fayde.Media.Animation {
         private IsAfterBeginTime(nowTime);
         public GetNaturalDuration(): Duration;
         public GetNaturalDurationCore(): Duration;
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
     class TimelineCollection extends Fayde.XamlObjectCollection<Timeline> {
     }
@@ -4067,6 +4069,8 @@ declare module Fayde.Media.Animation {
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4074,6 +4078,8 @@ declare module Fayde.Media.Animation {
         static Annotations: {
             ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
         };
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4186,6 +4192,8 @@ declare module Fayde.Media.Animation {
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4193,6 +4201,8 @@ declare module Fayde.Media.Animation {
         static Annotations: {
             ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
         };
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4329,6 +4339,8 @@ declare module Fayde.Media.Animation {
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4336,6 +4348,8 @@ declare module Fayde.Media.Animation {
         static Annotations: {
             ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
         };
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -5279,6 +5293,7 @@ declare module Fayde.Media.VSM {
             ContentProperty: ImmutableDependencyProperty<VSM.VisualStateCollection>;
         };
         private _CurrentStoryboards;
+        public CurrentStoryboards : Media.Animation.Storyboard[];
         public CurrentStateChanging: MulticastEvent<VisualStateChangedEventArgs>;
         public CurrentStateChanged: MulticastEvent<VisualStateChangedEventArgs>;
         public CurrentState: VSM.VisualState;
@@ -5311,7 +5326,6 @@ declare module Fayde.Media.VSM {
         private static _GetTemplateRoot(control);
         private static _TryGetState(groups, stateName, data);
         private static _GetTransition(element, group, from, to);
-        private static _GenerateDynamicTransitionAnimations(root, group, state, transition);
     }
 }
 declare module Fayde.Media.VSM {
@@ -5319,7 +5333,8 @@ declare module Fayde.Media.VSM {
         public From: string;
         public To: string;
         public Storyboard: Media.Animation.Storyboard;
-        public GeneratedDuration: Duration;
+        private _GeneratedDuration;
+        public GeneratedDuration : Duration;
         public DynamicStoryboardCompleted: boolean;
         public ExplicitStoryboardCompleted: boolean;
         public GeneratedEasingFunction: Media.Animation.EasingFunctionBase;
