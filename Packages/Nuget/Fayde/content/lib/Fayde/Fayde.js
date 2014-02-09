@@ -19,7 +19,7 @@ var Fayde;
                 if (xd)
                     return xd;
                 var xaml = require(url);
-                if (xaml)
+                if (!xaml)
                     return null;
                 return regXds[url] = new XamlDocument(xaml);
             };
