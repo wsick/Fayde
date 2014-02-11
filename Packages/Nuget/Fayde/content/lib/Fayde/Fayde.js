@@ -35749,7 +35749,7 @@ var Fayde;
                 };
 
                 PointerTouchInterop.prototype._HandlePointerDown = function (e) {
-                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     e.preventDefault();
                     Fayde.Engine.Inspection.Kill();
@@ -35760,7 +35760,7 @@ var Fayde;
                     this.Input.SetIsUserInitiatedEvent(false);
                 };
                 PointerTouchInterop.prototype._HandlePointerUp = function (e) {
-                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.Input.SetIsUserInitiatedEvent(true);
@@ -35771,19 +35771,19 @@ var Fayde;
                         this.ActiveTouches.splice(index, 1);
                 };
                 PointerTouchInterop.prototype._HandlePointerMove = function (e) {
-                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.HandleTouches(3 /* TouchMove */, [cur]);
                 };
                 PointerTouchInterop.prototype._HandlePointerEnter = function (e) {
-                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.HandleTouches(4 /* TouchEnter */, [cur]);
                 };
                 PointerTouchInterop.prototype._HandlePointerLeave = function (e) {
-                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.HandleTouches(5 /* TouchLeave */, [cur]);
