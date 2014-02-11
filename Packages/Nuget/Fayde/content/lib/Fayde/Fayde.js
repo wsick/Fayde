@@ -22599,8 +22599,11 @@ var Fayde;
         function CreateKeyInterop() {
             if (navigator.appName === "Microsoft Internet Explorer")
                 return new IEKeyInterop();
-            else if (navigator.appName === "Netscape")
+            if (navigator.appName === "Netscape") {
+                if (!!navigator.userAgent.match(/Trident\//))
+                    return new IEKeyInterop();
                 return new NetscapeKeyInterop();
+            }
             return new KeyInterop();
         }
         Input.CreateKeyInterop = CreateKeyInterop;
@@ -22907,8 +22910,11 @@ var Fayde;
         function CreateMouseInterop() {
             if (navigator.appName === "Microsoft Internet Explorer")
                 return new IEMouseInterop();
-            else if (navigator.appName === "Netscape")
+            if (navigator.appName === "Netscape") {
+                if (!!navigator.userAgent.match(/Trident\//))
+                    return new IEMouseInterop();
                 return new NetscapeMouseInterop();
+            }
             return new MouseInterop();
         }
         Input.CreateMouseInterop = CreateMouseInterop;
