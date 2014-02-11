@@ -11,8 +11,11 @@ module Fayde.Input {
         //Figure out which KeyInterop
         if (navigator.appName === "Microsoft Internet Explorer")
             return new IEKeyInterop();
-        else if (navigator.appName === "Netscape")
+        if (navigator.appName === "Netscape") {
+            if (!!navigator.userAgent.match(/Trident\//)) //IE11 masquerading as Netscape
+                return new IEKeyInterop();
             return new NetscapeKeyInterop();
+        }
         return new KeyInterop();
     }
 
