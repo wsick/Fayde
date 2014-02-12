@@ -190,12 +190,12 @@ export function run() {
 
 
         xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
-        + "<Grid.Resources>"
-        + "<DataTemplate TargetType=\"Color\">"
-        + "<Grid></Grid>"
-        + "</DataTemplate>"
-        + "</Grid.Resources>"
-        + "</Grid>";
+            + "<Grid.Resources>"
+            + "<DataTemplate TargetType=\"Color\">"
+            + "<Grid></Grid>"
+            + "</DataTemplate>"
+            + "</Grid.Resources>"
+            + "</Grid>";
         var grid: Fayde.Controls.Grid;
         try {
             grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
@@ -206,6 +206,21 @@ export function run() {
         dt = grid.Resources.Get(Color);
         ok(dt instanceof Fayde.DataTemplate);
         strictEqual(dt.TargetType, Color, "TargetType for DataTemplate should be Color.");
+
+        
+        xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+            + "<Grid.Resources>"
+            + "<DataTemplate>"
+            + "<Grid></Grid>"
+            + "</DataTemplate>"
+            + "</Grid.Resources>"
+            + "</Grid>";
+        try {
+            grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+            ok(false, "Expected parse error in xaml load.");
+        } catch (err) {
+            ok(err instanceof XamlParseException, err);
+        }
     });
 
     test("HierarchicalDataTemplate", () => {

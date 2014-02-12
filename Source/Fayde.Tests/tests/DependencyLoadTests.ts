@@ -29,8 +29,8 @@ export function run() {
     });
 
     asyncTest("Library Load", () => {
-        Fayde.RegisterLibrary("Fayde.Controls.Input", "mocks/Fayde.Controls.Input/source.js", "mocks/Fayde.Controls.Input/generic.xml");
-        var library = Fayde.Library.Get("lib:Fayde.Controls.Input");
+        Fayde.RegisterLibrary("Fayde.Controls", "mocks/Fayde.Controls/source.js", "mocks/Fayde.Controls/generic.xml");
+        var library = Fayde.Library.Get("lib:Fayde.Controls");
         var timeout = setTimeout(() => {
             start();
             ok(false, "Timed out.");
