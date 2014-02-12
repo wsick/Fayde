@@ -31,6 +31,9 @@ module Fayde {
             
             var feNode = <FENode>d.XamlNode;
             var subtreeNode = feNode.SubtreeNode;
+            if (!subtreeNode)
+                throw new IndexOutOfRangeException(childIndex);
+
             var subtree = subtreeNode.XObject;
             if (subtree instanceof XamlObjectCollection)
                 return <DependencyObject>(<XamlObjectCollection<DependencyObject>>subtree).GetValueAt(childIndex);
@@ -46,6 +49,9 @@ module Fayde {
             
             var feNode = <FENode>d.XamlNode;
             var subtreeNode = feNode.SubtreeNode;
+            if (!subtreeNode)
+                return 0;
+
             var subtree = subtreeNode.XObject;
             if (subtreeNode.XObject instanceof XamlObjectCollection)
                 return (<XamlObjectCollection<DependencyObject>>subtree).Count;
