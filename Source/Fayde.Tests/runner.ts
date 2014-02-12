@@ -4,6 +4,7 @@ import MarkupExpressionTests = require("tests/MarkupExpressionTests");
 import XamlNodeTests = require("tests/XamlNodeTests");
 import ProviderTests = require("tests/ProviderTests");
 import XamlLoadTests = require("tests/XamlLoadTests");
+import DataTemplateTests = require("tests/DataTemplateTests");
 import TransformTests = require("tests/TransformTests");
 import TimelineTests = require("tests/TimelineTests");
 import ItemsControlTests = require("tests/ItemsControlTests");
@@ -18,6 +19,7 @@ export function run() {
     XamlNodeTests.run();
     ProviderTests.run();
     XamlLoadTests.run();
+    DataTemplateTests.run();
     TransformTests.run();
     TimelineTests.run();
     ItemsControlTests.run();
