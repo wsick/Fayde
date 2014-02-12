@@ -296,7 +296,7 @@ module Fayde {
                     while (curNode) {
                         if (curNode.IsTopLevel)
                             ok = true;
-                        curNode.VisualParentNode;
+                        curNode = curNode.VisualParentNode;
                     }
                 }
                 if (!ok)

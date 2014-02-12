@@ -219,10 +219,10 @@ module Fayde.Xaml {
             var kvp = tokens[i].split("=");
             if (kvp.length === 1) {
                 key = "Mode";
-                value = kvp[0];
+                value = kvp[0].trim();
             } else {
-                key = kvp[0];
-                value = kvp[1];
+                key = kvp[0].trim();
+                value = kvp[1].trim();
             }
             switch (key) {
                 case "Mode":
@@ -234,10 +234,14 @@ module Fayde.Xaml {
                     if (isNaN(rs.AncestorLevel)) rs.AncestorLevel = 1;
                     break;
                 case "AncestorType":
-                    var typeres = TypeResolver.ResolveFullyQualifiedName(value, ctx.Resolver);
-                    if (!typeres)
-                        throw new Exception("Could not resolve type '" + value + "'.");
-                    rs.AncestorType = typeres.Type;
+                    if (value[0] === "{") {
+                        var type = MarkupExpressionParser.Parse(value, ctx);
+                        if (typeof type !== "function")
+                            throw new XamlMarkupParseException("Could not resolve type '" + val + "'");
+                        rs.AncestorType = type;
+                    } else {
+                        rs.AncestorType = parseXType(value, ctx);
+                    }
                     break;
             }
         }

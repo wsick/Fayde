@@ -54,6 +54,18 @@ module Fayde.Media.Animation {
         private _EasingChanged(args: IDependencyPropertyChangedEventArgs) {
             this._EasingCached = args.NewValue;
         }
+
+        GenerateFrom(): AnimationBase {
+            return new ColorAnimation();
+        }
+        GenerateTo(isEntering: boolean): AnimationBase {
+            var val = this.From != null ? this.From : this.To;
+            if (val == null)
+                return null;
+            var ca = new ColorAnimation();
+            ca.To = val;
+            return ca;
+        }
     }
     Fayde.RegisterType(ColorAnimation, "Fayde.Media.Animation", Fayde.XMLNS);
 }

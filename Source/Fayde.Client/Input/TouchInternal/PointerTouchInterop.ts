@@ -38,7 +38,7 @@ module Fayde.Input.TouchInternal {
         }
 
         private _HandlePointerDown(e: MSPointerEvent) {
-            if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+            if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                 return;
             e.preventDefault();
             Engine.Inspection.Kill();
@@ -49,7 +49,7 @@ module Fayde.Input.TouchInternal {
             this.Input.SetIsUserInitiatedEvent(false);
         }
         private _HandlePointerUp(e: MSPointerEvent) {
-            if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+            if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                 return;
             var cur = this.GetActiveTouch(e);
             this.Input.SetIsUserInitiatedEvent(true);
@@ -60,19 +60,19 @@ module Fayde.Input.TouchInternal {
                 this.ActiveTouches.splice(index, 1);
         }
         private _HandlePointerMove(e: MSPointerEvent) {
-            if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+            if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                 return;
             var cur = this.GetActiveTouch(e);
             this.HandleTouches(Input.TouchInputType.TouchMove, [cur]);
         }
         private _HandlePointerEnter(e: MSPointerEvent) {
-            if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+            if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                 return;
             var cur = this.GetActiveTouch(e);
             this.HandleTouches(Input.TouchInputType.TouchEnter, [cur]);
         }
         private _HandlePointerLeave(e: MSPointerEvent) {
-            if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+            if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                 return;
             var cur = this.GetActiveTouch(e);
             this.HandleTouches(Input.TouchInputType.TouchLeave, [cur]);

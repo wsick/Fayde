@@ -9,19 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.TestSite", "Fayde.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Tests", "Fayde.Tests\Fayde.Tests.csproj", "{F8F5F04B-D2B7-4992-A5D1-CAAC1283ACFB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BFC9260F-3A06-4A0C-82EE-E61E7615D16E}"
-	ProjectSection(SolutionItems) = preProject
-		Fayde.Client\Docs\AnimNotes.txt = Fayde.Client\Docs\AnimNotes.txt
-		Fayde.Client\Docs\DebugServices.txt = Fayde.Client\Docs\DebugServices.txt
-		Fayde.Client\Docs\LayoutDep.txt = Fayde.Client\Docs\LayoutDep.txt
-		Fayde.Client\Docs\Links.txt = Fayde.Client\Docs\Links.txt
-		Fayde.Client\Docs\Notes.txt = Fayde.Client\Docs\Notes.txt
-		Fayde.Client\Docs\Plugins.txt = Fayde.Client\Docs\Plugins.txt
-		Fayde.Client\Docs\Tips.txt = Fayde.Client\Docs\Tips.txt
-		Fayde.Client\Docs\XamlLoaderNotes.txt = Fayde.Client\Docs\XamlLoaderNotes.txt
-		Fayde.Client\Docs\XamlNotes.txt = Fayde.Client\Docs\XamlNotes.txt
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Silo", "Fayde.Silo\Fayde.Silo.csproj", "{641AEB45-2885-4FA9-8184-B7C5161B952B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Client", "Fayde.Client\Fayde.Client.csproj", "{E9C887CB-89E6-4721-B611-4ACBC5B89419}"

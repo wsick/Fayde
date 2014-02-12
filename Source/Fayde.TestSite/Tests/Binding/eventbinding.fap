@@ -1,0 +1,14 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:local="Binding"
+    Theme="/Fayde/Theme.Metro.xml">
+    <StackPanel x:Name="RootStackPanel">
+        <StackPanel.DataContext>
+            <local:TestViewModel />
+        </StackPanel.DataContext>
+        <Button Content="Click Me" Click="{EventBinding TestMethod}" />
+        <Button Content="Click Me (with Command Parameter)" Click="{EventBinding TestMethod, CommandParameter={Binding ElementName=RootStackPanel}}" />
+        <Button Content="RelativeSource Click" DataContext="{x:Null}" Click="{EventBinding Command={Binding DataContext.TestMethod, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}}, CommandParameter={Binding ElementName=RootStackPanel}}" />
+    </StackPanel>
+</Application>

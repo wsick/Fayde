@@ -13,7 +13,7 @@ module Fayde {
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
             var curNode = (<UIElement>d).XamlNode;
             while ((curNode = curNode.VisualParentNode)) {
-                if (curNode instanceof type)
+                if (curNode.XObject instanceof type)
                     return curNode.XObject;
             }
             return undefined;

@@ -68,6 +68,8 @@
     <Content Include="Images\twitter.png" />
     <Content Include="Media\freeze_gopher.mp3" />
     <Content Include="Silverlight.js" />
+    <Content Include="Tests\App\Fayde.Controls\generic.xml" />
+    <Content Include="Tests\App\Fayde.Controls\source.js" />
     <Content Include="Tests\Toy\default2.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -84,16 +86,15 @@
     <Content Include="Tests\Toy\default8.fap">
       <SubType>Designer</SubType>
     </Content>
-    <TypeScriptCompile Include="Tests\IssueTests\TestViewModel.ts" />
+    <TypeScriptCompile Include="Tests\Binding\TestViewModel.ts" />
     <Content Include="Tests\Navigation\TestResourceDictionary.xml" />
-    <TypeScriptCompile Include="Tests\IssueTests\DoubleListBoxViewModel.ts" />
-    <Content Include="Tests\App\Fayde.Controls.Input\source.js" />
-    <Content Include="Tests\App\Fayde.Controls.Input\generic.xml">
+    <TypeScriptCompile Include="Tests\Binding\DoubleListBoxViewModel.ts" />
+    <Content Include="Tests\Binding\DoubleListBoxViewModel.js" />
+    <Content Include="Tests\Binding\find-ancestor.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Tests\IssueTests\DoubleListBoxViewModel.js" />
-    <None Include="Tests\IssueTests\observablecoll-count.fap" />
-    <Content Include="Tests\IssueTests\TestViewModel.js" />
+    <None Include="Tests\Binding\observablecoll-count.fap" />
+    <Content Include="Tests\Binding\TestViewModel.js" />
     <TypeScriptCompile Include="Tests\main.ts" />
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
@@ -156,7 +157,7 @@
     <Content Include="Tests\IssueTests\issue11.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Tests\IssueTests\binding.fap">
+    <Content Include="Tests\Binding\selected-item.fap">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Tests\IssueTests\dropshadowblur.fap">
@@ -165,10 +166,10 @@
     <Content Include="Tests\test.aspx" />
     <Content Include="scripts\text.js" />
     <Content Include="xamlload.html" />
-    <Content Include="Tests\IssueTests\double-listbox.fap">
+    <Content Include="Tests\Binding\double-listbox.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Tests\IssueTests\eventbinding.fap">
+    <Content Include="Tests\Binding\eventbinding.fap">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Tests\App\library.fap">
@@ -263,6 +264,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

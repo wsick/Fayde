@@ -54,6 +54,18 @@ module Fayde.Media.Animation {
         private _EasingChanged(args: IDependencyPropertyChangedEventArgs) {
             this._EasingCached = args.NewValue;
         }
+
+        GenerateFrom(): AnimationBase {
+            return new DoubleAnimation();
+        }
+        GenerateTo(isEntering: boolean): AnimationBase {
+            var val = (this.From != null) ? this.From : this.To;
+            if (val == null)
+                return null;
+            var da = new DoubleAnimation();
+            da.To = val;
+            return da;
+        }
     }
     Fayde.RegisterType(DoubleAnimation, "Fayde.Media.Animation", Fayde.XMLNS);
 }

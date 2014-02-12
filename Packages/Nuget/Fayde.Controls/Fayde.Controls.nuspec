@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Fayde.Controls</id>
+        <version>0.9.0</version>
+        <authors>Bradley Sickles</authors>
+        <projectUrl>http://fayde.wsick.com</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Controls library for Fayde.</description>
+        <tags>fayde xaml silverlight</tags>
+        <dependencies>
+            <dependency id="Fayde" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="content\lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" target="content\lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" />
+        <file src="content\lib\Fayde.Controls\generic.xml" target="content\lib\Fayde.Controls\generic.xml" />
+        <file src="content\lib\Fayde.Controls\source.js" target="content\lib\Fayde.Controls\source.js" />
+    </files>
+</package>

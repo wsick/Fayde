@@ -13,7 +13,7 @@ module Fayde {
     }
     Fayde.RegisterEnum(Visibility, "Visibility", Fayde.XMLNS);
     Fayde.RegisterEnumConverter(Visibility, function (val: any): any {
-        if (val === "true" || val === true || val === Visibility.Visible)
+        if (val === "true" || val === true || val === Visibility.Visible || val === "Visible")
             return Visibility.Visible;
         return Visibility.Collapsed;
     });

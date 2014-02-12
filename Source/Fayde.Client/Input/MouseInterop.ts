@@ -17,8 +17,11 @@ module Fayde.Input {
     export function CreateMouseInterop(): IMouseInterop {
         if (navigator.appName === "Microsoft Internet Explorer")
             return new IEMouseInterop();
-        else if (navigator.appName === "Netscape")
+        if (navigator.appName === "Netscape") {
+            if (!!navigator.userAgent.match(/Trident\//)) //IE11 masquerading as Netscape
+                return new IEMouseInterop();
             return new NetscapeMouseInterop();
+        }
         return new MouseInterop();
     }
 

@@ -2365,22 +2365,6 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style TargetType="HeaderedItemsControl">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="HeaderedItemsControl">
-                    <Grid x:Name="Root">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <ContentControl x:Name="HeaderContent" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" />
-                        <ItemsPresenter x:Name="Items" Grid.Row="1" />
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
     <Style TargetType="HeaderedContentControl">
         <Setter Property="Foreground" Value="#FF000000" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />

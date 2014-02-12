@@ -1,0 +1,43 @@
+<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:controls="lib:Fayde.Controls"
+    Theme="lib/Fayde/Theme.Metro.xml">
+    <Application.Resources>
+    </Application.Resources>
+    <Grid x:Name="LayoutRoot">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="200" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Margin="5">
+            <TextBlock Text="NumericUpDown" />
+            <controls:NumericUpDown Margin="3" DecimalPlaces="0" Increment="1" />
+            <controls:NumericUpDown Margin="3" DecimalPlaces="1" Increment="0.1" />
+            <controls:NumericUpDown Margin="3" DecimalPlaces="2" Increment="0.01" />
+        </StackPanel>
+        <StackPanel Margin="5" Grid.Column="1">
+            <TextBlock Text="TreeView" />
+            <controls:TreeView>
+                <controls:TreeViewItem Header="Root">
+                    <controls:TreeViewItem Header="Level 2">
+                        <controls:TreeViewItem Header="Level 3 - 1" />
+                        <controls:TreeViewItem Header="Level 3 - 2" />
+                    </controls:TreeViewItem>
+                </controls:TreeViewItem>
+            </controls:TreeView>
+        </StackPanel>
+        <StackPanel Margin="5" Grid.Column="2">
+            <TextBlock Text="TabControl" />
+            <controls:TabControl>
+                <controls:TabItem Header="Tab 1">
+                    
+                </controls:TabItem>
+                <controls:TabItem Header="Tab 2">
+                    
+                </controls:TabItem>
+            </controls:TabControl>
+        </StackPanel>
+    </Grid>
+</Application>

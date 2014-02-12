@@ -11,7 +11,7 @@ require.config({
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             modules[_i] = arguments[_i + 0];
         }
-        modules[1].RegisterLibrary("Fayde.Controls.Input", "App/Fayde.Controls.Input/source.js", "App/Fayde.Controls.Input/generic.xml");
+        modules[1].RegisterLibrary("Fayde.Controls", "App/Fayde.Controls/source.js", "App/Fayde.Controls/generic.xml");
         modules[1].Run();
     },
     shim: {
@@ -20,8 +20,8 @@ require.config({
             init: function () {
             }
         },
-        "App/Fayde.Controls.Input/source.js": {
-            exports: "Fayde.Controls.Input"
+        "App/Fayde.Controls/source.js": {
+            exports: "Fayde.Controls"
         }
     }
 });

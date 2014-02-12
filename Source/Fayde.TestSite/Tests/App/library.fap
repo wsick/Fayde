@@ -1,17 +1,17 @@
 ﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    xmlns:i="lib:Fayde.Controls.Input"
+    xmlns:controls="lib:Fayde.Controls"
     Theme="/Fayde/Theme.Metro.xml">
     <Grid Background="Yellow">
-        <i:ContextMenuService.ContextMenu>
-            <i:ContextMenu>
-                <i:MenuItem Header="Test 1" />
-                <i:MenuItem Header="Test 2" />
-                <i:Separator />
-                <i:MenuItem Header="Test 3" />
-            </i:ContextMenu>
-        </i:ContextMenuService.ContextMenu>
-        <i:NumericUpDown HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <controls:ContextMenuService.ContextMenu>
+            <controls:ContextMenu>
+                <controls:MenuItem Header="Test 1" />
+                <controls:MenuItem Header="Test 2" />
+                <controls:Separator />
+                <controls:MenuItem Header="Test 3" />
+            </controls:ContextMenu>
+        </controls:ContextMenuService.ContextMenu>
+        <controls:NumericUpDown HorizontalAlignment="Left" VerticalAlignment="Top" />
     </Grid>
 </Application>

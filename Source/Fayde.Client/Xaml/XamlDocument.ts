@@ -1,4 +1,3 @@
-/// <reference path="../require.d.ts" />
 
 module Fayde.Xaml {
     var W3URI = "http://www.w3.org/2000/xmlns/";
@@ -22,7 +21,7 @@ module Fayde.Xaml {
             var xd = regXds[url];
             if (xd) return xd;
             var xaml = require(url);
-            if (xaml)
+            if (!xaml)
                 return null;
             return regXds[url] = new XamlDocument(xaml);
         }
