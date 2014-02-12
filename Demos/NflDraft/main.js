@@ -1,9 +1,9 @@
-/// <reference path="scripts/require.d.ts" />
+/// <reference path="lib/requirejs/require.d.ts" />
 require.config({
     baseUrl: "./",
     paths: {
-        "text": "scripts/text",
-        "Fayde": "scripts/Fayde"
+        "text": "lib/requirejs/text",
+        "Fayde": "lib/Fayde/Fayde"
     },
     deps: ["text", "Fayde"],
     callback: function () {

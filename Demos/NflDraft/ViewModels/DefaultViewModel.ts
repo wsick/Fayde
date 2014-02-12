@@ -1,4 +1,4 @@
-/// <reference path="../scripts/Fayde.d.ts" />
+/// <reference path="../lib/Fayde/Fayde.d.ts" />
 
 import Round = require("Models/Round");
 import DraftSpot = require("Models/DraftSpot");

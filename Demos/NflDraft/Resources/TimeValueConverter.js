@@ -1,4 +1,4 @@
-/// <reference path="../scripts/Fayde.d.ts" />
+/// <reference path="../lib/Fayde/Fayde.d.ts" />
 define(["require", "exports"], function(require, exports) {
     var TimeValueConverter = (function () {
         function TimeValueConverter() {

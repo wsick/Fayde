@@ -2409,17 +2409,27 @@
                                 </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
-                        <Border Padding="{TemplateBinding Padding}">
-                            <Border.Resources>
-                                <Storyboard x:Key="Visible State"/>
-                                <Storyboard x:Key="Normal State"/>
-                            </Border.Resources>
-                            <Border.Background>
-                                <StaticResource ResourceKey="BlackBrush"/>
-                            </Border.Background>
+                        <Border Padding="{TemplateBinding Padding}" Background="{StaticResource BlackBrush}">
                             <ContentPresenter Cursor="{TemplateBinding Cursor}" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Margin="{TemplateBinding Padding}"/>
                         </Border>
                     </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--HeaderedContentControl Style-->
+    <Style TargetType="HeaderedContentControl" x:Key="DefaultHeaderedContentControlStyle">
+        <Setter Property="Foreground" Value="#FF000000" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="HeaderedContentControl">
+                    <StackPanel>
+                        <ContentPresenter Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" Cursor="{TemplateBinding Cursor}" Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" Cursor="{TemplateBinding Cursor}" Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </StackPanel>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -2465,4 +2475,5 @@
     <Style TargetType="Slider" BasedOn="{StaticResource DefaultSliderStyle}" />
     <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}" />
     <Style TargetType="ToolTip" BasedOn="{StaticResource DefaultToolTipStyle}" />
+    <Style TargetType="HeaderedContentControl" BasedOn="{StaticResource DefaultHeaderedContentControlStyle}" />
 </ResourceDictionary>

@@ -4,7 +4,7 @@
     xmlns:models="Models"
     xmlns:res="Resources"
     xmlns:viewmodels="ViewModels"
-    Theme="scripts/Theme.Silverlight.xml">
+    Theme="lib/Fayde/Theme.Silverlight.xml">
   <Application.Resources>
     <Color x:Key="DarkGray">#2B2F33</Color>
     <Color x:Key="MediumGray">#4F5459</Color>
