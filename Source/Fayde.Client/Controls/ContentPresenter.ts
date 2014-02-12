@@ -41,7 +41,7 @@ module Fayde.Controls {
             if (content instanceof UIElement)
                 this._ContentRoot = content;
             else
-                this._ContentRoot = (xobj.ContentTemplate || getFallbackTemplate()).GetVisualTree(xobj);
+                this._ContentRoot = this._GetContentTemplate(content.constructor).GetVisualTree(xobj);
 
             if (!this._ContentRoot)
                 return false;
@@ -73,6 +73,35 @@ module Fayde.Controls {
         _ContentTemplateChanged() {
             this.ClearRoot();
             this.LayoutUpdater.InvalidateMeasure();
+        }
+
+        private _GetContentTemplate(type: Function): DataTemplate {
+            var dt = this.XObject.ContentTemplate;
+            if (dt)
+                return dt;
+
+            if (typeof type === "function") {
+                //Traverse logical tree looking in Resources for implicitly typed DataTemplate
+                var node = <XamlNode>this;
+                var rd: ResourceDictionary;
+                while (node) {
+                    var xobj = node.XObject;
+                    if (xobj instanceof FrameworkElement && (rd = (<FrameworkElement>xobj).Resources)) {
+                        dt = rd.Get(type);
+                        if (dt instanceof DataTemplate)
+                            return dt;
+                    }
+                    node = node.ParentNode;
+                }
+                var app = this._Surface ? this._Surface.App : null;
+                if (app) {
+                    dt = app.Resources.Get(type);
+                    if (dt instanceof DataTemplate)
+                        return dt;
+                }
+            }
+
+            return getFallbackTemplate();
         }
     }
     Fayde.RegisterType(ContentPresenterNode, "Fayde.Controls");
