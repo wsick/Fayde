@@ -1,4 +1,3 @@
-/// <reference path="require.d.ts" />
 declare module Fayde.Xaml {
     class XamlDocument {
         private _RequiredDependencies;
@@ -183,6 +182,7 @@ declare module Fayde {
         constructor();
         public CreateNode(): Fayde.XamlNode;
         public Name : string;
+        public Parent : XamlObject;
         public Clone(): XamlObject;
         public CloneCore(source: XamlObject): void;
         public IsInheritable(propd: DependencyProperty): boolean;
@@ -1000,7 +1000,7 @@ declare module Fayde.Controls {
         public DefaultStyleKey: Function;
         private _IsMouseOver;
         public IsFocused : boolean;
-        public GetTemplateChild(childName: string): Fayde.DependencyObject;
+        public GetTemplateChild(childName: string, type?: Function): Fayde.DependencyObject;
         public ApplyTemplate(): boolean;
         public GetDefaultStyle(): Fayde.Style;
         public IsEnabledChanged: MulticastEvent<DependencyPropertyChangedEventArgs>;
@@ -1591,26 +1591,6 @@ declare module Fayde.Controls {
         constructor(value?: number, unitType?: GridUnitType);
         static Equals(gl1: GridLength, gl2: GridLength): boolean;
         public Clone(): GridLength;
-    }
-}
-declare module Fayde.Controls {
-    class HeaderedItemsControl extends Controls.ItemsControl {
-        private _HeaderIsItem;
-        private _ItemsControlHelper;
-        static HeaderProperty: DependencyProperty;
-        public Header: any;
-        public OnHeaderChanged(oldHeader: any, newHeader: any): void;
-        static HeaderTemplateProperty: DependencyProperty;
-        public HeaderTemplate: Fayde.DataTemplate;
-        public OnHeaderTemplateChanged(oldHeaderTemplate: Fayde.DataTemplate, newHeaderTemplate: Fayde.DataTemplate): void;
-        static ItemContainerStyleProperty: DependencyProperty;
-        public ItemContainerStyle: Fayde.Style;
-        private OnItemContainerStyleChanged(args);
-        constructor();
-        public OnApplyTemplate(): void;
-        public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
-        private static PrepareHeaderedItemsControlContainer(control, item, parentItemsControl, parentItemContainerStyle);
-        private static HasDefaultValue(control, propd);
     }
 }
 declare module Fayde.Controls {
@@ -2284,7 +2264,6 @@ declare module Fayde.Controls.Primitives {
         private $VerticalLargeIncrease;
         private $VerticalLargeDecrease;
         private $VerticalThumb;
-        private _GetChildOfType(name, type);
         public OnApplyTemplate(): void;
         public OnMaximumChanged(oldMax: number, newMax: number): void;
         public OnMinimumChanged(oldMin: number, newMin: number): void;
@@ -2546,7 +2525,6 @@ declare module Fayde.Controls {
         public InvalidateScrollInfo(): void;
         private _UpdateScrollBarVisibility();
         private _UpdateScrollBar(orientation, value);
-        private _GetChildOfType(name, type);
         public OnApplyTemplate(): void;
         public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
@@ -2588,7 +2566,6 @@ declare module Fayde.Controls {
         private $VerticalLargeIncrease;
         private $VerticalLargeDecrease;
         private $VerticalThumb;
-        private _GetChildOfType(name, type);
         public OnApplyTemplate(): void;
         public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnMinimumChanged(oldMin: number, newMin: number): void;
@@ -2818,17 +2795,60 @@ declare module Fayde.Controls {
         static IsOpenProperty: DependencyProperty;
         static PlacementProperty: DependencyProperty;
         static PlacementTargetProperty: DependencyProperty;
-        public HorizontalOffset: Number;
-        public VerticalOffset: Number;
+        public HorizontalOffset: number;
+        public VerticalOffset: number;
         public IsOpen: boolean;
         public Placement: Controls.PlacementMode;
         public PlacementTarget: Fayde.UIElement;
+        private _TooltipParent;
+        private _TooltipParentDCListener;
+        public TooltipParent : Fayde.FrameworkElement;
+        public PlacementOverride: Controls.PlacementMode;
+        public PlacementTargetOverride: Fayde.UIElement;
+        public Opened: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        public Closed: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        private _ParentPopup;
+        constructor();
+        public OnApplyTemplate(): void;
+        private OnHorizontalOffsetChanged(args);
+        private OnVerticalOffsetChanged(args);
+        private OnIsOpenChanged(args);
+        private OnOffsetChanged(horizontalOffset, verticalOffset);
+        private OnLayoutUpdated(sender, e);
+        private OnTooltipParentDataContextChanged(sender, args);
+        private HookupParentPopup();
+        private OnPopupOpened(sender, e);
+        private OnPopupClosed(sender, e);
+        private PerformPlacement(horizontalOffset, verticalOffset);
+        public GoToStates(gotoFunc: (state: string) => boolean): void;
     }
+}
+interface IPoint {
+    X: number;
+    Y: number;
+}
+declare class Point implements ICloneable, IPoint {
+    public X: number;
+    public Y: number;
+    constructor(x?: number, y?: number);
+    public toString(): string;
+    public Equals(other: Point): boolean;
+    public Clone(): Point;
+    static Equals(p1: Point, p2: Point): boolean;
+    static LERP(start: Point, end: Point, p: number): Point;
 }
 declare module Fayde.Controls {
     class ToolTipService {
         static ToolTipProperty: DependencyProperty;
+        static GetToolTip(dobj: Fayde.DependencyObject): Controls.ToolTip;
+        static SetToolTip(dobj: Fayde.DependencyObject, value: Controls.ToolTip): void;
+        static PlacementProperty: DependencyProperty;
+        static GetPlacement(dobj: Fayde.DependencyObject): Controls.PlacementMode;
+        static SetPlacement(dobj: Fayde.DependencyObject, value: Controls.PlacementMode): void;
         static PlacementTargetProperty: DependencyProperty;
+        static GetPlacementTarget(dobj: Fayde.DependencyObject): Fayde.UIElement;
+        static SetPlacementTarget(dobj: Fayde.DependencyObject, value: Fayde.UIElement): void;
+        static MousePosition : Point;
     }
 }
 declare module Fayde.Controls {
@@ -2913,6 +2933,7 @@ declare module Fayde {
 }
 declare module Fayde {
     class DataTemplate extends Fayde.Xaml.FrameworkTemplate {
+        public TargetType: Function;
         constructor();
         public GetVisualTree(bindingSource?: Fayde.DependencyObject): Fayde.UIElement;
     }
@@ -3313,6 +3334,7 @@ declare module Fayde.Data {
         public GetValue(propd: DependencyProperty): any;
         public OnAttached(element: Fayde.DependencyObject): void;
         private _OnSourceAvailable();
+        private _FindSource();
         private _FindSourceByElementName();
         public OnDetached(element: Fayde.DependencyObject): void;
         public IsBrokenChanged(): void;
@@ -3325,8 +3347,7 @@ declare module Fayde.Data {
         public OnDataContextChanged(newDataContext: any): void;
         private _Invalidate();
         public Refresh(): void;
-        private _ConvertFromTargetToSource(value);
-        private _ConvertFromSourceToTarget(value);
+        private _ConvertFromTargetToSource(binding, node, value);
         private _ConvertToType(propd, value);
         private _MaybeEmitError(message, exception);
         private _AttachToNotifyError(element);
@@ -3451,7 +3472,8 @@ declare module Fayde.Data {
 declare module Fayde.Data {
     class RelativeSource {
         public Mode: Data.RelativeSourceMode;
-        public AncestorLevel: number;
+        private _AncestorLevel;
+        public AncestorLevel : number;
         public AncestorType: Function;
         constructor(mode?: Data.RelativeSourceMode);
     }
@@ -3970,6 +3992,8 @@ declare module Fayde.Media.Animation {
         private IsAfterBeginTime(nowTime);
         public GetNaturalDuration(): Duration;
         public GetNaturalDurationCore(): Duration;
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
     class TimelineCollection extends Fayde.XamlObjectCollection<Timeline> {
     }
@@ -4047,6 +4071,8 @@ declare module Fayde.Media.Animation {
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4054,6 +4080,8 @@ declare module Fayde.Media.Animation {
         static Annotations: {
             ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
         };
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4166,6 +4194,8 @@ declare module Fayde.Media.Animation {
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4173,6 +4203,8 @@ declare module Fayde.Media.Animation {
         static Annotations: {
             ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
         };
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4309,6 +4341,8 @@ declare module Fayde.Media.Animation {
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4316,6 +4350,8 @@ declare module Fayde.Media.Animation {
         static Annotations: {
             ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
         };
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -5259,6 +5295,7 @@ declare module Fayde.Media.VSM {
             ContentProperty: ImmutableDependencyProperty<VSM.VisualStateCollection>;
         };
         private _CurrentStoryboards;
+        public CurrentStoryboards : Media.Animation.Storyboard[];
         public CurrentStateChanging: MulticastEvent<VisualStateChangedEventArgs>;
         public CurrentStateChanged: MulticastEvent<VisualStateChangedEventArgs>;
         public CurrentState: VSM.VisualState;
@@ -5291,7 +5328,6 @@ declare module Fayde.Media.VSM {
         private static _GetTemplateRoot(control);
         private static _TryGetState(groups, stateName, data);
         private static _GetTransition(element, group, from, to);
-        private static _GenerateDynamicTransitionAnimations(root, group, state, transition);
     }
 }
 declare module Fayde.Media.VSM {
@@ -5299,7 +5335,8 @@ declare module Fayde.Media.VSM {
         public From: string;
         public To: string;
         public Storyboard: Media.Animation.Storyboard;
-        public GeneratedDuration: Duration;
+        private _GeneratedDuration;
+        public GeneratedDuration : Duration;
         public DynamicStoryboardCompleted: boolean;
         public ExplicitStoryboardCompleted: boolean;
         public GeneratedEasingFunction: Media.Animation.EasingFunctionBase;
@@ -5455,20 +5492,6 @@ declare class KeyTime implements ICloneable {
     public Percent : number;
 }
 declare class Length {
-}
-interface IPoint {
-    X: number;
-    Y: number;
-}
-declare class Point implements ICloneable, IPoint {
-    public X: number;
-    public Y: number;
-    constructor(x?: number, y?: number);
-    public toString(): string;
-    public Equals(other: Point): boolean;
-    public Clone(): Point;
-    static Equals(p1: Point, p2: Point): boolean;
-    static LERP(start: Point, end: Point, p: number): Point;
 }
 declare module vec2 {
     function createFrom(x: number, y: number): number[];

@@ -135,18 +135,27 @@ module Fayde.Xaml {
         //Clone Node?
         Object.defineProperty(ft, "TemplateElement", { value: el, writable: false });
         if (ft instanceof Controls.ControlTemplate) {
-            var targetTypeNode = el.attributes.getNamedItemNS(Fayde.XMLNS, "TargetType");
-            if (!targetTypeNode)
-                targetTypeNode = el.attributes.getNamedItem("TargetType");
-            if (!targetTypeNode)
+            var ttattr = getTargetTypeAttr(el);
+            if (!ttattr)
                 throw new XamlParseException("ControlTemplate must have a TargetType.");
-            var ctres = TypeResolver.ResolveFullyQualifiedName(targetTypeNode.value, targetTypeNode);
+            var ctres = TypeResolver.ResolveFullyQualifiedName(ttattr.value, ttattr);
             if (!ctres)
-                throw new XamlParseException("Could not find ControlTemplate.TargetType '" + targetTypeNode.value + "'.");
+                throw new XamlParseException("Could not find ControlTemplate.TargetType '" + ttattr.value + "'.");
             Object.defineProperty(ft, "TargetType", {
                 value: ctres.Type,
                 writable: false
             });
+        } else if (ft instanceof DataTemplate) {
+            var ttattr = getTargetTypeAttr(el);
+            if (ttattr) {
+                var dtres = TypeResolver.ResolveFullyQualifiedName(ttattr.value, ttattr);
+                if (!dtres)
+                    throw new XamlParseException("Could not resolve DataTemplate.TargetType '" + ttattr.value + "'.");
+                Object.defineProperty(ft, "TargetType", {
+                    value: dtres.Type,
+                    writable: false
+                });
+            }
         }
 
         var childProcessor = createXamlChildProcessor(ft, (<any>ft).constructor, ctx);
@@ -168,6 +177,13 @@ module Fayde.Xaml {
         }
 
         return ft;
+    }
+    function getTargetTypeAttr(el: Element): Attr {
+        var attrs = el.attributes;
+        var targetTypeNode = attrs.getNamedItemNS(Fayde.XMLNS, "TargetType");
+        if (!targetTypeNode)
+            targetTypeNode = attrs.getNamedItem("TargetType");
+        return targetTypeNode;
     }
 
     interface IXamlChildProcessor {
@@ -540,14 +556,23 @@ module Fayde.Xaml {
         var key = getElementKey(el);
         if (key) {
             rd.Set(key, cur);
-        } else {
-            if (!(cur instanceof Style))
-                throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
+            return;
+        }
+        if (cur instanceof Style) {
             var targetType = cur.TargetType;
             if (!targetType)
                 throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
             rd.Set(targetType, cur);
+            return;
         }
+        if (cur instanceof DataTemplate) {
+            var targetType = cur.TargetType;
+            if (!targetType)
+                throw new XamlParseException("A DataTemplate in a ResourceDictionary must have a x:Key or TargetType.");
+            rd.Set(targetType, cur);
+            return;
+        }
+        throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
     }
     function getElementKey(el: Element): string {
         var attrs = el.attributes;
