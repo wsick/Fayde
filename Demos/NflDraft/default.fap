@@ -159,7 +159,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="220"/>
-              <ColumnDefinition Width="550"/>
+              <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Image Grid.Column="0" Margin="0" Width="200" VerticalAlignment="Bottom" Source="{Binding Headshot}"/>
             <Border Grid.Column="1" Margin="-10, 10, 0, 10" Background="#44E0E0E0" BorderBrush="#E0E0E0" BorderThickness="1">
@@ -206,34 +206,28 @@
                   <RowDefinition Height="Auto"/>
                   <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Grid Margin="5, 5, 5, 0">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="30"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="30"/>
-                    <ColumnDefinition Width="30"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="30"/>
-                    <ColumnDefinition Width="60"/>
-                  </Grid.ColumnDefinitions>
-                  <TextBlock Grid.Column="0" Text="G" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                  <TextBlock Grid.Column="1" Text="Att" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                  <TextBlock Grid.Column="2" Text="Yds" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                  <TextBlock Grid.Column="3" Text="Avg" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                  <TextBlock Grid.Column="4" Text="TD" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                  <TextBlock Grid.Column="5" Text="Lost" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                  <TextBlock Grid.Column="6" Text="Rec" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                  <TextBlock Grid.Column="7" Text="Tgts" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                  <TextBlock Grid.Column="8" Text="Yds" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                  <TextBlock Grid.Column="9" Text="Avg" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                  <TextBlock Grid.Column="10" Text="TD" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                  <TextBlock Grid.Column="11" Text="Pts" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
-                </Grid>
+                <StackPanel Margin="5, 5, 5, 0" Orientation="Horizontal">
+                  <TextBlock Width="40" Text="COM" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="40" Text="ATT" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="50" Text="YDS" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="40" Text="TD" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="40" Text="INT" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+
+                  <TextBlock Width="30" Text="G" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="40" Text="ATT" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="50" Text="YDS" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="50" Text="AVG" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="30" Text="TD" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="40" Text="FUM" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  
+                  <TextBlock Width="40" Text="REC" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="50" Text="TGTS" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="50" Text="YDS" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="50" Text="AVG" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  <TextBlock Width="30" Text="TD" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                  
+                  <TextBlock Width="70" Text="PTS" Padding="0, 0, 5, 0" TextAlignment="Right" FontWeight="Bold" Foreground="White" Style="{StaticResource DeepTextShadow}"/>
+                </StackPanel>
                 <ListBox Grid.Row="1" Margin="5" ItemsSource="{Binding Stats}" Background="Transparent" BorderThickness="0" Padding="0">
                   <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
@@ -244,18 +238,26 @@
                   <ListBox.ItemTemplate>
                     <DataTemplate>
                       <StackPanel Orientation="Horizontal">
+                        <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding Completions}" Style="{StaticResource DeepTextShadow}"/>
+                        <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding PassingAttempts}" Style="{StaticResource DeepTextShadow}"/>
+                        <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding PassingYards}" Style="{StaticResource DeepTextShadow}"/>
+                        <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding PassingTouchdowns}" Style="{StaticResource DeepTextShadow}"/>
+                        <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding Interceptions}" Style="{StaticResource DeepTextShadow}"/>
+
                         <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding GamesPlayed}" Style="{StaticResource DeepTextShadow}"/>
                         <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding RushingAttempts}" Style="{StaticResource DeepTextShadow}"/>
                         <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding RushingYards}" Style="{StaticResource DeepTextShadow}"/>
                         <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding RushingAverage, Converter={StaticResource doubleValueConverter}}" Style="{StaticResource DeepTextShadow}"/>
                         <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding RushingTouchdowns}" Style="{StaticResource DeepTextShadow}"/>
-                        <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding FumblesLost}" Style="{StaticResource DeepTextShadow}"/>
+                        <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding FumblesLost}" Style="{StaticResource DeepTextShadow}"/>
+
                         <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding Receptions}" Style="{StaticResource DeepTextShadow}"/>
-                        <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding Targets}" Style="{StaticResource DeepTextShadow}"/>
+                        <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding Targets}" Style="{StaticResource DeepTextShadow}"/>
                         <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding ReceivingYards}" Style="{StaticResource DeepTextShadow}"/>
                         <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding ReceivingAverage, Converter={StaticResource doubleValueConverter}}" Style="{StaticResource DeepTextShadow}"/>
                         <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding ReceivingTouchdowns}" Style="{StaticResource DeepTextShadow}"/>
-                        <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="60" FontSize="12" Foreground="White" Text="{Binding FantasyPoints, Converter={StaticResource doubleValueConverter}}" Style="{StaticResource DeepTextShadow}"/>
+                        
+                        <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="70" Padding="0, 0, 5, 0" FontSize="12" Foreground="White" Text="{Binding FantasyPoints, Converter={StaticResource doubleValueConverter}}" Style="{StaticResource DeepTextShadow}"/>
                       </StackPanel>
                     </DataTemplate>
                   </ListBox.ItemTemplate>
