@@ -65,6 +65,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="Models\Round.ts" />
     <TypeScriptCompile Include="Models\DraftSpot.ts" />
+    <Content Include="Data\DemoNflDataProvider.ts" />
     <Content Include="default.html" />
     <Content Include="Images\chat.png" />
     <Content Include="Images\fayde.gif" />
@@ -172,9 +173,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
