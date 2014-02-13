@@ -23,6 +23,9 @@ module Fayde {
         Theme: Theme;
 
         Resized = new RoutedEvent<SizeChangedEventArgs>();
+        OnResized(oldSize: size, newSize: size) {
+            this.Resized.Raise(this, new SizeChangedEventArgs(oldSize, newSize));
+        }
 
         constructor() {
             super();
