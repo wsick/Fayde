@@ -205,11 +205,6 @@ module Fayde {
         LayoutUpdated: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
         OnApplyTemplate() { }
-        FindName(name: string): XamlObject {
-            var n = this.XamlNode.FindName(name);
-            if (n)
-                return n.XObject;
-        }
 
         UpdateLayout() { this.XamlNode.UpdateLayout(); }
         

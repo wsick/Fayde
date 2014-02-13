@@ -113,20 +113,20 @@ module Fayde.Data {
             return this._DataContext;
         }
         private _FindSourceByElementName(): XamlObject {
-            var xobj: XamlObject = this.Target;
-            var sourceNode: XamlNode;
             var name = this.ParentBinding.ElementName;
-            var xnode: XamlNode = (xobj) ? xobj.XamlNode : null;
-            var parentNode: XamlNode;
-            while (xnode) {
-                sourceNode = xnode.FindName(name);
-                if (sourceNode)
-                    return sourceNode.XObject;
-                if (xnode.XObject.TemplateOwner)
-                    xobj = xnode.XObject.TemplateOwner;
-                else if ((parentNode = xnode.ParentNode) && Controls.ItemsControl.GetItemsOwner(<UIElement>parentNode.XObject))
-                    xnode = parentNode;
-                break;
+            var xobj: XamlObject = this.Target;
+            var source: XamlObject;
+            var parent: XamlObject;
+            while (xobj) {
+                source = xobj.FindName(name);
+                if (source)
+                    return source;
+                if (xobj.TemplateOwner)
+                    xobj = xobj.TemplateOwner;
+                else if ((parent = xobj.Parent) && (parent instanceof UIElement) && Controls.ItemsControl.GetItemsOwner(<UIElement>parent))
+                    xobj = parent;
+                else
+                    xobj = null;
             }
             return undefined;
         }

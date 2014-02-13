@@ -122,18 +122,18 @@ module Fayde {
     }
     function findSourceByElementName(target: XamlObject, name: string): XamlObject {
         var xobj: XamlObject = target;
-        var sourceNode: XamlNode;
-        var xnode: XamlNode = (xobj) ? xobj.XamlNode : null;
-        var parentNode: XamlNode;
-        while (xnode) {
-            sourceNode = xnode.FindName(name);
-            if (sourceNode)
-                return sourceNode.XObject;
-            if (xnode.XObject.TemplateOwner)
-                xobj = xnode.XObject.TemplateOwner;
-            else if ((parentNode = xnode.ParentNode) && Controls.ItemsControl.GetItemsOwner(<UIElement>parentNode.XObject))
-                xnode = parentNode;
-            break;
+        var source: XamlObject;
+        var parent: XamlObject;
+        while (xobj) {
+            source = xobj.FindName(name);
+            if (source)
+                return source;
+            if (xobj.TemplateOwner)
+                xobj = xobj.TemplateOwner;
+            else if ((parent = xobj.Parent) && (parent instanceof UIElement) && Controls.ItemsControl.GetItemsOwner(<UIElement>parent))
+                xobj = parent;
+            else
+                xobj = null;
         }
         return undefined;
     }
