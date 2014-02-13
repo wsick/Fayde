@@ -977,6 +977,17 @@ var Fayde;
             configurable: true
         });
 
+        XamlObject.prototype.FindName = function (name) {
+            var n = this.XamlNode;
+            while (n) {
+                var m = n.FindName(name);
+                if (m)
+                    return m.XObject;
+                n = n.ParentNode;
+            }
+            return undefined;
+        };
+
         XamlObject.prototype.Clone = function () {
             var xobj = new this.constructor();
             xobj.CloneCore(this);
@@ -4510,11 +4521,6 @@ var Fayde;
 
         FrameworkElement.prototype.OnApplyTemplate = function () {
         };
-        FrameworkElement.prototype.FindName = function (name) {
-            var n = this.XamlNode.FindName(name);
-            if (n)
-                return n.XObject;
-        };
 
         FrameworkElement.prototype.UpdateLayout = function () {
             this.XamlNode.UpdateLayout();
@@ -7876,18 +7882,27 @@ var Fayde;
 
             Object.defineProperty(ft, "TemplateElement", { value: el, writable: false });
             if (ft instanceof Fayde.Controls.ControlTemplate) {
-                var targetTypeNode = el.attributes.getNamedItemNS(Fayde.XMLNS, "TargetType");
-                if (!targetTypeNode)
-                    targetTypeNode = el.attributes.getNamedItem("TargetType");
-                if (!targetTypeNode)
+                var ttattr = getTargetTypeAttr(el);
+                if (!ttattr)
                     throw new XamlParseException("ControlTemplate must have a TargetType.");
-                var ctres = Fayde.TypeResolver.ResolveFullyQualifiedName(targetTypeNode.value, targetTypeNode);
+                var ctres = Fayde.TypeResolver.ResolveFullyQualifiedName(ttattr.value, ttattr);
                 if (!ctres)
-                    throw new XamlParseException("Could not find ControlTemplate.TargetType '" + targetTypeNode.value + "'.");
+                    throw new XamlParseException("Could not find ControlTemplate.TargetType '" + ttattr.value + "'.");
                 Object.defineProperty(ft, "TargetType", {
                     value: ctres.Type,
                     writable: false
                 });
+            } else if (ft instanceof Fayde.DataTemplate) {
+                var ttattr = getTargetTypeAttr(el);
+                if (ttattr) {
+                    var dtres = Fayde.TypeResolver.ResolveFullyQualifiedName(ttattr.value, ttattr);
+                    if (!dtres)
+                        throw new XamlParseException("Could not resolve DataTemplate.TargetType '" + ttattr.value + "'.");
+                    Object.defineProperty(ft, "TargetType", {
+                        value: dtres.Type,
+                        writable: false
+                    });
+                }
             }
 
             var childProcessor = createXamlChildProcessor(ft, ft.constructor, ctx);
@@ -7909,6 +7924,13 @@ var Fayde;
             }
 
             return ft;
+        }
+        function getTargetTypeAttr(el) {
+            var attrs = el.attributes;
+            var targetTypeNode = attrs.getNamedItemNS(Fayde.XMLNS, "TargetType");
+            if (!targetTypeNode)
+                targetTypeNode = attrs.getNamedItem("TargetType");
+            return targetTypeNode;
         }
 
         function createXamlChildProcessor(owner, ownerType, ctx) {
@@ -8267,14 +8289,23 @@ var Fayde;
             var key = getElementKey(el);
             if (key) {
                 rd.Set(key, cur);
-            } else {
-                if (!(cur instanceof Fayde.Style))
-                    throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
+                return;
+            }
+            if (cur instanceof Fayde.Style) {
                 var targetType = cur.TargetType;
                 if (!targetType)
                     throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
                 rd.Set(targetType, cur);
+                return;
             }
+            if (cur instanceof Fayde.DataTemplate) {
+                var targetType = cur.TargetType;
+                if (!targetType)
+                    throw new XamlParseException("A DataTemplate in a ResourceDictionary must have a x:Key or TargetType.");
+                rd.Set(targetType, cur);
+                return;
+            }
+            throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
         }
         function getElementKey(el) {
             var attrs = el.attributes;
@@ -8332,7 +8363,7 @@ var Fayde;
                 if (content instanceof Fayde.UIElement)
                     this._ContentRoot = content;
                 else
-                    this._ContentRoot = (xobj.ContentTemplate || getFallbackTemplate()).GetVisualTree(xobj);
+                    this._ContentRoot = this._GetContentTemplate(content.constructor).GetVisualTree(xobj);
 
                 if (!this._ContentRoot)
                     return false;
@@ -8365,6 +8396,34 @@ var Fayde;
             ContentPresenterNode.prototype._ContentTemplateChanged = function () {
                 this.ClearRoot();
                 this.LayoutUpdater.InvalidateMeasure();
+            };
+
+            ContentPresenterNode.prototype._GetContentTemplate = function (type) {
+                var dt = this.XObject.ContentTemplate;
+                if (dt)
+                    return dt;
+
+                if (typeof type === "function") {
+                    var node = this;
+                    var rd;
+                    while (node) {
+                        var xobj = node.XObject;
+                        if (xobj instanceof Fayde.FrameworkElement && (rd = xobj.Resources)) {
+                            dt = rd.Get(type);
+                            if (dt instanceof Fayde.DataTemplate)
+                                return dt;
+                        }
+                        node = node.ParentNode;
+                    }
+                    var app = this._Surface ? this._Surface.App : null;
+                    if (app) {
+                        dt = app.Resources.Get(type);
+                        if (dt instanceof Fayde.DataTemplate)
+                            return dt;
+                    }
+                }
+
+                return getFallbackTemplate();
             };
             return ContentPresenterNode;
         })(Fayde.FENode);
@@ -17572,18 +17631,18 @@ var Fayde;
     }
     function findSourceByElementName(target, name) {
         var xobj = target;
-        var sourceNode;
-        var xnode = (xobj) ? xobj.XamlNode : null;
-        var parentNode;
-        while (xnode) {
-            sourceNode = xnode.FindName(name);
-            if (sourceNode)
-                return sourceNode.XObject;
-            if (xnode.XObject.TemplateOwner)
-                xobj = xnode.XObject.TemplateOwner;
-            else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItemsOwner(parentNode.XObject))
-                xnode = parentNode;
-            break;
+        var source;
+        var parent;
+        while (xobj) {
+            source = xobj.FindName(name);
+            if (source)
+                return source;
+            if (xobj.TemplateOwner)
+                xobj = xobj.TemplateOwner;
+            else if ((parent = xobj.Parent) && (parent instanceof Fayde.UIElement) && Fayde.Controls.ItemsControl.GetItemsOwner(parent))
+                xobj = parent;
+            else
+                xobj = null;
         }
         return undefined;
     }
@@ -18688,6 +18747,9 @@ var Fayde;
 
             var feNode = d.XamlNode;
             var subtreeNode = feNode.SubtreeNode;
+            if (!subtreeNode)
+                throw new IndexOutOfRangeException(childIndex);
+
             var subtree = subtreeNode.XObject;
             if (subtree instanceof Fayde.XamlObjectCollection)
                 return subtree.GetValueAt(childIndex);
@@ -18703,6 +18765,9 @@ var Fayde;
 
             var feNode = d.XamlNode;
             var subtreeNode = feNode.SubtreeNode;
+            if (!subtreeNode)
+                return 0;
+
             var subtree = subtreeNode.XObject;
             if (subtreeNode.XObject instanceof Fayde.XamlObjectCollection)
                 return subtree.Count;
@@ -19480,20 +19545,20 @@ var Fayde;
                 return this._DataContext;
             };
             BindingExpressionBase.prototype._FindSourceByElementName = function () {
-                var xobj = this.Target;
-                var sourceNode;
                 var name = this.ParentBinding.ElementName;
-                var xnode = (xobj) ? xobj.XamlNode : null;
-                var parentNode;
-                while (xnode) {
-                    sourceNode = xnode.FindName(name);
-                    if (sourceNode)
-                        return sourceNode.XObject;
-                    if (xnode.XObject.TemplateOwner)
-                        xobj = xnode.XObject.TemplateOwner;
-                    else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItemsOwner(parentNode.XObject))
-                        xnode = parentNode;
-                    break;
+                var xobj = this.Target;
+                var source;
+                var parent;
+                while (xobj) {
+                    source = xobj.FindName(name);
+                    if (source)
+                        return source;
+                    if (xobj.TemplateOwner)
+                        xobj = xobj.TemplateOwner;
+                    else if ((parent = xobj.Parent) && (parent instanceof Fayde.UIElement) && Fayde.Controls.ItemsControl.GetItemsOwner(parent))
+                        xobj = parent;
+                    else
+                        xobj = null;
                 }
                 return undefined;
             };
