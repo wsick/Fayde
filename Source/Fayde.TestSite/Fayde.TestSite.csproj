@@ -70,6 +70,8 @@
     <Content Include="Silverlight.js" />
     <Content Include="Tests\App\Fayde.Controls\generic.xml" />
     <Content Include="Tests\App\Fayde.Controls\source.js" />
+    <Content Include="Tests\Controls\contentcontrol.fap" />
+    <TypeScriptCompile Include="Tests\Controls\TestClass.ts" />
     <Content Include="Tests\Toy\default2.fap">
       <SubType>Designer</SubType>
     </Content>
