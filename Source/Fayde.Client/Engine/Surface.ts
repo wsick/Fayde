@@ -292,8 +292,10 @@ module Fayde {
             resizeTimeout = setTimeout(() => this._HandleResizeTimeout(evt), 20);
         }
         private _HandleResizeTimeout(evt) {
-            this._ResizeCanvas();
+            var old = this._Extents;
             this._Extents = null;
+            this._App.Resized.Raise(this, new SizeChangedEventArgs(old, size.copyTo(this.Extents)));
+            this._ResizeCanvas();
 
             var layers = this._Layers;
             var len = layers.length;
@@ -332,7 +334,7 @@ module Fayde {
             return list;
         }
 
-        SetMouseCapture(uin: Fayde.UINode):boolean {
+        SetMouseCapture(uin: Fayde.UINode): boolean {
             return this._InputMgr.SetMouseCapture(uin);
         }
         ReleaseMouseCapture(uin: Fayde.UINode) {

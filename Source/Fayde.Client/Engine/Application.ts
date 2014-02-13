@@ -22,6 +22,8 @@ module Fayde {
         Resources: ResourceDictionary;
         Theme: Theme;
 
+        Resized = new RoutedEvent<SizeChangedEventArgs>();
+
         constructor() {
             super();
             this.XamlNode.NameScope = new NameScope(true);
