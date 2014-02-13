@@ -183,6 +183,7 @@ declare module Fayde {
         public CreateNode(): Fayde.XamlNode;
         public Name : string;
         public Parent : XamlObject;
+        public FindName(name: string): XamlObject;
         public Clone(): XamlObject;
         public CloneCore(source: XamlObject): void;
         public IsInheritable(propd: DependencyProperty): boolean;
@@ -836,7 +837,6 @@ declare module Fayde {
         public Unloaded: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         public LayoutUpdated: MulticastEvent<EventArgs>;
         public OnApplyTemplate(): void;
-        public FindName(name: string): Fayde.XamlObject;
         public UpdateLayout(): void;
         private _StyleChanged(args);
         private _AlignmentChanged(args);
@@ -1462,6 +1462,7 @@ declare module Fayde.Controls {
         public ClearRoot(): void;
         public _ContentChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _ContentTemplateChanged(): void;
+        private _GetContentTemplate(type);
     }
     class ContentPresenter extends Fayde.FrameworkElement {
         public XamlNode: ContentPresenterNode;
@@ -2933,6 +2934,7 @@ declare module Fayde {
 }
 declare module Fayde {
     class DataTemplate extends Fayde.Xaml.FrameworkTemplate {
+        public TargetType: Function;
         constructor();
         public GetVisualTree(bindingSource?: Fayde.DependencyObject): Fayde.UIElement;
     }
