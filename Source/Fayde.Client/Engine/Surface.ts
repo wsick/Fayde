@@ -292,7 +292,7 @@ module Fayde {
             resizeTimeout = setTimeout(() => this._HandleResizeTimeout(evt), 20);
         }
         private _HandleResizeTimeout(evt) {
-            var old = this._Extents;
+            var old = this._Extents || new size();
             this._Extents = null;
             this._App.Resized.Raise(this, new SizeChangedEventArgs(old, size.copyTo(this.Extents)));
             this._ResizeCanvas();
