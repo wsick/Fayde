@@ -3624,6 +3624,8 @@ declare module Fayde {
         static ThemeProperty: DependencyProperty;
         public Resources: Fayde.ResourceDictionary;
         public Theme: Fayde.Theme;
+        public Resized: Fayde.RoutedEvent<Fayde.SizeChangedEventArgs>;
+        public OnResized(oldSize: size, newSize: size): void;
         constructor();
         public RootVisual : Fayde.UIElement;
         public Resolve(): IAsyncRequest<Application>;
@@ -4906,6 +4908,7 @@ declare module Fayde.Media {
         public _Raw: number[];
         private _Inverse;
         constructor(raw?: number[]);
+        static Identity : Matrix;
         public M11 : number;
         public M12 : number;
         public M21 : number;
@@ -4916,6 +4919,7 @@ declare module Fayde.Media {
         private _Listeners;
         public Listen(func: (newMatrix: Matrix) => void): IMatrixChangedListener;
         private _OnChanged();
+        public Clone(): Matrix;
         public toString(): string;
     }
 }
@@ -5205,6 +5209,7 @@ declare module Fayde.Media {
         static MatrixProperty: DependencyProperty;
         public Matrix: Media.Matrix;
         public _BuildValue(): number[];
+        public Clone(): MatrixTransform;
         private _MatrixListener;
         public _MatrixChanged(args: IDependencyPropertyChangedEventArgs): void;
     }
@@ -5357,6 +5362,7 @@ declare module Fayde.MVVM {
         public Execute(parameter: any): void;
         public CanExecute(parameter: any): boolean;
         public CanExecuteChanged: MulticastEvent<EventArgs>;
+        public ForceCanExecuteChanged(): void;
     }
 }
 declare module Fayde.MVVM {

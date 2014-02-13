@@ -3695,8 +3695,14 @@ var Fayde;
                         pass.Updated = true;
                         changes.push(lu._UpdateActualSize());
                     }
+                    var rv;
+                    var surface = this.Surface;
+                    if (surface)
+                        rv = surface._RootLayer;
                     var change;
                     while (change = changes.pop()) {
+                        if (rv && rv === change.Element)
+                            surface.App.OnResized(change.PreviousSize, change.NewSize);
                         change.Element.SizeChanged.Raise(change.Element, new Fayde.SizeChangedEventArgs(change.PreviousSize, change.NewSize));
                     }
                 } else {
@@ -21138,12 +21144,17 @@ var Fayde;
             this._IsRunning = false;
             this._Storyboards = [];
             this._ClockTimer = new Fayde.ClockTimer();
+            this.Resized = new Fayde.RoutedEvent();
             this.XamlNode.NameScope = new Fayde.NameScope(true);
             var rd = Application.ResourcesProperty.Initialize(this);
             this.MainSurface = new Fayde.Surface(this);
             this.DebugInterop = new Fayde.DebugInterop(this);
             this.Address = new Uri(document.URL);
         }
+        Application.prototype.OnResized = function (oldSize, newSize) {
+            this.Resized.Raise(this, new Fayde.SizeChangedEventArgs(oldSize, newSize));
+        };
+
         Object.defineProperty(Application.prototype, "RootVisual", {
             get: function () {
                 return this.MainSurface._RootLayer;
@@ -22466,8 +22477,8 @@ var Fayde;
             }, 20);
         };
         Surface.prototype._HandleResizeTimeout = function (evt) {
-            this._ResizeCanvas();
             this._Extents = null;
+            this._ResizeCanvas();
 
             var layers = this._Layers;
             var len = layers.length;
@@ -26945,8 +26956,16 @@ var Fayde;
             function Matrix(raw) {
                 this._Inverse = null;
                 this._Listeners = [];
-                this._Raw = raw;
+                this._Raw = raw || mat3.identity();
             }
+            Object.defineProperty(Matrix, "Identity", {
+                get: function () {
+                    return new Matrix(mat3.identity());
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             Object.defineProperty(Matrix.prototype, "M11", {
                 get: function () {
                     return this._Raw[0];
@@ -27055,6 +27074,12 @@ var Fayde;
                 for (var i = 0; i < len; i++) {
                     listeners[i].Callback(this);
                 }
+            };
+
+            Matrix.prototype.Clone = function () {
+                if (!this._Raw)
+                    return new Matrix();
+                return new Matrix(mat3.clone(this._Raw));
             };
 
             Matrix.prototype.toString = function () {
@@ -28697,6 +28722,12 @@ var Fayde;
                 return mat3.identity();
             };
 
+            MatrixTransform.prototype.Clone = function () {
+                var xform = new MatrixTransform();
+                xform.Matrix = this.Matrix.Clone();
+                return xform;
+            };
+
             MatrixTransform.prototype._MatrixChanged = function (args) {
                 var _this = this;
                 if (this._MatrixListener) {
@@ -29518,6 +29549,10 @@ var Fayde;
             };
             RelayCommand.prototype.CanExecute = function (parameter) {
                 return true;
+            };
+
+            RelayCommand.prototype.ForceCanExecuteChanged = function () {
+                this.CanExecuteChanged.Raise(this, EventArgs.Empty);
             };
             return RelayCommand;
         })();
