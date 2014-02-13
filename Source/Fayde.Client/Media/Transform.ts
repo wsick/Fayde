@@ -93,6 +93,12 @@ module Fayde.Media {
             return mat3.identity();
         }
 
+        Clone(): MatrixTransform {
+            var xform = new MatrixTransform();
+            xform.Matrix = this.Matrix.Clone();
+            return xform;
+        }
+
         private _MatrixListener: IMatrixChangedListener = null;
         _MatrixChanged(args: IDependencyPropertyChangedEventArgs) {
             if (this._MatrixListener) {
