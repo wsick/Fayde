@@ -9,7 +9,7 @@
         <description>Controls library for Fayde.</description>
         <tags>fayde xaml silverlight</tags>
         <dependencies>
-            <dependency id="Fayde" />
+            <dependency id="Fayde" version="0.9.7.17" />
         </dependencies>
     </metadata>
     <files>
