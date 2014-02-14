@@ -25,10 +25,14 @@ module Fayde.Xaml {
                 return null;
             return regXds[url] = new XamlDocument(xaml);
         }
-        static Resolve(url: string, ctx?: ILibraryAsyncContext): IAsyncRequest<XamlDocument> {
-            var d = defer<XamlDocument>();
-
+        static Resolve(url: string, ctx?: ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
+        static Resolve(url: Uri, ctx?: ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
+        static Resolve(url: any, ctx?: ILibraryAsyncContext): IAsyncRequest<XamlDocument> {
+            if (url instanceof Uri)
+                url = (<Uri>url).toString();
             var xamlUrl = "text!" + url;
+
+            var d = defer<XamlDocument>();
 
             var xd = regXds[xamlUrl];
             if (xd) {
