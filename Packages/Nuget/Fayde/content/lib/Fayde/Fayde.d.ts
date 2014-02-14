@@ -6,6 +6,7 @@ declare module Fayde.Xaml {
         static Get(url: Uri): XamlDocument;
         static Get(url: string): XamlDocument;
         static Resolve(url: string, ctx?: Fayde.ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
+        static Resolve(url: Uri, ctx?: Fayde.ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
         public Resolve(ctx: Fayde.ILibraryAsyncContext): IAsyncRequest<any>;
     }
 }
@@ -1030,14 +1031,20 @@ declare module Fayde.Controls {
         public CreateNode(): ContentControlNode;
         public _ContentSetsParent: boolean;
         static ContentProperty: DependencyProperty;
-        static ContentTemplateProperty: DependencyProperty;
         public Content: any;
+        public OnContentChanged(oldContent: any, newContent: any): void;
+        static ContentTemplateProperty: DependencyProperty;
         public ContentTemplate: Fayde.DataTemplate;
+        public OnContentTemplateChanged(oldContentTemplate: Fayde.DataTemplate, newContentTemplate: Fayde.DataTemplate): void;
+        static ContentUriProperty: DependencyProperty;
+        public ContentUri: Uri;
+        private OnContentUriPropertyChanged(args);
+        public OnContentUriChanged(oldSourceUri: Uri, newSourceUri: Uri): void;
         static Annotations: {
             ContentProperty: DependencyProperty;
         };
-        public OnContentChanged(oldContent: any, newContent: any): void;
-        public OnContentTemplateChanged(oldContentTemplate: Fayde.DataTemplate, newContentTemplate: Fayde.DataTemplate): void;
+        private _OnLoadedUri(xd);
+        private _OnErroredUri(err, src);
     }
 }
 declare module Fayde.Controls {

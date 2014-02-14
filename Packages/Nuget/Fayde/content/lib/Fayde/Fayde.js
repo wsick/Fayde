@@ -23,10 +23,13 @@ var Fayde;
                     return null;
                 return regXds[url] = new XamlDocument(xaml);
             };
-            XamlDocument.Resolve = function (url, ctx) {
-                var d = defer();
 
+            XamlDocument.Resolve = function (url, ctx) {
+                if (url instanceof Uri)
+                    url = url.toString();
                 var xamlUrl = "text!" + url;
+
+                var d = defer();
 
                 var xd = regXds[xamlUrl];
                 if (xd) {
@@ -5477,17 +5480,53 @@ var Fayde;
 
             ContentControl.prototype.OnContentChanged = function (oldContent, newContent) {
             };
+
             ContentControl.prototype.OnContentTemplateChanged = function (oldContentTemplate, newContentTemplate) {
+            };
+
+            ContentControl.prototype.OnContentUriPropertyChanged = function (args) {
+                var _this = this;
+                var oldUri;
+                if (args.OldValue instanceof Uri) {
+                    this.Content = undefined;
+                    oldUri = args.OldValue;
+                }
+                var newUri;
+                if (args.NewValue instanceof Uri) {
+                    newUri = args.NewValue;
+                    Fayde.Xaml.XamlDocument.Resolve(newUri).success(function (xd) {
+                        return _this._OnLoadedUri(xd);
+                    }).error(function (err) {
+                        return _this._OnErroredUri(err, newUri);
+                    });
+                }
+                this.OnContentUriChanged(oldUri, newUri);
+            };
+            ContentControl.prototype.OnContentUriChanged = function (oldSourceUri, newSourceUri) {
+            };
+
+            ContentControl.prototype._OnLoadedUri = function (xd) {
+                this.Content = Fayde.Xaml.Load(xd.Document);
+            };
+            ContentControl.prototype._OnErroredUri = function (err, src) {
+                console.warn("Error resolving XamlResource: '" + src.toString() + "'.");
             };
             ContentControl.ContentProperty = DependencyProperty.Register("Content", function () {
                 return Object;
             }, ContentControl, undefined, function (d, args) {
                 return d.OnContentChanged(args.OldValue, args.NewValue);
             });
+
             ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
                 return Fayde.DataTemplate;
             }, ContentControl, undefined, function (d, args) {
                 return d.OnContentTemplateChanged(args.OldValue, args.NewValue);
+            });
+
+            ContentControl.ContentUriProperty = DependencyProperty.Register("ContentUri", function () {
+                return Uri;
+            }, ContentControl, undefined, function (d, args) {
+                return d.OnContentUriPropertyChanged(args);
             });
 
             ContentControl.Annotations = { ContentProperty: ContentControl.ContentProperty };
