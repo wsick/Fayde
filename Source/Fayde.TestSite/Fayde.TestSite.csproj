@@ -192,6 +192,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Tests\Navigation\Views\Toolkit.fayde" />
+    <Content Include="Tests\Controls\testview.fayde" />
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>

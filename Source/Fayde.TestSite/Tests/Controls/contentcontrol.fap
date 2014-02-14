@@ -14,10 +14,19 @@
         </DataTemplate>
     </Application.Resources>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
         <ContentControl>
             <ContentControl.Content>
                 <controls:TestClass />
             </ContentControl.Content>
+        </ContentControl>
+        <ContentControl Grid.Column="1" ContentUri="Controls/testview.fayde">
+            <ContentControl.DataContext>
+                <controls:TestClass />
+            </ContentControl.DataContext>
         </ContentControl>
     </Grid>
 </Application> 
