@@ -235,10 +235,10 @@
                         <SolidColorBrush Color="#FF119EDA" />
                     </Border.BorderBrush>
                     <StackPanel Margin="65,0,0,0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
-                        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="#/Home" TargetName="ContentFrame" Content="home" />
-                        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="#/Core" TargetName="ContentFrame" Content="core controls" />
-                        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="#/SDK" TargetName="ContentFrame" Content="sdk controls" />
-                        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="#/Toolkit" TargetName="ContentFrame" Content="toolkit controls" />
+                        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="/Home" TargetName="ContentFrame" Content="home" />
+                        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="/Core" TargetName="ContentFrame" Content="core controls" />
+                        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="/SDK" TargetName="ContentFrame" Content="sdk controls" />
+                        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="/Toolkit" TargetName="ContentFrame" Content="toolkit controls" />
                     </StackPanel>
                 </Border>
                 <Border x:Name="ContentBorder" Grid.Row="2" Margin="45,-42,0,0">
