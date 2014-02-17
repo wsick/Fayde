@@ -1,0 +1,15 @@
+<UserControl x:Class="Views.Menu"
+  xmlns="http://schemas.wsick.com/fayde"
+  xmlns:x="http://schemas.wsick.com/fayde/x"
+  xmlns:controls="lib:Fayde.Controls">
+  
+  <controls:TreeView ItemsSource="{Binding Menu}">
+    <controls:TreeView.ItemTemplate>
+      <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+        <StackPanel Orientation="Horizontal">
+          <HyperlinkButton Url="{Binding Url}" Content="{Binding Header}" TargetName="{Binding ContentFrame}" />
+        </StackPanel>
+      </HierarchicalDataTemplate>
+    </controls:TreeView.ItemTemplate>
+  </controls:TreeView>
+</UserControl>

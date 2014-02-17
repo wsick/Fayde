@@ -81,7 +81,7 @@
   
     <Grid x:Name="LayoutRoot" Style="{StaticResource LayoutRootGridStyle}">
       <Grid.DataContext>
-        <viewmodels:MainViewModel/>
+        <viewmodels:DefaultViewModel/>
       </Grid.DataContext>
       
       <Grid.RowDefinitions>
@@ -99,7 +99,7 @@
       
       <Grid Grid.Row="1" Style="{StaticResource SubHeaderStyle}">
           <StackPanel Style="{StaticResource SubHeaderStackPanelStyle}">
-            <HyperlinkButton NavigateUri="mailto:fayde@gmail.com" TargetName="_blank" Content="Report Bug to Fayde"/>
+            <HyperlinkButton NavigateUri="http://fayde.wsick.com/" TargetName="_blank" Content="What is Fayde"/>
           </StackPanel>
       </Grid>
       

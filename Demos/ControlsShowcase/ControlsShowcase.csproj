@@ -18,73 +18,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="default.html" />
-    <Content Include="Images\chat.png" />
-    <Content Include="Images\fayde.gif" />
-    <Content Include="Images\footballfield.png" />
-    <Content Include="Images\helmet.png" />
-    <Content Include="Images\history.png" />
-    <Content Include="Images\Player Headshots\aaron_rodgers.png" />
-    <Content Include="Images\Player Headshots\adrian_peterson.png" />
-    <Content Include="Images\Player Headshots\aj_green.png" />
-    <Content Include="Images\Player Headshots\alfred_morris.png" />
-    <Content Include="Images\Player Headshots\andre_johnson.png" />
-    <Content Include="Images\Player Headshots\arian_foster.png" />
-    <Content Include="Images\Player Headshots\brandon_marshall.png" />
-    <Content Include="Images\Player Headshots\calvin_johnson.png" />
-    <Content Include="Images\Player Headshots\cam_newton.png" />
-    <Content Include="Images\Player Headshots\cj_spiller.png" />
-    <Content Include="Images\Player Headshots\darren_mcfadden.png" />
-    <Content Include="Images\Player Headshots\darren_sproles.png" />
-    <Content Include="Images\Player Headshots\demaryius_thomas.png" />
-    <Content Include="Images\Player Headshots\dez_bryant.png" />
-    <Content Include="Images\Player Headshots\doug_martin.png" />
-    <Content Include="Images\Player Headshots\drew_brees.png" />
-    <Content Include="Images\Player Headshots\jamaal_charles.png" />
-    <Content Include="Images\Player Headshots\jimmy_graham.png" />
-    <Content Include="Images\Player Headshots\julio_jones.png" />
-    <Content Include="Images\Player Headshots\lesean_mccoy.png" />
-    <Content Include="Images\Player Headshots\marshawn_lynch.png" />
-    <Content Include="Images\Player Headshots\matt_forte.png" />
-    <Content Include="Images\Player Headshots\peyton_manning.png" />
-    <Content Include="Images\Player Headshots\randall_cobb.png" />
-    <Content Include="Images\Player Headshots\ray_rice.png" />
-    <Content Include="Images\Player Headshots\reggie_bush.png" />
-    <Content Include="Images\Player Headshots\roddy_white.png" />
-    <Content Include="Images\Player Headshots\stephen_jackson.png" />
-    <Content Include="Images\Player Headshots\tom_brady.png" />
-    <Content Include="Images\Player Headshots\trent_richardson.png" />
-    <Content Include="Images\Team Logos\ARI.png" />
-    <Content Include="Images\Team Logos\ATL.png" />
-    <Content Include="Images\Team Logos\BAL.png" />
-    <Content Include="Images\Team Logos\BUF.png" />
-    <Content Include="Images\Team Logos\CAR.png" />
-    <Content Include="Images\Team Logos\CHI.png" />
-    <Content Include="Images\Team Logos\CIN.png" />
-    <Content Include="Images\Team Logos\CLE.png" />
-    <Content Include="Images\Team Logos\DAL.png" />
-    <Content Include="Images\Team Logos\DEN.png" />
-    <Content Include="Images\Team Logos\DET.png" />
-    <Content Include="Images\Team Logos\GB.png" />
-    <Content Include="Images\Team Logos\HOU.png" />
-    <Content Include="Images\Team Logos\IND.png" />
-    <Content Include="Images\Team Logos\JAC.png" />
-    <Content Include="Images\Team Logos\KC.png" />
-    <Content Include="Images\Team Logos\MIA.png" />
-    <Content Include="Images\Team Logos\MIN.png" />
-    <Content Include="Images\Team Logos\NE.png" />
-    <Content Include="Images\Team Logos\NO.png" />
-    <Content Include="Images\Team Logos\NYG.png" />
-    <Content Include="Images\Team Logos\NYJ.png" />
-    <Content Include="Images\Team Logos\OAK.png" />
-    <Content Include="Images\Team Logos\PHI.png" />
-    <Content Include="Images\Team Logos\PIT.png" />
-    <Content Include="Images\Team Logos\SD.png" />
-    <Content Include="Images\Team Logos\SEA.png" />
-    <Content Include="Images\Team Logos\SF.png" />
-    <Content Include="Images\Team Logos\STL.png" />
-    <Content Include="Images\Team Logos\TB.png" />
-    <Content Include="Images\Team Logos\TEN.png" />
-    <Content Include="Images\Team Logos\WAS.png" />
     <Content Include="lib\Fayde.Controls\generic.xml" />
     <Content Include="lib\Fayde.Controls\source.js" />
     <Content Include="lib\Fayde\Fayde.js" />
@@ -103,7 +36,6 @@
     <Content Include="packages.config" />
     <Content Include="Assets\Converters.fayde" />
     <Content Include="Assets\Styles.fayde" />
-    <Content Include="Data\menu.json" />
     <None Include="faydedemo - FTP.pubxml" />
     <None Include="faydedemo - Web Deploy.pubxml" />
     <None Include="FileSystem.pubxml" />
@@ -123,31 +55,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="Data\DemoNflDataProvider.ts" />
     <TypeScriptCompile Include="lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" />
     <TypeScriptCompile Include="lib\Fayde\Fayde.d.ts" />
     <TypeScriptCompile Include="lib\requirejs\require.d.ts" />
-    <TypeScriptCompile Include="Models\ChatMessage.ts" />
-    <TypeScriptCompile Include="Models\DraftSelection.ts" />
-    <TypeScriptCompile Include="Models\DraftSpot.ts" />
-    <TypeScriptCompile Include="Models\FantasyPlayer.ts" />
-    <TypeScriptCompile Include="Models\FantasyPosition.ts" />
-    <TypeScriptCompile Include="Models\FantasyTeam.ts" />
-    <TypeScriptCompile Include="Models\Player.ts" />
-    <TypeScriptCompile Include="Models\Round.ts" />
-    <TypeScriptCompile Include="Models\Stats.ts" />
-    <TypeScriptCompile Include="Models\Team.ts" />
     <TypeScriptCompile Include="Models\TreeData.ts" />
-    <TypeScriptCompile Include="Resources\AgeValueConverter.ts" />
-    <TypeScriptCompile Include="Resources\DateValueConverter.ts" />
-    <TypeScriptCompile Include="Resources\DoubleValueConverter.ts" />
-    <TypeScriptCompile Include="Resources\PlayerOpacityValueConverter.ts" />
-    <TypeScriptCompile Include="Resources\TimeValueConverter.ts" />
     <TypeScriptCompile Include="ViewModels\DefaultViewModel.ts" />
-    <TypeScriptCompile Include="ViewModels\MainViewModel.ts" />
     <TypeScriptCompile Include="ViewModels\TabViewModel.ts" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Data\" />
+    <Folder Include="Images\" />
+    <Folder Include="Resources\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
