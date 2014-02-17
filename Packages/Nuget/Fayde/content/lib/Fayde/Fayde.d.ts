@@ -1024,6 +1024,7 @@ declare module Fayde.Controls {
     class ContentControlNode extends Controls.ControlNode {
         public XObject: ContentControl;
         constructor(xobj: ContentControl);
+        public OnContentChanged(o: any, n: any): void;
         public GetDefaultVisualTree(): Fayde.UIElement;
     }
     class ContentControl extends Controls.Control {
@@ -1032,6 +1033,7 @@ declare module Fayde.Controls {
         public _ContentSetsParent: boolean;
         static ContentProperty: DependencyProperty;
         public Content: any;
+        private OnContentPropertyChanged(args);
         public OnContentChanged(oldContent: any, newContent: any): void;
         static ContentTemplateProperty: DependencyProperty;
         public ContentTemplate: Fayde.DataTemplate;

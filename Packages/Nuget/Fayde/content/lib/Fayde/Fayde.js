@@ -4422,6 +4422,7 @@ var Fayde;
                 return false;
             this.OnVisualChildDetached(uie);
             uie.XamlNode.SetIsLoaded(false);
+            return true;
         };
 
         FENode.prototype.ApplyTemplateWithError = function (error) {
@@ -5451,6 +5452,15 @@ var Fayde;
             function ContentControlNode(xobj) {
                 _super.call(this, xobj);
             }
+            ContentControlNode.prototype.OnContentChanged = function (o, n) {
+                if (o instanceof Fayde.UIElement) {
+                    var err = new BError();
+                    this.DetachVisualChild(o, err);
+                    if (err.Message)
+                        err.ThrowException();
+                }
+            };
+
             ContentControlNode.prototype.GetDefaultVisualTree = function () {
                 var xobj = this.XObject;
                 var content = xobj.Content;
@@ -5478,6 +5488,10 @@ var Fayde;
                 return new ContentControlNode(this);
             };
 
+            ContentControl.prototype.OnContentPropertyChanged = function (args) {
+                this.XamlNode.OnContentChanged(args.OldValue, args.NewValue);
+                this.OnContentChanged(args.OldValue, args.NewValue);
+            };
             ContentControl.prototype.OnContentChanged = function (oldContent, newContent) {
             };
 
@@ -5514,7 +5528,7 @@ var Fayde;
             ContentControl.ContentProperty = DependencyProperty.Register("Content", function () {
                 return Object;
             }, ContentControl, undefined, function (d, args) {
-                return d.OnContentChanged(args.OldValue, args.NewValue);
+                return d.OnContentPropertyChanged(args);
             });
 
             ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
@@ -8402,13 +8416,10 @@ var Fayde;
                 }
 
                 var content = xobj.Content;
-                if (!content)
-                    return false;
-
                 if (content instanceof Fayde.UIElement)
                     this._ContentRoot = content;
                 else
-                    this._ContentRoot = this._GetContentTemplate(content.constructor).GetVisualTree(xobj);
+                    this._ContentRoot = this._GetContentTemplate(content ? content.constructor : null).GetVisualTree(xobj);
 
                 if (!this._ContentRoot)
                     return false;
@@ -8448,7 +8459,7 @@ var Fayde;
                 if (dt)
                     return dt;
 
-                if (typeof type === "function") {
+                if (type && typeof type === "function") {
                     var node = this;
                     var rd;
                     while (node) {
