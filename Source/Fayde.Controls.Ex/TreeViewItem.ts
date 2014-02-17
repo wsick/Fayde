@@ -222,14 +222,11 @@ module Fayde.Controls {
             super.ClearContainerForItem(element, item);
         }
 
-        InvokeItemsChanged(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
-            super.InvokeItemsChanged(sender, e);
-            this.$SetHasItems(this.Items.Count > 0);
-        }
         OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
             if (e == null)
                 throw new ArgumentException("e");
             super.OnItemsChanged(e);
+            this.$SetHasItems(this.Items.Count > 0);
             if (e.NewItems != null) {
                 for (var i = 0, items = <TreeViewItem[]>e.NewItems, len = items.length; i < len; i++) {
                     items[i].ParentItemsControl = this;

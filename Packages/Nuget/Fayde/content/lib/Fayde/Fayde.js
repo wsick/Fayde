@@ -6718,7 +6718,7 @@ var Fayde;
                     var items = this._Items;
                     if (!items) {
                         this._Items = items = new Fayde.Controls.ItemCollection();
-                        this._ItemsIsDataBound = true;
+                        this._ItemsIsDataBound = false;
                         items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
 
                         var storage = Fayde.Providers.GetStorage(this, ItemsControl.ItemsProperty);

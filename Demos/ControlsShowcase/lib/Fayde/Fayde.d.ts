@@ -6,6 +6,7 @@ declare module Fayde.Xaml {
         static Get(url: Uri): XamlDocument;
         static Get(url: string): XamlDocument;
         static Resolve(url: string, ctx?: Fayde.ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
+        static Resolve(url: Uri, ctx?: Fayde.ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
         public Resolve(ctx: Fayde.ILibraryAsyncContext): IAsyncRequest<any>;
     }
 }
@@ -183,6 +184,7 @@ declare module Fayde {
         public CreateNode(): Fayde.XamlNode;
         public Name : string;
         public Parent : XamlObject;
+        public FindName(name: string): XamlObject;
         public Clone(): XamlObject;
         public CloneCore(source: XamlObject): void;
         public IsInheritable(propd: DependencyProperty): boolean;
@@ -836,7 +838,6 @@ declare module Fayde {
         public Unloaded: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         public LayoutUpdated: MulticastEvent<EventArgs>;
         public OnApplyTemplate(): void;
-        public FindName(name: string): Fayde.XamlObject;
         public UpdateLayout(): void;
         private _StyleChanged(args);
         private _AlignmentChanged(args);
@@ -1023,6 +1024,7 @@ declare module Fayde.Controls {
     class ContentControlNode extends Controls.ControlNode {
         public XObject: ContentControl;
         constructor(xobj: ContentControl);
+        public OnContentChanged(o: any, n: any): void;
         public GetDefaultVisualTree(): Fayde.UIElement;
     }
     class ContentControl extends Controls.Control {
@@ -1030,14 +1032,21 @@ declare module Fayde.Controls {
         public CreateNode(): ContentControlNode;
         public _ContentSetsParent: boolean;
         static ContentProperty: DependencyProperty;
-        static ContentTemplateProperty: DependencyProperty;
         public Content: any;
+        private OnContentPropertyChanged(args);
+        public OnContentChanged(oldContent: any, newContent: any): void;
+        static ContentTemplateProperty: DependencyProperty;
         public ContentTemplate: Fayde.DataTemplate;
+        public OnContentTemplateChanged(oldContentTemplate: Fayde.DataTemplate, newContentTemplate: Fayde.DataTemplate): void;
+        static ContentUriProperty: DependencyProperty;
+        public ContentUri: Uri;
+        private OnContentUriPropertyChanged(args);
+        public OnContentUriChanged(oldSourceUri: Uri, newSourceUri: Uri): void;
         static Annotations: {
             ContentProperty: DependencyProperty;
         };
-        public OnContentChanged(oldContent: any, newContent: any): void;
-        public OnContentTemplateChanged(oldContentTemplate: Fayde.DataTemplate, newContentTemplate: Fayde.DataTemplate): void;
+        private _OnLoadedUri(xd);
+        private _OnErroredUri(err, src);
     }
 }
 declare module Fayde.Controls {
@@ -1462,6 +1471,7 @@ declare module Fayde.Controls {
         public ClearRoot(): void;
         public _ContentChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _ContentTemplateChanged(): void;
+        private _GetContentTemplate(type);
     }
     class ContentPresenter extends Fayde.FrameworkElement {
         public XamlNode: ContentPresenterNode;
@@ -2933,6 +2943,7 @@ declare module Fayde {
 }
 declare module Fayde {
     class DataTemplate extends Fayde.Xaml.FrameworkTemplate {
+        public TargetType: Function;
         constructor();
         public GetVisualTree(bindingSource?: Fayde.DependencyObject): Fayde.UIElement;
     }
@@ -3333,6 +3344,7 @@ declare module Fayde.Data {
         public GetValue(propd: DependencyProperty): any;
         public OnAttached(element: Fayde.DependencyObject): void;
         private _OnSourceAvailable();
+        private _FindSource();
         private _FindSourceByElementName();
         public OnDetached(element: Fayde.DependencyObject): void;
         public IsBrokenChanged(): void;
@@ -3345,8 +3357,7 @@ declare module Fayde.Data {
         public OnDataContextChanged(newDataContext: any): void;
         private _Invalidate();
         public Refresh(): void;
-        private _ConvertFromTargetToSource(value);
-        private _ConvertFromSourceToTarget(value);
+        private _ConvertFromTargetToSource(binding, node, value);
         private _ConvertToType(propd, value);
         private _MaybeEmitError(message, exception);
         private _AttachToNotifyError(element);
@@ -3471,7 +3482,8 @@ declare module Fayde.Data {
 declare module Fayde.Data {
     class RelativeSource {
         public Mode: Data.RelativeSourceMode;
-        public AncestorLevel: number;
+        private _AncestorLevel;
+        public AncestorLevel : number;
         public AncestorType: Function;
         constructor(mode?: Data.RelativeSourceMode);
     }
@@ -3621,6 +3633,8 @@ declare module Fayde {
         static ThemeProperty: DependencyProperty;
         public Resources: Fayde.ResourceDictionary;
         public Theme: Fayde.Theme;
+        public Resized: Fayde.RoutedEvent<Fayde.SizeChangedEventArgs>;
+        public OnResized(oldSize: size, newSize: size): void;
         constructor();
         public RootVisual : Fayde.UIElement;
         public Resolve(): IAsyncRequest<Application>;
@@ -4903,6 +4917,7 @@ declare module Fayde.Media {
         public _Raw: number[];
         private _Inverse;
         constructor(raw?: number[]);
+        static Identity : Matrix;
         public M11 : number;
         public M12 : number;
         public M21 : number;
@@ -4913,6 +4928,7 @@ declare module Fayde.Media {
         private _Listeners;
         public Listen(func: (newMatrix: Matrix) => void): IMatrixChangedListener;
         private _OnChanged();
+        public Clone(): Matrix;
         public toString(): string;
     }
 }
@@ -5202,6 +5218,7 @@ declare module Fayde.Media {
         static MatrixProperty: DependencyProperty;
         public Matrix: Media.Matrix;
         public _BuildValue(): number[];
+        public Clone(): MatrixTransform;
         private _MatrixListener;
         public _MatrixChanged(args: IDependencyPropertyChangedEventArgs): void;
     }
@@ -5354,6 +5371,7 @@ declare module Fayde.MVVM {
         public Execute(parameter: any): void;
         public CanExecute(parameter: any): boolean;
         public CanExecuteChanged: MulticastEvent<EventArgs>;
+        public ForceCanExecuteChanged(): void;
     }
 }
 declare module Fayde.MVVM {
