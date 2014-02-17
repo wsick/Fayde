@@ -7,6 +7,15 @@ module Fayde.Controls {
             super(xobj);
         }
 
+        OnContentChanged(o: any, n: any) {
+            if (o instanceof UIElement) {
+                var err = new BError();
+                this.DetachVisualChild(o, err);
+                if (err.Message)
+                    err.ThrowException();
+            }
+        }
+
         GetDefaultVisualTree(): UIElement {
             var xobj = this.XObject;
             var content = xobj.Content;
@@ -30,8 +39,12 @@ module Fayde.Controls {
 
         _ContentSetsParent: boolean = true;
 
-        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d).OnContentChanged(args.OldValue, args.NewValue));
+        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d).OnContentPropertyChanged(args));
         Content: any;
+        private OnContentPropertyChanged(args: DependencyPropertyChangedEventArgs) {
+            this.XamlNode.OnContentChanged(args.OldValue, args.NewValue);
+            this.OnContentChanged(args.OldValue, args.NewValue);
+        }
         OnContentChanged(oldContent: any, newContent: any) { }
 
         static ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d).OnContentTemplateChanged(args.OldValue, args.NewValue));
