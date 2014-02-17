@@ -35,13 +35,10 @@ module Fayde.Controls {
             }
 
             var content = xobj.Content;
-            if (!content)
-                return false;
-
             if (content instanceof UIElement)
                 this._ContentRoot = content;
             else
-                this._ContentRoot = this._GetContentTemplate(content.constructor).GetVisualTree(xobj);
+                this._ContentRoot = this._GetContentTemplate(content ? content.constructor : null).GetVisualTree(xobj);
 
             if (!this._ContentRoot)
                 return false;
@@ -80,7 +77,7 @@ module Fayde.Controls {
             if (dt)
                 return dt;
 
-            if (typeof type === "function") {
+            if (type && typeof type === "function") {
                 //Traverse logical tree looking in Resources for implicitly typed DataTemplate
                 var node = <XamlNode>this;
                 var rd: ResourceDictionary;
