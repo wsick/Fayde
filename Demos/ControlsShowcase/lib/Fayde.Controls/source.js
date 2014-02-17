@@ -4328,11 +4328,8 @@ var Fayde;
             };
 
             TabItem.prototype._FindPreviousTabItem = function (startIndex) {
-                var parent = this.TabControlParent;
-                var items = parent.Items;
-                var tabItem = null;
-                for (var i = startIndex; i >= 0; i--) {
-                    tabItem = items.GetValueAt(i);
+                for (var i = startIndex, items = this.TabControlParent.Items; i >= 0; i--) {
+                    var tabItem = items.GetValueAt(i);
                     if (tabItem.IsEnabled && tabItem.Visibility === 0 /* Visible */)
                         return tabItem;
                 }
