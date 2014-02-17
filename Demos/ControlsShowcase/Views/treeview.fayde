@@ -1,0 +1,94 @@
+﻿<Page xmlns="http://schemas.wsick.com/fayde"
+      xmlns:x="http://schemas.wsick.com/fayde/x"
+      xmlns:controls="lib:Fayde.Controls"
+      xmlns:system="lib:Fayde"
+      Title="Home">
+  <StackPanel>
+    <!-- Basic TreeView -->
+    <TextBlock Style="{StaticResource HeaderTextStyle}">
+      TreeView is a control that displays hierarchical data in a tree
+      structure with items that can expand and collapse.
+    </TextBlock>
+    
+    <controls:TreeView Margin="5">
+      <controls:TreeViewItem Header="Controls">
+        <controls:TreeViewItem Header="AutoCompleteBox" />
+        <controls:TreeViewItem Header="Expander" />
+        <controls:TreeViewItem Header="NumericUpDown" />
+      </controls:TreeViewItem>
+      <controls:TreeViewItem Header="Layout">
+        <controls:TreeViewItem Header="DockPanel" />
+        <controls:TreeViewItem Header="WrapPanel" />
+        <controls:TreeViewItem Header="Viewbox" />
+      </controls:TreeViewItem>
+      <controls:TreeViewItem Header="Charting">
+        <controls:TreeViewItem Header="ColumnSeries" />
+        <controls:TreeViewItem Header="LineSeries" />
+        <controls:TreeViewItem Header="PieSeries" />
+      </controls:TreeViewItem>
+    </controls:TreeView>
+
+    <!-- TreeViewItems -->
+    <ContentControl Content="TreeViewItem" Style="{StaticResource Header}" />
+    <TextBlock Style="{StaticResource Information}">
+      TreeViews are composed of TreeViewItems which can be added to the
+      TreeView.Items collection or assigned to the TreeView.ItemsSource
+      property.  Objects of any type can be added and will be wrapped with
+      TreeViewItems.
+    </TextBlock>
+    <controls:TreeView Margin="5">
+      <controls:TreeViewItem Header="TreeViewItems">
+        <controls:TreeViewItem Header="Can be nested">
+          <controls:TreeViewItem Header="To any depth" />
+        </controls:TreeViewItem>
+        <controls:TreeViewItem Header="And disabled" IsEnabled="False" />
+        <controls:TreeViewItem Header="And formatted" Foreground="Purple" FontStyle="Italic" FontSize="12" />
+        <controls:TreeViewItem Header="Or created">
+          <controls:TreeViewItem Header="From objects">
+            <system:String>String</system:String>
+            <system:Int32>42</system:Int32>
+            <system:Double>3.14159</system:Double>
+          </controls:TreeViewItem>
+          <controls:TreeViewItem Header="From UIElements (currently broken)">
+            <Button Content="Button" />
+            <CheckBox Content="CheckBox" />
+            <TextBox Text="TextBox" />
+          </controls:TreeViewItem>
+          <controls:TreeViewItem Header="Explicitly wrapped works though">
+            <controls:TreeViewItem>
+              <controls:TreeViewItem.Header>
+                <Button Content="Button" />
+              </controls:TreeViewItem.Header>
+            </controls:TreeViewItem>
+            <controls:TreeViewItem>
+              <controls:TreeViewItem.Header>
+                <CheckBox Content="CheckBox" />
+              </controls:TreeViewItem.Header>
+            </controls:TreeViewItem>
+            <controls:TreeViewItem>
+              <controls:TreeViewItem.Header>
+                <TextBox Text="TextBox" />
+              </controls:TreeViewItem.Header>
+            </controls:TreeViewItem>
+          </controls:TreeViewItem>
+        </controls:TreeViewItem>
+      </controls:TreeViewItem>
+      <controls:TreeViewItem Header="Setting Items">
+        <controls:TreeViewItem Header="Via Items">
+          <system:String>First</system:String>
+          <system:String>Second</system:String>
+          <system:String>Third</system:String>
+        </controls:TreeViewItem>
+        <controls:TreeViewItem Header="Via ItemsSource">
+          <controls:TreeViewItem.ItemsSource>
+            <ObservableObjectCollection>
+              <system:String>First</system:String>
+              <system:String>Second</system:String>
+              <system:String>Third</system:String>
+            </ObservableObjectCollection>
+          </controls:TreeViewItem.ItemsSource>
+        </controls:TreeViewItem>
+      </controls:TreeViewItem>
+    </controls:TreeView>
+  </StackPanel>
+</Page>

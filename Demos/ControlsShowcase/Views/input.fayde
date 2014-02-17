@@ -1,0 +1,59 @@
+﻿<Page xmlns="http://schemas.wsick.com/fayde"
+      xmlns:x="http://schemas.wsick.com/fayde/x"
+      xmlns:controls="lib:Fayde.Controls"
+      Title="Input Controls">
+  <Page.Resources>
+    
+    <Style TargetType="TextBox">
+      <Setter Property="Margin" Value="3"/>
+    </Style>
+    <Style TargetType="TextBlock">
+      <Setter Property="Margin" Value="3"/>
+    </Style>
+    <Style TargetType="PasswordBox">
+      <Setter Property="Margin" Value="3"/>
+    </Style>
+    <Style TargetType="controls:NumericUpDown">
+      <Setter Property="Margin" Value="3"/>
+    </Style>
+  </Page.Resources>
+  
+    <StackPanel Margin="5">
+      <TextBlock Text="TextBlock" />
+      <TextBlock Text="This is a TextBlock" />
+      <TextBlock Text="This is a Multiline TextBlock" />
+
+      <TextBlock Text="TextBox" />
+      <TextBox Text="This is a TextBox" />
+      <TextBox Text="This is a Disabled TextBox" IsEnabled="false" />
+
+      <TextBox Text="This is a TextBox with Multiline" AcceptsReturn="True" TextWrapping="Wrap" TextAlignment="Center" Height="100"/>
+
+      <TextBox Text="This is a TextBox with Flow from Right to Left" Direction="RightToLeft" TextAlignment="Right" />
+
+      <TextBlock Text="PasswordBox" />
+      <PasswordBox Password="Password" />
+
+      <TextBlock Text="NumericUpDown" />
+      <controls:NumericUpDown DecimalPlaces="0" Increment="1" />
+      <controls:NumericUpDown DecimalPlaces="1" Increment="0.1" />
+      <controls:NumericUpDown DecimalPlaces="2" Increment="0.01" />
+
+      <TextBlock Text="DatePicker" />
+      <TextBlock Text="Not Implemented yet" />
+
+      <TextBlock Text="Button" />
+      <Button Content="Button" />
+
+      <TextBlock Text="CheckBox" />
+      <CheckBox Content="Optoin1" />
+      <CheckBox Content="Optoin2" />
+      <CheckBox Content="Optoin3" />
+
+      <TextBlock Text="RadioButtons" />
+      <RadioButton Content="Option1" />
+      <RadioButton Content="Option2" />
+      <RadioButton Content="Option3" />
+      <RadioButton Content="Option3" />
+    </StackPanel>
+</Page>

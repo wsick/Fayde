@@ -19,14 +19,17 @@ var Fayde;
                 if (xd)
                     return xd;
                 var xaml = require(url);
-                if (xaml)
+                if (!xaml)
                     return null;
                 return regXds[url] = new XamlDocument(xaml);
             };
-            XamlDocument.Resolve = function (url, ctx) {
-                var d = defer();
 
+            XamlDocument.Resolve = function (url, ctx) {
+                if (url instanceof Uri)
+                    url = url.toString();
                 var xamlUrl = "text!" + url;
+
+                var d = defer();
 
                 var xd = regXds[xamlUrl];
                 if (xd) {
@@ -830,11 +833,7 @@ var Fayde;
                 childNode.SetIsAttached(newIsAttached);
             }
 
-            var monitors = this._IAMonitors;
-            if (!monitors)
-                return;
-            len = monitors.length;
-            for (var i = 0; i < len; i++) {
+            for (var i = 0, monitors = (this._IAMonitors || []).slice(0), len = monitors.length; i < len; i++) {
                 monitors[i].Callback(newIsAttached);
             }
         };
@@ -980,6 +979,17 @@ var Fayde;
             enumerable: true,
             configurable: true
         });
+
+        XamlObject.prototype.FindName = function (name) {
+            var n = this.XamlNode;
+            while (n) {
+                var m = n.FindName(name);
+                if (m)
+                    return m.XObject;
+                n = n.ParentNode;
+            }
+            return undefined;
+        };
 
         XamlObject.prototype.Clone = function () {
             var xobj = new this.constructor();
@@ -3688,8 +3698,14 @@ var Fayde;
                         pass.Updated = true;
                         changes.push(lu._UpdateActualSize());
                     }
+                    var rv;
+                    var surface = this.Surface;
+                    if (surface)
+                        rv = surface._RootLayer;
                     var change;
                     while (change = changes.pop()) {
+                        if (rv && rv === change.Element)
+                            surface.App.OnResized(change.PreviousSize, change.NewSize);
                         change.Element.SizeChanged.Raise(change.Element, new Fayde.SizeChangedEventArgs(change.PreviousSize, change.NewSize));
                     }
                 } else {
@@ -4406,6 +4422,7 @@ var Fayde;
                 return false;
             this.OnVisualChildDetached(uie);
             uie.XamlNode.SetIsLoaded(false);
+            return true;
         };
 
         FENode.prototype.ApplyTemplateWithError = function (error) {
@@ -4513,11 +4530,6 @@ var Fayde;
         };
 
         FrameworkElement.prototype.OnApplyTemplate = function () {
-        };
-        FrameworkElement.prototype.FindName = function (name) {
-            var n = this.XamlNode.FindName(name);
-            if (n)
-                return n.XObject;
         };
 
         FrameworkElement.prototype.UpdateLayout = function () {
@@ -5440,6 +5452,15 @@ var Fayde;
             function ContentControlNode(xobj) {
                 _super.call(this, xobj);
             }
+            ContentControlNode.prototype.OnContentChanged = function (o, n) {
+                if (o instanceof Fayde.UIElement) {
+                    var err = new BError();
+                    this.DetachVisualChild(o, err);
+                    if (err.Message)
+                        err.ThrowException();
+                }
+            };
+
             ContentControlNode.prototype.GetDefaultVisualTree = function () {
                 var xobj = this.XObject;
                 var content = xobj.Content;
@@ -5467,19 +5488,59 @@ var Fayde;
                 return new ContentControlNode(this);
             };
 
+            ContentControl.prototype.OnContentPropertyChanged = function (args) {
+                this.XamlNode.OnContentChanged(args.OldValue, args.NewValue);
+                this.OnContentChanged(args.OldValue, args.NewValue);
+            };
             ContentControl.prototype.OnContentChanged = function (oldContent, newContent) {
             };
+
             ContentControl.prototype.OnContentTemplateChanged = function (oldContentTemplate, newContentTemplate) {
+            };
+
+            ContentControl.prototype.OnContentUriPropertyChanged = function (args) {
+                var _this = this;
+                var oldUri;
+                if (args.OldValue instanceof Uri) {
+                    this.Content = undefined;
+                    oldUri = args.OldValue;
+                }
+                var newUri;
+                if (args.NewValue instanceof Uri) {
+                    newUri = args.NewValue;
+                    Fayde.Xaml.XamlDocument.Resolve(newUri).success(function (xd) {
+                        return _this._OnLoadedUri(xd);
+                    }).error(function (err) {
+                        return _this._OnErroredUri(err, newUri);
+                    });
+                }
+                this.OnContentUriChanged(oldUri, newUri);
+            };
+            ContentControl.prototype.OnContentUriChanged = function (oldSourceUri, newSourceUri) {
+            };
+
+            ContentControl.prototype._OnLoadedUri = function (xd) {
+                this.Content = Fayde.Xaml.Load(xd.Document);
+            };
+            ContentControl.prototype._OnErroredUri = function (err, src) {
+                console.warn("Error resolving XamlResource: '" + src.toString() + "'.");
             };
             ContentControl.ContentProperty = DependencyProperty.Register("Content", function () {
                 return Object;
             }, ContentControl, undefined, function (d, args) {
-                return d.OnContentChanged(args.OldValue, args.NewValue);
+                return d.OnContentPropertyChanged(args);
             });
+
             ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
                 return Fayde.DataTemplate;
             }, ContentControl, undefined, function (d, args) {
                 return d.OnContentTemplateChanged(args.OldValue, args.NewValue);
+            });
+
+            ContentControl.ContentUriProperty = DependencyProperty.Register("ContentUri", function () {
+                return Uri;
+            }, ContentControl, undefined, function (d, args) {
+                return d.OnContentUriPropertyChanged(args);
             });
 
             ContentControl.Annotations = { ContentProperty: ContentControl.ContentProperty };
@@ -7880,18 +7941,27 @@ var Fayde;
 
             Object.defineProperty(ft, "TemplateElement", { value: el, writable: false });
             if (ft instanceof Fayde.Controls.ControlTemplate) {
-                var targetTypeNode = el.attributes.getNamedItemNS(Fayde.XMLNS, "TargetType");
-                if (!targetTypeNode)
-                    targetTypeNode = el.attributes.getNamedItem("TargetType");
-                if (!targetTypeNode)
+                var ttattr = getTargetTypeAttr(el);
+                if (!ttattr)
                     throw new XamlParseException("ControlTemplate must have a TargetType.");
-                var ctres = Fayde.TypeResolver.ResolveFullyQualifiedName(targetTypeNode.value, targetTypeNode);
+                var ctres = Fayde.TypeResolver.ResolveFullyQualifiedName(ttattr.value, ttattr);
                 if (!ctres)
-                    throw new XamlParseException("Could not find ControlTemplate.TargetType '" + targetTypeNode.value + "'.");
+                    throw new XamlParseException("Could not find ControlTemplate.TargetType '" + ttattr.value + "'.");
                 Object.defineProperty(ft, "TargetType", {
                     value: ctres.Type,
                     writable: false
                 });
+            } else if (ft instanceof Fayde.DataTemplate) {
+                var ttattr = getTargetTypeAttr(el);
+                if (ttattr) {
+                    var dtres = Fayde.TypeResolver.ResolveFullyQualifiedName(ttattr.value, ttattr);
+                    if (!dtres)
+                        throw new XamlParseException("Could not resolve DataTemplate.TargetType '" + ttattr.value + "'.");
+                    Object.defineProperty(ft, "TargetType", {
+                        value: dtres.Type,
+                        writable: false
+                    });
+                }
             }
 
             var childProcessor = createXamlChildProcessor(ft, ft.constructor, ctx);
@@ -7913,6 +7983,13 @@ var Fayde;
             }
 
             return ft;
+        }
+        function getTargetTypeAttr(el) {
+            var attrs = el.attributes;
+            var targetTypeNode = attrs.getNamedItemNS(Fayde.XMLNS, "TargetType");
+            if (!targetTypeNode)
+                targetTypeNode = attrs.getNamedItem("TargetType");
+            return targetTypeNode;
         }
 
         function createXamlChildProcessor(owner, ownerType, ctx) {
@@ -8271,14 +8348,23 @@ var Fayde;
             var key = getElementKey(el);
             if (key) {
                 rd.Set(key, cur);
-            } else {
-                if (!(cur instanceof Fayde.Style))
-                    throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
+                return;
+            }
+            if (cur instanceof Fayde.Style) {
                 var targetType = cur.TargetType;
                 if (!targetType)
                     throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
                 rd.Set(targetType, cur);
+                return;
             }
+            if (cur instanceof Fayde.DataTemplate) {
+                var targetType = cur.TargetType;
+                if (!targetType)
+                    throw new XamlParseException("A DataTemplate in a ResourceDictionary must have a x:Key or TargetType.");
+                rd.Set(targetType, cur);
+                return;
+            }
+            throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
         }
         function getElementKey(el) {
             var attrs = el.attributes;
@@ -8330,13 +8416,10 @@ var Fayde;
                 }
 
                 var content = xobj.Content;
-                if (!content)
-                    return false;
-
                 if (content instanceof Fayde.UIElement)
                     this._ContentRoot = content;
                 else
-                    this._ContentRoot = (xobj.ContentTemplate || getFallbackTemplate()).GetVisualTree(xobj);
+                    this._ContentRoot = this._GetContentTemplate(content ? content.constructor : null).GetVisualTree(xobj);
 
                 if (!this._ContentRoot)
                     return false;
@@ -8369,6 +8452,34 @@ var Fayde;
             ContentPresenterNode.prototype._ContentTemplateChanged = function () {
                 this.ClearRoot();
                 this.LayoutUpdater.InvalidateMeasure();
+            };
+
+            ContentPresenterNode.prototype._GetContentTemplate = function (type) {
+                var dt = this.XObject.ContentTemplate;
+                if (dt)
+                    return dt;
+
+                if (type && typeof type === "function") {
+                    var node = this;
+                    var rd;
+                    while (node) {
+                        var xobj = node.XObject;
+                        if (xobj instanceof Fayde.FrameworkElement && (rd = xobj.Resources)) {
+                            dt = rd.Get(type);
+                            if (dt instanceof Fayde.DataTemplate)
+                                return dt;
+                        }
+                        node = node.ParentNode;
+                    }
+                    var app = this._Surface ? this._Surface.App : null;
+                    if (app) {
+                        dt = app.Resources.Get(type);
+                        if (dt instanceof Fayde.DataTemplate)
+                            return dt;
+                    }
+                }
+
+                return getFallbackTemplate();
             };
             return ContentPresenterNode;
         })(Fayde.FENode);
@@ -9502,7 +9613,7 @@ var Fayde;
                 }
                 var targetUie = this.FindName(targetName);
                 if (targetUie instanceof Fayde.Controls.Frame) {
-                    window.location.href = this.NavigateUri.toString();
+                    window.location.hash = this.NavigateUri.toString();
                 } else {
                     window.open(this.NavigateUri.toString(), targetName);
                 }
@@ -17562,40 +17673,52 @@ var Fayde;
                 return findSourceByElementName(target, binding.ElementName);
 
             if (binding.RelativeSource) {
-                var source;
                 switch (binding.RelativeSource.Mode) {
                     case 2 /* Self */:
-                        source = target;
-                        break;
+                        return target;
                     case 1 /* TemplatedParent */:
-                        source = target.TemplateOwner;
-                        break;
+                        return target.TemplateOwner;
                     case 3 /* FindAncestor */:
-                        console.log("FindAncestor is not fully implemented.");
-
-                        break;
+                        return findAncestor(target, binding.RelativeSource);
                 }
-                return source;
             }
         }
         return target.XamlNode.DataContext;
     }
     function findSourceByElementName(target, name) {
         var xobj = target;
-        var sourceNode;
-        var xnode = (xobj) ? xobj.XamlNode : null;
-        var parentNode;
-        while (xnode) {
-            sourceNode = xnode.FindName(name);
-            if (sourceNode)
-                return sourceNode.XObject;
-            if (xnode.XObject.TemplateOwner)
-                xobj = xnode.XObject.TemplateOwner;
-            else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItemsOwner(parentNode.XObject))
-                xnode = parentNode;
-            break;
+        var source;
+        var parent;
+        while (xobj) {
+            source = xobj.FindName(name);
+            if (source)
+                return source;
+            if (xobj.TemplateOwner)
+                xobj = xobj.TemplateOwner;
+            else if ((parent = xobj.Parent) && (parent instanceof Fayde.UIElement) && Fayde.Controls.ItemsControl.GetItemsOwner(parent))
+                xobj = parent;
+            else
+                xobj = null;
         }
         return undefined;
+    }
+    function findAncestor(target, relSource) {
+        if (!(target instanceof Fayde.DependencyObject))
+            return;
+        var ancestorType = relSource.AncestorType;
+        if (typeof ancestorType !== "function") {
+            console.warn("RelativeSourceMode.FindAncestor with no AncestorType specified.");
+            return;
+        }
+        var ancestorLevel = relSource.AncestorLevel;
+        if (isNaN(ancestorLevel)) {
+            console.warn("RelativeSourceMode.FindAncestor with no AncestorLevel specified.");
+            return;
+        }
+        for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
+            if (parent instanceof ancestorType && --ancestorLevel < 1)
+                return parent;
+        }
     }
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -18680,6 +18803,9 @@ var Fayde;
 
             var feNode = d.XamlNode;
             var subtreeNode = feNode.SubtreeNode;
+            if (!subtreeNode)
+                throw new IndexOutOfRangeException(childIndex);
+
             var subtree = subtreeNode.XObject;
             if (subtree instanceof Fayde.XamlObjectCollection)
                 return subtree.GetValueAt(childIndex);
@@ -18695,6 +18821,9 @@ var Fayde;
 
             var feNode = d.XamlNode;
             var subtreeNode = feNode.SubtreeNode;
+            if (!subtreeNode)
+                return 0;
+
             var subtree = subtreeNode.XObject;
             if (subtreeNode.XObject instanceof Fayde.XamlObjectCollection)
                 return subtree.Count;
@@ -19411,7 +19540,8 @@ var Fayde;
 
                 this._Cached = true;
                 if (this.PropertyPathWalker.IsPathBroken) {
-                    if (this.Target && this.Target.XamlNode.IsAttached)
+                    var target = this.Target;
+                    if (target && target.XamlNode.IsAttached && (!(target instanceof Fayde.FrameworkElement) || target.XamlNode.IsLoaded))
                         console.warn("[BINDING] Path Broken --> Path='" + this.PropertyPathWalker.Path + "'");
                     this._CachedValue = null;
                 } else {
@@ -19431,28 +19561,10 @@ var Fayde;
 
                 _super.prototype.OnAttached.call(this, element);
 
-                var source;
-                if (this.ParentBinding.Source) {
-                    source = this.ParentBinding.Source;
-                } else if (this.ParentBinding.ElementName != null) {
-                    source = this._FindSourceByElementName();
-                    this._SourceAvailableMonitor = this.Target.XamlNode.MonitorIsAttached(function (newIsAttached) {
-                        return _this._OnSourceAvailable();
-                    });
-                } else if (this.ParentBinding.RelativeSource) {
-                    switch (this.ParentBinding.RelativeSource.Mode) {
-                        case 2 /* Self */:
-                            source = this.Target;
-                            break;
-                        case 1 /* TemplatedParent */:
-                            source = this.Target.TemplateOwner;
-                            break;
-                        case 3 /* FindAncestor */:
-                            break;
-                    }
-                } else {
-                    source = this._DataContext;
-                }
+                this._SourceAvailableMonitor = this.Target.XamlNode.MonitorIsAttached(function (newIsAttached) {
+                    return _this._OnSourceAvailable();
+                });
+                var source = this._FindSource();
                 this.PropertyPathWalker.Update(source);
 
                 if (this._TwoWayTextBox)
@@ -19464,27 +19576,45 @@ var Fayde;
             };
             BindingExpressionBase.prototype._OnSourceAvailable = function () {
                 this._SourceAvailableMonitor.Detach();
-                var source = this._FindSourceByElementName();
+                var source = this._FindSource();
                 if (source)
                     this.PropertyPathWalker.Update(source);
                 this._Invalidate();
                 this.Target.SetValue(this.Property, this);
             };
+            BindingExpressionBase.prototype._FindSource = function () {
+                if (this.ParentBinding.Source) {
+                    return this.ParentBinding.Source;
+                } else if (this.ParentBinding.ElementName != null) {
+                    return this._FindSourceByElementName();
+                } else if (this.ParentBinding.RelativeSource) {
+                    var rs = this.ParentBinding.RelativeSource;
+                    switch (rs.Mode) {
+                        case 2 /* Self */:
+                            return this.Target;
+                        case 1 /* TemplatedParent */:
+                            return this.Target.TemplateOwner;
+                        case 3 /* FindAncestor */:
+                            return findAncestor(this.Target, rs);
+                    }
+                }
+                return this._DataContext;
+            };
             BindingExpressionBase.prototype._FindSourceByElementName = function () {
-                var xobj = this.Target;
-                var sourceNode;
                 var name = this.ParentBinding.ElementName;
-                var xnode = (xobj) ? xobj.XamlNode : null;
-                var parentNode;
-                while (xnode) {
-                    sourceNode = xnode.FindName(name);
-                    if (sourceNode)
-                        return sourceNode.XObject;
-                    if (xnode.XObject.TemplateOwner)
-                        xobj = xnode.XObject.TemplateOwner;
-                    else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItemsOwner(parentNode.XObject))
-                        xnode = parentNode;
-                    break;
+                var xobj = this.Target;
+                var source;
+                var parent;
+                while (xobj) {
+                    source = xobj.FindName(name);
+                    if (source)
+                        return source;
+                    if (xobj.TemplateOwner)
+                        xobj = xobj.TemplateOwner;
+                    else if ((parent = xobj.Parent) && (parent instanceof Fayde.UIElement) && Fayde.Controls.ItemsControl.GetItemsOwner(parent))
+                        xobj = parent;
+                    else
+                        xobj = null;
                 }
                 return undefined;
             };
@@ -19550,30 +19680,10 @@ var Fayde;
                 try  {
                     if (!force && this._TwoWayTextBox && Fayde.Application.Current.MainSurface.FocusedNode === this.Target.XamlNode)
                         return;
-
                     if (this.PropertyPathWalker.IsPathBroken)
                         return;
-
-                    if (binding.TargetNullValue && binding.TargetNullValue === value)
-                        value = null;
-
-                    var converter = binding.Converter;
-                    if (converter) {
-                        value = converter.ConvertBack(value, node.ValueType, binding.ConverterParameter, binding.ConverterCulture);
-                    }
-
-                    if (value instanceof String) {
-                    }
-
-                    try  {
-                        if (value)
-                            value = this._ConvertFromTargetToSource(value);
-                    } catch (err) {
-                        console.warn("[BINDING] ConvertFromTargetToSource: " + err.toString());
-                        return;
-                    }
-
-                    if (!this._CachedValue && !value)
+                    value = this._ConvertFromTargetToSource(binding, node, value);
+                    if (this._CachedValue === undefined && value === undefined)
                         return;
 
                     this.IsUpdating = true;
@@ -19639,12 +19749,15 @@ var Fayde;
                 this._MaybeEmitError(dataError, exception);
             };
 
-            BindingExpressionBase.prototype._ConvertFromTargetToSource = function (value) {
-                NotImplemented("BindingExpressionBase._ConvertFromTargetToSource");
-                return value;
-            };
-            BindingExpressionBase.prototype._ConvertFromSourceToTarget = function (value) {
-                NotImplemented("BindingExpressionBase._ConvertFromSourceToTarget");
+            BindingExpressionBase.prototype._ConvertFromTargetToSource = function (binding, node, value) {
+                if (binding.TargetNullValue && binding.TargetNullValue === value)
+                    value = null;
+
+                var converter = binding.Converter;
+                if (converter) {
+                    value = converter.ConvertBack(value, node.ValueType, binding.ConverterParameter, binding.ConverterCulture);
+                }
+
                 return value;
             };
             BindingExpressionBase.prototype._ConvertToType = function (propd, value) {
@@ -19689,6 +19802,23 @@ var Fayde;
         })(Fayde.Expression);
         Data.BindingExpressionBase = BindingExpressionBase;
         Fayde.RegisterType(BindingExpressionBase, "Fayde.Data");
+
+        function findAncestor(target, relSource) {
+            var ancestorType = relSource.AncestorType;
+            if (typeof ancestorType !== "function") {
+                console.warn("RelativeSourceMode.FindAncestor with no AncestorType specified.");
+                return;
+            }
+            var ancestorLevel = relSource.AncestorLevel;
+            if (isNaN(ancestorLevel)) {
+                console.warn("RelativeSourceMode.FindAncestor with no AncestorLevel specified.");
+                return;
+            }
+            for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
+                if (parent instanceof ancestorType && --ancestorLevel < 1)
+                    return parent;
+            }
+        }
     })(Fayde.Data || (Fayde.Data = {}));
     var Data = Fayde.Data;
 })(Fayde || (Fayde = {}));
@@ -20632,11 +20762,24 @@ var Fayde;
         var RelativeSource = (function () {
             function RelativeSource(mode) {
                 this.Mode = 1 /* TemplatedParent */;
-                this.AncestorLevel = 1;
+                this._AncestorLevel = 1;
                 this.AncestorType = null;
                 if (mode)
                     this.Mode = mode;
             }
+            Object.defineProperty(RelativeSource.prototype, "AncestorLevel", {
+                get: function () {
+                    return this._AncestorLevel;
+                },
+                set: function (value) {
+                    if (typeof value === "number")
+                        this._AncestorLevel = value;
+                    else
+                        this._AncestorLevel = parseInt(value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             return RelativeSource;
         })();
         Data.RelativeSource = RelativeSource;
@@ -21051,12 +21194,17 @@ var Fayde;
             this._IsRunning = false;
             this._Storyboards = [];
             this._ClockTimer = new Fayde.ClockTimer();
+            this.Resized = new Fayde.RoutedEvent();
             this.XamlNode.NameScope = new Fayde.NameScope(true);
             var rd = Application.ResourcesProperty.Initialize(this);
             this.MainSurface = new Fayde.Surface(this);
             this.DebugInterop = new Fayde.DebugInterop(this);
             this.Address = new Uri(document.URL);
         }
+        Application.prototype.OnResized = function (oldSize, newSize) {
+            this.Resized.Raise(this, new Fayde.SizeChangedEventArgs(oldSize, newSize));
+        };
+
         Object.defineProperty(Application.prototype, "RootVisual", {
             get: function () {
                 return this.MainSurface._RootLayer;
@@ -22379,8 +22527,8 @@ var Fayde;
             }, 20);
         };
         Surface.prototype._HandleResizeTimeout = function (evt) {
-            this._ResizeCanvas();
             this._Extents = null;
+            this._ResizeCanvas();
 
             var layers = this._Layers;
             var len = layers.length;
@@ -22577,8 +22725,11 @@ var Fayde;
         function CreateKeyInterop() {
             if (navigator.appName === "Microsoft Internet Explorer")
                 return new IEKeyInterop();
-            else if (navigator.appName === "Netscape")
+            if (navigator.appName === "Netscape") {
+                if (!!navigator.userAgent.match(/Trident\//))
+                    return new IEKeyInterop();
                 return new NetscapeKeyInterop();
+            }
             return new KeyInterop();
         }
         Input.CreateKeyInterop = CreateKeyInterop;
@@ -22885,8 +23036,11 @@ var Fayde;
         function CreateMouseInterop() {
             if (navigator.appName === "Microsoft Internet Explorer")
                 return new IEMouseInterop();
-            else if (navigator.appName === "Netscape")
+            if (navigator.appName === "Netscape") {
+                if (!!navigator.userAgent.match(/Trident\//))
+                    return new IEMouseInterop();
                 return new NetscapeMouseInterop();
+            }
             return new MouseInterop();
         }
         Input.CreateMouseInterop = CreateMouseInterop;
@@ -26852,8 +27006,16 @@ var Fayde;
             function Matrix(raw) {
                 this._Inverse = null;
                 this._Listeners = [];
-                this._Raw = raw;
+                this._Raw = raw || mat3.identity();
             }
+            Object.defineProperty(Matrix, "Identity", {
+                get: function () {
+                    return new Matrix(mat3.identity());
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             Object.defineProperty(Matrix.prototype, "M11", {
                 get: function () {
                     return this._Raw[0];
@@ -26962,6 +27124,12 @@ var Fayde;
                 for (var i = 0; i < len; i++) {
                     listeners[i].Callback(this);
                 }
+            };
+
+            Matrix.prototype.Clone = function () {
+                if (!this._Raw)
+                    return new Matrix();
+                return new Matrix(mat3.clone(this._Raw));
             };
 
             Matrix.prototype.toString = function () {
@@ -28604,6 +28772,12 @@ var Fayde;
                 return mat3.identity();
             };
 
+            MatrixTransform.prototype.Clone = function () {
+                var xform = new MatrixTransform();
+                xform.Matrix = this.Matrix.Clone();
+                return xform;
+            };
+
             MatrixTransform.prototype._MatrixChanged = function (args) {
                 var _this = this;
                 if (this._MatrixListener) {
@@ -29425,6 +29599,10 @@ var Fayde;
             };
             RelayCommand.prototype.CanExecute = function (parameter) {
                 return true;
+            };
+
+            RelayCommand.prototype.ForceCanExecuteChanged = function () {
+                this.CanExecuteChanged.Raise(this, EventArgs.Empty);
             };
             return RelayCommand;
         })();
@@ -35721,7 +35899,7 @@ var Fayde;
                 };
 
                 PointerTouchInterop.prototype._HandlePointerDown = function (e) {
-                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     e.preventDefault();
                     Fayde.Engine.Inspection.Kill();
@@ -35732,7 +35910,7 @@ var Fayde;
                     this.Input.SetIsUserInitiatedEvent(false);
                 };
                 PointerTouchInterop.prototype._HandlePointerUp = function (e) {
-                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.Input.SetIsUserInitiatedEvent(true);
@@ -35743,19 +35921,19 @@ var Fayde;
                         this.ActiveTouches.splice(index, 1);
                 };
                 PointerTouchInterop.prototype._HandlePointerMove = function (e) {
-                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.HandleTouches(3 /* TouchMove */, [cur]);
                 };
                 PointerTouchInterop.prototype._HandlePointerEnter = function (e) {
-                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.HandleTouches(4 /* TouchEnter */, [cur]);
                 };
                 PointerTouchInterop.prototype._HandlePointerLeave = function (e) {
-                    if (e.pointerType === e.MSPOINTER_TYPE_MOUSE)
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.HandleTouches(5 /* TouchLeave */, [cur]);
@@ -37007,10 +37185,10 @@ var Fayde;
                 var kvp = tokens[i].split("=");
                 if (kvp.length === 1) {
                     key = "Mode";
-                    value = kvp[0];
+                    value = kvp[0].trim();
                 } else {
-                    key = kvp[0];
-                    value = kvp[1];
+                    key = kvp[0].trim();
+                    value = kvp[1].trim();
                 }
                 switch (key) {
                     case "Mode":
@@ -37024,10 +37202,14 @@ var Fayde;
                             rs.AncestorLevel = 1;
                         break;
                     case "AncestorType":
-                        var typeres = Fayde.TypeResolver.ResolveFullyQualifiedName(value, ctx.Resolver);
-                        if (!typeres)
-                            throw new Exception("Could not resolve type '" + value + "'.");
-                        rs.AncestorType = typeres.Type;
+                        if (value[0] === "{") {
+                            var type = MarkupExpressionParser.Parse(value, ctx);
+                            if (typeof type !== "function")
+                                throw new XamlMarkupParseException("Could not resolve type '" + val + "'");
+                            rs.AncestorType = type;
+                        } else {
+                            rs.AncestorType = parseXType(value, ctx);
+                        }
                         break;
                 }
             }

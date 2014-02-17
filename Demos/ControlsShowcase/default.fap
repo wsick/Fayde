@@ -1,43 +1,138 @@
 <Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:models="Models"
+    xmlns:res="Resources"
+    xmlns:views="Views"
+    xmlns:viewmodels="ViewModels"
     xmlns:controls="lib:Fayde.Controls"
-    Theme="lib/Fayde/Theme.Metro.xml">
+    Theme="lib/Fayde/Theme.Silverlight.xml">
+  
     <Application.Resources>
+      
+      <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+          <ResourceDictionary Source="Assets/Styles.fayde"/>
+          <!--<ResourceDictionary Source="Assets/Converters.fayde"/>-->
+        </ResourceDictionary.MergedDictionaries>
+      </ResourceDictionary>
+      
+        <Color x:Key="DarkGray">#2B2F33</Color>
+        <Color x:Key="MediumGray">#4F5459</Color>
+        <Color x:Key="LightMediumGray">#D4D4D4</Color>
+
+        <SolidColorBrush x:Key="DarkGrayBrush" Color="{StaticResource DarkGray}"/>
+
+        <SolidColorBrush x:Key="MediumGrayBrush" Color="{StaticResource MediumGray}"/>
+        <SolidColorBrush x:Key="LightMediumGrayBrush" Color="{StaticResource LightMediumGray}"/>
+        <LinearGradientBrush x:Key="GrayGradient" StartPoint="0, 0" EndPoint="0, 1">
+          <GradientStop Color="#272A2D" Offset="1"/>
+          <GradientStop Color="#393E43" Offset="0"/>
+        </LinearGradientBrush>
+      
+        <LinearGradientBrush x:Key="BlueGradient" StartPoint="0, 0" EndPoint="0, 1">
+          <GradientStop Color="#094897" Offset="1"/>
+          <GradientStop Color="#0D6AB9" Offset="0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="WhiteGradient" StartPoint=".5, 0" EndPoint=".5, 1">
+          <GradientStop Color="#AAFFFFFF" Offset="0"/>
+          <GradientStop Color="#20FFFFFF" Offset=".4"/>
+          <GradientStop Color="Transparent" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SilverGradient" StartPoint=".5, 0" EndPoint=".5, 1">
+          <GradientStop Color="#44D4D4D4" Offset="0"/>
+          <GradientStop Color="Transparent" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="FadedGradient" StartPoint="0, 0" EndPoint="1, 0">
+          <GradientStop Color="{StaticResource DarkGray}" Offset="0"/>
+          <GradientStop Color="Transparent" Offset=".2"/>
+          <GradientStop Color="Transparent" Offset=".8"/>
+          <GradientStop Color="{StaticResource DarkGray}" Offset="1"/>
+        </LinearGradientBrush>
+        <Style x:Name="TextShadow" TargetType="TextBlock">
+          <Setter Property="Effect">
+            <Setter.Value>
+              <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"/>
+            </Setter.Value>
+          </Setter>
+        </Style>
+        <Style x:Name="LightTextShadow" TargetType="TextBlock">
+          <Setter Property="Effect">
+            <Setter.Value>
+              <DropShadowEffect Color="White" BlurRadius="1" ShadowDepth="1"/>
+            </Setter.Value>
+          </Setter>
+        </Style>
+        
+        <Style x:Name="DeepTextShadow" TargetType="TextBlock">
+          <Setter Property="Effect">
+            <Setter.Value>
+              <DropShadowEffect BlurRadius="3" ShadowDepth="3" Color="Black"/>
+            </Setter.Value>
+          </Setter>
+        </Style>
+     
+      <res:AgeValueConverter x:Key="ageValueConverter" />
+      <res:DateValueConverter x:Key="dateValueConverter" />
+      <res:DoubleValueConverter x:Key="doubleValueConverter" />
+      <res:TimeValueConverter x:Key="timeValueConverter" />
+      <res:PlayerOpacityValueConverter x:Key="playerOpacityValueConverter" />
     </Application.Resources>
-    <Grid x:Name="LayoutRoot">
+  
+    <Grid x:Name="LayoutRoot" Style="{StaticResource LayoutRootGridStyle}">
+      <Grid.DataContext>
+        <viewmodels:DefaultViewModel/>
+      </Grid.DataContext>
+      
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      
+      <Border x:Name="BrandingBorder" Style="{StaticResource BrandingBorderStyle}">
+          <StackPanel x:Name="BrandingStackPanel" Style="{StaticResource BrandingStackPanelStyle}">
+              <ContentControl Style="{StaticResource LogoIcon}"/>
+              <TextBlock x:Name="ApplicationNameTextBlock" Style="{StaticResource ApplicationNameStyle}"  Text="Fayde Controls Demo"/>
+          </StackPanel>
+      </Border>
+      
+      <Grid Grid.Row="1" Style="{StaticResource SubHeaderStyle}">
+          <StackPanel Style="{StaticResource SubHeaderStackPanelStyle}">
+            <HyperlinkButton NavigateUri="http://fayde.wsick.com/" TargetName="_blank" Content="What is Fayde"/>
+          </StackPanel>
+      </Grid>
+      
+      <Grid Grid.Row="2">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200" />
-            <ColumnDefinition Width="200" />
-            <ColumnDefinition Width="200" />
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <StackPanel Margin="5">
-            <TextBlock Text="NumericUpDown" />
-            <controls:NumericUpDown Margin="3" DecimalPlaces="0" Increment="1" />
-            <controls:NumericUpDown Margin="3" DecimalPlaces="1" Increment="0.1" />
-            <controls:NumericUpDown Margin="3" DecimalPlaces="2" Increment="0.01" />
-        </StackPanel>
-        <StackPanel Margin="5" Grid.Column="1">
-            <TextBlock Text="TreeView" />
-            <controls:TreeView>
-                <controls:TreeViewItem Header="Root">
-                    <controls:TreeViewItem Header="Level 2">
-                        <controls:TreeViewItem Header="Level 3 - 1" />
-                        <controls:TreeViewItem Header="Level 3 - 2" />
-                    </controls:TreeViewItem>
-                </controls:TreeViewItem>
-            </controls:TreeView>
-        </StackPanel>
-        <StackPanel Margin="5" Grid.Column="2">
-            <TextBlock Text="TabControl" />
-            <controls:TabControl>
-                <controls:TabItem Header="Tab 1">
-                    
-                </controls:TabItem>
-                <controls:TabItem Header="Tab 2">
-                    
-                </controls:TabItem>
-            </controls:TabControl>
-        </StackPanel>
+        
+        <Grid x:Name="NavigationGrid" Style="{StaticResource NavigationGridStyle}">
+          <controls:TreeView ItemsSource="{Binding Menu}">
+            <controls:TreeView.ItemTemplate>
+              <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                <StackPanel Orientation="Horizontal">
+                  <HyperlinkButton NavigateUri="{Binding Url}" Content="{Binding Header}" TargetName="ContentFrame" />
+                </StackPanel>
+              </HierarchicalDataTemplate>
+            </controls:TreeView.ItemTemplate>
+          </controls:TreeView>
+        </Grid>
+        
+         <Border x:Name="ContentBorder" Style="{StaticResource ContentBorderStyle}" Grid.Column="1">
+           <ScrollViewer Style="{StaticResource PageScrollViewerStyle}">
+             <Frame x:Name="ContentFrame">
+               <Frame.UriMapper>
+                 <UriMapper>
+                   <UriMapping Uri="" MappedUri="Views/home.fayde" />
+                   <UriMapping Uri="{pageName}" MappedUri="Views/{pageName}.fayde"/>
+                 </UriMapper>
+               </Frame.UriMapper>
+             </Frame>
+           </ScrollViewer>
+        </Border>
+      </Grid>
     </Grid>
 </Application>

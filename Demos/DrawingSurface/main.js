@@ -1,8 +1,8 @@
 require.config({
     baseUrl: "./",
     paths: {
-        "text": "scripts/text",
-        "Fayde": "scripts/Fayde"
+        "text": "lib/requirejs/text",
+        "Fayde": "lib/Fayde/Fayde"
     },
     deps: ["text","Fayde"],
     callback: function (text, Fayde) {

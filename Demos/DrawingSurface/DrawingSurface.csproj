@@ -19,19 +19,23 @@
   <ItemGroup>
     <TypeScriptCompile Include="Controls\DrawingPad.ts" />
     <Content Include="default.html" />
+    <Content Include="lib\Fayde.Controls\generic.xml" />
+    <Content Include="lib\Fayde.Controls\source.js" />
+    <Content Include="lib\Fayde\Fayde.js" />
+    <Content Include="lib\Fayde\Theme.Metro.xml" />
+    <Content Include="lib\Fayde\Theme.Silverlight.xml" />
+    <Content Include="lib\requirejs\require.js" />
+    <Content Include="lib\requirejs\text.js" />
     <Content Include="main.js" />
     <Content Include="Scripts\Fayde.d.ts" />
-    <Content Include="Scripts\Fayde.js" />
-    <Content Include="Scripts\r.js" />
-    <Content Include="Scripts\require.js" />
-    <Content Include="Scripts\text.js" />
-    <Content Include="Scripts\Theme.Metro.xml" />
-    <Content Include="Scripts\Theme.Silverlight.xml" />
-    <Content Include="Scripts\typings\requirejs\require.d.ts" />
     <Content Include="web.config" />
+    <TypeScriptCompile Include="lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" />
+    <TypeScriptCompile Include="lib\Fayde\Fayde.d.ts" />
+    <TypeScriptCompile Include="lib\requirejs\require.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <Content Include="Views\home.fayde" />
     <Content Include="default.fap" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
@@ -81,4 +85,11 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
   <Import Project="packages\Fayde.0.9.7.3\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.7.3\build\Fayde.targets')" />
+  <Import Project="..\packages\Fayde.0.9.7.21\build\Fayde.targets" Condition="Exists('..\packages\Fayde.0.9.7.21\build\Fayde.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Fayde.0.9.7.21\build\Fayde.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fayde.0.9.7.21\build\Fayde.targets'))" />
+  </Target>
 </Project>

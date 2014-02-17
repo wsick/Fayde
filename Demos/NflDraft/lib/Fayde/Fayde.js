@@ -23,10 +23,13 @@ var Fayde;
                     return null;
                 return regXds[url] = new XamlDocument(xaml);
             };
-            XamlDocument.Resolve = function (url, ctx) {
-                var d = defer();
 
+            XamlDocument.Resolve = function (url, ctx) {
+                if (url instanceof Uri)
+                    url = url.toString();
                 var xamlUrl = "text!" + url;
+
+                var d = defer();
 
                 var xd = regXds[xamlUrl];
                 if (xd) {
@@ -3695,8 +3698,14 @@ var Fayde;
                         pass.Updated = true;
                         changes.push(lu._UpdateActualSize());
                     }
+                    var rv;
+                    var surface = this.Surface;
+                    if (surface)
+                        rv = surface._RootLayer;
                     var change;
                     while (change = changes.pop()) {
+                        if (rv && rv === change.Element)
+                            surface.App.OnResized(change.PreviousSize, change.NewSize);
                         change.Element.SizeChanged.Raise(change.Element, new Fayde.SizeChangedEventArgs(change.PreviousSize, change.NewSize));
                     }
                 } else {
@@ -4413,6 +4422,7 @@ var Fayde;
                 return false;
             this.OnVisualChildDetached(uie);
             uie.XamlNode.SetIsLoaded(false);
+            return true;
         };
 
         FENode.prototype.ApplyTemplateWithError = function (error) {
@@ -5442,6 +5452,15 @@ var Fayde;
             function ContentControlNode(xobj) {
                 _super.call(this, xobj);
             }
+            ContentControlNode.prototype.OnContentChanged = function (o, n) {
+                if (o instanceof Fayde.UIElement) {
+                    var err = new BError();
+                    this.DetachVisualChild(o, err);
+                    if (err.Message)
+                        err.ThrowException();
+                }
+            };
+
             ContentControlNode.prototype.GetDefaultVisualTree = function () {
                 var xobj = this.XObject;
                 var content = xobj.Content;
@@ -5469,19 +5488,59 @@ var Fayde;
                 return new ContentControlNode(this);
             };
 
+            ContentControl.prototype.OnContentPropertyChanged = function (args) {
+                this.XamlNode.OnContentChanged(args.OldValue, args.NewValue);
+                this.OnContentChanged(args.OldValue, args.NewValue);
+            };
             ContentControl.prototype.OnContentChanged = function (oldContent, newContent) {
             };
+
             ContentControl.prototype.OnContentTemplateChanged = function (oldContentTemplate, newContentTemplate) {
+            };
+
+            ContentControl.prototype.OnContentUriPropertyChanged = function (args) {
+                var _this = this;
+                var oldUri;
+                if (args.OldValue instanceof Uri) {
+                    this.Content = undefined;
+                    oldUri = args.OldValue;
+                }
+                var newUri;
+                if (args.NewValue instanceof Uri) {
+                    newUri = args.NewValue;
+                    Fayde.Xaml.XamlDocument.Resolve(newUri).success(function (xd) {
+                        return _this._OnLoadedUri(xd);
+                    }).error(function (err) {
+                        return _this._OnErroredUri(err, newUri);
+                    });
+                }
+                this.OnContentUriChanged(oldUri, newUri);
+            };
+            ContentControl.prototype.OnContentUriChanged = function (oldSourceUri, newSourceUri) {
+            };
+
+            ContentControl.prototype._OnLoadedUri = function (xd) {
+                this.Content = Fayde.Xaml.Load(xd.Document);
+            };
+            ContentControl.prototype._OnErroredUri = function (err, src) {
+                console.warn("Error resolving XamlResource: '" + src.toString() + "'.");
             };
             ContentControl.ContentProperty = DependencyProperty.Register("Content", function () {
                 return Object;
             }, ContentControl, undefined, function (d, args) {
-                return d.OnContentChanged(args.OldValue, args.NewValue);
+                return d.OnContentPropertyChanged(args);
             });
+
             ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
                 return Fayde.DataTemplate;
             }, ContentControl, undefined, function (d, args) {
                 return d.OnContentTemplateChanged(args.OldValue, args.NewValue);
+            });
+
+            ContentControl.ContentUriProperty = DependencyProperty.Register("ContentUri", function () {
+                return Uri;
+            }, ContentControl, undefined, function (d, args) {
+                return d.OnContentUriPropertyChanged(args);
             });
 
             ContentControl.Annotations = { ContentProperty: ContentControl.ContentProperty };
@@ -8357,13 +8416,10 @@ var Fayde;
                 }
 
                 var content = xobj.Content;
-                if (!content)
-                    return false;
-
                 if (content instanceof Fayde.UIElement)
                     this._ContentRoot = content;
                 else
-                    this._ContentRoot = this._GetContentTemplate(content.constructor).GetVisualTree(xobj);
+                    this._ContentRoot = this._GetContentTemplate(content ? content.constructor : null).GetVisualTree(xobj);
 
                 if (!this._ContentRoot)
                     return false;
@@ -8403,7 +8459,7 @@ var Fayde;
                 if (dt)
                     return dt;
 
-                if (typeof type === "function") {
+                if (type && typeof type === "function") {
                     var node = this;
                     var rd;
                     while (node) {
@@ -9557,7 +9613,7 @@ var Fayde;
                 }
                 var targetUie = this.FindName(targetName);
                 if (targetUie instanceof Fayde.Controls.Frame) {
-                    window.location.href = this.NavigateUri.toString();
+                    window.location.hash = this.NavigateUri.toString();
                 } else {
                     window.open(this.NavigateUri.toString(), targetName);
                 }
@@ -21138,12 +21194,17 @@ var Fayde;
             this._IsRunning = false;
             this._Storyboards = [];
             this._ClockTimer = new Fayde.ClockTimer();
+            this.Resized = new Fayde.RoutedEvent();
             this.XamlNode.NameScope = new Fayde.NameScope(true);
             var rd = Application.ResourcesProperty.Initialize(this);
             this.MainSurface = new Fayde.Surface(this);
             this.DebugInterop = new Fayde.DebugInterop(this);
             this.Address = new Uri(document.URL);
         }
+        Application.prototype.OnResized = function (oldSize, newSize) {
+            this.Resized.Raise(this, new Fayde.SizeChangedEventArgs(oldSize, newSize));
+        };
+
         Object.defineProperty(Application.prototype, "RootVisual", {
             get: function () {
                 return this.MainSurface._RootLayer;
@@ -22466,8 +22527,8 @@ var Fayde;
             }, 20);
         };
         Surface.prototype._HandleResizeTimeout = function (evt) {
-            this._ResizeCanvas();
             this._Extents = null;
+            this._ResizeCanvas();
 
             var layers = this._Layers;
             var len = layers.length;
@@ -26945,8 +27006,16 @@ var Fayde;
             function Matrix(raw) {
                 this._Inverse = null;
                 this._Listeners = [];
-                this._Raw = raw;
+                this._Raw = raw || mat3.identity();
             }
+            Object.defineProperty(Matrix, "Identity", {
+                get: function () {
+                    return new Matrix(mat3.identity());
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             Object.defineProperty(Matrix.prototype, "M11", {
                 get: function () {
                     return this._Raw[0];
@@ -27055,6 +27124,12 @@ var Fayde;
                 for (var i = 0; i < len; i++) {
                     listeners[i].Callback(this);
                 }
+            };
+
+            Matrix.prototype.Clone = function () {
+                if (!this._Raw)
+                    return new Matrix();
+                return new Matrix(mat3.clone(this._Raw));
             };
 
             Matrix.prototype.toString = function () {
@@ -28697,6 +28772,12 @@ var Fayde;
                 return mat3.identity();
             };
 
+            MatrixTransform.prototype.Clone = function () {
+                var xform = new MatrixTransform();
+                xform.Matrix = this.Matrix.Clone();
+                return xform;
+            };
+
             MatrixTransform.prototype._MatrixChanged = function (args) {
                 var _this = this;
                 if (this._MatrixListener) {
@@ -29518,6 +29599,10 @@ var Fayde;
             };
             RelayCommand.prototype.CanExecute = function (parameter) {
                 return true;
+            };
+
+            RelayCommand.prototype.ForceCanExecuteChanged = function () {
+                this.CanExecuteChanged.Raise(this, EventArgs.Empty);
             };
             return RelayCommand;
         })();
