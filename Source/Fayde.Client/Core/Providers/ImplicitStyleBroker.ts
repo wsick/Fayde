@@ -154,7 +154,7 @@ module Fayde.Providers {
             if (style)
                 return style;
         }
-        return Library.GetThemeStyle(fe);
+        return Library.GetThemeStyle(fe.DefaultStyleKey);
     }
     function getAppResourcesStyle(app: Application, fe: FrameworkElement): Style {
         return <Style>app.Resources.Get(fe.DefaultStyleKey);
