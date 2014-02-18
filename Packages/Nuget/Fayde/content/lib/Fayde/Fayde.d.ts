@@ -6549,6 +6549,7 @@ declare module Fayde.Xaml {
     var IMarkup_: IInterfaceDeclaration<IMarkup>;
     class MarkupExpressionParser {
         static Parse(value: string, ctx: IMarkupParseContext): any;
+        static GetComponents(value: string): string[];
     }
 }
 declare module Fayde.Xaml {
