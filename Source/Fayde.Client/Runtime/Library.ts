@@ -89,6 +89,14 @@ module Fayde {
                 return;
             this._IsLoading = true;
 
+            if (this.Name === "Fayde") {
+                this._Module = Fayde;
+                this._LoadTheme(ctx)
+                    .success(theme => this._FinishLoad(ctx))
+                    .error(err => this._FinishLoad(ctx, err));
+                return;
+            }
+
             var moduleUrl = this.GetModuleRequireUrl();
             (<Function>require)([moduleUrl], res => {
                 this._Module = res;

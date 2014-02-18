@@ -5,9 +5,9 @@ declare module Fayde.Xaml {
         constructor(xaml: string);
         static Get(url: Uri): XamlDocument;
         static Get(url: string): XamlDocument;
-        static Resolve(url: string, ctx?: Fayde.ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
-        static Resolve(url: Uri, ctx?: Fayde.ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
-        public Resolve(ctx: Fayde.ILibraryAsyncContext): IAsyncRequest<any>;
+        static GetAsync(url: string, ctx?: Fayde.IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
+        static GetAsync(url: Uri, ctx?: Fayde.IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
+        public Resolve(ctx: Fayde.IDependencyAsyncContext): IAsyncRequest<any>;
     }
 }
 interface IInterfaceDeclaration<T> extends IType {
@@ -954,6 +954,7 @@ declare module Fayde.Controls {
         public GetDefaultVisualTree(): Fayde.UIElement;
         public OnIsAttachedChanged(newIsAttached: boolean): void;
         public OnParentChanged(oldParentNode: Fayde.XamlNode, newParentNode: Fayde.XamlNode): void;
+        public OnTemplateChanged(oldTemplate: Controls.ControlTemplate, newTemplate: Controls.ControlTemplate): void;
         public IsEnabled : boolean;
         public OnIsEnabledChanged(oldValue: boolean, newValue: boolean): void;
         public Focus(recurse?: boolean): boolean;
@@ -1014,7 +1015,6 @@ declare module Fayde.Controls {
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
         public GoToStateFocus(gotoFunc: (state: string) => boolean): boolean;
         public GoToStateSelection(gotoFunc: (state: string) => boolean): boolean;
-        private _TemplateChanged(args);
         private _PaddingChanged(args);
         private _BorderThicknessChanged(args);
         private _ContentAlignmentChanged(args);
@@ -1026,6 +1026,7 @@ declare module Fayde.Controls {
         constructor(xobj: ContentControl);
         public OnContentChanged(o: any, n: any): void;
         public GetDefaultVisualTree(): Fayde.UIElement;
+        public OnTemplateChanged(oldTemplate: Controls.ControlTemplate, newTemplate: Controls.ControlTemplate): void;
     }
     class ContentControl extends Controls.Control {
         public XamlNode: ContentControlNode;
@@ -3045,14 +3046,14 @@ declare module Fayde.Providers {
     enum StyleIndex {
         VisualTree = 0,
         ApplicationResources = 1,
-        GenericXaml = 2,
+        Theme = 2,
         Count = 3,
     }
     enum StyleMask {
         None = 0,
         VisualTree,
         ApplicationResources,
-        GenericXaml,
+        Theme,
         All,
     }
     interface IImplicitStyleHolder {
@@ -3064,7 +3065,6 @@ declare module Fayde.Providers {
         private static SetImpl(fe, mask, styles);
         static Clear(fe: Fayde.FrameworkElement, mask: StyleMask): void;
         private static ApplyStyles(fe, mask, styles);
-        private static GetImplicitStyles(fe, mask);
     }
 }
 declare module Fayde.Providers {
@@ -3156,6 +3156,7 @@ declare module Fayde {
         public Value: any;
         public ConvertedValue: any;
         public _Seal(targetType: Function): void;
+        static Compare(setter1: Setter, setter2: Setter): number;
     }
 }
 declare module Fayde {
@@ -3619,25 +3620,27 @@ interface ITimeline {
 }
 declare module Fayde {
     class Application extends Fayde.DependencyObject implements Fayde.IResourcable, Fayde.ITimerListener {
-        static Version: string;
         static Current: Application;
         public MainSurface: Fayde.Surface;
         public Loaded: MulticastEvent<EventArgs>;
         public Address: Uri;
         public DebugInterop: Fayde.DebugInterop;
         private _IsRunning;
+        private _IsLoaded;
         private _Storyboards;
         private _ClockTimer;
         private _RootVisual;
+        private _CoreLibrary;
         static ResourcesProperty: ImmutableDependencyProperty<Fayde.ResourceDictionary>;
-        static ThemeProperty: DependencyProperty;
+        static ThemeNameProperty: DependencyProperty;
         public Resources: Fayde.ResourceDictionary;
-        public Theme: Fayde.Theme;
+        public ThemeName: string;
+        private OnThemeNameChanged(args);
+        private _ApplyTheme();
         public Resized: Fayde.RoutedEvent<Fayde.SizeChangedEventArgs>;
         public OnResized(oldSize: size, newSize: size): void;
         constructor();
         public RootVisual : Fayde.UIElement;
-        public Resolve(): IAsyncRequest<Application>;
         public $$SetRootVisual(value: Fayde.UIElement): void;
         public Attach(canvas: HTMLCanvasElement): void;
         public Start(): void;
@@ -3648,10 +3651,10 @@ declare module Fayde {
         private Render();
         public RegisterStoryboard(storyboard: ITimeline): void;
         public UnregisterStoryboard(storyboard: ITimeline): void;
-        public GetImplicitStyle(type: any): Fayde.Style;
         private __DebugLayers();
         private __GetById(id);
         static GetAsync(url: string): IAsyncRequest<Application>;
+        public Resolve(): IAsyncRequest<Application>;
     }
     function Run(loaded?: (app: Application) => void): void;
 }
@@ -6186,7 +6189,7 @@ declare module Fayde {
         private _IsLoaded;
         private _LoadError;
         private _Deferrables;
-        public Resolve(ctx?: Fayde.ILibraryAsyncContext): IAsyncRequest<Theme>;
+        public Resolve(ctx: Fayde.IDependencyAsyncContext): IAsyncRequest<Theme>;
         private _Load(ctx);
         private _HandleSuccess(xd);
         private _HandleError(error);
@@ -6509,27 +6512,37 @@ declare function defer<T>(): IDeferrable<T>;
 declare function deferArraySimple(arr: IAsyncRequest<any>[]): IAsyncRequest<any>;
 declare function deferArray<S, T>(arr: S[], resolver: (s: S) => IAsyncRequest<T>): IAsyncRequest<T[]>;
 declare module Fayde {
-    interface ILibraryAsyncContext {
+    interface IDependencyAsyncContext {
+        ThemeName: string;
         Resolving: Library[];
     }
     class Library {
-        public Module: any;
-        public Theme: Fayde.Theme;
-        private _ModuleUrl;
-        private _ThemeUrl;
+        public Name: string;
+        private _Module;
+        public Module : any;
+        private _CurrentTheme;
+        public CurrentTheme : Fayde.Theme;
+        private _Themes;
         private _IsLoading;
         private _IsLoaded;
         private _LoadError;
         private _Deferrables;
-        constructor(moduleUrl: string, themeUrl?: string);
+        constructor(Name: string);
         static TryGetClass(xmlns: string, xmlname: string): any;
-        static Get(url: string): Library;
-        static GetImplicitStyle(type: any): Fayde.Style;
-        public Resolve(ctx?: ILibraryAsyncContext): IAsyncRequest<Library>;
+        static Get(xmlns: string): Library;
+        static GetThemeStyle(type: any): Fayde.Style;
+        static ChangeTheme(themeName: string): IAsyncRequest<any>;
+        public Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<Library>;
         private _Load(ctx);
+        private _LoadTheme(ctx);
         private _FinishLoad(ctx, error?);
+        public GetModuleRequireUrl(): string;
+        public GetThemeRequireUrl(themeName: string): string;
     }
-    function RegisterLibrary(name: string, moduleUrl: string, themeUrl?: string): Library;
+    function RegisterLibrary(name: string, moduleUrl?: string, themeUrlFunc?: (themeName: string) => string): Library;
+}
+declare module Fayde.Providers {
+    function SwapStyles(fe: Fayde.FrameworkElement, oldWalker: Fayde.IStyleWalker, newWalker: Fayde.IStyleWalker, isImplicit: boolean): void;
 }
 declare module Fayde.Xaml {
     interface IMarkupParseContext {
