@@ -30,6 +30,20 @@ module Fayde.Controls {
                 new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
             return presenter;
         }
+
+        OnTemplateChanged(oldTemplate: ControlTemplate, newTemplate: ControlTemplate) {
+            var content = <UIElement>this.XObject.Content;
+            if (oldTemplate && content instanceof UIElement) {
+                var vpNode = <FENode>content.XamlNode.VisualParentNode;
+                if (vpNode instanceof FENode) {
+                    var err = new BError();
+                    vpNode.DetachVisualChild(content, err);
+                    if (err.Message)
+                        err.ThrowException();
+                }
+            }
+            super.OnTemplateChanged(oldTemplate, newTemplate);
+        }
     }
     Fayde.RegisterType(ContentControlNode, "Fayde.Controls");
 
