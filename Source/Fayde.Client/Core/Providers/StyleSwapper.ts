@@ -1,5 +1,5 @@
 module Fayde.Providers {
-    export function SwapStyles(fe: FrameworkElement, oldWalker: IStyleWalker, newWalker: IStyleWalker) {
+    export function SwapStyles(fe: FrameworkElement, oldWalker: IStyleWalker, newWalker: IStyleWalker, isImplicit: boolean) {
         var arr = (<IPropertyStorageOwner>fe)._PropertyStorage;
         var oldSetter = oldWalker.Step();
         var newSetter = newWalker.Step();
@@ -40,7 +40,10 @@ module Fayde.Providers {
             storage = arr[propd._ID];
             if (!storage)
                 storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
-            propd.Store.SetImplicitStyle(storage, value);
+            if (isImplicit)
+                propd.Store.SetImplicitStyle(storage, value);
+            else
+                propd.Store.SetLocalStyleValue(storage, value);
         }
     }
 }

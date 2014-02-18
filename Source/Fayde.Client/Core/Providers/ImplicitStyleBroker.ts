@@ -92,7 +92,7 @@ module Fayde.Providers {
             if (!isChanged)
                 return;
 
-            SwapStyles(fe, MultipleStylesWalker(oldStyles), MultipleStylesWalker(styles));
+            SwapStyles(fe, MultipleStylesWalker(oldStyles), MultipleStylesWalker(styles), true);
 
             holder._ImplicitStyles = styles;
             holder._StyleMask = mask;
