@@ -294,6 +294,7 @@
     <TypeScriptCompile Include="Runtime\IAsyncRequest.ts" />
     <TypeScriptCompile Include="require.d.ts" />
     <TypeScriptCompile Include="Runtime\Library.ts" />
+    <TypeScriptCompile Include="Core\Providers\StyleSwapper.ts" />
     <Content Include="Metro.theme.xml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
