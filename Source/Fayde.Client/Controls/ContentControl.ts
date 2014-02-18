@@ -62,7 +62,7 @@ module Fayde.Controls {
             var newUri: Uri;
             if (args.NewValue instanceof Uri) {
                 newUri = <Uri>args.NewValue;
-                Xaml.XamlDocument.Resolve(newUri)
+                Xaml.XamlDocument.GetAsync(newUri)
                     .success(xd => this._OnLoadedUri(xd))
                     .error(err => this._OnErroredUri(err, newUri));
             }

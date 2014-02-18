@@ -1,3 +1,5 @@
+/// <reference path="../scripts/qunit.d.ts" />
+/// <reference path="../scripts/Fayde.d.ts" />
 define(["require", "exports"], function(require, exports) {
     function run() {
         QUnit.module("DataTemplate Tests");
@@ -56,3 +58,4 @@ define(["require", "exports"], function(require, exports) {
     }
     exports.run = run;
 });
+//# sourceMappingURL=DataTemplateTests.js.map

@@ -269,9 +269,6 @@
     <TypeScriptCompile Include="Controls\HeaderedContentControl.ts" />
     <TypeScriptCompile Include="Engine\RenderContextEx.ts" />
     <TypeScriptCompile Include="Engine\Theme.ts" />
-    <Content Include="Fayde.d.ts" />
-    <Content Include="Fayde.js" />
-    <Content Include="Fayde.js.map" />
     <TypeScriptCompile Include="Path\Arc.ts" />
     <TypeScriptCompile Include="Path\ArcTo.ts" />
     <TypeScriptCompile Include="Path\Close.ts" />
@@ -297,14 +294,25 @@
     <TypeScriptCompile Include="Runtime\IAsyncRequest.ts" />
     <TypeScriptCompile Include="require.d.ts" />
     <TypeScriptCompile Include="Runtime\Library.ts" />
-    <Content Include="Theme.Metro.xml" />
-    <Content Include="Theme.Silverlight.xml" />
+    <Content Include="Metro.theme.xml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
+    <Content Include="Default.theme.xml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
     <TypeScriptCompile Include="Xaml\MarkupExpressionParser.ts" />
     <TypeScriptCompile Include="Xaml\TemplateBinding.ts" />
     <TypeScriptCompile Include="Xaml\XamlLoader.ts" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Fayde.d.ts" />
+    <Content Include="Fayde.js" />
+    <Content Include="Fayde.js.map" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -354,6 +362,6 @@
     <PostBuildEvent>cd "$(ProjectDir)"
 xcopy /s /y Fayde.js ..\jsbin\
 xcopy /s /y Fayde.d.ts ..\jsbin\
-xcopy /s /y Theme.*.xml ..\jsbin\</PostBuildEvent>
+xcopy /s /y *.theme.xml ..\jsbin\</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -3,7 +3,29 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    <script data-main="main.js" src="../scripts/require.js"></script>
+    <script src="lib/requirejs/require.js"></script>
+    <script>
+        require.config({
+            baseUrl: "./",
+            paths: {
+                "text": "lib/requirejs/text",
+                "Fayde": "/Fayde/Fayde"
+            },
+            deps: ["text", "Fayde"],
+            callback: function (text, Fayde) {
+                Fayde.RegisterLibrary("Fayde", "Fayde", function (name) { return "/Fayde/" + name + ".theme.xml"; });
+                Fayde.Run();
+            },
+            shim: {
+                "Fayde": {
+                    exports: "Fayde",
+                },
+                "lib/Fayde.Controls/Fayde.Controls.js": {
+                    exports: "Fayde.Controls"
+                }
+            }
+        });
+    </script>
     <style>
         *
         {

@@ -25,9 +25,10 @@ module Fayde.Xaml {
                 return null;
             return regXds[url] = new XamlDocument(xaml);
         }
-        static Resolve(url: string, ctx?: ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
-        static Resolve(url: Uri, ctx?: ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
-        static Resolve(url: any, ctx?: ILibraryAsyncContext): IAsyncRequest<XamlDocument> {
+
+        static GetAsync(url: string, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
+        static GetAsync(url: Uri, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
+        static GetAsync(url: any, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument> {
             if (url instanceof Uri)
                 url = (<Uri>url).toString();
             var xamlUrl = "text!" + url;
@@ -40,6 +41,7 @@ module Fayde.Xaml {
                 return d.request;
             }
 
+            ctx = ctx || createContext();
             (<Function>require)([xamlUrl],
                 (xaml: string) => {
                     xd = new XamlDocument(xaml);
@@ -51,13 +53,14 @@ module Fayde.Xaml {
 
             return d.request;
         }
-        Resolve(ctx: ILibraryAsyncContext): IAsyncRequest<any> {
+        Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<any> {
             var d = defer<any>();
             var deps = this._RequiredDependencies;
             addDependencies(this.Document.documentElement, deps);
             ignoreCircularReferences(deps, ctx);
             if (deps.length > 0) {
-                deferArray(deps, resolveDependency)
+                discoverAppTheme(this.Document.documentElement, ctx);
+                deferArray(deps, dep => resolveDependency(dep, ctx))
                     .success(ds => d.resolve(this))
                     .error(d.reject);
             } else {
@@ -67,7 +70,7 @@ module Fayde.Xaml {
         }
     }
 
-    function resolveDependency(dep: string): IAsyncRequest<any> {
+    function resolveDependency(dep: string, ctx: IDependencyAsyncContext): IAsyncRequest<any> {
         var d = defer<any>();
 
         if (dep.indexOf("lib:") === 0) {
@@ -76,13 +79,13 @@ module Fayde.Xaml {
                 d.reject("Could not resolve library: '" + dep + "'.");
                 return d.request;
             }
-            return library.Resolve();
+            return library.Resolve(ctx);
         }
 
         (<Function>require)([dep], d.resolve, d.reject);
         return d.request;
     }
-    function ignoreCircularReferences(list: string[], ctx: ILibraryAsyncContext) {
+    function ignoreCircularReferences(list: string[], ctx: IDependencyAsyncContext) {
         if (!ctx)
             return;
         var index: number;
@@ -138,5 +141,20 @@ module Fayde.Xaml {
                 return;
             list.push(format);
         }
+    }
+    function discoverAppTheme(el: Element, ctx: IDependencyAsyncContext) {
+        if (el.localName !== "Application" || el.namespaceURI !== Fayde.XMLNS)
+            return;
+        var tnattr = el.attributes.getNamedItemNS(Fayde.XMLNS, "ThemeName");
+        if (tnattr)
+            ctx.ThemeName = tnattr.value;
+    }
+
+    function createContext(): IDependencyAsyncContext {
+        var app = Application.Current;
+        return {
+            ThemeName: app ? app.ThemeName : "Default",
+            Resolving: []
+        };
     }
 }

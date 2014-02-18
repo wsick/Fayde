@@ -3,15 +3,15 @@ module Fayde.Providers {
     export enum StyleIndex {
         VisualTree = 0,
         ApplicationResources = 1,
-        GenericXaml = 2,
+        Theme = 2,
         Count = 3,
     }
     export enum StyleMask {
         None = 0,
         VisualTree = 1 << StyleIndex.VisualTree,
         ApplicationResources = 1 << StyleIndex.ApplicationResources,
-        GenericXaml = 1 << StyleIndex.GenericXaml,
-        All = StyleMask.VisualTree | StyleMask.ApplicationResources | StyleMask.GenericXaml,
+        Theme = 1 << StyleIndex.Theme,
+        All = StyleMask.VisualTree | StyleMask.ApplicationResources | StyleMask.Theme,
     }
 
     export interface IImplicitStyleHolder {
@@ -22,7 +22,7 @@ module Fayde.Providers {
     export class ImplicitStyleBroker {
         static Set(fe: FrameworkElement, mask: StyleMask, styles?: Style[]) {
             if (!styles)
-                styles = ImplicitStyleBroker.GetImplicitStyles(fe, mask);
+                styles = getImplicitStyles(fe, mask);
             if (styles) {
                 var error = new BError();
                 var len = StyleIndex.Count;
@@ -46,12 +46,12 @@ module Fayde.Providers {
             var oldStyles = (<IImplicitStyleHolder>fe.XamlNode)._ImplicitStyles;
             var newStyles: Style[] = [null, null, null];
             if (oldStyles) {
-                newStyles[StyleIndex.GenericXaml] = oldStyles[StyleIndex.GenericXaml];
+                newStyles[StyleIndex.Theme] = oldStyles[StyleIndex.Theme];
                 newStyles[StyleIndex.ApplicationResources] = oldStyles[StyleIndex.ApplicationResources];
                 newStyles[StyleIndex.VisualTree] = oldStyles[StyleIndex.VisualTree];
             }
-            if (mask & StyleMask.GenericXaml)
-                newStyles[StyleIndex.GenericXaml] = styles[StyleIndex.GenericXaml];
+            if (mask & StyleMask.Theme)
+                newStyles[StyleIndex.Theme] = styles[StyleIndex.Theme];
             if (mask & StyleMask.ApplicationResources)
                 newStyles[StyleIndex.ApplicationResources] = styles[StyleIndex.ApplicationResources];
             if (mask & StyleMask.VisualTree)
@@ -67,8 +67,8 @@ module Fayde.Providers {
 
             var newStyles = oldStyles.slice(0);
             //TODO: Do we need a deep copy?
-            if (mask & StyleMask.GenericXaml)
-                newStyles[StyleIndex.GenericXaml] = null;
+            if (mask & StyleMask.Theme)
+                newStyles[StyleIndex.Theme] = null;
             if (mask & StyleMask.ApplicationResources)
                 newStyles[StyleIndex.ApplicationResources] = null;
             if (mask & StyleMask.VisualTree)
@@ -129,73 +129,63 @@ module Fayde.Providers {
             holder._ImplicitStyles = styles;
             holder._StyleMask = mask;
         }
+    }
 
-        private static GetImplicitStyles(fe: FrameworkElement, mask: StyleMask) {
-            var feType = (<any>fe).constructor;
-
-            var app = Application.Current;
-
-            var genericXamlStyle: Style = undefined;
-            if (app) {
-                if ((mask & StyleMask.GenericXaml) != 0) {
-                    if (fe instanceof Controls.Control) {
-                        genericXamlStyle = (<Controls.Control>fe).GetDefaultStyle();
-                        if (!genericXamlStyle) {
-                            var styleKey = fe.DefaultStyleKey;
-                            if (styleKey)
-                                genericXamlStyle = app.GetImplicitStyle(styleKey);
-                        }
-                    }
-                }
-            }
-
-            if (false) {
-                var appResourcesStyle: Style = undefined;
-                var rd = app.Resources;
-                if ((mask & StyleMask.ApplicationResources) != 0) {
-                    appResourcesStyle = <Style>rd.Get(feType);
-                    if (!appResourcesStyle)
-                        appResourcesStyle = <Style>rd.Get(feType);
-                    //if (appResourcesStyle)
-                    //appResourcesStyle._ResChain = [rd];
-                }
-            }
-
-
-            var visualTreeStyle: Style = undefined;
-            if ((mask & StyleMask.VisualTree) != 0) {
-                var cur = fe;
-                var curNode = fe.XamlNode;
-                var isControl = curNode instanceof Controls.ControlNode;
-
-                while (curNode) {
-                    cur = curNode.XObject;
-                    if (cur.TemplateOwner && !fe.TemplateOwner) {
-                        cur = <FrameworkElement>cur.TemplateOwner;
-                        curNode = cur.XamlNode;
-                        continue;
-                    }
-                    if (!isControl && cur === fe.TemplateOwner)
-                        break;
-
-                    rd = cur.Resources;
-                    if (rd) {
-                        visualTreeStyle = <Style>rd.Get(feType);
-                        if (!visualTreeStyle)
-                            visualTreeStyle = <Style>rd.Get(feType);
-                        if (visualTreeStyle)
-                            break;
-                    }
-
-                    curNode = <FENode>curNode.VisualParentNode;
-                }
-            }
-
-            var styles = [];
-            styles[StyleIndex.GenericXaml] = genericXamlStyle;
-            styles[StyleIndex.ApplicationResources] = appResourcesStyle;
-            styles[StyleIndex.VisualTree] = visualTreeStyle;
-            return styles;
+    function getImplicitStyles(fe: FrameworkElement, mask: StyleMask): Style[] {
+        var styles = [];
+        if ((mask & StyleMask.Theme) != 0) {
+            styles[StyleIndex.Theme] = getThemeStyle(fe);
         }
+
+        if ((mask & StyleMask.ApplicationResources) != 0) {
+            var app = Application.Current;
+            if (app)
+                styles[StyleIndex.ApplicationResources] = getAppResourcesStyle(app, fe);
+        }
+
+        if ((mask & StyleMask.VisualTree) != 0)
+            styles[StyleIndex.VisualTree] = getVisualTreeStyle(fe);
+
+        return styles;
+    }
+    function getThemeStyle(fe: FrameworkElement): Style {
+        if (fe instanceof Controls.Control) {
+            var style = (<Controls.Control>fe).GetDefaultStyle();
+            if (style)
+                return style;
+        }
+        return Library.GetThemeStyle(fe);
+    }
+    function getAppResourcesStyle(app: Application, fe: FrameworkElement): Style {
+        return <Style>app.Resources.Get(fe.DefaultStyleKey);
+    }
+    function getVisualTreeStyle(fe: FrameworkElement): Style {
+        var key = fe.DefaultStyleKey;
+        var cur = fe;
+        var isControl = cur instanceof Controls.Control;
+        var curNode = fe.XamlNode;
+        var rd: ResourceDictionary;
+
+        while (curNode) {
+            cur = curNode.XObject;
+            if (cur.TemplateOwner && !fe.TemplateOwner) {
+                cur = <FrameworkElement>cur.TemplateOwner;
+                curNode = cur.XamlNode;
+                continue;
+            }
+            if (!isControl && cur === fe.TemplateOwner)
+                break;
+
+            rd = cur.Resources;
+            if (rd) {
+                var style = <Style>rd.Get(key);
+                if (style)
+                    return style;
+            }
+
+            curNode = <FENode>curNode.VisualParentNode;
+        }
+
+        return undefined;
     }
 }

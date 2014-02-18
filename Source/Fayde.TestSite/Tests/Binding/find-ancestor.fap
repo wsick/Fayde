@@ -1,7 +1,7 @@
 ﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    Theme="/Fayde/Theme.Metro.xml">
+    ThemeName="Metro">
     <StackPanel Tag="StackPanel Tag">
         <TextBlock Text="Parent Tag: " />
         <TextBlock Text="{Binding Path=Tag, RelativeSource={RelativeSource FindAncestor, AncestorType=StackPanel}}" />
