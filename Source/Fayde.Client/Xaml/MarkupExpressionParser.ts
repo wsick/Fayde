@@ -60,6 +60,12 @@ module Fayde.Xaml {
                     return undefined;
             }
         }
+        static GetComponents(value: string): string[] {
+            var res = EXPRESSION_REGEX.exec(value);
+            if (res)
+                return [res[1], res[2]];
+            return undefined;
+        }
     }
 
     function parseXType(val: string, ctx: IMarkupParseContext): any {

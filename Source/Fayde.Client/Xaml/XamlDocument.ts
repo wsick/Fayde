@@ -86,7 +86,7 @@ module Fayde.Xaml {
         if (!ctx)
             return;
         var index: number;
-        for (var i = 0; i < list.length;i++) {
+        for (var i = 0; i < list.length; i++) {
             var lib = Library.Get(list[i]);
             if (lib && (index = ctx.Resolving.indexOf(lib)) > -1) {
                 list.splice(index, 1);
@@ -94,10 +94,10 @@ module Fayde.Xaml {
             }
         }
     }
-    
+
     function addDependencies(el: Element, list: string[]) {
         while (el) {
-            getDependency(el, list);
+            getNodeDependency(el, list);
             getAttributeDependencies(el, list);
             getResourceDictionaryDependency(el, list);
             addDependencies(el.firstElementChild, list);
@@ -117,12 +117,15 @@ module Fayde.Xaml {
     function getAttributeDependencies(el: Element, list: string[]) {
         var attrs = el.attributes;
         for (var i = 0, len = attrs.length; i < len; i++) {
-            getDependency(attrs[i], list);
+            var attr = attrs[i];
+            getNodeDependency(attr, list);
+            getNodeValueDependency(attr, list);
+            getNodeValueImplicitDependency(attr, list);
         }
     }
-    function getDependency(node: Node, list: string[]) {
+    function getNodeDependency(node: Node, list: string[]) {
         var nsUri = node.namespaceURI;
-        if (!nsUri || nsUri === W3URI ||  nsUri === Fayde.XMLNS || nsUri === Fayde.XMLNSX)
+        if (!nsUri || nsUri === W3URI || nsUri === Fayde.XMLNS || nsUri === Fayde.XMLNSX)
             return;
         var ln = node.localName;
         var index = ln.indexOf(".");
@@ -134,6 +137,55 @@ module Fayde.Xaml {
                 return;
             list.push(nsUri);
         } else {
+            if (list.indexOf(format) > -1)
+                return;
+            list.push(format);
+        }
+    }
+    function getNodeValueDependency(attr: Attr, list: string[]) {
+        var val = attr.value;
+        var components = MarkupExpressionParser.GetComponents(val);
+        if (components && components[0] === "x:Type") {
+            addFullyQualifiedType(attr, components[1], list);
+        }
+    }
+    //DataTemplate.DataType
+    //ControlTemplate.TargetType
+    //Style.TargetType
+    function getNodeValueImplicitDependency(attr: Attr, list: string[]) {
+        var val = attr.value;
+        if (val[0] === "{")
+            return;
+        var parent = attr.ownerElement;
+        if (parent.namespaceURI !== Fayde.XMLNS && parent.namespaceURI !== null)
+            return;
+        switch (parent.localName) {
+            case "DataTemplate":
+                if (attr.localName !== "DataType")
+                    return;
+                break;
+            case "ControlTemplate":
+                if (attr.localName !== "TargetType")
+                    return;
+                break;
+            case "Style":
+                if (attr.localName !== "TargetType")
+                    return;
+                break;
+            default:
+                return;
+        }
+        addFullyQualifiedType(attr, val, list);
+    }
+    function addFullyQualifiedType(attr: Attr, type: string, list: string[]) {
+        var index = type.indexOf(":");
+        if (index > -1) {
+            var prefix = type.substr(0, index);
+            var name = type.substr(index + 1);
+            var nsUri = attr.lookupNamespaceURI(prefix);
+            if (!nsUri)
+                return;
+            var format = nsUri + "/" + name;
             if (list.indexOf(format) > -1)
                 return;
             list.push(format);
