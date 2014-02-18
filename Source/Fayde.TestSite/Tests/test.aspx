@@ -20,7 +20,7 @@
                 "Fayde": {
                     exports: "Fayde",
                 },
-                "lib/Fayde.Controls/Fayde.Controls.js": {
+                "lib/Fayde.Controls/Fayde.Controls": {
                     exports: "Fayde.Controls"
                 }
             }
