@@ -12,6 +12,7 @@ module Fayde {
         Address: Uri = null;
         DebugInterop: DebugInterop;
         private _IsRunning: boolean = false;
+        private _IsLoaded = false;
         private _Storyboards: ITimeline[] = [];
         private _ClockTimer: ClockTimer = new ClockTimer();
         private _RootVisual: UIElement = null;
@@ -23,8 +24,21 @@ module Fayde {
         ThemeName: string;
 
         private OnThemeNameChanged(args: DependencyPropertyChangedEventArgs) {
-
-            //TODO: Swap out themes
+            if (!this._IsLoaded)
+                return;
+            Library.ChangeTheme(args.NewValue)
+                .success(res => this._ApplyTheme())
+                .error(err => console.warn("Could not change theme. " + err.toString()));
+        }
+        private _ApplyTheme() {
+            var layers = this.MainSurface.GetLayers();
+            for (var i = 0, len = layers.length; i < len; i++) {
+                var walker = DeepTreeWalker(layers[i]);
+                var cur: FENode;
+                while ((cur = <FENode>walker.Step())) {
+                    Providers.ImplicitStyleBroker.Set(<FrameworkElement>cur.XObject, Providers.StyleMask.Theme);
+                }
+            }
         }
 
         Resized = new RoutedEvent<SizeChangedEventArgs>();
@@ -52,6 +66,7 @@ module Fayde {
         }
         Start() {
             this._ClockTimer.RegisterTimer(this);
+            this._IsLoaded = true;
             this.Loaded.RaiseAsync(this, EventArgs.Empty);
         }
         OnTicked(lastTime: number, nowTime: number) {

@@ -58,11 +58,11 @@ module Fayde {
             return undefined;
         }
         static ChangeTheme(themeName: string): IAsyncRequest<any> {
-            var reqs: IAsyncRequest<Library>[] = [];
+            var reqs: IAsyncRequest<Theme>[] = [];
             var library: Library;
             for (var name in libraries) {
                 library = libraries[name];
-                reqs.push(library.Resolve({ ThemeName: themeName, Resolving: [] }));
+                reqs.push(library._LoadTheme({ ThemeName: themeName, Resolving: [] }));
             }
             return deferArraySimple(reqs);
         }
@@ -92,25 +92,31 @@ module Fayde {
             var moduleUrl = this.GetModuleRequireUrl();
             (<Function>require)([moduleUrl], res => {
                 this._Module = res;
-                this._LoadTheme(ctx);
+                this._LoadTheme(ctx)
+                    .success(theme => this._FinishLoad(ctx))
+                    .error(err => this._FinishLoad(ctx, err));
             }, error => this._FinishLoad(ctx, error));
         }
-        private _LoadTheme(ctx: IDependencyAsyncContext) {
+        private _LoadTheme(ctx: IDependencyAsyncContext): IAsyncRequest<Theme> {
+            var d = defer<Theme>();
             var themeUrl = this.GetThemeRequireUrl(ctx.ThemeName);
             if (!themeUrl) {
-                this._FinishLoad(ctx);
-                return;
+                this._CurrentTheme = undefined;
+                d.resolve(undefined);
+                return d.request;
             }
-            var theme = this._Themes[ctx.ThemeName];
-            if (theme)
-                return this._FinishLoad(ctx, undefined, theme);
+            var theme: Theme = this._Themes[ctx.ThemeName];
+            if (theme) {
+                d.resolve(this._CurrentTheme = theme);
+                return d.request;
+            }
             theme = this._Themes[ctx.ThemeName] = Theme.Get(themeUrl);
-            theme
-                .Resolve(ctx)
-                .success(res => this._FinishLoad(ctx, undefined, theme))
-                .error(error => this._FinishLoad(ctx, error, theme));
+            theme.Resolve(ctx)
+                .success(res => d.resolve(this._CurrentTheme = res))
+                .error(d.reject);
+            return d.request;
         }
-        private _FinishLoad(ctx: IDependencyAsyncContext, error?: any, theme?: Theme) {
+        private _FinishLoad(ctx: IDependencyAsyncContext, error?: any) {
             this._LoadError = error;
             var index = ctx.Resolving.indexOf(this);
             if (index > -1)
@@ -118,7 +124,6 @@ module Fayde {
 
             this._IsLoading = false;
             this._IsLoaded = true;
-            this._CurrentTheme = theme;
             for (var i = 0, ds = this._Deferrables, len = ds.length; i < len; i++) {
                 if (error)
                     ds[i].reject(error);
