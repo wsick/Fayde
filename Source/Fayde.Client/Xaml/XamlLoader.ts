@@ -135,23 +135,23 @@ module Fayde.Xaml {
         //Clone Node?
         Object.defineProperty(ft, "TemplateElement", { value: el, writable: false });
         if (ft instanceof Controls.ControlTemplate) {
-            var ttattr = getTargetTypeAttr(el);
-            if (!ttattr)
+            var dtattr = getTargetTypeAttr(el);
+            if (!dtattr)
                 throw new XamlParseException("ControlTemplate must have a TargetType.");
-            var ctres = TypeResolver.ResolveFullyQualifiedName(ttattr.value, ttattr);
+            var ctres = TypeResolver.ResolveFullyQualifiedName(dtattr.value, dtattr);
             if (!ctres)
-                throw new XamlParseException("Could not find ControlTemplate.TargetType '" + ttattr.value + "'.");
+                throw new XamlParseException("Could not find ControlTemplate.TargetType '" + dtattr.value + "'.");
             Object.defineProperty(ft, "TargetType", {
                 value: ctres.Type,
                 writable: false
             });
         } else if (ft instanceof DataTemplate) {
-            var ttattr = getTargetTypeAttr(el);
-            if (ttattr) {
-                var dtres = TypeResolver.ResolveFullyQualifiedName(ttattr.value, ttattr);
+            var dtattr = getDataTypeAttr(el);
+            if (dtattr) {
+                var dtres = TypeResolver.ResolveFullyQualifiedName(dtattr.value, dtattr);
                 if (!dtres)
-                    throw new XamlParseException("Could not resolve DataTemplate.TargetType '" + ttattr.value + "'.");
-                Object.defineProperty(ft, "TargetType", {
+                    throw new XamlParseException("Could not resolve DataTemplate.DataType '" + dtattr.value + "'.");
+                Object.defineProperty(ft, "DataType", {
                     value: dtres.Type,
                     writable: false
                 });
@@ -184,6 +184,13 @@ module Fayde.Xaml {
         if (!targetTypeNode)
             targetTypeNode = attrs.getNamedItem("TargetType");
         return targetTypeNode;
+    }
+    function getDataTypeAttr(el: Element): Attr {
+        var attrs = el.attributes;
+        var dataTypeNode = attrs.getNamedItemNS(Fayde.XMLNS, "DataType");
+        if (!dataTypeNode)
+            dataTypeNode = attrs.getNamedItem("DataType");
+        return dataTypeNode;
     }
 
     interface IXamlChildProcessor {
@@ -559,17 +566,17 @@ module Fayde.Xaml {
             return;
         }
         if (cur instanceof Style) {
-            var targetType = cur.TargetType;
-            if (!targetType)
+            var dataType = (<Style>cur).TargetType;
+            if (!dataType)
                 throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
-            rd.Set(targetType, cur);
+            rd.Set(dataType, cur);
             return;
         }
         if (cur instanceof DataTemplate) {
-            var targetType = cur.TargetType;
-            if (!targetType)
-                throw new XamlParseException("A DataTemplate in a ResourceDictionary must have a x:Key or TargetType.");
-            rd.Set(targetType, cur);
+            var dataType = (<DataTemplate>cur).DataType;
+            if (!dataType)
+                throw new XamlParseException("A DataTemplate in a ResourceDictionary must have a x:Key or DataType.");
+            rd.Set(dataType, cur);
             return;
         }
         throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
