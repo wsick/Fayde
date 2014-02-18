@@ -14,11 +14,6 @@ module Fayde {
         FocusChild(): boolean;
     }
 
-    function setterSort(setter1: Setter, setter2: Setter) {
-        var a = setter1.Property;
-        var b = setter2.Property;
-        return (a === b) ? 0 : ((a._ID > b._ID) ? 1 : -1);
-    }
     function mergeSetters(arr: any[], dps: any[], style: Style) {
         var enumerator = style.Setters.GetEnumerator(true);
         var setter: Setter;
@@ -43,7 +38,7 @@ module Fayde {
             mergeSetters(flattenedSetters, dps, cur);
             cur = cur.BasedOn;
         }
-        flattenedSetters.sort(setterSort);
+        flattenedSetters.sort(Setter.Compare);
 
         return {
             Step: function () {
@@ -67,7 +62,7 @@ module Fayde {
                     style = style.BasedOn;
                 }
             }
-            flattenedSetters.sort(setterSort);
+            flattenedSetters.sort(Setter.Compare);
         }
 
         return {
