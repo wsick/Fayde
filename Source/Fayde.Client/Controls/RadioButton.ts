@@ -2,45 +2,17 @@
 
 module Fayde.Controls {
     export class RadioButton extends Primitives.ToggleButton {
-        static GroupNameProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("GroupName", () => String, RadioButton, false, (d, args) => (<RadioButton>d).OnGroupNameChanged(args));
+        static GroupNameProperty: DependencyProperty = DependencyProperty.Register("GroupName", () => String, RadioButton, false, (d, args) => (<RadioButton>d).OnGroupNameChanged(args));
         GroupName: string;
+        OnGroupNameChanged(args: IDependencyPropertyChangedEventArgs) {
+            unregister(args.OldValue, this);
+            register(args.NewValue, this);
+        }
 
         constructor() {
             super();
-            RadioButton.Register("", this);
             this.DefaultStyleKey = (<any>this).constructor;
-        }
-
-        private static _GroupNameToElements: RadioButton[] = [];
-        static Register(groupName: string, radioButton: RadioButton) {
-            // Treat null as being string.Empty
-            if (!groupName) groupName = "";
-
-            var list = RadioButton._GroupNameToElements[groupName];
-            if (!list) {
-                list = [];
-                RadioButton._GroupNameToElements[groupName] = list;
-            }
-            list.push(radioButton);
-        }
-        static Unregister(groupName: string, radioButton: RadioButton) {
-            // Treat null as being string.Empty
-            if (!groupName) groupName = "";
-
-            var list = RadioButton._GroupNameToElements[groupName];
-            if (list) {
-                for (var i = 0; i < list.length; i++) {
-                    if (radioButton === list[i]) {
-                        list.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-        }
-
-        OnGroupNameChanged(e: IDependencyPropertyChangedEventArgs) {
-            RadioButton.Unregister(e.OldValue, this);
-            RadioButton.Register(e.NewValue, this);
+            register("", this);
         }
 
         OnIsCheckedChanged(e: IDependencyPropertyChangedEventArgs) {
@@ -54,7 +26,7 @@ module Fayde.Controls {
 
         UpdateRadioButtonGroup() {
             var groupName = this.GroupName || "";
-            var elements = RadioButton._GroupNameToElements[groupName];
+            var elements = groupNameToElements[groupName];
             if (!elements)
                 return;
 
@@ -91,4 +63,26 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(RadioButton, "Fayde.Controls", Fayde.XMLNS);
+
+    var groupNameToElements: RadioButton[][] = [];
+    function register(groupName: string, radioButton: RadioButton) {
+        // Treat null as being string.Empty
+        if (!groupName) groupName = "";
+
+        var list: RadioButton[] = groupNameToElements[groupName];
+        if (!list)
+            groupNameToElements[groupName] = list = [];
+        list.push(radioButton);
+    }
+    function unregister(groupName: string, radioButton: RadioButton) {
+        // Treat null as being string.Empty
+        if (!groupName) groupName = "";
+
+        var list: RadioButton[] = groupNameToElements[groupName];
+        if (list) {
+            var index = list.indexOf(radioButton);
+            if (index > -1)
+                list.splice(index, 1);
+        }
+    }
 }

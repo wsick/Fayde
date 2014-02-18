@@ -13869,38 +13869,12 @@ var Fayde;
             __extends(RadioButton, _super);
             function RadioButton() {
                 _super.call(this);
-                RadioButton.Register("", this);
                 this.DefaultStyleKey = this.constructor;
+                register("", this);
             }
-            RadioButton.Register = function (groupName, radioButton) {
-                if (!groupName)
-                    groupName = "";
-
-                var list = RadioButton._GroupNameToElements[groupName];
-                if (!list) {
-                    list = [];
-                    RadioButton._GroupNameToElements[groupName] = list;
-                }
-                list.push(radioButton);
-            };
-            RadioButton.Unregister = function (groupName, radioButton) {
-                if (!groupName)
-                    groupName = "";
-
-                var list = RadioButton._GroupNameToElements[groupName];
-                if (list) {
-                    for (var i = 0; i < list.length; i++) {
-                        if (radioButton === list[i]) {
-                            list.splice(i, 1);
-                            break;
-                        }
-                    }
-                }
-            };
-
-            RadioButton.prototype.OnGroupNameChanged = function (e) {
-                RadioButton.Unregister(e.OldValue, this);
-                RadioButton.Register(e.NewValue, this);
+            RadioButton.prototype.OnGroupNameChanged = function (args) {
+                unregister(args.OldValue, this);
+                register(args.NewValue, this);
             };
 
             RadioButton.prototype.OnIsCheckedChanged = function (e) {
@@ -13914,7 +13888,7 @@ var Fayde;
 
             RadioButton.prototype.UpdateRadioButtonGroup = function () {
                 var groupName = this.GroupName || "";
-                var elements = RadioButton._GroupNameToElements[groupName];
+                var elements = groupNameToElements[groupName];
                 if (!elements)
                     return;
 
@@ -13945,17 +13919,37 @@ var Fayde;
                     }
                 }
             };
-            RadioButton.GroupNameProperty = DependencyProperty.RegisterReadOnly("GroupName", function () {
+            RadioButton.GroupNameProperty = DependencyProperty.Register("GroupName", function () {
                 return String;
             }, RadioButton, false, function (d, args) {
                 return d.OnGroupNameChanged(args);
             });
-
-            RadioButton._GroupNameToElements = [];
             return RadioButton;
         })(Fayde.Controls.Primitives.ToggleButton);
         Controls.RadioButton = RadioButton;
         Fayde.RegisterType(RadioButton, "Fayde.Controls", Fayde.XMLNS);
+
+        var groupNameToElements = [];
+        function register(groupName, radioButton) {
+            if (!groupName)
+                groupName = "";
+
+            var list = groupNameToElements[groupName];
+            if (!list)
+                groupNameToElements[groupName] = list = [];
+            list.push(radioButton);
+        }
+        function unregister(groupName, radioButton) {
+            if (!groupName)
+                groupName = "";
+
+            var list = groupNameToElements[groupName];
+            if (list) {
+                var index = list.indexOf(radioButton);
+                if (index > -1)
+                    list.splice(index, 1);
+            }
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
