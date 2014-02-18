@@ -143,11 +143,13 @@ module Fayde.Xaml {
         }
     }
     function discoverAppTheme(el: Element, ctx: IDependencyAsyncContext) {
-        if (el.localName !== "Application" || el.namespaceURI !== Fayde.XMLNS)
-            return;
-        var tnattr = el.attributes.getNamedItemNS(Fayde.XMLNS, "ThemeName");
-        if (tnattr)
-            ctx.ThemeName = tnattr.value;
+        if (el.localName === "Application") {
+            if (!el.namespaceURI || el.namespaceURI === Fayde.XMLNS) {
+                var tnattr = el.attributes.getNamedItem("ThemeName");
+                if (tnattr)
+                    ctx.ThemeName = tnattr.value;
+            }
+        }
     }
 
     function createContext(): IDependencyAsyncContext {
