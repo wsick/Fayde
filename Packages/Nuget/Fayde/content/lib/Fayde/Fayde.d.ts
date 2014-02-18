@@ -2943,7 +2943,7 @@ declare module Fayde {
 }
 declare module Fayde {
     class DataTemplate extends Fayde.Xaml.FrameworkTemplate {
-        public TargetType: Function;
+        public DataType: Function;
         constructor();
         public GetVisualTree(bindingSource?: Fayde.DependencyObject): Fayde.UIElement;
     }

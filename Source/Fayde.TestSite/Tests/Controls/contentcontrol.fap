@@ -4,7 +4,7 @@
     xmlns:controls="Controls"
     Theme="/Fayde/Theme.Metro.xml">
     <Application.Resources>
-        <DataTemplate TargetType="controls:TestClass">
+        <DataTemplate DataType="controls:TestClass">
             <StackPanel>
                 <TextBlock Text="Name:" />
                 <TextBlock Text="{Binding Name}" />
