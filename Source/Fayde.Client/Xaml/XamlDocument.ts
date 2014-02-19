@@ -185,10 +185,16 @@ module Fayde.Xaml {
             var nsUri = attr.lookupNamespaceURI(prefix);
             if (!nsUri)
                 return;
-            var format = nsUri + "/" + name;
-            if (list.indexOf(format) > -1)
-                return;
-            list.push(format);
+            if (nsUri.indexOf("lib:") === 0) {
+                if (list.indexOf(nsUri) > -1)
+                    return;
+                list.push(nsUri);
+            } else {
+                var format = nsUri + "/" + name;
+                if (list.indexOf(format) > -1)
+                    return;
+                list.push(format);
+            }
         }
     }
 }
