@@ -1,6 +1,7 @@
 <Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:controls="lib:Fayde.Controls"
     xmlns:models="Models"
     xmlns:res="Resources"
     xmlns:viewmodels="ViewModels"
@@ -201,6 +202,15 @@
               </Grid>
             </Border>
             <Border Grid.Column="2" Margin="10, 10, 10, 10" Background="#44E0E0E0" BorderBrush="#E0E0E0" BorderThickness="1">
+              <controls:TabControl>
+                <controls:TabItem Header="Tab 1">
+
+                </controls:TabItem>
+                <controls:TabItem Header="Tab 2">
+
+                </controls:TabItem>
+              </controls:TabControl>
+              <!--
               <Grid>
                 <Grid.RowDefinitions>
                   <RowDefinition Height="Auto"/>
@@ -263,9 +273,10 @@
                   </ListBox.ItemTemplate>
                 </ListBox>
               </Grid>
+              -->
             </Border>
           </Grid>
-        </Border>
+          </Border>
         <Border Grid.Row="1" Background="#E0E0E0" CornerRadius="3, 3, 0, 0">
           <Grid>
             <Grid.ColumnDefinitions>

@@ -1,4 +1,3 @@
-/// <reference path="Fayde.d.ts" />
 declare module Fayde.Controls {
     class HeaderedItemsControl extends Controls.ItemsControl {
         private _HeaderIsItem;
@@ -637,22 +636,8 @@ declare module Fayde.Controls {
         public HeaderTemplate: Fayde.DataTemplate;
         public IsFocused: boolean;
         public IsSelected: boolean;
-        private _ElementTemplateTopSelected;
-        private _ElementTemplateBottomSelected;
-        private _ElementTemplateLeftSelected;
-        private _ElementTemplateRightSelected;
-        private _ElementTemplateTopUnselected;
-        private _ElementTemplateBottomUnselected;
-        private _ElementTemplateLeftUnselected;
-        private _ElementTemplateRightUnselected;
-        private _ElementHeaderTopSelected;
-        private _ElementHeaderBottomSelected;
-        private _ElementHeaderLeftSelected;
-        private _ElementHeaderRightSelected;
-        private _ElementHeaderTopUnselected;
-        private _ElementHeaderBottomUnselected;
-        private _ElementHeaderLeftUnselected;
-        private _ElementHeaderRightUnselected;
+        private _SelectedElements;
+        private _UnselectedElements;
         private _PreviousTemplate;
         private _PreviousHeader;
         public TabStripPlacement : Controls.Dock;
@@ -665,8 +650,8 @@ declare module Fayde.Controls {
         private _OnIsSelectedChanged(args);
         public OnSelected(e: Fayde.RoutedEventArgs): void;
         public OnUnselected(e: Fayde.RoutedEventArgs): void;
+        public UpdateVisualState(useTransitions?: boolean): void;
         private _UpdateHeaderVisuals();
-        private UpdateTabItemVisuals();
         public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;

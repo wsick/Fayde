@@ -62,7 +62,7 @@ class DefaultViewModel extends Fayde.MVVM.ViewModelBase {
         this.FilterFantasyPlayerVisibility();
         this.OnPropertyChanged("PositionFilter");
     }
-    private _showDraftedFilter: boolean = true;
+    private _showDraftedFilter: boolean = false;
     get ShowDraftedFilter(): boolean {
         return this._showDraftedFilter;
     }
