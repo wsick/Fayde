@@ -59,8 +59,8 @@
     <Content Include="default.html" />
     <Content Include="lib\Fayde.Controls\Default.theme.xml" />
     <Content Include="lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" />
-    <Content Include="lib\Fayde.Controls\Metro.theme.xml" />
     <Content Include="lib\Fayde.Controls\Fayde.Controls.js" />
+    <Content Include="lib\Fayde.Controls\Metro.theme.xml" />
     <Content Include="lib\Fayde\Default.theme.xml" />
     <Content Include="lib\Fayde\Fayde.d.ts" />
     <Content Include="lib\Fayde\Fayde.js" />
@@ -72,8 +72,8 @@
     <Content Include="default.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="packages.config" />
     <Content Include="Views\home.fayde" />
+    <Content Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

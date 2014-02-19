@@ -99,7 +99,7 @@ var Fayde;
 
         function addDependencies(el, list) {
             while (el) {
-                getDependency(el, list);
+                getNodeDependency(el, list);
                 getAttributeDependencies(el, list);
                 getResourceDictionaryDependency(el, list);
                 addDependencies(el.firstElementChild, list);
@@ -119,10 +119,13 @@ var Fayde;
         function getAttributeDependencies(el, list) {
             var attrs = el.attributes;
             for (var i = 0, len = attrs.length; i < len; i++) {
-                getDependency(attrs[i], list);
+                var attr = attrs[i];
+                getNodeDependency(attr, list);
+                getNodeValueDependency(attr, list);
+                getNodeValueImplicitDependency(attr, list);
             }
         }
-        function getDependency(node, list) {
+        function getNodeDependency(node, list) {
             var nsUri = node.namespaceURI;
             if (!nsUri || nsUri === W3URI || nsUri === Fayde.XMLNS || nsUri === Fayde.XMLNSX)
                 return;
@@ -139,6 +142,59 @@ var Fayde;
                 if (list.indexOf(format) > -1)
                     return;
                 list.push(format);
+            }
+        }
+        function getNodeValueDependency(attr, list) {
+            var val = attr.value;
+            var components = Fayde.Xaml.MarkupExpressionParser.GetComponents(val);
+            if (components && components[0] === "x:Type") {
+                addFullyQualifiedType(attr, components[1], list);
+            }
+        }
+
+        function getNodeValueImplicitDependency(attr, list) {
+            var val = attr.value;
+            if (val[0] === "{")
+                return;
+            var parent = attr.ownerElement;
+            if (parent.namespaceURI !== Fayde.XMLNS && parent.namespaceURI !== null)
+                return;
+            switch (parent.localName) {
+                case "DataTemplate":
+                    if (attr.localName !== "DataType")
+                        return;
+                    break;
+                case "ControlTemplate":
+                    if (attr.localName !== "TargetType")
+                        return;
+                    break;
+                case "Style":
+                    if (attr.localName !== "TargetType")
+                        return;
+                    break;
+                default:
+                    return;
+            }
+            addFullyQualifiedType(attr, val, list);
+        }
+        function addFullyQualifiedType(attr, type, list) {
+            var index = type.indexOf(":");
+            if (index > -1) {
+                var prefix = type.substr(0, index);
+                var name = type.substr(index + 1);
+                var nsUri = attr.lookupNamespaceURI(prefix);
+                if (!nsUri)
+                    return;
+                if (nsUri.indexOf("lib:") === 0) {
+                    if (list.indexOf(nsUri) > -1)
+                        return;
+                    list.push(nsUri);
+                } else {
+                    var format = nsUri + "/" + name;
+                    if (list.indexOf(format) > -1)
+                        return;
+                    list.push(format);
+                }
             }
         }
         function discoverAppTheme(el, ctx) {
@@ -2452,15 +2508,19 @@ var Fayde;
                 case 2 /* TouchUp */:
                     x.OnTouchUp(args);
                     x.TouchUp.Raise(x, args);
+                    break;
                 case 3 /* TouchMove */:
                     x.OnTouchMove(args);
                     x.TouchMove.Raise(x, args);
+                    break;
                 case 4 /* TouchEnter */:
                     x.OnTouchEnter(args);
                     x.TouchEnter.Raise(x, args);
+                    break;
                 case 5 /* TouchLeave */:
                     x.OnTouchLeave(args);
                     x.TouchLeave.Raise(x, args);
+                    break;
                 default:
                     return false;
             }
@@ -37117,6 +37177,12 @@ var Fayde;
                     default:
                         return undefined;
                 }
+            };
+            MarkupExpressionParser.GetComponents = function (value) {
+                var res = EXPRESSION_REGEX.exec(value);
+                if (res)
+                    return [res[1], res[2]];
+                return undefined;
             };
             return MarkupExpressionParser;
         })();
