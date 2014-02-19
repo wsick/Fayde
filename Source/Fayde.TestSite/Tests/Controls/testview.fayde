@@ -1,0 +1,8 @@
+﻿<Grid
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x">
+    <Border BorderThickness="5" CornerRadius="5" BorderBrush="Red">
+        <TextBlock Text="{Binding Name}">
+        </TextBlock>
+    </Border>
+</Grid>

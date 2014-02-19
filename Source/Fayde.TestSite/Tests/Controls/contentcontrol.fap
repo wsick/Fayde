@@ -2,9 +2,9 @@
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
     xmlns:controls="Controls"
-    Theme="/Fayde/Theme.Metro.xml">
+    ThemeName="Metro">
     <Application.Resources>
-        <DataTemplate TargetType="controls:TestClass">
+        <DataTemplate DataType="controls:TestClass">
             <StackPanel>
                 <TextBlock Text="Name:" />
                 <TextBlock Text="{Binding Name}" />
@@ -14,10 +14,19 @@
         </DataTemplate>
     </Application.Resources>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
         <ContentControl>
             <ContentControl.Content>
                 <controls:TestClass />
             </ContentControl.Content>
+        </ContentControl>
+        <ContentControl Grid.Column="1" ContentUri="Controls/testview.fayde">
+            <ContentControl.DataContext>
+                <controls:TestClass />
+            </ContentControl.DataContext>
         </ContentControl>
     </Grid>
 </Application> 

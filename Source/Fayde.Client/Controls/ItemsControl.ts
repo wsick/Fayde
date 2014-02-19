@@ -53,7 +53,7 @@ module Fayde.Controls {
             var items = this._Items;
             if (!items) {
                 this._Items = items = new ItemCollection();
-                this._ItemsIsDataBound = true;
+                this._ItemsIsDataBound = false;
                 items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
                 //items.Clearing.Subscribe(this.OnItemsClearing, this);
                 var storage = Providers.GetStorage(this, ItemsControl.ItemsProperty);
@@ -218,20 +218,6 @@ module Fayde.Controls {
         IsItemItsOwnContainer(item: any): boolean { return item instanceof FrameworkElement; }
         OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) { }
         InvokeItemsChanged(sender, e: Collections.NotifyCollectionChangedEventArgs) {
-            /*
-            switch (e.Action) {
-                case Collections.NotifyCollectionChangedAction.Add:
-                    this.SetLogicalParent(this, e.NewItems);
-                    break;
-                case Collections.NotifyCollectionChangedAction.Remove:
-                    this.SetLogicalParent(null, e.OldItems);
-                    break;
-                case Collections.NotifyCollectionChangedAction.Replace:
-                    this.SetLogicalParent(null, e.OldItems);
-                    this.SetLogicalParent(this, e.NewItems);
-                    break;
-            }
-            */
             this.ItemContainerGenerator.OnOwnerItemsItemsChanged(e);
             if (!this._ItemsIsDataBound)
                 this.OnItemsChanged(e);

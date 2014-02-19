@@ -2,7 +2,7 @@
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
     xmlns:controls="lib:Fayde.Controls"
-    Theme="lib/Fayde/Theme.Metro.xml">
+    ThemeName="Metro">
     <Application.Resources>
     </Application.Resources>
     <Grid x:Name="LayoutRoot">
@@ -32,10 +32,10 @@
             <TextBlock Text="TabControl" />
             <controls:TabControl>
                 <controls:TabItem Header="Tab 1">
-                    
+                    <TextBlock Text="Content 1" />
                 </controls:TabItem>
                 <controls:TabItem Header="Tab 2">
-                    
+                    <TextBlock Text="Content 2" />
                 </controls:TabItem>
             </controls:TabControl>
         </StackPanel>

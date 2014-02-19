@@ -68,6 +68,7 @@ module Fayde {
                 return false;
             this.OnVisualChildDetached(uie);
             uie.XamlNode.SetIsLoaded(false);
+            return true;
         }
 
         ApplyTemplateWithError(error: BError): boolean {

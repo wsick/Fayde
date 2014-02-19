@@ -11,7 +11,11 @@ module Fayde.Media {
         private _Inverse: Matrix = null;
 
         constructor(raw?: number[]) {
-            this._Raw = raw;
+            this._Raw = raw || mat3.identity();
+        }
+
+        static get Identity(): Matrix {
+            return new Matrix(mat3.identity());
         }
 
         get M11() { return this._Raw[0]; }
@@ -65,6 +69,12 @@ module Fayde.Media {
             for (var i = 0; i < len; i++) {
                 listeners[i].Callback(this);
             }
+        }
+
+        Clone(): Matrix {
+            if (!this._Raw)
+                return new Matrix();
+            return new Matrix(mat3.clone(this._Raw));
         }
 
         toString(): string { return mat3.str(this._Raw); }

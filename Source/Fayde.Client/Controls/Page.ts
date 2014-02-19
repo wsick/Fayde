@@ -11,7 +11,7 @@ module Fayde.Controls {
 
         static GetAsync(url: string): IAsyncRequest<Page> {
             var d = defer<Page>();
-            Xaml.XamlDocument.Resolve(url)
+            Xaml.XamlDocument.GetAsync(url)
                 .success(xd => {
                     TimelineProfile.Parse(true, "Page");
                     var page = <Page>Xaml.Load(xd.Document);

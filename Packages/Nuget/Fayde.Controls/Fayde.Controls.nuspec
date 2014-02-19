@@ -1,20 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Fayde.Controls</id>
-        <version>0.9.0</version>
+        <version>0.9.8.3</version>
         <authors>Bradley Sickles</authors>
         <projectUrl>http://fayde.wsick.com</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Controls library for Fayde.</description>
         <tags>fayde xaml silverlight</tags>
         <dependencies>
-            <dependency id="Fayde" />
+            <dependency id="Fayde" version="0.9.8.1" />
         </dependencies>
     </metadata>
     <files>
-        <file src="content\lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" target="content\lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" />
-        <file src="content\lib\Fayde.Controls\generic.xml" target="content\lib\Fayde.Controls\generic.xml" />
-        <file src="content\lib\Fayde.Controls\source.js" target="content\lib\Fayde.Controls\source.js" />
+        <file src="content\lib\Fayde.Controls\Default.theme.xml" target="content\lib\Fayde.Controls\Default.theme.xml" />
+        <file src="content\lib\Fayde.Controls\Fayde.Controls.d.ts" target="content\lib\Fayde.Controls\Fayde.Controls.d.ts" />
+        <file src="content\lib\Fayde.Controls\Fayde.Controls.js" target="content\lib\Fayde.Controls\Fayde.Controls.js" />
+        <file src="content\lib\Fayde.Controls\Metro.theme.xml" target="content\lib\Fayde.Controls\Metro.theme.xml" />
+        <file src="tools\commands.psm1" target="tools\commands.psm1" />
+        <file src="tools\install.ps1" target="tools\install.ps1" />
+        <file src="tools\uninstall.ps1" target="tools\uninstall.ps1" />
     </files>
 </package>

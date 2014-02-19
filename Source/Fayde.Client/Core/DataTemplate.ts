@@ -2,7 +2,7 @@
 
 module Fayde {
     export class DataTemplate extends Xaml.FrameworkTemplate {
-        TargetType: Function;
+        DataType: Function;
 
         constructor() {
             super();

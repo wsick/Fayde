@@ -62,6 +62,12 @@ module Fayde {
             }
             this._IsSealed = true;
         }
+
+        static Compare(setter1: Setter, setter2: Setter): number {
+            var a = setter1.Property;
+            var b = setter2.Property;
+            return (a === b) ? 0 : ((a._ID > b._ID) ? 1 : -1);
+        }
     }
     Fayde.RegisterType(Setter, "Fayde", Fayde.XMLNS);
 }

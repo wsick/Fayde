@@ -83,7 +83,10 @@
     <TypeScriptCompile Include="TreeViewItem.ts" />
     <TypeScriptCompile Include="TreeView.ts" />
     <TypeScriptCompile Include="Fayde.d.ts" />
-    <Content Include="Themes\generic.xml">
+    <Content Include="Themes\Metro.theme.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Themes\Default.theme.xml">
       <SubType>Designer</SubType>
     </Content>
     <TypeScriptCompile Include="TabPanel.ts" />

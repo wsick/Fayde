@@ -27,8 +27,7 @@ module Fayde {
         private _IsLoaded = false;
         private _LoadError: any = null;
         private _Deferrables: IDeferrable<Theme>[] = [];
-        Resolve(ctx?: ILibraryAsyncContext): IAsyncRequest<Theme> {
-            ctx = ctx || { Resolving: [] };
+        Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<Theme> {
             this._Load(ctx);
 
             var d = defer<Theme>();
@@ -44,11 +43,11 @@ module Fayde {
             return d.request;
         }
 
-        private _Load(ctx: ILibraryAsyncContext) {
+        private _Load(ctx: IDependencyAsyncContext) {
             var uri = this.Uri;
             if (!uri)
                 return;
-            Xaml.XamlDocument.Resolve(uri.toString(), ctx)
+            Xaml.XamlDocument.GetAsync(uri.toString(), ctx)
                 .success(xd => this._HandleSuccess(xd))
                 .error(error => this._HandleError(error));
         }
@@ -83,14 +82,4 @@ module Fayde {
         }
     }
     Fayde.RegisterType(Theme, "Fayde", Fayde.XMLNS);
-    Fayde.RegisterTypeConverter(Theme, (val: any): Theme => {
-        if (!val)
-            return undefined;
-        if (typeof val === "string") {
-            var theme = new Theme();
-            theme.Uri = new Uri(val);
-            return theme;
-        }
-        return val;
-    });
 }

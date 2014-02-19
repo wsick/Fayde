@@ -747,7 +747,7 @@ module Fayde {
                 lu.Flags |= flag;
             }
         }
-        
+
         UpdateLayer(pass: Fayde.ILayoutPass, error: BError) {
             var elNode = this.Node;
             var parentNode: Fayde.UINode;
@@ -833,8 +833,14 @@ module Fayde {
                         pass.Updated = true;
                         changes.push(lu._UpdateActualSize());
                     }
+                    var rv: UIElement;
+                    var surface = this.Surface;
+                    if (surface)
+                        rv = surface._RootLayer;
                     var change: ISizeChangedData;
                     while (change = changes.pop()) {
+                        if (rv && rv === change.Element)
+                            surface.App.OnResized(change.PreviousSize, change.NewSize);
                         change.Element.SizeChanged.Raise(change.Element, new SizeChangedEventArgs(change.PreviousSize, change.NewSize));
                     }
                     //LayoutDebug(function () { return "Completed _SizeList Update"; });
