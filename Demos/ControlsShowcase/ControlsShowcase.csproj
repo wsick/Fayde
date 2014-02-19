@@ -82,11 +82,11 @@
     </None>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
-  <Import Project="packages\Fayde.0.9.8.0\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.8.0\build\Fayde.targets')" />
+  <Import Project="packages\Fayde.0.9.8.1\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.8.1\build\Fayde.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('packages\Fayde.0.9.8.0\build\Fayde.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fayde.0.9.8.0\build\Fayde.targets'))" />
+    <Error Condition="!Exists('packages\Fayde.0.9.8.1\build\Fayde.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fayde.0.9.8.1\build\Fayde.targets'))" />
   </Target>
 </Project>
