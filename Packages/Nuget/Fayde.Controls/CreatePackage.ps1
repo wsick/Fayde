@@ -15,4 +15,12 @@ $revision = ([int]$tokens.Get(3) + 1).ToString()
 
 $newversion = "$major.$minor.$build.$revision"
 Set-Content -Value $newversion $vpath
-nuget pack ".\Fayde.Controls.nuspec" -Version $newversion -OutputDirectory "..\"
+
+$specfile = $PWD.Path + "\Fayde.Controls.nuspec"
+[xml]$specxml = New-Object System.Xml.XmlDocument
+$specxml.PreserveWhitespace = $true
+$specxml.Load($specfile)
+$specxml.package.metadata.version = $newversion
+Set-Content $specfile $specxml.OuterXml
+
+nuget pack $specfile -Version $newversion -OutputDirectory "..\"
