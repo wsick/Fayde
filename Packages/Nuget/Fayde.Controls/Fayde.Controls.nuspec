@@ -14,7 +14,7 @@
     </metadata>
     <files>
         <file src="content\lib\Fayde.Controls\Default.theme.xml" target="content\lib\Fayde.Controls\Default.theme.xml" />
-        <file src="content\lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" target="content\lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" />
+        <file src="content\lib\Fayde.Controls\Fayde.Controls.d.ts" target="content\lib\Fayde.Controls\Fayde.Controls.d.ts" />
         <file src="content\lib\Fayde.Controls\Fayde.Controls.js" target="content\lib\Fayde.Controls\Fayde.Controls.js" />
         <file src="content\lib\Fayde.Controls\Metro.theme.xml" target="content\lib\Fayde.Controls\Metro.theme.xml" />
     </files>

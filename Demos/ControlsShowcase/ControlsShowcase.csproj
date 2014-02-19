@@ -58,7 +58,7 @@
   <ItemGroup>
     <Content Include="default.html" />
     <Content Include="lib\Fayde.Controls\Default.theme.xml" />
-    <Content Include="lib\Fayde.Controls\Fayde.Controls.Ex.d.ts" />
+    <Content Include="lib\Fayde.Controls\Fayde.Controls.d.ts" />
     <Content Include="lib\Fayde.Controls\Fayde.Controls.js" />
     <Content Include="lib\Fayde.Controls\Metro.theme.xml" />
     <Content Include="lib\Fayde\Default.theme.xml" />
