@@ -7976,23 +7976,23 @@ var Fayde;
 
             Object.defineProperty(ft, "TemplateElement", { value: el, writable: false });
             if (ft instanceof Fayde.Controls.ControlTemplate) {
-                var ttattr = getTargetTypeAttr(el);
-                if (!ttattr)
+                var dtattr = getTargetTypeAttr(el);
+                if (!dtattr)
                     throw new XamlParseException("ControlTemplate must have a TargetType.");
-                var ctres = Fayde.TypeResolver.ResolveFullyQualifiedName(ttattr.value, ttattr);
+                var ctres = Fayde.TypeResolver.ResolveFullyQualifiedName(dtattr.value, dtattr);
                 if (!ctres)
-                    throw new XamlParseException("Could not find ControlTemplate.TargetType '" + ttattr.value + "'.");
+                    throw new XamlParseException("Could not find ControlTemplate.TargetType '" + dtattr.value + "'.");
                 Object.defineProperty(ft, "TargetType", {
                     value: ctres.Type,
                     writable: false
                 });
             } else if (ft instanceof Fayde.DataTemplate) {
-                var ttattr = getTargetTypeAttr(el);
-                if (ttattr) {
-                    var dtres = Fayde.TypeResolver.ResolveFullyQualifiedName(ttattr.value, ttattr);
+                var dtattr = getDataTypeAttr(el);
+                if (dtattr) {
+                    var dtres = Fayde.TypeResolver.ResolveFullyQualifiedName(dtattr.value, dtattr);
                     if (!dtres)
-                        throw new XamlParseException("Could not resolve DataTemplate.TargetType '" + ttattr.value + "'.");
-                    Object.defineProperty(ft, "TargetType", {
+                        throw new XamlParseException("Could not resolve DataTemplate.DataType '" + dtattr.value + "'.");
+                    Object.defineProperty(ft, "DataType", {
                         value: dtres.Type,
                         writable: false
                     });
@@ -8025,6 +8025,13 @@ var Fayde;
             if (!targetTypeNode)
                 targetTypeNode = attrs.getNamedItem("TargetType");
             return targetTypeNode;
+        }
+        function getDataTypeAttr(el) {
+            var attrs = el.attributes;
+            var dataTypeNode = attrs.getNamedItemNS(Fayde.XMLNS, "DataType");
+            if (!dataTypeNode)
+                dataTypeNode = attrs.getNamedItem("DataType");
+            return dataTypeNode;
         }
 
         function createXamlChildProcessor(owner, ownerType, ctx) {
@@ -8386,17 +8393,17 @@ var Fayde;
                 return;
             }
             if (cur instanceof Fayde.Style) {
-                var targetType = cur.TargetType;
-                if (!targetType)
+                var dataType = cur.TargetType;
+                if (!dataType)
                     throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
-                rd.Set(targetType, cur);
+                rd.Set(dataType, cur);
                 return;
             }
             if (cur instanceof Fayde.DataTemplate) {
-                var targetType = cur.TargetType;
-                if (!targetType)
-                    throw new XamlParseException("A DataTemplate in a ResourceDictionary must have a x:Key or TargetType.");
-                rd.Set(targetType, cur);
+                var dataType = cur.DataType;
+                if (!dataType)
+                    throw new XamlParseException("A DataTemplate in a ResourceDictionary must have a x:Key or DataType.");
+                rd.Set(dataType, cur);
                 return;
             }
             throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
@@ -13897,38 +13904,12 @@ var Fayde;
             __extends(RadioButton, _super);
             function RadioButton() {
                 _super.call(this);
-                RadioButton.Register("", this);
                 this.DefaultStyleKey = this.constructor;
+                register("", this);
             }
-            RadioButton.Register = function (groupName, radioButton) {
-                if (!groupName)
-                    groupName = "";
-
-                var list = RadioButton._GroupNameToElements[groupName];
-                if (!list) {
-                    list = [];
-                    RadioButton._GroupNameToElements[groupName] = list;
-                }
-                list.push(radioButton);
-            };
-            RadioButton.Unregister = function (groupName, radioButton) {
-                if (!groupName)
-                    groupName = "";
-
-                var list = RadioButton._GroupNameToElements[groupName];
-                if (list) {
-                    for (var i = 0; i < list.length; i++) {
-                        if (radioButton === list[i]) {
-                            list.splice(i, 1);
-                            break;
-                        }
-                    }
-                }
-            };
-
-            RadioButton.prototype.OnGroupNameChanged = function (e) {
-                RadioButton.Unregister(e.OldValue, this);
-                RadioButton.Register(e.NewValue, this);
+            RadioButton.prototype.OnGroupNameChanged = function (args) {
+                unregister(args.OldValue, this);
+                register(args.NewValue, this);
             };
 
             RadioButton.prototype.OnIsCheckedChanged = function (e) {
@@ -13942,7 +13923,7 @@ var Fayde;
 
             RadioButton.prototype.UpdateRadioButtonGroup = function () {
                 var groupName = this.GroupName || "";
-                var elements = RadioButton._GroupNameToElements[groupName];
+                var elements = groupNameToElements[groupName];
                 if (!elements)
                     return;
 
@@ -13973,17 +13954,37 @@ var Fayde;
                     }
                 }
             };
-            RadioButton.GroupNameProperty = DependencyProperty.RegisterReadOnly("GroupName", function () {
+            RadioButton.GroupNameProperty = DependencyProperty.Register("GroupName", function () {
                 return String;
             }, RadioButton, false, function (d, args) {
                 return d.OnGroupNameChanged(args);
             });
-
-            RadioButton._GroupNameToElements = [];
             return RadioButton;
         })(Fayde.Controls.Primitives.ToggleButton);
         Controls.RadioButton = RadioButton;
         Fayde.RegisterType(RadioButton, "Fayde.Controls", Fayde.XMLNS);
+
+        var groupNameToElements = [];
+        function register(groupName, radioButton) {
+            if (!groupName)
+                groupName = "";
+
+            var list = groupNameToElements[groupName];
+            if (!list)
+                groupNameToElements[groupName] = list = [];
+            list.push(radioButton);
+        }
+        function unregister(groupName, radioButton) {
+            if (!groupName)
+                groupName = "";
+
+            var list = groupNameToElements[groupName];
+            if (list) {
+                var index = list.indexOf(radioButton);
+                if (index > -1)
+                    list.splice(index, 1);
+            }
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
