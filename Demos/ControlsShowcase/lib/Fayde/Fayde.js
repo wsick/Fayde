@@ -24,7 +24,7 @@ var Fayde;
                 return regXds[url] = new XamlDocument(xaml);
             };
 
-            XamlDocument.Resolve = function (url, ctx) {
+            XamlDocument.GetAsync = function (url, ctx) {
                 if (url instanceof Uri)
                     url = url.toString();
                 var xamlUrl = "text!" + url;
@@ -37,6 +37,7 @@ var Fayde;
                     return d.request;
                 }
 
+                ctx = ctx || createContext();
                 require([xamlUrl], function (xaml) {
                     xd = new XamlDocument(xaml);
                     xd.Resolve(ctx).success(function (o) {
@@ -53,7 +54,10 @@ var Fayde;
                 addDependencies(this.Document.documentElement, deps);
                 ignoreCircularReferences(deps, ctx);
                 if (deps.length > 0) {
-                    deferArray(deps, resolveDependency).success(function (ds) {
+                    discoverAppTheme(this.Document.documentElement, ctx);
+                    deferArray(deps, function (dep) {
+                        return resolveDependency(dep, ctx);
+                    }).success(function (ds) {
                         return d.resolve(_this);
                     }).error(d.reject);
                 } else {
@@ -65,7 +69,7 @@ var Fayde;
         })();
         Xaml.XamlDocument = XamlDocument;
 
-        function resolveDependency(dep) {
+        function resolveDependency(dep, ctx) {
             var d = defer();
 
             if (dep.indexOf("lib:") === 0) {
@@ -74,7 +78,7 @@ var Fayde;
                     d.reject("Could not resolve library: '" + dep + "'.");
                     return d.request;
                 }
-                return library.Resolve();
+                return library.Resolve(ctx);
             }
 
             require([dep], d.resolve, d.reject);
@@ -95,7 +99,7 @@ var Fayde;
 
         function addDependencies(el, list) {
             while (el) {
-                getNodeDependency(el, list);
+                getDependency(el, list);
                 getAttributeDependencies(el, list);
                 getResourceDictionaryDependency(el, list);
                 addDependencies(el.firstElementChild, list);
@@ -115,13 +119,10 @@ var Fayde;
         function getAttributeDependencies(el, list) {
             var attrs = el.attributes;
             for (var i = 0, len = attrs.length; i < len; i++) {
-                var attr = attrs[i];
-                getNodeDependency(attr, list);
-                getNodeValueDependency(attr, list);
-                getNodeValueImplicitDependency(attr, list);
+                getDependency(attrs[i], list);
             }
         }
-        function getNodeDependency(node, list) {
+        function getDependency(node, list) {
             var nsUri = node.namespaceURI;
             if (!nsUri || nsUri === W3URI || nsUri === Fayde.XMLNS || nsUri === Fayde.XMLNSX)
                 return;
@@ -140,58 +141,22 @@ var Fayde;
                 list.push(format);
             }
         }
-        function getNodeValueDependency(attr, list) {
-            var val = attr.value;
-            var components = Fayde.Xaml.MarkupExpressionParser.GetComponents(val);
-            if (components && components[0] === "x:Type") {
-                addFullyQualifiedType(attr, components[1], list);
+        function discoverAppTheme(el, ctx) {
+            if (el.localName === "Application") {
+                if (!el.namespaceURI || el.namespaceURI === Fayde.XMLNS) {
+                    var tnattr = el.attributes.getNamedItem("ThemeName");
+                    if (tnattr)
+                        ctx.ThemeName = tnattr.value;
+                }
             }
         }
 
-        function getNodeValueImplicitDependency(attr, list) {
-            var val = attr.value;
-            if (val[0] === "{")
-                return;
-            var parent = attr.ownerElement;
-            if (parent.namespaceURI !== Fayde.XMLNS && parent.namespaceURI !== null)
-                return;
-            switch (parent.localName) {
-                case "DataTemplate":
-                    if (attr.localName !== "DataType")
-                        return;
-                    break;
-                case "ControlTemplate":
-                    if (attr.localName !== "TargetType")
-                        return;
-                    break;
-                case "Style":
-                    if (attr.localName !== "TargetType")
-                        return;
-                    break;
-                default:
-                    return;
-            }
-            addFullyQualifiedType(attr, val, list);
-        }
-        function addFullyQualifiedType(attr, type, list) {
-            var index = type.indexOf(":");
-            if (index > -1) {
-                var prefix = type.substr(0, index);
-                var name = type.substr(index + 1);
-                var nsUri = attr.lookupNamespaceURI(prefix);
-                if (!nsUri)
-                    return;
-                if (nsUri.indexOf("lib:") === 0) {
-                    if (list.indexOf(nsUri) > -1)
-                        return;
-                    list.push(nsUri);
-                } else {
-                    var format = nsUri + "/" + name;
-                    if (list.indexOf(format) > -1)
-                        return;
-                    list.push(format);
-                }
-            }
+        function createContext() {
+            var app = Fayde.Application.Current;
+            return {
+                ThemeName: app ? app.ThemeName : "Default",
+                Resolving: []
+            };
         }
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
@@ -2487,19 +2452,15 @@ var Fayde;
                 case 2 /* TouchUp */:
                     x.OnTouchUp(args);
                     x.TouchUp.Raise(x, args);
-                    break;
                 case 3 /* TouchMove */:
                     x.OnTouchMove(args);
                     x.TouchMove.Raise(x, args);
-                    break;
                 case 4 /* TouchEnter */:
                     x.OnTouchEnter(args);
                     x.TouchEnter.Raise(x, args);
-                    break;
                 case 5 /* TouchLeave */:
                     x.OnTouchLeave(args);
                     x.TouchLeave.Raise(x, args);
-                    break;
                 default:
                     return false;
             }
@@ -5278,6 +5239,16 @@ var Fayde;
                 this.IsEnabled = newParentNode ? newParentNode.IsEnabled : true;
             };
 
+            ControlNode.prototype.OnTemplateChanged = function (oldTemplate, newTemplate) {
+                var subtree = this.SubtreeNode;
+                if (subtree) {
+                    var error = new BError();
+                    if (!this.DetachVisualChild(subtree.XObject, error))
+                        error.ThrowException();
+                }
+                this.LayoutUpdater.InvalidateMeasure();
+            };
+
             Object.defineProperty(ControlNode.prototype, "IsEnabled", {
                 get: function () {
                     return this.XObject.IsEnabled;
@@ -5413,16 +5384,6 @@ var Fayde;
                 return false;
             };
 
-            Control.prototype._TemplateChanged = function (args) {
-                var node = this.XamlNode;
-                var subtree = node.SubtreeNode;
-                if (subtree) {
-                    var error = new BError();
-                    if (!node.DetachVisualChild(subtree.XObject, error))
-                        error.ThrowException();
-                }
-                node.LayoutUpdater.InvalidateMeasure();
-            };
             Control.prototype._PaddingChanged = function (args) {
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
             };
@@ -5476,7 +5437,7 @@ var Fayde;
             Control.TemplateProperty = DependencyProperty.Register("Template", function () {
                 return Fayde.Controls.ControlTemplate;
             }, Control, undefined, function (d, args) {
-                return d._TemplateChanged(args);
+                return d.XamlNode.OnTemplateChanged(args.OldValue, args.NewValue);
             });
             Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () {
                 return new Enum(Fayde.VerticalAlignment);
@@ -5533,6 +5494,20 @@ var Fayde;
                 presenter.SetValue(Fayde.Controls.ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(ContentControl.ContentTemplateProperty, Fayde.Controls.ContentPresenter.ContentTemplateProperty));
                 return presenter;
             };
+
+            ContentControlNode.prototype.OnTemplateChanged = function (oldTemplate, newTemplate) {
+                var content = this.XObject.Content;
+                if (oldTemplate && content instanceof Fayde.UIElement) {
+                    var vpNode = content.XamlNode.VisualParentNode;
+                    if (vpNode instanceof Fayde.FENode) {
+                        var err = new BError();
+                        vpNode.DetachVisualChild(content, err);
+                        if (err.Message)
+                            err.ThrowException();
+                    }
+                }
+                _super.prototype.OnTemplateChanged.call(this, oldTemplate, newTemplate);
+            };
             return ContentControlNode;
         })(Fayde.Controls.ControlNode);
         Controls.ContentControlNode = ContentControlNode;
@@ -5568,7 +5543,7 @@ var Fayde;
                 var newUri;
                 if (args.NewValue instanceof Uri) {
                     newUri = args.NewValue;
-                    Fayde.Xaml.XamlDocument.Resolve(newUri).success(function (xd) {
+                    Fayde.Xaml.XamlDocument.GetAsync(newUri).success(function (xd) {
                         return _this._OnLoadedUri(xd);
                     }).error(function (err) {
                         return _this._OnErroredUri(err, newUri);
@@ -8721,7 +8696,7 @@ var Fayde;
             }
             Page.GetAsync = function (url) {
                 var d = defer();
-                Fayde.Xaml.XamlDocument.Resolve(url).success(function (xd) {
+                Fayde.Xaml.XamlDocument.GetAsync(url).success(function (xd) {
                     TimelineProfile.Parse(true, "Page");
                     var page = Fayde.Xaml.Load(xd.Document);
                     TimelineProfile.Parse(false, "Page");
@@ -17897,7 +17872,7 @@ var Fayde;
         (function (StyleIndex) {
             StyleIndex[StyleIndex["VisualTree"] = 0] = "VisualTree";
             StyleIndex[StyleIndex["ApplicationResources"] = 1] = "ApplicationResources";
-            StyleIndex[StyleIndex["GenericXaml"] = 2] = "GenericXaml";
+            StyleIndex[StyleIndex["Theme"] = 2] = "Theme";
             StyleIndex[StyleIndex["Count"] = 3] = "Count";
         })(Providers.StyleIndex || (Providers.StyleIndex = {}));
         var StyleIndex = Providers.StyleIndex;
@@ -17905,8 +17880,8 @@ var Fayde;
             StyleMask[StyleMask["None"] = 0] = "None";
             StyleMask[StyleMask["VisualTree"] = 1 << 0 /* VisualTree */] = "VisualTree";
             StyleMask[StyleMask["ApplicationResources"] = 1 << 1 /* ApplicationResources */] = "ApplicationResources";
-            StyleMask[StyleMask["GenericXaml"] = 1 << 2 /* GenericXaml */] = "GenericXaml";
-            StyleMask[StyleMask["All"] = StyleMask.VisualTree | StyleMask.ApplicationResources | StyleMask.GenericXaml] = "All";
+            StyleMask[StyleMask["Theme"] = 1 << 2 /* Theme */] = "Theme";
+            StyleMask[StyleMask["All"] = StyleMask.VisualTree | StyleMask.ApplicationResources | StyleMask.Theme] = "All";
         })(Providers.StyleMask || (Providers.StyleMask = {}));
         var StyleMask = Providers.StyleMask;
 
@@ -17915,7 +17890,7 @@ var Fayde;
             }
             ImplicitStyleBroker.Set = function (fe, mask, styles) {
                 if (!styles)
-                    styles = ImplicitStyleBroker.GetImplicitStyles(fe, mask);
+                    styles = getImplicitStyles(fe, mask);
                 if (styles) {
                     var error = new BError();
                     var len = 3 /* Count */;
@@ -17939,12 +17914,12 @@ var Fayde;
                 var oldStyles = fe.XamlNode._ImplicitStyles;
                 var newStyles = [null, null, null];
                 if (oldStyles) {
-                    newStyles[2 /* GenericXaml */] = oldStyles[2 /* GenericXaml */];
+                    newStyles[2 /* Theme */] = oldStyles[2 /* Theme */];
                     newStyles[1 /* ApplicationResources */] = oldStyles[1 /* ApplicationResources */];
                     newStyles[0 /* VisualTree */] = oldStyles[0 /* VisualTree */];
                 }
-                if (mask & StyleMask.GenericXaml)
-                    newStyles[2 /* GenericXaml */] = styles[2 /* GenericXaml */];
+                if (mask & StyleMask.Theme)
+                    newStyles[2 /* Theme */] = styles[2 /* Theme */];
                 if (mask & StyleMask.ApplicationResources)
                     newStyles[1 /* ApplicationResources */] = styles[1 /* ApplicationResources */];
                 if (mask & StyleMask.VisualTree)
@@ -17960,8 +17935,8 @@ var Fayde;
 
                 var newStyles = oldStyles.slice(0);
 
-                if (mask & StyleMask.GenericXaml)
-                    newStyles[2 /* GenericXaml */] = null;
+                if (mask & StyleMask.Theme)
+                    newStyles[2 /* Theme */] = null;
                 if (mask & StyleMask.ApplicationResources)
                     newStyles[1 /* ApplicationResources */] = null;
                 if (mask & StyleMask.VisualTree)
@@ -17985,111 +17960,72 @@ var Fayde;
                 if (!isChanged)
                     return;
 
-                var arr = fe._PropertyStorage;
-
-                var oldWalker = Fayde.MultipleStylesWalker(oldStyles);
-                var newWalker = Fayde.MultipleStylesWalker(styles);
-                var oldSetter = oldWalker.Step();
-                var newSetter = newWalker.Step();
-                var oldProp;
-                var newProp;
-
-                var storage;
-                var oldValue = undefined;
-                var newValue = undefined;
-                var propd;
-                while (oldSetter || newSetter) {
-                    if (oldSetter) {
-                        propd = oldProp = oldSetter.Property;
-                        oldValue = oldSetter.ConvertedValue;
-                    }
-                    if (newSetter) {
-                        propd = newProp = newSetter.Property;
-                        newValue = newSetter.ConvertedValue;
-                    }
-
-                    storage = arr[propd._ID];
-                    if (!storage)
-                        storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
-                    propd.Store.SetImplicitStyle(storage, newValue);
-
-                    if (oldProp)
-                        oldSetter = oldWalker.Step();
-                    if (newProp)
-                        newSetter = newWalker.Step();
-                }
+                Fayde.Providers.SwapStyles(fe, Fayde.MultipleStylesWalker(oldStyles), Fayde.MultipleStylesWalker(styles), true);
 
                 holder._ImplicitStyles = styles;
                 holder._StyleMask = mask;
             };
-
-            ImplicitStyleBroker.GetImplicitStyles = function (fe, mask) {
-                var feType = fe.constructor;
-
-                var app = Fayde.Application.Current;
-
-                var genericXamlStyle = undefined;
-                if (app) {
-                    if ((mask & StyleMask.GenericXaml) != 0) {
-                        if (fe instanceof Fayde.Controls.Control) {
-                            genericXamlStyle = fe.GetDefaultStyle();
-                            if (!genericXamlStyle) {
-                                var styleKey = fe.DefaultStyleKey;
-                                if (styleKey)
-                                    genericXamlStyle = app.GetImplicitStyle(styleKey);
-                            }
-                        }
-                    }
-                }
-
-                if (false) {
-                    var appResourcesStyle = undefined;
-                    var rd = app.Resources;
-                    if ((mask & StyleMask.ApplicationResources) != 0) {
-                        appResourcesStyle = rd.Get(feType);
-                        if (!appResourcesStyle)
-                            appResourcesStyle = rd.Get(feType);
-                    }
-                }
-
-                var visualTreeStyle = undefined;
-                if ((mask & StyleMask.VisualTree) != 0) {
-                    var cur = fe;
-                    var curNode = fe.XamlNode;
-                    var isControl = curNode instanceof Fayde.Controls.ControlNode;
-
-                    while (curNode) {
-                        cur = curNode.XObject;
-                        if (cur.TemplateOwner && !fe.TemplateOwner) {
-                            cur = cur.TemplateOwner;
-                            curNode = cur.XamlNode;
-                            continue;
-                        }
-                        if (!isControl && cur === fe.TemplateOwner)
-                            break;
-
-                        rd = cur.Resources;
-                        if (rd) {
-                            visualTreeStyle = rd.Get(feType);
-                            if (!visualTreeStyle)
-                                visualTreeStyle = rd.Get(feType);
-                            if (visualTreeStyle)
-                                break;
-                        }
-
-                        curNode = curNode.VisualParentNode;
-                    }
-                }
-
-                var styles = [];
-                styles[2 /* GenericXaml */] = genericXamlStyle;
-                styles[1 /* ApplicationResources */] = appResourcesStyle;
-                styles[0 /* VisualTree */] = visualTreeStyle;
-                return styles;
-            };
             return ImplicitStyleBroker;
         })();
         Providers.ImplicitStyleBroker = ImplicitStyleBroker;
+
+        function getImplicitStyles(fe, mask) {
+            var styles = [];
+            if ((mask & StyleMask.Theme) != 0) {
+                styles[2 /* Theme */] = getThemeStyle(fe);
+            }
+
+            if ((mask & StyleMask.ApplicationResources) != 0) {
+                var app = Fayde.Application.Current;
+                if (app)
+                    styles[1 /* ApplicationResources */] = getAppResourcesStyle(app, fe);
+            }
+
+            if ((mask & StyleMask.VisualTree) != 0)
+                styles[0 /* VisualTree */] = getVisualTreeStyle(fe);
+
+            return styles;
+        }
+        function getThemeStyle(fe) {
+            if (fe instanceof Fayde.Controls.Control) {
+                var style = fe.GetDefaultStyle();
+                if (style)
+                    return style;
+            }
+            return Fayde.Library.GetThemeStyle(fe.DefaultStyleKey);
+        }
+        function getAppResourcesStyle(app, fe) {
+            return app.Resources.Get(fe.DefaultStyleKey);
+        }
+        function getVisualTreeStyle(fe) {
+            var key = fe.DefaultStyleKey;
+            var cur = fe;
+            var isControl = cur instanceof Fayde.Controls.Control;
+            var curNode = fe.XamlNode;
+            var rd;
+
+            while (curNode) {
+                cur = curNode.XObject;
+                if (cur.TemplateOwner && !fe.TemplateOwner) {
+                    cur = cur.TemplateOwner;
+                    curNode = cur.XamlNode;
+                    continue;
+                }
+                if (!isControl && cur === fe.TemplateOwner)
+                    break;
+
+                rd = cur.Resources;
+                if (rd) {
+                    var style = rd.Get(key);
+                    if (style)
+                        return style;
+                }
+
+                curNode = curNode.VisualParentNode;
+            }
+
+            return undefined;
+        }
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));
@@ -18101,41 +18037,8 @@ var Fayde;
             }
             LocalStyleBroker.Set = function (fe, newStyle) {
                 var holder = fe.XamlNode;
-                var arr = fe._PropertyStorage;
-
-                var oldWalker = Fayde.SingleStyleWalker(holder._LocalStyle);
-                var newWalker = Fayde.SingleStyleWalker(newStyle);
                 newStyle.Seal();
-                var oldSetter = oldWalker.Step();
-                var newSetter = newWalker.Step();
-                var oldProp;
-                var newProp;
-
-                var storage;
-                var oldValue = undefined;
-                var newValue = undefined;
-                var propd;
-                while (oldSetter || newSetter) {
-                    if (oldSetter) {
-                        propd = oldProp = oldSetter.Property;
-                        oldValue = oldSetter.ConvertedValue;
-                    }
-                    if (newSetter) {
-                        propd = newProp = newSetter.Property;
-                        newValue = newSetter.ConvertedValue;
-                    }
-
-                    storage = arr[propd._ID];
-                    if (!storage)
-                        storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
-                    propd.Store.SetLocalStyleValue(storage, newValue);
-
-                    if (oldProp)
-                        oldSetter = oldWalker.Step();
-                    if (newProp)
-                        newSetter = newWalker.Step();
-                }
-
+                Fayde.Providers.SwapStyles(fe, Fayde.SingleStyleWalker(holder._LocalStyle), Fayde.SingleStyleWalker(newStyle), false);
                 holder._LocalStyle = newStyle;
             };
             return LocalStyleBroker;
@@ -18473,6 +18376,12 @@ var Fayde;
                 throw new XamlParseException(err.message);
             }
             this._IsSealed = true;
+        };
+
+        Setter.Compare = function (setter1, setter2) {
+            var a = setter1.Property;
+            var b = setter2.Property;
+            return (a === b) ? 0 : ((a._ID > b._ID) ? 1 : -1);
         };
         Setter.PropertyProperty = DependencyProperty.Register("Property", function () {
             return DependencyProperty;
@@ -19071,11 +18980,6 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    function setterSort(setter1, setter2) {
-        var a = setter1.Property;
-        var b = setter2.Property;
-        return (a === b) ? 0 : ((a._ID > b._ID) ? 1 : -1);
-    }
     function mergeSetters(arr, dps, style) {
         var enumerator = style.Setters.GetEnumerator(true);
         var setter;
@@ -19100,7 +19004,7 @@ var Fayde;
             mergeSetters(flattenedSetters, dps, cur);
             cur = cur.BasedOn;
         }
-        flattenedSetters.sort(setterSort);
+        flattenedSetters.sort(Fayde.Setter.Compare);
 
         return {
             Step: function () {
@@ -19125,7 +19029,7 @@ var Fayde;
                     style = style.BasedOn;
                 }
             }
-            flattenedSetters.sort(setterSort);
+            flattenedSetters.sort(Fayde.Setter.Compare);
         }
 
         return {
@@ -21253,8 +21157,11 @@ var Fayde;
             this.Loaded = new MulticastEvent();
             this.Address = null;
             this._IsRunning = false;
+            this._IsLoaded = false;
             this._Storyboards = [];
             this._ClockTimer = new Fayde.ClockTimer();
+            this._RootVisual = null;
+            this._CoreLibrary = null;
             this.Resized = new Fayde.RoutedEvent();
             this.XamlNode.NameScope = new Fayde.NameScope(true);
             var rd = Application.ResourcesProperty.Initialize(this);
@@ -21262,6 +21169,27 @@ var Fayde;
             this.DebugInterop = new Fayde.DebugInterop(this);
             this.Address = new Uri(document.URL);
         }
+        Application.prototype.OnThemeNameChanged = function (args) {
+            var _this = this;
+            if (!this._IsLoaded)
+                return;
+            Fayde.Library.ChangeTheme(args.NewValue).success(function (res) {
+                return _this._ApplyTheme();
+            }).error(function (err) {
+                return console.warn("Could not change theme. " + err.toString());
+            });
+        };
+        Application.prototype._ApplyTheme = function () {
+            var layers = this.MainSurface.GetLayers();
+            for (var i = 0, len = layers.length; i < len; i++) {
+                var walker = Fayde.DeepTreeWalker(layers[i]);
+                var cur;
+                while ((cur = walker.Step())) {
+                    Fayde.Providers.ImplicitStyleBroker.Set(cur.XObject, Fayde.Providers.StyleMask.Theme);
+                }
+            }
+        };
+
         Application.prototype.OnResized = function (oldSize, newSize) {
             this.Resized.Raise(this, new Fayde.SizeChangedEventArgs(oldSize, newSize));
         };
@@ -21274,16 +21202,6 @@ var Fayde;
             configurable: true
         });
 
-        Application.prototype.Resolve = function () {
-            var _this = this;
-            var d = defer();
-
-            this.Theme.Resolve().success(function (theme) {
-                return d.resolve(_this);
-            }).error(d.reject);
-
-            return d.request;
-        };
         Application.prototype.$$SetRootVisual = function (value) {
             this._RootVisual = value;
         };
@@ -21293,6 +21211,7 @@ var Fayde;
         };
         Application.prototype.Start = function () {
             this._ClockTimer.RegisterTimer(this);
+            this._IsLoaded = true;
             this.Loaded.RaiseAsync(this, EventArgs.Empty);
         };
         Application.prototype.OnTicked = function (lastTime, nowTime) {
@@ -21339,15 +21258,6 @@ var Fayde;
                 sbs.splice(index, 1);
         };
 
-        Application.prototype.GetImplicitStyle = function (type) {
-            var theme = this.Theme;
-            var style;
-            if (theme && (style = theme.GetImplicitStyle(type)))
-                return style;
-
-            return Fayde.Library.GetImplicitStyle(type);
-        };
-
         Application.prototype.__DebugLayers = function () {
             return this.MainSurface.__DebugLayers();
         };
@@ -21357,7 +21267,7 @@ var Fayde;
 
         Application.GetAsync = function (url) {
             var d = defer();
-            Fayde.Xaml.XamlDocument.Resolve(url).success(function (xd) {
+            Fayde.Xaml.XamlDocument.GetAsync(url).success(function (xd) {
                 TimelineProfile.Parse(true, "App");
                 var app = Fayde.Xaml.Load(xd.Document);
                 TimelineProfile.Parse(false, "App");
@@ -21368,14 +21278,26 @@ var Fayde;
             }).error(d.reject);
             return d.request;
         };
-        Application.Version = "0.9.6.0";
+        Application.prototype.Resolve = function () {
+            var _this = this;
+            var d = defer();
 
+            var lib = Fayde.Library.Get("lib:Fayde") || Fayde.RegisterLibrary("Fayde", "Fayde");
+            lib.Resolve({ ThemeName: this.ThemeName || "Default", Resolving: [] }).success(function (lib) {
+                _this._CoreLibrary = lib;
+                d.resolve(_this);
+            }).error(d.reject);
+
+            return d.request;
+        };
         Application.ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", function () {
             return Fayde.ResourceDictionary;
         }, Application);
-        Application.ThemeProperty = DependencyProperty.Register("Theme", function () {
-            return Fayde.Theme;
-        }, Application);
+        Application.ThemeNameProperty = DependencyProperty.Register("ThemeName", function () {
+            return String;
+        }, Application, "Default", function (d, args) {
+            return d.OnThemeNameChanged(args);
+        });
         return Application;
     })(Fayde.DependencyObject);
     Fayde.Application = Application;
@@ -34856,7 +34778,6 @@ var Fayde;
         };
 
         Theme.prototype.Resolve = function (ctx) {
-            ctx = ctx || { Resolving: [] };
             this._Load(ctx);
 
             var d = defer();
@@ -34877,7 +34798,7 @@ var Fayde;
             var uri = this.Uri;
             if (!uri)
                 return;
-            Fayde.Xaml.XamlDocument.Resolve(uri.toString(), ctx).success(function (xd) {
+            Fayde.Xaml.XamlDocument.GetAsync(uri.toString(), ctx).success(function (xd) {
                 return _this._HandleSuccess(xd);
             }).error(function (error) {
                 return _this._HandleError(error);
@@ -34916,16 +34837,6 @@ var Fayde;
     })();
     Fayde.Theme = Theme;
     Fayde.RegisterType(Theme, "Fayde", Fayde.XMLNS);
-    Fayde.RegisterTypeConverter(Theme, function (val) {
-        if (!val)
-            return undefined;
-        if (typeof val === "string") {
-            var theme = new Theme();
-            theme.Uri = new Uri(val);
-            return theme;
-        }
-        return val;
-    });
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -36928,27 +36839,46 @@ function deferArray(arr, resolver) {
 }
 var Fayde;
 (function (Fayde) {
-    var libraries = [];
     var Library = (function () {
-        function Library(moduleUrl, themeUrl) {
+        function Library(Name) {
+            this.Name = Name;
+            this._Module = undefined;
+            this._CurrentTheme = undefined;
+            this._Themes = [];
             this._IsLoading = false;
             this._IsLoaded = false;
             this._LoadError = null;
             this._Deferrables = [];
-            this._ModuleUrl = moduleUrl;
-            this._ThemeUrl = themeUrl;
         }
+        Object.defineProperty(Library.prototype, "Module", {
+            get: function () {
+                return this._Module;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        Object.defineProperty(Library.prototype, "CurrentTheme", {
+            get: function () {
+                return this._CurrentTheme;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
         Library.TryGetClass = function (xmlns, xmlname) {
             var libName;
             if (xmlns.indexOf("lib:") === 0)
                 libName = xmlns.substr("lib:".length);
 
             var library = Library.Get(xmlns);
-            if (!library || !library.Module) {
-                if (libName)
-                    throw new Exception("Could not find library: '" + libName + "'.");
+            if (!libName && (!library || !library.Module))
                 return undefined;
-            }
+
+            if (!library)
+                throw new Exception("Could not find library: '" + libName + "'.");
+            if (!library.Module)
+                throw new Exception("Could not acquire module in library: '" + libName + "'.");
 
             var c = library.Module[xmlname];
             if (c)
@@ -36957,27 +36887,34 @@ var Fayde;
             if (libName)
                 throw new Exception("Could not find type [" + xmlname + "] in library: '" + libName + "'.");
         };
-
-        Library.Get = function (url) {
-            if (url.indexOf("lib:") !== 0)
+        Library.Get = function (xmlns) {
+            if (xmlns.indexOf("lib:") !== 0)
                 return undefined;
-            return libraries[url.substr("lib:".length)];
+            var name = xmlns.substr("lib:".length);
+            return libraries[name] || (libraries[name] = new Library(name));
         };
-
-        Library.GetImplicitStyle = function (type) {
+        Library.GetThemeStyle = function (type) {
             for (var id in libraries) {
                 var library = libraries[id];
-                if (!library.Theme)
+                if (!library.CurrentTheme)
                     continue;
-                var style = library.Theme.GetImplicitStyle(type);
+                var style = library.CurrentTheme.GetImplicitStyle(type);
                 if (style)
                     return style;
             }
             return undefined;
         };
+        Library.ChangeTheme = function (themeName) {
+            var reqs = [];
+            var library;
+            for (var name in libraries) {
+                library = libraries[name];
+                reqs.push(library._LoadTheme({ ThemeName: themeName, Resolving: [] }));
+            }
+            return deferArraySimple(reqs);
+        };
 
         Library.prototype.Resolve = function (ctx) {
-            ctx = ctx || { Resolving: [] };
             ctx.Resolving.push(this);
             this._Load(ctx);
 
@@ -37000,20 +36937,47 @@ var Fayde;
                 return;
             this._IsLoading = true;
 
-            require([this._ModuleUrl], function (res) {
-                _this.Module = res;
-                if (!_this._ThemeUrl) {
-                    _this._FinishLoad(ctx);
-                    return;
-                }
-                (_this.Theme = Fayde.Theme.Get(_this._ThemeUrl)).Resolve(ctx).success(function (res) {
+            if (this.Name === "Fayde") {
+                this._Module = Fayde;
+                this._LoadTheme(ctx).success(function (theme) {
                     return _this._FinishLoad(ctx);
-                }).error(function (error) {
-                    return _this._FinishLoad(ctx, error);
+                }).error(function (err) {
+                    return _this._FinishLoad(ctx, err);
+                });
+                return;
+            }
+
+            var moduleUrl = this.GetModuleRequireUrl();
+            require([moduleUrl], function (res) {
+                _this._Module = res;
+                _this._LoadTheme(ctx).success(function (theme) {
+                    return _this._FinishLoad(ctx);
+                }).error(function (err) {
+                    return _this._FinishLoad(ctx, err);
                 });
             }, function (error) {
                 return _this._FinishLoad(ctx, error);
             });
+        };
+        Library.prototype._LoadTheme = function (ctx) {
+            var _this = this;
+            var d = defer();
+            var themeUrl = this.GetThemeRequireUrl(ctx.ThemeName);
+            if (!themeUrl) {
+                this._CurrentTheme = undefined;
+                d.resolve(undefined);
+                return d.request;
+            }
+            var theme = this._Themes[ctx.ThemeName];
+            if (theme) {
+                d.resolve(this._CurrentTheme = theme);
+                return d.request;
+            }
+            theme = this._Themes[ctx.ThemeName] = Fayde.Theme.Get(themeUrl);
+            theme.Resolve(ctx).success(function (res) {
+                return d.resolve(_this._CurrentTheme = res);
+            }).error(d.reject);
+            return d.request;
         };
         Library.prototype._FinishLoad = function (ctx, error) {
             this._LoadError = error;
@@ -37030,17 +36994,86 @@ var Fayde;
                     ds[i].resolve(this);
             }
         };
+
+        Library.prototype.GetModuleRequireUrl = function () {
+            return "lib/" + this.Name + "/" + this.Name;
+        };
+        Library.prototype.GetThemeRequireUrl = function (themeName) {
+            return "lib/" + this.Name + "/" + themeName + ".theme.xml";
+        };
         return Library;
     })();
     Fayde.Library = Library;
 
-    function RegisterLibrary(name, moduleUrl, themeUrl) {
+    var libraries = [];
+    function RegisterLibrary(name, moduleUrl, themeUrlFunc) {
         var library = libraries[name];
         if (library)
             throw new Exception("Library already registered: '" + name + "'.");
-        return libraries[name] = new Library(moduleUrl, themeUrl);
+        library = libraries[name] = new Library(name);
+        if (moduleUrl)
+            library.GetModuleRequireUrl = function () {
+                return moduleUrl;
+            };
+        if (themeUrlFunc)
+            library.GetThemeRequireUrl = themeUrlFunc;
+        return library;
     }
     Fayde.RegisterLibrary = RegisterLibrary;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Providers) {
+        function SwapStyles(fe, oldWalker, newWalker, isImplicit) {
+            var arr = fe._PropertyStorage;
+            var oldSetter = oldWalker.Step();
+            var newSetter = newWalker.Step();
+
+            var storage;
+            var value;
+            var propd;
+            while (oldSetter || newSetter) {
+                if (oldSetter && newSetter) {
+                    switch (Fayde.Setter.Compare(oldSetter, newSetter)) {
+                        case 0:
+                            value = newSetter.ConvertedValue;
+                            propd = newSetter.Property;
+                            oldSetter = oldWalker.Step();
+                            newSetter = newWalker.Step();
+                            break;
+                        case -1:
+                            value = undefined;
+                            propd = oldSetter.Property;
+                            oldSetter = oldWalker.Step();
+                            break;
+                        case 1:
+                            value = newSetter.ConvertedValue;
+                            propd = newSetter.Property;
+                            newSetter = newWalker.Step();
+                            break;
+                    }
+                } else if (newSetter) {
+                    value = newSetter.ConvertedValue;
+                    propd = newSetter.Property;
+                    newSetter = newWalker.Step();
+                } else {
+                    value = undefined;
+                    propd = oldSetter.Property;
+                    oldSetter = oldWalker.Step();
+                }
+
+                storage = arr[propd._ID];
+                if (!storage)
+                    storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
+                if (isImplicit)
+                    propd.Store.SetImplicitStyle(storage, value);
+                else
+                    propd.Store.SetLocalStyleValue(storage, value);
+            }
+        }
+        Providers.SwapStyles = SwapStyles;
+    })(Fayde.Providers || (Fayde.Providers = {}));
+    var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -37084,12 +37117,6 @@ var Fayde;
                     default:
                         return undefined;
                 }
-            };
-            MarkupExpressionParser.GetComponents = function (value) {
-                var res = EXPRESSION_REGEX.exec(value);
-                if (res)
-                    return [res[1], res[2]];
-                return undefined;
             };
             return MarkupExpressionParser;
         })();

@@ -68,8 +68,9 @@
     <Content Include="Images\twitter.png" />
     <Content Include="Media\freeze_gopher.mp3" />
     <Content Include="Silverlight.js" />
-    <Content Include="Tests\App\Fayde.Controls\generic.xml" />
-    <Content Include="Tests\App\Fayde.Controls\source.js" />
+    <Content Include="Tests\lib\Fayde.Controls\Default.theme.xml" />
+    <Content Include="Tests\lib\Fayde.Controls\Metro.theme.xml" />
+    <Content Include="Tests\lib\Fayde.Controls\Fayde.Controls.js" />
     <Content Include="Tests\Controls\contentcontrol.fap" />
     <TypeScriptCompile Include="Tests\Controls\TestClass.ts" />
     <Content Include="Tests\Toy\default2.fap">
@@ -97,7 +98,6 @@
     </Content>
     <None Include="Tests\Binding\observablecoll-count.fap" />
     <Content Include="Tests\Binding\TestViewModel.js" />
-    <TypeScriptCompile Include="Tests\main.ts" />
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -119,8 +119,8 @@
     <Content Include="Tests\Path\quad-bezier.html" />
     <Content Include="Tests\Path\util.js" />
     <TypeScriptCompile Include="Tests\Shapes\map.ts" />
-    <Content Include="scripts\require.d.ts" />
-    <Content Include="scripts\require.js" />
+    <Content Include="Tests\lib\requirejs\require.d.ts" />
+    <Content Include="Tests\lib\requirejs\require.js" />
     <Content Include="Tests\Shapes\shape-stretch.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -166,7 +166,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Tests\test.aspx" />
-    <Content Include="scripts\text.js" />
+    <Content Include="Tests\lib\requirejs\text.js" />
     <Content Include="xamlload.html" />
     <Content Include="Tests\Binding\double-listbox.fap">
       <SubType>Designer</SubType>
