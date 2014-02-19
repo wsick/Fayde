@@ -2408,11 +2408,8 @@ declare module Fayde.Controls {
     class RadioButton extends Controls.Primitives.ToggleButton {
         static GroupNameProperty: DependencyProperty;
         public GroupName: string;
+        public OnGroupNameChanged(args: IDependencyPropertyChangedEventArgs): void;
         constructor();
-        private static _GroupNameToElements;
-        static Register(groupName: string, radioButton: RadioButton): void;
-        static Unregister(groupName: string, radioButton: RadioButton): void;
-        public OnGroupNameChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnIsCheckedChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnToggle(): void;
         public UpdateRadioButtonGroup(): void;
@@ -2943,7 +2940,7 @@ declare module Fayde {
 }
 declare module Fayde {
     class DataTemplate extends Fayde.Xaml.FrameworkTemplate {
-        public TargetType: Function;
+        public DataType: Function;
         constructor();
         public GetVisualTree(bindingSource?: Fayde.DependencyObject): Fayde.UIElement;
     }
@@ -6552,6 +6549,7 @@ declare module Fayde.Xaml {
     var IMarkup_: IInterfaceDeclaration<IMarkup>;
     class MarkupExpressionParser {
         static Parse(value: string, ctx: IMarkupParseContext): any;
+        static GetComponents(value: string): string[];
     }
 }
 declare module Fayde.Xaml {
