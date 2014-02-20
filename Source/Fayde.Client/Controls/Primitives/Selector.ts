@@ -8,15 +8,17 @@ module Fayde.Controls.Primitives {
         static SelectedValueProperty = DependencyProperty.Register("SelectedValue", () => Object, Selector, undefined, (d, args) => (<Selector>d)._OnSelectedValueChanged(args));
         static SelectedValuePathProperty = DependencyProperty.Register("SelectedValuePath", () => String, Selector, "", (d, args) => (<Selector>d)._OnSelectedValuePathChanged(args));
         static IsSelectionActiveProperty = DependencyProperty.RegisterReadOnlyCore("IsSelectionActive", () => Boolean, Selector);
+        static SelectionModeProperty = DependencyProperty.Register("SelectionMode", () => new Enum(SelectionMode), Selector, undefined, (d, args) => (<Selector>d)._OnSelectionModeChanged(args));
         IsSynchronizedWithCurrentItem: boolean;
         SelectedIndex: number;
         SelectedItem: any;
         SelectedValue: any;
         SelectedValuePath: string;
         IsSelectionActive: boolean;
+        SelectionMode: SelectionMode;
 
         SelectionChanged: RoutedEvent<SelectionChangedEventArgs> = new RoutedEvent<SelectionChangedEventArgs>();
-        _Selection: SelectorSelection;
+        private _Selection: SelectorSelection;
         private _SelectedItems: Collections.ObservableCollection<any> = new Collections.ObservableCollection<any>();
         private _Initializing: boolean = false;
         _SelectedItemsIsInvalid: boolean = false;
@@ -84,6 +86,15 @@ module Fayde.Controls.Primitives {
             if (this._Initializing)
                 return;
             this._SelectItemFromValue(this.SelectedValue, true);
+        }
+        private _OnSelectionModeChanged(args: DependencyPropertyChangedEventArgs) {
+            this._Selection.Mode = args.NewValue;
+            if (args.NewValue !== SelectionMode.Single)
+                return;
+            var selIndex = this.SelectedIndex;
+            if (selIndex === -1)
+                return;
+            this._Selection.SelectOnly(this.Items.GetValueAt(selIndex));
         }
 
         OnApplyTemplate() {
@@ -198,11 +209,15 @@ module Fayde.Controls.Primitives {
                 var val = this._GetValueFromItem(item);
                 if (Nullstone.Equals(selectedValue, val)) {
                     if (!this.SelectedItems.Contains(item))
-                        this._Selection.Select(item, ignoreSelectedValue);
+                        this._Selection.Select(item);
                     return;
                 }
             }
             this._Selection.ClearSelection(ignoreSelectedValue);
+        }
+
+        SelectAll() {
+            this._Selection.SelectAll(this.Items.ToArray());
         }
 
         private _OnCurrentItemChanged(sender, e: EventArgs) {

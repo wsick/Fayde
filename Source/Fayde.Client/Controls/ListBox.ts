@@ -4,14 +4,9 @@ module Fayde.Controls {
     export class ListBox extends Primitives.Selector {
         private _FocusedIndex: number = 0;
         static ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", () => Style, ListBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
-        static SelectionModeProperty = DependencyProperty.Register("SelectionMode", () => new Enum(SelectionMode), ListBox, undefined, (d, args) => (<ListBox>d).OnSelectionModeChanged(args));
         static IsSelectionActiveProperty = Primitives.Selector.IsSelectionActiveProperty;
         ItemContainerStyle: Style;
-        SelectionMode: SelectionMode;
 
-        SelectAll() {
-            this._Selection.SelectAll(this.Items.ToArray());
-        }
         ScrollIntoView(item: any) {
             var tsv = this.$TemplateScrollViewer;
             if (!tsv)
@@ -176,15 +171,6 @@ module Fayde.Controls {
                 if (lbi != null && lbi.Style === oldStyle)
                     lbi.Style = newStyle;
             }
-        }
-        private OnSelectionModeChanged(args: DependencyPropertyChangedEventArgs) {
-            this._Selection.Mode = args.NewValue;
-            if (args.NewValue !== SelectionMode.Single)
-                return;
-            var selIndex = this.SelectedIndex;
-            if (selIndex === -1)
-                return;
-            this._Selection.SelectOnly(this.Items.GetValueAt(selIndex));
         }
 
         OnKeyDown(args: Input.KeyEventArgs) {
