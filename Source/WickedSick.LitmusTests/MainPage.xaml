@@ -18,8 +18,9 @@
     <!--<tests:ImageTest />-->
     <!--<tests:ScrollBarTest />-->
     <Grid>
+        <tests:ListBoxSelectionTest />
         <!--<tests:BorderTest />-->
-        <tests:nfldraft />
+        <!--<tests:nfldraft />-->
         <!--<tests:DoubleListBox />-->
     </Grid>
 </UserControl>
