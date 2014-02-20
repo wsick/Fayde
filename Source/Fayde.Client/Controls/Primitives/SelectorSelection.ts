@@ -134,7 +134,6 @@ module Fayde.Controls.Primitives {
                     aIndex = items.IndexOf(this._SelectedItem);
                 aIndex = Math.max(aIndex, 0);
                 var oIndex = items.IndexOf(item);
-                console.log("a: " + aIndex + "; o: " + oIndex);
                 return this.SelectRange(Math.min(aIndex, oIndex), Math.max(aIndex, oIndex));
             }
 
