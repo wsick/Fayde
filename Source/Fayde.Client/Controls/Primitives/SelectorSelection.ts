@@ -6,6 +6,7 @@ module Fayde.Controls.Primitives {
         private _SelectedItems: any[] = [];
         private _SelectedItem: any = null;
         private _IsUpdating: boolean = false;
+        private _AnchorIndex = -1;
         Mode: SelectionMode = SelectionMode.Single;
 
         get IsUpdating(): boolean { return this._IsUpdating; }
@@ -98,54 +99,21 @@ module Fayde.Controls.Primitives {
                 this._IsUpdating = false;
             }
         }
-        Select(item: any, ignoreSelectedValue?: boolean) {
-            if (ignoreSelectedValue === undefined) ignoreSelectedValue = false;
-
-            var ownerItems = this._Owner.Items;
-            if (!ownerItems.Contains(item))
+        Select(item: any) {
+            if (!this._Owner.Items.Contains(item))
                 return;
-            var ownerSelectedValue = this._Owner.SelectedValue;
 
-            var selectedItems = this._SelectedItems;
-            var selected = selectedItems.indexOf(item) > -1;
-
+            var selIndex = this._SelectedItems.indexOf(item);
             try {
                 this._IsUpdating = true;
 
                 switch (this.Mode) {
                     case SelectionMode.Single:
-                        if (selected) {
-                            if (Fayde.Input.Keyboard.HasControl())
-                                this.ClearSelection(ignoreSelectedValue);
-                            else
-                                this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
-                        } else {
-                            this.ReplaceSelection(item);
-                        }
-                        break;
+                        return this._SelectSingle(item, selIndex);
                     case SelectionMode.Extended:
-                        if (Fayde.Input.Keyboard.HasShift()) {
-                            var sIndex = ownerItems.IndexOf(this._SelectedItem);
-                            if (selectedItems.length === 0)
-                                this.SelectRange(0, ownerItems.IndexOf(item));
-                            else
-                                this.SelectRange(sIndex, ownerItems.IndexOf(item));
-                        } else if (Fayde.Input.Keyboard.HasControl()) {
-                            if (!selected)
-                                this.AddToSelected(item);
-                        } else {
-                            if (selected)
-                                this.RemoveFromSelected(item);
-                            else
-                                this.AddToSelected(item);
-                        }
-                        break;
+                        return this._SelectExtended(item, selIndex);
                     case SelectionMode.Multiple:
-                        if (selectedItems.indexOf(item) > -1)
-                            this.RemoveFromSelected(item);
-                        else
-                            this.AddToSelected(item);
-                        break;
+                        return this._SelectMultiple(item, selIndex);
                     default:
                         throw new NotSupportedException("SelectionMode " + this.Mode + " is not supported.");
                 }
@@ -153,39 +121,50 @@ module Fayde.Controls.Primitives {
                 this._IsUpdating = false;
             }
         }
-        SelectRange(startIndex: number, endIndex: number) {
-            var ownerItems = this._Owner.Items;
-            var selectedItems = this._SelectedItems;
-
-            //Get owner items in range
-            var newlySelected = ownerItems.GetRange(startIndex, endIndex);
-            var newlyUnselected = [];
-
-            //Remove already selected from selected
-            //Add to unselected not in new selection
-            var enumerator = ArrayEx.GetEnumerator(selectedItems);
-            var item: any;
-            while (enumerator.MoveNext()) {
-                item = enumerator.Current;
-                var index = newlySelected.indexOf(item);
-                if (index > -1)
-                    newlySelected.splice(index, 1);
-                else
-                    newlyUnselected.push(item);
+        private _SelectSingle(item: any, selIndex: number) {
+            if (selIndex === -1)
+                return this.ReplaceSelection(item);
+        }
+        private _SelectExtended(item: any, selIndex: number) {
+            var itemsIndex = this._Owner.Items.IndexOf(item);
+            if (Fayde.Input.Keyboard.HasShift()) {
+                var items = this._Owner.Items;
+                var aIndex = this._AnchorIndex;
+                if (aIndex === -1)
+                    aIndex = items.IndexOf(this._SelectedItem);
+                aIndex = Math.max(aIndex, 0);
+                var oIndex = items.IndexOf(item);
+                console.log("a: " + aIndex + "; o: " + oIndex);
+                return this.SelectRange(Math.min(aIndex, oIndex), Math.max(aIndex, oIndex));
             }
 
-            //Remove selected that were found in unselected list
-            selectedItems = selectedItems.filter((v) => newlyUnselected.indexOf(v) < 0);
-            //Add newly selected items
-            selectedItems.push(newlySelected);
+            this._AnchorIndex = selIndex;
+            if (Fayde.Input.Keyboard.HasControl()) {
+                if (selIndex > -1)
+                    return this.RemoveFromSelected(item);
+                return this.AddToSelected(item);
+            }
+            return this.ReplaceSelection(item);
+        }
+        private _SelectMultiple(item: any, selIndex: number) {
+            return (selIndex > -1) ? this.RemoveFromSelected(item) : this.AddToSelected(item);
+        }
+        SelectRange(startIndex: number, endIndex: number) {
+            var ownerItems = this._Owner.Items;
 
-            if (selectedItems.indexOf(this._SelectedItem) < 0) {
-                this._SelectedItem = selectedItems[0];
+            var oldSelectedItems = this._SelectedItems;
+            this._SelectedItems = ownerItems.GetRange(startIndex, endIndex)
+
+            var toUnselect = except(oldSelectedItems, this._SelectedItems);
+            var toSelect = except(this._SelectedItems, oldSelectedItems);
+
+            if (this._SelectedItems.indexOf(this._SelectedItem) === -1) {
+                this._SelectedItem = this._SelectedItems[0];
                 this.UpdateSelectorProperties(this._SelectedItem, this._SelectedItem == null ? -1 : ownerItems.IndexOf(this._SelectedItem), this._Owner._GetValueFromItem(this._SelectedItem));
             }
 
             this._Owner._SelectedItemsIsInvalid = true;
-            this._Owner._RaiseSelectionChanged(newlyUnselected, newlySelected.slice(0));
+            this._Owner._RaiseSelectionChanged(toUnselect, toSelect);
         }
         SelectAll(items: any[]) {
             try {
@@ -304,4 +283,15 @@ module Fayde.Controls.Primitives {
         }
     }
     Fayde.RegisterType(SelectorSelection, "Fayde.Controls.Primitives", Fayde.XMLNS);
+
+    function except<T>(arr1: T[], arr2: T[]): T[] {
+        var r = [];
+        var c: any;
+        for (var i = 0, len = arr1.length; i < len; i++) {
+            c = arr1[i];
+            if (arr2.indexOf(c) === -1)
+                r.push(c);
+        }
+        return r;
+    }
 }
