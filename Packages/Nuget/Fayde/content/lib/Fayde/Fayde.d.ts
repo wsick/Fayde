@@ -1345,14 +1345,16 @@ declare module Fayde.Controls.Primitives {
         static SelectedValueProperty: DependencyProperty;
         static SelectedValuePathProperty: DependencyProperty;
         static IsSelectionActiveProperty: DependencyProperty;
+        static SelectionModeProperty: DependencyProperty;
         public IsSynchronizedWithCurrentItem: boolean;
         public SelectedIndex: number;
         public SelectedItem: any;
         public SelectedValue: any;
         public SelectedValuePath: string;
         public IsSelectionActive: boolean;
+        public SelectionMode: Controls.SelectionMode;
         public SelectionChanged: Fayde.RoutedEvent<Primitives.SelectionChangedEventArgs>;
-        public _Selection: Primitives.SelectorSelection;
+        private _Selection;
         private _SelectedItems;
         private _Initializing;
         public _SelectedItemsIsInvalid: boolean;
@@ -1366,6 +1368,7 @@ declare module Fayde.Controls.Primitives {
         private _OnSelectedItemChanged(args);
         private _OnSelectedValueChanged(args);
         private _OnSelectedValuePathChanged(args);
+        private _OnSelectionModeChanged(args);
         public OnApplyTemplate(): void;
         public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         public OnItemsSourceChanged(args: IDependencyPropertyChangedEventArgs): void;
@@ -1374,6 +1377,7 @@ declare module Fayde.Controls.Primitives {
         public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
         public _GetValueFromItem(item: any): any;
         private _SelectItemFromValue(selectedValue, ignoreSelectedValue?);
+        public SelectAll(): void;
         private _OnCurrentItemChanged(sender, e);
         public _RaiseSelectionChanged(oldVals: any[], newVals: any[]): void;
         public OnSelectionChanged(args: Primitives.SelectionChangedEventArgs): void;
@@ -1801,10 +1805,8 @@ declare module Fayde.Controls {
     class ListBox extends Controls.Primitives.Selector {
         private _FocusedIndex;
         static ItemContainerStyleProperty: DependencyProperty;
-        static SelectionModeProperty: DependencyProperty;
         static IsSelectionActiveProperty: DependencyProperty;
         public ItemContainerStyle: Fayde.Style;
-        public SelectAll(): void;
         public ScrollIntoView(item: any): void;
         private _NavigateByPage(forward);
         private _ScrollInDirection(key);
@@ -2343,13 +2345,17 @@ declare module Fayde.Controls.Primitives {
         private _SelectedItems;
         private _SelectedItem;
         private _IsUpdating;
+        private _AnchorIndex;
         public Mode: Controls.SelectionMode;
         public IsUpdating : boolean;
         constructor(owner: Primitives.Selector);
         private _HandleOwnerSelectionChanged(sender, e);
         public RepopulateSelectedItems(): void;
         public ClearSelection(ignoreSelectedValue?: boolean): void;
-        public Select(item: any, ignoreSelectedValue?: boolean): void;
+        public Select(item: any): void;
+        private _SelectSingle(item, selIndex);
+        private _SelectExtended(item, selIndex);
+        private _SelectMultiple(item, selIndex);
         public SelectRange(startIndex: number, endIndex: number): void;
         public SelectAll(items: any[]): void;
         public SelectOnly(item: any): void;
