@@ -44,7 +44,7 @@ module Fayde.Controls {
             return ht[index];
         }
 
-        GetRange(startIndex: number, endIndex: number): XamlObject[] { return this._ht.slice(startIndex, endIndex); }
+        GetRange(startIndex: number, endIndex: number): XamlObject[] { return this._ht.slice(startIndex, endIndex + 1); }
 
         SetValueAt(index: number, value: XamlObject): boolean {
             this._ValidateReadOnly();
