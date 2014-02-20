@@ -142,7 +142,7 @@ module Fayde.Controls.Primitives {
                         break;
                     case SelectionMode.Multiple:
                         if (selectedItems.indexOf(item) > -1)
-                            this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
+                            this.RemoveFromSelected(item);
                         else
                             this.AddToSelected(item);
                         break;
