@@ -22,6 +22,8 @@ define(["require", "exports"], function(require, exports) {
                 var cur = enumerator.Current;
                 cur.MouseEnter.Subscribe(this._MouseEnter, this);
                 cur.MouseLeave.Subscribe(this._MouseLeave, this);
+                cur.TouchDown.Subscribe(this._TouchDown, this);
+                cur.TouchUp.Subscribe(this._TouchUp, this);
                 cur.TouchEnter.Subscribe(this._TouchEnter, this);
                 cur.TouchLeave.Subscribe(this._TouchLeave, this);
             }
@@ -37,6 +39,12 @@ define(["require", "exports"], function(require, exports) {
             this.HighlightShape(sender);
         };
         Map.prototype._TouchLeave = function (sender, e) {
+            this.UnhighlightShape(sender);
+        };
+        Map.prototype._TouchDown = function (sender, e) {
+            this.HighlightShape(sender);
+        };
+        Map.prototype._TouchUp = function (sender, e) {
             this.UnhighlightShape(sender);
         };
 

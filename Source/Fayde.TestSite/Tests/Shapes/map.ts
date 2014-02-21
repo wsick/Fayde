@@ -16,6 +16,8 @@ class Map extends Fayde.Application {
             var cur = <Fayde.Shapes.Path>enumerator.Current;
             cur.MouseEnter.Subscribe(this._MouseEnter, this);
             cur.MouseLeave.Subscribe(this._MouseLeave, this);
+            cur.TouchDown.Subscribe(this._TouchDown, this);
+            cur.TouchUp.Subscribe(this._TouchUp, this);
             cur.TouchEnter.Subscribe(this._TouchEnter, this);
             cur.TouchLeave.Subscribe(this._TouchLeave, this);
         }
@@ -31,6 +33,12 @@ class Map extends Fayde.Application {
         this.HighlightShape(sender);
     }
     private _TouchLeave(sender, e: TouchEventArgs) {
+        this.UnhighlightShape(sender);
+    }
+    private _TouchDown(sender, e: TouchEventArgs) {
+        this.HighlightShape(sender);
+    }
+    private _TouchUp(sender, e: TouchEventArgs) {
         this.UnhighlightShape(sender);
     }
 
