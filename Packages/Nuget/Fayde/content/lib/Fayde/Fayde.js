@@ -913,6 +913,9 @@ var Fayde;
             for (var i = 0, monitors = (this._IAMonitors || []).slice(0), len = monitors.length; i < len; i++) {
                 monitors[i].Callback(newIsAttached);
             }
+
+            if (!newIsAttached)
+                this._OwnerNameScope = undefined;
         };
         XamlNode.prototype.MonitorIsAttached = function (func) {
             var monitors = this._IAMonitors;
@@ -13578,7 +13581,6 @@ var Fayde;
                             aIndex = items.IndexOf(this._SelectedItem);
                         aIndex = Math.max(aIndex, 0);
                         var oIndex = items.IndexOf(item);
-                        console.log("a: " + aIndex + "; o: " + oIndex);
                         return this.SelectRange(Math.min(aIndex, oIndex), Math.max(aIndex, oIndex));
                     }
 
@@ -23587,6 +23589,8 @@ var Fayde;
 
                     var oldValue = animStorage.CurrentValue;
                     animStorage.CurrentValue = this.GetCurrentValue(animStorage.BaseValue, animStorage.StopValue !== undefined ? animStorage.StopValue : animStorage.BaseValue, clockData);
+                    if (Fayde.Media.Animation.Log)
+                        console.log(getLogMessage("AnimationBase.UpdateInternal", this, oldValue, animStorage.CurrentValue));
                     if (oldValue === animStorage.CurrentValue || animStorage.CurrentValue === undefined)
                         return;
                     Fayde.Media.Animation.AnimationStore.ApplyCurrent(animStorage);
@@ -23603,33 +23607,23 @@ var Fayde;
                     this._IsHolding = false;
                     this.Reset();
 
-                    var targetObject = null;
-                    if (this.HasManualTarget) {
-                        targetObject = this.ManualTarget;
-                    } else {
-                        var name = Fayde.Media.Animation.Storyboard.GetTargetName(this);
-                        if (name) {
-                            var n = this.XamlNode.FindName(name);
-                            targetObject = n.XObject;
-                        }
-                    }
-                    var targetPropertyPath = Fayde.Media.Animation.Storyboard.GetTargetProperty(this);
+                    var resolution = Fayde.Media.Animation.Storyboard.ResolveTarget(this);
 
-                    var refobj = { Value: targetObject };
-                    var targetProperty = targetPropertyPath.TryResolveDependencyProperty(refobj, promotedValues);
-                    targetObject = refobj.Value;
+                    var refobj = { Value: resolution.Target };
+                    var targetProperty = resolution.Property.TryResolveDependencyProperty(refobj, promotedValues);
+                    resolution.Target = refobj.Value;
                     if (!targetProperty) {
                         error.Number = BError.XamlParse;
-                        error.Message = "Could not resolve property for storyboard. [" + targetPropertyPath.Path.toString() + "]";
+                        error.Message = "Could not resolve property for storyboard. [" + resolution.Property.Path.toString() + "]";
                         return false;
                     }
-                    if (!this.Resolve(targetObject, targetProperty)) {
+                    if (!this.Resolve(resolution.Target, targetProperty)) {
                         error.Number = BError.InvalidOperation;
                         error.Message = "Storyboard value could not be converted to the correct type";
                         return false;
                     }
 
-                    this._AnimStorage = Fayde.Media.Animation.AnimationStore.Create(targetObject, targetProperty);
+                    this._AnimStorage = Fayde.Media.Animation.AnimationStore.Create(resolution.Target, targetProperty);
                     this._AnimStorage.Animation = this;
                     Fayde.Media.Animation.AnimationStore.Attach(this._AnimStorage);
                     return true;
@@ -23638,6 +23632,13 @@ var Fayde;
             })(Fayde.Media.Animation.Timeline);
             Animation.AnimationBase = AnimationBase;
             Fayde.RegisterType(AnimationBase, "Fayde.Media.Animation", Fayde.XMLNS);
+
+            function getLogMessage(action, anim, oldValue, newValue) {
+                var msg = "ANIMATION:" + action + ":" + anim._ID + "[" + anim.constructor.name + "]";
+                msg += ";" + (oldValue === undefined ? "(undefined)" : (oldValue === null ? "(null)" : oldValue.toString()));
+                msg += "->" + (newValue === undefined ? "(undefined)" : (newValue === null ? "(null)" : newValue.toString()));
+                return msg;
+            }
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -23662,6 +23663,7 @@ var Fayde;
                             baseValue = new targetType();
                     }
                     return {
+                        ID: createId(),
                         Animation: undefined,
                         PropStorage: Fayde.Providers.GetStorage(target, propd),
                         IsDisabled: false,
@@ -23713,26 +23715,39 @@ var Fayde;
                     return false;
                 };
                 AnimationStore.ApplyCurrent = function (animStorage) {
-                    var cv = animStorage.CurrentValue;
-                    if (cv === undefined)
+                    var val = animStorage.CurrentValue;
+                    if (val === undefined)
                         return;
+                    if (Fayde.Media.Animation.LogApply)
+                        console.log(getLogMessage("ApplyCurrent", animStorage, val));
                     var storage = animStorage.PropStorage;
-                    if (Fayde.Media.Animation.Debug && window.console) {
-                        console.log("ANIMATION:ApplyCurrent:" + storage.OwnerNode.Name + "->" + storage.Property.Name + "=" + cv);
-                    }
                     storage.Property.Store.SetLocalValue(storage, animStorage.CurrentValue);
                 };
                 AnimationStore.ApplyStop = function (animStorage) {
+                    var val = animStorage.StopValue;
+                    if (Fayde.Media.Animation.LogApply)
+                        console.log(getLogMessage("ApplyStop", animStorage, val));
                     var storage = animStorage.PropStorage;
-                    var sv = animStorage.StopValue;
-                    if (Fayde.Media.Animation.Debug && window.console) {
-                        console.log("ANIMATION:ApplyStop:" + storage.OwnerNode.Name + "->" + storage.Property.Name + "=" + (sv != null ? sv.toString() : ""));
-                    }
-                    storage.Property.Store.SetLocalValue(storage, animStorage.StopValue);
+                    storage.Property.Store.SetLocalValue(storage, val);
                 };
                 return AnimationStore;
             })();
             Animation.AnimationStore = AnimationStore;
+
+            function getLogMessage(action, animStorage, val) {
+                var anim = animStorage.Animation;
+                var name = Fayde.Media.Animation.Storyboard.GetTargetName(animStorage.Animation);
+                if (anim.HasManualTarget)
+                    name = anim.ManualTarget.Name;
+                var prop = Fayde.Media.Animation.Storyboard.GetTargetProperty(anim);
+                var msg = "ANIMATION:" + action + ":" + animStorage.ID + "[" + name + "](" + prop.Path + ")->";
+                msg += val === undefined ? "(undefined)" : (val === null ? "(null)" : val.toString());
+                return msg;
+            }
+            var lastId = 0;
+            function createId() {
+                return lastId++;
+            }
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -25258,14 +25273,32 @@ var Fayde;
                     return d.SetValue(Storyboard.TargetPropertyProperty, value);
                 };
 
+                Storyboard.ResolveTarget = function (timeline) {
+                    var res = {
+                        Target: undefined,
+                        Property: undefined
+                    };
+
+                    if (timeline.HasManualTarget) {
+                        res.Target = timeline.ManualTarget;
+                    } else {
+                        var targetName = Storyboard.GetTargetName(timeline);
+                        if (targetName)
+                            res.Target = timeline.FindName(targetName);
+                    }
+
+                    res.Property = Storyboard.GetTargetProperty(timeline);
+
+                    return res;
+                };
+
                 Storyboard.SetTarget = function (timeline, target) {
                     timeline.ManualTarget = target;
                 };
 
                 Storyboard.prototype.Begin = function () {
-                    if (Fayde.Media.Animation.Debug && window.console) {
-                        console.log("ANIMATION:Begin:" + this.__DebugString());
-                    }
+                    if (Fayde.Media.Animation.Log)
+                        console.log(getLogMessage("Storyboard.Begin", this, true));
                     this.Reset();
                     var error = new BError();
                     var promotedValues = [];
@@ -25292,9 +25325,8 @@ var Fayde;
                     }
                 };
                 Storyboard.prototype.Stop = function () {
-                    if (Fayde.Media.Animation.Debug && window.console) {
-                        console.log("ANIMATION:Stop:" + this.__DebugString());
-                    }
+                    if (Fayde.Media.Animation.Log)
+                        console.log(getLogMessage("Storyboard.Stop", this, false));
                     _super.prototype.Stop.call(this);
                     Fayde.Application.Current.UnregisterStoryboard(this);
                     var enumerator = this.Children.GetEnumerator();
@@ -25304,6 +25336,8 @@ var Fayde;
                 };
 
                 Storyboard.prototype.UpdateInternal = function (clockData) {
+                    if (Fayde.Media.Animation.Log)
+                        console.log(getLogMessage("Storyboard.UpdateInternal", this, false, clockData));
                     var enumerator = this.Children.GetEnumerator();
                     while (enumerator.MoveNext()) {
                         enumerator.Current.Update(clockData.CurrentTime.Ticks);
@@ -25344,29 +25378,6 @@ var Fayde;
                         return Duration.Automatic;
                     return new Duration(TimeSpan.FromTicks(fullTicks));
                 };
-
-                Storyboard.prototype.__DebugString = function () {
-                    var anims = [];
-                    var cur = "";
-
-                    var enumerator = this.Children.GetEnumerator();
-                    var animation;
-                    while (enumerator.MoveNext()) {
-                        animation = enumerator.Current;
-                        cur = "";
-                        cur += "(";
-                        cur += animation.constructor.name;
-                        cur += ":";
-                        cur += Storyboard.GetTargetName(animation);
-                        cur += ":";
-                        var path = Storyboard.GetTargetProperty(animation);
-                        cur += path ? path.Path : "";
-                        cur += ")";
-                        anims.push(cur);
-                    }
-
-                    return "[" + anims.join(",") + "]";
-                };
                 Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () {
                     return String;
                 }, Storyboard);
@@ -25384,6 +25395,33 @@ var Fayde;
             })(Fayde.Media.Animation.Timeline);
             Animation.Storyboard = Storyboard;
             Fayde.RegisterType(Storyboard, "Fayde.Media.Animation", Fayde.XMLNS);
+
+            function getLogMessage(action, storyboard, full, clockData) {
+                var anims = [];
+                var cur = "";
+
+                var enumerator = storyboard.Children.GetEnumerator();
+                var animation;
+                while (enumerator.MoveNext()) {
+                    animation = enumerator.Current;
+                    cur = "";
+                    cur += "(";
+                    cur += animation.constructor.name;
+                    cur += ":";
+                    cur += Storyboard.GetTargetName(animation);
+                    cur += ":";
+                    var path = Storyboard.GetTargetProperty(animation);
+                    cur += path ? path.Path : "";
+                    cur += ")";
+                    anims.push(cur);
+                }
+                var msg = "ANIMATION:" + action + ":" + storyboard._ID;
+                if (clockData)
+                    msg += "(" + (clockData.Progress * 100).toFixed(0) + "%)";
+                if (full)
+                    msg += "->[" + anims.join(",") + "]";
+                return msg;
+            }
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -29510,19 +29548,11 @@ var Fayde;
             function flattenTimeline(callback, timeline, targetObject, targetPropertyPath) {
                 if (!timeline)
                     return;
-                if (timeline.HasManualTarget) {
-                    targetObject = timeline.ManualTarget;
-                } else {
-                    var targetName = Storyboard.GetTargetName(timeline);
-                    if (targetName) {
-                        var n = timeline.XamlNode.FindName(targetName);
-                        targetObject = (n ? n.XObject : null);
-                    }
-                }
-
-                var pp = Storyboard.GetTargetProperty(timeline);
-                if (pp)
-                    targetPropertyPath = pp;
+                var resolution = Storyboard.ResolveTarget(timeline);
+                if (resolution.Target)
+                    targetObject = resolution.Target;
+                if (resolution.Property)
+                    targetPropertyPath = resolution.Property;
 
                 if (timeline instanceof Storyboard) {
                     for (var i = 0, children = timeline.Children, len = children.Count; i < len; i++) {
@@ -31782,7 +31812,8 @@ var Fayde;
 
     (function (Media) {
         (function (Animation) {
-            Animation.Debug = false;
+            Animation.Log = false;
+            Animation.LogApply = false;
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
         (function (VSM) {

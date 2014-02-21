@@ -4032,6 +4032,7 @@ declare module Fayde.Media.Animation {
 }
 declare module Fayde.Media.Animation {
     interface IAnimationStorage {
+        ID: number;
         Animation: Animation.AnimationBase;
         PropStorage: Fayde.Providers.IPropertyStorage;
         IsDisabled: boolean;
@@ -4395,6 +4396,10 @@ declare module Fayde.Media.Animation {
     }
 }
 declare module Fayde.Media.Animation {
+    interface IStoryboadResolution {
+        Target: Fayde.DependencyObject;
+        Property: Fayde.Data.PropertyPath;
+    }
     class Storyboard extends Animation.Timeline {
         static TargetNameProperty: DependencyProperty;
         static GetTargetName(d: Fayde.DependencyObject): string;
@@ -4403,6 +4408,7 @@ declare module Fayde.Media.Animation {
         static GetTargetProperty(d: Fayde.DependencyObject): Fayde.Data.PropertyPath;
         static SetTargetProperty(d: Fayde.DependencyObject, value: Fayde.Data.PropertyPath): void;
         static ChildrenProperty: ImmutableDependencyProperty<Animation.TimelineCollection>;
+        static ResolveTarget(timeline: Animation.Timeline): IStoryboadResolution;
         public TargetName: string;
         public TargetProperty: Fayde.Data.PropertyPath;
         public Children: Animation.TimelineCollection;
@@ -4417,7 +4423,6 @@ declare module Fayde.Media.Animation {
         public Stop(): void;
         public UpdateInternal(clockData: Animation.IClockData): void;
         public GetNaturalDurationCore(): Duration;
-        private __DebugString();
     }
 }
 declare module Fayde.Media {
@@ -5689,7 +5694,8 @@ declare module Fayde {
     }
     module Media {
         module Animation {
-            var Debug: boolean;
+            var Log: boolean;
+            var LogApply: boolean;
         }
         module VSM {
             var Debug: boolean;
