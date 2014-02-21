@@ -1,6 +1,7 @@
 
 module Fayde.Media.Animation {
     export interface IAnimationStorage {
+        ID: number;
         Animation: AnimationBase;
         PropStorage: Providers.IPropertyStorage;
         IsDisabled: boolean;
@@ -22,6 +23,7 @@ module Fayde.Media.Animation {
                     baseValue = new (<any>targetType)();
             }
             return {
+                ID: createId(),
                 Animation: undefined,
                 PropStorage: Providers.GetStorage(target, propd),
                 IsDisabled: false,
@@ -73,22 +75,35 @@ module Fayde.Media.Animation {
             return false;
         }
         static ApplyCurrent(animStorage: IAnimationStorage) {
-            var cv = animStorage.CurrentValue;
-            if (cv === undefined)
+            var val = animStorage.CurrentValue;
+            if (val === undefined)
                 return;
+            if (Animation.LogApply)
+                console.log(getLogMessage("ApplyCurrent", animStorage, val));
             var storage = animStorage.PropStorage;
-            if (Animation.Debug && window.console) {
-                console.log("ANIMATION:ApplyCurrent:" + storage.OwnerNode.Name + "->" + storage.Property.Name + "=" + cv);
-            }
             storage.Property.Store.SetLocalValue(storage, animStorage.CurrentValue);
         }
         static ApplyStop(animStorage: IAnimationStorage) {
+            var val = animStorage.StopValue;
+            if (Animation.LogApply)
+                console.log(getLogMessage("ApplyStop", animStorage, val));
             var storage = animStorage.PropStorage;
-            var sv = animStorage.StopValue;
-            if (Animation.Debug && window.console) {
-                console.log("ANIMATION:ApplyStop:" + storage.OwnerNode.Name + "->" + storage.Property.Name + "=" + (sv != null ? sv.toString() : ""));
-            }
-            storage.Property.Store.SetLocalValue(storage, animStorage.StopValue);
+            storage.Property.Store.SetLocalValue(storage, val);
         }
+    }
+
+    function getLogMessage(action: string, animStorage: IAnimationStorage, val: any): string {
+        var anim = animStorage.Animation;
+        var name = Storyboard.GetTargetName(animStorage.Animation);
+        if (anim.HasManualTarget)
+            name = anim.ManualTarget.Name;
+        var prop = Storyboard.GetTargetProperty(anim);
+        var msg = "ANIMATION:" + action + ":" + animStorage.ID + "[" + name + "](" + prop.Path + ")->";
+        msg += val === undefined ? "(undefined)" : (val === null ? "(null)" : val.toString());
+        return msg;
+    }
+    var lastId = 0;
+    function createId(): number {
+        return lastId++;
     }
 }

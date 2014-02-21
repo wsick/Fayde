@@ -29,6 +29,8 @@ module Fayde.Media.Animation {
 
             var oldValue = animStorage.CurrentValue;
             animStorage.CurrentValue = this.GetCurrentValue(animStorage.BaseValue, animStorage.StopValue !== undefined ? animStorage.StopValue : animStorage.BaseValue, clockData);
+            if (Animation.Log)
+                console.log(getLogMessage("AnimationBase.UpdateInternal", this, oldValue, animStorage.CurrentValue));
             if (oldValue === animStorage.CurrentValue || animStorage.CurrentValue === undefined)
                 return;
             AnimationStore.ApplyCurrent(animStorage);
@@ -74,4 +76,11 @@ module Fayde.Media.Animation {
         }
     }
     Fayde.RegisterType(AnimationBase, "Fayde.Media.Animation", Fayde.XMLNS);
+
+    function getLogMessage(action: string, anim: AnimationBase, oldValue: any, newValue: any) {
+        var msg = "ANIMATION:" + action + ":" + (<any>anim)._ID + "[" + (<any>anim).constructor.name + "]";
+        msg += ";" + (oldValue === undefined ? "(undefined)" : (oldValue === null ? "(null)" : oldValue.toString()));
+        msg += "->" + (newValue === undefined ? "(undefined)" : (newValue === null ? "(null)" : newValue.toString()));
+        return msg;
+    }
 }

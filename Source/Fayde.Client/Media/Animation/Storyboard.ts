@@ -32,9 +32,8 @@ module Fayde.Media.Animation {
         }
 
         Begin() {
-            if (Animation.Debug && window.console) {
-                console.log("ANIMATION:Begin:" + this.__DebugString());
-            }
+            if (Animation.Log)
+                console.log(getLogMessage("Storyboard.Begin", this, true));
             this.Reset();
             var error = new BError();
             var promotedValues: any[] = [];
@@ -61,9 +60,8 @@ module Fayde.Media.Animation {
             }
         }
         Stop() {
-            if (Animation.Debug && window.console) {
-                console.log("ANIMATION:Stop:" + this.__DebugString());
-            }
+            if (Animation.Log)
+                console.log(getLogMessage("Storyboard.Stop", this, false));
             super.Stop();
             Application.Current.UnregisterStoryboard(this);
             var enumerator = this.Children.GetEnumerator();
@@ -73,6 +71,8 @@ module Fayde.Media.Animation {
         }
 
         UpdateInternal(clockData: IClockData) {
+            if (Animation.Log)
+                console.log(getLogMessage("Storyboard.UpdateInternal", this, false, clockData));
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
                 (<Timeline>enumerator.Current).Update(clockData.CurrentTime.Ticks);
@@ -112,29 +112,33 @@ module Fayde.Media.Animation {
                 return Duration.Automatic;
             return new Duration(TimeSpan.FromTicks(fullTicks));
         }
-
-        private __DebugString(): string {
-            var anims = [];
-            var cur = "";
-
-            var enumerator = this.Children.GetEnumerator();
-            var animation: Timeline;
-            while (enumerator.MoveNext()) {
-                animation = enumerator.Current;
-                cur = "";
-                cur += "(";
-                cur += (<any>animation).constructor.name;
-                cur += ":";
-                cur += Storyboard.GetTargetName(animation);
-                cur += ":";
-                var path = Storyboard.GetTargetProperty(animation);
-                cur += path ? path.Path : "";
-                cur += ")";
-                anims.push(cur);
-            }
-            
-            return "[" + anims.join(",") + "]";
-        }
     }
     Fayde.RegisterType(Storyboard, "Fayde.Media.Animation", Fayde.XMLNS);
+
+    function getLogMessage(action: string, storyboard: Storyboard, full: boolean, clockData?: IClockData): string {
+        var anims = [];
+        var cur = "";
+
+        var enumerator = storyboard.Children.GetEnumerator();
+        var animation: Timeline;
+        while (enumerator.MoveNext()) {
+            animation = enumerator.Current;
+            cur = "";
+            cur += "(";
+            cur += (<any>animation).constructor.name;
+            cur += ":";
+            cur += Storyboard.GetTargetName(animation);
+            cur += ":";
+            var path = Storyboard.GetTargetProperty(animation);
+            cur += path ? path.Path : "";
+            cur += ")";
+            anims.push(cur);
+        }
+        var msg = "ANIMATION:" + action + ":" + (<any>storyboard)._ID;
+        if (clockData)
+            msg += "(" + (clockData.Progress * 100).toFixed(0) + "%)";
+        if (full)
+            msg += "->[" + anims.join(",") + "]";
+        return msg;
+    }
 }
