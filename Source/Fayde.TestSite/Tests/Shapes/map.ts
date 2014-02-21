@@ -1,6 +1,7 @@
 /// <reference path="../../../jsbin/Fayde.d.ts" />
 
 import MouseEventArgs = Fayde.Input.MouseEventArgs;
+import TouchEventArgs = Fayde.Input.TouchEventArgs;
 
 class Map extends Fayde.Application {
     constructor() {
@@ -15,18 +16,31 @@ class Map extends Fayde.Application {
             var cur = <Fayde.Shapes.Path>enumerator.Current;
             cur.MouseEnter.Subscribe(this._MouseEnter, this);
             cur.MouseLeave.Subscribe(this._MouseLeave, this);
+            cur.TouchEnter.Subscribe(this._TouchEnter, this);
+            cur.TouchLeave.Subscribe(this._TouchLeave, this);
         }
     }
 
     private _MouseEnter(sender, e: MouseEventArgs) {
-        var path = <Fayde.Shapes.Path>sender;
-        path.StrokeThickness = 10;
-        Fayde.Controls.Canvas.SetZIndex(path, 9999);
+        this.HighlightShape(sender);
     }
     private _MouseLeave(sender, e: MouseEventArgs) {
-        var path = <Fayde.Shapes.Path>sender;
-        path.StrokeThickness = 2;
-        Fayde.Controls.Canvas.SetZIndex(path, 0);
+        this.UnhighlightShape(sender);
+    }
+    private _TouchEnter(sender, e: TouchEventArgs) {
+        this.HighlightShape(sender);
+    }
+    private _TouchLeave(sender, e: TouchEventArgs) {
+        this.UnhighlightShape(sender);
+    }
+
+    private HighlightShape(shape: Fayde.Shapes.Shape) {
+        shape.StrokeThickness = 10;
+        Fayde.Controls.Canvas.SetZIndex(shape, 9999);
+    }
+    private UnhighlightShape(shape: Fayde.Shapes.Shape) {
+        shape.StrokeThickness = 2;
+        Fayde.Controls.Canvas.SetZIndex(shape, 0);
     }
 }
 export = Map;

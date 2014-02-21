@@ -7,6 +7,7 @@ var __extends = this.__extends || function (d, b) {
 };
 define(["require", "exports"], function(require, exports) {
     var MouseEventArgs = Fayde.Input.MouseEventArgs;
+    var TouchEventArgs = Fayde.Input.TouchEventArgs;
 
     var Map = (function (_super) {
         __extends(Map, _super);
@@ -21,18 +22,31 @@ define(["require", "exports"], function(require, exports) {
                 var cur = enumerator.Current;
                 cur.MouseEnter.Subscribe(this._MouseEnter, this);
                 cur.MouseLeave.Subscribe(this._MouseLeave, this);
+                cur.TouchEnter.Subscribe(this._TouchEnter, this);
+                cur.TouchLeave.Subscribe(this._TouchLeave, this);
             }
         };
 
         Map.prototype._MouseEnter = function (sender, e) {
-            var path = sender;
-            path.StrokeThickness = 10;
-            Fayde.Controls.Canvas.SetZIndex(path, 9999);
+            this.HighlightShape(sender);
         };
         Map.prototype._MouseLeave = function (sender, e) {
-            var path = sender;
-            path.StrokeThickness = 2;
-            Fayde.Controls.Canvas.SetZIndex(path, 0);
+            this.UnhighlightShape(sender);
+        };
+        Map.prototype._TouchEnter = function (sender, e) {
+            this.HighlightShape(sender);
+        };
+        Map.prototype._TouchLeave = function (sender, e) {
+            this.UnhighlightShape(sender);
+        };
+
+        Map.prototype.HighlightShape = function (shape) {
+            shape.StrokeThickness = 10;
+            Fayde.Controls.Canvas.SetZIndex(shape, 9999);
+        };
+        Map.prototype.UnhighlightShape = function (shape) {
+            shape.StrokeThickness = 2;
+            Fayde.Controls.Canvas.SetZIndex(shape, 0);
         };
         return Map;
     })(Fayde.Application);
