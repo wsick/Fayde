@@ -278,7 +278,7 @@ module Fayde.Media.VSM {
     function flattenTimeline(callback: (tuple: ITimelineTuple) => void, timeline: Timeline, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath) {
         if (!timeline)
             return;
-        var resolution = Storyboard.ResolveTarget(this);
+        var resolution = Storyboard.ResolveTarget(timeline);
         if (resolution.Target)
             targetObject = resolution.Target;
         if (resolution.Property)
