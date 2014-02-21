@@ -1,6 +1,11 @@
 /// <reference path="Timeline.ts" />
 
 module Fayde.Media.Animation {
+    export interface IStoryboadResolution {
+        Target: DependencyObject;
+        Property: Data.PropertyPath;
+    }
+
     /// http://msdn.microsoft.com/en-us/library/cc189019(v=vs.95).aspx
     export class Storyboard extends Timeline {
         static TargetNameProperty: DependencyProperty = DependencyProperty.RegisterAttached("TargetName", () => String, Storyboard);
@@ -12,6 +17,25 @@ module Fayde.Media.Animation {
         static SetTargetProperty(d: DependencyObject, value: Data.PropertyPath) { return d.SetValue(Storyboard.TargetPropertyProperty, value); }
 
         static ChildrenProperty = DependencyProperty.RegisterImmutable<TimelineCollection>("Children", () => TimelineCollection, Storyboard);
+
+        static ResolveTarget(timeline: Timeline): IStoryboadResolution {
+            var res: IStoryboadResolution = {
+                Target: undefined,
+                Property: undefined
+            };
+
+            if (timeline.HasManualTarget) {
+                res.Target = timeline.ManualTarget;
+            } else {
+                var targetName = Storyboard.GetTargetName(timeline);
+                if (targetName)
+                    res.Target = <DependencyObject>timeline.FindName(targetName)
+            }
+
+            res.Property = Storyboard.GetTargetProperty(timeline);
+
+            return res;
+        }
 
         TargetName: string;
         TargetProperty: Data.PropertyPath;
