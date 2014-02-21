@@ -913,6 +913,9 @@ var Fayde;
             for (var i = 0, monitors = (this._IAMonitors || []).slice(0), len = monitors.length; i < len; i++) {
                 monitors[i].Callback(newIsAttached);
             }
+
+            if (!newIsAttached)
+                this._OwnerNameScope = undefined;
         };
         XamlNode.prototype.MonitorIsAttached = function (func) {
             var monitors = this._IAMonitors;
@@ -7201,6 +7204,15 @@ var Fayde;
                         return;
                     this._SelectItemFromValue(this.SelectedValue, true);
                 };
+                Selector.prototype._OnSelectionModeChanged = function (args) {
+                    this._Selection.Mode = args.NewValue;
+                    if (args.NewValue !== 0 /* Single */)
+                        return;
+                    var selIndex = this.SelectedIndex;
+                    if (selIndex === -1)
+                        return;
+                    this._Selection.SelectOnly(this.Items.GetValueAt(selIndex));
+                };
 
                 Selector.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
@@ -7316,11 +7328,15 @@ var Fayde;
                         var val = this._GetValueFromItem(item);
                         if (Nullstone.Equals(selectedValue, val)) {
                             if (!this.SelectedItems.Contains(item))
-                                this._Selection.Select(item, ignoreSelectedValue);
+                                this._Selection.Select(item);
                             return;
                         }
                     }
                     this._Selection.ClearSelection(ignoreSelectedValue);
+                };
+
+                Selector.prototype.SelectAll = function () {
+                    this._Selection.SelectAll(this.Items.ToArray());
                 };
 
                 Selector.prototype._OnCurrentItemChanged = function (sender, e) {
@@ -7416,6 +7432,11 @@ var Fayde;
                 Selector.IsSelectionActiveProperty = DependencyProperty.RegisterReadOnlyCore("IsSelectionActive", function () {
                     return Boolean;
                 }, Selector);
+                Selector.SelectionModeProperty = DependencyProperty.Register("SelectionMode", function () {
+                    return new Enum(Fayde.Controls.SelectionMode);
+                }, Selector, undefined, function (d, args) {
+                    return d._OnSelectionModeChanged(args);
+                });
                 return Selector;
             })(Fayde.Controls.ItemsControl);
             Primitives.Selector = Selector;
@@ -10147,7 +10168,7 @@ var Fayde;
             };
 
             ItemCollection.prototype.GetRange = function (startIndex, endIndex) {
-                return this._ht.slice(startIndex, endIndex);
+                return this._ht.slice(startIndex, endIndex + 1);
             };
 
             ItemCollection.prototype.SetValueAt = function (index, value) {
@@ -10629,9 +10650,6 @@ var Fayde;
                 _super.apply(this, arguments);
                 this._FocusedIndex = 0;
             }
-            ListBox.prototype.SelectAll = function () {
-                this._Selection.SelectAll(this.Items.ToArray());
-            };
             ListBox.prototype.ScrollIntoView = function (item) {
                 var tsv = this.$TemplateScrollViewer;
                 if (!tsv)
@@ -10924,11 +10942,6 @@ var Fayde;
                 return Fayde.Style;
             }, ListBox, undefined, function (d, args) {
                 return d.OnItemContainerStyleChanged(args);
-            });
-            ListBox.SelectionModeProperty = DependencyProperty.Register("SelectionMode", function () {
-                return new Enum(Fayde.Controls.SelectionMode);
-            }, ListBox, undefined, function (d, args) {
-                return d._Selection.Mode = args.NewValue;
             });
             ListBox.IsSelectionActiveProperty = Fayde.Controls.Primitives.Selector.IsSelectionActiveProperty;
             return ListBox;
@@ -13436,6 +13449,7 @@ var Fayde;
                     this._SelectedItems = [];
                     this._SelectedItem = null;
                     this._IsUpdating = false;
+                    this._AnchorIndex = -1;
                     this.Mode = 0 /* Single */;
                     this._Owner = owner;
                     this._Owner.SelectedItems.CollectionChanged.Subscribe(this._HandleOwnerSelectionChanged, this);
@@ -13532,55 +13546,21 @@ var Fayde;
                         this._IsUpdating = false;
                     }
                 };
-                SelectorSelection.prototype.Select = function (item, ignoreSelectedValue) {
-                    if (ignoreSelectedValue === undefined)
-                        ignoreSelectedValue = false;
-
-                    var ownerItems = this._Owner.Items;
-                    if (!ownerItems.Contains(item))
+                SelectorSelection.prototype.Select = function (item) {
+                    if (!this._Owner.Items.Contains(item))
                         return;
-                    var ownerSelectedValue = this._Owner.SelectedValue;
 
-                    var selectedItems = this._SelectedItems;
-                    var selected = selectedItems.indexOf(item) > -1;
-
+                    var selIndex = this._SelectedItems.indexOf(item);
                     try  {
                         this._IsUpdating = true;
 
                         switch (this.Mode) {
                             case 0 /* Single */:
-                                if (selected) {
-                                    if (Fayde.Input.Keyboard.HasControl())
-                                        this.ClearSelection(ignoreSelectedValue);
-                                    else
-                                        this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
-                                } else {
-                                    this.ReplaceSelection(item);
-                                }
-                                break;
+                                return this._SelectSingle(item, selIndex);
                             case 2 /* Extended */:
-                                if (Fayde.Input.Keyboard.HasShift()) {
-                                    var sIndex = ownerItems.IndexOf(this._SelectedItem);
-                                    if (selectedItems.length === 0)
-                                        this.SelectRange(0, ownerItems.IndexOf(item));
-                                    else
-                                        this.SelectRange(sIndex, ownerItems.IndexOf(item));
-                                } else if (Fayde.Input.Keyboard.HasControl()) {
-                                    if (!selected)
-                                        this.AddToSelected(item);
-                                } else {
-                                    if (selected)
-                                        this.RemoveFromSelected(item);
-                                    else
-                                        this.AddToSelected(item);
-                                }
-                                break;
+                                return this._SelectExtended(item, selIndex);
                             case 1 /* Multiple */:
-                                if (selectedItems.indexOf(item) > -1)
-                                    this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
-                                else
-                                    this.AddToSelected(item);
-                                break;
+                                return this._SelectMultiple(item, selIndex);
                             default:
                                 throw new NotSupportedException("SelectionMode " + this.Mode + " is not supported.");
                         }
@@ -13588,37 +13568,49 @@ var Fayde;
                         this._IsUpdating = false;
                     }
                 };
-                SelectorSelection.prototype.SelectRange = function (startIndex, endIndex) {
-                    var ownerItems = this._Owner.Items;
-                    var selectedItems = this._SelectedItems;
-
-                    var newlySelected = ownerItems.GetRange(startIndex, endIndex);
-                    var newlyUnselected = [];
-
-                    var enumerator = Fayde.ArrayEx.GetEnumerator(selectedItems);
-                    var item;
-                    while (enumerator.MoveNext()) {
-                        item = enumerator.Current;
-                        var index = newlySelected.indexOf(item);
-                        if (index > -1)
-                            newlySelected.splice(index, 1);
-                        else
-                            newlyUnselected.push(item);
+                SelectorSelection.prototype._SelectSingle = function (item, selIndex) {
+                    if (selIndex === -1)
+                        return this.ReplaceSelection(item);
+                };
+                SelectorSelection.prototype._SelectExtended = function (item, selIndex) {
+                    var itemsIndex = this._Owner.Items.IndexOf(item);
+                    if (Fayde.Input.Keyboard.HasShift()) {
+                        var items = this._Owner.Items;
+                        var aIndex = this._AnchorIndex;
+                        if (aIndex === -1)
+                            aIndex = items.IndexOf(this._SelectedItem);
+                        aIndex = Math.max(aIndex, 0);
+                        var oIndex = items.IndexOf(item);
+                        return this.SelectRange(Math.min(aIndex, oIndex), Math.max(aIndex, oIndex));
                     }
 
-                    selectedItems = selectedItems.filter(function (v) {
-                        return newlyUnselected.indexOf(v) < 0;
-                    });
+                    this._AnchorIndex = selIndex;
+                    if (Fayde.Input.Keyboard.HasControl()) {
+                        if (selIndex > -1)
+                            return this.RemoveFromSelected(item);
+                        return this.AddToSelected(item);
+                    }
+                    return this.ReplaceSelection(item);
+                };
+                SelectorSelection.prototype._SelectMultiple = function (item, selIndex) {
+                    return (selIndex > -1) ? this.RemoveFromSelected(item) : this.AddToSelected(item);
+                };
+                SelectorSelection.prototype.SelectRange = function (startIndex, endIndex) {
+                    var ownerItems = this._Owner.Items;
 
-                    selectedItems.push(newlySelected);
+                    var oldSelectedItems = this._SelectedItems;
+                    this._SelectedItems = ownerItems.GetRange(startIndex, endIndex);
 
-                    if (selectedItems.indexOf(this._SelectedItem) < 0) {
-                        this._SelectedItem = selectedItems[0];
+                    var toUnselect = except(oldSelectedItems, this._SelectedItems);
+                    var toSelect = except(this._SelectedItems, oldSelectedItems);
+
+                    if (this._SelectedItems.indexOf(this._SelectedItem) === -1) {
+                        this._SelectedItem = this._SelectedItems[0];
                         this.UpdateSelectorProperties(this._SelectedItem, this._SelectedItem == null ? -1 : ownerItems.IndexOf(this._SelectedItem), this._Owner._GetValueFromItem(this._SelectedItem));
                     }
 
                     this._Owner._SelectedItemsIsInvalid = true;
-                    this._Owner._RaiseSelectionChanged(newlyUnselected, newlySelected.slice(0));
+                    this._Owner._RaiseSelectionChanged(toUnselect, toSelect);
                 };
                 SelectorSelection.prototype.SelectAll = function (items) {
                     try  {
@@ -13740,6 +13732,17 @@ var Fayde;
             })();
             Primitives.SelectorSelection = SelectorSelection;
             Fayde.RegisterType(SelectorSelection, "Fayde.Controls.Primitives", Fayde.XMLNS);
+
+            function except(arr1, arr2) {
+                var r = [];
+                var c;
+                for (var i = 0, len = arr1.length; i < len; i++) {
+                    c = arr1[i];
+                    if (arr2.indexOf(c) === -1)
+                        r.push(c);
+                }
+                return r;
+            }
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -23586,6 +23589,8 @@ var Fayde;
 
                     var oldValue = animStorage.CurrentValue;
                     animStorage.CurrentValue = this.GetCurrentValue(animStorage.BaseValue, animStorage.StopValue !== undefined ? animStorage.StopValue : animStorage.BaseValue, clockData);
+                    if (Fayde.Media.Animation.Log)
+                        console.log(getLogMessage("AnimationBase.UpdateInternal", this, oldValue, animStorage.CurrentValue));
                     if (oldValue === animStorage.CurrentValue || animStorage.CurrentValue === undefined)
                         return;
                     Fayde.Media.Animation.AnimationStore.ApplyCurrent(animStorage);
@@ -23602,33 +23607,23 @@ var Fayde;
                     this._IsHolding = false;
                     this.Reset();
 
-                    var targetObject = null;
-                    if (this.HasManualTarget) {
-                        targetObject = this.ManualTarget;
-                    } else {
-                        var name = Fayde.Media.Animation.Storyboard.GetTargetName(this);
-                        if (name) {
-                            var n = this.XamlNode.FindName(name);
-                            targetObject = n.XObject;
-                        }
-                    }
-                    var targetPropertyPath = Fayde.Media.Animation.Storyboard.GetTargetProperty(this);
+                    var resolution = Fayde.Media.Animation.Storyboard.ResolveTarget(this);
 
-                    var refobj = { Value: targetObject };
-                    var targetProperty = targetPropertyPath.TryResolveDependencyProperty(refobj, promotedValues);
-                    targetObject = refobj.Value;
+                    var refobj = { Value: resolution.Target };
+                    var targetProperty = resolution.Property.TryResolveDependencyProperty(refobj, promotedValues);
+                    resolution.Target = refobj.Value;
                     if (!targetProperty) {
                         error.Number = BError.XamlParse;
-                        error.Message = "Could not resolve property for storyboard. [" + targetPropertyPath.Path.toString() + "]";
+                        error.Message = "Could not resolve property for storyboard. [" + resolution.Property.Path.toString() + "]";
                         return false;
                     }
-                    if (!this.Resolve(targetObject, targetProperty)) {
+                    if (!this.Resolve(resolution.Target, targetProperty)) {
                         error.Number = BError.InvalidOperation;
                         error.Message = "Storyboard value could not be converted to the correct type";
                         return false;
                     }
 
-                    this._AnimStorage = Fayde.Media.Animation.AnimationStore.Create(targetObject, targetProperty);
+                    this._AnimStorage = Fayde.Media.Animation.AnimationStore.Create(resolution.Target, targetProperty);
                     this._AnimStorage.Animation = this;
                     Fayde.Media.Animation.AnimationStore.Attach(this._AnimStorage);
                     return true;
@@ -23637,6 +23632,13 @@ var Fayde;
             })(Fayde.Media.Animation.Timeline);
             Animation.AnimationBase = AnimationBase;
             Fayde.RegisterType(AnimationBase, "Fayde.Media.Animation", Fayde.XMLNS);
+
+            function getLogMessage(action, anim, oldValue, newValue) {
+                var msg = "ANIMATION:" + action + ":" + anim._ID + "[" + anim.constructor.name + "]";
+                msg += ";" + (oldValue === undefined ? "(undefined)" : (oldValue === null ? "(null)" : oldValue.toString()));
+                msg += "->" + (newValue === undefined ? "(undefined)" : (newValue === null ? "(null)" : newValue.toString()));
+                return msg;
+            }
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -23661,6 +23663,7 @@ var Fayde;
                             baseValue = new targetType();
                     }
                     return {
+                        ID: createId(),
                         Animation: undefined,
                         PropStorage: Fayde.Providers.GetStorage(target, propd),
                         IsDisabled: false,
@@ -23712,26 +23715,39 @@ var Fayde;
                     return false;
                 };
                 AnimationStore.ApplyCurrent = function (animStorage) {
-                    var cv = animStorage.CurrentValue;
-                    if (cv === undefined)
+                    var val = animStorage.CurrentValue;
+                    if (val === undefined)
                         return;
+                    if (Fayde.Media.Animation.LogApply)
+                        console.log(getLogMessage("ApplyCurrent", animStorage, val));
                     var storage = animStorage.PropStorage;
-                    if (Fayde.Media.Animation.Debug && window.console) {
-                        console.log("ANIMATION:ApplyCurrent:" + storage.OwnerNode.Name + "->" + storage.Property.Name + "=" + cv);
-                    }
                     storage.Property.Store.SetLocalValue(storage, animStorage.CurrentValue);
                 };
                 AnimationStore.ApplyStop = function (animStorage) {
+                    var val = animStorage.StopValue;
+                    if (Fayde.Media.Animation.LogApply)
+                        console.log(getLogMessage("ApplyStop", animStorage, val));
                     var storage = animStorage.PropStorage;
-                    var sv = animStorage.StopValue;
-                    if (Fayde.Media.Animation.Debug && window.console) {
-                        console.log("ANIMATION:ApplyStop:" + storage.OwnerNode.Name + "->" + storage.Property.Name + "=" + (sv != null ? sv.toString() : ""));
-                    }
-                    storage.Property.Store.SetLocalValue(storage, animStorage.StopValue);
+                    storage.Property.Store.SetLocalValue(storage, val);
                 };
                 return AnimationStore;
             })();
             Animation.AnimationStore = AnimationStore;
+
+            function getLogMessage(action, animStorage, val) {
+                var anim = animStorage.Animation;
+                var name = Fayde.Media.Animation.Storyboard.GetTargetName(animStorage.Animation);
+                if (anim.HasManualTarget)
+                    name = anim.ManualTarget.Name;
+                var prop = Fayde.Media.Animation.Storyboard.GetTargetProperty(anim);
+                var msg = "ANIMATION:" + action + ":" + animStorage.ID + "[" + name + "](" + prop.Path + ")->";
+                msg += val === undefined ? "(undefined)" : (val === null ? "(null)" : val.toString());
+                return msg;
+            }
+            var lastId = 0;
+            function createId() {
+                return lastId++;
+            }
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -25257,14 +25273,32 @@ var Fayde;
                     return d.SetValue(Storyboard.TargetPropertyProperty, value);
                 };
 
+                Storyboard.ResolveTarget = function (timeline) {
+                    var res = {
+                        Target: undefined,
+                        Property: undefined
+                    };
+
+                    if (timeline.HasManualTarget) {
+                        res.Target = timeline.ManualTarget;
+                    } else {
+                        var targetName = Storyboard.GetTargetName(timeline);
+                        if (targetName)
+                            res.Target = timeline.FindName(targetName);
+                    }
+
+                    res.Property = Storyboard.GetTargetProperty(timeline);
+
+                    return res;
+                };
+
                 Storyboard.SetTarget = function (timeline, target) {
                     timeline.ManualTarget = target;
                 };
 
                 Storyboard.prototype.Begin = function () {
-                    if (Fayde.Media.Animation.Debug && window.console) {
-                        console.log("ANIMATION:Begin:" + this.__DebugString());
-                    }
+                    if (Fayde.Media.Animation.Log)
+                        console.log(getLogMessage("Storyboard.Begin", this, true));
                     this.Reset();
                     var error = new BError();
                     var promotedValues = [];
@@ -25291,9 +25325,8 @@ var Fayde;
                     }
                 };
                 Storyboard.prototype.Stop = function () {
-                    if (Fayde.Media.Animation.Debug && window.console) {
-                        console.log("ANIMATION:Stop:" + this.__DebugString());
-                    }
+                    if (Fayde.Media.Animation.Log)
+                        console.log(getLogMessage("Storyboard.Stop", this, false));
                     _super.prototype.Stop.call(this);
                     Fayde.Application.Current.UnregisterStoryboard(this);
                     var enumerator = this.Children.GetEnumerator();
@@ -25303,6 +25336,8 @@ var Fayde;
                 };
 
                 Storyboard.prototype.UpdateInternal = function (clockData) {
+                    if (Fayde.Media.Animation.Log)
+                        console.log(getLogMessage("Storyboard.UpdateInternal", this, false, clockData));
                     var enumerator = this.Children.GetEnumerator();
                     while (enumerator.MoveNext()) {
                         enumerator.Current.Update(clockData.CurrentTime.Ticks);
@@ -25343,29 +25378,6 @@ var Fayde;
                         return Duration.Automatic;
                     return new Duration(TimeSpan.FromTicks(fullTicks));
                 };
-
-                Storyboard.prototype.__DebugString = function () {
-                    var anims = [];
-                    var cur = "";
-
-                    var enumerator = this.Children.GetEnumerator();
-                    var animation;
-                    while (enumerator.MoveNext()) {
-                        animation = enumerator.Current;
-                        cur = "";
-                        cur += "(";
-                        cur += animation.constructor.name;
-                        cur += ":";
-                        cur += Storyboard.GetTargetName(animation);
-                        cur += ":";
-                        var path = Storyboard.GetTargetProperty(animation);
-                        cur += path ? path.Path : "";
-                        cur += ")";
-                        anims.push(cur);
-                    }
-
-                    return "[" + anims.join(",") + "]";
-                };
                 Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () {
                     return String;
                 }, Storyboard);
@@ -25383,6 +25395,33 @@ var Fayde;
             })(Fayde.Media.Animation.Timeline);
             Animation.Storyboard = Storyboard;
             Fayde.RegisterType(Storyboard, "Fayde.Media.Animation", Fayde.XMLNS);
+
+            function getLogMessage(action, storyboard, full, clockData) {
+                var anims = [];
+                var cur = "";
+
+                var enumerator = storyboard.Children.GetEnumerator();
+                var animation;
+                while (enumerator.MoveNext()) {
+                    animation = enumerator.Current;
+                    cur = "";
+                    cur += "(";
+                    cur += animation.constructor.name;
+                    cur += ":";
+                    cur += Storyboard.GetTargetName(animation);
+                    cur += ":";
+                    var path = Storyboard.GetTargetProperty(animation);
+                    cur += path ? path.Path : "";
+                    cur += ")";
+                    anims.push(cur);
+                }
+                var msg = "ANIMATION:" + action + ":" + storyboard._ID;
+                if (clockData)
+                    msg += "(" + (clockData.Progress * 100).toFixed(0) + "%)";
+                if (full)
+                    msg += "->[" + anims.join(",") + "]";
+                return msg;
+            }
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -29509,19 +29548,11 @@ var Fayde;
             function flattenTimeline(callback, timeline, targetObject, targetPropertyPath) {
                 if (!timeline)
                     return;
-                if (timeline.HasManualTarget) {
-                    targetObject = timeline.ManualTarget;
-                } else {
-                    var targetName = Storyboard.GetTargetName(timeline);
-                    if (targetName) {
-                        var n = timeline.XamlNode.FindName(targetName);
-                        targetObject = (n ? n.XObject : null);
-                    }
-                }
-
-                var pp = Storyboard.GetTargetProperty(timeline);
-                if (pp)
-                    targetPropertyPath = pp;
+                var resolution = Storyboard.ResolveTarget(timeline);
+                if (resolution.Target)
+                    targetObject = resolution.Target;
+                if (resolution.Property)
+                    targetPropertyPath = resolution.Property;
 
                 if (timeline instanceof Storyboard) {
                     for (var i = 0, children = timeline.Children, len = children.Count; i < len; i++) {
@@ -31781,7 +31812,8 @@ var Fayde;
 
     (function (Media) {
         (function (Animation) {
-            Animation.Debug = false;
+            Animation.Log = false;
+            Animation.LogApply = false;
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
         (function (VSM) {
