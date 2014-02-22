@@ -5736,46 +5736,39 @@ var Fayde;
                 };
 
                 ButtonBase.prototype.OnIsEnabledChanged = function (e) {
-                    var isEnabled = e.NewValue;
-                    this._SuspendStateChanges = true;
-                    try  {
-                        if (!isEnabled) {
-                            this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
-                            this.SetValueInternal(ButtonBase.IsPressedProperty, false);
-                            this._IsMouseCaptured = false;
-                            this._IsSpaceKeyDown = false;
-                            this._IsMouseLeftButtonDown = false;
-                        }
-                    } finally {
-                        this._SuspendStateChanges = false;
-                        this.UpdateVisualState();
-                    }
+                    var _this = this;
+                    if (!!e.NewValue)
+                        return;
+                    this._DoWithSuspend(function () {
+                        _this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
+                        _this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                        _this._IsMouseCaptured = false;
+                        _this._IsSpaceKeyDown = false;
+                        _this._IsMouseLeftButtonDown = false;
+                    });
                 };
                 ButtonBase.prototype.OnMouseEnter = function (e) {
+                    var _this = this;
                     _super.prototype.OnMouseEnter.call(this, e);
 
-                    this._SuspendStateChanges = true;
-                    try  {
-                        if (this.ClickMode === 2 /* Hover */ && this.IsEnabled) {
-                            this.SetValueInternal(ButtonBase.IsPressedProperty, true);
-                            this.OnClick();
-                        }
-                    } finally {
-                        this._SuspendStateChanges = false;
-                        this.UpdateVisualState();
-                    }
+                    if (this.ClickMode !== 2 /* Hover */ || !this.IsEnabled)
+                        return;
+
+                    this._DoWithSuspend(function () {
+                        _this.SetValueInternal(ButtonBase.IsPressedProperty, true);
+                        _this.OnClick();
+                    });
                 };
                 ButtonBase.prototype.OnMouseLeave = function (e) {
+                    var _this = this;
                     _super.prototype.OnMouseLeave.call(this, e);
 
-                    this._SuspendStateChanges = true;
-                    try  {
-                        if (this.ClickMode === 2 /* Hover */ && this.IsEnabled)
-                            this.SetValueInternal(ButtonBase.IsPressedProperty, false);
-                    } finally {
-                        this._SuspendStateChanges = false;
-                        this.UpdateVisualState();
-                    }
+                    if (this.ClickMode !== 2 /* Hover */ || !this.IsEnabled)
+                        return;
+
+                    this._DoWithSuspend(function () {
+                        _this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                    });
                 };
                 ButtonBase.prototype.OnMouseMove = function (e) {
                     _super.prototype.OnMouseMove.call(this, e);
@@ -5787,6 +5780,7 @@ var Fayde;
                     }
                 };
                 ButtonBase.prototype.OnMouseLeftButtonDown = function (e) {
+                    var _this = this;
                     _super.prototype.OnMouseLeftButtonDown.call(this, e);
 
                     this._IsMouseLeftButtonDown = true;
@@ -5797,16 +5791,12 @@ var Fayde;
                         return;
 
                     e.Handled = true;
-                    this._SuspendStateChanges = true;
-                    try  {
-                        this.Focus();
-                        this._CaptureMouseInternal();
-                        if (this._IsMouseCaptured)
-                            this.SetValueInternal(ButtonBase.IsPressedProperty, true);
-                    } finally {
-                        this._SuspendStateChanges = false;
-                        this.UpdateVisualState();
-                    }
+                    this._DoWithSuspend(function () {
+                        _this.Focus();
+                        _this._CaptureMouseInternal();
+                        if (_this._IsMouseCaptured)
+                            _this.SetValueInternal(ButtonBase.IsPressedProperty, true);
+                    });
 
                     if (clickMode === 1 /* Press */)
                         this.OnClick();
@@ -5837,20 +5827,18 @@ var Fayde;
                     this.UpdateVisualState();
                 };
                 ButtonBase.prototype.OnLostFocus = function (e) {
+                    var _this = this;
                     _super.prototype.OnLostFocus.call(this, e);
                     this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
 
-                    this._SuspendStateChanges = true;
-                    try  {
-                        if (this.ClickMode !== 2 /* Hover */) {
-                            this.SetValueInternal(ButtonBase.IsPressedProperty, false);
-                            this._ReleaseMouseCaptureInternal();
-                            this._IsSpaceKeyDown = false;
-                        }
-                    } finally {
-                        this._SuspendStateChanges = false;
-                        this.UpdateVisualState();
-                    }
+                    if (this.ClickMode === 2 /* Hover */)
+                        return;
+
+                    this._DoWithSuspend(function () {
+                        _this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                        _this._ReleaseMouseCaptureInternal();
+                        _this._IsSpaceKeyDown = false;
+                    });
                 };
 
                 ButtonBase.prototype.OnClick = function () {
@@ -5863,6 +5851,16 @@ var Fayde;
                     }
 
                     this.Click.Raise(this, new Fayde.RoutedEventArgs());
+                };
+
+                ButtonBase.prototype._DoWithSuspend = function (action) {
+                    this._SuspendStateChanges = true;
+                    try  {
+                        action();
+                    } finally {
+                        this._SuspendStateChanges = false;
+                        this.UpdateVisualState();
+                    }
                 };
 
                 ButtonBase.prototype.UpdateVisualState = function (useTransitions) {
@@ -7801,7 +7799,7 @@ var Fayde;
             }, ComboBox, false, function (d, args) {
                 return d._IsDropDownOpenChanged(args);
             });
-            ComboBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () {
+            ComboBox.ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", function () {
                 return Fayde.Style;
             }, ComboBox, undefined, function (d, args) {
                 return d.OnItemContainerStyleChanged(args);
@@ -22032,6 +22030,7 @@ var Fayde;
                 if (!args.Handled && args.Key === 2 /* Tab */) {
                     if (!this._Focus.TabFocus(args.Modifiers.Shift))
                         this._Focus.FocusAnyLayer(this._Surface.GetLayers());
+                    args.Handled = true;
                 }
                 this.SetIsUserInitiatedEvent(false);
             };

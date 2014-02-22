@@ -1120,6 +1120,7 @@ declare module Fayde.Controls.Primitives {
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public OnClick(): void;
+        private _DoWithSuspend(action);
         public UpdateVisualState(useTransitions?: boolean): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
         private _CaptureMouseInternal();
