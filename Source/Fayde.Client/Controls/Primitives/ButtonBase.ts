@@ -3,17 +3,17 @@
 
 module Fayde.Controls.Primitives {
     export class ButtonBase extends ContentControl {
-        static ClickModeProperty: DependencyProperty = DependencyProperty.Register("ClickMode", () => new Enum(ClickMode), ButtonBase, ClickMode.Release);
-        static IsPressedProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsPressed", () => Boolean, ButtonBase, false, (d, args) => (<ButtonBase>d).OnIsPressedChanged(args));
-        static IsFocusedProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsFocused", () => Boolean, ButtonBase, false);
-        static CommandProperty: DependencyProperty = DependencyProperty.RegisterCore("Command", () => Input.ICommand_, ButtonBase, undefined, (d, args) => (<ButtonBase>d).OnCommandChanged(args));
-        static CommandParameterProperty: DependencyProperty = DependencyProperty.RegisterCore("CommandParameter", () => Object, ButtonBase, undefined, (d, args) => (<ButtonBase>d).OnCommandParameterChanged(args));
+        static ClickModeProperty = DependencyProperty.Register("ClickMode", () => new Enum(ClickMode), ButtonBase, ClickMode.Release);
+        static IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", () => Boolean, ButtonBase, false, (d, args) => (<ButtonBase>d).OnIsPressedChanged(args));
+        static IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", () => Boolean, ButtonBase, false);
+        static CommandProperty = DependencyProperty.RegisterCore("Command", () => Input.ICommand_, ButtonBase, undefined, (d, args) => (<ButtonBase>d).OnCommandChanged(args));
+        static CommandParameterProperty = DependencyProperty.RegisterCore("CommandParameter", () => Object, ButtonBase, undefined, (d, args) => (<ButtonBase>d).OnCommandParameterChanged(args));
         ClickMode: ClickMode;
         IsPressed: boolean;
         IsFocused: boolean;
         Command: Input.ICommand;
         CommandParameter: any;
-        Click: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
+        Click = new RoutedEvent<RoutedEventArgs>();
             
         private _IsMouseCaptured: boolean = false;
         private _IsMouseLeftButtonDown: boolean = false;
@@ -31,46 +31,36 @@ module Fayde.Controls.Primitives {
         }
 
         OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) {
-            var isEnabled = e.NewValue;
-            this._SuspendStateChanges = true;
-            try {
-                if (!isEnabled) {
-                    this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
-                    this.SetValueInternal(ButtonBase.IsPressedProperty, false);
-                    this._IsMouseCaptured = false;
-                    this._IsSpaceKeyDown = false;
-                    this._IsMouseLeftButtonDown = false;
-                }
-            } finally {
-                this._SuspendStateChanges = false;
-                this.UpdateVisualState();
-            }
+            if (!!e.NewValue)
+                return;
+            this._DoWithSuspend(() => {
+                this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
+                this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                this._IsMouseCaptured = false;
+                this._IsSpaceKeyDown = false;
+                this._IsMouseLeftButtonDown = false;
+            });
         }
         OnMouseEnter(e: Input.MouseEventArgs) {
             super.OnMouseEnter(e);
 
-            this._SuspendStateChanges = true;
-            try {
-                if (this.ClickMode === ClickMode.Hover && this.IsEnabled) {
-                    this.SetValueInternal(ButtonBase.IsPressedProperty, true);
-                    this.OnClick();
-                }
-            } finally {
-                this._SuspendStateChanges = false;
-                this.UpdateVisualState();
-            }
+            if (this.ClickMode !== ClickMode.Hover || !this.IsEnabled)
+                return;
+
+            this._DoWithSuspend(() => {
+                this.SetValueInternal(ButtonBase.IsPressedProperty, true);
+                this.OnClick();
+            });
         }
         OnMouseLeave(e: Input.MouseEventArgs) {
             super.OnMouseLeave(e);
 
-            this._SuspendStateChanges = true;
-            try {
-                if (this.ClickMode === ClickMode.Hover && this.IsEnabled)
-                    this.SetValueInternal(ButtonBase.IsPressedProperty, false);
-            } finally {
-                this._SuspendStateChanges = false;
-                this.UpdateVisualState();
-            }
+            if (this.ClickMode !== ClickMode.Hover || !this.IsEnabled)
+                return;
+
+            this._DoWithSuspend(() => {
+                this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+            });
         }
         OnMouseMove(e: Input.MouseEventArgs) {
             super.OnMouseMove(e);
@@ -92,16 +82,12 @@ module Fayde.Controls.Primitives {
                 return;
 
             e.Handled = true;
-            this._SuspendStateChanges = true;
-            try {
+            this._DoWithSuspend(() => {
                 this.Focus();
                 this._CaptureMouseInternal();
                 if (this._IsMouseCaptured)
                     this.SetValueInternal(ButtonBase.IsPressedProperty, true);
-            } finally {
-                this._SuspendStateChanges = false;
-                this.UpdateVisualState();
-            }
+            });
 
             if (clickMode === ClickMode.Press)
                 this.OnClick();
@@ -135,17 +121,14 @@ module Fayde.Controls.Primitives {
             super.OnLostFocus(e);
             this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
 
-            this._SuspendStateChanges = true;
-            try {
-                if (this.ClickMode !== ClickMode.Hover) {
-                    this.SetValueInternal(ButtonBase.IsPressedProperty, false);
-                    this._ReleaseMouseCaptureInternal();
-                    this._IsSpaceKeyDown = false;
-                }
-            } finally {
-                this._SuspendStateChanges = false;
-                this.UpdateVisualState();
-            }
+            if (this.ClickMode === ClickMode.Hover)
+                return;
+
+            this._DoWithSuspend(() => {
+                this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                this._ReleaseMouseCaptureInternal();
+                this._IsSpaceKeyDown = false;
+            });
         }
 
         OnClick() {
@@ -158,6 +141,16 @@ module Fayde.Controls.Primitives {
             }
 
             this.Click.Raise(this, new RoutedEventArgs());
+        }
+
+        private _DoWithSuspend(action: () => void) {
+            this._SuspendStateChanges = true;
+            try {
+                action();
+            } finally {
+                this._SuspendStateChanges = false;
+                this.UpdateVisualState();
+            }
         }
 
         UpdateVisualState(useTransitions?: boolean) {
