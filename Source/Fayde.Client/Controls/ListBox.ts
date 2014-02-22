@@ -3,7 +3,7 @@
 module Fayde.Controls {
     export class ListBox extends Primitives.Selector {
         private _FocusedIndex: number = 0;
-        static ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", () => Style, ListBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
+        static ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", () => Style, ListBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
         static IsSelectionActiveProperty = Primitives.Selector.IsSelectionActiveProperty;
         ItemContainerStyle: Style;
 

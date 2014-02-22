@@ -10938,7 +10938,7 @@ var Fayde;
             ListBox.prototype.NotifyListItemLostFocus = function (lbi) {
                 this._FocusedIndex = -1;
             };
-            ListBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () {
+            ListBox.ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", function () {
                 return Fayde.Style;
             }, ListBox, undefined, function (d, args) {
                 return d.OnItemContainerStyleChanged(args);
