@@ -6,7 +6,7 @@ module Fayde.Controls {
         DropDownClosed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
         static IsDropDownOpenProperty = DependencyProperty.Register("IsDropDownOpen", () => Boolean, ComboBox, false, (d, args) => (<ComboBox>d)._IsDropDownOpenChanged(args));
-        static ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", () => Style, ComboBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
+        static ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", () => Style, ComboBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
         static MaxDropDownHeightProperty = DependencyProperty.Register("MaxDropDownHeight", () => Number, ComboBox, Number.POSITIVE_INFINITY, (d, args) => (<ComboBox>d)._MaxDropDownHeightChanged(args));
         static IsSelectionActiveProperty = Primitives.Selector.IsSelectionActiveProperty;
         IsDropDownOpen: boolean;
