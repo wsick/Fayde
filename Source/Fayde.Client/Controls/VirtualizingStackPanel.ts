@@ -8,7 +8,7 @@ module Fayde.Controls {
         Standard = 0,
         Recycling = 1,
     }
-    Fayde.RegisterEnum(VirtualizationMode, "VirtualizationMode",Fayde.XMLNS);
+    Fayde.RegisterEnum(VirtualizationMode, "VirtualizationMode", Fayde.XMLNS);
 
     export interface ICancelable {
         Cancel: boolean;
@@ -34,7 +34,7 @@ module Fayde.Controls {
         private _ExtentHeight: number = 0;
         private _ViewportWidth: number = 0;
         private _ViewportHeight: number = 0;
-        
+
         ScrollOwner: ScrollViewer;
         get CanHorizontallyScroll() { return this._CanHorizontallyScroll; }
         set CanHorizontallyScroll(value: boolean) { this._CanHorizontallyScroll = value; this.XamlNode.LayoutUpdater.InvalidateMeasure(); }
@@ -46,58 +46,50 @@ module Fayde.Controls {
         get ViewportHeight() { return this._ViewportHeight; }
         get HorizontalOffset() { return this._HorizontalOffset; }
         get VerticalOffset() { return this._VerticalOffset; }
-        LineUp() {
+        LineUp(): boolean {
             if (this.Orientation === Fayde.Orientation.Horizontal)
-                this.SetVerticalOffset(this._VerticalOffset - LineDelta);
-            else
-                this.SetVerticalOffset(this._VerticalOffset - 1);
+                return this.SetVerticalOffset(this._VerticalOffset - LineDelta);
+            return this.SetVerticalOffset(this._VerticalOffset - 1);
         }
-        LineDown() {
+        LineDown(): boolean {
             if (this.Orientation === Fayde.Orientation.Horizontal)
-                this.SetVerticalOffset(this._VerticalOffset + LineDelta);
-            else
-                this.SetVerticalOffset(this._VerticalOffset + 1);
+                return this.SetVerticalOffset(this._VerticalOffset + LineDelta);
+            return this.SetVerticalOffset(this._VerticalOffset + 1);
         }
-        LineLeft() {
+        LineLeft(): boolean {
             if (this.Orientation === Fayde.Orientation.Vertical)
-                this.SetHorizontalOffset(this._HorizontalOffset - LineDelta);
-            else
-                this.SetHorizontalOffset(this._HorizontalOffset - 1);
+                return this.SetHorizontalOffset(this._HorizontalOffset - LineDelta);
+            return this.SetHorizontalOffset(this._HorizontalOffset - 1);
         }
-        LineRight() {
+        LineRight(): boolean {
             if (this.Orientation === Fayde.Orientation.Vertical)
-                this.SetHorizontalOffset(this._HorizontalOffset + LineDelta);
-            else
-                this.SetHorizontalOffset(this._HorizontalOffset + 1);
+                return this.SetHorizontalOffset(this._HorizontalOffset + LineDelta);
+            return this.SetHorizontalOffset(this._HorizontalOffset + 1);
         }
-        MouseWheelUp() {
+        MouseWheelUp(): boolean {
             if (this.Orientation === Fayde.Orientation.Horizontal)
-                this.SetVerticalOffset(this._VerticalOffset - LineDelta * Wheelitude);
-            else
-                this.SetVerticalOffset(this._VerticalOffset - Wheelitude);
+                return this.SetVerticalOffset(this._VerticalOffset - LineDelta * Wheelitude);
+            return this.SetVerticalOffset(this._VerticalOffset - Wheelitude);
         }
-        MouseWheelDown() {
+        MouseWheelDown(): boolean {
             if (this.Orientation === Fayde.Orientation.Horizontal)
-                this.SetVerticalOffset(this._VerticalOffset + LineDelta * Wheelitude);
-            else
-                this.SetVerticalOffset(this._VerticalOffset + Wheelitude);
+                return this.SetVerticalOffset(this._VerticalOffset + LineDelta * Wheelitude);
+            return this.SetVerticalOffset(this._VerticalOffset + Wheelitude);
         }
-        MouseWheelLeft() {
+        MouseWheelLeft(): boolean {
             if (this.Orientation === Fayde.Orientation.Vertical)
-                this.SetHorizontalOffset(this._HorizontalOffset - LineDelta * Wheelitude);
-            else
-                this.SetHorizontalOffset(this._HorizontalOffset - Wheelitude);
+                return this.SetHorizontalOffset(this._HorizontalOffset - LineDelta * Wheelitude);
+            return this.SetHorizontalOffset(this._HorizontalOffset - Wheelitude);
         }
-        MouseWheelRight() {
+        MouseWheelRight(): boolean {
             if (this.Orientation === Fayde.Orientation.Vertical)
-                this.SetHorizontalOffset(this._HorizontalOffset + LineDelta * Wheelitude);
-            else
-                this.SetHorizontalOffset(this._HorizontalOffset + Wheelitude);
+                return this.SetHorizontalOffset(this._HorizontalOffset + LineDelta * Wheelitude);
+            return this.SetHorizontalOffset(this._HorizontalOffset + Wheelitude);
         }
-        PageUp() { this.SetVerticalOffset(this._VerticalOffset - this._ViewportHeight); }
-        PageDown() { this.SetVerticalOffset(this._VerticalOffset + this._ViewportHeight); }
-        PageLeft() { this.SetHorizontalOffset(this._HorizontalOffset - this._ViewportWidth); }
-        PageRight() { this.SetHorizontalOffset(this._HorizontalOffset + this._ViewportWidth); }
+        PageUp(): boolean { return this.SetVerticalOffset(this._VerticalOffset - this._ViewportHeight); }
+        PageDown(): boolean { return this.SetVerticalOffset(this._VerticalOffset + this._ViewportHeight); }
+        PageLeft(): boolean { return this.SetHorizontalOffset(this._HorizontalOffset - this._ViewportWidth); }
+        PageRight(): boolean { return this.SetHorizontalOffset(this._HorizontalOffset + this._ViewportWidth); }
         MakeVisible(uie: UIElement, rectangle: rect): rect {
             var exposed = new rect();
 
@@ -135,14 +127,14 @@ module Fayde.Controls {
 
             throw new ArgumentException("Visual is not a child of this Panel");
         }
-        SetHorizontalOffset(offset: number) {
+        SetHorizontalOffset(offset: number): boolean {
             if (offset < 0 || this._ViewportWidth >= this._ExtentWidth)
                 offset = 0;
             else if ((offset + this._ViewportWidth) >= this._ExtentWidth)
                 offset = this._ExtentWidth - this._ViewportWidth;
 
             if (this._HorizontalOffset === offset)
-                return;
+                return false;
             this._HorizontalOffset = offset;
 
             if (this.Orientation === Fayde.Orientation.Horizontal)
@@ -151,16 +143,18 @@ module Fayde.Controls {
                 this.XamlNode.LayoutUpdater.InvalidateArrange();
 
             var scrollOwner = this.ScrollOwner;
-            if (scrollOwner) scrollOwner.InvalidateScrollInfo();
+            if (scrollOwner)
+                scrollOwner.InvalidateScrollInfo();
+            return true;
         }
-        SetVerticalOffset(offset: number) {
+        SetVerticalOffset(offset: number): boolean {
             if (offset < 0 || this._ViewportHeight >= this._ExtentHeight)
                 offset = 0;
             else if ((offset + this._ViewportHeight) >= this._ExtentHeight)
                 offset = this._ExtentHeight - this._ViewportHeight;
 
             if (this._VerticalOffset === offset)
-                return;
+                return false;
             this._VerticalOffset = offset;
 
             if (this.Orientation === Fayde.Orientation.Vertical)
@@ -169,7 +163,9 @@ module Fayde.Controls {
                 this.XamlNode.LayoutUpdater.InvalidateArrange();
 
             var scrollOwner = this.ScrollOwner;
-            if (scrollOwner) scrollOwner.InvalidateScrollInfo();
+            if (scrollOwner)
+                scrollOwner.InvalidateScrollInfo();
+            return true;
         }
 
 
@@ -379,7 +375,7 @@ module Fayde.Controls {
             this.CleanUpVirtualizedItemEvent.Raise(this, args);
             return args;
         }
-        
+
         OnClearChildren() {
             super.OnClearChildren();
             this._HorizontalOffset = 0;

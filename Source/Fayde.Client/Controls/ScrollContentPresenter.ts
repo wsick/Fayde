@@ -31,18 +31,18 @@ module Fayde.Controls {
         get ViewportHeight(): number { return this._ScrollData.ViewportHeight; }
         get HorizontalOffset(): number { return this._ScrollData.OffsetX; }
         get VerticalOffset(): number { return this._ScrollData.OffsetY; }
-        LineUp() { this.SetVerticalOffset(this._ScrollData.OffsetY - 16); }
-        LineDown() { this.SetVerticalOffset(this._ScrollData.OffsetY + 16); }
-        LineLeft() { this.SetHorizontalOffset(this._ScrollData.OffsetX - 16); }
-        LineRight() { this.SetHorizontalOffset(this._ScrollData.OffsetX + 16); }
-        MouseWheelUp() { this.SetVerticalOffset(this._ScrollData.OffsetY - 48); }
-        MouseWheelDown() { this.SetVerticalOffset(this._ScrollData.OffsetY + 48); }
-        MouseWheelLeft() { this.SetHorizontalOffset(this._ScrollData.OffsetX - 48); }
-        MouseWheelRight() { this.SetHorizontalOffset(this._ScrollData.OffsetX + 48); }
-        PageUp() { this.SetVerticalOffset(this._ScrollData.OffsetY - this._ScrollData.ViewportHeight); }
-        PageDown() { this.SetVerticalOffset(this._ScrollData.OffsetY + this._ScrollData.ViewportHeight); }
-        PageLeft() { this.SetHorizontalOffset(this._ScrollData.OffsetX - this._ScrollData.ViewportWidth); }
-        PageRight() { this.SetHorizontalOffset(this._ScrollData.OffsetX + this._ScrollData.ViewportWidth); }
+        LineUp(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY - 16); }
+        LineDown(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY + 16); }
+        LineLeft(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX - 16); }
+        LineRight(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX + 16); }
+        MouseWheelUp(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY - 48); }
+        MouseWheelDown(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY + 48); }
+        MouseWheelLeft(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX - 48); }
+        MouseWheelRight(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX + 48); }
+        PageUp(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY - this._ScrollData.ViewportHeight); }
+        PageDown(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY + this._ScrollData.ViewportHeight); }
+        PageLeft(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX - this._ScrollData.ViewportWidth); }
+        PageRight(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX + this._ScrollData.ViewportWidth); }
         MakeVisible(uie: UIElement, rectangle: rect): rect {
             if (rect.isEmpty(rectangle) || !uie || uie === this || !this.XamlNode.IsAncestorOf(uie.XamlNode))
                 return new rect();
@@ -71,26 +71,35 @@ module Fayde.Controls {
             }
             return rectangle;
         }
-        SetHorizontalOffset(offset: number) {
+        SetHorizontalOffset(offset: number): boolean {
+            if (isNaN(offset))
+                throw new ArgumentException("Offset is not a number.");
             if (!this.CanHorizontallyScroll)
-                return;
-            var valid = validateInputOffset(offset);
-            if (areNumbersClose(this._ScrollData.OffsetX, valid))
-                return;
+                return false;
 
-            this._ScrollData.CachedOffsetX = valid;
+            var sd = this._ScrollData;
+            offset = Math.max(0, Math.min(offset, sd.ExtentWidth - sd.ViewportWidth));
+            if (areNumbersClose(this._ScrollData.OffsetX, offset))
+                return false;
+
+            this._ScrollData.CachedOffsetX = offset;
             this.XamlNode.LayoutUpdater.InvalidateArrange();
+            return true;
         }
-        SetVerticalOffset(offset: number) {
+        SetVerticalOffset(offset: number): boolean {
+            if (isNaN(offset))
+                throw new ArgumentException("Offset is not a number.");
             if (!this.CanVerticallyScroll)
-                return;
+                return false;
+            
+            var sd = this._ScrollData;
+            offset = Math.max(0, Math.min(offset, sd.ExtentHeight - sd.ViewportHeight));
+            if (areNumbersClose(this._ScrollData.OffsetY, offset))
+                return false;
 
-            var valid = validateInputOffset(offset);
-            if (areNumbersClose(this._ScrollData.OffsetY, valid))
-                return;
-
-            this._ScrollData.CachedOffsetY = valid;
+            this._ScrollData.CachedOffsetY = offset;
             this.XamlNode.LayoutUpdater.InvalidateArrange();
+            return true;
         }
 
         OnApplyTemplate() {
@@ -237,30 +246,36 @@ module Fayde.Controls {
             var changed = false;
 
             var sd = this._ScrollData;
-            var result = this.CanHorizontallyScroll ? Math.min(sd.CachedOffsetX, sd.ExtentWidth - sd.ViewportWidth) : 0;
-            result = Math.max(0, result);
-            if (!areNumbersClose(result, this.HorizontalOffset)) {
-                sd.OffsetX = result;
+            var clampX = this._ClampHorizontal(sd.CachedOffsetX);
+            if (!areNumbersClose(clampX, this.HorizontalOffset)) {
+                sd.OffsetX = clampX;
                 changed = true;
             }
 
-            result = this.CanVerticallyScroll ? Math.min(sd.CachedOffsetY, sd.ExtentHeight - sd.ViewportHeight) : 0;
-            result = Math.max(0, result);
-            if (!areNumbersClose(result, this.VerticalOffset)) {
-                sd.OffsetY = result;
+            var clampY = this._ClampVertical(sd.CachedOffsetY);
+            if (!areNumbersClose(clampY, this.VerticalOffset)) {
+                sd.OffsetY = clampY;
                 changed = true;
             }
             return changed;
+        }
+
+        private _ClampHorizontal(x: number): number {
+            if (!this.CanHorizontallyScroll)
+                return 0;
+            var sd = this._ScrollData;
+            return Math.max(0, Math.min(x, sd.ExtentWidth - sd.ViewportWidth));
+        }
+        private _ClampVertical(y: number): number {
+            if (!this.CanVerticallyScroll)
+                return 0;
+            var sd = this._ScrollData;
+            return Math.max(0, Math.min(y, sd.ExtentHeight - sd.ViewportHeight));
         }
     }
     Fayde.RegisterType(ScrollContentPresenter, "Fayde.Controls", Fayde.XMLNS);
     Fayde.RegisterTypeInterfaces(ScrollContentPresenter, Primitives.IScrollInfo_);
     
-    function validateInputOffset(offset: number) {
-        if (!isNaN(offset))
-            return Math.max(0, offset);
-        throw new ArgumentException("Offset is not a number.");
-    }
     function areNumbersClose(val1: number, val2: number): boolean {
         if (val1 === val2)
             return true;

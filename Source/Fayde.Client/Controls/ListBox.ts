@@ -177,7 +177,6 @@ module Fayde.Controls {
             if (args.Handled)
                 return;
 
-            var handled = false;
             var newFocusedIndex = -1;
             switch (args.Key) {
                 case Input.Key.Space:
@@ -193,7 +192,7 @@ module Fayde.Controls {
                                 } else {
                                     this.SelectedItem = this.ItemContainerGenerator.ItemFromContainer(lbi);
                                 }
-                                handled = true;
+                                args.Handled = true;
                             }
                         }
                     }
@@ -251,10 +250,8 @@ module Fayde.Controls {
                 } else {
                     this.SelectedItem = item;
                 }
-                handled = true;
-            }
-            if (handled)
                 args.Handled = true;
+            }
         }
         private _GetIsVerticalOrientation(): boolean {
             var p = this.Panel;
