@@ -5,7 +5,7 @@ module Fayde.Controls {
         private _Track: FrameworkElement;
         private _Indicator: FrameworkElement;
 
-        static IsIndeterminateProperty: DependencyProperty = DependencyProperty.Register("IsIndeterminate", () => Boolean, ProgressBar, false, (d, args) => (<ProgressBar>d).OnIsIndeterminateChanged(args));
+        static IsIndeterminateProperty = DependencyProperty.Register("IsIndeterminate", () => Boolean, ProgressBar, false, (d, args) => (<ProgressBar>d).OnIsIndeterminateChanged(args));
         IsIndeterminate: boolean;
         private OnIsIndeterminateChanged(args: IDependencyPropertyChangedEventArgs) {
             this._UpdateIndicator();
