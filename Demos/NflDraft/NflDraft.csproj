@@ -152,13 +152,16 @@
     <Content Include="lib\Fayde.Controls\Fayde.Controls.d.ts" />
     <Content Include="lib\Fayde.Controls\Fayde.Controls.js" />
     <Content Include="lib\Fayde.Controls\Metro.theme.xml" />
-    <Content Include="lib\Fayde\Default.theme.xml" />
+    <Content Include="lib\Fayde\Default.theme.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="lib\Fayde\Fayde.d.ts" />
     <Content Include="lib\Fayde\Fayde.js" />
     <Content Include="lib\Fayde\Metro.theme.xml" />
     <Content Include="lib\requirejs\require.d.ts" />
     <Content Include="lib\requirejs\require.js" />
     <Content Include="lib\requirejs\text.js" />
+    <TypeScriptCompile Include="Resources\StatVisibilityValueConverter.ts" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
