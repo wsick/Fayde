@@ -12,7 +12,8 @@ module Fayde {
 
     export module Media {
         export module Animation {
-            export var Debug = false;
+            export var Log = false;
+            export var LogApply = false;
         }
         export module VSM {
             export var Debug = false;

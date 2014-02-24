@@ -3,14 +3,10 @@
 module Fayde.Controls {
     export class ListBox extends Primitives.Selector {
         private _FocusedIndex: number = 0;
-        static ItemContainerStyleProperty: DependencyProperty = DependencyProperty.RegisterCore("ItemContainerStyle", () => Style, ListBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
-        static SelectionModeProperty: DependencyProperty = DependencyProperty.Register("SelectionMode", () => new Enum(SelectionMode), ListBox, undefined, (d, args) => (<ListBox>d)._Selection.Mode = args.NewValue);
-        static IsSelectionActiveProperty: DependencyProperty = Primitives.Selector.IsSelectionActiveProperty;
+        static ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", () => Style, ListBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
+        static IsSelectionActiveProperty = Primitives.Selector.IsSelectionActiveProperty;
         ItemContainerStyle: Style;
 
-        SelectAll() {
-            this._Selection.SelectAll(this.Items.ToArray());
-        }
         ScrollIntoView(item: any) {
             var tsv = this.$TemplateScrollViewer;
             if (!tsv)
@@ -181,7 +177,6 @@ module Fayde.Controls {
             if (args.Handled)
                 return;
 
-            var handled = false;
             var newFocusedIndex = -1;
             switch (args.Key) {
                 case Input.Key.Space:
@@ -197,7 +192,7 @@ module Fayde.Controls {
                                 } else {
                                     this.SelectedItem = this.ItemContainerGenerator.ItemFromContainer(lbi);
                                 }
-                                handled = true;
+                                args.Handled = true;
                             }
                         }
                     }
@@ -255,10 +250,8 @@ module Fayde.Controls {
                 } else {
                     this.SelectedItem = item;
                 }
-                handled = true;
-            }
-            if (handled)
                 args.Handled = true;
+            }
         }
         private _GetIsVerticalOrientation(): boolean {
             var p = this.Panel;

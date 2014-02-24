@@ -278,19 +278,11 @@ module Fayde.Media.VSM {
     function flattenTimeline(callback: (tuple: ITimelineTuple) => void, timeline: Timeline, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath) {
         if (!timeline)
             return;
-        if (timeline.HasManualTarget) {
-            targetObject = timeline.ManualTarget;
-        } else {
-            var targetName = Storyboard.GetTargetName(timeline);
-            if (targetName) {
-                var n = timeline.XamlNode.FindName(targetName);
-                targetObject = <DependencyObject>(n ? n.XObject : null);
-            }
-        }
-
-        var pp = Storyboard.GetTargetProperty(timeline);
-        if (pp)
-            targetPropertyPath = pp;
+        var resolution = Storyboard.ResolveTarget(timeline);
+        if (resolution.Target)
+            targetObject = resolution.Target;
+        if (resolution.Property)
+            targetPropertyPath = resolution.Property;
 
         if (timeline instanceof Storyboard) {
             for (var i = 0, children = (<Storyboard>timeline).Children, len = children.Count; i < len; i++) {

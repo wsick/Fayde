@@ -72,6 +72,7 @@ module Fayde.Engine {
             if (!args.Handled && args.Key === Input.Key.Tab) {
                 if (!this._Focus.TabFocus(args.Modifiers.Shift))
                     this._Focus.FocusAnyLayer(this._Surface.GetLayers());
+                args.Handled = true;
             }
             this.SetIsUserInitiatedEvent(false);
         }

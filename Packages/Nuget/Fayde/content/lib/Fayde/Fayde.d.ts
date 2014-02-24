@@ -1120,6 +1120,7 @@ declare module Fayde.Controls.Primitives {
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public OnClick(): void;
+        private _DoWithSuspend(action);
         public UpdateVisualState(useTransitions?: boolean): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
         private _CaptureMouseInternal();
@@ -1345,14 +1346,16 @@ declare module Fayde.Controls.Primitives {
         static SelectedValueProperty: DependencyProperty;
         static SelectedValuePathProperty: DependencyProperty;
         static IsSelectionActiveProperty: DependencyProperty;
+        static SelectionModeProperty: DependencyProperty;
         public IsSynchronizedWithCurrentItem: boolean;
         public SelectedIndex: number;
         public SelectedItem: any;
         public SelectedValue: any;
         public SelectedValuePath: string;
         public IsSelectionActive: boolean;
+        public SelectionMode: Controls.SelectionMode;
         public SelectionChanged: Fayde.RoutedEvent<Primitives.SelectionChangedEventArgs>;
-        public _Selection: Primitives.SelectorSelection;
+        private _Selection;
         private _SelectedItems;
         private _Initializing;
         public _SelectedItemsIsInvalid: boolean;
@@ -1366,6 +1369,7 @@ declare module Fayde.Controls.Primitives {
         private _OnSelectedItemChanged(args);
         private _OnSelectedValueChanged(args);
         private _OnSelectedValuePathChanged(args);
+        private _OnSelectionModeChanged(args);
         public OnApplyTemplate(): void;
         public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         public OnItemsSourceChanged(args: IDependencyPropertyChangedEventArgs): void;
@@ -1374,6 +1378,7 @@ declare module Fayde.Controls.Primitives {
         public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
         public _GetValueFromItem(item: any): any;
         private _SelectItemFromValue(selectedValue, ignoreSelectedValue?);
+        public SelectAll(): void;
         private _OnCurrentItemChanged(sender, e);
         public _RaiseSelectionChanged(oldVals: any[], newVals: any[]): void;
         public OnSelectionChanged(args: Primitives.SelectionChangedEventArgs): void;
@@ -1801,10 +1806,8 @@ declare module Fayde.Controls {
     class ListBox extends Controls.Primitives.Selector {
         private _FocusedIndex;
         static ItemContainerStyleProperty: DependencyProperty;
-        static SelectionModeProperty: DependencyProperty;
         static IsSelectionActiveProperty: DependencyProperty;
         public ItemContainerStyle: Fayde.Style;
-        public SelectAll(): void;
         public ScrollIntoView(item: any): void;
         private _NavigateByPage(forward);
         private _ScrollInDirection(key);
@@ -2108,21 +2111,21 @@ declare module Fayde.Controls.Primitives {
 declare module Fayde.Controls.Primitives {
     interface IScrollInfo {
         ScrollOwner: Controls.ScrollViewer;
-        LineUp(): any;
-        LineDown(): any;
-        LineLeft(): any;
-        LineRight(): any;
-        MouseWheelUp(): any;
-        MouseWheelDown(): any;
-        MouseWheelLeft(): any;
-        MouseWheelRight(): any;
-        PageUp(): any;
-        PageDown(): any;
-        PageLeft(): any;
-        PageRight(): any;
+        LineUp(): boolean;
+        LineDown(): boolean;
+        LineLeft(): boolean;
+        LineRight(): boolean;
+        MouseWheelUp(): boolean;
+        MouseWheelDown(): boolean;
+        MouseWheelLeft(): boolean;
+        MouseWheelRight(): boolean;
+        PageUp(): boolean;
+        PageDown(): boolean;
+        PageLeft(): boolean;
+        PageRight(): boolean;
         MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
-        SetHorizontalOffset(offset: number): any;
-        SetVerticalOffset(offset: number): any;
+        SetHorizontalOffset(offset: number): boolean;
+        SetVerticalOffset(offset: number): boolean;
         CanHorizontallyScroll: boolean;
         CanVerticallyScroll: boolean;
         ExtentHeight: number;
@@ -2343,13 +2346,17 @@ declare module Fayde.Controls.Primitives {
         private _SelectedItems;
         private _SelectedItem;
         private _IsUpdating;
+        private _AnchorIndex;
         public Mode: Controls.SelectionMode;
         public IsUpdating : boolean;
         constructor(owner: Primitives.Selector);
         private _HandleOwnerSelectionChanged(sender, e);
         public RepopulateSelectedItems(): void;
         public ClearSelection(ignoreSelectedValue?: boolean): void;
-        public Select(item: any, ignoreSelectedValue?: boolean): void;
+        public Select(item: any): void;
+        private _SelectSingle(item, selIndex);
+        private _SelectExtended(item, selIndex);
+        private _SelectMultiple(item, selIndex);
         public SelectRange(startIndex: number, endIndex: number): void;
         public SelectAll(items: any[]): void;
         public SelectOnly(item: any): void;
@@ -2468,21 +2475,21 @@ declare module Fayde.Controls {
         public ViewportHeight : number;
         public HorizontalOffset : number;
         public VerticalOffset : number;
-        public LineUp(): void;
-        public LineDown(): void;
-        public LineLeft(): void;
-        public LineRight(): void;
-        public MouseWheelUp(): void;
-        public MouseWheelDown(): void;
-        public MouseWheelLeft(): void;
-        public MouseWheelRight(): void;
-        public PageUp(): void;
-        public PageDown(): void;
-        public PageLeft(): void;
-        public PageRight(): void;
+        public LineUp(): boolean;
+        public LineDown(): boolean;
+        public LineLeft(): boolean;
+        public LineRight(): boolean;
+        public MouseWheelUp(): boolean;
+        public MouseWheelDown(): boolean;
+        public MouseWheelLeft(): boolean;
+        public MouseWheelRight(): boolean;
+        public PageUp(): boolean;
+        public PageDown(): boolean;
+        public PageLeft(): boolean;
+        public PageRight(): boolean;
         public MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
-        public SetHorizontalOffset(offset: number): void;
-        public SetVerticalOffset(offset: number): void;
+        public SetHorizontalOffset(offset: number): boolean;
+        public SetVerticalOffset(offset: number): boolean;
         public OnApplyTemplate(): void;
         private _UpdateClip(arrangeSize);
         private _CalculateTextBoxClipRect(arrangeSize);
@@ -2490,6 +2497,8 @@ declare module Fayde.Controls {
         public ArrangeOverride(finalSize: size): size;
         private _UpdateExtents(viewport, extentWidth, extentHeight);
         private _ClampOffsets();
+        private _ClampHorizontal(x);
+        private _ClampVertical(y);
     }
 }
 declare module Fayde.Controls {
@@ -2537,7 +2546,6 @@ declare module Fayde.Controls {
         public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
         public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        private _HandleKeyDown(e);
         public ScrollInDirection(key: Fayde.Input.Key): void;
         public ScrollToHorizontalOffset(offset: number): void;
         public ScrollToVerticalOffset(offset: number): void;
@@ -2904,21 +2912,21 @@ declare module Fayde.Controls {
         public ViewportHeight : number;
         public HorizontalOffset : number;
         public VerticalOffset : number;
-        public LineUp(): void;
-        public LineDown(): void;
-        public LineLeft(): void;
-        public LineRight(): void;
-        public MouseWheelUp(): void;
-        public MouseWheelDown(): void;
-        public MouseWheelLeft(): void;
-        public MouseWheelRight(): void;
-        public PageUp(): void;
-        public PageDown(): void;
-        public PageLeft(): void;
-        public PageRight(): void;
+        public LineUp(): boolean;
+        public LineDown(): boolean;
+        public LineLeft(): boolean;
+        public LineRight(): boolean;
+        public MouseWheelUp(): boolean;
+        public MouseWheelDown(): boolean;
+        public MouseWheelLeft(): boolean;
+        public MouseWheelRight(): boolean;
+        public PageUp(): boolean;
+        public PageDown(): boolean;
+        public PageLeft(): boolean;
+        public PageRight(): boolean;
         public MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
-        public SetHorizontalOffset(offset: number): void;
-        public SetVerticalOffset(offset: number): void;
+        public SetHorizontalOffset(offset: number): boolean;
+        public SetVerticalOffset(offset: number): boolean;
         public CleanUpVirtualizedItemEvent: Fayde.RoutedEvent<CleanUpVirtualizedItemEventArgs>;
         static OrientationProperty: DependencyProperty;
         public Orientation: Fayde.Orientation;
@@ -4026,6 +4034,7 @@ declare module Fayde.Media.Animation {
 }
 declare module Fayde.Media.Animation {
     interface IAnimationStorage {
+        ID: number;
         Animation: Animation.AnimationBase;
         PropStorage: Fayde.Providers.IPropertyStorage;
         IsDisabled: boolean;
@@ -4389,6 +4398,10 @@ declare module Fayde.Media.Animation {
     }
 }
 declare module Fayde.Media.Animation {
+    interface IStoryboadResolution {
+        Target: Fayde.DependencyObject;
+        Property: Fayde.Data.PropertyPath;
+    }
     class Storyboard extends Animation.Timeline {
         static TargetNameProperty: DependencyProperty;
         static GetTargetName(d: Fayde.DependencyObject): string;
@@ -4397,6 +4410,7 @@ declare module Fayde.Media.Animation {
         static GetTargetProperty(d: Fayde.DependencyObject): Fayde.Data.PropertyPath;
         static SetTargetProperty(d: Fayde.DependencyObject, value: Fayde.Data.PropertyPath): void;
         static ChildrenProperty: ImmutableDependencyProperty<Animation.TimelineCollection>;
+        static ResolveTarget(timeline: Animation.Timeline): IStoryboadResolution;
         public TargetName: string;
         public TargetProperty: Fayde.Data.PropertyPath;
         public Children: Animation.TimelineCollection;
@@ -4411,7 +4425,6 @@ declare module Fayde.Media.Animation {
         public Stop(): void;
         public UpdateInternal(clockData: Animation.IClockData): void;
         public GetNaturalDurationCore(): Duration;
-        private __DebugString();
     }
 }
 declare module Fayde.Media {
@@ -5683,7 +5696,8 @@ declare module Fayde {
     }
     module Media {
         module Animation {
-            var Debug: boolean;
+            var Log: boolean;
+            var LogApply: boolean;
         }
         module VSM {
             var Debug: boolean;

@@ -46,6 +46,9 @@ export function run() {
         ts = <TimeSpan>Fayde.ConvertAnyToType("02:03:04.10", TimeSpan);
         strictEqual(ts.CompareTo(TimeSpan.FromArgs(0, 2, 3, 4, 100)), 0, "Short+Milliseconds TimeSpan");
 
+        ts = <TimeSpan>Fayde.ConvertAnyToType("00:00:00.001", TimeSpan);
+        strictEqual(ts.Ticks, 1, "Ticks (decimal seconds)");
+
         ts = <TimeSpan>Fayde.ConvertAnyToType(1000, TimeSpan);
         strictEqual(ts.Ticks, 1000, "Ticks (Number)");
 

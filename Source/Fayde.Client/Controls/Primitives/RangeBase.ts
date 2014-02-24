@@ -8,11 +8,11 @@ module Fayde.Controls.Primitives {
         private _RequestedMax: number = 0;
         private _RequestedVal: number = 0;
 
-        static MinimumProperty: DependencyProperty = DependencyProperty.Register("Minimum", () => Number, RangeBase, 0, (d, args) => (<RangeBase>d)._OnMinimumChanged(args));
-        static MaximumProperty: DependencyProperty = DependencyProperty.Register("Maximum", () => Number, RangeBase, 1, (d, args) => (<RangeBase>d)._OnMaximumChanged(args));
-        static LargeChangeProperty: DependencyProperty = DependencyProperty.Register("LargeChange", () => Number, RangeBase, 1, (d, args) => (<RangeBase>d)._OnLargeChangeChanged(args));
-        static SmallChangeProperty: DependencyProperty = DependencyProperty.Register("SmallChange", () => Number, RangeBase, 0.1, (d, args) => (<RangeBase>d)._OnSmallChangeChanged(args));
-        static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Number, RangeBase, 0, (d, args) => (<RangeBase>d)._OnValueChanged(args));
+        static MinimumProperty = DependencyProperty.Register("Minimum", () => Number, RangeBase, 0, (d, args) => (<RangeBase>d)._OnMinimumChanged(args));
+        static MaximumProperty = DependencyProperty.Register("Maximum", () => Number, RangeBase, 1, (d, args) => (<RangeBase>d)._OnMaximumChanged(args));
+        static LargeChangeProperty = DependencyProperty.Register("LargeChange", () => Number, RangeBase, 1, (d, args) => (<RangeBase>d)._OnLargeChangeChanged(args));
+        static SmallChangeProperty = DependencyProperty.Register("SmallChange", () => Number, RangeBase, 0.1, (d, args) => (<RangeBase>d)._OnSmallChangeChanged(args));
+        static ValueProperty = DependencyProperty.Register("Value", () => Number, RangeBase, 0, (d, args) => (<RangeBase>d)._OnValueChanged(args));
 
         Minimum: number;
         Maximum: number;
@@ -20,7 +20,15 @@ module Fayde.Controls.Primitives {
         LargeChange: number;
         Value: number;
 
-        ValueChanged: RoutedPropertyChangedEvent<number> = new RoutedPropertyChangedEvent<number>();
+        ValueChanged = new RoutedPropertyChangedEvent<number>();
+
+        OnMinimumChanged(oldMin: number, newMin: number) { }
+        OnMaximumChanged(oldMax: number, newMax: number) { }
+        private RaiseValueChanged(oldVal: number, newVal: number) {
+            this.ValueChanged.Raise(this, new RoutedPropertyChangedEventArgs(oldVal, newVal));
+            this.OnValueChanged(oldVal, newVal);
+        }
+        OnValueChanged(oldVal: number, newVal: number) { }
 
         private _OnMinimumChanged(args: IDependencyPropertyChangedEventArgs) {
             if (!isValidDoubleValue(args.NewValue))
@@ -33,17 +41,16 @@ module Fayde.Controls.Primitives {
             this._CoerceMaximum();
             this._CoerceValue();
             this._LevelsFromRootCall--;
-            if (this._LevelsFromRootCall === 0) {
-                this.OnMinimumChanged(args.OldValue, args.OldValue);
-                var max = this.Maximum;
-                if (!areNumbersClose(this._InitialMax, max)) {
-                    this.OnMaximumChanged(this._InitialMax, max);
-                }
-                var val = this.Value;
-                if (!areNumbersClose(this._InitialVal, val)) {
-                    this.RaiseValueChanged(this._InitialVal, val);
-                }
-            }
+            if (this._LevelsFromRootCall !== 0)
+                return;
+
+            this.OnMinimumChanged(args.OldValue, args.OldValue);
+            var max = this.Maximum;
+            if (!areNumbersClose(this._InitialMax, max))
+                this.OnMaximumChanged(this._InitialMax, max);
+            var val = this.Value;
+            if (!areNumbersClose(this._InitialVal, val))
+                this.RaiseValueChanged(this._InitialVal, val);
         }
         private _OnMaximumChanged(args: IDependencyPropertyChangedEventArgs) {
             if (!isValidDoubleValue(args.NewValue))
@@ -57,16 +64,15 @@ module Fayde.Controls.Primitives {
             this._CoerceMaximum();
             this._CoerceValue();
             this._LevelsFromRootCall--;
-            if (this._LevelsFromRootCall === 0) {
-                var max = this.Maximum;
-                if (!areNumbersClose(this._InitialMax, max)) {
-                    this.OnMaximumChanged(this._InitialMax, max);
-                }
-                var val = this.Value;
-                if (!areNumbersClose(this._InitialVal, val)) {
-                    this.RaiseValueChanged(this._InitialVal, val);
-                }
-            }
+            if (this._LevelsFromRootCall !== 0)
+                return;
+            
+            var max = this.Maximum;
+            if (!areNumbersClose(this._InitialMax, max))
+                this.OnMaximumChanged(this._InitialMax, max);
+            var val = this.Value;
+            if (!areNumbersClose(this._InitialVal, val))
+                this.RaiseValueChanged(this._InitialVal, val);
         }
         private _OnLargeChangeChanged(args: IDependencyPropertyChangedEventArgs) {
             if (!isValidChange(args.NewValue))
@@ -86,45 +92,33 @@ module Fayde.Controls.Primitives {
             this._LevelsFromRootCall++;
             this._CoerceValue();
             this._LevelsFromRootCall--;
-            if (this._LevelsFromRootCall === 0) {
-                var val = this.Value;
-                if (!areNumbersClose(this._InitialVal, val)) {
-                    this.RaiseValueChanged(this._InitialVal, val);
-                }
-            }
+            if (this._LevelsFromRootCall !== 0)
+                return;
+
+            var val = this.Value;
+            if (!areNumbersClose(this._InitialVal, val))
+                this.RaiseValueChanged(this._InitialVal, val);
         }
 
         private _CoerceMaximum() {
             var min = this.Minimum;
             var max = this.Maximum;
-            if (!areNumbersClose(this._RequestedMax, max) && this._RequestedMax >= min) {
+            if (!areNumbersClose(this._RequestedMax, max) && this._RequestedMax >= min)
                 this.Maximum = this._RequestedMax;
-                return;
-            }
-            if (max < min)
+            else if (max < min)
                 this.Maximum = min;
         }
         private _CoerceValue() {
             var min = this.Minimum;
             var max = this.Maximum;
             var val = this.Value;
-            if (!areNumbersClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max) {
+            if (!areNumbersClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max)
                 this.Value = this._RequestedVal;
-                return;
-            }
-            if (val < min)
+            else if (val < min)
                 this.Value = min;
-            if (val > max)
+            else if (val > max)
                 this.Value = max;
         }
-
-        OnMinimumChanged(oldMin: number, newMin: number) { }
-        OnMaximumChanged(oldMax: number, newMax: number) { }
-        private RaiseValueChanged(oldVal: number, newVal: number) {
-            this.ValueChanged.Raise(this, new RoutedPropertyChangedEventArgs(oldVal, newVal));
-            this.OnValueChanged(oldVal, newVal);
-        }
-        OnValueChanged(oldVal: number, newVal: number) { }
     }
     Fayde.RegisterType(RangeBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
 
