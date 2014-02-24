@@ -109,20 +109,20 @@ module Fayde.Controls.Primitives {
             var min = this.Minimum;
             var max = this.Maximum;
             if (!areNumbersClose(this._RequestedMax, max) && this._RequestedMax >= min)
-                this.Maximum = this._RequestedMax;
+                this.SetStoreValue(RangeBase.MaximumProperty, this._RequestedMax);
             else if (max < min)
-                this.Maximum = min;
+                this.SetStoreValue(RangeBase.MaximumProperty, min);
         }
         private _CoerceValue() {
             var min = this.Minimum;
             var max = this.Maximum;
             var val = this.Value;
             if (!areNumbersClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max)
-                this.Value = this._RequestedVal;
+                this.SetStoreValue(RangeBase.ValueProperty, this._RequestedVal);
             else if (val < min)
-                this.Value = min;
+                this.SetStoreValue(RangeBase.ValueProperty, min);
             else if (val > max)
-                this.Value = max;
+                this.SetStoreValue(RangeBase.ValueProperty, max);
         }
     }
     Fayde.RegisterType(RangeBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
