@@ -162,6 +162,7 @@ class DefaultViewModel extends Fayde.MVVM.ViewModelBase {
             this.CurrentDraftSpot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
             this.Countdown = 10;
         }
+        (<Fayde.MVVM.RelayCommand> this._draft_player_command).ForceCanExecuteChanged();
     }
     AddDraftSelection(spot: DraftSpot, player: FantasyPlayer) {
         var ds = new DraftSelection();
