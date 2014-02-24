@@ -22,6 +22,31 @@ module Fayde.Controls.Primitives {
 
         ValueChanged = new RoutedPropertyChangedEvent<number>();
 
+        constructor() {
+            super();
+            this.Loaded.Subscribe(this._OnLoaded, this);
+        }
+
+        private _IsLoaded = false;
+        private _OnLoaded(sender, e: EventArgs) {
+            this.Loaded.Unsubscribe(this._OnLoaded, this);
+            this._CoerceInitial();
+            this._IsLoaded = true;
+        }
+        private _CoerceInitial() {
+            var val = this.Value;
+            var min = this.Minimum;
+            var max = this.Maximum;
+
+            var coerced = Math.min(min, max);
+            if (!areNumbersClose(coerced, max))
+                this.Maximum = coerced;
+
+            coerced = Math.min(Math.max(min, val), max);
+            if (!areNumbersClose(coerced, val))
+                this.Value = coerced;
+        }
+
         OnMinimumChanged(oldMin: number, newMin: number) { }
         OnMaximumChanged(oldMax: number, newMax: number) { }
         private RaiseValueChanged(oldVal: number, newVal: number) {
@@ -33,6 +58,8 @@ module Fayde.Controls.Primitives {
         private _OnMinimumChanged(args: IDependencyPropertyChangedEventArgs) {
             if (!isValidDoubleValue(args.NewValue))
                 throw new ArgumentException("Invalid double value for Minimum property.");
+            if (!this._IsLoaded)
+                return;
             if (this._LevelsFromRootCall === 0) {
                 this._InitialMax = this.Maximum;
                 this._InitialVal = this.Value;
@@ -55,6 +82,8 @@ module Fayde.Controls.Primitives {
         private _OnMaximumChanged(args: IDependencyPropertyChangedEventArgs) {
             if (!isValidDoubleValue(args.NewValue))
                 throw new ArgumentException("Invalid double value for Maximum property.");
+            if (!this._IsLoaded)
+                return;
             if (this._LevelsFromRootCall === 0) {
                 this._RequestedMax = args.NewValue;
                 this._InitialMax = args.OldValue;
@@ -85,6 +114,8 @@ module Fayde.Controls.Primitives {
         private _OnValueChanged(args: IDependencyPropertyChangedEventArgs) {
             if (!isValidDoubleValue(args.NewValue))
                 throw new ArgumentException("Invalid double value for Value property.");
+            if (!this._IsLoaded)
+                return;
             if (this._LevelsFromRootCall === 0) {
                 this._RequestedVal = args.NewValue;
                 this._InitialVal = args.OldValue;

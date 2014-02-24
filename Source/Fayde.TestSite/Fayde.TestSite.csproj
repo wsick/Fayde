@@ -193,6 +193,9 @@
     </Content>
     <Content Include="Tests\Navigation\Views\Toolkit.fayde" />
     <Content Include="Tests\Controls\testview.fayde" />
+    <Content Include="Tests\IssueTests\issue37.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>
