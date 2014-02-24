@@ -159,6 +159,7 @@
     <Content Include="lib\requirejs\require.d.ts" />
     <Content Include="lib\requirejs\require.js" />
     <Content Include="lib\requirejs\text.js" />
+    <TypeScriptCompile Include="Resources\StatVisibilityValueConverter.ts" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
