@@ -1988,7 +1988,7 @@
                         </vsm:VisualStateManager.VisualStateGroups>
                         <!--Default Root Visuals for either type of ProgressBar-->
 
-                        <Border Name="ProgressBarTrack" CornerRadius="3" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" />
+                        <Border x:Name="ProgressBarTrack" CornerRadius="3" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" />
                         <Grid x:Name="ProgressBarRootGrid">
                             <!-- Beginning of Gradient over all visuals -->
 

@@ -2201,6 +2201,8 @@ declare module Fayde.Controls.Primitives {
         private _InitialVal;
         private _RequestedMax;
         private _RequestedVal;
+        private _PreCoercedMax;
+        private _PreCoercedVal;
         static MinimumProperty: DependencyProperty;
         static MaximumProperty: DependencyProperty;
         static LargeChangeProperty: DependencyProperty;
@@ -2212,17 +2214,15 @@ declare module Fayde.Controls.Primitives {
         public LargeChange: number;
         public Value: number;
         public ValueChanged: Fayde.RoutedPropertyChangedEvent<number>;
-        private _OnMinimumChanged(args);
-        private _OnMaximumChanged(args);
-        private _OnLargeChangeChanged(args);
-        private _OnSmallChangeChanged(args);
-        private _OnValueChanged(args);
-        private _CoerceMaximum();
-        private _CoerceValue();
         public OnMinimumChanged(oldMin: number, newMin: number): void;
         public OnMaximumChanged(oldMax: number, newMax: number): void;
         private RaiseValueChanged(oldVal, newVal);
         public OnValueChanged(oldVal: number, newVal: number): void;
+        private _OnMinimumChanged(args);
+        private _OnMaximumChanged(args);
+        private _OnValueChanged(args);
+        private _CoerceMaximum();
+        private _CoerceValue();
     }
 }
 declare module Fayde.Controls.Primitives {
@@ -2403,13 +2403,15 @@ declare module Fayde.Controls {
         private _Indicator;
         static IsIndeterminateProperty: DependencyProperty;
         public IsIndeterminate: boolean;
+        private OnIsIndeterminateChanged(args);
+        public OnValueChanged(oldValue: number, newValue: number): void;
+        public OnMaximumChanged(oldMaximum: number, newMaximum: number): void;
+        public OnMinimumChanged(oldMinimum: number, newMinimum: number): void;
         constructor();
         public OnApplyTemplate(): void;
-        public OnValueChanged(oldValue: number, newValue: number): void;
-        private _OnTrackSizeChanged(sender, e);
-        private _IsIndeterminateChanged(args);
-        private _UpdateIndicator();
         public GoToStates(gotoFunc: (state: string) => boolean): void;
+        private _OnTrackSizeChanged(sender, e);
+        private _UpdateIndicator();
     }
 }
 declare module Fayde.Controls {

@@ -13064,113 +13064,34 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         (function (Primitives) {
+            function numberValidator(d, propd, value) {
+                if (typeof value !== "number")
+                    return false;
+                if (isNaN(value))
+                    return false;
+                if (!isFinite(value))
+                    return false;
+                return true;
+            }
+            function changeValidator(d, propd, value) {
+                if (!numberValidator(d, propd, value))
+                    return false;
+                return value >= 0;
+            }
+
             var RangeBase = (function (_super) {
                 __extends(RangeBase, _super);
                 function RangeBase() {
                     _super.apply(this, arguments);
                     this._LevelsFromRootCall = 0;
-                    this._InitialMax = 0;
+                    this._InitialMax = 1;
                     this._InitialVal = 0;
-                    this._RequestedMax = 0;
+                    this._RequestedMax = 1;
                     this._RequestedVal = 0;
+                    this._PreCoercedMax = 1;
+                    this._PreCoercedVal = 0;
                     this.ValueChanged = new Fayde.RoutedPropertyChangedEvent();
                 }
-                RangeBase.prototype._OnMinimumChanged = function (args) {
-                    if (!isValidDoubleValue(args.NewValue))
-                        throw new ArgumentException("Invalid double value for Minimum property.");
-                    if (this._LevelsFromRootCall === 0) {
-                        this._InitialMax = this.Maximum;
-                        this._InitialVal = this.Value;
-                    }
-                    this._LevelsFromRootCall++;
-                    this._CoerceMaximum();
-                    this._CoerceValue();
-                    this._LevelsFromRootCall--;
-                    if (this._LevelsFromRootCall === 0) {
-                        this.OnMinimumChanged(args.OldValue, args.OldValue);
-                        var max = this.Maximum;
-                        if (!areNumbersClose(this._InitialMax, max)) {
-                            this.OnMaximumChanged(this._InitialMax, max);
-                        }
-                        var val = this.Value;
-                        if (!areNumbersClose(this._InitialVal, val)) {
-                            this.RaiseValueChanged(this._InitialVal, val);
-                        }
-                    }
-                };
-                RangeBase.prototype._OnMaximumChanged = function (args) {
-                    if (!isValidDoubleValue(args.NewValue))
-                        throw new ArgumentException("Invalid double value for Maximum property.");
-                    if (this._LevelsFromRootCall === 0) {
-                        this._RequestedMax = args.NewValue;
-                        this._InitialMax = args.OldValue;
-                        this._InitialVal = this.Value;
-                    }
-                    this._LevelsFromRootCall++;
-                    this._CoerceMaximum();
-                    this._CoerceValue();
-                    this._LevelsFromRootCall--;
-                    if (this._LevelsFromRootCall === 0) {
-                        var max = this.Maximum;
-                        if (!areNumbersClose(this._InitialMax, max)) {
-                            this.OnMaximumChanged(this._InitialMax, max);
-                        }
-                        var val = this.Value;
-                        if (!areNumbersClose(this._InitialVal, val)) {
-                            this.RaiseValueChanged(this._InitialVal, val);
-                        }
-                    }
-                };
-                RangeBase.prototype._OnLargeChangeChanged = function (args) {
-                    if (!isValidChange(args.NewValue))
-                        throw new ArgumentException("Invalid Large Change Value.");
-                };
-                RangeBase.prototype._OnSmallChangeChanged = function (args) {
-                    if (!isValidChange(args.NewValue))
-                        throw new ArgumentException("Invalid Small Change Value.");
-                };
-                RangeBase.prototype._OnValueChanged = function (args) {
-                    if (!isValidDoubleValue(args.NewValue))
-                        throw new ArgumentException("Invalid double value for Value property.");
-                    if (this._LevelsFromRootCall === 0) {
-                        this._RequestedVal = args.NewValue;
-                        this._InitialVal = args.OldValue;
-                    }
-                    this._LevelsFromRootCall++;
-                    this._CoerceValue();
-                    this._LevelsFromRootCall--;
-                    if (this._LevelsFromRootCall === 0) {
-                        var val = this.Value;
-                        if (!areNumbersClose(this._InitialVal, val)) {
-                            this.RaiseValueChanged(this._InitialVal, val);
-                        }
-                    }
-                };
-
-                RangeBase.prototype._CoerceMaximum = function () {
-                    var min = this.Minimum;
-                    var max = this.Maximum;
-                    if (!areNumbersClose(this._RequestedMax, max) && this._RequestedMax >= min) {
-                        this.Maximum = this._RequestedMax;
-                        return;
-                    }
-                    if (max < min)
-                        this.Maximum = min;
-                };
-                RangeBase.prototype._CoerceValue = function () {
-                    var min = this.Minimum;
-                    var max = this.Maximum;
-                    var val = this.Value;
-                    if (!areNumbersClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max) {
-                        this.Value = this._RequestedVal;
-                        return;
-                    }
-                    if (val < min)
-                        this.Value = min;
-                    if (val > max)
-                        this.Value = max;
-                };
-
                 RangeBase.prototype.OnMinimumChanged = function (oldMin, newMin) {
                 };
                 RangeBase.prototype.OnMaximumChanged = function (oldMax, newMax) {
@@ -13181,31 +13102,105 @@ var Fayde;
                 };
                 RangeBase.prototype.OnValueChanged = function (oldVal, newVal) {
                 };
-                RangeBase.MinimumProperty = DependencyProperty.Register("Minimum", function () {
+
+                RangeBase.prototype._OnMinimumChanged = function (args) {
+                    if (this._LevelsFromRootCall === 0) {
+                        this._InitialMax = this.Maximum;
+                        this._InitialVal = this.Value;
+                    }
+                    this._LevelsFromRootCall++;
+                    this._CoerceMaximum();
+                    this._CoerceValue();
+                    this._LevelsFromRootCall--;
+                    if (this._LevelsFromRootCall !== 0)
+                        return;
+
+                    this.OnMinimumChanged(args.OldValue, args.OldValue);
+                    var max = this.Maximum;
+                    if (!areNumbersClose(this._InitialMax, max))
+                        this.OnMaximumChanged(this._InitialMax, max);
+                    var val = this.Value;
+                    if (!areNumbersClose(this._InitialVal, val))
+                        this.RaiseValueChanged(this._InitialVal, val);
+                };
+                RangeBase.prototype._OnMaximumChanged = function (args) {
+                    if (this._LevelsFromRootCall === 0) {
+                        this._RequestedMax = args.NewValue;
+                        this._InitialMax = args.OldValue;
+                        this._InitialVal = this.Value;
+                    }
+                    this._LevelsFromRootCall++;
+                    this._CoerceMaximum();
+                    this._CoerceValue();
+                    this._LevelsFromRootCall--;
+                    if (this._LevelsFromRootCall !== 0)
+                        return;
+
+                    this._PreCoercedMax = args.NewValue;
+                    var max = this.Maximum;
+                    if (!areNumbersClose(this._InitialMax, max))
+                        this.OnMaximumChanged(this._InitialMax, max);
+                    var val = this.Value;
+                    if (!areNumbersClose(this._InitialVal, val))
+                        this.RaiseValueChanged(this._InitialVal, val);
+                };
+                RangeBase.prototype._OnValueChanged = function (args) {
+                    if (this._LevelsFromRootCall === 0) {
+                        this._RequestedVal = args.NewValue;
+                        this._InitialVal = args.OldValue;
+                    }
+                    this._LevelsFromRootCall++;
+                    this._CoerceValue();
+                    this._LevelsFromRootCall--;
+                    if (this._LevelsFromRootCall !== 0)
+                        return;
+
+                    this._PreCoercedVal = args.NewValue;
+                    var val = this.Value;
+                    if (!areNumbersClose(this._InitialVal, val))
+                        this.RaiseValueChanged(this._InitialVal, val);
+                };
+
+                RangeBase.prototype._CoerceMaximum = function () {
+                    var min = this.Minimum;
+                    var max = this.Maximum;
+                    if (!areNumbersClose(this._RequestedMax, max) && this._RequestedMax >= min)
+                        this.Maximum = this._RequestedMax;
+                    else if (max < min)
+                        this.Maximum = min;
+                };
+                RangeBase.prototype._CoerceValue = function () {
+                    var min = this.Minimum;
+                    var max = this.Maximum;
+                    var val = this.Value;
+                    if (!areNumbersClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max)
+                        this.Value = this._RequestedVal;
+                    else if (val < min)
+                        this.Value = min;
+                    else if (val > max)
+                        this.Value = max;
+                };
+                RangeBase.MinimumProperty = DependencyProperty.RegisterFull("Minimum", function () {
                     return Number;
                 }, RangeBase, 0, function (d, args) {
                     return d._OnMinimumChanged(args);
-                });
-                RangeBase.MaximumProperty = DependencyProperty.Register("Maximum", function () {
+                }, undefined, false, numberValidator);
+                RangeBase.MaximumProperty = DependencyProperty.RegisterFull("Maximum", function () {
                     return Number;
                 }, RangeBase, 1, function (d, args) {
                     return d._OnMaximumChanged(args);
-                });
-                RangeBase.LargeChangeProperty = DependencyProperty.Register("LargeChange", function () {
+                }, undefined, false, numberValidator);
+                RangeBase.LargeChangeProperty = DependencyProperty.RegisterFull("LargeChange", function () {
                     return Number;
-                }, RangeBase, 1, function (d, args) {
-                    return d._OnLargeChangeChanged(args);
-                });
-                RangeBase.SmallChangeProperty = DependencyProperty.Register("SmallChange", function () {
+                }, RangeBase, 1, undefined, undefined, false, changeValidator);
+                RangeBase.SmallChangeProperty = DependencyProperty.RegisterFull("SmallChange", function () {
                     return Number;
-                }, RangeBase, 0.1, function (d, args) {
-                    return d._OnSmallChangeChanged(args);
-                });
-                RangeBase.ValueProperty = DependencyProperty.Register("Value", function () {
+                }, RangeBase, 0.1, undefined, undefined, false, changeValidator);
+                RangeBase.ValueProperty = DependencyProperty.RegisterFull("Value", function () {
                     return Number;
                 }, RangeBase, 0, function (d, args) {
                     return d._OnValueChanged(args);
-                });
+                }, undefined, false, numberValidator);
                 return RangeBase;
             })(Fayde.Controls.Control);
             Primitives.RangeBase = RangeBase;
@@ -13217,20 +13212,6 @@ var Fayde;
                 var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
                 var num2 = val1 - val2;
                 return -num1 < num2 && num1 > num2;
-            }
-            function isValidChange(value) {
-                if (!isValidDoubleValue(value))
-                    return false;
-                return value >= 0;
-            }
-            function isValidDoubleValue(value) {
-                if (typeof value !== "number")
-                    return false;
-                if (isNaN(value))
-                    return false;
-                if (!isFinite(value))
-                    return false;
-                return true;
             }
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
@@ -14220,6 +14201,24 @@ var Fayde;
                 _super.call(this);
                 this.DefaultStyleKey = this.constructor;
             }
+            ProgressBar.prototype.OnIsIndeterminateChanged = function (args) {
+                this._UpdateIndicator();
+                this.UpdateVisualState();
+            };
+
+            ProgressBar.prototype.OnValueChanged = function (oldValue, newValue) {
+                _super.prototype.OnValueChanged.call(this, oldValue, newValue);
+                this._UpdateIndicator();
+            };
+            ProgressBar.prototype.OnMaximumChanged = function (oldMaximum, newMaximum) {
+                _super.prototype.OnMaximumChanged.call(this, oldMaximum, newMaximum);
+                this._UpdateIndicator();
+            };
+            ProgressBar.prototype.OnMinimumChanged = function (oldMinimum, newMinimum) {
+                _super.prototype.OnMinimumChanged.call(this, oldMinimum, newMinimum);
+                this._UpdateIndicator();
+            };
+
             ProgressBar.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
 
@@ -14236,16 +14235,14 @@ var Fayde;
                 this.UpdateVisualState(false);
             };
 
-            ProgressBar.prototype.OnValueChanged = function (oldValue, newValue) {
-                _super.prototype.OnValueChanged.call(this, oldValue, newValue);
-                this._UpdateIndicator();
+            ProgressBar.prototype.GoToStates = function (gotoFunc) {
+                if (this.IsIndeterminate)
+                    gotoFunc("Indeterminate");
+                else
+                    gotoFunc("Determinate");
             };
 
             ProgressBar.prototype._OnTrackSizeChanged = function (sender, e) {
-                this._UpdateIndicator();
-            };
-            ProgressBar.prototype._IsIndeterminateChanged = function (args) {
-                this.UpdateVisualState();
                 this._UpdateIndicator();
             };
             ProgressBar.prototype._UpdateIndicator = function () {
@@ -14257,7 +14254,7 @@ var Fayde;
                 if (!indicator)
                     return;
 
-                var parent = Fayde.VisualTreeHelper.GetParent(this);
+                var parent = Fayde.VisualTreeHelper.GetParent(indicator);
                 if (!parent)
                     return;
 
@@ -14280,17 +14277,10 @@ var Fayde;
                 var fullWidth = Math.max(0, parent.ActualWidth - outerWidth);
                 indicator.Width = fullWidth * progress;
             };
-
-            ProgressBar.prototype.GoToStates = function (gotoFunc) {
-                if (this.IsIndeterminate)
-                    gotoFunc("Indeterminate");
-                else
-                    gotoFunc("Determinate");
-            };
             ProgressBar.IsIndeterminateProperty = DependencyProperty.Register("IsIndeterminate", function () {
                 return Boolean;
             }, ProgressBar, false, function (d, args) {
-                return d._IsIndeterminateChanged(args);
+                return d.OnIsIndeterminateChanged(args);
             });
             return ProgressBar;
         })(Fayde.Controls.Primitives.RangeBase);
