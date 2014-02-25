@@ -99,4 +99,9 @@ module Fayde.Controls {
             return gotoFunc("Normal");
         }
     }
+    TemplateVisualStates(MenuItem,
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" });
 }
