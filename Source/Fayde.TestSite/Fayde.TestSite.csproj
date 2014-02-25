@@ -196,6 +196,7 @@
     <Content Include="Tests\IssueTests\issue37.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\Controls\gridsplitter.fap" />
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>
