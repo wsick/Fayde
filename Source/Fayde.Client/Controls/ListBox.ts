@@ -1,4 +1,5 @@
 /// <reference path="Primitives/Selector.ts" />
+/// <reference path="ScrollViewer.ts" />
 
 module Fayde.Controls {
     export class ListBox extends Primitives.Selector {
@@ -297,4 +298,10 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(ListBox, "Fayde.Controls", Fayde.XMLNS);
+    TemplateVisualStates(ListBox,
+        { GroupName: "ValidationStates", Name: "Valid" },
+        { GroupName: "ValidationStates", Name: "InvalidUnfocused" },
+        { GroupName: "ValidationStates", Name: "InvalidFocused" });
+    TemplateParts(ListBox,
+        { Name: "ScrollViewer", Type: ScrollViewer });
 }

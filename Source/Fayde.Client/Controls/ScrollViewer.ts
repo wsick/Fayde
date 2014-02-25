@@ -1,4 +1,6 @@
 /// <reference path="ContentControl.ts" />
+/// <reference path="ScrollContentPresenter.ts" />
+/// <reference path="Primitives/ScrollBar.ts" />
 
 module Fayde.Controls {
     export class ScrollViewer extends ContentControl {
@@ -369,6 +371,10 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(ScrollViewer, "Fayde.Controls", Fayde.XMLNS);
+    TemplateParts(ScrollViewer,
+        { Name: "ScrollContentPresenter", Type: ScrollContentPresenter },
+        { Name: "HorizontalScrollBar", Type: Primitives.ScrollBar },
+        { Name: "VerticalScrollBar", Type: Primitives.ScrollBar });
 
     function areNumbersClose(val1: number, val2: number): boolean {
         if (val1 === val2)

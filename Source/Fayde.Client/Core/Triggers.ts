@@ -32,8 +32,6 @@ module Fayde {
         
         private _IsAttached: boolean = false;
         
-        static Annotations = { ContentProperty: EventTrigger.ActionsProperty }
-
         constructor() {
             super();
             EventTrigger.ActionsProperty.Initialize(this);
@@ -80,6 +78,7 @@ module Fayde {
         }
     }
     Fayde.RegisterType(EventTrigger, "Fayde", Fayde.XMLNS);
+    Xaml.Content(EventTrigger, EventTrigger.ActionsProperty);
 
     export class TriggerCollection extends XamlObjectCollection<TriggerBase> {
         XamlNode: XamlNode;

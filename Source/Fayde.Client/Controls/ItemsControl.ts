@@ -79,8 +79,6 @@ module Fayde.Controls {
             return this._DisplayMemberTemplate;
         }
 
-        static Annotations = { ContentProperty: ItemsControl.ItemsProperty }
-
         ItemContainerGenerator: ItemContainerGenerator;
         constructor() {
             super();
@@ -315,4 +313,5 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(ItemsControl, "Fayde.Controls", Fayde.XMLNS);
+    Xaml.Content(ItemsControl, ItemsControl.ItemsProperty);
 }

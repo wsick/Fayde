@@ -1,4 +1,6 @@
 /// <reference path="Primitives/RangeBase.ts" />
+/// <reference path="Primitives/RepeatButton.ts" />
+/// <reference path="Primitives/Thumb.ts" />
 
 module Fayde.Controls {
     export class Slider extends Primitives.RangeBase {
@@ -235,4 +237,19 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(Slider, "Fayde.Controls", Fayde.XMLNS);
+    TemplateVisualStates(Slider, 
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" });
+    TemplateParts(Slider,
+        { Name: "HorizontalTemplate", Type: FrameworkElement },
+        { Name: "HorizontalThumb", Type: Primitives.Thumb },
+        { Name: "HorizontalTrackLargeChangeIncreaseRepeatButton", Type: Primitives.RepeatButton },
+        { Name: "HorizontalTrackLargeChangeDecreaseRepeatButton", Type: Primitives.RepeatButton },
+        { Name: "VerticalTemplate", Type: FrameworkElement },
+        { Name: "VerticalThumb", Type: Primitives.Thumb },
+        { Name: "VerticalTrackLargeChangeIncreaseRepeatButton", Type: Primitives.RepeatButton },
+        { Name: "VerticalTrackLargeChangeDecreaseRepeatButton", Type: Primitives.RepeatButton });
 }

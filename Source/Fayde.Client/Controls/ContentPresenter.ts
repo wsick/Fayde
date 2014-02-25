@@ -21,7 +21,7 @@ module Fayde.Controls {
         DoApplyTemplateWithError(error: BError): boolean {
             if (this._ContentRoot)
                 return false;
-                
+
             var xobj = this.XObject;
             if (xobj.TemplateOwner instanceof ContentControl) {
                 if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === DependencyProperty.UnsetValue) {
@@ -56,10 +56,10 @@ module Fayde.Controls {
             var newContent = args.NewValue;
             var newUie: UIElement;
             if (newContent instanceof UIElement) newUie = newContent;
-            
+
             if (newUie || args.OldValue instanceof UIElement)
                 this.ClearRoot();
-            
+
             if (newContent && !newUie)
                 this.XObject.DataContext = newContent;
             else
@@ -111,8 +111,7 @@ module Fayde.Controls {
         static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenterNode>(<ContentPresenter>d).XamlNode)._ContentTemplateChanged());
         Content: any;
         ContentTemplate: DataTemplate;
-
-        static Annotations = { ContentProperty: ContentPresenter.ContentProperty }
     }
     Fayde.RegisterType(ContentPresenter, "Fayde.Controls", Fayde.XMLNS);
+    Xaml.Content(ContentPresenter, ContentPresenter.ContentProperty);
 }

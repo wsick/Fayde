@@ -18,4 +18,11 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(Button, "Fayde.Controls", Fayde.XMLNS);
+    TemplateVisualStates(Button, 
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" });
 }

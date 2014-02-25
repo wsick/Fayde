@@ -11,7 +11,7 @@ module Fayde.Controls {
             this._UpdateIndicator();
             this.UpdateVisualState();
         }
-        
+
         OnValueChanged(oldValue: number, newValue: number) {
             super.OnValueChanged(oldValue, newValue);
             this._UpdateIndicator();
@@ -81,7 +81,7 @@ module Fayde.Controls {
                 outerWidth += padding.Left;
                 outerWidth += padding.Right;
             }
-            
+
             var progress = 1.0;
             if (!this.IsIndeterminate && max !== min)
                 progress = (val - min) / (max - min);
@@ -90,4 +90,10 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(ProgressBar, "Fayde.Controls", Fayde.XMLNS);
+    TemplateVisualStates(ProgressBar,
+        { GroupName: "CommonStates", Name: "Indeterminate" },
+        { GroupName: "CommonStates", Name: "Determinate" });
+    TemplateParts(ProgressBar,
+        { Name: "ProgressBarIndicator", Type: FrameworkElement },
+        { Name: "ProgressBarTrack", Type: FrameworkElement });
 }

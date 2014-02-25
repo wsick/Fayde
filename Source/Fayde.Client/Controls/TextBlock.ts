@@ -291,8 +291,6 @@ module Fayde.Controls {
         TextTrimming: TextTrimming;
         TextWrapping: TextWrapping;
 
-        static Annotations = { ContentProperty: TextBlock.InlinesProperty }
-
         constructor() {
             super();
             
@@ -343,6 +341,7 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(TextBlock, "Fayde.Controls", Fayde.XMLNS);
+    Xaml.Content(TextBlock, TextBlock.InlinesProperty);
 
     var TextBlockInheritedProps = [
         TextBlock.FontFamilyProperty,

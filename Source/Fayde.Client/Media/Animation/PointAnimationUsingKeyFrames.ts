@@ -2,8 +2,6 @@
 
 module Fayde.Media.Animation {
     export class PointAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
-        static Annotations = { ContentProperty: AnimationUsingKeyFrames.KeyFramesProperty };
-        
         GenerateFrom(): AnimationBase {
             return new PointAnimation();
         }

@@ -84,8 +84,6 @@ module Fayde.Controls {
         }
         OnContentUriChanged(oldSourceUri: Uri, newSourceUri: Uri) { }
 
-        static Annotations = { ContentProperty: ContentControl.ContentProperty }
-
         private _OnLoadedUri(xd: Xaml.XamlDocument) {
             this.Content = Xaml.Load(xd.Document);
         }
@@ -95,4 +93,5 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(ContentControl, "Fayde.Controls", Fayde.XMLNS);
+    Xaml.Content(ContentControl, ContentControl.ContentProperty);
 }

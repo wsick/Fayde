@@ -10,8 +10,6 @@ module Fayde.Media {
         MappingMode: BrushMappingMode;
         SpreadMethod: GradientSpreadMethod;
 
-        static Annotations = { ContentProperty: GradientBrush.GradientStopsProperty }
-
         constructor() {
             super();
             var coll = GradientBrush.GradientStopsProperty.Initialize(this);
@@ -46,4 +44,5 @@ module Fayde.Media {
         GradientStopsChanged(newGradientStops: GradientStopCollection) { this.InvalidateBrush(); }
     }
     Fayde.RegisterType(GradientBrush, "Fayde.Media", Fayde.XMLNS);
+    Xaml.Content(GradientBrush, GradientBrush.GradientStopsProperty);
 }

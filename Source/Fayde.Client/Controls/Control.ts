@@ -234,4 +234,16 @@ module Fayde.Controls {
         Control.FontWeightProperty,
         Control.ForegroundProperty
     ];
+
+    export interface ITemplateVisualStateDefinition {
+        Name: string;
+        GroupName: string;
+    }
+    export var TemplateVisualStates = CreateTypedAnnotation<ITemplateVisualStateDefinition>("TemplateVisualState");
+
+    export interface ITemplatePartDefinition {
+        Name: string;
+        Type: Function;
+    }
+    export var TemplateParts = CreateTypedAnnotation<ITemplatePartDefinition>("TemplatePart");
 }

@@ -67,7 +67,6 @@ module Fayde.Media {
 
     export class PolyBezierSegment extends PathSegment {
         static PointsProperty = DependencyProperty.RegisterImmutable<Shapes.PointCollection>("Points", () => Shapes.PointCollection, PolyBezierSegment);
-        static Annotations = { ContentProperty: PolyBezierSegment.PointsProperty }
         Points: Shapes.PointCollection;
 
         constructor() {
@@ -95,10 +94,10 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(PolyBezierSegment, "Fayde.Media", Fayde.XMLNS);
+    Xaml.Content(PolyBezierSegment, PolyBezierSegment.PointsProperty);
 
     export class PolyLineSegment extends PathSegment {
         static PointsProperty = DependencyProperty.RegisterImmutable<Shapes.PointCollection>("Points", () => Shapes.PointCollection, PolyLineSegment);
-        static Annotations = { ContentProperty: PolyLineSegment.PointsProperty }
         Points: Shapes.PointCollection;
 
         constructor() {
@@ -117,10 +116,10 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(PolyLineSegment, "Fayde.Media", Fayde.XMLNS);
+    Xaml.Content(PolyLineSegment, PolyLineSegment.PointsProperty);
 
     export class PolyQuadraticBezierSegment extends PathSegment {
         static PointsProperty = DependencyProperty.RegisterImmutable<Shapes.PointCollection>("Points", () => Shapes.PointCollection, PolyQuadraticBezierSegment);
-        static Annotations = { ContentProperty: PolyQuadraticBezierSegment.PointsProperty }
         Points: Shapes.PointCollection;
 
         constructor() {
@@ -163,6 +162,7 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(PolyQuadraticBezierSegment, "Fayde.Media", Fayde.XMLNS);
+    Xaml.Content(PolyQuadraticBezierSegment, PolyQuadraticBezierSegment.PointsProperty);
 
     export class QuadraticBezierSegment extends PathSegment {
         static Point1Property: DependencyProperty = DependencyProperty.Register("Point1", () => Point, QuadraticBezierSegment);

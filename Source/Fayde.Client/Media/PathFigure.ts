@@ -7,7 +7,6 @@ module Fayde.Media {
     }
 
     export class PathFigure extends DependencyObject implements IPathSegmentListener {
-        static Annotations = { ContentProperty: PathFigure.SegmentsProperty }
         static IsClosedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsClosed", () => Boolean, PathFigure, false, (d, args) => (<PathFigure>d).InvalidatePathFigure());
         static StartPointProperty: DependencyProperty = DependencyProperty.RegisterCore("StartPoint", () => Point, PathFigure, undefined, (d, args) => (<PathFigure>d).InvalidatePathFigure());
         static IsFilledProperty: DependencyProperty = DependencyProperty.RegisterCore("IsFilled", () => Boolean, PathFigure, true, (d, args) => (<PathFigure>d).InvalidatePathFigure());
@@ -64,6 +63,7 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(PathFigure, "Fayde.Media", Fayde.XMLNS);
+    Xaml.Content(PathFigure, PathFigure.SegmentsProperty);
 
     export class PathFigureCollection extends XamlObjectCollection<PathFigure> implements IPathFigureListener {
         private _Listener: IPathFigureListener;

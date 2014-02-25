@@ -21,7 +21,6 @@ module Fayde.Media.VSM {
         static TransitionsProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<VisualTransition>>("Transitions", () => XamlObjectCollection, VisualStateGroup);
         Transitions: XamlObjectCollection<VisualTransition>;
 
-        static Annotations = { ContentProperty: VisualStateGroup.StatesProperty };
         private _CurrentStoryboards: Animation.Storyboard[] = [];
         get CurrentStoryboards(): Animation.Storyboard[] {
             return this._CurrentStoryboards.slice(0);
@@ -99,6 +98,7 @@ module Fayde.Media.VSM {
         }
     }
     Fayde.RegisterType(VisualStateGroup, "Fayde.Media.VSM", Fayde.XMLNS);
+    Xaml.Content(VisualStateGroup, VisualStateGroup.StatesProperty);
 
     export class VisualStateGroupCollection extends XamlObjectCollection<VisualStateGroup> {
     }

@@ -5,8 +5,6 @@ module Fayde.Navigation {
         static UriMappingsProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<UriMapping>>("UriMappings", () => XamlObjectCollection, UriMapper);
         UriMappings: XamlObjectCollection<UriMapping>;
 
-        static Annotations = { ContentProperty: UriMapper.UriMappingsProperty };
-
         constructor() {
             super();
             UriMapper.UriMappingsProperty.Initialize(this);
@@ -24,4 +22,5 @@ module Fayde.Navigation {
         }
     }
     Fayde.RegisterType(UriMapper, "Fayde.Navigation", Fayde.XMLNS);
+    Xaml.Content(UriMapper, UriMapper.UriMappingsProperty);
 }

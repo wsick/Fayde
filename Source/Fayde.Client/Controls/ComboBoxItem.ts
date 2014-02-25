@@ -14,4 +14,12 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(ComboBoxItem, "Fayde.Controls", Fayde.XMLNS);
+    TemplateVisualStates(ComboBoxItem, 
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "SelectionStates", Name: "Unselected" },
+        { GroupName: "SelectionStates", Name: "Selected" },
+        { GroupName: "SelectionStates", Name: "SelectedUnfocused" });
 }
