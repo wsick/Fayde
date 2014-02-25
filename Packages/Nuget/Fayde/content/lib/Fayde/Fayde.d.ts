@@ -1,4 +1,20 @@
 declare module Fayde.Xaml {
+    interface IContentAnnotation {
+        (type: Function, prop: any): any;
+        Get(type: Function): any;
+    }
+    var Content: IContentAnnotation;
+}
+declare module Fayde {
+    function Annotation(type: Function, name: string, value: any, forbidMultiple?: boolean): void;
+    function GetAnnotations(type: Function, name: string): any[];
+    interface ITypedAnnotation<T> {
+        (type: Function, ...values: T[]): any;
+        Get(type: Function): T[];
+    }
+    function CreateTypedAnnotation<T>(name: string): ITypedAnnotation<T>;
+}
+declare module Fayde.Xaml {
     class XamlDocument {
         private _RequiredDependencies;
         public Document: Document;
@@ -44,7 +60,6 @@ declare module Fayde {
         lookupNamespaceURI(prefix: string): string;
     }
     interface ITypeResolver {
-        GetAnnotation(type: Function, name: string): any;
         Resolve(xmlns: string, xmlname: string): ITypeResolution;
         ResolveFullyQualifiedName(xmlname: string, resolver: INamespacePrefixResolver): ITypeResolution;
     }
@@ -862,9 +877,6 @@ declare module Fayde.Controls {
         public Padding: Thickness;
         private _BackgroundListener;
         private _BorderBrushListener;
-        static Annotations: {
-            ContentProperty: DependencyProperty;
-        };
         private _ChildChanged(args);
         private _BackgroundChanged(args);
         private _BorderBrushChanged(args);
@@ -1019,6 +1031,16 @@ declare module Fayde.Controls {
         private _BorderThicknessChanged(args);
         private _ContentAlignmentChanged(args);
     }
+    interface ITemplateVisualStateDefinition {
+        Name: string;
+        GroupName: string;
+    }
+    var TemplateVisualStates: Fayde.ITypedAnnotation<ITemplateVisualStateDefinition>;
+    interface ITemplatePartDefinition {
+        Name: string;
+        Type: Function;
+    }
+    var TemplateParts: Fayde.ITypedAnnotation<ITemplatePartDefinition>;
 }
 declare module Fayde.Controls {
     class ContentControlNode extends Controls.ControlNode {
@@ -1043,9 +1065,6 @@ declare module Fayde.Controls {
         public ContentUri: Uri;
         private OnContentUriPropertyChanged(args);
         public OnContentUriChanged(oldSourceUri: Uri, newSourceUri: Uri): void;
-        static Annotations: {
-            ContentProperty: DependencyProperty;
-        };
         private _OnLoadedUri(xd);
         private _OnErroredUri(err, src);
     }
@@ -1190,9 +1209,6 @@ declare module Fayde.Controls {
         public IsItemsHost: boolean;
         public Children: Fayde.XamlObjectCollection<Fayde.UIElement>;
         private _BackgroundListener;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Fayde.UIElement>>;
-        };
         constructor();
         static GetZIndex(uie: Fayde.UIElement): number;
         static SetZIndex(uie: Fayde.UIElement, value: number): void;
@@ -1314,9 +1330,6 @@ declare module Fayde.Controls {
         private $Items;
         public ItemsSource : Fayde.IEnumerable<any>;
         public $DisplayMemberTemplate : Fayde.DataTemplate;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Controls.ItemCollection>;
-        };
         public ItemContainerGenerator: Controls.ItemContainerGenerator;
         constructor();
         public Panel : Controls.Panel;
@@ -1386,6 +1399,345 @@ declare module Fayde.Controls.Primitives {
         public NotifyListItemLoaded(lbi: Controls.ListBoxItem): void;
         public NotifyListItemGotFocus(lbi: Controls.ListBoxItem): void;
         public NotifyListItemLostFocus(lbi: Controls.ListBoxItem): void;
+    }
+}
+declare module Fayde.Xaml {
+    class FrameworkTemplate extends Fayde.XamlObject {
+        private ResourceChain;
+        private TemplateElement;
+        constructor();
+        public GetVisualTree(bindingSource: Fayde.DependencyObject): Fayde.UIElement;
+    }
+    function Load(doc: Document): Fayde.XamlObject;
+}
+declare module Fayde.Controls {
+    class ContentPresenterNode extends Fayde.FENode {
+        private _ContentRoot;
+        public ContentRoot : Fayde.UIElement;
+        public XObject: ContentPresenter;
+        constructor(xobj: ContentPresenter);
+        public DoApplyTemplateWithError(error: BError): boolean;
+        public ClearRoot(): void;
+        public _ContentChanged(args: IDependencyPropertyChangedEventArgs): void;
+        public _ContentTemplateChanged(): void;
+        private _GetContentTemplate(type);
+    }
+    class ContentPresenter extends Fayde.FrameworkElement {
+        public XamlNode: ContentPresenterNode;
+        public CreateNode(): ContentPresenterNode;
+        static ContentProperty: DependencyProperty;
+        static ContentTemplateProperty: DependencyProperty;
+        public Content: any;
+        public ContentTemplate: Fayde.DataTemplate;
+    }
+}
+declare module Fayde.Controls.Primitives {
+    class PopupNode extends Fayde.FENode {
+        public XObject: Popup;
+        public GetInheritedEnumerator(): Fayde.IEnumerator<Fayde.DONode>;
+        public OnIsAttachedChanged(newIsAttached: boolean): void;
+        private _HorizontalOffset;
+        private _VerticalOffset;
+        private _IsVisible;
+        private _IsCatchingClick;
+        private _Catcher;
+        private _VisualChild;
+        public _ChildChanged(oldChild: Fayde.FrameworkElement, newChild: Fayde.FrameworkElement): void;
+        private _PrepareVisualChild(newChild);
+        public CatchClickedOutside(): void;
+        private _UpdateCatcher();
+        private _RaiseClickedOutside(sender, e);
+        public OnHorizontalOffsetChanged(args: IDependencyPropertyChangedEventArgs): void;
+        public OnVerticalOffsetChanged(args: IDependencyPropertyChangedEventArgs): void;
+        public _Hide(): void;
+        public _Show(): void;
+    }
+    class Popup extends Fayde.FrameworkElement {
+        public XamlNode: PopupNode;
+        public CreateNode(): PopupNode;
+        public CreateLayoutUpdater(node: PopupNode): PopupLayoutUpdater;
+        static ChildProperty: DependencyProperty;
+        static HorizontalOffsetProperty: DependencyProperty;
+        static VerticalOffsetProperty: DependencyProperty;
+        static IsOpenProperty: DependencyProperty;
+        public Child: Fayde.UIElement;
+        public HorizontalOffset: number;
+        public VerticalOffset: number;
+        public IsOpen: boolean;
+        public Opened: MulticastEvent<EventArgs>;
+        public Closed: MulticastEvent<EventArgs>;
+        public ClickedOutside: MulticastEvent<EventArgs>;
+        private _OnChildChanged(args);
+        private _OnIsOpenChanged(args);
+    }
+    class PopupLayoutUpdater extends Fayde.LayoutUpdater {
+        public ComputeBounds(): void;
+        public PostComputeTransform(hasProjection: boolean): void;
+    }
+}
+declare module Fayde.Controls.Primitives {
+    interface IScrollInfo {
+        ScrollOwner: Controls.ScrollViewer;
+        LineUp(): boolean;
+        LineDown(): boolean;
+        LineLeft(): boolean;
+        LineRight(): boolean;
+        MouseWheelUp(): boolean;
+        MouseWheelDown(): boolean;
+        MouseWheelLeft(): boolean;
+        MouseWheelRight(): boolean;
+        PageUp(): boolean;
+        PageDown(): boolean;
+        PageLeft(): boolean;
+        PageRight(): boolean;
+        MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
+        SetHorizontalOffset(offset: number): boolean;
+        SetVerticalOffset(offset: number): boolean;
+        CanHorizontallyScroll: boolean;
+        CanVerticallyScroll: boolean;
+        ExtentHeight: number;
+        ExtentWidth: number;
+        HorizontalOffset: number;
+        VerticalOffset: number;
+        ViewportHeight: number;
+        ViewportWidth: number;
+    }
+    var IScrollInfo_: IInterfaceDeclaration<IScrollInfo>;
+}
+declare module Fayde.Controls {
+    class ScrollContentPresenter extends Controls.ContentPresenter implements Controls.Primitives.IScrollInfo {
+        private _ScrollData;
+        private _IsClipPropertySet;
+        private _ClippingRectangle;
+        public ScrollOwner : Controls.ScrollViewer;
+        public CanHorizontallyScroll : boolean;
+        public CanVerticallyScroll : boolean;
+        public ExtentWidth : number;
+        public ExtentHeight : number;
+        public ViewportWidth : number;
+        public ViewportHeight : number;
+        public HorizontalOffset : number;
+        public VerticalOffset : number;
+        public LineUp(): boolean;
+        public LineDown(): boolean;
+        public LineLeft(): boolean;
+        public LineRight(): boolean;
+        public MouseWheelUp(): boolean;
+        public MouseWheelDown(): boolean;
+        public MouseWheelLeft(): boolean;
+        public MouseWheelRight(): boolean;
+        public PageUp(): boolean;
+        public PageDown(): boolean;
+        public PageLeft(): boolean;
+        public PageRight(): boolean;
+        public MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
+        public SetHorizontalOffset(offset: number): boolean;
+        public SetVerticalOffset(offset: number): boolean;
+        public OnApplyTemplate(): void;
+        private _UpdateClip(arrangeSize);
+        private _CalculateTextBoxClipRect(arrangeSize);
+        public MeasureOverride(availableSize: size): size;
+        public ArrangeOverride(finalSize: size): size;
+        private _UpdateExtents(viewport, extentWidth, extentHeight);
+        private _ClampOffsets();
+        private _ClampHorizontal(x);
+        private _ClampVertical(y);
+    }
+}
+declare module Fayde.Controls.Primitives {
+    class RangeBase extends Controls.Control {
+        private _LevelsFromRootCall;
+        private _InitialMax;
+        private _InitialVal;
+        private _RequestedMax;
+        private _RequestedVal;
+        private _PreCoercedMax;
+        private _PreCoercedVal;
+        static MinimumProperty: DependencyProperty;
+        static MaximumProperty: DependencyProperty;
+        static LargeChangeProperty: DependencyProperty;
+        static SmallChangeProperty: DependencyProperty;
+        static ValueProperty: DependencyProperty;
+        public Minimum: number;
+        public Maximum: number;
+        public SmallChange: number;
+        public LargeChange: number;
+        public Value: number;
+        public ValueChanged: Fayde.RoutedPropertyChangedEvent<number>;
+        public OnMinimumChanged(oldMin: number, newMin: number): void;
+        public OnMaximumChanged(oldMax: number, newMax: number): void;
+        private RaiseValueChanged(oldVal, newVal);
+        public OnValueChanged(oldVal: number, newVal: number): void;
+        private _OnMinimumChanged(args);
+        private _OnMaximumChanged(args);
+        private _OnValueChanged(args);
+        private _CoerceMaximum();
+        private _CoerceValue();
+    }
+}
+declare module Fayde.Controls.Primitives {
+    class RepeatButton extends Primitives.ButtonBase {
+        static DelayProperty: DependencyProperty;
+        static IntervalProperty: DependencyProperty;
+        public Delay: number;
+        public Interval: number;
+        private _KeyboardCausingRepeat;
+        private _MouseCausingRepeat;
+        public _MousePosition: Point;
+        private _IntervalID;
+        private _NewInterval;
+        private _ElementRoot;
+        constructor();
+        public OnApplyTemplate(): void;
+        public OnDelayChanged(args: IDependencyPropertyChangedEventArgs): void;
+        public OnIntervalChanged(args: IDependencyPropertyChangedEventArgs): void;
+        public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
+        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public OnKeyUp(e: Fayde.Input.KeyEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
+        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
+        private _UpdateMousePosition(e);
+        private _UpdateRepeatState();
+        private _StartRepeatingAfterDelay();
+        private _OnTimeout();
+    }
+}
+declare module Fayde.Controls.Primitives {
+    class Thumb extends Controls.Control {
+        private _PreviousPosition;
+        private _Origin;
+        public DragCompleted: Fayde.RoutedEvent<Primitives.DragCompletedEventArgs>;
+        public DragDelta: Fayde.RoutedEvent<Primitives.DragDeltaEventArgs>;
+        public DragStarted: Fayde.RoutedEvent<Primitives.DragStartedEventArgs>;
+        static IsDraggingProperty: DependencyProperty;
+        static IsFocusedProperty: DependencyProperty;
+        public IsDragging: boolean;
+        public IsFocused: boolean;
+        constructor();
+        public OnApplyTemplate(): void;
+        private OnDraggingChanged(args);
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
+        private _FocusChanged(hasFocus);
+        public OnLostMouseCapture(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
+        public CancelDrag(): void;
+        private _RaiseDragStarted();
+        private _RaiseDragDelta(x, y);
+        private _RaiseDragCompleted(canceled);
+        public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
+    }
+}
+declare module Fayde.Controls.Primitives {
+    class ScrollBar extends Primitives.RangeBase {
+        private _DragValue;
+        public Scroll: Fayde.RoutedEvent<Primitives.ScrollEventArgs>;
+        static OrientationProperty: DependencyProperty;
+        static ViewportSizeProperty: DependencyProperty;
+        public Orientation: Fayde.Orientation;
+        public ViewportSize: number;
+        public IsDragging : boolean;
+        constructor();
+        private $HorizontalTemplate;
+        private $HorizontalSmallIncrease;
+        private $HorizontalSmallDecrease;
+        private $HorizontalLargeIncrease;
+        private $HorizontalLargeDecrease;
+        private $HorizontalThumb;
+        private $VerticalTemplate;
+        private $VerticalSmallIncrease;
+        private $VerticalSmallDecrease;
+        private $VerticalLargeIncrease;
+        private $VerticalLargeDecrease;
+        private $VerticalThumb;
+        public OnApplyTemplate(): void;
+        public OnMaximumChanged(oldMax: number, newMax: number): void;
+        public OnMinimumChanged(oldMin: number, newMin: number): void;
+        public OnValueChanged(oldValue: number, newValue: number): void;
+        private _OnThumbDragStarted(sender, e);
+        private _OnThumbDragDelta(sender, e);
+        private _OnThumbDragCompleted(sender, e);
+        private _SmallDecrement(sender, e);
+        private _SmallIncrement(sender, e);
+        private _LargeDecrement(sender, e);
+        private _LargeIncrement(sender, e);
+        private _HandleSizeChanged(sender, e);
+        private _OnOrientationChanged();
+        private _UpdateTrackLayout(trackLength);
+        private _UpdateThumbSize(trackLength);
+        private _GetTrackLength();
+        private _ConvertViewportSizeToDisplayUnits(trackLength);
+        private _RaiseScroll(type);
+    }
+}
+declare module Fayde.Controls {
+    class ScrollViewer extends Controls.ContentControl {
+        private static _ScrollBarVisibilityChanged(d, args);
+        static HorizontalScrollBarVisibilityProperty: DependencyProperty;
+        static GetHorizontalScrollBarVisibility(d: Fayde.DependencyObject): Controls.ScrollBarVisibility;
+        static SetHorizontalScrollBarVisibility(d: Fayde.DependencyObject, value: Controls.ScrollBarVisibility): void;
+        public HorizontalScrollBarVisibility : Controls.ScrollBarVisibility;
+        static VerticalScrollBarVisibilityProperty: DependencyProperty;
+        static GetVerticalScrollBarVisibility(d: Fayde.DependencyObject): Controls.ScrollBarVisibility;
+        static SetVerticalScrollBarVisibility(d: Fayde.DependencyObject, value: Controls.ScrollBarVisibility): void;
+        public VerticalScrollBarVisibility : Controls.ScrollBarVisibility;
+        static ComputedHorizontalScrollBarVisibilityProperty: DependencyProperty;
+        static ComputedVerticalScrollBarVisibilityProperty: DependencyProperty;
+        static HorizontalOffsetProperty: DependencyProperty;
+        static VerticalOffsetProperty: DependencyProperty;
+        static ScrollableWidthProperty: DependencyProperty;
+        static ScrollableHeightProperty: DependencyProperty;
+        static ViewportWidthProperty: DependencyProperty;
+        static ViewportHeightProperty: DependencyProperty;
+        static ExtentWidthProperty: DependencyProperty;
+        static ExtentHeightProperty: DependencyProperty;
+        public ComputedHorizontalScrollBarVisibility: Fayde.Visibility;
+        public ComputedVerticalScrollBarVisibility: Fayde.Visibility;
+        public HorizontalOffset: number;
+        public VerticalOffset: number;
+        public ScrollableWidth: number;
+        public ScrollableHeight: number;
+        public ViewportWidth: number;
+        public ViewportHeight: number;
+        public ExtentWidth: number;
+        public ExtentHeight: number;
+        public $TemplatedParentHandlesScrolling: boolean;
+        public $ScrollContentPresenter: Controls.ScrollContentPresenter;
+        private $HorizontalScrollBar;
+        private $VerticalScrollBar;
+        constructor();
+        private _ScrollInfo;
+        public ScrollInfo : Controls.Primitives.IScrollInfo;
+        public InvalidateScrollInfo(): void;
+        private _UpdateScrollBarVisibility();
+        private _UpdateScrollBar(orientation, value);
+        public OnApplyTemplate(): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
+        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public ScrollInDirection(key: Fayde.Input.Key): void;
+        public ScrollToHorizontalOffset(offset: number): void;
+        public ScrollToVerticalOffset(offset: number): void;
+        public LineUp(): void;
+        public LineDown(): void;
+        public LineLeft(): void;
+        public LineRight(): void;
+        public PageHome(): void;
+        public PageEnd(): void;
+        public PageUp(): void;
+        public PageDown(): void;
+        public PageLeft(): void;
+        public PageRight(): void;
+        private _HandleScroll(orientation, e);
+        private _HandleHorizontalScroll(e);
+        private _HandleVerticalScroll(e);
     }
 }
 declare module Fayde.Controls {
@@ -1458,39 +1810,6 @@ declare module Fayde.Controls {
         public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
     }
 }
-declare module Fayde.Xaml {
-    class FrameworkTemplate extends Fayde.XamlObject {
-        private ResourceChain;
-        private TemplateElement;
-        constructor();
-        public GetVisualTree(bindingSource: Fayde.DependencyObject): Fayde.UIElement;
-    }
-    function Load(doc: Document): Fayde.XamlObject;
-}
-declare module Fayde.Controls {
-    class ContentPresenterNode extends Fayde.FENode {
-        private _ContentRoot;
-        public ContentRoot : Fayde.UIElement;
-        public XObject: ContentPresenter;
-        constructor(xobj: ContentPresenter);
-        public DoApplyTemplateWithError(error: BError): boolean;
-        public ClearRoot(): void;
-        public _ContentChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public _ContentTemplateChanged(): void;
-        private _GetContentTemplate(type);
-    }
-    class ContentPresenter extends Fayde.FrameworkElement {
-        public XamlNode: ContentPresenterNode;
-        public CreateNode(): ContentPresenterNode;
-        static ContentProperty: DependencyProperty;
-        static ContentTemplateProperty: DependencyProperty;
-        public Content: any;
-        public ContentTemplate: Fayde.DataTemplate;
-        static Annotations: {
-            ContentProperty: DependencyProperty;
-        };
-    }
-}
 declare module Fayde.Controls {
     class ControlTemplate extends Fayde.Xaml.FrameworkTemplate {
         public TargetType: Function;
@@ -1502,9 +1821,6 @@ declare module Fayde.Controls {
     class UserControl extends Controls.Control {
         static ContentProperty: DependencyProperty;
         public Content: any;
-        static Annotations: {
-            ContentProperty: DependencyProperty;
-        };
         public CreateLayoutUpdater(node: Fayde.UINode): UserControlLayoutUpdater;
         public InitializeComponent(): void;
         private _InvalidateContent(args);
@@ -2109,35 +2425,6 @@ declare module Fayde.Controls.Primitives {
     }
 }
 declare module Fayde.Controls.Primitives {
-    interface IScrollInfo {
-        ScrollOwner: Controls.ScrollViewer;
-        LineUp(): boolean;
-        LineDown(): boolean;
-        LineLeft(): boolean;
-        LineRight(): boolean;
-        MouseWheelUp(): boolean;
-        MouseWheelDown(): boolean;
-        MouseWheelLeft(): boolean;
-        MouseWheelRight(): boolean;
-        PageUp(): boolean;
-        PageDown(): boolean;
-        PageLeft(): boolean;
-        PageRight(): boolean;
-        MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
-        SetHorizontalOffset(offset: number): boolean;
-        SetVerticalOffset(offset: number): boolean;
-        CanHorizontallyScroll: boolean;
-        CanVerticallyScroll: boolean;
-        ExtentHeight: number;
-        ExtentWidth: number;
-        HorizontalOffset: number;
-        VerticalOffset: number;
-        ViewportHeight: number;
-        ViewportWidth: number;
-    }
-    var IScrollInfo_: IInterfaceDeclaration<IScrollInfo>;
-}
-declare module Fayde.Controls.Primitives {
     class ItemsChangedEventArgs extends EventArgs {
         public Action: Fayde.Collections.NotifyCollectionChangedAction;
         public ItemCount: number;
@@ -2145,157 +2432,6 @@ declare module Fayde.Controls.Primitives {
         public OldPosition: Controls.IGeneratorPosition;
         public Position: Controls.IGeneratorPosition;
         constructor(action: Fayde.Collections.NotifyCollectionChangedAction, itemCount: number, itemUICount: number, oldPosition: Controls.IGeneratorPosition, position: Controls.IGeneratorPosition);
-    }
-}
-declare module Fayde.Controls.Primitives {
-    class PopupNode extends Fayde.FENode {
-        public XObject: Popup;
-        public GetInheritedEnumerator(): Fayde.IEnumerator<Fayde.DONode>;
-        public OnIsAttachedChanged(newIsAttached: boolean): void;
-        private _HorizontalOffset;
-        private _VerticalOffset;
-        private _IsVisible;
-        private _IsCatchingClick;
-        private _Catcher;
-        private _VisualChild;
-        public _ChildChanged(oldChild: Fayde.FrameworkElement, newChild: Fayde.FrameworkElement): void;
-        private _PrepareVisualChild(newChild);
-        public CatchClickedOutside(): void;
-        private _UpdateCatcher();
-        private _RaiseClickedOutside(sender, e);
-        public OnHorizontalOffsetChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public OnVerticalOffsetChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public _Hide(): void;
-        public _Show(): void;
-    }
-    class Popup extends Fayde.FrameworkElement {
-        public XamlNode: PopupNode;
-        public CreateNode(): PopupNode;
-        public CreateLayoutUpdater(node: PopupNode): PopupLayoutUpdater;
-        static ChildProperty: DependencyProperty;
-        static HorizontalOffsetProperty: DependencyProperty;
-        static VerticalOffsetProperty: DependencyProperty;
-        static IsOpenProperty: DependencyProperty;
-        public Child: Fayde.UIElement;
-        public HorizontalOffset: number;
-        public VerticalOffset: number;
-        public IsOpen: boolean;
-        static Annotations: {
-            ContentProperty: DependencyProperty;
-        };
-        public Opened: MulticastEvent<EventArgs>;
-        public Closed: MulticastEvent<EventArgs>;
-        public ClickedOutside: MulticastEvent<EventArgs>;
-        private _OnChildChanged(args);
-        private _OnIsOpenChanged(args);
-    }
-    class PopupLayoutUpdater extends Fayde.LayoutUpdater {
-        public ComputeBounds(): void;
-        public PostComputeTransform(hasProjection: boolean): void;
-    }
-}
-declare module Fayde.Controls.Primitives {
-    class RangeBase extends Controls.Control {
-        private _LevelsFromRootCall;
-        private _InitialMax;
-        private _InitialVal;
-        private _RequestedMax;
-        private _RequestedVal;
-        private _PreCoercedMax;
-        private _PreCoercedVal;
-        static MinimumProperty: DependencyProperty;
-        static MaximumProperty: DependencyProperty;
-        static LargeChangeProperty: DependencyProperty;
-        static SmallChangeProperty: DependencyProperty;
-        static ValueProperty: DependencyProperty;
-        public Minimum: number;
-        public Maximum: number;
-        public SmallChange: number;
-        public LargeChange: number;
-        public Value: number;
-        public ValueChanged: Fayde.RoutedPropertyChangedEvent<number>;
-        public OnMinimumChanged(oldMin: number, newMin: number): void;
-        public OnMaximumChanged(oldMax: number, newMax: number): void;
-        private RaiseValueChanged(oldVal, newVal);
-        public OnValueChanged(oldVal: number, newVal: number): void;
-        private _OnMinimumChanged(args);
-        private _OnMaximumChanged(args);
-        private _OnValueChanged(args);
-        private _CoerceMaximum();
-        private _CoerceValue();
-    }
-}
-declare module Fayde.Controls.Primitives {
-    class RepeatButton extends Primitives.ButtonBase {
-        static DelayProperty: DependencyProperty;
-        static IntervalProperty: DependencyProperty;
-        public Delay: number;
-        public Interval: number;
-        private _KeyboardCausingRepeat;
-        private _MouseCausingRepeat;
-        public _MousePosition: Point;
-        private _IntervalID;
-        private _NewInterval;
-        private _ElementRoot;
-        constructor();
-        public OnApplyTemplate(): void;
-        public OnDelayChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public OnIntervalChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        public OnKeyUp(e: Fayde.Input.KeyEventArgs): void;
-        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
-        private _UpdateMousePosition(e);
-        private _UpdateRepeatState();
-        private _StartRepeatingAfterDelay();
-        private _OnTimeout();
-    }
-}
-declare module Fayde.Controls.Primitives {
-    class ScrollBar extends Primitives.RangeBase {
-        private _DragValue;
-        public Scroll: Fayde.RoutedEvent<Primitives.ScrollEventArgs>;
-        static OrientationProperty: DependencyProperty;
-        static ViewportSizeProperty: DependencyProperty;
-        public Orientation: Fayde.Orientation;
-        public ViewportSize: number;
-        public IsDragging : boolean;
-        constructor();
-        private $HorizontalTemplate;
-        private $HorizontalSmallIncrease;
-        private $HorizontalSmallDecrease;
-        private $HorizontalLargeIncrease;
-        private $HorizontalLargeDecrease;
-        private $HorizontalThumb;
-        private $VerticalTemplate;
-        private $VerticalSmallIncrease;
-        private $VerticalSmallDecrease;
-        private $VerticalLargeIncrease;
-        private $VerticalLargeDecrease;
-        private $VerticalThumb;
-        public OnApplyTemplate(): void;
-        public OnMaximumChanged(oldMax: number, newMax: number): void;
-        public OnMinimumChanged(oldMin: number, newMin: number): void;
-        public OnValueChanged(oldValue: number, newValue: number): void;
-        private _OnThumbDragStarted(sender, e);
-        private _OnThumbDragDelta(sender, e);
-        private _OnThumbDragCompleted(sender, e);
-        private _SmallDecrement(sender, e);
-        private _SmallIncrement(sender, e);
-        private _LargeDecrement(sender, e);
-        private _LargeIncrement(sender, e);
-        private _HandleSizeChanged(sender, e);
-        private _OnOrientationChanged();
-        private _UpdateTrackLayout(trackLength);
-        private _UpdateThumbSize(trackLength);
-        private _GetTrackLength();
-        private _ConvertViewportSizeToDisplayUnits(trackLength);
-        private _RaiseScroll(type);
     }
 }
 declare module Fayde.Controls.Primitives {
@@ -2368,35 +2504,6 @@ declare module Fayde.Controls.Primitives {
         public UpdateCollectionView(item: any): boolean;
     }
 }
-declare module Fayde.Controls.Primitives {
-    class Thumb extends Controls.Control {
-        private _PreviousPosition;
-        private _Origin;
-        public DragCompleted: Fayde.RoutedEvent<Primitives.DragCompletedEventArgs>;
-        public DragDelta: Fayde.RoutedEvent<Primitives.DragDeltaEventArgs>;
-        public DragStarted: Fayde.RoutedEvent<Primitives.DragStartedEventArgs>;
-        static IsDraggingProperty: DependencyProperty;
-        static IsFocusedProperty: DependencyProperty;
-        public IsDragging: boolean;
-        public IsFocused: boolean;
-        constructor();
-        public OnApplyTemplate(): void;
-        private OnDraggingChanged(args);
-        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
-        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        private _FocusChanged(hasFocus);
-        public OnLostMouseCapture(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
-        public CancelDrag(): void;
-        private _RaiseDragStarted();
-        private _RaiseDragDelta(x, y);
-        private _RaiseDragCompleted(canceled);
-        public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
-    }
-}
 declare module Fayde.Controls {
     class ProgressBar extends Controls.Primitives.RangeBase {
         private _Track;
@@ -2461,109 +2568,6 @@ declare module Fayde.Controls {
         public RowDefinitionChanged(rowDefinition: RowDefinition): void;
         public AddingToCollection(value: RowDefinition, error: BError): boolean;
         public RemovedFromCollection(value: RowDefinition, isValueSafe: boolean): void;
-    }
-}
-declare module Fayde.Controls {
-    class ScrollContentPresenter extends Controls.ContentPresenter implements Controls.Primitives.IScrollInfo {
-        private _ScrollData;
-        private _IsClipPropertySet;
-        private _ClippingRectangle;
-        public ScrollOwner : Controls.ScrollViewer;
-        public CanHorizontallyScroll : boolean;
-        public CanVerticallyScroll : boolean;
-        public ExtentWidth : number;
-        public ExtentHeight : number;
-        public ViewportWidth : number;
-        public ViewportHeight : number;
-        public HorizontalOffset : number;
-        public VerticalOffset : number;
-        public LineUp(): boolean;
-        public LineDown(): boolean;
-        public LineLeft(): boolean;
-        public LineRight(): boolean;
-        public MouseWheelUp(): boolean;
-        public MouseWheelDown(): boolean;
-        public MouseWheelLeft(): boolean;
-        public MouseWheelRight(): boolean;
-        public PageUp(): boolean;
-        public PageDown(): boolean;
-        public PageLeft(): boolean;
-        public PageRight(): boolean;
-        public MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
-        public SetHorizontalOffset(offset: number): boolean;
-        public SetVerticalOffset(offset: number): boolean;
-        public OnApplyTemplate(): void;
-        private _UpdateClip(arrangeSize);
-        private _CalculateTextBoxClipRect(arrangeSize);
-        public MeasureOverride(availableSize: size): size;
-        public ArrangeOverride(finalSize: size): size;
-        private _UpdateExtents(viewport, extentWidth, extentHeight);
-        private _ClampOffsets();
-        private _ClampHorizontal(x);
-        private _ClampVertical(y);
-    }
-}
-declare module Fayde.Controls {
-    class ScrollViewer extends Controls.ContentControl {
-        private static _ScrollBarVisibilityChanged(d, args);
-        static HorizontalScrollBarVisibilityProperty: DependencyProperty;
-        static GetHorizontalScrollBarVisibility(d: Fayde.DependencyObject): Controls.ScrollBarVisibility;
-        static SetHorizontalScrollBarVisibility(d: Fayde.DependencyObject, value: Controls.ScrollBarVisibility): void;
-        public HorizontalScrollBarVisibility : Controls.ScrollBarVisibility;
-        static VerticalScrollBarVisibilityProperty: DependencyProperty;
-        static GetVerticalScrollBarVisibility(d: Fayde.DependencyObject): Controls.ScrollBarVisibility;
-        static SetVerticalScrollBarVisibility(d: Fayde.DependencyObject, value: Controls.ScrollBarVisibility): void;
-        public VerticalScrollBarVisibility : Controls.ScrollBarVisibility;
-        static ComputedHorizontalScrollBarVisibilityProperty: DependencyProperty;
-        static ComputedVerticalScrollBarVisibilityProperty: DependencyProperty;
-        static HorizontalOffsetProperty: DependencyProperty;
-        static VerticalOffsetProperty: DependencyProperty;
-        static ScrollableWidthProperty: DependencyProperty;
-        static ScrollableHeightProperty: DependencyProperty;
-        static ViewportWidthProperty: DependencyProperty;
-        static ViewportHeightProperty: DependencyProperty;
-        static ExtentWidthProperty: DependencyProperty;
-        static ExtentHeightProperty: DependencyProperty;
-        public ComputedHorizontalScrollBarVisibility: Fayde.Visibility;
-        public ComputedVerticalScrollBarVisibility: Fayde.Visibility;
-        public HorizontalOffset: number;
-        public VerticalOffset: number;
-        public ScrollableWidth: number;
-        public ScrollableHeight: number;
-        public ViewportWidth: number;
-        public ViewportHeight: number;
-        public ExtentWidth: number;
-        public ExtentHeight: number;
-        public $TemplatedParentHandlesScrolling: boolean;
-        public $ScrollContentPresenter: Controls.ScrollContentPresenter;
-        private $HorizontalScrollBar;
-        private $VerticalScrollBar;
-        constructor();
-        private _ScrollInfo;
-        public ScrollInfo : Controls.Primitives.IScrollInfo;
-        public InvalidateScrollInfo(): void;
-        private _UpdateScrollBarVisibility();
-        private _UpdateScrollBar(orientation, value);
-        public OnApplyTemplate(): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        public ScrollInDirection(key: Fayde.Input.Key): void;
-        public ScrollToHorizontalOffset(offset: number): void;
-        public ScrollToVerticalOffset(offset: number): void;
-        public LineUp(): void;
-        public LineDown(): void;
-        public LineLeft(): void;
-        public LineRight(): void;
-        public PageHome(): void;
-        public PageEnd(): void;
-        public PageUp(): void;
-        public PageDown(): void;
-        public PageLeft(): void;
-        public PageRight(): void;
-        private _HandleScroll(orientation, e);
-        private _HandleHorizontalScroll(e);
-        private _HandleVerticalScroll(e);
     }
 }
 declare module Fayde.Controls {
@@ -2682,9 +2686,6 @@ declare module Fayde.Controls {
         public TextAlignment: Fayde.TextAlignment;
         public TextTrimming: Controls.TextTrimming;
         public TextWrapping: Controls.TextWrapping;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Fayde.Documents.InlineCollection>;
-        };
         constructor();
         public MeasureOverride(availableSize: size): size;
         public ArrangeOverride(finalSize: size): size;
@@ -3182,9 +3183,6 @@ declare module Fayde {
         public Setters: Fayde.SetterCollection;
         public BasedOn: Style;
         public TargetType: Function;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Fayde.SetterCollection>;
-        };
         constructor();
         public Seal(): void;
         public Validate(instance: Fayde.DependencyObject, error: BError): boolean;
@@ -3223,9 +3221,6 @@ declare module Fayde {
         public Actions: TriggerActionCollection;
         public RoutedEvent: string;
         private _IsAttached;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<TriggerActionCollection>;
-        };
         constructor();
         public Attach(target: Fayde.XamlObject): void;
         public Detach(target: Fayde.XamlObject): void;
@@ -3575,9 +3570,6 @@ declare module Fayde.Documents {
     class Paragraph extends Documents.Block {
         public CreateNode(): Documents.TextElementNode;
         static InlinesProperty: ImmutableDependencyProperty<Documents.InlineCollection>;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Documents.InlineCollection>;
-        };
         public Inlines: Documents.InlineCollection;
         constructor();
         public InlinesChanged(newInline: Documents.Inline, isAdd: boolean): void;
@@ -3597,9 +3589,6 @@ declare module Fayde.Documents {
     class Section extends Documents.TextElement implements Documents.IBlocksChangedListener {
         public CreateNode(): Documents.TextElementNode;
         static BlocksProperty: ImmutableDependencyProperty<Documents.BlockCollection>;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Documents.BlockCollection>;
-        };
         public Blocks: Documents.BlockCollection;
         constructor();
         public BlocksChanged(newBlock: Documents.Block, isAdd: boolean): void;
@@ -3609,9 +3598,6 @@ declare module Fayde.Documents {
     class Span extends Documents.Inline implements Documents.IInlinesChangedListener {
         public CreateNode(): Documents.TextElementNode;
         static InlinesProperty: ImmutableDependencyProperty<Documents.InlineCollection>;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Documents.InlineCollection>;
-        };
         public Inlines: Documents.InlineCollection;
         constructor();
         public InlinesChanged(newInline: Documents.Inline, isAdd: boolean): void;
@@ -4068,9 +4054,6 @@ declare module Fayde.Media.Animation {
     class BeginStoryboard extends Fayde.TriggerAction {
         static StoryboardProperty: DependencyProperty;
         public Storyboard: Animation.Storyboard;
-        static Annotations: {
-            ContentProperty: DependencyProperty;
-        };
         public Fire(): void;
     }
 }
@@ -4100,9 +4083,6 @@ declare module Fayde.Media.Animation {
 }
 declare module Fayde.Media.Animation {
     class ColorAnimationUsingKeyFrames extends Animation.AnimationUsingKeyFrames {
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
-        };
         public GenerateFrom(): Animation.AnimationBase;
         public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
@@ -4223,9 +4203,6 @@ declare module Fayde.Media.Animation {
 }
 declare module Fayde.Media.Animation {
     class DoubleAnimationUsingKeyFrames extends Animation.AnimationUsingKeyFrames {
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
-        };
         public GenerateFrom(): Animation.AnimationBase;
         public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
@@ -4328,9 +4305,6 @@ declare module Fayde.Media.Animation {
 }
 declare module Fayde.Media.Animation {
     class ObjectAnimationUsingKeyFrames extends Animation.AnimationUsingKeyFrames {
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
-        };
         public Resolve(target: Fayde.DependencyObject, propd: DependencyProperty): boolean;
     }
 }
@@ -4370,9 +4344,6 @@ declare module Fayde.Media.Animation {
 }
 declare module Fayde.Media.Animation {
     class PointAnimationUsingKeyFrames extends Animation.AnimationUsingKeyFrames {
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
-        };
         public GenerateFrom(): Animation.AnimationBase;
         public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
@@ -4408,17 +4379,14 @@ declare module Fayde.Media.Animation {
         static TargetNameProperty: DependencyProperty;
         static GetTargetName(d: Fayde.DependencyObject): string;
         static SetTargetName(d: Fayde.DependencyObject, value: string): void;
+        public TargetName: string;
         static TargetPropertyProperty: DependencyProperty;
         static GetTargetProperty(d: Fayde.DependencyObject): Fayde.Data.PropertyPath;
         static SetTargetProperty(d: Fayde.DependencyObject, value: Fayde.Data.PropertyPath): void;
-        static ChildrenProperty: ImmutableDependencyProperty<Animation.TimelineCollection>;
-        static ResolveTarget(timeline: Animation.Timeline): IStoryboadResolution;
-        public TargetName: string;
         public TargetProperty: Fayde.Data.PropertyPath;
+        static ResolveTarget(timeline: Animation.Timeline): IStoryboadResolution;
+        static ChildrenProperty: ImmutableDependencyProperty<Animation.TimelineCollection>;
         public Children: Animation.TimelineCollection;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Animation.TimelineCollection>;
-        };
         constructor();
         static SetTarget(timeline: Animation.Timeline, target: Fayde.DependencyObject): void;
         public Begin(): void;
@@ -4759,9 +4727,6 @@ declare module Fayde.Media {
         public GradientStops: Media.GradientStopCollection;
         public MappingMode: Media.BrushMappingMode;
         public SpreadMethod: Media.GradientSpreadMethod;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Media.GradientStopCollection>;
-        };
         constructor();
         public CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any;
         public _CreatePad(ctx: CanvasRenderingContext2D, bounds: rect): void;
@@ -5013,9 +4978,6 @@ declare module Fayde.Media {
         PathFigureChanged(newPathFigure: PathFigure): any;
     }
     class PathFigure extends Fayde.DependencyObject implements Media.IPathSegmentListener {
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Media.PathSegmentCollection>;
-        };
         static IsClosedProperty: DependencyProperty;
         static StartPointProperty: DependencyProperty;
         static IsFilledProperty: DependencyProperty;
@@ -5046,9 +5008,6 @@ declare module Fayde.Media {
 declare module Fayde.Media {
     class PathGeometry extends Media.Geometry implements Media.IPathFigureListener {
         private _OverridePath;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Media.PathFigureCollection>;
-        };
         static FillRuleProperty: DependencyProperty;
         static FiguresProperty: ImmutableDependencyProperty<Media.PathFigureCollection>;
         public FillRule: Fayde.Shapes.FillRule;
@@ -5108,27 +5067,18 @@ declare module Fayde.Media {
     }
     class PolyBezierSegment extends Media.PathSegment {
         static PointsProperty: ImmutableDependencyProperty<Fayde.Shapes.PointCollection>;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Fayde.Shapes.PointCollection>;
-        };
         public Points: Fayde.Shapes.PointCollection;
         constructor();
         public _Append(path: Fayde.Path.RawPath): void;
     }
     class PolyLineSegment extends Media.PathSegment {
         static PointsProperty: ImmutableDependencyProperty<Fayde.Shapes.PointCollection>;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Fayde.Shapes.PointCollection>;
-        };
         public Points: Fayde.Shapes.PointCollection;
         constructor();
         public _Append(path: Fayde.Path.RawPath): void;
     }
     class PolyQuadraticBezierSegment extends Media.PathSegment {
         static PointsProperty: ImmutableDependencyProperty<Fayde.Shapes.PointCollection>;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Fayde.Shapes.PointCollection>;
-        };
         public Points: Fayde.Shapes.PointCollection;
         constructor();
         public _Append(path: Fayde.Path.RawPath): void;
@@ -5290,9 +5240,6 @@ declare module Fayde.Media {
     class TransformGroup extends Media.Transform {
         static ChildrenProperty: ImmutableDependencyProperty<TransformCollection>;
         public Children: TransformCollection;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<TransformCollection>;
-        };
         private _TransformListener;
         constructor();
         public _BuildValue(): number[];
@@ -5302,9 +5249,6 @@ declare module Fayde.Media.VSM {
     class VisualState extends Fayde.DependencyObject {
         static StoryboardProperty: DependencyProperty;
         public Storyboard: Media.Animation.Storyboard;
-        static Annotations: {
-            ContentProperty: DependencyProperty;
-        };
     }
     class VisualStateCollection extends Fayde.XamlObjectCollection<VisualState> {
     }
@@ -5321,9 +5265,6 @@ declare module Fayde.Media.VSM {
         public States: VSM.VisualStateCollection;
         static TransitionsProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<VSM.VisualTransition>>;
         public Transitions: Fayde.XamlObjectCollection<VSM.VisualTransition>;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<VSM.VisualStateCollection>;
-        };
         private _CurrentStoryboards;
         public CurrentStoryboards : Media.Animation.Storyboard[];
         public CurrentStateChanging: MulticastEvent<VisualStateChangedEventArgs>;
@@ -5406,9 +5347,6 @@ declare module Fayde.Navigation {
     class UriMapper extends Fayde.DependencyObject {
         static UriMappingsProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Navigation.UriMapping>>;
         public UriMappings: Fayde.XamlObjectCollection<Navigation.UriMapping>;
-        static Annotations: {
-            ContentProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Navigation.UriMapping>>;
-        };
         constructor();
         public MapUri(uri: Uri): Uri;
     }

@@ -477,7 +477,6 @@ declare module Fayde.Controls {
         public IsItemItsOwnContainer(item: any): boolean;
         public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
         public ClearContainerForItem(element: Fayde.DependencyObject, item: any): void;
-        public InvokeItemsChanged(sender: any, e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         public OnExpanded(e: Fayde.RoutedEventArgs): void;
         public OnCollapsed(e: Fayde.RoutedEventArgs): void;
