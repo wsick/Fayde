@@ -57,3 +57,4 @@ Source/Fayde.Tests/tests/DependencyLoadTests.js
 Demos/ControlsShowcase/packages/*
 Demos/NflDraft/packages/*
 Source/Fayde.Tests/tests/DataTemplateTests.js
+Source/Fayde.Client/Xaml/ContentAnnotation.js

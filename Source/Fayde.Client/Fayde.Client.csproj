@@ -16,6 +16,8 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Xaml\ContentAnnotation.ts" />
+    <TypeScriptCompile Include="Runtime\Annotations.ts" />
     <TypeScriptCompile Include="Xaml\XamlDocument.ts" />
     <TypeScriptCompile Include="Collections\INotifyCollectionChanged.ts" />
     <TypeScriptCompile Include="Collections\NotifyCollectionChangedEventArgs.ts" />
