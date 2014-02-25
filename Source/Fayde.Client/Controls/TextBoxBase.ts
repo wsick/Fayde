@@ -64,7 +64,7 @@ module Fayde.Controls {
             this._TextProperty = textPropd;
         }
 
-        get Cursor(): string {
+        get Cursor(): CursorType {
             var cursor = this.GetValue(FrameworkElement.CursorProperty);
             if (cursor === CursorType.Default)
                 return CursorType.IBeam;
