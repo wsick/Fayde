@@ -51,6 +51,97 @@
         </Grid>
     </ControlTemplate>
 
+    <!--  controls:GridSplitter  -->
+    <Style TargetType="controls:GridSplitter">
+      <Setter Property="Background" Value="#FFFFFFFF"/>
+      <Setter Property="IsTabStop" Value="true"/>
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="controls:GridSplitter">
+            <Grid x:Name="Root" IsHitTestVisible="{TemplateBinding IsEnabled}">
+              <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                  <VisualState x:Name="Normal"/>
+                  <VisualState x:Name="MouseOver"/>
+                  <VisualState x:Name="Disabled">
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Root"
+                           Storyboard.TargetProperty="Opacity"
+                           To="0.5"
+                           Duration="0"/>
+                    </Storyboard>
+                  </VisualState>
+                </VisualStateGroup>
+                <VisualStateGroup x:Name="FocusStates">
+                  <VisualStateGroup.Transitions>
+                    <VisualTransition GeneratedDuration="0"/>
+                  </VisualStateGroup.Transitions>
+                  <VisualState x:Name="Unfocused"/>
+                  <VisualState x:Name="Focused">
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="FocusVisual"
+                           Storyboard.TargetProperty="Opacity"
+                           To="1"
+                           Duration="0"/>
+                    </Storyboard>
+                  </VisualState>
+                </VisualStateGroup>
+              </VisualStateManager.VisualStateGroups>
+              <Rectangle Fill="{TemplateBinding Background}"/>
+              <Grid x:Name="HorizontalTemplate">
+                <StackPanel Width="18" HorizontalAligment="Center" Orientation="Horizontal">
+                  <Rectangle Height="2"
+                            Width="2"
+                            Margin="2,2"
+                            VerticalAligment="Center"
+                            Fill="#FF777777"/>
+                  <Rectangle Height="2"
+                            Width="2"
+                            Margin="2,2"
+                            VerticalAligment="Center"
+                            Fill="#FF777777"/>
+                  <Rectangle Height="2"
+                            Width="2"
+                            Margin="2,2"
+                            VerticalAligment="Center"
+                            Fill="#FF777777"/>
+                </StackPanel>
+              </Grid>
+              <Grid x:Name="VerticalTemplate"
+                   Visibility="Collapsed"
+                   HorizontalAligment="Center">
+                >
+                <StackPanel VerticalAlignment="Center" Height="18" HorizontalAligment="Center">
+                  <Rectangle Height="2"
+                            Width="2"
+                            Margin="2,2"
+                            HorizontalAligment="Center"
+                            Fill="#FF777777"/>
+                  <Rectangle Height="2"
+                            Width="2"
+                            Margin="2,2"
+                            HorizontalAligment="Center"
+                            Fill="#FF777777"/>
+                  <Rectangle Height="2"
+                            Width="2"
+                            Margin="2,2"
+                            HorizontalAligment="Center"
+                            Fill="#FF777777"/>
+                </StackPanel>
+              </Grid>
+              <Rectangle x:Name="FocusVisual"
+                   Stroke="#FF6DBDD1"
+                   StrokeThickness="1"
+                   Opacity="0"
+                   IsHitTestVisible="false"/>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  
     <!--  controls:HeaderedItemsControl  -->
     <Style TargetType="controls:HeaderedItemsControl">
         <Setter Property="Template">
