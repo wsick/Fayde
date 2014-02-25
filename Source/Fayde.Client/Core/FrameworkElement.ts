@@ -160,21 +160,21 @@ module Fayde {
         }
         CreateNode(): FENode { return new FENode(this); }
         
-        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("ActualHeight", () => Number, FrameworkElement);
-        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, FrameworkElement);
-        static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
-        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
-        static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => Length, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
-        static HorizontalAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
-        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty.ExtendTo(FrameworkElement);
-        static MarginProperty: DependencyProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
-        static MaxHeightProperty: DependencyProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
-        static MaxWidthProperty: DependencyProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
-        static MinHeightProperty: DependencyProperty = DependencyProperty.Register("MinHeight", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
-        static MinWidthProperty: DependencyProperty = DependencyProperty.Register("MinWidth", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
-        static StyleProperty: DependencyProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._StyleChanged(args));
-        static VerticalAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
-        static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => Length, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
+        static ActualHeightProperty = DependencyProperty.RegisterReadOnly("ActualHeight", () => Number, FrameworkElement);
+        static ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, FrameworkElement);
+        static CursorProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
+        static FlowDirectionProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
+        static HeightProperty = DependencyProperty.Register("Height", () => Length, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
+        static HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
+        static LanguageProperty = InheritableOwner.LanguageProperty.ExtendTo(FrameworkElement);
+        static MarginProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MaxHeightProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MaxWidthProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MinHeightProperty = DependencyProperty.Register("MinHeight", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MinWidthProperty = DependencyProperty.Register("MinWidth", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static StyleProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._StyleChanged(args));
+        static VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
+        static WidthProperty = DependencyProperty.Register("Width", () => Length, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, FrameworkElement);
         
         IsInheritable(propd: DependencyProperty): boolean {
@@ -200,10 +200,10 @@ module Fayde {
         VerticalAlignment: VerticalAlignment;
         Width: number;
 
-        SizeChanged: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
-        Loaded: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
-        Unloaded: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
-        LayoutUpdated: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        SizeChanged = new RoutedEvent<RoutedEventArgs>();
+        Loaded = new RoutedEvent<RoutedEventArgs>();
+        Unloaded = new RoutedEvent<RoutedEventArgs>();
+        LayoutUpdated = new MulticastEvent<EventArgs>();
 
         OnApplyTemplate() { }
 
