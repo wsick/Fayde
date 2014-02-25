@@ -365,7 +365,17 @@ declare module Fayde {
         Visible = 0,
         Collapsed = 1,
     }
-    var CursorType: {
+    enum CursorType {
+        Default = 0,
+        Hand = 1,
+        IBeam = 2,
+        Wait = 3,
+        SizeNESW = 4,
+        SizeNWSE = 5,
+        SizeNS = 6,
+        SizeWE = 7,
+    }
+    var CursorTypeMappings: {
         Default: string;
         Hand: string;
         IBeam: string;
@@ -571,7 +581,7 @@ declare module Fayde {
         public Clip: Fayde.Media.Geometry;
         public Effect: Fayde.Media.Effects.Effect;
         public IsHitTestVisible: boolean;
-        public Cursor: string;
+        public Cursor: Fayde.CursorType;
         public OpacityMask: Fayde.Media.Brush;
         public Opacity: number;
         public Projection: Fayde.Media.Projection;
@@ -2302,7 +2312,7 @@ declare module Fayde.Controls {
         public $MaxLength: number;
         public $HasOffset: boolean;
         constructor(eventsMask: TextBoxEmitChangedType, textPropd: DependencyProperty);
-        public Cursor : string;
+        public Cursor : Fayde.CursorType;
         public SelectionCursor : number;
         public HasSelectedText : boolean;
         public CaretBrush : Fayde.Media.Brush;
@@ -3773,7 +3783,7 @@ declare module Fayde.Engine {
         private _Focus;
         private _State;
         private _Cursor;
-        public SetCursor: (cursor: string) => void;
+        public SetCursor: (cursor: Fayde.CursorType) => void;
         private _CurrentPos;
         private _EmittingMouseEvent;
         private _InputList;

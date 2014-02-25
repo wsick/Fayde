@@ -2039,7 +2039,19 @@ var Fayde;
         return 1 /* Collapsed */;
     });
 
-    Fayde.CursorType = {
+    (function (CursorType) {
+        CursorType[CursorType["Default"] = 0] = "Default";
+        CursorType[CursorType["Hand"] = 1] = "Hand";
+        CursorType[CursorType["IBeam"] = 2] = "IBeam";
+        CursorType[CursorType["Wait"] = 3] = "Wait";
+        CursorType[CursorType["SizeNESW"] = 4] = "SizeNESW";
+        CursorType[CursorType["SizeNWSE"] = 5] = "SizeNWSE";
+        CursorType[CursorType["SizeNS"] = 6] = "SizeNS";
+        CursorType[CursorType["SizeWE"] = 7] = "SizeWE";
+    })(Fayde.CursorType || (Fayde.CursorType = {}));
+    var CursorType = Fayde.CursorType;
+    Fayde.RegisterEnum(CursorType, "CursorType", Fayde.XMLNS);
+    Fayde.CursorTypeMappings = {
         Default: "",
         Hand: "pointer",
         IBeam: "text",
@@ -2049,7 +2061,6 @@ var Fayde;
         SizeNS: "n-resize",
         SizeWE: "w-resize"
     };
-    Fayde.RegisterEnum(Fayde.CursorType, "CursorType", Fayde.XMLNS);
 
     (function (HorizontalAlignment) {
         HorizontalAlignment[HorizontalAlignment["Left"] = 0] = "Left";
@@ -4696,9 +4707,9 @@ var Fayde;
         FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", function () {
             return Number;
         }, FrameworkElement);
-        FrameworkElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () {
+        FrameworkElement.CursorProperty = DependencyProperty.Register("Cursor", function () {
             return new Enum(Fayde.CursorType);
-        }, FrameworkElement, Fayde.CursorType.Default);
+        }, FrameworkElement, 0 /* Default */);
         FrameworkElement.FlowDirectionProperty = Fayde.InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
         FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () {
             return Length;
@@ -13156,8 +13167,8 @@ var Fayde;
             Object.defineProperty(TextBoxBase.prototype, "Cursor", {
                 get: function () {
                     var cursor = this.GetValue(Fayde.FrameworkElement.CursorProperty);
-                    if (cursor === Fayde.CursorType.Default)
-                        return Fayde.CursorType.IBeam;
+                    if (cursor === 0 /* Default */)
+                        return 2 /* IBeam */;
                     return cursor;
                 },
                 enumerable: true,
@@ -22027,7 +22038,7 @@ var Fayde;
     (function (Engine) {
         var InputManager = (function () {
             function InputManager(surface) {
-                this._Cursor = Fayde.CursorType.Default;
+                this._Cursor = 0 /* Default */;
                 this.SetCursor = function (cursor) {
                 };
                 this._CurrentPos = null;
@@ -22061,7 +22072,7 @@ var Fayde;
             InputManager.prototype.Register = function (canvas) {
                 var _this = this;
                 this.SetCursor = function (cursor) {
-                    return canvas.style.cursor = _this._Cursor = cursor;
+                    return canvas.style.cursor = Fayde.CursorTypeMappings[Fayde.CursorType[_this._Cursor = cursor]];
                 };
 
                 this._KeyInterop.RegisterEvents(this);
@@ -22189,12 +22200,12 @@ var Fayde;
             };
 
             InputManager.prototype.UpdateCursorFromInputList = function () {
-                var newCursor = Fayde.CursorType.Default;
+                var newCursor = 0 /* Default */;
                 var list = this._Captured ? this._CapturedInputList : this._InputList;
                 var len = list.length;
                 for (var i = 0; i < len; i++) {
                     newCursor = list[i].XObject.Cursor;
-                    if (newCursor !== Fayde.CursorType.Default)
+                    if (newCursor !== 0 /* Default */)
                         break;
                 }
                 this.SetCursor(newCursor);
