@@ -1,3 +1,4 @@
+/// <reference path="Spinner.ts" />
 
 module Fayde.Controls {
     export class UpDownBase<T> extends Control {
@@ -210,4 +211,14 @@ module Fayde.Controls {
         }
         OnIncrement() { }
     }
+    TemplateVisualStates(UpDownBase,
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" });
+    TemplateParts(UpDownBase,
+        { Name: "Text", Type: TextBox },
+        { Name: "Spinner", Type: Spinner });
 }

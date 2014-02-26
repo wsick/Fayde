@@ -5,8 +5,25 @@ module Fayde.Controls {
         private _Track: FrameworkElement;
         private _Indicator: FrameworkElement;
 
-        static IsIndeterminateProperty: DependencyProperty = DependencyProperty.Register("IsIndeterminate", () => Boolean, ProgressBar, false, (d, args) => (<ProgressBar>d)._IsIndeterminateChanged(args));
+        static IsIndeterminateProperty = DependencyProperty.Register("IsIndeterminate", () => Boolean, ProgressBar, false, (d, args) => (<ProgressBar>d).OnIsIndeterminateChanged(args));
         IsIndeterminate: boolean;
+        private OnIsIndeterminateChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._UpdateIndicator();
+            this.UpdateVisualState();
+        }
+
+        OnValueChanged(oldValue: number, newValue: number) {
+            super.OnValueChanged(oldValue, newValue);
+            this._UpdateIndicator();
+        }
+        OnMaximumChanged(oldMaximum: number, newMaximum: number) {
+            super.OnMaximumChanged(oldMaximum, newMaximum);
+            this._UpdateIndicator();
+        }
+        OnMinimumChanged(oldMinimum: number, newMinimum: number) {
+            super.OnMinimumChanged(oldMinimum, newMinimum);
+            this._UpdateIndicator();
+        }
 
         constructor() {
             super();
@@ -29,16 +46,14 @@ module Fayde.Controls {
             this.UpdateVisualState(false);
         }
 
-        OnValueChanged(oldValue: number, newValue: number) {
-            super.OnValueChanged(oldValue, newValue);
-            this._UpdateIndicator();
+        GoToStates(gotoFunc: (state: string) => boolean) {
+            if (this.IsIndeterminate)
+                gotoFunc("Indeterminate");
+            else
+                gotoFunc("Determinate");
         }
 
         private _OnTrackSizeChanged(sender, e) {
-            this._UpdateIndicator();
-        }
-        private _IsIndeterminateChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.UpdateVisualState();
             this._UpdateIndicator();
         }
         private _UpdateIndicator() {
@@ -50,7 +65,7 @@ module Fayde.Controls {
             if (!indicator)
                 return;
 
-            var parent = VisualTreeHelper.GetParent(this);
+            var parent = <FrameworkElement>VisualTreeHelper.GetParent(indicator);
             if (!parent)
                 return;
 
@@ -66,20 +81,19 @@ module Fayde.Controls {
                 outerWidth += padding.Left;
                 outerWidth += padding.Right;
             }
-            
+
             var progress = 1.0;
             if (!this.IsIndeterminate && max !== min)
                 progress = (val - min) / (max - min);
-            var fullWidth = Math.max(0, (<FrameworkElement>parent).ActualWidth - outerWidth);
+            var fullWidth = Math.max(0, parent.ActualWidth - outerWidth);
             indicator.Width = fullWidth * progress;
-        }
-
-        GoToStates(gotoFunc: (state: string) => boolean) {
-            if (this.IsIndeterminate)
-                gotoFunc("Indeterminate");
-            else
-                gotoFunc("Determinate");
         }
     }
     Fayde.RegisterType(ProgressBar, "Fayde.Controls", Fayde.XMLNS);
+    TemplateVisualStates(ProgressBar,
+        { GroupName: "CommonStates", Name: "Indeterminate" },
+        { GroupName: "CommonStates", Name: "Determinate" });
+    TemplateParts(ProgressBar,
+        { Name: "ProgressBarIndicator", Type: FrameworkElement },
+        { Name: "ProgressBarTrack", Type: FrameworkElement });
 }

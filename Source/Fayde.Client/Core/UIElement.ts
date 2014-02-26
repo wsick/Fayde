@@ -177,15 +177,19 @@ module Fayde {
                 case Input.TouchInputType.TouchUp:
                     x.OnTouchUp(args);
                     x.TouchUp.Raise(x, args);
+                    break;
                 case Input.TouchInputType.TouchMove:
                     x.OnTouchMove(args);
                     x.TouchMove.Raise(x, args);
+                    break;
                 case Input.TouchInputType.TouchEnter:
                     x.OnTouchEnter(args);
                     x.TouchEnter.Raise(x, args);
+                    break;
                 case Input.TouchInputType.TouchLeave:
                     x.OnTouchLeave(args);
                     x.TouchLeave.Raise(x, args);
+                    break;
                 default:
                     return false;
             }
@@ -349,7 +353,7 @@ module Fayde {
         Clip: Media.Geometry;
         Effect: Media.Effects.Effect;
         IsHitTestVisible: boolean;
-        Cursor: string;
+        Cursor: CursorType;
         OpacityMask: Media.Brush;
         Opacity: number;
         Projection: Media.Projection;

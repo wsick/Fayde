@@ -4,25 +4,25 @@ module Fayde.Controls.Primitives {
     export interface IScrollInfo {
         ScrollOwner: ScrollViewer;
 
-        LineUp();
-        LineDown();
-        LineLeft();
-        LineRight();
+        LineUp(): boolean;
+        LineDown(): boolean;
+        LineLeft(): boolean;
+        LineRight(): boolean;
 
-        MouseWheelUp();
-        MouseWheelDown();
-        MouseWheelLeft();
-        MouseWheelRight();
+        MouseWheelUp(): boolean;
+        MouseWheelDown(): boolean;
+        MouseWheelLeft(): boolean;
+        MouseWheelRight(): boolean;
 
-        PageUp();
-        PageDown();
-        PageLeft();
-        PageRight();
+        PageUp(): boolean;
+        PageDown(): boolean;
+        PageLeft(): boolean;
+        PageRight(): boolean;
 
         MakeVisible(uie: UIElement, rectangle: rect): rect;
 
-        SetHorizontalOffset(offset: number);
-        SetVerticalOffset(offset: number);
+        SetHorizontalOffset(offset: number): boolean;
+        SetVerticalOffset(offset: number): boolean;
 
         CanHorizontallyScroll: boolean;
         CanVerticallyScroll: boolean;

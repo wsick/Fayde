@@ -11,8 +11,6 @@ module Fayde {
         BasedOn: Style;
         TargetType: Function;
 
-        static Annotations = { ContentProperty: Style.SettersProperty }
-
         constructor() {
             super();
             var coll = Style.SettersProperty.Initialize(this);
@@ -87,4 +85,5 @@ module Fayde {
         }
     }
     Fayde.RegisterType(Style, "Fayde", Fayde.XMLNS);
+    Xaml.Content(Style, Style.SettersProperty);
 }

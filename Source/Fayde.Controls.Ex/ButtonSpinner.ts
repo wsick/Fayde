@@ -115,4 +115,19 @@ module Fayde.Controls {
                 this._DecreaseButton.IsEnabled = (this.ValidSpinDirection & ValidSpinDirections.Decrease) === ValidSpinDirections.Decrease;
         }
     }
+    Xaml.Content(ButtonSpinner, ButtonSpinner.ContentProperty);
+    TemplateVisualStates(ButtonSpinner,
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "IncreaseStates", Name: "IncreaseEnabled" },
+        { GroupName: "IncreaseStates", Name: "IncreaseDisabled" },
+        { GroupName: "DecreaseStates", Name: "DecreaseEnabled" },
+        { GroupName: "DecreaseStates", Name: "DecreaseDisabled" });
+    TemplateParts(ButtonSpinner,
+        { Name: "IncreaseButton", Type: Primitives.ButtonBase },
+        { Name: "DecreaseButton", Type: Primitives.ButtonBase });
 }

@@ -16,8 +16,8 @@ module Fayde.Engine {
         private _TouchInterop: Fayde.Input.ITouchInterop;
         private _Focus: FocusManager;
         private _State: IInputState;
-        private _Cursor: string = Fayde.CursorType.Default;
-        SetCursor: (cursor: string) => void = (cursor) => { };
+        private _Cursor: CursorType = Fayde.CursorType.Default;
+        SetCursor: (cursor: CursorType) => void = (cursor) => { };
 
         private _CurrentPos: Point = null;
         private _EmittingMouseEvent: boolean = false;
@@ -43,7 +43,7 @@ module Fayde.Engine {
         }
 
         Register(canvas: HTMLCanvasElement) {
-            this.SetCursor = (cursor) => canvas.style.cursor = this._Cursor = cursor;
+            this.SetCursor = (cursor) => canvas.style.cursor = CursorTypeMappings[CursorType[this._Cursor = cursor]];
 
             this._KeyInterop.RegisterEvents(this);
             this._MouseInterop.RegisterEvents(this, canvas);
@@ -72,6 +72,7 @@ module Fayde.Engine {
             if (!args.Handled && args.Key === Input.Key.Tab) {
                 if (!this._Focus.TabFocus(args.Modifiers.Shift))
                     this._Focus.FocusAnyLayer(this._Surface.GetLayers());
+                args.Handled = true;
             }
             this.SetIsUserInitiatedEvent(false);
         }

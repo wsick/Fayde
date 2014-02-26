@@ -115,6 +115,9 @@ module Fayde {
             for (var i = 0, monitors = (this._IAMonitors || []).slice(0), len = monitors.length; i < len; i++) {
                 monitors[i].Callback(newIsAttached);
             }
+
+            if (!newIsAttached)
+                this._OwnerNameScope = undefined;
         }
         MonitorIsAttached(func: (newIsAttached: boolean) => void ): IIsAttachedMonitor {
             var monitors = this._IAMonitors;

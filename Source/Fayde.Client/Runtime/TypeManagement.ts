@@ -132,21 +132,10 @@ module Fayde {
         lookupNamespaceURI(prefix: string): string;
     }
     export interface ITypeResolver {
-        GetAnnotation(type: Function, name: string): any;
         Resolve(xmlns: string, xmlname: string): ITypeResolution;
         ResolveFullyQualifiedName(xmlname: string, resolver: INamespacePrefixResolver): ITypeResolution;
     }
     export var TypeResolver: ITypeResolver = {
-        GetAnnotation: function (type: Function, name: string): any {
-            if (!type)
-                return;
-            var t = <any>type;
-            var anns = (<any>t).Annotations;
-            var annotation: any;
-            if (anns && (annotation = anns[name]))
-                return annotation;
-            return TypeResolver.GetAnnotation(GetTypeParent(t), name);
-        },
         Resolve: function (xmlns: string, xmlname: string): ITypeResolution {
             var isSystem = false;
             var isSimple = false;

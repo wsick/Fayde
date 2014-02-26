@@ -449,6 +449,16 @@ module Fayde.Controls {
             return false;
         }
     }
+    TemplateVisualStates(TreeView,
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "ValidationStates", Name: "Valid" },
+        { GroupName: "ValidationStates", Name: "InvalidUnfocused" },
+        { GroupName: "ValidationStates", Name: "InvalidFocused" });
 
     Object.defineProperty(TreeView.prototype, "SelectedValue", {
         get: function () { return this.GetValue(TreeView.SelectedValueProperty); },

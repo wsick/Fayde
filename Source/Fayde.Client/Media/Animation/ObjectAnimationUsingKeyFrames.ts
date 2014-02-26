@@ -2,8 +2,6 @@
 
 module Fayde.Media.Animation {
     export class ObjectAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
-        static Annotations = { ContentProperty: AnimationUsingKeyFrames.KeyFramesProperty };
-
         Resolve(target: DependencyObject, propd: DependencyProperty): boolean {
             var enumerator = this.KeyFrames.GetEnumerator();
             while (enumerator.MoveNext()) {

@@ -6,21 +6,40 @@ interface ITimeline {
 
 module Fayde {
     export class Application extends DependencyObject implements IResourcable, ITimerListener {
-        static Version: string = "0.9.6.0";
         static Current: Application;
         MainSurface: Surface;
         Loaded = new MulticastEvent<EventArgs>();
         Address: Uri = null;
         DebugInterop: DebugInterop;
         private _IsRunning: boolean = false;
+        private _IsLoaded = false;
         private _Storyboards: ITimeline[] = [];
         private _ClockTimer: ClockTimer = new ClockTimer();
-        private _RootVisual: UIElement;
+        private _RootVisual: UIElement = null;
+        private _CoreLibrary: Library = null;
 
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, Application);
-        static ThemeProperty = DependencyProperty.Register("Theme", () => Theme, Application);
+        static ThemeNameProperty = DependencyProperty.Register("ThemeName", () => String, Application, "Default", (d, args) => (<Application>d).OnThemeNameChanged(args));
         Resources: ResourceDictionary;
-        Theme: Theme;
+        ThemeName: string;
+
+        private OnThemeNameChanged(args: DependencyPropertyChangedEventArgs) {
+            if (!this._IsLoaded)
+                return;
+            Library.ChangeTheme(args.NewValue)
+                .success(res => this._ApplyTheme())
+                .error(err => console.warn("Could not change theme. " + err.toString()));
+        }
+        private _ApplyTheme() {
+            var layers = this.MainSurface.GetLayers();
+            for (var i = 0, len = layers.length; i < len; i++) {
+                var walker = DeepTreeWalker(layers[i]);
+                var cur: FENode;
+                while ((cur = <FENode>walker.Step())) {
+                    Providers.ImplicitStyleBroker.Set(<FrameworkElement>cur.XObject, Providers.StyleMask.Theme);
+                }
+            }
+        }
 
         Resized = new RoutedEvent<SizeChangedEventArgs>();
         OnResized(oldSize: size, newSize: size) {
@@ -38,15 +57,6 @@ module Fayde {
 
         get RootVisual(): UIElement { return this.MainSurface._RootLayer; }
 
-        Resolve(): IAsyncRequest<Application> {
-            var d = defer<Application>();
-
-            this.Theme.Resolve()
-                .success(theme => d.resolve(this))
-                .error(d.reject);
-
-            return d.request;
-        }
         $$SetRootVisual(value: UIElement) {
             this._RootVisual = value;
         }
@@ -56,6 +66,7 @@ module Fayde {
         }
         Start() {
             this._ClockTimer.RegisterTimer(this);
+            this._IsLoaded = true;
             this.Loaded.RaiseAsync(this, EventArgs.Empty);
         }
         OnTicked(lastTime: number, nowTime: number) {
@@ -112,15 +123,6 @@ module Fayde {
                 sbs.splice(index, 1);
         }
 
-        GetImplicitStyle(type: any): Style {
-            var theme = this.Theme;
-            var style: Style;
-            if (theme && (style = theme.GetImplicitStyle(type)))
-                return style;
-
-            return Library.GetImplicitStyle(type);
-        }
-
         private __DebugLayers(): string {
             return this.MainSurface.__DebugLayers();
         }
@@ -130,7 +132,7 @@ module Fayde {
 
         static GetAsync(url: string): IAsyncRequest<Application> {
             var d = defer<Application>();
-            Xaml.XamlDocument.Resolve(url)
+            Xaml.XamlDocument.GetAsync(url)
                 .success(xd => {
                     TimelineProfile.Parse(true, "App");
                     var app = <Application>Xaml.Load(xd.Document);
@@ -141,6 +143,16 @@ module Fayde {
                         d.resolve(app);
                 })
                 .error(d.reject);
+            return d.request;
+        }
+        Resolve(): IAsyncRequest<Application> {
+            var d = defer<Application>();
+
+            var lib = Library.Get("lib:Fayde") || RegisterLibrary("Fayde", "Fayde");
+            lib.Resolve({ ThemeName: this.ThemeName || "Default", Resolving: [] })
+                .success(lib => { this._CoreLibrary = lib; d.resolve(this); })
+                .error(d.reject);
+
             return d.request;
         }
     }

@@ -2,8 +2,6 @@
 
 module Fayde.Media.Animation {
     export class ColorAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
-        static Annotations = { ContentProperty: AnimationUsingKeyFrames.KeyFramesProperty };
-        
         GenerateFrom(): AnimationBase {
             return new ColorAnimation();
         }

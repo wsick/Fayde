@@ -7,10 +7,8 @@ module Fayde.Documents {
         }
 
         static BlocksProperty = DependencyProperty.RegisterImmutable<BlockCollection>("Blocks", () => BlockCollection, Section);
-
-        static Annotations = { ContentProperty: Section.BlocksProperty };
-        
         Blocks: BlockCollection;
+
         constructor() {
             super();
             var coll = Section.BlocksProperty.Initialize(this);
@@ -23,4 +21,5 @@ module Fayde.Documents {
         }
     }
     Fayde.RegisterType(Section, "Fayde.Documents", Fayde.XMLNS);
+    Xaml.Content(Section, Section.BlocksProperty);
 }

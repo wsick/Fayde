@@ -1,0 +1,68 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+	  xmlns:controls="lib:Fayde.Controls"
+    ThemeName="Metro">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+            
+        <Grid Grid.Row="1" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="100" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="100" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="100" />
+            </Grid.RowDefinitions>
+                
+            <Rectangle Grid.Row="0" Grid.Column="0" Fill="Red"/>
+            <Rectangle Grid.Row="0" Grid.Column="2" Fill="Green" />
+            <Rectangle Grid.Row="2" Grid.Column="0" Fill="Blue" />
+            <Rectangle Grid.Row="2" Grid.Column="2" Fill="Yellow" />
+
+          <controls:GridSplitter
+             Grid.Row="1"
+             Grid.Column="0"
+             Grid.ColumnSpan="3"
+             HorizontalAlignment="Stretch"
+       
+                 />
+          <controls:GridSplitter
+              Grid.Row="0"
+              Grid.Column="1"
+              Grid.RowSpan="3"
+              VerticalAlignment="Stretch"
+               />
+        </Grid>
+            
+        <Grid Grid.Row="1" Grid.Column="2" >
+          <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="100" />
+          </Grid.RowDefinitions>
+           
+            <Rectangle Grid.Row="0" Fill="Red"/>
+            
+            <Rectangle Grid.Row="2"  Fill="Blue" />
+
+            <Rectangle Grid.Row="4"  Fill="Green" />
+            <controls:GridSplitter
+                Grid.Row="1"
+                HorizontalAlignment="Stretch"
+             />
+          <controls:GridSplitter
+                Grid.Row="3"
+                HorizontalAlignment="Stretch"
+             />
+        </Grid>
+	  </Grid>
+</Application>

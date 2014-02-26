@@ -1,7 +1,7 @@
 ﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    Theme="/Fayde/Theme.Metro.xml">
+    ThemeName="Metro">
     <Grid x:Name="LayoutRoot">
         <ScrollViewer Width="300" Height="300">
             <Image Width="600" Height="480" Stretch="UniformToFill" Source="../Images/testing.jpg" />

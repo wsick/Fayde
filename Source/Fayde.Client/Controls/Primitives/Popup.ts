@@ -156,11 +156,9 @@ module Fayde.Controls.Primitives {
         VerticalOffset: number;
         IsOpen: boolean;
 
-        static Annotations = { ContentProperty: Popup.ChildProperty }
-
-        Opened: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
-        Closed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
-        ClickedOutside: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        Opened = new MulticastEvent<EventArgs>();
+        Closed = new MulticastEvent<EventArgs>();
+        ClickedOutside = new MulticastEvent<EventArgs>();
 
         private _OnChildChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldFE: FrameworkElement;
@@ -180,6 +178,7 @@ module Fayde.Controls.Primitives {
         }
     }
     Fayde.RegisterType(Popup, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    Xaml.Content(Popup, Popup.ChildProperty);
 
     export class PopupLayoutUpdater extends LayoutUpdater {
         ComputeBounds() { }

@@ -187,6 +187,31 @@ module Fayde.Controls {
             return null;
         }
     }
+    TemplateVisualStates(TabItem,
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "SelectionStates", Name: "Unselected" },
+        { GroupName: "SelectionStates", Name: "Selected" });
+    TemplateParts(TabItem,
+        { Name: "HeaderLeftSelected", Type: FrameworkElement },
+        { Name: "HeaderTopSelected", Type: FrameworkElement },
+        { Name: "HeaderRightSelected", Type: FrameworkElement },
+        { Name: "HeaderBottomSelected", Type: FrameworkElement },
+        { Name: "TemplateLeftSelected", Type: FrameworkElement },
+        { Name: "TemplateTopSelected", Type: FrameworkElement },
+        { Name: "TemplateRightSelected", Type: FrameworkElement },
+        { Name: "TemplateBottomSelected", Type: FrameworkElement },
+        { Name: "HeaderLeftUnselected", Type: FrameworkElement },
+        { Name: "HeaderTopUnselected", Type: FrameworkElement },
+        { Name: "HeaderRightUnselected", Type: FrameworkElement },
+        { Name: "HeaderBottomUnselected", Type: FrameworkElement },
+        { Name: "TemplateLeftUnselected", Type: FrameworkElement },
+        { Name: "TemplateTopUnselected", Type: FrameworkElement },
+        { Name: "TemplateRightUnselected", Type: FrameworkElement },
+        { Name: "TemplateBottomUnselected", Type: FrameworkElement });
 
     class Elements {
         Top = new Element();

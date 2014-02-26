@@ -84,6 +84,15 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(PasswordBox, "Fayde.Controls", Fayde.XMLNS);
+    TemplateVisualStates(PasswordBox,
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "ValidationStates", Name: "Valid" },
+        { GroupName: "ValidationStates", Name: "InvalidUnfocused" },
+        { GroupName: "ValidationStates", Name: "InvalidFocused" });
     
     function positiveIntValidator(dobj: DependencyObject, propd: DependencyProperty, value: any): boolean {
         if (typeof value !== 'number')

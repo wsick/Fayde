@@ -4,6 +4,7 @@ module Fayde.Media.Animation {
     export class AnimationUsingKeyFrames extends AnimationBase {
         static KeyFramesProperty = DependencyProperty.RegisterImmutable<KeyFrameCollection>("KeyFrames", () => KeyFrameCollection, AnimationUsingKeyFrames);
         KeyFrames: KeyFrameCollection;
+
         constructor() {
             super();
             var coll = AnimationUsingKeyFrames.KeyFramesProperty.Initialize(this);
@@ -78,4 +79,5 @@ module Fayde.Media.Animation {
         RemoveKeyFrame(kf: KeyFrame) { this.KeyFrames.Remove(kf); }
     }
     Fayde.RegisterType(AnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
+    Xaml.Content(AnimationUsingKeyFrames, AnimationUsingKeyFrames.KeyFramesProperty);
 }

@@ -1,4 +1,6 @@
 /// <reference path="ContentControl.ts" />
+/// <reference path="ScrollContentPresenter.ts" />
+/// <reference path="Primitives/ScrollBar.ts" />
 
 module Fayde.Controls {
     export class ScrollViewer extends ContentControl {
@@ -205,12 +207,11 @@ module Fayde.Controls {
 
         OnKeyDown(e: Input.KeyEventArgs) {
             super.OnKeyDown(e);
-            this._HandleKeyDown(e);
-        }
-        private _HandleKeyDown(e: Input.KeyEventArgs) {
+
             if (e.Handled)
                 return;
-            if (!this.$TemplatedParentHandlesScrolling)
+
+            if (this.$TemplatedParentHandlesScrolling)
                 return;
 
             var orientation = Orientation.Vertical;
@@ -247,10 +248,8 @@ module Fayde.Controls {
                     scrollEventType = Primitives.ScrollEventType.SmallIncrement;
                     break;
             }
-            if (scrollEventType !== Primitives.ScrollEventType.ThumbTrack) {
-                this._HandleScroll(orientation, new Primitives.ScrollEventArgs(scrollEventType, 0));
-                e.Handled = true;
-            }
+            if (scrollEventType !== Primitives.ScrollEventType.ThumbTrack)
+                e.Handled = !!this._HandleScroll(orientation, new Primitives.ScrollEventArgs(scrollEventType, 0));
         }
 
         ScrollInDirection(key: Input.Key) {
@@ -297,31 +296,26 @@ module Fayde.Controls {
         PageLeft() { this._HandleHorizontalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.LargeDecrement, 0)); }
         PageRight() { this._HandleHorizontalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.LargeIncrement, 0)); }
 
-        private _HandleScroll(orientation: Orientation, e: Primitives.ScrollEventArgs) {
+        private _HandleScroll(orientation: Orientation, e: Primitives.ScrollEventArgs): boolean {
             if (orientation !== Orientation.Horizontal)
-                this._HandleVerticalScroll(e);
-            else
-                this._HandleHorizontalScroll(e);
+                return this._HandleVerticalScroll(e);
+            return this._HandleHorizontalScroll(e);
         }
-        private _HandleHorizontalScroll(e: Primitives.ScrollEventArgs) {
+        private _HandleHorizontalScroll(e: Primitives.ScrollEventArgs): boolean {
             var scrollInfo = this.ScrollInfo;
             if (!scrollInfo)
-                return;
+                return false;
             var offset = scrollInfo.HorizontalOffset;
             var newValue = offset;
             switch (e.ScrollEventType) {
                 case Primitives.ScrollEventType.SmallDecrement:
-                    scrollInfo.LineLeft();
-                    break;
+                    return scrollInfo.LineLeft();
                 case Primitives.ScrollEventType.SmallIncrement:
-                    scrollInfo.LineRight();
-                    break;
+                    return scrollInfo.LineRight();
                 case Primitives.ScrollEventType.LargeDecrement:
-                    scrollInfo.PageLeft();
-                    break;
+                    return scrollInfo.PageLeft();
                 case Primitives.ScrollEventType.LargeIncrement:
-                    scrollInfo.PageRight();
-                    break;
+                    return scrollInfo.PageRight();
                 case Primitives.ScrollEventType.ThumbPosition:
                 case Primitives.ScrollEventType.ThumbTrack:
                     newValue = e.Value;
@@ -335,27 +329,28 @@ module Fayde.Controls {
             }
             newValue = Math.max(newValue, 0);
             newValue = Math.min(this.ScrollableWidth, newValue);
-            if (!areNumbersClose(offset, newValue))
-                scrollInfo.SetHorizontalOffset(newValue);
+            if (areNumbersClose(offset, newValue))
+                return false;
+            scrollInfo.SetHorizontalOffset(newValue);
+            return true;
         }
-        private _HandleVerticalScroll(e: Primitives.ScrollEventArgs) {
+        private _HandleVerticalScroll(e: Primitives.ScrollEventArgs): boolean {
             var scrollInfo = this.ScrollInfo;
             if (!scrollInfo)
-                return;
+                return false;
             var offset = scrollInfo.VerticalOffset;
             var newValue = offset;
             switch (e.ScrollEventType) {
                 case Primitives.ScrollEventType.SmallDecrement:
-                    scrollInfo.LineUp();
-                    break;
+                    return scrollInfo.LineUp();
                 case Primitives.ScrollEventType.SmallIncrement:
-                    scrollInfo.LineDown();
+                    return scrollInfo.LineDown();
                     break;
                 case Primitives.ScrollEventType.LargeDecrement:
-                    scrollInfo.PageUp();
+                    return scrollInfo.PageUp();
                     break;
                 case Primitives.ScrollEventType.LargeIncrement:
-                    scrollInfo.PageDown();
+                    return scrollInfo.PageDown();
                     break;
                 case Primitives.ScrollEventType.ThumbPosition:
                 case Primitives.ScrollEventType.ThumbTrack:
@@ -370,11 +365,16 @@ module Fayde.Controls {
             }
             newValue = Math.max(newValue, 0);
             newValue = Math.min(this.ScrollableHeight, newValue);
-            if (!areNumbersClose(offset, newValue))
-                scrollInfo.SetVerticalOffset(newValue);
+            if (areNumbersClose(offset, newValue))
+                return false;
+            return scrollInfo.SetVerticalOffset(newValue);
         }
     }
     Fayde.RegisterType(ScrollViewer, "Fayde.Controls", Fayde.XMLNS);
+    TemplateParts(ScrollViewer,
+        { Name: "ScrollContentPresenter", Type: ScrollContentPresenter },
+        { Name: "HorizontalScrollBar", Type: Primitives.ScrollBar },
+        { Name: "VerticalScrollBar", Type: Primitives.ScrollBar });
 
     function areNumbersClose(val1: number, val2: number): boolean {
         if (val1 === val2)

@@ -4,7 +4,6 @@ module Fayde.Controls {
     export class UserControl extends Control {
         static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, UserControl, undefined, (d, args) => (<UserControl>d)._InvalidateContent(args));
         Content: any;
-        static Annotations = { ContentProperty: UserControl.ContentProperty }
 
         CreateLayoutUpdater(node: UINode) { return new UserControlLayoutUpdater(node); }
 
@@ -25,6 +24,7 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(UserControl, "Fayde.Controls", Fayde.XMLNS);
+    Xaml.Content(UserControl, UserControl.ContentProperty);
 
     export class UserControlLayoutUpdater extends LayoutUpdater {
         constructor(node: UINode) {

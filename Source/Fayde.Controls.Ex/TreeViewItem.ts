@@ -588,6 +588,23 @@ module Fayde.Controls {
             return parentItemsControl;
         }
     }
+    TemplateVisualStates(TreeViewItem,
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "ExpansionStates", Name: "Collapsed" },
+        { GroupName: "ExpansionStates", Name: "Expanded" },
+        { GroupName: "HasItemsStates", Name: "HasItems" },
+        { GroupName: "HasItemsStates", Name: "NoItems" },
+        { GroupName: "SelectionStates", Name: "Unselected" },
+        { GroupName: "SelectionStates", Name: "Selected" },
+        { GroupName: "SelectionStates", Name: "SelectedInactive" });
+    TemplateParts(TreeViewItem,
+        { Name: "Header", Type: FrameworkElement },
+        { Name: "ExpanderButton", Type: Primitives.ToggleButton });
 
     function calculateDelta(up: boolean, element: FrameworkElement, scrollHost: ScrollViewer, top: number, bottom: number, closeEdge: IOutValue): number {
         var top1: IOutValue = { Value: 0 };

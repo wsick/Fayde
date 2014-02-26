@@ -30,6 +30,20 @@ module Fayde.Controls {
                 new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
             return presenter;
         }
+
+        OnTemplateChanged(oldTemplate: ControlTemplate, newTemplate: ControlTemplate) {
+            var content = <UIElement>this.XObject.Content;
+            if (oldTemplate && content instanceof UIElement) {
+                var vpNode = <FENode>content.XamlNode.VisualParentNode;
+                if (vpNode instanceof FENode) {
+                    var err = new BError();
+                    vpNode.DetachVisualChild(content, err);
+                    if (err.Message)
+                        err.ThrowException();
+                }
+            }
+            super.OnTemplateChanged(oldTemplate, newTemplate);
+        }
     }
     Fayde.RegisterType(ContentControlNode, "Fayde.Controls");
 
@@ -62,15 +76,13 @@ module Fayde.Controls {
             var newUri: Uri;
             if (args.NewValue instanceof Uri) {
                 newUri = <Uri>args.NewValue;
-                Xaml.XamlDocument.Resolve(newUri)
+                Xaml.XamlDocument.GetAsync(newUri)
                     .success(xd => this._OnLoadedUri(xd))
                     .error(err => this._OnErroredUri(err, newUri));
             }
             this.OnContentUriChanged(oldUri, newUri);
         }
         OnContentUriChanged(oldSourceUri: Uri, newSourceUri: Uri) { }
-
-        static Annotations = { ContentProperty: ContentControl.ContentProperty }
 
         private _OnLoadedUri(xd: Xaml.XamlDocument) {
             this.Content = Xaml.Load(xd.Document);
@@ -81,4 +93,5 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(ContentControl, "Fayde.Controls", Fayde.XMLNS);
+    Xaml.Content(ContentControl, ContentControl.ContentProperty);
 }

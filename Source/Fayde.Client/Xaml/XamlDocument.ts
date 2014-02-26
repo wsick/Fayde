@@ -25,9 +25,10 @@ module Fayde.Xaml {
                 return null;
             return regXds[url] = new XamlDocument(xaml);
         }
-        static Resolve(url: string, ctx?: ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
-        static Resolve(url: Uri, ctx?: ILibraryAsyncContext): IAsyncRequest<XamlDocument>;
-        static Resolve(url: any, ctx?: ILibraryAsyncContext): IAsyncRequest<XamlDocument> {
+
+        static GetAsync(url: string, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
+        static GetAsync(url: Uri, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
+        static GetAsync(url: any, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument> {
             if (url instanceof Uri)
                 url = (<Uri>url).toString();
             var xamlUrl = "text!" + url;
@@ -40,6 +41,7 @@ module Fayde.Xaml {
                 return d.request;
             }
 
+            ctx = ctx || createContext();
             (<Function>require)([xamlUrl],
                 (xaml: string) => {
                     xd = new XamlDocument(xaml);
@@ -51,13 +53,14 @@ module Fayde.Xaml {
 
             return d.request;
         }
-        Resolve(ctx: ILibraryAsyncContext): IAsyncRequest<any> {
+        Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<any> {
             var d = defer<any>();
             var deps = this._RequiredDependencies;
             addDependencies(this.Document.documentElement, deps);
             ignoreCircularReferences(deps, ctx);
             if (deps.length > 0) {
-                deferArray(deps, resolveDependency)
+                discoverAppTheme(this.Document.documentElement, ctx);
+                deferArray(deps, dep => resolveDependency(dep, ctx))
                     .success(ds => d.resolve(this))
                     .error(d.reject);
             } else {
@@ -67,7 +70,7 @@ module Fayde.Xaml {
         }
     }
 
-    function resolveDependency(dep: string): IAsyncRequest<any> {
+    function resolveDependency(dep: string, ctx: IDependencyAsyncContext): IAsyncRequest<any> {
         var d = defer<any>();
 
         if (dep.indexOf("lib:") === 0) {
@@ -76,17 +79,17 @@ module Fayde.Xaml {
                 d.reject("Could not resolve library: '" + dep + "'.");
                 return d.request;
             }
-            return library.Resolve();
+            return library.Resolve(ctx);
         }
 
         (<Function>require)([dep], d.resolve, d.reject);
         return d.request;
     }
-    function ignoreCircularReferences(list: string[], ctx: ILibraryAsyncContext) {
+    function ignoreCircularReferences(list: string[], ctx: IDependencyAsyncContext) {
         if (!ctx)
             return;
         var index: number;
-        for (var i = 0; i < list.length;i++) {
+        for (var i = 0; i < list.length; i++) {
             var lib = Library.Get(list[i]);
             if (lib && (index = ctx.Resolving.indexOf(lib)) > -1) {
                 list.splice(index, 1);
@@ -94,10 +97,10 @@ module Fayde.Xaml {
             }
         }
     }
-    
+
     function addDependencies(el: Element, list: string[]) {
         while (el) {
-            getDependency(el, list);
+            getNodeDependency(el, list);
             getAttributeDependencies(el, list);
             getResourceDictionaryDependency(el, list);
             addDependencies(el.firstElementChild, list);
@@ -117,12 +120,15 @@ module Fayde.Xaml {
     function getAttributeDependencies(el: Element, list: string[]) {
         var attrs = el.attributes;
         for (var i = 0, len = attrs.length; i < len; i++) {
-            getDependency(attrs[i], list);
+            var attr = attrs[i];
+            getNodeDependency(attr, list);
+            getNodeValueDependency(attr, list);
+            getNodeValueImplicitDependency(attr, list);
         }
     }
-    function getDependency(node: Node, list: string[]) {
+    function getNodeDependency(node: Node, list: string[]) {
         var nsUri = node.namespaceURI;
-        if (!nsUri || nsUri === W3URI ||  nsUri === Fayde.XMLNS || nsUri === Fayde.XMLNSX)
+        if (!nsUri || nsUri === W3URI || nsUri === Fayde.XMLNS || nsUri === Fayde.XMLNSX)
             return;
         var ln = node.localName;
         var index = ln.indexOf(".");
@@ -138,5 +144,77 @@ module Fayde.Xaml {
                 return;
             list.push(format);
         }
+    }
+    function getNodeValueDependency(attr: Attr, list: string[]) {
+        var val = attr.value;
+        var components = MarkupExpressionParser.GetComponents(val);
+        if (components && components[0] === "x:Type") {
+            addFullyQualifiedType(attr, components[1], list);
+        }
+    }
+    //DataTemplate.DataType
+    //ControlTemplate.TargetType
+    //Style.TargetType
+    function getNodeValueImplicitDependency(attr: Attr, list: string[]) {
+        var val = attr.value;
+        if (val[0] === "{")
+            return;
+        var parent = attr.ownerElement;
+        if (parent.namespaceURI !== Fayde.XMLNS && parent.namespaceURI !== null)
+            return;
+        switch (parent.localName) {
+            case "DataTemplate":
+                if (attr.localName !== "DataType")
+                    return;
+                break;
+            case "ControlTemplate":
+                if (attr.localName !== "TargetType")
+                    return;
+                break;
+            case "Style":
+                if (attr.localName !== "TargetType")
+                    return;
+                break;
+            default:
+                return;
+        }
+        addFullyQualifiedType(attr, val, list);
+    }
+    function addFullyQualifiedType(attr: Attr, type: string, list: string[]) {
+        var index = type.indexOf(":");
+        if (index > -1) {
+            var prefix = type.substr(0, index);
+            var name = type.substr(index + 1);
+            var nsUri = attr.lookupNamespaceURI(prefix);
+            if (!nsUri)
+                return;
+            if (nsUri.indexOf("lib:") === 0) {
+                if (list.indexOf(nsUri) > -1)
+                    return;
+                list.push(nsUri);
+            } else {
+                var format = nsUri + "/" + name;
+                if (list.indexOf(format) > -1)
+                    return;
+                list.push(format);
+            }
+        }
+    }
+    function discoverAppTheme(el: Element, ctx: IDependencyAsyncContext) {
+        if (el.localName === "Application") {
+            if (!el.namespaceURI || el.namespaceURI === Fayde.XMLNS) {
+                var tnattr = el.attributes.getNamedItem("ThemeName");
+                if (tnattr)
+                    ctx.ThemeName = tnattr.value;
+            }
+        }
+    }
+
+    function createContext(): IDependencyAsyncContext {
+        var app = Application.Current;
+        return {
+            ThemeName: app ? app.ThemeName : "Default",
+            Resolving: []
+        };
     }
 }

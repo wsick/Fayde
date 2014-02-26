@@ -440,4 +440,20 @@ module Fayde.Controls {
             throw new ArgumentException("Unable to cast object of type '" + type + "' to type 'System.Windows.Controls.TabItem'.");
         }
     }
+    TemplateVisualStates(TabControl,
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "Disabled" });
+    TemplateParts(TabControl,
+        { Name: "TemplateLeft", Type: FrameworkElement },
+        { Name: "ContentLeft", Type: ContentPresenter },
+        { Name: "TabPanelLeft", Type: TabPanel },
+        { Name: "TemplateTop", Type: FrameworkElement },
+        { Name: "ContentTop", Type: ContentPresenter },
+        { Name: "TabPanelTop", Type: TabPanel },
+        { Name: "TemplateRight", Type: FrameworkElement },
+        { Name: "ContentRight", Type: ContentPresenter },
+        { Name: "TabPanelRight", Type: TabPanel },
+        { Name: "TemplateBottom", Type: FrameworkElement },
+        { Name: "ContentBottom", Type: ContentPresenter },
+        { Name: "TabPanelBottom", Type: TabPanel });
 }

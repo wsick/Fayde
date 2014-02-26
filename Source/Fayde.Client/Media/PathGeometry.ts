@@ -3,7 +3,6 @@
 module Fayde.Media {
     export class PathGeometry extends Geometry implements IPathFigureListener {
         private _OverridePath: Path.RawPath = null;
-        static Annotations = { ContentProperty: PathGeometry.FiguresProperty }
         static FillRuleProperty: DependencyProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), PathGeometry, Shapes.FillRule.EvenOdd, (d, args) => (<Geometry>d)._InvalidateGeometry());
         static FiguresProperty = DependencyProperty.RegisterImmutable<PathFigureCollection>("Figures", () => PathFigureCollection, PathGeometry);
         FillRule: Shapes.FillRule;
@@ -42,4 +41,5 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(PathGeometry, "Fayde.Media", Fayde.XMLNS);
+    Xaml.Content(PathGeometry, PathGeometry.FiguresProperty);
 }

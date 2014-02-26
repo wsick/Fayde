@@ -20,8 +20,6 @@ module Fayde.Controls {
         private _BackgroundListener: Media.IBrushChangedListener;
         private _BorderBrushListener: Media.IBrushChangedListener;
 
-        static Annotations = { ContentProperty: Border.ChildProperty }
-
         private _ChildChanged(args: IDependencyPropertyChangedEventArgs) {
             var olduie = <UIElement>args.OldValue;
             var newuie = <UIElement>args.NewValue;
@@ -71,6 +69,7 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(Border, "Fayde.Controls", Fayde.XMLNS);
+    Xaml.Content(Border, Border.ChildProperty);
 
     export class BorderLayoutUpdater extends LayoutUpdater {
         private _Renderer: IBorderRenderer;

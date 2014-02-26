@@ -57,6 +57,16 @@ module Fayde.Controls {
             super.OnParentChanged(oldParentNode, newParentNode);
             this.IsEnabled = newParentNode ? newParentNode.IsEnabled : true;
         }
+
+        OnTemplateChanged(oldTemplate: ControlTemplate, newTemplate: ControlTemplate) {
+            var subtree = this.SubtreeNode;
+            if (subtree) {
+                var error = new BError();
+                if (!this.DetachVisualChild(<UIElement>subtree.XObject, error))
+                    error.ThrowException();
+            }
+            this.LayoutUpdater.InvalidateMeasure();
+        }
         
         get IsEnabled(): boolean { return this.XObject.IsEnabled; }
         set IsEnabled(value: boolean) {
@@ -104,7 +114,7 @@ module Fayde.Controls {
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
         static TabIndexProperty: DependencyProperty = DependencyProperty.Register("TabIndex", () => Number, Control);
         static TabNavigationProperty: DependencyProperty = DependencyProperty.Register("TabNavigation", () => new Enum(Input.KeyboardNavigationMode), Control, Input.KeyboardNavigationMode.Local);
-        static TemplateProperty: DependencyProperty = DependencyProperty.Register("Template", () => ControlTemplate, Control, undefined, (d, args) => (<Control>d)._TemplateChanged(args));
+        static TemplateProperty: DependencyProperty = DependencyProperty.Register("Template", () => ControlTemplate, Control, undefined, (d, args) => (<Control>d).XamlNode.OnTemplateChanged(args.OldValue, args.NewValue));
         static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
         static DefaultStyleKeyProperty: DependencyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, Control);
 
@@ -202,16 +212,6 @@ module Fayde.Controls {
             return false;
         }
 
-        private _TemplateChanged(args: IDependencyPropertyChangedEventArgs) {
-            var node = this.XamlNode;
-            var subtree = node.SubtreeNode;
-            if (subtree) {
-                var error = new BError();
-                if (!node.DetachVisualChild(<UIElement>subtree.XObject, error))
-                    error.ThrowException();
-            }
-            node.LayoutUpdater.InvalidateMeasure();
-        }
         private _PaddingChanged(args: IDependencyPropertyChangedEventArgs) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
@@ -234,4 +234,16 @@ module Fayde.Controls {
         Control.FontWeightProperty,
         Control.ForegroundProperty
     ];
+
+    export interface ITemplateVisualStateDefinition {
+        Name: string;
+        GroupName: string;
+    }
+    export var TemplateVisualStates = CreateTypedAnnotation<ITemplateVisualStateDefinition>("TemplateVisualState");
+
+    export interface ITemplatePartDefinition {
+        Name: string;
+        Type: Function;
+    }
+    export var TemplateParts = CreateTypedAnnotation<ITemplatePartDefinition>("TemplatePart");
 }

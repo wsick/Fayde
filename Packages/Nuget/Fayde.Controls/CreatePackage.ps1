@@ -1,7 +1,8 @@
 $libdestdir = $PWD.Path + "\content\lib\Fayde.Controls"
-copy ($PWD.Path + "\..\..\..\Source\Fayde.Controls.Ex\Fayde.Controls.Ex.js") ($libdestdir + "\source.js")
-copy ($PWD.Path + "\..\..\..\Source\Fayde.Controls.Ex\Fayde.Controls.Ex.d.ts") ($libdestdir + "\Fayde.Controls.Ex.d.ts")
-copy ($PWD.Path + "\..\..\..\Source\Fayde.Controls.Ex\Themes\generic.xml") ($libdestdir + "\generic.xml")
+copy ($PWD.Path + "\..\..\..\Source\Fayde.Controls.Ex\Fayde.Controls.Ex.js") ($libdestdir + "\Fayde.Controls.js")
+copy ($PWD.Path + "\..\..\..\Source\Fayde.Controls.Ex\Fayde.Controls.Ex.d.ts") ($libdestdir + "\Fayde.Controls.d.ts")
+copy ($PWD.Path + "\..\..\..\Source\Fayde.Controls.Ex\Themes\Default.theme.xml") $libdestdir
+copy ($PWD.Path + "\..\..\..\Source\Fayde.Controls.Ex\Themes\Metro.theme.xml") $libdestdir
 
 $vpath = $PWD.Path + "\version.txt"
 $versionstring = Get-Content $vpath
@@ -14,4 +15,12 @@ $revision = ([int]$tokens.Get(3) + 1).ToString()
 
 $newversion = "$major.$minor.$build.$revision"
 Set-Content -Value $newversion $vpath
-nuget pack ".\Fayde.Controls.nuspec" -Version $newversion -OutputDirectory "..\"
+
+$specfile = $PWD.Path + "\Fayde.Controls.nuspec"
+[xml]$specxml = New-Object System.Xml.XmlDocument
+$specxml.PreserveWhitespace = $true
+$specxml.Load($specfile)
+$specxml.package.metadata.version = $newversion
+Set-Content $specfile $specxml.OuterXml
+
+nuget pack $specfile -Version $newversion -OutputDirectory "..\"
