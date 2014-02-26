@@ -16,6 +16,7 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Runtime\NumberEx.ts" />
     <TypeScriptCompile Include="Xaml\ContentAnnotation.ts" />
     <TypeScriptCompile Include="Runtime\Annotations.ts" />
     <TypeScriptCompile Include="Xaml\XamlDocument.ts" />

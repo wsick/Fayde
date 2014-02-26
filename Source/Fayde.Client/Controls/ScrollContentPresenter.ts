@@ -79,7 +79,7 @@ module Fayde.Controls {
 
             var sd = this._ScrollData;
             offset = Math.max(0, Math.min(offset, sd.ExtentWidth - sd.ViewportWidth));
-            if (areNumbersClose(this._ScrollData.OffsetX, offset))
+            if (NumberEx.AreClose(this._ScrollData.OffsetX, offset))
                 return false;
 
             this._ScrollData.CachedOffsetX = offset;
@@ -94,7 +94,7 @@ module Fayde.Controls {
             
             var sd = this._ScrollData;
             offset = Math.max(0, Math.min(offset, sd.ExtentHeight - sd.ViewportHeight));
-            if (areNumbersClose(this._ScrollData.OffsetY, offset))
+            if (NumberEx.AreClose(this._ScrollData.OffsetY, offset))
                 return false;
 
             this._ScrollData.CachedOffsetY = offset;
@@ -247,13 +247,13 @@ module Fayde.Controls {
 
             var sd = this._ScrollData;
             var clampX = this._ClampHorizontal(sd.CachedOffsetX);
-            if (!areNumbersClose(clampX, this.HorizontalOffset)) {
+            if (!NumberEx.AreClose(clampX, this.HorizontalOffset)) {
                 sd.OffsetX = clampX;
                 changed = true;
             }
 
             var clampY = this._ClampVertical(sd.CachedOffsetY);
-            if (!areNumbersClose(clampY, this.VerticalOffset)) {
+            if (!NumberEx.AreClose(clampY, this.VerticalOffset)) {
                 sd.OffsetY = clampY;
                 changed = true;
             }
@@ -276,26 +276,9 @@ module Fayde.Controls {
     Fayde.RegisterType(ScrollContentPresenter, "Fayde.Controls", Fayde.XMLNS);
     Fayde.RegisterTypeInterfaces(ScrollContentPresenter, Primitives.IScrollInfo_);
     
-    function areNumbersClose(val1: number, val2: number): boolean {
-        if (val1 === val2)
-            return true;
-        var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
-        var num2 = val1 - val2;
-        return -num1 < num2 && num1 > num2;
-    }
-    function isNumberLessThan(val1: number, val2: number): boolean {
-        if (val1 >= val2)
-            return false;
-        return !areNumbersClose(val1, val2);
-    }
-    function isNumberGreaterThan(val1: number, val2: number): boolean {
-        if (val1 <= val2)
-            return false;
-        return !areNumbersClose(val1, val2);
-    }
     function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {
-        var flag = isNumberLessThan(topChild, topView) && isNumberLessThan(bottomChild, bottomView);
-        var flag1 = isNumberGreaterThan(topChild, topView) && isNumberGreaterThan(bottomChild, bottomView);
+        var flag = NumberEx.IsLessThanClose(topChild, topView) && NumberEx.IsLessThanClose(bottomChild, bottomView);
+        var flag1 = NumberEx.IsGreaterThanClose(topChild, topView) && NumberEx.IsGreaterThanClose(bottomChild, bottomView);
 
         var flag4 = (bottomChild - topChild) > (bottomView - topView);
         if ((!flag || flag4) && (!flag1 || !flag4)) {

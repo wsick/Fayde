@@ -61,10 +61,10 @@ module Fayde.Controls.Primitives {
 
             this.OnMinimumChanged(args.OldValue, args.OldValue);
             var max = this.Maximum;
-            if (!areNumbersClose(this._InitialMax, max))
+            if (!NumberEx.AreClose(this._InitialMax, max))
                 this.OnMaximumChanged(this._InitialMax, max);
             var val = this.Value;
-            if (!areNumbersClose(this._InitialVal, val))
+            if (!NumberEx.AreClose(this._InitialVal, val))
                 this.RaiseValueChanged(this._InitialVal, val);
         }
         private _OnMaximumChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -82,10 +82,10 @@ module Fayde.Controls.Primitives {
 
             this._PreCoercedMax = args.NewValue;
             var max = this.Maximum;
-            if (!areNumbersClose(this._InitialMax, max))
+            if (!NumberEx.AreClose(this._InitialMax, max))
                 this.OnMaximumChanged(this._InitialMax, max);
             var val = this.Value;
-            if (!areNumbersClose(this._InitialVal, val))
+            if (!NumberEx.AreClose(this._InitialVal, val))
                 this.RaiseValueChanged(this._InitialVal, val);
         }
         private _OnValueChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -101,14 +101,14 @@ module Fayde.Controls.Primitives {
 
             this._PreCoercedVal = args.NewValue;
             var val = this.Value;
-            if (!areNumbersClose(this._InitialVal, val))
+            if (!NumberEx.AreClose(this._InitialVal, val))
                 this.RaiseValueChanged(this._InitialVal, val);
         }
 
         private _CoerceMaximum() {
             var min = this.Minimum;
             var max = this.Maximum;
-            if (!areNumbersClose(this._RequestedMax, max) && this._RequestedMax >= min)
+            if (!NumberEx.AreClose(this._RequestedMax, max) && this._RequestedMax >= min)
                 this.SetStoreValue(RangeBase.MaximumProperty, this._RequestedMax);
             else if (max < min)
                 this.SetStoreValue(RangeBase.MaximumProperty, min);
@@ -117,7 +117,7 @@ module Fayde.Controls.Primitives {
             var min = this.Minimum;
             var max = this.Maximum;
             var val = this.Value;
-            if (!areNumbersClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max)
+            if (!NumberEx.AreClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max)
                 this.SetStoreValue(RangeBase.ValueProperty, this._RequestedVal);
             else if (val < min)
                 this.SetStoreValue(RangeBase.ValueProperty, min);
@@ -126,12 +126,4 @@ module Fayde.Controls.Primitives {
         }
     }
     Fayde.RegisterType(RangeBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
-
-    function areNumbersClose(val1: number, val2: number): boolean {
-        if (val1 === val2)
-            return true;
-        var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
-        var num2 = val1 - val2;
-        return -num1 < num2 && num1 > num2;
-    }
 }
