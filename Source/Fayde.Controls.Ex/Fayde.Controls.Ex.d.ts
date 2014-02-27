@@ -1,4 +1,26 @@
 declare module Fayde.Controls {
+    class GridSplitter extends Controls.Control {
+        private _Helper;
+        private _HorizontalTemplate;
+        private _VerticalTemplate;
+        private _DragStart;
+        private _IsDragging;
+        constructor();
+        public OnApplyTemplate(): void;
+        private _OnLayoutUpdated(sender, e);
+        private _OnResizeDirectionChanged();
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
+        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
+        private InitHelper();
+        private _HandleMove(horiz, vert, isKeyboard);
+        private _GetTransformedPos(e);
+    }
+}
+declare module Fayde.Controls {
     class HeaderedItemsControl extends Controls.ItemsControl {
         private _HeaderIsItem;
         private _ItemsControlHelper;
@@ -16,6 +38,49 @@ declare module Fayde.Controls {
         public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
         static PrepareHeaderedItemsControlContainer(control: HeaderedItemsControl, item: any, parentItemsControl: Controls.ItemsControl, parentItemContainerStyle: Fayde.Style): void;
         private static HasDefaultValue(control, propd);
+    }
+}
+declare module Fayde.Controls.Internal {
+    enum GridResizeDirection {
+        Auto = 0,
+        Columns = 1,
+        Rows = 2,
+    }
+    enum GridResizeBehavior {
+        BasedOnAlignment = 0,
+        CurrentAndNext = 1,
+        PreviousAndCurrent = 2,
+        PreviousAndNext = 3,
+    }
+    enum SplitBehavior {
+        Split = 0,
+        ResizeDefinition1 = 1,
+        ResizeDefinition2 = 2,
+    }
+    class GridSplitterResizer {
+        public Direction: GridResizeDirection;
+        public Behavior: GridResizeBehavior;
+        public SplitBehavior: SplitBehavior;
+        public SplitterIndex: number;
+        public SplitterLength: number;
+        public DS1: IDefinitionSize;
+        public DS2: IDefinitionSize;
+        constructor(gs: Controls.GridSplitter);
+        public Setup(gs: Controls.GridSplitter, grid: Controls.Grid): boolean;
+        public Move(grid: Controls.Grid, horiz: number, vert: number): boolean;
+        public UpdateResizeDirection(gs: Controls.GridSplitter): boolean;
+        private SetLengths(grid, definition1Pixels, definition2Pixels);
+        private GetConstraints();
+        private GetBehaviorIndices(index);
+    }
+    interface IDefinitionSize {
+        ActualSize: number;
+        MaxSize: number;
+        MinSize: number;
+        Size: Controls.GridLength;
+        IsStar: boolean;
+        Index: number;
+        OrigActualSize: number;
     }
 }
 declare module Fayde.Controls {

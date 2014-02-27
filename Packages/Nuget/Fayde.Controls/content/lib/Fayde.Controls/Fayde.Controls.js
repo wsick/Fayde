@@ -1,9 +1,152 @@
-var __extends = this.__extends || function (d, b) {
+﻿var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        var dragIncrement = 1;
+        var keyIncrement = 10;
+
+        var GridSplitter = (function (_super) {
+            __extends(GridSplitter, _super);
+            function GridSplitter() {
+                _super.call(this);
+                this._HorizontalTemplate = null;
+                this._VerticalTemplate = null;
+                this._DragStart = null;
+                this._IsDragging = false;
+                this.DefaultStyleKey = this.constructor;
+                this._Helper = new Fayde.Controls.Internal.GridSplitterResizer(this);
+                this.LayoutUpdated.Subscribe(this._OnLayoutUpdated, this);
+            }
+            GridSplitter.prototype.OnApplyTemplate = function () {
+                _super.prototype.OnApplyTemplate.call(this);
+                this._HorizontalTemplate = this.GetTemplateChild("HorizontalTemplate", Fayde.FrameworkElement);
+                this._VerticalTemplate = this.GetTemplateChild("VerticalTemplate", Fayde.FrameworkElement);
+                this._Helper.UpdateResizeDirection(this);
+                this._OnResizeDirectionChanged();
+                this.UpdateVisualState();
+            };
+            GridSplitter.prototype._OnLayoutUpdated = function (sender, e) {
+                if (this._Helper.UpdateResizeDirection(this))
+                    this._OnResizeDirectionChanged();
+            };
+            GridSplitter.prototype._OnResizeDirectionChanged = function () {
+                var isColumns = this._Helper.Direction === 1 /* Columns */;
+
+                this.Cursor = isColumns ? 7 /* SizeWE */ : 6 /* SizeNS */;
+
+                var ht = this._HorizontalTemplate;
+                if (ht)
+                    ht.Visibility = !isColumns ? 0 /* Visible */ : 1 /* Collapsed */;
+                var vt = this._VerticalTemplate;
+                if (vt)
+                    vt.Visibility = isColumns ? 0 /* Visible */ : 1 /* Collapsed */;
+            };
+
+            GridSplitter.prototype.OnGotFocus = function (e) {
+                _super.prototype.OnGotFocus.call(this, e);
+                this.UpdateVisualState();
+            };
+            GridSplitter.prototype.OnLostFocus = function (e) {
+                _super.prototype.OnLostFocus.call(this, e);
+                this.UpdateVisualState();
+            };
+            GridSplitter.prototype.OnKeyDown = function (e) {
+                _super.prototype.OnKeyDown.call(this, e);
+                if (e.Key === 8 /* Escape */) {
+                    if (!this._Helper)
+                        return;
+                    this._Helper = null;
+                    e.Handled = true;
+                    return;
+                }
+                if (!this.IsFocused || !this.IsEnabled)
+                    return;
+                var horiz = 0;
+                var vert = 0;
+                switch (e.Key) {
+                    case 14 /* Left */:
+                        horiz = -keyIncrement;
+                        break;
+                    case 15 /* Up */:
+                        vert = -keyIncrement;
+                        break;
+                    case 16 /* Right */:
+                        horiz = keyIncrement;
+                        break;
+                    case 17 /* Down */:
+                        vert = keyIncrement;
+                        break;
+                }
+                if (this.FlowDirection === 1 /* RightToLeft */)
+                    e.Handled = this._HandleMove(-horiz, vert, true);
+                else
+                    e.Handled = this._HandleMove(horiz, vert, true);
+            };
+
+            GridSplitter.prototype.OnMouseLeftButtonDown = function (e) {
+                _super.prototype.OnMouseLeftButtonDown.call(this, e);
+                if (!this.IsEnabled)
+                    return;
+                this._IsDragging = this.CaptureMouse();
+                if (!this._IsDragging)
+                    return;
+                this._DragStart = this._GetTransformedPos(e);
+                this.Focus();
+                this.InitHelper();
+            };
+            GridSplitter.prototype.OnMouseLeftButtonUp = function (e) {
+                _super.prototype.OnMouseLeftButtonUp.call(this, e);
+                this.ReleaseMouseCapture();
+                this._IsDragging = false;
+                this._Helper = null;
+                this.UpdateVisualState();
+            };
+            GridSplitter.prototype.OnMouseMove = function (e) {
+                _super.prototype.OnMouseMove.call(this, e);
+                if (!this._IsDragging)
+                    return;
+                var pos = this._GetTransformedPos(e);
+                if (pos)
+                    this._HandleMove(pos.X - this._DragStart.X, pos.Y - this._DragStart.Y, false);
+            };
+
+            GridSplitter.prototype.InitHelper = function () {
+                var parent = this.VisualParent;
+                if (!(parent instanceof Fayde.Controls.Grid))
+                    return;
+                this._Helper = new Fayde.Controls.Internal.GridSplitterResizer(this);
+                if (this._Helper.Setup(this, parent))
+                    return;
+                this._Helper = null;
+            };
+            GridSplitter.prototype._HandleMove = function (horiz, vert, isKeyboard) {
+                if (isKeyboard) {
+                    if (this._Helper)
+                        return false;
+                    this.InitHelper();
+                }
+                if (!this._Helper)
+                    return false;
+                if (!this._Helper.Move(this.VisualParent, horiz, vert) || isKeyboard)
+                    this._Helper = null;
+                return true;
+            };
+            GridSplitter.prototype._GetTransformedPos = function (e) {
+                if (this.RenderTransform)
+                    return this.RenderTransform.Transform(e.GetPosition(this));
+                return e.GetPosition(this);
+            };
+            return GridSplitter;
+        })(Fayde.Controls.Control);
+        Controls.GridSplitter = GridSplitter;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
@@ -111,6 +254,228 @@ var Fayde;
             return HeaderedItemsControl;
         })(Fayde.Controls.ItemsControl);
         Controls.HeaderedItemsControl = HeaderedItemsControl;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Internal) {
+            (function (GridResizeDirection) {
+                GridResizeDirection[GridResizeDirection["Auto"] = 0] = "Auto";
+                GridResizeDirection[GridResizeDirection["Columns"] = 1] = "Columns";
+                GridResizeDirection[GridResizeDirection["Rows"] = 2] = "Rows";
+            })(Internal.GridResizeDirection || (Internal.GridResizeDirection = {}));
+            var GridResizeDirection = Internal.GridResizeDirection;
+            (function (GridResizeBehavior) {
+                GridResizeBehavior[GridResizeBehavior["BasedOnAlignment"] = 0] = "BasedOnAlignment";
+                GridResizeBehavior[GridResizeBehavior["CurrentAndNext"] = 1] = "CurrentAndNext";
+                GridResizeBehavior[GridResizeBehavior["PreviousAndCurrent"] = 2] = "PreviousAndCurrent";
+                GridResizeBehavior[GridResizeBehavior["PreviousAndNext"] = 3] = "PreviousAndNext";
+            })(Internal.GridResizeBehavior || (Internal.GridResizeBehavior = {}));
+            var GridResizeBehavior = Internal.GridResizeBehavior;
+            (function (SplitBehavior) {
+                SplitBehavior[SplitBehavior["Split"] = 0] = "Split";
+                SplitBehavior[SplitBehavior["ResizeDefinition1"] = 1] = "ResizeDefinition1";
+                SplitBehavior[SplitBehavior["ResizeDefinition2"] = 2] = "ResizeDefinition2";
+            })(Internal.SplitBehavior || (Internal.SplitBehavior = {}));
+            var SplitBehavior = Internal.SplitBehavior;
+
+            var GridSplitterResizer = (function () {
+                function GridSplitterResizer(gs) {
+                    this.UpdateResizeDirection(gs);
+                    this.Behavior = resizeBehaviors[this.Direction !== 1 /* Columns */ ? gs.VerticalAlignment : gs.HorizontalAlignment] || 3 /* PreviousAndNext */;
+                    this.SplitterLength = Math.min(gs.ActualWidth, gs.ActualHeight);
+                }
+                GridSplitterResizer.prototype.Setup = function (gs, grid) {
+                    var isColumns = this.Direction === 1 /* Columns */;
+                    var span = isColumns ? Fayde.Controls.Grid.GetColumnSpan(gs) : Fayde.Controls.Grid.GetRowSpan(gs);
+                    if (span > 1)
+                        return false;
+                    var index = isColumns ? Fayde.Controls.Grid.GetColumn(gs) : Fayde.Controls.Grid.GetRow(gs);
+                    var indices = this.GetBehaviorIndices(index);
+                    var defs = isColumns ? grid.ColumnDefinitions : grid.RowDefinitions;
+                    if (indices[0] < 0 || indices[1] >= defs.Count)
+                        return false;
+
+                    this.SplitterIndex = index;
+                    this.DS1 = createSize(defs.GetValueAt(indices[0]));
+                    this.DS1.Index = indices[0];
+                    this.DS2 = createSize(defs.GetValueAt(indices[1]));
+                    this.DS2.Index = indices[1];
+                    this.SplitBehavior = (this.DS1.IsStar && this.DS2.IsStar) ? 0 /* Split */ : (!this.DS1.IsStar ? 1 /* ResizeDefinition1 */ : 2 /* ResizeDefinition2 */);
+
+                    return true;
+                };
+
+                GridSplitterResizer.prototype.Move = function (grid, horiz, vert) {
+                    var ds1 = this.DS1;
+                    var ds2 = this.DS2;
+                    if (!ds1 || !ds2)
+                        return true;
+                    if (this.SplitBehavior === 0 /* Split */ && !NumberEx.AreClose((ds1.ActualSize + ds2.ActualSize), (ds1.OrigActualSize + ds2.OrigActualSize)))
+                        return false;
+                    var deltaConstraints = this.GetConstraints();
+                    var num1 = deltaConstraints[0];
+                    var num2 = deltaConstraints[1];
+                    var num = this.Direction === 1 /* Columns */ ? horiz : vert;
+                    num = Math.min(Math.max(num, num1), num2);
+                    this.SetLengths(grid, ds1.ActualSize + num, ds2.ActualSize - num);
+                    return true;
+                };
+
+                GridSplitterResizer.prototype.UpdateResizeDirection = function (gs) {
+                    var old = this.Direction;
+                    if (gs.HorizontalAlignment !== 3 /* Stretch */)
+                        this.Direction = 1 /* Columns */;
+                    else if (gs.VerticalAlignment === 3 /* Stretch */ && gs.ActualWidth <= gs.ActualHeight)
+                        this.Direction = 1 /* Columns */;
+                    else
+                        this.Direction = 2 /* Rows */;
+                    return old !== this.Direction;
+                };
+
+                GridSplitterResizer.prototype.SetLengths = function (grid, definition1Pixels, definition2Pixels) {
+                    var columnDefinitions;
+                    if (this.SplitBehavior !== 0 /* Split */) {
+                        if (this.SplitBehavior === 1 /* ResizeDefinition1 */)
+                            this.DS1.Size = new Fayde.Controls.GridLength(definition1Pixels, 1 /* Pixel */);
+                        else
+                            this.DS2.Size = new Fayde.Controls.GridLength(definition2Pixels, 1 /* Pixel */);
+                        return;
+                    }
+
+                    var enumerator = this.Direction === 1 /* Columns */ ? grid.ColumnDefinitions.GetEnumerator() : grid.RowDefinitions.GetEnumerator();
+                    var i = 0;
+                    while (enumerator.MoveNext()) {
+                        var ds = createSize(enumerator.Current);
+                        if (this.DS1.Index === i)
+                            ds.Size = new Fayde.Controls.GridLength(definition1Pixels, 2 /* Star */);
+                        else if (this.DS2.Index === i)
+                            ds.Size = new Fayde.Controls.GridLength(definition2Pixels, 2 /* Star */);
+                        else if (ds.IsStar)
+                            ds.Size = new Fayde.Controls.GridLength(ds.ActualSize, 2 /* Star */);
+                        i++;
+                    }
+                };
+                GridSplitterResizer.prototype.GetConstraints = function () {
+                    var actualLength = this.DS1.ActualSize;
+                    var minSize = this.DS1.MinSize;
+                    var maxSize = this.DS1.MaxSize;
+
+                    var actualLength1 = this.DS2.ActualSize;
+                    var minSize1 = this.DS2.MinSize;
+                    var maxSize1 = this.DS2.MaxSize;
+
+                    if (this.SplitterIndex === this.DS1.Index) {
+                        minSize = Math.max(minSize, this.SplitterLength);
+                    } else if (this.SplitterIndex === this.DS2.Index) {
+                        minSize1 = Math.max(minSize1, this.SplitterLength);
+                    }
+
+                    if (this.SplitBehavior === 0 /* Split */) {
+                        return [
+                            -Math.min(actualLength - minSize, maxSize1 - actualLength1),
+                            Math.min(maxSize - actualLength, actualLength1 - minSize1)
+                        ];
+                    }
+                    if (this.SplitBehavior !== 1 /* ResizeDefinition1 */) {
+                        return [
+                            actualLength1 - maxSize1,
+                            actualLength1 - minSize1
+                        ];
+                    }
+                    return [
+                        minSize - actualLength,
+                        maxSize - actualLength
+                    ];
+                };
+                GridSplitterResizer.prototype.GetBehaviorIndices = function (index) {
+                    switch (this.Behavior) {
+                        case 1 /* CurrentAndNext */:
+                            return [index, index + 1];
+                        case 2 /* PreviousAndCurrent */:
+                            return [index - 1, index];
+                        default:
+                            return [index - 1, index + 1];
+                    }
+                };
+                return GridSplitterResizer;
+            })();
+            Internal.GridSplitterResizer = GridSplitterResizer;
+
+            var resizeBehaviors = [];
+            resizeBehaviors[0 /* Top */] = 2 /* PreviousAndCurrent */;
+            resizeBehaviors[2 /* Bottom */] = 1 /* CurrentAndNext */;
+            resizeBehaviors[0 /* Left */] = 2 /* PreviousAndCurrent */;
+            resizeBehaviors[2 /* Right */] = 1 /* CurrentAndNext */;
+
+            var RowDefinition = Fayde.Controls.RowDefinition;
+            var ColumnDefinition = Fayde.Controls.ColumnDefinition;
+
+            function createSize(definition) {
+                if (definition instanceof RowDefinition) {
+                    var rd = definition;
+                    var ds = {};
+                    Object.defineProperty(ds, "ActualSize", { get: function () {
+                            return rd.ActualHeight;
+                        } });
+                    Object.defineProperty(ds, "MaxSize", { get: function () {
+                            return rd.MaxHeight || 0;
+                        } });
+                    Object.defineProperty(ds, "MinSize", { get: function () {
+                            return rd.MinHeight || 0;
+                        } });
+                    Object.defineProperty(ds, "Size", {
+                        get: function () {
+                            return rd.Height;
+                        },
+                        set: function (value) {
+                            rd.Height = value;
+                        }
+                    });
+                    Object.defineProperty(ds, "IsStar", {
+                        get: function () {
+                            return !!rd.Height && rd.Height.Type === 2 /* Star */;
+                        }
+                    });
+                    ds.Index = 0;
+                    ds.OrigActualSize = rd.ActualHeight;
+                    return ds;
+                }
+                if (definition instanceof ColumnDefinition) {
+                    var cd = definition;
+
+                    var ds = {};
+                    Object.defineProperty(ds, "ActualSize", { get: function () {
+                            return cd.ActualWidth;
+                        } });
+                    Object.defineProperty(ds, "MaxSize", { get: function () {
+                            return cd.MaxWidth || 0;
+                        } });
+                    Object.defineProperty(ds, "MinSize", { get: function () {
+                            return cd.MinWidth || 0;
+                        } });
+                    Object.defineProperty(ds, "Size", {
+                        get: function () {
+                            return cd.Width;
+                        },
+                        set: function (value) {
+                            cd.Width = value;
+                        }
+                    });
+                    Object.defineProperty(ds, "IsStar", {
+                        get: function () {
+                            return !!cd.Width && cd.Width.Type === 2 /* Star */;
+                        }
+                    });
+                    ds.Index = 0;
+                    ds.OrigActualSize = cd.ActualWidth;
+                    return ds;
+                }
+            }
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
