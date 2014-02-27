@@ -58,3 +58,4 @@ Demos/ControlsShowcase/packages/*
 Demos/NflDraft/packages/*
 Source/Fayde.Tests/tests/DataTemplateTests.js
 Source/Fayde.Client/Xaml/ContentAnnotation.js
+Demos/NflDraft/Data/DemoNflDataProvider.js
