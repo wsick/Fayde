@@ -67,10 +67,8 @@ module Fayde.Controls.Internal {
             }
         }
 
-        DragCompletedEvent: Fayde.RoutedEvent<Fayde.Controls.Primitives.DragCompletedEventArgs> = new Fayde.RoutedEvent<Fayde.Controls.Primitives.DragCompletedEventArgs>();
-
-        DragDeltaEvent: Fayde.RoutedEvent<Fayde.Controls.Primitives.DragDeltaEventArgs> = new Fayde.RoutedEvent<Fayde.Controls.Primitives.DragDeltaEventArgs>();
-
-        DragStartedEvent: Fayde.RoutedEvent<Fayde.Controls.Primitives.DragStartedEventArgs> = new Fayde.RoutedEvent<Fayde.Controls.Primitives.DragStartedEventArgs>();
+        DragCompletedEvent = new Fayde.RoutedEvent<Fayde.Controls.Primitives.DragCompletedEventArgs>();
+        DragDeltaEvent = new Fayde.RoutedEvent<Fayde.Controls.Primitives.DragDeltaEventArgs>();
+        DragStartedEvent = new Fayde.RoutedEvent<Fayde.Controls.Primitives.DragStartedEventArgs>();
     }
 }
