@@ -11,12 +11,12 @@ module Fayde.Media.Animation {
         static TargetNameProperty: DependencyProperty = DependencyProperty.RegisterAttached("TargetName", () => String, Storyboard);
         static GetTargetName(d: DependencyObject): string { return d.GetValue(Storyboard.TargetNameProperty); }
         static SetTargetName(d: DependencyObject, value: string) { return d.SetValue(Storyboard.TargetNameProperty, value); }
+        TargetName: string;
         
         static TargetPropertyProperty: DependencyProperty = DependencyProperty.RegisterAttached("TargetProperty", () => Data.PropertyPath, Storyboard);
         static GetTargetProperty(d: DependencyObject): Data.PropertyPath { return d.GetValue(Storyboard.TargetPropertyProperty); }
         static SetTargetProperty(d: DependencyObject, value: Data.PropertyPath) { return d.SetValue(Storyboard.TargetPropertyProperty, value); }
-
-        static ChildrenProperty = DependencyProperty.RegisterImmutable<TimelineCollection>("Children", () => TimelineCollection, Storyboard);
+        TargetProperty: Data.PropertyPath;
 
         static ResolveTarget(timeline: Timeline): IStoryboadResolution {
             var res: IStoryboadResolution = {
@@ -37,12 +37,8 @@ module Fayde.Media.Animation {
             return res;
         }
 
-        TargetName: string;
-        TargetProperty: Data.PropertyPath;
-
+        static ChildrenProperty = DependencyProperty.RegisterImmutable<TimelineCollection>("Children", () => TimelineCollection, Storyboard);
         Children: TimelineCollection;
-
-        static Annotations = { ContentProperty: Storyboard.ChildrenProperty }
 
         constructor() {
             super();
@@ -138,6 +134,7 @@ module Fayde.Media.Animation {
         }
     }
     Fayde.RegisterType(Storyboard, "Fayde.Media.Animation", Fayde.XMLNS);
+    Xaml.Content(Storyboard, Storyboard.ChildrenProperty);
 
     function getLogMessage(action: string, storyboard: Storyboard, full: boolean, clockData?: IClockData): string {
         var anims = [];

@@ -1,4 +1,6 @@
 /// <reference path="ContentControl.ts" />
+/// <reference path="ScrollContentPresenter.ts" />
+/// <reference path="Primitives/ScrollBar.ts" />
 
 module Fayde.Controls {
     export class ScrollViewer extends ContentControl {
@@ -327,7 +329,7 @@ module Fayde.Controls {
             }
             newValue = Math.max(newValue, 0);
             newValue = Math.min(this.ScrollableWidth, newValue);
-            if (areNumbersClose(offset, newValue))
+            if (NumberEx.AreClose(offset, newValue))
                 return false;
             scrollInfo.SetHorizontalOffset(newValue);
             return true;
@@ -363,18 +365,14 @@ module Fayde.Controls {
             }
             newValue = Math.max(newValue, 0);
             newValue = Math.min(this.ScrollableHeight, newValue);
-            if (areNumbersClose(offset, newValue))
+            if (NumberEx.AreClose(offset, newValue))
                 return false;
             return scrollInfo.SetVerticalOffset(newValue);
         }
     }
     Fayde.RegisterType(ScrollViewer, "Fayde.Controls", Fayde.XMLNS);
-
-    function areNumbersClose(val1: number, val2: number): boolean {
-        if (val1 === val2)
-            return true;
-        var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
-        var num2 = val1 - val2;
-        return -num1 < num2 && num1 > num2;
-    }
+    TemplateParts(ScrollViewer,
+        { Name: "ScrollContentPresenter", Type: ScrollContentPresenter },
+        { Name: "HorizontalScrollBar", Type: Primitives.ScrollBar },
+        { Name: "VerticalScrollBar", Type: Primitives.ScrollBar });
 }

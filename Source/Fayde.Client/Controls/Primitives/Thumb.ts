@@ -113,4 +113,11 @@ module Fayde.Controls.Primitives {
         }
     }
     Fayde.RegisterType(Thumb, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    TemplateVisualStates(Thumb, 
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" });
 }

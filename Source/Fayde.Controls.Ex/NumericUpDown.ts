@@ -1,4 +1,5 @@
 /// <reference path="UpDownBase.ts" />
+/// <reference path="Spinner.ts" />
 
 module Fayde.Controls {
     export class NumericUpDown extends UpDownBase<number> {
@@ -230,6 +231,19 @@ module Fayde.Controls {
             throw new ArgumentException("Invalid decimal places value.");
         }
     }
+    TemplateVisualStates(NumericUpDown,
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "ValidationStates", Name: "Valid" },
+        { GroupName: "ValidationStates", Name: "InvalidUnfocused" },
+        { GroupName: "ValidationStates", Name: "InvalidFocused" });
+    TemplateParts(NumericUpDown,
+        { Name: "Text", Type: TextBox },
+        { Name: "Spinner", Type: Spinner });
 
     function isValidDoubleValue(value: any): boolean {
         return !isNaN(value) && isFinite(value) && value <= 7.92281625142643E+28 && value >= -7.92281625142643E+28;

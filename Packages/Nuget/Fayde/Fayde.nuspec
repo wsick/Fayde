@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Fayde</id>
-        <version>0.9.8.6</version>
+        <version>0.9.8.11</version>
         <authors>Bradley Sickles</authors>
         <projectUrl>http://fayde.wsick.com</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,10 +11,10 @@
     </metadata>
     <files>
         <file src="build\Fayde.targets" target="build\Fayde.targets" />
-        <file src="content\lib\Fayde\Default.theme.xml" target="content\lib\Fayde\Default.theme.xml" />
         <file src="content\lib\Fayde\Fayde.d.ts" target="content\lib\Fayde\Fayde.d.ts" />
         <file src="content\lib\Fayde\Fayde.js" target="content\lib\Fayde\Fayde.js" />
-        <file src="content\lib\Fayde\Metro.theme.xml" target="content\lib\Fayde\Metro.theme.xml" />
+        <file src="content\lib\Fayde\Themes\Default.theme.xml" target="content\lib\Fayde\Themes\Default.theme.xml" />
+        <file src="content\lib\Fayde\Themes\Metro.theme.xml" target="content\lib\Fayde\Themes\Metro.theme.xml" />
         <file src="content\lib\requirejs\require.d.ts" target="content\lib\requirejs\require.d.ts" />
         <file src="content\lib\requirejs\require.js" target="content\lib\requirejs\require.js" />
         <file src="content\lib\requirejs\text.js" target="content\lib\requirejs\text.js" />
@@ -24,6 +24,15 @@
         <file src="content\web.config.transform" target="content\web.config.transform" />
     </files>
 </package>
+
+
+
+
+
+
+
+
+
 
 
 

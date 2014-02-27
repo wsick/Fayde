@@ -14,7 +14,7 @@ module Fayde {
             var curNode = (<UIElement>d).XamlNode;
             while ((curNode = curNode.VisualParentNode)) {
                 if (curNode.XObject instanceof type)
-                    return curNode.XObject;
+                    return <T><any>curNode.XObject;
             }
             return undefined;
         }

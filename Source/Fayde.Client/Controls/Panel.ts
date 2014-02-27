@@ -141,8 +141,6 @@ module Fayde.Controls {
 
         private _BackgroundListener: Media.IBrushChangedListener;
 
-        static Annotations = { ContentProperty: Panel.ChildrenProperty }
-
         constructor() {
             super();
             var coll = Panel.ChildrenProperty.Initialize(this);
@@ -173,6 +171,7 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(Panel, "Fayde.Controls", Fayde.XMLNS);
+    Xaml.Content(Panel, Panel.ChildrenProperty);
 
     export class PanelLayoutUpdater extends LayoutUpdater {
         constructor(node: PanelNode) {

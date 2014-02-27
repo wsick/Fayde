@@ -153,6 +153,7 @@ var Fayde;
             return Spinner;
         })(Fayde.Controls.Control);
         Controls.Spinner = Spinner;
+        Fayde.Controls.TemplateVisualStates(Spinner, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "IncreaseStates", Name: "IncreaseEnabled" }, { GroupName: "IncreaseStates", Name: "IncreaseDisabled" }, { GroupName: "DecreaseStates", Name: "DecreaseEnabled" }, { GroupName: "DecreaseStates", Name: "DecreaseDisabled" });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -276,6 +277,9 @@ var Fayde;
             return ButtonSpinner;
         })(Fayde.Controls.Spinner);
         Controls.ButtonSpinner = ButtonSpinner;
+        Fayde.Xaml.Content(ButtonSpinner, ButtonSpinner.ContentProperty);
+        Fayde.Controls.TemplateVisualStates(ButtonSpinner, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "IncreaseStates", Name: "IncreaseEnabled" }, { GroupName: "IncreaseStates", Name: "IncreaseDisabled" }, { GroupName: "DecreaseStates", Name: "DecreaseEnabled" }, { GroupName: "DecreaseStates", Name: "DecreaseDisabled" });
+        Fayde.Controls.TemplateParts(ButtonSpinner, { Name: "IncreaseButton", Type: Fayde.Controls.Primitives.ButtonBase }, { Name: "DecreaseButton", Type: Fayde.Controls.Primitives.ButtonBase });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -815,6 +819,8 @@ var Fayde;
             return UpDownBase;
         })(Fayde.Controls.Control);
         Controls.UpDownBase = UpDownBase;
+        Fayde.Controls.TemplateVisualStates(UpDownBase, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" });
+        Fayde.Controls.TemplateParts(UpDownBase, { Name: "Text", Type: Fayde.Controls.TextBox }, { Name: "Spinner", Type: Fayde.Controls.Spinner });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -1263,6 +1269,7 @@ var Fayde;
             return DomainUpDown;
         })(Fayde.Controls.UpDownBase);
         Controls.DomainUpDown = DomainUpDown;
+        Fayde.Controls.TemplateVisualStates(DomainUpDown, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" }, { GroupName: "DomainStates", Name: "ValidDomain" }, { GroupName: "DomainStates", Name: "InvalidDomain" });
 
         function getIndexOf(sequence, item) {
             var i = 0;
@@ -1525,6 +1532,7 @@ var Fayde;
             return MenuItem;
         })(Fayde.Controls.HeaderedItemsControl);
         Controls.MenuItem = MenuItem;
+        Fayde.Controls.TemplateVisualStates(MenuItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -1725,8 +1733,7 @@ var Fayde;
             };
 
             NumericUpDown.prototype._EnsureValidDoubleValue = function (propd, oldValue, newValue) {
-                var ov = { Value: 0.0 };
-                if (isValidDoubleValue(newValue, ov))
+                if (isValidDoubleValue(newValue))
                     return;
                 ++this._LevelsFromRootCall;
                 this.SetValue(propd, oldValue);
@@ -1734,8 +1741,7 @@ var Fayde;
                 throw new ArgumentException("Invalid double value.");
             };
             NumericUpDown.prototype._EnsureValidIncrementValue = function (e) {
-                var ov = { Value: 0 };
-                if (isValidDoubleValue(e.NewValue, ov) && ov.Value > 0.0)
+                if (isValidDoubleValue(e.NewValue))
                     return;
                 ++this._LevelsFromRootCall;
                 this.SetValue(e.Property, e.OldValue);
@@ -1783,8 +1789,10 @@ var Fayde;
             return NumericUpDown;
         })(Fayde.Controls.UpDownBase);
         Controls.NumericUpDown = NumericUpDown;
+        Fayde.Controls.TemplateVisualStates(NumericUpDown, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
+        Fayde.Controls.TemplateParts(NumericUpDown, { Name: "Text", Type: Fayde.Controls.TextBox }, { Name: "Spinner", Type: Fayde.Controls.Spinner });
 
-        function isValidDoubleValue(value, outValue) {
+        function isValidDoubleValue(value) {
             return !isNaN(value) && isFinite(value) && value <= 7.92281625142643E+28 && value >= -7.92281625142643E+28;
         }
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -2258,48 +2266,38 @@ var Fayde;
             __extends(TreeViewItem, _super);
             function TreeViewItem() {
                 _super.call(this);
+                this.Collapsed = new Fayde.RoutedEvent();
+                this.Expanded = new Fayde.RoutedEvent();
+                this.Selected = new Fayde.RoutedEvent();
+                this.Unselected = new Fayde.RoutedEvent();
                 this._AllowWrite = false;
                 this.DefaultStyleKey = this.constructor;
                 this.Interaction = new Fayde.Controls.Internal.InteractionHelper(this);
             }
-            Object.defineProperty(TreeViewItem.prototype, "HasItems", {
-                get: function () {
-                    return this.GetValue(TreeViewItem.HasItemsProperty) === true;
-                },
-                set: function (value) {
-                    try  {
-                        this._AllowWrite = true;
-                        this.SetValue(TreeViewItem.HasItemsProperty, value === true);
-                    } finally {
-                        this._AllowWrite = false;
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
+            TreeViewItem.prototype.$SetHasItems = function (value) {
+                try  {
+                    this._AllowWrite = true;
+                    this.SetValueInternal(TreeViewItem.HasItemsProperty, value);
+                } finally {
+                    this._AllowWrite = false;
+                }
+            };
 
-            Object.defineProperty(TreeViewItem.prototype, "IsSelectionActive", {
-                get: function () {
-                    return this.GetValue(TreeViewItem.IsSelectionActiveProperty) === true;
-                },
-                set: function (value) {
-                    try  {
-                        this._AllowWrite = true;
-                        this.SetValue(TreeViewItem.IsSelectionActiveProperty, value === true);
-                    } finally {
-                        this._AllowWrite = false;
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
+            TreeViewItem.prototype.$SetIsSelectionActive = function (value) {
+                try  {
+                    this._AllowWrite = true;
+                    this.SetValueInternal(TreeViewItem.IsSelectionActiveProperty, value === true);
+                } finally {
+                    this._AllowWrite = false;
+                }
+            };
 
             TreeViewItem.prototype.OnHasItemsChanged = function (e) {
                 if (this.IgnorePropertyChange)
                     this.IgnorePropertyChange = false;
                 else if (!this._AllowWrite) {
                     this.IgnorePropertyChange = true;
-                    this.SetValue(TreeViewItem.HasItemsProperty, e.OldValue);
+                    this.SetValueInternal(TreeViewItem.HasItemsProperty, e.OldValue);
                     throw new InvalidOperationException("Cannot set read-only property HasItems.");
                 } else
                     this.UpdateVisualState(true);
@@ -2340,7 +2338,7 @@ var Fayde;
                     this.IgnorePropertyChange = false;
                 else if (!this._AllowWrite) {
                     this.IgnorePropertyChange = true;
-                    this.SetValue(TreeViewItem.IsSelectionActiveProperty, e.OldValue);
+                    this.SetValueInternal(TreeViewItem.IsSelectionActiveProperty, e.OldValue);
                     throw new InvalidOperationException("Cannot set read-only property IsSelectionActive.");
                 } else
                     this.UpdateVisualState(true);
@@ -2513,7 +2511,7 @@ var Fayde;
                 if (e == null)
                     throw new ArgumentException("e");
                 _super.prototype.OnItemsChanged.call(this, e);
-                this.HasItems = this.Items.Count > 0;
+                this.$SetHasItems(this.Items.Count > 0);
                 if (e.NewItems != null) {
                     for (var i = 0, items = e.NewItems, len = items.length; i < len; i++) {
                         items[i].ParentItemsControl = this;
@@ -2581,7 +2579,7 @@ var Fayde;
                     if (!this.Interaction.AllowGotFocus(e) || this.CancelGotFocusBubble)
                         return;
                     this.Select(true);
-                    this.IsSelectionActive = true;
+                    this.$SetIsSelectionActive(true);
                     this.UpdateVisualState(true);
                     _super.prototype.OnGotFocus.call(this, e);
                 } finally {
@@ -2593,12 +2591,12 @@ var Fayde;
                     this.Interaction.OnLostFocusBase();
                     _super.prototype.OnLostFocus.call(this, e);
                 }
-                this.IsSelectionActive = false;
+                this.$SetIsSelectionActive(false);
                 this.UpdateVisualState(true);
             };
             TreeViewItem.prototype.OnExpanderGotFocus = function (sender, e) {
                 this.CancelGotFocusBubble = true;
-                this.IsSelectionActive = true;
+                this.$SetIsSelectionActive(true);
                 this.UpdateVisualState(true);
             };
             TreeViewItem.prototype.OnMouseEnter = function (e) {
@@ -2864,7 +2862,7 @@ var Fayde;
                 }
                 return parentItemsControl;
             };
-            TreeViewItem.HasItemsProperty = DependencyProperty.Register("HasItems", function () {
+            TreeViewItem.HasItemsProperty = DependencyProperty.RegisterReadOnly("HasItems", function () {
                 return Boolean;
             }, TreeViewItem, false, function (d, args) {
                 return d.OnHasItemsChanged(args);
@@ -2879,7 +2877,7 @@ var Fayde;
             }, TreeViewItem, false, function (d, args) {
                 return d.OnIsSelectedChanged(args);
             });
-            TreeViewItem.IsSelectionActiveProperty = DependencyProperty.Register("IsSelectionActive", function () {
+            TreeViewItem.IsSelectionActiveProperty = DependencyProperty.RegisterReadOnly("IsSelectionActive", function () {
                 return Boolean;
             }, TreeViewItem, false, function (d, args) {
                 return d.OnIsSelectionActiveChanged(args);
@@ -2887,6 +2885,8 @@ var Fayde;
             return TreeViewItem;
         })(Fayde.Controls.HeaderedItemsControl);
         Controls.TreeViewItem = TreeViewItem;
+        Fayde.Controls.TemplateVisualStates(TreeViewItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ExpansionStates", Name: "Collapsed" }, { GroupName: "ExpansionStates", Name: "Expanded" }, { GroupName: "HasItemsStates", Name: "HasItems" }, { GroupName: "HasItemsStates", Name: "NoItems" }, { GroupName: "SelectionStates", Name: "Unselected" }, { GroupName: "SelectionStates", Name: "Selected" }, { GroupName: "SelectionStates", Name: "SelectedInactive" });
+        Fayde.Controls.TemplateParts(TreeViewItem, { Name: "Header", Type: Fayde.FrameworkElement }, { Name: "ExpanderButton", Type: Fayde.Controls.Primitives.ToggleButton });
 
         function calculateDelta(up, element, scrollHost, top, bottom, closeEdge) {
             var top1 = { Value: 0 };
@@ -2918,41 +2918,11 @@ var Fayde;
             __extends(TreeView, _super);
             function TreeView() {
                 _super.call(this);
+                this.SelectedItemChanged = new Fayde.RoutedPropertyChangedEvent();
                 this.DefaultStyleKey = this.constructor;
                 this.ItemsControlHelper = new Fayde.Controls.Internal.ItemsControlHelper(this);
                 this.Interaction = new Fayde.Controls.Internal.InteractionHelper(this);
             }
-            Object.defineProperty(TreeView.prototype, "SelectedItem", {
-                get: function () {
-                    return this.GetValue(TreeView.SelectedItemProperty);
-                },
-                set: function (value) {
-                    try  {
-                        this._AllowWrite = true;
-                        this.SetValue(TreeView.SelectedItemProperty, value);
-                    } finally {
-                        this._AllowWrite = false;
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TreeView.prototype, "SelectedValue", {
-                get: function () {
-                    return this.GetValue(TreeView.SelectedValueProperty);
-                },
-                set: function (value) {
-                    try  {
-                        this._AllowWrite = true;
-                        this.SetValue(TreeView.SelectedValueProperty, value);
-                    } finally {
-                        this._AllowWrite = false;
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
-
             TreeView.prototype.OnSelectedItemChanged = function (e) {
                 if (this._IgnorePropertyChange)
                     this._IgnorePropertyChange = false;
@@ -3390,6 +3360,35 @@ var Fayde;
             return TreeView;
         })(Fayde.Controls.ItemsControl);
         Controls.TreeView = TreeView;
+        Fayde.Controls.TemplateVisualStates(TreeView, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
+
+        Object.defineProperty(TreeView.prototype, "SelectedValue", {
+            get: function () {
+                return this.GetValue(TreeView.SelectedValueProperty);
+            },
+            set: function (value) {
+                try  {
+                    this._AllowWrite = true;
+                    this.SetValue(TreeView.SelectedValueProperty, value);
+                } finally {
+                    this._AllowWrite = false;
+                }
+            }
+        });
+
+        Object.defineProperty(TreeView.prototype, "SelectedItem", {
+            get: function () {
+                return this.GetValue(TreeView.SelectedItemProperty);
+            },
+            set: function (value) {
+                try  {
+                    this._AllowWrite = true;
+                    this.SetValue(TreeView.SelectedItemProperty, value);
+                } finally {
+                    this._AllowWrite = false;
+                }
+            }
+        });
 
         function isControlKeyDown() {
             return (Fayde.Input.Keyboard.Modifiers & 2 /* Control */) === 2 /* Control */;
@@ -3403,118 +3402,149 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        (function (Primitives) {
-            var TabPanel = (function (_super) {
-                __extends(TabPanel, _super);
-                function TabPanel() {
-                    _super.apply(this, arguments);
-                    this._NumberOfRows = 1;
-                }
-                Object.defineProperty(TabPanel.prototype, "TabAlignment", {
-                    get: function () {
-                        var tabControlParent = Fayde.VisualTreeHelper.GetParentOfType(this, Fayde.Controls.TabControl);
-                        if (tabControlParent != null)
-                            return tabControlParent.TabStripPlacement;
-                        return 1 /* Top */;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
+        var TabPanel = (function (_super) {
+            __extends(TabPanel, _super);
+            function TabPanel() {
+                _super.apply(this, arguments);
+                this._NumberOfRows = 1;
+            }
+            Object.defineProperty(TabPanel.prototype, "TabAlignment", {
+                get: function () {
+                    var tabControlParent = Fayde.VisualTreeHelper.GetParentOfType(this, Fayde.Controls.TabControl);
+                    if (tabControlParent != null)
+                        return tabControlParent.TabStripPlacement;
+                    return 1 /* Top */;
+                },
+                enumerable: true,
+                configurable: true
+            });
 
-                TabPanel.prototype.MeasureOverride = function (availableSize) {
-                    var size = new size();
-                    var tabAlignment = this.TabAlignment;
-                    this._NumberOfRows = 1;
-                    this._RowHeight = 0.0;
+            TabPanel.prototype.MeasureOverride = function (availableSize) {
+                var s = new size();
+                var tabAlignment = this.TabAlignment;
+                this._NumberOfRows = 1;
+                this._RowHeight = 0.0;
 
-                    var childEnumerator = this.Children.GetEnumerator();
-                    var element;
+                var childEnumerator = this.Children.GetEnumerator();
+                var element;
 
-                    if (tabAlignment == 1 /* Top */ || tabAlignment == 3 /* Bottom */) {
-                        var num1 = 0;
-                        var num2 = 0.0;
-                        var num3 = 0.0;
-                        while (childEnumerator.MoveNext()) {
-                            element = childEnumerator.Current;
-                            element.Measure(availableSize);
-                            if (element.Visibility !== 1 /* Collapsed */) {
-                                var sizeWithoutMargin = getDesiredSizeWithoutMargin(element);
-                                if (this._RowHeight < sizeWithoutMargin.Height)
-                                    this._RowHeight = sizeWithoutMargin.Height;
-                                if (num2 + sizeWithoutMargin.Width > availableSize.Width && num1 > 0) {
-                                    if (num3 < num2)
-                                        num3 = num2;
-                                    num2 = sizeWithoutMargin.Width;
-                                    num1 = 1;
-                                    ++this._NumberOfRows;
-                                } else {
-                                    num2 += sizeWithoutMargin.Width;
-                                    ++num1;
-                                }
-                            }
-                        }
-                        if (num3 < num2)
-                            num3 = num2;
-                        size.Height = this._RowHeight * this._NumberOfRows;
-                        size.Width = !isFinite(size.Width) || isNaN(size.Width) || num3 < availableSize.Width ? num3 : availableSize.Width;
-                    } else if (tabAlignment === 0 /* Left */ || tabAlignment === 2 /* Right */) {
-                        while (childEnumerator.MoveNext()) {
-                            element = childEnumerator.Current;
-                            if (element.Visibility != 1 /* Collapsed */) {
-                                element.Measure(availableSize);
-                                var sizeWithoutMargin = getDesiredSizeWithoutMargin(element);
-                                if (size.Width < sizeWithoutMargin.Width)
-                                    size.Width = sizeWithoutMargin.Width;
-                                size.Height += sizeWithoutMargin.Height;
-                            }
-                        }
-                    }
-                    return size;
-                };
-                TabPanel.prototype.ArrangeOverride = function (finalSize) {
-                    switch (this.TabAlignment) {
-                        case 1 /* Top */:
-                        case 3 /* Bottom */:
-                            this._ArrangeHorizontal(finalSize);
-                            break;
-                        case 0 /* Left */:
-                        case 2 /* Right */:
-                            this._ArrangeVertical(finalSize);
-                            break;
-                    }
-                    return finalSize;
-                };
-
-                TabPanel.prototype._ArrangeHorizontal = function (arrangeSize) {
-                    var tabAlignment = this.TabAlignment;
-                    var flag1 = this._NumberOfRows > 1;
-                    var num = 0;
-                    var solution = [];
-                    var size1 = new size();
-                    var headersSize = this._GetHeadersSize();
-                    if (flag1) {
-                        solution = this._CalculateHeaderDistribution(arrangeSize.Width, headersSize);
-                        num = this._GetActiveRow(solution);
-                        if (tabAlignment === 1 /* Top */)
-                            size1.Height = (this._NumberOfRows - 1.0 - num) * this._RowHeight;
-                        if (tabAlignment === 3 /* Bottom */ && num !== 0)
-                            size1.Height = (this._NumberOfRows - num) * this._RowHeight;
-                    }
-                    var index1 = 0;
-                    var index2 = 0;
-                    var childEnumerator = this.Children.GetEnumerator();
-                    var uie;
+                if (tabAlignment == 1 /* Top */ || tabAlignment == 3 /* Bottom */) {
+                    var num1 = 0;
+                    var num2 = 0.0;
+                    var num3 = 0.0;
                     while (childEnumerator.MoveNext()) {
-                        uie = childEnumerator.Current;
-                        var thickness = uie.GetValue(Fayde.FrameworkElement.MarginProperty);
-                        var left = thickness.Left;
-                        var right = thickness.Right;
-                        var top = thickness.Top;
-                        var bottom = thickness.Bottom;
-                        var flag2 = flag1 && (index2 < solution.length && solution[index2] === index1 || index1 === this.Children.Count - 1);
-                        var size2 = size.fromRaw(headersSize[index1], this._RowHeight);
-                        if (flag2)
-                            size2.Width = arrangeSize.Width - size1.Width;
+                        element = childEnumerator.Current;
+                        element.Measure(availableSize);
+                        if (element.Visibility !== 1 /* Collapsed */) {
+                            var sizeWithoutMargin = getDesiredSizeWithoutMargin(element);
+                            if (this._RowHeight < sizeWithoutMargin.Height)
+                                this._RowHeight = sizeWithoutMargin.Height;
+                            if (num2 + sizeWithoutMargin.Width > availableSize.Width && num1 > 0) {
+                                if (num3 < num2)
+                                    num3 = num2;
+                                num2 = sizeWithoutMargin.Width;
+                                num1 = 1;
+                                ++this._NumberOfRows;
+                            } else {
+                                num2 += sizeWithoutMargin.Width;
+                                ++num1;
+                            }
+                        }
+                    }
+                    if (num3 < num2)
+                        num3 = num2;
+                    s.Height = this._RowHeight * this._NumberOfRows;
+                    s.Width = !isFinite(s.Width) || isNaN(s.Width) || num3 < availableSize.Width ? num3 : availableSize.Width;
+                } else if (tabAlignment === 0 /* Left */ || tabAlignment === 2 /* Right */) {
+                    while (childEnumerator.MoveNext()) {
+                        element = childEnumerator.Current;
+                        if (element.Visibility != 1 /* Collapsed */) {
+                            element.Measure(availableSize);
+                            var sizeWithoutMargin = getDesiredSizeWithoutMargin(element);
+                            if (s.Width < sizeWithoutMargin.Width)
+                                s.Width = sizeWithoutMargin.Width;
+                            s.Height += sizeWithoutMargin.Height;
+                        }
+                    }
+                }
+                return s;
+            };
+            TabPanel.prototype.ArrangeOverride = function (finalSize) {
+                switch (this.TabAlignment) {
+                    case 1 /* Top */:
+                    case 3 /* Bottom */:
+                        this._ArrangeHorizontal(finalSize);
+                        break;
+                    case 0 /* Left */:
+                    case 2 /* Right */:
+                        this._ArrangeVertical(finalSize);
+                        break;
+                }
+                return finalSize;
+            };
+
+            TabPanel.prototype._ArrangeHorizontal = function (arrangeSize) {
+                var tabAlignment = this.TabAlignment;
+                var flag1 = this._NumberOfRows > 1;
+                var num = 0;
+                var solution = [];
+                var size1 = new size();
+                var headersSize = this._GetHeadersSize();
+                if (flag1) {
+                    solution = this._CalculateHeaderDistribution(arrangeSize.Width, headersSize);
+                    num = this._GetActiveRow(solution);
+                    if (tabAlignment === 1 /* Top */)
+                        size1.Height = (this._NumberOfRows - 1.0 - num) * this._RowHeight;
+                    if (tabAlignment === 3 /* Bottom */ && num !== 0)
+                        size1.Height = (this._NumberOfRows - num) * this._RowHeight;
+                }
+                var index1 = 0;
+                var index2 = 0;
+                var childEnumerator = this.Children.GetEnumerator();
+                var uie;
+                while (childEnumerator.MoveNext()) {
+                    uie = childEnumerator.Current;
+                    var thickness = uie.Margin || new Thickness();
+                    var left = thickness.Left;
+                    var right = thickness.Right;
+                    var top = thickness.Top;
+                    var bottom = thickness.Bottom;
+                    var flag2 = flag1 && (index2 < solution.length && solution[index2] === index1 || index1 === this.Children.Count - 1);
+                    var size2 = size.fromRaw(headersSize[index1], this._RowHeight);
+                    if (flag2)
+                        size2.Width = arrangeSize.Width - size1.Width;
+                    var tabItem = uie;
+                    if (tabItem instanceof Fayde.Controls.TabItem) {
+                        if (tabItem.IsSelected)
+                            tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 1);
+                        else
+                            tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 0);
+                    }
+                    var arrSize = new rect();
+                    rect.set(arrSize, size1.Width, size1.Height, size2.Width, size2.Height);
+                    uie.Arrange(arrSize);
+                    var size3 = size2;
+                    size3.Height = Math.max(0.0, size3.Height - top - bottom);
+                    size3.Width = Math.max(0.0, size3.Width - left - right);
+                    size1.Width += size2.Width;
+                    if (flag2) {
+                        if (index2 === num && tabAlignment === 1 /* Top */ || index2 === num - 1 && tabAlignment === 3 /* Bottom */)
+                            size1.Height = 0.0;
+                        else
+                            size1.Height += this._RowHeight;
+                        size1.Width = 0.0;
+                        ++index2;
+                    }
+                    ++index1;
+                }
+            };
+            TabPanel.prototype._ArrangeVertical = function (arrangeSize) {
+                var y = 0.0;
+                var childEnumerator = this.Children.GetEnumerator();
+                var uie;
+                while (childEnumerator.MoveNext()) {
+                    uie = childEnumerator.Current;
+                    if (uie.Visibility !== 1 /* Collapsed */) {
                         var tabItem = uie;
                         if (tabItem instanceof Fayde.Controls.TabItem) {
                             if (tabItem.IsSelected)
@@ -3522,201 +3552,171 @@ var Fayde;
                             else
                                 tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 0);
                         }
+                        var sizeWithoutMargin = getDesiredSizeWithoutMargin(uie);
                         var arrSize = new rect();
-                        rect.set(arrSize, size1.Width, size1.Height, size2.Width, size2.Height);
+                        rect.set(arrSize, 0.0, y, arrangeSize.Width, sizeWithoutMargin.Height);
                         uie.Arrange(arrSize);
-                        var size3 = size2;
-                        size3.Height = Math.max(0.0, size3.Height - top - bottom);
-                        size3.Width = Math.max(0.0, size3.Width - left - right);
-                        size1.Width += size2.Width;
-                        if (flag2) {
-                            if (index2 === num && tabAlignment === 1 /* Top */ || index2 === num - 1 && tabAlignment === 3 /* Bottom */)
-                                size1.Height = 0.0;
-                            else
-                                size1.Height += this._RowHeight;
-                            size1.Width = 0.0;
-                            ++index2;
-                        }
-                        ++index1;
+                        y += sizeWithoutMargin.Height;
                     }
-                };
-                TabPanel.prototype._ArrangeVertical = function (arrangeSize) {
-                    var y = 0.0;
+                }
+            };
+
+            TabPanel.prototype._GetActiveRow = function (solution) {
+                var index = 0;
+                var num = 0;
+                if (solution.length > 0) {
                     var childEnumerator = this.Children.GetEnumerator();
                     var uie;
                     while (childEnumerator.MoveNext()) {
                         uie = childEnumerator.Current;
-                        if (uie.Visibility !== 1 /* Collapsed */) {
-                            var tabItem = uie;
-                            if (tabItem instanceof Fayde.Controls.TabItem) {
-                                if (tabItem.IsSelected)
-                                    tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 1);
-                                else
-                                    tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 0);
+                        if (uie.GetValue(Fayde.Controls.TabItem.IsSelectedProperty))
+                            return index;
+                        if (index < solution.length && solution[index] === num)
+                            ++index;
+                        ++num;
+                    }
+                }
+                if (this.TabAlignment === 1 /* Top */)
+                    index = this._NumberOfRows - 1;
+                return index;
+            };
+            TabPanel.prototype._CalculateHeaderDistribution = function (rowWidthLimit, headerWidth) {
+                var num1 = 0.0;
+                var length1 = headerWidth.length;
+                var length2 = this._NumberOfRows - 1;
+                var num2 = 0.0;
+                var num3 = 0;
+                var numArray1 = new Array(length2);
+                var numArray2 = new Array(length2);
+
+                var numArray3 = new Array(this._NumberOfRows);
+                var numArray4 = numArray3.slice(0);
+                var numArray5 = numArray3.slice(0);
+                var numArray6 = numArray3.slice(0);
+
+                var index1 = 0;
+                for (var index2 = 0; index2 < length1; ++index2) {
+                    if (num2 + headerWidth[index2] > rowWidthLimit && num3 > 0) {
+                        numArray4[index1] = num2;
+                        numArray3[index1] = num3;
+                        var num4 = Math.max(0.0, (rowWidthLimit - num2) / num3);
+                        numArray5[index1] = num4;
+                        numArray1[index1] = index2 - 1;
+                        if (num1 < num4)
+                            num1 = num4;
+                        ++index1;
+                        num2 = headerWidth[index2];
+                        num3 = 1;
+                    } else {
+                        num2 += headerWidth[index2];
+                        if (headerWidth[index2] != 0.0)
+                            ++num3;
+                    }
+                }
+                if (index1 === 0)
+                    return [];
+                numArray4[index1] = num2;
+                numArray3[index1] = num3;
+                var num5 = (rowWidthLimit - num2) / num3;
+                numArray5[index1] = num5;
+                if (num1 < num5)
+                    num1 = num5;
+
+                numArray2 = numArray1.slice(0);
+                numArray6 = numArray5.slice(0);
+                while (true) {
+                    var num4 = 0;
+                    do {
+                        var num6 = 0;
+                        var num7 = 0.0;
+                        for (var index2 = 0; index2 < this._NumberOfRows; ++index2) {
+                            if (num7 < numArray5[index2]) {
+                                num7 = numArray5[index2];
+                                num6 = index2;
                             }
-                            var sizeWithoutMargin = getDesiredSizeWithoutMargin(uie);
-                            var arrSize = new rect();
-                            rect.set(arrSize, 0.0, y, arrangeSize.Width, sizeWithoutMargin.Height);
-                            uie.Arrange(arrSize);
-                            y += sizeWithoutMargin.Height;
                         }
-                    }
-                };
-
-                TabPanel.prototype._GetActiveRow = function (solution) {
-                    var index = 0;
-                    var num = 0;
-                    if (solution.length > 0) {
-                        var childEnumerator = this.Children.GetEnumerator();
-                        var uie;
-                        while (childEnumerator.MoveNext()) {
-                            uie = childEnumerator.Current;
-                            if (uie.GetValue(Fayde.Controls.TabItem.IsSelectedProperty))
-                                return index;
-                            if (index < solution.length && solution[index] === num)
-                                ++index;
-                            ++num;
-                        }
-                    }
-                    if (this.TabAlignment === 1 /* Top */)
-                        index = this._NumberOfRows - 1;
-                    return index;
-                };
-                TabPanel.prototype._CalculateHeaderDistribution = function (rowWidthLimit, headerWidth) {
-                    var num1 = 0.0;
-                    var length1 = headerWidth.length;
-                    var length2 = this._NumberOfRows - 1;
-                    var num2 = 0.0;
-                    var num3 = 0;
-                    var numArray1 = new Array(length2);
-                    var numArray2 = new Array(length2);
-
-                    var numArray3 = new Array(this._NumberOfRows);
-                    var numArray4 = numArray3.slice(0);
-                    var numArray5 = numArray3.slice(0);
-                    var numArray6 = numArray3.slice(0);
-
-                    var index1 = 0;
-                    for (var index2 = 0; index2 < length1; ++index2) {
-                        if (num2 + headerWidth[index2] > rowWidthLimit && num3 > 0) {
-                            numArray4[index1] = num2;
-                            numArray3[index1] = num3;
-                            var num4 = Math.max(0.0, (rowWidthLimit - num2) / num3);
-                            numArray5[index1] = num4;
-                            numArray1[index1] = index2 - 1;
-                            if (num1 < num4)
-                                num1 = num4;
-                            ++index1;
-                            num2 = headerWidth[index2];
-                            num3 = 1;
-                        } else {
-                            num2 += headerWidth[index2];
-                            if (headerWidth[index2] != 0.0)
-                                ++num3;
-                        }
-                    }
-                    if (index1 === 0)
-                        return [];
-                    numArray4[index1] = num2;
-                    numArray3[index1] = num3;
-                    var num5 = (rowWidthLimit - num2) / num3;
-                    numArray5[index1] = num5;
-                    if (num1 < num5)
-                        num1 = num5;
-
-                    numArray2 = numArray1.slice(0);
-                    numArray6 = numArray5.slice(0);
-                    while (true) {
-                        var num4 = 0;
-                        do {
-                            var num6 = 0;
-                            var num7 = 0.0;
-                            for (var index2 = 0; index2 < this._NumberOfRows; ++index2) {
-                                if (num7 < numArray5[index2]) {
-                                    num7 = numArray5[index2];
-                                    num6 = index2;
+                        if (num6 != 0) {
+                            var index2 = num6;
+                            var index3 = index2 - 1;
+                            var index4 = numArray1[index3];
+                            var num8 = headerWidth[index4];
+                            numArray4[index2] += num8;
+                            if (numArray4[index2] <= rowWidthLimit) {
+                                --numArray1[index3];
+                                ++numArray3[index2];
+                                numArray4[index3] -= num8;
+                                --numArray3[index3];
+                                numArray5[index3] = (rowWidthLimit - numArray4[index3]) / numArray3[index3];
+                                numArray5[index2] = (rowWidthLimit - numArray4[index2]) / numArray3[index2];
+                                num4 = 0.0;
+                                for (var index5 = 0; index5 < this._NumberOfRows; ++index5) {
+                                    if (num4 < numArray5[index5])
+                                        num4 = numArray5[index5];
                                 }
-                            }
-                            if (num6 != 0) {
-                                var index2 = num6;
-                                var index3 = index2 - 1;
-                                var index4 = numArray1[index3];
-                                var num8 = headerWidth[index4];
-                                numArray4[index2] += num8;
-                                if (numArray4[index2] <= rowWidthLimit) {
-                                    --numArray1[index3];
-                                    ++numArray3[index2];
-                                    numArray4[index3] -= num8;
-                                    --numArray3[index3];
-                                    numArray5[index3] = (rowWidthLimit - numArray4[index3]) / numArray3[index3];
-                                    numArray5[index2] = (rowWidthLimit - numArray4[index2]) / numArray3[index2];
-                                    num4 = 0.0;
-                                    for (var index5 = 0; index5 < this._NumberOfRows; ++index5) {
-                                        if (num4 < numArray5[index5])
-                                            num4 = numArray5[index5];
-                                    }
-                                } else
-                                    break;
                             } else
                                 break;
-                        } while(num4 >= num1);
-                        num1 = num4;
-                        numArray2 = numArray1.slice(0);
-                        numArray6 = numArray5.slice(0);
-                    }
-
-                    var index6 = 0;
-                    var index7 = 0;
-                    var enumerator = this.Children.GetEnumerator();
-                    var uie;
-                    while (enumerator.MoveNext()) {
-                        uie = enumerator.Current;
-                        if (uie.Visibility === 0 /* Visible */)
-                            headerWidth[index7] += numArray6[index6];
-                        if (index6 < length2 && numArray2[index6] == index7)
-                            ++index6;
-                        ++index7;
-                    }
-                    return numArray2;
-                };
-                TabPanel.prototype._GetHeadersSize = function () {
-                    var arr = [];
-                    var index = 0;
-                    var enumerator = this.Children.GetEnumerator();
-                    var uie;
-                    while (enumerator.MoveNext()) {
-                        uie = enumerator.Current;
-                        if (uie.Visibility === 1 /* Collapsed */) {
-                            arr.push(0.0);
-                        } else {
-                            arr.push(getDesiredSizeWithoutMargin(uie).Width);
-                        }
-                    }
-                    return arr;
-                };
-                return TabPanel;
-            })(Fayde.Controls.Panel);
-            Primitives.TabPanel = TabPanel;
-
-            function getDesiredSizeWithoutMargin(uie) {
-                var num = 0.0;
-                var tabItem = uie;
-                if (tabItem instanceof Fayde.Controls.TabItem && tabItem.IsSelected) {
-                    var panel = tabItem.GetTemplate(tabItem.IsSelected, tabItem.TabStripPlacement);
-                    if (!(panel instanceof Fayde.Controls.Panel))
-                        panel = null;
-                    var fe = ((panel == null || panel.Children.Count <= 0) ? null : panel.Children.GetValueAt(0));
-                    if (fe instanceof Fayde.FrameworkElement)
-                        num += Math.abs(fe.Margin.Left + fe.Margin.Right);
+                        } else
+                            break;
+                    } while(num4 >= num1);
+                    num1 = num4;
+                    numArray2 = numArray1.slice(0);
+                    numArray6 = numArray5.slice(0);
                 }
-                var thickness = uie.GetValue(Fayde.FrameworkElement.MarginProperty);
-                var size = new size();
-                size.Height = Math.max(0.0, uie.DesiredSize.Height - thickness.Top - thickness.Bottom);
-                size.Width = Math.max(0.0, uie.DesiredSize.Width - thickness.Left - thickness.Right + num);
-                return size;
+
+                var index6 = 0;
+                var index7 = 0;
+                var enumerator = this.Children.GetEnumerator();
+                var uie;
+                while (enumerator.MoveNext()) {
+                    uie = enumerator.Current;
+                    if (uie.Visibility === 0 /* Visible */)
+                        headerWidth[index7] += numArray6[index6];
+                    if (index6 < length2 && numArray2[index6] == index7)
+                        ++index6;
+                    ++index7;
+                }
+                return numArray2;
+            };
+            TabPanel.prototype._GetHeadersSize = function () {
+                var arr = [];
+                var index = 0;
+                var enumerator = this.Children.GetEnumerator();
+                var uie;
+                while (enumerator.MoveNext()) {
+                    uie = enumerator.Current;
+                    if (uie.Visibility === 1 /* Collapsed */) {
+                        arr.push(0.0);
+                    } else {
+                        arr.push(getDesiredSizeWithoutMargin(uie).Width);
+                    }
+                }
+                return arr;
+            };
+            return TabPanel;
+        })(Fayde.Controls.Panel);
+        Controls.TabPanel = TabPanel;
+
+        function getDesiredSizeWithoutMargin(uie) {
+            var num = 0.0;
+            var tabItem = uie;
+            if (tabItem instanceof Fayde.Controls.TabItem && tabItem.IsSelected) {
+                var panel = tabItem.GetTemplate(tabItem.IsSelected, tabItem.TabStripPlacement);
+                if (!(panel instanceof Fayde.Controls.Panel))
+                    panel = null;
+                var fe = ((panel == null || panel.Children.Count <= 0) ? null : panel.Children.GetValueAt(0));
+                if (fe instanceof Fayde.FrameworkElement)
+                    num += Math.abs(fe.Margin.Left + fe.Margin.Right);
             }
-        })(Controls.Primitives || (Controls.Primitives = {}));
-        var Primitives = Controls.Primitives;
+            var s = new size();
+            s.Width = uie.DesiredSize.Width;
+            s.Height = uie.DesiredSize.Height;
+            var thickness = uie.Margin;
+            if (thickness) {
+                s.Height = Math.max(0.0, uie.DesiredSize.Height - thickness.Top - thickness.Bottom);
+                s.Width = Math.max(0.0, uie.DesiredSize.Width - thickness.Left - thickness.Right + num);
+            }
+            return s;
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -3759,18 +3759,18 @@ var Fayde;
                 var contentHost = this._GetContentHost(this.TabStripPlacement);
                 if (contentHost != null)
                     contentHost.Content = null;
-                this._ElementTemplateTop = this.GetTemplateChild("TemplateTop");
-                this._ElementTemplateBottom = this.GetTemplateChild("TemplateBottom");
-                this._ElementTemplateLeft = this.GetTemplateChild("TemplateLeft");
-                this._ElementTemplateRight = this.GetTemplateChild("TemplateRight");
-                this._ElementTabPanelTop = this.GetTemplateChild("TabPanelTop");
-                this._ElementTabPanelBottom = this.GetTemplateChild("TabPanelBottom");
-                this._ElementTabPanelLeft = this.GetTemplateChild("TabPanelLeft");
-                this._ElementTabPanelRight = this.GetTemplateChild("TabPanelRight");
-                this._ElementContentTop = this.GetTemplateChild("ContentTop");
-                this._ElementContentBottom = this.GetTemplateChild("ContentBottom");
-                this._ElementContentLeft = this.GetTemplateChild("ContentLeft");
-                this._ElementContentRight = this.GetTemplateChild("ContentRight");
+                this._ElementTemplateTop = this.GetTemplateChild("TemplateTop", Fayde.FrameworkElement);
+                this._ElementTemplateBottom = this.GetTemplateChild("TemplateBottom", Fayde.FrameworkElement);
+                this._ElementTemplateLeft = this.GetTemplateChild("TemplateLeft", Fayde.FrameworkElement);
+                this._ElementTemplateRight = this.GetTemplateChild("TemplateRight", Fayde.FrameworkElement);
+                this._ElementTabPanelTop = this.GetTemplateChild("TabPanelTop", Fayde.Controls.TabPanel);
+                this._ElementTabPanelBottom = this.GetTemplateChild("TabPanelBottom", Fayde.Controls.TabPanel);
+                this._ElementTabPanelLeft = this.GetTemplateChild("TabPanelLeft", Fayde.Controls.TabPanel);
+                this._ElementTabPanelRight = this.GetTemplateChild("TabPanelRight", Fayde.Controls.TabPanel);
+                this._ElementContentTop = this.GetTemplateChild("ContentTop", Fayde.Controls.ContentPresenter);
+                this._ElementContentBottom = this.GetTemplateChild("ContentBottom", Fayde.Controls.ContentPresenter);
+                this._ElementContentLeft = this.GetTemplateChild("ContentLeft", Fayde.Controls.ContentPresenter);
+                this._ElementContentRight = this.GetTemplateChild("ContentRight", Fayde.Controls.ContentPresenter);
 
                 var enumerator = this.Items.GetEnumerator();
                 while (enumerator.MoveNext()) {
@@ -4165,6 +4165,8 @@ var Fayde;
             return TabControl;
         })(Fayde.Controls.ItemsControl);
         Controls.TabControl = TabControl;
+        Fayde.Controls.TemplateVisualStates(TabControl, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "Disabled" });
+        Fayde.Controls.TemplateParts(TabControl, { Name: "TemplateLeft", Type: Fayde.FrameworkElement }, { Name: "ContentLeft", Type: Fayde.Controls.ContentPresenter }, { Name: "TabPanelLeft", Type: Fayde.Controls.TabPanel }, { Name: "TemplateTop", Type: Fayde.FrameworkElement }, { Name: "ContentTop", Type: Fayde.Controls.ContentPresenter }, { Name: "TabPanelTop", Type: Fayde.Controls.TabPanel }, { Name: "TemplateRight", Type: Fayde.FrameworkElement }, { Name: "ContentRight", Type: Fayde.Controls.ContentPresenter }, { Name: "TabPanelRight", Type: Fayde.Controls.TabPanel }, { Name: "TemplateBottom", Type: Fayde.FrameworkElement }, { Name: "ContentBottom", Type: Fayde.Controls.ContentPresenter }, { Name: "TabPanelBottom", Type: Fayde.Controls.TabPanel });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -4175,6 +4177,8 @@ var Fayde;
             __extends(TabItem, _super);
             function TabItem() {
                 _super.call(this);
+                this._SelectedElements = new Elements();
+                this._UnselectedElements = new Elements();
                 this._PreviousTemplate = null;
                 this._PreviousHeader = null;
                 this.DefaultStyleKey = this.constructor;
@@ -4202,22 +4206,10 @@ var Fayde;
                 var contentControl = this._GetContentControl(this.IsSelected, this.TabStripPlacement);
                 if (contentControl != null)
                     contentControl.Content = null;
-                this._ElementTemplateTopSelected = this.GetTemplateChild("TemplateTopSelected");
-                this._ElementTemplateBottomSelected = this.GetTemplateChild("TemplateBottomSelected");
-                this._ElementTemplateLeftSelected = this.GetTemplateChild("TemplateLeftSelected");
-                this._ElementTemplateRightSelected = this.GetTemplateChild("TemplateRightSelected");
-                this._ElementTemplateTopUnselected = this.GetTemplateChild("TemplateTopUnselected");
-                this._ElementTemplateBottomUnselected = this.GetTemplateChild("TemplateBottomUnselected");
-                this._ElementTemplateLeftUnselected = this.GetTemplateChild("TemplateLeftUnselected");
-                this._ElementTemplateRightUnselected = this.GetTemplateChild("TemplateRightUnselected");
-                this._ElementHeaderTopSelected = this.GetTemplateChild("HeaderTopSelected");
-                this._ElementHeaderBottomSelected = this.GetTemplateChild("HeaderBottomSelected");
-                this._ElementHeaderLeftSelected = this.GetTemplateChild("HeaderLeftSelected");
-                this._ElementHeaderRightSelected = this.GetTemplateChild("HeaderRightSelected");
-                this._ElementHeaderTopUnselected = this.GetTemplateChild("HeaderTopUnselected");
-                this._ElementHeaderBottomUnselected = this.GetTemplateChild("HeaderBottomUnselected");
-                this._ElementHeaderLeftUnselected = this.GetTemplateChild("HeaderLeftUnselected");
-                this._ElementHeaderRightUnselected = this.GetTemplateChild("HeaderRightUnselected");
+
+                this._SelectedElements.OnApplyTemplate(this, true);
+                this._UnselectedElements.OnApplyTemplate(this, false);
+
                 this._UpdateHeaderVisuals();
                 this.UpdateVisualState(false);
             };
@@ -4255,15 +4247,7 @@ var Fayde;
                 parent.SelectedIndex = -1;
             };
 
-            TabItem.prototype._UpdateHeaderVisuals = function () {
-                var contentControl = this._GetContentControl(this.IsSelected, this.TabStripPlacement);
-                if (contentControl == null)
-                    return;
-                contentControl.Content = this.Header;
-                contentControl.ContentTemplate = this.HeaderTemplate;
-            };
-
-            TabItem.prototype.UpdateTabItemVisuals = function () {
+            TabItem.prototype.UpdateVisualState = function (useTransitions) {
                 var template = this.GetTemplate(this.IsSelected, this.TabStripPlacement);
                 if (this._PreviousTemplate != null && this._PreviousTemplate !== template)
                     this._PreviousTemplate.Visibility = 1 /* Collapsed */;
@@ -4271,10 +4255,19 @@ var Fayde;
                 if (template != null)
                     template.Visibility = 0 /* Visible */;
                 var contentControl = this._GetContentControl(this.IsSelected, this.TabStripPlacement);
-                if (this._PreviousHeader != null && this._PreviousHeader !== contentControl)
+                if (this._PreviousHeader && this._PreviousHeader !== contentControl)
                     this._PreviousHeader.Content = null;
                 this._PreviousHeader = contentControl;
                 this._UpdateHeaderVisuals();
+
+                _super.prototype.UpdateVisualState.call(this, useTransitions);
+            };
+            TabItem.prototype._UpdateHeaderVisuals = function () {
+                var contentControl = this._GetContentControl(this.IsSelected, this.TabStripPlacement);
+                if (!contentControl)
+                    return;
+                contentControl.Content = this.Header;
+                contentControl.ContentTemplate = this.HeaderTemplate;
             };
 
             TabItem.prototype.OnMouseLeave = function (e) {
@@ -4284,7 +4277,7 @@ var Fayde;
                 this.UpdateVisualState();
             };
             TabItem.prototype.OnMouseLeftButtonDown = function (e) {
-                if (!this.IsEnabled || this.TabControlParent == null || (this.IsSelected || e.Handled))
+                if (!this.IsEnabled || !this.TabControlParent || (this.IsSelected || e.Handled))
                     return;
                 this.IsTabStop = true;
                 e.Handled = this.Focus();
@@ -4305,7 +4298,7 @@ var Fayde;
             TabItem.prototype.OnContentChanged = function (oldContent, newContent) {
                 _super.prototype.OnContentChanged.call(this, oldContent, newContent);
                 var parent = this.TabControlParent;
-                if (!parent == null || !this.IsSelected)
+                if (!parent || !this.IsSelected)
                     return;
                 parent.SelectedContent = newContent;
             };
@@ -4338,76 +4331,25 @@ var Fayde;
             };
 
             TabItem.prototype.GetTemplate = function (isSelected, tabPlacement) {
-                switch (tabPlacement) {
-                    case 0 /* Left */:
-                        if (!isSelected)
-                            return this._ElementTemplateLeftUnselected;
-                        else
-                            return this._ElementTemplateLeftSelected;
-                    case 1 /* Top */:
-                        if (!isSelected)
-                            return this._ElementTemplateTopUnselected;
-                        else
-                            return this._ElementTemplateTopSelected;
-                    case 2 /* Right */:
-                        if (!isSelected)
-                            return this._ElementTemplateRightUnselected;
-                        else
-                            return this._ElementTemplateRightSelected;
-                    case 3 /* Bottom */:
-                        if (!isSelected)
-                            return this._ElementTemplateBottomUnselected;
-                        else
-                            return this._ElementTemplateBottomSelected;
-                    default:
-                        return null;
-                }
+                var e = isSelected ? this._SelectedElements : this._UnselectedElements;
+                return e[Fayde.Controls.Dock[tabPlacement]].Template;
             };
             TabItem.prototype._GetContentControl = function (isSelected, tabPlacement) {
-                switch (tabPlacement) {
-                    case 0 /* Left */:
-                        if (!isSelected)
-                            return this._ElementHeaderLeftUnselected;
-                        else
-                            return this._ElementHeaderLeftSelected;
-                    case 1 /* Top */:
-                        if (!isSelected)
-                            return this._ElementHeaderTopUnselected;
-                        else
-                            return this._ElementHeaderTopSelected;
-                    case 2 /* Right */:
-                        if (!isSelected)
-                            return this._ElementHeaderRightUnselected;
-                        else
-                            return this._ElementHeaderRightSelected;
-                    case 3 /* Bottom */:
-                        if (!isSelected)
-                            return this._ElementHeaderBottomUnselected;
-                        else
-                            return this._ElementHeaderBottomSelected;
-                    default:
-                        return null;
-                }
+                var e = isSelected ? this._SelectedElements : this._UnselectedElements;
+                return e[Fayde.Controls.Dock[tabPlacement]].Header;
             };
 
             TabItem.prototype._FindPreviousTabItem = function (startIndex) {
-                var parent = this.TabControlParent;
-                var items = parent.Items;
-                var tabItem = null;
-                for (var i = startIndex; i >= 0; i--) {
-                    tabItem = items.GetValueAt(i);
+                for (var i = startIndex, items = this.TabControlParent.Items; i >= 0; i--) {
+                    var tabItem = items.GetValueAt(i);
                     if (tabItem.IsEnabled && tabItem.Visibility === 0 /* Visible */)
                         return tabItem;
                 }
                 return null;
             };
             TabItem.prototype._FindNextTabItem = function (startIndex) {
-                var parent = this.TabControlParent;
-                var items = parent.Items;
-                var len = items.Count;
-                var tabItem = null;
-                for (var i = startIndex; i < len; i++) {
-                    tabItem = items.GetValueAt(i);
+                for (var i = startIndex, items = this.TabControlParent.Items, len = items.Count; i < len; i++) {
+                    var tabItem = items.GetValueAt(i);
                     if (tabItem.IsEnabled && tabItem.Visibility === 0 /* Visible */)
                         return tabItem;
                 }
@@ -4423,7 +4365,7 @@ var Fayde;
             });
             TabItem.HeaderTemplateProperty = DependencyProperty.Register("HeaderTemplate", function () {
                 return Fayde.DataTemplate;
-            }, TabItem, function (d, args) {
+            }, TabItem, undefined, function (d, args) {
                 return d.OnHeaderTemplateChanged(args.OldValue, args.NewValue);
             });
             TabItem.IsFocusedProperty = DependencyProperty.Register("IsFocused", function () {
@@ -4437,6 +4379,36 @@ var Fayde;
             return TabItem;
         })(Fayde.Controls.ContentControl);
         Controls.TabItem = TabItem;
+        Fayde.Controls.TemplateVisualStates(TabItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "SelectionStates", Name: "Unselected" }, { GroupName: "SelectionStates", Name: "Selected" });
+        Fayde.Controls.TemplateParts(TabItem, { Name: "HeaderLeftSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderTopSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderRightSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderBottomSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateLeftSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateTopSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateRightSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateBottomSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderLeftUnselected", Type: Fayde.FrameworkElement }, { Name: "HeaderTopUnselected", Type: Fayde.FrameworkElement }, { Name: "HeaderRightUnselected", Type: Fayde.FrameworkElement }, { Name: "HeaderBottomUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateLeftUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateTopUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateRightUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateBottomUnselected", Type: Fayde.FrameworkElement });
+
+        var Elements = (function () {
+            function Elements() {
+                this.Top = new Element();
+                this.Bottom = new Element();
+                this.Left = new Element();
+                this.Right = new Element();
+            }
+            Elements.prototype.OnApplyTemplate = function (control, isSelected) {
+                this.Top.OnApplyTemplate(control, isSelected, "Top");
+                this.Bottom.OnApplyTemplate(control, isSelected, "Bottom");
+                this.Left.OnApplyTemplate(control, isSelected, "Left");
+                this.Right.OnApplyTemplate(control, isSelected, "Right");
+            };
+            return Elements;
+        })();
+        var Element = (function () {
+            function Element() {
+                this.Header = null;
+                this.Template = null;
+            }
+            Element.prototype.OnApplyTemplate = function (control, isSelected, dock) {
+                var post = dock + (isSelected ? "Selected" : "Unselected");
+                this.Header = control.GetTemplateChild("Header" + post, Fayde.Controls.ContentControl);
+                this.Template = control.GetTemplateChild("Template" + post, Fayde.FrameworkElement);
+            };
+            return Element;
+        })();
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

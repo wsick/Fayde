@@ -353,7 +353,7 @@ module Fayde {
         Clip: Media.Geometry;
         Effect: Media.Effects.Effect;
         IsHitTestVisible: boolean;
-        Cursor: string;
+        Cursor: CursorType;
         OpacityMask: Media.Brush;
         Opacity: number;
         Projection: Media.Projection;

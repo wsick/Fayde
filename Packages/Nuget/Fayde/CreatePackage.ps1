@@ -1,5 +1,5 @@
 $scriptsdestdir = $PWD.Path + "\content\lib\Fayde"
-copy ($PWD.Path + "\..\..\..\Source\jsbin\*") $scriptsdestdir
+copy ($PWD.Path + "\..\..\..\Source\jsbin\*") $scriptsdestdir -Force
 
 $vpath = $PWD.Path + "\version.txt"
 $versionstring = Get-Content $vpath

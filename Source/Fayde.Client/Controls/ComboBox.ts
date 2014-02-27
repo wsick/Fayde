@@ -1,9 +1,13 @@
 /// <reference path="Primitives/Selector.ts" />
+/// <reference path="ContentPresenter.ts" />
+/// <reference path="Primitives/Popup.ts" />
+/// <reference path="Primitives/ToggleButton.ts" />
+/// <reference path="ScrollViewer.ts" />
 
 module Fayde.Controls {
     export class ComboBox extends Primitives.Selector {
-        DropDownOpened: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
-        DropDownClosed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        DropDownOpened = new MulticastEvent<EventArgs>();
+        DropDownClosed = new MulticastEvent<EventArgs>();
 
         static IsDropDownOpenProperty = DependencyProperty.Register("IsDropDownOpen", () => Boolean, ComboBox, false, (d, args) => (<ComboBox>d)._IsDropDownOpenChanged(args));
         static ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", () => Style, ComboBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
@@ -358,4 +362,20 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(ComboBox, "Fayde.Controls", Fayde.XMLNS);
+    TemplateParts(ComboBox, 
+        { Name: "ContentPresenter", Type: ContentPresenter },
+        { Name: "Popup", Type: Primitives.Popup },
+        { Name: "ContentPresenterBorder", Type: FrameworkElement },
+        { Name: "DropDownToggle", Type: Primitives.ToggleButton },
+        { Name: "ScrollViewer", Type: ScrollViewer });
+    TemplateVisualStates(ComboBox, 
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "FocusStates", Name: "FocusedDropDown" },
+        { GroupName: "ValidationStates", Name: "Valid" },
+        { GroupName: "ValidationStates", Name: "InvalidUnfocused" },
+        { GroupName: "ValidationStates", Name: "InvalidFocused" });
 }

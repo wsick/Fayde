@@ -18,7 +18,19 @@ module Fayde {
         return Visibility.Collapsed;
     });
 
-    export var CursorType = {
+    export enum CursorType {
+        Default,
+        Hand,
+        IBeam,
+        Wait,
+        SizeNESW,
+        SizeNWSE,
+        SizeNS,
+        SizeWE
+        //TODO: Add cursor types
+    }
+    Fayde.RegisterEnum(CursorType, "CursorType", Fayde.XMLNS);
+    export var CursorTypeMappings = {
         Default: "",
         Hand: "pointer",
         IBeam: "text",
@@ -29,7 +41,6 @@ module Fayde {
         SizeWE: "w-resize"
         //TODO: Add cursor types
     }
-    Fayde.RegisterEnum(CursorType, "CursorType", Fayde.XMLNS);
 
     export enum HorizontalAlignment {
         Left = 0,

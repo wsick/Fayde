@@ -1,4 +1,6 @@
 /// <reference path="RangeBase.ts" />
+/// <reference path="RepeatButton.ts" />
+/// <reference path="Thumb.ts" />
 
 module Fayde.Controls.Primitives {
     export class ScrollBar extends RangeBase {
@@ -273,4 +275,21 @@ module Fayde.Controls.Primitives {
         }
     }
     Fayde.RegisterType(ScrollBar, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    TemplateVisualStates(ScrollBar, 
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Disabled" });
+    TemplateParts(ScrollBar,
+        { Name: "VerticalRoot", Type: FrameworkElement },
+        { Name: "VerticalLargeIncrease", Type: RepeatButton },
+        { Name: "VerticalLargeDecrease", Type: RepeatButton },
+        { Name: "VerticalSmallIncrease", Type: RepeatButton },
+        { Name: "VerticalSmallDecrease", Type: RepeatButton },
+        { Name: "VerticalThumb", Type: Thumb },
+        { Name: "HorizontalRoot", Type: FrameworkElement },
+        { Name: "HorizontalLargeIncrease", Type: RepeatButton },
+        { Name: "HorizontalLargeDecrease", Type: RepeatButton },
+        { Name: "HorizontalSmallIncrease", Type: RepeatButton },
+        { Name: "HorizontalSmallDecrease", Type: RepeatButton },
+        { Name: "HorizontalThumb", Type: Thumb });
 }

@@ -144,7 +144,7 @@ module Fayde {
             return "lib/" + this.Name + "/" + this.Name;
         }
         GetThemeRequireUrl(themeName: string): string {
-            return "lib/" + this.Name + "/" + themeName + ".theme.xml";
+            return "lib/" + this.Name + "/Themes/" + themeName + ".theme.xml";
         }
     }
 

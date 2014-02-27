@@ -27,4 +27,15 @@ module Fayde.Controls {
             return gotoFunc(((this.ValidSpinDirection & ValidSpinDirections.Decrease) === ValidSpinDirections.Decrease) ? "DecreaseEnabled" : "DecreaseDisabled");
         }
     }
+    TemplateVisualStates(Spinner,
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "IncreaseStates", Name: "IncreaseEnabled" },
+        { GroupName: "IncreaseStates", Name: "IncreaseDisabled" },
+        { GroupName: "DecreaseStates", Name: "DecreaseEnabled" },
+        { GroupName: "DecreaseStates", Name: "DecreaseDisabled" });
 }

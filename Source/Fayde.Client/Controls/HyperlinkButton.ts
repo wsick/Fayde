@@ -50,4 +50,11 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(HyperlinkButton, "Fayde.Controls", Fayde.XMLNS);
+    TemplateVisualStates(HyperlinkButton, 
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" });
 }

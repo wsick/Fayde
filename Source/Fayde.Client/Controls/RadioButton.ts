@@ -63,6 +63,19 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(RadioButton, "Fayde.Controls", Fayde.XMLNS);
+    TemplateVisualStates(RadioButton, 
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "CheckStates", Name: "Unchecked" },
+        { GroupName: "CheckStates", Name: "Checked" },
+        { GroupName: "CheckStates", Name: "Indeterminate" },
+        { GroupName: "ValidationStates", Name: "InvalidUnfocused" },
+        { GroupName: "ValidationStates", Name: "InvalidFocused" },
+        { GroupName: "ValidationStates", Name: "Valid" });
 
     var groupNameToElements: RadioButton[][] = [];
     function register(groupName: string, radioButton: RadioButton) {

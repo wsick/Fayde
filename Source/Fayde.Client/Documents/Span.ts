@@ -7,10 +7,8 @@ module Fayde.Documents {
         }
         
         static InlinesProperty = DependencyProperty.RegisterImmutable<InlineCollection>("Inlines", () => InlineCollection, Span);
-
-        static Annotations = { ContentProperty: Span.InlinesProperty }
-
         Inlines: InlineCollection;
+
         constructor() {
             super();
             var coll = Span.InlinesProperty.Initialize(this);
@@ -33,4 +31,5 @@ module Fayde.Documents {
         }
     }
     Fayde.RegisterType(Span, "Fayde.Documents", Fayde.XMLNS);
+    Xaml.Content(Span, Span.InlinesProperty);
 }

@@ -399,6 +399,18 @@ module Fayde.Controls {
             return value === -1 && num === 0 || value >= 0 && value < num;
         }
     }
+    TemplateVisualStates(DomainUpDown,
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "ValidationStates", Name: "Valid" },
+        { GroupName: "ValidationStates", Name: "InvalidUnfocused" },
+        { GroupName: "ValidationStates", Name: "InvalidFocused" },
+        { GroupName: "DomainStates", Name: "ValidDomain" },
+        { GroupName: "DomainStates", Name: "InvalidDomain" });
 
     function getIndexOf(sequence: Fayde.IEnumerable<any>, item: any): number {
         var i = 0;

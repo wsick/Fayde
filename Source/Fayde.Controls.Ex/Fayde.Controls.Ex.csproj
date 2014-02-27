@@ -30,7 +30,7 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerPort>9532</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:57410/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
@@ -57,7 +57,9 @@
     <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="GridSplitter.ts" />
     <TypeScriptCompile Include="HeaderedItemsControl.ts" />
+    <TypeScriptCompile Include="Internal\GridSplitterResizer.ts" />
     <Content Include="Themes\awaiting-generic.xml" />
     <TypeScriptCompile Include="ButtonSpinner.ts" />
     <TypeScriptCompile Include="ContextMenu.ts" />

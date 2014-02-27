@@ -69,4 +69,13 @@ module Fayde.Controls.Primitives {
         }
     }
     Fayde.RegisterType(ToggleButton, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    TemplateVisualStates(ToggleButton, { GroupName: "CommonStates", Name: "Pressed" },
+        { GroupName: "CommonStates", Name: "MouseOver" },
+        { GroupName: "CommonStates", Name: "Normal" },
+        { GroupName: "CommonStates", Name: "Disabled" },
+        { GroupName: "FocusStates", Name: "Unfocused" },
+        { GroupName: "FocusStates", Name: "Focused" },
+        { GroupName: "CheckStates", Name: "Checked" },
+        { GroupName: "CheckStates", Name: "Unchecked" },
+        { GroupName: "CheckStates", Name: "Indeterminate" });
 }

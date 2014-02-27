@@ -206,7 +206,7 @@ module Fayde.Xaml {
         var contentCollection: XamlObjectCollection<any>;
         if (owner instanceof DependencyObject) {
             dobj = owner;
-            contentPropd = TypeResolver.GetAnnotation(ownerType, "ContentProperty");
+            contentPropd = Content.Get(ownerType);
             if (contentPropd instanceof DependencyProperty) {
                 if (contentPropd.IsImmutable) {
                     contentCollection = dobj[contentPropd.Name];

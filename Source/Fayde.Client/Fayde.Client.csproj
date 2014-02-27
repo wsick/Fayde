@@ -16,6 +16,9 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Runtime\NumberEx.ts" />
+    <TypeScriptCompile Include="Xaml\ContentAnnotation.ts" />
+    <TypeScriptCompile Include="Runtime\Annotations.ts" />
     <TypeScriptCompile Include="Xaml\XamlDocument.ts" />
     <TypeScriptCompile Include="Collections\INotifyCollectionChanged.ts" />
     <TypeScriptCompile Include="Collections\NotifyCollectionChangedEventArgs.ts" />
@@ -295,11 +298,11 @@
     <TypeScriptCompile Include="require.d.ts" />
     <TypeScriptCompile Include="Runtime\Library.ts" />
     <TypeScriptCompile Include="Core\Providers\StyleSwapper.ts" />
-    <Content Include="Metro.theme.xml">
+    <Content Include="Themes\Metro.theme.xml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
-    <Content Include="Default.theme.xml">
+    <Content Include="Themes\Default.theme.xml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
@@ -363,6 +366,6 @@
     <PostBuildEvent>cd "$(ProjectDir)"
 xcopy /s /y Fayde.js ..\jsbin\
 xcopy /s /y Fayde.d.ts ..\jsbin\
-xcopy /s /y *.theme.xml ..\jsbin\</PostBuildEvent>
+xcopy /s /y Themes\* ..\jsbin\Themes\</PostBuildEvent>
   </PropertyGroup>
 </Project>

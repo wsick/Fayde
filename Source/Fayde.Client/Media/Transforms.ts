@@ -132,8 +132,6 @@ module Fayde.Media {
         static ChildrenProperty = DependencyProperty.RegisterImmutable<TransformCollection>("Children", () => TransformCollection, TransformGroup);
         Children: TransformCollection;
 
-        static Annotations = { ContentProperty: TransformGroup.ChildrenProperty };
-        
         private _TransformListener: ITransformChangedListener;
 
         constructor() {
@@ -153,4 +151,5 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(TransformGroup, "Fayde.Media", Fayde.XMLNS);
+    Xaml.Content(TransformGroup, TransformGroup.ChildrenProperty);
 }

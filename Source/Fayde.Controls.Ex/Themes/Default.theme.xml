@@ -51,6 +51,66 @@
         </Grid>
     </ControlTemplate>
 
+    <!--  controls:GridSplitter  -->
+    <Style TargetType="controls:GridSplitter">
+        <Setter Property="Background" Value="#FFFFFFFF"/>
+        <Setter Property="IsTabStop" Value="true"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:GridSplitter">
+                    <Grid x:Name="Root" IsHitTestVisible="{TemplateBinding IsEnabled}">
+                        <vsm:VisualStateManager.VisualStateGroups>
+                            <vsm:VisualStateGroup x:Name="CommonStates">
+                                <vsm:VisualState x:Name="Normal" />
+                                <vsm:VisualState x:Name="MouseOver" />
+                                <vsm:VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="Opacity" To="0.5" Duration="0" />
+                                    </Storyboard>
+                                </vsm:VisualState>
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="FocusStates">
+                                <vsm:VisualStateGroup.Transitions>
+                                    <vsm:VisualTransition GeneratedDuration="0" />
+                                </vsm:VisualStateGroup.Transitions>
+                                <vsm:VisualState x:Name="Unfocused" />
+                                <vsm:VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="FocusVisual" Storyboard.TargetProperty="Opacity" To="1" Duration="0" />
+                                    </Storyboard>
+                                </vsm:VisualState>
+                            </vsm:VisualStateGroup>
+                        </vsm:VisualStateManager.VisualStateGroups>
+
+                        <!-- Background -->
+                        <Rectangle Fill="{TemplateBinding Background}" StrokeThickness="0" />
+
+                        <!-- Horizontal Template -->
+                        <Grid x:Name="HorizontalTemplate" Height="10">
+                            <StackPanel Height="6" VerticalAlignment="Center">
+                                <Rectangle Height="1" Margin="1" Width="10" StrokeThickness="0" Fill="#FF868686" />
+                                <Rectangle Height="1" Margin="1" Width="10" StrokeThickness="0" Fill="#FF868686" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Vertical Template -->
+                        <Grid x:Name="VerticalTemplate" Width="10" Visibility="Collapsed">
+                            <StackPanel Width="6" VerticalAlignment="Center" Orientation="Horizontal">
+                                <Rectangle Width="1" Margin="1" Height="10" StrokeThickness="0" Fill="#FF868686" />
+                                <Rectangle Width="1" Margin="1" Height="10" StrokeThickness="0" Fill="#FF868686" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Focus Visual -->
+                        <Rectangle x:Name="FocusVisual" Stroke="#FF6DBDD1" StrokeThickness="1" Opacity="0" IsHitTestVisible="false" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  controls:HeaderedItemsControl  -->
     <Style TargetType="controls:HeaderedItemsControl">
         <Setter Property="Template">
@@ -613,8 +673,8 @@
                         </controls:ButtonSpinner>
                         <Border x:Name="DisabledVisualElement" IsHitTestVisible="false" Opacity="0" Background="#A5FFFFFF" CornerRadius="2.5,2.5,2.5,2.5" />
                         <Border x:Name="FocusVisualElement" IsHitTestVisible="False" Opacity="0" BorderBrush="#FF45D6FA" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1,1,1,1" />
-                    
-                </Grid>
+
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

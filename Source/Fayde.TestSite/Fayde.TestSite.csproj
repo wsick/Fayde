@@ -68,8 +68,8 @@
     <Content Include="Images\twitter.png" />
     <Content Include="Media\freeze_gopher.mp3" />
     <Content Include="Silverlight.js" />
-    <Content Include="Tests\lib\Fayde.Controls\Default.theme.xml" />
-    <Content Include="Tests\lib\Fayde.Controls\Metro.theme.xml" />
+    <Content Include="Tests\lib\Fayde.Controls\Themes\Default.theme.xml" />
+    <Content Include="Tests\lib\Fayde.Controls\Themes\Metro.theme.xml" />
     <Content Include="Tests\lib\Fayde.Controls\Fayde.Controls.js" />
     <Content Include="Tests\Controls\contentcontrol.fap" />
     <TypeScriptCompile Include="Tests\Controls\TestClass.ts" />
@@ -193,6 +193,10 @@
     </Content>
     <Content Include="Tests\Navigation\Views\Toolkit.fayde" />
     <Content Include="Tests\Controls\testview.fayde" />
+    <Content Include="Tests\IssueTests\issue37.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Controls\gridsplitter.fap" />
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>
