@@ -20,15 +20,15 @@ module Fayde.Controls {
             this._dragValidator.DragCompletedEvent.Subscribe(this.DragValidator_OnDragCompleted, this);
         }
 
-        HorizontalTemplateElement: FrameworkElement;
-        VerticalTemplateElement: FrameworkElement;
+        private _HorizontalTemplate: FrameworkElement;
+        private _VerticalTemplate: FrameworkElement;
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            this.HorizontalTemplateElement = <FrameworkElement>this.GetTemplateChild("HorizontalTemplate", FrameworkElement);
-            this.VerticalTemplateElement = <FrameworkElement>this.GetTemplateChild("VerticalTemplate", FrameworkElement);
-            if (this._Helper.UpdateResizeDirection(this))
-                this._OnResizeDirectionChanged();
+            this._HorizontalTemplate = <FrameworkElement>this.GetTemplateChild("HorizontalTemplate", FrameworkElement);
+            this._VerticalTemplate = <FrameworkElement>this.GetTemplateChild("VerticalTemplate", FrameworkElement);
+            this._Helper.UpdateResizeDirection(this);
+            this._OnResizeDirectionChanged();
             this.UpdateVisualState();
         }
         private _OnLayoutUpdated(sender: any, e: EventArgs) {
@@ -40,10 +40,10 @@ module Fayde.Controls {
 
             this.Cursor = isColumns ? CursorType.SizeWE : CursorType.SizeNS;
 
-            var ht = this.HorizontalTemplateElement;
+            var ht = this._HorizontalTemplate;
             if (ht)
                 ht.Visibility = !isColumns ? Visibility.Visible : Visibility.Collapsed;
-            var vt = this.VerticalTemplateElement;
+            var vt = this._VerticalTemplate;
             if (vt)
                 vt.Visibility = isColumns ? Visibility.Visible : Visibility.Collapsed;
         }

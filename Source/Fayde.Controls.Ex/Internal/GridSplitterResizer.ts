@@ -78,9 +78,7 @@
                 this.Direction = GridResizeDirection.Columns;
             else
                 this.Direction = GridResizeDirection.Rows;
-            if (old === this.Direction)
-                return false;
-            return true;
+            return old !== this.Direction;
         }
 
         private SetLengths(grid: Grid, definition1Pixels: number, definition2Pixels: number) {
@@ -159,7 +157,7 @@
     
 
     import RowDefinition = Fayde.Controls.RowDefinition;
-    import ColumnDefinition = Fayde.Controls.RowDefinition;
+    import ColumnDefinition = Fayde.Controls.ColumnDefinition;
     export interface IDefinitionSize {
         ActualSize: number;
         MaxSize: number;
@@ -181,7 +179,7 @@
                 set: function (value: GridLength) { rd.Height = value; }
             });
             Object.defineProperty(ds, "IsStar", {
-                get: function (): boolean { return rd.Height.Type === GridUnitType.Star; }
+                get: function (): boolean { return !!rd.Height && rd.Height.Type === GridUnitType.Star; }
             });
             (<any>ds).Index = 0;
             (<any>ds).OrigActualSize = rd.ActualHeight;
@@ -199,7 +197,7 @@
                 set: function (value: GridLength) { cd.Width = value; }
             });
             Object.defineProperty(ds, "IsStar", {
-                get: function (): boolean { return cd.Width.Type === GridUnitType.Star; }
+                get: function (): boolean { return !!cd.Width && cd.Width.Type === GridUnitType.Star; }
             });
             (<any>ds).Index = 0;
             (<any>ds).OrigActualSize = cd.ActualWidth;
