@@ -1,4 +1,4 @@
-define(["require", "exports", "Models/FantasyTeam", "Models/Round", "Models/FantasyPlayer", "Models/FantasyPosition", "Models/Team", "Models/DraftSpot", "Models/Stats"], function(require, exports, FantasyTeam, Round, FantasyPlayer, FantasyPosition, Team, DraftSpot, Stats) {
+﻿define(["require", "exports", "Models/FantasyTeam", "Models/Round", "Models/FantasyPlayer", "Models/FantasyPosition", "Models/Team", "Models/DraftSpot", "Models/Stats"], function(require, exports, FantasyTeam, Round, FantasyPlayer, FantasyPosition, Team, DraftSpot, Stats) {
     var DemoNflDataProvider = (function () {
         function DemoNflDataProvider() {
         }
@@ -163,8 +163,36 @@ define(["require", "exports", "Models/FantasyTeam", "Models/Round", "Models/Fant
                             [2013, this.Teams[1], 16, 0, 0, 0, 0, 172, 103, 1698, 12, 0, 0, 0, 0, 0]
                         ]
                     },
-                    { "Name": "Marshawn Lynch", "Team": this.Teams[24], "Headshot": "Images/Player Headshots/marshawn_lynch.png", "Positions": "RB", "ADP": 7.86 },
-                    { "Name": "Drew Brees", "Team": this.Teams[0], "Headshot": "Images/Player Headshots/drew_brees.png", "Positions": "QB", "ADP": 6.21 },
+                    {
+                        "Name": "Marshawn Lynch", "Team": this.Teams[24], "Headshot": "Images/Player Headshots/marshawn_lynch.png", "Positions": "RB", "Birthdate": new Date("1986-04-22"), "Height": "5'11\"", "Weight": "215", "ADP": 7.86,
+                        "Stats": [
+                            [2007, this.Teams[15], 13, 280, 1115, 7, 1, 26, 18, 184, 0, 0, 0, 0, 0, 0],
+                            [2008, this.Teams[15], 15, 250, 1036, 8, 1, 67, 47, 300, 1, 0, 0, 0, 0, 0],
+                            [2009, this.Teams[15], 13, 120, 450, 2, 1, 37, 28, 179, 0, 0, 0, 0, 0, 0],
+                            [2010, this.Teams[24], 16, 202, 737, 6, 2, 28, 22, 145, 0, 0, 0, 0, 0, 0],
+                            [2011, this.Teams[24], 15, 285, 1204, 12, 2, 41, 28, 212, 1, 0, 0, 0, 0, 0],
+                            [2012, this.Teams[24], 16, 315, 1590, 11, 2, 30, 23, 196, 1, 0, 0, 0, 0, 0],
+                            [2013, this.Teams[24], 16, 298, 1439, 12, 1, 38, 20, 165, 1, 0, 0, 0, 0, 0]
+                        ]
+                    },
+                    {
+                        "Name": "Drew Brees", "Team": this.Teams[0], "Headshot": "Images/Player Headshots/drew_brees.png", "Positions": "QB", "Birthdate": new Date("1979-01-15"), "Height": "6'0\"", "Weight": "209", "ADP": 6.21,
+                        "Stats": [
+                            [2001, this.Teams[14], 1, 2, 18, 0, 0, 0, 0, 0, 0, 343, 547, 4131, 26, 23],
+                            [2002, this.Teams[14], 16, 38, 130, 1, 0, 0, 0, 0, 0, 392, 591, 4200, 27, 19],
+                            [2003, this.Teams[14], 11, 21, 84, 0, 0, 0, 0, 0, 0, 379, 566, 4267, 29, 10],
+                            [2004, this.Teams[14], 15, 53, 85, 2, 1, 0, 0, 0, 0, 336, 497, 4557, 49, 10],
+                            [2005, this.Teams[14], 16, 21, 49, 1, 0, 0, 0, 0, 0, 305, 453, 3747, 28, 10],
+                            [2006, this.Teams[0], 16, 42, 32, 0, 1, 0, 0, 0, 0, 362, 557, 4397, 31, 9],
+                            [2007, this.Teams[0], 16, 23, 52, 1, 0, 0, 0, 0, 0, 337, 515, 4040, 31, 14],
+                            [2008, this.Teams[0], 16, 22, -1, 0, 0, 0, 0, 0, 0, 371, 555, 4002, 27, 12],
+                            [2009, this.Teams[0], 15, 22, 33, 2, 0, 0, 0, 0, 0, 393, 571, 4500, 33, 16],
+                            [2010, this.Teams[0], 16, 18, -3, 0, 0, 0, 0, 0, 0, 450, 679, 4700, 33, 17],
+                            [2011, this.Teams[0], 16, 21, 86, 1, 1, 0, 0, 0, 0, 450, 679, 4700, 33, 17],
+                            [2012, this.Teams[0], 16, 15, 5, 1, 0, 0, 0, 0, 0, 400, 583, 4659, 37, 11],
+                            [2013, this.Teams[0], 16, 35, 52, 3, 0, 0, 0, 0, 0, 400, 602, 4870, 38, 13]
+                        ]
+                    },
                     { "Name": "Brandon Marshall", "Team": this.Teams[7], "Headshot": "Images/Player Headshots/brandon_marshall.png", "Positions": "WR", "ADP": 6.21 },
                     { "Name": "Stephen Jackson", "Team": this.Teams[6], "Headshot": "Images/Player Headshots/stephen_jackson.png", "Positions": "RB", "ADP": 6.21 },
                     { "Name": "Dez Bryant", "Team": this.Teams[11], "Headshot": "Images/Player Headshots/dez_bryant.png", "Positions": "WR", "ADP": 6.21 },
@@ -222,6 +250,7 @@ define(["require", "exports", "Models/FantasyTeam", "Models/Round", "Models/Fant
                     { "Name": "Darren McFadden", "Team": this.Teams[3], "Headshot": "Images/Player Headshots/darren_mcfadden.png", "Positions": "RB", "ADP": 13.79 }];
                 for (var i = 0; i < fp.length; i++) {
                     var fantasyPlayer = new FantasyPlayer();
+                    fantasyPlayer.Rank = i + 1;
                     fantasyPlayer.Birthdate = fp[i]["Birthdate"];
                     fantasyPlayer.Headshot = fp[i]["Headshot"];
                     fantasyPlayer.Height = fp[i]["Height"];

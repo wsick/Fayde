@@ -115,7 +115,7 @@ class DefaultViewModel extends Fayde.MVVM.ViewModelBase {
     }
     Load() {
         this.FantasyTeams = this.NflDataProvider.FantasyTeams;
-        this.MyTeam = this.FantasyTeams[0];
+        this.MyTeam = this.FantasyTeams[2];
         this.Rounds = this.NflDataProvider.DraftSpots;
         this.Positions = this.NflDataProvider.Positions;
         this.FantasyPlayers = this.NflDataProvider.FantasyPlayers;
