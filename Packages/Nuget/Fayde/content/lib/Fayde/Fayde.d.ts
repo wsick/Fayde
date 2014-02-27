@@ -1,3 +1,8 @@
+﻿declare module NumberEx {
+    function AreClose(val1: number, val2: number): boolean;
+    function IsLessThanClose(val1: number, val2: number): boolean;
+    function IsGreaterThanClose(val1: number, val2: number): boolean;
+}
 declare module Fayde.Xaml {
     interface IContentAnnotation {
         (type: Function, prop: any): any;

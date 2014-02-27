@@ -13,7 +13,7 @@
             },
             deps: ["text", "Fayde"],
             callback: function (text, Fayde) {
-                Fayde.RegisterLibrary("Fayde", "Fayde", function (name) { return "/Fayde/" + name + ".theme.xml"; });
+                Fayde.RegisterLibrary("Fayde", "Fayde", function (name) { return "/Fayde/Themes/" + name + ".theme.xml"; });
                 Fayde.Run();
             },
             shim: {
