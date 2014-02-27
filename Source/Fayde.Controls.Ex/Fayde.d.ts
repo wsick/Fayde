@@ -1,3 +1,8 @@
+﻿declare module NumberEx {
+    function AreClose(val1: number, val2: number): boolean;
+    function IsLessThanClose(val1: number, val2: number): boolean;
+    function IsGreaterThanClose(val1: number, val2: number): boolean;
+}
 declare module Fayde.Xaml {
     interface IContentAnnotation {
         (type: Function, prop: any): any;
@@ -365,7 +370,17 @@ declare module Fayde {
         Visible = 0,
         Collapsed = 1,
     }
-    var CursorType: {
+    enum CursorType {
+        Default = 0,
+        Hand = 1,
+        IBeam = 2,
+        Wait = 3,
+        SizeNESW = 4,
+        SizeNWSE = 5,
+        SizeNS = 6,
+        SizeWE = 7,
+    }
+    var CursorTypeMappings: {
         Default: string;
         Hand: string;
         IBeam: string;
@@ -523,7 +538,9 @@ declare module Fayde {
         public Focus(recurse?: boolean): boolean;
         public _EmitFocusChange(type: string): void;
         private _EmitLostFocus();
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         private _EmitGotFocus();
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public _EmitKeyDown(args: Fayde.Input.KeyEventArgs): void;
         public _EmitKeyUp(args: Fayde.Input.KeyEventArgs): void;
         public _EmitLostMouseCapture(pos: Point): void;
@@ -571,7 +588,7 @@ declare module Fayde {
         public Clip: Fayde.Media.Geometry;
         public Effect: Fayde.Media.Effects.Effect;
         public IsHitTestVisible: boolean;
-        public Cursor: string;
+        public Cursor: Fayde.CursorType;
         public OpacityMask: Fayde.Media.Brush;
         public Opacity: number;
         public Projection: Fayde.Media.Projection;
@@ -970,6 +987,8 @@ declare module Fayde.Controls {
         public IsEnabled : boolean;
         public OnIsEnabledChanged(oldValue: boolean, newValue: boolean): void;
         public Focus(recurse?: boolean): boolean;
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public CanCaptureMouse(): boolean;
     }
     class Control extends Fayde.FrameworkElement implements Fayde.Providers.IIsPropertyInheritable {
@@ -1622,7 +1641,6 @@ declare module Fayde.Controls.Primitives {
         private OnDraggingChanged(args);
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        private _FocusChanged(hasFocus);
         public OnLostMouseCapture(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
@@ -1774,7 +1792,6 @@ declare module Fayde.Controls {
         public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
         public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         private _OnChildKeyDown(sender, e);
         public OnSelectionChanged(e: Controls.Primitives.SelectionChangedEventArgs): void;
@@ -2302,7 +2319,7 @@ declare module Fayde.Controls {
         public $MaxLength: number;
         public $HasOffset: boolean;
         constructor(eventsMask: TextBoxEmitChangedType, textPropd: DependencyProperty);
-        public Cursor : string;
+        public Cursor : Fayde.CursorType;
         public SelectionCursor : number;
         public HasSelectedText : boolean;
         public CaretBrush : Fayde.Media.Brush;
@@ -2754,8 +2771,6 @@ declare module Fayde.Controls {
         private _VerticalScrollBarVisibilityChanged(args);
         public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
-        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
-        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
     }
 }
@@ -3773,7 +3788,7 @@ declare module Fayde.Engine {
         private _Focus;
         private _State;
         private _Cursor;
-        public SetCursor: (cursor: string) => void;
+        public SetCursor: (cursor: Fayde.CursorType) => void;
         private _CurrentPos;
         private _EmittingMouseEvent;
         private _InputList;

@@ -59,6 +59,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="GridSplitter.ts" />
     <TypeScriptCompile Include="HeaderedItemsControl.ts" />
+    <TypeScriptCompile Include="Internal\GridSplitterResizer.ts" />
     <Content Include="Themes\awaiting-generic.xml" />
     <TypeScriptCompile Include="ButtonSpinner.ts" />
     <TypeScriptCompile Include="ContextMenu.ts" />
