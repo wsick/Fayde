@@ -204,9 +204,11 @@ module Fayde.Xaml {
         var dobj: DependencyObject;
         var contentPropd: DependencyProperty;
         var contentCollection: XamlObjectCollection<any>;
+        var textContentPropd: DependencyProperty;
         if (owner instanceof DependencyObject) {
             dobj = owner;
             contentPropd = Content.Get(ownerType);
+            textContentPropd = TextContent.Get(ownerType);
             if (contentPropd instanceof DependencyProperty) {
                 if (contentPropd.IsImmutable) {
                     contentCollection = dobj[contentPropd.Name];
@@ -360,10 +362,10 @@ module Fayde.Xaml {
                     child = child.nextElementSibling;
                 }
 
-                if (!hasSetContent && !el.firstElementChild && contentPropd) {
+                if (!hasSetContent && !el.firstElementChild && textContentPropd) {
                     var text = el.textContent;
                     if (text && (text = text.trim()))
-                        dobj.SetValue(contentPropd, text);
+                        dobj.SetValue(textContentPropd, text);
                 }
 
                 if (rd)
