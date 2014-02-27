@@ -67,7 +67,6 @@
     <TypeScriptCompile Include="DomainUpDown.ts" />
     <TypeScriptCompile Include="Enums.ts" />
     <TypeScriptCompile Include="Internal\BindingSourceEvaluator.ts" />
-    <TypeScriptCompile Include="Internal\DragValidator.ts" />
     <TypeScriptCompile Include="Internal\ObservableObjectCollection.ts" />
     <TypeScriptCompile Include="MenuItem.ts" />
     <TypeScriptCompile Include="NumericUpDown.ts" />

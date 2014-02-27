@@ -5,23 +5,17 @@ module Fayde.Controls {
 
     export class GridSplitter extends Control {
         private _Helper: Internal.GridSplitterResizer;
-        private _dragValidator: Fayde.Controls.Internal.DragValidator;
+        private _HorizontalTemplate: FrameworkElement = null;
+        private _VerticalTemplate: FrameworkElement = null;
+        private _DragStart: Point = null;
+        private _IsDragging = false;
 
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
             this._Helper = new Internal.GridSplitterResizer(this);
-
             this.LayoutUpdated.Subscribe(this._OnLayoutUpdated, this);
-
-            this._dragValidator = new Fayde.Controls.Internal.DragValidator(this);
-            this._dragValidator.DragStartedEvent.Subscribe(this.DragValidator_OnDragStarted, this);
-            this._dragValidator.DragDeltaEvent.Subscribe(this.DragValidator_OnDragDelta, this);
-            this._dragValidator.DragCompletedEvent.Subscribe(this.DragValidator_OnDragCompleted, this);
         }
-
-        private _HorizontalTemplate: FrameworkElement;
-        private _VerticalTemplate: FrameworkElement;
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
@@ -89,18 +83,31 @@ module Fayde.Controls {
                 e.Handled = this._HandleMove(horiz, vert, true);
         }
 
-        private DragValidator_OnDragCompleted(sender: any, e: Fayde.Controls.Primitives.DragCompletedEventArgs) {
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
+            super.OnMouseLeftButtonDown(e);
+            if (!this.IsEnabled)
+                return;
+            this._IsDragging = this.CaptureMouse();
+            if (!this._IsDragging)
+                return;
+            this._DragStart = this._GetTransformedPos(e);
+            this.Focus();
+            this.InitHelper();
+        }
+        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {
+            super.OnMouseLeftButtonUp(e);
+            this.ReleaseMouseCapture();
+            this._IsDragging = false;
             this._Helper = null;
             this.UpdateVisualState();
         }
-        private DragValidator_OnDragDelta(sender: any, e: Fayde.Controls.Primitives.DragDeltaEventArgs) {
-            this._HandleMove(e.HorizontalChange, e.VerticalChange, false);
-        }
-        private DragValidator_OnDragStarted(sender: any, e: Fayde.Controls.Primitives.DragStartedEventArgs) {
-            if (this.IsEnabled) {
-                this.Focus();
-                this.InitHelper();
-            }
+        OnMouseMove(e: Input.MouseEventArgs) {
+            super.OnMouseMove(e);
+            if (!this._IsDragging)
+                return;
+            var pos = this._GetTransformedPos(e);
+            if (pos)
+                this._HandleMove(pos.X - this._DragStart.X, pos.Y - this._DragStart.Y, false);
         }
 
         private InitHelper() {
@@ -123,6 +130,11 @@ module Fayde.Controls {
             if (!this._Helper.Move(<Grid>this.VisualParent, horiz, vert) || isKeyboard)
                 this._Helper = null;
             return true;
+        }
+        private _GetTransformedPos(e: Input.MouseEventArgs) {
+            if (this.RenderTransform)
+                return this.RenderTransform.Transform(e.GetPosition(this));
+            return e.GetPosition(this);
         }
     }
 }
