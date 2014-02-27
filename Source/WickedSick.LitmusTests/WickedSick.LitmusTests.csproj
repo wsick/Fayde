@@ -91,6 +91,9 @@
     <Compile Include="Tests\DoubleListBox.xaml.cs">
       <DependentUpon>DoubleListBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tests\GridSplitterTest.xaml.cs">
+      <DependentUpon>GridSplitterTest.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tests\ImageBrushTest.xaml.cs">
       <DependentUpon>ImageBrushTest.xaml</DependentUpon>
     </Compile>
@@ -154,6 +157,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Tests\DoubleListBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\GridSplitterTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
