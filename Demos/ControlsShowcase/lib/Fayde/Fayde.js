@@ -1,3 +1,24 @@
+﻿var NumberEx;
+(function (NumberEx) {
+    var epsilon = 1.192093E-07;
+    var adjustment = 10;
+    function AreClose(val1, val2) {
+        if (val1 === val2)
+            return true;
+        var softdiff = (Math.abs(val1) + Math.abs(val2) + adjustment) * epsilon;
+        var diff = val1 - val2;
+        return -softdiff < diff && diff < softdiff;
+    }
+    NumberEx.AreClose = AreClose;
+    function IsLessThanClose(val1, val2) {
+        return val1 > val2 || !AreClose(val1, val2);
+    }
+    NumberEx.IsLessThanClose = IsLessThanClose;
+    function IsGreaterThanClose(val1, val2) {
+        return val1 > val2 || !AreClose(val1, val2);
+    }
+    NumberEx.IsGreaterThanClose = IsGreaterThanClose;
+})(NumberEx || (NumberEx = {}));
 var Fayde;
 (function (Fayde) {
     (function (Xaml) {
@@ -2039,7 +2060,19 @@ var Fayde;
         return 1 /* Collapsed */;
     });
 
-    Fayde.CursorType = {
+    (function (CursorType) {
+        CursorType[CursorType["Default"] = 0] = "Default";
+        CursorType[CursorType["Hand"] = 1] = "Hand";
+        CursorType[CursorType["IBeam"] = 2] = "IBeam";
+        CursorType[CursorType["Wait"] = 3] = "Wait";
+        CursorType[CursorType["SizeNESW"] = 4] = "SizeNESW";
+        CursorType[CursorType["SizeNWSE"] = 5] = "SizeNWSE";
+        CursorType[CursorType["SizeNS"] = 6] = "SizeNS";
+        CursorType[CursorType["SizeWE"] = 7] = "SizeWE";
+    })(Fayde.CursorType || (Fayde.CursorType = {}));
+    var CursorType = Fayde.CursorType;
+    Fayde.RegisterEnum(CursorType, "CursorType", Fayde.XMLNS);
+    Fayde.CursorTypeMappings = {
         Default: "",
         Hand: "pointer",
         IBeam: "text",
@@ -2049,7 +2082,6 @@ var Fayde;
         SizeNS: "n-resize",
         SizeWE: "w-resize"
     };
-    Fayde.RegisterEnum(Fayde.CursorType, "CursorType", Fayde.XMLNS);
 
     (function (HorizontalAlignment) {
         HorizontalAlignment[HorizontalAlignment["Left"] = 0] = "Left";
@@ -4696,9 +4728,9 @@ var Fayde;
         FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", function () {
             return Number;
         }, FrameworkElement);
-        FrameworkElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () {
+        FrameworkElement.CursorProperty = DependencyProperty.Register("Cursor", function () {
             return new Enum(Fayde.CursorType);
-        }, FrameworkElement, Fayde.CursorType.Default);
+        }, FrameworkElement, 0 /* Default */);
         FrameworkElement.FlowDirectionProperty = Fayde.InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
         FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () {
             return Length;
@@ -8635,7 +8667,7 @@ var Fayde;
 
                 var sd = this._ScrollData;
                 offset = Math.max(0, Math.min(offset, sd.ExtentWidth - sd.ViewportWidth));
-                if (areNumbersClose(this._ScrollData.OffsetX, offset))
+                if (NumberEx.AreClose(this._ScrollData.OffsetX, offset))
                     return false;
 
                 this._ScrollData.CachedOffsetX = offset;
@@ -8650,7 +8682,7 @@ var Fayde;
 
                 var sd = this._ScrollData;
                 offset = Math.max(0, Math.min(offset, sd.ExtentHeight - sd.ViewportHeight));
-                if (areNumbersClose(this._ScrollData.OffsetY, offset))
+                if (NumberEx.AreClose(this._ScrollData.OffsetY, offset))
                     return false;
 
                 this._ScrollData.CachedOffsetY = offset;
@@ -8800,13 +8832,13 @@ var Fayde;
 
                 var sd = this._ScrollData;
                 var clampX = this._ClampHorizontal(sd.CachedOffsetX);
-                if (!areNumbersClose(clampX, this.HorizontalOffset)) {
+                if (!NumberEx.AreClose(clampX, this.HorizontalOffset)) {
                     sd.OffsetX = clampX;
                     changed = true;
                 }
 
                 var clampY = this._ClampVertical(sd.CachedOffsetY);
-                if (!areNumbersClose(clampY, this.VerticalOffset)) {
+                if (!NumberEx.AreClose(clampY, this.VerticalOffset)) {
                     sd.OffsetY = clampY;
                     changed = true;
                 }
@@ -8831,26 +8863,9 @@ var Fayde;
         Fayde.RegisterType(ScrollContentPresenter, "Fayde.Controls", Fayde.XMLNS);
         Fayde.RegisterTypeInterfaces(ScrollContentPresenter, Fayde.Controls.Primitives.IScrollInfo_);
 
-        function areNumbersClose(val1, val2) {
-            if (val1 === val2)
-                return true;
-            var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
-            var num2 = val1 - val2;
-            return -num1 < num2 && num1 > num2;
-        }
-        function isNumberLessThan(val1, val2) {
-            if (val1 >= val2)
-                return false;
-            return !areNumbersClose(val1, val2);
-        }
-        function isNumberGreaterThan(val1, val2) {
-            if (val1 <= val2)
-                return false;
-            return !areNumbersClose(val1, val2);
-        }
         function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {
-            var flag = isNumberLessThan(topChild, topView) && isNumberLessThan(bottomChild, bottomView);
-            var flag1 = isNumberGreaterThan(topChild, topView) && isNumberGreaterThan(bottomChild, bottomView);
+            var flag = NumberEx.IsLessThanClose(topChild, topView) && NumberEx.IsLessThanClose(bottomChild, bottomView);
+            var flag1 = NumberEx.IsGreaterThanClose(topChild, topView) && NumberEx.IsGreaterThanClose(bottomChild, bottomView);
 
             var flag4 = (bottomChild - topChild) > (bottomView - topView);
             if ((!flag || flag4) && (!flag1 || !flag4)) {
@@ -8920,10 +8935,10 @@ var Fayde;
 
                     this.OnMinimumChanged(args.OldValue, args.OldValue);
                     var max = this.Maximum;
-                    if (!areNumbersClose(this._InitialMax, max))
+                    if (!NumberEx.AreClose(this._InitialMax, max))
                         this.OnMaximumChanged(this._InitialMax, max);
                     var val = this.Value;
-                    if (!areNumbersClose(this._InitialVal, val))
+                    if (!NumberEx.AreClose(this._InitialVal, val))
                         this.RaiseValueChanged(this._InitialVal, val);
                 };
                 RangeBase.prototype._OnMaximumChanged = function (args) {
@@ -8941,10 +8956,10 @@ var Fayde;
 
                     this._PreCoercedMax = args.NewValue;
                     var max = this.Maximum;
-                    if (!areNumbersClose(this._InitialMax, max))
+                    if (!NumberEx.AreClose(this._InitialMax, max))
                         this.OnMaximumChanged(this._InitialMax, max);
                     var val = this.Value;
-                    if (!areNumbersClose(this._InitialVal, val))
+                    if (!NumberEx.AreClose(this._InitialVal, val))
                         this.RaiseValueChanged(this._InitialVal, val);
                 };
                 RangeBase.prototype._OnValueChanged = function (args) {
@@ -8960,14 +8975,14 @@ var Fayde;
 
                     this._PreCoercedVal = args.NewValue;
                     var val = this.Value;
-                    if (!areNumbersClose(this._InitialVal, val))
+                    if (!NumberEx.AreClose(this._InitialVal, val))
                         this.RaiseValueChanged(this._InitialVal, val);
                 };
 
                 RangeBase.prototype._CoerceMaximum = function () {
                     var min = this.Minimum;
                     var max = this.Maximum;
-                    if (!areNumbersClose(this._RequestedMax, max) && this._RequestedMax >= min)
+                    if (!NumberEx.AreClose(this._RequestedMax, max) && this._RequestedMax >= min)
                         this.SetStoreValue(RangeBase.MaximumProperty, this._RequestedMax);
                     else if (max < min)
                         this.SetStoreValue(RangeBase.MaximumProperty, min);
@@ -8976,7 +8991,7 @@ var Fayde;
                     var min = this.Minimum;
                     var max = this.Maximum;
                     var val = this.Value;
-                    if (!areNumbersClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max)
+                    if (!NumberEx.AreClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max)
                         this.SetStoreValue(RangeBase.ValueProperty, this._RequestedVal);
                     else if (val < min)
                         this.SetStoreValue(RangeBase.ValueProperty, min);
@@ -9008,14 +9023,6 @@ var Fayde;
             })(Fayde.Controls.Control);
             Primitives.RangeBase = RangeBase;
             Fayde.RegisterType(RangeBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
-
-            function areNumbersClose(val1, val2) {
-                if (val1 === val2)
-                    return true;
-                var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
-                var num2 = val1 - val2;
-                return -num1 < num2 && num1 > num2;
-            }
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -9960,7 +9967,7 @@ var Fayde;
                 }
                 newValue = Math.max(newValue, 0);
                 newValue = Math.min(this.ScrollableWidth, newValue);
-                if (areNumbersClose(offset, newValue))
+                if (NumberEx.AreClose(offset, newValue))
                     return false;
                 scrollInfo.SetHorizontalOffset(newValue);
                 return true;
@@ -9996,7 +10003,7 @@ var Fayde;
                 }
                 newValue = Math.max(newValue, 0);
                 newValue = Math.min(this.ScrollableHeight, newValue);
-                if (areNumbersClose(offset, newValue))
+                if (NumberEx.AreClose(offset, newValue))
                     return false;
                 return scrollInfo.SetVerticalOffset(newValue);
             };
@@ -10043,14 +10050,6 @@ var Fayde;
         Controls.ScrollViewer = ScrollViewer;
         Fayde.RegisterType(ScrollViewer, "Fayde.Controls", Fayde.XMLNS);
         Fayde.Controls.TemplateParts(ScrollViewer, { Name: "ScrollContentPresenter", Type: Fayde.Controls.ScrollContentPresenter }, { Name: "HorizontalScrollBar", Type: Fayde.Controls.Primitives.ScrollBar }, { Name: "VerticalScrollBar", Type: Fayde.Controls.Primitives.ScrollBar });
-
-        function areNumbersClose(val1, val2) {
-            if (val1 === val2)
-                return true;
-            var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
-            var num2 = val1 - val2;
-            return -num1 < num2 && num1 > num2;
-        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -13156,8 +13155,8 @@ var Fayde;
             Object.defineProperty(TextBoxBase.prototype, "Cursor", {
                 get: function () {
                     var cursor = this.GetValue(Fayde.FrameworkElement.CursorProperty);
-                    if (cursor === Fayde.CursorType.Default)
-                        return Fayde.CursorType.IBeam;
+                    if (cursor === 0 /* Default */)
+                        return 2 /* IBeam */;
                     return cursor;
                 },
                 enumerable: true,
@@ -22027,7 +22026,7 @@ var Fayde;
     (function (Engine) {
         var InputManager = (function () {
             function InputManager(surface) {
-                this._Cursor = Fayde.CursorType.Default;
+                this._Cursor = 0 /* Default */;
                 this.SetCursor = function (cursor) {
                 };
                 this._CurrentPos = null;
@@ -22061,7 +22060,7 @@ var Fayde;
             InputManager.prototype.Register = function (canvas) {
                 var _this = this;
                 this.SetCursor = function (cursor) {
-                    return canvas.style.cursor = _this._Cursor = cursor;
+                    return canvas.style.cursor = Fayde.CursorTypeMappings[Fayde.CursorType[_this._Cursor = cursor]];
                 };
 
                 this._KeyInterop.RegisterEvents(this);
@@ -22189,12 +22188,12 @@ var Fayde;
             };
 
             InputManager.prototype.UpdateCursorFromInputList = function () {
-                var newCursor = Fayde.CursorType.Default;
+                var newCursor = 0 /* Default */;
                 var list = this._Captured ? this._CapturedInputList : this._InputList;
                 var len = list.length;
                 for (var i = 0; i < len; i++) {
                     newCursor = list[i].XObject.Cursor;
-                    if (newCursor !== Fayde.CursorType.Default)
+                    if (newCursor !== 0 /* Default */)
                         break;
                 }
                 this.SetCursor(newCursor);
@@ -37141,7 +37140,7 @@ var Fayde;
             return "lib/" + this.Name + "/" + this.Name;
         };
         Library.prototype.GetThemeRequireUrl = function (themeName) {
-            return "lib/" + this.Name + "/" + themeName + ".theme.xml";
+            return "lib/" + this.Name + "/Themes/" + themeName + ".theme.xml";
         };
         return Library;
     })();
