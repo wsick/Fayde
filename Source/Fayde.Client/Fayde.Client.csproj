@@ -298,11 +298,11 @@
     <TypeScriptCompile Include="require.d.ts" />
     <TypeScriptCompile Include="Runtime\Library.ts" />
     <TypeScriptCompile Include="Core\Providers\StyleSwapper.ts" />
-    <Content Include="Metro.theme.xml">
+    <Content Include="Themes\Metro.theme.xml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
-    <Content Include="Default.theme.xml">
+    <Content Include="Themes\Default.theme.xml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
@@ -364,8 +364,8 @@
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
   <PropertyGroup>
     <PostBuildEvent>cd "$(ProjectDir)"
-xcopy /s /y Fayde.js ..\jsbin\
-xcopy /s /y Fayde.d.ts ..\jsbin\
-xcopy /s /y *.theme.xml ..\jsbin\</PostBuildEvent>
+xcopy /s /y Fayde.js ..\..\Packages\Nuget\Fayde\content\lib\Fayde\
+xcopy /s /y Fayde.d.ts ..\..\Packages\Nuget\Fayde\content\lib\Fayde\
+xcopy /s /y Themes\*.theme.xml ..\..\Packages\Nuget\Fayde\content\lib\Fayde\Themes\</PostBuildEvent>
   </PropertyGroup>
 </Project>
