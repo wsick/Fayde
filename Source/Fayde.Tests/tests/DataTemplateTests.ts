@@ -24,7 +24,7 @@ export function run() {
     test("Implicit DataTemplate", () => {
         var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
             + "<Grid.Resources>"
-            + "<DataTemplate TargetType=\"Color\">"
+            + "<DataTemplate DataType=\"Color\">"
             + "<TextBlock Text=\"{Binding R}\" />"
             + "</DataTemplate>"
             + "</Grid.Resources>"
@@ -38,9 +38,9 @@ export function run() {
             ok(false, "Loading a DataTemplate should not error. " + err.toString());
         }
         ok(grid.Resources.Contains(Color));
-        var dt = grid.Resources.Get(Color);
+        var dt = <Fayde.DataTemplate>grid.Resources.Get(Color);
         ok(dt instanceof Fayde.DataTemplate);
-        strictEqual(dt.TargetType, Color, "TargetType for DataTemplate should be Color.");
+        strictEqual(dt.DataType, Color, "DataType for DataTemplate should be Color.");
 
         strictEqual(grid.Children.Count, 1);
         var cc = <Fayde.Controls.ContentControl>grid.Children.GetValueAt(0);
