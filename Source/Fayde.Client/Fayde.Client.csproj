@@ -298,6 +298,7 @@
     <TypeScriptCompile Include="require.d.ts" />
     <TypeScriptCompile Include="Runtime\Library.ts" />
     <TypeScriptCompile Include="Core\Providers\StyleSwapper.ts" />
+    <TypeScriptCompile Include="Engine\DebugVisual.ts" />
     <Content Include="Themes\Metro.theme.xml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
