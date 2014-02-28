@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="WickedSick.LitmusTests.Tests.ListBoxTest"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:controls="clr-namespace:WickedSick.LitmusTests.Controls"
+    d:DesignHeight="300" d:DesignWidth="400">
+    
+    <Grid x:Name="LayoutRoot" Background="White">
+        <ListBox>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <controls:VirtualizingStackPanelMonitor />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBoxItem Content="ListBoxItem1" />
+            <ListBoxItem Content="ListBoxItem2" />
+            <ListBoxItem Content="ListBoxItem3" />
+            <ListBoxItem Content="ListBoxItem4" />
+        </ListBox>    
+    </Grid>
+</UserControl>
