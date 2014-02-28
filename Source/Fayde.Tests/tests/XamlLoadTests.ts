@@ -1,5 +1,5 @@
-/// <reference path="../scripts/qunit.d.ts" />
-/// <reference path="../scripts/Fayde.d.ts" />
+/// <reference path="../lib/qunit/qunit.d.ts" />
+/// <reference path="../lib/Fayde/Fayde.d.ts" />
 /// <amd-dependency path="../mocks/TestControl" />
 
 export function run() {
@@ -177,19 +177,6 @@ export function run() {
         checkbox.ApplyTemplate();
         var r = <Fayde.Shapes.Rectangle>Fayde.VisualTreeHelper.GetChild(checkbox, 0);
         strictEqual(r.StrokeThickness, 1, "StrokeThickness");
-    });
-
-    QUnit.asyncTest("Theme", 1, () => {
-        var theme = <Fayde.Theme>Fayde.ConvertAnyToType("Theme.Metro.xml", Fayde.Theme);
-        theme.Resolve()
-            .success(res => {
-                ok(true, "Theme resolved.");
-                start();
-            })
-            .error(error => {
-                ok(false, error);
-                start();
-            });
     });
 
     test("HierarchicalDataTemplate", () => {

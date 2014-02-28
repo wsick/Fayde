@@ -1,5 +1,5 @@
-/// <reference path="../scripts/qunit.d.ts" />
-/// <reference path="../scripts/Fayde.d.ts" />
+/// <reference path="../lib/qunit/qunit.d.ts" />
+/// <reference path="../lib/Fayde/Fayde.d.ts" />
 
 export function run() {
     QUnit.module("Timeline Tests");
