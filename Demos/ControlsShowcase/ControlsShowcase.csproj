@@ -68,6 +68,7 @@
     <Content Include="lib\requirejs\require.d.ts" />
     <Content Include="lib\requirejs\require.js" />
     <Content Include="lib\requirejs\text.js" />
+    <TypeScriptCompile Include="ViewModels\MainViewModel.ts" />
     <Content Include="Web.config" />
     <Content Include="default.fap">
       <SubType>Designer</SubType>
