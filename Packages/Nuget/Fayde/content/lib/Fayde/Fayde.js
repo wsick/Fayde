@@ -8145,6 +8145,8 @@ var Fayde;
                                     return;
                                 }
                             }
+                            if (!el.firstElementChild)
+                                return;
                             dobj.SetValue(propd, createObject(el.firstElementChild, ctx));
                         }
                     } else {

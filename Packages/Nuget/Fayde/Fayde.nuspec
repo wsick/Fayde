@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Fayde</id>
-        <version>0.9.8.12</version>
+        <version>0.9.8.13</version>
         <authors>Bradley Sickles</authors>
         <projectUrl>http://fayde.wsick.com</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -24,6 +24,7 @@
         <file src="content\web.config.transform" target="content\web.config.transform" />
     </files>
 </package>
+
 
 
 
