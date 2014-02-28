@@ -362,10 +362,15 @@ module Fayde.Xaml {
                     child = child.nextElementSibling;
                 }
 
-                if (!hasSetContent && !el.firstElementChild && textContentPropd) {
+                if (!hasSetContent && !el.firstElementChild) {
                     var text = el.textContent;
-                    if (text && (text = text.trim()))
-                        dobj.SetValue(textContentPropd, text);
+                    if (text) {
+                        text = text.trim();
+                        if (textContentPropd)
+                            dobj.SetValue(textContentPropd, text);
+                        else if (!contentPropd.IsImmutable)
+                            dobj.SetValue(contentPropd, text);
+                    }
                 }
 
                 if (rd)

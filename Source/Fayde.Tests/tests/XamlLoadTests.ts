@@ -94,6 +94,12 @@ export function run() {
         strictEqual(checkbox.Content, "Hey", "Text Content");
     });
 
+    test("TextBlock Text", () => {
+        var xaml = "<TextBlock xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">Hey</TextBlock>";
+        var tb = <Fayde.Controls.TextBlock>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+        strictEqual(tb.Text, "Hey", "Text Content");
+    });
+
     test("FrameworkElement Resources", () => {
         var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
             + "<StackPanel.Resources>"
