@@ -46,6 +46,20 @@ export function run() {
         strictEqual(bg.Color.ToHexStringNoAlpha(), "#aabbcc", "Color");
     });
 
+    test("Empty property value", () => {
+        var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+            + "<StackPanel.DataContext>"
+            + "<!-- someone commented out -->"
+            + "</StackPanel.DataContext>"
+            + "</StackPanel>";
+        try {
+            var sp = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+            ok(true);
+        } catch (err) {
+            ok(false, err);
+        }
+    });
+
     test("Enum tag", () => {
         var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
             + "<StackPanel.Orientation>"
