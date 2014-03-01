@@ -24,7 +24,7 @@ class DependencyProperty {
     AlwaysChange: boolean = false;
     Store: Fayde.Providers.PropertyStore;
     private _Coercer: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any = null;
-    private _Validator: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => boolean = null;
+    private _Validator: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any, original: any) => boolean = null;
 
     static Register(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
@@ -203,17 +203,16 @@ class DependencyProperty {
     }
 
     ValidateSetValue(dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid) {
-        isValidOut.IsValid = false;
         var coerced = value;
-        if (this._Coercer && !(coerced = this._Coercer(dobj, this, coerced)))
-            return coerced;
+        if (this._Coercer)
+            coerced = this._Coercer(dobj, this, coerced);
         /* TODO: Handle Type Problems
         if (!this._IsValueValid(dobj, coerced))
             return coerced;
         */
-        if (this._Validator && !this._Validator(dobj, this, coerced))
-            return coerced;
         isValidOut.IsValid = true;
+        if (this._Validator)
+            isValidOut.IsValid = !!this._Validator(dobj, this, coerced, value);
         return coerced;
     }
 

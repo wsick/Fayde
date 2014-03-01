@@ -32,6 +32,7 @@
     <Content Include="lib\requirejs\text.js" />
     <TypeScriptCompile Include="tests\DependencyLoadTests.ts" />
     <TypeScriptCompile Include="tests\DataTemplateTests.ts" />
+    <TypeScriptCompile Include="tests\DependencyPropertyTests.ts" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />
     <TypeScriptCompile Include="tests\XamlNodeTests.ts" />

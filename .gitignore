@@ -60,3 +60,4 @@ Source/Fayde.Tests/tests/DataTemplateTests.js
 Source/Fayde.Client/Xaml/ContentAnnotation.js
 Demos/NflDraft/Data/DemoNflDataProvider.js
 Demos/ControlsShowcase/ViewModels/MainViewModel.js
+Source/Fayde.Tests/tests/DependencyPropertyTests.js
