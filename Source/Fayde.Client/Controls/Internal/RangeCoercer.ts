@@ -9,9 +9,9 @@ module Fayde.Controls.Internal {
     }
 
     export interface IRangeCoercer {
-        OnMinimumChanged(oldMinimum: number, newMinimum: number): boolean;
-        OnMaximumChanged(oldMaximum: number, newMaximum: number): boolean;
-        OnValueChanged(oldValue: number, newValue: number): boolean;
+        OnMinimumChanged(oldMinimum: number, newMinimum: number);
+        OnMaximumChanged(oldMaximum: number, newMaximum: number);
+        OnValueChanged(oldValue: number, newValue: number);
     }
     export class RangeCoercer implements IRangeCoercer {
         InitialMax: number = 1;
@@ -28,7 +28,7 @@ module Fayde.Controls.Internal {
 
         constructor(public Range: IRange, public OnCoerceMaximum: (val: any) => void, public OnCoerceValue: (val: any) => void) { }
 
-        OnMinimumChanged(oldMinimum: number, newMinimum: number): boolean {
+        OnMinimumChanged(oldMinimum: number, newMinimum: number) {
             if (this.CoerceDepth === 0) {
                 this.InitialMax = this.Maximum;
                 this.InitialVal = this.Value;
@@ -38,7 +38,7 @@ module Fayde.Controls.Internal {
             this.CoerceValue();
             this.CoerceDepth--;
             if (this.CoerceDepth > 0)
-                return false;
+                return;
 
             this.OnMinimumChanged(oldMinimum, newMinimum);
             var max = this.Maximum;
@@ -47,9 +47,8 @@ module Fayde.Controls.Internal {
             var val = this.Value;
             if (!NumberEx.AreClose(this.InitialVal, val))
                 this.Range.OnValueChanged(this.InitialVal, val);
-            return true;
         }
-        OnMaximumChanged(oldMaximum: number, newMaximum: number): boolean {
+        OnMaximumChanged(oldMaximum: number, newMaximum: number) {
             if (this.CoerceDepth === 0) {
                 this.RequestedMax = newMaximum;
                 this.InitialMax = oldMaximum;
@@ -60,7 +59,7 @@ module Fayde.Controls.Internal {
             this.CoerceValue();
             this.CoerceDepth--;
             if (this.CoerceDepth !== 0)
-                return false;
+                return;
 
             this.PreCoercedMax = newMaximum;
             var max = this.Maximum;
@@ -69,9 +68,8 @@ module Fayde.Controls.Internal {
             var val = this.Value;
             if (!NumberEx.AreClose(this.InitialVal, val))
                 this.OnValueChanged(this.InitialVal, val);
-            return true;
         }
-        OnValueChanged(oldValue: number, newValue: number): boolean {
+        OnValueChanged(oldValue: number, newValue: number) {
             if (this.CoerceDepth === 0) {
                 this.RequestedVal = newValue;
                 this.InitialVal = oldValue;
@@ -80,13 +78,12 @@ module Fayde.Controls.Internal {
             this.CoerceValue();
             this.CoerceDepth--;
             if (this.CoerceDepth !== 0)
-                return false;
+                return;
 
             this.PreCoercedVal = newValue;
             var val = this.Value;
             if (!NumberEx.AreClose(this.InitialVal, val))
                 this.Range.OnValueChanged(this.InitialVal, val);
-            return true;
         }
 
         CoerceMaximum() {
