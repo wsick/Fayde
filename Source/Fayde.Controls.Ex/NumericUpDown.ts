@@ -41,7 +41,7 @@ module Fayde.Controls {
 
         private _Coercer: Internal.IFormattedRangeCoercer;
         private _Formatter: Internal.ITextBoxFormatter;
-        private _Spinner: Spinner = null;
+        private _SpinFlow: Internal.ISpinFlow;
 
         constructor() {
             super();
@@ -55,11 +55,9 @@ module Fayde.Controls {
         OnApplyTemplate() {
             super.OnApplyTemplate();
 
-            if (this._Spinner)
-                this._Spinner.Spin.Unsubscribe(this.Spinner_Spin, this);
-            this._Spinner = <Spinner>this.GetTemplateChild("Spinner", Spinner);
-            if (this._Spinner)
-                this._Spinner.Spin.Subscribe(this.Spinner_Spin, this);
+            if (this._SpinFlow)
+                this._SpinFlow.Dispose();
+            this._SpinFlow = new Internal.SpinFlow(this, <Spinner>this.GetTemplateChild("Spinner", Spinner));
 
             if (this._Formatter)
                 this._Formatter.Dispose();
@@ -69,55 +67,9 @@ module Fayde.Controls {
             this.UpdateValidSpinDirection();
             this.UpdateVisualState(false);
         }
-        
-        OnKeyDown(e: Fayde.Input.KeyEventArgs) {
-            super.OnKeyDown(e);
-            if (e.Handled)
-                return;
-            switch (e.Key) {
-                case Fayde.Input.Key.Enter:
-                    this._Formatter.ProcessUserInput();
-                    e.Handled = true;
-                    break;
-                case Fayde.Input.Key.Up:
-                    this.DoIncrement();
-                    e.Handled = true;
-                    break;
-                case Fayde.Input.Key.Down:
-                    this.DoDecrement();
-                    e.Handled = true;
-                    break;
-            }
-        }
-        OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs) {
-            super.OnMouseWheel(e);
-            if (e.Handled)
-                return;
-            if (e.Delta < 0)
-                this.DoDecrement();
-            else if (0 < e.Delta)
-                this.DoIncrement();
-            e.Handled = true;
-        }
-
-        private Spinner_Spin(sender: any, e: SpinEventArgs) {
-            this._Formatter.ProcessUserInput();
-            if (!this._Spinner)
-                return;
-            if (e.Direction === SpinDirection.Increase)
-                this.DoIncrement();
-            else
-                this.DoDecrement();
-        }
 
         private UpdateValidSpinDirection() {
-            var validSpinDirections = ValidSpinDirections.None;
-            if (this.Value < this.Maximum)
-                validSpinDirections |= ValidSpinDirections.Increase;
-            if (this.Value > this.Minimum)
-                validSpinDirections |= ValidSpinDirections.Decrease;
-            if (this._Spinner)
-                this._Spinner.ValidSpinDirection = validSpinDirections;
+            this._SpinFlow.UpdateValid(this.Value < this.Maximum, this.Value > this.Minimum);
         }
 
         ParseValue(text: string): number {
@@ -127,17 +79,12 @@ module Fayde.Controls {
             return val.toFixed(this.DecimalPlaces);
         }
 
-        private DoIncrement() {
-            if (this._Spinner && (this._Spinner.ValidSpinDirection & ValidSpinDirections.Increase) === ValidSpinDirections.Increase)
-                this.OnIncrement();
+        OnSpin() {
+            this._Formatter.ProcessUserInput();
         }
         OnIncrement() {
             this.Value = this.Value + this.Increment;
             (<any>this._Coercer).RequestedVal = this.Value;
-        }
-        private DoDecrement() {
-            if (this._Spinner && (this._Spinner.ValidSpinDirection & ValidSpinDirections.Decrease) === ValidSpinDirections.Decrease)
-                this.OnDecrement();
         }
         OnDecrement() {
             this.Value = this.Value - this.Increment;
