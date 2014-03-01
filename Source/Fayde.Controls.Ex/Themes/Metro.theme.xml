@@ -285,8 +285,8 @@
         </Setter>
     </Style>
 
-    <!--  controls:ButtonSpinner  -->
-    <Style TargetType="controls:ButtonSpinner">
+    <!--  controls:Spinner  -->
+    <Style TargetType="controls:Spinner">
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="BorderBrush">
             <Setter.Value>
@@ -303,7 +303,7 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="controls:ButtonSpinner">
+                <ControlTemplate TargetType="controls:Spinner">
                     <Grid>
                         <Grid.Resources>
                             <ControlTemplate x:Key="IncreaseButtonTemplate" TargetType="RepeatButton">
@@ -622,7 +622,7 @@
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
                         <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
-                            <controls:ButtonSpinner x:Name="Spinner" MinWidth="35" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                            <controls:Spinner x:Name="Spinner" MinWidth="35" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
                                 <TextBox BorderThickness="0" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontStretch="{TemplateBinding FontStretch}" FontStyle="{TemplateBinding FontStyle}" FontWeight="{TemplateBinding FontWeight}" Foreground="{TemplateBinding Foreground}" MinWidth="20" x:Name="Text" AcceptsReturn="False" TextAlignment="Right" TextWrapping="NoWrap">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -636,7 +636,7 @@
                                         </Style>
                                     </TextBox.Style>
                                 </TextBox>
-                            </controls:ButtonSpinner>
+                            </controls:Spinner>
                         </Border>
                         <Border x:Name="DisabledVisualElement" IsHitTestVisible="false" Opacity="0" Background="#A5FFFFFF" CornerRadius="2.5,2.5,2.5,2.5" />
                         <Border x:Name="FocusVisualElement" IsHitTestVisible="False" Opacity="0" BorderBrush="#FF45D6FA" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1,1,1,1" />
@@ -687,7 +687,7 @@
                                 <VisualState x:Name="Unfocused" />
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
-                        <controls:ButtonSpinner x:Name="Spinner" MinWidth="35" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                        <controls:Spinner x:Name="Spinner" MinWidth="35" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
                             <TextBox BorderThickness="0" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontStretch="{TemplateBinding FontStretch}" FontStyle="{TemplateBinding FontStyle}" FontWeight="{TemplateBinding FontWeight}" Foreground="{TemplateBinding Foreground}" MinWidth="20" x:Name="Text" AcceptsReturn="False" Text="{TemplateBinding Value}" TextAlignment="Right" TextWrapping="NoWrap">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -701,7 +701,7 @@
                                     </Style>
                                 </TextBox.Style>
                             </TextBox>
-                        </controls:ButtonSpinner>
+                        </controls:Spinner>
                         <Border x:Name="DisabledVisualElement" IsHitTestVisible="false" Opacity="0" Background="#A5FFFFFF" CornerRadius="2.5,2.5,2.5,2.5" />
                         <Border x:Name="FocusVisualElement" IsHitTestVisible="False" Opacity="0" BorderBrush="#FF45D6FA" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1,1,1,1" />
                     
@@ -779,7 +779,7 @@
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
                         <!-- the actual control -->
-                        <controls:ButtonSpinner x:Name="Spinner" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Style="{TemplateBinding SpinnerStyle}" IsTabStop="False" TabIndex="3">
+                        <controls:Spinner x:Name="Spinner" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Style="{TemplateBinding SpinnerStyle}" IsTabStop="False" TabIndex="3">
                             <Grid>
                                 <ContentControl x:Name="Visualization" Margin="0" Padding="0" Opacity="1" IsTabStop="False" IsHitTestVisible="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Content="{TemplateBinding Value}" ContentTemplate="{TemplateBinding ItemTemplate}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontStretch="{TemplateBinding FontStretch}" Foreground="{TemplateBinding Foreground}" />
                                 <TextBox x:Name="Text" Opacity="0" Margin="0" Padding="0" IsTabStop="True" Background="Red" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" BorderThickness="0" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontStretch="{TemplateBinding FontStretch}" Foreground="{TemplateBinding Foreground}" AcceptsReturn="False" IsHitTestVisible="False" TextWrapping="NoWrap">
@@ -796,7 +796,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Grid>
-                        </controls:ButtonSpinner>
+                        </controls:Spinner>
                         <Border x:Name="ErrorVisualElement" CornerRadius="1" Visibility="Collapsed" Margin="-2" IsHitTestVisible="False" BorderBrush="Red" BorderThickness="2" />
                     </Grid>
                 </ControlTemplate>

@@ -84,43 +84,29 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls {
-    class Spinner extends Controls.Control {
+    class Spinner extends Controls.ContentControl {
         static ValidSpinDirectionProperty: DependencyProperty;
         public ValidSpinDirection: Controls.ValidSpinDirections;
         public OnValidSpinDirectionChanged(args: IDependencyPropertyChangedEventArgs): void;
         public Spin: Fayde.RoutedEvent<Controls.SpinEventArgs>;
         public OnSpin(e: Controls.SpinEventArgs): void;
-        public GoToStates(gotoFunc: (state: string) => boolean): void;
-        public GoToStateIncrease(gotoFunc: (state: string) => boolean): boolean;
-        public GoToStateDecrease(gotoFunc: (state: string) => boolean): boolean;
-    }
-}
-declare module Fayde.Controls {
-    class ButtonSpinner extends Controls.Spinner {
-        private IsPressed;
         private _IncreaseButton;
         private _DecreaseButton;
-        private _Interaction;
-        static ContentProperty: DependencyProperty;
-        public Content: any;
-        public OnContentChanged(oldValue: any, newValue: any): void;
-        static Annotations: {
-            ContentProperty: DependencyProperty;
-        };
-        public OnValidSpinDirectionChanged(args: IDependencyPropertyChangedEventArgs): void;
         constructor();
         public OnApplyTemplate(): void;
+        private OnIncreaseClick(sender, e);
+        private OnDecreaseClick(sender, e);
+        private EnableButtons();
+        public GoToStates(gotoFunc: (state: string) => boolean): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
+        public GoToStateIncrease(gotoFunc: (state: string) => boolean): boolean;
+        public GoToStateDecrease(gotoFunc: (state: string) => boolean): boolean;
         public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        private SetIncreaseButton(d);
-        private SetDecreaseButton(d);
-        private Button_Click(sender, e);
-        private SetButtonUsage();
     }
 }
 declare module Fayde.Controls.Primitives {

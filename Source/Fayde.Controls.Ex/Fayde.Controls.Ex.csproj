@@ -61,7 +61,7 @@
     <TypeScriptCompile Include="HeaderedItemsControl.ts" />
     <TypeScriptCompile Include="Internal\GridSplitterResizer.ts" />
     <Content Include="Themes\awaiting-generic.xml" />
-    <TypeScriptCompile Include="ButtonSpinner.ts" />
+    <TypeScriptCompile Include="Spinner.ts" />
     <TypeScriptCompile Include="ContextMenu.ts" />
     <TypeScriptCompile Include="ContextMenuService.ts" />
     <TypeScriptCompile Include="DomainUpDown.ts" />
@@ -74,7 +74,6 @@
     <Content Include="require.d.ts" />
     <TypeScriptCompile Include="Separator.ts" />
     <TypeScriptCompile Include="SpinEventArgs.ts" />
-    <TypeScriptCompile Include="Spinner.ts" />
     <TypeScriptCompile Include="UpDownBase.ts" />
     <TypeScriptCompile Include="UpDownParseErrorEventArgs.ts" />
     <TypeScriptCompile Include="UpDownParsingEventArgs.ts" />
