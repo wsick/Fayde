@@ -21,7 +21,7 @@ module Fayde.Controls.Primitives {
         }
         ValueChanged = new RoutedPropertyChangedEvent<number>();
 
-        private _Coercer: Internal.RangeCoercer;
+        private _Coercer: Internal.IRangeCoercer;
 
         constructor() {
             super();
