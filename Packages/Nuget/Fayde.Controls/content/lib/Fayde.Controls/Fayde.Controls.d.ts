@@ -83,44 +83,161 @@ declare module Fayde.Controls.Internal {
         OrigActualSize: number;
     }
 }
+declare module Fayde.Controls.Internal {
+    interface IFormattedRange extends Internal.IRange {
+        DecimalPlaces: number;
+        OnDecimalPlacesChanged(oldDecPlaces: number, newDecPlaces: number): any;
+    }
+    interface IFormattedRangeCoercer extends Internal.IRangeCoercer {
+        OnDecimalPlacesChanged(oldDecPlaces: number, newDecPlaces: number): any;
+        AddToValue(inc: number): any;
+    }
+    class FormattedRangeCoercer extends Internal.RangeCoercer implements IFormattedRangeCoercer {
+        public OnCoerceFormat: () => void;
+        constructor(range: IFormattedRange, onCoerceMaximum: (val: any) => void, onCoerceValue: (val: any) => void, OnCoerceFormat: () => void);
+        public OnDecimalPlacesChanged(oldDecPlaces: number, newDecPlaces: number): void;
+        public AddToValue(inc: number): void;
+    }
+}
+declare module Fayde.Controls.Internal {
+    interface IFormattedControl<T> {
+        Value: T;
+        IsEditable: boolean;
+        ParseValue(text: string): T;
+        FormatValue(val: T): string;
+        Parsing: Fayde.RoutedEvent<Controls.UpDownParsingEventArgs<T>>;
+        ParseError: Fayde.RoutedEvent<Controls.UpDownParseErrorEventArgs>;
+    }
+    interface ITextBoxFormatter {
+        ProcessUserInput(): any;
+        Dispose(): any;
+        UpdateTextBoxText(): any;
+        UpdateIsEditable(): any;
+    }
+    class TextBoxFormatter<T> implements ITextBoxFormatter {
+        public Control: IFormattedControl<T>;
+        public TextBox: Controls.TextBox;
+        public OnCoerceValue: (val: any) => void;
+        public Value : T;
+        public Text: string;
+        constructor(Control: IFormattedControl<T>, TextBox: Controls.TextBox, OnCoerceValue: (val: any) => void);
+        public ProcessUserInput(): void;
+        public Dispose(): void;
+        private TextBox_LostFocus(sender, e);
+        private TextBox_GotFocus(sender, e);
+        public ApplyValue(text: string): void;
+        public OnParseError(e: Controls.UpDownParseErrorEventArgs): void;
+        public OnParsing(e: Controls.UpDownParsingEventArgs<T>): void;
+        public SelectAllText(): void;
+        public UpdateTextBoxText(): void;
+        public UpdateIsEditable(): void;
+    }
+}
+declare module Fayde.Controls.Internal {
+    interface ISpinOwner extends Fayde.UIElement {
+        OnSpin(): any;
+        OnIncrement(): any;
+        OnDecrement(): any;
+    }
+    interface ISpinFlow {
+        UpdateValid(increase: boolean, decrease: boolean): any;
+        Dispose(): any;
+    }
+    class SpinFlow implements ISpinFlow {
+        public Owner: ISpinOwner;
+        public Spinner: Controls.Spinner;
+        constructor(Owner: ISpinOwner, Spinner: Controls.Spinner);
+        public UpdateValid(increase: boolean, decrease: boolean): void;
+        public Dispose(): void;
+        private OnKeyDown(sender, e);
+        private OnMouseWheel(sender, e);
+        private Spinner_Spin(sender, e);
+        private DoIncrement();
+        private DoDecrement();
+    }
+}
+declare module Fayde.Controls.Internal {
+    interface IDomainOwner extends Fayde.UIElement, Internal.IItemsOwner {
+        InvalidInputAction: Controls.InvalidInputAction;
+        FallbackItem: any;
+        Value: any;
+        CurrentIndex: number;
+        IsEditable: boolean;
+        OnValueChanged(oldValue: any, newValue: any): any;
+        OnCurrentIndexChanged(oldIndex: number, newIndex: number): any;
+        OnIsEditingChanged(isEditing: boolean): any;
+        OnIsInvalidInputChanged(isInvalidInput: boolean): any;
+        TryParseValue(text: string, ov: IOutValue): boolean;
+        FormatValue(): string;
+        ParseError: Fayde.RoutedEvent<Controls.UpDownParseErrorEventArgs>;
+    }
+    interface IDomainCoercer {
+        IsEditing: boolean;
+        IsInvalidInput: boolean;
+        Items: Internal.ICollection;
+        OnValueChanged(oldValue: any, newValue: any): any;
+        OnCurrentIndexChanged(oldIndex: number, newIndex: number): any;
+        UpdateTextBoxText(): any;
+        UpdateIsEditable(): any;
+        ProcessUserInput(): any;
+        Attach(textBox: Controls.TextBox): any;
+        Detach(): any;
+        EscapeFocus(): any;
+    }
+    class DomainCoercer implements IDomainCoercer {
+        public Owner: IDomainOwner;
+        public OnCoerceValue: (val: any) => void;
+        public OnCoerceCurrentIndex: (val: number) => void;
+        public TextBox: Controls.TextBox;
+        public Text: string;
+        public Items: Internal.ICollection;
+        public IsCoercing: boolean;
+        private _IsEditing;
+        public IsEditing : boolean;
+        private OnIsEditingChanged(isEditing);
+        private _IsInvalidInput;
+        public IsInvalidInput : boolean;
+        constructor(Owner: IDomainOwner, OnCoerceValue: (val: any) => void, OnCoerceCurrentIndex: (val: number) => void);
+        public Attach(textBox: Controls.TextBox): void;
+        public Detach(): void;
+        private OnKeyDown(sender, e);
+        public EscapeFocus(): void;
+        public OnValueChanged(oldValue: any, newValue: any): void;
+        public OnCurrentIndexChanged(oldIndex: number, newIndex: number): void;
+        private TextBox_LostFocus(sender, e);
+        private TextBox_GotFocus(sender, e);
+        public SelectAllText(): void;
+        public UpdateTextBoxText(): void;
+        public UpdateIsEditable(): void;
+        public ProcessUserInput(): void;
+        public OnParseError(e: Controls.UpDownParseErrorEventArgs): void;
+        private ApplyValue(text);
+    }
+}
 declare module Fayde.Controls {
-    class Spinner extends Controls.Control {
+    class Spinner extends Controls.ContentControl {
         static ValidSpinDirectionProperty: DependencyProperty;
         public ValidSpinDirection: Controls.ValidSpinDirections;
         public OnValidSpinDirectionChanged(args: IDependencyPropertyChangedEventArgs): void;
         public Spin: Fayde.RoutedEvent<Controls.SpinEventArgs>;
         public OnSpin(e: Controls.SpinEventArgs): void;
-        public GoToStates(gotoFunc: (state: string) => boolean): void;
-        public GoToStateIncrease(gotoFunc: (state: string) => boolean): boolean;
-        public GoToStateDecrease(gotoFunc: (state: string) => boolean): boolean;
-    }
-}
-declare module Fayde.Controls {
-    class ButtonSpinner extends Controls.Spinner {
-        private IsPressed;
         private _IncreaseButton;
         private _DecreaseButton;
-        private _Interaction;
-        static ContentProperty: DependencyProperty;
-        public Content: any;
-        public OnContentChanged(oldValue: any, newValue: any): void;
-        static Annotations: {
-            ContentProperty: DependencyProperty;
-        };
-        public OnValidSpinDirectionChanged(args: IDependencyPropertyChangedEventArgs): void;
         constructor();
         public OnApplyTemplate(): void;
+        private OnIncreaseClick(sender, e);
+        private OnDecreaseClick(sender, e);
+        private EnableButtons();
+        public GoToStates(gotoFunc: (state: string) => boolean): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
+        public GoToStateIncrease(gotoFunc: (state: string) => boolean): boolean;
+        public GoToStateDecrease(gotoFunc: (state: string) => boolean): boolean;
         public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        private SetIncreaseButton(d);
-        private SetDecreaseButton(d);
-        private Button_Click(sender, e);
-        private SetButtonUsage();
     }
 }
 declare module Fayde.Controls.Primitives {
@@ -226,67 +343,59 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class DomainUpDown extends Controls.UpDownBase<any> {
-        private _Items;
-        private _ValueDuringInit;
-        private _IsNotAllowedToEditByFocus;
-        private _IsEditing;
-        private _IsInvalidInput;
-        private _InitialCurrentIndex;
-        private _CurrentIndexDuringInit;
-        private _CurrentIndexNestLevel;
-        private _Interaction;
+    class DomainUpDown extends Controls.Control {
         static ValueProperty: DependencyProperty;
+        static IsEditableProperty: DependencyProperty;
+        static SpinnerStyleProperty: DependencyProperty;
         static CurrentIndexProperty: DependencyProperty;
-        public CurrentIndex: number;
-        private _OnCurrentIndexChanged(args);
-        public OnCurrentIndexChanged(oldValue: number, newValue: number): void;
         static IsCyclicProperty: DependencyProperty;
-        public IsCyclic: boolean;
-        private _OnIsCyclicChanged(args);
         static InvalidInputActionProperty: DependencyProperty;
-        public InvalidInputAction: Controls.InvalidInputAction;
-        private _OnInvalidInputActionPropertyChanged(args);
         static FallbackItemProperty: DependencyProperty;
-        public FallbackItem: any;
         static ItemsSourceProperty: DependencyProperty;
-        public ItemsSource: Fayde.IEnumerable<any>;
-        public OnItemsSourceChanged(oldItemsSource: Fayde.IEnumerable<any>, newItemsSource: Fayde.IEnumerable<any>): void;
         static ItemTemplateProperty: DependencyProperty;
+        public Value: any;
+        public IsEditable: boolean;
+        public SpinnerStyle: Fayde.Style;
+        public CurrentIndex: number;
+        public IsCyclic: boolean;
+        public InvalidInputAction: Controls.InvalidInputAction;
+        public FallbackItem: any;
+        public ItemsSource: Fayde.IEnumerable<any>;
         public ItemTemplate: Fayde.DataTemplate;
-        public Items : Fayde.Collections.ObservableCollection<any>;
-        public IsEditing : boolean;
-        private SetIsEditing(value);
-        private SetIsInvalidInput(value);
+        public Items: Controls.Internal.ObservableObjectCollection;
+        public OnValueChanged(oldItem: any, newItem: any): void;
+        public OnCurrentIndexChanged(oldIndex: number, newIndex: number): void;
+        public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
+        private _OnIsCyclicChanged(args);
+        public ValueChanging: Fayde.RoutedPropertyChangingEvent<number>;
+        public ParseError: Fayde.RoutedEvent<Controls.UpDownParseErrorEventArgs>;
         public ValueMemberPath : string;
         private _ValueBindingEvaluator;
         public ValueMemberBinding : Fayde.Data.Binding;
-        private GetActualItems();
+        private _Manager;
+        private _Coercer;
+        private _SpinFlow;
+        private _CanEditByFocus;
         constructor();
         public OnApplyTemplate(): void;
-        public GoToStates(gotoFunc: (state: string) => boolean): void;
-        public GoToStateEditing(gotoFunc: (state: string) => boolean): boolean;
-        public GoToStateValid(gotoFunc: (state: string) => boolean): boolean;
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
-        private SetValidSpinDirection();
-        private OnItemsChanged(sender, e);
-        public OnValueChanging(e: Fayde.RoutedPropertyChangingEventArgs<any>): void;
-        public OnValueChanged(e: Fayde.RoutedPropertyChangedEventArgs<any>): void;
-        public ApplyValue(text: string): void;
-        public ParseValue(text: string): any;
-        public FormatValue(): string;
+        public GoToStates(gotoFunc: (state: string) => boolean): void;
+        public GoToStateEditing(gotoFunc: (state: string) => boolean): boolean;
+        public GoToStateValid(gotoFunc: (state: string) => boolean): boolean;
+        private UpdateValidSpinDirection();
+        private TryEnterEditMode();
+        public OnIsEditingChanged(isEditing: boolean): void;
+        public OnIsInvalidInputChanged(isInvalid: boolean): void;
+        public OnSpin(): void;
         public OnIncrement(): void;
         public OnDecrement(): void;
-        private TryEnterEditMode();
-        public SelectAllText(): void;
-        private CoerceSelectedIndex(index);
-        private IsValidCurrentIndex(value);
+        public TryParseValue(text: string, ov: IOutValue): boolean;
+        public FormatValue(): string;
     }
 }
 declare module Fayde.Controls {
@@ -324,6 +433,8 @@ declare module Fayde.Controls.Internal {
     class ObservableObjectCollection extends Fayde.Collections.ObservableCollection<any> {
         public IsReadOnly: boolean;
         constructor(collection?: Fayde.IEnumerable<any>);
+        public Add(value: any): void;
+        public AddRange(values: any[]): void;
         public Insert(item: any, index: number): void;
         public RemoveAt(index: number): void;
         public SetValueAt(index: number, item: any): void;
@@ -358,48 +469,39 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class NumericUpDown extends Controls.UpDownBase<number> {
-        private _LevelsFromRootCall;
-        private _InitialMin;
-        private _InitialMax;
-        private _InitialVal;
-        private _InitialInc;
-        private _RequestedMin;
-        private _RequestedMax;
-        private _RequestedVal;
-        private _RequestedInc;
-        private _Interaction;
-        static ValueProperty: DependencyProperty;
+    class NumericUpDown extends Controls.Control {
         static MinimumProperty: DependencyProperty;
-        public Minimum: number;
-        private _OnMinimumChanged(args);
-        public OnMinimumChanged(oldMinimum: number, newMinimum: number): void;
         static MaximumProperty: DependencyProperty;
-        public Maximum: number;
-        private _OnMaximumChanged(args);
-        public OnMaximumChanged(oldMaximum: number, newMaximum: number): void;
+        static ValueProperty: DependencyProperty;
         static IncrementProperty: DependencyProperty;
-        public Increment: number;
-        private _OnIncrementChanged(args);
-        public OnIncrementChanged(oldIncrement: number, newIncrement: number): void;
         static DecimalPlacesProperty: DependencyProperty;
+        static SpinnerStyleProperty: DependencyProperty;
+        static IsEditableProperty: DependencyProperty;
+        public Minimum: number;
+        public Maximum: number;
+        public Value: number;
+        public Increment: number;
         public DecimalPlaces: number;
-        private _OnDecimalPlacesChanged(args);
+        public SpinnerStyle: Fayde.Style;
+        public IsEditable: boolean;
+        public OnMinimumChanged(oldMinimum: number, newMinimum: number): void;
+        public OnMaximumChanged(oldMaximum: number, newMaximum: number): void;
+        public OnValueChanged(oldValue: number, newValue: number): void;
+        public OnIncrementChanged(oldIncrement: number, newIncrement: number): void;
         public OnDecimalPlacesChanged(oldDecimalPlaces: number, newDecimalPlaces: number): void;
+        public Parsing: Fayde.RoutedEvent<Controls.UpDownParsingEventArgs<number>>;
+        public ParseError: Fayde.RoutedEvent<Controls.UpDownParseErrorEventArgs>;
+        private _Coercer;
+        private _Formatter;
+        private _SpinFlow;
         constructor();
         public OnApplyTemplate(): void;
-        private SetValidSpinDirection();
-        public OnValueChanging(e: Fayde.RoutedPropertyChangingEventArgs<number>): void;
-        public OnValueChanged(e: Fayde.RoutedPropertyChangedEventArgs<number>): void;
+        private UpdateValidSpinDirection();
         public ParseValue(text: string): number;
-        public FormatValue(): string;
+        public FormatValue(val: number): string;
+        public OnSpin(): void;
         public OnIncrement(): void;
         public OnDecrement(): void;
-        private CoerceMaximum();
-        private CoerceValue();
-        private _EnsureValidDoubleValue(propd, oldValue, newValue);
-        private _EnsureValidIncrementValue(e);
-        private _EnsureValidDecimalPlacesValue(e);
     }
 }
 declare module Fayde.Controls {
