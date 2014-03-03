@@ -84,6 +84,16 @@ module Fayde {
             }
             return false;
         }
+        static IndexOf<S>(enumerable: IEnumerable<S>, item: S): number {
+            var i = 0;
+            var enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                if (enumerator.Current === item)
+                    return i;
+                i++;
+            }
+            return -1;
+        }
         static FirstOrDefault<S>(enumerable: IEnumerable<S>, filter?: (item: S) => boolean): S {
             if (!enumerable)
                 return null;
@@ -120,6 +130,14 @@ module Fayde {
         }
         static Where<S>(enumerable: IEnumerable<S>, filter: (item: S) => boolean): IEnumerable<S> {
             return new WhereEnumerable<S>(enumerable, filter);
+        }
+        static ToArray<S>(enumerable: IEnumerable<S>): S[] {
+            var e = enumerable.GetEnumerator();
+            var a = [];
+            while (e.MoveNext()) {
+                a.push(e.Current);
+            }
+            return a;
         }
     }
 

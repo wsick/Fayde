@@ -20,7 +20,6 @@ module Fayde.Controls.Primitives {
         SelectionChanged: RoutedEvent<SelectionChangedEventArgs> = new RoutedEvent<SelectionChangedEventArgs>();
         private _Selection: SelectorSelection;
         private _SelectedItems: Collections.ObservableCollection<any> = new Collections.ObservableCollection<any>();
-        private _Initializing: boolean = false;
         _SelectedItemsIsInvalid: boolean = false;
         $TemplateScrollViewer: ScrollViewer = null;
         private _SelectedValueWalker: Data.PropertyPathWalker = null;
@@ -53,7 +52,7 @@ module Fayde.Controls.Primitives {
                 this.SelectedItem = icv.CurrentItem;
         }
         private _OnSelectedIndexChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (this._Selection.IsUpdating || this._Initializing)
+            if (this._Selection.IsUpdating)
                 return;
 
             var items = this.Items;
@@ -63,7 +62,7 @@ module Fayde.Controls.Primitives {
                 this._Selection.Select(items.GetValueAt(args.NewValue));
         }
         private _OnSelectedItemChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (this._Selection.IsUpdating || this._Initializing)
+            if (this._Selection.IsUpdating)
                 return;
 
             if (args.NewValue == null)
@@ -76,15 +75,12 @@ module Fayde.Controls.Primitives {
                 this._Selection.ClearSelection();
         }
         private _OnSelectedValueChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (this._Selection.IsUpdating || this._Initializing)
+            if (this._Selection.IsUpdating)
                 return;
             this._SelectItemFromValue(args.NewValue, false);
         }
         private _OnSelectedValuePathChanged(args: IDependencyPropertyChangedEventArgs) {
             this._SelectedValueWalker = !args.NewValue ? null : new Data.PropertyPathWalker(args.NewValue);
-
-            if (this._Initializing)
-                return;
             this._SelectItemFromValue(this.SelectedValue, true);
         }
         private _OnSelectionModeChanged(args: DependencyPropertyChangedEventArgs) {
@@ -108,11 +104,6 @@ module Fayde.Controls.Primitives {
         }
 
         OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
-            if (this._Initializing) {
-                super.OnItemsChanged(e);
-                return;
-            }
-
             var item: any;
             switch (e.Action) {
                 case Collections.NotifyCollectionChangedAction.Add:

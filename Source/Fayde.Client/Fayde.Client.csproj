@@ -300,6 +300,7 @@
     <TypeScriptCompile Include="Core\Providers\StyleSwapper.ts" />
     <TypeScriptCompile Include="Engine\DebugVisual.ts" />
     <TypeScriptCompile Include="Controls\Internal\RangeCoercer.ts" />
+    <TypeScriptCompile Include="Controls\Internal\ItemsManager.ts" />
     <Content Include="Themes\Metro.theme.xml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -64,10 +64,10 @@ module Fayde.Controls.Internal {
             this.PreCoercedMax = newMaximum;
             var max = this.Maximum;
             if (!NumberEx.AreClose(this.InitialMax, max))
-                this.OnMaximumChanged(this.InitialMax, max);
+                this.Range.OnMaximumChanged(this.InitialMax, max);
             var val = this.Value;
             if (!NumberEx.AreClose(this.InitialVal, val))
-                this.OnValueChanged(this.InitialVal, val);
+                this.Range.OnValueChanged(this.InitialVal, val);
         }
         OnValueChanged(oldValue: number, newValue: number) {
             if (this.CoerceDepth === 0) {

@@ -14,6 +14,8 @@ module Fayde.Collections {
 
         get Count(): number { return this._ht.length; }
 
+        ToArray(): T[] { return this._ht.slice(0); }
+
         GetValueAt(index: number): T {
             var ht = this._ht;
             if (index < 0 || index >= ht.length)
