@@ -43,10 +43,10 @@ module Fayde.Controls {
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
-            this._Coercer = new Internal.FormattedRangeCoercer(this, 
+            this._Coercer = new Internal.FormattedRangeCoercer(this,
                 (val) => this.SetCurrentValue(NumericUpDown.MaximumProperty, val),
                 (val) => this.SetCurrentValue(NumericUpDown.ValueProperty, val),
-                () => this._Formatter.UpdateTextBoxText());
+                () => { if (this._Formatter) this._Formatter.UpdateTextBoxText(); });
         }
 
         OnApplyTemplate() {
