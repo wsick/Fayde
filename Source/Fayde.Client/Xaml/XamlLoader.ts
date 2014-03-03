@@ -364,8 +364,8 @@ module Fayde.Xaml {
 
                 if (!hasSetContent && !el.firstElementChild) {
                     var text = el.textContent;
+                    if (text) text = text.trim();
                     if (text) {
-                        text = text.trim();
                         if (textContentPropd)
                             dobj.SetValue(textContentPropd, text);
                         else if (!contentPropd.IsImmutable)
