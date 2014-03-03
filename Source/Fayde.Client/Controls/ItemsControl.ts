@@ -38,7 +38,9 @@ module Fayde.Controls {
 
         private static _ItemsSourceValidator(d: DependencyObject, propd: DependencyProperty, value: any): boolean {
             var ic = <ItemsControl>d;
-            return ic._Manager.Items.Count <= 0;
+            if (!ic.ItemsSource && ic._Manager.Items.Count > 0)
+                throw new InvalidOperationException("Items collection must be empty before using ItemsSource");
+            return true;
         }
 
         static DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", () => String, ItemsControl, null, (d, args) => (<ItemsControl>d).OnDisplayMemberPathChanged(args));
