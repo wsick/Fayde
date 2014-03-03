@@ -9,7 +9,7 @@ module Fayde.Controls {
         static IncrementProperty = DependencyProperty.Register("Increment", () => Number, NumericUpDown, 1.0, (d, args) => (<NumericUpDown>d).OnIncrementChanged(args.OldValue, args.NewValue));
         static DecimalPlacesProperty = DependencyProperty.Register("DecimalPlaces", () => Number, NumericUpDown, 0, (d, args) => (<NumericUpDown>d)._Coercer.OnDecimalPlacesChanged(args.OldValue, args.NewValue));
         static SpinnerStyleProperty = DependencyProperty.Register("SpinnerStyle", () => Style, NumericUpDown);
-        static IsEditableProperty = DependencyProperty.Register("IsEditable", () => Boolean, NumericUpDown, true, (d, args) => (<NumericUpDown>d)._OnIsEditableChanged(args));
+        static IsEditableProperty = DependencyProperty.Register("IsEditable", () => Boolean, NumericUpDown, true, (d, args) => (<NumericUpDown>d)._Formatter.UpdateIsEditable());
 
         Minimum: number;
         Maximum: number;
@@ -31,11 +31,7 @@ module Fayde.Controls {
         }
         OnIncrementChanged(oldIncrement: number, newIncrement: number) { }
         OnDecimalPlacesChanged(oldDecimalPlaces: number, newDecimalPlaces: number) { }
-        private _OnIsEditableChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._Formatter.UpdateIsEditable();
-        }
-        
-        ValueChanging = new RoutedPropertyChangingEvent<number>();
+
         Parsing = new RoutedEvent<UpDownParsingEventArgs<number>>();
         ParseError = new RoutedEvent<UpDownParseErrorEventArgs>();
 
@@ -46,7 +42,7 @@ module Fayde.Controls {
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
-            this._Coercer = new Internal.FormattedRangeCoercer(this,
+            this._Coercer = new Internal.FormattedRangeCoercer(this, 
                 (val) => this.SetCurrentValue(NumericUpDown.MaximumProperty, val),
                 (val) => this.SetCurrentValue(NumericUpDown.ValueProperty, val),
                 () => this._Formatter.UpdateTextBoxText());
@@ -54,7 +50,7 @@ module Fayde.Controls {
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
-
+            
             if (this._SpinFlow)
                 this._SpinFlow.Dispose();
             this._SpinFlow = new Internal.SpinFlow(this, <Spinner>this.GetTemplateChild("Spinner", Spinner));
@@ -63,16 +59,17 @@ module Fayde.Controls {
                 this._Formatter.Dispose();
             this._Formatter = new Internal.TextBoxFormatter<number>(this, <TextBox>this.GetTemplateChild("Text", TextBox),
                 (val) => this.SetCurrentValue(NumericUpDown.ValueProperty, val));
-
+            
             this.UpdateValidSpinDirection();
             this.UpdateVisualState(false);
         }
 
         private UpdateValidSpinDirection() {
-            this._SpinFlow.UpdateValid(this.Value < this.Maximum, this.Value > this.Minimum);
+            var val = this.Value;
+            this._SpinFlow.UpdateValid(val < this.Maximum, val > this.Minimum);
         }
 
-        ParseValue(text: string): number {
+        ParseValue(text: string) {
             return parseFloat(text);
         }
         FormatValue(val: number): string {
@@ -83,12 +80,10 @@ module Fayde.Controls {
             this._Formatter.ProcessUserInput();
         }
         OnIncrement() {
-            this.Value = this.Value + this.Increment;
-            (<any>this._Coercer).RequestedVal = this.Value;
+            this._Coercer.AddToValue(this.Increment);
         }
         OnDecrement() {
-            this.Value = this.Value - this.Increment;
-            (<any>this._Coercer).RequestedVal = this.Value;
+            this._Coercer.AddToValue(-this.Increment);
         }
     }
     TemplateVisualStates(NumericUpDown,

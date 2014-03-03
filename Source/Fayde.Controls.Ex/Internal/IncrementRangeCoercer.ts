@@ -5,6 +5,7 @@ module Fayde.Controls.Internal {
     }
     export interface IFormattedRangeCoercer extends IRangeCoercer {
         OnDecimalPlacesChanged(oldDecPlaces: number, newDecPlaces: number);
+        AddToValue(inc: number);
     }
     export class FormattedRangeCoercer extends RangeCoercer implements IFormattedRangeCoercer {
         constructor(range: IFormattedRange, onCoerceMaximum: (val: any) => void, onCoerceValue: (val: any) => void, public OnCoerceFormat: () => void) {
@@ -15,6 +16,11 @@ module Fayde.Controls.Internal {
             this.CoerceDepth++;
             this.OnCoerceFormat();
             this.CoerceDepth--;
+        }
+
+        AddToValue(inc: number) {
+            this.OnCoerceValue(this.Value + inc);
+            this.RequestedVal = this.Value;
         }
     }
 } 

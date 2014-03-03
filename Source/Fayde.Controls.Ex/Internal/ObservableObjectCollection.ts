@@ -13,6 +13,16 @@ module Fayde.Controls.Internal {
             }
         }
 
+        Add(value: any) {
+            if (this.IsReadOnly)
+                throw new InvalidOperationException("ObservableObjectCollection is read only.");
+            super.Add(value);
+        }
+        AddRange(values: any[]) {
+            if (this.IsReadOnly)
+                throw new InvalidOperationException("ObservableObjectCollection is read only.");
+            super.AddRange(values);
+        }
         Insert(item: any, index: number) {
             if (this.IsReadOnly)
                 throw new InvalidOperationException("ObservableObjectCollection is read only.");
