@@ -31,9 +31,9 @@ declare module Fayde.Xaml {
         constructor(xaml: string);
         static Get(url: Uri): XamlDocument;
         static Get(url: string): XamlDocument;
-        static GetAsync(url: string, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
-        static GetAsync(url: Uri, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
-        public Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<any>;
+        static GetAsync(url: string, ctx?: Fayde.IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
+        static GetAsync(url: Uri, ctx?: Fayde.IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
+        public Resolve(ctx: Fayde.IDependencyAsyncContext): IAsyncRequest<any>;
     }
 }
 interface IInterfaceDeclaration<T> extends IType {
@@ -80,7 +80,7 @@ declare module Fayde {
 }
 declare module Fayde.Collections {
     interface INotifyCollectionChanged {
-        CollectionChanged: MulticastEvent<NotifyCollectionChangedEventArgs>;
+        CollectionChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
     }
     var INotifyCollectionChanged_: IInterfaceDeclaration<INotifyCollectionChanged>;
 }
@@ -121,7 +121,7 @@ declare module Fayde {
         static EmptyEnumerator: IEnumerator<any>;
         static AsEnumerable<T>(arr: T[]): IEnumerable<T>;
         static GetEnumerator<T>(arr: T[], isReverse?: boolean): IEnumerator<T>;
-        static GetNodeEnumerator<T extends XamlObject, U extends XamlNode>(arr: T[], isReverse?: boolean): IEnumerator<U>;
+        static GetNodeEnumerator<T extends Fayde.XamlObject, U extends Fayde.XamlNode>(arr: T[], isReverse?: boolean): IEnumerator<U>;
         static RemoveIfContains<T>(arr: T[], item: T): boolean;
         static Except<T>(arr1: T[], arr2: T[]): T[];
         static Fill<T>(arr: T[], index: number, count: number, fill: T): void;
@@ -138,11 +138,11 @@ declare module Fayde {
     var INotifyPropertyChanged_: IInterfaceDeclaration<INotifyPropertyChanged>;
 }
 declare module Fayde.Collections {
-    class ObservableCollection<T> implements IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {
+    class ObservableCollection<T> implements Fayde.IEnumerable<T>, Collections.INotifyCollectionChanged, Fayde.INotifyPropertyChanged {
         private _ht;
-        public GetEnumerator(): IEnumerator<T>;
-        public CollectionChanged: MulticastEvent<NotifyCollectionChangedEventArgs>;
-        public PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
+        public GetEnumerator(): Fayde.IEnumerator<T>;
+        public CollectionChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
+        public PropertyChanged: MulticastEvent<Fayde.PropertyChangedEventArgs>;
         public Count : number;
         public ToArray(): T[];
         public GetValueAt(index: number): T;
@@ -170,15 +170,15 @@ declare module Fayde {
         Detach(): any;
     }
     class XamlNode {
-        public XObject: XamlObject;
+        public XObject: Fayde.XamlObject;
         public ParentNode: XamlNode;
         public Name: string;
-        public NameScope: NameScope;
+        public NameScope: Fayde.NameScope;
         private IsShareable;
         private _OwnerNameScope;
         private _LogicalChildren;
         private _IAMonitors;
-        constructor(xobj: XamlObject);
+        constructor(xobj: Fayde.XamlObject);
         private _DataContext;
         public DataContext : any;
         public OnDataContextChanged(oldDataContext: any, newDataContext: any): void;
@@ -187,7 +187,7 @@ declare module Fayde {
         public OnIsEnabledChanged(oldValue: boolean, newValue: boolean): void;
         public FindName(name: string): XamlNode;
         public SetName(name: string): void;
-        public FindNameScope(): NameScope;
+        public FindNameScope(): Fayde.NameScope;
         public IsAttached: boolean;
         public SetIsAttached(value: boolean): void;
         public OnIsAttachedChanged(newIsAttached: boolean): void;
@@ -195,19 +195,19 @@ declare module Fayde {
         public AttachTo(parentNode: XamlNode, error: BError): boolean;
         public Detach(): void;
         public OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode): void;
-        public GetInheritedEnumerator(): IEnumerator<DONode>;
-        public GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator<FENode>;
+        public GetInheritedEnumerator(): Fayde.IEnumerator<Fayde.DONode>;
+        public GetVisualTreeEnumerator(direction?: VisualTreeDirection): Fayde.IEnumerator<Fayde.FENode>;
         static SetShareable(xn: XamlNode): void;
     }
 }
 declare module Fayde {
-    class XamlObject implements Providers.IIsPropertyInheritable {
+    class XamlObject implements Fayde.Providers.IIsPropertyInheritable {
         private static _LastID;
         private _ID;
-        public XamlNode: XamlNode;
-        public TemplateOwner: DependencyObject;
+        public XamlNode: Fayde.XamlNode;
+        public TemplateOwner: Fayde.DependencyObject;
         constructor();
-        public CreateNode(): XamlNode;
+        public CreateNode(): Fayde.XamlNode;
         public Name : string;
         public Parent : XamlObject;
         public FindName(name: string): XamlObject;
@@ -271,14 +271,14 @@ declare module Fayde.Providers {
     }
     interface IPropertyChangedListener {
         Property: DependencyProperty;
-        OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs): any;
+        OnPropertyChanged(sender: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): any;
         Detach(): any;
     }
     interface IPropertyStorage {
-        OwnerNode: DONode;
+        OwnerNode: Fayde.DONode;
         Property: DependencyProperty;
         Precedence: PropertyPrecedence;
-        Animations: Media.Animation.IAnimationStorage[];
+        Animations: Fayde.Media.Animation.IAnimationStorage[];
         Local: any;
         LocalStyleValue: any;
         ImplicitStyleValue: any;
@@ -287,7 +287,7 @@ declare module Fayde.Providers {
     interface IPropertyStorageOwner {
         _PropertyStorage: IPropertyStorage[];
     }
-    function GetStorage(dobj: DependencyObject, propd: DependencyProperty): IPropertyStorage;
+    function GetStorage(dobj: Fayde.DependencyObject, propd: DependencyProperty): IPropertyStorage;
     class PropertyStore {
         static Instance: PropertyStore;
         public GetValue(storage: IPropertyStorage): any;
@@ -297,36 +297,36 @@ declare module Fayde.Providers {
         public SetImplicitStyle(storage: IPropertyStorage, newValue: any): void;
         public ClearValue(storage: IPropertyStorage): void;
         public OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
-        public ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender: any, args: IDependencyPropertyChangedEventArgs) => void, closure: any): IPropertyChangedListener;
-        public CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IPropertyStorage;
-        public Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
+        public ListenToChanged(target: Fayde.DependencyObject, propd: DependencyProperty, func: (sender: any, args: IDependencyPropertyChangedEventArgs) => void, closure: any): IPropertyChangedListener;
+        public CreateStorage(dobj: Fayde.DependencyObject, propd: DependencyProperty): IPropertyStorage;
+        public Clone(dobj: Fayde.DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
     }
 }
 declare module Fayde.Providers {
-    interface IDataContextStorage extends IPropertyStorage {
+    interface IDataContextStorage extends Providers.IPropertyStorage {
         InheritedValue: any;
     }
-    class DataContextStore extends PropertyStore {
+    class DataContextStore extends Providers.PropertyStore {
         static Instance: DataContextStore;
         public GetValue(storage: IDataContextStorage): any;
-        public GetValuePrecedence(storage: IDataContextStorage): PropertyPrecedence;
+        public GetValuePrecedence(storage: IDataContextStorage): Providers.PropertyPrecedence;
         public OnInheritedChanged(storage: IDataContextStorage, newInherited?: any): void;
-        public CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IDataContextStorage;
-        public OnPropertyChanged(storage: IDataContextStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
+        public CreateStorage(dobj: Fayde.DependencyObject, propd: DependencyProperty): IDataContextStorage;
+        public OnPropertyChanged(storage: IDataContextStorage, effectivePrecedence: Providers.PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
         private TryUpdateDataContextExpression(storage, newDataContext);
     }
 }
 declare module Fayde {
-    class DONode extends XamlNode {
+    class DONode extends Fayde.XamlNode {
         public XObject: DependencyObject;
         constructor(xobj: DependencyObject);
-        public OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode): void;
+        public OnParentChanged(oldParentNode: Fayde.XamlNode, newParentNode: Fayde.XamlNode): void;
         public DataContext : any;
         public OnDataContextChanged(oldDataContext: any, newDataContext: any): void;
     }
-    class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
+    class DependencyObject extends Fayde.XamlObject implements ICloneable, Fayde.Providers.IPropertyStorageOwner {
         private _Expressions;
-        public _PropertyStorage: Providers.IPropertyStorage[];
+        public _PropertyStorage: Fayde.Providers.IPropertyStorage[];
         static DataContextProperty: DependencyProperty;
         public DataContext: any;
         constructor();
@@ -343,26 +343,26 @@ declare module Fayde {
         private _AddExpression(propd, expr);
         private _RemoveExpression(propd);
         public _HasDeferredValueExpression(propd: DependencyProperty): boolean;
-        public GetBindingExpression(propd: DependencyProperty): Data.BindingExpressionBase;
-        public SetBinding(propd: DependencyProperty, binding: Data.Binding): Data.BindingExpressionBase;
+        public GetBindingExpression(propd: DependencyProperty): Fayde.Data.BindingExpressionBase;
+        public SetBinding(propd: DependencyProperty, binding: Fayde.Data.Binding): Fayde.Data.BindingExpressionBase;
         public CloneCore(source: DependencyObject): void;
     }
 }
 declare module Fayde.Providers {
-    interface IInheritedStorage extends IPropertyStorage {
+    interface IInheritedStorage extends Providers.IPropertyStorage {
         InheritedValue: any;
     }
     interface IIsPropertyInheritable {
         IsInheritable(propd: DependencyProperty): boolean;
     }
-    class InheritedStore extends PropertyStore {
+    class InheritedStore extends Providers.PropertyStore {
         static Instance: InheritedStore;
         public GetValue(storage: IInheritedStorage): any;
-        public GetValuePrecedence(storage: IInheritedStorage): PropertyPrecedence;
-        public OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
-        public CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IInheritedStorage;
-        static PropagateInheritedOnAdd(dobj: DependencyObject, subtreeNode: DONode): void;
-        static ClearInheritedOnRemove(dobj: DependencyObject, subtreeNode: DONode): void;
+        public GetValuePrecedence(storage: IInheritedStorage): Providers.PropertyPrecedence;
+        public OnPropertyChanged(storage: Providers.IPropertyStorage, effectivePrecedence: Providers.PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
+        public CreateStorage(dobj: Fayde.DependencyObject, propd: DependencyProperty): IInheritedStorage;
+        static PropagateInheritedOnAdd(dobj: Fayde.DependencyObject, subtreeNode: Fayde.DONode): void;
+        static ClearInheritedOnRemove(dobj: Fayde.DependencyObject, subtreeNode: Fayde.DONode): void;
         private Propagate(ownerNode, propd, newValue);
         private SetInheritedValue(don, propd, newValue);
     }
@@ -499,42 +499,42 @@ declare module Fayde {
         FontChanged(args: IDependencyPropertyChangedEventArgs): any;
     }
     class InheritableOwner {
-        static _UseLayoutRoundingPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        static _UseLayoutRoundingPropertyChanged(dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         static UseLayoutRoundingProperty: DependencyProperty;
-        static _FlowDirectionPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        static _FlowDirectionPropertyChanged(dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         static FlowDirectionProperty: DependencyProperty;
-        static _FontFamilyPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        static _FontFamilyPropertyChanged(dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         static FontFamilyProperty: DependencyProperty;
-        static _FontSizePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        static _FontSizePropertyChanged(dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         static FontSizeProperty: DependencyProperty;
-        static _FontStretchPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        static _FontStretchPropertyChanged(dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         static FontStretchProperty: DependencyProperty;
-        static _FontStylePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        static _FontStylePropertyChanged(dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         static FontStyleProperty: DependencyProperty;
-        static _FontWeightPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        static _FontWeightPropertyChanged(dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         static FontWeightProperty: DependencyProperty;
-        static _ForegroundPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        static _ForegroundPropertyChanged(dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         static ForegroundProperty: DependencyProperty;
-        static _TextDecorationsPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        static _TextDecorationsPropertyChanged(dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         static TextDecorationsProperty: DependencyProperty;
-        static _LanguagePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        static _LanguagePropertyChanged(dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         static LanguageProperty: DependencyProperty;
         static AllInheritedProperties: DependencyProperty[];
     }
 }
 declare module Fayde {
-    class UINode extends DONode {
+    class UINode extends Fayde.DONode {
         public XObject: UIElement;
-        public LayoutUpdater: LayoutUpdater;
+        public LayoutUpdater: Fayde.LayoutUpdater;
         public IsTopLevel: boolean;
-        public _Surface: Surface;
+        public _Surface: Fayde.Surface;
         public IsMouseOver: boolean;
         public SetSurfaceFromVisualParent(): UINode;
-        public SetSurface(surface: Surface): void;
+        public SetSurface(surface: Fayde.Surface): void;
         constructor(xobj: UIElement);
         public VisualParentNode: UINode;
         public GetVisualRoot(): UINode;
-        public GetInheritedEnumerator(): IEnumerator<DONode>;
+        public GetInheritedEnumerator(): Fayde.IEnumerator<Fayde.DONode>;
         public OnIsAttachedChanged(newIsAttached: boolean): void;
         public IsLoaded: boolean;
         public SetIsLoaded(value: boolean): void;
@@ -545,31 +545,32 @@ declare module Fayde {
         public _EmitFocusChange(type: string): void;
         private _EmitLostFocus();
         private _EmitGotFocus();
-        public _EmitKeyDown(args: Input.KeyEventArgs): void;
-        public _EmitKeyUp(args: Input.KeyEventArgs): void;
+        public _EmitKeyDown(args: Fayde.Input.KeyEventArgs): void;
+        public _EmitKeyUp(args: Fayde.Input.KeyEventArgs): void;
         public _EmitLostMouseCapture(pos: Point): void;
-        public _EmitMouseEvent(type: Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs): boolean;
-        public _EmitTouchEvent(type: Input.TouchInputType, args: Input.TouchEventArgs): boolean;
-        public _EmitGotTouchCapture(e: Input.TouchEventArgs): void;
-        public _EmitLostTouchCapture(e: Input.TouchEventArgs): void;
+        public _EmitMouseEvent(type: Fayde.Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Fayde.Input.MouseEventArgs): boolean;
+        public _EmitTouchEvent(type: Fayde.Input.TouchInputType, args: Fayde.Input.TouchEventArgs): boolean;
+        public _EmitGotTouchCapture(e: Fayde.Input.TouchEventArgs): void;
+        public _EmitLostTouchCapture(e: Fayde.Input.TouchEventArgs): void;
         public CanCaptureMouse(): boolean;
         public CaptureMouse(): boolean;
         public ReleaseMouseCapture(): void;
         public ResortChildrenByZIndex(): void;
         public InvalidateParent(r: rect): void;
-        public InvalidateClip(oldClip: Media.Geometry, newClip: Media.Geometry): void;
-        public InvalidateEffect(oldEffect: Media.Effects.Effect, newEffect: Media.Effects.Effect): void;
+        public InvalidateClip(oldClip: Fayde.Media.Geometry, newClip: Fayde.Media.Geometry): void;
+        public InvalidateEffect(oldEffect: Fayde.Media.Effects.Effect, newEffect: Fayde.Media.Effects.Effect): void;
         public InvalidateOpacity(): void;
-        public InvalidateVisibility(newVisibility: Visibility): void;
+        public InvalidateVisibility(newVisibility: Fayde.Visibility): void;
         public IsAncestorOf(uin: UINode): boolean;
-        public TransformToVisual(uin: UINode): Media.GeneralTransform;
+        public TransformToVisual(uin: UINode): Fayde.Media.GeneralTransform;
     }
-    class UIElement extends DependencyObject implements Providers.IIsPropertyInheritable {
+    class UIElement extends Fayde.DependencyObject implements Fayde.Providers.IIsPropertyInheritable {
         public XamlNode: UINode;
         private _ClipListener;
         private _EffectListener;
+        private _TransformListener;
         public CreateNode(): UINode;
-        public CreateLayoutUpdater(uin: UINode): LayoutUpdater;
+        public CreateLayoutUpdater(uin: UINode): Fayde.LayoutUpdater;
         public VisualParent : UIElement;
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;
@@ -589,97 +590,98 @@ declare module Fayde {
         public IsMouseOver : boolean;
         public DesiredSize : size;
         public RenderSize : size;
-        public Clip: Media.Geometry;
-        public Effect: Media.Effects.Effect;
+        public Clip: Fayde.Media.Geometry;
+        public Effect: Fayde.Media.Effects.Effect;
         public IsHitTestVisible: boolean;
-        public Cursor: CursorType;
-        public OpacityMask: Media.Brush;
+        public Cursor: Fayde.CursorType;
+        public OpacityMask: Fayde.Media.Brush;
         public Opacity: number;
-        public Projection: Media.Projection;
-        public RenderTransform: Media.Transform;
+        public Projection: Fayde.Media.Projection;
+        public RenderTransform: Fayde.Media.Transform;
         public RenderTransformOrigin: Point;
         public Tag: any;
-        public Triggers: TriggerCollection;
+        public Triggers: Fayde.TriggerCollection;
         public UseLayoutRounding: boolean;
-        public Visibility: Visibility;
+        public Visibility: Fayde.Visibility;
         public Focus(): boolean;
         public CaptureMouse(): boolean;
         public ReleaseMouseCapture(): void;
         public IsAncestorOf(uie: UIElement): boolean;
-        public TransformToVisual(uie: UIElement): Media.GeneralTransform;
+        public TransformToVisual(uie: UIElement): Fayde.Media.GeneralTransform;
         public InvalidateMeasure(): void;
         public Measure(availableSize: size): void;
         public InvalidateArrange(): void;
         public Arrange(finalRect: rect): void;
-        public LostFocus: RoutedEvent<RoutedEventArgs>;
-        public GotFocus: RoutedEvent<RoutedEventArgs>;
-        public LostMouseCapture: RoutedEvent<Input.MouseEventArgs>;
-        public KeyDown: RoutedEvent<Input.KeyEventArgs>;
-        public KeyUp: RoutedEvent<Input.KeyEventArgs>;
-        public MouseLeftButtonUp: RoutedEvent<Input.MouseButtonEventArgs>;
-        public MouseRightButtonUp: RoutedEvent<Input.MouseButtonEventArgs>;
-        public MouseLeftButtonDown: RoutedEvent<Input.MouseButtonEventArgs>;
-        public MouseRightButtonDown: RoutedEvent<Input.MouseButtonEventArgs>;
-        public MouseLeave: RoutedEvent<Input.MouseEventArgs>;
-        public MouseEnter: RoutedEvent<Input.MouseEventArgs>;
-        public MouseMove: RoutedEvent<Input.MouseEventArgs>;
-        public MouseWheel: RoutedEvent<Input.MouseWheelEventArgs>;
-        public TouchDown: RoutedEvent<Input.TouchEventArgs>;
-        public TouchUp: RoutedEvent<Input.TouchEventArgs>;
-        public TouchEnter: RoutedEvent<Input.TouchEventArgs>;
-        public TouchLeave: RoutedEvent<Input.TouchEventArgs>;
-        public TouchMove: RoutedEvent<Input.TouchEventArgs>;
-        public GotTouchCapture: RoutedEvent<Input.TouchEventArgs>;
-        public LostTouchCapture: RoutedEvent<Input.TouchEventArgs>;
-        public OnGotFocus(e: RoutedEventArgs): void;
-        public OnLostFocus(e: RoutedEventArgs): void;
-        public OnLostMouseCapture(e: Input.MouseEventArgs): void;
-        public OnKeyDown(e: Input.KeyEventArgs): void;
-        public OnKeyUp(e: Input.KeyEventArgs): void;
-        public OnMouseEnter(e: Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
-        public OnMouseMove(e: Input.MouseEventArgs): void;
-        public OnMouseRightButtonDown(e: Input.MouseButtonEventArgs): void;
-        public OnMouseRightButtonUp(e: Input.MouseButtonEventArgs): void;
-        public OnMouseWheel(e: Input.MouseWheelEventArgs): void;
-        public OnTouchDown(e: Input.TouchEventArgs): void;
-        public OnTouchUp(e: Input.TouchEventArgs): void;
-        public OnTouchEnter(e: Input.TouchEventArgs): void;
-        public OnTouchLeave(e: Input.TouchEventArgs): void;
-        public OnTouchMove(e: Input.TouchEventArgs): void;
-        public OnGotTouchCapture(e: Input.TouchEventArgs): void;
-        public OnLostTouchCapture(e: Input.TouchEventArgs): void;
+        public LostFocus: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        public GotFocus: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        public LostMouseCapture: Fayde.RoutedEvent<Fayde.Input.MouseEventArgs>;
+        public KeyDown: Fayde.RoutedEvent<Fayde.Input.KeyEventArgs>;
+        public KeyUp: Fayde.RoutedEvent<Fayde.Input.KeyEventArgs>;
+        public MouseLeftButtonUp: Fayde.RoutedEvent<Fayde.Input.MouseButtonEventArgs>;
+        public MouseRightButtonUp: Fayde.RoutedEvent<Fayde.Input.MouseButtonEventArgs>;
+        public MouseLeftButtonDown: Fayde.RoutedEvent<Fayde.Input.MouseButtonEventArgs>;
+        public MouseRightButtonDown: Fayde.RoutedEvent<Fayde.Input.MouseButtonEventArgs>;
+        public MouseLeave: Fayde.RoutedEvent<Fayde.Input.MouseEventArgs>;
+        public MouseEnter: Fayde.RoutedEvent<Fayde.Input.MouseEventArgs>;
+        public MouseMove: Fayde.RoutedEvent<Fayde.Input.MouseEventArgs>;
+        public MouseWheel: Fayde.RoutedEvent<Fayde.Input.MouseWheelEventArgs>;
+        public TouchDown: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchUp: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchEnter: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchLeave: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchMove: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public GotTouchCapture: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public LostTouchCapture: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostMouseCapture(e: Fayde.Input.MouseEventArgs): void;
+        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public OnKeyUp(e: Fayde.Input.KeyEventArgs): void;
+        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseRightButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseRightButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
+        public OnTouchDown(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchUp(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchEnter(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchLeave(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchMove(e: Fayde.Input.TouchEventArgs): void;
+        public OnGotTouchCapture(e: Fayde.Input.TouchEventArgs): void;
+        public OnLostTouchCapture(e: Fayde.Input.TouchEventArgs): void;
         private _ClipChanged(args);
         private _EffectChanged(args);
         private _UseLayoutRoundingChanged(args);
         private _IsHitTestVisibleChanged(args);
         private _TriggersChanged(args);
+        private _RenderTransformChanged(args);
         public MeasureOverride(availableSize: size): size;
         public ArrangeOverride(finalSize: size): size;
     }
 }
 declare module Fayde.Providers {
-    class ImmutableStore extends PropertyStore {
+    class ImmutableStore extends Providers.PropertyStore {
         static Instance: ImmutableStore;
-        public GetValue(storage: IPropertyStorage): any;
-        public GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
-        public SetLocalValue(storage: IPropertyStorage, newValue: any): void;
-        public ClearValue(storage: IPropertyStorage): void;
-        public ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender: any, args: IDependencyPropertyChangedEventArgs) => void, closure: any): IPropertyChangedListener;
-        public Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
+        public GetValue(storage: Providers.IPropertyStorage): any;
+        public GetValuePrecedence(storage: Providers.IPropertyStorage): Providers.PropertyPrecedence;
+        public SetLocalValue(storage: Providers.IPropertyStorage, newValue: any): void;
+        public ClearValue(storage: Providers.IPropertyStorage): void;
+        public ListenToChanged(target: Fayde.DependencyObject, propd: DependencyProperty, func: (sender: any, args: IDependencyPropertyChangedEventArgs) => void, closure: any): Providers.IPropertyChangedListener;
+        public Clone(dobj: Fayde.DependencyObject, sourceStorage: Providers.IPropertyStorage): Providers.IPropertyStorage;
     }
 }
 declare module Fayde.Providers {
-    class ActualSizeStore extends PropertyStore {
+    class ActualSizeStore extends Providers.PropertyStore {
         static Instance: ActualSizeStore;
-        public GetValue(storage: IPropertyStorage): number;
-        public GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
-        public SetLocalValue(storage: IPropertyStorage, newValue: number): void;
-        public SetLocalStyleValue(storage: IPropertyStorage, newValue: any): void;
-        public SetImplicitStyle(storage: IPropertyStorage, newValue: any): void;
-        public ClearValue(storage: IPropertyStorage, notifyListeners?: boolean): void;
+        public GetValue(storage: Providers.IPropertyStorage): number;
+        public GetValuePrecedence(storage: Providers.IPropertyStorage): Providers.PropertyPrecedence;
+        public SetLocalValue(storage: Providers.IPropertyStorage, newValue: number): void;
+        public SetLocalStyleValue(storage: Providers.IPropertyStorage, newValue: any): void;
+        public SetImplicitStyle(storage: Providers.IPropertyStorage, newValue: any): void;
+        public ClearValue(storage: Providers.IPropertyStorage, notifyListeners?: boolean): void;
     }
 }
 declare module Fayde {
@@ -692,7 +694,7 @@ declare module Fayde {
     }
     class LayoutUpdater {
         static LayoutExceptionUpdater: LayoutUpdater;
-        public Surface: Surface;
+        public Surface: Fayde.Surface;
         public LayoutClip: rect;
         public CompositeLayoutClip: rect;
         public LayoutSlot: rect;
@@ -735,9 +737,9 @@ declare module Fayde {
         public InDownDirty: boolean;
         public DirtyRegion: rect;
         private _ForceInvalidateOfNewBounds;
-        public Node: UINode;
-        constructor(uin: UINode);
-        public OnIsAttachedChanged(newIsAttached: boolean, visualParentNode: UINode): void;
+        public Node: Fayde.UINode;
+        constructor(uin: Fayde.UINode);
+        public OnIsAttachedChanged(newIsAttached: boolean, visualParentNode: Fayde.UINode): void;
         public OnAddedToTree(): void;
         public OnRemovedFromTree(): void;
         public SetContainerMode(isLayoutContainer: boolean, isContainer?: boolean): void;
@@ -754,22 +756,22 @@ declare module Fayde {
         public InvalidateMeasure(): void;
         public InvalidateArrange(): void;
         public InvalidateSubtreePaint(): void;
-        public InvalidateVisibility(newVisibility: Visibility): void;
+        public InvalidateVisibility(newVisibility: Fayde.Visibility): void;
         public InvalidateHitTestVisibility(newHitTestVisibility: boolean): void;
         public InvalidateChildrenZIndices(): void;
         public UpdateClip(): void;
         public SetLayoutClip(layoutClip: rect): void;
         public ComputeLayoutClip(vpLu: LayoutUpdater): void;
         public UpdateTransform(): void;
-        public ComputeLocalTransform(uie: UIElement): void;
-        public ComputeLocalProjection(uie: UIElement): void;
-        public ComputeTransform(uin: UINode, vplu: LayoutUpdater): void;
+        public ComputeLocalTransform(uie: Fayde.UIElement): void;
+        public ComputeLocalProjection(uie: Fayde.UIElement): void;
+        public ComputeTransform(uin: Fayde.UINode, vplu: LayoutUpdater): void;
         public PostComputeTransform(hasProjection: boolean): void;
         public UpdateProjection(): void;
         public TransformPoint(p: Point): void;
-        public TransformToVisual(toUin: UINode): Media.GeneralTransform;
-        public GetTransformOrigin(uie: UIElement): IPoint;
-        public GetTextBlockTransformOrigin(tb: Controls.TextBlock): IPoint;
+        public TransformToVisual(toUin: Fayde.UINode): Fayde.Media.GeneralTransform;
+        public GetTransformOrigin(uie: Fayde.UIElement): IPoint;
+        public GetTextBlockTransformOrigin(tb: Fayde.Controls.TextBlock): IPoint;
         public UpdateRenderVisibility(vpLu: LayoutUpdater): void;
         public UpdateTotalRenderVisibility(): void;
         public UpdateHitTestVisibility(vpLu: LayoutUpdater): void;
@@ -792,15 +794,15 @@ declare module Fayde {
         private _DoArrangeWithError(error);
         public _Arrange(finalRect: rect, error: BError): void;
         public ArrangeOverride(finalSize: size, error: BError): size;
-        public DoRender(ctx: RenderContextEx, r: rect): void;
-        public Render(ctx: RenderContextEx, region: rect): void;
-        public FindElementsInHostCoordinates(p: Point): UINode[];
+        public DoRender(ctx: Fayde.RenderContextEx, r: rect): void;
+        public Render(ctx: Fayde.RenderContextEx, region: rect): void;
+        public FindElementsInHostCoordinates(p: Point): Fayde.UINode[];
         private _FindElementsInHostCoordinates(ctx, p, uinlist, applyXform);
-        public HitTestPoint(ctx: RenderContextEx, p: Point, uinlist: UINode[]): void;
-        public InsideObject(ctx: RenderContextEx, x: number, y: number): boolean;
+        public HitTestPoint(ctx: Fayde.RenderContextEx, p: Point, uinlist: Fayde.UINode[]): void;
+        public InsideObject(ctx: Fayde.RenderContextEx, x: number, y: number): boolean;
         private _InsideClip(ctx, x, y);
         private _InsideLayoutClip(ctx, x, y);
-        public RenderLayoutClip(ctx: RenderContextEx): void;
+        public RenderLayoutClip(ctx: Fayde.RenderContextEx): void;
         private _DebugLayout();
         private _SerializeDirt();
         private _SerializeFlags();
@@ -808,34 +810,34 @@ declare module Fayde {
     }
 }
 declare module Fayde {
-    class FENode extends UINode implements Providers.IStyleHolder, Providers.IImplicitStyleHolder {
-        public _LocalStyle: Style;
-        public _ImplicitStyles: Style[];
+    class FENode extends Fayde.UINode implements Fayde.Providers.IStyleHolder, Fayde.Providers.IImplicitStyleHolder {
+        public _LocalStyle: Fayde.Style;
+        public _ImplicitStyles: Fayde.Style[];
         public _StyleMask: number;
-        public _Surface: Surface;
+        public _Surface: Fayde.Surface;
         public XObject: FrameworkElement;
         constructor(xobj: FrameworkElement);
-        public SubtreeNode: XamlNode;
-        public SetSubtreeNode(subtreeNode: XamlNode, error: BError): boolean;
+        public SubtreeNode: Fayde.XamlNode;
+        public SetSubtreeNode(subtreeNode: Fayde.XamlNode, error: BError): boolean;
         public SetIsLoaded(value: boolean): void;
         public OnIsLoadedChanged(newIsLoaded: boolean): void;
         public InvokeLoaded(): void;
-        public AttachVisualChild(uie: UIElement, error: BError): boolean;
-        public DetachVisualChild(uie: UIElement, error: BError): boolean;
+        public AttachVisualChild(uie: Fayde.UIElement, error: BError): boolean;
+        public DetachVisualChild(uie: Fayde.UIElement, error: BError): boolean;
         public ApplyTemplateWithError(error: BError): boolean;
         public DoApplyTemplateWithError(error: BError): boolean;
-        public FinishApplyTemplateWithError(uie: UIElement, error: BError): boolean;
+        public FinishApplyTemplateWithError(uie: Fayde.UIElement, error: BError): boolean;
         public _HasFocus(): boolean;
-        public GetFocusedElement(): UIElement;
+        public GetFocusedElement(): Fayde.UIElement;
         public UpdateLayout(): void;
-        public GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator<FENode>;
+        public GetVisualTreeEnumerator(direction?: Fayde.VisualTreeDirection): Fayde.IEnumerator<FENode>;
         public _SizeChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _FlowDirectionChanged(args: IDependencyPropertyChangedEventArgs): void;
     }
-    class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
+    class FrameworkElement extends Fayde.UIElement implements Fayde.IResourcable, Fayde.Providers.IIsPropertyInheritable {
         public DefaultStyleKey: any;
         public XamlNode: FENode;
-        public Resources: ResourceDictionary;
+        public Resources: Fayde.ResourceDictionary;
         constructor();
         public CreateNode(): FENode;
         static ActualHeightProperty: DependencyProperty;
@@ -853,25 +855,25 @@ declare module Fayde {
         static StyleProperty: DependencyProperty;
         static VerticalAlignmentProperty: DependencyProperty;
         static WidthProperty: DependencyProperty;
-        static ResourcesProperty: ImmutableDependencyProperty<ResourceDictionary>;
+        static ResourcesProperty: ImmutableDependencyProperty<Fayde.ResourceDictionary>;
         public IsInheritable(propd: DependencyProperty): boolean;
         public ActualHeight: number;
         public ActualWidth: number;
-        public FlowDirection: FlowDirection;
+        public FlowDirection: Fayde.FlowDirection;
         public Height: number;
-        public HorizontalAlignment: HorizontalAlignment;
+        public HorizontalAlignment: Fayde.HorizontalAlignment;
         public Language: string;
         public Margin: Thickness;
         public MaxWidth: number;
         public MaxHeight: number;
         public MinWidth: number;
         public MinHeight: number;
-        public Style: Style;
-        public VerticalAlignment: VerticalAlignment;
+        public Style: Fayde.Style;
+        public VerticalAlignment: Fayde.VerticalAlignment;
         public Width: number;
-        public SizeChanged: RoutedEvent<RoutedEventArgs>;
-        public Loaded: RoutedEvent<RoutedEventArgs>;
-        public Unloaded: RoutedEvent<RoutedEventArgs>;
+        public SizeChanged: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        public Loaded: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        public Unloaded: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         public LayoutUpdated: MulticastEvent<EventArgs>;
         public OnApplyTemplate(): void;
         public UpdateLayout(): void;
@@ -882,18 +884,18 @@ declare module Fayde {
     }
 }
 declare module Fayde.Controls {
-    class Border extends FrameworkElement {
-        public CreateLayoutUpdater(node: UINode): BorderLayoutUpdater;
+    class Border extends Fayde.FrameworkElement {
+        public CreateLayoutUpdater(node: Fayde.UINode): BorderLayoutUpdater;
         static BackgroundProperty: DependencyProperty;
         static BorderBrushProperty: DependencyProperty;
         static BorderThicknessProperty: DependencyProperty;
         static ChildProperty: DependencyProperty;
         static CornerRadiusProperty: DependencyProperty;
         static PaddingProperty: DependencyProperty;
-        public Background: Media.Brush;
-        public BorderBrush: Media.Brush;
+        public Background: Fayde.Media.Brush;
+        public BorderBrush: Fayde.Media.Brush;
         public BorderThickness: Thickness;
-        public Child: UIElement;
+        public Child: Fayde.UIElement;
         public CornerRadius: CornerRadius;
         public Padding: Thickness;
         private _BackgroundListener;
@@ -904,27 +906,27 @@ declare module Fayde.Controls {
         private _BorderThicknessChanged(args);
         private _PaddingChanged(args);
     }
-    class BorderLayoutUpdater extends LayoutUpdater {
+    class BorderLayoutUpdater extends Fayde.LayoutUpdater {
         private _Renderer;
-        constructor(node: UINode);
+        constructor(node: Fayde.UINode);
         public MeasureOverride(availableSize: size, error: BError): size;
         public ArrangeOverride(finalSize: size, error: BError): size;
-        public Render(ctx: RenderContextEx, region: rect): void;
+        public Render(ctx: Fayde.RenderContextEx, region: rect): void;
     }
 }
 declare module Fayde.Providers {
-    interface IIsEnabledStorage extends IPropertyStorage {
+    interface IIsEnabledStorage extends Providers.IPropertyStorage {
         InheritedValue: boolean;
     }
-    class IsEnabledStore extends PropertyStore {
+    class IsEnabledStore extends Providers.PropertyStore {
         static Instance: IsEnabledStore;
         public GetValue(storage: IIsEnabledStorage): boolean;
-        public GetValuePrecedence(storage: IIsEnabledStorage): PropertyPrecedence;
+        public GetValuePrecedence(storage: IIsEnabledStorage): Providers.PropertyPrecedence;
         public SetLocalValue(storage: IIsEnabledStorage, newValue: boolean): void;
-        public OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
-        public CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IIsEnabledStorage;
+        public OnPropertyChanged(storage: Providers.IPropertyStorage, effectivePrecedence: Providers.PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
+        public CreateStorage(dobj: Fayde.DependencyObject, propd: DependencyProperty): IIsEnabledStorage;
         public EmitInheritedChanged(storage: IIsEnabledStorage, newInherited: boolean): void;
-        static EmitInheritedChanged(cn: Controls.ControlNode, value: boolean): void;
+        static EmitInheritedChanged(cn: Fayde.Controls.ControlNode, value: boolean): void;
     }
 }
 interface IOutValue {
@@ -976,24 +978,24 @@ declare module Fayde.Controls {
         Callback: (newIsEnabled: boolean) => void;
         Detach(): any;
     }
-    class ControlNode extends FENode {
-        public _Surface: Surface;
+    class ControlNode extends Fayde.FENode {
+        public _Surface: Fayde.Surface;
         public XObject: Control;
-        public TemplateRoot: FrameworkElement;
+        public TemplateRoot: Fayde.FrameworkElement;
         public IsFocused: boolean;
         constructor(xobj: Control);
         public TabTo(): boolean;
         public DoApplyTemplateWithError(error: BError): boolean;
-        public GetDefaultVisualTree(): UIElement;
+        public GetDefaultVisualTree(): Fayde.UIElement;
         public OnIsAttachedChanged(newIsAttached: boolean): void;
-        public OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode): void;
-        public OnTemplateChanged(oldTemplate: ControlTemplate, newTemplate: ControlTemplate): void;
+        public OnParentChanged(oldParentNode: Fayde.XamlNode, newParentNode: Fayde.XamlNode): void;
+        public OnTemplateChanged(oldTemplate: Controls.ControlTemplate, newTemplate: Controls.ControlTemplate): void;
         public IsEnabled : boolean;
         public OnIsEnabledChanged(oldValue: boolean, newValue: boolean): void;
         public Focus(recurse?: boolean): boolean;
         public CanCaptureMouse(): boolean;
     }
-    class Control extends FrameworkElement implements Providers.IIsPropertyInheritable {
+    class Control extends Fayde.FrameworkElement implements Fayde.Providers.IIsPropertyInheritable {
         public XamlNode: ControlNode;
         public CreateNode(): ControlNode;
         static BackgroundProperty: DependencyProperty;
@@ -1015,33 +1017,33 @@ declare module Fayde.Controls {
         static VerticalContentAlignmentProperty: DependencyProperty;
         static DefaultStyleKeyProperty: DependencyProperty;
         public IsInheritable(propd: DependencyProperty): boolean;
-        public Background: Media.Brush;
-        public BorderBrush: Media.Brush;
+        public Background: Fayde.Media.Brush;
+        public BorderBrush: Fayde.Media.Brush;
         public BorderThickness: Thickness;
         public FontFamily: string;
         public FontSize: number;
         public FontStretch: string;
         public FontStyle: string;
-        public FontWeight: FontWeight;
-        public Foreground: Media.Brush;
-        public HorizontalContentAlignment: HorizontalAlignment;
+        public FontWeight: Fayde.FontWeight;
+        public Foreground: Fayde.Media.Brush;
+        public HorizontalContentAlignment: Fayde.HorizontalAlignment;
         public IsEnabled: boolean;
         public IsTabStop: boolean;
         public Padding: Thickness;
         public TabIndex: number;
-        public TabNavigation: Input.KeyboardNavigationMode;
-        public Template: ControlTemplate;
-        public VerticalContentAlignment: VerticalAlignment;
+        public TabNavigation: Fayde.Input.KeyboardNavigationMode;
+        public Template: Controls.ControlTemplate;
+        public VerticalContentAlignment: Fayde.VerticalAlignment;
         public DefaultStyleKey: Function;
         public IsFocused : boolean;
-        public GetTemplateChild(childName: string, type?: Function): DependencyObject;
+        public GetTemplateChild(childName: string, type?: Function): Fayde.DependencyObject;
         public ApplyTemplate(): boolean;
-        public GetDefaultStyle(): Style;
+        public GetDefaultStyle(): Fayde.Style;
         public IsEnabledChanged: MulticastEvent<DependencyPropertyChangedEventArgs>;
         public _IsEnabledChanged(args: IDependencyPropertyChangedEventArgs): void;
         public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
-        public OnGotFocus(e: RoutedEventArgs): void;
-        public OnLostFocus(e: RoutedEventArgs): void;
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public UpdateVisualState(useTransitions?: boolean): void;
         public GoToStates(gotoFunc: (state: string) => boolean): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
@@ -1055,22 +1057,22 @@ declare module Fayde.Controls {
         Name: string;
         GroupName: string;
     }
-    var TemplateVisualStates: ITypedAnnotation<ITemplateVisualStateDefinition>;
+    var TemplateVisualStates: Fayde.ITypedAnnotation<ITemplateVisualStateDefinition>;
     interface ITemplatePartDefinition {
         Name: string;
         Type: Function;
     }
-    var TemplateParts: ITypedAnnotation<ITemplatePartDefinition>;
+    var TemplateParts: Fayde.ITypedAnnotation<ITemplatePartDefinition>;
 }
 declare module Fayde.Controls {
-    class ContentControlNode extends ControlNode {
+    class ContentControlNode extends Controls.ControlNode {
         public XObject: ContentControl;
         constructor(xobj: ContentControl);
         public OnContentChanged(o: any, n: any): void;
-        public GetDefaultVisualTree(): UIElement;
-        public OnTemplateChanged(oldTemplate: ControlTemplate, newTemplate: ControlTemplate): void;
+        public GetDefaultVisualTree(): Fayde.UIElement;
+        public OnTemplateChanged(oldTemplate: Controls.ControlTemplate, newTemplate: Controls.ControlTemplate): void;
     }
-    class ContentControl extends Control {
+    class ContentControl extends Controls.Control {
         public XamlNode: ContentControlNode;
         public CreateNode(): ContentControlNode;
         public _ContentSetsParent: boolean;
@@ -1079,8 +1081,8 @@ declare module Fayde.Controls {
         private OnContentPropertyChanged(args);
         public OnContentChanged(oldContent: any, newContent: any): void;
         static ContentTemplateProperty: DependencyProperty;
-        public ContentTemplate: DataTemplate;
-        public OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate): void;
+        public ContentTemplate: Fayde.DataTemplate;
+        public OnContentTemplateChanged(oldContentTemplate: Fayde.DataTemplate, newContentTemplate: Fayde.DataTemplate): void;
         static ContentUriProperty: DependencyProperty;
         public ContentUri: Uri;
         private OnContentUriPropertyChanged(args);
@@ -1131,18 +1133,18 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls.Primitives {
-    class ButtonBase extends ContentControl {
+    class ButtonBase extends Controls.ContentControl {
         static ClickModeProperty: DependencyProperty;
         static IsPressedProperty: DependencyProperty;
         static IsFocusedProperty: DependencyProperty;
         static CommandProperty: DependencyProperty;
         static CommandParameterProperty: DependencyProperty;
-        public ClickMode: ClickMode;
+        public ClickMode: Controls.ClickMode;
         public IsPressed: boolean;
         public IsFocused: boolean;
-        public Command: Input.ICommand;
+        public Command: Fayde.Input.ICommand;
         public CommandParameter: any;
-        public Click: RoutedEvent<RoutedEventArgs>;
+        public Click: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         private _IsMouseCaptured;
         private _IsMouseLeftButtonDown;
         private _IsSpaceKeyDown;
@@ -1151,13 +1153,13 @@ declare module Fayde.Controls.Primitives {
         constructor();
         public OnIsPressedChanged(args: IDependencyPropertyChangedEventArgs): void;
         public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
-        public OnMouseEnter(e: Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Input.MouseEventArgs): void;
-        public OnMouseMove(e: Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
-        public OnGotFocus(e: RoutedEventArgs): void;
-        public OnLostFocus(e: RoutedEventArgs): void;
+        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public OnClick(): void;
         private _DoWithSuspend(action);
         public UpdateVisualState(useTransitions?: boolean): void;
@@ -1171,16 +1173,16 @@ declare module Fayde.Controls.Primitives {
     }
 }
 declare module Fayde.Controls {
-    class Button extends Primitives.ButtonBase {
+    class Button extends Controls.Primitives.ButtonBase {
         constructor();
         public OnApplyTemplate(): void;
         public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
     }
 }
 declare module Fayde {
-    class XamlObjectCollection<T extends XamlObject> extends XamlObject implements IEnumerable<T> {
+    class XamlObjectCollection<T extends Fayde.XamlObject> extends Fayde.XamlObject implements Fayde.IEnumerable<T> {
         public _ht: T[];
-        public AttachTo(xobj: XamlObject): void;
+        public AttachTo(xobj: Fayde.XamlObject): void;
         public Count : number;
         public GetRange(startIndex: number, endIndex: number): T[];
         public GetValueAt(index: number): T;
@@ -1195,8 +1197,8 @@ declare module Fayde {
         public CanAdd(value: T): boolean;
         public AddingToCollection(value: T, error: BError): boolean;
         public RemovedFromCollection(value: T, isValueSafe: boolean): void;
-        public GetEnumerator(reverse?: boolean): IEnumerator<T>;
-        public GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U>;
+        public GetEnumerator(reverse?: boolean): Fayde.IEnumerator<T>;
+        public GetNodeEnumerator<U extends Fayde.XamlNode>(reverse?: boolean): Fayde.IEnumerator<U>;
         public _RaiseItemAdded(value: T, index: number): void;
         public _RaiseItemRemoved(value: T, index: number): void;
         public _RaiseItemReplaced(removed: T, added: T, index: number): void;
@@ -1206,17 +1208,17 @@ declare module Fayde {
     }
 }
 declare module Fayde.Controls {
-    class PanelNode extends FENode {
+    class PanelNode extends Fayde.FENode {
         public XObject: Panel;
         constructor(xobj: Panel);
-        public AttachVisualChild(uie: UIElement, error: BError): boolean;
-        public DetachVisualChild(uie: UIElement, error: BError): boolean;
+        public AttachVisualChild(uie: Fayde.UIElement, error: BError): boolean;
+        public DetachVisualChild(uie: Fayde.UIElement, error: BError): boolean;
         public _InvalidateChildrenZIndices(): void;
         public ResortChildrenByZIndex(): void;
         public OnIsAttachedChanged(newIsAttached: boolean): void;
-        public GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator<FENode>;
+        public GetVisualTreeEnumerator(direction?: Fayde.VisualTreeDirection): Fayde.IEnumerator<Fayde.FENode>;
     }
-    class Panel extends FrameworkElement {
+    class Panel extends Fayde.FrameworkElement {
         public XamlNode: PanelNode;
         public CreateNode(): PanelNode;
         public CreateLayoutUpdater(node: PanelNode): PanelLayoutUpdater;
@@ -1224,56 +1226,56 @@ declare module Fayde.Controls {
         static ZProperty: DependencyProperty;
         static BackgroundProperty: DependencyProperty;
         static IsItemsHostProperty: DependencyProperty;
-        static ChildrenProperty: ImmutableDependencyProperty<XamlObjectCollection<UIElement>>;
-        public Background: Media.Brush;
+        static ChildrenProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Fayde.UIElement>>;
+        public Background: Fayde.Media.Brush;
         public IsItemsHost: boolean;
-        public Children: XamlObjectCollection<UIElement>;
+        public Children: Fayde.XamlObjectCollection<Fayde.UIElement>;
         private _BackgroundListener;
         constructor();
-        static GetZIndex(uie: UIElement): number;
-        static SetZIndex(uie: UIElement, value: number): void;
-        static GetZ(uie: UIElement): number;
-        static SetZ(uie: UIElement, value: number): void;
+        static GetZIndex(uie: Fayde.UIElement): number;
+        static SetZIndex(uie: Fayde.UIElement, value: number): void;
+        static GetZ(uie: Fayde.UIElement): number;
+        static SetZ(uie: Fayde.UIElement, value: number): void;
         private _BackgroundChanged(args);
     }
-    class PanelLayoutUpdater extends LayoutUpdater {
+    class PanelLayoutUpdater extends Fayde.LayoutUpdater {
         constructor(node: PanelNode);
-        public InsideObject(ctx: RenderContextEx, x: number, y: number): boolean;
+        public InsideObject(ctx: Fayde.RenderContextEx, x: number, y: number): boolean;
         public ComputeExtents(actualSize: size): void;
-        public Render(ctx: RenderContextEx, region: rect): void;
+        public Render(ctx: Fayde.RenderContextEx, region: rect): void;
     }
 }
 declare module Fayde.Controls {
-    class CanvasNode extends PanelNode {
+    class CanvasNode extends Controls.PanelNode {
         public XObject: Canvas;
         constructor(xobj: Canvas);
-        public AttachVisualChild(uie: UIElement, error: BError): boolean;
-        public DetachVisualChild(uie: UIElement, error: BError): boolean;
+        public AttachVisualChild(uie: Fayde.UIElement, error: BError): boolean;
+        public DetachVisualChild(uie: Fayde.UIElement, error: BError): boolean;
         private _UpdateIsLayoutContainerOnAdd(uie);
         private _UpdateIsLayoutContainerOnRemove(uie);
     }
-    class Canvas extends Panel {
+    class Canvas extends Controls.Panel {
         public CreateNode(): CanvasNode;
-        public CreateLayoutUpdater(node: PanelNode): CanvasLayoutUpdater;
+        public CreateLayoutUpdater(node: Controls.PanelNode): CanvasLayoutUpdater;
         static TopProperty: DependencyProperty;
-        static GetTop(d: DependencyObject): number;
-        static SetTop(d: DependencyObject, value: number): void;
+        static GetTop(d: Fayde.DependencyObject): number;
+        static SetTop(d: Fayde.DependencyObject, value: number): void;
         static LeftProperty: DependencyProperty;
-        static GetLeft(d: DependencyObject): number;
-        static SetLeft(d: DependencyObject, value: number): void;
+        static GetLeft(d: Fayde.DependencyObject): number;
+        static SetLeft(d: Fayde.DependencyObject, value: number): void;
     }
-    class CanvasLayoutUpdater extends PanelLayoutUpdater {
-        constructor(node: PanelNode);
+    class CanvasLayoutUpdater extends Controls.PanelLayoutUpdater {
+        constructor(node: Controls.PanelNode);
         public MeasureOverride(availableSize: size, error: BError): size;
         public ArrangeOverride(finalSize: size, error: BError): size;
         public ComputeBounds(): void;
     }
 }
 declare module Fayde.Controls.Primitives {
-    class ToggleButton extends ButtonBase {
-        public Checked: RoutedEvent<RoutedEventArgs>;
-        public Indeterminate: RoutedEvent<RoutedEventArgs>;
-        public Unchecked: RoutedEvent<RoutedEventArgs>;
+    class ToggleButton extends Primitives.ButtonBase {
+        public Checked: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        public Indeterminate: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        public Unchecked: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         static IsCheckedProperty: DependencyProperty;
         static IsThreeStateProperty: DependencyProperty;
         public IsChecked: boolean;
@@ -1288,7 +1290,7 @@ declare module Fayde.Controls.Primitives {
     }
 }
 declare module Fayde.Controls {
-    class CheckBox extends Primitives.ToggleButton {
+    class CheckBox extends Controls.Primitives.ToggleButton {
         constructor();
     }
 }
@@ -1296,12 +1298,12 @@ declare module Fayde.Controls {
     interface IColumnDefinitionListener {
         ColumnDefinitionChanged(colDefinition: ColumnDefinition): any;
     }
-    class ColumnDefinition extends DependencyObject {
+    class ColumnDefinition extends Fayde.DependencyObject {
         static WidthProperty: DependencyProperty;
         static MaxWidthProperty: DependencyProperty;
         static MinWidthProperty: DependencyProperty;
         static ActualWidthProperty: DependencyProperty;
-        public Width: GridLength;
+        public Width: Controls.GridLength;
         public MaxWidth: number;
         public MinWidth: number;
         public ActualWidth: number;
@@ -1313,7 +1315,7 @@ declare module Fayde.Controls {
     interface IColumnDefinitionsListener {
         ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection): any;
     }
-    class ColumnDefinitionCollection extends XamlObjectCollection<ColumnDefinition> implements IColumnDefinitionListener {
+    class ColumnDefinitionCollection extends Fayde.XamlObjectCollection<ColumnDefinition> implements IColumnDefinitionListener {
         private _Listener;
         public Listen(listener: IColumnDefinitionsListener): void;
         public Unlisten(listener: IColumnDefinitionsListener): void;
@@ -1323,54 +1325,54 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class ItemsControlNode extends ControlNode {
+    class ItemsControlNode extends Controls.ControlNode {
         private _Presenter;
         private static _DefaultPosition;
         public XObject: ItemsControl;
         constructor(xobj: ItemsControl);
-        public GetDefaultVisualTree(): UIElement;
-        public ItemsPresenter : ItemsPresenter;
-        public _SetItemsPresenter(presenter: ItemsPresenter): void;
+        public GetDefaultVisualTree(): Fayde.UIElement;
+        public ItemsPresenter : Controls.ItemsPresenter;
+        public _SetItemsPresenter(presenter: Controls.ItemsPresenter): void;
     }
-    class ItemsControl extends Control {
+    class ItemsControl extends Controls.Control {
         public XamlNode: ItemsControlNode;
         public CreateNode(): ItemsControlNode;
         private static _ItemsSourceValidator(d, propd, value);
         static DisplayMemberPathProperty: DependencyProperty;
         static ItemsPanelProperty: DependencyProperty;
         static ItemsSourceProperty: DependencyProperty;
-        static ItemsProperty: ImmutableDependencyProperty<ItemCollection>;
+        static ItemsProperty: ImmutableDependencyProperty<Controls.ItemCollection>;
         static ItemTemplateProperty: DependencyProperty;
         public DisplayMemberPath: string;
-        public ItemsPanel: ItemsPanelTemplate;
-        public ItemsSource: IEnumerable<any>;
-        public Items: ItemCollection;
-        public ItemTemplate: DataTemplate;
+        public ItemsPanel: Controls.ItemsPanelTemplate;
+        public ItemsSource: Fayde.IEnumerable<any>;
+        public Items: Controls.ItemCollection;
+        public ItemTemplate: Fayde.DataTemplate;
         public OnDisplayMemberPathChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnItemTemplateChanged(e: IDependencyPropertyChangedEventArgs): void;
         private _DisplayMemberTemplate;
         private _Manager;
         private _ItemContainerGenerator;
-        public ItemContainerGenerator : ItemContainerGenerator;
-        public Panel : Panel;
-        static GetItemsOwner(uie: UIElement): ItemsControl;
-        static ItemsControlFromItemContainer(container: DependencyObject): ItemsControl;
+        public ItemContainerGenerator : Controls.ItemContainerGenerator;
+        public Panel : Controls.Panel;
+        static GetItemsOwner(uie: Fayde.UIElement): ItemsControl;
+        static ItemsControlFromItemContainer(container: Fayde.DependencyObject): ItemsControl;
         constructor();
-        public OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs): void;
-        public OnICGItemsChanged(sender: any, e: Primitives.ItemsChangedEventArgs): void;
-        public AddItemsToPresenter(position: IGeneratorPosition, count: number): void;
-        public RemoveItemsFromPresenter(position: IGeneratorPosition, count: number): void;
-        public UpdateContentTemplateOnContainer(element: DependencyObject, item: any): void;
-        public PrepareContainerForItem(container: DependencyObject, item: any): void;
-        public ClearContainerForItem(container: DependencyObject, item: any): void;
-        public GetContainerForItem(): DependencyObject;
+        public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
+        public OnICGItemsChanged(sender: any, e: Controls.Primitives.ItemsChangedEventArgs): void;
+        public AddItemsToPresenter(position: Controls.IGeneratorPosition, count: number): void;
+        public RemoveItemsFromPresenter(position: Controls.IGeneratorPosition, count: number): void;
+        public UpdateContentTemplateOnContainer(element: Fayde.DependencyObject, item: any): void;
+        public PrepareContainerForItem(container: Fayde.DependencyObject, item: any): void;
+        public ClearContainerForItem(container: Fayde.DependencyObject, item: any): void;
+        public GetContainerForItem(): Fayde.DependencyObject;
         public IsItemItsOwnContainer(item: any): boolean;
         private _GetDisplayMemberTemplate();
     }
 }
 declare module Fayde.Controls.Primitives {
-    class Selector extends ItemsControl {
+    class Selector extends Controls.ItemsControl {
         static IsSynchronizedWithCurrentItemProperty: DependencyProperty;
         static SelectedIndexProperty: DependencyProperty;
         static SelectedItemProperty: DependencyProperty;
@@ -1384,16 +1386,16 @@ declare module Fayde.Controls.Primitives {
         public SelectedValue: any;
         public SelectedValuePath: string;
         public IsSelectionActive: boolean;
-        public SelectionMode: SelectionMode;
-        public SelectionChanged: RoutedEvent<SelectionChangedEventArgs>;
+        public SelectionMode: Controls.SelectionMode;
+        public SelectionChanged: Fayde.RoutedEvent<Primitives.SelectionChangedEventArgs>;
         private _Selection;
         private _SelectedItems;
         public _SelectedItemsIsInvalid: boolean;
-        public $TemplateScrollViewer: ScrollViewer;
+        public $TemplateScrollViewer: Controls.ScrollViewer;
         private _SelectedValueWalker;
         private SynchronizeWithCurrentItem;
         constructor();
-        public SelectedItems : Collections.ObservableCollection<any>;
+        public SelectedItems : Fayde.Collections.ObservableCollection<any>;
         private _OnIsSynchronizedWithCurrentItemChanged(args);
         private _OnSelectedIndexChanged(args);
         private _OnSelectedItemChanged(args);
@@ -1401,36 +1403,36 @@ declare module Fayde.Controls.Primitives {
         private _OnSelectedValuePathChanged(args);
         private _OnSelectionModeChanged(args);
         public OnApplyTemplate(): void;
-        public OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs): void;
+        public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         public OnItemsSourceChanged(args: IDependencyPropertyChangedEventArgs): void;
         public OnItemContainerStyleChanged(oldStyle: any, newStyle: any): void;
-        public ClearContainerForItem(element: DependencyObject, item: any): void;
-        public PrepareContainerForItem(element: DependencyObject, item: any): void;
+        public ClearContainerForItem(element: Fayde.DependencyObject, item: any): void;
+        public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
         public _GetValueFromItem(item: any): any;
         private _SelectItemFromValue(selectedValue, ignoreSelectedValue?);
         public SelectAll(): void;
         private _OnCurrentItemChanged(sender, e);
         public _RaiseSelectionChanged(oldVals: any[], newVals: any[]): void;
-        public OnSelectionChanged(args: SelectionChangedEventArgs): void;
-        public NotifyListItemClicked(lbi: ListBoxItem): void;
-        public NotifyListItemLoaded(lbi: ListBoxItem): void;
-        public NotifyListItemGotFocus(lbi: ListBoxItem): void;
-        public NotifyListItemLostFocus(lbi: ListBoxItem): void;
+        public OnSelectionChanged(args: Primitives.SelectionChangedEventArgs): void;
+        public NotifyListItemClicked(lbi: Controls.ListBoxItem): void;
+        public NotifyListItemLoaded(lbi: Controls.ListBoxItem): void;
+        public NotifyListItemGotFocus(lbi: Controls.ListBoxItem): void;
+        public NotifyListItemLostFocus(lbi: Controls.ListBoxItem): void;
     }
 }
 declare module Fayde.Xaml {
-    class FrameworkTemplate extends XamlObject {
+    class FrameworkTemplate extends Fayde.XamlObject {
         private ResourceChain;
         private TemplateElement;
         constructor();
-        public GetVisualTree(bindingSource: DependencyObject): UIElement;
+        public GetVisualTree(bindingSource: Fayde.DependencyObject): Fayde.UIElement;
     }
-    function Load(doc: Document): XamlObject;
+    function Load(doc: Document): Fayde.XamlObject;
 }
 declare module Fayde.Controls {
-    class ContentPresenterNode extends FENode {
+    class ContentPresenterNode extends Fayde.FENode {
         private _ContentRoot;
-        public ContentRoot : UIElement;
+        public ContentRoot : Fayde.UIElement;
         public XObject: ContentPresenter;
         constructor(xobj: ContentPresenter);
         public DoApplyTemplateWithError(error: BError): boolean;
@@ -1439,19 +1441,19 @@ declare module Fayde.Controls {
         public _ContentTemplateChanged(): void;
         private _GetContentTemplate(type);
     }
-    class ContentPresenter extends FrameworkElement {
+    class ContentPresenter extends Fayde.FrameworkElement {
         public XamlNode: ContentPresenterNode;
         public CreateNode(): ContentPresenterNode;
         static ContentProperty: DependencyProperty;
         static ContentTemplateProperty: DependencyProperty;
         public Content: any;
-        public ContentTemplate: DataTemplate;
+        public ContentTemplate: Fayde.DataTemplate;
     }
 }
 declare module Fayde.Controls.Primitives {
-    class PopupNode extends FENode {
+    class PopupNode extends Fayde.FENode {
         public XObject: Popup;
-        public GetInheritedEnumerator(): IEnumerator<DONode>;
+        public GetInheritedEnumerator(): Fayde.IEnumerator<Fayde.DONode>;
         public OnIsAttachedChanged(newIsAttached: boolean): void;
         private _HorizontalOffset;
         private _VerticalOffset;
@@ -1459,7 +1461,7 @@ declare module Fayde.Controls.Primitives {
         private _IsCatchingClick;
         private _Catcher;
         private _VisualChild;
-        public _ChildChanged(oldChild: FrameworkElement, newChild: FrameworkElement): void;
+        public _ChildChanged(oldChild: Fayde.FrameworkElement, newChild: Fayde.FrameworkElement): void;
         private _PrepareVisualChild(newChild);
         public CatchClickedOutside(): void;
         private _UpdateCatcher();
@@ -1469,7 +1471,7 @@ declare module Fayde.Controls.Primitives {
         public _Hide(): void;
         public _Show(): void;
     }
-    class Popup extends FrameworkElement {
+    class Popup extends Fayde.FrameworkElement {
         public XamlNode: PopupNode;
         public CreateNode(): PopupNode;
         public CreateLayoutUpdater(node: PopupNode): PopupLayoutUpdater;
@@ -1477,7 +1479,7 @@ declare module Fayde.Controls.Primitives {
         static HorizontalOffsetProperty: DependencyProperty;
         static VerticalOffsetProperty: DependencyProperty;
         static IsOpenProperty: DependencyProperty;
-        public Child: UIElement;
+        public Child: Fayde.UIElement;
         public HorizontalOffset: number;
         public VerticalOffset: number;
         public IsOpen: boolean;
@@ -1487,14 +1489,14 @@ declare module Fayde.Controls.Primitives {
         private _OnChildChanged(args);
         private _OnIsOpenChanged(args);
     }
-    class PopupLayoutUpdater extends LayoutUpdater {
+    class PopupLayoutUpdater extends Fayde.LayoutUpdater {
         public ComputeBounds(): void;
         public PostComputeTransform(hasProjection: boolean): void;
     }
 }
 declare module Fayde.Controls.Primitives {
     interface IScrollInfo {
-        ScrollOwner: ScrollViewer;
+        ScrollOwner: Controls.ScrollViewer;
         LineUp(): boolean;
         LineDown(): boolean;
         LineLeft(): boolean;
@@ -1507,7 +1509,7 @@ declare module Fayde.Controls.Primitives {
         PageDown(): boolean;
         PageLeft(): boolean;
         PageRight(): boolean;
-        MakeVisible(uie: UIElement, rectangle: rect): rect;
+        MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
         SetHorizontalOffset(offset: number): boolean;
         SetVerticalOffset(offset: number): boolean;
         CanHorizontallyScroll: boolean;
@@ -1522,11 +1524,11 @@ declare module Fayde.Controls.Primitives {
     var IScrollInfo_: IInterfaceDeclaration<IScrollInfo>;
 }
 declare module Fayde.Controls {
-    class ScrollContentPresenter extends ContentPresenter implements Primitives.IScrollInfo {
+    class ScrollContentPresenter extends Controls.ContentPresenter implements Controls.Primitives.IScrollInfo {
         private _ScrollData;
         private _IsClipPropertySet;
         private _ClippingRectangle;
-        public ScrollOwner : ScrollViewer;
+        public ScrollOwner : Controls.ScrollViewer;
         public CanHorizontallyScroll : boolean;
         public CanVerticallyScroll : boolean;
         public ExtentWidth : number;
@@ -1547,7 +1549,7 @@ declare module Fayde.Controls {
         public PageDown(): boolean;
         public PageLeft(): boolean;
         public PageRight(): boolean;
-        public MakeVisible(uie: UIElement, rectangle: rect): rect;
+        public MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
         public SetHorizontalOffset(offset: number): boolean;
         public SetVerticalOffset(offset: number): boolean;
         public OnApplyTemplate(): void;
@@ -1562,7 +1564,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls.Primitives {
-    class RangeBase extends Control {
+    class RangeBase extends Controls.Control {
         static MinimumProperty: DependencyProperty;
         static MaximumProperty: DependencyProperty;
         static LargeChangeProperty: DependencyProperty;
@@ -1576,13 +1578,13 @@ declare module Fayde.Controls.Primitives {
         public OnMinimumChanged(oldMin: number, newMin: number): void;
         public OnMaximumChanged(oldMax: number, newMax: number): void;
         public OnValueChanged(oldVal: number, newVal: number): void;
-        public ValueChanged: RoutedPropertyChangedEvent<number>;
+        public ValueChanged: Fayde.RoutedPropertyChangedEvent<number>;
         private _Coercer;
         constructor();
     }
 }
 declare module Fayde.Controls.Primitives {
-    class RepeatButton extends ButtonBase {
+    class RepeatButton extends Primitives.ButtonBase {
         static DelayProperty: DependencyProperty;
         static IntervalProperty: DependencyProperty;
         public Delay: number;
@@ -1598,14 +1600,14 @@ declare module Fayde.Controls.Primitives {
         public OnDelayChanged(args: IDependencyPropertyChangedEventArgs): void;
         public OnIntervalChanged(args: IDependencyPropertyChangedEventArgs): void;
         public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
-        public OnKeyDown(e: Input.KeyEventArgs): void;
-        public OnKeyUp(e: Input.KeyEventArgs): void;
-        public OnLostFocus(e: RoutedEventArgs): void;
-        public OnMouseEnter(e: Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
-        public OnMouseMove(e: Input.MouseEventArgs): void;
+        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public OnKeyUp(e: Fayde.Input.KeyEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
+        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
         private _UpdateMousePosition(e);
         private _UpdateRepeatState();
         private _StartRepeatingAfterDelay();
@@ -1613,12 +1615,12 @@ declare module Fayde.Controls.Primitives {
     }
 }
 declare module Fayde.Controls.Primitives {
-    class Thumb extends Control {
+    class Thumb extends Controls.Control {
         private _PreviousPosition;
         private _Origin;
-        public DragCompleted: RoutedEvent<DragCompletedEventArgs>;
-        public DragDelta: RoutedEvent<DragDeltaEventArgs>;
-        public DragStarted: RoutedEvent<DragStartedEventArgs>;
+        public DragCompleted: Fayde.RoutedEvent<Primitives.DragCompletedEventArgs>;
+        public DragDelta: Fayde.RoutedEvent<Primitives.DragDeltaEventArgs>;
+        public DragStarted: Fayde.RoutedEvent<Primitives.DragStartedEventArgs>;
         static IsDraggingProperty: DependencyProperty;
         static IsFocusedProperty: DependencyProperty;
         public IsDragging: boolean;
@@ -1626,14 +1628,14 @@ declare module Fayde.Controls.Primitives {
         constructor();
         public OnApplyTemplate(): void;
         private OnDraggingChanged(args);
-        public OnGotFocus(e: RoutedEventArgs): void;
-        public OnLostFocus(e: RoutedEventArgs): void;
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         private _FocusChanged(hasFocus);
-        public OnLostMouseCapture(e: Input.MouseEventArgs): void;
-        public OnMouseEnter(e: Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
-        public OnMouseMove(e: Input.MouseEventArgs): void;
+        public OnLostMouseCapture(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
         public CancelDrag(): void;
         private _RaiseDragStarted();
         private _RaiseDragDelta(x, y);
@@ -1642,12 +1644,12 @@ declare module Fayde.Controls.Primitives {
     }
 }
 declare module Fayde.Controls.Primitives {
-    class ScrollBar extends RangeBase {
+    class ScrollBar extends Primitives.RangeBase {
         private _DragValue;
-        public Scroll: RoutedEvent<ScrollEventArgs>;
+        public Scroll: Fayde.RoutedEvent<Primitives.ScrollEventArgs>;
         static OrientationProperty: DependencyProperty;
         static ViewportSizeProperty: DependencyProperty;
-        public Orientation: Orientation;
+        public Orientation: Fayde.Orientation;
         public ViewportSize: number;
         public IsDragging : boolean;
         constructor();
@@ -1684,16 +1686,16 @@ declare module Fayde.Controls.Primitives {
     }
 }
 declare module Fayde.Controls {
-    class ScrollViewer extends ContentControl {
+    class ScrollViewer extends Controls.ContentControl {
         private static _ScrollBarVisibilityChanged(d, args);
         static HorizontalScrollBarVisibilityProperty: DependencyProperty;
-        static GetHorizontalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
-        static SetHorizontalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility): void;
-        public HorizontalScrollBarVisibility : ScrollBarVisibility;
+        static GetHorizontalScrollBarVisibility(d: Fayde.DependencyObject): Controls.ScrollBarVisibility;
+        static SetHorizontalScrollBarVisibility(d: Fayde.DependencyObject, value: Controls.ScrollBarVisibility): void;
+        public HorizontalScrollBarVisibility : Controls.ScrollBarVisibility;
         static VerticalScrollBarVisibilityProperty: DependencyProperty;
-        static GetVerticalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
-        static SetVerticalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility): void;
-        public VerticalScrollBarVisibility : ScrollBarVisibility;
+        static GetVerticalScrollBarVisibility(d: Fayde.DependencyObject): Controls.ScrollBarVisibility;
+        static SetVerticalScrollBarVisibility(d: Fayde.DependencyObject, value: Controls.ScrollBarVisibility): void;
+        public VerticalScrollBarVisibility : Controls.ScrollBarVisibility;
         static ComputedHorizontalScrollBarVisibilityProperty: DependencyProperty;
         static ComputedVerticalScrollBarVisibilityProperty: DependencyProperty;
         static HorizontalOffsetProperty: DependencyProperty;
@@ -1704,8 +1706,8 @@ declare module Fayde.Controls {
         static ViewportHeightProperty: DependencyProperty;
         static ExtentWidthProperty: DependencyProperty;
         static ExtentHeightProperty: DependencyProperty;
-        public ComputedHorizontalScrollBarVisibility: Visibility;
-        public ComputedVerticalScrollBarVisibility: Visibility;
+        public ComputedHorizontalScrollBarVisibility: Fayde.Visibility;
+        public ComputedVerticalScrollBarVisibility: Fayde.Visibility;
         public HorizontalOffset: number;
         public VerticalOffset: number;
         public ScrollableWidth: number;
@@ -1715,20 +1717,20 @@ declare module Fayde.Controls {
         public ExtentWidth: number;
         public ExtentHeight: number;
         public $TemplatedParentHandlesScrolling: boolean;
-        public $ScrollContentPresenter: ScrollContentPresenter;
+        public $ScrollContentPresenter: Controls.ScrollContentPresenter;
         private $HorizontalScrollBar;
         private $VerticalScrollBar;
         constructor();
         private _ScrollInfo;
-        public ScrollInfo : Primitives.IScrollInfo;
+        public ScrollInfo : Controls.Primitives.IScrollInfo;
         public InvalidateScrollInfo(): void;
         private _UpdateScrollBarVisibility();
         private _UpdateScrollBar(orientation, value);
         public OnApplyTemplate(): void;
-        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
-        public OnMouseWheel(e: Input.MouseWheelEventArgs): void;
-        public OnKeyDown(e: Input.KeyEventArgs): void;
-        public ScrollInDirection(key: Input.Key): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
+        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public ScrollInDirection(key: Fayde.Input.Key): void;
         public ScrollToHorizontalOffset(offset: number): void;
         public ScrollToVerticalOffset(offset: number): void;
         public LineUp(): void;
@@ -1747,7 +1749,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class ComboBox extends Primitives.Selector {
+    class ComboBox extends Controls.Primitives.Selector {
         public DropDownOpened: MulticastEvent<EventArgs>;
         public DropDownClosed: MulticastEvent<EventArgs>;
         static IsDropDownOpenProperty: DependencyProperty;
@@ -1755,7 +1757,7 @@ declare module Fayde.Controls {
         static MaxDropDownHeightProperty: DependencyProperty;
         static IsSelectionActiveProperty: DependencyProperty;
         public IsDropDownOpen: boolean;
-        public ItemContainerStyle: Style;
+        public ItemContainerStyle: Fayde.Style;
         public MaxDropDownHeight: number;
         private $ContentPresenter;
         private $Popup;
@@ -1772,18 +1774,18 @@ declare module Fayde.Controls {
         public OnApplyTemplate(): void;
         public OnItemContainerStyleChanged(args: IDependencyPropertyChangedEventArgs): void;
         public IsItemItsOwnContainer(item: any): boolean;
-        public GetContainerForItem(): DependencyObject;
-        public PrepareContainerForItem(container: DependencyObject, item: any): void;
+        public GetContainerForItem(): Fayde.DependencyObject;
+        public PrepareContainerForItem(container: Fayde.DependencyObject, item: any): void;
         public GoToStateFocus(gotoFunc: (state: string) => boolean): boolean;
         public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
-        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
-        public OnMouseEnter(e: Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Input.MouseEventArgs): void;
-        public OnKeyDown(e: Input.KeyEventArgs): void;
-        public OnGotFocus(e: RoutedEventArgs): void;
-        public OnLostFocus(e: RoutedEventArgs): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
+        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         private _OnChildKeyDown(sender, e);
-        public OnSelectionChanged(e: Primitives.SelectionChangedEventArgs): void;
+        public OnSelectionChanged(e: Controls.Primitives.SelectionChangedEventArgs): void;
         private _OnToggleChecked(sender, e);
         private _OnToggleUnchecked(sender, e);
         private _PopupClickedOutside();
@@ -1793,52 +1795,52 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class ListBoxItem extends ContentControl {
+    class ListBoxItem extends Controls.ContentControl {
         private _ParentSelector;
-        public ParentSelector : Primitives.Selector;
+        public ParentSelector : Controls.Primitives.Selector;
         public ParentSelectorChanged: MulticastEvent<EventArgs>;
         static IsSelectedProperty: DependencyProperty;
         public IsSelected: boolean;
         constructor();
         public OnApplyTemplate(): void;
-        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
-        public OnMouseEnter(e: Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Input.MouseEventArgs): void;
-        public OnGotFocus(e: RoutedEventArgs): void;
-        public OnLostFocus(e: RoutedEventArgs): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public GoToStateSelection(gotoFunc: (state: string) => boolean): boolean;
         private OnIsSelectedChanged(args);
     }
 }
 declare module Fayde.Controls {
-    class ComboBoxItem extends ListBoxItem {
+    class ComboBoxItem extends Controls.ListBoxItem {
         constructor();
-        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
     }
 }
 declare module Fayde.Controls {
-    class ControlTemplate extends Xaml.FrameworkTemplate {
+    class ControlTemplate extends Fayde.Xaml.FrameworkTemplate {
         public TargetType: Function;
         constructor();
-        public GetVisualTree(bindingSource: DependencyObject): UIElement;
+        public GetVisualTree(bindingSource: Fayde.DependencyObject): Fayde.UIElement;
     }
 }
 declare module Fayde.Controls {
-    class UserControl extends Control {
+    class UserControl extends Controls.Control {
         static ContentProperty: DependencyProperty;
         public Content: any;
-        public CreateLayoutUpdater(node: UINode): UserControlLayoutUpdater;
+        public CreateLayoutUpdater(node: Fayde.UINode): UserControlLayoutUpdater;
         public InitializeComponent(): void;
         private _InvalidateContent(args);
     }
-    class UserControlLayoutUpdater extends LayoutUpdater {
-        constructor(node: UINode);
+    class UserControlLayoutUpdater extends Fayde.LayoutUpdater {
+        constructor(node: Fayde.UINode);
         public MeasureOverride(availableSize: size, error: BError): size;
         public ArrangeOverride(finalSize: size, error: BError): size;
     }
 }
 declare module Fayde.Controls {
-    class Page extends UserControl {
+    class Page extends Controls.UserControl {
         static TitleProperty: DependencyProperty;
         public Title: string;
         constructor();
@@ -1846,7 +1848,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class Frame extends ContentControl {
+    class Frame extends Controls.ContentControl {
         static IsDeepLinkedProperty: DependencyProperty;
         static CurrentSourceProperty: DependencyProperty;
         static SourceProperty: DependencyProperty;
@@ -1854,7 +1856,7 @@ declare module Fayde.Controls {
         public IsDeepLinked: boolean;
         public CurrentSource: Uri;
         public Source: Uri;
-        public UriMapper: Navigation.UriMapper;
+        public UriMapper: Fayde.Navigation.UriMapper;
         private _NavService;
         constructor();
         public Navigate(uri: Uri): void;
@@ -1871,37 +1873,37 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class Grid extends Panel implements IRowDefinitionsListener, IColumnDefinitionsListener {
-        public CreateLayoutUpdater(node: PanelNode): GridLayoutUpdater;
+    class Grid extends Controls.Panel implements Controls.IRowDefinitionsListener, Controls.IColumnDefinitionsListener {
+        public CreateLayoutUpdater(node: Controls.PanelNode): GridLayoutUpdater;
         private static _AttachedPropChanged(d, args);
         static ColumnProperty: DependencyProperty;
-        static GetColumn(d: DependencyObject): number;
-        static SetColumn(d: DependencyObject, value: number): void;
+        static GetColumn(d: Fayde.DependencyObject): number;
+        static SetColumn(d: Fayde.DependencyObject, value: number): void;
         static ColumnSpanProperty: DependencyProperty;
-        static GetColumnSpan(d: DependencyObject): number;
-        static SetColumnSpan(d: DependencyObject, value: number): void;
+        static GetColumnSpan(d: Fayde.DependencyObject): number;
+        static SetColumnSpan(d: Fayde.DependencyObject, value: number): void;
         static RowProperty: DependencyProperty;
-        static GetRow(d: DependencyObject): number;
-        static SetRow(d: DependencyObject, value: number): void;
+        static GetRow(d: Fayde.DependencyObject): number;
+        static SetRow(d: Fayde.DependencyObject, value: number): void;
         static RowSpanProperty: DependencyProperty;
-        static GetRowSpan(d: DependencyObject): number;
-        static SetRowSpan(d: DependencyObject, value: number): void;
-        static ColumnDefinitionsProperty: ImmutableDependencyProperty<ColumnDefinitionCollection>;
-        static RowDefinitionsProperty: ImmutableDependencyProperty<RowDefinitionCollection>;
+        static GetRowSpan(d: Fayde.DependencyObject): number;
+        static SetRowSpan(d: Fayde.DependencyObject, value: number): void;
+        static ColumnDefinitionsProperty: ImmutableDependencyProperty<Controls.ColumnDefinitionCollection>;
+        static RowDefinitionsProperty: ImmutableDependencyProperty<Controls.RowDefinitionCollection>;
         static ShowGridLinesProperty: DependencyProperty;
         public ShowGridLines: boolean;
-        public ColumnDefinitions: ColumnDefinitionCollection;
-        public RowDefinitions: RowDefinitionCollection;
+        public ColumnDefinitions: Controls.ColumnDefinitionCollection;
+        public RowDefinitions: Controls.RowDefinitionCollection;
         constructor();
         private _ShowGridLinesChanged(args);
-        public RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection): void;
-        public ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection): void;
+        public RowDefinitionsChanged(rowDefinitions: Controls.RowDefinitionCollection): void;
+        public ColumnDefinitionsChanged(colDefinitions: Controls.ColumnDefinitionCollection): void;
     }
-    class GridLayoutUpdater extends PanelLayoutUpdater {
+    class GridLayoutUpdater extends Controls.PanelLayoutUpdater {
         private _Measurer;
         public MeasureOverride(availableSize: size, error: BError): size;
         public ArrangeOverride(finalSize: size, error: BError): size;
-        public Render(ctx: RenderContextEx, region: rect): void;
+        public Render(ctx: Fayde.RenderContextEx, region: rect): void;
         public ComputeExtents(actualSize: size): void;
     }
     interface ISegment {
@@ -1911,7 +1913,7 @@ declare module Fayde.Controls {
         Min: number;
         Max: number;
         Stars: number;
-        Type: GridUnitType;
+        Type: Controls.GridUnitType;
         Clamp: (value: number) => number;
         SetOfferedToDesired: () => number;
         SetDesiredToOffered: () => number;
@@ -1932,7 +1934,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class HyperlinkButton extends Primitives.ButtonBase {
+    class HyperlinkButton extends Controls.Primitives.ButtonBase {
         static NavigateUriProperty: DependencyProperty;
         static TargetNameProperty: DependencyProperty;
         public NavigateUri: Uri;
@@ -1975,27 +1977,27 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Controls {
-    class Image extends FrameworkElement implements Media.Imaging.IImageChangedListener {
-        public CreateLayoutUpdater(node: UINode): ImageLayoutUpdater;
+    class Image extends Fayde.FrameworkElement implements Fayde.Media.Imaging.IImageChangedListener {
+        public CreateLayoutUpdater(node: Fayde.UINode): ImageLayoutUpdater;
         private static _SourceCoercer(d, propd, value);
         static SourceProperty: DependencyProperty;
         static StretchProperty: DependencyProperty;
-        public Source: Media.Imaging.ImageSource;
-        public Stretch: Media.Stretch;
+        public Source: Fayde.Media.Imaging.ImageSource;
+        public Stretch: Fayde.Media.Stretch;
         public ImageOpened: MulticastEvent<EventArgs>;
         public ImageFailed: MulticastEvent<EventArgs>;
         public MeasureOverride(availableSize: size): size;
         public ArrangeOverride(finalSize: size): size;
         private _SourceChanged(args);
-        public OnImageErrored(source: Media.Imaging.BitmapSource, e: Event): void;
-        public OnImageLoaded(source: Media.Imaging.BitmapSource, e: Event): void;
-        public ImageChanged(source: Media.Imaging.BitmapSource): void;
+        public OnImageErrored(source: Fayde.Media.Imaging.BitmapSource, e: Event): void;
+        public OnImageLoaded(source: Fayde.Media.Imaging.BitmapSource, e: Event): void;
+        public ImageChanged(source: Fayde.Media.Imaging.BitmapSource): void;
     }
-    class ImageLayoutUpdater extends LayoutUpdater {
-        constructor(node: UINode);
-        public InsideObject(ctx: RenderContextEx, x: number, y: number): boolean;
+    class ImageLayoutUpdater extends Fayde.LayoutUpdater {
+        constructor(node: Fayde.UINode);
+        public InsideObject(ctx: Fayde.RenderContextEx, x: number, y: number): boolean;
         public ComputeActualSize(): size;
-        public Render(ctx: RenderContextEx, region: rect): void;
+        public Render(ctx: Fayde.RenderContextEx, region: rect): void;
     }
     interface IImageRenderMetrics {
         Matrix: number[];
@@ -2004,7 +2006,7 @@ declare module Fayde.Controls {
 }
 declare module Fayde.Controls {
     interface IItemCollection {
-        ItemsChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
+        ItemsChanged: MulticastEvent<Fayde.Collections.NotifyCollectionChangedEventArgs>;
         ToArray(): any[];
         Count: number;
         GetValueAt(index: number): any;
@@ -2029,25 +2031,25 @@ declare module Fayde.Controls {
         RemoveAtImpl(index: number): any;
         ClearImpl(): any;
     }
-    class ItemCollection extends XamlObjectCollection<any> implements IItemCollection, IItemCollectionHidden {
-        public ItemsChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
+    class ItemCollection extends Fayde.XamlObjectCollection<any> implements IItemCollection, IItemCollectionHidden {
+        public ItemsChanged: MulticastEvent<Fayde.Collections.NotifyCollectionChangedEventArgs>;
         public ToArray(): any[];
         public Count : number;
         public IsReadOnly: boolean;
-        public GetValueAt(index: number): XamlObject;
-        public GetRange(startIndex: number, endIndex: number): XamlObject[];
-        public SetValueAt(index: number, value: XamlObject): boolean;
+        public GetValueAt(index: number): Fayde.XamlObject;
+        public GetRange(startIndex: number, endIndex: number): Fayde.XamlObject[];
+        public SetValueAt(index: number, value: Fayde.XamlObject): boolean;
         public SetValueAtImpl(index: number, value: any): void;
-        public Add(value: XamlObject): number;
+        public Add(value: Fayde.XamlObject): number;
         public AddImpl(value: any): number;
         public AddRange(values: any[]): void;
         public AddRangeImpl(values: any[]): void;
-        public Insert(index: number, value: XamlObject): boolean;
-        public InsertImpl(index: number, value: XamlObject): void;
-        public IndexOf(value: XamlObject): number;
-        public Contains(value: XamlObject): boolean;
-        public Remove(value: XamlObject): boolean;
-        public RemoveImpl(value: XamlObject): void;
+        public Insert(index: number, value: Fayde.XamlObject): boolean;
+        public InsertImpl(index: number, value: Fayde.XamlObject): void;
+        public IndexOf(value: Fayde.XamlObject): number;
+        public Contains(value: Fayde.XamlObject): boolean;
+        public Remove(value: Fayde.XamlObject): boolean;
+        public RemoveImpl(value: Fayde.XamlObject): void;
         public RemoveAt(index: number): boolean;
         public RemoveAtImpl(index: number): void;
         public Clear(): boolean;
@@ -2067,9 +2069,9 @@ declare module Fayde.Controls {
         Dispose: () => void;
     }
     interface IItemContainerGenerator {
-        GenerateNext(isNewlyRealized: IOutValue): DependencyObject;
-        GetItemContainerGeneratorForPanel(panel: Panel): IItemContainerGenerator;
-        PrepareItemContainer(container: DependencyObject): any;
+        GenerateNext(isNewlyRealized: IOutValue): Fayde.DependencyObject;
+        GetItemContainerGeneratorForPanel(panel: Controls.Panel): IItemContainerGenerator;
+        PrepareItemContainer(container: Fayde.DependencyObject): any;
         Remove(position: IGeneratorPosition, count: number): any;
         RemoveAll(): any;
         StartAt(position: IGeneratorPosition, forward: boolean, allowStartAtRealizedItem: boolean): IGenerationState;
@@ -2078,82 +2080,82 @@ declare module Fayde.Controls {
         Recycle(position: IGeneratorPosition, count: number): any;
     }
     class ItemContainerGenerator implements IItemContainerGenerator, IRecyclingItemContainerGenerator {
-        public Owner: ItemsControl;
+        public Owner: Controls.ItemsControl;
         private _GenerationState;
         private _Cache;
         private _Containers;
         private _RealizedCount;
         private _Items;
-        public ItemsChanged: MulticastEvent<Primitives.ItemsChangedEventArgs>;
-        constructor(Owner: ItemsControl);
-        public GenerateNext(isNewlyRealized: IOutValue): DependencyObject;
-        public GetItemContainerGeneratorForPanel(panel: Panel): IItemContainerGenerator;
-        public PrepareItemContainer(container: DependencyObject): void;
+        public ItemsChanged: MulticastEvent<Controls.Primitives.ItemsChangedEventArgs>;
+        constructor(Owner: Controls.ItemsControl);
+        public GenerateNext(isNewlyRealized: IOutValue): Fayde.DependencyObject;
+        public GetItemContainerGeneratorForPanel(panel: Controls.Panel): IItemContainerGenerator;
+        public PrepareItemContainer(container: Fayde.DependencyObject): void;
         public Recycle(position: IGeneratorPosition, count: number): void;
         public Remove(position: IGeneratorPosition, count: number): void;
         public RemoveAll(): void;
         public StartAt(position: IGeneratorPosition, forward: boolean, allowStartAtRealizedItem: boolean): IGenerationState;
-        public IndexFromContainer(container: DependencyObject): number;
-        public ContainerFromIndex(index: number): DependencyObject;
-        public ItemFromContainer(container: DependencyObject): any;
-        public ContainerFromItem(item: any): DependencyObject;
+        public IndexFromContainer(container: Fayde.DependencyObject): number;
+        public ContainerFromIndex(index: number): Fayde.DependencyObject;
+        public ItemFromContainer(container: Fayde.DependencyObject): any;
+        public ContainerFromItem(item: any): Fayde.DependencyObject;
         public GeneratorPositionFromIndex(itemIndex: number): IGeneratorPosition;
         public IndexFromGeneratorPosition(position: IGeneratorPosition): number;
-        public OnOwnerItemsItemsChanged(e: Collections.NotifyCollectionChangedEventArgs): void;
+        public OnOwnerItemsItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         private _GetNumAlreadyRealizedItems(items);
         private _KillContainers(position, count, recycle);
     }
 }
 declare module Fayde.Controls {
-    class ItemsPanelTemplate extends Xaml.FrameworkTemplate {
+    class ItemsPanelTemplate extends Fayde.Xaml.FrameworkTemplate {
         constructor();
-        public GetVisualTree(bindingSource: DependencyObject): Panel;
+        public GetVisualTree(bindingSource: Fayde.DependencyObject): Controls.Panel;
     }
 }
 declare module Fayde.Controls {
-    class ItemsPresenterNode extends FENode {
+    class ItemsPresenterNode extends Fayde.FENode {
         public XObject: ItemsPresenter;
         private _ElementRoot;
         constructor(xobj: ItemsPresenter);
-        public ElementRoot : Panel;
+        public ElementRoot : Controls.Panel;
         public DoApplyTemplateWithError(error: BError): boolean;
     }
-    class ItemsPresenter extends FrameworkElement {
-        public TemplateOwner: ItemsControl;
+    class ItemsPresenter extends Fayde.FrameworkElement {
+        public TemplateOwner: Controls.ItemsControl;
         public XamlNode: ItemsPresenterNode;
         public CreateNode(): ItemsPresenterNode;
-        public ElementRoot : Panel;
+        public ElementRoot : Controls.Panel;
     }
 }
 declare module Fayde.Controls {
-    class ListBox extends Primitives.Selector {
+    class ListBox extends Controls.Primitives.Selector {
         private _FocusedIndex;
         static ItemContainerStyleProperty: DependencyProperty;
         static IsSelectionActiveProperty: DependencyProperty;
-        public ItemContainerStyle: Style;
+        public ItemContainerStyle: Fayde.Style;
         public ScrollIntoView(item: any): void;
         private _NavigateByPage(forward);
         private _ScrollInDirection(key);
         private _IsOnCurrentPage(item, itemsHostRectOut?, listBoxItemsRectOut?);
         private _GetFirstItemOnCurrentPage(startingIndex, forward);
         public OnItemContainerStyleChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public OnKeyDown(args: Input.KeyEventArgs): void;
+        public OnKeyDown(args: Fayde.Input.KeyEventArgs): void;
         private _GetIsVerticalOrientation();
         public IsItemItsOwnContainer(item: any): boolean;
-        public GetContainerForItem(): DependencyObject;
-        public PrepareContainerForItem(element: DependencyObject, item: any): void;
-        public OnGotFocus(e: RoutedEventArgs): void;
-        public OnLostFocus(e: RoutedEventArgs): void;
-        public NotifyListItemGotFocus(lbi: ListBoxItem): void;
-        public NotifyListItemLostFocus(lbi: ListBoxItem): void;
+        public GetContainerForItem(): Fayde.DependencyObject;
+        public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
+        public NotifyListItemGotFocus(lbi: Controls.ListBoxItem): void;
+        public NotifyListItemLostFocus(lbi: Controls.ListBoxItem): void;
     }
 }
 declare module Fayde.Controls {
-    class MediaElement extends FrameworkElement {
-        public CreateLayoutUpdater(node: UINode): MediaElementLayoutUpdater;
+    class MediaElement extends Fayde.FrameworkElement {
+        public CreateLayoutUpdater(node: Fayde.UINode): MediaElementLayoutUpdater;
     }
-    class MediaElementLayoutUpdater extends LayoutUpdater {
-        public InsideObject(ctx: RenderContextEx, x: number, y: number): boolean;
+    class MediaElementLayoutUpdater extends Fayde.LayoutUpdater {
+        public InsideObject(ctx: Fayde.RenderContextEx, x: number, y: number): boolean;
         public MeasureOverride(availableSize: size, error: BError): size;
         public ArrangeOverride(finalSize: size, error: BError): size;
     }
@@ -2252,14 +2254,14 @@ declare module Fayde.Input {
         Divide = 82,
         Unknown = 255,
     }
-    class KeyboardEventArgs extends RoutedEventArgs {
+    class KeyboardEventArgs extends Fayde.RoutedEventArgs {
     }
     class KeyEventArgs extends KeyboardEventArgs {
-        public Modifiers: IModifiersOn;
+        public Modifiers: Input.IModifiersOn;
         public PlatformKeyCode: number;
         public Key: Key;
         public Char: string;
-        constructor(modifiers: IModifiersOn, keyCode: number, key: Key, c?: string);
+        constructor(modifiers: Input.IModifiersOn, keyCode: number, key: Key, c?: string);
     }
 }
 declare module Fayde.Controls {
@@ -2284,7 +2286,7 @@ declare module Fayde.Controls {
     interface ITextModelListener {
         OnTextModelChanged(args: ITextModelArgs): any;
     }
-    class TextBoxBase extends Control implements Text.ITextAttributesSource, Text.IBufferOwner {
+    class TextBoxBase extends Controls.Control implements Fayde.Text.ITextAttributesSource, Fayde.Text.IBufferOwner {
         private _Undo;
         private _Redo;
         public _Buffer: string;
@@ -2301,30 +2303,30 @@ declare module Fayde.Controls {
         private _Font;
         private _CursorOffset;
         private _Batch;
-        public $View: Internal.TextBoxView;
-        public $ContentElement: FrameworkElement;
+        public $View: Controls.Internal.TextBoxView;
+        public $ContentElement: Fayde.FrameworkElement;
         public $IsReadOnly: boolean;
         public $IsFocused: boolean;
         public $AcceptsReturn: boolean;
         public $MaxLength: number;
         public $HasOffset: boolean;
         constructor(eventsMask: TextBoxEmitChangedType, textPropd: DependencyProperty);
-        public Cursor : CursorType;
+        public Cursor : Fayde.CursorType;
         public SelectionCursor : number;
         public HasSelectedText : boolean;
-        public CaretBrush : Media.Brush;
-        public TextAlignment : TextAlignment;
-        public TextWrapping : TextWrapping;
+        public CaretBrush : Fayde.Media.Brush;
+        public TextAlignment : Fayde.TextAlignment;
+        public TextWrapping : Controls.TextWrapping;
         public SelectionStart : number;
         public SelectionLength : number;
         public DisplayText : string;
-        public SelectionBackground : Media.Brush;
-        public Background : Media.Brush;
-        public SelectionForeground : Media.Brush;
-        public Foreground : Media.Brush;
+        public SelectionBackground : Fayde.Media.Brush;
+        public Background : Fayde.Media.Brush;
+        public SelectionForeground : Fayde.Media.Brush;
+        public Foreground : Fayde.Media.Brush;
         public Font : Font;
-        public Direction : FlowDirection;
-        public TextDecorations : TextDecorations;
+        public Direction : Fayde.FlowDirection;
+        public TextDecorations : Fayde.TextDecorations;
         public OnApplyTemplate(): void;
         private _ModelListener;
         public Listen(listener: ITextModelListener): void;
@@ -2349,11 +2351,11 @@ declare module Fayde.Controls {
         public Undo(): void;
         public CanRedo(): boolean;
         public Redo(): void;
-        public OnLostFocus(e: RoutedEventArgs): void;
-        public OnGotFocus(e: RoutedEventArgs): void;
-        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
-        public OnMouseMove(e: Input.MouseEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
         public CursorDown(cursor: number, isPage: boolean): number;
         public CursorUp(cursor: number, isPage: boolean): number;
         public CursorNextWord(cursor: number): number;
@@ -2361,8 +2363,8 @@ declare module Fayde.Controls {
         public CursorLineBegin(cursor: number): number;
         public CursorLineEnd(cursor: number): number;
         public _EmitCursorPositionChanged(height: number, x: number, y: number): void;
-        public OnKeyDown(args: Input.KeyEventArgs): void;
-        public PostOnKeyDown(args: Input.KeyEventArgs): void;
+        public OnKeyDown(args: Fayde.Input.KeyEventArgs): void;
+        public PostOnKeyDown(args: Fayde.Input.KeyEventArgs): void;
         private _KeyDownBackSpace(modifiers);
         private _KeyDownDelete(modifiers);
         private _KeyDownPageDown(modifiers);
@@ -2377,7 +2379,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class PasswordBox extends TextBoxBase implements Text.ITextAttributesSource {
+    class PasswordBox extends Controls.TextBoxBase implements Fayde.Text.ITextAttributesSource {
         static BaselineOffsetProperty: DependencyProperty;
         static CaretBrushProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
@@ -2388,16 +2390,16 @@ declare module Fayde.Controls {
         static SelectionLengthProperty: DependencyProperty;
         static SelectionStartProperty: DependencyProperty;
         public BaselineOffset: number;
-        public CaretBrush: Media.Brush;
+        public CaretBrush: Fayde.Media.Brush;
         public MaxLength: any;
         public number: any;
         public PasswordChar: string;
         public Password: string;
-        public SelectionForeground: Media.Brush;
-        public SelectionBackground: Media.Brush;
+        public SelectionForeground: Fayde.Media.Brush;
+        public SelectionBackground: Fayde.Media.Brush;
         public SelectionLength: number;
         public SelectionStart: number;
-        public PasswordChangedEvent: RoutedEvent<RoutedEventArgs>;
+        public PasswordChangedEvent: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         constructor();
         public DisplayText : string;
         public CursorDown(cursor: number, isPage: boolean): number;
@@ -2414,18 +2416,18 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls.Primitives {
-    class DragCompletedEventArgs extends RoutedEventArgs {
+    class DragCompletedEventArgs extends Fayde.RoutedEventArgs {
         public HorizontalChange: number;
         public VerticalChange: number;
         public Canceled: boolean;
         constructor(horizontal: number, vertical: number, canceled: boolean);
     }
-    class DragDeltaEventArgs extends RoutedEventArgs {
+    class DragDeltaEventArgs extends Fayde.RoutedEventArgs {
         public HorizontalChange: number;
         public VerticalChange: number;
         constructor(horizontal: number, vertical: number);
     }
-    class DragStartedEventArgs extends RoutedEventArgs {
+    class DragStartedEventArgs extends Fayde.RoutedEventArgs {
         public HorizontalOffset: number;
         public VerticalOffset: number;
         constructor(horizontal: number, vertical: number);
@@ -2433,19 +2435,19 @@ declare module Fayde.Controls.Primitives {
 }
 declare module Fayde.Controls.Primitives {
     class ItemsChangedEventArgs extends EventArgs {
-        public Action: Collections.NotifyCollectionChangedAction;
+        public Action: Fayde.Collections.NotifyCollectionChangedAction;
         public ItemCount: number;
         public ItemUICount: number;
-        public OldPosition: IGeneratorPosition;
-        public Position: IGeneratorPosition;
-        constructor(action: Collections.NotifyCollectionChangedAction, itemCount: number, itemUICount: number, oldPosition: IGeneratorPosition, position: IGeneratorPosition);
+        public OldPosition: Controls.IGeneratorPosition;
+        public Position: Controls.IGeneratorPosition;
+        constructor(action: Fayde.Collections.NotifyCollectionChangedAction, itemCount: number, itemUICount: number, oldPosition: Controls.IGeneratorPosition, position: Controls.IGeneratorPosition);
     }
 }
 declare module Fayde.Controls.Primitives {
     class ScrollData {
         public CanHorizontallyScroll: boolean;
         public CanVerticallyScroll: boolean;
-        public ScrollOwner: ScrollViewer;
+        public ScrollOwner: Controls.ScrollViewer;
         public OffsetX: number;
         public OffsetY: number;
         public CachedOffsetX: number;
@@ -2470,14 +2472,14 @@ declare module Fayde.Controls.Primitives {
         Last = 7,
         EndScroll = 8,
     }
-    class ScrollEventArgs extends RoutedEventArgs {
+    class ScrollEventArgs extends Fayde.RoutedEventArgs {
         public ScrollEventType: ScrollEventType;
         public Value: number;
         constructor(scrollEventType: ScrollEventType, value: number);
     }
 }
 declare module Fayde.Controls.Primitives {
-    class SelectionChangedEventArgs extends RoutedEventArgs {
+    class SelectionChangedEventArgs extends Fayde.RoutedEventArgs {
         public OldValues: any[];
         public NewValues: any[];
         constructor(oldValues: any[], newValues: any[]);
@@ -2490,9 +2492,9 @@ declare module Fayde.Controls.Primitives {
         private _SelectedItem;
         private _IsUpdating;
         private _AnchorIndex;
-        public Mode: SelectionMode;
+        public Mode: Controls.SelectionMode;
         public IsUpdating : boolean;
-        constructor(owner: Selector);
+        constructor(owner: Primitives.Selector);
         private _HandleOwnerSelectionChanged(sender, e);
         public RepopulateSelectedItems(): void;
         public ClearSelection(ignoreSelectedValue?: boolean): void;
@@ -2512,7 +2514,7 @@ declare module Fayde.Controls.Primitives {
     }
 }
 declare module Fayde.Controls {
-    class ProgressBar extends Primitives.RangeBase {
+    class ProgressBar extends Controls.Primitives.RangeBase {
         private _Track;
         private _Indicator;
         static IsIndeterminateProperty: DependencyProperty;
@@ -2529,7 +2531,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class RadioButton extends Primitives.ToggleButton {
+    class RadioButton extends Controls.Primitives.ToggleButton {
         static GroupNameProperty: DependencyProperty;
         public GroupName: string;
         public OnGroupNameChanged(args: IDependencyPropertyChangedEventArgs): void;
@@ -2542,21 +2544,21 @@ declare module Fayde.Controls {
 declare module Fayde.Controls {
     class _RichTextBoxView {
     }
-    class RichTextBox extends Control {
-        public HorizontalScrollBarVisibility: ScrollBarVisibility;
-        public TextWrapping: TextWrapping;
+    class RichTextBox extends Controls.Control {
+        public HorizontalScrollBarVisibility: Controls.ScrollBarVisibility;
+        public TextWrapping: Controls.TextWrapping;
     }
 }
 declare module Fayde.Controls {
     interface IRowDefinitionListener {
         RowDefinitionChanged(rowDefinition: RowDefinition): any;
     }
-    class RowDefinition extends DependencyObject {
+    class RowDefinition extends Fayde.DependencyObject {
         static HeightProperty: DependencyProperty;
         static MaxHeightProperty: DependencyProperty;
         static MinHeightProperty: DependencyProperty;
         static ActualHeightProperty: DependencyProperty;
-        public Height: GridLength;
+        public Height: Controls.GridLength;
         public MaxHeight: number;
         public MinHeight: number;
         public ActualHeight: number;
@@ -2568,7 +2570,7 @@ declare module Fayde.Controls {
     interface IRowDefinitionsListener {
         RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection): any;
     }
-    class RowDefinitionCollection extends XamlObjectCollection<RowDefinition> implements IRowDefinitionListener {
+    class RowDefinitionCollection extends Fayde.XamlObjectCollection<RowDefinition> implements IRowDefinitionListener {
         private _Listener;
         public Listen(listener: IRowDefinitionsListener): void;
         public Unlisten(listener: IRowDefinitionsListener): void;
@@ -2578,14 +2580,14 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class Slider extends Primitives.RangeBase {
+    class Slider extends Controls.Primitives.RangeBase {
         private _DragValue;
         static IsDirectionReversedProperty: DependencyProperty;
         static IsFocusedProperty: DependencyProperty;
         static OrientationProperty: DependencyProperty;
         public IsDirectionReversed: boolean;
         public IsFocused: boolean;
-        public Orientation: Orientation;
+        public Orientation: Fayde.Orientation;
         constructor();
         private $HorizontalTemplate;
         private $HorizontalLargeIncrease;
@@ -2605,44 +2607,44 @@ declare module Fayde.Controls {
         private _UpdateTrackLayout();
         private _OnThumbDragStarted(sender, e);
         private _OnThumbDragDelta(sender, e);
-        public OnMouseEnter(e: Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
-        public OnLostMouseCapture(e: Input.MouseEventArgs): void;
-        public OnKeyDown(e: Input.KeyEventArgs): void;
-        public OnGotFocus(e: RoutedEventArgs): void;
-        public OnLostFocus(e: RoutedEventArgs): void;
+        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnLostMouseCapture(e: Fayde.Input.MouseEventArgs): void;
+        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
     }
 }
 declare module Fayde.Controls {
-    class StackPanel extends Panel {
-        public CreateLayoutUpdater(node: PanelNode): StackPanelLayoutUpdater;
+    class StackPanel extends Controls.Panel {
+        public CreateLayoutUpdater(node: Controls.PanelNode): StackPanelLayoutUpdater;
         static OrientationProperty: DependencyProperty;
-        public Orientation: Orientation;
+        public Orientation: Fayde.Orientation;
         private _OrientationChanged(args);
     }
-    class StackPanelLayoutUpdater extends PanelLayoutUpdater {
+    class StackPanelLayoutUpdater extends Controls.PanelLayoutUpdater {
         public MeasureOverride(availableSize: size, error: BError): size;
         public ArrangeOverride(finalSize: size, error: BError): size;
     }
 }
 declare module Fayde.Controls {
-    class TextBlockNode extends FENode implements Documents.IInlinesChangedListener {
+    class TextBlockNode extends Fayde.FENode implements Fayde.Documents.IInlinesChangedListener {
         public XObject: TextBlock;
         private _ActualWidth;
         private _ActualHeight;
-        public _Layout: Text.TextLayout;
+        public _Layout: Fayde.Text.TextLayout;
         private _WasSet;
         private _Dirty;
         private _Font;
         private _SetsValue;
         constructor(xobj: TextBlock);
-        public GetInheritedEnumerator(): IEnumerator<DONode>;
+        public GetInheritedEnumerator(): Fayde.IEnumerator<Fayde.DONode>;
         public Measure(constraint: size): size;
         public Arrange(constraint: size, padding: Thickness): void;
         public Layout(constraint: size): void;
-        public ComputeActualSize(lu: LayoutUpdater, padding: Thickness): size;
-        public Render(ctx: RenderContextEx): void;
+        public ComputeActualSize(lu: Fayde.LayoutUpdater, padding: Thickness): size;
+        public Render(ctx: Fayde.RenderContextEx): void;
         public _FontChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _TextChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _LineStackingStrategyChanged(args: IDependencyPropertyChangedEventArgs): void;
@@ -2657,9 +2659,9 @@ declare module Fayde.Controls {
         private _UpdateLayoutAttributesForInline(item, length, runs);
         private _GetTextInternal(inlines);
         private _SetTextInternal(text);
-        public InlinesChanged(newInline: Documents.Inline, isAdd: boolean): void;
+        public InlinesChanged(newInline: Fayde.Documents.Inline, isAdd: boolean): void;
     }
-    class TextBlock extends FrameworkElement implements IFontChangeable {
+    class TextBlock extends Fayde.FrameworkElement implements Fayde.IFontChangeable {
         public XamlNode: TextBlockNode;
         public CreateNode(): TextBlockNode;
         public CreateLayoutUpdater(node: TextBlockNode): TextBlockLayoutUpdater;
@@ -2672,27 +2674,27 @@ declare module Fayde.Controls {
         static ForegroundProperty: DependencyProperty;
         static TextDecorationsProperty: DependencyProperty;
         static TextProperty: DependencyProperty;
-        static InlinesProperty: ImmutableDependencyProperty<Documents.InlineCollection>;
+        static InlinesProperty: ImmutableDependencyProperty<Fayde.Documents.InlineCollection>;
         static LineStackingStrategyProperty: DependencyProperty;
         static LineHeightProperty: DependencyProperty;
         static TextAlignmentProperty: DependencyProperty;
         static TextTrimmingProperty: DependencyProperty;
         static TextWrappingProperty: DependencyProperty;
         public Padding: Thickness;
-        public Foreground: Media.Brush;
+        public Foreground: Fayde.Media.Brush;
         public FontFamily: string;
         public FontStretch: string;
         public FontStyle: string;
-        public FontWeight: FontWeight;
+        public FontWeight: Fayde.FontWeight;
         public FontSize: number;
-        public TextDecorations: TextDecorations;
+        public TextDecorations: Fayde.TextDecorations;
         public Text: string;
-        public Inlines: Documents.InlineCollection;
-        public LineStackingStrategy: LineStackingStrategy;
+        public Inlines: Fayde.Documents.InlineCollection;
+        public LineStackingStrategy: Fayde.LineStackingStrategy;
         public LineHeight: number;
-        public TextAlignment: TextAlignment;
-        public TextTrimming: TextTrimming;
-        public TextWrapping: TextWrapping;
+        public TextAlignment: Fayde.TextAlignment;
+        public TextTrimming: Controls.TextTrimming;
+        public TextWrapping: Controls.TextWrapping;
         constructor();
         public MeasureOverride(availableSize: size): size;
         public ArrangeOverride(finalSize: size): size;
@@ -2700,14 +2702,14 @@ declare module Fayde.Controls {
         public FontChanged(args: IDependencyPropertyChangedEventArgs): void;
         public IsInheritable(propd: DependencyProperty): boolean;
     }
-    class TextBlockLayoutUpdater extends LayoutUpdater {
+    class TextBlockLayoutUpdater extends Fayde.LayoutUpdater {
         public ComputeActualSize(): size;
         public ComputeExtents(actualSize: size): void;
-        public Render(ctx: RenderContextEx, region: rect): void;
+        public Render(ctx: Fayde.RenderContextEx, region: rect): void;
     }
 }
 declare module Fayde.Controls {
-    class TextBox extends TextBoxBase implements Text.ITextAttributesSource {
+    class TextBox extends Controls.TextBoxBase implements Fayde.Text.ITextAttributesSource {
         static AcceptsReturnProperty: DependencyProperty;
         static CaretBrushProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
@@ -2723,21 +2725,21 @@ declare module Fayde.Controls {
         static HorizontalScrollBarVisibilityProperty: DependencyProperty;
         static VerticalScrollBarVisibilityProperty: DependencyProperty;
         public AcceptsReturn: boolean;
-        public CaretBrush: Media.Brush;
+        public CaretBrush: Fayde.Media.Brush;
         public MaxLength: number;
         public IsReadOnly: boolean;
         public BaselineOffset: number;
         public SelectionLength: number;
         public SelectionStart: number;
         public Text: string;
-        public TextAlignment: TextAlignment;
-        public TextWrapping: TextWrapping;
-        public HorizontalScrollBarVisibility: ScrollBarVisibility;
-        public VerticalScrollBarVisibility: ScrollBarVisibility;
-        public SelectionForeground: Media.Brush;
-        public SelectionBackground: Media.Brush;
-        public SelectionChanged: RoutedEvent<RoutedEventArgs>;
-        public TextChanged: RoutedEvent<RoutedEventArgs>;
+        public TextAlignment: Fayde.TextAlignment;
+        public TextWrapping: Controls.TextWrapping;
+        public HorizontalScrollBarVisibility: Controls.ScrollBarVisibility;
+        public VerticalScrollBarVisibility: Controls.ScrollBarVisibility;
+        public SelectionForeground: Fayde.Media.Brush;
+        public SelectionBackground: Fayde.Media.Brush;
+        public SelectionChanged: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        public TextChanged: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         constructor();
         public OnApplyTemplate(): void;
         public DisplayText : string;
@@ -2759,16 +2761,16 @@ declare module Fayde.Controls {
         private _TextWrappingChanged(args);
         private _HorizontalScrollBarVisibilityChanged(args);
         private _VerticalScrollBarVisibilityChanged(args);
-        public OnMouseEnter(e: Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Input.MouseEventArgs): void;
-        public OnGotFocus(e: RoutedEventArgs): void;
-        public OnLostFocus(e: RoutedEventArgs): void;
+        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
+        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
+        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
     }
 }
 declare module Fayde.Controls.Internal {
-    class TextBoxView extends FrameworkElement implements ITextModelListener {
-        public CreateLayoutUpdater(node: UINode): TextBoxViewLayoutUpdater;
+    class TextBoxView extends Fayde.FrameworkElement implements Controls.ITextModelListener {
+        public CreateLayoutUpdater(node: Fayde.UINode): TextBoxViewLayoutUpdater;
         private _Cursor;
         private _Layout;
         private _SelectionChanged;
@@ -2778,7 +2780,7 @@ declare module Fayde.Controls.Internal {
         private _BlinkTimeout;
         private _TextBox;
         private _Dirty;
-        public SetTextBox(textBox: TextBoxBase): void;
+        public SetTextBox(textBox: Controls.TextBoxBase): void;
         public SetEnableCursor(value: boolean): void;
         public _Blink(): boolean;
         public _ConnectBlinkTimeout(multiplier: any): void;
@@ -2797,25 +2799,25 @@ declare module Fayde.Controls.Internal {
         public ArrangeOverride(finalSize: size): size;
         public Layout(constraint: size): void;
         public GetBaselineOffset(): number;
-        public GetLineFromY(y: number): Text.TextLayoutLine;
-        public GetLineFromIndex(index: number): Text.TextLayoutLine;
+        public GetLineFromY(y: number): Fayde.Text.TextLayoutLine;
+        public GetLineFromIndex(index: number): Fayde.Text.TextLayoutLine;
         public GetCursorFromXY(x: number, y: number): number;
         public OnLostFocus(e: any): void;
         public OnGotFocus(e: any): void;
         public OnMouseLeftButtonDown(e: any): void;
         public OnMouseLeftButtonUp(e: any): void;
-        public OnTextModelChanged(args: ITextModelArgs): void;
+        public OnTextModelChanged(args: Controls.ITextModelArgs): void;
         public ComputeActualExtents(): size;
         public PreRender(): void;
-        public Render(ctx: RenderContextEx, region: rect, renderSize: size): void;
+        public Render(ctx: Fayde.RenderContextEx, region: rect, renderSize: size): void;
     }
-    class TextBoxViewLayoutUpdater extends LayoutUpdater {
+    class TextBoxViewLayoutUpdater extends Fayde.LayoutUpdater {
         public ComputeActualSize(): size;
-        public Render(ctx: RenderContextEx, region: rect): void;
+        public Render(ctx: Fayde.RenderContextEx, region: rect): void;
     }
 }
 declare module Fayde.Controls {
-    class ToolTip extends ContentControl {
+    class ToolTip extends Controls.ContentControl {
         static HorizontalOffsetProperty: DependencyProperty;
         static VerticalOffsetProperty: DependencyProperty;
         static IsOpenProperty: DependencyProperty;
@@ -2824,15 +2826,15 @@ declare module Fayde.Controls {
         public HorizontalOffset: number;
         public VerticalOffset: number;
         public IsOpen: boolean;
-        public Placement: PlacementMode;
-        public PlacementTarget: UIElement;
+        public Placement: Controls.PlacementMode;
+        public PlacementTarget: Fayde.UIElement;
         private _TooltipParent;
         private _TooltipParentDCListener;
-        public TooltipParent : FrameworkElement;
-        public PlacementOverride: PlacementMode;
-        public PlacementTargetOverride: UIElement;
-        public Opened: RoutedEvent<RoutedEventArgs>;
-        public Closed: RoutedEvent<RoutedEventArgs>;
+        public TooltipParent : Fayde.FrameworkElement;
+        public PlacementOverride: Controls.PlacementMode;
+        public PlacementTargetOverride: Fayde.UIElement;
+        public Opened: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        public Closed: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         private _ParentPopup;
         constructor();
         public OnApplyTemplate(): void;
@@ -2866,28 +2868,28 @@ declare class Point implements ICloneable, IPoint {
 declare module Fayde.Controls {
     class ToolTipService {
         static ToolTipProperty: DependencyProperty;
-        static GetToolTip(dobj: DependencyObject): ToolTip;
-        static SetToolTip(dobj: DependencyObject, value: ToolTip): void;
+        static GetToolTip(dobj: Fayde.DependencyObject): Controls.ToolTip;
+        static SetToolTip(dobj: Fayde.DependencyObject, value: Controls.ToolTip): void;
         static PlacementProperty: DependencyProperty;
-        static GetPlacement(dobj: DependencyObject): PlacementMode;
-        static SetPlacement(dobj: DependencyObject, value: PlacementMode): void;
+        static GetPlacement(dobj: Fayde.DependencyObject): Controls.PlacementMode;
+        static SetPlacement(dobj: Fayde.DependencyObject, value: Controls.PlacementMode): void;
         static PlacementTargetProperty: DependencyProperty;
-        static GetPlacementTarget(dobj: DependencyObject): UIElement;
-        static SetPlacementTarget(dobj: DependencyObject, value: UIElement): void;
+        static GetPlacementTarget(dobj: Fayde.DependencyObject): Fayde.UIElement;
+        static SetPlacementTarget(dobj: Fayde.DependencyObject, value: Fayde.UIElement): void;
         static MousePosition : Point;
     }
 }
 declare module Fayde.Controls {
-    class VirtualizingPanel extends Panel {
+    class VirtualizingPanel extends Controls.Panel {
         private _ICG;
-        public ItemContainerGenerator : ItemContainerGenerator;
+        public ItemContainerGenerator : Controls.ItemContainerGenerator;
         public AddInternalChild(child: any): void;
         public InsertInternalChild(index: number, child: any): void;
         public RemoveInternalChildRange(index: number, range: number): void;
         public BringIndexIntoView(index: any): void;
         public OnClearChildren(): void;
         private OnItemContainerGeneratorChanged(sender, e);
-        public OnItemsChanged(sender: any, e: Primitives.ItemsChangedEventArgs): void;
+        public OnItemsChanged(sender: any, e: Controls.Primitives.ItemsChangedEventArgs): void;
     }
 }
 declare module Fayde.Controls {
@@ -2898,13 +2900,13 @@ declare module Fayde.Controls {
     interface ICancelable {
         Cancel: boolean;
     }
-    class CleanUpVirtualizedItemEventArgs extends RoutedEventArgs implements ICancelable {
+    class CleanUpVirtualizedItemEventArgs extends Fayde.RoutedEventArgs implements ICancelable {
         public Cancel: boolean;
-        public UIElement: UIElement;
+        public UIElement: Fayde.UIElement;
         public Value: any;
-        constructor(uiElement: UIElement, value: any);
+        constructor(uiElement: Fayde.UIElement, value: any);
     }
-    class VirtualizingStackPanel extends VirtualizingPanel implements Primitives.IScrollInfo {
+    class VirtualizingStackPanel extends Controls.VirtualizingPanel implements Controls.Primitives.IScrollInfo {
         private _CanHorizontallyScroll;
         private _CanVerticallyScroll;
         private _HorizontalOffset;
@@ -2913,7 +2915,7 @@ declare module Fayde.Controls {
         private _ExtentHeight;
         private _ViewportWidth;
         private _ViewportHeight;
-        public ScrollOwner: ScrollViewer;
+        public ScrollOwner: Controls.ScrollViewer;
         public CanHorizontallyScroll : boolean;
         public CanVerticallyScroll : boolean;
         public ExtentWidth : number;
@@ -2934,34 +2936,34 @@ declare module Fayde.Controls {
         public PageDown(): boolean;
         public PageLeft(): boolean;
         public PageRight(): boolean;
-        public MakeVisible(uie: UIElement, rectangle: rect): rect;
+        public MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
         public SetHorizontalOffset(offset: number): boolean;
         public SetVerticalOffset(offset: number): boolean;
-        public CleanUpVirtualizedItemEvent: RoutedEvent<CleanUpVirtualizedItemEventArgs>;
+        public CleanUpVirtualizedItemEvent: Fayde.RoutedEvent<CleanUpVirtualizedItemEventArgs>;
         static OrientationProperty: DependencyProperty;
-        public Orientation: Orientation;
+        public Orientation: Fayde.Orientation;
         static IsVirtualizingProperty: DependencyProperty;
-        static GetIsVirtualizing(d: DependencyObject): boolean;
-        static SetIsVirtualizing(d: DependencyObject, value: boolean): void;
+        static GetIsVirtualizing(d: Fayde.DependencyObject): boolean;
+        static SetIsVirtualizing(d: Fayde.DependencyObject, value: boolean): void;
         static VirtualizationModeProperty: DependencyProperty;
-        static GetVirtualizationMode(d: DependencyObject): VirtualizationMode;
-        static SetVirtualizationMode(d: DependencyObject, value: VirtualizationMode): void;
+        static GetVirtualizationMode(d: Fayde.DependencyObject): VirtualizationMode;
+        static SetVirtualizationMode(d: Fayde.DependencyObject, value: VirtualizationMode): void;
         public MeasureOverride(availableSize: size): size;
         public ArrangeOverride(finalSize: size): size;
         public RemoveUnusedContainers(first: number, count: number): void;
-        public OnCleanUpVirtualizedItem(uie: UIElement, value: any): ICancelable;
+        public OnCleanUpVirtualizedItem(uie: Fayde.UIElement, value: any): ICancelable;
         public OnClearChildren(): void;
-        public OnItemsChanged(sender: any, e: Primitives.ItemsChangedEventArgs): void;
+        public OnItemsChanged(sender: any, e: Controls.Primitives.ItemsChangedEventArgs): void;
     }
 }
 declare module Fayde {
     function Clone(value: any): any;
 }
 declare module Fayde {
-    class DataTemplate extends Xaml.FrameworkTemplate {
+    class DataTemplate extends Fayde.Xaml.FrameworkTemplate {
         public DataType: Function;
         constructor();
-        public GetVisualTree(bindingSource?: DependencyObject): UIElement;
+        public GetVisualTree(bindingSource?: Fayde.DependencyObject): Fayde.UIElement;
     }
 }
 declare module Fayde {
@@ -2969,13 +2971,13 @@ declare module Fayde {
         public IsUpdating: boolean;
         public IsAttached: boolean;
         public GetValue(propd: DependencyProperty): any;
-        public OnAttached(target: XamlObject): void;
-        public OnDetached(target: XamlObject): void;
+        public OnAttached(target: Fayde.XamlObject): void;
+        public OnDetached(target: Fayde.XamlObject): void;
         public OnDataContextChanged(newDataContext: any): void;
     }
 }
 declare module Fayde {
-    class DeferredValueExpression extends Expression {
+    class DeferredValueExpression extends Fayde.Expression {
         public GetValue(propd: DependencyProperty): any;
         public toString(): string;
     }
@@ -2995,11 +2997,11 @@ declare module Fayde {
         Filter(sender: any, e: EventArgs, parameter: any): boolean;
     }
     var IEventFilter_: IInterfaceDeclaration<IEventFilter>;
-    class EventBinding implements Xaml.IMarkup {
-        public CommandBinding: Data.Binding;
-        public CommandParameterBinding: Data.Binding;
+    class EventBinding implements Fayde.Xaml.IMarkup {
+        public CommandBinding: Fayde.Data.Binding;
+        public CommandParameterBinding: Fayde.Data.Binding;
         public Filter: IEventFilter;
-        public Transmute(ctx: Xaml.ITransmuteContext): Expression;
+        public Transmute(ctx: Fayde.Xaml.ITransmuteContext): Fayde.Expression;
     }
 }
 declare module Fayde {
@@ -3008,7 +3010,7 @@ declare module Fayde {
         args: T;
         parameter: any;
     }
-    class EventBindingExpression extends Expression {
+    class EventBindingExpression extends Fayde.Expression {
         public IsUpdating: boolean;
         public IsAttached: boolean;
         private _EventBinding;
@@ -3017,33 +3019,33 @@ declare module Fayde {
         private _Target;
         private _Event;
         private _EventName;
-        constructor(eventBinding: EventBinding);
+        constructor(eventBinding: Fayde.EventBinding);
         public Init(event: MulticastEvent<EventArgs>, eventName: string): void;
         public GetValue(propd: DependencyProperty): any;
-        public OnAttached(target: XamlObject): void;
-        public OnDetached(target: XamlObject): void;
+        public OnAttached(target: Fayde.XamlObject): void;
+        public OnDetached(target: Fayde.XamlObject): void;
         public OnDataContextChanged(newDataContext: any): void;
         private _Callback(sender, e);
     }
 }
 declare module Fayde {
-    class HierarchicalDataTemplate extends DataTemplate {
+    class HierarchicalDataTemplate extends Fayde.DataTemplate {
         constructor();
         private _ItemsSource;
-        public ItemsSource : Data.Binding;
+        public ItemsSource : Fayde.Data.Binding;
         public IsItemTemplateSet: boolean;
         private _ItemTemplate;
-        public ItemTemplate : DataTemplate;
+        public ItemTemplate : Fayde.DataTemplate;
         public IsItemContainerStyleSet: boolean;
         private _ItemContainerStyle;
-        public ItemContainerStyle : Style;
+        public ItemContainerStyle : Fayde.Style;
     }
 }
 declare module Fayde {
     class LayoutInformation {
-        static GetLayoutClip(uie: UIElement): Media.Geometry;
-        static GetLayoutExceptionElement(): UIElement;
-        static GetLayoutSlot(uie: UIElement): rect;
+        static GetLayoutClip(uie: Fayde.UIElement): Fayde.Media.Geometry;
+        static GetLayoutExceptionElement(): Fayde.UIElement;
+        static GetLayoutSlot(uie: Fayde.UIElement): rect;
     }
 }
 declare module Fayde {
@@ -3051,8 +3053,8 @@ declare module Fayde {
         public IsRoot: boolean;
         private XNodes;
         constructor(isRoot?: boolean);
-        public FindName(name: string): XamlNode;
-        public RegisterName(name: string, xnode: XamlNode): void;
+        public FindName(name: string): Fayde.XamlNode;
+        public RegisterName(name: string, xnode: Fayde.XamlNode): void;
         public UnregisterName(name: string): void;
         public Absorb(otherNs: NameScope): void;
     }
@@ -3072,34 +3074,34 @@ declare module Fayde.Providers {
         All,
     }
     interface IImplicitStyleHolder {
-        _ImplicitStyles: Style[];
+        _ImplicitStyles: Fayde.Style[];
         _StyleMask: number;
     }
     class ImplicitStyleBroker {
-        static Set(fe: FrameworkElement, mask: StyleMask, styles?: Style[]): void;
+        static Set(fe: Fayde.FrameworkElement, mask: StyleMask, styles?: Fayde.Style[]): void;
         private static SetImpl(fe, mask, styles);
-        static Clear(fe: FrameworkElement, mask: StyleMask): void;
+        static Clear(fe: Fayde.FrameworkElement, mask: StyleMask): void;
         private static ApplyStyles(fe, mask, styles);
     }
 }
 declare module Fayde.Providers {
     interface IStyleHolder {
-        _LocalStyle: Style;
+        _LocalStyle: Fayde.Style;
     }
     class LocalStyleBroker {
-        static Set(fe: FrameworkElement, newStyle: Style): void;
+        static Set(fe: Fayde.FrameworkElement, newStyle: Fayde.Style): void;
     }
 }
 declare module Fayde {
     interface IResourcable {
         Resources: ResourceDictionary;
     }
-    class ResourceDictionaryCollection extends XamlObjectCollection<ResourceDictionary> {
+    class ResourceDictionaryCollection extends Fayde.XamlObjectCollection<ResourceDictionary> {
         public Get(key: any): any;
         public AddingToCollection(value: ResourceDictionary, error: BError): boolean;
         private _AssertNoCycles(subtreeRoot, firstAncestorNode, error);
     }
-    class ResourceDictionary extends XamlObject implements IEnumerable<any> {
+    class ResourceDictionary extends Fayde.XamlObject implements Fayde.IEnumerable<any> {
         private _Keys;
         private _Values;
         private _IsSourceLoaded;
@@ -3107,13 +3109,13 @@ declare module Fayde {
         public MergedDictionaries : ResourceDictionaryCollection;
         public Source: Uri;
         public Count : number;
-        public AttachTo(xobj: XamlObject): void;
+        public AttachTo(xobj: Fayde.XamlObject): void;
         public Contains(key: any): boolean;
         public Get(key: any): any;
         public Set(key: any, value: any): boolean;
         public Remove(key: any): boolean;
-        public GetEnumerator(reverse?: boolean): IEnumerator<any>;
-        public GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U>;
+        public GetEnumerator(reverse?: boolean): Fayde.IEnumerator<any>;
+        public GetNodeEnumerator<U extends Fayde.XamlNode>(reverse?: boolean): Fayde.IEnumerator<U>;
     }
 }
 interface IEventListener<T extends EventArgs> {
@@ -3128,22 +3130,22 @@ declare class MulticastEvent<T extends EventArgs> {
     public RaiseAsync(sender: any, args: T): void;
 }
 declare module Fayde {
-    class RoutedEvent<T extends RoutedEventArgs> extends MulticastEvent<T> {
+    class RoutedEvent<T extends Fayde.RoutedEventArgs> extends MulticastEvent<T> {
     }
 }
 declare module Fayde {
-    class RoutedPropertyChangedEvent<T> extends RoutedEvent<RoutedPropertyChangedEventArgs<T>> {
+    class RoutedPropertyChangedEvent<T> extends Fayde.RoutedEvent<RoutedPropertyChangedEventArgs<T>> {
     }
-    class RoutedPropertyChangedEventArgs<T> extends RoutedEventArgs {
+    class RoutedPropertyChangedEventArgs<T> extends Fayde.RoutedEventArgs {
         public OldValue: T;
         public NewValue: T;
         constructor(oldValue: T, newValue: T);
     }
 }
 declare module Fayde {
-    class RoutedPropertyChangingEvent<T> extends RoutedEvent<RoutedPropertyChangingEventArgs<T>> {
+    class RoutedPropertyChangingEvent<T> extends Fayde.RoutedEvent<RoutedPropertyChangingEventArgs<T>> {
     }
-    class RoutedPropertyChangingEventArgs<T> extends RoutedEventArgs {
+    class RoutedPropertyChangingEventArgs<T> extends Fayde.RoutedEventArgs {
         public Property: DependencyProperty;
         public OldValue: T;
         public NewValue: T;
@@ -3156,14 +3158,14 @@ declare module Fayde {
     }
 }
 declare module Fayde {
-    class SetterCollection extends XamlObjectCollection<Setter> {
+    class SetterCollection extends Fayde.XamlObjectCollection<Setter> {
         private _IsSealed;
-        public XamlNode: XamlNode;
+        public XamlNode: Fayde.XamlNode;
         public _Seal(targetType: Function): void;
         public AddingToCollection(value: Setter, error: BError): boolean;
         private _ValidateSetter(setter, error);
     }
-    class Setter extends DependencyObject {
+    class Setter extends Fayde.DependencyObject {
         private _IsSealed;
         static PropertyProperty: DependencyProperty;
         static ValueProperty: DependencyProperty;
@@ -3175,28 +3177,28 @@ declare module Fayde {
     }
 }
 declare module Fayde {
-    class SizeChangedEventArgs extends RoutedEventArgs {
+    class SizeChangedEventArgs extends Fayde.RoutedEventArgs {
         public PreviousSize: size;
         public NewSize: size;
         constructor(previousSize: size, newSize: size);
     }
 }
 declare module Fayde {
-    class Style extends DependencyObject {
+    class Style extends Fayde.DependencyObject {
         private _IsSealed;
-        static SettersProperty: ImmutableDependencyProperty<SetterCollection>;
+        static SettersProperty: ImmutableDependencyProperty<Fayde.SetterCollection>;
         static BasedOnProperty: DependencyProperty;
         static TargetTypeProperty: DependencyProperty;
-        public Setters: SetterCollection;
+        public Setters: Fayde.SetterCollection;
         public BasedOn: Style;
         public TargetType: Function;
         constructor();
         public Seal(): void;
-        public Validate(instance: DependencyObject, error: BError): boolean;
+        public Validate(instance: Fayde.DependencyObject, error: BError): boolean;
     }
 }
 declare module Fayde {
-    class TemplateBindingExpression extends Expression {
+    class TemplateBindingExpression extends Fayde.Expression {
         private _Target;
         private _Listener;
         public SourceProperty: DependencyProperty;
@@ -3204,23 +3206,23 @@ declare module Fayde {
         private _SetsParent;
         constructor(sourcePropd: DependencyProperty, targetPropd: DependencyProperty);
         public GetValue(propd: DependencyProperty): any;
-        public OnAttached(dobj: DependencyObject): void;
-        public OnDetached(dobj: DependencyObject): void;
-        public OnSourcePropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        public OnAttached(dobj: Fayde.DependencyObject): void;
+        public OnDetached(dobj: Fayde.DependencyObject): void;
+        public OnSourcePropertyChanged(sender: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         private _AttachListener();
         private _DetachListener();
     }
 }
 declare module Fayde {
-    class TriggerAction extends DependencyObject {
+    class TriggerAction extends Fayde.DependencyObject {
         public Fire(): void;
     }
-    class TriggerActionCollection extends XamlObjectCollection<TriggerAction> {
+    class TriggerActionCollection extends Fayde.XamlObjectCollection<TriggerAction> {
         public Fire(): void;
     }
-    class TriggerBase extends DependencyObject {
-        public Attach(target: XamlObject): void;
-        public Detach(target: XamlObject): void;
+    class TriggerBase extends Fayde.DependencyObject {
+        public Attach(target: Fayde.XamlObject): void;
+        public Detach(target: Fayde.XamlObject): void;
     }
     class EventTrigger extends TriggerBase {
         static ActionsProperty: ImmutableDependencyProperty<TriggerActionCollection>;
@@ -3229,29 +3231,29 @@ declare module Fayde {
         public RoutedEvent: string;
         private _IsAttached;
         constructor();
-        public Attach(target: XamlObject): void;
-        public Detach(target: XamlObject): void;
+        public Attach(target: Fayde.XamlObject): void;
+        public Detach(target: Fayde.XamlObject): void;
         private _FireActions(sender, e);
         private _ParseEventName(target);
     }
-    class TriggerCollection extends XamlObjectCollection<TriggerBase> {
-        public XamlNode: XamlNode;
+    class TriggerCollection extends Fayde.XamlObjectCollection<TriggerBase> {
+        public XamlNode: Fayde.XamlNode;
         private ParentXamlObject;
         public AddingToCollection(value: TriggerBase, error: BError): boolean;
         public RemovedFromCollection(value: TriggerBase, isValueSafe: boolean): void;
-        public AttachTarget(target: XamlObject): void;
-        public DetachTarget(target: XamlObject): void;
+        public AttachTarget(target: Fayde.XamlObject): void;
+        public DetachTarget(target: Fayde.XamlObject): void;
     }
 }
 declare module Fayde {
     class VisualTreeHelper {
-        static GetParent(d: DependencyObject): DependencyObject;
-        static GetParentOfType<T extends DependencyObject>(d: DependencyObject, type: any): T;
-        static GetRoot(d: DependencyObject): DependencyObject;
-        static GetChild(d: DependencyObject, childIndex: number): DependencyObject;
-        static GetChildrenCount(d: DependencyObject): number;
-        static FindElementsInHostCoordinates(intersectingPoint: Point, subtree: UIElement): UIElement[];
-        static __Debug(ui: any, func?: (uin: UINode, tabIndex: number) => string): string;
+        static GetParent(d: Fayde.DependencyObject): Fayde.DependencyObject;
+        static GetParentOfType<T extends Fayde.DependencyObject>(d: Fayde.DependencyObject, type: any): T;
+        static GetRoot(d: Fayde.DependencyObject): Fayde.DependencyObject;
+        static GetChild(d: Fayde.DependencyObject, childIndex: number): Fayde.DependencyObject;
+        static GetChildrenCount(d: Fayde.DependencyObject): number;
+        static FindElementsInHostCoordinates(intersectingPoint: Point, subtree: Fayde.UIElement): Fayde.UIElement[];
+        static __Debug(ui: any, func?: (uin: Fayde.UINode, tabIndex: number) => string): string;
         private static __DebugTree(curNode, matchNode, tabIndex, func);
         private static __DebugUIElement(uin, tabIndex);
         private static __DebugGrid(uin, tabIndex);
@@ -3265,10 +3267,10 @@ declare module Fayde {
         Step(): any;
     }
     interface IStyleWalker extends IWalker {
-        Step(): Setter;
+        Step(): Fayde.Setter;
     }
     interface IDeepTreeWalker extends IWalker {
-        Step(): UINode;
+        Step(): Fayde.UINode;
         SkipBranch(): any;
     }
     interface ITabNavigationWalker {
@@ -3282,9 +3284,9 @@ declare module Fayde {
         private _Current;
         private _Forwards;
         private _TabSorted;
-        constructor(root: UINode, cur: UINode, forwards: boolean);
+        constructor(root: Fayde.UINode, cur: Fayde.UINode, forwards: boolean);
         public FocusChild(): boolean;
-        static Focus(uin: UINode, forwards?: boolean): boolean;
+        static Focus(uin: Fayde.UINode, forwards?: boolean): boolean;
     }
 }
 declare module Fayde.Data {
@@ -3293,7 +3295,7 @@ declare module Fayde.Data {
         ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any;
     }
     var IValueConverter_: IInterfaceDeclaration<IValueConverter>;
-    class Binding implements Xaml.IMarkup {
+    class Binding implements Fayde.Xaml.IMarkup {
         private _IsSealed;
         private _StringFormat;
         private _FallbackValue;
@@ -3318,12 +3320,12 @@ declare module Fayde.Data {
         public ConverterParameter : any;
         public ConverterCulture : any;
         public ElementName : string;
-        public Mode : BindingMode;
+        public Mode : Data.BindingMode;
         public NotifyOnValidationError : boolean;
-        public RelativeSource : RelativeSource;
-        public Path : PropertyPath;
+        public RelativeSource : Data.RelativeSource;
+        public Path : Data.PropertyPath;
         public Source : any;
-        public UpdateSourceTrigger : UpdateSourceTrigger;
+        public UpdateSourceTrigger : Data.UpdateSourceTrigger;
         public ValidatesOnExceptions : boolean;
         public ValidatesOnDataErrors : boolean;
         public ValidatesOnNotifyDataErrors : boolean;
@@ -3332,13 +3334,13 @@ declare module Fayde.Data {
         public TargetNullValue : any;
         private CheckSealed();
         public Seal(): void;
-        public Transmute(ctx: Xaml.ITransmuteContext): Expression;
+        public Transmute(ctx: Fayde.Xaml.ITransmuteContext): Fayde.Expression;
     }
 }
 declare module Fayde.Data {
-    class BindingExpressionBase extends Expression implements IPropertyPathWalkerListener {
-        public ParentBinding: Binding;
-        public Target: DependencyObject;
+    class BindingExpressionBase extends Fayde.Expression implements Data.IPropertyPathWalkerListener {
+        public ParentBinding: Data.Binding;
+        public Target: Fayde.DependencyObject;
         public Property: DependencyProperty;
         private PropertyPathWalker;
         private _PropertyListener;
@@ -3349,14 +3351,14 @@ declare module Fayde.Data {
         public DataItem : any;
         private _Cached;
         private _CachedValue;
-        constructor(binding: Binding, target: DependencyObject, propd: DependencyProperty);
+        constructor(binding: Data.Binding, target: Fayde.DependencyObject, propd: DependencyProperty);
         private _Init(binding, target, propd);
         public GetValue(propd: DependencyProperty): any;
-        public OnAttached(element: DependencyObject): void;
+        public OnAttached(element: Fayde.DependencyObject): void;
         private _OnSourceAvailable();
         private _FindSource();
         private _FindSourceByElementName();
-        public OnDetached(element: DependencyObject): void;
+        public OnDetached(element: Fayde.DependencyObject): void;
         public IsBrokenChanged(): void;
         public ValueChanged(): void;
         public UpdateSource(): void;
@@ -3375,16 +3377,16 @@ declare module Fayde.Data {
     }
 }
 declare module Fayde.Data {
-    class BindingExpression extends BindingExpressionBase {
-        constructor(binding: Binding, target: DependencyObject, propd: DependencyProperty);
+    class BindingExpression extends Data.BindingExpressionBase {
+        constructor(binding: Data.Binding, target: Fayde.DependencyObject, propd: DependencyProperty);
     }
 }
 declare module Fayde.Data {
-    class CollectionViewSource extends DependencyObject {
+    class CollectionViewSource extends Fayde.DependencyObject {
         static SourceProperty: DependencyProperty;
         static ViewProperty: DependencyProperty;
         public Source: any;
-        public View: ICollectionView;
+        public View: Data.ICollectionView;
     }
 }
 declare module Fayde.Data {
@@ -3406,7 +3408,7 @@ declare module Fayde.Data {
     }
 }
 declare module Fayde.Data {
-    interface ICollectionView extends IEnumerable<any> {
+    interface ICollectionView extends Fayde.IEnumerable<any> {
         CurrentChanged: MulticastEvent<EventArgs>;
         CurrentItem: any;
         MoveCurrentTo(item: any): boolean;
@@ -3491,21 +3493,21 @@ declare module Fayde.Data {
 }
 declare module Fayde.Data {
     class RelativeSource {
-        public Mode: RelativeSourceMode;
+        public Mode: Data.RelativeSourceMode;
         private _AncestorLevel;
         public AncestorLevel : number;
         public AncestorType: Function;
-        constructor(mode?: RelativeSourceMode);
+        constructor(mode?: Data.RelativeSourceMode);
     }
 }
 declare module Fayde.Documents {
-    class TextElementNode extends DONode {
+    class TextElementNode extends Fayde.DONode {
         public XObject: TextElement;
         constructor(xobj: TextElement, inheritedWalkProperty: string);
         public InheritedWalkProperty: string;
-        public GetInheritedEnumerator(): IEnumerator<DONode>;
+        public GetInheritedEnumerator(): Fayde.IEnumerator<Fayde.DONode>;
     }
-    class TextElement extends DependencyObject implements Text.ITextAttributesSource, IFontChangeable, Providers.IIsPropertyInheritable {
+    class TextElement extends Fayde.DependencyObject implements Fayde.Text.ITextAttributesSource, Fayde.IFontChangeable, Fayde.Providers.IIsPropertyInheritable {
         public XamlNode: TextElementNode;
         public CreateNode(): TextElementNode;
         static FontFamilyProperty: DependencyProperty;
@@ -3516,24 +3518,24 @@ declare module Fayde.Documents {
         static ForegroundProperty: DependencyProperty;
         static TextDecorationsProperty: DependencyProperty;
         static LanguageProperty: DependencyProperty;
-        public Foreground: Media.Brush;
+        public Foreground: Fayde.Media.Brush;
         public FontFamily: string;
         public FontStretch: string;
         public FontStyle: string;
-        public FontWeight: FontWeight;
+        public FontWeight: Fayde.FontWeight;
         public FontSize: number;
         public Language: string;
-        public TextDecorations: TextDecorations;
+        public TextDecorations: Fayde.TextDecorations;
         public IsInheritable(propd: DependencyProperty): boolean;
         private _Font;
         constructor();
         public _SerializeText(): string;
         private _UpdateFont(force?);
-        public Background : Media.Brush;
-        public SelectionBackground : Media.Brush;
-        public SelectionForeground : Media.Brush;
+        public Background : Fayde.Media.Brush;
+        public SelectionBackground : Fayde.Media.Brush;
+        public SelectionForeground : Fayde.Media.Brush;
         public Font : Font;
-        public Direction : FlowDirection;
+        public Direction : Fayde.FlowDirection;
         public IsUnderlined : boolean;
         public Start: number;
         public Equals(te: TextElement): boolean;
@@ -3544,9 +3546,9 @@ declare module Fayde.Documents {
     interface IBlocksChangedListener {
         BlocksChanged(newBlock: Block, isAdd: boolean): any;
     }
-    class Block extends TextElement {
+    class Block extends Documents.TextElement {
     }
-    class BlockCollection extends XamlObjectCollection<Block> {
+    class BlockCollection extends Fayde.XamlObjectCollection<Block> {
         private _Listener;
         public Listen(listener: IBlocksChangedListener): void;
         public Unlisten(listener: IBlocksChangedListener): void;
@@ -3558,10 +3560,10 @@ declare module Fayde.Documents {
     interface IInlinesChangedListener {
         InlinesChanged(newInline: Inline, isAdd: boolean): any;
     }
-    class Inline extends TextElement {
+    class Inline extends Documents.TextElement {
         public Autogen: boolean;
     }
-    class InlineCollection extends XamlObjectCollection<Inline> {
+    class InlineCollection extends Fayde.XamlObjectCollection<Inline> {
         private _Listener;
         public Listen(listener: IInlinesChangedListener): void;
         public Unlisten(listener: IInlinesChangedListener): void;
@@ -3570,78 +3572,78 @@ declare module Fayde.Documents {
     }
 }
 declare module Fayde.Documents {
-    class LineBreak extends Inline {
+    class LineBreak extends Documents.Inline {
     }
 }
 declare module Fayde.Documents {
-    class Paragraph extends Block {
-        public CreateNode(): TextElementNode;
-        static InlinesProperty: ImmutableDependencyProperty<InlineCollection>;
-        public Inlines: InlineCollection;
+    class Paragraph extends Documents.Block {
+        public CreateNode(): Documents.TextElementNode;
+        static InlinesProperty: ImmutableDependencyProperty<Documents.InlineCollection>;
+        public Inlines: Documents.InlineCollection;
         constructor();
-        public InlinesChanged(newInline: Inline, isAdd: boolean): void;
+        public InlinesChanged(newInline: Documents.Inline, isAdd: boolean): void;
     }
 }
 declare module Fayde.Documents {
-    class Run extends Inline implements Providers.IIsPropertyInheritable {
+    class Run extends Documents.Inline implements Fayde.Providers.IIsPropertyInheritable {
         static FlowDirectionProperty: DependencyProperty;
         static TextProperty: DependencyProperty;
-        public FlowDirection: FlowDirection;
+        public FlowDirection: Fayde.FlowDirection;
         public Text: string;
         public _SerializeText(): string;
         public IsInheritable(propd: DependencyProperty): boolean;
     }
 }
 declare module Fayde.Documents {
-    class Section extends TextElement implements IBlocksChangedListener {
-        public CreateNode(): TextElementNode;
-        static BlocksProperty: ImmutableDependencyProperty<BlockCollection>;
-        public Blocks: BlockCollection;
+    class Section extends Documents.TextElement implements Documents.IBlocksChangedListener {
+        public CreateNode(): Documents.TextElementNode;
+        static BlocksProperty: ImmutableDependencyProperty<Documents.BlockCollection>;
+        public Blocks: Documents.BlockCollection;
         constructor();
-        public BlocksChanged(newBlock: Block, isAdd: boolean): void;
+        public BlocksChanged(newBlock: Documents.Block, isAdd: boolean): void;
     }
 }
 declare module Fayde.Documents {
-    class Span extends Inline implements IInlinesChangedListener {
-        public CreateNode(): TextElementNode;
-        static InlinesProperty: ImmutableDependencyProperty<InlineCollection>;
-        public Inlines: InlineCollection;
+    class Span extends Documents.Inline implements Documents.IInlinesChangedListener {
+        public CreateNode(): Documents.TextElementNode;
+        static InlinesProperty: ImmutableDependencyProperty<Documents.InlineCollection>;
+        public Inlines: Documents.InlineCollection;
         constructor();
-        public InlinesChanged(newInline: Inline, isAdd: boolean): void;
+        public InlinesChanged(newInline: Documents.Inline, isAdd: boolean): void;
         public _SerializeText(): string;
     }
 }
 declare module Fayde.Documents {
-    class Underline extends Span {
+    class Underline extends Documents.Span {
     }
 }
 interface ITimeline {
     Update(nowTime: number): any;
 }
 declare module Fayde {
-    class Application extends DependencyObject implements IResourcable, ITimerListener {
+    class Application extends Fayde.DependencyObject implements Fayde.IResourcable, Fayde.ITimerListener {
         static Current: Application;
-        public MainSurface: Surface;
+        public MainSurface: Fayde.Surface;
         public Loaded: MulticastEvent<EventArgs>;
         public Address: Uri;
-        public DebugInterop: DebugInterop;
+        public DebugInterop: Fayde.DebugInterop;
         private _IsRunning;
         private _IsLoaded;
         private _Storyboards;
         private _ClockTimer;
         private _RootVisual;
         private _CoreLibrary;
-        static ResourcesProperty: ImmutableDependencyProperty<ResourceDictionary>;
+        static ResourcesProperty: ImmutableDependencyProperty<Fayde.ResourceDictionary>;
         static ThemeNameProperty: DependencyProperty;
-        public Resources: ResourceDictionary;
+        public Resources: Fayde.ResourceDictionary;
         public ThemeName: string;
         private OnThemeNameChanged(args);
         private _ApplyTheme();
-        public Resized: RoutedEvent<SizeChangedEventArgs>;
+        public Resized: Fayde.RoutedEvent<Fayde.SizeChangedEventArgs>;
         public OnResized(oldSize: size, newSize: size): void;
         constructor();
-        public RootVisual : UIElement;
-        public $$SetRootVisual(value: UIElement): void;
+        public RootVisual : Fayde.UIElement;
+        public $$SetRootVisual(value: Fayde.UIElement): void;
         public Attach(canvas: HTMLCanvasElement): void;
         public Start(): void;
         public OnTicked(lastTime: number, nowTime: number): void;
@@ -3673,8 +3675,8 @@ declare module Fayde {
 }
 declare module Fayde {
     interface IDebugInteropCache {
-        Node: UINode;
-        Visual: UIElement;
+        Node: Fayde.UINode;
+        Visual: Fayde.UIElement;
         Children: IDebugInteropCache[];
         ID: number;
         Name: string;
@@ -3686,9 +3688,9 @@ declare module Fayde {
         private _DPCache;
         public LastFrameTime: Date;
         public NumFrames: number;
-        public App: Application;
-        public Surface: Surface;
-        constructor(app: Application);
+        public App: Fayde.Application;
+        public Surface: Fayde.Surface;
+        constructor(app: Fayde.Application);
         public LayoutUpdated(): void;
         public IsCacheInvalidated : boolean;
         public InvalidateCache(): void;
@@ -3754,17 +3756,17 @@ declare module Fayde.Engine {
     class FocusManager {
         private _State;
         private _ChangedEvents;
-        public Node: UINode;
-        constructor(state: IInputState);
-        public GetFocusToRoot(): UINode[];
-        public OnNodeDetached(node: UINode): void;
+        public Node: Fayde.UINode;
+        constructor(state: Engine.IInputState);
+        public GetFocusToRoot(): Fayde.UINode[];
+        public OnNodeDetached(node: Fayde.UINode): void;
         public TabFocus(isShift: boolean): boolean;
-        public Focus(ctrlNode: Controls.ControlNode, recurse?: boolean): boolean;
+        public Focus(ctrlNode: Fayde.Controls.ControlNode, recurse?: boolean): boolean;
         private _FocusNode(uin?);
         public EmitChanges(): void;
         public EmitChangesAsync(): void;
         private _EmitFocusList(type, list);
-        public FocusAnyLayer(layers: UINode[]): void;
+        public FocusAnyLayer(layers: Fayde.UINode[]): void;
     }
 }
 declare module Fayde.Engine {
@@ -3780,7 +3782,7 @@ declare module Fayde.Engine {
         private _Focus;
         private _State;
         private _Cursor;
-        public SetCursor: (cursor: CursorType) => void;
+        public SetCursor: (cursor: Fayde.CursorType) => void;
         private _CurrentPos;
         private _EmittingMouseEvent;
         private _InputList;
@@ -3788,29 +3790,29 @@ declare module Fayde.Engine {
         private _PendingCapture;
         private _PendingReleaseCapture;
         private _CapturedInputList;
-        public FocusedNode : UINode;
-        public Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
-        constructor(surface: Surface);
+        public FocusedNode : Fayde.UINode;
+        public Focus(node: Fayde.Controls.ControlNode, recurse?: boolean): boolean;
+        constructor(surface: Fayde.Surface);
         public Register(canvas: HTMLCanvasElement): void;
-        public OnNodeDetached(node: UINode): void;
+        public OnNodeDetached(node: Fayde.UINode): void;
         public SetIsUserInitiatedEvent(value: boolean): void;
-        public HandleKeyDown(args: Input.KeyEventArgs): void;
+        public HandleKeyDown(args: Fayde.Input.KeyEventArgs): void;
         private _EmitKeyDown(list, args, endIndex?);
         public HandleMousePress(button: number, pos: Point): boolean;
         public HandleMouseRelease(button: number, pos: Point): void;
-        public HandleMouseEvent(type: Input.MouseInputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean): boolean;
+        public HandleMouseEvent(type: Fayde.Input.MouseInputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean): boolean;
         private _EmitMouseList(type, button, pos, delta, list, endIndex?);
-        public HitTestPoint(pos: Point): UINode[];
+        public HitTestPoint(pos: Point): Fayde.UINode[];
         public UpdateCursorFromInputList(): void;
-        public SetMouseCapture(uin: UINode): boolean;
-        public ReleaseMouseCapture(uin: UINode): void;
+        public SetMouseCapture(uin: Fayde.UINode): boolean;
+        public ReleaseMouseCapture(uin: Fayde.UINode): void;
         private _PerformCapture(uin);
         private _PerformReleaseCapture();
     }
 }
 declare module Fayde.Engine {
     class Inspection {
-        static TryHandle(type: Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs, htlist: UINode[]): boolean;
+        static TryHandle(type: Fayde.Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Fayde.Input.MouseEventArgs, htlist: Fayde.UINode[]): boolean;
         static Kill(): void;
     }
 }
@@ -3818,9 +3820,9 @@ declare var resizeTimeout: number;
 declare module Fayde {
     class Surface {
         static TestCanvas: HTMLCanvasElement;
-        public TestRenderContext: RenderContextEx;
+        public TestRenderContext: Fayde.RenderContextEx;
         private _App;
-        public _RootLayer: UIElement;
+        public _RootLayer: Fayde.UIElement;
         private _Layers;
         private _UpDirty;
         private _DownDirty;
@@ -3832,15 +3834,15 @@ declare module Fayde {
         private _InvalidatedRect;
         private _RenderContext;
         private _InputMgr;
-        public HitTestCallback: (inputList: UINode[]) => void;
-        constructor(app: Application);
+        public HitTestCallback: (inputList: Fayde.UINode[]) => void;
+        constructor(app: Fayde.Application);
         public Extents : size;
-        public App : Application;
+        public App : Fayde.Application;
         public Register(canvas: HTMLCanvasElement, width?: number, widthType?: string, height?: number, heightType?: string): void;
-        public Attach(uie: UIElement): void;
-        public GetLayers(): UINode[];
-        public AttachLayer(layer: UIElement): void;
-        public DetachLayer(layer: UIElement): void;
+        public Attach(uie: Fayde.UIElement): void;
+        public GetLayers(): Fayde.UINode[];
+        public AttachLayer(layer: Fayde.UIElement): void;
+        public DetachLayer(layer: Fayde.UIElement): void;
         public ProcessDirtyElements(): boolean;
         public _UpdateLayout(error: BError): boolean;
         private _ProcessDownDirtyElements();
@@ -3848,21 +3850,21 @@ declare module Fayde {
         private _GetChildNodeInUpListIndex(lu);
         private _PropagateDirtyFlagToChildren(element, dirt);
         private _RemoveDirtyElement(lu);
-        public OnNodeDetached(lu: LayoutUpdater): void;
+        public OnNodeDetached(lu: Fayde.LayoutUpdater): void;
         public _Invalidate(r?: rect): void;
         public Render(): void;
         private _HandleResize(evt);
         private _HandleResizeTimeout(evt);
         private _ResizeCanvas();
-        public FocusedNode : UINode;
-        public Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
-        public RemoveFocusFrom(lu: LayoutUpdater): void;
-        public HitTestPoint(pos: Point): UINode[];
-        public SetMouseCapture(uin: UINode): boolean;
-        public ReleaseMouseCapture(uin: UINode): void;
+        public FocusedNode : Fayde.UINode;
+        public Focus(node: Fayde.Controls.ControlNode, recurse?: boolean): boolean;
+        public RemoveFocusFrom(lu: Fayde.LayoutUpdater): void;
+        public HitTestPoint(pos: Point): Fayde.UINode[];
+        public SetMouseCapture(uin: Fayde.UINode): boolean;
+        public ReleaseMouseCapture(uin: Fayde.UINode): void;
         static MeasureWidth(text: string, font: Font): number;
         public __DebugLayers(): string;
-        public __GetById(id: number): UIElement;
+        public __GetById(id: number): Fayde.UIElement;
     }
 }
 declare module Fayde.Input {
@@ -3875,42 +3877,42 @@ declare module Fayde.Input {
 }
 declare module Fayde.Input {
     module InteractionHelper {
-        function GetLogicalKey(flowDirection: FlowDirection, key: Key): Key;
+        function GetLogicalKey(flowDirection: Fayde.FlowDirection, key: Input.Key): Input.Key;
     }
 }
 declare module Fayde.Input {
     class KeyboardNavigation {
         static AcceptsReturnProperty: DependencyProperty;
-        static GetAcceptsReturn(d: DependencyObject): boolean;
-        static SetAcceptsReturn(d: DependencyObject, value: boolean): void;
+        static GetAcceptsReturn(d: Fayde.DependencyObject): boolean;
+        static SetAcceptsReturn(d: Fayde.DependencyObject, value: boolean): void;
         static ControlTabNavigationProperty: DependencyProperty;
-        static GetControlTabNavigation(d: DependencyObject): KeyboardNavigationMode;
-        static SetControlTabNavigation(d: DependencyObject, value: KeyboardNavigationMode): void;
+        static GetControlTabNavigation(d: Fayde.DependencyObject): Input.KeyboardNavigationMode;
+        static SetControlTabNavigation(d: Fayde.DependencyObject, value: Input.KeyboardNavigationMode): void;
         static DirectionalNavigationProperty: DependencyProperty;
-        static GetDirectionalNavigation(d: DependencyObject): KeyboardNavigationMode;
-        static SetDirectionalNavigation(d: DependencyObject, value: KeyboardNavigationMode): void;
+        static GetDirectionalNavigation(d: Fayde.DependencyObject): Input.KeyboardNavigationMode;
+        static SetDirectionalNavigation(d: Fayde.DependencyObject, value: Input.KeyboardNavigationMode): void;
         static IsTabStopProperty: DependencyProperty;
-        static GetIsTabStop(d: DependencyObject): boolean;
-        static SetIsTabStop(d: DependencyObject, value: boolean): void;
+        static GetIsTabStop(d: Fayde.DependencyObject): boolean;
+        static SetIsTabStop(d: Fayde.DependencyObject, value: boolean): void;
         static TabIndexProperty: DependencyProperty;
-        static GetTabIndex(d: DependencyObject): number;
-        static SetTabIndex(d: DependencyObject, value: number): void;
+        static GetTabIndex(d: Fayde.DependencyObject): number;
+        static SetTabIndex(d: Fayde.DependencyObject, value: number): void;
         static TabNavigationProperty: DependencyProperty;
-        static GetTabNavigation(d: DependencyObject): KeyboardNavigationMode;
-        static SetTabNavigation(d: DependencyObject, value: KeyboardNavigationMode): void;
+        static GetTabNavigation(d: Fayde.DependencyObject): Input.KeyboardNavigationMode;
+        static SetTabNavigation(d: Fayde.DependencyObject, value: Input.KeyboardNavigationMode): void;
     }
 }
 declare module Fayde.Input {
     interface IKeyInterop {
-        RegisterEvents(inputHandler: Engine.InputManager): any;
+        RegisterEvents(inputHandler: Fayde.Engine.InputManager): any;
     }
     function CreateKeyInterop(): IKeyInterop;
 }
 declare module Fayde.Input {
-    class MouseEventArgs extends RoutedEventArgs {
+    class MouseEventArgs extends Fayde.RoutedEventArgs {
         public AbsolutePos: Point;
         constructor(absolutePos: Point);
-        public GetPosition(relativeTo: UIElement): Point;
+        public GetPosition(relativeTo: Fayde.UIElement): Point;
     }
     class MouseButtonEventArgs extends MouseEventArgs {
         constructor(absolutePos: Point);
@@ -3931,8 +3933,8 @@ declare module Fayde.Input {
         MouseWheel = 6,
     }
     interface IMouseInterop {
-        RegisterEvents(input: Engine.InputManager, canvas: HTMLCanvasElement): any;
-        CreateEventArgs(type: MouseInputType, pos: Point, delta: number): MouseEventArgs;
+        RegisterEvents(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): any;
+        CreateEventArgs(type: MouseInputType, pos: Point, delta: number): Input.MouseEventArgs;
         IsLeftButton(button: number): boolean;
         IsRightButton(button: number): boolean;
     }
@@ -3970,8 +3972,8 @@ declare module Fayde.Media.Animation {
         Progress: number;
         Completed: boolean;
     }
-    class Timeline extends DependencyObject implements ITimeline {
-        static DEFAULT_REPEAT_BEHAVIOR: RepeatBehavior;
+    class Timeline extends Fayde.DependencyObject implements ITimeline {
+        static DEFAULT_REPEAT_BEHAVIOR: Animation.RepeatBehavior;
         static AutoReverseProperty: DependencyProperty;
         static BeginTimeProperty: DependencyProperty;
         static DurationProperty: DependencyProperty;
@@ -3981,9 +3983,9 @@ declare module Fayde.Media.Animation {
         public AutoReverse: boolean;
         public BeginTime: TimeSpan;
         public Duration: Duration;
-        public RepeatBehavior: RepeatBehavior;
+        public RepeatBehavior: Animation.RepeatBehavior;
         public SpeedRatio: number;
-        public FillBehavior: FillBehavior;
+        public FillBehavior: Animation.FillBehavior;
         public Completed: MulticastEvent<EventArgs>;
         private _IsPaused;
         private _BeginPauseTime;
@@ -3993,7 +3995,7 @@ declare module Fayde.Media.Animation {
         private _BeginTicks;
         private _InitialStep;
         private _HasCompleted;
-        public ManualTarget: DependencyObject;
+        public ManualTarget: Fayde.DependencyObject;
         public HasManualTarget : boolean;
         public Reset(): void;
         public Pause(): void;
@@ -4007,38 +4009,38 @@ declare module Fayde.Media.Animation {
         private IsAfterBeginTime(nowTime);
         public GetNaturalDuration(): Duration;
         public GetNaturalDurationCore(): Duration;
-        public GenerateFrom(): AnimationBase;
-        public GenerateTo(isEntering: boolean): AnimationBase;
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
-    class TimelineCollection extends XamlObjectCollection<Timeline> {
+    class TimelineCollection extends Fayde.XamlObjectCollection<Timeline> {
     }
 }
 declare module Fayde.Media.Animation {
-    class AnimationBase extends Timeline {
+    class AnimationBase extends Animation.Timeline {
         private _AnimStorage;
         private _IsHolding;
         constructor();
-        public Resolve(target: DependencyObject, propd: DependencyProperty): boolean;
+        public Resolve(target: Fayde.DependencyObject, propd: DependencyProperty): boolean;
         public HoldEnd(): void;
         public Stop(): void;
-        public UpdateInternal(clockData: IClockData): void;
+        public UpdateInternal(clockData: Animation.IClockData): void;
         public GetNaturalDurationCore(): Duration;
-        public GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): any;
+        public GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: Animation.IClockData): any;
         public _Hookup(promotedValues: any[], error: BError): boolean;
     }
 }
 declare module Fayde.Media.Animation {
     interface IAnimationStorage {
         ID: number;
-        Animation: AnimationBase;
-        PropStorage: Providers.IPropertyStorage;
+        Animation: Animation.AnimationBase;
+        PropStorage: Fayde.Providers.IPropertyStorage;
         IsDisabled: boolean;
         BaseValue: any;
         CurrentValue: any;
         StopValue: any;
     }
     class AnimationStore {
-        static Create(target: DependencyObject, propd: DependencyProperty): IAnimationStorage;
+        static Create(target: Fayde.DependencyObject, propd: DependencyProperty): IAnimationStorage;
         static Attach(animStorage: IAnimationStorage): void;
         static Detach(animStorage: IAnimationStorage): boolean;
         static ApplyCurrent(animStorage: IAnimationStorage): void;
@@ -4046,32 +4048,32 @@ declare module Fayde.Media.Animation {
     }
 }
 declare module Fayde.Media.Animation {
-    class AnimationUsingKeyFrames extends AnimationBase {
-        static KeyFramesProperty: ImmutableDependencyProperty<KeyFrameCollection>;
-        public KeyFrames: KeyFrameCollection;
+    class AnimationUsingKeyFrames extends Animation.AnimationBase {
+        static KeyFramesProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
+        public KeyFrames: Animation.KeyFrameCollection;
         constructor();
-        public Resolve(target: DependencyObject, propd: DependencyProperty): boolean;
-        public GetCurrentValue(defaultOriginValue: any, defaultDestinationValue: any, clockData: IClockData): any;
+        public Resolve(target: Fayde.DependencyObject, propd: DependencyProperty): boolean;
+        public GetCurrentValue(defaultOriginValue: any, defaultDestinationValue: any, clockData: Animation.IClockData): any;
         public GetNaturalDurationCore(): Duration;
-        public AddKeyFrame(kf: KeyFrame): void;
-        public RemoveKeyFrame(kf: KeyFrame): void;
+        public AddKeyFrame(kf: Animation.KeyFrame): void;
+        public RemoveKeyFrame(kf: Animation.KeyFrame): void;
     }
 }
 declare module Fayde.Media.Animation {
-    class BeginStoryboard extends TriggerAction {
+    class BeginStoryboard extends Fayde.TriggerAction {
         static StoryboardProperty: DependencyProperty;
-        public Storyboard: Storyboard;
+        public Storyboard: Animation.Storyboard;
         public Fire(): void;
     }
 }
 declare module Fayde.Media.Animation {
-    class ColorAnimation extends AnimationBase {
+    class ColorAnimation extends Animation.AnimationBase {
         static ByProperty: DependencyProperty;
         static EasingFunctionProperty: DependencyProperty;
         static FromProperty: DependencyProperty;
         static ToProperty: DependencyProperty;
         public By: Color;
-        public EasingFunction: IEasingFunction;
+        public EasingFunction: Animation.IEasingFunction;
         public From: Color;
         public To: Color;
         private _FromCached;
@@ -4079,19 +4081,19 @@ declare module Fayde.Media.Animation {
         private _ByCached;
         private _EasingCached;
         constructor();
-        public GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): Color;
+        public GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: Animation.IClockData): Color;
         private _FromChanged(args);
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
-        public GenerateFrom(): AnimationBase;
-        public GenerateTo(isEntering: boolean): AnimationBase;
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
-    class ColorAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
-        public GenerateFrom(): AnimationBase;
-        public GenerateTo(isEntering: boolean): AnimationBase;
+    class ColorAnimationUsingKeyFrames extends Animation.AnimationUsingKeyFrames {
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4104,23 +4106,23 @@ declare module Fayde.Media.Animation {
         Value: any;
         InterpolateValue(baseValue: any, keyFrameProgress: number): any;
     }
-    class KeyFrame extends DependencyObject implements IKeyFrame {
+    class KeyFrame extends Fayde.DependencyObject implements IKeyFrame {
         public _ResolvedKeyTime: TimeSpan;
         public _Resolved: boolean;
         private _Listener;
         static KeyTimeProperty: DependencyProperty;
         public KeyTime: KeyTime;
         public Value: any;
-        public CoerceKeyTime(dobj: DependencyObject, propd: DependencyProperty, value: any, coerced: IOutValue, error: BError): boolean;
+        public CoerceKeyTime(dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any, coerced: IOutValue, error: BError): boolean;
         public InterpolateValue(baseValue: any, keyFrameProgress: number): any;
         public CompareToTimeSpan(otherTs: TimeSpan): number;
         public Listen(listener: IKeyFrameListener): void;
         public Unlisten(listener: IKeyFrameListener): void;
         public InvalidateKeyFrame(): void;
         static Comparer(kf1: KeyFrame, kf2: KeyFrame): number;
-        static ResolveKeyFrames(animation: AnimationBase, arr: KeyFrame[]): KeyFrame[];
+        static ResolveKeyFrames(animation: Animation.AnimationBase, arr: KeyFrame[]): KeyFrame[];
     }
-    class KeyFrameCollection extends XamlObjectCollection<KeyFrame> {
+    class KeyFrameCollection extends Fayde.XamlObjectCollection<KeyFrame> {
         private _Resolved;
         private _SortedList;
         public GetKeyFrameForTime(t: TimeSpan, prevFrameRef: IOutValue): KeyFrame;
@@ -4128,11 +4130,11 @@ declare module Fayde.Media.Animation {
         public AddingToCollection(value: KeyFrame, error: BError): boolean;
         public RemovedFromCollection(value: KeyFrame, isValueSafe: boolean): void;
         public KeyFrameChanged(source: KeyFrame): void;
-        static ResolveKeyFrames(animation: AnimationBase, coll: KeyFrameCollection): KeyFrame[];
+        static ResolveKeyFrames(animation: Animation.AnimationBase, coll: KeyFrameCollection): KeyFrame[];
     }
 }
 declare module Fayde.Media.Animation {
-    class ColorKeyFrame extends KeyFrame {
+    class ColorKeyFrame extends Animation.KeyFrame {
         static ValueProperty: DependencyProperty;
         public Value: Color;
     }
@@ -4141,7 +4143,7 @@ declare module Fayde.Media.Animation {
     }
     class EasingColorKeyFrame extends ColorKeyFrame {
         static EasingFunctionProperty: DependencyProperty;
-        public EasingFunction: EasingFunctionBase;
+        public EasingFunction: Animation.EasingFunctionBase;
         public InterpolateValue(baseValue: Color, keyFrameProgress: number): Color;
     }
     class LinearColorKeyFrame extends ColorKeyFrame {
@@ -4149,7 +4151,7 @@ declare module Fayde.Media.Animation {
     }
     class SplineColorKeyFrame extends ColorKeyFrame {
         static KeySplineProperty: DependencyProperty;
-        public KeySpline: KeySpline;
+        public KeySpline: Animation.KeySpline;
         public InterpolateValue(baseValue: Color, keyFrameProgress: number): Color;
     }
 }
@@ -4185,13 +4187,13 @@ declare module Fayde.Media.Animation {
     }
 }
 declare module Fayde.Media.Animation {
-    class DoubleAnimation extends AnimationBase {
+    class DoubleAnimation extends Animation.AnimationBase {
         static ByProperty: DependencyProperty;
         static EasingFunctionProperty: DependencyProperty;
         static FromProperty: DependencyProperty;
         static ToProperty: DependencyProperty;
         public By: number;
-        public EasingFunction: IEasingFunction;
+        public EasingFunction: Animation.IEasingFunction;
         public From: number;
         public To: number;
         private _FromCached;
@@ -4199,23 +4201,23 @@ declare module Fayde.Media.Animation {
         private _ByCached;
         private _EasingCached;
         constructor();
-        public GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): number;
+        public GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: Animation.IClockData): number;
         private _FromChanged(args);
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
-        public GenerateFrom(): AnimationBase;
-        public GenerateTo(isEntering: boolean): AnimationBase;
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
-    class DoubleAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
-        public GenerateFrom(): AnimationBase;
-        public GenerateTo(isEntering: boolean): AnimationBase;
+    class DoubleAnimationUsingKeyFrames extends Animation.AnimationUsingKeyFrames {
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
-    class DoubleKeyFrame extends KeyFrame {
+    class DoubleKeyFrame extends Animation.KeyFrame {
         static ValueProperty: DependencyProperty;
         public Value: number;
     }
@@ -4224,7 +4226,7 @@ declare module Fayde.Media.Animation {
     }
     class EasingDoubleKeyFrame extends DoubleKeyFrame {
         static EasingFunctionProperty: DependencyProperty;
-        public EasingFunction: EasingFunctionBase;
+        public EasingFunction: Animation.EasingFunctionBase;
         public InterpolateValue(baseValue: number, keyFrameProgress: number): number;
     }
     class LinearDoubleKeyFrame extends DoubleKeyFrame {
@@ -4232,7 +4234,7 @@ declare module Fayde.Media.Animation {
     }
     class SplineDoubleKeyFrame extends DoubleKeyFrame {
         static KeySplineProperty: DependencyProperty;
-        public KeySpline: KeySpline;
+        public KeySpline: Animation.KeySpline;
         public InterpolateValue(baseValue: number, keyFrameProgress: number): number;
     }
 }
@@ -4240,64 +4242,64 @@ declare module Fayde.Media.Animation {
     interface IEasingFunction {
         Ease(normalizedTime: number): number;
     }
-    class EasingFunctionBase extends DependencyObject implements IEasingFunction {
+    class EasingFunctionBase extends Fayde.DependencyObject implements IEasingFunction {
         static EasingModeProperty: DependencyProperty;
-        public EasingMode: EasingMode;
+        public EasingMode: Animation.EasingMode;
         public Ease(normalizedTime: number): number;
         public EaseInCore(t: number): number;
     }
 }
 declare module Fayde.Media.Animation {
-    class BackEase extends EasingFunctionBase {
+    class BackEase extends Animation.EasingFunctionBase {
         static AmplitudeProperty: DependencyProperty;
         public Amplitude: number;
         public EaseInCore(t: number): number;
     }
-    class BounceEase extends EasingFunctionBase {
+    class BounceEase extends Animation.EasingFunctionBase {
         static BouncesProperty: DependencyProperty;
         static BouncinessProperty: DependencyProperty;
         public Bounces: number;
         public Bounciness: number;
         public EaseInCore(t: number): number;
     }
-    class CircleEase extends EasingFunctionBase {
+    class CircleEase extends Animation.EasingFunctionBase {
         public EaseInCore(t: number): number;
     }
-    class CubicEase extends EasingFunctionBase {
+    class CubicEase extends Animation.EasingFunctionBase {
         public EaseInCore(t: number): number;
     }
-    class ElasticEase extends EasingFunctionBase {
+    class ElasticEase extends Animation.EasingFunctionBase {
         static OscillationsProperty: DependencyProperty;
         static SpringinessProperty: DependencyProperty;
         public Oscillations: number;
         public Springiness: number;
         public EaseInCore(t: number): number;
     }
-    class ExponentialEase extends EasingFunctionBase {
+    class ExponentialEase extends Animation.EasingFunctionBase {
         static ExponentProperty: DependencyProperty;
         public Exponent: number;
         public EaseInCore(t: number): number;
     }
-    class PowerEase extends EasingFunctionBase {
+    class PowerEase extends Animation.EasingFunctionBase {
         static PowerProperty: DependencyProperty;
         public Power: number;
         public EaseInCore(t: number): number;
     }
-    class QuadraticEase extends EasingFunctionBase {
+    class QuadraticEase extends Animation.EasingFunctionBase {
         public EaseInCore(t: number): number;
     }
-    class QuarticEase extends EasingFunctionBase {
+    class QuarticEase extends Animation.EasingFunctionBase {
         public EaseInCore(t: number): number;
     }
-    class QuinticEase extends EasingFunctionBase {
+    class QuinticEase extends Animation.EasingFunctionBase {
         public EaseInCore(t: number): number;
     }
-    class SineEase extends EasingFunctionBase {
+    class SineEase extends Animation.EasingFunctionBase {
         public EaseInCore(t: number): number;
     }
 }
 declare module Fayde.Media.Animation {
-    class KeySpline extends DependencyObject {
+    class KeySpline extends Fayde.DependencyObject {
         static PRECISION_LEVEL: number;
         static TOTAL_COUNT: number;
         static ControlPoint1Property: DependencyProperty;
@@ -4311,12 +4313,12 @@ declare module Fayde.Media.Animation {
     }
 }
 declare module Fayde.Media.Animation {
-    class ObjectAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
-        public Resolve(target: DependencyObject, propd: DependencyProperty): boolean;
+    class ObjectAnimationUsingKeyFrames extends Animation.AnimationUsingKeyFrames {
+        public Resolve(target: Fayde.DependencyObject, propd: DependencyProperty): boolean;
     }
 }
 declare module Fayde.Media.Animation {
-    class ObjectKeyFrame extends KeyFrame {
+    class ObjectKeyFrame extends Animation.KeyFrame {
         static ValueProperty: DependencyProperty;
         public Value: any;
         public ConvertedValue: any;
@@ -4326,13 +4328,13 @@ declare module Fayde.Media.Animation {
     }
 }
 declare module Fayde.Media.Animation {
-    class PointAnimation extends AnimationBase {
+    class PointAnimation extends Animation.AnimationBase {
         static ByProperty: DependencyProperty;
         static EasingFunctionProperty: DependencyProperty;
         static FromProperty: DependencyProperty;
         static ToProperty: DependencyProperty;
         public By: Point;
-        public EasingFunction: IEasingFunction;
+        public EasingFunction: Animation.IEasingFunction;
         public From: Point;
         public To: Point;
         private _FromCached;
@@ -4340,23 +4342,23 @@ declare module Fayde.Media.Animation {
         private _ByCached;
         private _EasingCached;
         constructor();
-        public GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): Point;
+        public GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: Animation.IClockData): Point;
         private _FromChanged(args);
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
-        public GenerateFrom(): AnimationBase;
-        public GenerateTo(isEntering: boolean): AnimationBase;
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
-    class PointAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
-        public GenerateFrom(): AnimationBase;
-        public GenerateTo(isEntering: boolean): AnimationBase;
+    class PointAnimationUsingKeyFrames extends Animation.AnimationUsingKeyFrames {
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
-    class PointKeyFrame extends KeyFrame {
+    class PointKeyFrame extends Animation.KeyFrame {
         static ValueProperty: DependencyProperty;
         public Value: Point;
     }
@@ -4365,7 +4367,7 @@ declare module Fayde.Media.Animation {
     }
     class EasingPointKeyFrame extends PointKeyFrame {
         static EasingFunctionProperty: DependencyProperty;
-        public EasingFunction: EasingFunctionBase;
+        public EasingFunction: Animation.EasingFunctionBase;
         public InterpolateValue(baseValue: Point, keyFrameProgress: number): Point;
     }
     class LinearPointKeyFrame extends PointKeyFrame {
@@ -4373,34 +4375,34 @@ declare module Fayde.Media.Animation {
     }
     class SplinePointKeyFrame extends PointKeyFrame {
         static KeySplineProperty: DependencyProperty;
-        public KeySpline: KeySpline;
+        public KeySpline: Animation.KeySpline;
         public InterpolateValue(baseValue: Point, keyFrameProgress: number): Point;
     }
 }
 declare module Fayde.Media.Animation {
     interface IStoryboadResolution {
-        Target: DependencyObject;
-        Property: Data.PropertyPath;
+        Target: Fayde.DependencyObject;
+        Property: Fayde.Data.PropertyPath;
     }
-    class Storyboard extends Timeline {
+    class Storyboard extends Animation.Timeline {
         static TargetNameProperty: DependencyProperty;
-        static GetTargetName(d: DependencyObject): string;
-        static SetTargetName(d: DependencyObject, value: string): void;
+        static GetTargetName(d: Fayde.DependencyObject): string;
+        static SetTargetName(d: Fayde.DependencyObject, value: string): void;
         public TargetName: string;
         static TargetPropertyProperty: DependencyProperty;
-        static GetTargetProperty(d: DependencyObject): Data.PropertyPath;
-        static SetTargetProperty(d: DependencyObject, value: Data.PropertyPath): void;
-        public TargetProperty: Data.PropertyPath;
-        static ResolveTarget(timeline: Timeline): IStoryboadResolution;
-        static ChildrenProperty: ImmutableDependencyProperty<TimelineCollection>;
-        public Children: TimelineCollection;
+        static GetTargetProperty(d: Fayde.DependencyObject): Fayde.Data.PropertyPath;
+        static SetTargetProperty(d: Fayde.DependencyObject, value: Fayde.Data.PropertyPath): void;
+        public TargetProperty: Fayde.Data.PropertyPath;
+        static ResolveTarget(timeline: Animation.Timeline): IStoryboadResolution;
+        static ChildrenProperty: ImmutableDependencyProperty<Animation.TimelineCollection>;
+        public Children: Animation.TimelineCollection;
         constructor();
-        static SetTarget(timeline: Timeline, target: DependencyObject): void;
+        static SetTarget(timeline: Animation.Timeline, target: Fayde.DependencyObject): void;
         public Begin(): void;
         public Pause(): void;
         public Resume(): void;
         public Stop(): void;
-        public UpdateInternal(clockData: IClockData): void;
+        public UpdateInternal(clockData: Animation.IClockData): void;
         public GetNaturalDurationCore(): Duration;
     }
 }
@@ -4409,9 +4411,9 @@ declare module Fayde.Media {
         Callback: (newBrush: Brush) => void;
         Detach(): any;
     }
-    class Brush extends DependencyObject {
+    class Brush extends Fayde.DependencyObject {
         static TransformProperty: DependencyProperty;
-        public Transform: Transform;
+        public Transform: Media.Transform;
         private _CachedBounds;
         private _CachedBrush;
         private _Listeners;
@@ -4426,7 +4428,7 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media {
-    class GeneralTransform extends DependencyObject {
+    class GeneralTransform extends Fayde.DependencyObject {
         public Inverse: GeneralTransform;
         public Transform(p: Point): Point;
         public TransformBounds(r: rect): rect;
@@ -4436,30 +4438,30 @@ declare module Fayde.Media {
         private _Raw;
         constructor(raw: number[]);
         public Inverse : InternalTransform;
-        public Value : Matrix3D;
+        public Value : Media.Matrix3D;
         public Transform(p: Point): Point;
         public TransformBounds(r: rect): rect;
-        public CreateMatrix3DProjection(): Matrix3DProjection;
+        public CreateMatrix3DProjection(): Media.Matrix3DProjection;
     }
 }
 declare module Fayde.Media.Effects {
     interface IEffectListener {
         EffectChanged(effect: Effect): any;
     }
-    class Effect extends DependencyObject {
+    class Effect extends Fayde.DependencyObject {
         private _Listener;
         static EffectMappingProperty: DependencyProperty;
-        public EffectMapping: GeneralTransform;
+        public EffectMapping: Media.GeneralTransform;
         public Padding(): Thickness;
         public GetPadding(thickness: Thickness): boolean;
-        public PreRender(ctx: RenderContextEx): void;
+        public PreRender(ctx: Fayde.RenderContextEx): void;
         public Listen(listener: IEffectListener): void;
         public Unlisten(listener: IEffectListener): void;
         public _EffectChanged(args: IDependencyPropertyChangedEventArgs): void;
     }
 }
 declare module Fayde.Media.Effects {
-    class BlurEffect extends Effect {
+    class BlurEffect extends Effects.Effect {
         static RadiusProperty: DependencyProperty;
         public Radius: number;
     }
@@ -4626,7 +4628,7 @@ declare class Color implements ICloneable {
     };
 }
 declare module Fayde.Media.Effects {
-    class DropShadowEffect extends Effect {
+    class DropShadowEffect extends Effects.Effect {
         static MAX_BLUR_RADIUS: number;
         static MAX_SHADOW_DEPTH: number;
         static BlurRadiusProperty: DependencyProperty;
@@ -4641,32 +4643,32 @@ declare module Fayde.Media.Effects {
         public ShadowDepth: number;
         public Padding(): Thickness;
         public GetPadding(thickness: Thickness): boolean;
-        public PreRender(ctx: RenderContextEx): void;
+        public PreRender(ctx: Fayde.RenderContextEx): void;
     }
 }
 declare module Fayde.Media {
     interface IGeometryListener {
         GeometryChanged(newGeometry: Geometry): any;
     }
-    class Geometry extends DependencyObject {
+    class Geometry extends Fayde.DependencyObject {
         private _Path;
         private _LocalBounds;
         private _Listener;
         static TransformProperty: DependencyProperty;
-        public Transform: Transform;
+        public Transform: Media.Transform;
         constructor();
-        public GetBounds(pars?: Path.IStrokeParameters): rect;
-        public Draw(ctx: RenderContextEx): void;
-        public ComputePathBounds(pars: Path.IStrokeParameters): rect;
+        public GetBounds(pars?: Fayde.Path.IStrokeParameters): rect;
+        public Draw(ctx: Fayde.RenderContextEx): void;
+        public ComputePathBounds(pars: Fayde.Path.IStrokeParameters): rect;
         public _InvalidateGeometry(): void;
-        public _Build(): Path.RawPath;
+        public _Build(): Fayde.Path.RawPath;
         public Listen(listener: IGeometryListener): void;
         public Unlisten(listener: IGeometryListener): void;
         private _TransformListener;
         private _TransformChanged(args);
         public Serialize(): string;
     }
-    class GeometryCollection extends XamlObjectCollection<Geometry> implements IGeometryListener {
+    class GeometryCollection extends Fayde.XamlObjectCollection<Geometry> implements IGeometryListener {
         private _Listener;
         public Listen(listener: IGeometryListener): void;
         public Unlisten(listener: IGeometryListener): void;
@@ -4676,14 +4678,14 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media {
-    class EllipseGeometry extends Geometry {
+    class EllipseGeometry extends Media.Geometry {
         static CenterProperty: DependencyProperty;
         static RadiusXProperty: DependencyProperty;
         static RadiusYProperty: DependencyProperty;
         public Center: Point;
         public RadiusX: number;
         public RadiusY: number;
-        public _Build(): Path.RawPath;
+        public _Build(): Fayde.Path.RawPath;
     }
 }
 declare module Fayde.Shapes {
@@ -4715,32 +4717,32 @@ declare module Fayde.Shapes {
     }
 }
 declare module Fayde.Media {
-    class GeometryGroup extends Geometry implements IGeometryListener {
+    class GeometryGroup extends Media.Geometry implements Media.IGeometryListener {
         static FillRulleProperty: DependencyProperty;
-        static ChildrenProperty: ImmutableDependencyProperty<GeometryCollection>;
-        public FillRule: Shapes.FillRule;
-        public Children: GeometryCollection;
+        static ChildrenProperty: ImmutableDependencyProperty<Media.GeometryCollection>;
+        public FillRule: Fayde.Shapes.FillRule;
+        public Children: Media.GeometryCollection;
         constructor();
-        public ComputePathBounds(pars: Path.IStrokeParameters): rect;
-        public Draw(ctx: RenderContextEx): void;
-        public GeometryChanged(newGeometry: Geometry): void;
+        public ComputePathBounds(pars: Fayde.Path.IStrokeParameters): rect;
+        public Draw(ctx: Fayde.RenderContextEx): void;
+        public GeometryChanged(newGeometry: Media.Geometry): void;
     }
 }
 declare module Fayde.Media {
-    class GradientBrush extends Brush implements IGradientStopsListener {
-        static GradientStopsProperty: ImmutableDependencyProperty<GradientStopCollection>;
+    class GradientBrush extends Media.Brush implements Media.IGradientStopsListener {
+        static GradientStopsProperty: ImmutableDependencyProperty<Media.GradientStopCollection>;
         static MappingModeProperty: DependencyProperty;
         static SpreadMethodProperty: DependencyProperty;
-        public GradientStops: GradientStopCollection;
-        public MappingMode: BrushMappingMode;
-        public SpreadMethod: GradientSpreadMethod;
+        public GradientStops: Media.GradientStopCollection;
+        public MappingMode: Media.BrushMappingMode;
+        public SpreadMethod: Media.GradientSpreadMethod;
         constructor();
         public CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any;
         public _CreatePad(ctx: CanvasRenderingContext2D, bounds: rect): void;
         public _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: rect): void;
         public _CreateReflect(ctx: CanvasRenderingContext2D, bounds: rect): void;
         public _GetMappingModeTransform(bounds: rect): number[];
-        public GradientStopsChanged(newGradientStops: GradientStopCollection): void;
+        public GradientStopsChanged(newGradientStops: Media.GradientStopCollection): void;
     }
 }
 declare module Fayde.Media {
@@ -4764,7 +4766,7 @@ declare module Fayde.Media {
     interface IGradientStopListener {
         GradientStopChanged(newGradientStop: GradientStop): any;
     }
-    class GradientStop extends DependencyObject {
+    class GradientStop extends Fayde.DependencyObject {
         private _Listener;
         static ColorProperty: DependencyProperty;
         static OffsetProperty: DependencyProperty;
@@ -4778,7 +4780,7 @@ declare module Fayde.Media {
     interface IGradientStopsListener {
         GradientStopsChanged(newGradientStops: GradientStopCollection): any;
     }
-    class GradientStopCollection extends XamlObjectCollection<GradientStop> implements IGradientStopListener {
+    class GradientStopCollection extends Fayde.XamlObjectCollection<GradientStop> implements IGradientStopListener {
         private _Listener;
         public Listen(listener: IGradientStopsListener): void;
         public Unlisten(listener: IGradientStopsListener): void;
@@ -4788,7 +4790,7 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media.Imaging {
-    class ImageSource extends DependencyObject {
+    class ImageSource extends Fayde.DependencyObject {
         public PixelWidth: number;
         public PixelHeight: number;
         public Lock(): void;
@@ -4802,7 +4804,7 @@ declare module Fayde.Media.Imaging {
         OnImageLoaded(source: BitmapSource, e: Event): any;
         ImageChanged(source: BitmapSource): any;
     }
-    class BitmapSource extends ImageSource {
+    class BitmapSource extends Imaging.ImageSource {
         static PixelWidthProperty: DependencyProperty;
         static PixelHeightProperty: DependencyProperty;
         private _Listener;
@@ -4833,7 +4835,7 @@ declare class Uri implements ICloneable {
     static Equals(uri1: Uri, uri2: Uri): boolean;
 }
 declare module Fayde.Media.Imaging {
-    class BitmapImage extends BitmapSource {
+    class BitmapImage extends Imaging.BitmapSource {
         static UriSourceProperty: DependencyProperty;
         public UriSource: Uri;
         public ImageFailed: MulticastEvent<EventArgs>;
@@ -4845,36 +4847,36 @@ declare module Fayde.Media.Imaging {
     }
 }
 declare module Fayde.Media {
-    class TileBrush extends Brush {
+    class TileBrush extends Media.Brush {
         static AlignmentXProperty: DependencyProperty;
         static AlignmentYProperty: DependencyProperty;
         static StretchProperty: DependencyProperty;
-        public AlignmentX: AlignmentX;
-        public AlignmentY: AlignmentY;
-        public Stretch: Stretch;
+        public AlignmentX: Media.AlignmentX;
+        public AlignmentY: Media.AlignmentY;
+        public Stretch: Media.Stretch;
         public CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): CanvasPattern;
         public GetTileExtents(): rect;
         public DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: rect): void;
     }
 }
 declare module Fayde.Media.Imaging {
-    class ImageBrush extends TileBrush implements IImageChangedListener {
+    class ImageBrush extends Media.TileBrush implements Imaging.IImageChangedListener {
         private static _SourceCoercer(d, propd, value);
         static ImageSourceProperty: DependencyProperty;
-        public ImageSource: ImageSource;
+        public ImageSource: Imaging.ImageSource;
         public ImageFailed: MulticastEvent<EventArgs>;
         public ImageOpened: MulticastEvent<EventArgs>;
         public SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect): void;
         public GetTileExtents(): rect;
         public DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: rect): void;
         private _ImageSourceChanged(args);
-        public OnImageErrored(source: BitmapSource, e: Event): void;
-        public OnImageLoaded(source: BitmapSource, e: Event): void;
-        public ImageChanged(source: BitmapSource): void;
+        public OnImageErrored(source: Imaging.BitmapSource, e: Event): void;
+        public OnImageLoaded(source: Imaging.BitmapSource, e: Event): void;
+        public ImageChanged(source: Imaging.BitmapSource): void;
     }
 }
 declare module Fayde.Media {
-    class LinearGradientBrush extends GradientBrush {
+    class LinearGradientBrush extends Media.GradientBrush {
         static StartPointProperty: DependencyProperty;
         static EndPointProperty: DependencyProperty;
         public StartPoint: Point;
@@ -4887,12 +4889,12 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media {
-    class LineGeometry extends Geometry {
+    class LineGeometry extends Media.Geometry {
         static StartPointProperty: DependencyProperty;
         static EndPointProperty: DependencyProperty;
         public StartPoint: Point;
         public EndPoint: Point;
-        public _Build(): Path.RawPath;
+        public _Build(): Fayde.Path.RawPath;
     }
 }
 declare module Fayde.Media {
@@ -4956,24 +4958,24 @@ declare module Fayde.Media {
         Callback: (source: Projection) => void;
         Detach(): any;
     }
-    class Projection extends DependencyObject {
+    class Projection extends Fayde.DependencyObject {
         private _ProjectionMatrix;
         public _ObjectWidth: number;
         public _ObjectHeight: number;
         public SetObjectSize(size: ISize): void;
         public GetDistanceFromXYPlane(): number;
         public GetTransform(): number[];
-        public CreateProjectionMatrix(): Matrix3D;
+        public CreateProjectionMatrix(): Media.Matrix3D;
         private _Listeners;
         public Listen(func: (source: Projection) => void): IProjectionChangedListener;
         public _InvalidateProjection(): void;
     }
 }
 declare module Fayde.Media {
-    class Matrix3DProjection extends Projection {
+    class Matrix3DProjection extends Media.Projection {
         static ProjectionMatrixProperty: DependencyProperty;
-        public ProjectionMatrix: Matrix3D;
-        public CreateProjectionMatrix(): Matrix3D;
+        public ProjectionMatrix: Media.Matrix3D;
+        public CreateProjectionMatrix(): Media.Matrix3D;
     }
 }
 declare module Fayde.Media {
@@ -4984,26 +4986,26 @@ declare module Fayde.Media {
     interface IPathFigureListener {
         PathFigureChanged(newPathFigure: PathFigure): any;
     }
-    class PathFigure extends DependencyObject implements IPathSegmentListener {
+    class PathFigure extends Fayde.DependencyObject implements Media.IPathSegmentListener {
         static IsClosedProperty: DependencyProperty;
         static StartPointProperty: DependencyProperty;
         static IsFilledProperty: DependencyProperty;
-        static SegmentsProperty: ImmutableDependencyProperty<PathSegmentCollection>;
+        static SegmentsProperty: ImmutableDependencyProperty<Media.PathSegmentCollection>;
         public IsClosed: boolean;
-        public Segments: PathSegmentCollection;
+        public Segments: Media.PathSegmentCollection;
         public StartPoint: Point;
         public IsFilled: boolean;
         private _Path;
         private _Listener;
         constructor();
         private _Build();
-        public PathSegmentChanged(newPathSegment: PathSegment): void;
+        public PathSegmentChanged(newPathSegment: Media.PathSegment): void;
         private InvalidatePathFigure();
         public Listen(listener: IPathFigureListener): void;
         public Unlisten(listener: IPathFigureListener): void;
-        public MergeInto(rp: Path.RawPath): void;
+        public MergeInto(rp: Fayde.Path.RawPath): void;
     }
-    class PathFigureCollection extends XamlObjectCollection<PathFigure> implements IPathFigureListener {
+    class PathFigureCollection extends Fayde.XamlObjectCollection<PathFigure> implements IPathFigureListener {
         private _Listener;
         public AddingToCollection(value: PathFigure, error: BError): boolean;
         public RemovedFromCollection(value: PathFigure, isValueSafe: boolean): void;
@@ -5013,29 +5015,29 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media {
-    class PathGeometry extends Geometry implements IPathFigureListener {
+    class PathGeometry extends Media.Geometry implements Media.IPathFigureListener {
         private _OverridePath;
         static FillRuleProperty: DependencyProperty;
-        static FiguresProperty: ImmutableDependencyProperty<PathFigureCollection>;
-        public FillRule: Shapes.FillRule;
-        public Figures: PathFigureCollection;
+        static FiguresProperty: ImmutableDependencyProperty<Media.PathFigureCollection>;
+        public FillRule: Fayde.Shapes.FillRule;
+        public Figures: Media.PathFigureCollection;
         constructor();
-        public OverridePath(path: Path.RawPath): void;
-        public _Build(): Path.RawPath;
-        public PathFigureChanged(newPathFigure: PathFigure): void;
+        public OverridePath(path: Fayde.Path.RawPath): void;
+        public _Build(): Fayde.Path.RawPath;
+        public PathFigureChanged(newPathFigure: Media.PathFigure): void;
     }
 }
 declare module Fayde.Media {
     interface IPathSegmentListener {
         PathSegmentChanged(newPathSegment: PathSegment): any;
     }
-    class PathSegment extends DependencyObject {
+    class PathSegment extends Fayde.DependencyObject {
         private _Listener;
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
         public Listen(listener: IPathSegmentListener): void;
         public Unlisten(listener: IPathSegmentListener): void;
     }
-    class PathSegmentCollection extends XamlObjectCollection<PathSegment> implements IPathSegmentListener {
+    class PathSegmentCollection extends Fayde.XamlObjectCollection<PathSegment> implements IPathSegmentListener {
         private _Listener;
         public AddingToCollection(value: PathSegment, error: BError): boolean;
         public RemovedFromCollection(value: PathSegment, isValueSafe: boolean): void;
@@ -5045,7 +5047,7 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media {
-    class ArcSegment extends PathSegment {
+    class ArcSegment extends Media.PathSegment {
         static IsLargeArcProperty: DependencyProperty;
         static PointProperty: DependencyProperty;
         static RotationAngleProperty: DependencyProperty;
@@ -5055,51 +5057,51 @@ declare module Fayde.Media {
         public Point: Point;
         public RotationAngle: number;
         public Size: size;
-        public SweepDirection: Shapes.SweepDirection;
-        public _Append(path: Path.RawPath): void;
+        public SweepDirection: Fayde.Shapes.SweepDirection;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
-    class BezierSegment extends PathSegment {
+    class BezierSegment extends Media.PathSegment {
         static Point1Property: DependencyProperty;
         static Point2Property: DependencyProperty;
         static Point3Property: DependencyProperty;
         public Point1: Point;
         public Point2: Point;
         public Point3: Point;
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
-    class LineSegment extends PathSegment {
+    class LineSegment extends Media.PathSegment {
         static PointProperty: DependencyProperty;
         public Point: Point;
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
-    class PolyBezierSegment extends PathSegment {
-        static PointsProperty: ImmutableDependencyProperty<Shapes.PointCollection>;
-        public Points: Shapes.PointCollection;
+    class PolyBezierSegment extends Media.PathSegment {
+        static PointsProperty: ImmutableDependencyProperty<Fayde.Shapes.PointCollection>;
+        public Points: Fayde.Shapes.PointCollection;
         constructor();
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
-    class PolyLineSegment extends PathSegment {
-        static PointsProperty: ImmutableDependencyProperty<Shapes.PointCollection>;
-        public Points: Shapes.PointCollection;
+    class PolyLineSegment extends Media.PathSegment {
+        static PointsProperty: ImmutableDependencyProperty<Fayde.Shapes.PointCollection>;
+        public Points: Fayde.Shapes.PointCollection;
         constructor();
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
-    class PolyQuadraticBezierSegment extends PathSegment {
-        static PointsProperty: ImmutableDependencyProperty<Shapes.PointCollection>;
-        public Points: Shapes.PointCollection;
+    class PolyQuadraticBezierSegment extends Media.PathSegment {
+        static PointsProperty: ImmutableDependencyProperty<Fayde.Shapes.PointCollection>;
+        public Points: Fayde.Shapes.PointCollection;
         constructor();
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
-    class QuadraticBezierSegment extends PathSegment {
+    class QuadraticBezierSegment extends Media.PathSegment {
         static Point1Property: DependencyProperty;
         static Point2Property: DependencyProperty;
         public Point1: Point;
         public Point2: Point;
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
 }
 declare module Fayde.Media {
-    class PlaneProjection extends Projection {
+    class PlaneProjection extends Media.Projection {
         static CenterOfRotationXProperty: DependencyProperty;
         static CenterOfRotationYProperty: DependencyProperty;
         static CenterOfRotationZProperty: DependencyProperty;
@@ -5125,11 +5127,11 @@ declare module Fayde.Media {
         public RotationY: number;
         public RotationZ: number;
         public GetDistanceFromXYPlane(): number;
-        public CreateProjectionMatrix3D(): Matrix3D;
+        public CreateProjectionMatrix3D(): Media.Matrix3D;
     }
 }
 declare module Fayde.Media {
-    class RadialGradientBrush extends GradientBrush {
+    class RadialGradientBrush extends Media.GradientBrush {
         static CenterProperty: DependencyProperty;
         static GradientOriginProperty: DependencyProperty;
         static RadiusXProperty: DependencyProperty;
@@ -5142,18 +5144,18 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media {
-    class RectangleGeometry extends Geometry {
+    class RectangleGeometry extends Media.Geometry {
         static RectProperty: DependencyProperty;
         static RadiusXProperty: DependencyProperty;
         static RadiusYProperty: DependencyProperty;
         public Rect: rect;
         public RadiusX: number;
         public RadiusY: number;
-        public _Build(): Path.RawPath;
+        public _Build(): Fayde.Path.RawPath;
     }
 }
 declare module Fayde.Media {
-    class SolidColorBrush extends Brush {
+    class SolidColorBrush extends Media.Brush {
         static ColorProperty: DependencyProperty;
         public Color: Color;
         constructor(...args: any[]);
@@ -5164,8 +5166,8 @@ declare module Fayde.Media {
 declare module Fayde.Media {
     class TextOptions {
         static TextHintingModeProperty: DependencyProperty;
-        static GetTextHintingMode(d: DependencyObject): TextHintingMode;
-        static SetTextHintingMode(d: DependencyObject, value: TextHintingMode): void;
+        static GetTextHintingMode(d: Fayde.DependencyObject): Media.TextHintingMode;
+        static SetTextHintingMode(d: Fayde.DependencyObject, value: Media.TextHintingMode): void;
     }
 }
 declare module Fayde.Media {
@@ -5173,10 +5175,10 @@ declare module Fayde.Media {
         Callback: (source: Transform) => void;
         Detach(): any;
     }
-    class Transform extends GeneralTransform {
+    class Transform extends Media.GeneralTransform {
         private _Value;
         constructor();
-        public Value : Matrix;
+        public Value : Media.Matrix;
         public Inverse : Transform;
         public Transform(p: Point): Point;
         public TransformBounds(r: rect): rect;
@@ -5188,7 +5190,7 @@ declare module Fayde.Media {
     }
     class MatrixTransform extends Transform {
         static MatrixProperty: DependencyProperty;
-        public Matrix: Matrix;
+        public Matrix: Media.Matrix;
         public _BuildValue(): number[];
         public Clone(): MatrixTransform;
         private _MatrixListener;
@@ -5196,7 +5198,7 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media {
-    class RotateTransform extends Transform {
+    class RotateTransform extends Media.Transform {
         static AngleProperty: DependencyProperty;
         static CenterXProperty: DependencyProperty;
         static CenterYProperty: DependencyProperty;
@@ -5205,7 +5207,7 @@ declare module Fayde.Media {
         public CenterY: number;
         public _BuildValue(): number[];
     }
-    class ScaleTransform extends Transform {
+    class ScaleTransform extends Media.Transform {
         static CenterXProperty: DependencyProperty;
         static CenterYProperty: DependencyProperty;
         static ScaleXProperty: DependencyProperty;
@@ -5216,7 +5218,7 @@ declare module Fayde.Media {
         public ScaleY: number;
         public _BuildValue(): number[];
     }
-    class SkewTransform extends Transform {
+    class SkewTransform extends Media.Transform {
         static AngleXProperty: DependencyProperty;
         static AngleYProperty: DependencyProperty;
         static CenterXProperty: DependencyProperty;
@@ -5227,24 +5229,24 @@ declare module Fayde.Media {
         public CenterY: number;
         public _BuildValue(): number[];
     }
-    class TranslateTransform extends Transform {
+    class TranslateTransform extends Media.Transform {
         static XProperty: DependencyProperty;
         static YProperty: DependencyProperty;
         public X: number;
         public Y: number;
         public _BuildValue(): number[];
     }
-    interface ITransformChangedChildListener extends ITransformChangedListener {
-        Child: Transform;
+    interface ITransformChangedChildListener extends Media.ITransformChangedListener {
+        Child: Media.Transform;
     }
-    class TransformCollection extends XamlObjectCollection<Transform> {
+    class TransformCollection extends Fayde.XamlObjectCollection<Media.Transform> {
         private _Relayer;
         private _ChildTransformListeners;
-        public AddingToCollection(value: Transform, error: BError): boolean;
-        public RemovedFromCollection(value: Transform, isValueSafe: boolean): boolean;
+        public AddingToCollection(value: Media.Transform, error: BError): boolean;
+        public RemovedFromCollection(value: Media.Transform, isValueSafe: boolean): boolean;
         public RelayChanges(func: () => void): void;
     }
-    class TransformGroup extends Transform {
+    class TransformGroup extends Media.Transform {
         static ChildrenProperty: ImmutableDependencyProperty<TransformCollection>;
         public Children: TransformCollection;
         private _TransformListener;
@@ -5253,83 +5255,83 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media.VSM {
-    class VisualState extends DependencyObject {
+    class VisualState extends Fayde.DependencyObject {
         static StoryboardProperty: DependencyProperty;
-        public Storyboard: Animation.Storyboard;
+        public Storyboard: Media.Animation.Storyboard;
     }
-    class VisualStateCollection extends XamlObjectCollection<VisualState> {
+    class VisualStateCollection extends Fayde.XamlObjectCollection<VisualState> {
     }
 }
 declare module Fayde.Media.VSM {
     class VisualStateChangedEventArgs extends EventArgs {
-        public OldState: VisualState;
-        public NewState: VisualState;
-        public Control: Controls.Control;
-        constructor(oldState: VisualState, newState: VisualState, control: Controls.Control);
+        public OldState: VSM.VisualState;
+        public NewState: VSM.VisualState;
+        public Control: Fayde.Controls.Control;
+        constructor(oldState: VSM.VisualState, newState: VSM.VisualState, control: Fayde.Controls.Control);
     }
-    class VisualStateGroup extends DependencyObject {
-        static StatesProperty: ImmutableDependencyProperty<VisualStateCollection>;
-        public States: VisualStateCollection;
-        static TransitionsProperty: ImmutableDependencyProperty<XamlObjectCollection<VisualTransition>>;
-        public Transitions: XamlObjectCollection<VisualTransition>;
+    class VisualStateGroup extends Fayde.DependencyObject {
+        static StatesProperty: ImmutableDependencyProperty<VSM.VisualStateCollection>;
+        public States: VSM.VisualStateCollection;
+        static TransitionsProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<VSM.VisualTransition>>;
+        public Transitions: Fayde.XamlObjectCollection<VSM.VisualTransition>;
         private _CurrentStoryboards;
-        public CurrentStoryboards : Animation.Storyboard[];
+        public CurrentStoryboards : Media.Animation.Storyboard[];
         public CurrentStateChanging: MulticastEvent<VisualStateChangedEventArgs>;
         public CurrentStateChanged: MulticastEvent<VisualStateChangedEventArgs>;
-        public CurrentState: VisualState;
+        public CurrentState: VSM.VisualState;
         constructor();
-        public GetState(stateName: string): VisualState;
-        public StartNewThenStopOld(element: FrameworkElement, newStoryboards: Animation.Storyboard[]): void;
-        public StopCurrentStoryboards(element: FrameworkElement): void;
-        public RaiseCurrentStateChanging(element: FrameworkElement, oldState: VisualState, newState: VisualState, control: Controls.Control): void;
-        public RaiseCurrentStateChanged(element: FrameworkElement, oldState: VisualState, newState: VisualState, control: Controls.Control): void;
+        public GetState(stateName: string): VSM.VisualState;
+        public StartNewThenStopOld(element: Fayde.FrameworkElement, newStoryboards: Media.Animation.Storyboard[]): void;
+        public StopCurrentStoryboards(element: Fayde.FrameworkElement): void;
+        public RaiseCurrentStateChanging(element: Fayde.FrameworkElement, oldState: VSM.VisualState, newState: VSM.VisualState, control: Fayde.Controls.Control): void;
+        public RaiseCurrentStateChanged(element: Fayde.FrameworkElement, oldState: VSM.VisualState, newState: VSM.VisualState, control: Fayde.Controls.Control): void;
     }
-    class VisualStateGroupCollection extends XamlObjectCollection<VisualStateGroup> {
+    class VisualStateGroupCollection extends Fayde.XamlObjectCollection<VisualStateGroup> {
     }
 }
 declare module Fayde.Media.VSM {
     interface IStateData {
-        state: VisualState;
-        group: VisualStateGroup;
+        state: VSM.VisualState;
+        group: VSM.VisualStateGroup;
     }
-    class VisualStateManager extends DependencyObject {
+    class VisualStateManager extends Fayde.DependencyObject {
         static VisualStateGroupsProperty: DependencyProperty;
-        static GetVisualStateGroups(d: DependencyObject): VisualStateGroupCollection;
-        static SetVisualStateGroups(d: DependencyObject, value: VisualStateGroupCollection): void;
+        static GetVisualStateGroups(d: Fayde.DependencyObject): VSM.VisualStateGroupCollection;
+        static SetVisualStateGroups(d: Fayde.DependencyObject, value: VSM.VisualStateGroupCollection): void;
         static CustomVisualStateManagerProperty: DependencyProperty;
-        static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager;
-        static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager): void;
-        static GoToState(control: Controls.Control, stateName: string, useTransitions: boolean): boolean;
-        public GoToStateCore(control: Controls.Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: boolean): boolean;
+        static GetCustomVisualStateManager(d: Fayde.DependencyObject): VisualStateManager;
+        static SetCustomVisualStateManager(d: Fayde.DependencyObject, value: VisualStateManager): void;
+        static GoToState(control: Fayde.Controls.Control, stateName: string, useTransitions: boolean): boolean;
+        public GoToStateCore(control: Fayde.Controls.Control, element: Fayde.FrameworkElement, stateName: string, group: VSM.VisualStateGroup, state: VSM.VisualState, useTransitions: boolean): boolean;
         private static GoToStateInternal(control, element, group, state, useTransitions);
-        static DestroyStoryboards(control: Controls.Control, root: FrameworkElement): boolean;
+        static DestroyStoryboards(control: Fayde.Controls.Control, root: Fayde.FrameworkElement): boolean;
         private static _GetTemplateRoot(control);
         private static _TryGetState(groups, stateName, data);
         private static _GetTransition(element, group, from, to);
     }
 }
 declare module Fayde.Media.VSM {
-    class VisualTransition extends DependencyObject {
+    class VisualTransition extends Fayde.DependencyObject {
         public From: string;
         public To: string;
-        public Storyboard: Animation.Storyboard;
+        public Storyboard: Media.Animation.Storyboard;
         private _GeneratedDuration;
         public GeneratedDuration : Duration;
         public DynamicStoryboardCompleted: boolean;
         public ExplicitStoryboardCompleted: boolean;
-        public GeneratedEasingFunction: Animation.EasingFunctionBase;
+        public GeneratedEasingFunction: Media.Animation.EasingFunctionBase;
         public IsDefault : boolean;
     }
 }
 declare module Fayde.MVVM {
     function NotifyProperties(type: any, propNames: string[]): void;
-    class ObservableObject implements INotifyPropertyChanged {
-        public PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
+    class ObservableObject implements Fayde.INotifyPropertyChanged {
+        public PropertyChanged: MulticastEvent<Fayde.PropertyChangedEventArgs>;
         public OnPropertyChanged(propertyName: string): void;
     }
 }
 declare module Fayde.MVVM {
-    class RelayCommand implements Input.ICommand {
+    class RelayCommand implements Fayde.Input.ICommand {
         constructor(execute?: (parameter: any) => void, canExecute?: (parameter: any) => boolean);
         public Execute(parameter: any): void;
         public CanExecute(parameter: any): boolean;
@@ -5338,7 +5340,7 @@ declare module Fayde.MVVM {
     }
 }
 declare module Fayde.MVVM {
-    class ViewModelBase extends ObservableObject {
+    class ViewModelBase extends MVVM.ObservableObject {
     }
 }
 declare module Fayde.Navigation {
@@ -5351,15 +5353,15 @@ declare module Fayde.Navigation {
     }
 }
 declare module Fayde.Navigation {
-    class UriMapper extends DependencyObject {
-        static UriMappingsProperty: ImmutableDependencyProperty<XamlObjectCollection<UriMapping>>;
-        public UriMappings: XamlObjectCollection<UriMapping>;
+    class UriMapper extends Fayde.DependencyObject {
+        static UriMappingsProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Navigation.UriMapping>>;
+        public UriMappings: Fayde.XamlObjectCollection<Navigation.UriMapping>;
         constructor();
         public MapUri(uri: Uri): Uri;
     }
 }
 declare module Fayde.Navigation {
-    class UriMapping extends DependencyObject {
+    class UriMapping extends Fayde.DependencyObject {
         static MappedUriProperty: DependencyProperty;
         static UriProperty: DependencyProperty;
         public MappedUri: Uri;
@@ -5662,24 +5664,24 @@ declare class Enum implements IType {
     constructor(Object: any);
 }
 declare module Fayde {
-    class Enumerable<T> implements IEnumerable<T>, IEnumerator<T> {
-        public GetEnumerator(): IEnumerator<T>;
+    class Enumerable<T> implements Fayde.IEnumerable<T>, Fayde.IEnumerator<T> {
+        public GetEnumerator(): Fayde.IEnumerator<T>;
         public Current: T;
         public MoveNext(): boolean;
         public Aggregate<TAccumulate>(seed: TAccumulate, func: (u: TAccumulate, t: T) => TAccumulate): TAccumulate;
-        public Where(filter: (t: T) => boolean): IEnumerable<T>;
-        public Select<TOut>(projection: (t: T) => TOut): IEnumerable<TOut>;
+        public Where(filter: (t: T) => boolean): Fayde.IEnumerable<T>;
+        public Select<TOut>(projection: (t: T) => TOut): Fayde.IEnumerable<TOut>;
         public All(filter: (t: T) => boolean): boolean;
         public Any(filter: (t: T) => boolean): boolean;
         public Average(func: (t: T) => number): number;
-        static Count<S>(enumerable: IEnumerable<S>): number;
-        static Contains<S>(enumerable: IEnumerable<S>, item: S): boolean;
-        static IndexOf<S>(enumerable: IEnumerable<S>, item: S): number;
-        static FirstOrDefault<S>(enumerable: IEnumerable<S>, filter?: (item: S) => boolean): S;
-        static ElementAt<S>(enumerable: IEnumerable<S>, index: number): S;
-        static ElementAtOrDefault<S>(enumerable: IEnumerable<S>, index: number): S;
-        static Where<S>(enumerable: IEnumerable<S>, filter: (item: S) => boolean): IEnumerable<S>;
-        static ToArray<S>(enumerable: IEnumerable<S>): S[];
+        static Count<S>(enumerable: Fayde.IEnumerable<S>): number;
+        static Contains<S>(enumerable: Fayde.IEnumerable<S>, item: S): boolean;
+        static IndexOf<S>(enumerable: Fayde.IEnumerable<S>, item: S): number;
+        static FirstOrDefault<S>(enumerable: Fayde.IEnumerable<S>, filter?: (item: S) => boolean): S;
+        static ElementAt<S>(enumerable: Fayde.IEnumerable<S>, index: number): S;
+        static ElementAtOrDefault<S>(enumerable: Fayde.IEnumerable<S>, index: number): S;
+        static Where<S>(enumerable: Fayde.IEnumerable<S>, filter: (item: S) => boolean): Fayde.IEnumerable<S>;
+        static ToArray<S>(enumerable: Fayde.IEnumerable<S>): S[];
     }
 }
 interface IPropertyInfo {
@@ -5724,12 +5726,12 @@ declare class TimelineProfile {
     private static _FinishEvent(type, name?);
 }
 declare module Fayde.Shapes {
-    class DoubleCollection extends XamlObjectCollection<XamlObject> {
+    class DoubleCollection extends Fayde.XamlObjectCollection<Fayde.XamlObject> {
     }
 }
 declare module Fayde.Shapes {
-    class Shape extends FrameworkElement {
-        public CreateLayoutUpdater(node: UINode): ShapeLayoutUpdater;
+    class Shape extends Fayde.FrameworkElement {
+        public CreateLayoutUpdater(node: Fayde.UINode): ShapeLayoutUpdater;
         private static _StrokePropertyChanged(dobj, args);
         static FillProperty: DependencyProperty;
         static StretchProperty: DependencyProperty;
@@ -5742,17 +5744,17 @@ declare module Fayde.Shapes {
         static StrokeLineJoinProperty: DependencyProperty;
         static StrokeMiterLimitProperty: DependencyProperty;
         static StrokeStartLineCapProperty: DependencyProperty;
-        public Fill: Media.Brush;
-        public Stretch: Media.Stretch;
-        public Stroke: Media.Brush;
+        public Fill: Fayde.Media.Brush;
+        public Stretch: Fayde.Media.Stretch;
+        public Stroke: Fayde.Media.Brush;
         public StrokeThickness: number;
-        public StrokeDashArray: DoubleCollection;
-        public StrokeDashCap: PenLineCap;
+        public StrokeDashArray: Shapes.DoubleCollection;
+        public StrokeDashCap: Shapes.PenLineCap;
         public StrokeDashOffset: number;
-        public StrokeEndLineCap: PenLineCap;
-        public StrokeLineJoin: PenLineJoin;
+        public StrokeEndLineCap: Shapes.PenLineCap;
+        public StrokeLineJoin: Shapes.PenLineJoin;
         public StrokeMiterLimit: number;
-        public StrokeStartLineCap: PenLineCap;
+        public StrokeStartLineCap: Shapes.PenLineCap;
         private _FillListener;
         private _FillChanged(args);
         private _StrokeListener;
@@ -5761,22 +5763,22 @@ declare module Fayde.Shapes {
         public _WidthChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _HeightChanged(args: IDependencyPropertyChangedEventArgs): void;
     }
-    class ShapeLayoutUpdater extends LayoutUpdater {
+    class ShapeLayoutUpdater extends Fayde.LayoutUpdater {
         public NaturalBounds: rect;
         public StretchXform: number[];
-        public Path: Path.RawPath;
-        public SFlags: ShapeFlags;
-        public Stroke: Media.Brush;
-        public Fill: Media.Brush;
-        public Stretch: Media.Stretch;
-        public FillRule: FillRule;
+        public Path: Fayde.Path.RawPath;
+        public SFlags: Shapes.ShapeFlags;
+        public Stroke: Fayde.Media.Brush;
+        public Fill: Fayde.Media.Brush;
+        public Stretch: Fayde.Media.Stretch;
+        public FillRule: Shapes.FillRule;
         public StrokeThickness: number;
-        public StrokeStartLineCap: PenLineCap;
-        public StrokeEndLineCap: PenLineCap;
-        public StrokeLineJoin: PenLineJoin;
+        public StrokeStartLineCap: Shapes.PenLineCap;
+        public StrokeEndLineCap: Shapes.PenLineCap;
+        public StrokeLineJoin: Shapes.PenLineJoin;
         public StrokeMiterLimit: number;
-        public StrokeDashArray: DoubleCollection;
-        public StrokeDashCap: PenLineCap;
+        public StrokeDashArray: Shapes.DoubleCollection;
+        public StrokeDashCap: Shapes.PenLineCap;
         public StrokeDashOffset: number;
         public GetFillRule(): string;
         public GetBrushSize(): ISize;
@@ -5791,30 +5793,30 @@ declare module Fayde.Shapes {
         public ComputeShapeBounds(logical: boolean): rect;
         public ComputeShapeBoundsImpl(logical: boolean, matrix?: number[]): rect;
         public ComputeActualSize(): size;
-        public InsideObject(ctx: RenderContextEx, x: number, y: number): boolean;
-        public InsideShape(ctx: RenderContextEx, x: number, y: number): boolean;
-        public Render(ctx: RenderContextEx, region: rect): boolean;
-        public Draw(ctx: RenderContextEx): void;
-        public BuildPath(): Path.RawPath;
-        public CreateStrokeParameters(logical?: boolean): Path.IStrokeParameters;
+        public InsideObject(ctx: Fayde.RenderContextEx, x: number, y: number): boolean;
+        public InsideShape(ctx: Fayde.RenderContextEx, x: number, y: number): boolean;
+        public Render(ctx: Fayde.RenderContextEx, region: rect): boolean;
+        public Draw(ctx: Fayde.RenderContextEx): void;
+        public BuildPath(): Fayde.Path.RawPath;
+        public CreateStrokeParameters(logical?: boolean): Fayde.Path.IStrokeParameters;
     }
 }
 declare module Fayde.Shapes {
-    class Ellipse extends Shape {
-        public CreateLayoutUpdater(node: UINode): EllipseLayoutUpdater;
+    class Ellipse extends Shapes.Shape {
+        public CreateLayoutUpdater(node: Fayde.UINode): EllipseLayoutUpdater;
         constructor();
     }
-    class EllipseLayoutUpdater extends ShapeLayoutUpdater {
+    class EllipseLayoutUpdater extends Shapes.ShapeLayoutUpdater {
         public MeasureOverride(availableSize: size, error: BError): size;
         public ComputeStretchBounds(): rect;
         public ComputeShapeBounds(logical: boolean): rect;
         public ComputeShapeBoundsImpl(logical: boolean, matrix?: any): rect;
-        public BuildPath(): Path.RawPath;
+        public BuildPath(): Fayde.Path.RawPath;
     }
 }
 declare module Fayde.Shapes {
-    class Line extends Shape {
-        public CreateLayoutUpdater(node: UINode): LineLayoutUpdater;
+    class Line extends Shapes.Shape {
+        public CreateLayoutUpdater(node: Fayde.UINode): LineLayoutUpdater;
         private static _InvalidateCoordinate(dobj, args);
         static X1Property: DependencyProperty;
         static Y1Property: DependencyProperty;
@@ -5825,32 +5827,32 @@ declare module Fayde.Shapes {
         public X2: number;
         public Y2: number;
     }
-    class LineLayoutUpdater extends ShapeLayoutUpdater {
+    class LineLayoutUpdater extends Shapes.ShapeLayoutUpdater {
         public X1: number;
         public Y1: number;
         public X2: number;
         public Y2: number;
-        public BuildPath(): Path.RawPath;
+        public BuildPath(): Fayde.Path.RawPath;
     }
 }
 declare module Fayde.Shapes {
-    class Path extends Shape implements Media.IGeometryListener {
-        public CreateLayoutUpdater(node: UINode): PathLayoutUpdater;
+    class Path extends Shapes.Shape implements Fayde.Media.IGeometryListener {
+        public CreateLayoutUpdater(node: Fayde.UINode): PathLayoutUpdater;
         private static _DataCoercer(d, propd, value);
         static DataProperty: DependencyProperty;
-        public Data: Media.Geometry;
+        public Data: Fayde.Media.Geometry;
         private _OnDataChanged(args);
-        public GeometryChanged(newGeometry: Media.Geometry): void;
+        public GeometryChanged(newGeometry: Fayde.Media.Geometry): void;
     }
-    class PathLayoutUpdater extends ShapeLayoutUpdater {
-        public Data: Media.Geometry;
+    class PathLayoutUpdater extends Shapes.ShapeLayoutUpdater {
+        public Data: Fayde.Media.Geometry;
         public ComputeShapeBoundsImpl(logical: boolean, matrix?: number[]): rect;
-        public Draw(ctx: RenderContextEx): void;
+        public Draw(ctx: Fayde.RenderContextEx): void;
         public GetFillRule(): string;
     }
 }
 declare module Fayde.Shapes {
-    class PointCollection implements IEnumerable<Point> {
+    class PointCollection implements Fayde.IEnumerable<Point> {
         private _ht;
         public OnChanged: () => void;
         public Count : number;
@@ -5866,46 +5868,46 @@ declare module Fayde.Shapes {
         public Clear(): void;
         public IndexOf(value: Point): number;
         public Contains(value: Point): boolean;
-        public GetEnumerator(reverse?: boolean): IEnumerator<Point>;
+        public GetEnumerator(reverse?: boolean): Fayde.IEnumerator<Point>;
     }
 }
 declare module Fayde.Shapes {
-    class Polygon extends Shape {
-        public CreateLayoutUpdater(node: UINode): PolygonLayoutUpdater;
+    class Polygon extends Shapes.Shape {
+        public CreateLayoutUpdater(node: Fayde.UINode): PolygonLayoutUpdater;
         private static _PointsCoercer(d, propd, value);
         static FillRuleProperty: DependencyProperty;
         static PointsProperty: DependencyProperty;
-        public FillRule: FillRule;
-        public Points: PointCollection;
+        public FillRule: Shapes.FillRule;
+        public Points: Shapes.PointCollection;
         constructor();
         private _PointsChanged(args);
         private _FillRuleChanged(args);
     }
-    class PolygonLayoutUpdater extends ShapeLayoutUpdater {
-        public Points: PointCollection;
-        public BuildPath(): Path.RawPath;
+    class PolygonLayoutUpdater extends Shapes.ShapeLayoutUpdater {
+        public Points: Shapes.PointCollection;
+        public BuildPath(): Fayde.Path.RawPath;
     }
 }
 declare module Fayde.Shapes {
-    class Polyline extends Shape {
-        public CreateLayoutUpdater(node: UINode): PolylineLayoutUpdater;
+    class Polyline extends Shapes.Shape {
+        public CreateLayoutUpdater(node: Fayde.UINode): PolylineLayoutUpdater;
         private static _PointsCoercer(d, propd, value);
         static FillRuleProperty: DependencyProperty;
         static PointsProperty: DependencyProperty;
-        public FillRule: FillRule;
-        public Points: PointCollection;
+        public FillRule: Shapes.FillRule;
+        public Points: Shapes.PointCollection;
         constructor();
         private _PointsChanged(args);
         private _FillRuleChanged(args);
     }
-    class PolylineLayoutUpdater extends ShapeLayoutUpdater {
-        public Points: PointCollection;
-        public BuildPath(): Path.RawPath;
+    class PolylineLayoutUpdater extends Shapes.ShapeLayoutUpdater {
+        public Points: Shapes.PointCollection;
+        public BuildPath(): Fayde.Path.RawPath;
     }
 }
 declare module Fayde.Shapes {
-    class Rectangle extends Shape {
-        public CreateLayoutUpdater(node: UINode): RectangleLayoutUpdater;
+    class Rectangle extends Shapes.Shape {
+        public CreateLayoutUpdater(node: Fayde.UINode): RectangleLayoutUpdater;
         static RadiusXProperty: DependencyProperty;
         static RadiusYProperty: DependencyProperty;
         public RadiusX: number;
@@ -5913,14 +5915,14 @@ declare module Fayde.Shapes {
         constructor();
         private _RadiusChanged(args);
     }
-    class RectangleLayoutUpdater extends ShapeLayoutUpdater {
+    class RectangleLayoutUpdater extends Shapes.ShapeLayoutUpdater {
         public RadiusX: number;
         public RadiusY: number;
         public MeasureOverride(availableSize: size, error: BError): size;
         public ComputeStretchBounds(): rect;
         public ComputeShapeBounds(logical: boolean): rect;
         public ComputeShapeBoundsImpl(logical: boolean, matrix?: number[]): rect;
-        public BuildPath(): Path.RawPath;
+        public BuildPath(): Fayde.Path.RawPath;
     }
 }
 declare module Fayde.Text {
@@ -5972,32 +5974,32 @@ declare module Fayde.Text {
 }
 declare module Fayde.Text {
     interface ITextAttributes {
-        GetBackground(selected: boolean): Media.Brush;
-        GetForeground(selected: boolean): Media.Brush;
+        GetBackground(selected: boolean): Fayde.Media.Brush;
+        GetForeground(selected: boolean): Fayde.Media.Brush;
         Font: Font;
-        Direction: FlowDirection;
+        Direction: Fayde.FlowDirection;
         IsUnderlined: boolean;
         Start: number;
     }
     interface ITextAttributesSource {
-        SelectionBackground: Media.Brush;
-        Background: Media.Brush;
-        SelectionForeground: Media.Brush;
-        Foreground: Media.Brush;
+        SelectionBackground: Fayde.Media.Brush;
+        Background: Fayde.Media.Brush;
+        SelectionForeground: Fayde.Media.Brush;
+        Foreground: Fayde.Media.Brush;
         Font: Font;
-        Direction: FlowDirection;
-        TextDecorations: TextDecorations;
+        Direction: Fayde.FlowDirection;
+        TextDecorations: Fayde.TextDecorations;
     }
     class TextLayoutAttributes implements ITextAttributes {
         private _Source;
         public Start: number;
         constructor(source: ITextAttributesSource, start?: number);
         private static DEFAULT_SELECTION_BACKGROUND;
-        public GetBackground(selected: boolean): Media.Brush;
+        public GetBackground(selected: boolean): Fayde.Media.Brush;
         private static DEFAULT_SELECTION_FOREGROUND;
-        public GetForeground(selected: boolean): Media.Brush;
+        public GetForeground(selected: boolean): Fayde.Media.Brush;
         public Font : Font;
-        public Direction : FlowDirection;
+        public Direction : Fayde.FlowDirection;
         public IsUnderlined : boolean;
     }
 }
@@ -6020,19 +6022,19 @@ declare module Fayde.Text {
         private _Selected;
         public _Advance: number;
         constructor(text: string, font: Font, selected?: boolean);
-        public _Render(ctx: RenderContextEx, origin: Point, attrs: ITextAttributes, x: number, y: number): void;
+        public _Render(ctx: Fayde.RenderContextEx, origin: Point, attrs: Text.ITextAttributes, x: number, y: number): void;
     }
     class TextLayoutRun {
         private _Clusters;
-        public _Attrs: ITextAttributes;
+        public _Attrs: Text.ITextAttributes;
         public _Start: number;
         private _Line;
         public _Advance: number;
         public _Length: number;
-        constructor(line: TextLayoutLine, attrs: ITextAttributes, start: number);
+        constructor(line: TextLayoutLine, attrs: Text.ITextAttributes, start: number);
         public _GenerateCache(): void;
         public _ClearCache(): void;
-        public _Render(ctx: RenderContextEx, origin: Point, x: number, y: number): void;
+        public _Render(ctx: Fayde.RenderContextEx, origin: Point, x: number, y: number): void;
         public __Debug(allText: any): any;
     }
     class TextLayoutLine {
@@ -6075,18 +6077,18 @@ declare module Fayde.Text {
         public ActualExtents : size;
         public RenderExtents : rect;
         public MaxWidth : number;
-        public TextAlignment : TextAlignment;
-        public SetTextAlignment(align: TextAlignment): boolean;
-        public TextTrimming : Controls.TextTrimming;
-        public SetTextTrimming(value: Controls.TextTrimming): boolean;
-        public TextWrapping : Controls.TextWrapping;
-        public SetTextWrapping(wrapping: Controls.TextWrapping): boolean;
-        public LineStackingStrategy : LineStackingStrategy;
+        public TextAlignment : Fayde.TextAlignment;
+        public SetTextAlignment(align: Fayde.TextAlignment): boolean;
+        public TextTrimming : Fayde.Controls.TextTrimming;
+        public SetTextTrimming(value: Fayde.Controls.TextTrimming): boolean;
+        public TextWrapping : Fayde.Controls.TextWrapping;
+        public SetTextWrapping(wrapping: Fayde.Controls.TextWrapping): boolean;
+        public LineStackingStrategy : Fayde.LineStackingStrategy;
         public LineStackingStategy : any;
-        public SetLineStackingStategy(strategy: LineStackingStrategy): boolean;
+        public SetLineStackingStategy(strategy: Fayde.LineStackingStrategy): boolean;
         public LineHeight : number;
         public SetLineHeight(value: number): boolean;
-        public TextAttributes : ITextAttributes[];
+        public TextAttributes : Text.ITextAttributes[];
         public Text : string;
         public GetSelectionCursor(offset: Point, pos: number): rect;
         public GetBaselineOffset(): number;
@@ -6096,7 +6098,7 @@ declare module Fayde.Text {
         public Select(start: number, length: number): void;
         public Layout(): void;
         public _HorizontalAlignment(lineWidth: number): number;
-        public Render(ctx: RenderContextEx, origin?: Point, offset?: Point): void;
+        public Render(ctx: Fayde.RenderContextEx, origin?: Point, offset?: Point): void;
         public __Debug(): string;
         public ResetState(): void;
         private _ClearCache();
@@ -6107,14 +6109,14 @@ declare module Fayde.Text {
     }
 }
 declare module Fayde.Controls {
-    class HeaderedContentControl extends ContentControl {
+    class HeaderedContentControl extends Controls.ContentControl {
         static HeaderProperty: DependencyProperty;
         public Header: any;
         static HeaderTemplateProperty: DependencyProperty;
-        public HeaderTemplate: DataTemplate;
+        public HeaderTemplate: Fayde.DataTemplate;
         constructor();
         public OnHeaderChanged(oldHeader: any, newHeader: any): void;
-        public OnHeaderTemplateChanged(oldHeaderTemplate: DataTemplate, newHeaderTemplate: DataTemplate): void;
+        public OnHeaderTemplateChanged(oldHeaderTemplate: Fayde.DataTemplate, newHeaderTemplate: Fayde.DataTemplate): void;
     }
 }
 declare module Fayde {
@@ -6122,18 +6124,18 @@ declare module Fayde {
         currentTransform: number[];
         resetTransform(): any;
         transformMatrix(mat: number[]): any;
-        transformTransform(transform: Media.Transform): any;
+        transformTransform(transform: Fayde.Media.Transform): any;
         pretransformMatrix(mat: number[]): any;
-        pretransformTransform(transform: Media.Transform): any;
+        pretransformTransform(transform: Fayde.Media.Transform): any;
         clear(r: rect): any;
-        fillEx(brush: Media.Brush, r: rect, fillRule?: string): any;
-        fillRectEx(brush: Media.Brush, r: rect, fillRule?: string): any;
-        setupStroke(pars: Path.IStrokeParameters): boolean;
-        strokeEx(brush: Media.Brush, pars: Path.IStrokeParameters, region: rect): any;
+        fillEx(brush: Fayde.Media.Brush, r: rect, fillRule?: string): any;
+        fillRectEx(brush: Fayde.Media.Brush, r: rect, fillRule?: string): any;
+        setupStroke(pars: Fayde.Path.IStrokeParameters): boolean;
+        strokeEx(brush: Fayde.Media.Brush, pars: Fayde.Path.IStrokeParameters, region: rect): any;
         isPointInStroke(x: number, y: number): any;
-        isPointInStrokeEx(pars: Path.IStrokeParameters, x: number, y: number): any;
+        isPointInStrokeEx(pars: Fayde.Path.IStrokeParameters, x: number, y: number): any;
         clipRect(r: rect): any;
-        clipGeometry(g: Media.Geometry): any;
+        clipGeometry(g: Fayde.Media.Geometry): any;
         hasFillRule: boolean;
         createTemporaryContext(width: number, height: number): RenderContextEx;
     }
@@ -6144,20 +6146,20 @@ declare module Fayde {
         constructor(uri?: Uri);
         private _Uri;
         public Uri : Uri;
-        public Resources: ResourceDictionary;
+        public Resources: Fayde.ResourceDictionary;
         static Get(url: string): Theme;
         private _IsLoaded;
         private _LoadError;
         private _Deferrables;
-        public Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<Theme>;
+        public Resolve(ctx: Fayde.IDependencyAsyncContext): IAsyncRequest<Theme>;
         private _Load(ctx);
         private _HandleSuccess(xd);
         private _HandleError(error);
-        public GetImplicitStyle(type: any): Style;
+        public GetImplicitStyle(type: any): Fayde.Style;
     }
 }
 declare module Fayde.Path {
-    interface IArc extends IPathEntry {
+    interface IArc extends Path.IPathEntry {
         x: number;
         y: number;
         radius: number;
@@ -6169,7 +6171,7 @@ declare module Fayde.Path {
 }
 declare function radToDegrees(rad: any): number;
 declare module Fayde.Path {
-    interface IArcTo extends IPathEntry {
+    interface IArcTo extends Path.IPathEntry {
         cpx: number;
         cpy: number;
         x: number;
@@ -6179,13 +6181,13 @@ declare module Fayde.Path {
     function ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): IArcTo;
 }
 declare module Fayde.Path {
-    interface IClose extends IPathEntry {
+    interface IClose extends Path.IPathEntry {
         isClose: boolean;
     }
     function Close(): IClose;
 }
 declare module Fayde.Path {
-    interface ICubicBezier extends IPathEntry {
+    interface ICubicBezier extends Path.IPathEntry {
         cp1x: number;
         cp1y: number;
         cp2x: number;
@@ -6196,26 +6198,26 @@ declare module Fayde.Path {
     function CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): ICubicBezier;
 }
 declare module Fayde.Path {
-    interface IEllipticalArc extends IPathEntry {
+    interface IEllipticalArc extends Path.IPathEntry {
         width: number;
         height: number;
         rotationAngle: number;
         isLargeArcFlag: boolean;
-        sweepDirectionFlag: Shapes.SweepDirection;
+        sweepDirectionFlag: Fayde.Shapes.SweepDirection;
         ex: number;
         ey: number;
     }
-    function EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number): IEllipticalArc;
+    function EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Fayde.Shapes.SweepDirection, ex: number, ey: number): IEllipticalArc;
 }
 declare module Fayde.Path {
-    interface ILine extends IPathEntry {
+    interface ILine extends Path.IPathEntry {
         x: number;
         y: number;
     }
     function Line(x: number, y: number): ILine;
 }
 declare module Fayde.Path {
-    interface IMove extends IPathEntry {
+    interface IMove extends Path.IPathEntry {
         x: number;
         y: number;
         isMove: boolean;
@@ -6223,7 +6225,7 @@ declare module Fayde.Path {
     function Move(x: number, y: number): IMove;
 }
 declare module Fayde.Path {
-    interface IQuadraticBezier extends IPathEntry {
+    interface IQuadraticBezier extends Path.IPathEntry {
         cpx: number;
         cpy: number;
         x: number;
@@ -6234,10 +6236,10 @@ declare module Fayde.Path {
 declare module Fayde.Input {
     interface ITouchDevice {
         Identifier: number;
-        Captured: UIElement;
-        Capture(uie: UIElement): boolean;
-        ReleaseCapture(uie: UIElement): any;
-        GetTouchPoint(relativeTo: UIElement): TouchPoint;
+        Captured: Fayde.UIElement;
+        Capture(uie: Fayde.UIElement): boolean;
+        ReleaseCapture(uie: Fayde.UIElement): any;
+        GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
     }
     enum TouchInputType {
         NoOp = 0,
@@ -6248,15 +6250,15 @@ declare module Fayde.Input {
         TouchLeave = 5,
     }
     interface ITouchInterop {
-        Register(input: Engine.InputManager, canvas: HTMLCanvasElement): any;
+        Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): any;
     }
     function CreateTouchInterop(): ITouchInterop;
 }
 declare module Fayde.Input {
-    class TouchEventArgs extends RoutedEventArgs {
-        public Device: ITouchDevice;
-        constructor(device: ITouchDevice);
-        public GetTouchPoint(relativeTo: UIElement): TouchPoint;
+    class TouchEventArgs extends Fayde.RoutedEventArgs {
+        public Device: Input.ITouchDevice;
+        constructor(device: Input.ITouchDevice);
+        public GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
     }
 }
 declare module Fayde.Input {
@@ -6301,13 +6303,13 @@ declare var TouchEvent: {
 };
 declare module Fayde.Input.TouchInternal {
     interface ITouchHandler {
-        HandleTouches(type: TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+        HandleTouches(type: Input.TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
     }
     class ActiveTouchBase {
         public Identifier: number;
         public Position: Point;
-        public Device: ITouchDevice;
-        public InputList: UINode[];
+        public Device: Input.ITouchDevice;
+        public InputList: Fayde.UINode[];
         private _IsEmitting;
         private _PendingCapture;
         private _PendingReleaseCapture;
@@ -6315,14 +6317,14 @@ declare module Fayde.Input.TouchInternal {
         private _CapturedInputList;
         private _FinishReleaseCaptureFunc;
         constructor(touchHandler: ITouchHandler);
-        public Capture(uie: UIElement): boolean;
-        public ReleaseCapture(uie: UIElement): void;
+        public Capture(uie: Fayde.UIElement): boolean;
+        public ReleaseCapture(uie: Fayde.UIElement): void;
         private _PerformCapture(uin);
         private _PerformReleaseCapture();
-        public Emit(type: TouchInputType, newInputList: UINode[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+        public Emit(type: Input.TouchInputType, newInputList: Fayde.UINode[], emitLeave?: boolean, emitEnter?: boolean): boolean;
         private _EmitList(type, list, endIndex?);
-        public GetTouchPoint(relativeTo: UIElement): TouchPoint;
-        public CreateTouchPoint(p: Point): TouchPoint;
+        public GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
+        public CreateTouchPoint(p: Point): Input.TouchPoint;
         private CreateTouchDevice();
     }
 }
@@ -6331,19 +6333,19 @@ declare module Fayde.Input.TouchInternal {
         left: number;
         top: number;
     }
-    class TouchInteropBase implements ITouchInterop, ITouchHandler {
-        public Input: Engine.InputManager;
+    class TouchInteropBase implements Input.ITouchInterop, TouchInternal.ITouchHandler {
+        public Input: Fayde.Engine.InputManager;
         public CanvasOffset: IOffset;
-        public ActiveTouches: ActiveTouchBase[];
+        public ActiveTouches: TouchInternal.ActiveTouchBase[];
         public CoordinateOffset : IOffset;
-        public Register(input: Engine.InputManager, canvas: HTMLCanvasElement): void;
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
         private _CalcOffset(canvas);
-        public HandleTouches(type: TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+        public HandleTouches(type: Input.TouchInputType, touches: TouchInternal.ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
     }
 }
 declare module Fayde.Input.TouchInternal {
-    class PointerTouchInterop extends TouchInteropBase {
-        public Register(input: Engine.InputManager, canvas: HTMLCanvasElement): void;
+    class PointerTouchInterop extends TouchInternal.TouchInteropBase {
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
         private _HandlePointerDown(e);
         private _HandlePointerUp(e);
         private _HandlePointerMove(e);
@@ -6354,8 +6356,8 @@ declare module Fayde.Input.TouchInternal {
     }
 }
 declare module Fayde.Input.TouchInternal {
-    class NonPointerTouchInterop extends TouchInteropBase {
-        public Register(input: Engine.InputManager, canvas: HTMLCanvasElement): void;
+    class NonPointerTouchInterop extends TouchInternal.TouchInteropBase {
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
         private _HandleTouchStart(e);
         private _HandleTouchEnd(e);
         private _HandleTouchMove(e);
@@ -6366,7 +6368,7 @@ declare module Fayde.Input.TouchInternal {
     }
 }
 declare module Fayde.Path {
-    interface IRect extends IPathEntry {
+    interface IRect extends Path.IPathEntry {
         x: number;
         y: number;
         width: number;
@@ -6377,9 +6379,9 @@ declare module Fayde.Path {
 declare module Fayde.Path {
     interface IStrokeParameters {
         thickness: number;
-        join: Shapes.PenLineJoin;
-        startCap: Shapes.PenLineCap;
-        endCap: Shapes.PenLineCap;
+        join: Fayde.Shapes.PenLineJoin;
+        startCap: Fayde.Shapes.PenLineCap;
+        endCap: Fayde.Shapes.PenLineCap;
         miterLimit: number;
     }
     interface IBoundingBox {
@@ -6414,7 +6416,7 @@ declare module Fayde.Path {
         public QuadraticBezier(cpx: number, cpy: number, x: number, y: number): void;
         public CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
         public Ellipse(x: number, y: number, width: number, height: number): void;
-        public EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number): void;
+        public EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Fayde.Shapes.SweepDirection, ex: number, ey: number): void;
         public Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: boolean): void;
         public ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): void;
         public Close(): void;
@@ -6441,7 +6443,7 @@ declare module Fayde.Path {
     function RectRoundedFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): IRect;
 }
 declare module Fayde.Path {
-    interface IEllipse extends IPathEntry {
+    interface IEllipse extends Path.IPathEntry {
         x: number;
         y: number;
         width: number;
@@ -6481,7 +6483,7 @@ declare module Fayde {
         private _Module;
         public Module : any;
         private _CurrentTheme;
-        public CurrentTheme : Theme;
+        public CurrentTheme : Fayde.Theme;
         private _Themes;
         private _IsLoading;
         private _IsLoaded;
@@ -6490,7 +6492,7 @@ declare module Fayde {
         constructor(Name: string);
         static TryGetClass(xmlns: string, xmlname: string): any;
         static Get(xmlns: string): Library;
-        static GetThemeStyle(type: any): Style;
+        static GetThemeStyle(type: any): Fayde.Style;
         static ChangeTheme(themeName: string): IAsyncRequest<any>;
         public Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<Library>;
         private _Load(ctx);
@@ -6502,7 +6504,7 @@ declare module Fayde {
     function RegisterLibrary(name: string, moduleUrl?: string, themeUrlFunc?: (themeName: string) => string): Library;
 }
 declare module Fayde.Providers {
-    function SwapStyles(fe: FrameworkElement, oldWalker: IStyleWalker, newWalker: IStyleWalker, isImplicit: boolean): void;
+    function SwapStyles(fe: Fayde.FrameworkElement, oldWalker: Fayde.IStyleWalker, newWalker: Fayde.IStyleWalker, isImplicit: boolean): void;
 }
 declare module Fayde {
     function _VisualTree(id: number): string;
@@ -6559,39 +6561,39 @@ declare module Fayde.Controls.Internal {
     }
     interface IItemsOwner {
         Items: ICollection;
-        ItemsSource: IEnumerable<any>;
-        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs): any;
+        ItemsSource: Fayde.IEnumerable<any>;
+        OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): any;
     }
     interface IItemsManager {
         Items: ICollection;
-        OnItemsSourceChanged(oldItemsSource: IEnumerable<any>, newItemsSource: IEnumerable<any>): any;
+        OnItemsSourceChanged(oldItemsSource: Fayde.IEnumerable<any>, newItemsSource: Fayde.IEnumerable<any>): any;
     }
     class ItemsManager implements IItemsManager {
         public Owner: IItemsOwner;
         public Items: ICollection;
         constructor(Owner: IItemsOwner);
-        public OnItemsChanged(sender: any, e: Collections.NotifyCollectionChangedEventArgs): void;
-        public OnItemsSourceChanged(oldItemsSource: IEnumerable<any>, newItemsSource: IEnumerable<any>): void;
+        public OnItemsChanged(sender: any, e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
+        public OnItemsSourceChanged(oldItemsSource: Fayde.IEnumerable<any>, newItemsSource: Fayde.IEnumerable<any>): void;
         private _CollectionChanged(sender, e);
     }
 }
 declare module Fayde.Xaml {
     interface IMarkupParseContext {
-        Owner: DependencyObject;
+        Owner: Fayde.DependencyObject;
         Property: DependencyProperty;
-        ResourceChain: ResourceDictionary[];
-        TemplateBindingSource: DependencyObject;
-        Resolver: INamespacePrefixResolver;
+        ResourceChain: Fayde.ResourceDictionary[];
+        TemplateBindingSource: Fayde.DependencyObject;
+        Resolver: Fayde.INamespacePrefixResolver;
         ObjectStack: any[];
     }
     interface ITransmuteContext {
-        Owner: DependencyObject;
+        Owner: Fayde.DependencyObject;
         Property: DependencyProperty;
-        TemplateBindingSource: DependencyObject;
+        TemplateBindingSource: Fayde.DependencyObject;
         ObjectStack: any[];
     }
     interface IMarkup {
-        Transmute(ctx: ITransmuteContext): Expression;
+        Transmute(ctx: ITransmuteContext): Fayde.Expression;
     }
     var IMarkup_: IInterfaceDeclaration<IMarkup>;
     class MarkupExpressionParser {
@@ -6600,9 +6602,9 @@ declare module Fayde.Xaml {
     }
 }
 declare module Fayde.Xaml {
-    class TemplateBinding implements IMarkup {
+    class TemplateBinding implements Xaml.IMarkup {
         public Property: string;
         constructor(property?: string);
-        public Transmute(ctx: ITransmuteContext): Expression;
+        public Transmute(ctx: Xaml.ITransmuteContext): Fayde.Expression;
     }
 }

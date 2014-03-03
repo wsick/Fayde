@@ -2769,6 +2769,7 @@ var Fayde;
             _super.apply(this, arguments);
             this._ClipListener = null;
             this._EffectListener = null;
+            this._TransformListener = null;
             this.LostFocus = new Fayde.RoutedEvent();
             this.GotFocus = new Fayde.RoutedEvent();
             this.LostMouseCapture = new Fayde.RoutedEvent();
@@ -2966,6 +2967,16 @@ var Fayde;
             if (newTriggers instanceof Fayde.TriggerCollection)
                 newTriggers.AttachTarget(this);
         };
+        UIElement.prototype._RenderTransformChanged = function (args) {
+            var _this = this;
+            if (this._TransformListener)
+                this._TransformListener.Detach();
+            this.XamlNode.LayoutUpdater.UpdateTransform();
+            if (args.NewValue instanceof Fayde.Media.Transform)
+                this._TransformListener = args.NewValue.Listen(function (source) {
+                    return _this.XamlNode.LayoutUpdater.UpdateTransform();
+                });
+        };
 
         UIElement.prototype.MeasureOverride = function (availableSize) {
             return undefined;
@@ -3004,7 +3015,7 @@ var Fayde;
         UIElement.RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", function () {
             return Fayde.Media.Transform;
         }, UIElement, undefined, function (d, args) {
-            return d.XamlNode.LayoutUpdater.UpdateTransform();
+            return d._RenderTransformChanged(args);
         }, undefined, undefined, undefined, false);
         UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () {
             return Point;
@@ -23552,7 +23563,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Media) {
-        (function (_Animation) {
+        (function (Animation) {
             var AnimationStore = (function () {
                 function AnimationStore() {
                 }
@@ -23637,14 +23648,14 @@ var Fayde;
                 };
                 return AnimationStore;
             })();
-            _Animation.AnimationStore = AnimationStore;
+            Animation.AnimationStore = AnimationStore;
 
             function getLogMessage(action, animStorage, val) {
                 var anim = animStorage.Animation;
-                var name = Fayde.Media._Animation.Storyboard.GetTargetName(animStorage.Animation);
+                var name = Fayde.Media.Animation.Storyboard.GetTargetName(animStorage.Animation);
                 if (anim.HasManualTarget)
                     name = anim.ManualTarget.Name;
-                var prop = Fayde.Media._Animation.Storyboard.GetTargetProperty(anim);
+                var prop = Fayde.Media.Animation.Storyboard.GetTargetProperty(anim);
                 var msg = "ANIMATION:" + action + ":" + animStorage.ID + "[" + name + "](" + prop.Path + ")->";
                 msg += val === undefined ? "(undefined)" : (val === null ? "(null)" : val.toString());
                 return msg;
@@ -29356,6 +29367,7 @@ var Fayde;
             VSM.VisualStateManager = VisualStateManager;
             Fayde.RegisterType(VisualStateManager, "Fayde.Media.VSM", Fayde.XMLNS);
 
+            var Timeline = Fayde.Media.Animation.Timeline;
             var Storyboard = Fayde.Media.Animation.Storyboard;
 
             function genDynamicTransAnimations(root, group, state, transition) {
