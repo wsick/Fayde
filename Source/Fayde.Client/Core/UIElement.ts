@@ -333,7 +333,7 @@ module Fayde {
         static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", () => Media.Brush, UIElement);
         static OpacityProperty = DependencyProperty.RegisterCore("Opacity", () => Number, UIElement, 1.0, (d, args) => (<UIElement>d).XamlNode.InvalidateOpacity());
         static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateProjection());
-        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", () => Media.Transform, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
+        static RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", () => Media.Transform, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform(), undefined, undefined, undefined, false);
         static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
         static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
         static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
