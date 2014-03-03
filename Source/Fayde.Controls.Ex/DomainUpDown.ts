@@ -3,7 +3,7 @@
 module Fayde.Controls {
     export class DomainUpDown extends Control {
         static ValueProperty = DependencyProperty.Register("Value", () => Object, DomainUpDown, null, (d, args) => (<DomainUpDown>d)._Coercer.OnValueChanged(args.OldValue, args.NewValue));
-        static IsEditableProperty = DependencyProperty.Register("IsEditable", () => Boolean, DomainUpDown, true, (d, args) => (<DomainUpDown>d)._Coercer.UpdateIsEditable());
+        static IsEditableProperty = DependencyProperty.Register("IsEditable", () => Boolean, DomainUpDown, false, (d, args) => (<DomainUpDown>d)._Coercer.UpdateIsEditable());
         static SpinnerStyleProperty = DependencyProperty.Register("SpinnerStyle", () => Style, DomainUpDown);
         static CurrentIndexProperty = DependencyProperty.Register("CurrentIndex", () => Number, DomainUpDown, -1, (d, args) => (<DomainUpDown>d)._Coercer.OnCurrentIndexChanged(args.OldValue, args.NewValue));
         static IsCyclicProperty = DependencyProperty.Register("IsCyclic", () => Boolean, DomainUpDown, false, (d, args) => (<DomainUpDown>d)._OnIsCyclicChanged(args));
