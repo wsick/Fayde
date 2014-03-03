@@ -27,7 +27,8 @@ module Fayde.Controls {
         }
         OnValueChanged(oldValue: number, newValue: number) {
             this.UpdateValidSpinDirection();
-            this._Formatter.UpdateTextBoxText();
+            if (this._Formatter)
+                this._Formatter.UpdateTextBoxText();
         }
         OnIncrementChanged(oldIncrement: number, newIncrement: number) { }
         OnDecimalPlacesChanged(oldDecimalPlaces: number, newDecimalPlaces: number) { }
@@ -65,6 +66,8 @@ module Fayde.Controls {
         }
 
         private UpdateValidSpinDirection() {
+            if (!this._SpinFlow)
+                return;
             var val = this.Value;
             this._SpinFlow.UpdateValid(val < this.Maximum, val > this.Minimum);
         }
