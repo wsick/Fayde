@@ -26,6 +26,7 @@
     <Content Include="lib\requirejs\require.js" />
     <Content Include="lib\requirejs\text.js" />
     <None Include="Views\numericupdown.fayde" />
+    <TypeScriptCompile Include="ViewModels\MainViewModel.ts" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>

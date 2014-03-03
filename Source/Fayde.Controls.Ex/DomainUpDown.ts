@@ -148,6 +148,8 @@ module Fayde.Controls {
         }
 
         private UpdateValidSpinDirection() {
+            if (!this._SpinFlow)
+                return;
             var isCyclic = this.IsCyclic;
             var curIndex = this.CurrentIndex;
             this._SpinFlow.UpdateValid(isCyclic || curIndex > 0, isCyclic || curIndex < this.Items.Count - 1);

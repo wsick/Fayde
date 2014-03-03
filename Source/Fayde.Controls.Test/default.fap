@@ -2,10 +2,14 @@
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
     xmlns:controls="lib:Fayde.Controls"
+    xmlns:vms="ViewModels"
     Theme="Metro">
     <Application.Resources>
     </Application.Resources>
     <Grid x:Name="LayoutRoot">
+        <Grid.DataContext>
+            <vms:MainViewModel />
+        </Grid.DataContext>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition />
