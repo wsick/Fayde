@@ -3001,11 +3001,11 @@ var Fayde;
         }, UIElement, undefined, function (d, args) {
             return d.XamlNode.LayoutUpdater.UpdateProjection();
         });
-        UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () {
+        UIElement.RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", function () {
             return Fayde.Media.Transform;
         }, UIElement, undefined, function (d, args) {
             return d.XamlNode.LayoutUpdater.UpdateTransform();
-        });
+        }, undefined, undefined, undefined, false);
         UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () {
             return Point;
         }, UIElement, undefined, function (d, args) {
@@ -23552,7 +23552,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Media) {
-        (function (Animation) {
+        (function (_Animation) {
             var AnimationStore = (function () {
                 function AnimationStore() {
                 }
@@ -23637,14 +23637,14 @@ var Fayde;
                 };
                 return AnimationStore;
             })();
-            Animation.AnimationStore = AnimationStore;
+            _Animation.AnimationStore = AnimationStore;
 
             function getLogMessage(action, animStorage, val) {
                 var anim = animStorage.Animation;
-                var name = Fayde.Media.Animation.Storyboard.GetTargetName(animStorage.Animation);
+                var name = Fayde.Media._Animation.Storyboard.GetTargetName(animStorage.Animation);
                 if (anim.HasManualTarget)
                     name = anim.ManualTarget.Name;
-                var prop = Fayde.Media.Animation.Storyboard.GetTargetProperty(anim);
+                var prop = Fayde.Media._Animation.Storyboard.GetTargetProperty(anim);
                 var msg = "ANIMATION:" + action + ":" + animStorage.ID + "[" + name + "](" + prop.Path + ")->";
                 msg += val === undefined ? "(undefined)" : (val === null ? "(null)" : val.toString());
                 return msg;
@@ -29356,7 +29356,6 @@ var Fayde;
             VSM.VisualStateManager = VisualStateManager;
             Fayde.RegisterType(VisualStateManager, "Fayde.Media.VSM", Fayde.XMLNS);
 
-            var Timeline = Fayde.Media.Animation.Timeline;
             var Storyboard = Fayde.Media.Animation.Storyboard;
 
             function genDynamicTransAnimations(root, group, state, transition) {
