@@ -23,7 +23,8 @@ module Fayde.Controls {
         ItemTemplate: DataTemplate;
         Items: Internal.ObservableObjectCollection;
 
-        OnValueChanged(oldItem: any, newItem: any) { }
+        OnValueChanged(oldItem: any, newItem: any) {
+        }
         OnCurrentIndexChanged(oldIndex: number, newIndex: number) {
             this.UpdateValidSpinDirection();
         }
@@ -222,10 +223,12 @@ module Fayde.Controls {
             try {
                 var vb = this._ValueBindingEvaluator;
                 if (vb)
-                    return vb.GetDynamicValue(val);
+                    val = vb.GetDynamicValue(val);
             } catch (err) {
             }
-            return val.toString();
+            if (typeof val === "string")
+                return val;
+            return "";
         }
     }
     TemplateVisualStates(DomainUpDown,

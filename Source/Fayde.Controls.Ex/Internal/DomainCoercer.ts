@@ -122,7 +122,7 @@ module Fayde.Controls.Internal {
         }
         OnCurrentIndexChanged(oldIndex: number, newIndex: number) {
             if (!this.IsCoercing) {
-                if (newIndex > 0 && newIndex < this.Items.Count) {
+                if (newIndex >= 0 && newIndex < this.Items.Count) {
                     this.IsCoercing = true;
                     this.OnCoerceValue(this.Items.GetValueAt(newIndex));
                     this.IsCoercing = false;
