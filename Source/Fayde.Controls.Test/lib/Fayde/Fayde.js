@@ -2769,6 +2769,7 @@ var Fayde;
             _super.apply(this, arguments);
             this._ClipListener = null;
             this._EffectListener = null;
+            this._TransformListener = null;
             this.LostFocus = new Fayde.RoutedEvent();
             this.GotFocus = new Fayde.RoutedEvent();
             this.LostMouseCapture = new Fayde.RoutedEvent();
@@ -2966,6 +2967,16 @@ var Fayde;
             if (newTriggers instanceof Fayde.TriggerCollection)
                 newTriggers.AttachTarget(this);
         };
+        UIElement.prototype._RenderTransformChanged = function (args) {
+            var _this = this;
+            if (this._TransformListener)
+                this._TransformListener.Detach();
+            this.XamlNode.LayoutUpdater.UpdateTransform();
+            if (args.NewValue instanceof Fayde.Media.Transform)
+                this._TransformListener = args.NewValue.Listen(function (source) {
+                    return _this.XamlNode.LayoutUpdater.UpdateTransform();
+                });
+        };
 
         UIElement.prototype.MeasureOverride = function (availableSize) {
             return undefined;
@@ -3001,11 +3012,11 @@ var Fayde;
         }, UIElement, undefined, function (d, args) {
             return d.XamlNode.LayoutUpdater.UpdateProjection();
         });
-        UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () {
+        UIElement.RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", function () {
             return Fayde.Media.Transform;
         }, UIElement, undefined, function (d, args) {
-            return d.XamlNode.LayoutUpdater.UpdateTransform();
-        });
+            return d._RenderTransformChanged(args);
+        }, undefined, undefined, undefined, false);
         UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () {
             return Point;
         }, UIElement, undefined, function (d, args) {
@@ -29288,6 +29299,20 @@ var Fayde;
                             node = null;
                     }
                     return (node) ? node.XObject : null;
+                };
+                VisualStateManager.GetGroup = function (control, name) {
+                    var root = VisualStateManager._GetTemplateRoot(control);
+                    if (!root)
+                        return null;
+                    var groups = Fayde.Media.VSM.VisualStateManager.GetVisualStateGroups(root);
+                    if (!groups)
+                        return null;
+                    var enumerator = groups.GetEnumerator();
+                    while (enumerator.MoveNext()) {
+                        if (enumerator.Current.Name === name)
+                            return enumerator.Current;
+                    }
+                    return null;
                 };
                 VisualStateManager._TryGetState = function (groups, stateName, data) {
                     var enumerator = groups.GetEnumerator();

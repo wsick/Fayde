@@ -17,6 +17,7 @@
         <StackPanel>
             <HyperlinkButton TargetName="ContentFrame" NavigateUri="/numericupdown" Content="Numeric Up Down" />
             <HyperlinkButton TargetName="ContentFrame" NavigateUri="/domainupdown" Content="Domain Up Down" />
+            <HyperlinkButton TargetName="ContentFrame" NavigateUri="/treeview" Content="TreeView" />
         </StackPanel>
         <Frame x:Name="ContentFrame" Grid.Column="1">
             <Frame.UriMapper>

@@ -1,5 +1,5 @@
 module Fayde.Controls {
-    import ScrollExtensions = Internal.ScrollExtensions;
+    import ScrollExtensions = Internal.ScrollEx;
 
     export class TreeViewItem extends HeaderedItemsControl {
         static HasItemsProperty = DependencyProperty.RegisterReadOnly("HasItems", () => Boolean, TreeViewItem, false, (d, args) => (<TreeViewItem>d).OnHasItemsChanged(args));
@@ -36,7 +36,7 @@ module Fayde.Controls {
                 this.SetValueInternal(TreeViewItem.HasItemsProperty, e.OldValue);
                 throw new InvalidOperationException("Cannot set read-only property HasItems.");
             } else
-                this.UpdateVisualState(true);
+                this.UpdateVisualState();
         }
         private OnIsExpandedPropertyChanged(e: DependencyPropertyChangedEventArgs) {
             var newValue = e.NewValue === true;
@@ -77,7 +77,7 @@ module Fayde.Controls {
                 this.SetValueInternal(TreeViewItem.IsSelectionActiveProperty, e.OldValue);
                 throw new InvalidOperationException("Cannot set read-only property IsSelectionActive.");
             } else
-                this.UpdateVisualState(true);
+                this.UpdateVisualState();
         }
 
         Collapsed = new RoutedEvent<RoutedEventArgs>();
@@ -87,7 +87,6 @@ module Fayde.Controls {
 
         private _AllowWrite = false;
         IgnorePropertyChange: boolean;
-        private Interaction: Internal.InteractionHelper;
         private ContainsSelection: boolean;
         private CancelGotFocusBubble: boolean;
         RequiresContainsSelectionUpdate: boolean;
@@ -162,17 +161,19 @@ module Fayde.Controls {
         private get IsRoot(): boolean { return this.ParentItemsControl instanceof TreeView; }
         private get CanExpandOnInput(): boolean { return this.HasItems && this.IsEnabled; }
 
+        private _MultiClick = new Internal.MultiClickHelper();
+        private _IsPressed = false;
+
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
-            this.Interaction = new Internal.InteractionHelper(this);
         }
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
             this.ExpanderButton = <Primitives.ToggleButton>this.GetTemplateChild("ExpanderButton", Primitives.ToggleButton);
             this.HeaderElement = <FrameworkElement>this.GetTemplateChild("Header", FrameworkElement);
-            this.ExpansionStateGroup = Internal.InteractionHelper.TryGetVisualStateGroup(this, "ExpansionStates");
+            this.ExpansionStateGroup = Fayde.Media.VSM.VisualStateManager.GetGroup(this, "ExpansionStates");
             this.UpdateVisualState(false);
         }
 
@@ -194,12 +195,32 @@ module Fayde.Controls {
         }
 
         GoToStates(gotoFunc: (state: string) => boolean) {
-            gotoFunc(this.IsExpanded ? "Expanded" : "Collapsed");
-            gotoFunc(this.HasItems ? "HasItems" : "NoItems");
-            if (this.IsSelected)
-                gotoFunc(this.IsSelectionActive ? "Selected" : "SelectedInactive");
-            else
-                gotoFunc("Unselected");
+            super.GoToStates(gotoFunc);
+            this.GoToStateExpansion(gotoFunc);
+            this.GoToStateHasItems(gotoFunc);
+            this.GoToStateSelection(gotoFunc);
+        }
+        GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {
+            if (!this.IsEnabled)
+                return gotoFunc("Disabled");
+            if (!this._IsPressed)
+                return gotoFunc("Pressed");
+            if (this.IsMouseOver)
+                return gotoFunc("MouseOver");
+            return gotoFunc("Normal");
+        }
+        GoToStateExpansion(gotoFunc: (state: string) => boolean): boolean {
+            return gotoFunc(this.IsExpanded ? "Expanded" : "Collapsed");
+        }
+        GoToStateHasItems(gotoFunc: (state: string) => boolean): boolean {
+            return gotoFunc(this.HasItems ? "HasItems" : "NoItems");
+        }
+        GoToStateSelection(gotoFunc: (state: string) => boolean): boolean {
+            if (!this.IsSelected)
+                return gotoFunc("Unselected");
+            if (this.IsSelectionActive)
+                return gotoFunc("SelectedInactive");
+            return gotoFunc("Selected");
         }
 
         GetContainerForItem(): DependencyObject {
@@ -222,8 +243,6 @@ module Fayde.Controls {
         }
 
         OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
-            if (e == null)
-                throw new ArgumentException("e");
             super.OnItemsChanged(e);
             this.$SetHasItems(this.Items.Count > 0);
             if (e.NewItems != null) {
@@ -273,40 +292,37 @@ module Fayde.Controls {
             if (!expanderButton)
                 return;
             expanderButton.IsChecked = this.IsExpanded;
-            this.UpdateVisualState(true);
+            this.UpdateVisualState();
         }
 
         OnSelected(e: RoutedEventArgs) {
-            this.UpdateVisualState(true);
+            this.UpdateVisualState();
             this.Selected.Raise(this, e);
         }
         OnUnselected(e: RoutedEventArgs) {
-            this.UpdateVisualState(true);
+            this.UpdateVisualState();
             this.Unselected.Raise(this, e);
         }
 
         OnGotFocus(e: RoutedEventArgs) {
+            super.OnGotFocus(e);
             var parentTreeViewItem = this.ParentTreeViewItem;
             if (parentTreeViewItem)
                 parentTreeViewItem.CancelGotFocusBubble = true;
             try {
-                if (!this.Interaction.AllowGotFocus(e) || this.CancelGotFocusBubble)
+                if (!this.IsEnabled || this.CancelGotFocusBubble)
                     return;
                 this.Select(true);
                 this.$SetIsSelectionActive(true);
-                this.UpdateVisualState(true);
-                super.OnGotFocus(e);
+                this.UpdateVisualState();
             } finally {
                 this.CancelGotFocusBubble = false;
             }
         }
         OnLostFocus(e: RoutedEventArgs) {
-            if (this.Interaction.AllowLostFocus(e)) {
-                this.Interaction.OnLostFocusBase();
-                super.OnLostFocus(e);
-            }
+            super.OnLostFocus(e);
             this.$SetIsSelectionActive(false);
-            this.UpdateVisualState(true);
+            this.UpdateVisualState();
         }
         private OnExpanderGotFocus(sender: any, e: RoutedEventArgs) {
             this.CancelGotFocusBubble = true;
@@ -314,32 +330,27 @@ module Fayde.Controls {
             this.UpdateVisualState(true);
         }
         OnMouseEnter(e: Input.MouseEventArgs) {
-            if (!this.Interaction.AllowMouseEnter(e))
-                return;
-            this.UpdateVisualState(true);
             super.OnMouseEnter(e);
+            this.UpdateVisualState();
         }
         OnMouseLeave(e: Input.MouseEventArgs) {
-            if (!this.Interaction.AllowMouseLeave(e))
-                return;
-            this.UpdateVisualState(true);
             super.OnMouseLeave(e);
+            this.UpdateVisualState();
         }
         private OnHeaderMouseLeftButtonDown(sender: any, e: Input.MouseButtonEventArgs) {
-            if (!this.Interaction.AllowMouseLeftButtonDown(e))
-                return;
+            this._MultiClick.OnMouseLeftButtonDown(this, e);
             if (!e.Handled && this.IsEnabled) {
                 if (this.Focus())
                     e.Handled = true;
-                if (this.Interaction.ClickCount % 2 === 0) {
+                if (this._MultiClick.ClickCount % 2 === 0) {
                     var isExpanded = this.IsExpanded;
                     this.UserInitiatedExpansion = this.UserInitiatedExpansion || !isExpanded;
                     this.IsExpanded = !isExpanded;
                     e.Handled = true;
                 }
             }
-            this.UpdateVisualState(true);
             this.OnMouseLeftButtonDown(e);
+            this.UpdateVisualState();
         }
         private OnExpanderClick(sender: any, e: RoutedEventArgs) {
             var isExpanded = this.IsExpanded;
@@ -347,85 +358,61 @@ module Fayde.Controls {
             this.IsExpanded = !isExpanded;
         }
         OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
-            if (e == null)
-                throw new ArgumentException("e");
+            super.OnMouseLeftButtonDown(e);
             var parentTreeView: TreeView;
             if (!e.Handled && (parentTreeView = this.ParentTreeView) != null && parentTreeView.HandleMouseButtonDown())
                 e.Handled = true;
-            super.OnMouseLeftButtonDown(e);
+            this._IsPressed = false;
+            this.UpdateVisualState();
         }
         OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {
-            if (!this.Interaction.AllowMouseLeftButtonUp(e))
-                return;
-            this.UpdateVisualState(true);
             super.OnMouseLeftButtonUp(e);
+            this._IsPressed = false;
+            this.UpdateVisualState();
+        }
+
+        OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) {
+            super.OnIsEnabledChanged(e);
+            if (!e.NewValue)
+                this._IsPressed = false;
         }
 
         OnKeyDown(e: Input.KeyEventArgs) {
             super.OnKeyDown(e);
-            if (this.Interaction.AllowKeyDown(e)) {
+            if (this.IsEnabled) {
                 if (e.Handled)
                     return;
-                switch (Internal.InteractionHelper.GetLogicalKey(this.FlowDirection, e.Key)) {
+                var isRTL = this.FlowDirection === FlowDirection.RightToLeft;
+                switch (e.Key) {
                     case Input.Key.Left:
-                        if (!Input.Keyboard.HasControl() && this.CanExpandOnInput && this.IsExpanded) {
-                            if (this.IsFocused)
-                                this.Focus();
-                            else
-                                this.IsExpanded = false;
+                        if (!Input.Keyboard.HasControl() && (isRTL ? this.HandleRightKey() : this.HandleLeftKey()))
                             e.Handled = true;
-                            break;
-                        }
-                        else
-                            break;
+                        break;
                     case Input.Key.Up:
-                        if (!Input.Keyboard.HasControl() && this.HandleUpKey()) {
+                        if (!Input.Keyboard.HasControl() && this.HandleUpKey())
                             e.Handled = true;
-                            break;
-                        }
-                        else
-                            break;
+                        break;
                     case Input.Key.Right:
-                        if (!Input.Keyboard.HasControl() && this.CanExpandOnInput) {
-                            if (!this.IsExpanded) {
-                                this.UserInitiatedExpansion = true;
-                                this.IsExpanded = true;
-                                e.Handled = true;
-                                break;
-                            }
-                            else if (this.HandleDownKey()) {
-                                e.Handled = true;
-                                break;
-                            }
-                            else
-                                break;
-                        }
-                        else
-                            break;
-                    case Input.Key.Down:
-                        if (!Input.Keyboard.HasControl() && this.HandleDownKey()) {
+                        if (!Input.Keyboard.HasControl() && (isRTL ? this.HandleLeftKey() : this.HandleRightKey()))
                             e.Handled = true;
-                            break;
-                        }
-                        else
-                            break;
+                        break;
+                    case Input.Key.Down:
+                        if (!Input.Keyboard.HasControl() && this.HandleDownKey())
+                            e.Handled = true;
+                        break;
                     case Input.Key.Add:
                         if (this.CanExpandOnInput && !this.IsExpanded) {
                             this.UserInitiatedExpansion = true;
                             this.IsExpanded = true;
                             e.Handled = true;
-                            break;
                         }
-                        else
-                            break;
+                        break;
                     case Input.Key.Subtract:
                         if (this.CanExpandOnInput && this.IsExpanded) {
                             this.IsExpanded = false;
                             e.Handled = true;
-                            break;
                         }
-                        else
-                            break;
+                        break;
                 }
             }
             if (!this.IsRoot)
@@ -435,24 +422,37 @@ module Fayde.Controls {
                 return;
             parentTreeView.PropagateKeyDown(e);
         }
+        HandleRightKey(): boolean {
+            if (!this.CanExpandOnInput)
+                return false;
+            if (!this.IsExpanded) {
+                this.UserInitiatedExpansion = true;
+                this.IsExpanded = true;
+                return true;
+            }
+            return this.HandleDownKey();
+        }
+        HandleLeftKey(): boolean {
+            if (!this.CanExpandOnInput || !this.IsExpanded)
+                return false;
+            if (this.IsFocused)
+                this.Focus();
+            else
+                this.IsExpanded = false;
+            return true;
+        }
         HandleDownKey(): boolean {
             return this.AllowKeyHandleEvent() && this.FocusDown();
         }
-        OnKeyUp(e: Input.KeyEventArgs) {
-            if (!this.Interaction.AllowKeyUp(e))
-                return;
-            super.OnKeyUp(e);
-        }
         HandleUpKey(): boolean {
-            if (this.AllowKeyHandleEvent()) {
-                var previousFocusableItem = this.FindPreviousFocusableItem();
-                if (previousFocusableItem != null) {
-                    if (previousFocusableItem != this.ParentItemsControl || previousFocusableItem != this.ParentTreeView)
-                        return previousFocusableItem.Focus();
-                    return true;
-                }
-            }
-            return false;
+            if (!this.AllowKeyHandleEvent())
+                return false;
+            var previousFocusableItem = this.FindPreviousFocusableItem();
+            if (!previousFocusableItem)
+                return false;
+            if (previousFocusableItem != this.ParentItemsControl || previousFocusableItem != this.ParentTreeView)
+                return previousFocusableItem.Focus();
+            return true;
         }
 
         HandleScrollByPage(up: boolean, scrollHost: ScrollViewer, viewportHeight: number, top: number, bottom: number, currentDelta: IOutValue): boolean {

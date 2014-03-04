@@ -568,6 +568,7 @@ declare module Fayde {
         public XamlNode: UINode;
         private _ClipListener;
         private _EffectListener;
+        private _TransformListener;
         public CreateNode(): UINode;
         public CreateLayoutUpdater(uin: UINode): Fayde.LayoutUpdater;
         public VisualParent : UIElement;
@@ -656,6 +657,7 @@ declare module Fayde {
         private _UseLayoutRoundingChanged(args);
         private _IsHitTestVisibleChanged(args);
         private _TriggersChanged(args);
+        private _RenderTransformChanged(args);
         public MeasureOverride(availableSize: size): size;
         public ArrangeOverride(finalSize: size): size;
     }
@@ -5304,6 +5306,7 @@ declare module Fayde.Media.VSM {
         private static GoToStateInternal(control, element, group, state, useTransitions);
         static DestroyStoryboards(control: Fayde.Controls.Control, root: Fayde.FrameworkElement): boolean;
         private static _GetTemplateRoot(control);
+        static GetGroup(control: Fayde.Controls.Control, name: string): VSM.VisualStateGroup;
         private static _TryGetState(groups, stateName, data);
         private static _GetTransition(element, group, from, to);
     }

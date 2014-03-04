@@ -64,6 +64,7 @@
     <TypeScriptCompile Include="Internal\TextBoxFormatter.ts" />
     <TypeScriptCompile Include="Internal\SpinFlow.ts" />
     <TypeScriptCompile Include="Internal\DomainCoercer.ts" />
+    <TypeScriptCompile Include="Internal\MultiClickHelper.ts" />
     <Content Include="Themes\awaiting-generic.xml" />
     <TypeScriptCompile Include="Spinner.ts" />
     <TypeScriptCompile Include="ContextMenu.ts" />
@@ -81,9 +82,8 @@
     <TypeScriptCompile Include="UpDownBase.ts" />
     <TypeScriptCompile Include="UpDownParseErrorEventArgs.ts" />
     <TypeScriptCompile Include="UpDownParsingEventArgs.ts" />
-    <TypeScriptCompile Include="Internal\InteractionHelper.ts" />
     <TypeScriptCompile Include="Internal\ItemsControlHelper.ts" />
-    <TypeScriptCompile Include="Internal\ScrollExtensions.ts" />
+    <TypeScriptCompile Include="Internal\ScrollEx.ts" />
     <TypeScriptCompile Include="TreeViewItem.ts" />
     <TypeScriptCompile Include="TreeView.ts" />
     <TypeScriptCompile Include="Fayde.d.ts" />
