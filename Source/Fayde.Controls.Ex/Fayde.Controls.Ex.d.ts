@@ -560,14 +560,6 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls.Internal {
-    class NumericExtensions {
-        static IsZero(value: number): boolean;
-        static IsGreaterThan(left: number, right: number): boolean;
-        static IsLessThanOrClose(left: number, right: number): boolean;
-        static AreClose(left: number, right: number): boolean;
-    }
-}
-declare module Fayde.Controls.Internal {
     class ItemsControlHelper {
         private _itemsHost;
         private _scrollHost;

@@ -1,5 +1,4 @@
 module Fayde.Controls {
-    import NumericExtensions = Internal.NumericExtensions;
     import ScrollExtensions = Internal.ScrollExtensions;
 
     export class TreeView extends ItemsControl {
@@ -144,7 +143,7 @@ module Fayde.Controls {
             super.OnKeyDown(e);
             if (e.Handled)
                 return;
-            if (isControlKeyDown()) {
+            if (Input.Keyboard.HasControl()) {
                 switch (e.Key) {
                     case Input.Key.PageUp:
                     case Input.Key.PageDown:
@@ -200,13 +199,13 @@ module Fayde.Controls {
             if (scrollHost != null) {
                 switch (Internal.InteractionHelper.GetLogicalKey(this.FlowDirection, key)) {
                     case Input.Key.PageUp:
-                        if (!NumericExtensions.IsGreaterThan(scrollHost.ExtentHeight, scrollHost.ViewportHeight))
+                        if (!NumberEx.IsGreaterThanClose(scrollHost.ExtentHeight, scrollHost.ViewportHeight))
                             ScrollExtensions.PageLeft(scrollHost);
                         else
                             ScrollExtensions.PageUp(scrollHost);
                         return true;
                     case Input.Key.PageDown:
-                        if (!NumericExtensions.IsGreaterThan(scrollHost.ExtentHeight, scrollHost.ViewportHeight))
+                        if (!NumberEx.IsGreaterThanClose(scrollHost.ExtentHeight, scrollHost.ViewportHeight))
                             ScrollExtensions.PageRight(scrollHost);
                         else
                             ScrollExtensions.PageDown(scrollHost);
@@ -263,7 +262,7 @@ module Fayde.Controls {
                             var currentDelta: IOutValue = { Value: 0 };
                             if (tvi2.HandleScrollByPage(up, scrollHost, viewportHeight, top.Value, bottom.Value, currentDelta))
                                 return true;
-                            if (NumericExtensions.IsGreaterThan(currentDelta.Value, viewportHeight)) {
+                            if (NumberEx.IsGreaterThanClose(currentDelta.Value, viewportHeight)) {
                                 if (tvi1 === this.SelectedContainer || tvi1 == null) {
                                     if (!up)
                                         return this.SelectedContainer.HandleDownKey();
@@ -483,11 +482,4 @@ module Fayde.Controls {
             }
         }
     });
-
-    function isControlKeyDown(): boolean {
-        return (Input.Keyboard.Modifiers & Input.ModifierKeys.Control) === Input.ModifierKeys.Control;
-    }
-    function isShiftKeyDown(): boolean {
-        return (Input.Keyboard.Modifiers & Input.ModifierKeys.Shift) === Input.ModifierKeys.Shift;
-    }
 }

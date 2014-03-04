@@ -1,5 +1,4 @@
 module Fayde.Controls {
-    import NumericExtensions = Internal.NumericExtensions;
     import ScrollExtensions = Internal.ScrollExtensions;
 
     export class TreeViewItem extends HeaderedItemsControl {
@@ -369,7 +368,7 @@ module Fayde.Controls {
                     return;
                 switch (Internal.InteractionHelper.GetLogicalKey(this.FlowDirection, e.Key)) {
                     case Input.Key.Left:
-                        if (!isControlKeyDown() && this.CanExpandOnInput && this.IsExpanded) {
+                        if (!Input.Keyboard.HasControl() && this.CanExpandOnInput && this.IsExpanded) {
                             if (this.IsFocused)
                                 this.Focus();
                             else
@@ -380,14 +379,14 @@ module Fayde.Controls {
                         else
                             break;
                     case Input.Key.Up:
-                        if (!isControlKeyDown() && this.HandleUpKey()) {
+                        if (!Input.Keyboard.HasControl() && this.HandleUpKey()) {
                             e.Handled = true;
                             break;
                         }
                         else
                             break;
                     case Input.Key.Right:
-                        if (!isControlKeyDown() && this.CanExpandOnInput) {
+                        if (!Input.Keyboard.HasControl() && this.CanExpandOnInput) {
                             if (!this.IsExpanded) {
                                 this.UserInitiatedExpansion = true;
                                 this.IsExpanded = true;
@@ -404,7 +403,7 @@ module Fayde.Controls {
                         else
                             break;
                     case Input.Key.Down:
-                        if (!isControlKeyDown() && this.HandleDownKey()) {
+                        if (!Input.Keyboard.HasControl() && this.HandleDownKey()) {
                             e.Handled = true;
                             break;
                         }
@@ -459,11 +458,11 @@ module Fayde.Controls {
         HandleScrollByPage(up: boolean, scrollHost: ScrollViewer, viewportHeight: number, top: number, bottom: number, currentDelta: IOutValue): boolean {
             var closeEdge1: IOutValue = { Value: 0.0 };
             currentDelta.Value = calculateDelta(up, this, scrollHost, top, bottom, closeEdge1);
-            if (NumericExtensions.IsGreaterThan(closeEdge1.Value, viewportHeight) || NumericExtensions.IsLessThanOrClose(currentDelta.Value, viewportHeight))
+            if (NumberEx.IsGreaterThanClose(closeEdge1.Value, viewportHeight) || NumberEx.IsLessThanClose(currentDelta.Value, viewportHeight))
                 return false;
             var flag1 = false;
             var headerElement = this.HeaderElement;
-            if (headerElement != null && NumericExtensions.IsLessThanOrClose(calculateDelta(up, headerElement, scrollHost, top, bottom, { Value: 0 }), viewportHeight))
+            if (headerElement != null && NumberEx.IsLessThanClose(calculateDelta(up, headerElement, scrollHost, top, bottom, { Value: 0 }), viewportHeight))
                 flag1 = true;
             var tvi1: TreeViewItem = null;
             var count = this.Items.Count;
@@ -487,7 +486,7 @@ module Fayde.Controls {
                     var currentDelta1: IOutValue = { Value: 0 };
                     if (tvi2.HandleScrollByPage(up, scrollHost, viewportHeight, top, bottom, currentDelta1))
                         return true;
-                    if (!NumericExtensions.IsGreaterThan(currentDelta1.Value, viewportHeight))
+                    if (!NumberEx.IsGreaterThanClose(currentDelta1.Value, viewportHeight))
                         tvi1 = tvi2;
                     else
                         break;
@@ -619,8 +618,5 @@ module Fayde.Controls {
             return bottom1.Value - top;
         }
         closeEdge.Value = ce;
-    }
-    function isControlKeyDown(): boolean {
-        return (Input.Keyboard.Modifiers & Input.ModifierKeys.Control) === Input.ModifierKeys.Control;
     }
 }
