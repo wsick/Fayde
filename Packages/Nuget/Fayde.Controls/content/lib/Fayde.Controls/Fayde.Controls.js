@@ -889,6 +889,51 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        (function (Internal) {
+            var MultiClickHelper = (function () {
+                function MultiClickHelper() {
+                    this.ClickCount = 0;
+                }
+                MultiClickHelper.prototype.OnMouseLeftButtonDown = function (control, e) {
+                    if (!control.IsEnabled) {
+                        this.ClickCount = 1;
+                        return;
+                    }
+
+                    var now = new Date().getTime();
+                    var deltaMs = now - this.LastClickTime;
+                    var pos = e.GetPosition(control);
+                    var dist = getDistance(this.LastClickPosition, pos);
+
+                    if (deltaMs < 500.0 && dist < 9.0)
+                        this.ClickCount++;
+                    else
+                        this.ClickCount = 1;
+
+                    this.LastClickTime = now;
+                    this.LastClickPosition = pos;
+                };
+                return MultiClickHelper;
+            })();
+            Internal.MultiClickHelper = MultiClickHelper;
+
+            function getDistance(oldPosition, newPosition) {
+                var xdiff = newPosition.X;
+                var ydiff = newPosition.Y;
+                if (oldPosition) {
+                    xdiff -= oldPosition.X;
+                    ydiff -= oldPosition.Y;
+                }
+                return xdiff * xdiff + ydiff * ydiff;
+            }
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
         var ButtonBase = Fayde.Controls.Primitives.ButtonBase;
 
         var Spinner = (function (_super) {
@@ -2289,219 +2334,6 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         (function (Internal) {
-            var VSM = Fayde.Media.VSM;
-
-            var InteractionHelper = (function () {
-                function InteractionHelper(control) {
-                    this.Control = null;
-                    this.IsFocused = false;
-                    this.IsMouseOver = false;
-                    this.IsReadOnly = false;
-                    this.IsPressed = false;
-                    this.LastClickTime = 0;
-                    this.LastClickPosition = new Point();
-                    this.ClickCount = 0;
-                    this.Control = control;
-                    this.Control.Loaded.Subscribe(this.OnLoaded, this);
-                    this.Control.IsEnabledChanged.Subscribe(this.OnIsEnabledChanged, this);
-                }
-                InteractionHelper.prototype.GoToStateCommon = function (gotoFunc) {
-                    if (!this.Control.IsEnabled)
-                        return gotoFunc("Disabled");
-                    if (this.IsReadOnly)
-                        return gotoFunc("ReadOnly");
-                    if (this.IsPressed)
-                        return gotoFunc("Pressed");
-                    if (this.IsMouseOver)
-                        return gotoFunc("MouseOver");
-                    return gotoFunc("Normal");
-                };
-
-                InteractionHelper.prototype.OnLoaded = function (sender, e) {
-                    this.Control.UpdateVisualState(false);
-                };
-                InteractionHelper.prototype.OnIsEnabledChanged = function (sender, args) {
-                    if (args.NewValue !== true) {
-                        this.IsPressed = false;
-                        this.IsMouseOver = false;
-                        this.IsFocused = false;
-                    }
-                    this.Control.UpdateVisualState(true);
-                };
-
-                InteractionHelper.prototype.OnIsReadOnlyChanged = function (value) {
-                    this.IsReadOnly = value;
-                    if (!value) {
-                        this.IsPressed = false;
-                        this.IsMouseOver = false;
-                        this.IsFocused = false;
-                    }
-                    this.Control.UpdateVisualState(true);
-                };
-
-                InteractionHelper.prototype.AllowGotFocus = function (e) {
-                    if (!e)
-                        throw new ArgumentException("e");
-                    if (!this.Control.IsEnabled)
-                        return false;
-                    this.IsFocused = true;
-                    return true;
-                };
-                InteractionHelper.prototype.AllowLostFocus = function (e) {
-                    if (!e)
-                        throw new ArgumentException("e");
-                    if (!this.Control.IsEnabled)
-                        return false;
-                    this.IsFocused = false;
-                    return true;
-                };
-                InteractionHelper.prototype.OnLostFocusBase = function () {
-                    this.IsPressed = false;
-                    this.Control.UpdateVisualState(true);
-                };
-
-                InteractionHelper.prototype.AllowMouseEnter = function (e) {
-                    if (!e)
-                        throw new ArgumentException("e");
-                    if (!this.Control.IsEnabled)
-                        return false;
-                    this.IsMouseOver = true;
-                    return true;
-                };
-                InteractionHelper.prototype.AllowMouseLeave = function (e) {
-                    if (!e)
-                        throw new ArgumentException("e");
-                    if (!this.Control.IsEnabled)
-                        return false;
-                    this.IsMouseOver = false;
-                    return true;
-                };
-
-                InteractionHelper.prototype.AllowMouseLeftButtonDown = function (e) {
-                    if (!e)
-                        throw new ArgumentException("e");
-                    var isEnabled = this.Control.IsEnabled;
-                    if (isEnabled) {
-                        var now = new Date().getTime();
-                        var position = e.GetPosition(this.Control);
-                        var totalMilliseconds = now - this.LastClickTime;
-                        var lastClickPosition = this.LastClickPosition;
-                        var num1 = position.X - lastClickPosition.X;
-                        var num2 = position.Y - lastClickPosition.Y;
-                        var num3 = num1 * num1 + num2 * num2;
-                        if (totalMilliseconds < 500.0 && num3 < 9.0)
-                            ++this.ClickCount;
-                        else
-                            this.ClickCount = 1;
-                        this.LastClickTime = now;
-                        this.LastClickPosition = position;
-                        this.IsPressed = true;
-                    } else
-                        this.ClickCount = 1;
-                    return isEnabled;
-                };
-                InteractionHelper.prototype.AllowMouseLeftButtonUp = function (e) {
-                    if (!e)
-                        throw new ArgumentException("e");
-                    if (!this.Control.IsEnabled)
-                        return false;
-                    this.IsPressed = false;
-                    return true;
-                };
-
-                InteractionHelper.prototype.AllowKeyDown = function (e) {
-                    if (!e)
-                        throw new ArgumentException("e");
-                    return this.Control.IsEnabled;
-                };
-                InteractionHelper.prototype.AllowKeyUp = function (e) {
-                    if (!e)
-                        throw new ArgumentException("e");
-                    return this.Control.IsEnabled;
-                };
-
-                InteractionHelper.GetLogicalKey = function (flowDirection, originalKey) {
-                    var key = originalKey;
-                    if (flowDirection === 1 /* RightToLeft */) {
-                        switch (originalKey) {
-                            case 14 /* Left */:
-                                key = 16 /* Right */;
-                                break;
-                            case 16 /* Right */:
-                                key = 14 /* Left */;
-                                break;
-                        }
-                    }
-                    return key;
-                };
-
-                InteractionHelper.TryGetVisualStateGroup = function (control, name) {
-                    if (Fayde.VisualTreeHelper.GetChildrenCount(control) < 1)
-                        return null;
-                    var root = Fayde.VisualTreeHelper.GetChild(control, 0);
-                    if (!root)
-                        return null;
-                    var groups = VSM.VisualStateManager.GetVisualStateGroups(root);
-                    if (!groups)
-                        return null;
-                    var enumerator = groups.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        if (enumerator.Current.Name === name)
-                            return enumerator.Current;
-                    }
-                };
-                return InteractionHelper;
-            })();
-            Internal.InteractionHelper = InteractionHelper;
-        })(Controls.Internal || (Controls.Internal = {}));
-        var Internal = Controls.Internal;
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        (function (Internal) {
-            var NumericExtensions = (function () {
-                function NumericExtensions() {
-                }
-                NumericExtensions.IsZero = function (value) {
-                    return Math.abs(value) < 2.22044604925031E-15;
-                };
-                NumericExtensions.IsGreaterThan = function (left, right) {
-                    if (left > right)
-                        return !NumericExtensions.AreClose(left, right);
-                    else
-                        return false;
-                };
-                NumericExtensions.IsLessThanOrClose = function (left, right) {
-                    if (left >= right)
-                        return NumericExtensions.AreClose(left, right);
-                    else
-                        return true;
-                };
-                NumericExtensions.AreClose = function (left, right) {
-                    if (left === right)
-                        return true;
-                    var num1 = (Math.abs(left) + Math.abs(right) + 10.0) * 2.22044604925031E-16;
-                    var num2 = left - right;
-                    if (-num1 < num2)
-                        return num1 > num2;
-                    else
-                        return false;
-                };
-                return NumericExtensions;
-            })();
-            Internal.NumericExtensions = NumericExtensions;
-        })(Controls.Internal || (Controls.Internal = {}));
-        var Internal = Controls.Internal;
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        (function (Internal) {
             var ItemsControlHelper = (function () {
                 function ItemsControlHelper(control) {
                     this.ItemsControl = control;
@@ -2619,50 +2451,89 @@ var Fayde;
     (function (Controls) {
         (function (Internal) {
             var LineChange = 16.0;
-            var ScrollExtensions = (function () {
-                function ScrollExtensions() {
+            var ScrollEx = (function () {
+                function ScrollEx() {
                 }
-                ScrollExtensions.LineUp = function (viewer) {
+                ScrollEx.HandleKey = function (sv, key, flowDirection) {
+                    if (!sv)
+                        return false;
+                    var isRTL = flowDirection === 1 /* RightToLeft */;
+                    switch (key) {
+                        case 10 /* PageUp */:
+                            if (!NumberEx.IsGreaterThanClose(sv.ExtentHeight, sv.ViewportHeight))
+                                ScrollEx.PageLeft(sv);
+                            else
+                                ScrollEx.PageUp(sv);
+                            return true;
+                        case 11 /* PageDown */:
+                            if (!NumberEx.IsGreaterThanClose(sv.ExtentHeight, sv.ViewportHeight))
+                                ScrollEx.PageRight(sv);
+                            else
+                                ScrollEx.PageDown(sv);
+                            return true;
+                        case 12 /* End */:
+                            ScrollEx.ScrollToBottom(sv);
+                            return true;
+                        case 13 /* Home */:
+                            ScrollEx.ScrollToTop(sv);
+                            return true;
+                        case 14 /* Left */:
+                            isRTL ? ScrollEx.LineRight(sv) : ScrollEx.LineLeft(sv);
+                            return true;
+                        case 15 /* Up */:
+                            ScrollEx.LineUp(sv);
+                            return true;
+                        case 16 /* Right */:
+                            isRTL ? ScrollEx.LineLeft(sv) : ScrollEx.LineRight(sv);
+                            return true;
+                        case 17 /* Down */:
+                            ScrollEx.LineDown(sv);
+                            return true;
+                    }
+                    return false;
+                };
+
+                ScrollEx.LineUp = function (viewer) {
                     scrollByVerticalOffset(viewer, -16.0);
                 };
-                ScrollExtensions.LineDown = function (viewer) {
+                ScrollEx.LineDown = function (viewer) {
                     scrollByVerticalOffset(viewer, 16.0);
                 };
-                ScrollExtensions.LineLeft = function (viewer) {
+                ScrollEx.LineLeft = function (viewer) {
                     scrollByHorizontalOffset(viewer, -16.0);
                 };
-                ScrollExtensions.LineRight = function (viewer) {
+                ScrollEx.LineRight = function (viewer) {
                     scrollByHorizontalOffset(viewer, 16.0);
                 };
 
-                ScrollExtensions.PageUp = function (viewer) {
+                ScrollEx.PageUp = function (viewer) {
                     scrollByVerticalOffset(viewer, -viewer.ViewportHeight);
                 };
-                ScrollExtensions.PageDown = function (viewer) {
+                ScrollEx.PageDown = function (viewer) {
                     scrollByVerticalOffset(viewer, viewer.ViewportHeight);
                 };
-                ScrollExtensions.PageLeft = function (viewer) {
+                ScrollEx.PageLeft = function (viewer) {
                     scrollByHorizontalOffset(viewer, -viewer.ViewportWidth);
                 };
-                ScrollExtensions.PageRight = function (viewer) {
+                ScrollEx.PageRight = function (viewer) {
                     scrollByHorizontalOffset(viewer, viewer.ViewportWidth);
                 };
 
-                ScrollExtensions.ScrollToTop = function (viewer) {
+                ScrollEx.ScrollToTop = function (viewer) {
                     viewer.ScrollToVerticalOffset(0.0);
                 };
-                ScrollExtensions.ScrollToBottom = function (viewer) {
+                ScrollEx.ScrollToBottom = function (viewer) {
                     viewer.ScrollToVerticalOffset(viewer.ExtentHeight);
                 };
 
-                ScrollExtensions.GetTopAndBottom = function (element, parent, top, bottom) {
+                ScrollEx.GetTopAndBottom = function (element, parent, top, bottom) {
                     var xform = element.TransformToVisual(parent);
                     top.Value = xform.Transform(new Point(0.0, 0.0)).Y;
                     bottom.Value = xform.Transform(new Point(0.0, element.ActualHeight)).Y;
                 };
-                return ScrollExtensions;
+                return ScrollEx;
             })();
-            Internal.ScrollExtensions = ScrollExtensions;
+            Internal.ScrollEx = ScrollEx;
 
             function scrollByVerticalOffset(viewer, offset) {
                 offset += viewer.VerticalOffset;
@@ -2682,8 +2553,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var NumericExtensions = Fayde.Controls.Internal.NumericExtensions;
-        var ScrollExtensions = Fayde.Controls.Internal.ScrollExtensions;
+        var ScrollExtensions = Fayde.Controls.Internal.ScrollEx;
 
         var TreeViewItem = (function (_super) {
             __extends(TreeViewItem, _super);
@@ -2694,8 +2564,9 @@ var Fayde;
                 this.Selected = new Fayde.RoutedEvent();
                 this.Unselected = new Fayde.RoutedEvent();
                 this._AllowWrite = false;
+                this._MultiClick = new Fayde.Controls.Internal.MultiClickHelper();
+                this._IsPressed = false;
                 this.DefaultStyleKey = this.constructor;
-                this.Interaction = new Fayde.Controls.Internal.InteractionHelper(this);
             }
             TreeViewItem.prototype.$SetHasItems = function (value) {
                 try  {
@@ -2723,7 +2594,7 @@ var Fayde;
                     this.SetValueInternal(TreeViewItem.HasItemsProperty, e.OldValue);
                     throw new InvalidOperationException("Cannot set read-only property HasItems.");
                 } else
-                    this.UpdateVisualState(true);
+                    this.UpdateVisualState();
             };
             TreeViewItem.prototype.OnIsExpandedPropertyChanged = function (e) {
                 var newValue = e.NewValue === true;
@@ -2764,7 +2635,7 @@ var Fayde;
                     this.SetValueInternal(TreeViewItem.IsSelectionActiveProperty, e.OldValue);
                     throw new InvalidOperationException("Cannot set read-only property IsSelectionActive.");
                 } else
-                    this.UpdateVisualState(true);
+                    this.UpdateVisualState();
             };
 
             Object.defineProperty(TreeViewItem.prototype, "ExpanderButton", {
@@ -2880,7 +2751,7 @@ var Fayde;
                 _super.prototype.OnApplyTemplate.call(this);
                 this.ExpanderButton = this.GetTemplateChild("ExpanderButton", Fayde.Controls.Primitives.ToggleButton);
                 this.HeaderElement = this.GetTemplateChild("Header", Fayde.FrameworkElement);
-                this.ExpansionStateGroup = Fayde.Controls.Internal.InteractionHelper.TryGetVisualStateGroup(this, "ExpansionStates");
+                this.ExpansionStateGroup = Fayde.Media.VSM.VisualStateManager.GetGroup(this, "ExpansionStates");
                 this.UpdateVisualState(false);
             };
 
@@ -2903,12 +2774,32 @@ var Fayde;
             };
 
             TreeViewItem.prototype.GoToStates = function (gotoFunc) {
-                gotoFunc(this.IsExpanded ? "Expanded" : "Collapsed");
-                gotoFunc(this.HasItems ? "HasItems" : "NoItems");
-                if (this.IsSelected)
-                    gotoFunc(this.IsSelectionActive ? "Selected" : "SelectedInactive");
-                else
-                    gotoFunc("Unselected");
+                _super.prototype.GoToStates.call(this, gotoFunc);
+                this.GoToStateExpansion(gotoFunc);
+                this.GoToStateHasItems(gotoFunc);
+                this.GoToStateSelection(gotoFunc);
+            };
+            TreeViewItem.prototype.GoToStateCommon = function (gotoFunc) {
+                if (!this.IsEnabled)
+                    return gotoFunc("Disabled");
+                if (!this._IsPressed)
+                    return gotoFunc("Pressed");
+                if (this.IsMouseOver)
+                    return gotoFunc("MouseOver");
+                return gotoFunc("Normal");
+            };
+            TreeViewItem.prototype.GoToStateExpansion = function (gotoFunc) {
+                return gotoFunc(this.IsExpanded ? "Expanded" : "Collapsed");
+            };
+            TreeViewItem.prototype.GoToStateHasItems = function (gotoFunc) {
+                return gotoFunc(this.HasItems ? "HasItems" : "NoItems");
+            };
+            TreeViewItem.prototype.GoToStateSelection = function (gotoFunc) {
+                if (!this.IsSelected)
+                    return gotoFunc("Unselected");
+                if (this.IsSelectionActive)
+                    return gotoFunc("SelectedInactive");
+                return gotoFunc("Selected");
             };
 
             TreeViewItem.prototype.GetContainerForItem = function () {
@@ -2931,8 +2822,6 @@ var Fayde;
             };
 
             TreeViewItem.prototype.OnItemsChanged = function (e) {
-                if (e == null)
-                    throw new ArgumentException("e");
                 _super.prototype.OnItemsChanged.call(this, e);
                 this.$SetHasItems(this.Items.Count > 0);
                 if (e.NewItems != null) {
@@ -2982,40 +2871,37 @@ var Fayde;
                 if (!expanderButton)
                     return;
                 expanderButton.IsChecked = this.IsExpanded;
-                this.UpdateVisualState(true);
+                this.UpdateVisualState();
             };
 
             TreeViewItem.prototype.OnSelected = function (e) {
-                this.UpdateVisualState(true);
+                this.UpdateVisualState();
                 this.Selected.Raise(this, e);
             };
             TreeViewItem.prototype.OnUnselected = function (e) {
-                this.UpdateVisualState(true);
+                this.UpdateVisualState();
                 this.Unselected.Raise(this, e);
             };
 
             TreeViewItem.prototype.OnGotFocus = function (e) {
+                _super.prototype.OnGotFocus.call(this, e);
                 var parentTreeViewItem = this.ParentTreeViewItem;
                 if (parentTreeViewItem)
                     parentTreeViewItem.CancelGotFocusBubble = true;
                 try  {
-                    if (!this.Interaction.AllowGotFocus(e) || this.CancelGotFocusBubble)
+                    if (!this.IsEnabled || this.CancelGotFocusBubble)
                         return;
                     this.Select(true);
                     this.$SetIsSelectionActive(true);
-                    this.UpdateVisualState(true);
-                    _super.prototype.OnGotFocus.call(this, e);
+                    this.UpdateVisualState();
                 } finally {
                     this.CancelGotFocusBubble = false;
                 }
             };
             TreeViewItem.prototype.OnLostFocus = function (e) {
-                if (this.Interaction.AllowLostFocus(e)) {
-                    this.Interaction.OnLostFocusBase();
-                    _super.prototype.OnLostFocus.call(this, e);
-                }
+                _super.prototype.OnLostFocus.call(this, e);
                 this.$SetIsSelectionActive(false);
-                this.UpdateVisualState(true);
+                this.UpdateVisualState();
             };
             TreeViewItem.prototype.OnExpanderGotFocus = function (sender, e) {
                 this.CancelGotFocusBubble = true;
@@ -3023,32 +2909,27 @@ var Fayde;
                 this.UpdateVisualState(true);
             };
             TreeViewItem.prototype.OnMouseEnter = function (e) {
-                if (!this.Interaction.AllowMouseEnter(e))
-                    return;
-                this.UpdateVisualState(true);
                 _super.prototype.OnMouseEnter.call(this, e);
+                this.UpdateVisualState();
             };
             TreeViewItem.prototype.OnMouseLeave = function (e) {
-                if (!this.Interaction.AllowMouseLeave(e))
-                    return;
-                this.UpdateVisualState(true);
                 _super.prototype.OnMouseLeave.call(this, e);
+                this.UpdateVisualState();
             };
             TreeViewItem.prototype.OnHeaderMouseLeftButtonDown = function (sender, e) {
-                if (!this.Interaction.AllowMouseLeftButtonDown(e))
-                    return;
+                this._MultiClick.OnMouseLeftButtonDown(this, e);
                 if (!e.Handled && this.IsEnabled) {
                     if (this.Focus())
                         e.Handled = true;
-                    if (this.Interaction.ClickCount % 2 === 0) {
+                    if (this._MultiClick.ClickCount % 2 === 0) {
                         var isExpanded = this.IsExpanded;
                         this.UserInitiatedExpansion = this.UserInitiatedExpansion || !isExpanded;
                         this.IsExpanded = !isExpanded;
                         e.Handled = true;
                     }
                 }
-                this.UpdateVisualState(true);
                 this.OnMouseLeftButtonDown(e);
+                this.UpdateVisualState();
             };
             TreeViewItem.prototype.OnExpanderClick = function (sender, e) {
                 var isExpanded = this.IsExpanded;
@@ -3056,77 +2937,61 @@ var Fayde;
                 this.IsExpanded = !isExpanded;
             };
             TreeViewItem.prototype.OnMouseLeftButtonDown = function (e) {
-                if (e == null)
-                    throw new ArgumentException("e");
+                _super.prototype.OnMouseLeftButtonDown.call(this, e);
                 var parentTreeView;
                 if (!e.Handled && (parentTreeView = this.ParentTreeView) != null && parentTreeView.HandleMouseButtonDown())
                     e.Handled = true;
-                _super.prototype.OnMouseLeftButtonDown.call(this, e);
+                this._IsPressed = false;
+                this.UpdateVisualState();
             };
             TreeViewItem.prototype.OnMouseLeftButtonUp = function (e) {
-                if (!this.Interaction.AllowMouseLeftButtonUp(e))
-                    return;
-                this.UpdateVisualState(true);
                 _super.prototype.OnMouseLeftButtonUp.call(this, e);
+                this._IsPressed = false;
+                this.UpdateVisualState();
+            };
+
+            TreeViewItem.prototype.OnIsEnabledChanged = function (e) {
+                _super.prototype.OnIsEnabledChanged.call(this, e);
+                if (!e.NewValue)
+                    this._IsPressed = false;
             };
 
             TreeViewItem.prototype.OnKeyDown = function (e) {
                 _super.prototype.OnKeyDown.call(this, e);
-                if (this.Interaction.AllowKeyDown(e)) {
+                if (this.IsEnabled) {
                     if (e.Handled)
                         return;
-                    switch (Fayde.Controls.Internal.InteractionHelper.GetLogicalKey(this.FlowDirection, e.Key)) {
+                    var isRTL = this.FlowDirection === 1 /* RightToLeft */;
+                    switch (e.Key) {
                         case 14 /* Left */:
-                            if (!isControlKeyDown() && this.CanExpandOnInput && this.IsExpanded) {
-                                if (this.IsFocused)
-                                    this.Focus();
-                                else
-                                    this.IsExpanded = false;
+                            if (!Fayde.Input.Keyboard.HasControl() && (isRTL ? this.HandleRightKey() : this.HandleLeftKey()))
                                 e.Handled = true;
-                                break;
-                            } else
-                                break;
+                            break;
                         case 15 /* Up */:
-                            if (!isControlKeyDown() && this.HandleUpKey()) {
+                            if (!Fayde.Input.Keyboard.HasControl() && this.HandleUpKey())
                                 e.Handled = true;
-                                break;
-                            } else
-                                break;
+                            break;
                         case 16 /* Right */:
-                            if (!isControlKeyDown() && this.CanExpandOnInput) {
-                                if (!this.IsExpanded) {
-                                    this.UserInitiatedExpansion = true;
-                                    this.IsExpanded = true;
-                                    e.Handled = true;
-                                    break;
-                                } else if (this.HandleDownKey()) {
-                                    e.Handled = true;
-                                    break;
-                                } else
-                                    break;
-                            } else
-                                break;
-                        case 17 /* Down */:
-                            if (!isControlKeyDown() && this.HandleDownKey()) {
+                            if (!Fayde.Input.Keyboard.HasControl() && (isRTL ? this.HandleLeftKey() : this.HandleRightKey()))
                                 e.Handled = true;
-                                break;
-                            } else
-                                break;
+                            break;
+                        case 17 /* Down */:
+                            if (!Fayde.Input.Keyboard.HasControl() && this.HandleDownKey())
+                                e.Handled = true;
+                            break;
                         case 79 /* Add */:
                             if (this.CanExpandOnInput && !this.IsExpanded) {
                                 this.UserInitiatedExpansion = true;
                                 this.IsExpanded = true;
                                 e.Handled = true;
-                                break;
-                            } else
-                                break;
+                            }
+                            break;
                         case 80 /* Subtract */:
                             if (this.CanExpandOnInput && this.IsExpanded) {
                                 this.IsExpanded = false;
                                 e.Handled = true;
-                                break;
-                            } else
-                                break;
+                            }
+                            break;
                     }
                 }
                 if (!this.IsRoot)
@@ -3136,34 +3001,47 @@ var Fayde;
                     return;
                 parentTreeView.PropagateKeyDown(e);
             };
+            TreeViewItem.prototype.HandleRightKey = function () {
+                if (!this.CanExpandOnInput)
+                    return false;
+                if (!this.IsExpanded) {
+                    this.UserInitiatedExpansion = true;
+                    this.IsExpanded = true;
+                    return true;
+                }
+                return this.HandleDownKey();
+            };
+            TreeViewItem.prototype.HandleLeftKey = function () {
+                if (!this.CanExpandOnInput || !this.IsExpanded)
+                    return false;
+                if (this.IsFocused)
+                    this.Focus();
+                else
+                    this.IsExpanded = false;
+                return true;
+            };
             TreeViewItem.prototype.HandleDownKey = function () {
                 return this.AllowKeyHandleEvent() && this.FocusDown();
             };
-            TreeViewItem.prototype.OnKeyUp = function (e) {
-                if (!this.Interaction.AllowKeyUp(e))
-                    return;
-                _super.prototype.OnKeyUp.call(this, e);
-            };
             TreeViewItem.prototype.HandleUpKey = function () {
-                if (this.AllowKeyHandleEvent()) {
-                    var previousFocusableItem = this.FindPreviousFocusableItem();
-                    if (previousFocusableItem != null) {
-                        if (previousFocusableItem != this.ParentItemsControl || previousFocusableItem != this.ParentTreeView)
-                            return previousFocusableItem.Focus();
-                        return true;
-                    }
-                }
-                return false;
+                if (!this.AllowKeyHandleEvent())
+                    return false;
+                var previousFocusableItem = this.FindPreviousFocusableItem();
+                if (!previousFocusableItem)
+                    return false;
+                if (previousFocusableItem != this.ParentItemsControl || previousFocusableItem != this.ParentTreeView)
+                    return previousFocusableItem.Focus();
+                return true;
             };
 
             TreeViewItem.prototype.HandleScrollByPage = function (up, scrollHost, viewportHeight, top, bottom, currentDelta) {
                 var closeEdge1 = { Value: 0.0 };
                 currentDelta.Value = calculateDelta(up, this, scrollHost, top, bottom, closeEdge1);
-                if (NumericExtensions.IsGreaterThan(closeEdge1.Value, viewportHeight) || NumericExtensions.IsLessThanOrClose(currentDelta.Value, viewportHeight))
+                if (NumberEx.IsGreaterThanClose(closeEdge1.Value, viewportHeight) || NumberEx.IsLessThanClose(currentDelta.Value, viewportHeight))
                     return false;
                 var flag1 = false;
                 var headerElement = this.HeaderElement;
-                if (headerElement != null && NumericExtensions.IsLessThanOrClose(calculateDelta(up, headerElement, scrollHost, top, bottom, { Value: 0 }), viewportHeight))
+                if (headerElement != null && NumberEx.IsLessThanClose(calculateDelta(up, headerElement, scrollHost, top, bottom, { Value: 0 }), viewportHeight))
                     flag1 = true;
                 var tvi1 = null;
                 var count = this.Items.Count;
@@ -3187,7 +3065,7 @@ var Fayde;
                         var currentDelta1 = { Value: 0 };
                         if (tvi2.HandleScrollByPage(up, scrollHost, viewportHeight, top, bottom, currentDelta1))
                             return true;
-                        if (!NumericExtensions.IsGreaterThan(currentDelta1.Value, viewportHeight))
+                        if (!NumberEx.IsGreaterThanClose(currentDelta1.Value, viewportHeight))
                             tvi1 = tvi2;
                         else
                             break;
@@ -3325,17 +3203,13 @@ var Fayde;
             }
             closeEdge.Value = ce;
         }
-        function isControlKeyDown() {
-            return (Fayde.Input.Keyboard.Modifiers & 2 /* Control */) === 2 /* Control */;
-        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var NumericExtensions = Fayde.Controls.Internal.NumericExtensions;
-        var ScrollExtensions = Fayde.Controls.Internal.ScrollExtensions;
+        var ScrollEx = Fayde.Controls.Internal.ScrollEx;
 
         var TreeView = (function (_super) {
             __extends(TreeView, _super);
@@ -3344,7 +3218,6 @@ var Fayde;
                 this.SelectedItemChanged = new Fayde.RoutedPropertyChangedEvent();
                 this.DefaultStyleKey = this.constructor;
                 this.ItemsControlHelper = new Fayde.Controls.Internal.ItemsControlHelper(this);
-                this.Interaction = new Fayde.Controls.Internal.InteractionHelper(this);
             }
             TreeView.prototype.OnSelectedItemChanged = function (e) {
                 if (this._IgnorePropertyChange)
@@ -3453,12 +3326,10 @@ var Fayde;
                 this.OnKeyDown(e);
             };
             TreeView.prototype.OnKeyDown = function (e) {
-                if (!this.Interaction.AllowKeyDown(e))
-                    return;
                 _super.prototype.OnKeyDown.call(this, e);
-                if (e.Handled)
+                if (e.Handled || !this.IsEnabled)
                     return;
-                if (isControlKeyDown()) {
+                if (Fayde.Input.Keyboard.HasControl()) {
                     switch (e.Key) {
                         case 10 /* PageUp */:
                         case 11 /* PageDown */:
@@ -3468,9 +3339,8 @@ var Fayde;
                         case 15 /* Up */:
                         case 16 /* Right */:
                         case 17 /* Down */:
-                            if (!this.HandleScrollKeys(e.Key))
-                                break;
-                            e.Handled = true;
+                            if (ScrollEx.HandleKey(this.ItemsControlHelper.ScrollHost, e.Key, this.FlowDirection))
+                                e.Handled = true;
                             break;
                     }
                 } else {
@@ -3507,51 +3377,13 @@ var Fayde;
                     }
                 }
             };
-            TreeView.prototype.HandleScrollKeys = function (key) {
-                var scrollHost = this.ItemsControlHelper.ScrollHost;
-                if (scrollHost != null) {
-                    switch (Fayde.Controls.Internal.InteractionHelper.GetLogicalKey(this.FlowDirection, key)) {
-                        case 10 /* PageUp */:
-                            if (!NumericExtensions.IsGreaterThan(scrollHost.ExtentHeight, scrollHost.ViewportHeight))
-                                ScrollExtensions.PageLeft(scrollHost);
-                            else
-                                ScrollExtensions.PageUp(scrollHost);
-                            return true;
-                        case 11 /* PageDown */:
-                            if (!NumericExtensions.IsGreaterThan(scrollHost.ExtentHeight, scrollHost.ViewportHeight))
-                                ScrollExtensions.PageRight(scrollHost);
-                            else
-                                ScrollExtensions.PageDown(scrollHost);
-                            return true;
-                        case 12 /* End */:
-                            ScrollExtensions.ScrollToBottom(scrollHost);
-                            return true;
-                        case 13 /* Home */:
-                            ScrollExtensions.ScrollToTop(scrollHost);
-                            return true;
-                        case 14 /* Left */:
-                            ScrollExtensions.LineLeft(scrollHost);
-                            return true;
-                        case 15 /* Up */:
-                            ScrollExtensions.LineUp(scrollHost);
-                            return true;
-                        case 16 /* Right */:
-                            ScrollExtensions.LineRight(scrollHost);
-                            return true;
-                        case 17 /* Down */:
-                            ScrollExtensions.LineDown(scrollHost);
-                            return true;
-                    }
-                }
-                return false;
-            };
             TreeView.prototype.HandleScrollByPage = function (up) {
                 var scrollHost = this.ItemsControlHelper.ScrollHost;
                 if (scrollHost != null) {
                     var viewportHeight = scrollHost.ViewportHeight;
                     var top = { Value: 0 };
                     var bottom = { Value: 0 };
-                    ScrollExtensions.GetTopAndBottom(this.SelectedContainer.HeaderElement || this.SelectedContainer, scrollHost, top, bottom);
+                    ScrollEx.GetTopAndBottom(this.SelectedContainer.HeaderElement || this.SelectedContainer, scrollHost, top, bottom);
                     var tvi1 = null;
                     var tvi2 = this.SelectedContainer;
                     var itemsControl = this.SelectedContainer.ParentItemsControl;
@@ -3575,7 +3407,7 @@ var Fayde;
                                 var currentDelta = { Value: 0 };
                                 if (tvi2.HandleScrollByPage(up, scrollHost, viewportHeight, top.Value, bottom.Value, currentDelta))
                                     return true;
-                                if (NumericExtensions.IsGreaterThan(currentDelta.Value, viewportHeight)) {
+                                if (NumberEx.IsGreaterThanClose(currentDelta.Value, viewportHeight)) {
                                     if (tvi1 === this.SelectedContainer || tvi1 == null) {
                                         if (!up)
                                             return this.SelectedContainer.HandleDownKey();
@@ -3624,60 +3456,42 @@ var Fayde;
                 return false;
             };
 
-            TreeView.prototype.OnKeyUp = function (e) {
-                if (!this.Interaction.AllowKeyUp(e))
-                    return;
-                _super.prototype.OnKeyUp.call(this, e);
-            };
-
             TreeView.prototype.OnMouseEnter = function (e) {
-                if (!this.Interaction.AllowMouseEnter(e))
-                    return;
-                this.UpdateVisualState(true);
                 _super.prototype.OnMouseEnter.call(this, e);
+                this.UpdateVisualState();
             };
             TreeView.prototype.OnMouseLeave = function (e) {
-                if (!this.Interaction.AllowMouseLeave(e))
-                    return;
-                this.UpdateVisualState(true);
                 _super.prototype.OnMouseLeave.call(this, e);
+                this.UpdateVisualState();
             };
             TreeView.prototype.OnMouseMove = function (e) {
                 _super.prototype.OnMouseMove.call(this, e);
+                this.UpdateVisualState();
             };
             TreeView.prototype.OnMouseLeftButtonDown = function (e) {
-                if (!this.Interaction.AllowMouseLeftButtonDown(e))
-                    return;
+                _super.prototype.OnMouseLeftButtonDown.call(this, e);
                 if (!e.Handled && this.HandleMouseButtonDown())
                     e.Handled = true;
-                this.UpdateVisualState(true);
-                _super.prototype.OnMouseLeftButtonDown.call(this, e);
-            };
-            TreeView.prototype.OnMouseLeftButtonUp = function (e) {
-                if (!this.Interaction.AllowMouseLeftButtonUp(e))
-                    return;
-                this.UpdateVisualState(true);
-                _super.prototype.OnMouseLeftButtonUp.call(this, e);
+                this.UpdateVisualState();
             };
             TreeView.prototype.HandleMouseButtonDown = function () {
                 if (!this.SelectedContainer)
                     return false;
-                if (this.SelectedContainer.IsFocused)
+                if (!this.SelectedContainer.IsFocused)
                     this.SelectedContainer.Focus();
                 return true;
             };
-
+            TreeView.prototype.OnMouseLeftButtonUp = function (e) {
+                _super.prototype.OnMouseLeftButtonUp.call(this, e);
+                this.UpdateVisualState();
+            };
             TreeView.prototype.OnGotFocus = function (e) {
-                if (!this.Interaction.AllowGotFocus(e))
-                    return;
-                this.UpdateVisualState(true);
                 _super.prototype.OnGotFocus.call(this, e);
+                this.UpdateVisualState();
             };
             TreeView.prototype.OnLostFocus = function (e) {
-                if (!this.Interaction.AllowLostFocus(e))
-                    return;
-                this.Interaction.OnLostFocusBase();
                 _super.prototype.OnLostFocus.call(this, e);
+                this.UpdateVisualState();
             };
 
             TreeView.prototype.ChangeSelection = function (itemOrContainer, container, selected) {
@@ -3783,7 +3597,7 @@ var Fayde;
             return TreeView;
         })(Fayde.Controls.ItemsControl);
         Controls.TreeView = TreeView;
-        Fayde.Controls.TemplateVisualStates(TreeView, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
+        Fayde.Controls.TemplateVisualStates(TreeView, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
 
         Object.defineProperty(TreeView.prototype, "SelectedValue", {
             get: function () {
@@ -3812,13 +3626,6 @@ var Fayde;
                 }
             }
         });
-
-        function isControlKeyDown() {
-            return (Fayde.Input.Keyboard.Modifiers & 2 /* Control */) === 2 /* Control */;
-        }
-        function isShiftKeyDown() {
-            return (Fayde.Input.Keyboard.Modifiers & 4 /* Shift */) === 4 /* Shift */;
-        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

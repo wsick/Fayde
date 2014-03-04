@@ -214,6 +214,14 @@ declare module Fayde.Controls.Internal {
         private ApplyValue(text);
     }
 }
+declare module Fayde.Controls.Internal {
+    class MultiClickHelper {
+        public ClickCount: number;
+        public LastClickTime: number;
+        public LastClickPosition: Point;
+        public OnMouseLeftButtonDown(control: Controls.Control, e: Fayde.Input.MouseButtonEventArgs): void;
+    }
+}
 declare module Fayde.Controls {
     class Spinner extends Controls.ContentControl {
         static ValidSpinDirectionProperty: DependencyProperty;
@@ -532,42 +540,6 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls.Internal {
-    class InteractionHelper {
-        public Control: Controls.Control;
-        public IsFocused: boolean;
-        public IsMouseOver: boolean;
-        public IsReadOnly: boolean;
-        public IsPressed: boolean;
-        public LastClickTime: number;
-        public LastClickPosition: Point;
-        public ClickCount: number;
-        constructor(control: Controls.Control);
-        public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
-        private OnLoaded(sender, e);
-        private OnIsEnabledChanged(sender, args);
-        public OnIsReadOnlyChanged(value: boolean): void;
-        public AllowGotFocus(e: Fayde.RoutedEventArgs): boolean;
-        public AllowLostFocus(e: Fayde.RoutedEventArgs): boolean;
-        public OnLostFocusBase(): void;
-        public AllowMouseEnter(e: Fayde.Input.MouseEventArgs): boolean;
-        public AllowMouseLeave(e: Fayde.Input.MouseEventArgs): boolean;
-        public AllowMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): boolean;
-        public AllowMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): boolean;
-        public AllowKeyDown(e: Fayde.Input.KeyEventArgs): boolean;
-        public AllowKeyUp(e: Fayde.Input.KeyEventArgs): boolean;
-        static GetLogicalKey(flowDirection: Fayde.FlowDirection, originalKey: Fayde.Input.Key): Fayde.Input.Key;
-        static TryGetVisualStateGroup(control: Controls.Control, name: string): Fayde.Media.VSM.VisualStateGroup;
-    }
-}
-declare module Fayde.Controls.Internal {
-    class NumericExtensions {
-        static IsZero(value: number): boolean;
-        static IsGreaterThan(left: number, right: number): boolean;
-        static IsLessThanOrClose(left: number, right: number): boolean;
-        static AreClose(left: number, right: number): boolean;
-    }
-}
-declare module Fayde.Controls.Internal {
     class ItemsControlHelper {
         private _itemsHost;
         private _scrollHost;
@@ -582,7 +554,8 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls.Internal {
-    class ScrollExtensions {
+    class ScrollEx {
+        static HandleKey(sv: Controls.ScrollViewer, key: Fayde.Input.Key, flowDirection: Fayde.FlowDirection): boolean;
         static LineUp(viewer: Controls.ScrollViewer): void;
         static LineDown(viewer: Controls.ScrollViewer): void;
         static LineLeft(viewer: Controls.ScrollViewer): void;
@@ -618,7 +591,6 @@ declare module Fayde.Controls {
         public Unselected: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         private _AllowWrite;
         public IgnorePropertyChange: boolean;
-        private Interaction;
         private ContainsSelection;
         private CancelGotFocusBubble;
         public RequiresContainsSelectionUpdate: boolean;
@@ -635,11 +607,17 @@ declare module Fayde.Controls {
         private ParentTreeView;
         private IsRoot;
         private CanExpandOnInput;
+        private _MultiClick;
+        private _IsPressed;
         constructor();
         public OnApplyTemplate(): void;
         private OnExpansionStateGroupStateChanged(sender, e);
         private BringIntoView();
         public GoToStates(gotoFunc: (state: string) => boolean): void;
+        public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
+        public GoToStateExpansion(gotoFunc: (state: string) => boolean): boolean;
+        public GoToStateHasItems(gotoFunc: (state: string) => boolean): boolean;
+        public GoToStateSelection(gotoFunc: (state: string) => boolean): boolean;
         public GetContainerForItem(): Fayde.DependencyObject;
         public IsItemItsOwnContainer(item: any): boolean;
         public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
@@ -659,9 +637,11 @@ declare module Fayde.Controls {
         private OnExpanderClick(sender, e);
         public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public HandleRightKey(): boolean;
+        public HandleLeftKey(): boolean;
         public HandleDownKey(): boolean;
-        public OnKeyUp(e: Fayde.Input.KeyEventArgs): void;
         public HandleUpKey(): boolean;
         public HandleScrollByPage(up: boolean, scrollHost: Controls.ScrollViewer, viewportHeight: number, top: number, bottom: number, currentDelta: IOutValue): boolean;
         private Select(selected);
@@ -694,7 +674,6 @@ declare module Fayde.Controls {
         public IsSelectedContainerHookedUp: boolean;
         public IsSelectionChangeActive: boolean;
         public ItemsControlHelper: Controls.Internal.ItemsControlHelper;
-        private Interaction;
         private SelectedItemChanged;
         constructor();
         public OnApplyTemplate(): void;
@@ -706,15 +685,13 @@ declare module Fayde.Controls {
         public CheckForSelectedDescendents(item: Controls.TreeViewItem): void;
         public PropagateKeyDown(e: Fayde.Input.KeyEventArgs): void;
         public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        private HandleScrollKeys(key);
         private HandleScrollByPage(up);
-        public OnKeyUp(e: Fayde.Input.KeyEventArgs): void;
         public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
         public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
         public HandleMouseButtonDown(): boolean;
+        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public ChangeSelection(itemOrContainer: any, container: Controls.TreeViewItem, selected: boolean): void;
