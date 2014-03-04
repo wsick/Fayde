@@ -29300,6 +29300,20 @@ var Fayde;
                     }
                     return (node) ? node.XObject : null;
                 };
+                VisualStateManager.GetGroup = function (control, name) {
+                    var root = VisualStateManager._GetTemplateRoot(control);
+                    if (!root)
+                        return null;
+                    var groups = Fayde.Media.VSM.VisualStateManager.GetVisualStateGroups(root);
+                    if (!groups)
+                        return null;
+                    var enumerator = groups.GetEnumerator();
+                    while (enumerator.MoveNext()) {
+                        if (enumerator.Current.Name === name)
+                            return enumerator.Current;
+                    }
+                    return null;
+                };
                 VisualStateManager._TryGetState = function (groups, stateName, data) {
                     var enumerator = groups.GetEnumerator();
                     while (enumerator.MoveNext()) {

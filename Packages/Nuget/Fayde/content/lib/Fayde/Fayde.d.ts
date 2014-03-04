@@ -5306,6 +5306,7 @@ declare module Fayde.Media.VSM {
         private static GoToStateInternal(control, element, group, state, useTransitions);
         static DestroyStoryboards(control: Fayde.Controls.Control, root: Fayde.FrameworkElement): boolean;
         private static _GetTemplateRoot(control);
+        static GetGroup(control: Fayde.Controls.Control, name: string): VSM.VisualStateGroup;
         private static _TryGetState(groups, stateName, data);
         private static _GetTransition(element, group, from, to);
     }
