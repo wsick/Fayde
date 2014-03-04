@@ -27,6 +27,7 @@
     <Content Include="lib\requirejs\text.js" />
     <Content Include="Views\treeview.fayde" />
     <Content Include="Views\home.fayde" />
+    <Content Include="packages.config" />
     <None Include="Views\numericupdown.fayde" />
     <TypeScriptCompile Include="ViewModels\MainViewModel.ts" />
     <Content Include="web.config" />
