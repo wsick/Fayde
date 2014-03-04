@@ -2,233 +2,91 @@
 /// <reference path="Spinner.ts" />
 
 module Fayde.Controls {
-    export class NumericUpDown extends UpDownBase<number> {
-        private _LevelsFromRootCall: number = 0;
-        private _InitialMin: number = 0.0;
-        private _InitialMax: number = 100.0;
-        private _InitialVal: number = 0.0;
-        private _InitialInc: number = 1.0;
-        private _RequestedMin: number = 0.0;
-        private _RequestedMax: number = 100.0;
-        private _RequestedVal: number = 0.0;
-        private _RequestedInc: number = 1.0;
+    export class NumericUpDown extends Control {
+        static MinimumProperty = DependencyProperty.Register("Minimum", () => Number, NumericUpDown, 0.0, (d, args) => (<NumericUpDown>d)._Coercer.OnMinimumChanged(args.OldValue, args.NewValue));
+        static MaximumProperty = DependencyProperty.Register("Maximum", () => Number, NumericUpDown, 100.0, (d, args) => (<NumericUpDown>d)._Coercer.OnMaximumChanged(args.OldValue, args.NewValue));
+        static ValueProperty = DependencyProperty.Register("Value", () => Number, NumericUpDown, 0.0, (d, args) => (<NumericUpDown>d)._Coercer.OnValueChanged(args.OldValue, args.NewValue));
+        static IncrementProperty = DependencyProperty.Register("Increment", () => Number, NumericUpDown, 1.0, (d, args) => (<NumericUpDown>d).OnIncrementChanged(args.OldValue, args.NewValue));
+        static DecimalPlacesProperty = DependencyProperty.Register("DecimalPlaces", () => Number, NumericUpDown, 0, (d, args) => (<NumericUpDown>d)._Coercer.OnDecimalPlacesChanged(args.OldValue, args.NewValue));
+        static SpinnerStyleProperty = DependencyProperty.Register("SpinnerStyle", () => Style, NumericUpDown);
+        static IsEditableProperty = DependencyProperty.Register("IsEditable", () => Boolean, NumericUpDown, true, (d, args) => (<NumericUpDown>d)._Formatter.UpdateIsEditable());
 
-        private _Interaction: Internal.InteractionHelper;
-
-        static ValueProperty = DependencyProperty.Register("Value", () => Number, NumericUpDown, 0.0, (d, args) => (<NumericUpDown>d)._OnValueChanged(args));
-
-        static MinimumProperty = DependencyProperty.Register("Minimum", () => Number, NumericUpDown, 0.0, (d, args) => (<NumericUpDown>d)._OnMinimumChanged(args));
         Minimum: number;
-        private _OnMinimumChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._EnsureValidDoubleValue(args.Property, args.OldValue, args.NewValue);
-            if (this._LevelsFromRootCall === 0) {
-                this._RequestedMin = <number>args.NewValue;
-                this._InitialMin = <number>args.OldValue;
-                this._InitialMax = this.Maximum;
-                this._InitialVal = this.Value;
-                ++this._LevelsFromRootCall;
-                if (this.Minimum != this._RequestedMin)
-                    this.Minimum = this._RequestedMin;
-                --this._LevelsFromRootCall;
-            }
-            ++this._LevelsFromRootCall;
-            this.CoerceMaximum();
-            this.CoerceValue();
-            --this._LevelsFromRootCall;
-            if (this._LevelsFromRootCall != 0)
-                return;
-            var minimum = this.Minimum;
-            if (this._InitialMin !== minimum) {
-                this.OnMinimumChanged(this._InitialMin, minimum);
-            }
-            var maximum = this.Maximum;
-            if (this._InitialMax !== maximum) {
-                this.OnMaximumChanged(this._InitialMax, maximum);
-            }
-            this.SetValidSpinDirection();
-        }
-        OnMinimumChanged(oldMinimum: number, newMinimum: number) { }
-
-        static MaximumProperty = DependencyProperty.Register("Maximum", () => Number, NumericUpDown, 100.0, (d, args) => (<NumericUpDown>d)._OnMaximumChanged(args));
         Maximum: number;
-        private _OnMaximumChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._EnsureValidDoubleValue(args.Property, args.OldValue, args.NewValue);
-            if (this._LevelsFromRootCall === 0) {
-                this._RequestedMax = <number>args.NewValue;
-                this._InitialMax = <number>args.OldValue;
-                this._InitialVal = this.Value;
-            }
-            ++this._LevelsFromRootCall;
-            this.CoerceMaximum();
-            this.CoerceValue();
-            --this._LevelsFromRootCall;
-            if (this._LevelsFromRootCall !== 0)
-                return;
-            var maximum = this.Maximum;
-            if (this._InitialMax !== maximum) {
-                this.OnMaximumChanged(this._InitialMax, maximum);
-            }
-            this.SetValidSpinDirection();
-        }
-        OnMaximumChanged(oldMaximum: number, newMaximum: number) { }
-
-        static IncrementProperty = DependencyProperty.Register("Increment", () => Number, NumericUpDown, 1.0, (d, args) => (<NumericUpDown>d)._OnIncrementChanged(args));
+        Value: number;
         Increment: number;
-        private _OnIncrementChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._EnsureValidIncrementValue(args);
-            if (this._LevelsFromRootCall === 0) {
-                this._RequestedInc = <number>args.NewValue;
-                this._InitialInc = <number>args.OldValue;
-                ++this._LevelsFromRootCall;
-                if (this.Increment !== this._RequestedInc)
-                    this.Increment = this._RequestedInc;
-                --this._LevelsFromRootCall;
-            }
-            if (this._LevelsFromRootCall !== 0)
-                return;
-            var increment = this.Increment;
-            if (this._InitialInc !== increment) {
-                this.OnIncrementChanged(this._InitialInc, increment);
-            }
+        DecimalPlaces: number;
+        SpinnerStyle: Style;
+        IsEditable: boolean;
+
+        OnMinimumChanged(oldMinimum: number, newMinimum: number) {
+            this.UpdateValidSpinDirection();
+        }
+        OnMaximumChanged(oldMaximum: number, newMaximum: number) {
+            this.UpdateValidSpinDirection();
+        }
+        OnValueChanged(oldValue: number, newValue: number) {
+            this.UpdateValidSpinDirection();
+            if (this._Formatter)
+                this._Formatter.UpdateTextBoxText();
         }
         OnIncrementChanged(oldIncrement: number, newIncrement: number) { }
+        OnDecimalPlacesChanged(oldDecimalPlaces: number, newDecimalPlaces: number) { }
 
-        static DecimalPlacesProperty = DependencyProperty.Register("DecimalPlaces", () => Number, NumericUpDown, 0, (d, args) => (<NumericUpDown>d)._OnDecimalPlacesChanged(args));
-        DecimalPlaces: number;
-        private _OnDecimalPlacesChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._EnsureValidDecimalPlacesValue(args);
-            this.OnDecimalPlacesChanged(args.OldValue, args.NewValue);
-        }
-        OnDecimalPlacesChanged(oldDecimalPlaces: number, newDecimalPlaces: number) {
-            ++this._LevelsFromRootCall;
-            this.SetTextBoxText();
-            --this._LevelsFromRootCall;
-        }
+        Parsing = new RoutedEvent<UpDownParsingEventArgs<number>>();
+        ParseError = new RoutedEvent<UpDownParseErrorEventArgs>();
+
+        private _Coercer: Internal.IFormattedRangeCoercer;
+        private _Formatter: Internal.ITextBoxFormatter;
+        private _SpinFlow: Internal.ISpinFlow;
 
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
-            this._Interaction = new Internal.InteractionHelper(this);
+            this._Coercer = new Internal.FormattedRangeCoercer(this,
+                (val) => this.SetCurrentValue(NumericUpDown.MaximumProperty, val),
+                (val) => this.SetCurrentValue(NumericUpDown.ValueProperty, val),
+                () => { if (this._Formatter) this._Formatter.UpdateTextBoxText(); });
         }
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            this.SetValidSpinDirection();
+            
+            if (this._SpinFlow)
+                this._SpinFlow.Dispose();
+            this._SpinFlow = new Internal.SpinFlow(this, <Spinner>this.GetTemplateChild("Spinner", Spinner));
+
+            if (this._Formatter)
+                this._Formatter.Dispose();
+            this._Formatter = new Internal.TextBoxFormatter<number>(this, <TextBox>this.GetTemplateChild("Text", TextBox),
+                (val) => this.SetCurrentValue(NumericUpDown.ValueProperty, val));
+            
+            this.UpdateValidSpinDirection();
+            this.UpdateVisualState(false);
         }
 
-        private SetValidSpinDirection() {
-            var validSpinDirections = ValidSpinDirections.None;
-            if (this.Value < this.Maximum)
-                validSpinDirections |= ValidSpinDirections.Increase;
-            if (this.Value > this.Minimum)
-                validSpinDirections |= ValidSpinDirections.Decrease;
-            if (!this._Spinner)
+        private UpdateValidSpinDirection() {
+            if (!this._SpinFlow)
                 return;
-            this._Spinner.ValidSpinDirection = validSpinDirections;
-        }
-
-        OnValueChanging(e: RoutedPropertyChangingEventArgs<number>) {
-            if (this._LevelsFromRootCall === 0) {
-                this._EnsureValidDoubleValue(e.Property, e.OldValue, e.NewValue);
-                this._InitialVal = e.OldValue;
-                this._RequestedVal = e.NewValue;
-                e.InCoercion = true;
-            }
-            ++this._LevelsFromRootCall;
-            this.CoerceValue();
-            --this._LevelsFromRootCall;
-            if (this._LevelsFromRootCall != 0)
-                return;
-            e.InCoercion = false;
-            if (this._InitialVal !== this.Value) {
-                e.NewValue = this.Value;
-                super.OnValueChanging(e);
-            }
-        }
-        OnValueChanged(e: RoutedPropertyChangedEventArgs<number>) {
-            this.SetValidSpinDirection();
-            super.OnValueChanged(e);
+            var val = this.Value;
+            this._SpinFlow.UpdateValid(val < this.Maximum, val > this.Minimum);
         }
 
         ParseValue(text: string) {
             return parseFloat(text);
         }
-        FormatValue(): string {
-            return this.Value.toFixed(this.DecimalPlaces);
+        FormatValue(val: number): string {
+            return val.toFixed(this.DecimalPlaces);
+        }
+
+        OnSpin() {
+            this._Formatter.ProcessUserInput();
         }
         OnIncrement() {
-            this.Value = this.Value + this.Increment;
-            this._RequestedVal = this.Value;
+            this._Coercer.AddToValue(this.Increment);
         }
         OnDecrement() {
-            this.Value = this.Value - this.Increment;
-            this._RequestedVal = this.Value;
-        }
-
-        private CoerceMaximum() {
-            var minimum = this.Minimum;
-            var maximum = this.Maximum;
-            if (this._RequestedMax !== maximum) {
-                if (this._RequestedMax >= minimum) {
-                    this.SetValue(NumericUpDown.MaximumProperty, this._RequestedMax);
-                } else {
-                    if (maximum === minimum)
-                        return;
-                    this.SetValue(NumericUpDown.MaximumProperty, minimum);
-                }
-            } else {
-                if (maximum >= minimum)
-                    return;
-                this.SetValue(NumericUpDown.MaximumProperty, minimum);
-            }
-        }
-        private CoerceValue() {
-            var minimum = this.Minimum;
-            var maximum = this.Maximum;
-            var num = this.Value;
-            if (this._RequestedVal !== num) {
-                if (this._RequestedVal >= minimum && this._RequestedVal <= maximum) {
-                    this.Value = this._RequestedVal;
-                } else if (this._RequestedVal < minimum && num !== minimum) {
-                    this.Value = minimum;
-                } else {
-                    if (this._RequestedVal <= maximum || num === maximum)
-                        return;
-                    this.Value = maximum;
-                }
-            } else if (num < minimum) {
-                this.Value = minimum;
-            } else {
-                if (num <= maximum)
-                    return;
-                this.Value = maximum;
-            }
-        }
-
-        private _EnsureValidDoubleValue(propd: DependencyProperty, oldValue: number, newValue: number) {
-            if (isValidDoubleValue(newValue))
-                return;
-            ++this._LevelsFromRootCall;
-            this.SetValue(propd, oldValue);
-            --this._LevelsFromRootCall;
-            throw new ArgumentException("Invalid double value.");
-        }
-        private _EnsureValidIncrementValue(e: IDependencyPropertyChangedEventArgs) {
-            if (isValidDoubleValue(e.NewValue))
-                return;
-            ++this._LevelsFromRootCall;
-            this.SetValue(e.Property, e.OldValue);
-            --this._LevelsFromRootCall;
-            throw new ArgumentException("Invalid increment value.");
-        }
-        private _EnsureValidDecimalPlacesValue(e: IDependencyPropertyChangedEventArgs) {
-            var num = e.NewValue;
-            if (num >= 0 && num <= 15)
-                return;
-            ++this._LevelsFromRootCall;
-            this.DecimalPlaces = e.OldValue;
-            --this._LevelsFromRootCall;
-            throw new ArgumentException("Invalid decimal places value.");
+            this._Coercer.AddToValue(-this.Increment);
         }
     }
     TemplateVisualStates(NumericUpDown,
@@ -245,7 +103,18 @@ module Fayde.Controls {
         { Name: "Text", Type: TextBox },
         { Name: "Spinner", Type: Spinner });
 
-    function isValidDoubleValue(value: any): boolean {
-        return !isNaN(value) && isFinite(value) && value <= 7.92281625142643E+28 && value >= -7.92281625142643E+28;
+    function numberValidator(d: DependencyObject, propd: DependencyProperty, value: any): boolean {
+        if (typeof value !== "number")
+            return false;
+        if (isNaN(value))
+            return false;
+        if (!isFinite(value))
+            return false;
+        return true;
+    }
+    function decimalPlacesValidator(d: DependencyObject, propd: DependencyProperty, value: any): boolean {
+        if (!numberValidator(d, propd, value))
+            return false;
+        return value >= 0 && value <= 15;
     }
 }

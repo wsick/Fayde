@@ -1,6 +1,45 @@
 module Fayde.Controls.Internal {
     var LineChange = 16.0;
-    export class ScrollExtensions {
+    export class ScrollEx {
+        static HandleKey(sv: ScrollViewer, key: Input.Key, flowDirection: FlowDirection): boolean {
+            if (!sv)
+                return false;
+            var isRTL = flowDirection === FlowDirection.RightToLeft;
+            switch (key) {
+                case Input.Key.PageUp:
+                    if (!NumberEx.IsGreaterThanClose(sv.ExtentHeight, sv.ViewportHeight))
+                        ScrollEx.PageLeft(sv);
+                    else
+                        ScrollEx.PageUp(sv);
+                    return true;
+                case Input.Key.PageDown:
+                    if (!NumberEx.IsGreaterThanClose(sv.ExtentHeight, sv.ViewportHeight))
+                        ScrollEx.PageRight(sv);
+                    else
+                        ScrollEx.PageDown(sv);
+                    return true;
+                case Input.Key.End:
+                    ScrollEx.ScrollToBottom(sv);
+                    return true;
+                case Input.Key.Home:
+                    ScrollEx.ScrollToTop(sv);
+                    return true;
+                case Input.Key.Left:
+                    isRTL ? ScrollEx.LineRight(sv) : ScrollEx.LineLeft(sv);
+                    return true;
+                case Input.Key.Up:
+                    ScrollEx.LineUp(sv);
+                    return true;
+                case Input.Key.Right:
+                    isRTL ? ScrollEx.LineLeft(sv) : ScrollEx.LineRight(sv);
+                    return true;
+                case Input.Key.Down:
+                    ScrollEx.LineDown(sv);
+                    return true;
+            }
+            return false;
+        }
+
         static LineUp(viewer: ScrollViewer) {
             scrollByVerticalOffset(viewer, -16.0);
         }

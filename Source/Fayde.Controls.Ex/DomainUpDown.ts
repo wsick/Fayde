@@ -1,142 +1,42 @@
 /// <reference path="UpDownBase.ts" />
 
 module Fayde.Controls {
-    export class DomainUpDown extends UpDownBase<any> {
-        private _Items = new Internal.ObservableObjectCollection();
-        private _ValueDuringInit: any = null;
-        private _IsNotAllowedToEditByFocus: boolean = false;
-        private _IsEditing: boolean = false;
-        private _IsInvalidInput: boolean = false;
-        private _InitialCurrentIndex: number = -1;
-        private _CurrentIndexDuringInit: number = null;
-        private _CurrentIndexNestLevel: number = 0;
-        private _Interaction: Internal.InteractionHelper;
-
-        static ValueProperty = DependencyProperty.Register("Value", () => Object, DomainUpDown, null, (d, args) => (<DomainUpDown>d)._OnValueChanged(args));
-
-        static CurrentIndexProperty = DependencyProperty.Register("CurrentIndex", () => Number, DomainUpDown, -1, (d, args) => (<DomainUpDown>d)._OnCurrentIndexChanged(args));
-        CurrentIndex: number;
-        private _OnCurrentIndexChanged(args: IDependencyPropertyChangedEventArgs) {
-            var index = <number>args.NewValue;
-            var oldValue = <number>args.OldValue;
-            if (!this.IsValidCurrentIndex(index)) {
-                ++this._CurrentIndexNestLevel;
-                this.SetValue(args.Property, oldValue);
-                --this._CurrentIndexNestLevel;
-                if (this._CurrentIndexDuringInit == null)
-                    this._CurrentIndexDuringInit = index;
-                else
-                    throw new ArgumentOutOfRangeException("Invalid current index.");
-
-            } else {
-                if (this._CurrentIndexNestLevel == 0)
-                    this._InitialCurrentIndex = oldValue;
-                ++this._CurrentIndexNestLevel;
-                var num = this.CoerceSelectedIndex(index);
-                if (index !== num)
-                    this.CurrentIndex = num;
-                --this._CurrentIndexNestLevel;
-                if (this._CurrentIndexNestLevel != 0 || this.CurrentIndex === this._InitialCurrentIndex)
-                    return;
-                this.OnCurrentIndexChanged(oldValue, this.CurrentIndex);
-            }
-        }
-        OnCurrentIndexChanged(oldValue: number, newValue: number) {
-            this.Value = Enumerable.ElementAtOrDefault<any>(this.GetActualItems(), newValue);
-            this.SetIsEditing(false);
-            this.SetValidSpinDirection();
-        }
-
+    export class DomainUpDown extends Control {
+        static ValueProperty = DependencyProperty.Register("Value", () => Object, DomainUpDown, null, (d, args) => (<DomainUpDown>d)._Coercer.OnValueChanged(args.OldValue, args.NewValue));
+        static IsEditableProperty = DependencyProperty.Register("IsEditable", () => Boolean, DomainUpDown, false, (d, args) => (<DomainUpDown>d)._Coercer.UpdateIsEditable());
+        static SpinnerStyleProperty = DependencyProperty.Register("SpinnerStyle", () => Style, DomainUpDown);
+        static CurrentIndexProperty = DependencyProperty.Register("CurrentIndex", () => Number, DomainUpDown, -1, (d, args) => (<DomainUpDown>d)._Coercer.OnCurrentIndexChanged(args.OldValue, args.NewValue));
         static IsCyclicProperty = DependencyProperty.Register("IsCyclic", () => Boolean, DomainUpDown, false, (d, args) => (<DomainUpDown>d)._OnIsCyclicChanged(args));
-        IsCyclic: boolean;
-        private _OnIsCyclicChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.SetValidSpinDirection();
-        }
-
-        static InvalidInputActionProperty = DependencyProperty.Register("InvalidInputAction", () => new Enum(InvalidInputAction), DomainUpDown, InvalidInputAction.UseFallbackItem, (d, args) => (<DomainUpDown>d)._OnInvalidInputActionPropertyChanged(args));
-        InvalidInputAction: InvalidInputAction;
-        private _OnInvalidInputActionPropertyChanged(args: IDependencyPropertyChangedEventArgs) {
-            switch (args.NewValue) {
-                case InvalidInputAction.UseFallbackItem:
-                    break;
-                case InvalidInputAction.TextBoxCannotLoseFocus:
-                    break;
-                default:
-                    throw new ArgumentException("Invalid input action.");
-            }
-        }
-
+        static InvalidInputActionProperty = DependencyProperty.RegisterFull("InvalidInputAction", () => new Enum(InvalidInputAction), DomainUpDown, InvalidInputAction.UseFallbackItem, undefined, undefined, false, inputActionValidator, true);
         static FallbackItemProperty = DependencyProperty.Register("FallbackItem", () => Object, DomainUpDown, null);
-        FallbackItem: any;
-
-        static ItemsSourceProperty = DependencyProperty.Register("ItemsSource", () => Fayde.IEnumerable_, DomainUpDown, null);
-        ItemsSource: Fayde.IEnumerable<any>;
-        OnItemsSourceChanged(oldItemsSource: Fayde.IEnumerable<any>, newItemsSource: Fayde.IEnumerable<any>) {
-            var oldcc = Collections.INotifyCollectionChanged_.As(oldItemsSource);
-            if (oldcc)
-                oldcc.CollectionChanged.Unsubscribe(this.OnItemsChanged, this);
-
-            if (newItemsSource != null) {
-                var index = getIndexOf(newItemsSource, this.Value);
-                if (index > -1) {
-                    this.CurrentIndex = index;
-                } else {
-                    var source = newItemsSource;
-                    if (this._CurrentIndexDuringInit != null && this._CurrentIndexDuringInit > -1) {
-                        if (this.IsValidCurrentIndex(this.CurrentIndex))
-                            this.Value = Enumerable.ElementAt<any>(source, this.CurrentIndex);
-                        else
-                            this.Value = this.IsValidCurrentIndex(this._CurrentIndexDuringInit) ? Enumerable.ElementAt<any>(source, this._CurrentIndexDuringInit) : Enumerable.FirstOrDefault<any>(source);
-                        this._CurrentIndexDuringInit = -1;
-                    } else if (Enumerable.Contains<any>(source, this._ValueDuringInit)) {
-                        this.Value = this._ValueDuringInit;
-                        this._ValueDuringInit = {};
-                    } else
-                        this.Value = this.IsValidCurrentIndex(this.CurrentIndex) ? Enumerable.ElementAtOrDefault<any>(source, this.CurrentIndex) : Enumerable.FirstOrDefault<any>(source);
-                }
-                var newcc = Collections.INotifyCollectionChanged_.As(newItemsSource);
-                if (newcc)
-                    newcc.CollectionChanged.Subscribe(this.OnItemsChanged, this);
-            } else {
-                this._Items.Clear();
-            }
-            this.SetValidSpinDirection();
-        }
-
+        static ItemsSourceProperty = DependencyProperty.Register("ItemsSource", () => Fayde.IEnumerable_, DomainUpDown, undefined, (d, args) => (<DomainUpDown>d)._Manager.OnItemsSourceChanged(args.OldValue, args.NewValue));
         static ItemTemplateProperty = DependencyProperty.Register("ItemTemplate", () => DataTemplate, DomainUpDown);
+
+        Value: any;
+        IsEditable: boolean;
+        SpinnerStyle: Style;
+        CurrentIndex: number;
+        IsCyclic: boolean;
+        InvalidInputAction: InvalidInputAction;
+        FallbackItem: any;
+        ItemsSource: Fayde.IEnumerable<any>;
         ItemTemplate: DataTemplate;
+        Items: Internal.ObservableObjectCollection;
 
-        get Items(): Fayde.Collections.ObservableCollection<any> {
-            if (!this.ItemsSource)
-                return this._Items;
-            var coll = new Internal.ObservableObjectCollection(this.ItemsSource);
-            coll.IsReadOnly = true;
-            return coll;
+        OnValueChanged(oldItem: any, newItem: any) {
         }
-
-        get IsEditing(): boolean { return this._IsEditing; }
-        private SetIsEditing(value: boolean) {
-            if (value === this._IsEditing || !this.IsEditable && value)
-                return;
-            this._IsEditing = value;
-            this.UpdateVisualState(true);
-            if (!this._TextBox)
-                return;
-            if (!value) {
-                this._TextBox.Text = this.FormatValue();
-                this._TextBox.IsHitTestVisible = false;
-            } else {
-                if (this.XamlNode.GetFocusedElement() === this._TextBox)
-                    this._TextBox.Select(0, this._TextBox.Text.length);
-                this._TextBox.IsHitTestVisible = true;
-            }
+        OnCurrentIndexChanged(oldIndex: number, newIndex: number) {
+            this.UpdateValidSpinDirection();
         }
-        private SetIsInvalidInput(value: boolean) {
-            if (value === this._IsInvalidInput)
-                return;
-            this._IsInvalidInput = value;
-            this.UpdateVisualState(true);
+        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
+            this._Coercer.UpdateTextBoxText();
         }
+        private _OnIsCyclicChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.UpdateValidSpinDirection();
+        }
+        
+        ValueChanging = new RoutedPropertyChangingEvent<number>();
+        ParseError = new RoutedEvent<UpDownParseErrorEventArgs>();
 
         get ValueMemberPath(): string {
             var vb = this.ValueMemberBinding;
@@ -170,22 +70,70 @@ module Fayde.Controls {
         set ValueMemberBinding(value: Fayde.Data.Binding) {
             this._ValueBindingEvaluator = new Internal.BindingSourceEvaluator<string>(value);
         }
-
-        private GetActualItems(): IEnumerable<any> {
-            var is = this.ItemsSource;
-            return is == null ? this._Items : is;
-        }
+        
+        private _Manager: Internal.IItemsManager;
+        private _Coercer: Internal.IDomainCoercer;
+        private _SpinFlow: Internal.ISpinFlow;
+        private _CanEditByFocus = false;
 
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
-            this._Interaction = new Internal.InteractionHelper(this);
-            this._Items.CollectionChanged.Subscribe(this.OnItemsChanged, this);
+
+            Object.defineProperty(this, "Items", { value: new Internal.ObservableObjectCollection(), writable: false });
+
+            this._Manager = new Internal.ItemsManager(this);
+
+            this._Coercer = new Internal.DomainCoercer(this,
+                val => this.SetCurrentValue(DomainUpDown.ValueProperty, val),
+                val => this.SetCurrentValue(DomainUpDown.CurrentIndexProperty, val));
         }
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            this.SetValidSpinDirection();
+
+            if (this._SpinFlow)
+                this._SpinFlow.Dispose();
+            this._SpinFlow = new Internal.SpinFlow(this, <Spinner>this.GetTemplateChild("Spinner", Spinner));
+
+            this._Coercer.Detach();
+            this._Coercer.Attach(<TextBox>this.GetTemplateChild("Text", TextBox));
+
+            this.UpdateValidSpinDirection();
+            this.UpdateVisualState();
+        }
+
+        OnGotFocus(e: RoutedEventArgs) {
+            super.OnGotFocus(e);
+            this.UpdateVisualState();
+            if (this.IsEnabled)
+                this.TryEnterEditMode();
+        }
+        OnLostFocus(e: RoutedEventArgs) {
+            super.OnLostFocus(e);
+            this.UpdateVisualState();
+            if (this.IsEnabled)
+                this._Coercer.EscapeFocus();
+        }
+        OnMouseEnter(e: Fayde.Input.MouseEventArgs) {
+            super.OnMouseEnter(e);
+            this.UpdateVisualState();
+        }
+        OnMouseLeave(e: Fayde.Input.MouseEventArgs) {
+            super.OnMouseLeave(e);
+            this.UpdateVisualState();
+        }
+        OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs) {
+            super.OnMouseLeftButtonDown(e);
+            this.UpdateVisualState();
+        }
+        OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs) {
+            super.OnMouseLeftButtonUp(e);
+            this.UpdateVisualState();
+            if (this.IsEnabled && !this._Coercer.IsEditing) {
+                this.Focus();
+                this.TryEnterEditMode();
+            }
         }
 
         GoToStates(gotoFunc: (state: string) => boolean) {
@@ -194,209 +142,93 @@ module Fayde.Controls {
             this.GoToStateValid(gotoFunc);
         }
         GoToStateEditing(gotoFunc: (state: string) => boolean): boolean {
-            return gotoFunc(this.IsEditing ? "Edit" : "Display");
+            return gotoFunc(this._Coercer.IsEditing ? "Edit" : "Display");
         }
         GoToStateValid(gotoFunc: (state: string) => boolean): boolean {
-            return gotoFunc(this._IsInvalidInput ? "InvalidDomain" : "ValidDomain");
+            return gotoFunc(this._Coercer.IsInvalidInput ? "InvalidDomain" : "ValidDomain");
         }
 
-        OnKeyDown(e: Fayde.Input.KeyEventArgs) {
-            if (e != null && ((e.Key === Fayde.Input.Key.Enter || e.Key === Fayde.Input.Key.Space) && !this.IsEditing && this.IsEditable)) {
-                this.SetIsEditing(true);
-                e.Handled = true;
-            } else {
-                super.OnKeyDown(e);
-                if (e == null || e.Handled)
-                    return;
-                if (e.Key === Fayde.Input.Key.Escape) {
-                    this.SetIsInvalidInput(false);
-                    this.SetIsEditing(false);
-                    e.Handled = true;
-                } else if (!this.IsEditing && this.IsEditable)
-                    this.SetIsEditing(true);
-            }
+        private UpdateValidSpinDirection() {
+            if (!this._SpinFlow)
+                return;
+            var isCyclic = this.IsCyclic;
+            var curIndex = this.CurrentIndex;
+            this._SpinFlow.UpdateValid(isCyclic || curIndex > 0, isCyclic || curIndex < this.Items.Count - 1);
+        }
+        private TryEnterEditMode() {
+            if (this._Coercer.IsEditing)
+                return;
+            if (!this._CanEditByFocus && this.IsEditable)
+                this._Coercer.IsEditing = true;
         }
 
-        OnGotFocus(e: RoutedEventArgs) {
-            if (!this._Interaction.AllowGotFocus(e))
-                return;
-            this.TryEnterEditMode();
-            this.UpdateVisualState(true);
-            super.OnGotFocus(e);
+        OnIsEditingChanged(isEditing: boolean) {
+            this.UpdateVisualState();
         }
-        OnLostFocus(e: RoutedEventArgs) {
-            if (!this._Interaction.AllowLostFocus(e))
-                return;
-            if (!this._IsInvalidInput)
-                this.SetIsEditing(false);
-            else if (this.InvalidInputAction === InvalidInputAction.TextBoxCannotLoseFocus && this.XamlNode.GetFocusedElement() !== this._TextBox)
-                window.setTimeout(() => this._TextBox.Focus(), 1);
-            this._Interaction.OnLostFocusBase();
-            super.OnLostFocus(e);
-        }
-        OnMouseEnter(e: Fayde.Input.MouseEventArgs) {
-            if (!this._Interaction.AllowMouseEnter(e))
-                return;
-            this.UpdateVisualState(true);
-            super.OnMouseEnter(e);
-        }
-        OnMouseLeave(e: Fayde.Input.MouseEventArgs) {
-            if (!this._Interaction.AllowMouseLeave(e))
-                return;
-            this.UpdateVisualState(true);
-            super.OnMouseLeave(e);
-        }
-        OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs) {
-            if (!this._Interaction.AllowMouseLeftButtonDown(e))
-                return;
-            this.UpdateVisualState(true);
-            super.OnMouseLeftButtonDown(e);
-        }
-        OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs) {
-            if (!this._Interaction.AllowMouseLeftButtonUp(e))
-                return;
-            this.UpdateVisualState(true);
-            super.OnMouseLeftButtonUp(e);
-            if (!this.IsEditing) {
-                this.Focus();
-                this.TryEnterEditMode();
-            }
+        OnIsInvalidInputChanged(isInvalid: boolean) {
+            this.UpdateVisualState();
         }
 
-        private SetValidSpinDirection() {
-            var num = Enumerable.Count<any>(this.GetActualItems());
-            var validSpinDirections = ValidSpinDirections.None;
-            if (this.IsCyclic || this.CurrentIndex < num - 1)
-                validSpinDirections |= ValidSpinDirections.Decrease;
-            if (this.IsCyclic || this.CurrentIndex > 0)
-                validSpinDirections |= ValidSpinDirections.Increase;
-            if (this._Spinner)
-                this._Spinner.ValidSpinDirection = validSpinDirections;
+        OnSpin() {
+            this._Coercer.ProcessUserInput();
+        }
+        OnIncrement() {
+            if (this.CurrentIndex < this.Items.Count - 1)
+                this.CurrentIndex++;
+            else if (this.IsCyclic)
+                this.CurrentIndex = 0;
+            this._Coercer.IsInvalidInput = false;
+            this._CanEditByFocus = true;
+            this.Focus();
+            window.setTimeout(() => this._CanEditByFocus = false, 1);
+        }
+        OnDecrement() {
+            if (this.CurrentIndex > 0)
+                this.CurrentIndex--;
+            else if (this.IsCyclic)
+                this.CurrentIndex = this.Items.Count - 1;
+            this._Coercer.IsInvalidInput = false;
+            this._CanEditByFocus = true;
+            this.Focus();
+            window.setTimeout(() => this._CanEditByFocus = false, 1);
         }
 
-        private OnItemsChanged(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
-            if (this._CurrentIndexDuringInit != null && this._CurrentIndexDuringInit > -1 && this.IsValidCurrentIndex(this._CurrentIndexDuringInit)) {
-                this.Value = Enumerable.ElementAt<any>(this.GetActualItems(), this._CurrentIndexDuringInit);
-                this._CurrentIndexDuringInit = -1;
+        TryParseValue(text: string, ov: IOutValue): boolean {
+            if (!text) {
+                ov.Value = this.Value;
+                return true;
             }
-            else if (this._ValueDuringInit != null && Enumerable.Contains<any>(this.GetActualItems(), this._ValueDuringInit)) {
-                this.Value = this._ValueDuringInit;
-                this._ValueDuringInit = {};
-            }
-            else if (this.Value == null || !Enumerable.Contains<any>(this.GetActualItems(), this.Value))
-                this.Value = Enumerable.FirstOrDefault<any>(this.GetActualItems());
-            this.SetValidSpinDirection();
-        }
+            var vb = this._ValueBindingEvaluator;
+            ov.Value = Enumerable.FirstOrDefault<any>(this.Items, (item) => matchItem(vb, item, text));
+            if (ov.Value != null)
+                return true;
 
-        OnValueChanging(e: RoutedPropertyChangingEventArgs<any>) {
-            if (e != null && (e.NewValue == null && Enumerable.Count<any>(this.GetActualItems()) > 0 || e.NewValue != null && !Enumerable.Contains<any>(this.GetActualItems(), e.NewValue))) {
-                e.Cancel = true;
-                if (this._ValueDuringInit != null || e.NewValue == null)
-                    return;
-                this._ValueDuringInit = e.NewValue;
-            } else
-                super.OnValueChanging(e);
-        }
-        OnValueChanged(e: RoutedPropertyChangedEventArgs<any>) {
-            super.OnValueChanged(e);
-            this.CurrentIndex = getIndexOf(this.GetActualItems(), this.Value);
-            this.SetIsEditing(false);
-        }
+            ov.Value = this.Value;
+            if (this.InvalidInputAction === InvalidInputAction.TextBoxCannotLoseFocus)
+                return false;
 
-        ApplyValue(text: string) {
-            if (!this.IsEditable)
-                return;
-            this.SetIsEditing(true);
-            try {
-                this.Value = this.ParseValue(text);
-            } catch (err) {
-                var e = new UpDownParseErrorEventArgs(text, err);
-                this.OnParseError(e);
-                if (!e.Handled)
-                    this.SetTextBoxText();
-            } finally {
-                if (!this._IsInvalidInput || this.InvalidInputAction !== InvalidInputAction.TextBoxCannotLoseFocus)
-                    this.SetIsEditing(false);
+            if (this.InvalidInputAction === InvalidInputAction.UseFallbackItem) {
+                ov.Value = this.FallbackItem;
+                if (ov.Value == null || !this.Items.Contains(ov.Value))
+                    throw new ArgumentException("Cannot parse value.");
             }
-        }
-        ParseValue(text: string): any {
-            var obj: any = null;
-            if (!!text) {
-                var vb = this._ValueBindingEvaluator;
-                obj = Enumerable.FirstOrDefault<any>(this.GetActualItems(), function (item: any): boolean {
-                    var s: string;
-                    if (!vb)
-                        s = item.toString();
-                    else
-                        s = vb.GetDynamicValue(item) || "";
-                    return s === text
-                });
-                if (obj == null) {
-                    if (this.InvalidInputAction === InvalidInputAction.UseFallbackItem) {
-                        this.SetIsInvalidInput(false);
-                        if (this.FallbackItem != null && Enumerable.Contains<any>(this.GetActualItems(), this.FallbackItem))
-                            obj = this.FallbackItem;
-                        else
-                            throw new ArgumentException("Cannot parse value.");
-                    } else if (this.InvalidInputAction === InvalidInputAction.TextBoxCannotLoseFocus) {
-                        this.SetIsInvalidInput(true);
-                        obj = this.Value;
-                    }
-                } else
-                    this.SetIsInvalidInput(false);
-            } else {
-                this.SetIsInvalidInput(false);
-                obj = this.Value;
-            }
-            return obj;
+            return true;
         }
         FormatValue(): string {
-            if (!this.Value)
+            var val = this.Value;
+            if (!val)
+                return "";
+            if (!this.Items.Contains(val))
                 return "";
             try {
                 var vb = this._ValueBindingEvaluator;
                 if (vb)
-                    return vb.GetDynamicValue(this.Value);
+                    val = vb.GetDynamicValue(val);
             } catch (err) {
             }
-            return this.Value.toString();
-        }
-        OnIncrement() {
-            if (this.CurrentIndex > 0)
-                --this.CurrentIndex;
-            else if (this.IsCyclic)
-                this.CurrentIndex = Enumerable.Count<any>(this.GetActualItems()) - 1;
-            this.SetIsInvalidInput(false);
-            this._IsNotAllowedToEditByFocus = true;
-            this.Focus();
-            window.setTimeout(() => this._IsNotAllowedToEditByFocus = false, 1);
-        }
-        OnDecrement() {
-            if (this.IsValidCurrentIndex(this.CurrentIndex + 1))
-                ++this.CurrentIndex;
-            else if (this.IsCyclic)
-                this.CurrentIndex = 0;
-            this.SetIsInvalidInput(false);
-            this._IsNotAllowedToEditByFocus = true;
-            this.Focus();
-            window.setTimeout(() => this._IsNotAllowedToEditByFocus = false, 1);
-        }
-
-        private TryEnterEditMode() {
-            if (this._IsNotAllowedToEditByFocus || !this.IsEditable)
-                return;
-            this.SetIsEditing(true);
-        }
-        SelectAllText() { }
-
-        private CoerceSelectedIndex(index: number): number {
-            if (this.IsValidCurrentIndex(index))
-                return index;
-            return Enumerable.Count<any>(this.GetActualItems()) == 0 ? -1 : 0;
-        }
-        private IsValidCurrentIndex(value: number): boolean {
-            var num = Enumerable.Count<any>(this.GetActualItems());
-            return value === -1 && num === 0 || value >= 0 && value < num;
+            if (typeof val === "string")
+                return val;
+            return "";
         }
     }
     TemplateVisualStates(DomainUpDown,
@@ -412,14 +244,19 @@ module Fayde.Controls {
         { GroupName: "DomainStates", Name: "ValidDomain" },
         { GroupName: "DomainStates", Name: "InvalidDomain" });
 
-    function getIndexOf(sequence: Fayde.IEnumerable<any>, item: any): number {
-        var i = 0;
-        var enumerator = sequence.GetEnumerator();
-        while (enumerator.MoveNext()) {
-            if (enumerator.Current === item)
-                return i;
-            i++;
+
+    function inputActionValidator(d: DependencyObject, propd: DependencyProperty, value: any):boolean {
+        switch (value) {
+            case InvalidInputAction.UseFallbackItem:
+            case InvalidInputAction.TextBoxCannotLoseFocus:
+                return true;
+            default:
+                return false;
         }
-        return -1;
+    }
+    function matchItem(evaluator: Internal.BindingSourceEvaluator<string>, item: any, text: string): boolean {
+        if (!evaluator)
+            return text === item.toString();
+        return text === (evaluator.GetDynamicValue(item) || "");
     }
 }

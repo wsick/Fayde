@@ -9,7 +9,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -32,7 +32,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>9532</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:57410/</IISUrl>
+          <IISUrl>http://localhost/Fayde.Controls</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
@@ -60,8 +60,13 @@
     <TypeScriptCompile Include="GridSplitter.ts" />
     <TypeScriptCompile Include="HeaderedItemsControl.ts" />
     <TypeScriptCompile Include="Internal\GridSplitterResizer.ts" />
+    <TypeScriptCompile Include="Internal\FormattedRangeCoercer.ts" />
+    <TypeScriptCompile Include="Internal\TextBoxFormatter.ts" />
+    <TypeScriptCompile Include="Internal\SpinFlow.ts" />
+    <TypeScriptCompile Include="Internal\DomainCoercer.ts" />
+    <TypeScriptCompile Include="Internal\MultiClickHelper.ts" />
     <Content Include="Themes\awaiting-generic.xml" />
-    <TypeScriptCompile Include="ButtonSpinner.ts" />
+    <TypeScriptCompile Include="Spinner.ts" />
     <TypeScriptCompile Include="ContextMenu.ts" />
     <TypeScriptCompile Include="ContextMenuService.ts" />
     <TypeScriptCompile Include="DomainUpDown.ts" />
@@ -74,14 +79,11 @@
     <Content Include="require.d.ts" />
     <TypeScriptCompile Include="Separator.ts" />
     <TypeScriptCompile Include="SpinEventArgs.ts" />
-    <TypeScriptCompile Include="Spinner.ts" />
     <TypeScriptCompile Include="UpDownBase.ts" />
     <TypeScriptCompile Include="UpDownParseErrorEventArgs.ts" />
     <TypeScriptCompile Include="UpDownParsingEventArgs.ts" />
-    <TypeScriptCompile Include="Internal\InteractionHelper.ts" />
-    <TypeScriptCompile Include="Internal\NumericExtensions.ts" />
     <TypeScriptCompile Include="Internal\ItemsControlHelper.ts" />
-    <TypeScriptCompile Include="Internal\ScrollExtensions.ts" />
+    <TypeScriptCompile Include="Internal\ScrollEx.ts" />
     <TypeScriptCompile Include="TreeViewItem.ts" />
     <TypeScriptCompile Include="TreeView.ts" />
     <TypeScriptCompile Include="Fayde.d.ts" />

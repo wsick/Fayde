@@ -1,6 +1,5 @@
 module Fayde.Controls {
-    import NumericExtensions = Internal.NumericExtensions;
-    import ScrollExtensions = Internal.ScrollExtensions;
+    import ScrollEx = Internal.ScrollEx;
 
     export class TreeView extends ItemsControl {
         static SelectedItemProperty = DependencyProperty.Register("SelectedItem", () => Object, TreeView, null, (d, args) => (<TreeView>d).OnSelectedItemChanged(args));
@@ -49,7 +48,6 @@ module Fayde.Controls {
         IsSelectedContainerHookedUp: boolean;
         IsSelectionChangeActive: boolean;
         ItemsControlHelper: Internal.ItemsControlHelper;
-        private Interaction: Internal.InteractionHelper;
 
         private SelectedItemChanged = new RoutedPropertyChangedEvent<any>();
 
@@ -57,7 +55,6 @@ module Fayde.Controls {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
             this.ItemsControlHelper = new Internal.ItemsControlHelper(this);
-            this.Interaction = new Internal.InteractionHelper(this);
         }
 
         OnApplyTemplate() {
@@ -139,12 +136,10 @@ module Fayde.Controls {
             this.OnKeyDown(e);
         }
         OnKeyDown(e: Input.KeyEventArgs) {
-            if (!this.Interaction.AllowKeyDown(e))
-                return;
             super.OnKeyDown(e);
-            if (e.Handled)
+            if (e.Handled || !this.IsEnabled)
                 return;
-            if (isControlKeyDown()) {
+            if (Input.Keyboard.HasControl()) {
                 switch (e.Key) {
                     case Input.Key.PageUp:
                     case Input.Key.PageDown:
@@ -154,13 +149,11 @@ module Fayde.Controls {
                     case Input.Key.Up:
                     case Input.Key.Right:
                     case Input.Key.Down:
-                        if (!this.HandleScrollKeys(e.Key))
-                            break;
-                        e.Handled = true;
+                        if (ScrollEx.HandleKey(this.ItemsControlHelper.ScrollHost, e.Key, this.FlowDirection))
+                            e.Handled = true;
                         break;
                 }
-            }
-            else {
+            } else {
                 switch (e.Key) {
                     case Input.Key.PageUp:
                     case Input.Key.PageDown:
@@ -195,51 +188,13 @@ module Fayde.Controls {
                 }
             }
         }
-        private HandleScrollKeys(key: Input.Key): boolean {
-            var scrollHost = this.ItemsControlHelper.ScrollHost;
-            if (scrollHost != null) {
-                switch (Internal.InteractionHelper.GetLogicalKey(this.FlowDirection, key)) {
-                    case Input.Key.PageUp:
-                        if (!NumericExtensions.IsGreaterThan(scrollHost.ExtentHeight, scrollHost.ViewportHeight))
-                            ScrollExtensions.PageLeft(scrollHost);
-                        else
-                            ScrollExtensions.PageUp(scrollHost);
-                        return true;
-                    case Input.Key.PageDown:
-                        if (!NumericExtensions.IsGreaterThan(scrollHost.ExtentHeight, scrollHost.ViewportHeight))
-                            ScrollExtensions.PageRight(scrollHost);
-                        else
-                            ScrollExtensions.PageDown(scrollHost);
-                        return true;
-                    case Input.Key.End:
-                        ScrollExtensions.ScrollToBottom(scrollHost);
-                        return true;
-                    case Input.Key.Home:
-                        ScrollExtensions.ScrollToTop(scrollHost);
-                        return true;
-                    case Input.Key.Left:
-                        ScrollExtensions.LineLeft(scrollHost);
-                        return true;
-                    case Input.Key.Up:
-                        ScrollExtensions.LineUp(scrollHost);
-                        return true;
-                    case Input.Key.Right:
-                        ScrollExtensions.LineRight(scrollHost);
-                        return true;
-                    case Input.Key.Down:
-                        ScrollExtensions.LineDown(scrollHost);
-                        return true;
-                }
-            }
-            return false;
-        }
         private HandleScrollByPage(up: boolean): boolean {
             var scrollHost = this.ItemsControlHelper.ScrollHost;
             if (scrollHost != null) {
                 var viewportHeight = scrollHost.ViewportHeight;
                 var top: IOutValue = { Value: 0 };
                 var bottom: IOutValue = { Value: 0 };
-                ScrollExtensions.GetTopAndBottom(this.SelectedContainer.HeaderElement || this.SelectedContainer, scrollHost, top, bottom);
+                ScrollEx.GetTopAndBottom(this.SelectedContainer.HeaderElement || this.SelectedContainer, scrollHost, top, bottom);
                 var tvi1: TreeViewItem = null;
                 var tvi2 = this.SelectedContainer;
                 var itemsControl = this.SelectedContainer.ParentItemsControl;
@@ -263,7 +218,7 @@ module Fayde.Controls {
                             var currentDelta: IOutValue = { Value: 0 };
                             if (tvi2.HandleScrollByPage(up, scrollHost, viewportHeight, top.Value, bottom.Value, currentDelta))
                                 return true;
-                            if (NumericExtensions.IsGreaterThan(currentDelta.Value, viewportHeight)) {
+                            if (NumberEx.IsGreaterThanClose(currentDelta.Value, viewportHeight)) {
                                 if (tvi1 === this.SelectedContainer || tvi1 == null) {
                                     if (!up)
                                         return this.SelectedContainer.HandleDownKey();
@@ -311,60 +266,42 @@ module Fayde.Controls {
             return false;
         }
 
-        OnKeyUp(e: Input.KeyEventArgs) {
-            if (!this.Interaction.AllowKeyUp(e))
-                return;
-            super.OnKeyUp(e);
-        }
-
         OnMouseEnter(e: Input.MouseEventArgs) {
-            if (!this.Interaction.AllowMouseEnter(e))
-                return;
-            this.UpdateVisualState(true);
             super.OnMouseEnter(e);
+            this.UpdateVisualState();
         }
         OnMouseLeave(e: Input.MouseEventArgs) {
-            if (!this.Interaction.AllowMouseLeave(e))
-                return;
-            this.UpdateVisualState(true);
             super.OnMouseLeave(e);
+            this.UpdateVisualState();
         }
         OnMouseMove(e: Input.MouseEventArgs) {
             super.OnMouseMove(e);
+            this.UpdateVisualState();
         }
         OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
-            if (!this.Interaction.AllowMouseLeftButtonDown(e))
-                return;
+            super.OnMouseLeftButtonDown(e);
             if (!e.Handled && this.HandleMouseButtonDown())
                 e.Handled = true;
-            this.UpdateVisualState(true);
-            super.OnMouseLeftButtonDown(e);
-        }
-        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {
-            if (!this.Interaction.AllowMouseLeftButtonUp(e))
-                return;
-            this.UpdateVisualState(true);
-            super.OnMouseLeftButtonUp(e);
+            this.UpdateVisualState();
         }
         HandleMouseButtonDown(): boolean {
             if (!this.SelectedContainer)
                 return false;
-            if (this.SelectedContainer.IsFocused)
+            if (!this.SelectedContainer.IsFocused)
                 this.SelectedContainer.Focus();
             return true;
         }
-
+        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {
+            super.OnMouseLeftButtonUp(e);
+            this.UpdateVisualState();
+        }
         OnGotFocus(e: RoutedEventArgs) {
-            if (!this.Interaction.AllowGotFocus(e))
-                return;
-            this.UpdateVisualState(true);
             super.OnGotFocus(e);
+            this.UpdateVisualState();
         }
         OnLostFocus(e: RoutedEventArgs) {
-            if (!this.Interaction.AllowLostFocus(e))
-                return;
-            this.Interaction.OnLostFocusBase();
             super.OnLostFocus(e);
+            this.UpdateVisualState();
         }
 
         ChangeSelection(itemOrContainer: any, container: TreeViewItem, selected: boolean) {
@@ -452,7 +389,6 @@ module Fayde.Controls {
     TemplateVisualStates(TreeView,
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },
-        { GroupName: "CommonStates", Name: "Pressed" },
         { GroupName: "CommonStates", Name: "Disabled" },
         { GroupName: "FocusStates", Name: "Unfocused" },
         { GroupName: "FocusStates", Name: "Focused" },
@@ -483,11 +419,4 @@ module Fayde.Controls {
             }
         }
     });
-
-    function isControlKeyDown(): boolean {
-        return (Input.Keyboard.Modifiers & Input.ModifierKeys.Control) === Input.ModifierKeys.Control;
-    }
-    function isShiftKeyDown(): boolean {
-        return (Input.Keyboard.Modifiers & Input.ModifierKeys.Shift) === Input.ModifierKeys.Shift;
-    }
 }

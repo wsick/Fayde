@@ -144,6 +144,7 @@ declare module Fayde.Collections {
         public CollectionChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
         public PropertyChanged: MulticastEvent<Fayde.PropertyChangedEventArgs>;
         public Count : number;
+        public ToArray(): T[];
         public GetValueAt(index: number): T;
         public SetValueAt(index: number, value: T): void;
         public Add(value: T): void;
@@ -567,6 +568,7 @@ declare module Fayde {
         public XamlNode: UINode;
         private _ClipListener;
         private _EffectListener;
+        private _TransformListener;
         public CreateNode(): UINode;
         public CreateLayoutUpdater(uin: UINode): Fayde.LayoutUpdater;
         public VisualParent : UIElement;
@@ -655,6 +657,7 @@ declare module Fayde {
         private _UseLayoutRoundingChanged(args);
         private _IsHitTestVisibleChanged(args);
         private _TriggersChanged(args);
+        private _RenderTransformChanged(args);
         public MeasureOverride(availableSize: size): size;
         public ArrangeOverride(finalSize: size): size;
     }
@@ -1032,7 +1035,6 @@ declare module Fayde.Controls {
         public Template: Controls.ControlTemplate;
         public VerticalContentAlignment: Fayde.VerticalAlignment;
         public DefaultStyleKey: Function;
-        private _IsMouseOver;
         public IsFocused : boolean;
         public GetTemplateChild(childName: string, type?: Function): Fayde.DependencyObject;
         public ApplyTemplate(): boolean;
@@ -1333,42 +1335,40 @@ declare module Fayde.Controls {
         public _SetItemsPresenter(presenter: Controls.ItemsPresenter): void;
     }
     class ItemsControl extends Controls.Control {
-        private _ItemsIsDataBound;
-        private _Items;
-        private _DisplayMemberTemplate;
         public XamlNode: ItemsControlNode;
         public CreateNode(): ItemsControlNode;
+        private static _ItemsSourceValidator(d, propd, value);
         static DisplayMemberPathProperty: DependencyProperty;
         static ItemsPanelProperty: DependencyProperty;
         static ItemsSourceProperty: DependencyProperty;
-        static ItemTemplateProperty: DependencyProperty;
         static ItemsProperty: ImmutableDependencyProperty<Controls.ItemCollection>;
+        static ItemTemplateProperty: DependencyProperty;
         public DisplayMemberPath: string;
         public ItemsPanel: Controls.ItemsPanelTemplate;
+        public ItemsSource: Fayde.IEnumerable<any>;
+        public Items: Controls.ItemCollection;
         public ItemTemplate: Fayde.DataTemplate;
-        public Items : Controls.ItemCollection;
-        private $Items;
-        public ItemsSource : Fayde.IEnumerable<any>;
-        public $DisplayMemberTemplate : Fayde.DataTemplate;
-        public ItemContainerGenerator: Controls.ItemContainerGenerator;
-        constructor();
+        public OnDisplayMemberPathChanged(e: IDependencyPropertyChangedEventArgs): void;
+        public OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs): void;
+        public OnItemTemplateChanged(e: IDependencyPropertyChangedEventArgs): void;
+        private _DisplayMemberTemplate;
+        private _Manager;
+        private _ItemContainerGenerator;
+        public ItemContainerGenerator : Controls.ItemContainerGenerator;
         public Panel : Controls.Panel;
         static GetItemsOwner(uie: Fayde.UIElement): ItemsControl;
         static ItemsControlFromItemContainer(container: Fayde.DependencyObject): ItemsControl;
-        public OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs): void;
-        private _CollectionChanged(sender, e);
-        public OnDisplayMemberPathChanged(e: IDependencyPropertyChangedEventArgs): void;
+        constructor();
+        public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
+        public OnICGItemsChanged(sender: any, e: Controls.Primitives.ItemsChangedEventArgs): void;
+        public AddItemsToPresenter(position: Controls.IGeneratorPosition, count: number): void;
+        public RemoveItemsFromPresenter(position: Controls.IGeneratorPosition, count: number): void;
+        public UpdateContentTemplateOnContainer(element: Fayde.DependencyObject, item: any): void;
         public PrepareContainerForItem(container: Fayde.DependencyObject, item: any): void;
         public ClearContainerForItem(container: Fayde.DependencyObject, item: any): void;
         public GetContainerForItem(): Fayde.DependencyObject;
         public IsItemItsOwnContainer(item: any): boolean;
-        public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
-        public InvokeItemsChanged(sender: any, e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
-        public OnItemContainerGeneratorChanged(sender: any, e: Controls.Primitives.ItemsChangedEventArgs): void;
-        public OnItemTemplateChanged(e: IDependencyPropertyChangedEventArgs): void;
-        public AddItemsToPresenter(position: Controls.IGeneratorPosition, count: number): void;
-        public RemoveItemsFromPresenter(position: Controls.IGeneratorPosition, count: number): void;
-        public UpdateContentTemplateOnContainer(element: Fayde.DependencyObject, item: any): void;
+        private _GetDisplayMemberTemplate();
     }
 }
 declare module Fayde.Controls.Primitives {
@@ -1390,7 +1390,6 @@ declare module Fayde.Controls.Primitives {
         public SelectionChanged: Fayde.RoutedEvent<Primitives.SelectionChangedEventArgs>;
         private _Selection;
         private _SelectedItems;
-        private _Initializing;
         public _SelectedItemsIsInvalid: boolean;
         public $TemplateScrollViewer: Controls.ScrollViewer;
         private _SelectedValueWalker;
@@ -1566,13 +1565,6 @@ declare module Fayde.Controls {
 }
 declare module Fayde.Controls.Primitives {
     class RangeBase extends Controls.Control {
-        private _LevelsFromRootCall;
-        private _InitialMax;
-        private _InitialVal;
-        private _RequestedMax;
-        private _RequestedVal;
-        private _PreCoercedMax;
-        private _PreCoercedVal;
         static MinimumProperty: DependencyProperty;
         static MaximumProperty: DependencyProperty;
         static LargeChangeProperty: DependencyProperty;
@@ -1583,16 +1575,12 @@ declare module Fayde.Controls.Primitives {
         public SmallChange: number;
         public LargeChange: number;
         public Value: number;
-        public ValueChanged: Fayde.RoutedPropertyChangedEvent<number>;
         public OnMinimumChanged(oldMin: number, newMin: number): void;
         public OnMaximumChanged(oldMax: number, newMax: number): void;
-        private RaiseValueChanged(oldVal, newVal);
         public OnValueChanged(oldVal: number, newVal: number): void;
-        private _OnMinimumChanged(args);
-        private _OnMaximumChanged(args);
-        private _OnValueChanged(args);
-        private _CoerceMaximum();
-        private _CoerceValue();
+        public ValueChanged: Fayde.RoutedPropertyChangedEvent<number>;
+        private _Coercer;
+        constructor();
     }
 }
 declare module Fayde.Controls.Primitives {
@@ -1690,7 +1678,7 @@ declare module Fayde.Controls.Primitives {
         private _LargeIncrement(sender, e);
         private _HandleSizeChanged(sender, e);
         private _OnOrientationChanged();
-        private _UpdateTrackLayout(trackLength);
+        private _UpdateTrackLayout();
         private _UpdateThumbSize(trackLength);
         private _GetTrackLength();
         private _ConvertViewportSizeToDisplayUnits(trackLength);
@@ -2020,6 +2008,7 @@ declare module Fayde.Controls {
     interface IItemCollection {
         ItemsChanged: MulticastEvent<Fayde.Collections.NotifyCollectionChangedEventArgs>;
         ToArray(): any[];
+        Count: number;
         GetValueAt(index: number): any;
         GetRange(startIndex: number, endIndex: number): any[];
         SetValueAt(index: number, value: any): any;
@@ -2531,9 +2520,9 @@ declare module Fayde.Controls {
         static IsIndeterminateProperty: DependencyProperty;
         public IsIndeterminate: boolean;
         private OnIsIndeterminateChanged(args);
-        public OnValueChanged(oldValue: number, newValue: number): void;
-        public OnMaximumChanged(oldMaximum: number, newMaximum: number): void;
         public OnMinimumChanged(oldMinimum: number, newMinimum: number): void;
+        public OnMaximumChanged(oldMaximum: number, newMaximum: number): void;
+        public OnValueChanged(oldValue: number, newValue: number): void;
         constructor();
         public OnApplyTemplate(): void;
         public GoToStates(gotoFunc: (state: string) => boolean): void;
@@ -5317,6 +5306,7 @@ declare module Fayde.Media.VSM {
         private static GoToStateInternal(control, element, group, state, useTransitions);
         static DestroyStoryboards(control: Fayde.Controls.Control, root: Fayde.FrameworkElement): boolean;
         private static _GetTemplateRoot(control);
+        static GetGroup(control: Fayde.Controls.Control, name: string): VSM.VisualStateGroup;
         private static _TryGetState(groups, stateName, data);
         private static _GetTransition(element, group, from, to);
     }
@@ -5687,10 +5677,12 @@ declare module Fayde {
         public Average(func: (t: T) => number): number;
         static Count<S>(enumerable: Fayde.IEnumerable<S>): number;
         static Contains<S>(enumerable: Fayde.IEnumerable<S>, item: S): boolean;
+        static IndexOf<S>(enumerable: Fayde.IEnumerable<S>, item: S): number;
         static FirstOrDefault<S>(enumerable: Fayde.IEnumerable<S>, filter?: (item: S) => boolean): S;
         static ElementAt<S>(enumerable: Fayde.IEnumerable<S>, index: number): S;
         static ElementAtOrDefault<S>(enumerable: Fayde.IEnumerable<S>, index: number): S;
         static Where<S>(enumerable: Fayde.IEnumerable<S>, filter: (item: S) => boolean): Fayde.IEnumerable<S>;
+        static ToArray<S>(enumerable: Fayde.IEnumerable<S>): S[];
     }
 }
 interface IPropertyInfo {
@@ -6514,6 +6506,77 @@ declare module Fayde {
 }
 declare module Fayde.Providers {
     function SwapStyles(fe: Fayde.FrameworkElement, oldWalker: Fayde.IStyleWalker, newWalker: Fayde.IStyleWalker, isImplicit: boolean): void;
+}
+declare module Fayde {
+    function _VisualTree(id: number): string;
+}
+declare module Fayde.Controls.Internal {
+    interface IRange {
+        Minimum: number;
+        Maximum: number;
+        Value: number;
+        OnMinimumChanged(oldMin: number, newMin: number): any;
+        OnMaximumChanged(oldMax: number, newMax: number): any;
+        OnValueChanged(oldVal: number, newVal: number): any;
+    }
+    interface IRangeCoercer {
+        OnMinimumChanged(oldMinimum: number, newMinimum: number): any;
+        OnMaximumChanged(oldMaximum: number, newMaximum: number): any;
+        OnValueChanged(oldValue: number, newValue: number): any;
+    }
+    class RangeCoercer implements IRangeCoercer {
+        public Range: IRange;
+        public OnCoerceMaximum: (val: any) => void;
+        public OnCoerceValue: (val: any) => void;
+        public InitialMax: number;
+        public InitialVal: number;
+        public RequestedMax: number;
+        public RequestedVal: number;
+        public PreCoercedMax: number;
+        public PreCoercedVal: number;
+        public CoerceDepth: number;
+        public Minimum : number;
+        public Maximum : number;
+        public Value : number;
+        constructor(Range: IRange, OnCoerceMaximum: (val: any) => void, OnCoerceValue: (val: any) => void);
+        public OnMinimumChanged(oldMinimum: number, newMinimum: number): void;
+        public OnMaximumChanged(oldMaximum: number, newMaximum: number): void;
+        public OnValueChanged(oldValue: number, newValue: number): void;
+        public CoerceMaximum(): void;
+        public CoerceValue(): void;
+    }
+}
+declare module Fayde.Controls.Internal {
+    interface ICollection {
+        IsReadOnly: boolean;
+        Count: number;
+        IndexOf(value: any): number;
+        Contains(value: any): boolean;
+        GetValueAt(index: number): any;
+        Add(val: any): any;
+        AddRange(vals: any[]): any;
+        Insert(index: number, val: any): any;
+        RemoveAt(index: number): any;
+        SetValueAt(index: number, val: any): any;
+        Clear(): any;
+    }
+    interface IItemsOwner {
+        Items: ICollection;
+        ItemsSource: Fayde.IEnumerable<any>;
+        OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): any;
+    }
+    interface IItemsManager {
+        Items: ICollection;
+        OnItemsSourceChanged(oldItemsSource: Fayde.IEnumerable<any>, newItemsSource: Fayde.IEnumerable<any>): any;
+    }
+    class ItemsManager implements IItemsManager {
+        public Owner: IItemsOwner;
+        public Items: ICollection;
+        constructor(Owner: IItemsOwner);
+        public OnItemsChanged(sender: any, e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
+        public OnItemsSourceChanged(oldItemsSource: Fayde.IEnumerable<any>, newItemsSource: Fayde.IEnumerable<any>): void;
+        private _CollectionChanged(sender, e);
+    }
 }
 declare module Fayde.Xaml {
     interface IMarkupParseContext {

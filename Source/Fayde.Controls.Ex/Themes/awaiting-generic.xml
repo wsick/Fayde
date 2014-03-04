@@ -1072,7 +1072,7 @@
                                 </Grid>
                             </Border>
                         </Popup>
-                        <input:ButtonSpinner x:Name="Spinner" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" Style="{TemplateBinding SpinnerStyle}" MinWidth="35" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
+                        <input:Spinner x:Name="Spinner" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" Style="{TemplateBinding SpinnerStyle}" MinWidth="35" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                             <TextBox x:Name="Text" BorderThickness="0" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontStretch="{TemplateBinding FontStretch}" FontStyle="{TemplateBinding FontStyle}" FontWeight="{TemplateBinding FontWeight}" Foreground="{TemplateBinding Foreground}" MinWidth="20" AcceptsReturn="False" Text="{TemplateBinding Value}" TextAlignment="Right" TextWrapping="NoWrap">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -1086,7 +1086,7 @@
                                     </Style>
                                 </TextBox.Style>
                             </TextBox>
-                        </input:ButtonSpinner>
+                        </input:Spinner>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

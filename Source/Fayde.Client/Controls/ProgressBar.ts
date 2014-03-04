@@ -12,16 +12,16 @@ module Fayde.Controls {
             this.UpdateVisualState();
         }
 
-        OnValueChanged(oldValue: number, newValue: number) {
-            super.OnValueChanged(oldValue, newValue);
+        OnMinimumChanged(oldMinimum: number, newMinimum: number) {
+            super.OnMinimumChanged(oldMinimum, newMinimum);
             this._UpdateIndicator();
         }
         OnMaximumChanged(oldMaximum: number, newMaximum: number) {
             super.OnMaximumChanged(oldMaximum, newMaximum);
             this._UpdateIndicator();
         }
-        OnMinimumChanged(oldMinimum: number, newMinimum: number) {
-            super.OnMinimumChanged(oldMinimum, newMinimum);
+        OnValueChanged(oldValue: number, newValue: number) {
+            super.OnValueChanged(oldValue, newValue);
             this._UpdateIndicator();
         }
 

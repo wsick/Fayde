@@ -18,6 +18,7 @@
     <!--<tests:ImageTest />-->
     <!--<tests:ScrollBarTest />-->
     <Grid>
+        <!--<tests:UpDownTest />-->
         <tests:ListBoxTest />
         <!--<tests:GridSplitterTest />-->
         <!--<tests:ListBoxSelectionTest />-->

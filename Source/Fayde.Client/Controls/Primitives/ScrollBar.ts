@@ -9,7 +9,7 @@ module Fayde.Controls.Primitives {
         Scroll: RoutedEvent<ScrollEventArgs> = new RoutedEvent<ScrollEventArgs>();
 
         static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), ScrollBar, Orientation.Horizontal, (d, args) => (<ScrollBar>d)._OnOrientationChanged());
-        static ViewportSizeProperty: DependencyProperty = DependencyProperty.Register("ViewportSize", () => Number, ScrollBar, 0, (d, args) => (<ScrollBar>d)._UpdateTrackLayout((<ScrollBar>d)._GetTrackLength()));
+        static ViewportSizeProperty: DependencyProperty = DependencyProperty.Register("ViewportSize", () => Number, ScrollBar, 0, (d, args) => (<ScrollBar>d)._UpdateTrackLayout());
         Orientation: Orientation;
         ViewportSize: number;
 
@@ -96,19 +96,16 @@ module Fayde.Controls.Primitives {
         }
 
         OnMaximumChanged(oldMax: number, newMax: number) {
-            var trackLength = this._GetTrackLength();
             super.OnMaximumChanged(oldMax, newMax);
-            this._UpdateTrackLayout(trackLength);
+            this._UpdateTrackLayout();
         }
         OnMinimumChanged(oldMin: number, newMin: number) {
-            var trackLength = this._GetTrackLength();
             super.OnMinimumChanged(oldMin, newMin);
-            this._UpdateTrackLayout(trackLength);
+            this._UpdateTrackLayout();
         }
         OnValueChanged(oldValue: number, newValue: number) {
-            var trackLength = this._GetTrackLength();
             super.OnValueChanged(oldValue, newValue);
-            this._UpdateTrackLayout(trackLength);
+            this._UpdateTrackLayout();
         }
 
         private _OnThumbDragStarted(sender, e: DragStartedEventArgs) {
@@ -176,7 +173,7 @@ module Fayde.Controls.Primitives {
         }
 
         private _HandleSizeChanged(sender, e: EventArgs) {
-            this._UpdateTrackLayout(this._GetTrackLength());
+            this._UpdateTrackLayout();
         }
         private _OnOrientationChanged() {
             var isHorizontal = this.Orientation === Orientation.Horizontal;
@@ -186,9 +183,10 @@ module Fayde.Controls.Primitives {
             if (this.$VerticalTemplate) {
                 this.$VerticalTemplate.Visibility = isHorizontal ? Visibility.Collapsed : Visibility.Visible;
             }
-            this._UpdateTrackLayout(this._GetTrackLength());
+            this._UpdateTrackLayout();
         }
-        private _UpdateTrackLayout(trackLength: number) {
+        private _UpdateTrackLayout() {
+            var trackLength = this._GetTrackLength();
             var max = this.Maximum;
             var min = this.Minimum;
             var val = this.Value;

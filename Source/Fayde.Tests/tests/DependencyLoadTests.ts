@@ -1,11 +1,11 @@
-/// <reference path="../scripts/qunit.d.ts" />
-/// <reference path="../scripts/Fayde.d.ts" />
+/// <reference path="../lib/qunit/qunit.d.ts" />
+/// <reference path="../lib/Fayde/Fayde.d.ts" />
 
 export function run() {
     QUnit.module("Dependency Loading Tests");
 
     asyncTest("XamlDocument Load", () => {
-        Fayde.Xaml.XamlDocument.Resolve("Theme.Silverlight.xml")
+        Fayde.Xaml.XamlDocument.GetAsync("Theme.Silverlight.xml")
             .success(res => {
                 start();
                 ok(true, "Xaml Document resolved.");
@@ -17,7 +17,7 @@ export function run() {
     });
 
     asyncTest("XamlDocument Missing Load", () => {
-        Fayde.Xaml.XamlDocument.Resolve("nofile.xml")
+        Fayde.Xaml.XamlDocument.GetAsync("nofile.xml")
             .success(res => {
                 start();
                 ok(false, "Xaml Document resolved.");
@@ -29,19 +29,18 @@ export function run() {
     });
 
     asyncTest("Library Load", () => {
-        Fayde.RegisterLibrary("Fayde.Controls", "mocks/Fayde.Controls/source.js", "mocks/Fayde.Controls/generic.xml");
         var library = Fayde.Library.Get("lib:Fayde.Controls");
         var timeout = setTimeout(() => {
             start();
             ok(false, "Timed out.");
         }, 1000);
-        library.Resolve()
+        library.Resolve({ ThemeName: "Default", Resolving: [] })
             .success(res => {
                 window.clearTimeout(timeout);
                 start();
                 ok(!!res.Module);
-                ok(!!res.Theme);
-                ok(res.Theme.Resources.Count > 0);
+                ok(!!res.CurrentTheme);
+                ok(res.CurrentTheme.Resources.Count > 0);
             })
             .error(error => {
                 window.clearTimeout(timeout);

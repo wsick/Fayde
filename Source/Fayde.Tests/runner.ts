@@ -3,6 +3,7 @@ import TypeConverterTests = require("tests/TypeConverterTests");
 import MarkupExpressionTests = require("tests/MarkupExpressionTests");
 import XamlNodeTests = require("tests/XamlNodeTests");
 import ProviderTests = require("tests/ProviderTests");
+import DependencyPropertyTests = require("tests/DependencyPropertyTests");
 import XamlLoadTests = require("tests/XamlLoadTests");
 import DataTemplateTests = require("tests/DataTemplateTests");
 import TransformTests = require("tests/TransformTests");
@@ -18,6 +19,7 @@ export function run() {
     MarkupExpressionTests.run();
     XamlNodeTests.run();
     ProviderTests.run();
+    DependencyPropertyTests.run();
     XamlLoadTests.run();
     DataTemplateTests.run();
     TransformTests.run();

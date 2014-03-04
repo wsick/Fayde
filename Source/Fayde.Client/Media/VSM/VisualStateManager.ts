@@ -123,6 +123,20 @@ module Fayde.Media.VSM {
             }
             return (node) ? node.XObject : null;
         }
+        static GetGroup(control: Controls.Control, name: string): VisualStateGroup {
+            var root = VisualStateManager._GetTemplateRoot(control);
+            if (!root)
+                return null;
+            var groups = VisualStateManager.GetVisualStateGroups(root);
+            if (!groups)
+                return null;
+            var enumerator = groups.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                if (enumerator.Current.Name === name)
+                    return enumerator.Current;
+            }
+            return null;
+        }
         private static _TryGetState(groups: VisualStateGroupCollection, stateName: string, data: IStateData): boolean {
             var enumerator = groups.GetEnumerator();
             while (enumerator.MoveNext()) {

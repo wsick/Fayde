@@ -1,0 +1,14 @@
+<Page xmlns="http://schemas.wsick.com/fayde"
+      xmlns:x="http://schemas.wsick.com/fayde/x"
+      xmlns:controls="lib:Fayde.Controls"
+      Title="Home">
+    <StackPanel Margin="5">
+        <controls:DomainUpDown Margin="5" IsCyclic="True" ItemsSource="{Binding States}" Height="Auto" HorizontalAlignment="Left" Width="400">
+            <controls:DomainUpDown.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Margin="4,2" FontSize="34" Text="{Binding Name}" />
+                </DataTemplate>
+            </controls:DomainUpDown.ItemTemplate>
+        </controls:DomainUpDown>
+    </StackPanel>
+</Page>
