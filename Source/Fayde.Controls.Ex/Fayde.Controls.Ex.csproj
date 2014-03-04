@@ -60,7 +60,7 @@
     <TypeScriptCompile Include="GridSplitter.ts" />
     <TypeScriptCompile Include="HeaderedItemsControl.ts" />
     <TypeScriptCompile Include="Internal\GridSplitterResizer.ts" />
-    <TypeScriptCompile Include="Internal\IncrementRangeCoercer.ts" />
+    <TypeScriptCompile Include="Internal\FormattedRangeCoercer.ts" />
     <TypeScriptCompile Include="Internal\TextBoxFormatter.ts" />
     <TypeScriptCompile Include="Internal\SpinFlow.ts" />
     <TypeScriptCompile Include="Internal\DomainCoercer.ts" />
