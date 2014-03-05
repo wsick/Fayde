@@ -16,12 +16,12 @@ module Fayde.Collections {
         OldItems: any[];
         NewItems: any[];
 
-        static Reset(): NotifyCollectionChangedEventArgs {
+        static Reset(allValues: any[]): NotifyCollectionChangedEventArgs {
             var args = new NotifyCollectionChangedEventArgs();
             Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Reset, writable: false });
-            Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "OldStartingIndex", { value: 0, writable: false });
             Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
-            Object.defineProperty(args, "OldItems", { value: null, writable: false });
+            Object.defineProperty(args, "OldItems", { value: allValues, writable: false });
             Object.defineProperty(args, "NewItems", { value: null, writable: false });
             return args;
         }
