@@ -104,6 +104,7 @@ module Fayde.Controls.Primitives {
         }
 
         OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
+            super.OnItemsChanged(e);
             var item: any;
             switch (e.Action) {
                 case Collections.NotifyCollectionChangedAction.Add:
@@ -141,8 +142,6 @@ module Fayde.Controls.Primitives {
                 default:
                     throw new NotSupportedException("Collection changed action '" + e.Action + "' not supported");
             }
-
-            super.OnItemsChanged(e);
         }
         OnItemsSourceChanged(args: IDependencyPropertyChangedEventArgs) {
             super.OnItemsSourceChanged(args);
@@ -163,6 +162,7 @@ module Fayde.Controls.Primitives {
             }
         }
         OnItemContainerStyleChanged(oldStyle, newStyle) { }
+
         ClearContainerForItem(element: DependencyObject, item: any) {
             super.ClearContainerForItem(element, item);
             var lbi = <ListBoxItem>element;
@@ -232,7 +232,7 @@ module Fayde.Controls.Primitives {
                     continue;
                 lbi = null;
                 if (oldValue instanceof ListBoxItem) lbi = <ListBoxItem>oldValue;
-                lbi = lbi || <ListBoxItem>this.ItemContainerGenerator.ContainerFromItem(oldValue);
+                lbi = lbi || <ListBoxItem>this.ItemContainersManager.ContainerFromItem(oldValue);
                 if (lbi)
                     lbi.IsSelected = false;
             }
@@ -245,7 +245,7 @@ module Fayde.Controls.Primitives {
                     continue;
                 lbi = null;
                 if (newValue instanceof ListBoxItem) lbi = <ListBoxItem>newValue;
-                lbi = lbi || <ListBoxItem>this.ItemContainerGenerator.ContainerFromItem(newValue);
+                lbi = lbi || <ListBoxItem>this.ItemContainersManager.ContainerFromItem(newValue);
                 if (lbi) {
                     lbi.IsSelected = true;
                     lbi.Focus();
@@ -259,10 +259,10 @@ module Fayde.Controls.Primitives {
         OnSelectionChanged(args: SelectionChangedEventArgs) { }
 
         NotifyListItemClicked(lbi: ListBoxItem) {
-            this._Selection.Select(this.ItemContainerGenerator.ItemFromContainer(lbi));
+            this._Selection.Select(this.ItemContainersManager.ItemFromContainer(lbi));
         }
         NotifyListItemLoaded(lbi: ListBoxItem) {
-            if (this.ItemContainerGenerator.ItemFromContainer(lbi) === this.SelectedItem) {
+            if (this.ItemContainersManager.ItemFromContainer(lbi) === this.SelectedItem) {
                 lbi.IsSelected = true;
                 lbi.Focus();
             }

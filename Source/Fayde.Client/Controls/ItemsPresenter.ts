@@ -38,10 +38,10 @@ module Fayde.Controls {
             if (!this._ElementRoot)
                 this._ElementRoot = getFallbackTemplate(ic).GetVisualTree(xobj);
 
-            this._ElementRoot.IsItemsHost = true;
+            ItemsControl.SetIsItemsHost(this._ElementRoot, true);
             if (!this.FinishApplyTemplateWithError(this._ElementRoot, error))
                 return false;
-            ic.XamlNode._SetItemsPresenter(xobj);
+            ic.XamlNode.ItemsPresenter = xobj;
             return true;
         }
     }
@@ -53,6 +53,17 @@ module Fayde.Controls {
         CreateNode(): ItemsPresenterNode { return new ItemsPresenterNode(this); }
 
         get ElementRoot(): Panel { return this.XamlNode.ElementRoot; }
+        get ItemsControl(): ItemsControl {
+            return this.TemplateOwner instanceof ItemsControl ? this.TemplateOwner : null;
+        }
+
+        static Get(panel: Panel): ItemsPresenter {
+            if (!panel)
+                return null;
+            if (!ItemsControl.GetIsItemsHost(panel))
+                return null;
+            return panel.TemplateOwner instanceof ItemsPresenter ? <ItemsPresenter>panel.TemplateOwner : null;
+        }
     }
     Fayde.RegisterType(ItemsPresenter, "Fayde.Controls", Fayde.XMLNS);
 }

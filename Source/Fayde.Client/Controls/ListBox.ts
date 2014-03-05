@@ -115,7 +115,7 @@ module Fayde.Controls {
             ihro.Width = itemsHost.RenderSize.Width;
             ihro.Height = itemsHost.RenderSize.Height;
 
-            var lbi = <ListBoxItem>this.ItemContainerGenerator.ContainerFromItem(item);
+            var lbi = <ListBoxItem>this.ItemContainersManager.ContainerFromItem(item);
             if (!lbi)
                 return false;
 
@@ -166,10 +166,10 @@ module Fayde.Controls {
         OnItemContainerStyleChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldStyle = <Style>args.OldValue;
             var newStyle = <Style>args.NewValue;
-            var count = this.Items.Count;
-            for (var i = 0; i < count; i++) {
-                var lbi = <ListBoxItem>this.ItemContainerGenerator.ContainerFromIndex(i);
-                if (lbi != null && lbi.Style === oldStyle)
+            var enumerator = this.ItemContainersManager.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                var lbi = <ListBoxItem>enumerator.Current;
+                if (lbi instanceof ListBoxItem && lbi.Style === oldStyle)
                     lbi.Style = newStyle;
             }
         }
@@ -191,7 +191,7 @@ module Fayde.Controls {
                                 if (Input.Keyboard.HasControl() && lbi.IsSelected) {
                                     this.SelectedItem = null;
                                 } else {
-                                    this.SelectedItem = this.ItemContainerGenerator.ItemFromContainer(lbi);
+                                    this.SelectedItem = this.ItemContainersManager.ItemFromContainer(lbi);
                                 }
                                 args.Handled = true;
                             }
@@ -242,9 +242,9 @@ module Fayde.Controls {
 
             if (newFocusedIndex !== -1 && this._FocusedIndex !== -1 && newFocusedIndex !== this._FocusedIndex && newFocusedIndex >= 0 && newFocusedIndex < this.Items.Count) {
                 // A key press changes the focused ListBoxItem
-                var icg = this.ItemContainerGenerator;
-                var lbi = <ListBoxItem>icg.ContainerFromIndex(newFocusedIndex);
-                var item = icg.ItemFromContainer(lbi);
+                var icm = this.ItemContainersManager;
+                var lbi = <ListBoxItem>icm.ContainerFromIndex(newFocusedIndex);
+                var item = icm.ItemFromContainer(lbi);
                 this.ScrollIntoView(item);
                 if (Fayde.Input.Keyboard.HasControl()) {
                     lbi.Focus();
@@ -255,7 +255,7 @@ module Fayde.Controls {
             }
         }
         private _GetIsVerticalOrientation(): boolean {
-            var p = this.Panel;
+            var p = this.XamlNode.Panel;
             if (p instanceof StackPanel)
                 return (<StackPanel>p).Orientation === Orientation.Vertical;
             if (p instanceof VirtualizingStackPanel)
@@ -291,7 +291,7 @@ module Fayde.Controls {
         }
 
         NotifyListItemGotFocus(lbi: ListBoxItem) {
-            this._FocusedIndex = this.ItemContainerGenerator.IndexFromContainer(lbi);
+            this._FocusedIndex = this.ItemContainersManager.IndexFromContainer(lbi);
         }
         NotifyListItemLostFocus(lbi: ListBoxItem) {
             this._FocusedIndex = -1;

@@ -19,18 +19,7 @@ module Fayde.Controls {
         Clear();
     }
 
-    export interface IItemCollectionHidden extends IItemCollection {
-        IsReadOnly: boolean;
-        SetValueAtImpl(index: number, value: any);
-        AddImpl(value: any);
-        AddRangeImpl(values: any[]);
-        InsertImpl(index: number, value: any);
-        RemoveImpl(value: any);
-        RemoveAtImpl(index: number);
-        ClearImpl();
-    }
-
-    export class ItemCollection extends XamlObjectCollection<any> implements IItemCollection, IItemCollectionHidden {
+    export class ItemCollection extends XamlObjectCollection<any> implements IItemCollection {
         ItemsChanged = new MulticastEvent<Collections.NotifyCollectionChangedEventArgs>();
         ToArray(): any[] { return this._ht.slice(0); }
 
@@ -143,8 +132,9 @@ module Fayde.Controls {
             return true;
         }
         ClearImpl() {
+            var old = this._ht;
             this._ht = [];
-            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Reset());
+            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Reset(old));
         }
 
         private _ValidateReadOnly() {

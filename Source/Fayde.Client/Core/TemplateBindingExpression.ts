@@ -6,7 +6,6 @@ module Fayde {
         private _Listener: Providers.IPropertyChangedListener;
         SourceProperty: DependencyProperty;
         TargetProperty: DependencyProperty;
-        private _SetsParent: boolean = false;
         constructor(sourcePropd: DependencyProperty, targetPropd: DependencyProperty) {
             super();
             this.SourceProperty = sourcePropd;
@@ -33,11 +32,6 @@ module Fayde {
             if (this._Target instanceof Controls.ContentControl)
                 cc = <Controls.ContentControl>this._Target;
 
-            if (cc && this.TargetProperty._ID === Controls.ContentControl.ContentProperty._ID) {
-                this._SetsParent = cc._ContentSetsParent;
-                cc._ContentSetsParent = false;
-            }
-
             this._AttachListener();
         }
         OnDetached(dobj: DependencyObject) {
@@ -50,8 +44,6 @@ module Fayde {
             var cc: Controls.ContentControl;
             if (this._Target instanceof Controls.ContentControl)
                 cc = <Controls.ContentControl>this._Target;
-            if (cc)
-                cc._ContentSetsParent = this._SetsParent;
 
             this._DetachListener();
             this._Target = null;
