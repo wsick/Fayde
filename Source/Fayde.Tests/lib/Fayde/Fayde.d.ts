@@ -6519,6 +6519,7 @@ declare module Fayde.Controls.Internal {
         Current: Fayde.DependencyObject;
         CurrentItem: any;
         CurrentIndex: number;
+        GenerateIndex: number;
         Generate(): boolean;
     }
     interface IContainerEnumerator extends Fayde.IEnumerator<Fayde.UIElement> {

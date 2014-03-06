@@ -97,6 +97,7 @@ export function run() {
         icm.Items.AddRange([lbi1, lbi2, lbi3]);
 
         for (var i = 0, generator = icm.CreateGenerator(0, 5); generator.Generate(); i++) {
+            strictEqual(generator.GenerateIndex, i);
             ok(generator.Current instanceof ContentControl);
             if (generator.IsCurrentNew)
                 owner.PrepareContainerForItem(generator.Current, generator.CurrentItem);

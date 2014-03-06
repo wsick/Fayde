@@ -85,33 +85,31 @@ module Fayde.Controls.Internal {
         }
 
         CreateGenerator(index: number, count: number): IContainerGenerator {
-            index = index - 1;
             var generator: IContainerGenerator = {
-                IsCurrentNew: false, 
-                Current: undefined, 
-                CurrentItem: undefined, 
-                CurrentIndex: index, 
+                IsCurrentNew: false,
+                Current: undefined,
+                CurrentItem: undefined,
+                CurrentIndex: index - 1,
+                GenerateIndex: -1,
                 Generate: function (): boolean { return false; }
             };
 
-            var i = 0;
             var ic = this.Owner;
             var icm = this;
             var containers = this._Containers;
             var items = this._Items;
             var cache = this._Cache;
             generator.Generate = function (): boolean {
-                i++;
-                index++;
-                generator.CurrentIndex = index;
+                generator.GenerateIndex++;
+                generator.CurrentIndex++;
                 generator.IsCurrentNew = false;
-                if (index < 0 || i > count || index >= containers.length) {
+                if (generator.CurrentIndex < 0 || generator.GenerateIndex >= count || generator.CurrentIndex >= containers.length) {
                     generator.Current = undefined;
                     generator.CurrentItem = undefined;
                     return false;
                 }
-                generator.CurrentItem = items.GetValueAt(index);
-                if ((generator.Current = containers[index]) == null) {
+                generator.CurrentItem = items.GetValueAt(generator.CurrentIndex);
+                if ((generator.Current = containers[generator.CurrentIndex]) == null) {
                     if (ic.IsItemItsOwnContainer(generator.CurrentItem)) {
                         if (generator.CurrentItem instanceof DependencyObject)
                             generator.Current = <DependencyObject>generator.CurrentItem;
@@ -122,11 +120,8 @@ module Fayde.Controls.Internal {
                         generator.Current = ic.GetContainerForItem();
                         generator.IsCurrentNew = true;
                     }
-                    containers[index] = generator.Current;
+                    containers[generator.CurrentIndex] = generator.Current;
                 }
-
-                //if (!(generator.CurrentItem instanceof UIElement))
-                    //generator.Current.DataContext = generator.CurrentItem;
 
                 if (generator.IsCurrentNew)
                     icm._RealizedCount++;
@@ -323,6 +318,7 @@ module Fayde.Controls.Internal {
         Current: DependencyObject;
         CurrentItem: any;
         CurrentIndex: number;
+        GenerateIndex: number;
         Generate(): boolean;
     }
     export interface IContainerEnumerator extends IEnumerator<UIElement> {
