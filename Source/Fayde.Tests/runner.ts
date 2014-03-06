@@ -8,7 +8,7 @@ import XamlLoadTests = require("tests/XamlLoadTests");
 import DataTemplateTests = require("tests/DataTemplateTests");
 import TransformTests = require("tests/TransformTests");
 import TimelineTests = require("tests/TimelineTests");
-import ItemsControlTests = require("tests/ItemsControlTests");
+import ItemContainersManagerTests = require("tests/ItemContainersManagerTests");
 import BindingTests = require("tests/BindingTests");
 import UriMapperTests = require("tests/UriMapperTests");
 import DependencyLoadTests = require("tests/DependencyLoadTests");
@@ -24,7 +24,7 @@ export function run() {
     DataTemplateTests.run();
     TransformTests.run();
     TimelineTests.run();
-    ItemsControlTests.run();
+    ItemContainersManagerTests.run();
     BindingTests.run();
     UriMapperTests.run();
     DependencyLoadTests.run();

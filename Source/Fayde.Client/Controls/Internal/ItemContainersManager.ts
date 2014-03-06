@@ -184,11 +184,13 @@ module Fayde.Controls.Internal {
             var index = (start || 0) - 1;
             var len = count == null ? carr.length : count;
 
+            var i = 0;
             var e = { MoveNext: undefined, Current: undefined, CurrentItem: undefined, CurrentIndex: -1 };
             e.MoveNext = function () {
+                i++;
                 index++;
                 e.CurrentIndex = index;
-                if (index >= count) {
+                if (i > len) {
                     e.Current = undefined;
                     e.CurrentItem = undefined;
                     return false;
