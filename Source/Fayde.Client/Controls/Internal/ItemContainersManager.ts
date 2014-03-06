@@ -110,7 +110,7 @@ module Fayde.Controls.Internal {
                     generator.CurrentItem = undefined;
                     return false;
                 }
-                generator.CurrentItem = items[index];
+                generator.CurrentItem = items.GetValueAt(index);
                 if ((generator.Current = containers[index]) == null) {
                     if (ic.IsItemItsOwnContainer(generator.CurrentItem)) {
                         if (generator.CurrentItem instanceof DependencyObject)
@@ -122,6 +122,7 @@ module Fayde.Controls.Internal {
                         generator.Current = ic.GetContainerForItem();
                         generator.IsCurrentNew = true;
                     }
+                    containers[index] = generator.Current;
                 }
 
                 //if (!(generator.CurrentItem instanceof UIElement))
@@ -136,10 +137,39 @@ module Fayde.Controls.Internal {
             return generator;
         }
         CreateRemover(index: number, count: number): IContainerRemover {
-            var remover = <IContainerRemover>this.GetEnumerator(index, count);
+            var carr = this._Containers.slice(0);
+            var iarr = this._Items.ToArray();
+            var start1 = -1;
+            var end1 = index - 1;
+            var in2 = false;
+            var start2 = index + count;
+            var end2 = carr.length - 1;
+
+            index = start1;
+
+            var remover = { MoveNext: undefined, Current: undefined, CurrentItem: undefined, CurrentIndex: -1, Remove: undefined };
+            remover.MoveNext = function (): boolean {
+                index++;
+                if (!in2 && index > end1) {
+                    index = start2;
+                    in2 = true;
+                }
+                remover.CurrentIndex = index;
+                if (index > end2) {
+                    remover.Current = undefined;
+                    remover.CurrentItem = undefined;
+                    return false;
+                }
+                remover.Current = carr[index];
+                remover.CurrentItem = iarr[index];
+                return true;
+            };
+
             var ic = this.Owner;
             var icm = this;
             remover.Remove = function (recycle: boolean) {
+                if (!remover.Current)
+                    return;
                 if (recycle)
                     icm._Cache.push(remover.Current);
                 ic.ClearContainerForItem(remover.Current, remover.CurrentItem);
@@ -249,7 +279,9 @@ module Fayde.Controls.Internal {
         private Replace(index: number, oldItem: any, newItem: any, replaceItem: boolean) {
             var existing = this._Containers[index];
             if (existing) {
-                //TODO: Implement
+                this.Owner.ClearContainerForItem(existing, oldItem);
+                this._Items[index] = newItem;
+                this.Owner.PrepareContainerForItem(existing, newItem);
             }
             if (!replaceItem)
                 return;
