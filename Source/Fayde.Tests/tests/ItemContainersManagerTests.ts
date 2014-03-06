@@ -25,16 +25,18 @@ export function run() {
     test("Enumerator", () => {
         var icm = new ItemContainersManager(owner);
         icm.Items = new Fayde.Controls.ItemCollection();
-        icm.ItemsSource = Fayde.ArrayEx.AsEnumerable([1, 2, 3, 4, 5, 6]);
+        icm.ItemsSource = Fayde.ArrayEx.AsEnumerable([1, 2, 3, 4, 5]);
 
+        //Full
         var count = 0;
-        for (var i = 0, enumerator = icm.GetEnumerator(0, 6); enumerator.MoveNext(); i++) {
+        for (var i = 0, enumerator = icm.GetEnumerator(0, 5); enumerator.MoveNext(); i++) {
             strictEqual(enumerator.CurrentItem, i + 1);
             strictEqual(enumerator.CurrentIndex, i);
             count++;
         }
-        strictEqual(count, 6);
+        strictEqual(count, 5);
 
+        //Partial
         count = 0;
         for (var i = 2, enumerator = icm.GetEnumerator(2, 2); enumerator.MoveNext(); i++) {
             strictEqual(enumerator.CurrentItem, i + 1);
@@ -42,5 +44,14 @@ export function run() {
             count++;
         }
         strictEqual(count, 2);
+
+        //Overlapping end
+        count = 0;
+        for (var i = 4, enumerator = icm.GetEnumerator(4, 2); enumerator.MoveNext(); i++) {
+            strictEqual(enumerator.CurrentItem, i + 1);
+            strictEqual(enumerator.CurrentIndex, i);
+            count++;
+        }
+        strictEqual(count, 1);
     });
 } 

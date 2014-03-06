@@ -190,7 +190,7 @@ module Fayde.Controls.Internal {
                 i++;
                 index++;
                 e.CurrentIndex = index;
-                if (i > len) {
+                if (i > len || index >= carr.length) {
                     e.Current = undefined;
                     e.CurrentItem = undefined;
                     return false;
