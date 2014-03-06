@@ -113,6 +113,7 @@ export function run() {
             //Create 0,1,2
         }
         for (var i = 0, generator = icm.CreateGenerator(2, 3); generator.Generate(); i++) {
+            strictEqual(generator.GenerateIndex, i);
             //Create 2,3,4 (2 is the only one that should exist)
             ok(generator.IsCurrentNew === (i > 0));
         }
