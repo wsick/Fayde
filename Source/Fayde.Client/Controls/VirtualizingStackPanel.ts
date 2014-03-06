@@ -169,7 +169,7 @@ module Fayde.Controls {
             var viscount = 0;
             var ic = ItemsControl.GetItemsOwner(this);
             var count = ic.Items.Count;
-            for (var children = this.Children, i = 0, generator = this.ItemContainersManager.CreateGenerator(index, count); generator.Generate() && i < count; i++) {
+            for (var children = this.Children, i = 0, generator = this.ItemContainersManager.CreateGenerator(index, count); i < count && generator.Generate(); i++) {
                 var child = <UIElement>generator.Current;
                 if (generator.IsCurrentNew) {
                     children.Insert(i, child);
@@ -193,7 +193,7 @@ module Fayde.Controls {
                 }
             }
 
-            this.CleanupContainers(index, count);
+            this.CleanupContainers(index, viscount);
 
             var invalidate = false;
             if (!isHorizontal) {

@@ -32,7 +32,7 @@ module Fayde.Controls {
             if (!panel || panel instanceof VirtualizingPanel)
                 return;
             var xobj = this.XObject;
-            for (var i = 0, children = panel.Children, generator = xobj.ItemContainersManager.CreateGenerator(index, count); generator.Generate() && i < count; i++) {
+            for (var i = 0, children = panel.Children, generator = xobj.ItemContainersManager.CreateGenerator(index, count); i < count && generator.Generate(); i++) {
                 var container = generator.Current;
                 //if (container instanceof DependencyObject && !(item instanceof DependencyObject))
                     //container.DataContext = item;
