@@ -6503,7 +6503,7 @@ declare module Fayde.Controls.Internal {
         public ItemFromContainer(container: Fayde.DependencyObject): any;
         public ContainerFromItem(item: any): Fayde.DependencyObject;
         public CreateGenerator(index: number, count: number): IContainerGenerator;
-        public CreateRemover(index: number, count: number): IContainerRemover;
+        public CreateRemover(keepStart?: number, keepCount?: number): IContainerRemover;
         public GetEnumerator(start?: number, count?: number): IContainerEnumerator;
         private OnItemsChanged(sender, e);
         private OnItemsSourceChanged(sender, e);

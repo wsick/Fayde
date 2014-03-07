@@ -131,16 +131,18 @@ module Fayde.Controls.Internal {
 
             return generator;
         }
-        CreateRemover(index: number, count: number): IContainerRemover {
-            var carr = this._Containers.slice(0);
+        CreateRemover(keepStart?: number, keepCount?: number): IContainerRemover {
+            if (keepStart == null) keepStart = 0;
+            if (keepCount == null) keepCount = 0;
+
+            var carr = this._Containers;
             var iarr = this._Items.ToArray();
-            var start1 = -1;
-            var end1 = index - 1;
+            var end1 = keepStart - 1;
             var in2 = false;
-            var start2 = index + count;
+            var start2 = keepStart + keepCount;
             var end2 = carr.length - 1;
 
-            index = start1;
+            var index = -1;
 
             var remover = { MoveNext: undefined, Current: undefined, CurrentItem: undefined, CurrentIndex: -1, Remove: undefined };
             remover.MoveNext = function (): boolean {
@@ -168,6 +170,7 @@ module Fayde.Controls.Internal {
                 if (recycle)
                     icm._Cache.push(remover.Current);
                 ic.ClearContainerForItem(remover.Current, remover.CurrentItem);
+                carr[index] = null;
                 icm._RealizedCount--;
             };
             return remover;

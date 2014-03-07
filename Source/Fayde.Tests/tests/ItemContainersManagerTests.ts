@@ -114,8 +114,120 @@ export function run() {
         }
         for (var i = 0, generator = icm.CreateGenerator(2, 3); generator.Generate(); i++) {
             strictEqual(generator.GenerateIndex, i);
-            //Create 2,3,4 (2 is the only one that should exist)
+            //Create 2,3,4 (2 is the only one that should exist already)
             ok(generator.IsCurrentNew === (i > 0));
+        }
+    });
+
+    test("Remover-None", () => {
+        var icm = new ItemContainersManager(owner);
+        icm.Items = new Fayde.Controls.ItemCollection();
+        icm.ItemsSource = Fayde.ArrayEx.AsEnumerable([1, 2, 3, 4, 5]);
+
+        for (var i = 0; i < 5; i++) {
+            strictEqual(icm.ContainerFromIndex(i), null);
+        }
+
+        var items: DependencyObject[] = [];
+
+        var generator = icm.CreateGenerator(0, 5);
+        while (generator.Generate()) {
+            items.push(generator.Current);
+        }
+
+        strictEqual(items.length, 5);
+
+        var remover = icm.CreateRemover(0, 5);
+        while (remover.MoveNext()) {
+            items.splice(0, 1);
+            remover.Remove(false);
+        }
+        
+        strictEqual(items.length, 5);
+
+        for (var i = 0; i < 5; i++) {
+            ok(icm.ContainerFromIndex(i) instanceof ContentControl);
+        }
+    });
+
+    test("Remover-Partial", () => {
+        var icm = new ItemContainersManager(owner);
+        icm.Items = new Fayde.Controls.ItemCollection();
+        icm.ItemsSource = Fayde.ArrayEx.AsEnumerable([1, 2, 3, 4, 5]);
+
+        for (var i = 0; i < 5; i++) {
+            strictEqual(icm.ContainerFromIndex(i), null);
+        }
+
+        var items: DependencyObject[] = [];
+
+        var generator = icm.CreateGenerator(0, 5);
+        while (generator.Generate()) {
+            items.push(generator.Current);
+        }
+
+        strictEqual(items.length, 5);
+
+        var remover = icm.CreateRemover(2, 2);
+        while (remover.MoveNext()) {
+            items.splice(2, 1);
+            remover.Remove(false);
+        }
+
+        strictEqual(items.length, 2);
+
+        for (var i = 0; i < 2; i++) {
+            ok(icm.ContainerFromIndex(i) === null);
+        }
+        for (var i = 2; i < 4; i++) {
+            ok(icm.ContainerFromIndex(i) instanceof ContentControl);
+        }
+        for (var i = 4; i < 5; i++) {
+            ok(icm.ContainerFromIndex(i) === null);
+        }
+    });
+
+    test("Remover-All", () => {
+        var icm = new ItemContainersManager(owner);
+        icm.Items = new Fayde.Controls.ItemCollection();
+        icm.ItemsSource = Fayde.ArrayEx.AsEnumerable([1, 2, 3, 4, 5]);
+
+        for (var i = 0; i < 5; i++) {
+            strictEqual(icm.ContainerFromIndex(i), null);
+        }
+
+        var items: DependencyObject[] = [];
+
+        var generator = icm.CreateGenerator(0, 5);
+        while (generator.Generate()) {
+            items.push(generator.Current);
+        }
+
+        strictEqual(items.length, 5);
+
+        var remover = icm.CreateRemover(0, 2);
+        while (remover.MoveNext()) {
+            items.splice(0, 1);
+            remover.Remove(false);
+        }
+        
+        for (var i = 0; i < 2; i++) {
+            ok(icm.ContainerFromIndex(i) instanceof ContentControl);
+        }
+        for (var i = 2; i < 5; i++) {
+            ok(icm.ContainerFromIndex(i) === null);
+        }
+        
+        var remover = icm.CreateRemover();
+        while (remover.MoveNext()) {
+            items.splice(0, 1);
+            remover.Remove(false);
+        }
+
+        strictEqual(items.length, 0);
+
+        for (var i = 0; i < 5; i++) {
+            ok(icm.ContainerFromIndex(i) === null);
         }
     });
 }
