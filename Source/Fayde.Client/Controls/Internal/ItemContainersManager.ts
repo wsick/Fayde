@@ -169,8 +169,8 @@ module Fayde.Controls.Internal {
                     return;
                 if (recycle)
                     icm._Cache.push(remover.Current);
-                ic.ClearContainerForItem(remover.Current, remover.CurrentItem);
                 carr[index] = null;
+                ic.ClearContainerForItem(remover.Current, remover.CurrentItem);
                 icm._RealizedCount--;
             };
             return remover;
