@@ -163,14 +163,14 @@ module Fayde.Controls.Primitives {
         }
         OnItemContainerStyleChanged(oldStyle, newStyle) { }
 
-        ClearContainerForItem(element: DependencyObject, item: any) {
+        ClearContainerForItem(element: UIElement, item: any) {
             super.ClearContainerForItem(element, item);
             var lbi = <ListBoxItem>element;
             lbi.ParentSelector = null;
             if (lbi !== item)
                 lbi.Content = null;
         }
-        PrepareContainerForItem(element: DependencyObject, item: any) {
+        PrepareContainerForItem(element: UIElement, item: any) {
             super.PrepareContainerForItem(element, item);
             var lbi = <ListBoxItem>element;
             lbi.ParentSelector = this;

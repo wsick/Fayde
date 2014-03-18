@@ -255,7 +255,10 @@ module Fayde.Controls {
             }
         }
         private _GetIsVerticalOrientation(): boolean {
-            var p = this.XamlNode.Panel;
+            var presenter = this.XamlNode.ItemsPresenter;
+            if (!presenter)
+                return true;
+            var p = presenter.Panel;
             if (p instanceof StackPanel)
                 return (<StackPanel>p).Orientation === Orientation.Vertical;
             if (p instanceof VirtualizingStackPanel)
@@ -266,14 +269,14 @@ module Fayde.Controls {
         IsItemItsOwnContainer(item: any): boolean {
             return item instanceof ListBoxItem;
         }
-        GetContainerForItem(): DependencyObject {
+        GetContainerForItem(): UIElement {
             var item = new ListBoxItem();
             var ics = this.ItemContainerStyle;
             if (ics != null)
                 item.Style = ics;
             return item;
         }
-        PrepareContainerForItem(element: DependencyObject, item: any) {
+        PrepareContainerForItem(element: UIElement, item: any) {
             super.PrepareContainerForItem(element, item);
             var ics = this.ItemContainerStyle;
             var lbi = <ListBoxItem>element;

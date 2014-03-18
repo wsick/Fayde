@@ -119,7 +119,7 @@ module Fayde.Controls {
                 ip.XamlNode.ApplyTemplateWithError(err);
                 if (err.Message)
                     err.ThrowException();
-                info = Primitives.IScrollInfo_.As(ip.ElementRoot);
+                info = Primitives.IScrollInfo_.As(ip.Panel);
             }
 
             if (!info)

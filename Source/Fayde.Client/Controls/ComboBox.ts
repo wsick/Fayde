@@ -103,23 +103,20 @@ module Fayde.Controls {
 
         OnItemContainerStyleChanged(args: IDependencyPropertyChangedEventArgs) {
             var newStyle = <Style>args.NewValue;
-            var items = this.Items;
-            var count = items.Count;
-            var icm = this.ItemContainersManager;
-            for (var i = 0; i < count; i++) {
-                var item = items.GetValueAt(i);
-                var container = <FrameworkElement>icm.ContainerFromIndex(i);
-                if (container && item !== container)
+            var enumerator = this.ItemContainersManager.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                var container = <FrameworkElement>enumerator.Current;
+                if (container && container !== enumerator.CurrentItem)
                     container.Style = newStyle;
             }
         }
         IsItemItsOwnContainer(item: any): boolean {
             return item instanceof ComboBoxItem;
         }
-        GetContainerForItem(): DependencyObject {
+        GetContainerForItem(): UIElement {
             return new ComboBoxItem();
         }
-        PrepareContainerForItem(container: DependencyObject, item: any) {
+        PrepareContainerForItem(container: UIElement, item: any) {
             super.PrepareContainerForItem(container, item);
             var cbi = <ComboBoxItem>container;
             if (cbi !== item) {

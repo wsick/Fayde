@@ -10,8 +10,8 @@ import ListBoxItem = Fayde.Controls.ListBoxItem;
 export function run() {
     QUnit.module("ItemContainersManager Tests");
 
-    var owner = {
-        PrepareContainerForItem: function (container: DependencyObject, item: any) {
+    var owner: Fayde.Controls.Internal.IItemContainersOwner = {
+        PrepareContainerForItem: function (container: Fayde.UIElement, item: any) {
             if (!container)
                 return;
             if (container === item)
@@ -20,9 +20,9 @@ export function run() {
             if (cc instanceof ContentControl)
                 cc.Content = item;
         },
-        ClearContainerForItem: function (container: DependencyObject, item: any) {
+        ClearContainerForItem: function (container: Fayde.UIElement, item: any) {
         },
-        GetContainerForItem: function (): DependencyObject {
+        GetContainerForItem: function (): Fayde.UIElement {
             return new ContentControl();
         },
         IsItemItsOwnContainer: function (item: any): boolean {
@@ -32,8 +32,7 @@ export function run() {
 
     test("Enumerator-Full", () => {
         var icm = new ItemContainersManager(owner);
-        icm.Items = new Fayde.Controls.ItemCollection();
-        icm.ItemsSource = Fayde.ArrayEx.AsEnumerable([1, 2, 3, 4, 5]);
+        icm.OnItemsAdded(0, [1, 2, 3, 4, 5]);
 
         var count = 0;
         for (var i = 0, enumerator = icm.GetEnumerator(0, 5); enumerator.MoveNext(); i++) {
@@ -46,8 +45,7 @@ export function run() {
     });
     test("Enumerator-Partial", () => {
         var icm = new ItemContainersManager(owner);
-        icm.Items = new Fayde.Controls.ItemCollection();
-        icm.ItemsSource = Fayde.ArrayEx.AsEnumerable([1, 2, 3, 4, 5]);
+        icm.OnItemsAdded(0, [1, 2, 3, 4, 5]);
 
         var count = 0;
         for (var i = 2, enumerator = icm.GetEnumerator(2, 2); enumerator.MoveNext(); i++) {
@@ -59,8 +57,7 @@ export function run() {
     });
     test("Enumerator-Overlap", () => {
         var icm = new ItemContainersManager(owner);
-        icm.Items = new Fayde.Controls.ItemCollection();
-        icm.ItemsSource = Fayde.ArrayEx.AsEnumerable([1, 2, 3, 4, 5]);
+        icm.OnItemsAdded(0, [1, 2, 3, 4, 5]);
 
         var count = 0;
         for (var i = 4, enumerator = icm.GetEnumerator(4, 2); enumerator.MoveNext(); i++) {
@@ -73,8 +70,7 @@ export function run() {
 
     test("Generator-ItemsSource", () => {
         var icm = new ItemContainersManager(owner);
-        icm.Items = new Fayde.Controls.ItemCollection();
-        icm.ItemsSource = Fayde.ArrayEx.AsEnumerable([1, 2, 3, 4, 5]);
+        icm.OnItemsAdded(0, [1, 2, 3, 4, 5]);
 
         for (var i = 0, generator = icm.CreateGenerator(0, 5); generator.Generate(); i++) {
             ok(generator.Current instanceof ContentControl);
@@ -87,28 +83,27 @@ export function run() {
     });
     test("Generator-Items", () => {
         var icm = new ItemContainersManager(owner);
-        icm.Items = new Fayde.Controls.ItemCollection();
         var lbi1 = new ListBoxItem();
         lbi1.Content = "ListBoxItem1";
         var lbi2 = new ListBoxItem();
         lbi1.Content = "ListBoxItem2";
         var lbi3 = new ListBoxItem();
         lbi1.Content = "ListBoxItem3";
-        icm.Items.AddRange([lbi1, lbi2, lbi3]);
+        var items = [lbi1, lbi2, lbi3];
+        icm.OnItemsAdded(0, items);
 
         for (var i = 0, generator = icm.CreateGenerator(0, 5); generator.Generate(); i++) {
             strictEqual(generator.GenerateIndex, i);
             ok(generator.Current instanceof ContentControl);
             if (generator.IsCurrentNew)
                 owner.PrepareContainerForItem(generator.Current, generator.CurrentItem);
-            strictEqual(generator.CurrentItem, icm.Items.GetValueAt(i));
+            strictEqual(generator.CurrentItem, items[i]);
             strictEqual(generator.CurrentIndex, i);
         }
     });
     test("Generator-Existing", () => {
         var icm = new ItemContainersManager(owner);
-        icm.Items = new Fayde.Controls.ItemCollection();
-        icm.ItemsSource = Fayde.ArrayEx.AsEnumerable([1, 2, 3, 4, 5]);
+        icm.OnItemsAdded(0, [1, 2, 3, 4, 5]);
         for (var i = 0, generator = icm.CreateGenerator(0, 3); generator.Generate(); i++) {
             //Create 0,1,2
         }
