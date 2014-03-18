@@ -164,13 +164,20 @@ module Fayde.Controls {
                     constraint.Width = Number.POSITIVE_INFINITY;
                 index = Math.floor(this._VerticalOffset);
             }
+            
+            var ic = this.ItemsControl;
+            var icm = ic.ItemContainersManager;
+            var children = this.Children;
+            //Dispose and remove containers that are before offset
+            var old = icm.DisposeContainers(0, index);
+            for (var i = 0, len = old.length; i < len; i++) {
+                children.Remove(old[i]);
+            }
 
             var measured = new size();
             var viscount = 0;
-            var ic = this.ItemsControl;
             var count = ic.Items.Count;
-            var icm = ic.ItemContainersManager;
-            for (var children = this.Children, generator = icm.CreateGenerator(index, count); generator.Generate();) {
+            for (var generator = icm.CreateGenerator(index, count); generator.Generate();) {
                 var child = <UIElement>generator.Current;
                 if (generator.IsCurrentNew) {
                     children.Insert(generator.GenerateIndex, child);
@@ -193,8 +200,12 @@ module Fayde.Controls {
                         break;
                 }
             }
-            icm.DisposeContainers(0, index);
-            icm.DisposeContainers(index + viscount, count - (index + viscount));
+
+            //Dispose and remove containers that are after visible
+            old = icm.DisposeContainers(index + viscount, count - (index + viscount));
+            for (var i = 0, len = old.length; i < len; i++) {
+                children.Remove(old[i]);
+            }
 
             var invalidate = false;
             if (!isHorizontal) {

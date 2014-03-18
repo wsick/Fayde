@@ -19,7 +19,7 @@ module Fayde.Controls.Internal {
         
         OnItemsAdded(index: number, items: any[]);
         OnItemsRemoved(index: number, items: any[]);
-        DisposeContainers(index?: number, count?: number);
+        DisposeContainers(index?: number, count?: number): UIElement[];
 
         CreateGenerator(index: number, count: number): IContainerGenerator;
         GetEnumerator(index?: number, count?: number): IContainerEnumerator;
@@ -65,7 +65,7 @@ module Fayde.Controls.Internal {
             this._Items.splice(index, items.length);
             this._Containers.splice(index, items.length);
         }
-        DisposeContainers(index?: number, count?: number) {
+        DisposeContainers(index?: number, count?: number): UIElement[] {
             var containers = this._Containers;
             var items = this._Items;
             if (index == null) index = 0;
@@ -74,15 +74,20 @@ module Fayde.Controls.Internal {
             if (this.IsRecycling)
                 this._Cache.push.apply(this._Cache, containers.slice(index, index + count));
 
+            var disposed: UIElement[] = [];
+
             var ic = this.Owner;
             for (var i = index; i < index + count; i++) {
                 var container = containers[i];
                 if (!container)
                     continue;
+                disposed.push(container);
                 var item = items[i];
                 ic.ClearContainerForItem(container, item);
                 containers[i] = null;
             }
+
+            return disposed;
         }
 
         CreateGenerator(index: number, count: number): IContainerGenerator {
