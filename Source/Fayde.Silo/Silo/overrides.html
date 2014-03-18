@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript">
+        var count = 100000;
+
+        var start = new Date().getTime();
+        var arr1 = [];
+        for (var i = 0; i < count; i++) {
+            arr1.splice(0, 0, i);
+        }
+        var time1 = new Date().getTime() - start;
+
+        var _supersplice = Array.prototype.splice;
+        Array.prototype.splice = function () {
+            //do nothing
+            _supersplice.apply(this, arguments);
+            //do nothing
+        };
+
+        start = new Date().getTime();
+        var arr2 = [];
+        for (var i = 0; i < count; i++) {
+            arr2.splice(0, 0, i);
+        }
+        var time2 = new Date().getTime() - start;
+
+        console.log(time1, time2);
+    </script>
+</head>
+<body>
+
+</body>
+</html>
