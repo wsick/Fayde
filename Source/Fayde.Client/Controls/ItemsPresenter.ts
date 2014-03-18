@@ -43,6 +43,7 @@ module Fayde.Controls {
             if (!this.FinishApplyTemplateWithError(er, error))
                 return false;
             ic.XamlNode.ItemsPresenter = xobj;
+            xobj.OnItemsAdded(0, ic.Items.ToArray());
             return true;
         }
     }
