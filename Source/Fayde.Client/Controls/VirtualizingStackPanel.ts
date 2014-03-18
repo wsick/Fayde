@@ -167,12 +167,13 @@ module Fayde.Controls {
 
             var measured = new size();
             var viscount = 0;
-            var ic = ItemsControl.GetItemsOwner(this);
+            var ic = this.ItemsControl;
             var count = ic.Items.Count;
-            for (var children = this.Children, i = 0, generator = this.ItemContainersManager.CreateGenerator(index, count); i < count && generator.Generate(); i++) {
+            var icm = ic.ItemContainersManager;
+            for (var children = this.Children, generator = icm.CreateGenerator(index, count); generator.Generate();) {
                 var child = <UIElement>generator.Current;
                 if (generator.IsCurrentNew) {
-                    children.Insert(i, child);
+                    children.Insert(generator.GenerateIndex, child);
                     ic.PrepareContainerForItem(child, generator.CurrentItem);
                 }
                 viscount++;
@@ -192,8 +193,8 @@ module Fayde.Controls {
                         break;
                 }
             }
-
-            this.CleanupContainers(index, viscount);
+            icm.DisposeContainers(0, index);
+            icm.DisposeContainers(index + viscount, count - (index + viscount));
 
             var invalidate = false;
             if (!isHorizontal) {
@@ -267,8 +268,8 @@ module Fayde.Controls {
             return arranged;
         }
 
-        OnAddChildren(index: number, newItems: any[]) {
-            super.OnAddChildren(index, newItems);
+        OnItemsAdded(index: number, newItems: any[]) {
+            super.OnItemsAdded(index, newItems);
 
             var isHorizontal = this.Orientation === Orientation.Horizontal;
             var offset = isHorizontal ? this.HorizontalOffset : this.VerticalOffset;
@@ -279,8 +280,8 @@ module Fayde.Controls {
             if (scrollOwner)
                 scrollOwner.InvalidateScrollInfo();
         }
-        OnRemoveChildren(index: number, oldItems: any[]) {
-            super.OnRemoveChildren(index, oldItems);
+        OnItemsRemoved(index: number, oldItems: any[]) {
+            super.OnItemsRemoved(index, oldItems);
 
             var isHorizontal = this.Orientation === Orientation.Horizontal;
             var offset = isHorizontal ? this.HorizontalOffset : this.VerticalOffset;

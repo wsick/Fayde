@@ -6,53 +6,13 @@ module Fayde.Controls {
         constructor(xobj: ItemsControl) {
             super(xobj);
         }
-
+        
+        ItemsPresenter: ItemsPresenter = null;
         GetDefaultVisualTree(): UIElement {
-            var presenter = this._ItemsPresenter;
+            var presenter = this.ItemsPresenter;
             if (!presenter)
                 (presenter = new ItemsPresenter()).TemplateOwner = this.XObject;
             return presenter;
-        }
-        
-        private _ItemsPresenter: ItemsPresenter;
-        get ItemsPresenter(): ItemsPresenter { return this._ItemsPresenter; }
-        set ItemsPresenter(presenter: ItemsPresenter) {
-            this.RemoveItemsFromPresenter(0);
-            this._ItemsPresenter = presenter;
-            this.AddItemsToPresenter(0, this.XObject.Items.Count);
-        }
-
-        get Panel(): Panel {
-            var panel = this._ItemsPresenter ? this._ItemsPresenter.ElementRoot : undefined;
-            return panel instanceof Panel ? panel : undefined;
-        }
-        
-        AddItemsToPresenter(index: number, count: number) {
-            var panel = this.Panel;
-            if (!panel || panel instanceof VirtualizingPanel)
-                return;
-            var xobj = this.XObject;
-            for (var i = 0, children = panel.Children, generator = xobj.ItemContainersManager.CreateGenerator(index, count); i < count && generator.Generate(); i++) {
-                var container = generator.Current;
-                //if (container instanceof DependencyObject && !(item instanceof DependencyObject))
-                    //container.DataContext = item;
-                children.Insert(index + i, <UIElement>container);
-                xobj.PrepareContainerForItem(container, generator.CurrentItem);
-            }
-        }
-        RemoveItemsFromPresenter(index: number, count?: number) {
-            var panel = this.Panel;
-            if (!panel || panel instanceof VirtualizingPanel)
-                return;
-            var children = panel.Children;
-            if (count == null || count == children.Count) {
-                children.Clear();
-            } else {
-                while (count > 0) {
-                    children.RemoveAt(index);
-                    count--;
-                }
-            }
         }
     }
     Fayde.RegisterType(ItemsControlNode, "Fayde.Controls");
@@ -78,112 +38,156 @@ module Fayde.Controls {
         ItemTemplate: DataTemplate;
 
         OnDisplayMemberPathChanged(e: IDependencyPropertyChangedEventArgs) {
-            this._DisplayMemberTemplate = null;
             var enumerator = this.ItemContainersManager.GetEnumerator();
             while (enumerator.MoveNext()) {
-                this.UpdateContentTemplateOnContainer(enumerator.Current, enumerator.CurrentItem);
+                this.UpdateContainerTemplate(enumerator.Current, enumerator.CurrentItem);
             }
         }
         OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs) {
-            this._ItemContainersManager.ItemsSource = e.NewValue;
+            var nc = Collections.INotifyCollectionChanged_.As(e.OldValue);
+            if (nc)
+                nc.CollectionChanged.Unsubscribe(this._OnItemsSourceUpdated, this);
+            var items = this.Items;
+            if (e.OldValue)
+                this.OnItemsRemoved(0, items.ToArray());
+            try {
+                this._SuspendItemsChanged = true;
+                items.Clear();
+                this._IsDataBound = !!e.NewValue;
+                if (e.NewValue) {
+                    var arr = Enumerable.ToArray(e.NewValue);
+                    items.AddRange(arr);
+                    this.OnItemsAdded(0, arr);
+                }
+            } finally {
+                this._SuspendItemsChanged = false;
+            }
+            var nc = Collections.INotifyCollectionChanged_.As(e.NewValue);
+            if (nc)
+                nc.CollectionChanged.Subscribe(this._OnItemsSourceUpdated, this);
         }
         OnItemTemplateChanged(e: IDependencyPropertyChangedEventArgs) {
-            var icm = this._ItemContainersManager;
             var enumerator = this.ItemContainersManager.GetEnumerator();
             while (enumerator.MoveNext()) {
-                this.UpdateContentTemplateOnContainer(enumerator.Current, enumerator.CurrentItem);
+                this.UpdateContainerTemplate(enumerator.Current, enumerator.CurrentItem);
             }
         }
 
         private _ItemContainersManager: Internal.IItemContainersManager;
         get ItemContainersManager(): Internal.IItemContainersManager { return this._ItemContainersManager; }
 
-        static GetItemsOwner(uie: UIElement): ItemsControl {
-            if (!(uie instanceof Panel))
-                return null;
-            var presenter = ItemsPresenter.Get(<Panel>uie);
-            var ic = presenter ? presenter.ItemsControl : null;
-            return ic instanceof ItemsControl ? ic : null;
-        }
-        static ItemsControlFromItemContainer(container: DependencyObject) {
-            if (!(container instanceof FrameworkElement))
-                return null;
-
-            var fe = <FrameworkElement>container;
-            var parentNode = fe.XamlNode.ParentNode;
-            var parent = (parentNode) ? parentNode.XObject : null;
-            var itctl: ItemsControl;
-            if (parent instanceof ItemsControl)
-                itctl = <ItemsControl>parent;
-
-            if (itctl == null)
-                return ItemsControl.GetItemsOwner(<UIElement>parent);
-            if (itctl.IsItemItsOwnContainer(fe))
-                return itctl;
-            return null;
-        }
-
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
+            var coll = <ItemCollection>ItemsControl.ItemsProperty.Initialize(this);
+            coll.ItemsChanged.Subscribe(this._OnItemsUpdated, this);
+
             this._ItemContainersManager = new Internal.ItemContainersManager(this);
-            this._ItemContainersManager.Items = ItemsControl.ItemsProperty.Initialize(this);
-            this._ItemContainersManager.ItemsChanged.Subscribe(this.OnICGItemsChanged, this);
         }
 
-        PrepareContainerForItem(container: DependencyObject, item: any) {
+        PrepareContainerForItem(container: UIElement, item: any) {
             if (this.DisplayMemberPath != null && this.ItemTemplate != null)
-                throw new InvalidOperationException("Cannot set 'DisplayMemberPath' and 'ItemTemplate' simultaenously");
-            this.UpdateContentTemplateOnContainer(container, item);
+                throw new InvalidOperationException("Cannot set 'DisplayMemberPath' and 'ItemTemplate' simultaneously");
+            this.UpdateContainerTemplate(container, item);
         }
-        ClearContainerForItem(container: DependencyObject, item: any) { }
-        GetContainerForItem(): DependencyObject { return new ContentPresenter(); }
-        IsItemItsOwnContainer(item: any): boolean { return item instanceof FrameworkElement; }
-
-        private OnICGItemsChanged(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
-            var node = this.XamlNode;
-            switch (e.Action) {
-                case Collections.NotifyCollectionChangedAction.Reset:
-                    node.RemoveItemsFromPresenter(0);
-                    break;
-                case Collections.NotifyCollectionChangedAction.Add:
-                    node.AddItemsToPresenter(e.NewStartingIndex, e.NewItems.length);
-                    break;
-                case Collections.NotifyCollectionChangedAction.Remove:
-                    node.RemoveItemsFromPresenter(e.OldStartingIndex, e.OldItems.length);
-                    break;
-                case Collections.NotifyCollectionChangedAction.Replace:
-                    node.RemoveItemsFromPresenter(e.NewStartingIndex, 1);
-                    node.AddItemsToPresenter(e.NewStartingIndex, 1);
-                    break;
+        ClearContainerForItem(container: UIElement, item: any) {
+            if (container instanceof ContentPresenter) {
+                var cp = <ContentPresenter>container;
+                if (cp.Content === item)
+                    cp.Content = null;
+            } else if (container instanceof ContentControl) {
+                var cc = <ContentControl>container;
+                if (cc.Content === item)
+                    cc.Content = null;
+            }
+        }
+        GetContainerForItem(): UIElement { return new ContentPresenter(); }
+        IsItemItsOwnContainer(item: any): boolean { return item instanceof UIElement; }
+        
+        private _IsDataBound = false;
+        private _SuspendItemsChanged = false;
+        private _OnItemsUpdated(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
+            if (this._SuspendItemsChanged) //Ignore OnItemsSourceChanged operations
+                return;
+            if (this._IsDataBound)
+                throw new InvalidOperationException("Cannot modify Items while bound to ItemsSource.");
+            this.OnItemsChanged(e);
+        }
+        private _OnItemsSourceUpdated(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
+            var items = this.Items;
+            try {
+                this._SuspendItemsChanged = true;
+                switch (e.Action) {
+                    case Collections.NotifyCollectionChangedAction.Add:
+                        for (var i = 0, len = e.NewItems.length; i < len; i++) {
+                            items.Insert(e.NewStartingIndex + i, e.NewItems[i]);
+                        }
+                        break;
+                    case Collections.NotifyCollectionChangedAction.Remove:
+                        for (var i = 0, len = e.OldItems.length; i < len; i++) {
+                            items.RemoveAt(e.OldStartingIndex);
+                        }
+                        break;
+                    case Collections.NotifyCollectionChangedAction.Replace:
+                        items[e.NewStartingIndex] = e.NewItems[0];
+                        break;
+                    case Collections.NotifyCollectionChangedAction.Reset:
+                        items.Clear();
+                        break;
+                }
+            } finally {
+                this._SuspendItemsChanged = false;
             }
             this.OnItemsChanged(e);
         }
-        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) { }
-        private UpdateContentTemplateOnContainer(element: DependencyObject, item: any) {
-            if (!element)
-                return;
-            if (element === item)
-                return;
+        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
+            switch (e.Action) {
+                case Collections.NotifyCollectionChangedAction.Add:
+                    this.OnItemsAdded(e.NewStartingIndex, e.NewItems);
+                    break;
+                case Collections.NotifyCollectionChangedAction.Remove:
+                    this.OnItemsRemoved(e.OldStartingIndex, e.OldItems);
+                    break;
+                case Collections.NotifyCollectionChangedAction.Replace:
+                    this.OnItemsRemoved(e.NewStartingIndex, e.OldItems);
+                    this.OnItemsAdded(e.NewStartingIndex, e.NewItems);
+                    break;
+                case Collections.NotifyCollectionChangedAction.Reset:
+                    this.OnItemsRemoved(0, e.OldItems);
+                    break;
+            }
+        }
+        OnItemsAdded(index: number, newItems: any[]) {
+            this._ItemContainersManager.OnItemsAdded(index, newItems);
+            var presenter = this.XamlNode.ItemsPresenter;
+            if (presenter)
+                presenter.OnItemsAdded(index, newItems);
+        }
+        OnItemsRemoved(index: number, oldItems: any[]) {
+            this._ItemContainersManager.OnItemsRemoved(index, oldItems);
+            var presenter = this.XamlNode.ItemsPresenter;
+            if (presenter)
+                presenter.OnItemsRemoved(index, oldItems);
+        }
 
-            var presenter: ContentPresenter;
-            if (element instanceof ContentPresenter) presenter = <ContentPresenter>element;
-            var control: ContentControl;
-            if (element instanceof ContentControl) control = <ContentControl>element;
+        private UpdateContainerTemplate(container: UIElement, item: any) {
+            if (!container || container === item)
+                return;
 
             var template: DataTemplate;
             if (!(item instanceof UIElement))
                 template = this.ItemTemplate || this._GetDisplayMemberTemplate();
 
-            if (presenter != null) {
-                presenter.ContentTemplate = template;
-                presenter.Content = item;
-            } else if (control != null) {
-                control.ContentTemplate = template;
-                control.Content = item;
+            if (container instanceof ContentPresenter) {
+                var cp = <ContentPresenter>container;
+                cp.ContentTemplate = template;
+                cp.Content = item;
+            } else if (container instanceof ContentControl) {
+                var cc = <ContentControl>container;
+                cc.ContentTemplate = template;
+                cc.Content = item;
             }
         }
-        
         private _DisplayMemberTemplate: DataTemplate = null;
         private _GetDisplayMemberTemplate(): DataTemplate {
             if (!this._DisplayMemberTemplate) {
