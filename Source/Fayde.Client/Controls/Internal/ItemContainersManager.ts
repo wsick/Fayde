@@ -77,6 +77,8 @@ module Fayde.Controls.Internal {
             var ic = this.Owner;
             for (var i = index; i < index + count; i++) {
                 var container = containers[i];
+                if (!container)
+                    continue;
                 var item = items[i];
                 ic.ClearContainerForItem(container, item);
                 containers[i] = null;
