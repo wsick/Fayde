@@ -63,7 +63,7 @@ module Fayde.Media.VSM {
                         if (newStoryboards[j] != null)
                             res.Set((<any>newStoryboards[j])._ID, undefined);
                     }
-                    throw err;
+                    console.warn(err);
                 }
             }
 
