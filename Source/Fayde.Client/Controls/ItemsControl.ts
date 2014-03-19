@@ -164,10 +164,10 @@ module Fayde.Controls {
                 presenter.OnItemsAdded(index, newItems);
         }
         OnItemsRemoved(index: number, oldItems: any[]) {
-            this._ItemContainersManager.OnItemsRemoved(index, oldItems);
             var presenter = this.XamlNode.ItemsPresenter;
             if (presenter)
                 presenter.OnItemsRemoved(index, oldItems);
+            this._ItemContainersManager.OnItemsRemoved(index, oldItems);
         }
 
         private UpdateContainerTemplate(container: UIElement, item: any) {

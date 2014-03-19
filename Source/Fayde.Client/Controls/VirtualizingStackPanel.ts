@@ -294,6 +294,18 @@ module Fayde.Controls {
         OnItemsRemoved(index: number, oldItems: any[]) {
             super.OnItemsRemoved(index, oldItems);
 
+            var ic = this.ItemsControl;
+            if (ic) {
+                var icm = ic.ItemContainersManager;
+                var children = this.Children;
+                for (var i = 0, len = oldItems.length; i < len; i++) {
+                    var oldItem = oldItems[i];
+                    var container = icm.ContainerFromItem(oldItem);
+                    if (container)
+                        children.Remove(container);
+                }
+            }
+
             var isHorizontal = this.Orientation === Orientation.Horizontal;
             var offset = isHorizontal ? this.HorizontalOffset : this.VerticalOffset;
 
