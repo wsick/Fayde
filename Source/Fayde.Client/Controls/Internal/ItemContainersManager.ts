@@ -17,8 +17,8 @@ module Fayde.Controls.Internal {
         ItemFromContainer(container: UIElement): any;
         ContainerFromItem(item: any): UIElement;
         
-        OnItemsAdded(index: number, items: any[]);
-        OnItemsRemoved(index: number, items: any[]);
+        OnItemsAdded(index: number, newItems: any[]);
+        OnItemsRemoved(index: number, oldItems: any[]);
         DisposeContainers(index?: number, count?: number): UIElement[];
 
         CreateGenerator(index: number, count: number): IContainerGenerator;
@@ -50,20 +50,18 @@ module Fayde.Controls.Internal {
             return this._Containers[index];
         }
 
-        OnItemsAdded(index: number, items: any[]) {
-            var args = items.slice(0);
-            args.unshift(index, 0);
-            this._Items.splice.apply(this._Items, args);
-
+        OnItemsAdded(index: number, newItems: any[]) {
+            var items = this._Items;
             var containers = this._Containers;
-            for (var i = 0, len = items.length; i < len; i++) {
+            for (var i = 0, len = newItems.length; i < len; i++) {
+                items.splice(index + i, 0, newItems[i]);
                 containers.splice(index + i, 0, null);
             }
         }
-        OnItemsRemoved(index: number, items: any[]) {
-            this.DisposeContainers(index, items.length);
-            this._Items.splice(index, items.length);
-            this._Containers.splice(index, items.length);
+        OnItemsRemoved(index: number, oldItems: any[]) {
+            this.DisposeContainers(index, oldItems.length);
+            this._Items.splice(index, oldItems.length);
+            this._Containers.splice(index, oldItems.length);
         }
         DisposeContainers(index?: number, count?: number): UIElement[] {
             var containers = this._Containers;
