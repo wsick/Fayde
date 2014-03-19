@@ -115,19 +115,12 @@ module Fayde.Data {
         private _FindSourceByElementName(): XamlObject {
             var name = this.ParentBinding.ElementName;
             var xobj: XamlObject = this.Target;
-            var source: XamlObject;
-            var parent: XamlObject;
-            while (xobj) {
-                source = xobj.FindName(name);
-                if (source)
-                    return source;
-                if (xobj.TemplateOwner)
-                    xobj = xobj.TemplateOwner;
-                else if ((parent = xobj.Parent) && (parent instanceof UIElement) && Controls.ItemsControl.GetItemsOwner(<UIElement>parent))
-                    xobj = parent;
-                else
-                    xobj = null;
-            }
+            if (!xobj)
+                return undefined;
+            var source = xobj.FindName(name, true);
+            if (source)
+                return source;
+            //TODO: Crawl out of ListBoxItem?
             return undefined;
         }
 

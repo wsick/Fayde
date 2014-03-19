@@ -155,6 +155,9 @@ module Fayde {
             }
             str += ")";
 
+            var t = uie.TemplateOwner;
+            str += "$TO=" + (t ? (<any>t).constructor.name : "(null)");
+
             var gridStr = VisualTreeHelper.__DebugGrid(uin, tabIndex);
             if (gridStr)
                 str += "\n" + gridStr;

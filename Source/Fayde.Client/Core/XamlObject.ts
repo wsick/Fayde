@@ -21,15 +21,9 @@ module Fayde {
             return pn.XObject;
         }
 
-        FindName(name: string): XamlObject {
-            var n = <XamlNode>this.XamlNode;
-            while (n) {
-                var m = n.FindName(name);
-                if (m)
-                    return m.XObject;
-                n = n.ParentNode;
-            }
-            return undefined;
+        FindName(name: string, doc?: boolean): XamlObject {
+            var n = this.XamlNode.FindName(name, doc);
+            return n ? n.XObject : undefined;
         }
 
         Clone(): XamlObject {
