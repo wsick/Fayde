@@ -41,6 +41,26 @@ var Fayde;
             };
             return ca;
         })();
+
+        Xaml.TextContent = (function () {
+            function tca(type, prop) {
+                Fayde.Annotation(type, "TextContent", prop, true);
+            }
+            tca.Get = function (type) {
+                var cur = type;
+                while (cur) {
+                    var anns = Fayde.GetAnnotations(cur, "TextContent");
+                    if (anns) {
+                        var cp = anns[0];
+                        if (cp)
+                            return cp;
+                    }
+                    cur = Fayde.GetTypeParent(cur);
+                }
+                return undefined;
+            };
+            return tca;
+        })();
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
@@ -590,12 +610,12 @@ var Fayde;
             function NotifyCollectionChangedEventArgs() {
                 _super.apply(this, arguments);
             }
-            NotifyCollectionChangedEventArgs.Reset = function () {
+            NotifyCollectionChangedEventArgs.Reset = function (allValues) {
                 var args = new NotifyCollectionChangedEventArgs();
                 Object.defineProperty(args, "Action", { value: 4 /* Reset */, writable: false });
-                Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
+                Object.defineProperty(args, "OldStartingIndex", { value: 0, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
-                Object.defineProperty(args, "OldItems", { value: null, writable: false });
+                Object.defineProperty(args, "OldItems", { value: allValues, writable: false });
                 Object.defineProperty(args, "NewItems", { value: null, writable: false });
                 return args;
             };
@@ -795,6 +815,10 @@ var Fayde;
                 configurable: true
             });
 
+            ObservableCollection.prototype.ToArray = function () {
+                return this._ht.slice(0);
+            };
+
             ObservableCollection.prototype.GetValueAt = function (index) {
                 var ht = this._ht;
                 if (index < 0 || index >= ht.length)
@@ -856,8 +880,9 @@ var Fayde;
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.Clear = function () {
+                var old = this._ht;
                 this._ht = [];
-                this.CollectionChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Reset());
+                this.CollectionChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Reset(old));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype._RaisePropertyChanged = function (propertyName) {
@@ -885,6 +910,7 @@ var Fayde;
             this.ParentNode = null;
             this.Name = "";
             this.NameScope = null;
+            this.DocNameScope = null;
             this.IsShareable = false;
             this._OwnerNameScope = null;
             this._LogicalChildren = [];
@@ -943,11 +969,16 @@ var Fayde;
             }
         };
 
-        XamlNode.prototype.FindName = function (name) {
+        XamlNode.prototype.FindName = function (name, doc) {
             var scope = this.FindNameScope();
+            var node;
             if (scope)
-                return scope.FindName(name);
-            return undefined;
+                node = scope.FindName(name);
+            var docscope;
+            ;
+            if (!node && doc && (docscope = this.DocNameScope))
+                node = docscope.FindName(name);
+            return node;
         };
         XamlNode.prototype.SetName = function (name) {
             this.Name = name;
@@ -1137,15 +1168,9 @@ var Fayde;
             configurable: true
         });
 
-        XamlObject.prototype.FindName = function (name) {
-            var n = this.XamlNode;
-            while (n) {
-                var m = n.FindName(name);
-                if (m)
-                    return m.XObject;
-                n = n.ParentNode;
-            }
-            return undefined;
+        XamlObject.prototype.FindName = function (name, doc) {
+            var n = this.XamlNode.FindName(name, doc);
+            return n ? n.XObject : undefined;
         };
 
         XamlObject.prototype.Clone = function () {
@@ -1364,14 +1389,13 @@ var DependencyProperty = (function () {
     };
 
     DependencyProperty.prototype.ValidateSetValue = function (dobj, value, isValidOut) {
-        isValidOut.IsValid = false;
         var coerced = value;
-        if (this._Coercer && !(coerced = this._Coercer(dobj, this, coerced)))
-            return coerced;
+        if (this._Coercer)
+            coerced = this._Coercer(dobj, this, coerced);
 
-        if (this._Validator && !this._Validator(dobj, this, coerced))
-            return coerced;
         isValidOut.IsValid = true;
+        if (this._Validator)
+            isValidOut.IsValid = !!this._Validator(dobj, this, coerced, value);
         return coerced;
     };
 
@@ -2746,6 +2770,7 @@ var Fayde;
             _super.apply(this, arguments);
             this._ClipListener = null;
             this._EffectListener = null;
+            this._TransformListener = null;
             this.LostFocus = new Fayde.RoutedEvent();
             this.GotFocus = new Fayde.RoutedEvent();
             this.LostMouseCapture = new Fayde.RoutedEvent();
@@ -2943,6 +2968,16 @@ var Fayde;
             if (newTriggers instanceof Fayde.TriggerCollection)
                 newTriggers.AttachTarget(this);
         };
+        UIElement.prototype._RenderTransformChanged = function (args) {
+            var _this = this;
+            if (this._TransformListener)
+                this._TransformListener.Detach();
+            this.XamlNode.LayoutUpdater.UpdateTransform();
+            if (args.NewValue instanceof Fayde.Media.Transform)
+                this._TransformListener = args.NewValue.Listen(function (source) {
+                    return _this.XamlNode.LayoutUpdater.UpdateTransform();
+                });
+        };
 
         UIElement.prototype.MeasureOverride = function (availableSize) {
             return undefined;
@@ -2978,11 +3013,11 @@ var Fayde;
         }, UIElement, undefined, function (d, args) {
             return d.XamlNode.LayoutUpdater.UpdateProjection();
         });
-        UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () {
+        UIElement.RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", function () {
             return Fayde.Media.Transform;
         }, UIElement, undefined, function (d, args) {
-            return d.XamlNode.LayoutUpdater.UpdateTransform();
-        });
+            return d._RenderTransformChanged(args);
+        }, undefined, undefined, undefined, false);
         UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () {
             return Point;
         }, UIElement, undefined, function (d, args) {
@@ -5440,7 +5475,6 @@ var Fayde;
             __extends(Control, _super);
             function Control() {
                 _super.apply(this, arguments);
-                this._IsMouseOver = false;
                 this.IsEnabledChanged = new MulticastEvent();
             }
             Control.prototype.CreateNode = function () {
@@ -5671,7 +5705,6 @@ var Fayde;
             __extends(ContentControl, _super);
             function ContentControl() {
                 _super.apply(this, arguments);
-                this._ContentSetsParent = true;
             }
             ContentControl.prototype.CreateNode = function () {
                 return new ContentControlNode(this);
@@ -6402,9 +6435,6 @@ var Fayde;
             }, Panel, undefined, function (d, args) {
                 return d._BackgroundChanged(args);
             });
-            Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemHost", function () {
-                return Boolean;
-            }, Panel, false);
             Panel.ChildrenProperty = DependencyProperty.RegisterImmutable("Children", function () {
                 return PanelChildrenCollection;
             }, Panel);
@@ -6851,32 +6881,14 @@ var Fayde;
             __extends(ItemsControlNode, _super);
             function ItemsControlNode(xobj) {
                 _super.call(this, xobj);
+                this.ItemsPresenter = null;
             }
             ItemsControlNode.prototype.GetDefaultVisualTree = function () {
-                var presenter = this._Presenter;
-                if (!presenter) {
-                    this._Presenter = presenter = new Fayde.Controls.ItemsPresenter();
-                    presenter.TemplateOwner = this.XObject;
-                }
+                var presenter = this.ItemsPresenter;
+                if (!presenter)
+                    (presenter = new Fayde.Controls.ItemsPresenter()).TemplateOwner = this.XObject;
                 return presenter;
             };
-
-            Object.defineProperty(ItemsControlNode.prototype, "ItemsPresenter", {
-                get: function () {
-                    return this._Presenter;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ItemsControlNode.prototype._SetItemsPresenter = function (presenter) {
-                if (this._Presenter)
-                    this._Presenter.XamlNode.ElementRoot.Children.Clear();
-
-                this._Presenter = presenter;
-                var xobj = this.XObject;
-                xobj.AddItemsToPresenter(ItemsControlNode._DefaultPosition, xobj.Items.Count);
-            };
-            ItemsControlNode._DefaultPosition = { Index: -1, Offset: 1 };
             return ItemsControlNode;
         })(Fayde.Controls.ControlNode);
         Controls.ItemsControlNode = ItemsControlNode;
@@ -6886,302 +6898,183 @@ var Fayde;
             __extends(ItemsControl, _super);
             function ItemsControl() {
                 _super.call(this);
-                this._ItemsIsDataBound = false;
-                this._Items = null;
+                this._IsDataBound = false;
+                this._SuspendItemsChanged = false;
                 this._DisplayMemberTemplate = null;
                 this.DefaultStyleKey = this.constructor;
-                var icg = new Fayde.Controls.ItemContainerGenerator(this);
-                icg.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
-                Object.defineProperty(this, "ItemContainerGenerator", {
-                    value: icg,
-                    writable: false
-                });
+                var coll = ItemsControl.ItemsProperty.Initialize(this);
+                coll.ItemsChanged.Subscribe(this._OnItemsUpdated, this);
+
+                this._ItemContainersManager = new Fayde.Controls.Internal.ItemContainersManager(this);
             }
             ItemsControl.prototype.CreateNode = function () {
                 return new ItemsControlNode(this);
             };
 
-            Object.defineProperty(ItemsControl.prototype, "Items", {
-                get: function () {
-                    var items = this._Items;
-                    if (!items) {
-                        this._Items = items = new Fayde.Controls.ItemCollection();
-                        this._ItemsIsDataBound = false;
-                        items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
-
-                        var storage = Fayde.Providers.GetStorage(this, ItemsControl.ItemsProperty);
-                        storage.Precedence = 1 /* LocalValue */;
-                        storage.Local = items;
-                    }
-                    return items;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(ItemsControl.prototype, "$Items", {
-                get: function () {
-                    return this.Items;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(ItemsControl.prototype, "ItemsSource", {
-                get: function () {
-                    return this.GetValue(ItemsControl.ItemsSourceProperty);
-                },
-                set: function (value) {
-                    if (!this._ItemsIsDataBound && this.Items.Count > 0)
-                        throw new InvalidOperationException("Items collection must be empty before using ItemsSource");
-                    this.SetValue(ItemsControl.ItemsSourceProperty, value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(ItemsControl.prototype, "$DisplayMemberTemplate", {
-                get: function () {
-                    if (!this._DisplayMemberTemplate) {
-                        var dmp = this.DisplayMemberPath || "";
-                        var xd = new Fayde.Xaml.XamlDocument("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
-                        this._DisplayMemberTemplate = Fayde.Xaml.Load(xd.Document);
-                    }
-                    return this._DisplayMemberTemplate;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(ItemsControl.prototype, "Panel", {
-                get: function () {
-                    if (!this.XamlNode.ItemsPresenter)
-                        return undefined;
-                    return this.XamlNode.ItemsPresenter.ElementRoot;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            ItemsControl.GetItemsOwner = function (uie) {
-                if (!(uie instanceof Fayde.Controls.Panel))
-                    return null;
-                var panel = uie;
-                if (!panel.IsItemsHost)
-                    return null;
-                var presenter = panel.TemplateOwner;
-                if (!(presenter instanceof Fayde.Controls.ItemsPresenter))
-                    return null;
-                var ic = presenter.TemplateOwner;
-                if (ic instanceof ItemsControl)
-                    return ic;
-                return null;
+            ItemsControl.GetIsItemsHost = function (d) {
+                return d.GetValue(ItemsControl.IsItemsHostProperty) === true;
             };
-            ItemsControl.ItemsControlFromItemContainer = function (container) {
-                if (!(container instanceof Fayde.FrameworkElement))
-                    return null;
-
-                var fe = container;
-                var parentNode = fe.XamlNode.ParentNode;
-                var parent = (parentNode) ? parentNode.XObject : null;
-                var itctl;
-                if (parent instanceof ItemsControl)
-                    itctl = parent;
-
-                if (itctl == null)
-                    return ItemsControl.GetItemsOwner(parent);
-                if (itctl.IsItemItsOwnContainer(fe))
-                    return itctl;
-                return null;
+            ItemsControl.SetIsItemsHost = function (d, value) {
+                d.SetValue(ItemsControl.IsItemsHostProperty, value === true);
             };
 
-            ItemsControl.prototype.OnItemsSourceChanged = function (e) {
-                var cc = Fayde.Collections.INotifyCollectionChanged_.As(e.OldValue);
-                if (cc)
-                    cc.CollectionChanged.Unsubscribe(this._CollectionChanged, this);
-
-                if (e.NewValue != null) {
-                    var source = e.NewValue;
-                    cc = Fayde.Collections.INotifyCollectionChanged_.As(source);
-                    if (cc)
-                        cc.CollectionChanged.Subscribe(this._CollectionChanged, this);
-
-                    this.$Items.IsReadOnly = true;
-                    this._ItemsIsDataBound = true;
-                    this.$Items.ClearImpl();
-
-                    var en = Fayde.IEnumerable_.As(source);
-                    var enumerator = en ? en.GetEnumerator() : undefined;
-                    if (enumerator) {
-                        var items = this.$Items;
-                        while (enumerator.MoveNext()) {
-                            items.AddImpl(enumerator.Current);
-                        }
-                    }
-                    this.OnItemsChanged(Fayde.Collections.NotifyCollectionChangedEventArgs.Reset());
-                } else {
-                    this._ItemsIsDataBound = false;
-                    this.$Items.IsReadOnly = false;
-                    this.$Items.ClearImpl();
-                }
-
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
-            };
-            ItemsControl.prototype._CollectionChanged = function (sender, e) {
-                var index;
-                switch (e.Action) {
-                    case 1 /* Add */:
-                        var enumerator = Fayde.ArrayEx.GetEnumerator(e.NewItems);
-                        index = e.NewStartingIndex;
-                        while (enumerator.MoveNext()) {
-                            this.$Items.InsertImpl(index, enumerator.Current);
-                            index++;
-                        }
-                        break;
-                    case 2 /* Remove */:
-                        var enumerator = Fayde.ArrayEx.GetEnumerator(e.OldItems);
-                        while (enumerator.MoveNext()) {
-                            this.$Items.RemoveAtImpl(e.OldStartingIndex);
-                        }
-                        break;
-                    case 3 /* Replace */:
-                        var enumerator = Fayde.ArrayEx.GetEnumerator(e.NewItems);
-                        index = e.NewStartingIndex;
-                        while (enumerator.MoveNext()) {
-                            this.$Items.SetValueAtImpl(index, enumerator.Current);
-                            index++;
-                        }
-                        break;
-                    case 4 /* Reset */:
-                        this.$Items.ClearImpl();
-                        var enumerator = this.ItemsSource.GetEnumerator();
-                        while (enumerator.MoveNext()) {
-                            this.$Items.AddImpl(enumerator.Current);
-                        }
-                        break;
-                }
-                this.OnItemsChanged(e);
-            };
             ItemsControl.prototype.OnDisplayMemberPathChanged = function (e) {
-                var icg = this.ItemContainerGenerator;
-                var i = 0;
-                var enumerator = this.Items.GetEnumerator();
+                var enumerator = this.ItemContainersManager.GetEnumerator();
                 while (enumerator.MoveNext()) {
-                    this.UpdateContentTemplateOnContainer(icg.ContainerFromIndex(i), enumerator.Current);
-                    i++;
+                    this.UpdateContainerTemplate(enumerator.Current, enumerator.CurrentItem);
                 }
             };
+            ItemsControl.prototype.OnItemsSourceChanged = function (e) {
+                var nc = Fayde.Collections.INotifyCollectionChanged_.As(e.OldValue);
+                if (nc)
+                    nc.CollectionChanged.Unsubscribe(this._OnItemsSourceUpdated, this);
+                var items = this.Items;
+                if (e.OldValue)
+                    this.OnItemsRemoved(0, items.ToArray());
+                try  {
+                    this._SuspendItemsChanged = true;
+                    items.Clear();
+                    this._IsDataBound = !!e.NewValue;
+                    if (e.NewValue) {
+                        var arr = Fayde.Enumerable.ToArray(e.NewValue);
+                        items.AddRange(arr);
+                        this.OnItemsAdded(0, arr);
+                    }
+                } finally {
+                    this._SuspendItemsChanged = false;
+                }
+                var nc = Fayde.Collections.INotifyCollectionChanged_.As(e.NewValue);
+                if (nc)
+                    nc.CollectionChanged.Subscribe(this._OnItemsSourceUpdated, this);
+            };
+            ItemsControl.prototype.OnItemTemplateChanged = function (e) {
+                var enumerator = this.ItemContainersManager.GetEnumerator();
+                while (enumerator.MoveNext()) {
+                    this.UpdateContainerTemplate(enumerator.Current, enumerator.CurrentItem);
+                }
+            };
+
+            Object.defineProperty(ItemsControl.prototype, "ItemContainersManager", {
+                get: function () {
+                    return this._ItemContainersManager;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             ItemsControl.prototype.PrepareContainerForItem = function (container, item) {
                 if (this.DisplayMemberPath != null && this.ItemTemplate != null)
-                    throw new InvalidOperationException("Cannot set 'DisplayMemberPath' and 'ItemTemplate' simultaenously");
-
-                this.UpdateContentTemplateOnContainer(container, item);
+                    throw new InvalidOperationException("Cannot set 'DisplayMemberPath' and 'ItemTemplate' simultaneously");
+                this.UpdateContainerTemplate(container, item);
             };
             ItemsControl.prototype.ClearContainerForItem = function (container, item) {
+                if (container instanceof Fayde.Controls.ContentPresenter) {
+                    var cp = container;
+                    if (cp.Content === item)
+                        cp.Content = null;
+                } else if (container instanceof Fayde.Controls.ContentControl) {
+                    var cc = container;
+                    if (cc.Content === item)
+                        cc.Content = null;
+                }
             };
             ItemsControl.prototype.GetContainerForItem = function () {
                 return new Fayde.Controls.ContentPresenter();
             };
             ItemsControl.prototype.IsItemItsOwnContainer = function (item) {
-                return item instanceof Fayde.FrameworkElement;
+                return item instanceof Fayde.UIElement;
             };
-            ItemsControl.prototype.OnItemsChanged = function (e) {
-            };
-            ItemsControl.prototype.InvokeItemsChanged = function (sender, e) {
-                this.ItemContainerGenerator.OnOwnerItemsItemsChanged(e);
-                if (!this._ItemsIsDataBound)
-                    this.OnItemsChanged(e);
-            };
-            ItemsControl.prototype.OnItemContainerGeneratorChanged = function (sender, e) {
-                var panel = this.Panel;
-                if (!panel || panel instanceof Fayde.Controls.VirtualizingPanel)
-                    return;
 
-                switch (e.Action) {
-                    case 4 /* Reset */:
-                        var count = panel.Children.Count;
-                        if (count > 0)
-                            this.RemoveItemsFromPresenter({ Index: 0, Offset: 0 }, count);
-                        break;
-                    case 1 /* Add */:
-                        this.AddItemsToPresenter(e.Position, e.ItemCount);
-                        break;
-                    case 2 /* Remove */:
-                        this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
-                        break;
-                    case 3 /* Replace */:
-                        this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
-                        this.AddItemsToPresenter(e.Position, e.ItemCount);
-                        break;
-                }
-            };
-            ItemsControl.prototype.OnItemTemplateChanged = function (e) {
-                var enumerator = this.Items.GetEnumerator();
-                var i = 0;
-                var icg = this.ItemContainerGenerator;
-                while (enumerator.MoveNext()) {
-                    this.UpdateContentTemplateOnContainer(icg.ContainerFromIndex(i), enumerator.Current);
-                    i++;
-                }
-            };
-            ItemsControl.prototype.AddItemsToPresenter = function (position, count) {
-                var panel = this.Panel;
-                if (!panel || panel instanceof Fayde.Controls.VirtualizingPanel)
+            ItemsControl.prototype._OnItemsUpdated = function (sender, e) {
+                if (this._SuspendItemsChanged)
                     return;
-
-                var icg = this.ItemContainerGenerator;
-                var newIndex = icg.IndexFromGeneratorPosition(position);
+                if (this._IsDataBound)
+                    throw new InvalidOperationException("Cannot modify Items while bound to ItemsSource.");
+                this.OnItemsChanged(e);
+            };
+            ItemsControl.prototype._OnItemsSourceUpdated = function (sender, e) {
                 var items = this.Items;
-                var children = panel.Children;
-
-                var state = icg.StartAt(position, true, true);
                 try  {
-                    for (var i = 0; i < count; i++) {
-                        var item = items.GetValueAt(newIndex + i);
-                        var container = icg.GenerateNext({ Value: null });
-                        if (container instanceof Fayde.Controls.ContentControl)
-                            container._ContentSetsParent = false;
-
-                        if (container instanceof Fayde.FrameworkElement && !(item instanceof Fayde.FrameworkElement))
-                            container.DataContext = item;
-
-                        children.Insert(newIndex + i, container);
-                        icg.PrepareItemContainer(container);
+                    this._SuspendItemsChanged = true;
+                    switch (e.Action) {
+                        case 1 /* Add */:
+                            for (var i = 0, len = e.NewItems.length; i < len; i++) {
+                                items.Insert(e.NewStartingIndex + i, e.NewItems[i]);
+                            }
+                            break;
+                        case 2 /* Remove */:
+                            for (var i = 0, len = e.OldItems.length; i < len; i++) {
+                                items.RemoveAt(e.OldStartingIndex);
+                            }
+                            break;
+                        case 3 /* Replace */:
+                            items[e.NewStartingIndex] = e.NewItems[0];
+                            break;
+                        case 4 /* Reset */:
+                            items.Clear();
+                            break;
                     }
                 } finally {
-                    state.Dispose();
+                    this._SuspendItemsChanged = false;
+                }
+                this.OnItemsChanged(e);
+            };
+            ItemsControl.prototype.OnItemsChanged = function (e) {
+                switch (e.Action) {
+                    case 1 /* Add */:
+                        this.OnItemsAdded(e.NewStartingIndex, e.NewItems);
+                        break;
+                    case 2 /* Remove */:
+                        this.OnItemsRemoved(e.OldStartingIndex, e.OldItems);
+                        break;
+                    case 3 /* Replace */:
+                        this.OnItemsRemoved(e.NewStartingIndex, e.OldItems);
+                        this.OnItemsAdded(e.NewStartingIndex, e.NewItems);
+                        break;
+                    case 4 /* Reset */:
+                        this.OnItemsRemoved(0, e.OldItems);
+                        break;
                 }
             };
-            ItemsControl.prototype.RemoveItemsFromPresenter = function (position, count) {
-                var panel = this.Panel;
-                if (!panel || panel instanceof Fayde.Controls.VirtualizingPanel)
-                    return;
-
-                while (count > 0) {
-                    panel.Children.RemoveAt(position.Index);
-                    count--;
-                }
+            ItemsControl.prototype.OnItemsAdded = function (index, newItems) {
+                this._ItemContainersManager.OnItemsAdded(index, newItems);
+                var presenter = this.XamlNode.ItemsPresenter;
+                if (presenter)
+                    presenter.OnItemsAdded(index, newItems);
             };
-            ItemsControl.prototype.UpdateContentTemplateOnContainer = function (element, item) {
-                if (element === item)
-                    return;
+            ItemsControl.prototype.OnItemsRemoved = function (index, oldItems) {
+                var presenter = this.XamlNode.ItemsPresenter;
+                if (presenter)
+                    presenter.OnItemsRemoved(index, oldItems);
+                this._ItemContainersManager.OnItemsRemoved(index, oldItems);
+            };
 
-                var presenter;
-                if (element instanceof Fayde.Controls.ContentPresenter)
-                    presenter = element;
-                var control;
-                if (element instanceof Fayde.Controls.ContentControl)
-                    control = element;
+            ItemsControl.prototype.UpdateContainerTemplate = function (container, item) {
+                if (!container || container === item)
+                    return;
 
                 var template;
                 if (!(item instanceof Fayde.UIElement))
-                    template = this.ItemTemplate || this.$DisplayMemberTemplate;
+                    template = this.ItemTemplate || this._GetDisplayMemberTemplate();
 
-                if (presenter != null) {
-                    presenter.ContentTemplate = template;
-                    presenter.Content = item;
-                } else if (control != null) {
-                    control.ContentTemplate = template;
-                    control.Content = item;
+                if (container instanceof Fayde.Controls.ContentPresenter) {
+                    var cp = container;
+                    cp.ContentTemplate = template;
+                    cp.Content = item;
+                } else if (container instanceof Fayde.Controls.ContentControl) {
+                    var cc = container;
+                    cc.ContentTemplate = template;
+                    cc.Content = item;
                 }
+            };
+
+            ItemsControl.prototype._GetDisplayMemberTemplate = function () {
+                if (!this._DisplayMemberTemplate) {
+                    var dmp = this.DisplayMemberPath || "";
+                    var xd = new Fayde.Xaml.XamlDocument("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
+                    this._DisplayMemberTemplate = Fayde.Xaml.Load(xd.Document);
+                }
+                return this._DisplayMemberTemplate;
             };
             ItemsControl.DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", function () {
                 return String;
@@ -7191,19 +7084,23 @@ var Fayde;
             ItemsControl.ItemsPanelProperty = DependencyProperty.Register("ItemsPanel", function () {
                 return Fayde.Controls.ItemsPanelTemplate;
             }, ItemsControl);
-            ItemsControl.ItemsSourceProperty = DependencyProperty.Register("ItemsSource", function () {
+            ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterFull("ItemsSource", function () {
                 return Fayde.IEnumerable_;
             }, ItemsControl, null, function (d, args) {
                 return d.OnItemsSourceChanged(args);
             });
+            ItemsControl.ItemsProperty = DependencyProperty.RegisterImmutable("Items", function () {
+                return Fayde.Controls.ItemCollection;
+            }, ItemsControl);
             ItemsControl.ItemTemplateProperty = DependencyProperty.Register("ItemTemplate", function () {
                 return Fayde.DataTemplate;
             }, ItemsControl, undefined, function (d, args) {
                 return d.OnItemTemplateChanged(args);
             });
-            ItemsControl.ItemsProperty = DependencyProperty.RegisterImmutable("Items", function () {
-                return Fayde.Controls.ItemCollection;
-            }, ItemsControl);
+
+            ItemsControl.IsItemsHostProperty = DependencyProperty.RegisterAttached("IsItemsHost", function () {
+                return Boolean;
+            }, ItemsControl, false);
             return ItemsControl;
         })(Fayde.Controls.Control);
         Controls.ItemsControl = ItemsControl;
@@ -7222,7 +7119,6 @@ var Fayde;
                     _super.call(this);
                     this.SelectionChanged = new Fayde.RoutedEvent();
                     this._SelectedItems = new Fayde.Collections.ObservableCollection();
-                    this._Initializing = false;
                     this._SelectedItemsIsInvalid = false;
                     this.$TemplateScrollViewer = null;
                     this._SelectedValueWalker = null;
@@ -7259,7 +7155,7 @@ var Fayde;
                         this.SelectedItem = icv.CurrentItem;
                 };
                 Selector.prototype._OnSelectedIndexChanged = function (args) {
-                    if (this._Selection.IsUpdating || this._Initializing)
+                    if (this._Selection.IsUpdating)
                         return;
 
                     var items = this.Items;
@@ -7269,7 +7165,7 @@ var Fayde;
                         this._Selection.Select(items.GetValueAt(args.NewValue));
                 };
                 Selector.prototype._OnSelectedItemChanged = function (args) {
-                    if (this._Selection.IsUpdating || this._Initializing)
+                    if (this._Selection.IsUpdating)
                         return;
 
                     if (args.NewValue == null)
@@ -7282,15 +7178,12 @@ var Fayde;
                         this._Selection.ClearSelection();
                 };
                 Selector.prototype._OnSelectedValueChanged = function (args) {
-                    if (this._Selection.IsUpdating || this._Initializing)
+                    if (this._Selection.IsUpdating)
                         return;
                     this._SelectItemFromValue(args.NewValue, false);
                 };
                 Selector.prototype._OnSelectedValuePathChanged = function (args) {
                     this._SelectedValueWalker = !args.NewValue ? null : new Fayde.Data.PropertyPathWalker(args.NewValue);
-
-                    if (this._Initializing)
-                        return;
                     this._SelectItemFromValue(this.SelectedValue, true);
                 };
                 Selector.prototype._OnSelectionModeChanged = function (args) {
@@ -7314,11 +7207,7 @@ var Fayde;
                 };
 
                 Selector.prototype.OnItemsChanged = function (e) {
-                    if (this._Initializing) {
-                        _super.prototype.OnItemsChanged.call(this, e);
-                        return;
-                    }
-
+                    _super.prototype.OnItemsChanged.call(this, e);
                     var item;
                     switch (e.Action) {
                         case 1 /* Add */:
@@ -7357,8 +7246,6 @@ var Fayde;
                         default:
                             throw new NotSupportedException("Collection changed action '" + e.Action + "' not supported");
                     }
-
-                    _super.prototype.OnItemsChanged.call(this, e);
                 };
                 Selector.prototype.OnItemsSourceChanged = function (args) {
                     _super.prototype.OnItemsSourceChanged.call(this, args);
@@ -7380,6 +7267,7 @@ var Fayde;
                 };
                 Selector.prototype.OnItemContainerStyleChanged = function (oldStyle, newStyle) {
                 };
+
                 Selector.prototype.ClearContainerForItem = function (element, item) {
                     _super.prototype.ClearContainerForItem.call(this, element, item);
                     var lbi = element;
@@ -7452,7 +7340,7 @@ var Fayde;
                         lbi = null;
                         if (oldValue instanceof Fayde.Controls.ListBoxItem)
                             lbi = oldValue;
-                        lbi = lbi || this.ItemContainerGenerator.ContainerFromItem(oldValue);
+                        lbi = lbi || this.ItemContainersManager.ContainerFromItem(oldValue);
                         if (lbi)
                             lbi.IsSelected = false;
                     }
@@ -7466,7 +7354,7 @@ var Fayde;
                         lbi = null;
                         if (newValue instanceof Fayde.Controls.ListBoxItem)
                             lbi = newValue;
-                        lbi = lbi || this.ItemContainerGenerator.ContainerFromItem(newValue);
+                        lbi = lbi || this.ItemContainersManager.ContainerFromItem(newValue);
                         if (lbi) {
                             lbi.IsSelected = true;
                             lbi.Focus();
@@ -7481,10 +7369,10 @@ var Fayde;
                 };
 
                 Selector.prototype.NotifyListItemClicked = function (lbi) {
-                    this._Selection.Select(this.ItemContainerGenerator.ItemFromContainer(lbi));
+                    this._Selection.Select(this.ItemContainersManager.ItemFromContainer(lbi));
                 };
                 Selector.prototype.NotifyListItemLoaded = function (lbi) {
-                    if (this.ItemContainerGenerator.ItemFromContainer(lbi) === this.SelectedItem) {
+                    if (this.ItemContainersManager.ItemFromContainer(lbi) === this.SelectedItem) {
                         lbi.IsSelected = true;
                         lbi.Focus();
                     }
@@ -7607,6 +7495,7 @@ var Fayde;
                 var xobj = val;
                 var xnode = xobj.XamlNode;
 
+                xnode.DocNameScope = ctx.NameScope;
                 var nameAttr = el.attributes.getNamedItemNS(Fayde.XMLNSX, "Name");
                 if (nameAttr) {
                     var name = nameAttr.value;
@@ -7731,9 +7620,11 @@ var Fayde;
             var dobj;
             var contentPropd;
             var contentCollection;
+            var textContentPropd;
             if (owner instanceof Fayde.DependencyObject) {
                 dobj = owner;
                 contentPropd = Fayde.Xaml.Content.Get(ownerType);
+                textContentPropd = Fayde.Xaml.TextContent.Get(ownerType);
                 if (contentPropd instanceof DependencyProperty) {
                     if (contentPropd.IsImmutable) {
                         contentCollection = dobj[contentPropd.Name];
@@ -7883,10 +7774,16 @@ var Fayde;
                         child = child.nextElementSibling;
                     }
 
-                    if (!hasSetContent && !el.firstElementChild && contentPropd) {
+                    if (!hasSetContent && !el.firstElementChild) {
                         var text = el.textContent;
-                        if (text && (text = text.trim()))
-                            dobj.SetValue(contentPropd, text);
+                        if (text)
+                            text = text.trim();
+                        if (text) {
+                            if (textContentPropd)
+                                dobj.SetValue(textContentPropd, text);
+                            else if (!contentPropd.IsImmutable)
+                                dobj.SetValue(contentPropd, text);
+                        }
                     }
 
                     if (rd)
@@ -7968,6 +7865,8 @@ var Fayde;
                                     return;
                                 }
                             }
+                            if (!el.firstElementChild)
+                                return;
                             dobj.SetValue(propd, createObject(el.firstElementChild, ctx));
                         }
                     } else {
@@ -8702,7 +8601,12 @@ var Fayde;
                 var content = this.Content;
                 var info = Fayde.Controls.Primitives.IScrollInfo_.As(content);
                 if (!info && content instanceof Fayde.Controls.ItemsPresenter) {
-                    info = Fayde.Controls.Primitives.IScrollInfo_.As(content.ElementRoot);
+                    var ip = content;
+                    var err = new BError();
+                    ip.XamlNode.ApplyTemplateWithError(err);
+                    if (err.Message)
+                        err.ThrowException();
+                    info = Fayde.Controls.Primitives.IScrollInfo_.As(ip.Panel);
                 }
 
                 if (!info)
@@ -8771,6 +8675,7 @@ var Fayde;
 
             ScrollContentPresenter.prototype.MeasureOverride = function (availableSize) {
                 var scrollOwner = this.ScrollOwner;
+
                 var cr = this.XamlNode.ContentRoot;
                 if (!scrollOwner || !cr)
                     return _super.prototype.MeasureOverride.call(this, availableSize);
@@ -8882,6 +8787,51 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         (function (Primitives) {
+            var RangeBase = (function (_super) {
+                __extends(RangeBase, _super);
+                function RangeBase() {
+                    var _this = this;
+                    _super.call(this);
+                    this.ValueChanged = new Fayde.RoutedPropertyChangedEvent();
+                    this._Coercer = new Fayde.Controls.Internal.RangeCoercer(this, function (val) {
+                        return _this.SetCurrentValue(RangeBase.MaximumProperty, val);
+                    }, function (val) {
+                        return _this.SetCurrentValue(RangeBase.ValueProperty, val);
+                    });
+                }
+                RangeBase.prototype.OnMinimumChanged = function (oldMin, newMin) {
+                };
+                RangeBase.prototype.OnMaximumChanged = function (oldMax, newMax) {
+                };
+                RangeBase.prototype.OnValueChanged = function (oldVal, newVal) {
+                    this.ValueChanged.Raise(this, new Fayde.RoutedPropertyChangedEventArgs(oldVal, newVal));
+                };
+                RangeBase.MinimumProperty = DependencyProperty.RegisterFull("Minimum", function () {
+                    return Number;
+                }, RangeBase, 0, function (d, args) {
+                    return d._Coercer.OnMinimumChanged(args.OldValue, args.NewValue);
+                }, undefined, false, numberValidator);
+                RangeBase.MaximumProperty = DependencyProperty.RegisterFull("Maximum", function () {
+                    return Number;
+                }, RangeBase, 1, function (d, args) {
+                    return d._Coercer.OnMaximumChanged(args.OldValue, args.NewValue);
+                }, undefined, false, numberValidator);
+                RangeBase.LargeChangeProperty = DependencyProperty.RegisterFull("LargeChange", function () {
+                    return Number;
+                }, RangeBase, 1, undefined, undefined, false, changeValidator);
+                RangeBase.SmallChangeProperty = DependencyProperty.RegisterFull("SmallChange", function () {
+                    return Number;
+                }, RangeBase, 0.1, undefined, undefined, false, changeValidator);
+                RangeBase.ValueProperty = DependencyProperty.RegisterFull("Value", function () {
+                    return Number;
+                }, RangeBase, 0, function (d, args) {
+                    return d._Coercer.OnValueChanged(args.OldValue, args.NewValue);
+                }, undefined, false, numberValidator);
+                return RangeBase;
+            })(Fayde.Controls.Control);
+            Primitives.RangeBase = RangeBase;
+            Fayde.RegisterType(RangeBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
+
             function numberValidator(d, propd, value) {
                 if (typeof value !== "number")
                     return false;
@@ -8896,133 +8846,6 @@ var Fayde;
                     return false;
                 return value >= 0;
             }
-
-            var RangeBase = (function (_super) {
-                __extends(RangeBase, _super);
-                function RangeBase() {
-                    _super.apply(this, arguments);
-                    this._LevelsFromRootCall = 0;
-                    this._InitialMax = 1;
-                    this._InitialVal = 0;
-                    this._RequestedMax = 1;
-                    this._RequestedVal = 0;
-                    this._PreCoercedMax = 1;
-                    this._PreCoercedVal = 0;
-                    this.ValueChanged = new Fayde.RoutedPropertyChangedEvent();
-                }
-                RangeBase.prototype.OnMinimumChanged = function (oldMin, newMin) {
-                };
-                RangeBase.prototype.OnMaximumChanged = function (oldMax, newMax) {
-                };
-                RangeBase.prototype.RaiseValueChanged = function (oldVal, newVal) {
-                    this.ValueChanged.Raise(this, new Fayde.RoutedPropertyChangedEventArgs(oldVal, newVal));
-                    this.OnValueChanged(oldVal, newVal);
-                };
-                RangeBase.prototype.OnValueChanged = function (oldVal, newVal) {
-                };
-
-                RangeBase.prototype._OnMinimumChanged = function (args) {
-                    if (this._LevelsFromRootCall === 0) {
-                        this._InitialMax = this.Maximum;
-                        this._InitialVal = this.Value;
-                    }
-                    this._LevelsFromRootCall++;
-                    this._CoerceMaximum();
-                    this._CoerceValue();
-                    this._LevelsFromRootCall--;
-                    if (this._LevelsFromRootCall !== 0)
-                        return;
-
-                    this.OnMinimumChanged(args.OldValue, args.OldValue);
-                    var max = this.Maximum;
-                    if (!NumberEx.AreClose(this._InitialMax, max))
-                        this.OnMaximumChanged(this._InitialMax, max);
-                    var val = this.Value;
-                    if (!NumberEx.AreClose(this._InitialVal, val))
-                        this.RaiseValueChanged(this._InitialVal, val);
-                };
-                RangeBase.prototype._OnMaximumChanged = function (args) {
-                    if (this._LevelsFromRootCall === 0) {
-                        this._RequestedMax = args.NewValue;
-                        this._InitialMax = args.OldValue;
-                        this._InitialVal = this.Value;
-                    }
-                    this._LevelsFromRootCall++;
-                    this._CoerceMaximum();
-                    this._CoerceValue();
-                    this._LevelsFromRootCall--;
-                    if (this._LevelsFromRootCall !== 0)
-                        return;
-
-                    this._PreCoercedMax = args.NewValue;
-                    var max = this.Maximum;
-                    if (!NumberEx.AreClose(this._InitialMax, max))
-                        this.OnMaximumChanged(this._InitialMax, max);
-                    var val = this.Value;
-                    if (!NumberEx.AreClose(this._InitialVal, val))
-                        this.RaiseValueChanged(this._InitialVal, val);
-                };
-                RangeBase.prototype._OnValueChanged = function (args) {
-                    if (this._LevelsFromRootCall === 0) {
-                        this._RequestedVal = args.NewValue;
-                        this._InitialVal = args.OldValue;
-                    }
-                    this._LevelsFromRootCall++;
-                    this._CoerceValue();
-                    this._LevelsFromRootCall--;
-                    if (this._LevelsFromRootCall !== 0)
-                        return;
-
-                    this._PreCoercedVal = args.NewValue;
-                    var val = this.Value;
-                    if (!NumberEx.AreClose(this._InitialVal, val))
-                        this.RaiseValueChanged(this._InitialVal, val);
-                };
-
-                RangeBase.prototype._CoerceMaximum = function () {
-                    var min = this.Minimum;
-                    var max = this.Maximum;
-                    if (!NumberEx.AreClose(this._RequestedMax, max) && this._RequestedMax >= min)
-                        this.SetStoreValue(RangeBase.MaximumProperty, this._RequestedMax);
-                    else if (max < min)
-                        this.SetStoreValue(RangeBase.MaximumProperty, min);
-                };
-                RangeBase.prototype._CoerceValue = function () {
-                    var min = this.Minimum;
-                    var max = this.Maximum;
-                    var val = this.Value;
-                    if (!NumberEx.AreClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max)
-                        this.SetStoreValue(RangeBase.ValueProperty, this._RequestedVal);
-                    else if (val < min)
-                        this.SetStoreValue(RangeBase.ValueProperty, min);
-                    else if (val > max)
-                        this.SetStoreValue(RangeBase.ValueProperty, max);
-                };
-                RangeBase.MinimumProperty = DependencyProperty.RegisterFull("Minimum", function () {
-                    return Number;
-                }, RangeBase, 0, function (d, args) {
-                    return d._OnMinimumChanged(args);
-                }, undefined, false, numberValidator);
-                RangeBase.MaximumProperty = DependencyProperty.RegisterFull("Maximum", function () {
-                    return Number;
-                }, RangeBase, 1, function (d, args) {
-                    return d._OnMaximumChanged(args);
-                }, undefined, false, numberValidator);
-                RangeBase.LargeChangeProperty = DependencyProperty.RegisterFull("LargeChange", function () {
-                    return Number;
-                }, RangeBase, 1, undefined, undefined, false, changeValidator);
-                RangeBase.SmallChangeProperty = DependencyProperty.RegisterFull("SmallChange", function () {
-                    return Number;
-                }, RangeBase, 0.1, undefined, undefined, false, changeValidator);
-                RangeBase.ValueProperty = DependencyProperty.RegisterFull("Value", function () {
-                    return Number;
-                }, RangeBase, 0, function (d, args) {
-                    return d._OnValueChanged(args);
-                }, undefined, false, numberValidator);
-                return RangeBase;
-            })(Fayde.Controls.Control);
-            Primitives.RangeBase = RangeBase;
-            Fayde.RegisterType(RangeBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -9411,19 +9234,16 @@ var Fayde;
                 };
 
                 ScrollBar.prototype.OnMaximumChanged = function (oldMax, newMax) {
-                    var trackLength = this._GetTrackLength();
                     _super.prototype.OnMaximumChanged.call(this, oldMax, newMax);
-                    this._UpdateTrackLayout(trackLength);
+                    this._UpdateTrackLayout();
                 };
                 ScrollBar.prototype.OnMinimumChanged = function (oldMin, newMin) {
-                    var trackLength = this._GetTrackLength();
                     _super.prototype.OnMinimumChanged.call(this, oldMin, newMin);
-                    this._UpdateTrackLayout(trackLength);
+                    this._UpdateTrackLayout();
                 };
                 ScrollBar.prototype.OnValueChanged = function (oldValue, newValue) {
-                    var trackLength = this._GetTrackLength();
                     _super.prototype.OnValueChanged.call(this, oldValue, newValue);
-                    this._UpdateTrackLayout(trackLength);
+                    this._UpdateTrackLayout();
                 };
 
                 ScrollBar.prototype._OnThumbDragStarted = function (sender, e) {
@@ -9491,7 +9311,7 @@ var Fayde;
                 };
 
                 ScrollBar.prototype._HandleSizeChanged = function (sender, e) {
-                    this._UpdateTrackLayout(this._GetTrackLength());
+                    this._UpdateTrackLayout();
                 };
                 ScrollBar.prototype._OnOrientationChanged = function () {
                     var isHorizontal = this.Orientation === 0 /* Horizontal */;
@@ -9501,9 +9321,10 @@ var Fayde;
                     if (this.$VerticalTemplate) {
                         this.$VerticalTemplate.Visibility = isHorizontal ? 1 /* Collapsed */ : 0 /* Visible */;
                     }
-                    this._UpdateTrackLayout(this._GetTrackLength());
+                    this._UpdateTrackLayout();
                 };
-                ScrollBar.prototype._UpdateTrackLayout = function (trackLength) {
+                ScrollBar.prototype._UpdateTrackLayout = function () {
+                    var trackLength = this._GetTrackLength();
                     var max = this.Maximum;
                     var min = this.Minimum;
                     var val = this.Value;
@@ -9596,7 +9417,7 @@ var Fayde;
                 ScrollBar.ViewportSizeProperty = DependencyProperty.Register("ViewportSize", function () {
                     return Number;
                 }, ScrollBar, 0, function (d, args) {
-                    return d._UpdateTrackLayout(d._GetTrackLength());
+                    return d._UpdateTrackLayout();
                 });
                 return ScrollBar;
             })(Fayde.Controls.Primitives.RangeBase);
@@ -10079,7 +9900,7 @@ var Fayde;
                 if (open) {
                     this._FocusedIndex = this.Items.Count > 0 ? Math.max(this.SelectedIndex, 0) : -1;
                     if (this._FocusedIndex > -1) {
-                        var focusedItem = this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex);
+                        var focusedItem = this.ItemContainersManager.ContainerFromIndex(this._FocusedIndex);
                         if (focusedItem instanceof Fayde.Controls.ComboBoxItem)
                             focusedItem.Focus();
                     }
@@ -10140,13 +9961,10 @@ var Fayde;
 
             ComboBox.prototype.OnItemContainerStyleChanged = function (args) {
                 var newStyle = args.NewValue;
-                var items = this.Items;
-                var count = items.Count;
-                var icg = this.ItemContainerGenerator;
-                for (var i = 0; i < count; i++) {
-                    var item = items.GetValueAt(i);
-                    var container = icg.ContainerFromIndex(i);
-                    if (container && item !== container)
+                var enumerator = this.ItemContainersManager.GetEnumerator();
+                while (enumerator.MoveNext()) {
+                    var container = enumerator.Current;
+                    if (container && container !== enumerator.CurrentItem)
                         container.Style = newStyle;
                 }
             };
@@ -10228,7 +10046,7 @@ var Fayde;
                         if (this.IsDropDownOpen) {
                             if (this._FocusedIndex < (this.Items.Count - 1)) {
                                 this._FocusedIndex++;
-                                this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex).Focus();
+                                this.ItemContainersManager.ContainerFromIndex(this._FocusedIndex).Focus();
                             }
                         } else {
                             this.SelectedIndex = Math.min(this.SelectedIndex + 1, this.Items.Count - 1);
@@ -10239,7 +10057,7 @@ var Fayde;
                         if (this.IsDropDownOpen) {
                             if (this._FocusedIndex > 0) {
                                 this._FocusedIndex--;
-                                this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex).Focus();
+                                this.ItemContainersManager.ContainerFromIndex(this._FocusedIndex).Focus();
                             }
                         } else {
                             this.SelectedIndex = Math.max(this.SelectedIndex - 1, 0);
@@ -10299,9 +10117,9 @@ var Fayde;
                 if (content instanceof Fayde.Controls.ComboBoxItem)
                     content = content.Content;
 
-                var icg = this.ItemContainerGenerator;
+                var icm = this.ItemContainersManager;
                 var selectedIndex = this.SelectedIndex;
-                var temp = icg.ContainerFromIndex(selectedIndex);
+                var temp = icm.ContainerFromIndex(selectedIndex);
                 if (temp instanceof Fayde.Controls.ComboBoxItem)
                     this.$DisplayedItem = temp;
 
@@ -10315,23 +10133,19 @@ var Fayde;
                     else
                         this.$DisplayedItem = null;
                 } else {
-                    temp = icg.ContainerFromIndex(selectedIndex);
+                    temp = icm.ContainerFromIndex(selectedIndex);
                     var container;
                     if (temp instanceof Fayde.Controls.ComboBoxItem)
                         container = temp;
                     if (!container) {
-                        var position = icg.GeneratorPositionFromIndex(selectedIndex);
-                        var state = icg.StartAt(position, false, true);
-                        try  {
-                            temp = icg.GenerateNext({ Value: null });
-                            if (temp instanceof Fayde.Controls.ComboBoxItem)
-                                container = temp;
-                        } finally {
-                            state.Dispose();
+                        var generator = icm.CreateGenerator(selectedIndex, 1);
+                        if (generator.Generate() && generator.Current instanceof Fayde.Controls.ComboBoxItem) {
+                            container = generator.Current;
+                            this.PrepareContainerForItem(container, generator.CurrentItem);
                         }
-                        icg.PrepareItemContainer(container);
                     }
-                    this.$SelectionBoxItemTemplate = container.ContentTemplate;
+                    if (container)
+                        this.$SelectionBoxItemTemplate = container.ContentTemplate;
                 }
 
                 this.$ContentPresenter.Content = this.$SelectionBoxItem;
@@ -12167,8 +11981,9 @@ var Fayde;
                 return true;
             };
             ItemCollection.prototype.ClearImpl = function () {
+                var old = this._ht;
                 this._ht = [];
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Reset());
+                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Reset(old));
             };
 
             ItemCollection.prototype._ValidateReadOnly = function () {
@@ -12179,266 +11994,6 @@ var Fayde;
         })(Fayde.XamlObjectCollection);
         Controls.ItemCollection = ItemCollection;
         Fayde.RegisterType(ItemCollection, "Fayde.Controls", Fayde.XMLNS);
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        var ItemContainerGenerator = (function () {
-            function ItemContainerGenerator(Owner) {
-                this.Owner = Owner;
-                this._Cache = [];
-                this._Containers = [];
-                this._RealizedCount = 0;
-                this._Items = [];
-                this.ItemsChanged = new MulticastEvent();
-            }
-            ItemContainerGenerator.prototype.GenerateNext = function (isNewlyRealized) {
-                if (!this._GenerationState)
-                    throw new InvalidOperationException("Cannot call GenerateNext before calling StartAt");
-
-                var owner = this.Owner;
-                var ownerItems = owner.Items;
-                var state = this._GenerationState;
-                var pos = state.Position;
-
-                var index = this.IndexFromGeneratorPosition(pos);
-
-                isNewlyRealized.Value = this._Containers[index] == null;
-                if (!state.AllowStartAtRealizedItem && !isNewlyRealized.Value && pos.Offset === 0) {
-                    index += state.Step;
-                    isNewlyRealized.Value = this._Containers[index] == null;
-                }
-
-                if (index < 0 || index >= ownerItems.Count) {
-                    isNewlyRealized.Value = false;
-                    return null;
-                }
-
-                if (!isNewlyRealized.Value) {
-                    pos.Index = index;
-                    pos.Offset = state.Step;
-                    return this._Containers[index];
-                }
-
-                var container;
-                var item = ownerItems.GetValueAt(index);
-                if (owner.IsItemItsOwnContainer(item)) {
-                    if (item instanceof Fayde.DependencyObject)
-                        container = item;
-                    isNewlyRealized.Value = true;
-                } else {
-                    if (this._Cache.length > 0) {
-                        container = this._Cache.pop();
-                        isNewlyRealized.Value = false;
-                    } else {
-                        container = owner.GetContainerForItem();
-                        isNewlyRealized.Value = true;
-                    }
-                }
-
-                if (container instanceof Fayde.FrameworkElement && !(item instanceof Fayde.UIElement))
-                    container.DataContext = item;
-
-                this._Items[index] = item;
-                this._Containers[index] = container;
-                if (isNewlyRealized.Value)
-                    this._RealizedCount++;
-
-                pos.Index = index;
-                pos.Offset = state.Step;
-                return container;
-            };
-            ItemContainerGenerator.prototype.GetItemContainerGeneratorForPanel = function (panel) {
-                if (this.Owner.Panel === panel)
-                    return this;
-                return null;
-            };
-            ItemContainerGenerator.prototype.PrepareItemContainer = function (container) {
-                var item = this.ItemFromContainer(container);
-                this.Owner.PrepareContainerForItem(container, item);
-            };
-            ItemContainerGenerator.prototype.Recycle = function (position, count) {
-                this._KillContainers(position, count, false);
-            };
-            ItemContainerGenerator.prototype.Remove = function (position, count) {
-                this._KillContainers(position, count, false);
-            };
-            ItemContainerGenerator.prototype.RemoveAll = function () {
-                var container;
-                var item;
-                var containers = this._Containers;
-                var items = this._Items;
-                var ic = this.Owner;
-                while ((container = containers.shift()) !== undefined && (item = items.shift()) !== undefined) {
-                    if (container)
-                        ic.ClearContainerForItem(container, item);
-                }
-                this._RealizedCount = 0;
-            };
-            ItemContainerGenerator.prototype.StartAt = function (position, forward, allowStartAtRealizedItem) {
-                var _this = this;
-                if (this._GenerationState)
-                    throw new InvalidOperationException("Cannot call StartAt while a generation operation is in progress");
-
-                this._GenerationState = {
-                    AllowStartAtRealizedItem: allowStartAtRealizedItem,
-                    Position: { Index: position.Index, Offset: position.Offset },
-                    Step: forward ? 1 : -1,
-                    Dispose: function () {
-                        return _this._GenerationState = null;
-                    }
-                };
-                return this._GenerationState;
-            };
-
-            ItemContainerGenerator.prototype.IndexFromContainer = function (container) {
-                return this._Containers.indexOf(container);
-            };
-            ItemContainerGenerator.prototype.ContainerFromIndex = function (index) {
-                return this._Containers[index];
-            };
-            ItemContainerGenerator.prototype.ItemFromContainer = function (container) {
-                var index = this._Containers.indexOf(container);
-                if (index < 0)
-                    return undefined;
-                return this._Items[index];
-            };
-            ItemContainerGenerator.prototype.ContainerFromItem = function (item) {
-                if (item == null)
-                    return undefined;
-                var index = this._Items.indexOf(item);
-                if (index < 0)
-                    return undefined;
-                return this._Containers[index];
-            };
-
-            ItemContainerGenerator.prototype.GeneratorPositionFromIndex = function (itemIndex) {
-                if (itemIndex < 0)
-                    return { Index: -1, Offset: 0 };
-                if (this._RealizedCount === 0)
-                    return { Index: -1, Offset: itemIndex + 1 };
-                if (itemIndex > this.Owner.Items.Count)
-                    return { Index: -1, Offset: 0 };
-
-                var realizedIndex = -1;
-                var runningOffset = 0;
-                var containers = this._Containers;
-                var len = containers.length;
-                for (var i = 0; i < len && (realizedIndex + runningOffset) < itemIndex; i++) {
-                    if (containers[i] != null) {
-                        realizedIndex++;
-                        runningOffset = 0;
-                    } else {
-                        runningOffset++;
-                    }
-                }
-                return { Index: realizedIndex, Offset: runningOffset };
-            };
-            ItemContainerGenerator.prototype.IndexFromGeneratorPosition = function (position) {
-                var index = position.Index;
-                var offset = position.Offset;
-                if (index === -1) {
-                    if (offset < 0)
-                        return this.Owner.Items.Count + offset;
-                    return offset - 1;
-                }
-                if (index > this.Owner.Items.Count)
-                    return -1;
-
-                var realizedIndex = index;
-                var containers = this._Containers;
-                var len = containers.length;
-                var i = 0;
-                for (; i < len && realizedIndex >= 0; i++) {
-                    if (containers[i] != null)
-                        realizedIndex--;
-                }
-                return i + offset - 1;
-            };
-
-            ItemContainerGenerator.prototype.OnOwnerItemsItemsChanged = function (e) {
-                var itemCount;
-                var itemUICount;
-                var oldPosition = { Index: -1, Offset: 0 };
-                var position;
-
-                switch (e.Action) {
-                    case 1 /* Add */:
-                        itemCount = e.NewItems.length;
-                        Fayde.ArrayEx.Fill(this._Containers, e.NewStartingIndex, itemCount, null);
-                        Fayde.ArrayEx.Fill(this._Items, e.NewStartingIndex, itemCount, null);
-                        itemUICount = 0;
-                        position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
-                        position.Offset = 1;
-                        break;
-                    case 2 /* Remove */:
-                        itemCount = (e.OldItems) ? e.OldItems.length : 1;
-                        itemUICount = this._GetNumAlreadyRealizedItems(e.OldItems);
-                        position = this.GeneratorPositionFromIndex(e.OldStartingIndex);
-                        this.Remove(position, itemUICount);
-                        break;
-                    case 3 /* Replace */:
-                        itemCount = 1;
-                        itemUICount = 1;
-                        position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
-                        this.Remove(position, 1);
-                        var newPos = this.GeneratorPositionFromIndex(e.NewStartingIndex);
-                        var state = this.StartAt(newPos, true, true);
-                        try  {
-                            this.PrepareItemContainer(this.GenerateNext({ Value: null }));
-                        } finally {
-                            state.Dispose();
-                        }
-                        break;
-                    case 4 /* Reset */:
-                        itemCount = (e.OldItems) ? e.OldItems.length : 0;
-                        itemUICount = this._RealizedCount;
-                        position = { Index: -1, Offset: 0 };
-                        this.RemoveAll();
-                        break;
-                    default:
-                        Warn("*** Critical error in ItemContainerGenerator.OnOwnerItemsItemsChanged. NotifyCollectionChangedAction." + e.Action + " is not supported");
-                        break;
-                }
-
-                var args = new Fayde.Controls.Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position);
-                this.ItemsChanged.Raise(this, args);
-            };
-            ItemContainerGenerator.prototype._GetNumAlreadyRealizedItems = function (items) {
-                var count = 0;
-                var len = items.length;
-                for (var i = 0; i < len; i++) {
-                    if (this.ContainerFromItem(items[i]) != null)
-                        count++;
-                }
-                return count;
-            };
-            ItemContainerGenerator.prototype._KillContainers = function (position, count, recycle) {
-                if (position.Offset !== 0)
-                    throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
-                var index = this.IndexFromGeneratorPosition(position);
-
-                var tokillitems = this._Items.splice(index, count);
-                var tokillcontainers = this._Containers.splice(index, count);
-                if (recycle)
-                    this._Cache = this._Cache.concat(tokillcontainers);
-
-                var ic = this.Owner;
-                var len = tokillcontainers.length;
-                var container;
-                for (var i = 0; i < len; i++) {
-                    container = tokillcontainers[i];
-                    if (!container)
-                        continue;
-                    ic.ClearContainerForItem(container, tokillitems[i]);
-                    this._RealizedCount--;
-                }
-            };
-            return ItemContainerGenerator;
-        })();
-        Controls.ItemContainerGenerator = ItemContainerGenerator;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -12500,15 +12055,17 @@ var Fayde;
                 if (!(ic instanceof Fayde.Controls.ItemsControl))
                     return false;
 
+                var er;
                 if (ic.ItemsPanel)
-                    this._ElementRoot = ic.ItemsPanel.GetVisualTree(xobj);
-                if (!this._ElementRoot)
-                    this._ElementRoot = getFallbackTemplate(ic).GetVisualTree(xobj);
+                    er = this._ElementRoot = ic.ItemsPanel.GetVisualTree(xobj);
+                if (!er)
+                    er = this._ElementRoot = getFallbackTemplate(ic).GetVisualTree(xobj);
 
-                this._ElementRoot.IsItemsHost = true;
-                if (!this.FinishApplyTemplateWithError(this._ElementRoot, error))
+                Fayde.Controls.ItemsControl.SetIsItemsHost(er, true);
+                if (!this.FinishApplyTemplateWithError(er, error))
                     return false;
-                ic.XamlNode._SetItemsPresenter(xobj);
+                ic.XamlNode.ItemsPresenter = xobj;
+                xobj.OnItemsAdded(0, ic.Items.ToArray());
                 return true;
             };
             return ItemsPresenterNode;
@@ -12525,13 +12082,64 @@ var Fayde;
                 return new ItemsPresenterNode(this);
             };
 
-            Object.defineProperty(ItemsPresenter.prototype, "ElementRoot", {
+            Object.defineProperty(ItemsPresenter.prototype, "ItemsControl", {
                 get: function () {
-                    return this.XamlNode.ElementRoot;
+                    return this.TemplateOwner instanceof Fayde.Controls.ItemsControl ? this.TemplateOwner : null;
                 },
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(ItemsPresenter.prototype, "Panel", {
+                get: function () {
+                    var er = this.XamlNode.ElementRoot;
+                    return er instanceof Fayde.Controls.Panel ? er : undefined;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            ItemsPresenter.Get = function (panel) {
+                if (!(panel instanceof Fayde.Controls.Panel))
+                    return null;
+                if (!Fayde.Controls.ItemsControl.GetIsItemsHost(panel))
+                    return null;
+                return panel.TemplateOwner instanceof ItemsPresenter ? panel.TemplateOwner : null;
+            };
+
+            ItemsPresenter.prototype.OnItemsAdded = function (index, newItems) {
+                var panel = this.Panel;
+                if (!panel)
+                    return;
+                if (panel instanceof Fayde.Controls.VirtualizingPanel) {
+                    panel.OnItemsAdded(index, newItems);
+                } else {
+                    for (var ic = this.ItemsControl, children = panel.Children, generator = ic.ItemContainersManager.CreateGenerator(index, newItems.length); generator.Generate();) {
+                        var container = generator.Current;
+                        children.Insert(index + generator.GenerateIndex, container);
+                        ic.PrepareContainerForItem(container, generator.CurrentItem);
+                    }
+                }
+            };
+            ItemsPresenter.prototype.OnItemsRemoved = function (index, oldItems) {
+                var panel = this.Panel;
+                if (!panel)
+                    return;
+                if (panel instanceof Fayde.Controls.VirtualizingPanel) {
+                    panel.OnItemsRemoved(index, oldItems);
+                } else {
+                    var icm = this.ItemsControl.ItemContainersManager;
+                    var children = panel.Children;
+                    var count = oldItems ? oldItems.length : null;
+                    if (count == null || count === children.Count) {
+                        children.Clear();
+                    } else {
+                        while (count > 0) {
+                            children.RemoveAt(index);
+                            count--;
+                        }
+                    }
+                }
+            };
             return ItemsPresenter;
         })(Fayde.FrameworkElement);
         Controls.ItemsPresenter = ItemsPresenter;
@@ -12654,7 +12262,7 @@ var Fayde;
                 ihro.Width = itemsHost.RenderSize.Width;
                 ihro.Height = itemsHost.RenderSize.Height;
 
-                var lbi = this.ItemContainerGenerator.ContainerFromItem(item);
+                var lbi = this.ItemContainersManager.ContainerFromItem(item);
                 if (!lbi)
                     return false;
 
@@ -12703,10 +12311,10 @@ var Fayde;
             ListBox.prototype.OnItemContainerStyleChanged = function (args) {
                 var oldStyle = args.OldValue;
                 var newStyle = args.NewValue;
-                var count = this.Items.Count;
-                for (var i = 0; i < count; i++) {
-                    var lbi = this.ItemContainerGenerator.ContainerFromIndex(i);
-                    if (lbi != null && lbi.Style === oldStyle)
+                var enumerator = this.ItemContainersManager.GetEnumerator();
+                while (enumerator.MoveNext()) {
+                    var lbi = enumerator.Current;
+                    if (lbi instanceof Fayde.Controls.ListBoxItem && lbi.Style === oldStyle)
                         lbi.Style = newStyle;
                 }
             };
@@ -12729,7 +12337,7 @@ var Fayde;
                                     if (Fayde.Input.Keyboard.HasControl() && lbi.IsSelected) {
                                         this.SelectedItem = null;
                                     } else {
-                                        this.SelectedItem = this.ItemContainerGenerator.ItemFromContainer(lbi);
+                                        this.SelectedItem = this.ItemContainersManager.ItemFromContainer(lbi);
                                     }
                                     args.Handled = true;
                                 }
@@ -12779,9 +12387,9 @@ var Fayde;
                 }
 
                 if (newFocusedIndex !== -1 && this._FocusedIndex !== -1 && newFocusedIndex !== this._FocusedIndex && newFocusedIndex >= 0 && newFocusedIndex < this.Items.Count) {
-                    var icg = this.ItemContainerGenerator;
-                    var lbi = icg.ContainerFromIndex(newFocusedIndex);
-                    var item = icg.ItemFromContainer(lbi);
+                    var icm = this.ItemContainersManager;
+                    var lbi = icm.ContainerFromIndex(newFocusedIndex);
+                    var item = icm.ItemFromContainer(lbi);
                     this.ScrollIntoView(item);
                     if (Fayde.Input.Keyboard.HasControl()) {
                         lbi.Focus();
@@ -12792,7 +12400,10 @@ var Fayde;
                 }
             };
             ListBox.prototype._GetIsVerticalOrientation = function () {
-                var p = this.Panel;
+                var presenter = this.XamlNode.ItemsPresenter;
+                if (!presenter)
+                    return true;
+                var p = presenter.Panel;
                 if (p instanceof Fayde.Controls.StackPanel)
                     return p.Orientation === 1 /* Vertical */;
                 if (p instanceof Fayde.Controls.VirtualizingStackPanel)
@@ -12828,7 +12439,7 @@ var Fayde;
             };
 
             ListBox.prototype.NotifyListItemGotFocus = function (lbi) {
-                this._FocusedIndex = this.ItemContainerGenerator.IndexFromContainer(lbi);
+                this._FocusedIndex = this.ItemContainersManager.IndexFromContainer(lbi);
             };
             ListBox.prototype.NotifyListItemLostFocus = function (lbi) {
                 this._FocusedIndex = -1;
@@ -14350,29 +13961,6 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         (function (Primitives) {
-            var ItemsChangedEventArgs = (function (_super) {
-                __extends(ItemsChangedEventArgs, _super);
-                function ItemsChangedEventArgs(action, itemCount, itemUICount, oldPosition, position) {
-                    _super.call(this);
-                    Object.defineProperty(this, "Action", { value: action, writable: false });
-                    Object.defineProperty(this, "ItemCount", { value: itemCount, writable: false });
-                    Object.defineProperty(this, "ItemUICount", { value: itemUICount, writable: false });
-                    Object.defineProperty(this, "OldPosition", { value: oldPosition, writable: false });
-                    Object.defineProperty(this, "Position", { value: position, writable: false });
-                }
-                return ItemsChangedEventArgs;
-            })(EventArgs);
-            Primitives.ItemsChangedEventArgs = ItemsChangedEventArgs;
-            Fayde.RegisterType(ItemsChangedEventArgs, "Fayde.Controls.Primitives", Fayde.XMLNS);
-        })(Controls.Primitives || (Controls.Primitives = {}));
-        var Primitives = Controls.Primitives;
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        (function (Primitives) {
             var ScrollData = (function () {
                 function ScrollData() {
                     this.CanHorizontallyScroll = false;
@@ -14773,16 +14361,16 @@ var Fayde;
                 this.UpdateVisualState();
             };
 
-            ProgressBar.prototype.OnValueChanged = function (oldValue, newValue) {
-                _super.prototype.OnValueChanged.call(this, oldValue, newValue);
+            ProgressBar.prototype.OnMinimumChanged = function (oldMinimum, newMinimum) {
+                _super.prototype.OnMinimumChanged.call(this, oldMinimum, newMinimum);
                 this._UpdateIndicator();
             };
             ProgressBar.prototype.OnMaximumChanged = function (oldMaximum, newMaximum) {
                 _super.prototype.OnMaximumChanged.call(this, oldMaximum, newMaximum);
                 this._UpdateIndicator();
             };
-            ProgressBar.prototype.OnMinimumChanged = function (oldMinimum, newMinimum) {
-                _super.prototype.OnMinimumChanged.call(this, oldMinimum, newMinimum);
+            ProgressBar.prototype.OnValueChanged = function (oldValue, newValue) {
+                _super.prototype.OnValueChanged.call(this, oldValue, newValue);
                 this._UpdateIndicator();
             };
 
@@ -15853,6 +15441,7 @@ var Fayde;
         Controls.TextBlock = TextBlock;
         Fayde.RegisterType(TextBlock, "Fayde.Controls", Fayde.XMLNS);
         Fayde.Xaml.Content(TextBlock, TextBlock.InlinesProperty);
+        Fayde.Xaml.TextContent(TextBlock, TextBlock.TextProperty);
 
         var TextBlockInheritedProps = [
             TextBlock.FontFamilyProperty,
@@ -17024,55 +16613,59 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        (function (VirtualizationMode) {
+            VirtualizationMode[VirtualizationMode["Standard"] = 0] = "Standard";
+            VirtualizationMode[VirtualizationMode["Recycling"] = 1] = "Recycling";
+        })(Controls.VirtualizationMode || (Controls.VirtualizationMode = {}));
+        var VirtualizationMode = Controls.VirtualizationMode;
+        Fayde.RegisterEnum(VirtualizationMode, "VirtualizationMode", Fayde.XMLNS);
+
         var VirtualizingPanel = (function (_super) {
             __extends(VirtualizingPanel, _super);
             function VirtualizingPanel() {
                 _super.apply(this, arguments);
-                this._ICG = null;
             }
-            Object.defineProperty(VirtualizingPanel.prototype, "ItemContainerGenerator", {
+            VirtualizingPanel.GetVirtualizationMode = function (d) {
+                return d.GetValue(VirtualizingPanel.VirtualizationModeProperty);
+            };
+            VirtualizingPanel.SetVirtualizationMode = function (d, value) {
+                d.SetValue(VirtualizingPanel.VirtualizationModeProperty, value);
+            };
+            VirtualizingPanel.OnVirtualizationModePropertyChanged = function (dobj, args) {
+                var ic = dobj;
+                if (ic instanceof Fayde.Controls.ItemsControl)
+                    ic.ItemContainersManager.IsRecycling = args.NewValue === 1 /* Recycling */;
+            };
+
+            VirtualizingPanel.GetIsVirtualizing = function (d) {
+                return d.GetValue(VirtualizingPanel.IsVirtualizingProperty);
+            };
+            VirtualizingPanel.SetIsVirtualizing = function (d, value) {
+                d.SetValue(VirtualizingPanel.IsVirtualizingProperty, value);
+            };
+
+            Object.defineProperty(VirtualizingPanel.prototype, "ItemsControl", {
                 get: function () {
-                    var icg = this._ICG;
-                    if (!icg) {
-                        var icOwner = Fayde.Controls.ItemsControl.GetItemsOwner(this);
-                        if (!icOwner)
-                            throw new InvalidOperationException("VirtualizingPanels must be in the Template of an ItemsControl in order to generate items");
-                        var icg = this._ICG = icOwner.ItemContainerGenerator;
-                        icg.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
-                    }
-                    return icg;
+                    var presenter = Fayde.Controls.ItemsPresenter.Get(this);
+                    return presenter ? presenter.ItemsControl : null;
                 },
                 enumerable: true,
                 configurable: true
             });
 
-            VirtualizingPanel.prototype.AddInternalChild = function (child) {
-                this.Children.Add(child);
-            };
-            VirtualizingPanel.prototype.InsertInternalChild = function (index, child) {
-                this.Children.Insert(index, child);
-            };
-            VirtualizingPanel.prototype.RemoveInternalChildRange = function (index, range) {
-                var children = this.Children;
-                for (var i = 0; i < range; i++) {
-                    children.RemoveAt(index);
-                }
-            };
-            VirtualizingPanel.prototype.BringIndexIntoView = function (index) {
-            };
-            VirtualizingPanel.prototype.OnClearChildren = function () {
-            };
-            VirtualizingPanel.prototype.OnItemContainerGeneratorChanged = function (sender, e) {
+            VirtualizingPanel.prototype.OnItemsAdded = function (index, newItems) {
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
-                if (e.Action === 4 /* Reset */) {
-                    this.Children.Clear();
-                    this.ItemContainerGenerator.RemoveAll();
-                    this.OnClearChildren();
-                }
-                this.OnItemsChanged(sender, e);
             };
-            VirtualizingPanel.prototype.OnItemsChanged = function (sender, e) {
+            VirtualizingPanel.prototype.OnItemsRemoved = function (index, oldItems) {
+                this.XamlNode.LayoutUpdater.InvalidateMeasure();
             };
+            VirtualizingPanel.VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", function () {
+                return new Enum(VirtualizationMode);
+            }, VirtualizingPanel, 1 /* Recycling */, VirtualizingPanel.OnVirtualizationModePropertyChanged);
+
+            VirtualizingPanel.IsVirtualizingProperty = DependencyProperty.RegisterAttached("IsVirtualizing", function () {
+                return Boolean;
+            }, VirtualizingPanel, false);
             return VirtualizingPanel;
         })(Fayde.Controls.Panel);
         Controls.VirtualizingPanel = VirtualizingPanel;
@@ -17086,25 +16679,6 @@ var Fayde;
         var LineDelta = 14.7;
         var Wheelitude = 3;
 
-        (function (VirtualizationMode) {
-            VirtualizationMode[VirtualizationMode["Standard"] = 0] = "Standard";
-            VirtualizationMode[VirtualizationMode["Recycling"] = 1] = "Recycling";
-        })(Controls.VirtualizationMode || (Controls.VirtualizationMode = {}));
-        var VirtualizationMode = Controls.VirtualizationMode;
-        Fayde.RegisterEnum(VirtualizationMode, "VirtualizationMode", Fayde.XMLNS);
-
-        var CleanUpVirtualizedItemEventArgs = (function (_super) {
-            __extends(CleanUpVirtualizedItemEventArgs, _super);
-            function CleanUpVirtualizedItemEventArgs(uiElement, value) {
-                _super.call(this);
-                this.Cancel = false;
-                Object.defineProperty(this, "UIElement", { value: uiElement, writable: false });
-                Object.defineProperty(this, "Value", { value: value, writable: false });
-            }
-            return CleanUpVirtualizedItemEventArgs;
-        })(Fayde.RoutedEventArgs);
-        Controls.CleanUpVirtualizedItemEventArgs = CleanUpVirtualizedItemEventArgs;
-
         var VirtualizingStackPanel = (function (_super) {
             __extends(VirtualizingStackPanel, _super);
             function VirtualizingStackPanel() {
@@ -17117,7 +16691,6 @@ var Fayde;
                 this._ExtentHeight = 0;
                 this._ViewportWidth = 0;
                 this._ViewportHeight = 0;
-                this.CleanUpVirtualizedItemEvent = new Fayde.RoutedEvent();
             }
             Object.defineProperty(VirtualizingStackPanel.prototype, "CanHorizontallyScroll", {
                 get: function () {
@@ -17313,27 +16886,7 @@ var Fayde;
                 return true;
             };
 
-            VirtualizingStackPanel.GetIsVirtualizing = function (d) {
-                return d.GetValue(VirtualizingStackPanel.IsVirtualizingProperty);
-            };
-            VirtualizingStackPanel.SetIsVirtualizing = function (d, value) {
-                d.SetValue(VirtualizingStackPanel.IsVirtualizingProperty, value);
-            };
-
-            VirtualizingStackPanel.GetVirtualizationMode = function (d) {
-                return d.GetValue(VirtualizingStackPanel.VirtualizationModeProperty);
-            };
-            VirtualizingStackPanel.SetVirtualizationMode = function (d, value) {
-                d.SetValue(VirtualizingStackPanel.VirtualizationModeProperty, value);
-            };
-
             VirtualizingStackPanel.prototype.MeasureOverride = function (availableSize) {
-                var owner = Fayde.Controls.ItemsControl.GetItemsOwner(this);
-                var measured = new size();
-                var invalidate = false;
-                var nvisible = 0;
-                var beyond = 0;
-
                 var index;
                 var constraint = availableSize.Clone();
                 var scrollOwner = this.ScrollOwner;
@@ -17348,96 +16901,62 @@ var Fayde;
                     index = Math.floor(this._VerticalOffset);
                 }
 
-                var itemCount = owner.Items.Count;
-                var generator = this.ItemContainerGenerator;
-                if (itemCount > 0) {
-                    var children = this.Children;
-                    var start = generator.GeneratorPositionFromIndex(index);
-                    var insertAt = (start.Offset === 0) ? start.Index : start.Index + 1;
+                var ic = this.ItemsControl;
+                var icm = ic.ItemContainersManager;
+                var children = this.Children;
 
-                    var state = generator.StartAt(start, true, true);
-                    try  {
-                        var isNewlyRealized = { Value: false };
+                var old = icm.DisposeContainers(0, index);
+                for (var i = 0, len = old.length; i < len; i++) {
+                    children.Remove(old[i]);
+                }
 
-                        var child;
-                        var childlu;
-                        for (var i = 0; i < itemCount && beyond < 2; i++, insertAt++) {
-                            child = generator.GenerateNext(isNewlyRealized);
-                            childlu = child.XamlNode.LayoutUpdater;
-                            if (isNewlyRealized.Value || insertAt >= children.Count || children.GetValueAt(insertAt) !== child) {
-                                if (insertAt < children.Count)
-                                    this.InsertInternalChild(insertAt, child);
-                                else
-                                    this.AddInternalChild(child);
-                                generator.PrepareItemContainer(child);
-                            }
+                var measured = new size();
+                var viscount = 0;
+                var count = ic.Items.Count;
+                for (var generator = icm.CreateGenerator(index, count); generator.Generate();) {
+                    var child = generator.Current;
+                    if (generator.IsCurrentNew) {
+                        children.Insert(generator.GenerateIndex, child);
+                        ic.PrepareContainerForItem(child, generator.CurrentItem);
+                    }
+                    viscount++;
 
-                            child.Measure(size.copyTo(constraint));
-                            var s = childlu.DesiredSize;
-                            nvisible++;
+                    child.Measure(size.copyTo(constraint));
+                    var desired = child.DesiredSize;
 
-                            if (!isHorizontal) {
-                                measured.Width = Math.max(measured.Width, s.Width);
-                                measured.Height += s.Height;
-                                if (measured.Height > availableSize.Height)
-                                    beyond++;
-                            } else {
-                                measured.Height = Math.max(measured.Height, s.Height);
-                                measured.Width += s.Width;
-                                if (measured.Width > availableSize.Width)
-                                    beyond++;
-                            }
-                        }
-                    } finally {
-                        state.Dispose();
+                    if (!isHorizontal) {
+                        measured.Width = Math.max(measured.Width, desired.Width);
+                        measured.Height += desired.Height;
+                        if (measured.Height > availableSize.Height)
+                            break;
+                    } else {
+                        measured.Height = Math.max(measured.Height, desired.Height);
+                        measured.Width += desired.Width;
+                        if (measured.Width > availableSize.Width)
+                            break;
                     }
                 }
 
-                if (nvisible > 0)
-                    this.RemoveUnusedContainers(index, nvisible);
-                nvisible -= beyond;
+                old = icm.DisposeContainers(index + viscount, count - (index + viscount));
+                for (var i = 0, len = old.length; i < len; i++) {
+                    children.Remove(old[i]);
+                }
 
-                itemCount = owner.Items.Count;
+                var invalidate = false;
                 if (!isHorizontal) {
-                    if (this._ExtentHeight !== itemCount) {
-                        this._ExtentHeight = itemCount;
-                        invalidate = true;
-                    }
-                    if (this._ExtentWidth !== measured.Width) {
-                        this._ExtentWidth = measured.Width;
-                        invalidate = true;
-                    }
-                    if (this._ViewportHeight !== nvisible) {
-                        this._ViewportHeight = nvisible;
-                        invalidate = true;
-                    }
-                    if (this._ViewportWidth !== constraint.Width) {
-                        this._ViewportWidth = constraint.Width;
-                        invalidate = true;
-                    }
+                    invalidate = this._ExtentHeight !== count || this._ExtentWidth !== measured.Width || this._ViewportHeight !== viscount || this._ViewportWidth !== constraint.Width;
+                    this._ExtentHeight = count;
+                    this._ExtentWidth = measured.Width;
+                    this._ViewportHeight = viscount;
+                    this._ViewportWidth = constraint.Width;
                 } else {
-                    if (this._ExtentHeight !== measured.Height) {
-                        this._ExtentHeight = measured.Height;
-                        invalidate = true;
-                    }
-
-                    if (this._ExtentWidth !== itemCount) {
-                        this._ExtentWidth = itemCount;
-                        invalidate = true;
-                    }
-
-                    if (this._ViewportHeight !== constraint.Height) {
-                        this._ViewportHeight = constraint.Height;
-                        invalidate = true;
-                    }
-
-                    if (this._ViewportWidth !== nvisible) {
-                        this._ViewportWidth = nvisible;
-                        invalidate = true;
-                    }
+                    invalidate = this._ExtentHeight !== measured.Height || this._ExtentWidth !== count || this._ViewportHeight !== constraint.Height || this._ViewportWidth !== viscount;
+                    this._ExtentHeight = measured.Height;
+                    this._ExtentWidth = count;
+                    this._ViewportHeight = constraint.Height;
+                    this._ViewportWidth = viscount;
                 }
 
-                var scrollOwner = this.ScrollOwner;
                 if (invalidate && scrollOwner != null)
                     scrollOwner.InvalidateScrollInfo();
 
@@ -17454,12 +16973,10 @@ var Fayde;
                 var enumerator = this.Children.GetEnumerator();
                 while (enumerator.MoveNext()) {
                     var child = enumerator.Current;
-                    var childNode = child.XamlNode;
-                    var childLu = childNode.LayoutUpdater;
-                    var s = childLu.DesiredSize;
+                    var desired = child.DesiredSize;
                     if (!isHorizontal) {
-                        s.Width = finalSize.Width;
-                        var childFinal = rect.fromSize(s);
+                        desired.Width = finalSize.Width;
+                        var childFinal = rect.fromSize(desired);
                         if (rect.isEmpty(childFinal)) {
                             rect.clear(childFinal);
                         } else {
@@ -17467,20 +16984,20 @@ var Fayde;
                             childFinal.Y = arranged.Height;
                         }
                         child.Arrange(childFinal);
-                        arranged.Width = Math.max(arranged.Width, s.Width);
-                        arranged.Height += s.Height;
+                        arranged.Width = Math.max(arranged.Width, desired.Width);
+                        arranged.Height += desired.Height;
                     } else {
-                        s.Height = finalSize.Height;
-                        var childFinal = rect.fromSize(s);
+                        desired.Height = finalSize.Height;
+                        var childFinal = rect.fromSize(desired);
                         if (rect.isEmpty(childFinal)) {
                             rect.clear(childFinal);
                         } else {
                             childFinal.X = arranged.Width;
                             childFinal.Y = -this._VerticalOffset;
                         }
-                        childNode.XObject.Arrange(childFinal);
-                        arranged.Width += s.Width;
-                        arranged.Height = Math.max(arranged.Height, s.Height);
+                        child.Arrange(childFinal);
+                        arranged.Width += desired.Width;
+                        arranged.Height = Math.max(arranged.Height, desired.Height);
                     }
                 }
 
@@ -17491,107 +17008,39 @@ var Fayde;
                 return arranged;
             };
 
-            VirtualizingStackPanel.prototype.RemoveUnusedContainers = function (first, count) {
-                var generator = this.ItemContainerGenerator;
-                var owner = Fayde.Controls.ItemsControl.GetItemsOwner(this);
-                var mode = VirtualizingStackPanel.GetVirtualizationMode(this);
+            VirtualizingStackPanel.prototype.OnItemsAdded = function (index, newItems) {
+                _super.prototype.OnItemsAdded.call(this, index, newItems);
 
-                var last = first + count - 1;
-
-                var item;
-                var args;
-                var children = this.Children;
-                var pos = { Index: children.Count - 1, Offset: 0 };
-                while (pos.Index >= 0) {
-                    item = generator.IndexFromGeneratorPosition(pos);
-                    if (item < first || item > last) {
-                        var args = this.OnCleanUpVirtualizedItem(children.GetValueAt(pos.Index), owner.Items.GetValueAt(item));
-                        if (!args.Cancel) {
-                            this.RemoveInternalChildRange(pos.Index, 1);
-                            if (mode === 1 /* Recycling */)
-                                generator.Recycle(pos, 1);
-                            else
-                                generator.Remove(pos, 1);
-                        }
-                    }
-                    pos.Index--;
-                }
-            };
-            VirtualizingStackPanel.prototype.OnCleanUpVirtualizedItem = function (uie, value) {
-                var args = new CleanUpVirtualizedItemEventArgs(uie, value);
-                this.CleanUpVirtualizedItemEvent.Raise(this, args);
-                return args;
-            };
-
-            VirtualizingStackPanel.prototype.OnClearChildren = function () {
-                _super.prototype.OnClearChildren.call(this);
-                this._HorizontalOffset = 0;
-                this._VerticalOffset = 0;
-
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+                var isHorizontal = this.Orientation === 0 /* Horizontal */;
+                var offset = isHorizontal ? this.HorizontalOffset : this.VerticalOffset;
+                if (index <= offset)
+                    isHorizontal ? this.SetHorizontalOffset(offset + newItems.length) : this.SetVerticalOffset(offset + newItems.length);
 
                 var scrollOwner = this.ScrollOwner;
                 if (scrollOwner)
                     scrollOwner.InvalidateScrollInfo();
             };
-            VirtualizingStackPanel.prototype.OnItemsChanged = function (sender, e) {
-                var generator = this.ItemContainerGenerator;
-                var owner = Fayde.Controls.ItemsControl.GetItemsOwner(this);
-                var orientation = this.Orientation;
+            VirtualizingStackPanel.prototype.OnItemsRemoved = function (index, oldItems) {
+                _super.prototype.OnItemsRemoved.call(this, index, oldItems);
 
-                var index;
-                var offset;
-                var viewable;
-
-                switch (e.Action) {
-                    case 1 /* Add */:
-                        var index = generator.IndexFromGeneratorPosition(e.Position);
-                        if (orientation === 0 /* Horizontal */)
-                            offset = this.HorizontalOffset;
-                        else
-                            offset = this.VerticalOffset;
-
-                        if (index <= offset) {
-                            offset += e.ItemCount;
-                        }
-
-                        if (orientation === 0 /* Horizontal */)
-                            this.SetHorizontalOffset(offset);
-                        else
-                            this.SetVerticalOffset(offset);
-                        break;
-                    case 2 /* Remove */:
-                        index = generator.IndexFromGeneratorPosition(e.Position);
-                        if (orientation === 0 /* Horizontal */) {
-                            offset = this.HorizontalOffset;
-                            viewable = this.ViewportWidth;
-                        } else {
-                            offset = this.VerticalOffset;
-                            viewable = this.ViewportHeight;
-                        }
-
-                        if (index < offset) {
-                            offset = Math.max(offset - e.ItemCount, 0);
-                        }
-
-                        offset = Math.min(offset, owner.Items.Count - viewable);
-                        offset = Math.max(offset, 0);
-
-                        if (orientation === 0 /* Horizontal */)
-                            this.SetHorizontalOffset(offset);
-                        else
-                            this.SetVerticalOffset(offset);
-
-                        this.RemoveInternalChildRange(e.Position.Index, e.ItemUICount);
-                        break;
-                    case 3 /* Replace */:
-                        this.RemoveInternalChildRange(e.Position.Index, e.ItemUICount);
-                        break;
-                    case 4 /* Reset */:
-                        break;
+                var ic = this.ItemsControl;
+                if (ic) {
+                    var icm = ic.ItemContainersManager;
+                    var children = this.Children;
+                    for (var i = 0, len = oldItems.length; i < len; i++) {
+                        var oldItem = oldItems[i];
+                        var container = icm.ContainerFromItem(oldItem);
+                        if (container)
+                            children.Remove(container);
+                    }
                 }
 
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+                var isHorizontal = this.Orientation === 0 /* Horizontal */;
+                var offset = isHorizontal ? this.HorizontalOffset : this.VerticalOffset;
+
+                var numBeforeOffset = Math.min(offset, index + oldItems.length) - index;
+                if (numBeforeOffset > 0)
+                    isHorizontal ? this.SetHorizontalOffset(numBeforeOffset) : this.SetVerticalOffset(numBeforeOffset);
 
                 var scrollOwner = this.ScrollOwner;
                 if (scrollOwner)
@@ -17602,14 +17051,6 @@ var Fayde;
             }, VirtualizingStackPanel, 1 /* Vertical */, function (d, args) {
                 return d.XamlNode.LayoutUpdater.InvalidateMeasure();
             });
-
-            VirtualizingStackPanel.IsVirtualizingProperty = DependencyProperty.RegisterAttached("IsVirtualizing", function () {
-                return new Boolean;
-            }, VirtualizingStackPanel, false);
-
-            VirtualizingStackPanel.VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", function () {
-                return new Enum(VirtualizationMode);
-            }, VirtualizingStackPanel, 1 /* Recycling */);
             return VirtualizingStackPanel;
         })(Fayde.Controls.VirtualizingPanel);
         Controls.VirtualizingStackPanel = VirtualizingStackPanel;
@@ -17849,19 +17290,12 @@ var Fayde;
     }
     function findSourceByElementName(target, name) {
         var xobj = target;
-        var source;
-        var parent;
-        while (xobj) {
-            source = xobj.FindName(name);
-            if (source)
-                return source;
-            if (xobj.TemplateOwner)
-                xobj = xobj.TemplateOwner;
-            else if ((parent = xobj.Parent) && (parent instanceof Fayde.UIElement) && Fayde.Controls.ItemsControl.GetItemsOwner(parent))
-                xobj = parent;
-            else
-                xobj = null;
-        }
+        if (!xobj)
+            return undefined;
+        var source = xobj.FindName(name, true);
+        if (source)
+            return source;
+
         return undefined;
     }
     function findAncestor(target, relSource) {
@@ -18627,7 +18061,6 @@ var Fayde;
         __extends(TemplateBindingExpression, _super);
         function TemplateBindingExpression(sourcePropd, targetPropd) {
             _super.call(this);
-            this._SetsParent = false;
             this.SourceProperty = sourcePropd;
             this.TargetProperty = targetPropd;
         }
@@ -18651,11 +18084,6 @@ var Fayde;
             if (this._Target instanceof Fayde.Controls.ContentControl)
                 cc = this._Target;
 
-            if (cc && this.TargetProperty._ID === Fayde.Controls.ContentControl.ContentProperty._ID) {
-                this._SetsParent = cc._ContentSetsParent;
-                cc._ContentSetsParent = false;
-            }
-
             this._AttachListener();
         };
         TemplateBindingExpression.prototype.OnDetached = function (dobj) {
@@ -18668,8 +18096,6 @@ var Fayde;
             var cc;
             if (this._Target instanceof Fayde.Controls.ContentControl)
                 cc = this._Target;
-            if (cc)
-                cc._ContentSetsParent = this._SetsParent;
 
             this._DetachListener();
             this._Target = null;
@@ -19022,6 +18448,9 @@ var Fayde;
                 str += s.toString();
             }
             str += ")";
+
+            var t = uie.TemplateOwner;
+            str += "$TO=" + (t ? t.constructor.name : "(null)");
 
             var gridStr = VisualTreeHelper.__DebugGrid(uin, tabIndex);
             if (gridStr)
@@ -19692,19 +19121,12 @@ var Fayde;
             BindingExpressionBase.prototype._FindSourceByElementName = function () {
                 var name = this.ParentBinding.ElementName;
                 var xobj = this.Target;
-                var source;
-                var parent;
-                while (xobj) {
-                    source = xobj.FindName(name);
-                    if (source)
-                        return source;
-                    if (xobj.TemplateOwner)
-                        xobj = xobj.TemplateOwner;
-                    else if ((parent = xobj.Parent) && (parent instanceof Fayde.UIElement) && Fayde.Controls.ItemsControl.GetItemsOwner(parent))
-                        xobj = parent;
-                    else
-                        xobj = null;
-                }
+                if (!xobj)
+                    return undefined;
+                var source = xobj.FindName(name, true);
+                if (source)
+                    return source;
+
                 return undefined;
             };
 
@@ -23673,7 +23095,8 @@ var Fayde;
                     resolution.Target = refobj.Value;
                     if (!targetProperty) {
                         error.Number = BError.XamlParse;
-                        error.Message = "Could not resolve property for storyboard. [" + resolution.Property.Path.toString() + "]";
+                        var name = Fayde.Media.Animation.Storyboard.GetTargetName(this);
+                        error.Message = "Could not resolve property for storyboard. (" + name + ")->[" + resolution.Property.Path.toString() + "]";
                         return false;
                     }
                     if (!this.Resolve(resolution.Target, targetProperty)) {
@@ -29252,7 +28675,7 @@ var Fayde;
                                 if (newStoryboards[j] != null)
                                     res.Set(newStoryboards[j]._ID, undefined);
                             }
-                            throw err;
+                            console.warn(err);
                         }
                     }
 
@@ -29442,6 +28865,20 @@ var Fayde;
                             node = null;
                     }
                     return (node) ? node.XObject : null;
+                };
+                VisualStateManager.GetGroup = function (control, name) {
+                    var root = VisualStateManager._GetTemplateRoot(control);
+                    if (!root)
+                        return null;
+                    var groups = VisualStateManager.GetVisualStateGroups(root);
+                    if (!groups)
+                        return null;
+                    var enumerator = groups.GetEnumerator();
+                    while (enumerator.MoveNext()) {
+                        if (enumerator.Current.Name === name)
+                            return enumerator.Current;
+                    }
+                    return null;
                 };
                 VisualStateManager._TryGetState = function (groups, stateName, data) {
                     var enumerator = groups.GetEnumerator();
@@ -31957,6 +31394,16 @@ var Fayde;
             }
             return false;
         };
+        Enumerable.IndexOf = function (enumerable, item) {
+            var i = 0;
+            var enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                if (enumerator.Current === item)
+                    return i;
+                i++;
+            }
+            return -1;
+        };
         Enumerable.FirstOrDefault = function (enumerable, filter) {
             if (!enumerable)
                 return null;
@@ -31993,6 +31440,14 @@ var Fayde;
         };
         Enumerable.Where = function (enumerable, filter) {
             return new WhereEnumerable(enumerable, filter);
+        };
+        Enumerable.ToArray = function (enumerable) {
+            var e = enumerable.GetEnumerator();
+            var a = [];
+            while (e.MoveNext()) {
+                a.push(e.Current);
+            }
+            return a;
         };
         return Enumerable;
     })();
@@ -34589,17 +34044,9 @@ var Fayde;
                 this._ActualWidth = NaN;
             };
             TextLayout.prototype._ClearCache = function () {
-                var line = null;
-                var lines = this._Lines;
-                var len = lines.length;
-                var runs;
-                var runlen = 0;
-                for (var i = 0; i < len; i++) {
-                    line = lines[i];
-                    runs = line._Runs;
-                    runlen = runs.length;
-                    for (var j = 0; j < runlen; j++) {
-                        runs[i]._ClearCache();
+                for (var i = 0, lines = this._Lines, len = lines.length; i < len; i++) {
+                    for (var j = 0, runs = lines[i]._Runs, len2 = runs.length; j < len2; j++) {
+                        runs[j]._ClearCache();
                     }
                 }
             };
@@ -37215,6 +36662,415 @@ var Fayde;
         Providers.SwapStyles = SwapStyles;
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    function _VisualTree(id) {
+        var uin = findNodeById(id);
+        return flattenTree(uin).map(serializeTreeNode).join("\n");
+    }
+    Fayde._VisualTree = _VisualTree;
+
+    function findNodeById(id) {
+        var rv = Fayde.Application.Current.RootVisual;
+        var topNode = (rv) ? rv.XamlNode : null;
+        if (!topNode)
+            return;
+
+        if (!id)
+            return topNode;
+
+        var walker = Fayde.DeepTreeWalker(topNode);
+        var curNode;
+        while (curNode = walker.Step()) {
+            if (curNode.XObject._ID === id)
+                return curNode;
+        }
+    }
+
+    function flattenTree(uin, arr, level) {
+        arr = arr || [];
+        level = level || 0;
+        arr.push({ node: uin, level: level });
+        var enumerator = uin.GetVisualTreeEnumerator();
+        while (enumerator.MoveNext()) {
+            flattenTree(enumerator.Current, arr, level + 1);
+        }
+        return arr;
+    }
+    function serializeTreeNode(tn) {
+        var s = repeatString("\t", tn.level);
+        var uie = tn.node.XObject;
+        s += uie.constructor.name;
+        var id = uie._ID;
+        if (id)
+            s += "[" + id + "]";
+        var name = tn.node.Name;
+        s += " [";
+        var ns = tn.node.NameScope;
+        if (!ns)
+            s += "^";
+        else if (ns.IsRoot)
+            s += "+";
+        else
+            s += "-";
+        s += name + "]";
+
+        s += serializeUIElement(uie);
+
+        if (uie instanceof Fayde.Controls.Grid)
+            s += serializeGrid(uie, tn.level);
+
+        return s;
+    }
+    function serializeUIElement(uie) {
+        var str = "(";
+        if (uie.Visibility === 0 /* Visible */)
+            str += "Visible";
+        else
+            str += "Collapsed";
+
+        var lu = uie.XamlNode.LayoutUpdater;
+        if (lu) {
+            str += " ";
+            var p = lu.VisualOffset;
+            if (p)
+                str += p.toString();
+            var s = size.fromRaw(lu.ActualWidth, lu.ActualHeight);
+            str += " ";
+            str += s.toString();
+        }
+        str += ")";
+
+        return str;
+    }
+
+    function serializeGrid(grid, level) {
+        if (!grid)
+            return "";
+
+        var str = "";
+
+        var rds = enumToArray(grid.RowDefinitions).map(function (rd, i) {
+            return serializeRowDef(rd, i, level);
+        }).join("\n");
+        if (rds)
+            str += repeatString("\t", level) + "  Rows (" + grid.RowDefinitions.Count + "):\n" + rds;
+
+        var cds = enumToArray(grid.ColumnDefinitions).map(function (cd, i) {
+            return serializeColDef(cd, i, level);
+        }).join("\n");
+        if (cds) {
+            if (str)
+                str += "\n";
+            str += repeatString("\t", level) + "  Columns (" + grid.ColumnDefinitions.Count + "):\n" + cds;
+        }
+
+        if (str)
+            return "\n" + str;
+        return "";
+    }
+    function serializeRowDef(row, index, level) {
+        return repeatString("\t", level + 1) + "[" + index + "] -> " + row.ActualHeight;
+    }
+    function serializeColDef(col, index, level) {
+        return repeatString("\t", level + 1) + "[" + index + "] -> " + col.ActualWidth;
+    }
+
+    function enumToArray(en) {
+        var e = en.GetEnumerator();
+        var arr = [];
+        while (e.MoveNext()) {
+            arr.push(e.Current);
+        }
+        return arr;
+    }
+    function repeatString(s, n) {
+        var str = "";
+        for (var i = 0; i < n; i++) {
+            str += s;
+        }
+        return str;
+    }
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Internal) {
+            var RangeCoercer = (function () {
+                function RangeCoercer(Range, OnCoerceMaximum, OnCoerceValue) {
+                    this.Range = Range;
+                    this.OnCoerceMaximum = OnCoerceMaximum;
+                    this.OnCoerceValue = OnCoerceValue;
+                    this.InitialMax = 1;
+                    this.InitialVal = 0;
+                    this.RequestedMax = 1;
+                    this.RequestedVal = 0;
+                    this.PreCoercedMax = 1;
+                    this.PreCoercedVal = 0;
+                    this.CoerceDepth = 0;
+                }
+                Object.defineProperty(RangeCoercer.prototype, "Minimum", {
+                    get: function () {
+                        return this.Range.Minimum;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(RangeCoercer.prototype, "Maximum", {
+                    get: function () {
+                        return this.Range.Maximum;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(RangeCoercer.prototype, "Value", {
+                    get: function () {
+                        return this.Range.Value;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
+                RangeCoercer.prototype.OnMinimumChanged = function (oldMinimum, newMinimum) {
+                    if (this.CoerceDepth === 0) {
+                        this.InitialMax = this.Maximum;
+                        this.InitialVal = this.Value;
+                    }
+                    this.CoerceDepth++;
+                    this.CoerceMaximum();
+                    this.CoerceValue();
+                    this.CoerceDepth--;
+                    if (this.CoerceDepth > 0)
+                        return;
+
+                    this.OnMinimumChanged(oldMinimum, newMinimum);
+                    var max = this.Maximum;
+                    if (!NumberEx.AreClose(this.InitialMax, max))
+                        this.Range.OnMaximumChanged(this.InitialMax, max);
+                    var val = this.Value;
+                    if (!NumberEx.AreClose(this.InitialVal, val))
+                        this.Range.OnValueChanged(this.InitialVal, val);
+                };
+                RangeCoercer.prototype.OnMaximumChanged = function (oldMaximum, newMaximum) {
+                    if (this.CoerceDepth === 0) {
+                        this.RequestedMax = newMaximum;
+                        this.InitialMax = oldMaximum;
+                        this.InitialVal = this.Value;
+                    }
+                    this.CoerceDepth++;
+                    this.CoerceMaximum();
+                    this.CoerceValue();
+                    this.CoerceDepth--;
+                    if (this.CoerceDepth !== 0)
+                        return;
+
+                    this.PreCoercedMax = newMaximum;
+                    var max = this.Maximum;
+                    if (!NumberEx.AreClose(this.InitialMax, max))
+                        this.Range.OnMaximumChanged(this.InitialMax, max);
+                    var val = this.Value;
+                    if (!NumberEx.AreClose(this.InitialVal, val))
+                        this.Range.OnValueChanged(this.InitialVal, val);
+                };
+                RangeCoercer.prototype.OnValueChanged = function (oldValue, newValue) {
+                    if (this.CoerceDepth === 0) {
+                        this.RequestedVal = newValue;
+                        this.InitialVal = oldValue;
+                    }
+                    this.CoerceDepth++;
+                    this.CoerceValue();
+                    this.CoerceDepth--;
+                    if (this.CoerceDepth !== 0)
+                        return;
+
+                    this.PreCoercedVal = newValue;
+                    var val = this.Value;
+                    if (!NumberEx.AreClose(this.InitialVal, val))
+                        this.Range.OnValueChanged(this.InitialVal, val);
+                };
+
+                RangeCoercer.prototype.CoerceMaximum = function () {
+                    var min = this.Minimum;
+                    var max = this.Maximum;
+                    if (!NumberEx.AreClose(this.RequestedMax, max) && this.RequestedMax >= min)
+                        this.OnCoerceMaximum(this.RequestedMax);
+                    else if (max < min)
+                        this.OnCoerceMaximum(min);
+                };
+                RangeCoercer.prototype.CoerceValue = function () {
+                    var min = this.Minimum;
+                    var max = this.Maximum;
+                    var val = this.Value;
+                    if (!NumberEx.AreClose(this.RequestedVal, val) && this.RequestedVal >= min && this.RequestedVal <= max)
+                        this.OnCoerceValue(this.RequestedVal);
+                    else if (val < min)
+                        this.OnCoerceValue(min);
+                    else if (val > max)
+                        this.OnCoerceValue(max);
+                };
+                return RangeCoercer;
+            })();
+            Internal.RangeCoercer = RangeCoercer;
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Internal) {
+            var NotifyCollectionChangedEventArgs = Fayde.Collections.NotifyCollectionChangedEventArgs;
+            var NotifyCollectionChangedAction = Fayde.Collections.NotifyCollectionChangedAction;
+            var INotifyCollectionChanged_ = Fayde.Collections.INotifyCollectionChanged_;
+
+            var ItemContainersManager = (function () {
+                function ItemContainersManager(Owner) {
+                    this.Owner = Owner;
+                    this._Items = [];
+                    this._Containers = [];
+                    this._Cache = [];
+                    this.IsRecycling = false;
+                }
+                ItemContainersManager.prototype.IndexFromContainer = function (container) {
+                    return this._Containers.indexOf(container);
+                };
+                ItemContainersManager.prototype.ContainerFromIndex = function (index) {
+                    return this._Containers[index];
+                };
+                ItemContainersManager.prototype.ItemFromContainer = function (container) {
+                    var index = this._Containers.indexOf(container);
+                    if (index < 0)
+                        return null;
+                    return this._Items[index];
+                };
+                ItemContainersManager.prototype.ContainerFromItem = function (item) {
+                    if (item == null)
+                        return null;
+                    var index = this._Items.indexOf(item);
+                    if (index < 0)
+                        return null;
+                    return this._Containers[index];
+                };
+
+                ItemContainersManager.prototype.OnItemsAdded = function (index, newItems) {
+                    var items = this._Items;
+                    var containers = this._Containers;
+                    for (var i = 0, len = newItems.length; i < len; i++) {
+                        items.splice(index + i, 0, newItems[i]);
+                        containers.splice(index + i, 0, null);
+                    }
+                };
+                ItemContainersManager.prototype.OnItemsRemoved = function (index, oldItems) {
+                    this.DisposeContainers(index, oldItems.length);
+                    this._Items.splice(index, oldItems.length);
+                    this._Containers.splice(index, oldItems.length);
+                };
+                ItemContainersManager.prototype.DisposeContainers = function (index, count) {
+                    var containers = this._Containers;
+                    var items = this._Items;
+                    if (index == null)
+                        index = 0;
+                    if (count == null)
+                        count = containers.length;
+
+                    if (this.IsRecycling)
+                        this._Cache.push.apply(this._Cache, containers.slice(index, index + count));
+
+                    var disposed = [];
+
+                    var ic = this.Owner;
+                    for (var i = index; i < index + count; i++) {
+                        var container = containers[i];
+                        if (!container)
+                            continue;
+                        disposed.push(container);
+                        var item = items[i];
+                        ic.ClearContainerForItem(container, item);
+                        containers[i] = null;
+                    }
+
+                    return disposed;
+                };
+
+                ItemContainersManager.prototype.CreateGenerator = function (index, count) {
+                    var generator = {
+                        IsCurrentNew: false,
+                        Current: undefined,
+                        CurrentItem: undefined,
+                        CurrentIndex: index - 1,
+                        GenerateIndex: -1,
+                        Generate: function () {
+                            return false;
+                        }
+                    };
+
+                    var ic = this.Owner;
+                    var icm = this;
+                    var containers = this._Containers;
+                    var items = this._Items;
+                    var cache = this._Cache;
+                    generator.Generate = function () {
+                        generator.GenerateIndex++;
+                        generator.CurrentIndex++;
+                        generator.IsCurrentNew = false;
+                        if (generator.CurrentIndex < 0 || generator.GenerateIndex >= count || generator.CurrentIndex >= containers.length) {
+                            generator.Current = undefined;
+                            generator.CurrentItem = undefined;
+                            return false;
+                        }
+                        generator.CurrentItem = items[generator.CurrentIndex];
+                        if ((generator.Current = containers[generator.CurrentIndex]) == null) {
+                            if (ic.IsItemItsOwnContainer(generator.CurrentItem)) {
+                                if (generator.CurrentItem instanceof Fayde.UIElement)
+                                    generator.Current = generator.CurrentItem;
+                                generator.IsCurrentNew = true;
+                            } else if (cache.length > 0) {
+                                generator.Current = cache.pop();
+                            } else {
+                                generator.Current = ic.GetContainerForItem();
+                                generator.IsCurrentNew = true;
+                            }
+                            containers[generator.CurrentIndex] = generator.Current;
+                        }
+
+                        return true;
+                    };
+
+                    return generator;
+                };
+                ItemContainersManager.prototype.GetEnumerator = function (start, count) {
+                    var carr = this._Containers;
+                    var iarr = this._Items;
+
+                    var index = (start || 0) - 1;
+                    var len = count == null ? carr.length : count;
+
+                    var i = 0;
+                    var e = { MoveNext: undefined, Current: undefined, CurrentItem: undefined, CurrentIndex: -1 };
+                    e.MoveNext = function () {
+                        i++;
+                        index++;
+                        e.CurrentIndex = index;
+                        if (i > len || index >= carr.length) {
+                            e.Current = undefined;
+                            e.CurrentItem = undefined;
+                            return false;
+                        }
+                        e.Current = carr[index];
+                        e.CurrentItem = iarr[index];
+                        return true;
+                    };
+                    return e;
+                };
+                return ItemContainersManager;
+            })();
+            Internal.ItemContainersManager = ItemContainersManager;
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {

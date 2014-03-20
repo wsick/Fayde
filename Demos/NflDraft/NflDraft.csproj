@@ -148,24 +148,18 @@
     <TypeScriptCompile Include="Models\FantasyPosition.ts" />
     <TypeScriptCompile Include="Resources\DateValueConverter.ts" />
     <TypeScriptCompile Include="Resources\PlayerOpacityValueConverter.ts" />
-    <Content Include="lib\Fayde.Controls\Default.theme.xml" />
     <Content Include="lib\Fayde.Controls\Fayde.Controls.d.ts" />
     <Content Include="lib\Fayde.Controls\Fayde.Controls.js" />
-    <Content Include="lib\Fayde.Controls\Metro.theme.xml" />
     <Content Include="lib\Fayde.Controls\Themes\Default.theme.xml" />
     <Content Include="lib\Fayde.Controls\Themes\Metro.theme.xml" />
-    <Content Include="lib\Fayde\Default.theme.xml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="lib\Fayde\Fayde.d.ts" />
     <Content Include="lib\Fayde\Fayde.js" />
-    <Content Include="lib\Fayde\Metro.theme.xml" />
+    <TypeScriptCompile Include="Resources\StatVisibilityValueConverter.ts" />
     <Content Include="lib\Fayde\Themes\Default.theme.xml" />
     <Content Include="lib\Fayde\Themes\Metro.theme.xml" />
     <Content Include="lib\requirejs\require.d.ts" />
     <Content Include="lib\requirejs\require.js" />
     <Content Include="lib\requirejs\text.js" />
-    <TypeScriptCompile Include="Resources\StatVisibilityValueConverter.ts" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -175,8 +169,8 @@
     <Content Include="default.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Views\home.fayde" />
     <Content Include="packages.config" />
+    <Content Include="Views\home.fayde" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -210,13 +204,13 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="packages\Fayde.0.9.8.19\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.8.19\build\Fayde.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('packages\Fayde.0.9.8.11\build\Fayde.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fayde.0.9.8.11\build\Fayde.targets'))" />
+    <Error Condition="!Exists('packages\Fayde.0.9.8.19\build\Fayde.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fayde.0.9.8.19\build\Fayde.targets'))" />
   </Target>
-  <Import Project="packages\Fayde.0.9.8.11\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.8.11\build\Fayde.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
