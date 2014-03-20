@@ -18,6 +18,7 @@ module Fayde {
         ParentNode: XamlNode = null;
         Name: string = "";
         NameScope: NameScope = null;
+        DocNameScope: NameScope = null;
         private IsShareable: boolean = false;
         private _OwnerNameScope: NameScope = null;
         private _LogicalChildren: XamlNode[] = [];
@@ -67,11 +68,15 @@ module Fayde {
             }
         }
 
-        FindName(name: string): XamlNode {
+        FindName(name: string, doc?: boolean): XamlNode {
             var scope = this.FindNameScope();
+            var node: XamlNode;
             if (scope)
-                return scope.FindName(name);
-            return undefined;
+                node = scope.FindName(name);
+            var docscope: NameScope;;
+            if (!node && doc && (docscope = this.DocNameScope))
+                node = docscope.FindName(name);
+            return node;
         }
         SetName(name: string) {
             this.Name = name;

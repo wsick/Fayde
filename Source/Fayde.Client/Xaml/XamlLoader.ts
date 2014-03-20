@@ -74,6 +74,7 @@ module Fayde.Xaml {
             var xobj = <XamlObject>val;
             var xnode = xobj.XamlNode;
 
+            xnode.DocNameScope = ctx.NameScope;
             var nameAttr = el.attributes.getNamedItemNS(Fayde.XMLNSX, "Name");
             if (nameAttr) {
                 var name = nameAttr.value;
