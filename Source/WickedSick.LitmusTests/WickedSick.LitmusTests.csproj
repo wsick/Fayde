@@ -131,6 +131,9 @@
     <Compile Include="Tests\ListBoxSelectionTest.xaml.cs">
       <DependentUpon>ListBoxSelectionTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tests\ListBoxTest.xaml.cs">
+      <DependentUpon>ListBoxTest.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tests\MapTest.xaml.cs">
       <DependentUpon>MapTest.xaml</DependentUpon>
     </Compile>
@@ -205,6 +208,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Tests\ListBoxSelectionTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\ListBoxTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

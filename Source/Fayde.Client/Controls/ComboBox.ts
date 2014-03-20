@@ -42,7 +42,7 @@ module Fayde.Controls {
             if (open) {
                 this._FocusedIndex = this.Items.Count > 0 ? Math.max(this.SelectedIndex, 0) : -1;
                 if (this._FocusedIndex > -1) {
-                    var focusedItem = this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex);
+                    var focusedItem = this.ItemContainersManager.ContainerFromIndex(this._FocusedIndex);
                     if (focusedItem instanceof ComboBoxItem)
                         (<ComboBoxItem>focusedItem).Focus();
                 }
@@ -103,23 +103,20 @@ module Fayde.Controls {
 
         OnItemContainerStyleChanged(args: IDependencyPropertyChangedEventArgs) {
             var newStyle = <Style>args.NewValue;
-            var items = this.Items;
-            var count = items.Count;
-            var icg = this.ItemContainerGenerator;
-            for (var i = 0; i < count; i++) {
-                var item = items.GetValueAt(i);
-                var container = <FrameworkElement>icg.ContainerFromIndex(i);
-                if (container && item !== container)
+            var enumerator = this.ItemContainersManager.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                var container = <FrameworkElement>enumerator.Current;
+                if (container && container !== enumerator.CurrentItem)
                     container.Style = newStyle;
             }
         }
         IsItemItsOwnContainer(item: any): boolean {
             return item instanceof ComboBoxItem;
         }
-        GetContainerForItem(): DependencyObject {
+        GetContainerForItem(): UIElement {
             return new ComboBoxItem();
         }
-        PrepareContainerForItem(container: DependencyObject, item: any) {
+        PrepareContainerForItem(container: UIElement, item: any) {
             super.PrepareContainerForItem(container, item);
             var cbi = <ComboBoxItem>container;
             if (cbi !== item) {
@@ -191,7 +188,7 @@ module Fayde.Controls {
                     if (this.IsDropDownOpen) {
                         if (this._FocusedIndex < (this.Items.Count - 1)) {
                             this._FocusedIndex++;
-                            (<UIElement>this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex)).Focus();
+                            (<UIElement>this.ItemContainersManager.ContainerFromIndex(this._FocusedIndex)).Focus();
                         }
                     } else {
                         this.SelectedIndex = Math.min(this.SelectedIndex + 1, this.Items.Count - 1);
@@ -202,7 +199,7 @@ module Fayde.Controls {
                     if (this.IsDropDownOpen) {
                         if (this._FocusedIndex > 0) {
                             this._FocusedIndex--;
-                            (<UIElement>this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex)).Focus();
+                            (<UIElement>this.ItemContainersManager.ContainerFromIndex(this._FocusedIndex)).Focus();
                         }
                     } else {
                         this.SelectedIndex = Math.max(this.SelectedIndex - 1, 0);
@@ -258,9 +255,9 @@ module Fayde.Controls {
             if (content instanceof ComboBoxItem)
                 content = content.Content;
 
-            var icg = this.ItemContainerGenerator;
+            var icm = this.ItemContainersManager;
             var selectedIndex = this.SelectedIndex;
-            var temp = icg.ContainerFromIndex(selectedIndex);
+            var temp = icm.ContainerFromIndex(selectedIndex);
             if (temp instanceof ComboBoxItem) this.$DisplayedItem = <ComboBoxItem>temp;
 
             this.$SelectionBoxItem = content;
@@ -273,21 +270,18 @@ module Fayde.Controls {
                 else
                     this.$DisplayedItem = null;
             } else {
-                temp = icg.ContainerFromIndex(selectedIndex);
+                temp = icm.ContainerFromIndex(selectedIndex);
                 var container: ComboBoxItem;
                 if (temp instanceof ComboBoxItem) container = <ComboBoxItem>temp;
                 if (!container) {
-                    var position = icg.GeneratorPositionFromIndex(selectedIndex);
-                    var state = icg.StartAt(position, false, true);
-                    try {
-                        temp = icg.GenerateNext({ Value: null });
-                        if (temp instanceof ComboBoxItem) container = <ComboBoxItem>temp;
-                    } finally {
-                        state.Dispose();
+                    var generator = icm.CreateGenerator(selectedIndex, 1);
+                    if (generator.Generate() && generator.Current instanceof ComboBoxItem) {
+                        container = <ComboBoxItem>generator.Current;
+                        this.PrepareContainerForItem(container, generator.CurrentItem);
                     }
-                    icg.PrepareItemContainer(container);
                 }
-                this.$SelectionBoxItemTemplate = container.ContentTemplate;
+                if (container)
+                    this.$SelectionBoxItemTemplate = container.ContentTemplate;
             }
 
             this.$ContentPresenter.Content = this.$SelectionBoxItem;

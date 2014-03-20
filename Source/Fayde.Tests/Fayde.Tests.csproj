@@ -33,12 +33,12 @@
     <TypeScriptCompile Include="tests\DependencyLoadTests.ts" />
     <TypeScriptCompile Include="tests\DataTemplateTests.ts" />
     <TypeScriptCompile Include="tests\DependencyPropertyTests.ts" />
+    <TypeScriptCompile Include="tests\ItemContainersManagerTests.ts" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />
     <TypeScriptCompile Include="tests\XamlNodeTests.ts" />
     <TypeScriptCompile Include="tests\XamlLoadTests.ts" />
     <TypeScriptCompile Include="tests\BindingTests.ts" />
-    <TypeScriptCompile Include="tests\ItemsControlTests.ts" />
     <TypeScriptCompile Include="tests\MarkupExpressionTests.ts" />
     <TypeScriptCompile Include="tests\PrimitivesTests.ts" />
     <TypeScriptCompile Include="tests\ProviderTests.ts" />

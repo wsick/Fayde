@@ -51,8 +51,6 @@ module Fayde.Controls {
         XamlNode: ContentControlNode;
         CreateNode(): ContentControlNode { return new ContentControlNode(this); }
 
-        _ContentSetsParent: boolean = true;
-
         static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d).OnContentPropertyChanged(args));
         Content: any;
         private OnContentPropertyChanged(args: DependencyPropertyChangedEventArgs) {

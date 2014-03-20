@@ -130,7 +130,7 @@ module Fayde {
                 return source;
             if (xobj.TemplateOwner)
                 xobj = xobj.TemplateOwner;
-            else if ((parent = xobj.Parent) && (parent instanceof UIElement) && Controls.ItemsControl.GetItemsOwner(<UIElement>parent))
+            else if ((parent = xobj.Parent) && (parent instanceof UIElement))
                 xobj = parent;
             else
                 xobj = null;
