@@ -818,17 +818,9 @@ module Fayde.Text {
             this._ActualWidth = NaN;
         }
         private _ClearCache() {
-            var line: TextLayoutLine = null;
-            var lines = this._Lines;
-            var len = lines.length;
-            var runs: TextLayoutRun[];
-            var runlen: number = 0;
-            for (var i = 0; i < len; i++) {
-                line = lines[i];
-                runs = line._Runs;
-                runlen = runs.length;
-                for (var j = 0; j < runlen; j++) {
-                    runs[i]._ClearCache();
+            for (var i = 0, lines = this._Lines, len = lines.length; i < len; i++) {
+                for (var j = 0, runs = lines[i]._Runs, len2 = runs.length; j < len2; j++) {
+                    runs[j]._ClearCache();
                 }
             }
         }
