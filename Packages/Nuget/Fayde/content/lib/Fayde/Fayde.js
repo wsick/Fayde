@@ -910,6 +910,7 @@ var Fayde;
             this.ParentNode = null;
             this.Name = "";
             this.NameScope = null;
+            this.DocNameScope = null;
             this.IsShareable = false;
             this._OwnerNameScope = null;
             this._LogicalChildren = [];
@@ -968,11 +969,16 @@ var Fayde;
             }
         };
 
-        XamlNode.prototype.FindName = function (name) {
+        XamlNode.prototype.FindName = function (name, doc) {
             var scope = this.FindNameScope();
+            var node;
             if (scope)
-                return scope.FindName(name);
-            return undefined;
+                node = scope.FindName(name);
+            var docscope;
+            ;
+            if (!node && doc && (docscope = this.DocNameScope))
+                node = docscope.FindName(name);
+            return node;
         };
         XamlNode.prototype.SetName = function (name) {
             this.Name = name;
@@ -1162,15 +1168,9 @@ var Fayde;
             configurable: true
         });
 
-        XamlObject.prototype.FindName = function (name) {
-            var n = this.XamlNode;
-            while (n) {
-                var m = n.FindName(name);
-                if (m)
-                    return m.XObject;
-                n = n.ParentNode;
-            }
-            return undefined;
+        XamlObject.prototype.FindName = function (name, doc) {
+            var n = this.XamlNode.FindName(name, doc);
+            return n ? n.XObject : undefined;
         };
 
         XamlObject.prototype.Clone = function () {
@@ -7495,6 +7495,7 @@ var Fayde;
                 var xobj = val;
                 var xnode = xobj.XamlNode;
 
+                xnode.DocNameScope = ctx.NameScope;
                 var nameAttr = el.attributes.getNamedItemNS(Fayde.XMLNSX, "Name");
                 if (nameAttr) {
                     var name = nameAttr.value;
@@ -17289,19 +17290,12 @@ var Fayde;
     }
     function findSourceByElementName(target, name) {
         var xobj = target;
-        var source;
-        var parent;
-        while (xobj) {
-            source = xobj.FindName(name);
-            if (source)
-                return source;
-            if (xobj.TemplateOwner)
-                xobj = xobj.TemplateOwner;
-            else if ((parent = xobj.Parent) && (parent instanceof Fayde.UIElement))
-                xobj = parent;
-            else
-                xobj = null;
-        }
+        if (!xobj)
+            return undefined;
+        var source = xobj.FindName(name, true);
+        if (source)
+            return source;
+
         return undefined;
     }
     function findAncestor(target, relSource) {
@@ -18455,6 +18449,9 @@ var Fayde;
             }
             str += ")";
 
+            var t = uie.TemplateOwner;
+            str += "$TO=" + (t ? t.constructor.name : "(null)");
+
             var gridStr = VisualTreeHelper.__DebugGrid(uin, tabIndex);
             if (gridStr)
                 str += "\n" + gridStr;
@@ -19124,19 +19121,12 @@ var Fayde;
             BindingExpressionBase.prototype._FindSourceByElementName = function () {
                 var name = this.ParentBinding.ElementName;
                 var xobj = this.Target;
-                var source;
-                var parent;
-                while (xobj) {
-                    source = xobj.FindName(name);
-                    if (source)
-                        return source;
-                    if (xobj.TemplateOwner)
-                        xobj = xobj.TemplateOwner;
-                    else if ((parent = xobj.Parent) && (parent instanceof Fayde.UIElement))
-                        xobj = parent;
-                    else
-                        xobj = null;
-                }
+                if (!xobj)
+                    return undefined;
+                var source = xobj.FindName(name, true);
+                if (source)
+                    return source;
+
                 return undefined;
             };
 

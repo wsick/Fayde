@@ -174,6 +174,7 @@ declare module Fayde {
         public ParentNode: XamlNode;
         public Name: string;
         public NameScope: Fayde.NameScope;
+        public DocNameScope: Fayde.NameScope;
         private IsShareable;
         private _OwnerNameScope;
         private _LogicalChildren;
@@ -185,7 +186,7 @@ declare module Fayde {
         private _IsEnabled;
         public IsEnabled : boolean;
         public OnIsEnabledChanged(oldValue: boolean, newValue: boolean): void;
-        public FindName(name: string): XamlNode;
+        public FindName(name: string, doc?: boolean): XamlNode;
         public SetName(name: string): void;
         public FindNameScope(): Fayde.NameScope;
         public IsAttached: boolean;
@@ -210,7 +211,7 @@ declare module Fayde {
         public CreateNode(): Fayde.XamlNode;
         public Name : string;
         public Parent : XamlObject;
-        public FindName(name: string): XamlObject;
+        public FindName(name: string, doc?: boolean): XamlObject;
         public Clone(): XamlObject;
         public CloneCore(source: XamlObject): void;
         public IsInheritable(propd: DependencyProperty): boolean;
