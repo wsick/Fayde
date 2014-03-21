@@ -7,6 +7,7 @@
 *.js.map
 Source/jsbin/Fayde.js
 Source/jsbin/Fayde.tsorder
+Source/Ex/Fayde.Controls.Ex/Fayde.Controls.Ex.js
 Website/Fayde.Demos.MarchMadnessDemo/Bracket.fayde.js
 Website/Fayde.Demos.MarchMadnessDemo/default.fap.js
 Website/Fayde.Demos.MarchMadnessDemo/default.fayde.js
@@ -33,8 +34,6 @@ Demos/NflDraft/Models/PlayerStats.js
 Demos/NflDraft/Models/Round.js
 Demos/NflDraft/Models/Stats.js
 Demos/NflDraft/Models/Team.js
-Source/Fayde.Controls.Input/Fayde.Controls.Input.js
-Source/Fayde.Controls.Ex/Fayde.Controls.Ex.js
 Demos/DrawingSurface/Controls/DrawingPad.js
 Demos/NflDraft/Models/*.js
 Source/Fayde.Client/.idea/
@@ -54,6 +53,7 @@ Source/Fayde.Tests/tests/UriMapperTests.js
 Source/Fayde.Tests/tests/XamlLoadTests.js
 Source/Fayde.Tests/tests/XamlNodeTests.js
 Source/Fayde.Tests/tests/DependencyLoadTests.js
+Source/Fayde.Tests/tests/ItemContainersManagerTests.js
 Demos/ControlsShowcase/packages/*
 Demos/NflDraft/packages/*
 Source/Fayde.Tests/tests/DataTemplateTests.js
@@ -63,4 +63,5 @@ Demos/ControlsShowcase/ViewModels/MainViewModel.js
 Source/Fayde.Tests/tests/DependencyPropertyTests.js
 Source/packages/*
 Source/Fayde.Controls.Test/ViewModels/MainViewModel.js
-Source/Fayde.Tests/tests/ItemContainersManagerTests.js
+Source/Ex/Fayde.Controls.Test/ViewModels/MainViewModel.js
+Source/Ex/packages/*
