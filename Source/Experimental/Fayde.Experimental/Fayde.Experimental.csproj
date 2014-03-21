@@ -64,6 +64,15 @@
   <ItemGroup>
     <TypeScriptCompile Include="Fayde.d.ts" />
   </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="GridItemsPresenter.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="GridCell.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="GridColumn.ts" />
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
   <Import Project="packages\Fayde.0.9.8.19\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.8.19\build\Fayde.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

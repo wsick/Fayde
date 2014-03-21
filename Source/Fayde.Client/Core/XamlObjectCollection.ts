@@ -85,7 +85,7 @@ module Fayde {
             for (var i = 0; i < len; i++) {
                 this.RemovedFromCollection(old[i], true);
             }
-            this._RaiseCleared();
+            this._RaiseCleared(old);
             return true;
         }
         IndexOf(value: T): number {
@@ -114,7 +114,7 @@ module Fayde {
         _RaiseItemRemoved(value: T, index: number) { }
         _RaiseItemReplaced(removed: T, added: T, index: number) { }
         //_RaiseClearing(arr: T[]) { }
-        _RaiseCleared() { }
+        _RaiseCleared(old: T[]) { }
 
         CloneCore(source: XamlObjectCollection<T>) {
             var enumerator = ArrayEx.GetEnumerator(source._ht);
