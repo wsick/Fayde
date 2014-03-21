@@ -129,7 +129,7 @@ module Fayde.Controls {
                         }
                         break;
                     case Collections.NotifyCollectionChangedAction.Replace:
-                        items[e.NewStartingIndex] = e.NewItems[0];
+                        items.SetValueAt(e.NewStartingIndex, e.NewItems[0]);
                         break;
                     case Collections.NotifyCollectionChangedAction.Reset:
                         items.Clear();
