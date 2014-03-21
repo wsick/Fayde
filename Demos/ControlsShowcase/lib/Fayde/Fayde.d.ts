@@ -100,7 +100,7 @@ declare module Fayde.Collections {
         public NewStartingIndex: number;
         public OldItems: any[];
         public NewItems: any[];
-        static Reset(): NotifyCollectionChangedEventArgs;
+        static Reset(allValues: any[]): NotifyCollectionChangedEventArgs;
         static Replace(newValue: any, oldValue: any, index: number): NotifyCollectionChangedEventArgs;
         static Add(newValue: any, index: number): NotifyCollectionChangedEventArgs;
         static AddRange(newValues: any[], index: number): NotifyCollectionChangedEventArgs;
@@ -174,6 +174,7 @@ declare module Fayde {
         public ParentNode: XamlNode;
         public Name: string;
         public NameScope: Fayde.NameScope;
+        public DocNameScope: Fayde.NameScope;
         private IsShareable;
         private _OwnerNameScope;
         private _LogicalChildren;
@@ -185,7 +186,7 @@ declare module Fayde {
         private _IsEnabled;
         public IsEnabled : boolean;
         public OnIsEnabledChanged(oldValue: boolean, newValue: boolean): void;
-        public FindName(name: string): XamlNode;
+        public FindName(name: string, doc?: boolean): XamlNode;
         public SetName(name: string): void;
         public FindNameScope(): Fayde.NameScope;
         public IsAttached: boolean;
@@ -210,7 +211,7 @@ declare module Fayde {
         public CreateNode(): Fayde.XamlNode;
         public Name : string;
         public Parent : XamlObject;
-        public FindName(name: string): XamlObject;
+        public FindName(name: string, doc?: boolean): XamlObject;
         public Clone(): XamlObject;
         public CloneCore(source: XamlObject): void;
         public IsInheritable(propd: DependencyProperty): boolean;
@@ -1075,7 +1076,6 @@ declare module Fayde.Controls {
     class ContentControl extends Controls.Control {
         public XamlNode: ContentControlNode;
         public CreateNode(): ContentControlNode;
-        public _ContentSetsParent: boolean;
         static ContentProperty: DependencyProperty;
         public Content: any;
         private OnContentPropertyChanged(args);
@@ -1225,10 +1225,8 @@ declare module Fayde.Controls {
         static ZIndexProperty: DependencyProperty;
         static ZProperty: DependencyProperty;
         static BackgroundProperty: DependencyProperty;
-        static IsItemsHostProperty: DependencyProperty;
         static ChildrenProperty: ImmutableDependencyProperty<Fayde.XamlObjectCollection<Fayde.UIElement>>;
         public Background: Fayde.Media.Brush;
-        public IsItemsHost: boolean;
         public Children: Fayde.XamlObjectCollection<Fayde.UIElement>;
         private _BackgroundListener;
         constructor();
@@ -1326,23 +1324,22 @@ declare module Fayde.Controls {
 }
 declare module Fayde.Controls {
     class ItemsControlNode extends Controls.ControlNode {
-        private _Presenter;
-        private static _DefaultPosition;
         public XObject: ItemsControl;
         constructor(xobj: ItemsControl);
+        public ItemsPresenter: Controls.ItemsPresenter;
         public GetDefaultVisualTree(): Fayde.UIElement;
-        public ItemsPresenter : Controls.ItemsPresenter;
-        public _SetItemsPresenter(presenter: Controls.ItemsPresenter): void;
     }
     class ItemsControl extends Controls.Control {
         public XamlNode: ItemsControlNode;
         public CreateNode(): ItemsControlNode;
-        private static _ItemsSourceValidator(d, propd, value);
         static DisplayMemberPathProperty: DependencyProperty;
         static ItemsPanelProperty: DependencyProperty;
         static ItemsSourceProperty: DependencyProperty;
         static ItemsProperty: ImmutableDependencyProperty<Controls.ItemCollection>;
         static ItemTemplateProperty: DependencyProperty;
+        static IsItemsHostProperty: DependencyProperty;
+        static GetIsItemsHost(d: Fayde.DependencyObject): boolean;
+        static SetIsItemsHost(d: Fayde.DependencyObject, value: boolean): void;
         public DisplayMemberPath: string;
         public ItemsPanel: Controls.ItemsPanelTemplate;
         public ItemsSource: Fayde.IEnumerable<any>;
@@ -1351,23 +1348,22 @@ declare module Fayde.Controls {
         public OnDisplayMemberPathChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnItemTemplateChanged(e: IDependencyPropertyChangedEventArgs): void;
-        private _DisplayMemberTemplate;
-        private _Manager;
-        private _ItemContainerGenerator;
-        public ItemContainerGenerator : Controls.ItemContainerGenerator;
-        public Panel : Controls.Panel;
-        static GetItemsOwner(uie: Fayde.UIElement): ItemsControl;
-        static ItemsControlFromItemContainer(container: Fayde.DependencyObject): ItemsControl;
+        private _ItemContainersManager;
+        public ItemContainersManager : Controls.Internal.IItemContainersManager;
         constructor();
-        public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
-        public OnICGItemsChanged(sender: any, e: Controls.Primitives.ItemsChangedEventArgs): void;
-        public AddItemsToPresenter(position: Controls.IGeneratorPosition, count: number): void;
-        public RemoveItemsFromPresenter(position: Controls.IGeneratorPosition, count: number): void;
-        public UpdateContentTemplateOnContainer(element: Fayde.DependencyObject, item: any): void;
-        public PrepareContainerForItem(container: Fayde.DependencyObject, item: any): void;
-        public ClearContainerForItem(container: Fayde.DependencyObject, item: any): void;
-        public GetContainerForItem(): Fayde.DependencyObject;
+        public PrepareContainerForItem(container: Fayde.UIElement, item: any): void;
+        public ClearContainerForItem(container: Fayde.UIElement, item: any): void;
+        public GetContainerForItem(): Fayde.UIElement;
         public IsItemItsOwnContainer(item: any): boolean;
+        private _IsDataBound;
+        private _SuspendItemsChanged;
+        private _OnItemsUpdated(sender, e);
+        private _OnItemsSourceUpdated(sender, e);
+        public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
+        public OnItemsAdded(index: number, newItems: any[]): void;
+        public OnItemsRemoved(index: number, oldItems: any[]): void;
+        private UpdateContainerTemplate(container, item);
+        private _DisplayMemberTemplate;
         private _GetDisplayMemberTemplate();
     }
 }
@@ -1406,8 +1402,8 @@ declare module Fayde.Controls.Primitives {
         public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         public OnItemsSourceChanged(args: IDependencyPropertyChangedEventArgs): void;
         public OnItemContainerStyleChanged(oldStyle: any, newStyle: any): void;
-        public ClearContainerForItem(element: Fayde.DependencyObject, item: any): void;
-        public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
+        public ClearContainerForItem(element: Fayde.UIElement, item: any): void;
+        public PrepareContainerForItem(element: Fayde.UIElement, item: any): void;
         public _GetValueFromItem(item: any): any;
         private _SelectItemFromValue(selectedValue, ignoreSelectedValue?);
         public SelectAll(): void;
@@ -1774,8 +1770,8 @@ declare module Fayde.Controls {
         public OnApplyTemplate(): void;
         public OnItemContainerStyleChanged(args: IDependencyPropertyChangedEventArgs): void;
         public IsItemItsOwnContainer(item: any): boolean;
-        public GetContainerForItem(): Fayde.DependencyObject;
-        public PrepareContainerForItem(container: Fayde.DependencyObject, item: any): void;
+        public GetContainerForItem(): Fayde.UIElement;
+        public PrepareContainerForItem(container: Fayde.UIElement, item: any): void;
         public GoToStateFocus(gotoFunc: (state: string) => boolean): boolean;
         public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
@@ -2021,17 +2017,7 @@ declare module Fayde.Controls {
         RemoveAt(index: number): any;
         Clear(): any;
     }
-    interface IItemCollectionHidden extends IItemCollection {
-        IsReadOnly: boolean;
-        SetValueAtImpl(index: number, value: any): any;
-        AddImpl(value: any): any;
-        AddRangeImpl(values: any[]): any;
-        InsertImpl(index: number, value: any): any;
-        RemoveImpl(value: any): any;
-        RemoveAtImpl(index: number): any;
-        ClearImpl(): any;
-    }
-    class ItemCollection extends Fayde.XamlObjectCollection<any> implements IItemCollection, IItemCollectionHidden {
+    class ItemCollection extends Fayde.XamlObjectCollection<any> implements IItemCollection {
         public ItemsChanged: MulticastEvent<Fayde.Collections.NotifyCollectionChangedEventArgs>;
         public ToArray(): any[];
         public Count : number;
@@ -2058,55 +2044,6 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    interface IGeneratorPosition {
-        Index: number;
-        Offset: number;
-    }
-    interface IGenerationState {
-        AllowStartAtRealizedItem: boolean;
-        Position: IGeneratorPosition;
-        Step: number;
-        Dispose: () => void;
-    }
-    interface IItemContainerGenerator {
-        GenerateNext(isNewlyRealized: IOutValue): Fayde.DependencyObject;
-        GetItemContainerGeneratorForPanel(panel: Controls.Panel): IItemContainerGenerator;
-        PrepareItemContainer(container: Fayde.DependencyObject): any;
-        Remove(position: IGeneratorPosition, count: number): any;
-        RemoveAll(): any;
-        StartAt(position: IGeneratorPosition, forward: boolean, allowStartAtRealizedItem: boolean): IGenerationState;
-    }
-    interface IRecyclingItemContainerGenerator {
-        Recycle(position: IGeneratorPosition, count: number): any;
-    }
-    class ItemContainerGenerator implements IItemContainerGenerator, IRecyclingItemContainerGenerator {
-        public Owner: Controls.ItemsControl;
-        private _GenerationState;
-        private _Cache;
-        private _Containers;
-        private _RealizedCount;
-        private _Items;
-        public ItemsChanged: MulticastEvent<Controls.Primitives.ItemsChangedEventArgs>;
-        constructor(Owner: Controls.ItemsControl);
-        public GenerateNext(isNewlyRealized: IOutValue): Fayde.DependencyObject;
-        public GetItemContainerGeneratorForPanel(panel: Controls.Panel): IItemContainerGenerator;
-        public PrepareItemContainer(container: Fayde.DependencyObject): void;
-        public Recycle(position: IGeneratorPosition, count: number): void;
-        public Remove(position: IGeneratorPosition, count: number): void;
-        public RemoveAll(): void;
-        public StartAt(position: IGeneratorPosition, forward: boolean, allowStartAtRealizedItem: boolean): IGenerationState;
-        public IndexFromContainer(container: Fayde.DependencyObject): number;
-        public ContainerFromIndex(index: number): Fayde.DependencyObject;
-        public ItemFromContainer(container: Fayde.DependencyObject): any;
-        public ContainerFromItem(item: any): Fayde.DependencyObject;
-        public GeneratorPositionFromIndex(itemIndex: number): IGeneratorPosition;
-        public IndexFromGeneratorPosition(position: IGeneratorPosition): number;
-        public OnOwnerItemsItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
-        private _GetNumAlreadyRealizedItems(items);
-        private _KillContainers(position, count, recycle);
-    }
-}
-declare module Fayde.Controls {
     class ItemsPanelTemplate extends Fayde.Xaml.FrameworkTemplate {
         constructor();
         public GetVisualTree(bindingSource: Fayde.DependencyObject): Controls.Panel;
@@ -2115,8 +2052,8 @@ declare module Fayde.Controls {
 declare module Fayde.Controls {
     class ItemsPresenterNode extends Fayde.FENode {
         public XObject: ItemsPresenter;
-        private _ElementRoot;
         constructor(xobj: ItemsPresenter);
+        private _ElementRoot;
         public ElementRoot : Controls.Panel;
         public DoApplyTemplateWithError(error: BError): boolean;
     }
@@ -2124,7 +2061,11 @@ declare module Fayde.Controls {
         public TemplateOwner: Controls.ItemsControl;
         public XamlNode: ItemsPresenterNode;
         public CreateNode(): ItemsPresenterNode;
-        public ElementRoot : Controls.Panel;
+        public ItemsControl : Controls.ItemsControl;
+        public Panel : Controls.Panel;
+        static Get(panel: Controls.Panel): ItemsPresenter;
+        public OnItemsAdded(index: number, newItems: any[]): void;
+        public OnItemsRemoved(index: number, oldItems: any[]): void;
     }
 }
 declare module Fayde.Controls {
@@ -2142,8 +2083,8 @@ declare module Fayde.Controls {
         public OnKeyDown(args: Fayde.Input.KeyEventArgs): void;
         private _GetIsVerticalOrientation();
         public IsItemItsOwnContainer(item: any): boolean;
-        public GetContainerForItem(): Fayde.DependencyObject;
-        public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
+        public GetContainerForItem(): Fayde.UIElement;
+        public PrepareContainerForItem(element: Fayde.UIElement, item: any): void;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public NotifyListItemGotFocus(lbi: Controls.ListBoxItem): void;
@@ -2431,16 +2372,6 @@ declare module Fayde.Controls.Primitives {
         public HorizontalOffset: number;
         public VerticalOffset: number;
         constructor(horizontal: number, vertical: number);
-    }
-}
-declare module Fayde.Controls.Primitives {
-    class ItemsChangedEventArgs extends EventArgs {
-        public Action: Fayde.Collections.NotifyCollectionChangedAction;
-        public ItemCount: number;
-        public ItemUICount: number;
-        public OldPosition: Controls.IGeneratorPosition;
-        public Position: Controls.IGeneratorPosition;
-        constructor(action: Fayde.Collections.NotifyCollectionChangedAction, itemCount: number, itemUICount: number, oldPosition: Controls.IGeneratorPosition, position: Controls.IGeneratorPosition);
     }
 }
 declare module Fayde.Controls.Primitives {
@@ -2880,32 +2811,24 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class VirtualizingPanel extends Controls.Panel {
-        private _ICG;
-        public ItemContainerGenerator : Controls.ItemContainerGenerator;
-        public AddInternalChild(child: any): void;
-        public InsertInternalChild(index: number, child: any): void;
-        public RemoveInternalChildRange(index: number, range: number): void;
-        public BringIndexIntoView(index: any): void;
-        public OnClearChildren(): void;
-        private OnItemContainerGeneratorChanged(sender, e);
-        public OnItemsChanged(sender: any, e: Controls.Primitives.ItemsChangedEventArgs): void;
-    }
-}
-declare module Fayde.Controls {
     enum VirtualizationMode {
         Standard = 0,
         Recycling = 1,
     }
-    interface ICancelable {
-        Cancel: boolean;
+    class VirtualizingPanel extends Controls.Panel {
+        static VirtualizationModeProperty: DependencyProperty;
+        static GetVirtualizationMode(d: Fayde.DependencyObject): VirtualizationMode;
+        static SetVirtualizationMode(d: Fayde.DependencyObject, value: VirtualizationMode): void;
+        private static OnVirtualizationModePropertyChanged(dobj, args);
+        static IsVirtualizingProperty: DependencyProperty;
+        static GetIsVirtualizing(d: Fayde.DependencyObject): boolean;
+        static SetIsVirtualizing(d: Fayde.DependencyObject, value: boolean): void;
+        public ItemsControl : Controls.ItemsControl;
+        public OnItemsAdded(index: number, newItems: any[]): void;
+        public OnItemsRemoved(index: number, oldItems: any[]): void;
     }
-    class CleanUpVirtualizedItemEventArgs extends Fayde.RoutedEventArgs implements ICancelable {
-        public Cancel: boolean;
-        public UIElement: Fayde.UIElement;
-        public Value: any;
-        constructor(uiElement: Fayde.UIElement, value: any);
-    }
+}
+declare module Fayde.Controls {
     class VirtualizingStackPanel extends Controls.VirtualizingPanel implements Controls.Primitives.IScrollInfo {
         private _CanHorizontallyScroll;
         private _CanVerticallyScroll;
@@ -2939,21 +2862,12 @@ declare module Fayde.Controls {
         public MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
         public SetHorizontalOffset(offset: number): boolean;
         public SetVerticalOffset(offset: number): boolean;
-        public CleanUpVirtualizedItemEvent: Fayde.RoutedEvent<CleanUpVirtualizedItemEventArgs>;
         static OrientationProperty: DependencyProperty;
         public Orientation: Fayde.Orientation;
-        static IsVirtualizingProperty: DependencyProperty;
-        static GetIsVirtualizing(d: Fayde.DependencyObject): boolean;
-        static SetIsVirtualizing(d: Fayde.DependencyObject, value: boolean): void;
-        static VirtualizationModeProperty: DependencyProperty;
-        static GetVirtualizationMode(d: Fayde.DependencyObject): VirtualizationMode;
-        static SetVirtualizationMode(d: Fayde.DependencyObject, value: VirtualizationMode): void;
         public MeasureOverride(availableSize: size): size;
         public ArrangeOverride(finalSize: size): size;
-        public RemoveUnusedContainers(first: number, count: number): void;
-        public OnCleanUpVirtualizedItem(uie: Fayde.UIElement, value: any): ICancelable;
-        public OnClearChildren(): void;
-        public OnItemsChanged(sender: any, e: Controls.Primitives.ItemsChangedEventArgs): void;
+        public OnItemsAdded(index: number, newItems: any[]): void;
+        public OnItemsRemoved(index: number, oldItems: any[]): void;
     }
 }
 declare module Fayde {
@@ -3203,7 +3117,6 @@ declare module Fayde {
         private _Listener;
         public SourceProperty: DependencyProperty;
         public TargetProperty: DependencyProperty;
-        private _SetsParent;
         constructor(sourcePropd: DependencyProperty, targetPropd: DependencyProperty);
         public GetValue(propd: DependencyProperty): any;
         public OnAttached(dobj: Fayde.DependencyObject): void;
@@ -6547,35 +6460,52 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls.Internal {
-    interface ICollection {
-        IsReadOnly: boolean;
-        Count: number;
-        IndexOf(value: any): number;
-        Contains(value: any): boolean;
-        GetValueAt(index: number): any;
-        Add(val: any): any;
-        AddRange(vals: any[]): any;
-        Insert(index: number, val: any): any;
-        RemoveAt(index: number): any;
-        SetValueAt(index: number, val: any): any;
-        Clear(): any;
+    interface IItemContainersOwner {
+        PrepareContainerForItem(container: Fayde.UIElement, item: any): any;
+        ClearContainerForItem(container: Fayde.UIElement, item: any): any;
+        GetContainerForItem(): Fayde.UIElement;
+        IsItemItsOwnContainer(item: any): boolean;
     }
-    interface IItemsOwner {
-        Items: ICollection;
-        ItemsSource: Fayde.IEnumerable<any>;
-        OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): any;
+    interface IItemContainersManager {
+        IsRecycling: boolean;
+        IndexFromContainer(container: Fayde.UIElement): number;
+        ContainerFromIndex(index: number): Fayde.UIElement;
+        ItemFromContainer(container: Fayde.UIElement): any;
+        ContainerFromItem(item: any): Fayde.UIElement;
+        OnItemsAdded(index: number, newItems: any[]): any;
+        OnItemsRemoved(index: number, oldItems: any[]): any;
+        DisposeContainers(index?: number, count?: number): Fayde.UIElement[];
+        CreateGenerator(index: number, count: number): IContainerGenerator;
+        GetEnumerator(index?: number, count?: number): IContainerEnumerator;
     }
-    interface IItemsManager {
-        Items: ICollection;
-        OnItemsSourceChanged(oldItemsSource: Fayde.IEnumerable<any>, newItemsSource: Fayde.IEnumerable<any>): any;
+    class ItemContainersManager implements IItemContainersManager {
+        public Owner: IItemContainersOwner;
+        private _Items;
+        private _Containers;
+        private _Cache;
+        public IsRecycling: boolean;
+        constructor(Owner: IItemContainersOwner);
+        public IndexFromContainer(container: Fayde.UIElement): number;
+        public ContainerFromIndex(index: number): Fayde.UIElement;
+        public ItemFromContainer(container: Fayde.UIElement): any;
+        public ContainerFromItem(item: any): Fayde.UIElement;
+        public OnItemsAdded(index: number, newItems: any[]): void;
+        public OnItemsRemoved(index: number, oldItems: any[]): void;
+        public DisposeContainers(index?: number, count?: number): Fayde.UIElement[];
+        public CreateGenerator(index: number, count: number): IContainerGenerator;
+        public GetEnumerator(start?: number, count?: number): IContainerEnumerator;
     }
-    class ItemsManager implements IItemsManager {
-        public Owner: IItemsOwner;
-        public Items: ICollection;
-        constructor(Owner: IItemsOwner);
-        public OnItemsChanged(sender: any, e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
-        public OnItemsSourceChanged(oldItemsSource: Fayde.IEnumerable<any>, newItemsSource: Fayde.IEnumerable<any>): void;
-        private _CollectionChanged(sender, e);
+    interface IContainerGenerator {
+        IsCurrentNew: boolean;
+        Current: Fayde.UIElement;
+        CurrentItem: any;
+        CurrentIndex: number;
+        GenerateIndex: number;
+        Generate(): boolean;
+    }
+    interface IContainerEnumerator extends Fayde.IEnumerator<Fayde.UIElement> {
+        CurrentItem: any;
+        CurrentIndex: number;
     }
 }
 declare module Fayde.Xaml {
