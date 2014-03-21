@@ -2,6 +2,18 @@
 
 class MainViewModel extends Fayde.MVVM.ViewModelBase {
     States: { Name: string }[] = [];
+    TreeData = [{
+        Name: "Root",
+        Children: [
+            {
+                Name: "Level 2 - 1",
+                Children: [
+                    { Name: "Level 3 - 1" },
+                    { Name: "Level 3 - 2" }
+                ]
+            }
+        ]
+    }];
     constructor() {
         super();
         this.States.push({ Name: "Florida" });

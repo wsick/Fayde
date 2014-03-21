@@ -39,6 +39,13 @@
                     </controls:TreeViewItem>
                 </controls:TreeViewItem>
             </controls:TreeView>
+            <controls:TreeView ItemsSource="{Binding TreeData}">
+                <controls:TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <TextBlock Content="{Binding Name}" />
+                    </HierarchicalDataTemplate>
+                </controls:TreeView.ItemTemplate>
+            </controls:TreeView>
         </StackPanel>
         <StackPanel Margin="5" Grid.Column="2">
             <TextBlock Text="TabControl" />
