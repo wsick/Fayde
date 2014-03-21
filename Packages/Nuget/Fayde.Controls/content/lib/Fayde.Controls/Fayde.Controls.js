@@ -711,12 +711,12 @@ var Fayde;
                     this.Owner = Owner;
                     this.OnCoerceValue = OnCoerceValue;
                     this.OnCoerceCurrentIndex = OnCoerceCurrentIndex;
+                    this.TextBox = null;
                     this.Text = "";
                     this.IsCoercing = false;
                     this._IsEditing = false;
                     this._IsInvalidInput = false;
                     this.Owner.KeyDown.Subscribe(this.OnKeyDown, this);
-                    this.Items = this.Owner.Items;
                 }
                 Object.defineProperty(DomainCoercer.prototype, "IsEditing", {
                     get: function () {
@@ -804,7 +804,7 @@ var Fayde;
 
                 DomainCoercer.prototype.OnValueChanged = function (oldValue, newValue) {
                     if (!this.IsCoercing) {
-                        var index = this.Items.IndexOf(newValue);
+                        var index = this.Owner.Items.IndexOf(newValue);
                         if (index > -1) {
                             this.IsCoercing = true;
                             this.OnCoerceCurrentIndex(index);
@@ -816,9 +816,9 @@ var Fayde;
                 };
                 DomainCoercer.prototype.OnCurrentIndexChanged = function (oldIndex, newIndex) {
                     if (!this.IsCoercing) {
-                        if (newIndex >= 0 && newIndex < this.Items.Count) {
+                        if (newIndex >= 0 && newIndex < this.Owner.Items.Count) {
                             this.IsCoercing = true;
-                            this.OnCoerceValue(this.Items.GetValueAt(newIndex));
+                            this.OnCoerceValue(this.Owner.Items.GetValueAt(newIndex));
                             this.IsCoercing = false;
                         }
                     }
@@ -1297,12 +1297,12 @@ var Fayde;
                 var num = down ? -1 : count;
                 var menuItem1 = this.XamlNode.GetFocusedElement();
                 if (menuItem1 instanceof Fayde.Controls.MenuItem && this === menuItem1.ParentMenuBase)
-                    num = this.ItemContainerGenerator.IndexFromContainer(menuItem1);
+                    num = this.ItemContainersManager.IndexFromContainer(menuItem1);
                 var index = num;
                 var menuItem2;
                 do {
                     index = (index + count + (down ? 1 : -1)) % count;
-                    menuItem2 = this.ItemContainerGenerator.ContainerFromIndex(index);
+                    menuItem2 = this.ItemContainersManager.ContainerFromIndex(index);
                     if (!(menuItem2 instanceof Fayde.Controls.MenuItem))
                         menuItem2 = null;
                 } while((!menuItem2 || (!menuItem2.IsEnabled || !menuItem2.Focus())) && index !== num);
@@ -1602,8 +1602,7 @@ var Fayde;
                 this.DefaultStyleKey = this.constructor;
 
                 Object.defineProperty(this, "Items", { value: new Fayde.Controls.Internal.ObservableObjectCollection(), writable: false });
-
-                this._Manager = new Fayde.Controls.Internal.ItemsManager(this);
+                this.Items.CollectionChanged.Subscribe(this._OnItemsChanged, this);
 
                 this._Coercer = new Fayde.Controls.Internal.DomainCoercer(this, function (val) {
                     return _this.SetCurrentValue(DomainUpDown.ValueProperty, val);
@@ -1616,11 +1615,65 @@ var Fayde;
             DomainUpDown.prototype.OnCurrentIndexChanged = function (oldIndex, newIndex) {
                 this.UpdateValidSpinDirection();
             };
-            DomainUpDown.prototype.OnItemsChanged = function (e) {
-                this._Coercer.UpdateTextBoxText();
-            };
             DomainUpDown.prototype._OnIsCyclicChanged = function (args) {
                 this.UpdateValidSpinDirection();
+            };
+            DomainUpDown.prototype._OnItemsSourceChanged = function (oldItemsSource, newItemsSource) {
+                var cc = Fayde.Collections.INotifyCollectionChanged_.As(oldItemsSource);
+                if (cc)
+                    cc.CollectionChanged.Unsubscribe(this._ItemsSourceModified, this);
+
+                this.Items.IsReadOnly = false;
+                this.Items.Clear();
+                if (!newItemsSource)
+                    return;
+
+                var en = Fayde.IEnumerable_.As(newItemsSource);
+                if (en) {
+                    this.Items.AddRange(Fayde.Enumerable.ToArray(en));
+                    this.Items.IsReadOnly = true;
+                }
+
+                cc = Fayde.Collections.INotifyCollectionChanged_.As(newItemsSource);
+                if (cc)
+                    cc.CollectionChanged.Subscribe(this._ItemsSourceModified, this);
+            };
+            DomainUpDown.prototype._ItemsSourceModified = function (sender, e) {
+                var coll = sender;
+                var index;
+                this.Items.IsReadOnly = false;
+                switch (e.Action) {
+                    case 1 /* Add */:
+                        var enumerator = Fayde.ArrayEx.GetEnumerator(e.NewItems);
+                        index = e.NewStartingIndex;
+                        while (enumerator.MoveNext()) {
+                            this.Items.Insert(index, enumerator.Current);
+                            index++;
+                        }
+                        break;
+                    case 2 /* Remove */:
+                        var enumerator = Fayde.ArrayEx.GetEnumerator(e.OldItems);
+                        while (enumerator.MoveNext()) {
+                            this.Items.RemoveAt(e.OldStartingIndex);
+                        }
+                        break;
+                    case 3 /* Replace */:
+                        var enumerator = Fayde.ArrayEx.GetEnumerator(e.NewItems);
+                        index = e.NewStartingIndex;
+                        while (enumerator.MoveNext()) {
+                            this.Items.SetValueAt(index, enumerator.Current);
+                            index++;
+                        }
+                        break;
+                    case 4 /* Reset */:
+                        this.Items.Clear();
+                        this.Items.AddRange(coll.ToArray());
+                        break;
+                }
+                this.Items.IsReadOnly = true;
+            };
+            DomainUpDown.prototype._OnItemsChanged = function (sender, e) {
+                this._Coercer.UpdateTextBoxText();
             };
 
             Object.defineProperty(DomainUpDown.prototype, "ValueMemberPath", {
@@ -1844,7 +1897,7 @@ var Fayde;
             DomainUpDown.ItemsSourceProperty = DependencyProperty.Register("ItemsSource", function () {
                 return Fayde.IEnumerable_;
             }, DomainUpDown, undefined, function (d, args) {
-                return d._Manager.OnItemsSourceChanged(args.OldValue, args.NewValue);
+                return d._OnItemsSourceChanged(args.OldValue, args.NewValue);
             });
             DomainUpDown.ItemTemplateProperty = DependencyProperty.Register("ItemTemplate", function () {
                 return Fayde.DataTemplate;
@@ -2340,8 +2393,8 @@ var Fayde;
                 }
                 Object.defineProperty(ItemsControlHelper.prototype, "ItemsHost", {
                     get: function () {
-                        if (!(this._itemsHost instanceof Fayde.Controls.Panel) && this.ItemsControl != null && this.ItemsControl.ItemContainerGenerator != null) {
-                            var container = this.ItemsControl.ItemContainerGenerator.ContainerFromIndex(0);
+                        if (!(this._itemsHost instanceof Fayde.Controls.Panel) && this.ItemsControl != null && this.ItemsControl.ItemContainersManager != null) {
+                            var container = this.ItemsControl.ItemContainersManager.ContainerFromIndex(0);
                             if (container != null)
                                 this._itemsHost = Fayde.VisualTreeHelper.GetParent(container);
                         }
@@ -3048,7 +3101,7 @@ var Fayde;
                 var flag2 = up && this.ContainsSelection;
                 var index = up ? count - 1 : 0;
                 while (0 <= index && index < count) {
-                    var tvi2 = this.ItemContainerGenerator.ContainerFromIndex(index);
+                    var tvi2 = this.ItemContainersManager.ContainerFromIndex(index);
                     if (tvi2 instanceof TreeViewItem && tvi2.IsEnabled) {
                         if (flag2) {
                             if (tvi2.IsSelected) {
@@ -3086,7 +3139,7 @@ var Fayde;
                 if (!parentTreeView || parentTreeView.IsSelectionChangeActive)
                     return;
                 var parentTreeViewItem = this.ParentTreeViewItem;
-                var itemOrContainer = parentTreeViewItem != null ? parentTreeViewItem.ItemContainerGenerator.ItemFromContainer(this) : parentTreeView.ItemContainerGenerator.ItemFromContainer(this);
+                var itemOrContainer = parentTreeViewItem != null ? parentTreeViewItem.ItemContainersManager.ItemFromContainer(this) : parentTreeView.ItemContainersManager.ItemFromContainer(this);
                 parentTreeView.ChangeSelection(itemOrContainer, this, selected);
             };
 
@@ -3110,7 +3163,7 @@ var Fayde;
 
             TreeViewItem.prototype.FindNextFocusableItem = function (recurse) {
                 if (recurse && this.IsExpanded && this.HasItems) {
-                    var treeViewItem = this.ItemContainerGenerator.ContainerFromIndex(0);
+                    var treeViewItem = this.ItemContainersManager.ContainerFromIndex(0);
                     if (treeViewItem instanceof TreeViewItem) {
                         if (!treeViewItem.IsEnabled)
                             return treeViewItem.FindNextFocusableItem(false);
@@ -3119,10 +3172,10 @@ var Fayde;
                 }
                 var parentItemsControl = this.ParentItemsControl;
                 if (parentItemsControl != null) {
-                    var index = parentItemsControl.ItemContainerGenerator.IndexFromContainer(this);
+                    var index = parentItemsControl.ItemContainersManager.IndexFromContainer(this);
                     var count = parentItemsControl.Items.Count;
                     while (index++ < count) {
-                        var treeViewItem = parentItemsControl.ItemContainerGenerator.ContainerFromIndex(index);
+                        var treeViewItem = parentItemsControl.ItemContainersManager.ContainerFromIndex(index);
                         if (treeViewItem instanceof TreeViewItem && treeViewItem.IsEnabled)
                             return treeViewItem;
                     }
@@ -3135,7 +3188,7 @@ var Fayde;
             TreeViewItem.prototype.FindLastFocusableItem = function () {
                 var tvi1 = this;
                 var tvi2 = null;
-                for (var index = -1; tvi1 instanceof TreeViewItem; tvi1 = tvi2.ItemContainerGenerator.ContainerFromIndex(index)) {
+                for (var index = -1; tvi1 instanceof TreeViewItem; tvi1 = tvi2.ItemContainersManager.ContainerFromIndex(index)) {
                     if (tvi1.IsEnabled) {
                         if (!tvi1.IsExpanded || !tvi1.HasItems)
                             return tvi1;
@@ -3152,9 +3205,9 @@ var Fayde;
                 var parentItemsControl = this.ParentItemsControl;
                 if (!parentItemsControl)
                     return null;
-                var index = parentItemsControl.ItemContainerGenerator.IndexFromContainer(this);
+                var index = parentItemsControl.ItemContainersManager.IndexFromContainer(this);
                 while (index-- > 0) {
-                    var treeViewItem = parentItemsControl.ItemContainerGenerator.ContainerFromIndex(index);
+                    var treeViewItem = parentItemsControl.ItemContainersManager.ContainerFromIndex(index);
                     if (treeViewItem instanceof TreeViewItem && treeViewItem.IsEnabled) {
                         var lastFocusableItem = treeViewItem.FindLastFocusableItem();
                         if (lastFocusableItem != null)
@@ -3400,7 +3453,7 @@ var Fayde;
                                 break;
                             }
                         }
-                        var index = itemsControl.ItemContainerGenerator.IndexFromContainer(tvi2);
+                        var index = itemsControl.ItemContainersManager.IndexFromContainer(tvi2);
                         var count = itemsControl.Items.Count;
                         while (itemsControl != null && tvi2 != null) {
                             if (tvi2.IsEnabled) {
@@ -3419,7 +3472,7 @@ var Fayde;
                             }
                             index += up ? -1 : 1;
                             if (0 <= index && index < count) {
-                                tvi2 = itemsControl.ItemContainerGenerator.ContainerFromIndex(index);
+                                tvi2 = itemsControl.ItemContainersManager.ContainerFromIndex(index);
                                 if (!(tvi2 instanceof Fayde.Controls.TreeViewItem))
                                     tvi2 = null;
                             } else if (itemsControl === this) {
@@ -3430,9 +3483,9 @@ var Fayde;
                                     itemsControl = tvi3.ParentItemsControl;
                                     if (itemsControl != null) {
                                         count = itemsControl.Items.Count;
-                                        index = itemsControl.ItemContainerGenerator.IndexFromContainer(tvi3) + (up ? -1 : 1);
+                                        index = itemsControl.ItemContainersManager.IndexFromContainer(tvi3) + (up ? -1 : 1);
                                         if (index > -1 && index < count) {
-                                            tvi2 = itemsControl.ItemContainerGenerator.ContainerFromIndex(index);
+                                            tvi2 = itemsControl.ItemContainersManager.ContainerFromIndex(index);
                                             if (!(tvi2 instanceof Fayde.Controls.TreeViewItem))
                                                 tvi2 = null;
                                             break;
@@ -3552,14 +3605,14 @@ var Fayde;
                 }
             };
             TreeView.prototype.SelectFirstItem = function () {
-                var container = this.ItemContainerGenerator.ContainerFromIndex(0);
+                var container = this.ItemContainersManager.ContainerFromIndex(0);
                 var selected = container instanceof Fayde.Controls.TreeViewItem;
                 if (!selected)
                     container = this.SelectedContainer;
-                this.ChangeSelection(selected ? this.ItemContainerGenerator.ItemFromContainer(container) : this.SelectedItem, container, selected);
+                this.ChangeSelection(selected ? this.ItemContainersManager.ItemFromContainer(container) : this.SelectedItem, container, selected);
             };
             TreeView.prototype.FocusFirstItem = function () {
-                var tvi = this.ItemContainerGenerator.ContainerFromIndex(0);
+                var tvi = this.ItemContainersManager.ContainerFromIndex(0);
                 if (!tvi)
                     return false;
                 if (!tvi.IsEnabled || !tvi.Focus())
@@ -3568,7 +3621,7 @@ var Fayde;
             };
             TreeView.prototype.FocusLastItem = function () {
                 for (var index = this.Items.Count - 1; index >= 0; --index) {
-                    var tvi = this.ItemContainerGenerator.ContainerFromIndex(index);
+                    var tvi = this.ItemContainersManager.ContainerFromIndex(index);
                     if (tvi instanceof Fayde.Controls.TreeViewItem && tvi.IsEnabled)
                         return tvi.FocusInto();
                 }

@@ -9,7 +9,7 @@ module Fayde.Controls {
         static IsCyclicProperty = DependencyProperty.Register("IsCyclic", () => Boolean, DomainUpDown, false, (d, args) => (<DomainUpDown>d)._OnIsCyclicChanged(args));
         static InvalidInputActionProperty = DependencyProperty.RegisterFull("InvalidInputAction", () => new Enum(InvalidInputAction), DomainUpDown, InvalidInputAction.UseFallbackItem, undefined, undefined, false, inputActionValidator, true);
         static FallbackItemProperty = DependencyProperty.Register("FallbackItem", () => Object, DomainUpDown, null);
-        static ItemsSourceProperty = DependencyProperty.Register("ItemsSource", () => Fayde.IEnumerable_, DomainUpDown, undefined, (d, args) => (<DomainUpDown>d)._Manager.OnItemsSourceChanged(args.OldValue, args.NewValue));
+        static ItemsSourceProperty = DependencyProperty.Register("ItemsSource", () => Fayde.IEnumerable_, DomainUpDown, undefined, (d, args) => (<DomainUpDown>d)._OnItemsSourceChanged(args.OldValue, args.NewValue));
         static ItemTemplateProperty = DependencyProperty.Register("ItemTemplate", () => DataTemplate, DomainUpDown);
 
         Value: any;
@@ -28,11 +28,65 @@ module Fayde.Controls {
         OnCurrentIndexChanged(oldIndex: number, newIndex: number) {
             this.UpdateValidSpinDirection();
         }
-        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
-            this._Coercer.UpdateTextBoxText();
-        }
         private _OnIsCyclicChanged(args: IDependencyPropertyChangedEventArgs) {
             this.UpdateValidSpinDirection();
+        }
+        private _OnItemsSourceChanged(oldItemsSource: IEnumerable<any>, newItemsSource: IEnumerable<any>) {
+            var cc = Collections.INotifyCollectionChanged_.As(oldItemsSource);
+            if (cc)
+                cc.CollectionChanged.Unsubscribe(this._ItemsSourceModified, this);
+
+            this.Items.IsReadOnly = false;
+            this.Items.Clear();
+            if (!newItemsSource)
+                return;
+
+            var en = IEnumerable_.As(newItemsSource);
+            if (en) {
+                this.Items.AddRange(Enumerable.ToArray(en));
+                this.Items.IsReadOnly = true;
+            }
+
+            cc = Collections.INotifyCollectionChanged_.As(newItemsSource);
+            if (cc)
+                cc.CollectionChanged.Subscribe(this._ItemsSourceModified, this);
+        }
+        private _ItemsSourceModified(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
+            var coll = <Collections.ObservableCollection<any>>sender;
+            var index: number;
+            this.Items.IsReadOnly = false;
+            switch (e.Action) {
+                case Collections.NotifyCollectionChangedAction.Add:
+                    var enumerator = ArrayEx.GetEnumerator(e.NewItems);
+                    index = e.NewStartingIndex;
+                    while (enumerator.MoveNext()) {
+                        this.Items.Insert(index, enumerator.Current);
+                        index++;
+                    }
+                    break;
+                case Collections.NotifyCollectionChangedAction.Remove:
+                    var enumerator = ArrayEx.GetEnumerator(e.OldItems);
+                    while (enumerator.MoveNext()) {
+                        this.Items.RemoveAt(e.OldStartingIndex);
+                    }
+                    break;
+                case Collections.NotifyCollectionChangedAction.Replace:
+                    var enumerator = ArrayEx.GetEnumerator(e.NewItems);
+                    index = e.NewStartingIndex;
+                    while (enumerator.MoveNext()) {
+                        this.Items.SetValueAt(index, enumerator.Current);
+                        index++;
+                    }
+                    break;
+                case Collections.NotifyCollectionChangedAction.Reset:
+                    this.Items.Clear();
+                    this.Items.AddRange(coll.ToArray());
+                    break;
+            }
+            this.Items.IsReadOnly = true;
+        }
+        private _OnItemsChanged(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
+            this._Coercer.UpdateTextBoxText();
         }
         
         ValueChanging = new RoutedPropertyChangingEvent<number>();
@@ -71,7 +125,6 @@ module Fayde.Controls {
             this._ValueBindingEvaluator = new Internal.BindingSourceEvaluator<string>(value);
         }
         
-        private _Manager: Internal.IItemsManager;
         private _Coercer: Internal.IDomainCoercer;
         private _SpinFlow: Internal.ISpinFlow;
         private _CanEditByFocus = false;
@@ -81,8 +134,7 @@ module Fayde.Controls {
             this.DefaultStyleKey = (<any>this).constructor;
 
             Object.defineProperty(this, "Items", { value: new Internal.ObservableObjectCollection(), writable: false });
-
-            this._Manager = new Internal.ItemsManager(this);
+            this.Items.CollectionChanged.Subscribe(this._OnItemsChanged, this);
 
             this._Coercer = new Internal.DomainCoercer(this,
                 val => this.SetCurrentValue(DomainUpDown.ValueProperty, val),

@@ -63,13 +63,13 @@ module Fayde.Controls {
             this.UpdateVisualState(false);
         }
 
-        GetContainerForItem(): DependencyObject {
+        GetContainerForItem(): UIElement {
             return new TreeViewItem();
         }
         IsItemItsOwnContainer(item: any): boolean {
             return item instanceof TreeViewItem;
         }
-        PrepareContainerForItem(element: DependencyObject, item: any) {
+        PrepareContainerForItem(element: UIElement, item: any) {
             var treeViewItem = <TreeViewItem>element;
             if (treeViewItem instanceof TreeViewItem)
                 treeViewItem.ParentItemsControl = this;
@@ -77,7 +77,7 @@ module Fayde.Controls {
             HeaderedItemsControl.PrepareHeaderedItemsControlContainer(treeViewItem, item, this, this.ItemContainerStyle);
             super.PrepareContainerForItem(element, item);
         }
-        ClearContainerForItem(element: DependencyObject, item: any) {
+        ClearContainerForItem(element: UIElement, item: any) {
             var treeViewItem = <TreeViewItem>element;
             if (treeViewItem instanceof TreeViewItem)
                 treeViewItem.ParentItemsControl = null;
@@ -211,7 +211,7 @@ module Fayde.Controls {
                             break;
                         }
                     }
-                    var index = itemsControl.ItemContainerGenerator.IndexFromContainer(tvi2);
+                    var index = itemsControl.ItemContainersManager.IndexFromContainer(tvi2);
                     var count = itemsControl.Items.Count;
                     while (itemsControl != null && tvi2 != null) {
                         if (tvi2.IsEnabled) {
@@ -230,7 +230,7 @@ module Fayde.Controls {
                         }
                         index += up ? -1 : 1;
                         if (0 <= index && index < count) {
-                            tvi2 = <TreeViewItem>itemsControl.ItemContainerGenerator.ContainerFromIndex(index);
+                            tvi2 = <TreeViewItem>itemsControl.ItemContainersManager.ContainerFromIndex(index);
                             if (!(tvi2 instanceof TreeViewItem)) tvi2 = null;
                         } else if (itemsControl === this) {
                             tvi2 = null;
@@ -240,9 +240,9 @@ module Fayde.Controls {
                                 itemsControl = tvi3.ParentItemsControl;
                                 if (itemsControl != null) {
                                     count = itemsControl.Items.Count;
-                                    index = itemsControl.ItemContainerGenerator.IndexFromContainer(tvi3) + (up ? -1 : 1);
+                                    index = itemsControl.ItemContainersManager.IndexFromContainer(tvi3) + (up ? -1 : 1);
                                     if (index > -1 && index < count) {
-                                        tvi2 = <TreeViewItem>itemsControl.ItemContainerGenerator.ContainerFromIndex(index);
+                                        tvi2 = <TreeViewItem>itemsControl.ItemContainersManager.ContainerFromIndex(index);
                                         if (!(tvi2 instanceof TreeViewItem)) tvi2 = null;
                                         break;
                                     }
@@ -363,14 +363,14 @@ module Fayde.Controls {
             }
         }
         private SelectFirstItem() {
-            var container = <TreeViewItem>this.ItemContainerGenerator.ContainerFromIndex(0);
+            var container = <TreeViewItem>this.ItemContainersManager.ContainerFromIndex(0);
             var selected = container instanceof TreeViewItem;
             if (!selected)
                 container = this.SelectedContainer;
-            this.ChangeSelection(selected ? this.ItemContainerGenerator.ItemFromContainer(container) : this.SelectedItem, container, selected);
+            this.ChangeSelection(selected ? this.ItemContainersManager.ItemFromContainer(container) : this.SelectedItem, container, selected);
         }
         private FocusFirstItem(): boolean {
-            var tvi = <TreeViewItem>this.ItemContainerGenerator.ContainerFromIndex(0);
+            var tvi = <TreeViewItem>this.ItemContainersManager.ContainerFromIndex(0);
             if (!tvi)
                 return false;
             if (!tvi.IsEnabled || !tvi.Focus())
@@ -379,7 +379,7 @@ module Fayde.Controls {
         }
         private FocusLastItem(): boolean {
             for (var index = this.Items.Count - 1; index >= 0; --index) {
-                var tvi = <TreeViewItem>this.ItemContainerGenerator.ContainerFromIndex(index);
+                var tvi = <TreeViewItem>this.ItemContainersManager.ContainerFromIndex(index);
                 if (tvi instanceof TreeViewItem && tvi.IsEnabled)
                     return tvi.FocusInto();
             }

@@ -27,7 +27,7 @@ module Fayde.Controls {
             this._ItemsControlHelper.OnApplyTemplate();
         }
 
-        PrepareContainerForItem(element: DependencyObject, item: any) {
+        PrepareContainerForItem(element: UIElement, item: any) {
             var control = <Control>element;
             if (!(control instanceof Control)) control = null;
 

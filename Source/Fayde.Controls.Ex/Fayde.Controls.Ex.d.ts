@@ -35,7 +35,7 @@ declare module Fayde.Controls {
         private OnItemContainerStyleChanged(args);
         constructor();
         public OnApplyTemplate(): void;
-        public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
+        public PrepareContainerForItem(element: Fayde.UIElement, item: any): void;
         static PrepareHeaderedItemsControlContainer(control: HeaderedItemsControl, item: any, parentItemsControl: Controls.ItemsControl, parentItemContainerStyle: Fayde.Style): void;
         private static HasDefaultValue(control, propd);
     }
@@ -157,7 +157,8 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls.Internal {
-    interface IDomainOwner extends Fayde.UIElement, Internal.IItemsOwner {
+    interface IDomainOwner extends Fayde.UIElement {
+        Items: Internal.ObservableObjectCollection;
         InvalidInputAction: Controls.InvalidInputAction;
         FallbackItem: any;
         Value: any;
@@ -174,7 +175,6 @@ declare module Fayde.Controls.Internal {
     interface IDomainCoercer {
         IsEditing: boolean;
         IsInvalidInput: boolean;
-        Items: Internal.ICollection;
         OnValueChanged(oldValue: any, newValue: any): any;
         OnCurrentIndexChanged(oldIndex: number, newIndex: number): any;
         UpdateTextBoxText(): any;
@@ -190,7 +190,6 @@ declare module Fayde.Controls.Internal {
         public OnCoerceCurrentIndex: (val: number) => void;
         public TextBox: Controls.TextBox;
         public Text: string;
-        public Items: Internal.ICollection;
         public IsCoercing: boolean;
         private _IsEditing;
         public IsEditing : boolean;
@@ -253,8 +252,8 @@ declare module Fayde.Controls.Primitives {
         static ItemContainerStyleProperty: DependencyProperty;
         public ItemContainerStyle: Fayde.Style;
         public IsItemItsOwnContainer(item: any): boolean;
-        public GetContainerForItem(): Fayde.DependencyObject;
-        public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
+        public GetContainerForItem(): Fayde.UIElement;
+        public PrepareContainerForItem(element: Fayde.UIElement, item: any): void;
         private static HasDefaultValue(control, propd);
     }
 }
@@ -373,14 +372,15 @@ declare module Fayde.Controls {
         public Items: Controls.Internal.ObservableObjectCollection;
         public OnValueChanged(oldItem: any, newItem: any): void;
         public OnCurrentIndexChanged(oldIndex: number, newIndex: number): void;
-        public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         private _OnIsCyclicChanged(args);
+        private _OnItemsSourceChanged(oldItemsSource, newItemsSource);
+        private _ItemsSourceModified(sender, e);
+        private _OnItemsChanged(sender, e);
         public ValueChanging: Fayde.RoutedPropertyChangingEvent<number>;
         public ParseError: Fayde.RoutedEvent<Controls.UpDownParseErrorEventArgs>;
         public ValueMemberPath : string;
         private _ValueBindingEvaluator;
         public ValueMemberBinding : Fayde.Data.Binding;
-        private _Manager;
         private _Coercer;
         private _SpinFlow;
         private _CanEditByFocus;
@@ -618,10 +618,10 @@ declare module Fayde.Controls {
         public GoToStateExpansion(gotoFunc: (state: string) => boolean): boolean;
         public GoToStateHasItems(gotoFunc: (state: string) => boolean): boolean;
         public GoToStateSelection(gotoFunc: (state: string) => boolean): boolean;
-        public GetContainerForItem(): Fayde.DependencyObject;
+        public GetContainerForItem(): Fayde.UIElement;
         public IsItemItsOwnContainer(item: any): boolean;
-        public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
-        public ClearContainerForItem(element: Fayde.DependencyObject, item: any): void;
+        public PrepareContainerForItem(element: Fayde.UIElement, item: any): void;
+        public ClearContainerForItem(element: Fayde.UIElement, item: any): void;
         public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         public OnExpanded(e: Fayde.RoutedEventArgs): void;
         public OnCollapsed(e: Fayde.RoutedEventArgs): void;
@@ -677,10 +677,10 @@ declare module Fayde.Controls {
         private SelectedItemChanged;
         constructor();
         public OnApplyTemplate(): void;
-        public GetContainerForItem(): Fayde.DependencyObject;
+        public GetContainerForItem(): Fayde.UIElement;
         public IsItemItsOwnContainer(item: any): boolean;
-        public PrepareContainerForItem(element: Fayde.DependencyObject, item: any): void;
-        public ClearContainerForItem(element: Fayde.DependencyObject, item: any): void;
+        public PrepareContainerForItem(element: Fayde.UIElement, item: any): void;
+        public ClearContainerForItem(element: Fayde.UIElement, item: any): void;
         public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
         public CheckForSelectedDescendents(item: Controls.TreeViewItem): void;
         public PropagateKeyDown(e: Fayde.Input.KeyEventArgs): void;

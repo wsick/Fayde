@@ -1,5 +1,6 @@
 module Fayde.Controls.Internal {
-    export interface IDomainOwner extends UIElement, IItemsOwner {
+    export interface IDomainOwner extends UIElement {
+        Items: Internal.ObservableObjectCollection;
         InvalidInputAction: InvalidInputAction;
         FallbackItem: any;
         Value: any;
@@ -16,7 +17,6 @@ module Fayde.Controls.Internal {
     export interface IDomainCoercer {
         IsEditing: boolean;
         IsInvalidInput: boolean;
-        Items: ICollection;
         OnValueChanged(oldValue: any, newValue: any);
         OnCurrentIndexChanged(oldIndex: number, newIndex: number);
         UpdateTextBoxText();
@@ -27,9 +27,8 @@ module Fayde.Controls.Internal {
         EscapeFocus();
     }
     export class DomainCoercer implements IDomainCoercer {
-        TextBox: TextBox;
+        TextBox: TextBox = null;
         Text = "";
-        Items: ICollection;
         IsCoercing = false;
 
         private _IsEditing = false;
@@ -65,7 +64,6 @@ module Fayde.Controls.Internal {
 
         constructor(public Owner: IDomainOwner, public OnCoerceValue: (val: any) => void, public OnCoerceCurrentIndex: (val: number) => void) {
             this.Owner.KeyDown.Subscribe(this.OnKeyDown, this);
-            this.Items = this.Owner.Items;
         }
 
         Attach(textBox: TextBox) {
@@ -110,7 +108,7 @@ module Fayde.Controls.Internal {
 
         OnValueChanged(oldValue: any, newValue: any) {
             if (!this.IsCoercing) {
-                var index = this.Items.IndexOf(newValue);
+                var index = this.Owner.Items.IndexOf(newValue);
                 if (index > -1) {
                     this.IsCoercing = true;
                     this.OnCoerceCurrentIndex(index);
@@ -122,9 +120,9 @@ module Fayde.Controls.Internal {
         }
         OnCurrentIndexChanged(oldIndex: number, newIndex: number) {
             if (!this.IsCoercing) {
-                if (newIndex >= 0 && newIndex < this.Items.Count) {
+                if (newIndex >= 0 && newIndex < this.Owner.Items.Count) {
                     this.IsCoercing = true;
-                    this.OnCoerceValue(this.Items.GetValueAt(newIndex));
+                    this.OnCoerceValue(this.Owner.Items.GetValueAt(newIndex));
                     this.IsCoercing = false;
                 }
             }

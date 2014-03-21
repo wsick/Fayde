@@ -199,12 +199,12 @@ module Fayde.Controls {
             var num = down ? -1 : count;
             var menuItem1 = <MenuItem>this.XamlNode.GetFocusedElement();
             if (menuItem1 instanceof MenuItem && this === menuItem1.ParentMenuBase)
-                num = this.ItemContainerGenerator.IndexFromContainer(menuItem1);
+                num = this.ItemContainersManager.IndexFromContainer(menuItem1);
             var index = num;
             var menuItem2;
             do {
                 index = (index + count + (down ? 1 : -1)) % count;
-                menuItem2 = this.ItemContainerGenerator.ContainerFromIndex(index);
+                menuItem2 = this.ItemContainersManager.ContainerFromIndex(index);
                 if (!(menuItem2 instanceof MenuItem)) menuItem2 = null;
             }
             while ((!menuItem2 || (!menuItem2.IsEnabled || !menuItem2.Focus())) && index !== num);

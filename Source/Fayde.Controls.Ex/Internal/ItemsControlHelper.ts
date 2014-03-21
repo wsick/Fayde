@@ -6,8 +6,8 @@ module Fayde.Controls.Internal {
 
         ItemsControl: ItemsControl;
         get ItemsHost(): Panel {
-            if (!(this._itemsHost instanceof Panel) && this.ItemsControl != null && this.ItemsControl.ItemContainerGenerator != null) {
-                var container = this.ItemsControl.ItemContainerGenerator.ContainerFromIndex(0);
+            if (!(this._itemsHost instanceof Panel) && this.ItemsControl != null && this.ItemsControl.ItemContainersManager != null) {
+                var container = this.ItemsControl.ItemContainersManager.ContainerFromIndex(0);
                 if (container != null)
                     this._itemsHost = <Panel>VisualTreeHelper.GetParent(container);
             }

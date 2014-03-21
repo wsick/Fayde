@@ -5,8 +5,8 @@ module Fayde.Controls.Primitives {
         ItemContainerStyle: Style;
 
         IsItemItsOwnContainer(item: any): boolean { return item instanceof MenuItem || item instanceof Separator; }
-        GetContainerForItem(): DependencyObject { return new MenuItem(); }
-        PrepareContainerForItem(element: DependencyObject, item: any) {
+        GetContainerForItem(): UIElement { return new MenuItem(); }
+        PrepareContainerForItem(element: UIElement, item: any) {
             super.PrepareContainerForItem(element, item);
             var menuItem = <MenuItem>element;
             if (!(menuItem instanceof MenuItem))
