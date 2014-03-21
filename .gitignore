@@ -65,3 +65,5 @@ Source/packages/*
 Source/Fayde.Controls.Test/ViewModels/MainViewModel.js
 Source/Ex/Fayde.Controls.Test/ViewModels/MainViewModel.js
 Source/Ex/packages/*
+Source/Experimental/packages/*
+Source/Experimental/Fayde.Experimental/packages/*

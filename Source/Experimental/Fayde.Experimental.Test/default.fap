@@ -1,0 +1,29 @@
+<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:controls="lib:Fayde.Controls"
+    xmlns:vms="ViewModels"
+    Theme="Metro">
+    <Application.Resources>
+    </Application.Resources>
+    <Grid x:Name="LayoutRoot">
+        <Grid.DataContext>
+            <vms:MainViewModel />
+        </Grid.DataContext>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <StackPanel>
+            <HyperlinkButton TargetName="ContentFrame" NavigateUri="/griditemscontrol" Content="Grid Items Control" />
+        </StackPanel>
+        <Frame x:Name="ContentFrame" Grid.Column="1">
+            <Frame.UriMapper>
+                <UriMapper>
+                    <UriMapping Uri="" MappedUri="Views/griditemscontrol.fayde" />
+                    <UriMapping Uri="/{pageName}" MappedUri="Views/{pageName}.fayde" />
+                </UriMapper>
+            </Frame.UriMapper>
+        </Frame>
+    </Grid>
+</Application>

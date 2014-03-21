@@ -1,0 +1,49 @@
+<!DOCTYPE html[]>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script data-config="true">
+        var require = {
+            baseUrl: "./",
+            paths: {
+                "text": "lib/requirejs/text",
+                "Fayde": "lib/Fayde/Fayde"
+            },
+            deps: ["text", "Fayde"],
+            callback: function (text, Fayde) {
+                Fayde.RegisterLibrary("Fayde.Experimental", "/Fayde.Experimental/Fayde.Experimental.js", function (themeName) { return "/Fayde.Experimental/Themes/" + themeName + ".theme.xml"; });
+                Fayde.Run();
+            },
+            shim: {
+                "Fayde": {
+                    exports: "Fayde"
+                }
+            }
+        };
+    </script>
+    <script data-lib="Fayde.Experimental">
+        require.shim["/Fayde.Experimental/Fayde.Experimental.js"] = {
+            exports: "Fayde.Experimental"
+        };
+    </script>
+    <script src="lib/requirejs/require.js"></script>
+    <style>
+        *
+        {
+            margin: 0;
+            padding: 0;
+        }
+        html, body
+        {
+            width: 100%;
+            height: 100%;
+        }
+        canvas
+        {
+            display: block;
+        }
+    </style>
+</head>
+<body faydeapp="default.fap">
+</body>
+</html>
