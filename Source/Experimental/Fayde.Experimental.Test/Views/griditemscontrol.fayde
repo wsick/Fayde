@@ -1,7 +1,17 @@
 <Page xmlns="http://schemas.wsick.com/fayde"
       xmlns:x="http://schemas.wsick.com/fayde/x"
+      xmlns:exp="lib:Fayde.Experimental"
+      xmlns:vms="ViewModels"
       Title="Home">
     <Grid x:Name="LayoutRoot">
-		<TextBlock Text="Hello World!" />
+        <Grid.DataContext>
+            <vms:MainViewModel />
+        </Grid.DataContext>
+        <exp:GridItemsControl ItemsSource="{Binding Items}">
+            <exp:GridItemsControl.Columns>
+                <exp:GridTextColumn DisplayMemberPath="FirstName" />
+                <exp:GridTextColumn DisplayMemberPath="LastName" />
+            </exp:GridItemsControl.Columns>
+        </exp:GridItemsControl>
     </Grid>
 </Page>

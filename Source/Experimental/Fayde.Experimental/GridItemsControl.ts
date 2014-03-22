@@ -74,6 +74,7 @@ module Fayde.Experimental {
             this.DefaultStyleKey = (<any>this).constructor;
             var coll = GridItemsControl.ColumnsProperty.Initialize(this);
             coll.CollectionChanged.Subscribe(this._ColumnsChanged, this);
+            coll.ColumnChanged.Subscribe(this._ColumnChanged, this);
         }
 
         OnItemsAdded(index: number, newItems: any[]) {
@@ -110,6 +111,12 @@ module Fayde.Experimental {
                     presenter.OnColumnsCleared();
                     break;
             }
+        }
+        private _ColumnChanged(sender: any, e: GridColumnChangedEventArgs) {
+            var presenter = this.XamlNode.ItemsPresenter;
+            if (!presenter)
+                return;
+            presenter.OnColumnChanged(e.GridColumn);
         }
     }
 }

@@ -26,6 +26,9 @@ module Fayde.Experimental {
             if (!this.FinishApplyTemplateWithError(this._ElementRoot, error))
                 return false;
             gic.XamlNode.ItemsPresenter = xobj;
+            for (var i = 0, cols = gic.Columns.ToArray(), len = cols.length; i < len; i++) {
+                xobj.OnColumnAdded(i, cols[i]);
+            }
             xobj.OnItemsAdded(0, gic.Items);
             return true;
         }
@@ -45,25 +48,82 @@ module Fayde.Experimental {
         private _Columns: IGridColumn[] = [];
 
         OnColumnAdded(index: number, newColumn: IGridColumn) {
+            //TODO: Handle multiple columns
+            var cols = this._Columns;
+            cols.splice(index, 0, newColumn);
+
             var gic = this.GridItemsControl;
             var grid = this.Panel;
             if (!gic || !grid)
                 return;
 
-            var cols = this._Columns;
-            cols.splice(index, 0, newColumn);
+            grid.ColumnDefinitions.Insert(index, new ColumnDefinition());
 
+            console.warn("Shift Grid.Column");
+
+            //Insert containers
             for (var i = 0, containers = this._CellContainers, len = containers.length, items = gic.Items, children = grid.Children; i < len; i++) {
-                var container = newColumn.CreateCell(items[i]);
+                var item = items[i];
+                var container = newColumn.GetContainerForCell(item);
+                newColumn.PrepareContainerForCell(container, item);
                 containers[i].splice(index, 0, container);
                 children.Insert(i * cols.length + index, container);
             }
+            
         }
         OnColumnRemoved(index: number) {
-            console.error("OnColumnRemoved not implemented");
+            //TODO: Handle multiple columns
+            var cols = this._Columns;
+            var col = cols[index];
+
+            var gic = this.GridItemsControl;
+            var grid = this.Panel;
+            if (!gic || !grid)
+                return;
+
+            //Clear containers
+            for (var items = gic.Items, containers = this._CellContainers, i = containers.length - 1; i >= 0; i--) {
+                var container = containers[i][index];
+                col.ClearContainerForCell(container, items[i]);
+                grid.Children.Remove(container);
+            }
+
+            console.warn("Shift Grid.Column");
+
+            grid.ColumnDefinitions.RemoveAt(index);
+            cols.splice(index, 1);
         }
         OnColumnsCleared() {
-            console.error("OnColumnsCleared not implemented");
+            var cols = this._Columns;
+            cols.length = 0;
+
+            var gic = this.GridItemsControl;
+            var grid = this.Panel;
+            if (!gic || !grid)
+                return;
+
+            var items = gic.Items;
+
+            //Clear containers
+            for (var containers = this._CellContainers, i = containers.length - 1; i >= 0; i--) {
+                for (var j = cols.length - 1; j >= 0; j--) {
+                    cols[j].ClearContainerForCell(containers[i][j], items[i]);
+                }
+            }
+
+            this._CellContainers.length = 0;
+            grid.Children.Clear();
+        }
+        OnColumnChanged(col: IGridColumn) {
+            var gic = this.GridItemsControl;
+            if (!gic)
+                return;
+            var colindex = this._Columns.indexOf(col);
+            if (colindex < 0)
+                return;
+            for (var i = 0, containers = this._CellContainers, items = gic.Items, len = containers.length; i < len; i++) {
+                col.PrepareContainerForCell(containers[i][colindex], items[i]);
+            }
         }
 
         OnItemsAdded(index: number, newItems: any[]) {
@@ -76,20 +136,31 @@ module Fayde.Experimental {
             var items = gic.Items;
             var cols = this._Columns;
             var children = grid.Children;
-
+            
+            //Insert row definitions
             var rowdefs = grid.RowDefinitions;
             for (var i = 0, len = newItems.length; i < len; i++) {
-                //Insert row definition
                 rowdefs.Insert(index + i, new RowDefinition());
-                //Shift cells down by 'len'
-                for (var j = 0, currow = containers[i]; j < currow.length; j++) {
-                    Grid.SetRow(currow[j], index + i + len);
+            }
+
+            //Shift cells down by 'newItems.length'
+            for (var i = index, len = containers.length; i < len; i++) {
+                for (var j = 0, cells = containers[i]; j < cells.length; j++) {
+                    Grid.SetRow(cells[j], i + newItems.length);
                 }
-                //Insert containers
+            }
+
+            //Insert containers
+            for (var i = 0, len = newItems.length; i < len; i++) {
                 var newrow: UIElement[] = [];
                 for (var j = 0, len2 = cols.length; j < len2; j++) {
-                    var container = cols[j].CreateCell(items[index + i]);
+                    var item = items[index + i];
+                    var col = cols[j];
+                    var container = col.GetContainerForCell(item);
+                    col.PrepareContainerForCell(container, item);
                     newrow.push(container);
+                    Grid.SetRow(container, i);
+                    Grid.SetColumn(container, j);
                     children.Insert(i * cols.length + index, container);
                 }
                 containers.splice(index + i, 0, newrow);
@@ -109,6 +180,8 @@ module Fayde.Experimental {
             for (var i = 0, len = oldItems.length; i < len; i++) {
                 var oldrow = oldRowContainers[i];
                 for (var j = 0; j < oldrow.length; j++) {
+                    //TODO: Clear container
+                    console.warn("Need to clear container");
                     grid.Children.Remove(oldrow[j]);
                 }
             }

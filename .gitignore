@@ -71,3 +71,5 @@ Source/Experimental/Fayde.Experimental/GridItemsControl.js
 Source/Experimental/Fayde.Experimental/GridCell.js
 Source/Experimental/Fayde.Experimental/GridColumn.js
 Source/Experimental/Fayde.Experimental/GridItemsPresenter.js
+Source/Experimental/Fayde.Experimental/Fayde.Experimental.js
+Source/Experimental/Fayde.Experimental.Test/ViewModels/MainViewModel.js
