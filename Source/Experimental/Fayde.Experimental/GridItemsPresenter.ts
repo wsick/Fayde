@@ -57,7 +57,9 @@ module Fayde.Experimental {
             if (!gic || !grid)
                 return;
 
-            grid.ColumnDefinitions.Insert(index, new ColumnDefinition());
+            var coldef = new ColumnDefinition();
+            coldef.Width = new Fayde.Controls.GridLength(1, Fayde.Controls.GridUnitType.Auto);
+            grid.ColumnDefinitions.Insert(index, coldef);
 
             console.warn("Shift Grid.Column");
 
@@ -140,7 +142,9 @@ module Fayde.Experimental {
             //Insert row definitions
             var rowdefs = grid.RowDefinitions;
             for (var i = 0, len = newItems.length; i < len; i++) {
-                rowdefs.Insert(index + i, new RowDefinition());
+                var rowdef = new RowDefinition();
+                rowdef.Height = new Fayde.Controls.GridLength(1, Fayde.Controls.GridUnitType.Auto);
+                rowdefs.Insert(index + i, rowdef);
             }
 
             //Shift cells down by 'newItems.length'
