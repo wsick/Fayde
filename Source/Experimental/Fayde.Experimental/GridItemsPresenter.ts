@@ -166,9 +166,9 @@ module Fayde.Experimental {
                     var container = col.GetContainerForCell(item);
                     col.PrepareContainerForCell(container, item);
                     newrow.push(container);
-                    Grid.SetRow(container, i);
+                    Grid.SetRow(container, index + i);
                     Grid.SetColumn(container, j);
-                    children.Insert(i * cols.length + index, container);
+                    children.Insert((index + i) * len2 + j, container);
                 }
                 containers.splice(index + i, 0, newrow);
             }
