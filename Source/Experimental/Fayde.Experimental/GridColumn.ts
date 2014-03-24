@@ -89,7 +89,7 @@ module Fayde.Experimental {
     class EmptyWidthConverter implements Data.IValueConverter {
         Convert(value: any, targetType: IType, parameter: any, culture: any): any {
             if (!value)
-                return new Controls.GridLength(1, Controls.GridUnitType.Auto);
+                return "auto";
             return value;
         }
         ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any { }
