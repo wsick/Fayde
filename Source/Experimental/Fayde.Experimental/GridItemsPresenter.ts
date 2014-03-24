@@ -61,8 +61,6 @@ module Fayde.Experimental {
             newColumn.AttachToDefinition(coldef);
             grid.ColumnDefinitions.Insert(index, coldef);
 
-            console.warn("Shift Grid.Column");
-
             //Insert containers
             for (var i = 0, containers = this._CellContainers, len = containers.length, items = gic.Items, children = grid.Children; i < len; i++) {
                 var item = items[i];
@@ -72,6 +70,12 @@ module Fayde.Experimental {
                 children.Insert(i * cols.length + index, container);
             }
 
+            //Shift existing
+            for (var i = 0, containers = this._CellContainers, len = containers.length; i < len; i++) {
+                for (var j = index + 1, cells = containers[i], len2 = cells.length; j < len2; j++) {
+                    Grid.SetColumn(cells[j], j);
+                }
+            }
         }
         OnColumnRemoved(index: number) {
             //TODO: Handle multiple columns
@@ -88,7 +92,12 @@ module Fayde.Experimental {
                     grid.Children.Remove(container);
                 }
 
-                console.warn("Shift Grid.Column");
+                //Shift Grid.Column for existing
+                for (var i = 0, containers = this._CellContainers, len = containers.length; i < len; i++) {
+                    for (var j = index + 1, cells = containers[i], len2 = cells.length; j < len2; j++) {
+                        Grid.SetColumn(cells[j], j);
+                    }
+                }
 
                 grid.ColumnDefinitions.RemoveAt(index);
             }
@@ -176,6 +185,7 @@ module Fayde.Experimental {
                 return;
 
             var containers = this._CellContainers;
+            var cols = this._Columns;
 
             // Remove cell containers from _CellContainers
             var oldRowContainers = containers.splice(index, oldItems.length);
@@ -184,9 +194,9 @@ module Fayde.Experimental {
             for (var i = 0, len = oldItems.length; i < len; i++) {
                 var oldrow = oldRowContainers[i];
                 for (var j = 0; j < oldrow.length; j++) {
-                    //TODO: Clear container
-                    console.warn("Need to clear container");
-                    grid.Children.Remove(oldrow[j]);
+                    var cell = oldrow[j];
+                    cols[j].ClearContainerForCell(cell, oldItems[i]);
+                    grid.Children.Remove(cell);
                 }
             }
 
