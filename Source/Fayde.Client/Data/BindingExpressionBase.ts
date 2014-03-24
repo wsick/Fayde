@@ -266,6 +266,8 @@ module Fayde.Data {
                     exception = err;
                     if (exception instanceof TargetInvocationException)
                         exception = (<TargetInvocationException>exception).InnerException;
+                } else {
+                    console.warn(err);
                 }
             } finally {
                 this.IsUpdating = oldUpdating;

@@ -29,7 +29,9 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\griditemscontrol.fayde" />
+    <Content Include="Views\griditemscontrol.fayde">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="default.fap" />
     <Content Include="packages.config" />
     <None Include="web.Debug.config">

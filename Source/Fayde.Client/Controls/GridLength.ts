@@ -24,7 +24,9 @@ module Fayde.Controls {
     }
     Fayde.RegisterType(GridLength, "Fayde.Controls", Fayde.XMLNS);
 
-    Fayde.RegisterTypeConverter(GridLength, (val: string): GridLength => {
+    Fayde.RegisterTypeConverter(GridLength, (val: any): GridLength => {
+        if (val instanceof GridLength)
+            return <GridLength>val;
         if (!val || val.toLowerCase() === "auto")
             return new GridLength();
         var type = GridUnitType.Pixel;
