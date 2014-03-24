@@ -67,12 +67,13 @@ module Fayde.Experimental {
                 var container = newColumn.GetContainerForCell(item);
                 newColumn.PrepareContainerForCell(container, item);
                 containers[i].splice(index, 0, container);
+                Grid.SetRow(container, i);
                 children.Insert(i * cols.length + index, container);
             }
 
-            //Shift existing
+            //Shift existing and set new
             for (var i = 0, containers = this._CellContainers, len = containers.length; i < len; i++) {
-                for (var j = index + 1, cells = containers[i], len2 = cells.length; j < len2; j++) {
+                for (var j = index, cells = containers[i], len2 = cells.length; j < len2; j++) {
                     Grid.SetColumn(cells[j], j);
                 }
             }
@@ -90,11 +91,11 @@ module Fayde.Experimental {
                     var container = containers[i][index];
                     col.ClearContainerForCell(container, items[i]);
                     grid.Children.Remove(container);
-                }
 
-                //Shift Grid.Column for existing
-                for (var i = 0, containers = this._CellContainers, len = containers.length; i < len; i++) {
-                    for (var j = index + 1, cells = containers[i], len2 = cells.length; j < len2; j++) {
+                    var cells = containers[i];
+                    cells.splice(index, 1);
+                    //Shift Grid.Column for existing
+                    for (var j = index, len2 = cells.length; j < len2; j++) {
                         Grid.SetColumn(cells[j], j);
                     }
                 }
@@ -156,13 +157,6 @@ module Fayde.Experimental {
                 rowdefs.Insert(index + i, rowdef);
             }
 
-            //Shift cells down by 'newItems.length'
-            for (var i = index, len = containers.length; i < len; i++) {
-                for (var j = 0, cells = containers[i]; j < cells.length; j++) {
-                    Grid.SetRow(cells[j], i + newItems.length);
-                }
-            }
-
             //Insert containers
             for (var i = 0, len = newItems.length; i < len; i++) {
                 var newrow: UIElement[] = [];
@@ -177,6 +171,13 @@ module Fayde.Experimental {
                     children.Insert(i * cols.length + index, container);
                 }
                 containers.splice(index + i, 0, newrow);
+            }
+
+            //Shift cells down by 'newItems.length' and set new
+            for (var i = index + 1, len = containers.length; i < len; i++) {
+                for (var j = 0, cells = containers[i]; j < cells.length; j++) {
+                    Grid.SetRow(cells[j], i);
+                }
             }
         }
         OnItemsRemoved(index: number, oldItems: any[]) {
