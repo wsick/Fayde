@@ -1,5 +1,3 @@
-/// <reference path="Fayde.d.ts" />
-
 module Fayde.Experimental {
     import GridLength = Fayde.Controls.GridLength;
     import ColumnDefinition = Fayde.Controls.ColumnDefinition;

@@ -1202,7 +1202,7 @@ declare module Fayde {
         public _RaiseItemAdded(value: T, index: number): void;
         public _RaiseItemRemoved(value: T, index: number): void;
         public _RaiseItemReplaced(removed: T, added: T, index: number): void;
-        public _RaiseCleared(): void;
+        public _RaiseCleared(old: T[]): void;
         public CloneCore(source: XamlObjectCollection<T>): void;
         public ToArray(): T[];
     }

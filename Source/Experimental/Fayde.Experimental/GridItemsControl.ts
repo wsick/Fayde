@@ -1,4 +1,3 @@
-/// <reference path="Fayde.d.ts" />
 
 module Fayde.Experimental {
     export class GridItemsControlNode extends Fayde.Controls.ControlNode {

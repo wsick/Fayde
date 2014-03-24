@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" href="../lib/qunit/qunit-1.13.0.css" type="text/css" />
+    <script data-config="true">
+        var require = {
+            baseUrl: "../",
+            paths: {
+                "text": "lib/requirejs/text",
+                "Fayde": "lib/Fayde/Fayde",
+                "qunit": "lib/qunit/qunit-1.13.0",
+                "runner": "Tests/runner"
+            },
+            deps: ["text", "Fayde", "qunit", "runner"],
+            callback: function (text, Fayde) {
+                require("runner").run();
+            },
+            shim: {
+                "Fayde": {
+                    exports: "Fayde"
+                },
+                "qunit": {
+                    exports: "qunit",
+                    init: function () {
+                        QUnit.config.autoload = false;
+                        QUnit.config.autostart = false;
+                    }
+                },
+                "runner": {
+                    deps: ["Fayde", "Fayde.Experimental"]
+                }
+            }
+        };
+    </script>
+    <script data-lib="Fayde.Experimental">
+        require.paths["Fayde.Experimental"] = "/Fayde.Experimental/Fayde.Experimental";
+        require.shim["Fayde.Experimental"] = {
+            exports: "Fayde.Experimental",
+            deps: ["Fayde"]
+        };
+    </script>
+    <script src="../lib/requirejs/require.js"></script>
+    <title></title>
+</head>
+<body>
+    <h1 id="qunit-header">Unit Tests</h1>
+    <h2 id="qunit-banner"></h2>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests">
+    </ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+</body>
+</html>

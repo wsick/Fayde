@@ -49,6 +49,7 @@
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
     <TypeScriptOutFile>Fayde.Experimental.js</TypeScriptOutFile>
+    <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
@@ -62,7 +63,7 @@
     <TypeScriptCompile Include="GridItemsControl.ts" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="Fayde.d.ts" />
+    <TypeScriptCompile Include="lib\Fayde\Fayde.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="GridItemsPresenter.ts" />

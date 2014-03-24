@@ -22,10 +22,16 @@
     <Content Include="lib\Fayde\Fayde.js" />
     <Content Include="lib\Fayde\Themes\Default.theme.xml" />
     <Content Include="lib\Fayde\Themes\Metro.theme.xml" />
+    <Content Include="lib\qunit\qunit-1.13.0.css" />
+    <Content Include="lib\qunit\qunit-1.13.0.js" />
+    <Content Include="lib\qunit\qunit.d.ts" />
     <Content Include="lib\requirejs\require.d.ts" />
     <Content Include="lib\requirejs\require.js" />
     <Content Include="lib\requirejs\text.js" />
     <TypeScriptCompile Include="ViewModels\MainViewModel.ts" />
+    <Content Include="Tests\default.html" />
+    <TypeScriptCompile Include="Tests\runner.ts" />
+    <TypeScriptCompile Include="Tests\GridItemsControlTests.ts" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>

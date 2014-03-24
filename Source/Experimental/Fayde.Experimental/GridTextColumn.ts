@@ -1,3 +1,5 @@
+/// <reference path="GridColumn.ts" />
+
 module Fayde.Experimental {
     export class GridTextColumn extends GridColumn {
         static DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", () => Data.PropertyPath, GridTextColumn, undefined, (d, args) => (<GridTextColumn>d).OnDisplayMemberChanged(args));
