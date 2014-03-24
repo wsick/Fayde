@@ -77,6 +77,7 @@
     <TypeScriptCompile Include="GridColumnChangedEventArgs.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="GridTextColumn.ts" />
     <Content Include="Themes\Metro.theme.xml" />
     <Content Include="Themes\Default.theme.xml" />
   </ItemGroup>

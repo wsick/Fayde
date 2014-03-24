@@ -8,10 +8,10 @@ module Fayde.Controls {
 
     export class ColumnDefinition extends DependencyObject {
         //NOTE: Will not receive property changes from GridLength
-        static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => GridLength, ColumnDefinition, undefined, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
-        static MaxWidthProperty: DependencyProperty = DependencyProperty.Register("MaxWidth", () => Number, ColumnDefinition, Number.POSITIVE_INFINITY, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
-        static MinWidthProperty: DependencyProperty = DependencyProperty.Register("MinWidth", () => Number, ColumnDefinition, 0.0, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
-        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, ColumnDefinition, 0.0);
+        static WidthProperty = DependencyProperty.Register("Width", () => GridLength, ColumnDefinition, undefined, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
+        static MaxWidthProperty = DependencyProperty.Register("MaxWidth", () => Number, ColumnDefinition, Number.POSITIVE_INFINITY, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
+        static MinWidthProperty = DependencyProperty.Register("MinWidth", () => Number, ColumnDefinition, 0.0, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
+        static ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, ColumnDefinition, 0.0);
         Width: GridLength;
         MaxWidth: number;
         MinWidth: number;

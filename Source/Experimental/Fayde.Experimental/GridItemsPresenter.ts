@@ -38,16 +38,16 @@ module Fayde.Experimental {
         TemplateOwner: GridItemsControl;
         XamlNode: GridItemsPresenterNode;
         CreateNode(): GridItemsPresenterNode { return new GridItemsPresenterNode(this); }
-        
+
         get GridItemsControl(): GridItemsControl {
             return this.TemplateOwner instanceof GridItemsControl ? this.TemplateOwner : null;
         }
         get Panel(): Grid { return this.XamlNode.ElementRoot; }
 
         private _CellContainers: UIElement[][] = []; //[row][col]
-        private _Columns: IGridColumn[] = [];
+        private _Columns: GridColumn[] = [];
 
-        OnColumnAdded(index: number, newColumn: IGridColumn) {
+        OnColumnAdded(index: number, newColumn: GridColumn) {
             //TODO: Handle multiple columns
             var cols = this._Columns;
             cols.splice(index, 0, newColumn);
@@ -56,9 +56,9 @@ module Fayde.Experimental {
             var grid = this.Panel;
             if (!gic || !grid)
                 return;
-
+            
             var coldef = new ColumnDefinition();
-            coldef.Width = new Fayde.Controls.GridLength(1, Fayde.Controls.GridUnitType.Auto);
+            newColumn.AttachToDefinition(coldef);
             grid.ColumnDefinitions.Insert(index, coldef);
 
             console.warn("Shift Grid.Column");
@@ -71,7 +71,7 @@ module Fayde.Experimental {
                 containers[i].splice(index, 0, container);
                 children.Insert(i * cols.length + index, container);
             }
-            
+
         }
         OnColumnRemoved(index: number) {
             //TODO: Handle multiple columns
@@ -80,43 +80,43 @@ module Fayde.Experimental {
 
             var gic = this.GridItemsControl;
             var grid = this.Panel;
-            if (!gic || !grid)
-                return;
+            if (gic && grid) {
+                //Clear containers
+                for (var items = gic.Items, containers = this._CellContainers, i = containers.length - 1; i >= 0; i--) {
+                    var container = containers[i][index];
+                    col.ClearContainerForCell(container, items[i]);
+                    grid.Children.Remove(container);
+                }
 
-            //Clear containers
-            for (var items = gic.Items, containers = this._CellContainers, i = containers.length - 1; i >= 0; i--) {
-                var container = containers[i][index];
-                col.ClearContainerForCell(container, items[i]);
-                grid.Children.Remove(container);
+                console.warn("Shift Grid.Column");
+
+                grid.ColumnDefinitions.RemoveAt(index);
             }
-
-            console.warn("Shift Grid.Column");
-
-            grid.ColumnDefinitions.RemoveAt(index);
+            
+            col.DetachDefinition();
             cols.splice(index, 1);
         }
         OnColumnsCleared() {
             var cols = this._Columns;
-            cols.length = 0;
-
             var gic = this.GridItemsControl;
             var grid = this.Panel;
-            if (!gic || !grid)
-                return;
-
-            var items = gic.Items;
-
-            //Clear containers
-            for (var containers = this._CellContainers, i = containers.length - 1; i >= 0; i--) {
-                for (var j = cols.length - 1; j >= 0; j--) {
-                    cols[j].ClearContainerForCell(containers[i][j], items[i]);
+            if (gic && grid) {
+                var items = gic.Items;
+                //Clear containers
+                for (var containers = this._CellContainers, i = containers.length - 1; i >= 0; i--) {
+                    for (var j = cols.length - 1; j >= 0; j--) {
+                        cols[j].ClearContainerForCell(containers[i][j], items[i]);
+                    }
                 }
+                grid.Children.Clear();
             }
-
+            for (var j = 0, len = cols.length; j < len; j++) {
+                cols[j].DetachDefinition();
+            }
+            cols.length = 0;
             this._CellContainers.length = 0;
-            grid.Children.Clear();
         }
-        OnColumnChanged(col: IGridColumn) {
+        OnColumnChanged(col: GridColumn) {
             var gic = this.GridItemsControl;
             if (!gic)
                 return;
@@ -138,7 +138,7 @@ module Fayde.Experimental {
             var items = gic.Items;
             var cols = this._Columns;
             var children = grid.Children;
-            
+
             //Insert row definitions
             var rowdefs = grid.RowDefinitions;
             for (var i = 0, len = newItems.length; i < len; i++) {
