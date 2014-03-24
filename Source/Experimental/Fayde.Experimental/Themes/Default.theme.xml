@@ -4,6 +4,7 @@
        xmlns:x="http://schemas.wsick.com/fayde/x"
        xmlns:exp="lib:Fayde.Experimental">
     <Style TargetType="exp:GridItemsControl">
+        <Setter Property="VerticalAlignment" Value="Top" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="exp:GridItemsControl">

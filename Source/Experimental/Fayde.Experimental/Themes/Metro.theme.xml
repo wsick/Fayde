@@ -1,5 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ResourceDictionary
        xmlns="http://schemas.wsick.com/fayde"
-       xmlns:x="http://schemas.wsick.com/fayde/x">
+       xmlns:x="http://schemas.wsick.com/fayde/x"
+       xmlns:exp="lib:Fayde.Experimental">
+    <Style TargetType="exp:GridItemsControl">
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="exp:GridItemsControl">
+                    <exp:GridItemsPresenter />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
