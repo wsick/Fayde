@@ -200,8 +200,7 @@ module Fayde.Experimental {
 
             //Remove excessive row definitions
             var rowdefs = grid.RowDefinitions;
-            var index = rowdefs.Count - 1;
-            while (index >= containers.length) {
+            for (var i = 0, len = oldItems.length; i < len; i++) {
                 rowdefs.RemoveAt(index);
             }
         }
