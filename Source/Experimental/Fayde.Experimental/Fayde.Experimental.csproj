@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="GridTextColumn.ts" />
+    <TypeScriptCompile Include="GridTemplateColumn.ts" />
     <Content Include="Themes\Metro.theme.xml" />
     <Content Include="Themes\Default.theme.xml" />
   </ItemGroup>

@@ -11,12 +11,20 @@ module Fayde.Experimental {
         }
 
         PrepareContainerForCell(cell: UIElement, item: any) {
+            super.PrepareContainerForCell(cell, item);
             var gc = <GridCell>cell;
             if (gc instanceof GridCell) {
+                gc.VerticalAlignment = VerticalAlignment.Center;
                 var binding = new Data.Binding(this.DisplayMemberPath);
                 binding.Source = item;
                 gc.SetBinding(Fayde.Controls.ContentControl.ContentProperty, binding);
             }
+        }
+        ClearContainerForCell(cell: UIElement, item: any) {
+            super.ClearContainerForCell(cell, item);
+            var gc = <GridCell>cell;
+            if (gc instanceof GridCell)
+                gc.ClearValue(Fayde.Controls.ContentControl.ContentProperty);
         }
     }
 }

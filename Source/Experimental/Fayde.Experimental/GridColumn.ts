@@ -16,12 +16,7 @@ module Fayde.Experimental {
             return new GridCell();
         }
         PrepareContainerForCell(cell: UIElement, item: any) { }
-        ClearContainerForCell(cell: UIElement, item: any) {
-            var gc = <GridCell>cell;
-            if (gc instanceof GridCell) {
-                gc.ClearValue(Fayde.Controls.ContentControl.ContentProperty);
-            }
-        }
+        ClearContainerForCell(cell: UIElement, item: any) { }
 
         private _Definition: ColumnDefinition = null;
         private _ActualWidthListener: Providers.IPropertyChangedListener = null;

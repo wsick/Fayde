@@ -14,7 +14,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <StackPanel>
+        <StackPanel Margin="0,0,10,0">
             <HyperlinkButton TargetName="ContentFrame" NavigateUri="/griditemscontrol" Content="Grid Items Control" />
         </StackPanel>
         <Frame x:Name="ContentFrame" Grid.Column="1">

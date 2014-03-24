@@ -9,6 +9,13 @@
         </Grid.DataContext>
         <exp:GridItemsControl ItemsSource="{Binding Items}">
             <exp:GridItemsControl.Columns>
+                <exp:GridTemplateColumn>
+                    <exp:GridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Delete" Click="{EventBinding Command={Binding DataContext.RemoveItem, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type exp:GridItemsControl}}}, CommandParameter={Binding}}" />
+                        </DataTemplate>
+                    </exp:GridTemplateColumn.CellTemplate>
+                </exp:GridTemplateColumn>
                 <exp:GridTextColumn DisplayMemberPath="FirstName" />
                 <exp:GridTextColumn DisplayMemberPath="LastName" />
             </exp:GridItemsControl.Columns>
