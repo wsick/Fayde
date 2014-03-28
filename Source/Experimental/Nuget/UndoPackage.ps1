@@ -17,7 +17,7 @@ $specxml.Load($specfile)
 $specxml.package.metadata.version = $newversion
 Set-Content $specfile $specxml.OuterXml
 
-$oldpkg = $PWD.Path + "\..\Nuget\Fayde.Experimental.$major.$minor.$build.$revision.nupkg"
+$oldpkg = $PWD.Path + "\..\..\..\Packages\Nuget\Fayde.Experimental.$major.$minor.$build.$revision.nupkg"
 ri $oldpkg
 
 Write-Host $newversion
