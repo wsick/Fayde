@@ -57,6 +57,7 @@
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
     <TypeScriptOutFile>Fayde.Experimental.js</TypeScriptOutFile>
+    <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
@@ -91,4 +92,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\Fayde.0.9.8.19\build\Fayde.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fayde.0.9.8.19\build\Fayde.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>powershell.exe "&amp; ""$(SolutionDir)Nuget\CreatePackage.ps1"""</PostBuildEvent>
+  </PropertyGroup>
 </Project>
