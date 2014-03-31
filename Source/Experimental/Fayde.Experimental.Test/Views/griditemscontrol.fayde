@@ -7,13 +7,14 @@
         <Style x:Key="GridCellStyle" TargetType="exp:GridCell">
             <Setter Property="FontSize" Value="11" />
             <Setter Property="FontFamily" Value="'Helvetica Nueue', Helvetica, Arial, sans-serif" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
     </Page.Resources>
     <Grid x:Name="LayoutRoot">
         <Grid.DataContext>
             <vms:MainViewModel />
         </Grid.DataContext>
-        <exp:GridItemsControl ItemsSource="{Binding Items}" FontSize="14">
+        <exp:GridItemsControl ItemsSource="{Binding Items}" FontSize="30">
             <exp:GridItemsControl.Columns>
                 <exp:GridTemplateColumn>
                     <exp:GridTemplateColumn.CellTemplate>
