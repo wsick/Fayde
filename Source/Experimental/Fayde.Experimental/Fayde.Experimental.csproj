@@ -81,7 +81,9 @@
   <ItemGroup>
     <TypeScriptCompile Include="GridTextColumn.ts" />
     <TypeScriptCompile Include="GridTemplateColumn.ts" />
-    <Content Include="Themes\Metro.theme.xml" />
+    <Content Include="Themes\Metro.theme.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Themes\Default.theme.xml" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />

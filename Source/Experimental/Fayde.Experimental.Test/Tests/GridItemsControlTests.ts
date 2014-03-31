@@ -20,7 +20,7 @@ export function run() {
 
     function createTextColumn(displayMemberPath: string): GridTextColumn {
         var col = new GridTextColumn();
-        col.DisplayMemberPath = displayMemberPath;
+        col.Binding = new Fayde.Data.Binding(displayMemberPath);
         return col;
     }
     function verifyColumns(grid: Grid, ilen: number, jlen: number):boolean {

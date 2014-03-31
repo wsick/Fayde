@@ -2,9 +2,9 @@
 
 module Fayde.Experimental {
     export class GridTextColumn extends GridColumn {
-        static DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", () => String, GridTextColumn, undefined, (d, args) => (<GridTextColumn>d).OnDisplayMemberChanged(args));
-        DisplayMemberPath: string;
-        private OnDisplayMemberChanged(args: IDependencyPropertyChangedEventArgs) {
+        static BindingProperty = DependencyProperty.Register("Binding", () => Data.Binding, GridTextColumn, undefined, (d, args) => (<GridTextColumn>d).OnBindingChanged(args));
+        Binding: Data.Binding;
+        private OnBindingChanged(args: IDependencyPropertyChangedEventArgs) {
             var gcc = <GridColumnCollection>this.Parent;
             if (gcc instanceof GridColumnCollection)
                 gcc.ColumnChanged.Raise(gcc, new GridColumnChangedEventArgs(this));
@@ -14,10 +14,12 @@ module Fayde.Experimental {
             super.PrepareContainerForCell(cell, item);
             var gc = <GridCell>cell;
             if (gc instanceof GridCell) {
-                gc.VerticalAlignment = VerticalAlignment.Center;
-                var binding = new Data.Binding(this.DisplayMemberPath);
-                binding.Source = item;
-                gc.SetBinding(Fayde.Controls.ContentControl.ContentProperty, binding);
+                var binding = this.Binding;
+                if (binding) {
+                    if (!binding.RelativeSource && !binding.ElementName && !binding.Source)
+                        binding.Source = item;
+                    gc.SetBinding(Fayde.Controls.ContentControl.ContentProperty, binding);
+                }
             }
         }
         ClearContainerForCell(cell: UIElement, item: any) {

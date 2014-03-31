@@ -3,20 +3,34 @@ module Fayde.Experimental {
     import ColumnDefinition = Fayde.Controls.ColumnDefinition;
 
     export class GridColumn extends DependencyObject {
-        static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => GridLength, GridColumn);
-        static MaxWidthProperty: DependencyProperty = DependencyProperty.Register("MaxWidth", () => Number, GridColumn, Number.POSITIVE_INFINITY);
-        static MinWidthProperty: DependencyProperty = DependencyProperty.Register("MinWidth", () => Number, GridColumn, 0.0);
-        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, GridColumn, 0.0);
+        static WidthProperty = DependencyProperty.Register("Width", () => GridLength, GridColumn);
+        static MaxWidthProperty = DependencyProperty.Register("MaxWidth", () => Number, GridColumn, Number.POSITIVE_INFINITY);
+        static MinWidthProperty = DependencyProperty.Register("MinWidth", () => Number, GridColumn, 0.0);
+        static ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, GridColumn, 0.0);
+        static CellStyleProperty = DependencyProperty.Register("CellStyle", () => Style, GridColumn);
         Width: GridLength;
         MaxWidth: number;
         MinWidth: number;
         ActualWidth: number;
+        CellStyle: Style;
 
         GetContainerForCell(item: any): UIElement {
             return new GridCell();
         }
-        PrepareContainerForCell(cell: UIElement, item: any) { }
-        ClearContainerForCell(cell: UIElement, item: any) { }
+        PrepareContainerForCell(cell: UIElement, item: any) {
+            var gc = <GridCell>cell;
+            if (gc instanceof GridCell) {
+                var binding = new Data.Binding("CellStyle");
+                binding.Source = this;
+                binding.Mode = Data.BindingMode.OneWay;
+                gc.SetBinding(FrameworkElement.StyleProperty, binding);
+            }
+        }
+        ClearContainerForCell(cell: UIElement, item: any) {
+            var gc = <GridCell>cell;
+            if (gc instanceof GridCell)
+                gc.ClearValue(FrameworkElement.StyleProperty);
+        }
 
         private _Definition: ColumnDefinition = null;
         private _ActualWidthListener: Providers.IPropertyChangedListener = null;

@@ -3,11 +3,17 @@
       xmlns:exp="lib:Fayde.Experimental"
       xmlns:vms="ViewModels"
       Title="Home">
+    <Page.Resources>
+        <Style x:Key="GridCellStyle" TargetType="exp:GridCell">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontFamily" Value="'Helvetica Nueue', Helvetica, Arial, sans-serif" />
+        </Style>
+    </Page.Resources>
     <Grid x:Name="LayoutRoot">
         <Grid.DataContext>
             <vms:MainViewModel />
         </Grid.DataContext>
-        <exp:GridItemsControl ItemsSource="{Binding Items}">
+        <exp:GridItemsControl ItemsSource="{Binding Items}" FontSize="14">
             <exp:GridItemsControl.Columns>
                 <exp:GridTemplateColumn>
                     <exp:GridTemplateColumn.CellTemplate>
@@ -16,8 +22,8 @@
                         </DataTemplate>
                     </exp:GridTemplateColumn.CellTemplate>
                 </exp:GridTemplateColumn>
-                <exp:GridTextColumn DisplayMemberPath="FirstName" />
-                <exp:GridTextColumn DisplayMemberPath="LastName" />
+                <exp:GridTextColumn Binding="{Binding FirstName}" CellStyle="{StaticResource GridCellStyle}" />
+                <exp:GridTextColumn Binding="{Binding LastName}" />
             </exp:GridItemsControl.Columns>
         </exp:GridItemsControl>
     </Grid>
