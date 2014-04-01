@@ -75,8 +75,10 @@ module Fayde {
             if (this.SubtreeNode)
                 return false;
             var result = this.DoApplyTemplateWithError(error);
+            var xobj = this.XObject;
             if (result)
-                this.XObject.OnApplyTemplate();
+                xobj.OnApplyTemplate();
+            xobj.TemplateApplied.Raise(xobj, EventArgs.Empty);
             return result;
         }
         DoApplyTemplateWithError(error: BError): boolean { return false; }
@@ -206,6 +208,7 @@ module Fayde {
         LayoutUpdated = new MulticastEvent<EventArgs>();
 
         OnApplyTemplate() { }
+        TemplateApplied = new MulticastEvent<EventArgs>();
 
         UpdateLayout() { this.XamlNode.UpdateLayout(); }
         
