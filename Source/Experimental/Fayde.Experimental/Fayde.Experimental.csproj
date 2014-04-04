@@ -81,6 +81,11 @@
   <ItemGroup>
     <TypeScriptCompile Include="GridTextColumn.ts" />
     <TypeScriptCompile Include="GridTemplateColumn.ts" />
+    <TypeScriptCompile Include="GridHeader.ts" />
+    <TypeScriptCompile Include="GridHeadersControl.ts" />
+    <TypeScriptCompile Include="GridHeaderChangedEventArgs.ts" />
+    <TypeScriptCompile Include="GridHeadersPresenter.ts" />
+    <TypeScriptCompile Include="HeaderColumnDefinition.ts" />
     <Content Include="Themes\Metro.theme.xml">
       <SubType>Designer</SubType>
     </Content>

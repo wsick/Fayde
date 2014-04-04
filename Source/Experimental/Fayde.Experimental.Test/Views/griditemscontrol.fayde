@@ -14,18 +14,25 @@
         <Grid.DataContext>
             <vms:MainViewModel />
         </Grid.DataContext>
-        <exp:GridItemsControl ItemsSource="{Binding Items}" FontSize="30">
-            <exp:GridItemsControl.Columns>
-                <exp:GridTemplateColumn>
-                    <exp:GridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Content="Delete" Click="{EventBinding Command={Binding DataContext.RemoveItem, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type exp:GridItemsControl}}}, CommandParameter={Binding}}" />
-                        </DataTemplate>
-                    </exp:GridTemplateColumn.CellTemplate>
-                </exp:GridTemplateColumn>
-                <exp:GridTextColumn Binding="{Binding FirstName}" CellStyle="{StaticResource GridCellStyle}" />
-                <exp:GridTextColumn Binding="{Binding LastName}" />
-            </exp:GridItemsControl.Columns>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <exp:GridHeadersControl ItemsControl="{Binding ElementName=ItemsControl}">
+            <exp:GridHeader Header="" />
+            <exp:GridHeader Header="First Name" />
+            <exp:GridHeader Header="Last Name" />
+        </exp:GridHeadersControl>
+        <exp:GridItemsControl x:Name="ItemsControl" ItemsSource="{Binding Items}" FontSize="30" Grid.Row="1">
+            <exp:GridTemplateColumn>
+                <exp:GridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Button Content="Delete" Click="{EventBinding Command={Binding DataContext.RemoveItem, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type exp:GridItemsControl}}}, CommandParameter={Binding}}" />
+                    </DataTemplate>
+                </exp:GridTemplateColumn.CellTemplate>
+            </exp:GridTemplateColumn>
+            <exp:GridTextColumn Binding="{Binding FirstName}" CellStyle="{StaticResource GridCellStyle}" />
+            <exp:GridTextColumn Binding="{Binding LastName}" />
         </exp:GridItemsControl>
     </Grid>
 </Page>

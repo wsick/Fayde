@@ -1875,10 +1875,11 @@ var Fayde;
             if (!propd)
                 throw new ArgumentException("No property specified.");
             var expr = this._Expressions[propd._ID];
+            var val;
             if (expr)
-                return expr.GetValue(propd);
-
-            var val = this.ReadLocalValueInternal(propd);
+                val = expr.GetValue(propd);
+            else
+                val = this.ReadLocalValueInternal(propd);
             if (val === undefined)
                 return DependencyProperty.UnsetValue;
             return val;
@@ -4636,8 +4637,10 @@ var Fayde;
             if (this.SubtreeNode)
                 return false;
             var result = this.DoApplyTemplateWithError(error);
+            var xobj = this.XObject;
             if (result)
-                this.XObject.OnApplyTemplate();
+                xobj.OnApplyTemplate();
+            xobj.TemplateApplied.Raise(xobj, EventArgs.Empty);
             return result;
         };
         FENode.prototype.DoApplyTemplateWithError = function (error) {
@@ -4721,6 +4724,7 @@ var Fayde;
             this.Loaded = new Fayde.RoutedEvent();
             this.Unloaded = new Fayde.RoutedEvent();
             this.LayoutUpdated = new MulticastEvent();
+            this.TemplateApplied = new MulticastEvent();
             var rd = FrameworkElement.ResourcesProperty.Initialize(this);
             rd.AttachTo(this);
         }
@@ -6183,7 +6187,7 @@ var Fayde;
             for (var i = 0; i < len; i++) {
                 this.RemovedFromCollection(old[i], true);
             }
-            this._RaiseCleared();
+            this._RaiseCleared(old);
             return true;
         };
         XamlObjectCollection.prototype.IndexOf = function (value) {
@@ -6219,7 +6223,7 @@ var Fayde;
         XamlObjectCollection.prototype._RaiseItemReplaced = function (removed, added, index) {
         };
 
-        XamlObjectCollection.prototype._RaiseCleared = function () {
+        XamlObjectCollection.prototype._RaiseCleared = function (old) {
         };
 
         XamlObjectCollection.prototype.CloneCore = function (source) {
@@ -8049,10 +8053,12 @@ var Fayde;
                 }
 
                 var content = xobj.Content;
-                if (content instanceof Fayde.UIElement)
+                if (content instanceof Fayde.UIElement) {
                     this._ContentRoot = content;
-                else
+                } else {
+                    xobj.DataContext = content == null ? null : content;
                     this._ContentRoot = this._GetContentTemplate(content ? content.constructor : null).GetVisualTree(xobj);
+                }
 
                 if (!this._ContentRoot)
                     return false;
@@ -8067,19 +8073,11 @@ var Fayde;
             };
 
             ContentPresenterNode.prototype._ContentChanged = function (args) {
-                var newContent = args.NewValue;
-                var newUie;
-                if (newContent instanceof Fayde.UIElement)
-                    newUie = newContent;
-
-                if (newUie || args.OldValue instanceof Fayde.UIElement)
+                var isUIContent = args.NewValue instanceof Fayde.UIElement;
+                if (isUIContent || args.OldValue instanceof Fayde.UIElement)
                     this.ClearRoot();
-
-                if (newContent && !newUie)
-                    this.XObject.DataContext = newContent;
-                else
-                    this.XObject.DataContext = undefined;
-
+                else if (!isUIContent)
+                    this.XObject.DataContext = args.NewValue == null ? null : args.NewValue;
                 this.LayoutUpdater.InvalidateMeasure();
             };
             ContentPresenterNode.prototype._ContentTemplateChanged = function () {
@@ -10577,6 +10575,8 @@ var Fayde;
             Frame.prototype._SetPage = function (page) {
                 document.title = page.Title;
                 this.Content = page;
+                if (page.DataContext == null)
+                    page.DataContext = this.DataContext;
             };
 
             Frame.prototype.SourcePropertyChanged = function (args) {
@@ -11404,6 +11404,8 @@ var Fayde;
         Fayde.RegisterType(GridLength, "Fayde.Controls", Fayde.XMLNS);
 
         Fayde.RegisterTypeConverter(GridLength, function (val) {
+            if (val instanceof GridLength)
+                return val;
             if (!val || val.toLowerCase() === "auto")
                 return new GridLength();
             var type = 1 /* Pixel */;
@@ -19056,7 +19058,6 @@ var Fayde;
                 if (this._Cached)
                     return this._CachedValue;
 
-                this._Cached = true;
                 if (this.PropertyPathWalker.IsPathBroken) {
                     var target = this.Target;
                     if (target && target.XamlNode.IsAttached && (!(target instanceof Fayde.FrameworkElement) || target.XamlNode.IsLoaded))
@@ -19067,6 +19068,7 @@ var Fayde;
                 }
 
                 this._CachedValue = this._ConvertToType(propd, this._CachedValue);
+                this._Cached = true;
                 return this._CachedValue;
             };
 
@@ -19253,6 +19255,8 @@ var Fayde;
                         exception = err;
                         if (exception instanceof TargetInvocationException)
                             exception = exception.InnerException;
+                    } else {
+                        console.warn(err);
                     }
                 } finally {
                     this.IsUpdating = oldUpdating;

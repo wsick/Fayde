@@ -877,6 +877,7 @@ declare module Fayde {
         public Unloaded: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         public LayoutUpdated: MulticastEvent<EventArgs>;
         public OnApplyTemplate(): void;
+        public TemplateApplied: MulticastEvent<EventArgs>;
         public UpdateLayout(): void;
         private _StyleChanged(args);
         private _AlignmentChanged(args);

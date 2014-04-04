@@ -30,6 +30,7 @@ module Fayde.Experimental {
                 xobj.OnColumnAdded(i, cols[i]);
             }
             xobj.OnItemsAdded(0, gic.Items);
+            gic.XamlNode.OnPresenterCreated();
             return true;
         }
     }
@@ -123,6 +124,7 @@ module Fayde.Experimental {
             for (var j = 0, len = cols.length; j < len; j++) {
                 cols[j].DetachDefinition();
             }
+            grid.ColumnDefinitions.Clear();
             cols.length = 0;
             this._CellContainers.length = 0;
         }

@@ -13,6 +13,25 @@ module Fayde.Experimental {
                 (presenter = new GridItemsPresenter()).TemplateOwner = this.XObject;
             return presenter;
         }
+
+        private _CreatorListeners: Array<(presenter: GridItemsPresenter) => void> = null;
+        ListenForPresenterCreated(func: (presenter: GridItemsPresenter) => void) {
+            if (this.ItemsPresenter) {
+                func(this.ItemsPresenter);
+                return;
+            }
+            this._CreatorListeners = this._CreatorListeners || [];
+            this._CreatorListeners.push(func);
+        }
+        OnPresenterCreated() {
+            var presenter = this.ItemsPresenter;
+            if (!presenter)
+                return;
+            for (var i = 0, listeners = this._CreatorListeners, len = listeners.length; i < len; i++) {
+                listeners[i](presenter);
+            }
+            this._CreatorListeners = null;
+        }
     }
 
     export class GridItemsControl extends Fayde.Controls.Control {
@@ -118,4 +137,5 @@ module Fayde.Experimental {
             presenter.OnColumnChanged(e.GridColumn);
         }
     }
+    Xaml.Content(GridItemsControl, GridItemsControl.ColumnsProperty);
 }
