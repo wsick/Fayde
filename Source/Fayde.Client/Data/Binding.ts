@@ -142,6 +142,28 @@ module Fayde.Data {
         }
 
         Seal() { this._IsSealed = true; }
+
+        Clone(): Binding {
+            var b = new Binding(this._Path ? this._Path.Path : "");
+            b._StringFormat = this._StringFormat;
+            b._FallbackValue = this._FallbackValue;
+            b._TargetNullValue = this._TargetNullValue;
+            b._BindsDirectlyToSource = this._BindsDirectlyToSource;
+            b._Converter = this._Converter;
+            b._ConverterParameter = this._ConverterParameter;
+            b._ConverterCulture = this._ConverterCulture;
+            b._ElementName = this._ElementName;
+            b._Mode = this._Mode;
+            b._NotifyOnValidationError = this._NotifyOnValidationError;
+            if (this._RelativeSource)
+                b._RelativeSource = this._RelativeSource.Clone();
+            b._Source = this._Source;
+            b._UpdateSourceTrigger = this._UpdateSourceTrigger;
+            b._ValidatesOnExceptions = this._ValidatesOnExceptions;
+            b._ValidatesOnDataErrors = this._ValidatesOnDataErrors;
+            b._ValidatesOnNotifyDataErrors = this._ValidatesOnNotifyDataErrors;
+            return b;
+        }
         
         Transmute(ctx: Xaml.ITransmuteContext): Expression {
             return new Data.BindingExpression(this, ctx.Owner, ctx.Property);

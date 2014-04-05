@@ -54,7 +54,6 @@ module Fayde.Data {
             if (this._Cached)
                 return this._CachedValue;
 
-            this._Cached = true;
             if (this.PropertyPathWalker.IsPathBroken) {
                 var target = this.Target;
                 if (target && target.XamlNode.IsAttached && (!(target instanceof Fayde.FrameworkElement) || (<FrameworkElement>target).XamlNode.IsLoaded))
@@ -65,6 +64,7 @@ module Fayde.Data {
             }
 
             this._CachedValue = this._ConvertToType(propd, this._CachedValue);
+            this._Cached = true;
             return this._CachedValue;
         }
 
@@ -266,6 +266,8 @@ module Fayde.Data {
                     exception = err;
                     if (exception instanceof TargetInvocationException)
                         exception = (<TargetInvocationException>exception).InnerException;
+                } else {
+                    console.warn(err);
                 }
             } finally {
                 this.IsUpdating = oldUpdating;

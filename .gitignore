@@ -65,3 +65,14 @@ Source/packages/*
 Source/Fayde.Controls.Test/ViewModels/MainViewModel.js
 Source/Ex/Fayde.Controls.Test/ViewModels/MainViewModel.js
 Source/Ex/packages/*
+Source/Experimental/packages/*
+Source/Experimental/Fayde.Experimental/packages/*
+Source/Experimental/Fayde.Experimental/GridItemsControl.js
+Source/Experimental/Fayde.Experimental/GridCell.js
+Source/Experimental/Fayde.Experimental/GridColumn.js
+Source/Experimental/Fayde.Experimental/GridItemsPresenter.js
+Source/Experimental/Fayde.Experimental/Fayde.Experimental.js
+Source/Experimental/Fayde.Experimental.Test/ViewModels/MainViewModel.js
+Source/Experimental/Fayde.Experimental.Test/Tests/GridItemsControlTests.js
+Source/Experimental/Fayde.Experimental.Test/Tests/runner.js
+Source/Experimental/Fayde.Experimental/Fayde.Experimental.d.ts

@@ -85,6 +85,8 @@ module Fayde.Controls {
         private _SetPage(page: Page) {
             document.title = page.Title;
             this.Content = page;
+            if (page.DataContext == null)
+                page.DataContext = this.DataContext;
         }
 
         private SourcePropertyChanged(args: IDependencyPropertyChangedEventArgs) {
