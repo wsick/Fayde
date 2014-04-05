@@ -3248,6 +3248,7 @@ declare module Fayde.Data {
         public TargetNullValue : any;
         private CheckSealed();
         public Seal(): void;
+        public Clone(): Binding;
         public Transmute(ctx: Fayde.Xaml.ITransmuteContext): Fayde.Expression;
     }
 }
@@ -3412,6 +3413,7 @@ declare module Fayde.Data {
         public AncestorLevel : number;
         public AncestorType: Function;
         constructor(mode?: Data.RelativeSourceMode);
+        public Clone(): RelativeSource;
     }
 }
 declare module Fayde.Documents {

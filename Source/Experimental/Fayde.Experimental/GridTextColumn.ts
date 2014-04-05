@@ -16,6 +16,7 @@ module Fayde.Experimental {
             if (gc instanceof GridCell) {
                 var binding = this.Binding;
                 if (binding) {
+                    binding = binding.Clone();
                     if (!binding.RelativeSource && !binding.ElementName && !binding.Source)
                         binding.Source = item;
                     gc.SetBinding(Fayde.Controls.ContentControl.ContentProperty, binding);

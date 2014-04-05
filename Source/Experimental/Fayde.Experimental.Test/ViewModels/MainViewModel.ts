@@ -6,20 +6,20 @@ class MainViewModel extends Fayde.MVVM.ViewModelBase {
         super();
         this.Items.AddRange([
             {
-                FirstName: "First",
-                LastName: "Last"
+                FirstName: "First1",
+                LastName: "Last1"
             },
             {
-                FirstName: "First",
-                LastName: "Last"
+                FirstName: "First2",
+                LastName: "Last2"
             },
             {
-                FirstName: "First",
-                LastName: "Last"
+                FirstName: "First3",
+                LastName: "Last3"
             },
             {
-                FirstName: "First",
-                LastName: "Last"
+                FirstName: "First4",
+                LastName: "Last4"
             }
         ]);
     }
