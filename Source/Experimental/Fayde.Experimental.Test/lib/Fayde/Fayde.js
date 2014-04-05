@@ -17599,7 +17599,8 @@ var Fayde;
             }
             LocalStyleBroker.Set = function (fe, newStyle) {
                 var holder = fe.XamlNode;
-                newStyle.Seal();
+                if (newStyle)
+                    newStyle.Seal();
                 Fayde.Providers.SwapStyles(fe, Fayde.SingleStyleWalker(holder._LocalStyle), Fayde.SingleStyleWalker(newStyle), false);
                 holder._LocalStyle = newStyle;
             };
@@ -18999,6 +19000,28 @@ var Fayde;
                 this._IsSealed = true;
             };
 
+            Binding.prototype.Clone = function () {
+                var b = new Binding(this._Path ? this._Path.Path : "");
+                b._StringFormat = this._StringFormat;
+                b._FallbackValue = this._FallbackValue;
+                b._TargetNullValue = this._TargetNullValue;
+                b._BindsDirectlyToSource = this._BindsDirectlyToSource;
+                b._Converter = this._Converter;
+                b._ConverterParameter = this._ConverterParameter;
+                b._ConverterCulture = this._ConverterCulture;
+                b._ElementName = this._ElementName;
+                b._Mode = this._Mode;
+                b._NotifyOnValidationError = this._NotifyOnValidationError;
+                if (this._RelativeSource)
+                    b._RelativeSource = this._RelativeSource.Clone();
+                b._Source = this._Source;
+                b._UpdateSourceTrigger = this._UpdateSourceTrigger;
+                b._ValidatesOnExceptions = this._ValidatesOnExceptions;
+                b._ValidatesOnDataErrors = this._ValidatesOnDataErrors;
+                b._ValidatesOnNotifyDataErrors = this._ValidatesOnNotifyDataErrors;
+                return b;
+            };
+
             Binding.prototype.Transmute = function (ctx) {
                 return new Fayde.Data.BindingExpression(this, ctx.Owner, ctx.Property);
             };
@@ -20295,6 +20318,14 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+
+            RelativeSource.prototype.Clone = function () {
+                var rs = new RelativeSource();
+                rs.Mode = this.Mode;
+                rs._AncestorLevel = this._AncestorLevel;
+                rs.AncestorType = this.AncestorType;
+                return rs;
+            };
             return RelativeSource;
         })();
         Data.RelativeSource = RelativeSource;
