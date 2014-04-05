@@ -10,11 +10,11 @@ module Fayde.Experimental {
         HeaderStyle: Style;
 
         GetContainerForCell(): UIElement {
-            return new GridCell();
+            return new GridHeaderCell();
         }
         PrepareContainerForCell(cell: UIElement) {
-            var gc = <GridCell>cell;
-            if (gc instanceof GridCell) {
+            var gc = <GridHeaderCell>cell;
+            if (gc instanceof GridHeaderCell) {
                 var binding = new Data.Binding("Header");
                 binding.Source = this;
                 gc.SetBinding(ContentControl.ContentProperty, binding);
@@ -30,8 +30,8 @@ module Fayde.Experimental {
             }
         }
         ClearContainerForCell(cell: UIElement) {
-            var gc = <GridCell>cell;
-            if (gc instanceof GridCell) {
+            var gc = <GridHeaderCell>cell;
+            if (gc instanceof GridHeaderCell) {
                 gc.ClearValue(ContentControl.ContentProperty);
                 gc.ClearValue(ContentControl.ContentTemplateProperty);
                 gc.ClearValue(FrameworkElement.StyleProperty);

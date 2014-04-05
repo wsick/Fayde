@@ -86,6 +86,7 @@
     <TypeScriptCompile Include="GridHeaderChangedEventArgs.ts" />
     <TypeScriptCompile Include="GridHeadersPresenter.ts" />
     <TypeScriptCompile Include="HeaderColumnDefinition.ts" />
+    <TypeScriptCompile Include="GridHeaderCell.ts" />
     <Content Include="Themes\Metro.theme.xml">
       <SubType>Designer</SubType>
     </Content>
