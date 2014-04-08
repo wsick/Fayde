@@ -11,7 +11,7 @@ module Fayde.Controls {
         private $SetHasItems(value: boolean) {
             try {
                 this._AllowWrite = true;
-                this.SetValueInternal(TreeViewItem.HasItemsProperty, value);
+                this.SetCurrentValue(TreeViewItem.HasItemsProperty, value);
             } finally {
                 this._AllowWrite = false;
             }
@@ -33,7 +33,7 @@ module Fayde.Controls {
                 this.IgnorePropertyChange = false;
             else if (!this._AllowWrite) {
                 this.IgnorePropertyChange = true;
-                this.SetValueInternal(TreeViewItem.HasItemsProperty, e.OldValue);
+                this.SetCurrentValue(TreeViewItem.HasItemsProperty, e.OldValue);
                 throw new InvalidOperationException("Cannot set read-only property HasItems.");
             } else
                 this.UpdateVisualState();

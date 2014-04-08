@@ -44,24 +44,35 @@ module Fayde.Controls {
             }
         }
         OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs) {
+            //Unsubscribe from old
             var nc = Collections.INotifyCollectionChanged_.As(e.OldValue);
             if (nc)
                 nc.CollectionChanged.Unsubscribe(this._OnItemsSourceUpdated, this);
             var items = this.Items;
-            if (e.OldValue)
-                this.OnItemsRemoved(0, items.ToArray());
+
+            //Reset old
             try {
                 this._SuspendItemsChanged = true;
                 items.Clear();
-                this._IsDataBound = !!e.NewValue;
-                if (e.NewValue) {
-                    var arr = Enumerable.ToArray(e.NewValue);
-                    items.AddRange(arr);
-                    this.OnItemsAdded(0, arr);
-                }
             } finally {
                 this._SuspendItemsChanged = false;
             }
+            this.OnItemsChanged(Collections.NotifyCollectionChangedEventArgs.Reset(items.ToArray()));
+
+            //Notify new
+            this._IsDataBound = !!e.NewValue;
+            var arr = e.NewValue ? Enumerable.ToArray(e.NewValue) : null;
+            try {
+                this._SuspendItemsChanged = true;
+                if (arr)
+                    items.AddRange(arr);
+            } finally {
+                this._SuspendItemsChanged = false;
+            }
+            if (arr)
+                this.OnItemsChanged(Collections.NotifyCollectionChangedEventArgs.AddRange(arr, 0));
+
+            //Subscribe to new
             var nc = Collections.INotifyCollectionChanged_.As(e.NewValue);
             if (nc)
                 nc.CollectionChanged.Subscribe(this._OnItemsSourceUpdated, this);

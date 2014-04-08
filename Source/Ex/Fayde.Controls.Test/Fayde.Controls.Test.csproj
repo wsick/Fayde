@@ -25,7 +25,9 @@
     <Content Include="lib\requirejs\require.d.ts" />
     <Content Include="lib\requirejs\require.js" />
     <Content Include="lib\requirejs\text.js" />
-    <Content Include="Views\treeview.fayde" />
+    <Content Include="Views\treeview.fayde">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\home.fayde" />
     <Content Include="packages.config" />
     <None Include="Views\numericupdown.fayde" />
