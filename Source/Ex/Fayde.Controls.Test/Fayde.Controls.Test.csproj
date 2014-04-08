@@ -9,7 +9,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>0.9</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
     <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -33,7 +33,9 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="default.fap" />
+    <Content Include="default.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Views\domainupdown.fayde" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
@@ -83,11 +85,4 @@
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
-  <Import Project="..\packages\Fayde.0.9.8.17\build\Fayde.targets" Condition="Exists('..\packages\Fayde.0.9.8.17\build\Fayde.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Fayde.0.9.8.17\build\Fayde.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fayde.0.9.8.17\build\Fayde.targets'))" />
-  </Target>
 </Project>
