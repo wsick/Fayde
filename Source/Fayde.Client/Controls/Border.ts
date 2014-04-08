@@ -1,4 +1,5 @@
 /// <reference path="../Core/FrameworkElement.ts" />
+/// <reference path="../Xaml/ContentAnnotation.ts" />
 
 module Fayde.Controls {
     export class Border extends FrameworkElement {

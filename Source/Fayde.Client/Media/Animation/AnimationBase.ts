@@ -35,7 +35,7 @@ module Fayde.Media.Animation {
                 return;
             AnimationStore.ApplyCurrent(animStorage);
         }
-        GetNaturalDurationCore(): Duration { return new Duration(TimeSpan.FromArgs(0, 0, 0, 1)); }
+        GetNaturalDurationCore(): Duration { return Duration.Automatic; }
 
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): any { return undefined; }
 

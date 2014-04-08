@@ -35,16 +35,16 @@ export function run() {
 
     test("TimeSpan", () => {
         var ts = <TimeSpan>Fayde.ConvertAnyToType("01.02:03:04.10", TimeSpan);
-        strictEqual(ts.CompareTo(TimeSpan.FromArgs(1, 2, 3, 4, 100)), 0, "Full TimeSpan");
+        strictEqual(ts.CompareTo(new TimeSpan(1, 2, 3, 4, 100)), 0, "Full TimeSpan");
 
         ts = <TimeSpan>Fayde.ConvertAnyToType("02:03:04", TimeSpan);
-        strictEqual(ts.CompareTo(TimeSpan.FromArgs(0, 2, 3, 4, 0)), 0, "Short TimeSpan");
+        strictEqual(ts.CompareTo(new TimeSpan(0, 2, 3, 4, 0)), 0, "Short TimeSpan");
 
         ts = <TimeSpan>Fayde.ConvertAnyToType("01.02:03:04", TimeSpan);
-        strictEqual(ts.CompareTo(TimeSpan.FromArgs(1, 2, 3, 4, 0)), 0, "Short+Days TimeSpan");
+        strictEqual(ts.CompareTo(new TimeSpan(1, 2, 3, 4, 0)), 0, "Short+Days TimeSpan");
 
         ts = <TimeSpan>Fayde.ConvertAnyToType("02:03:04.10", TimeSpan);
-        strictEqual(ts.CompareTo(TimeSpan.FromArgs(0, 2, 3, 4, 100)), 0, "Short+Milliseconds TimeSpan");
+        strictEqual(ts.CompareTo(new TimeSpan(0, 2, 3, 4, 100)), 0, "Short+Milliseconds TimeSpan");
 
         ts = <TimeSpan>Fayde.ConvertAnyToType("00:00:00.001", TimeSpan);
         strictEqual(ts.Ticks, 1, "Ticks (decimal seconds)");
@@ -130,7 +130,7 @@ export function run() {
         ok(rb.HasDuration, "HasDuration");
         ok(rb.Duration.HasTimeSpan, "HasTimeSpan");
         var ts = rb.Duration.TimeSpan;
-        strictEqual(ts.CompareTo(TimeSpan.FromArgs(0, 0, 10, 15, 20)), 0, "TimeSpan");
+        strictEqual(ts.CompareTo(new TimeSpan(0, 0, 10, 15, 20)), 0, "TimeSpan");
 
     });
 
@@ -153,7 +153,7 @@ export function run() {
         ok(kt.IsUniform, "Uniform");
 
         kt = <KeyTime>Fayde.ConvertAnyToType("02:03:04", KeyTime);
-        strictEqual(kt.TimeSpan.CompareTo(TimeSpan.FromArgs(0, 2, 3, 4, 0)), 0, "TimeSpan");
+        strictEqual(kt.TimeSpan.CompareTo(new TimeSpan(0, 2, 3, 4, 0)), 0, "TimeSpan");
     });
 
     test("Duration", () => {
@@ -164,7 +164,7 @@ export function run() {
         strictEqual(d, Duration.Forever, "Forever");
 
         d = <Duration>Fayde.ConvertAnyToType("02:03:04", Duration);
-        strictEqual(d.TimeSpan.CompareTo(TimeSpan.FromArgs(0, 2, 3, 4, 0)), 0, "TimeSpan");
+        strictEqual(d.TimeSpan.CompareTo(new TimeSpan(0, 2, 3, 4, 0)), 0, "TimeSpan");
     });
 
     test("Brush", () => {

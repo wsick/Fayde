@@ -145,7 +145,7 @@ module Fayde.Media.Animation {
             // else if (duration.IsForever) { // do nothing }
 
             return {
-                CurrentTime: TimeSpan.FromTicks(currentTimeTicks),
+                CurrentTime: new TimeSpan(currentTimeTicks),
                 Progress: progress,
                 Completed: completed
             };

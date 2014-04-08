@@ -130,7 +130,7 @@ class DateTime {
     get Second(): number { return this._InternalDate.getSeconds(); }
     get TimeOfDay(): TimeSpan {
         var id = this._InternalDate;
-        return TimeSpan.FromArgs(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
+        return new TimeSpan(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
     }
     get Year(): number { return this._InternalDate.getFullYear(); }
 }

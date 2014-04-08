@@ -130,7 +130,7 @@ module Fayde.Media.Animation {
 
             if (!fullTicks)
                 return Duration.Automatic;
-            return new Duration(TimeSpan.FromTicks(fullTicks));
+            return new Duration(new TimeSpan(fullTicks));
         }
     }
     Fayde.RegisterType(Storyboard, "Fayde.Media.Animation", Fayde.XMLNS);

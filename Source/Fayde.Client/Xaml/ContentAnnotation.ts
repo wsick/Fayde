@@ -1,3 +1,5 @@
+/// <reference path="../Runtime/Annotations.ts" />
+
 module Fayde.Xaml {
     export interface IContentAnnotation {
         (type: Function, prop: DependencyProperty);

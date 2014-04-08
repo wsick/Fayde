@@ -9,16 +9,27 @@ class TimeSpan {
 
     private _Ticks: number = 0;
 
-    static FromTicks(ticks: number): TimeSpan {
-        var ts = new TimeSpan();
-        ts._Ticks = ticks;
-        return ts;
-    }
-    static FromArgs(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number): TimeSpan {
-        var ts = new TimeSpan();
-        ts._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute)
+    static get Zero(): TimeSpan { return new TimeSpan(); }
+
+    constructor();
+    constructor(ticks: number);
+    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
+    constructor(...args: any[]) {
+        if (args.length === 0)
+            return;
+        if (args.length === 1) {
+            this._Ticks = args[0] || 0;
+            return;
+        }
+
+        var days = args[0] || 0;
+        var hours = args[1] || 0;
+        var minutes = args[2] || 0;
+        var seconds = args[3] || 0;
+        var milliseconds = args[4] || 0;
+        
+        this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute)
             + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
-        return ts;
     }
 
     get Days(): number { return Math.floor(this._Ticks / TimeSpan._TicksPerDay); }
@@ -102,14 +113,14 @@ Fayde.RegisterTypeConverter(TimeSpan, (val: any): TimeSpan => {
     if (val instanceof TimeSpan)
         return <TimeSpan>val;
     if (typeof val === "number")
-        return TimeSpan.FromTicks(val);
+        return new TimeSpan(<number>val);
     val = val.toString();
 
     var tokens = val.split(":");
     if (tokens.length === 1) {
         var ticks = parseFloat(val);
         if (!isNaN(ticks))
-            return TimeSpan.FromTicks(ticks);
+            return new TimeSpan(<number>ticks);
         throw new Exception("Invalid TimeSpan format '" + val + "'.");
     }
 
@@ -138,5 +149,5 @@ Fayde.RegisterTypeConverter(TimeSpan, (val: any): TimeSpan => {
     seconds = seconds - milliseconds;
     milliseconds *= 1000.0;
 
-    return TimeSpan.FromArgs(days, hours, minutes, seconds, milliseconds);
+    return new TimeSpan(days, hours, minutes, seconds, milliseconds);
 });
