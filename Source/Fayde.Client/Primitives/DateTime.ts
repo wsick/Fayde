@@ -19,8 +19,8 @@ enum DateTimeKind {
 Fayde.RegisterEnum(DateTimeKind, "DateTimeKind", Fayde.XMLNS);
 
 class DateTime {
-    static MinValue = new DateTime(-8640000000000000);
-    static MaxValue = new DateTime(8640000000000000);
+    static get MinValue() { return new DateTime(-8640000000000000); }
+    static get MaxValue() { return new DateTime(8640000000000000); }
     static get Now(): DateTime { return new DateTime(new Date().getTime()); }
     static get Today(): DateTime { return DateTime.Now.Date; }
     static Compare(dt1: DateTime, dt2: DateTime): number {
