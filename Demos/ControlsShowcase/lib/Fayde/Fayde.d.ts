@@ -877,6 +877,7 @@ declare module Fayde {
         public Unloaded: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         public LayoutUpdated: MulticastEvent<EventArgs>;
         public OnApplyTemplate(): void;
+        public TemplateApplied: MulticastEvent<EventArgs>;
         public UpdateLayout(): void;
         private _StyleChanged(args);
         private _AlignmentChanged(args);
@@ -1202,7 +1203,7 @@ declare module Fayde {
         public _RaiseItemAdded(value: T, index: number): void;
         public _RaiseItemRemoved(value: T, index: number): void;
         public _RaiseItemReplaced(removed: T, added: T, index: number): void;
-        public _RaiseCleared(): void;
+        public _RaiseCleared(old: T[]): void;
         public CloneCore(source: XamlObjectCollection<T>): void;
         public ToArray(): T[];
     }
@@ -3247,6 +3248,7 @@ declare module Fayde.Data {
         public TargetNullValue : any;
         private CheckSealed();
         public Seal(): void;
+        public Clone(): Binding;
         public Transmute(ctx: Fayde.Xaml.ITransmuteContext): Fayde.Expression;
     }
 }
@@ -3411,6 +3413,7 @@ declare module Fayde.Data {
         public AncestorLevel : number;
         public AncestorType: Function;
         constructor(mode?: Data.RelativeSourceMode);
+        public Clone(): RelativeSource;
     }
 }
 declare module Fayde.Documents {
