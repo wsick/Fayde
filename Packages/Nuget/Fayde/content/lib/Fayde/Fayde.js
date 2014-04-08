@@ -21,6 +21,47 @@
 })(NumberEx || (NumberEx = {}));
 var Fayde;
 (function (Fayde) {
+    function Annotation(type, name, value, forbidMultiple) {
+        var at = type;
+        var anns = at.$$annotations;
+        if (!anns)
+            Object.defineProperty(at, "$$annotations", { value: (anns = []), writable: false });
+        var ann = anns[name];
+        if (!ann)
+            anns[name] = ann = [];
+        if (forbidMultiple && ann.length > 0)
+            throw new InvalidOperationException("Only 1 content annotation allowed per type [" + type.constructor.name + "].");
+        ann.push(value);
+    }
+    Fayde.Annotation = Annotation;
+    function GetAnnotations(type, name) {
+        var at = type;
+        var anns = at.$$annotations;
+        if (!anns)
+            return undefined;
+        return (anns[name] || []).slice(0);
+    }
+    Fayde.GetAnnotations = GetAnnotations;
+
+    function CreateTypedAnnotation(name) {
+        function ta(type) {
+            var values = [];
+            for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                values[_i] = arguments[_i + 1];
+            }
+            for (var i = 0, len = values.length; i < len; i++) {
+                Annotation(type, name, values[i]);
+            }
+        }
+        ta.Get = function (type) {
+            return GetAnnotations(type, name);
+        };
+        return ta;
+    }
+    Fayde.CreateTypedAnnotation = CreateTypedAnnotation;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     (function (Xaml) {
         Xaml.Content = (function () {
             function ca(type, prop) {
@@ -63,47 +104,6 @@ var Fayde;
         })();
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    function Annotation(type, name, value, forbidMultiple) {
-        var at = type;
-        var anns = at.$$annotations;
-        if (!anns)
-            Object.defineProperty(at, "$$annotations", { value: (anns = []), writable: false });
-        var ann = anns[name];
-        if (!ann)
-            anns[name] = ann = [];
-        if (forbidMultiple && ann.length > 0)
-            throw new InvalidOperationException("Only 1 content annotation allowed per type [" + type.constructor.name + "].");
-        ann.push(value);
-    }
-    Fayde.Annotation = Annotation;
-    function GetAnnotations(type, name) {
-        var at = type;
-        var anns = at.$$annotations;
-        if (!anns)
-            return undefined;
-        return (anns[name] || []).slice(0);
-    }
-    Fayde.GetAnnotations = GetAnnotations;
-
-    function CreateTypedAnnotation(name) {
-        function ta(type) {
-            var values = [];
-            for (var _i = 0; _i < (arguments.length - 1); _i++) {
-                values[_i] = arguments[_i + 1];
-            }
-            for (var i = 0, len = values.length; i < len; i++) {
-                Annotation(type, name, values[i]);
-            }
-        }
-        ta.Get = function (type) {
-            return GetAnnotations(type, name);
-        };
-        return ta;
-    }
-    Fayde.CreateTypedAnnotation = CreateTypedAnnotation;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -23009,7 +23009,7 @@ var Fayde;
                     }
 
                     return {
-                        CurrentTime: TimeSpan.FromTicks(currentTimeTicks),
+                        CurrentTime: new TimeSpan(currentTimeTicks),
                         Progress: progress,
                         Completed: completed
                     };
@@ -23121,7 +23121,7 @@ var Fayde;
                     Animation.AnimationStore.ApplyCurrent(animStorage);
                 };
                 AnimationBase.prototype.GetNaturalDurationCore = function () {
-                    return new Duration(TimeSpan.FromArgs(0, 0, 0, 1));
+                    return Duration.Automatic;
                 };
 
                 AnimationBase.prototype.GetCurrentValue = function (defaultOriginalValue, defaultDestinationValue, clockData) {
@@ -23601,7 +23601,7 @@ var Fayde;
                     } else if (hasTimeSpanKeyFrame) {
                         totalInterpolationTime = highestKeyTimeTimeSpan;
                     } else {
-                        totalInterpolationTime = TimeSpan.FromTicks(TimeSpan._TicksPerSecond);
+                        totalInterpolationTime = new TimeSpan(TimeSpan._TicksPerSecond);
                     }
 
                     for (i = 0; i < len; i++) {
@@ -24898,7 +24898,7 @@ var Fayde;
 
                     if (!fullTicks)
                         return Duration.Automatic;
-                    return new Duration(TimeSpan.FromTicks(fullTicks));
+                    return new Duration(new TimeSpan(fullTicks));
                 };
                 Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () {
                     return String;
@@ -29550,6 +29550,20 @@ var DateTime = (function () {
                 break;
         }
     }
+    Object.defineProperty(DateTime, "MinValue", {
+        get: function () {
+            return new DateTime(-8640000000000000);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime, "MaxValue", {
+        get: function () {
+            return new DateTime(8640000000000000);
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(DateTime, "Now", {
         get: function () {
             return new DateTime(new Date().getTime());
@@ -29659,7 +29673,7 @@ var DateTime = (function () {
     Object.defineProperty(DateTime.prototype, "TimeOfDay", {
         get: function () {
             var id = this._InternalDate;
-            return TimeSpan.FromArgs(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
+            return new TimeSpan(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
         },
         enumerable: true,
         configurable: true
@@ -29671,8 +29685,6 @@ var DateTime = (function () {
         enumerable: true,
         configurable: true
     });
-    DateTime.MinValue = new DateTime(-8640000000000000);
-    DateTime.MaxValue = new DateTime(8640000000000000);
     return DateTime;
 })();
 Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
@@ -31100,18 +31112,33 @@ Fayde.RegisterTypeConverter(Thickness, function (val) {
 });
 var TimeSpan = (function () {
     function TimeSpan() {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            args[_i] = arguments[_i + 0];
+        }
         this._Ticks = 0;
+        if (args.length === 0)
+            return;
+        if (args.length === 1) {
+            this._Ticks = args[0] || 0;
+            return;
+        }
+
+        var days = args[0] || 0;
+        var hours = args[1] || 0;
+        var minutes = args[2] || 0;
+        var seconds = args[3] || 0;
+        var milliseconds = args[4] || 0;
+
+        this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute) + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
     }
-    TimeSpan.FromTicks = function (ticks) {
-        var ts = new TimeSpan();
-        ts._Ticks = ticks;
-        return ts;
-    };
-    TimeSpan.FromArgs = function (days, hours, minutes, seconds, milliseconds) {
-        var ts = new TimeSpan();
-        ts._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute) + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
-        return ts;
-    };
+    Object.defineProperty(TimeSpan, "Zero", {
+        get: function () {
+            return new TimeSpan();
+        },
+        enumerable: true,
+        configurable: true
+    });
 
     Object.defineProperty(TimeSpan.prototype, "Days", {
         get: function () {
@@ -31258,14 +31285,14 @@ Fayde.RegisterTypeConverter(TimeSpan, function (val) {
     if (val instanceof TimeSpan)
         return val;
     if (typeof val === "number")
-        return TimeSpan.FromTicks(val);
+        return new TimeSpan(val);
     val = val.toString();
 
     var tokens = val.split(":");
     if (tokens.length === 1) {
         var ticks = parseFloat(val);
         if (!isNaN(ticks))
-            return TimeSpan.FromTicks(ticks);
+            return new TimeSpan(ticks);
         throw new Exception("Invalid TimeSpan format '" + val + "'.");
     }
 
@@ -31293,7 +31320,7 @@ Fayde.RegisterTypeConverter(TimeSpan, function (val) {
     seconds = seconds - milliseconds;
     milliseconds *= 1000.0;
 
-    return TimeSpan.FromArgs(days, hours, minutes, seconds, milliseconds);
+    return new TimeSpan(days, hours, minutes, seconds, milliseconds);
 });
 var BError = (function () {
     function BError() {

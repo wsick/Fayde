@@ -36,6 +36,12 @@ class DateTime {
     private _InternalDate: Date = null;
     private _Kind: DateTimeKind;
 
+    constructor();
+    constructor(ticks: number);
+    constructor(year: number, month: number, day: number);
+    constructor(year: number, month: number, day: number, minute: number, second: number);
+    constructor(year: number, month: number, day: number, minute: number, second: number, millisecond: number);
+    constructor(year: number, month: number, day: number, minute: number, second: number, millisecond: number, kind: DateTimeKind);
     constructor(...args: any[]) {
         var ticks = null;
         var kind = DateTimeKind.Unspecified;

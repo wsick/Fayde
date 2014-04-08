@@ -3,6 +3,15 @@
     function IsLessThanClose(val1: number, val2: number): boolean;
     function IsGreaterThanClose(val1: number, val2: number): boolean;
 }
+declare module Fayde {
+    function Annotation(type: Function, name: string, value: any, forbidMultiple?: boolean): void;
+    function GetAnnotations(type: Function, name: string): any[];
+    interface ITypedAnnotation<T> {
+        (type: Function, ...values: T[]): any;
+        Get(type: Function): T[];
+    }
+    function CreateTypedAnnotation<T>(name: string): ITypedAnnotation<T>;
+}
 declare module Fayde.Xaml {
     interface IContentAnnotation {
         (type: Function, prop: DependencyProperty): any;
@@ -14,15 +23,6 @@ declare module Fayde.Xaml {
         Get(type: Function): DependencyProperty;
     }
     var TextContent: ITextContentAnnotation;
-}
-declare module Fayde {
-    function Annotation(type: Function, name: string, value: any, forbidMultiple?: boolean): void;
-    function GetAnnotations(type: Function, name: string): any[];
-    interface ITypedAnnotation<T> {
-        (type: Function, ...values: T[]): any;
-        Get(type: Function): T[];
-    }
-    function CreateTypedAnnotation<T>(name: string): ITypedAnnotation<T>;
 }
 declare module Fayde.Xaml {
     class XamlDocument {
@@ -5320,14 +5320,19 @@ declare enum DateTimeKind {
     Utc = 2,
 }
 declare class DateTime {
-    static MinValue: DateTime;
-    static MaxValue: DateTime;
+    static MinValue : DateTime;
+    static MaxValue : DateTime;
     static Now : DateTime;
     static Today : DateTime;
     static Compare(dt1: DateTime, dt2: DateTime): number;
     private _InternalDate;
     private _Kind;
-    constructor(...args: any[]);
+    constructor();
+    constructor(ticks: number);
+    constructor(year: number, month: number, day: number);
+    constructor(year: number, month: number, day: number, minute: number, second: number);
+    constructor(year: number, month: number, day: number, minute: number, second: number, millisecond: number);
+    constructor(year: number, month: number, day: number, minute: number, second: number, millisecond: number, kind: DateTimeKind);
     public Ticks : number;
     public Kind : DateTimeKind;
     public Date : DateTime;
@@ -5518,8 +5523,10 @@ declare class TimeSpan {
     static _TicksPerHour: number;
     static _TicksPerDay: number;
     private _Ticks;
-    static FromTicks(ticks: number): TimeSpan;
-    static FromArgs(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number): TimeSpan;
+    static Zero : TimeSpan;
+    constructor();
+    constructor(ticks: number);
+    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
     public Days : number;
     public Hours : number;
     public Minutes : number;
