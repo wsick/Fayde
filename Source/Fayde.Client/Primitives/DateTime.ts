@@ -127,7 +127,10 @@ class DateTime {
     get Day(): number { return this._InternalDate.getDate(); }
     get DayOfWeek(): DayOfWeek { return <DayOfWeek>this._InternalDate.getDay(); }
     get DayOfYear(): number {
-        throw new NotSupportedException("DayOfYear");
+        var dt = this.Date;
+        var base = new DateTime(dt.Year, 1, 1);
+        var diff = new TimeSpan(dt.Ticks - base.Ticks);
+        return Math.floor(diff.TotalDays);
     }
     get Hour(): number { return this._InternalDate.getHours(); }
     get Millisecond(): number { return this._InternalDate.getMilliseconds(); }
@@ -139,6 +142,21 @@ class DateTime {
         return new TimeSpan(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
     }
     get Year(): number { return this._InternalDate.getFullYear(); }
+
+    Add(value: TimeSpan): DateTime {
+        return new DateTime(this.Ticks + value.Ticks);
+    }
+
+    Subtract(value: DateTime): TimeSpan;
+    Subtract(value: TimeSpan): DateTime;
+    Subtract(value: any): any {
+        if (value instanceof DateTime) {
+            return new TimeSpan(this.Ticks - (<DateTime>value).Ticks);
+        } else if (value instanceof TimeSpan) {
+            return new DateTime(this.Ticks - (<TimeSpan>value).Ticks);
+        }
+        return new DateTime(this.Ticks);
+    }
 }
 Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
 
