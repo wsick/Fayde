@@ -21,6 +21,13 @@ class ArgumentException extends Exception {
 }
 Fayde.RegisterType(ArgumentException, "window", Fayde.XMLNSX);
 
+class ArgumentNullException extends Exception {
+    constructor(message: string) {
+        super(message);
+    }
+}
+Fayde.RegisterType(ArgumentNullException, "window", Fayde.XMLNSX);
+
 class InvalidOperationException extends Exception {
     constructor(message: string) {
         super(message);
@@ -100,3 +107,10 @@ class UnknownTypeException extends Exception {
     }
 }
 Fayde.RegisterType(UnknownTypeException, "window", Fayde.XMLNSX);
+
+class FormatException extends Exception {
+    constructor(message: string) {
+        super(message);
+    }
+}
+Fayde.RegisterType(FormatException, "window", Fayde.XMLNSX);
