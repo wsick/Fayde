@@ -170,6 +170,10 @@ export function run() {
         strictEqual(d.Second, 45, "ctor7 second");
         strictEqual(d.Millisecond, 500, "ctor7 millisecond");
         strictEqual(d.Kind, DateTimeKind.Utc, "ctor7 kind");
+
+        d = new DateTime(1397133466779);
+        var utc = d.ToUniversalTime();
+        strictEqual(utc.Hour, 12, "ToUniversalTime Hour");
     });
 
     test("Vector", () => {

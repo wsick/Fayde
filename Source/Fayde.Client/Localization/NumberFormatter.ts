@@ -1,4 +1,6 @@
-﻿module Fayde.Localization{
+﻿/// <reference path="Format.ts" />
+
+module Fayde.Localization {
     RegisterFormattable(Number, (obj: any, format: string, provider?: any): string => {
         if (obj == null)
             return null;
@@ -70,4 +72,4 @@
     standardFormatters["x"] = function (obj: number, size: number): string {
         return obj.toString(16);
     };
-} 
+}

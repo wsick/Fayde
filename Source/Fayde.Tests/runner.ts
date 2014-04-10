@@ -1,4 +1,5 @@
 import PrimitivesTests = require("tests/PrimitivesTests");
+import FormatTests = require("tests/FormatTests");
 import TypeConverterTests = require("tests/TypeConverterTests");
 import MarkupExpressionTests = require("tests/MarkupExpressionTests");
 import XamlNodeTests = require("tests/XamlNodeTests");
@@ -15,6 +16,7 @@ import DependencyLoadTests = require("tests/DependencyLoadTests");
 
 export function run() {
     PrimitivesTests.run();
+    FormatTests.run();
     TypeConverterTests.run();
     MarkupExpressionTests.run();
     XamlNodeTests.run();

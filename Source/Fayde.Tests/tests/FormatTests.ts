@@ -18,13 +18,13 @@ export function run() {
         fdt("{0:d}", dt, "4/10/2014");
     });
     test("Long date", () => {
-        fdt("{0:D}", dt, "Thursday, April 4, 2014");
+        fdt("{0:D}", dt, "Thursday, April 10, 2014");
     });
     test("Full date/time (short time)", () => {
-        fdt("{0:f}", dt, "Thursday, April 4, 2014 8:37 AM");
+        fdt("{0:f}", dt, "Thursday, April 10, 2014 8:37 AM");
     });
     test("Full date/time (long time)", () => {
-        fdt("{0:F}", dt, "Thursday, April 4, 2014 8:37:46 AM");
+        fdt("{0:F}", dt, "Thursday, April 10, 2014 8:37:46 AM");
     });
     test("General date/time (short time)", () => {
         fdt("{0:g}", dt, "4/10/2014 8:37 AM");
@@ -53,7 +53,7 @@ export function run() {
         fdt("{0:u}", dt, "2014-04-10 08:37:46Z");
     });
     test("Universal full date/time", () => {
-        fdt("{0:U}", dt, "Thursday, April 14, 2014 8:37:46 AM");
+        fdt("{0:U}", dt, "Thursday, April 10, 2014 8:37:46 AM");
     });
     test("Year month", () => {
         fdt("{0:y}", dt, "April, 2014");
