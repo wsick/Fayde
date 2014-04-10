@@ -95,7 +95,7 @@ class DateTime {
             this._InternalDate = new Date(ticks);
         } else {
             var id = this._InternalDate = new Date();
-            id.setFullYear(year, month, day);
+            id.setFullYear(year, month - 1, day);
             id.setHours(hour);
             id.setMinutes(minute);
             id.setSeconds(second);
@@ -136,7 +136,7 @@ class DateTime {
     get Hour(): number { return this._InternalDate.getHours(); }
     get Millisecond(): number { return this._InternalDate.getMilliseconds(); }
     get Minute(): number { return this._InternalDate.getMinutes(); }
-    get Month(): number { return this._InternalDate.getMonth(); }
+    get Month(): number { return this._InternalDate.getMonth() + 1; }
     get Second(): number { return this._InternalDate.getSeconds(); }
     get TimeOfDay(): TimeSpan {
         var id = this._InternalDate;
@@ -157,6 +157,13 @@ class DateTime {
             return new DateTime(this.Ticks - (<TimeSpan>value).Ticks);
         }
         return new DateTime(this.Ticks);
+    }
+
+    ToUniversalTime(): DateTime {
+        if (this.Kind === DateTimeKind.Utc)
+            return new DateTime(this.Ticks, DateTimeKind.Utc);
+        var id = this._InternalDate;
+        return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), DateTimeKind.Utc);
     }
 }
 Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
