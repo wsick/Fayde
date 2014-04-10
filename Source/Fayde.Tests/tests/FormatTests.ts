@@ -1,12 +1,64 @@
 ﻿/// <reference path="../lib/qunit/qunit.d.ts" />
 /// <reference path="../lib/Fayde/Fayde.d.ts" />
 
+import Format = Fayde.Localization.Format;
+
 export function run() {
     QUnit.module("Format Tests");
 
     function ft(format: string, num: number, expected: string) {
-        strictEqual(StringEx.Format(format, num), expected);
+        strictEqual(Format(format, num), expected);
     }
+    function fdt(format: string, dt: DateTime, expected: string) {
+        strictEqual(Format(format, dt), expected);
+    }
+
+    var dt = new DateTime(1397133466779);
+    test("Short date", () => {
+        fdt("{0:d}", dt, "4/10/2014");
+    });
+    test("Long date", () => {
+        fdt("{0:D}", dt, "Thursday, April 4, 2014");
+    });
+    test("Full date/time (short time)", () => {
+        fdt("{0:f}", dt, "Thursday, April 4, 2014 8:37 AM");
+    });
+    test("Full date/time (long time)", () => {
+        fdt("{0:F}", dt, "Thursday, April 4, 2014 8:37:46 AM");
+    });
+    test("General date/time (short time)", () => {
+        fdt("{0:g}", dt, "4/10/2014 8:37 AM");
+    });
+    test("General date/time (long time)", () => {
+        fdt("{0:G}", dt, "4/10/2014 8:37:46 AM");
+    });
+    test("Month/day", () => {
+        fdt("{0:m}", dt, "April 10");
+        fdt("{0:M}", dt, "April 10");
+    });
+    test("RFC123", () => {
+        fdt("{0:r}", dt, "Thu, 10 Apr 2014 12:37:46 GMT");
+        fdt("{0:R}", dt, "Thu, 10 Apr 2014 12:37:46 GMT");
+    });
+    test("Sortable date/time", () => {
+        fdt("{0:s}", dt, "2014-04-10T08:37:46");
+    });
+    test("Short time", () => {
+        fdt("{0:t}", dt, "8:37 AM");
+    });
+    test("Long time", () => {
+        fdt("{0:T}", dt, "8:37:46 AM");
+    });
+    test("Universal sortable date/time", () => {
+        fdt("{0:u}", dt, "2014-04-10 08:37:46Z");
+    });
+    test("Universal full date/time", () => {
+        fdt("{0:U}", dt, "Thursday, April 14, 2014 8:37:46 AM");
+    });
+    test("Year month", () => {
+        fdt("{0:y}", dt, "April, 2014");
+        fdt("{0:Y}", dt, "April, 2014");
+    });
 
     test("Currency", () => {
         ft("{0:c}", 123.456, "$123.46");

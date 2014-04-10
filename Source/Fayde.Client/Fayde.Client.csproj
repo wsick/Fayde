@@ -299,7 +299,11 @@
     <TypeScriptCompile Include="Engine\DebugVisual.ts" />
     <TypeScriptCompile Include="Controls\Internal\RangeCoercer.ts" />
     <TypeScriptCompile Include="Controls\Internal\ItemContainersManager.ts" />
-    <TypeScriptCompile Include="Runtime\NumberFormatInfo.ts" />
+    <TypeScriptCompile Include="Localization\NumberFormatInfo.ts" />
+    <TypeScriptCompile Include="Localization\DateTimeFormatInfo.ts" />
+    <TypeScriptCompile Include="Localization\Format.ts" />
+    <TypeScriptCompile Include="Localization\DateTimeFormatter.ts" />
+    <TypeScriptCompile Include="Localization\NumberFormatter.ts" />
     <Content Include="Themes\Metro.theme.xml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

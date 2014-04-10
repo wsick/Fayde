@@ -14,8 +14,4 @@
     export function IsGreaterThanClose(val1: number, val2: number): boolean {
         return val1 > val2 || !AreClose(val1, val2);
     }
-
-    StringEx.RegisterFormattable(Number, (format: string, provider?: any) => {
-        return format;
-    });
 }
