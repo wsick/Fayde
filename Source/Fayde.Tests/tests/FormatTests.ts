@@ -17,48 +17,48 @@ export function run() {
     }
 
     var dt = new DateTime(1397133466779);
-    test("Short date", () => {
+    test("DateTime: Short date", () => {
         fdt("{0:d}", dt, "4/10/2014");
     });
-    test("Long date", () => {
+    test("DateTime: Long date", () => {
         fdt("{0:D}", dt, "Thursday, April 10, 2014");
     });
-    test("Full date/time (short time)", () => {
+    test("DateTime: Full date/time (short time)", () => {
         fdt("{0:f}", dt, "Thursday, April 10, 2014 8:37 AM");
     });
-    test("Full date/time (long time)", () => {
+    test("DateTime: Full date/time (long time)", () => {
         fdt("{0:F}", dt, "Thursday, April 10, 2014 8:37:46 AM");
     });
-    test("General date/time (short time)", () => {
+    test("DateTime: General date/time (short time)", () => {
         fdt("{0:g}", dt, "4/10/2014 8:37 AM");
     });
-    test("General date/time (long time)", () => {
+    test("DateTime: General date/time (long time)", () => {
         fdt("{0:G}", dt, "4/10/2014 8:37:46 AM");
     });
-    test("Month/day", () => {
+    test("DateTime: Month/day", () => {
         fdt("{0:m}", dt, "April 10");
         fdt("{0:M}", dt, "April 10");
     });
-    test("RFC123", () => {
+    test("DateTime: RFC123", () => {
         fdt("{0:r}", dt, "Thu, 10 Apr 2014 12:37:46 GMT");
         fdt("{0:R}", dt, "Thu, 10 Apr 2014 12:37:46 GMT");
     });
-    test("Sortable date/time", () => {
+    test("DateTime: Sortable date/time", () => {
         fdt("{0:s}", dt, "2014-04-10T08:37:46");
     });
-    test("Short time", () => {
+    test("DateTime: Short time", () => {
         fdt("{0:t}", dt, "8:37 AM");
     });
-    test("Long time", () => {
+    test("DateTime: Long time", () => {
         fdt("{0:T}", dt, "8:37:46 AM");
     });
-    test("Universal sortable date/time", () => {
+    test("DateTime: Universal sortable date/time", () => {
         fdt("{0:u}", dt, "2014-04-10 08:37:46Z");
     });
-    test("Universal full date/time", () => {
+    test("DateTime: Universal full date/time", () => {
         fdt("{0:U}", dt, "Thursday, April 10, 2014 8:37:46 AM");
     });
-    test("Year month", () => {
+    test("DateTime: Year month", () => {
         fdt("{0:y}", dt, "April, 2014");
         fdt("{0:Y}", dt, "April, 2014");
     });
@@ -79,7 +79,7 @@ export function run() {
         ftt("{0:G}", new TimeSpan(-18, -30, 0), "-0:18:30:00.0000000");
     });
 
-    test("Currency", () => {
+    test("Number: Currency", () => {
         ft("{0:c}", 123.456, "$123.46");
         ft("{0:C}", 123.456, "$123.46");
 
@@ -89,7 +89,7 @@ export function run() {
         ft("{0:c3}", -123.456, "($123.456)");
         ft("{0:C3}", -123.456, "($123.456)");
     });
-    test("Decimal", () => {
+    test("Number: Decimal", () => {
         ft("{0:d}", 1234, "1234");
         ft("{0:D}", 1234, "1234");
 
@@ -99,7 +99,7 @@ export function run() {
         ft("{0:d6}", -1234, "-001234");
         ft("{0:D6}", -1234, "-001234");
     });
-    test("Exponential", () => {
+    test("Number: Exponential", () => {
         ft("{0:e}", 1052.0329112756, "1.052033e+003");
         ft("{0:E}", 1052.0329112756, "1.052033E+003");
         
@@ -109,7 +109,7 @@ export function run() {
         ft("{0:e2}", -1052.0329112756, "-1.05e+003");
         ft("{0:E2}", -1052.0329112756, "-1.05E+003");
     });
-    test("Fixed-point", () => {
+    test("Number: Fixed-point", () => {
         ft("{0:f}", 1234.567, "1234.57");
         ft("{0:F}", 1234.567, "1234.57");
         
@@ -119,14 +119,14 @@ export function run() {
         ft("{0:f4}", -1234.56, "-1234.5600");
         ft("{0:F4}", -1234.56, "-1234.5600");
     });
-    test("General", () => {
+    test("Number: General", () => {
         ft("{0:g}", -123.456, "-123.456");
         ft("{0:G}", -123.456, "-123.456");
 
         ft("{0:g4}", 123.4546, "123.5");
         ft("{0:G4}", 123.4546, "123.5");
     });
-    test("Number", () => {
+    test("Number: Number", () => {
         ft("{0:n}", 1234.567, "1,234.57");
         ft("{0:N}", 1234.567, "1,234.57");
 
@@ -136,7 +136,7 @@ export function run() {
         ft("{0:n3}", -1234.56, "-1,234.560");
         ft("{0:N3}", -1234.56, "-1,234.560");
     });
-    test("Percent", () => {
+    test("Number: Percent", () => {
         ft("{0:p}", 1, "100.00 %");
         ft("{0:P}", 1, "100.00 %");
         
@@ -146,7 +146,7 @@ export function run() {
         ft("{0:p1}", -0.39678, "-39.7 %");
         ft("{0:P1}", -0.39678, "-39.7 %");
     });
-    test("Hexadecimal", () => {
+    test("Number: Hexadecimal", () => {
         ft("{0:x}", -1, "ff");
         ft("{0:X}", -1, "FF");
         
