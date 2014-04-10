@@ -5534,6 +5534,7 @@ declare class TimeSpan {
     static Zero : TimeSpan;
     constructor();
     constructor(ticks: number);
+    constructor(hours: number, minutes: number, seconds: number);
     constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
     public Days : number;
     public Hours : number;
@@ -6604,6 +6605,8 @@ declare module Fayde.Localization {
         (obj: any, format: string, provider?: any): string;
     }
     function RegisterFormattable(type: Function, formatter: IFormattable): void;
+}
+declare module Fayde.Localization {
 }
 declare module Fayde.Localization {
 }

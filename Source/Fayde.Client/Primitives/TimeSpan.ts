@@ -13,6 +13,7 @@ class TimeSpan {
 
     constructor();
     constructor(ticks: number);
+    constructor(hours: number, minutes: number, seconds: number);
     constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
     constructor(...args: any[]) {
         if (args.length === 0)
@@ -21,39 +22,52 @@ class TimeSpan {
             this._Ticks = args[0] || 0;
             return;
         }
+        var days = 0;
+        var hours = 0;
+        var minutes = 0;
+        var seconds = 0;
+        var milliseconds = 0;
 
-        var days = args[0] || 0;
-        var hours = args[1] || 0;
-        var minutes = args[2] || 0;
-        var seconds = args[3] || 0;
-        var milliseconds = args[4] || 0;
+        if (args.length === 3) {
+            hours = args[1] || 0;
+            minutes = args[2] || 0;
+            seconds = args[3] || 0;
+        } else {
+            days = args[0] || 0;
+            hours = args[1] || 0;
+            minutes = args[2] || 0;
+            seconds = args[3] || 0;
+            milliseconds = args[4] || 0;
+        }
         
         this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute)
             + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
     }
 
-    get Days(): number { return Math.floor(this._Ticks / TimeSpan._TicksPerDay); }
+    get Days(): number {
+        return this._Ticks > 0 ? Math.floor(this._Ticks / TimeSpan._TicksPerDay) : Math.ceil(this._Ticks / TimeSpan._TicksPerDay);
+    }
     get Hours(): number {
         var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-        return Math.floor(remTicks / TimeSpan._TicksPerHour);
+        return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerHour) : Math.ceil(remTicks / TimeSpan._TicksPerHour);
     }
     get Minutes(): number {
         var remTicks = this._Ticks % TimeSpan._TicksPerDay;
         remTicks = remTicks % TimeSpan._TicksPerHour;
-        return Math.floor(remTicks / TimeSpan._TicksPerMinute);
+        return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMinute) : Math.ceil(remTicks / TimeSpan._TicksPerMinute);
     }
     get Seconds(): number {
         var remTicks = this._Ticks % TimeSpan._TicksPerDay;
         remTicks = remTicks % TimeSpan._TicksPerHour;
         remTicks = remTicks % TimeSpan._TicksPerMinute;
-        return Math.floor(remTicks / TimeSpan._TicksPerSecond);
+        return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerSecond) : Math.ceil(remTicks / TimeSpan._TicksPerSecond);
     }
     get Milliseconds(): number {
         var remTicks = this._Ticks % TimeSpan._TicksPerDay;
         remTicks = remTicks % TimeSpan._TicksPerHour;
         remTicks = remTicks % TimeSpan._TicksPerMinute;
         remTicks = remTicks % TimeSpan._TicksPerSecond;
-        return Math.floor(remTicks / TimeSpan._TicksPerMillisecond);
+        return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMillisecond) : Math.ceil(remTicks / TimeSpan._TicksPerMillisecond);
     }
     get Ticks(): number { return this._Ticks; }
 
