@@ -120,6 +120,12 @@ class TimeSpan {
     GetJsDelay(): number {
         return this._Ticks * TimeSpan._TicksPerMillisecond;
     }
+
+    ToString(format?: string): string {
+        if (!format)
+            return Fayde.Localization.FormatSingle(this, "c");
+        return Fayde.Localization.FormatSingle(this, format);
+    }
 }
 Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
 

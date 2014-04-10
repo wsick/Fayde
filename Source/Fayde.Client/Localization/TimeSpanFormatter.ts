@@ -7,12 +7,14 @@ module Fayde.Localization {
             return null;
         if (obj.constructor !== TimeSpan)
             return null;
+        if (!format)
+            return undefined;
         var res = tryStandardFormat(<TimeSpan>obj, format);
         if (res != undefined)
             return res;
-        return format;
+        return tryCustomFormat(<TimeSpan>obj, format);
     });
-    
+
     // Standard Formats
     // c        Constant (invariant)
     // g        General short
@@ -45,7 +47,7 @@ module Fayde.Localization {
             s = Math.abs(days) + "." + s;
         var ms = obj.Milliseconds;
         if (ms)
-            s += "." + paddedms(ms);
+            s += "." + msf(ms, 7);
         if (obj.Ticks < 0)
             s = "-" + s;
         return s;
@@ -63,7 +65,7 @@ module Fayde.Localization {
             s = Math.abs(days) + ":" + s;
         var ms = obj.Milliseconds;
         if (ms)
-            s += "." + slimms(ms);
+            s += "." + msF(ms, 7);
         if (obj.Ticks < 0)
             s = "-" + s;
         return s;
@@ -78,30 +80,155 @@ module Fayde.Localization {
             padded(obj.Seconds)
         ].join(info.TimeSeparator);
         var ms = obj.Milliseconds;
-        s += "." + paddedms(ms);
+        s += "." + msf(ms, 7);
         if (obj.Ticks < 0)
             s = "-" + s;
         return s;
     };
 
+    function tryCustomFormat(obj: TimeSpan, format: string): string {
+
+        var days = Math.abs(obj.Days);
+        var hours = Math.abs(obj.Hours);
+        var minutes = Math.abs(obj.Minutes);
+        var seconds = Math.abs(obj.Seconds);
+        var ms = Math.abs(obj.Milliseconds);
+
+        var len: number;
+        var pos = 0;
+        var stringBuilder: string[] = [];
+        while (pos < format.length) {
+            var patternChar = format[pos];
+            switch (patternChar) {
+                case 'm':
+                    len = parseRepeatPattern(format, pos, patternChar);
+                    if (len > 2)
+                        throw formatError();
+                    formatDigits(stringBuilder, minutes, len);
+                    break;
+                case 's':
+                    len = parseRepeatPattern(format, pos, patternChar);
+                    if (len > 2)
+                        throw formatError();
+                    formatDigits(stringBuilder, seconds, len);
+                    break;
+                case '\\':
+                    var num7 = parseNextChar(format, pos);
+                    if (num7 < 0)
+                        throw formatError();
+                    stringBuilder.push(String.fromCharCode(num7));
+                    len = 2;
+                    break;
+                case 'd':
+                    len = parseRepeatPattern(format, pos, patternChar);
+                    if (len > 8)
+                        throw formatError();
+                    formatDigits(stringBuilder, days, len, true);
+                    break;
+                case 'f':
+                    len = parseRepeatPattern(format, pos, patternChar);
+                    if (len > 7)
+                        throw formatError();
+                    stringBuilder.push(msf(ms, len));
+                    break;
+                case 'h':
+                    len = parseRepeatPattern(format, pos, patternChar);
+                    if (len > 2)
+                        throw formatError();
+                    formatDigits(stringBuilder, hours, len);
+                    break;
+                case '"':
+                case '\'':
+                    len = parseQuoteString(format, pos, stringBuilder);
+                    break;
+                case '%':
+                    var num9 = parseNextChar(format, pos);
+                    if (num9 < 0 || num9 === 37)
+                        throw formatError();
+                    stringBuilder.push(tryCustomFormat(obj, String.fromCharCode(num9)));
+                    len = 2;
+                    break;
+                case 'F':
+                    len = parseRepeatPattern(format, pos, patternChar);
+                    if (len > 7)
+                        throw formatError();
+                    stringBuilder.push(msF(ms, len));
+                    break;
+                default:
+                    throw formatError();
+            }
+            pos += len;
+        }
+        return stringBuilder.join("");
+    }
+
+    function parseRepeatPattern(format: string, pos: number, patternChar: string): number {
+        var length = format.length;
+        var index = pos + 1;
+        var code = patternChar.charCodeAt(0);
+        while (index < length && format.charCodeAt(index) === code)
+            ++index;
+        return index - pos;
+    }
+    function parseNextChar(format: string, pos: number): number {
+        if (pos >= format.length - 1)
+            return -1;
+        return format.charCodeAt(pos + 1);
+    }
+    function parseQuoteString(format: string, pos: number, result: string[]): number {
+        var length = format.length;
+        var num = pos;
+        var ch1 = format[pos++];
+        var flag = false;
+        var special = String.fromCharCode(92);
+        while (pos < length) {
+            var ch2 = format[pos++];
+            if (ch2 === ch1) {
+                flag = true;
+                break;
+            } else if (ch2 === special) {
+                if (pos >= length)
+                    throw new FormatException("Invalid format string.");
+                result.push(format[pos++]);
+            } else
+                result.push(ch2);
+        }
+        if (flag)
+            return pos - num;
+        throw new FormatException("Bad quote: " + ch1);
+    }
+    
     function padded(num: number): string {
         var s = Math.abs(num).toString();
         return (s.length === 1) ? "0" + s : s;
     }
-    function paddedms(num: number): string {
-        var s = Math.abs(num).toString();
+    function msf(ms: number, len: number): string {
+        var s = Math.abs(ms).toString();
         while (s.length < 3)
             s = "0" + s;
         s += "0000";
-        return s;
+        return s.substr(0, len);
     }
-    function slimms(num: number): string {
-        var s = paddedms(num);
-        var end = s.length - 1;
+    function msF(ms: number, len: number): string {
+        var f = msf(ms, len);
+        var end = f.length - 1;
         for (; end >= 0; end--) {
-            if (s[end] !== "0")
+            if (f[end] !== "0")
                 break;
         }
-        return s.slice(0, end + 1);
+        return f.slice(0, end + 1);
+    }
+    function formatDigits(sb: string[], value: number, len: number, overrideLenLimit?: boolean) {
+        if (!overrideLenLimit && len > 2)
+            len = 2;
+
+        var s = Math.floor(value).toString();
+        while (s.length < len)
+            s = "0" + s;
+        sb.push(s);
+    }
+
+    function formatError(): FormatException {
+        return new FormatException("Invalid format string.");
     }
 }

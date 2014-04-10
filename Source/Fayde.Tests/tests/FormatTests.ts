@@ -15,6 +15,9 @@ export function run() {
     function ftt(format: string, ts: TimeSpan, expected: string) {
         strictEqual(Format(format, ts), expected);
     }
+    function testCustomTimeSpan(msg: string, ts: TimeSpan, format: string, expected: string) {
+        strictEqual(Format(format, ts), expected, msg);
+    }
 
     var dt = new DateTime(1397133466779);
     test("DateTime: Short date", () => {
@@ -77,6 +80,62 @@ export function run() {
     test("TimeSpan: General long", () => {
         ftt("{0:G}", new TimeSpan(18, 30, 0), "0:18:30:00.0000000");
         ftt("{0:G}", new TimeSpan(-18, -30, 0), "-0:18:30:00.0000000");
+    });
+    test("TimeSpan: Custom", () => {
+        var ts1 = new TimeSpan(6, 14, 32, 17, 685);
+        var ts2 = new TimeSpan(6, 8, 32, 17, 685);
+        var ts3 = new TimeSpan(6, 14, 8, 17, 685);
+        var ts4 = new TimeSpan(6, 8, 5, 17, 685);
+
+        testCustomTimeSpan("d,%d", ts1, "{0:%d}", "6");
+        testCustomTimeSpan("d,%d", ts1, "{0:d\\.hh\\:mm}", "6.14:32");
+        testCustomTimeSpan("dd-dddddddd", ts1, "{0:ddd}", "006");
+        testCustomTimeSpan("dd-dddddddd", ts1, "{0:dd\\.hh\\:mm}", "06.14:32");
+
+        testCustomTimeSpan("h,%h", ts1, "{0:%h}", "14");
+        testCustomTimeSpan("h,%h", ts1, "{0:hh\\:mm}", "14:32");
+
+        testCustomTimeSpan("hh", ts1, "{0:hh}", "14");
+        testCustomTimeSpan("hh", ts2, "{0:hh}", "08");
+
+        testCustomTimeSpan("m,%m", ts3, "{0:%m}", "8");
+        testCustomTimeSpan("m,%m", ts3, "{0:h\\:m}", "14:8");
+
+        testCustomTimeSpan("mm", ts3, "{0:mm}", "08");
+        testCustomTimeSpan("mm", ts4, "{0:d\\.hh\\:mm\\:ss}", "6.08:05:17");
+
+        var ts5 = new TimeSpan(0, 0, 0, 12, 965);
+        testCustomTimeSpan("s,%s", ts5, "{0:%s}", "12");
+        testCustomTimeSpan("s,%s", ts5, "{0:s\\.fff}", "12.965");
+
+        var ts6 = new TimeSpan(0, 0, 0, 6, 965);
+        testCustomTimeSpan("ss", ts6, "{0:ss}", "06");
+        testCustomTimeSpan("ss", ts6, "{0:ss\\.fff}", "06.965");
+
+        var ts7 = new TimeSpan(0, 0, 0, 6, 895);
+        testCustomTimeSpan("f,%f", ts7, "{0:f}", "8");
+        testCustomTimeSpan("f,%f", ts7, "{0:ss\\.f}", "06.8");
+
+        testCustomTimeSpan("ff", ts7, "{0:ff}", "89");
+        testCustomTimeSpan("ff", ts7, "{0:ss\\.ff}", "06.89");
+
+        testCustomTimeSpan("fff", ts7, "{0:fff}", "895");
+        testCustomTimeSpan("fff", ts7, "{0:ss\\.fff}", "06.895");
+        
+        testCustomTimeSpan("ffff", ts7, "{0:ffff}", "8950");
+        testCustomTimeSpan("ffff", ts7, "{0:ss\\.ffff}", "06.8950");
+        
+        testCustomTimeSpan("F,%F", ts7, "{0:%F}", "8");
+        testCustomTimeSpan("F,%F", ts7, "{0:ss\\.F}", "06.8");
+
+        testCustomTimeSpan("FF", ts7, "{0:FF}", "89");
+        testCustomTimeSpan("FF", ts7, "{0:ss\\.FF}", "06.89");
+
+        testCustomTimeSpan("FFF", ts7, "{0:FFF}", "895");
+        testCustomTimeSpan("FFF", ts7, "{0:ss\\.FFF}", "06.895");
+        
+        testCustomTimeSpan("FFFF", ts7, "{0:FFFF}", "895");
+        testCustomTimeSpan("FFFF", ts7, "{0:ss\\.FFFF}", "06.895");
     });
 
     test("Number: Currency", () => {

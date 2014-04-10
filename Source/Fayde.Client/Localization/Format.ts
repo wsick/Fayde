@@ -4,6 +4,9 @@
         appendFormat(sb, format, items);
         return sb.join("");
     }
+    export function FormatSingle(obj: any, format: string): string {
+        return doFormattable(obj, format);
+    }
 
     function appendFormat(_this: string[], format: string, args: any[], provider?: any) {
         if (format == null || args == null)
@@ -148,7 +151,7 @@
         }
     }
     function formatError(): FormatException {
-        return new FormatException("Invalid format.");
+        return new FormatException("Invalid format string.");
     }
     function stringBuilderToString(arr: string[]): string {
         return arr.join("");

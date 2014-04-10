@@ -5556,6 +5556,7 @@ declare class TimeSpan {
     public CompareTo(ts2: TimeSpan): number;
     public IsZero(): boolean;
     public GetJsDelay(): number;
+    public ToString(format?: string): string;
 }
 declare class BError {
     static Argument: number;
@@ -6601,6 +6602,7 @@ declare module Fayde.Localization {
 }
 declare module Fayde.Localization {
     function Format(format: string, ...items: any[]): string;
+    function FormatSingle(obj: any, format: string): string;
     interface IFormattable {
         (obj: any, format: string, provider?: any): string;
     }
