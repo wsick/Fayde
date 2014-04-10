@@ -10,6 +10,8 @@ class TimeSpan {
     private _Ticks: number = 0;
 
     static get Zero(): TimeSpan { return new TimeSpan(); }
+    static get MinValue(): TimeSpan { return new TimeSpan(Number.MIN_VALUE); }
+    static get MaxValue(): TimeSpan { return new TimeSpan(Number.MAX_VALUE); }
 
     constructor();
     constructor(ticks: number);

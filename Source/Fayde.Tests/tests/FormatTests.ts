@@ -65,6 +65,9 @@ export function run() {
         fdt("{0:y}", dt, "April, 2014");
         fdt("{0:Y}", dt, "April, 2014");
     });
+    test("DateTime: Custom", () => {
+        ok(true, "Not implemented");
+    });
 
     test("TimeSpan: Constant", () => {
         ftt("{0:c}", TimeSpan.Zero, "00:00:00");
