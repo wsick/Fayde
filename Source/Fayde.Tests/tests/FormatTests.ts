@@ -12,6 +12,9 @@ export function run() {
     function fdt(format: string, dt: DateTime, expected: string) {
         strictEqual(Format(format, dt), expected);
     }
+    function ftt(format: string, ts: TimeSpan, expected: string) {
+        strictEqual(Format(format, ts), expected);
+    }
 
     var dt = new DateTime(1397133466779);
     test("Short date", () => {
@@ -58,6 +61,22 @@ export function run() {
     test("Year month", () => {
         fdt("{0:y}", dt, "April, 2014");
         fdt("{0:Y}", dt, "April, 2014");
+    });
+
+    test("TimeSpan: Constant", () => {
+        ftt("{0:c}", TimeSpan.Zero, "00:00:00");
+        ftt("{0:c}", new TimeSpan(0, 0, 30, 0), "00:30:00");
+        ftt("{0:c}", new TimeSpan(0, 0, -30, 0), "-00:30:00");
+        ftt("{0:c}", new TimeSpan(3, 17, 25, 30, 500), "3.17:25:30.5000000");
+    });
+    test("TimeSpan: General short", () => {
+        ftt("{0:g}", new TimeSpan(1, 3, 16, 50, 500), "1:3:16:50.5");
+        ftt("{0:g}", new TimeSpan(-1, -3, -16, -50, -500), "-1:3:16:50.5");
+        ftt("{0:g}", new TimeSpan(1, 3, 16, 50, 599), "1:3:16:50.599");
+    });
+    test("TimeSpan: General long", () => {
+        ftt("{0:G}", new TimeSpan(18, 30, 0), "0:18:30:00.0000000");
+        ftt("{0:G}", new TimeSpan(-18, -30, 0), "-0:18:30:00.0000000");
     });
 
     test("Currency", () => {

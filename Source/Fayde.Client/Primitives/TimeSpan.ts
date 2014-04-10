@@ -29,9 +29,9 @@ class TimeSpan {
         var milliseconds = 0;
 
         if (args.length === 3) {
-            hours = args[1] || 0;
-            minutes = args[2] || 0;
-            seconds = args[3] || 0;
+            hours = args[0] || 0;
+            minutes = args[1] || 0;
+            seconds = args[2] || 0;
         } else {
             days = args[0] || 0;
             hours = args[1] || 0;
