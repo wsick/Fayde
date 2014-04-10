@@ -14,7 +14,21 @@
             "Fri",
             "Sat"
         ];
-        AbbreviatedMonthGenitiveNames: string[];
+        AbbreviatedMonthGenitiveNames: string[] = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+            ""
+        ];
         AbbreviatedMonthNames: string[] = [
             "Jan",
             "Feb",
@@ -32,7 +46,7 @@
         AMDesignator: string = "AM";
         Calendar: any; //Calendar
         CalendarWeekRule: CalendarWeekRule;
-        DateSeparator: string;
+        DateSeparator: string = "/";
         DayNames: string[] = [
             "Sunday",
             "Monday",
@@ -43,11 +57,25 @@
             "Saturday"
         ];
         FirstDayOfWeek: DayOfWeek = DayOfWeek.Sunday;
-        FullDateTimePattern: string;
-        LongDatePattern: string;
-        LongTimePattern: string;
-        MonthDayPattern: string;
-        MonthGenitiveNames: string[];
+        FullDateTimePattern: string = "dddd, MMMM dd, yyyy h:mm:ss tt";
+        LongDatePattern: string = "dddd, MMMM dd, yyyy";
+        LongTimePattern: string = "h:mm:ss tt";
+        MonthDayPattern: string = "MMMM dd";
+        MonthGenitiveNames: string[] = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+            ""
+        ];
         MonthNames: string[] = [
             "January",
             "February",
@@ -63,14 +91,22 @@
             "December"
         ];
         PMDesignator: string = "PM";
-        RFC1123Pattern: string;
-        ShortDatePattern: string;
-        ShortestDayNames: string[];
-        ShortTimePattern: string;
-        SortableDateTimePattern: string;
-        TimeSeparator: string;
-        UniversalSortableDateTimePattern: string;
-        YearMonthPattern: string;
+        RFC1123Pattern: string = "ddd, dd MMM yyyy HH':'mm':'ss 'GMT'";
+        ShortDatePattern: string = "M/d/yyyy";
+        ShortestDayNames: string[] = [
+            "Su",
+            "Mo",
+            "Tu",
+            "We",
+            "Th",
+            "Fr",
+            "Sa"
+        ];
+        ShortTimePattern: string = "h:mm tt";
+        SortableDateTimePattern: string = "yyyy'-'MM'-'dd'T'HH':'mm':'ss";
+        TimeSeparator: string = ":";
+        UniversalSortableDateTimePattern: string = "yyyy'-'MM'-'dd HH':'mm':'ss'Z'";
+        YearMonthPattern: string = "MMMM, yyyy";
 
         static Instance = new DateTimeFormatInfo();
     }
