@@ -165,5 +165,11 @@ class DateTime {
         var id = this._InternalDate;
         return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), DateTimeKind.Utc);
     }
+
+    toString(format?: string): string {
+        if (!format)
+            return Fayde.Localization.FormatSingle(this, "s");
+        return Fayde.Localization.FormatSingle(this, format);
+    }
 }
 Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);

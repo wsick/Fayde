@@ -123,7 +123,7 @@ class TimeSpan {
         return this._Ticks * TimeSpan._TicksPerMillisecond;
     }
 
-    ToString(format?: string): string {
+    toString(format?: string): string {
         if (!format)
             return Fayde.Localization.FormatSingle(this, "c");
         return Fayde.Localization.FormatSingle(this, format);

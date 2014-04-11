@@ -1,4 +1,6 @@
-﻿module Fayde.Localization {
+﻿/// <reference path="Calendar.ts" />
+
+module Fayde.Localization {
     export enum CalendarWeekRule {
         FirstDay,
         FirstFullWeek,
@@ -44,8 +46,8 @@
             "Dec"
         ];
         AMDesignator: string = "AM";
-        Calendar: any; //Calendar
-        CalendarWeekRule: CalendarWeekRule;
+        Calendar = new Calendar();
+        CalendarWeekRule: CalendarWeekRule = CalendarWeekRule.FirstDay;
         DateSeparator: string = "/";
         DayNames: string[] = [
             "Sunday",
@@ -115,7 +117,7 @@
                 era = this.Calendar.CurrentEraValue;
             if (era < 0)
                 throw new ArgumentException("era");
-            var eras = this.Calendar ? this.Calendar.EraNames : [];
+            var eras = this.Calendar.EraNames;
             if (era >= eras.length)
                 throw new ArgumentException("era");
             return eras[era];

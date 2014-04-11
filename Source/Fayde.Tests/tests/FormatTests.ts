@@ -72,31 +72,31 @@ export function run() {
         var dt1 = new DateTime(2014, 1, 1, 5, 1, 2);
         var dt2 = new DateTime(2014, 1, 15, 15, 16, 17);
 
-        testCustomDateTime(dt1, "{0:d}", "1");
-        testCustomDateTime(dt2, "{0:d}", "15");
+        testCustomDateTime(dt1, "{0:%d}", "1");
+        testCustomDateTime(dt2, "{0:%d}", "15");
         testCustomDateTime(dt1, "{0:dd}", "01");
         testCustomDateTime(dt2, "{0:dd}", "15");
         testCustomDateTime(dt1, "{0:ddd}", "Wed");
         testCustomDateTime(dt1, "{0:dddd}", "Wednesday");
 
-        testCustomDateTime(dt1, "{0:M}", "1");
+        testCustomDateTime(dt1, "{0:%M}", "1");
         testCustomDateTime(dt1, "{0:MM}", "01");
         testCustomDateTime(dt1, "{0:MMM}", "Jan");
         testCustomDateTime(dt1, "{0:MMMM}", "January");
 
         var dt3 = new DateTime(2009, 1, 1);
         var dt4 = new DateTime(900, 1, 1);
-        testCustomDateTime(dt1, "{0:y}", "14");
-        testCustomDateTime(dt3, "{0:y}", "9");
+        testCustomDateTime(dt1, "{0:%y}", "14");
+        testCustomDateTime(dt3, "{0:%y}", "9");
         testCustomDateTime(dt1, "{0:yy}", "14");
         testCustomDateTime(dt3, "{0:yy}", "09");
-        testCustomDateTime(dt3, "{0:yyy}", "900");
-        testCustomDateTime(dt3, "{0:yyy}", "2014");
-        testCustomDateTime(dt3, "{0:yyyy}", "0900");
+        testCustomDateTime(dt4, "{0:yyy}", "900");
+        testCustomDateTime(dt3, "{0:yyy}", "2009");
+        testCustomDateTime(dt4, "{0:yyyy}", "0900");
         testCustomDateTime(dt3, "{0:yyyy}", "2009");
 
-        testCustomDateTime(dt1, "{0:t}", "A");
-        testCustomDateTime(dt2, "{0:t}", "P");
+        testCustomDateTime(dt1, "{0:%t}", "A");
+        testCustomDateTime(dt2, "{0:%t}", "P");
         testCustomDateTime(dt1, "{0:tt}", "AM");
         testCustomDateTime(dt2, "{0:tt}", "PM");
 
@@ -105,18 +105,18 @@ export function run() {
         testCustomDateTime(dt2, "{0:H}", "15");
         testCustomDateTime(dt2, "{0:HH}", "15");
         
-        testCustomDateTime(dt1, "{0:m}", "1");
-        testCustomDateTime(dt2, "{0:m}", "16");
+        testCustomDateTime(dt1, "{0:%m}", "1");
+        testCustomDateTime(dt2, "{0:%m}", "16");
         testCustomDateTime(dt1, "{0:mm}", "01");
         testCustomDateTime(dt2, "{0:mm}", "16");
         
-        testCustomDateTime(dt1, "{0:s}", "2");
-        testCustomDateTime(dt2, "{0:s}", "17");
+        testCustomDateTime(dt1, "{0:%s}", "2");
+        testCustomDateTime(dt2, "{0:%s}", "17");
         testCustomDateTime(dt1, "{0:ss}", "02");
         testCustomDateTime(dt2, "{0:ss}", "17");
 
         var dt5 = new DateTime(0, 0, 0, 0, 0, 0, 123);
-        testCustomDateTime(dt5, "{0:f}", "1");
+        testCustomDateTime(dt5, "{0:%f}", "1");
         testCustomDateTime(dt5, "{0:ff}", "12");
         testCustomDateTime(dt5, "{0:fff}", "123");
         testCustomDateTime(dt5, "{0:ffff}", "1230");
@@ -124,7 +124,7 @@ export function run() {
         testCustomDateTime(dt5, "{0:ffffff}", "123000");
         testCustomDateTime(dt5, "{0:fffffff}", "1230000");
 
-        testCustomDateTime(dt5, "{0:F}", "1");
+        testCustomDateTime(dt5, "{0:%F}", "1");
         testCustomDateTime(dt5, "{0:FF}", "12");
         testCustomDateTime(dt5, "{0:FFF}", "123");
         testCustomDateTime(dt5, "{0:FFFF}", "123");

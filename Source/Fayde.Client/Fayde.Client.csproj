@@ -305,6 +305,7 @@
     <TypeScriptCompile Include="Localization\DateTimeFormatter.ts" />
     <TypeScriptCompile Include="Localization\NumberFormatter.ts" />
     <TypeScriptCompile Include="Localization\TimeSpanFormatter.ts" />
+    <TypeScriptCompile Include="Localization\Calendar.ts" />
     <Content Include="Themes\Metro.theme.xml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

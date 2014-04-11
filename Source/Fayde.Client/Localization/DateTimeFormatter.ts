@@ -258,7 +258,7 @@ module Fayde.Localization {
                         break;
                     }
                 case 'y':
-                    var year = calendar.GetYear(obj);
+                    var year = obj.Year;
                     len = DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
                     if (info.HasForceTwoDigitYears)
                         DateTimeFormatInfo.FormatDigits(stringBuilder, year, len <= 2 ? len : 2);
@@ -283,7 +283,7 @@ module Fayde.Localization {
                     break;
                 case 'M':
                     len = DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                    var month = calendar.GetMonth(obj);
+                    var month = obj.Month;
                     if (len <= 2) {
                         if (flag)
                             DateTimeFormatInfo.HebrewFormatDigits(stringBuilder, month);
@@ -308,13 +308,13 @@ module Fayde.Localization {
                 case 'd':
                     len = DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
                     if (len <= 2) {
-                        var dayOfMonth = calendar.GetDayOfMonth(obj);
+                        var dayOfMonth = obj.Day;
                         if (flag)
                             DateTimeFormatInfo.HebrewFormatDigits(stringBuilder, dayOfMonth);
                         else
                             DateTimeFormatInfo.FormatDigits(stringBuilder, dayOfMonth, len);
                     } else {
-                        var dayOfWeek = calendar.GetDayOfWeek(obj);
+                        var dayOfWeek = obj.DayOfWeek;
                         stringBuilder.push(DateTimeFormatInfo.FormatDayOfWeek(dayOfWeek, len, info));
                     }
                     timeOnly = false;
@@ -333,7 +333,7 @@ module Fayde.Localization {
                     break;
                 case 'g':
                     len = DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                    stringBuilder.push(info.GetEraName(calendar.GetEra(obj)));
+                    stringBuilder.push(info.GetEraName(1));
                     break;
                 case 'h':
                     len = DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
