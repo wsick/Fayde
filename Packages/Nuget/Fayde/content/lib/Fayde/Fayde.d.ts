@@ -3633,6 +3633,9 @@ declare class Exception {
 declare class ArgumentException extends Exception {
     constructor(message: string);
 }
+declare class ArgumentNullException extends Exception {
+    constructor(message: string);
+}
 declare class InvalidOperationException extends Exception {
     constructor(message: string);
 }
@@ -3667,6 +3670,9 @@ declare class TargetInvocationException extends Exception {
 declare class UnknownTypeException extends Exception {
     public FullTypeName: string;
     constructor(fullTypeName: string);
+}
+declare class FormatException extends Exception {
+    constructor(message: string);
 }
 declare module Fayde.Engine {
     class FocusManager {
@@ -5329,10 +5335,11 @@ declare class DateTime {
     private _Kind;
     constructor();
     constructor(ticks: number);
+    constructor(ticks: number, kind: DateTimeKind);
     constructor(year: number, month: number, day: number);
-    constructor(year: number, month: number, day: number, minute: number, second: number);
-    constructor(year: number, month: number, day: number, minute: number, second: number, millisecond: number);
-    constructor(year: number, month: number, day: number, minute: number, second: number, millisecond: number, kind: DateTimeKind);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number, kind: DateTimeKind);
     public Ticks : number;
     public Kind : DateTimeKind;
     public Date : DateTime;
@@ -5346,9 +5353,11 @@ declare class DateTime {
     public Second : number;
     public TimeOfDay : TimeSpan;
     public Year : number;
-}
-declare class DateTimeFormatInfo {
-    public AbbreviatedMonthNames: string[];
+    public Add(value: TimeSpan): DateTime;
+    public Subtract(value: DateTime): TimeSpan;
+    public Subtract(value: TimeSpan): DateTime;
+    public ToUniversalTime(): DateTime;
+    public toString(format?: string): string;
 }
 declare enum DurationType {
     Automatic = 0,
@@ -5524,8 +5533,11 @@ declare class TimeSpan {
     static _TicksPerDay: number;
     private _Ticks;
     static Zero : TimeSpan;
+    static MinValue : TimeSpan;
+    static MaxValue : TimeSpan;
     constructor();
     constructor(ticks: number);
+    constructor(hours: number, minutes: number, seconds: number);
     constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
     public Days : number;
     public Hours : number;
@@ -5547,6 +5559,7 @@ declare class TimeSpan {
     public CompareTo(ts2: TimeSpan): number;
     public IsZero(): boolean;
     public GetJsDelay(): number;
+    public toString(format?: string): string;
 }
 declare class BError {
     static Argument: number;
@@ -5625,8 +5638,8 @@ declare class IndexedPropertyInfo implements IPropertyInfo {
     public SetValue(ro: any, index: number, value: any): void;
     static Find(typeOrObj: any): IndexedPropertyInfo;
 }
-declare class StringEx {
-    static Format(format: string, ...items: any[]): string;
+declare module StringEx {
+    function Format(format: string, ...items: any[]): string;
 }
 interface ITimelineEvent {
     Type: string;
@@ -6517,6 +6530,113 @@ declare module Fayde.Controls.Internal {
         CurrentItem: any;
         CurrentIndex: number;
     }
+}
+declare module Fayde.Localization {
+    class NumberFormatInfo {
+        public CurrencyDecimalDigits: number;
+        public CurrencyDecimalSeparator: string;
+        public CurrencyGroupSeparator: string;
+        public CurrencyGroupSizes: number[];
+        public CurrencyNegativePattern: number;
+        public CurrencyPositivePattern: number;
+        public CurrencySymbol: string;
+        public NaNSymbol: string;
+        public NegativeInfinitySymbol: string;
+        public PositiveInfinitySymbol: string;
+        public NegativeSign: string;
+        public PositiveSign: string;
+        public NumberDecimalDigits: number;
+        public NumberDecimalSeparator: string;
+        public NumberGroupSeparator: string;
+        public NumberGroupSizes: number[];
+        public NumberNegativePattern: number;
+        public PercentDecimalDigits: number;
+        public PercentDecimalSeparator: string;
+        public PercentGroupSeparator: string;
+        public PercentGroupSizes: number[];
+        public PercentNegativePattern: number;
+        public PercentPositivePattern: number;
+        public PercentSymbol: string;
+        public PerMilleSymbol: string;
+        static Instance: NumberFormatInfo;
+        public FormatCurrency(num: number, precision: number): string;
+        public FormatNumber(num: number, precision: number, ignoreGroupSep?: boolean): string;
+        public FormatPercent(num: number, precision: number): string;
+        public FormatGeneral(num: number, precision: number): string;
+        public FormatDecimal(num: number, precision: number): string;
+        public FormatExponential(num: number, precision: number): string;
+        public FormatHexadecimal(num: number, precision: number): string;
+        public FormatRawNumber(num: number, precision: number, decSep: string, groupSep: string, groupSizes: number[]): string;
+    }
+}
+declare module Fayde.Localization {
+    class Calendar {
+        public ID: number;
+        public Eras: number[];
+        public EraNames: string[];
+        public CurrentEraValue: number;
+        public TwoDigitYearMax: number;
+        public MaxSupportedDateTime: DateTime;
+        public MinSupportedDateTime: DateTime;
+    }
+}
+declare module Fayde.Localization {
+    enum CalendarWeekRule {
+        FirstDay = 0,
+        FirstFullWeek = 1,
+        FirstFourDayWeek = 2,
+    }
+    class DateTimeFormatInfo {
+        public AbbreviatedDayNames: string[];
+        public AbbreviatedMonthGenitiveNames: string[];
+        public AbbreviatedMonthNames: string[];
+        public AMDesignator: string;
+        public Calendar: Calendar;
+        public CalendarWeekRule: CalendarWeekRule;
+        public DateSeparator: string;
+        public DayNames: string[];
+        public FirstDayOfWeek: DayOfWeek;
+        public FullDateTimePattern: string;
+        public LongDatePattern: string;
+        public LongTimePattern: string;
+        public MonthDayPattern: string;
+        public MonthGenitiveNames: string[];
+        public MonthNames: string[];
+        public PMDesignator: string;
+        public RFC1123Pattern: string;
+        public ShortDatePattern: string;
+        public ShortestDayNames: string[];
+        public ShortTimePattern: string;
+        public SortableDateTimePattern: string;
+        public TimeSeparator: string;
+        public UniversalSortableDateTimePattern: string;
+        public YearMonthPattern: string;
+        public HasForceTwoDigitYears: boolean;
+        public GetEraName(era: number): string;
+        static Instance: DateTimeFormatInfo;
+        static ParseRepeatPattern(format: string, pos: number, patternChar: string): number;
+        static ParseNextChar(format: string, pos: number): number;
+        static ParseQuoteString(format: string, pos: number, result: string[]): number;
+        static FormatDigits(sb: string[], value: number, len: number, overrideLenLimit?: boolean): void;
+        static FormatMonth(month: number, repeat: number, info: DateTimeFormatInfo): string;
+        static FormatDayOfWeek(dayOfWeek: DayOfWeek, repeat: number, info: DateTimeFormatInfo): string;
+        static HebrewFormatDigits(sb: string[], digits: number): string;
+        static FormatHebrewMonthName(obj: DateTime, month: number, repeat: number, info: DateTimeFormatInfo): string;
+    }
+}
+declare module Fayde.Localization {
+    function Format(format: string, ...items: any[]): string;
+    function FormatSingle(obj: any, format: string): string;
+    interface IFormattable {
+        (obj: any, format: string, provider?: any): string;
+    }
+    function RegisterFormattable(type: Function, formatter: IFormattable): void;
+}
+declare module Fayde.Localization {
+}
+declare module Fayde.Localization {
+}
+declare module Fayde.Localization {
 }
 declare module Fayde.Xaml {
     interface IMarkupParseContext {
