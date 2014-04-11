@@ -97,6 +97,9 @@
     <Content Include="Tests\Binding\find-ancestor.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\Binding\dt-binding.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Tests\Binding\observablecoll-count.fap" />
     <Content Include="Tests\Binding\TestViewModel.js" />
     <Content Include="Tests\Media\image-stretch.fap">

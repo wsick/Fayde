@@ -310,7 +310,7 @@ module Fayde.Data {
                     if (format) {
                         if (format.indexOf("{0") < 0)
                             format = "{0:" + format + "}";
-                        value = StringEx.Format(format, value);
+                        value = Localization.Format(format, value);
                     }
                 }
             } catch (err) {

@@ -13,6 +13,7 @@ class TestViewModel extends Fayde.MVVM.ViewModelBase {
         { Name: "Item3", Data: 2 }
     ];
     SelectedItem: any;
+    SomeDate: DateTime = DateTime.Now;
     constructor() {
         super();
         this.SelectedItem = this.AllItems[0];
