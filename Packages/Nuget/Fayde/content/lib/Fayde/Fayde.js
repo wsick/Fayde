@@ -230,7 +230,7 @@ var Fayde;
                 var attr = attrs[i];
                 getNodeDependency(attr, list);
                 getNodeValueDependency(attr, list);
-                getNodeValueImplicitDependency(attr, list);
+                getNodeValueImplicitDependency(el, attr, list);
             }
         }
         function getNodeDependency(node, list) {
@@ -263,14 +263,13 @@ var Fayde;
         //DataTemplate.DataType
         //ControlTemplate.TargetType
         //Style.TargetType
-        function getNodeValueImplicitDependency(attr, list) {
+        function getNodeValueImplicitDependency(ownerEl, attr, list) {
             var val = attr.value;
             if (val[0] === "{")
                 return;
-            var parent = attr.ownerElement;
-            if (parent.namespaceURI !== Fayde.XMLNS && parent.namespaceURI !== null)
+            if (ownerEl.namespaceURI !== Fayde.XMLNS && ownerEl.namespaceURI !== null)
                 return;
-            switch (parent.localName) {
+            switch (ownerEl.localName) {
                 case "DataTemplate":
                     if (attr.localName !== "DataType")
                         return;
