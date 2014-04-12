@@ -174,6 +174,11 @@ export function run() {
         d = new DateTime(1397133466779);
         var utc = d.ToUniversalTime();
         strictEqual(utc.Hour, 12, "ToUniversalTime Hour");
+
+        var d1 = DateTime.MinValue;
+        var d2 = d1.Date;
+        strictEqual(d1.Kind, d2.Kind);
+        ok(!isNaN(d2.Ticks));
     });
 
     test("Vector", () => {

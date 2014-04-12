@@ -1,4 +1,5 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
+/// <reference path="TimeSpan.ts" />
 
 enum DayOfWeek {
     Sunday,
@@ -19,6 +20,8 @@ enum DateTimeKind {
 Fayde.RegisterEnum(DateTimeKind, "DateTimeKind", Fayde.XMLNS);
 
 class DateTime {
+    private static _MinDateTicks: number = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
+
     static get MinValue() { return new DateTime(-8640000000000000); }
     static get MaxValue() { return new DateTime(8640000000000000); }
     static get Now(): DateTime { return new DateTime(new Date().getTime()); }
@@ -118,12 +121,15 @@ class DateTime {
     get Ticks(): number { return this._InternalDate.getTime(); }
     get Kind(): DateTimeKind { return this._Kind; }
     get Date(): DateTime {
-        var d = new Date(this._InternalDate.getTime());
+        var t = this._InternalDate.getTime();
+        if (t <= DateTime._MinDateTicks)
+            return new DateTime(DateTime._MinDateTicks, this.Kind);
+        var d = new Date(t);
         d.setHours(0);
         d.setMinutes(0);
         d.setSeconds(0);
         d.setMilliseconds(0);
-        return new DateTime(d.getTime());
+        return new DateTime(d.getTime(), this.Kind);
     }
     get Day(): number { return this._InternalDate.getDate(); }
     get DayOfWeek(): DayOfWeek { return <DayOfWeek>this._InternalDate.getDay(); }

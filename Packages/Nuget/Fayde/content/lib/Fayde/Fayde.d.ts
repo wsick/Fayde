@@ -5311,6 +5311,42 @@ declare class CornerRadius implements ICloneable {
     static Equals(cr1: CornerRadius, cr2: CornerRadius): boolean;
     public Clone(): CornerRadius;
 }
+declare class TimeSpan {
+    static _TicksPerMillisecond: number;
+    static _TicksPerSecond: number;
+    static _TicksPerMinute: number;
+    static _TicksPerHour: number;
+    static _TicksPerDay: number;
+    private _Ticks;
+    static Zero : TimeSpan;
+    static MinValue : TimeSpan;
+    static MaxValue : TimeSpan;
+    constructor();
+    constructor(ticks: number);
+    constructor(hours: number, minutes: number, seconds: number);
+    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
+    public Days : number;
+    public Hours : number;
+    public Minutes : number;
+    public Seconds : number;
+    public Milliseconds : number;
+    public Ticks : number;
+    public TotalDays : number;
+    public TotalHours : number;
+    public TotalMinutes : number;
+    public TotalSeconds : number;
+    public TotalMilliseconds : number;
+    public AddTicks(ticks: number): void;
+    public AddMilliseconds(milliseconds: number): void;
+    public Add(ts2: TimeSpan): TimeSpan;
+    public Subtract(ts2: TimeSpan): TimeSpan;
+    public Multiply(v: number): TimeSpan;
+    public Divide(ts2: TimeSpan): TimeSpan;
+    public CompareTo(ts2: TimeSpan): number;
+    public IsZero(): boolean;
+    public GetJsDelay(): number;
+    public toString(format?: string): string;
+}
 declare enum DayOfWeek {
     Sunday = 0,
     Monday = 1,
@@ -5326,6 +5362,7 @@ declare enum DateTimeKind {
     Utc = 2,
 }
 declare class DateTime {
+    private static _MinDateTicks;
     static MinValue : DateTime;
     static MaxValue : DateTime;
     static Now : DateTime;
@@ -5524,42 +5561,6 @@ declare class Thickness implements ICloneable {
     public toString(): string;
     public Clone(): Thickness;
     static Equals(thickness1: Thickness, thickness2: Thickness): boolean;
-}
-declare class TimeSpan {
-    static _TicksPerMillisecond: number;
-    static _TicksPerSecond: number;
-    static _TicksPerMinute: number;
-    static _TicksPerHour: number;
-    static _TicksPerDay: number;
-    private _Ticks;
-    static Zero : TimeSpan;
-    static MinValue : TimeSpan;
-    static MaxValue : TimeSpan;
-    constructor();
-    constructor(ticks: number);
-    constructor(hours: number, minutes: number, seconds: number);
-    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
-    public Days : number;
-    public Hours : number;
-    public Minutes : number;
-    public Seconds : number;
-    public Milliseconds : number;
-    public Ticks : number;
-    public TotalDays : number;
-    public TotalHours : number;
-    public TotalMinutes : number;
-    public TotalSeconds : number;
-    public TotalMilliseconds : number;
-    public AddTicks(ticks: number): void;
-    public AddMilliseconds(milliseconds: number): void;
-    public Add(ts2: TimeSpan): TimeSpan;
-    public Subtract(ts2: TimeSpan): TimeSpan;
-    public Multiply(v: number): TimeSpan;
-    public Divide(ts2: TimeSpan): TimeSpan;
-    public CompareTo(ts2: TimeSpan): number;
-    public IsZero(): boolean;
-    public GetJsDelay(): number;
-    public toString(format?: string): string;
 }
 declare class BError {
     static Argument: number;

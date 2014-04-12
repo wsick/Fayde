@@ -29471,6 +29471,249 @@ Fayde.RegisterTypeConverter(CornerRadius, function (val) {
     }
     return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
 });
+var TimeSpan = (function () {
+    function TimeSpan() {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            args[_i] = arguments[_i + 0];
+        }
+        this._Ticks = 0;
+        if (args.length === 0)
+            return;
+        if (args.length === 1) {
+            this._Ticks = args[0] || 0;
+            return;
+        }
+        var days = 0;
+        var hours = 0;
+        var minutes = 0;
+        var seconds = 0;
+        var milliseconds = 0;
+
+        if (args.length === 3) {
+            hours = args[0] || 0;
+            minutes = args[1] || 0;
+            seconds = args[2] || 0;
+        } else {
+            days = args[0] || 0;
+            hours = args[1] || 0;
+            minutes = args[2] || 0;
+            seconds = args[3] || 0;
+            milliseconds = args[4] || 0;
+        }
+
+        this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute) + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
+    }
+    Object.defineProperty(TimeSpan, "Zero", {
+        get: function () {
+            return new TimeSpan();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan, "MinValue", {
+        get: function () {
+            return new TimeSpan(Number.MIN_VALUE);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan, "MaxValue", {
+        get: function () {
+            return new TimeSpan(Number.MAX_VALUE);
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    Object.defineProperty(TimeSpan.prototype, "Days", {
+        get: function () {
+            return this._Ticks > 0 ? Math.floor(this._Ticks / TimeSpan._TicksPerDay) : Math.ceil(this._Ticks / TimeSpan._TicksPerDay);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Hours", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerHour) : Math.ceil(remTicks / TimeSpan._TicksPerHour);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Minutes", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            remTicks = remTicks % TimeSpan._TicksPerHour;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMinute) : Math.ceil(remTicks / TimeSpan._TicksPerMinute);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Seconds", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            remTicks = remTicks % TimeSpan._TicksPerHour;
+            remTicks = remTicks % TimeSpan._TicksPerMinute;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerSecond) : Math.ceil(remTicks / TimeSpan._TicksPerSecond);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Milliseconds", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            remTicks = remTicks % TimeSpan._TicksPerHour;
+            remTicks = remTicks % TimeSpan._TicksPerMinute;
+            remTicks = remTicks % TimeSpan._TicksPerSecond;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMillisecond) : Math.ceil(remTicks / TimeSpan._TicksPerMillisecond);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Ticks", {
+        get: function () {
+            return this._Ticks;
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    Object.defineProperty(TimeSpan.prototype, "TotalDays", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerDay;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalHours", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerHour;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalMinutes", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerMinute;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalSeconds", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerSecond;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalMilliseconds", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerMillisecond;
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    TimeSpan.prototype.AddTicks = function (ticks) {
+        if (ticks == null)
+            return;
+        if (isNaN(ticks))
+            return;
+        this._Ticks += ticks;
+    };
+    TimeSpan.prototype.AddMilliseconds = function (milliseconds) {
+        this.AddTicks(milliseconds * TimeSpan._TicksPerMillisecond);
+    };
+
+    TimeSpan.prototype.Add = function (ts2) {
+        var ts = new TimeSpan();
+        ts._Ticks = this._Ticks + ts2._Ticks;
+        return ts;
+    };
+    TimeSpan.prototype.Subtract = function (ts2) {
+        var ts = new TimeSpan();
+        ts._Ticks = this._Ticks - ts2._Ticks;
+        return ts;
+    };
+    TimeSpan.prototype.Multiply = function (v) {
+        var ts = new TimeSpan();
+        ts._Ticks = Math.round(this._Ticks * v);
+        return ts;
+    };
+    TimeSpan.prototype.Divide = function (ts2) {
+        var ts = new TimeSpan();
+        ts._Ticks = this._Ticks / ts2._Ticks;
+        return ts;
+    };
+    TimeSpan.prototype.CompareTo = function (ts2) {
+        if (this._Ticks === ts2._Ticks)
+            return 0;
+        return (this._Ticks > ts2._Ticks) ? 1 : -1;
+    };
+    TimeSpan.prototype.IsZero = function () {
+        return this._Ticks === 0;
+    };
+
+    TimeSpan.prototype.GetJsDelay = function () {
+        return this._Ticks * TimeSpan._TicksPerMillisecond;
+    };
+
+    TimeSpan.prototype.toString = function (format) {
+        if (!format)
+            return Fayde.Localization.FormatSingle(this, "c");
+        return Fayde.Localization.FormatSingle(this, format);
+    };
+    TimeSpan._TicksPerMillisecond = 1;
+    TimeSpan._TicksPerSecond = 1000;
+    TimeSpan._TicksPerMinute = TimeSpan._TicksPerSecond * 60;
+    TimeSpan._TicksPerHour = TimeSpan._TicksPerMinute * 60;
+    TimeSpan._TicksPerDay = TimeSpan._TicksPerHour * 24;
+    return TimeSpan;
+})();
+Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
+
+Fayde.RegisterTypeConverter(TimeSpan, function (val) {
+    if (val instanceof TimeSpan)
+        return val;
+    if (typeof val === "number")
+        return new TimeSpan(val);
+    val = val.toString();
+
+    var tokens = val.split(":");
+    if (tokens.length === 1) {
+        var ticks = parseFloat(val);
+        if (!isNaN(ticks))
+            return new TimeSpan(ticks);
+        throw new Exception("Invalid TimeSpan format '" + val + "'.");
+    }
+
+    if (tokens.length !== 3)
+        throw new Exception("Invalid TimeSpan format '" + val + "'.");
+
+    var days = 0;
+    var hours;
+    var minutes;
+    var seconds;
+    var milliseconds = 0;
+
+    var daysplit = tokens[0].split(".");
+    if (daysplit.length === 2) {
+        days = parseInt(daysplit[0]);
+        hours = parseInt(daysplit[1]);
+    } else if (daysplit.length === 1) {
+        hours = parseInt(daysplit[0]);
+    }
+
+    minutes = parseInt(tokens[1]);
+
+    seconds = parseFloat(tokens[2]);
+    milliseconds = seconds % 1;
+    seconds = seconds - milliseconds;
+    milliseconds *= 1000.0;
+
+    return new TimeSpan(days, hours, minutes, seconds, milliseconds);
+});
 var DayOfWeek;
 (function (DayOfWeek) {
     DayOfWeek[DayOfWeek["Sunday"] = 0] = "Sunday";
@@ -29622,12 +29865,15 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Date", {
         get: function () {
-            var d = new Date(this._InternalDate.getTime());
+            var t = this._InternalDate.getTime();
+            if (t <= DateTime._MinDateTicks)
+                return new DateTime(DateTime._MinDateTicks, this.Kind);
+            var d = new Date(t);
             d.setHours(0);
             d.setMinutes(0);
             d.setSeconds(0);
             d.setMilliseconds(0);
-            return new DateTime(d.getTime());
+            return new DateTime(d.getTime(), this.Kind);
         },
         enumerable: true,
         configurable: true
@@ -29732,6 +29978,7 @@ var DateTime = (function () {
             return Fayde.Localization.FormatSingle(this, "s");
         return Fayde.Localization.FormatSingle(this, format);
     };
+    DateTime._MinDateTicks = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
     return DateTime;
 })();
 Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
@@ -31149,249 +31396,6 @@ Fayde.RegisterTypeConverter(Thickness, function (val) {
         throw new Exception("Cannot parse Thickness value '" + val + "'");
     }
     return new Thickness(left, top, right, bottom);
-});
-var TimeSpan = (function () {
-    function TimeSpan() {
-        var args = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            args[_i] = arguments[_i + 0];
-        }
-        this._Ticks = 0;
-        if (args.length === 0)
-            return;
-        if (args.length === 1) {
-            this._Ticks = args[0] || 0;
-            return;
-        }
-        var days = 0;
-        var hours = 0;
-        var minutes = 0;
-        var seconds = 0;
-        var milliseconds = 0;
-
-        if (args.length === 3) {
-            hours = args[0] || 0;
-            minutes = args[1] || 0;
-            seconds = args[2] || 0;
-        } else {
-            days = args[0] || 0;
-            hours = args[1] || 0;
-            minutes = args[2] || 0;
-            seconds = args[3] || 0;
-            milliseconds = args[4] || 0;
-        }
-
-        this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute) + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
-    }
-    Object.defineProperty(TimeSpan, "Zero", {
-        get: function () {
-            return new TimeSpan();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan, "MinValue", {
-        get: function () {
-            return new TimeSpan(Number.MIN_VALUE);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan, "MaxValue", {
-        get: function () {
-            return new TimeSpan(Number.MAX_VALUE);
-        },
-        enumerable: true,
-        configurable: true
-    });
-
-    Object.defineProperty(TimeSpan.prototype, "Days", {
-        get: function () {
-            return this._Ticks > 0 ? Math.floor(this._Ticks / TimeSpan._TicksPerDay) : Math.ceil(this._Ticks / TimeSpan._TicksPerDay);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Hours", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerHour) : Math.ceil(remTicks / TimeSpan._TicksPerHour);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Minutes", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            remTicks = remTicks % TimeSpan._TicksPerHour;
-            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMinute) : Math.ceil(remTicks / TimeSpan._TicksPerMinute);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Seconds", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            remTicks = remTicks % TimeSpan._TicksPerHour;
-            remTicks = remTicks % TimeSpan._TicksPerMinute;
-            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerSecond) : Math.ceil(remTicks / TimeSpan._TicksPerSecond);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Milliseconds", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            remTicks = remTicks % TimeSpan._TicksPerHour;
-            remTicks = remTicks % TimeSpan._TicksPerMinute;
-            remTicks = remTicks % TimeSpan._TicksPerSecond;
-            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMillisecond) : Math.ceil(remTicks / TimeSpan._TicksPerMillisecond);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Ticks", {
-        get: function () {
-            return this._Ticks;
-        },
-        enumerable: true,
-        configurable: true
-    });
-
-    Object.defineProperty(TimeSpan.prototype, "TotalDays", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerDay;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalHours", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerHour;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalMinutes", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerMinute;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalSeconds", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerSecond;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalMilliseconds", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerMillisecond;
-        },
-        enumerable: true,
-        configurable: true
-    });
-
-    TimeSpan.prototype.AddTicks = function (ticks) {
-        if (ticks == null)
-            return;
-        if (isNaN(ticks))
-            return;
-        this._Ticks += ticks;
-    };
-    TimeSpan.prototype.AddMilliseconds = function (milliseconds) {
-        this.AddTicks(milliseconds * TimeSpan._TicksPerMillisecond);
-    };
-
-    TimeSpan.prototype.Add = function (ts2) {
-        var ts = new TimeSpan();
-        ts._Ticks = this._Ticks + ts2._Ticks;
-        return ts;
-    };
-    TimeSpan.prototype.Subtract = function (ts2) {
-        var ts = new TimeSpan();
-        ts._Ticks = this._Ticks - ts2._Ticks;
-        return ts;
-    };
-    TimeSpan.prototype.Multiply = function (v) {
-        var ts = new TimeSpan();
-        ts._Ticks = Math.round(this._Ticks * v);
-        return ts;
-    };
-    TimeSpan.prototype.Divide = function (ts2) {
-        var ts = new TimeSpan();
-        ts._Ticks = this._Ticks / ts2._Ticks;
-        return ts;
-    };
-    TimeSpan.prototype.CompareTo = function (ts2) {
-        if (this._Ticks === ts2._Ticks)
-            return 0;
-        return (this._Ticks > ts2._Ticks) ? 1 : -1;
-    };
-    TimeSpan.prototype.IsZero = function () {
-        return this._Ticks === 0;
-    };
-
-    TimeSpan.prototype.GetJsDelay = function () {
-        return this._Ticks * TimeSpan._TicksPerMillisecond;
-    };
-
-    TimeSpan.prototype.toString = function (format) {
-        if (!format)
-            return Fayde.Localization.FormatSingle(this, "c");
-        return Fayde.Localization.FormatSingle(this, format);
-    };
-    TimeSpan._TicksPerMillisecond = 1;
-    TimeSpan._TicksPerSecond = 1000;
-    TimeSpan._TicksPerMinute = TimeSpan._TicksPerSecond * 60;
-    TimeSpan._TicksPerHour = TimeSpan._TicksPerMinute * 60;
-    TimeSpan._TicksPerDay = TimeSpan._TicksPerHour * 24;
-    return TimeSpan;
-})();
-Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
-
-Fayde.RegisterTypeConverter(TimeSpan, function (val) {
-    if (val instanceof TimeSpan)
-        return val;
-    if (typeof val === "number")
-        return new TimeSpan(val);
-    val = val.toString();
-
-    var tokens = val.split(":");
-    if (tokens.length === 1) {
-        var ticks = parseFloat(val);
-        if (!isNaN(ticks))
-            return new TimeSpan(ticks);
-        throw new Exception("Invalid TimeSpan format '" + val + "'.");
-    }
-
-    if (tokens.length !== 3)
-        throw new Exception("Invalid TimeSpan format '" + val + "'.");
-
-    var days = 0;
-    var hours;
-    var minutes;
-    var seconds;
-    var milliseconds = 0;
-
-    var daysplit = tokens[0].split(".");
-    if (daysplit.length === 2) {
-        days = parseInt(daysplit[0]);
-        hours = parseInt(daysplit[1]);
-    } else if (daysplit.length === 1) {
-        hours = parseInt(daysplit[0]);
-    }
-
-    minutes = parseInt(tokens[1]);
-
-    seconds = parseFloat(tokens[2]);
-    milliseconds = seconds % 1;
-    seconds = seconds - milliseconds;
-    milliseconds *= 1000.0;
-
-    return new TimeSpan(days, hours, minutes, seconds, milliseconds);
 });
 var BError = (function () {
     function BError() {
