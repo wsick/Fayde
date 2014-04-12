@@ -37,6 +37,7 @@ module Fayde.Controls {
             var content = xobj.Content;
             if (content instanceof UIElement) {
                 this._ContentRoot = content;
+                xobj.DataContext = undefined;
             } else {
                 xobj.DataContext = content == null ? null : content;
                 this._ContentRoot = this._GetContentTemplate(content ? content.constructor : null).GetVisualTree(xobj);
