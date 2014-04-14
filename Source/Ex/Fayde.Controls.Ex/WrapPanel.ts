@@ -1,31 +1,17 @@
 ﻿module Fayde.Controls {
     export class WrapPanel extends Fayde.Controls.Panel {
         static OrientationProperty = DependencyProperty.
-            Register("Orientation", () => new Enum(Fayde.Orientation), WrapPanel, Fayde.Orientation.Horizontal, (d, args) => (<WrapPanel>d).OnOrientationChanged(args.OldValue, args.NewValue));
+            Register("Orientation", () => new Enum(Fayde.Orientation), WrapPanel, Fayde.Orientation.Horizontal, (d, args) => (<WrapPanel>d).OnPropertyChange());
         Orientation: Fayde.Orientation;
-        private OnOrientationChanged(oldVal: Fayde.Orientation, newVal: Fayde.Orientation) {
-            if (oldVal !== newVal) {
-                this.OnPropertyChange();
-            }
-        }
-
+       
         static ItemWidthProperty = DependencyProperty.
-            Register("ItemWidth", () => Number, WrapPanel, Number.NaN, (d, args) => (<WrapPanel>d).OnItemWidthChanged(args.OldValue, args.NewValue));
+            Register("ItemWidth", () => Number, WrapPanel, Number.NaN, (d, args) => (<WrapPanel>d).OnPropertyChange());
         ItemWidth: number;
-        private OnItemWidthChanged(oldVal: number, newVal: number) {
-            if (oldVal !== newVal) {
-                this.OnPropertyChange();
-            }
-        }
-
+       
         static ItemHeightProperty = DependencyProperty.
-            Register("ItemHeight", () => Number, WrapPanel, Number.NaN, (d, args) => (<WrapPanel>d).OnItemHeightChanged(args.OldValue, args.NewValue));
+            Register("ItemHeight", () => Number, WrapPanel, Number.NaN, (d, args) => (<WrapPanel>d).OnPropertyChange());
         ItemHeight: number;
-        private OnItemHeightChanged(oldVal: number, newVal: number) {
-            if (oldVal !== newVal) {
-                this.OnPropertyChange();
-            }
-        }
+
         private OnPropertyChange() {
             this.InvalidateMeasure();
         }
