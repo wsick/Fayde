@@ -808,3 +808,19 @@ declare module Fayde.Controls {
         private _FindNextTabItem(startIndex);
     }
 }
+declare module Fayde.Controls {
+    class WrapPanel extends Panel {
+        static OrientationProperty: DependencyProperty;
+        public Orientation: Orientation;
+        private OnOrientationChanged(oldVal, newVal);
+        static ItemWidthProperty: DependencyProperty;
+        public ItemWidth: number;
+        private OnItemWidthChanged(oldVal, newVal);
+        static ItemHeightProperty: DependencyProperty;
+        public ItemHeight: number;
+        private OnItemHeightChanged(oldVal, newVal);
+        private OnPropertyChange();
+        public MeasureOverride(availableSize: size): size;
+        public ArrangeOverride(finalSize: size): size;
+    }
+}

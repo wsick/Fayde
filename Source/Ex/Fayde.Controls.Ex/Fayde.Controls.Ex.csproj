@@ -96,7 +96,13 @@
     <TypeScriptCompile Include="TabPanel.ts" />
     <TypeScriptCompile Include="TabControl.ts" />
     <TypeScriptCompile Include="TabItem.ts" />
+    <TypeScriptCompile Include="WrapPanel.ts" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>cd "$(ProjectDir)"
+xcopy /s /y Fayde.Controls.js ..\Fayde.Controls.Test\lib\Fayde.Controls\
+xcopy /s /y Fayde.Controls.d.ts ..\Fayde.Controls.Test\lib\Fayde.Controls\
+xcopy /s /y Themes\* ..\Fayde.Controls.Test\lib\Fayde.Controls\Themes\</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -1,0 +1,68 @@
+﻿<Page xmlns="http://schemas.wsick.com/fayde"
+      xmlns:x="http://schemas.wsick.com/fayde/x"
+      xmlns:controls="lib:Fayde.Controls"
+      xmlns:viewmodels="ViewModels"
+      Title="TreeView Demo">
+  <Page.Resources>
+    <ItemsPanelTemplate x:Key="VerticalWrapPanel">
+      <controls:WrapPanel Orientation="Vertical" ItemWidth="100" ItemHeight="100"/>
+    </ItemsPanelTemplate>
+    
+    <ItemsPanelTemplate x:Key="HorizontalWrapPanel">
+      <controls:WrapPanel Orientation="Horizontal" />
+    </ItemsPanelTemplate>
+  </Page.Resources>
+  
+  <Page.DataContext>
+    <viewmodels:MainViewModel/>
+  </Page.DataContext>
+  
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition/>
+      <RowDefinition/>
+    </Grid.RowDefinitions>
+
+    <controls:WrapPanel Orientation="Vertical" Grid.Row="0" ItemWidth="100" ItemHeight="100" >
+      <Rectangle Fill="Red" Margin="5"/>
+      <Rectangle Fill="Green" Margin="5" />
+      <Rectangle Fill="Blue"  Margin="5" />
+      <Rectangle Fill="Yellow" Margin="5"/>
+      <Rectangle Fill="Red"  Margin="5"/>
+      <Rectangle Fill="Green"  Margin="5"/>
+      <Rectangle Fill="Blue" Margin="5"/>
+      <Rectangle Fill="Yellow" Margin="5"/>
+      <Rectangle Fill="Red"  Margin="5"/>
+      <Rectangle Fill="Green"  Margin="5" />
+      <Rectangle Fill="Blue"  Margin="5" />
+      <Rectangle Fill="Yellow" Margin="5"/>
+      <Rectangle Fill="Red"  Margin="5"/>
+      <Rectangle Fill="Green" Margin="5"/>
+      <Rectangle Fill="Blue" Margin="5"/>
+      <Rectangle Fill="Yellow"  Margin="5"/>
+      <Rectangle Fill="Red"  Margin="5"/>
+      <Rectangle Fill="Green"  Margin="5"/>
+      <Rectangle Fill="Blue" Margin="5"/>
+      <Rectangle Fill="Yellow" Margin="5"/>
+      <Rectangle Fill="Red"  Margin="5"/>
+      <Rectangle Fill="Green"  Margin="5" />
+    </controls:WrapPanel>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1" >
+      <ItemsControl ItemsSource="{Binding List}" ItemsPanel="{StaticResource HorizontalWrapPanel}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Grid Margin="5">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+              </Grid.RowDefinitions>
+              <Rectangle Fill="Blue" Height="100" Width="100" Grid.Row="0"/>
+              <TextBlock Text="{Binding}" HorizontalAlignment="Center" Grid.Row="1"/>
+            </Grid>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl >
+    </ScrollViewer>
+</Grid>
+</Page>
