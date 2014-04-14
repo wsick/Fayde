@@ -202,10 +202,60 @@ class DemoNflDataProvider {
                     [2013, this.Teams[0], 16, 35, 52, 3, 0, 0, 0, 0, 0, 400, 602, 4870, 38, 13]
                 ]
             },
-            { "Name": "Brandon Marshall", "Team": this.Teams[7], "Headshot": "Images/Player Headshots/brandon_marshall.png", "Positions": "WR", "ADP": 6.21 },
-            { "Name": "Stephen Jackson", "Team": this.Teams[6], "Headshot": "Images/Player Headshots/stephen_jackson.png", "Positions": "RB", "ADP": 6.21 },
-            { "Name": "Dez Bryant", "Team": this.Teams[11], "Headshot": "Images/Player Headshots/dez_bryant.png", "Positions": "WR", "ADP": 6.21 },
-            { "Name": "Darren Sproles", "Team": this.Teams[0], "Headshot": "Images/Player Headshots/darren_sproles.png", "Positions": "RB", "ADP": 6.21 },
+            {
+                "Name": "Brandon Marshall", "Team": this.Teams[7], "Headshot": "Images/Player Headshots/brandon_marshall.png", "Positions": "WR", "Birthdate": new Date("1984-03-23"), "Height": "6'4\"", "Weight": "230", "ADP": 6.21,
+                "Stats":
+                [
+                    [2006, this.Teams[29], 15, 2, 12, 0, 0, 37, 20, 309, 2, 0, 0, 0, 0, 0],
+                    [2007, this.Teams[29], 16, 5, 57, 0, 0, 170, 102, 1325, 7, 0, 0, 0, 0, 0],
+                    [2008, this.Teams[29], 15, 2, -4, 0, 1, 183, 104, 1265, 6, 0, 0, 0, 0, 0],
+                    [2009, this.Teams[29], 15, 7, 39, 0, 0, 154, 101, 1120, 10, 0, 0, 0, 0, 0],
+                    [2010, this.Teams[20], 14, 2, 3, 0, 0, 147, 86, 1014, 3, 0, 1, 0, 0, 0],
+                    [2011, this.Teams[20], 16, 1, 13, 0, 0, 145, 81, 1214, 6, 0, 0, 0, 0, 0],
+                    [2012, this.Teams[7], 16, 1, -2, 0, 0, 194, 118, 1508, 11, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[7], 16, 0, 0, 0, 0, 163, 100, 1295, 12, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Stephen Jackson", "Team": this.Teams[6], "Headshot": "Images/Player Headshots/stephen_jackson.png", "Positions": "RB", "Birthdate": new Date("1983-07-22"), "Height": "6'2\"", "Weight": "240", "ADP": 6.21,
+                "Stats":
+                [
+                    [2004, this.Teams[23], 14, 134, 673, 4, 1, 0, 19, 189, 0, 0, 0, 0, 0, 0],
+                    [2005, this.Teams[23], 15, 254, 1046, 8, 3, 0, 43, 320, 2, 0, 0, 0, 0, 0],
+                    [2006, this.Teams[23], 16, 346, 1528, 13, 2, 110, 90, 806, 3, 0, 0, 0, 0, 0],
+                    [2007, this.Teams[23], 12, 237, 1002, 5, 3, 52, 38, 271, 1, 1, 1, 2, 1, 0],
+                    [2008, this.Teams[23], 12, 253, 1042, 7, 5, 62, 40, 379, 1, 0, 0, 0, 0, 0],
+                    [2009, this.Teams[23], 15, 324, 1416, 4, 2, 75, 51, 322, 0, 0, 0, 0, 0, 0],
+                    [2010, this.Teams[23], 16, 330, 1241, 6, 1, 62, 46, 383, 0, 0, 0, 0, 0, 0],
+                    [2011, this.Teams[23], 15, 260, 1145, 5, 1, 58, 42, 333, 1, 0, 0, 0, 0, 0],
+                    [2012, this.Teams[23], 16, 258, 1045, 4, 0, 54, 38, 321, 0, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[6], 12, 157, 543, 6, 0, 49, 33, 191, 1, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Dez Bryant", "Team": this.Teams[11], "Headshot": "Images/Player Headshots/dez_bryant.png", "Positions": "WR", "Birthdate": new Date("1988-11-04"), "Height": "6'2\"", "Weight": "222", "ADP": 6.21,
+                "Stats":
+                [
+                    [2010, this.Teams[11], 12, 1, 0, 0, 0, 72, 45, 561, 6, 0, 0, 0, 0, 0],
+                    [2011, this.Teams[11], 15, 1, 5, 0, 0, 103, 63, 928, 9, 0, 0, 0, 0, 0],
+                    [2012, this.Teams[11], 16, 2, 5, 0, 0, 138, 92, 1382, 12, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[11], 16, 1, 1, 0, 0, 160, 93, 1233, 13, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Darren Sproles", "Team": this.Teams[0], "Headshot": "Images/Player Headshots/darren_sproles.png", "Positions": "RB", "Birthdate": new Date("1983-06-20"), "Height": "5'6\"", "Weight": "190", "ADP": 6.21,
+                "Stats":
+                [
+                    [2005, this.Teams[14], 15, 8, 50, 0, 0, 0, 3, 10, 0, 0, 0, 0, 0, 0],
+                    [2007, this.Teams[14], 15, 37, 164, 2, 0, 12, 10, 31, 0, 0, 0, 0, 0, 0],
+                    [2008, this.Teams[14], 16, 61, 330, 1, 0, 34, 29, 342, 5, 0, 0, 0, 0, 0],
+                    [2009, this.Teams[14], 16, 93, 343, 3, 0, 57, 45, 497, 4, 0, 0, 0, 0, 0],
+                    [2010, this.Teams[14], 16, 50, 267, 0, 1, 75, 59, 520, 2, 0, 0, 0, 0, 0],
+                    [2011, this.Teams[0], 16, 87, 603, 2, 0, 111, 86, 710, 7, 0, 0, 0, 0, 0],
+                    [2012, this.Teams[0], 13, 48, 244, 1, 0, 104, 75, 667, 7, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[0], 15, 53, 220, 2, 1, 89, 71, 604, 2, 0, 0, 0, 0, 0]
+                ]
+            },
             {
                 "Name": "Peyton Manning", "Team": this.Teams[29], "Headshot": "Images/Player Headshots/peyton_manning.png", "Positions": "QB", "Birthdate": new Date("1976-03-24"), "Height": "6'5\"", "Weight": "230", "ADP": 6.21,
                 "Stats":
@@ -227,9 +277,41 @@ class DemoNflDataProvider {
                     [2013, this.Teams[25], 16, 20, 4, 1, 3, 0, 0, 0, 0, 400, 602, 4870, 38, 13]
                 ]
             },
-            { "Name": "A.J. Green", "Team": this.Teams[9], "Headshot": "Images/Player Headshots/aj_green.png", "Positions": "WR", "ADP": 26.17 },
-            { "Name": "Reggie Bush", "Team": this.Teams[1], "Headshot": "Images/Player Headshots/reggie_bush.png", "Positions": "RB", "ADP": 26.17 },
-            { "Name": "Matt Forte", "Team": this.Teams[7], "Headshot": "Images/Player Headshots/matt_forte.png", "Positions": "RB", "ADP": 16.71 },
+            {
+                "Name": "A.J. Green", "Team": this.Teams[9], "Headshot": "Images/Player Headshots/aj_green.png", "Positions": "WR", "Birthdate": new Date("1988-07-31"), "Height": "6'4\"", "Weight": "207", "ADP": 26.17,
+                "Stats":
+                [
+                    [2011, this.Teams[9], 15, 5, 53, 0, 1, 116, 65, 1057, 7, 0, 0, 0, 0, 0],
+                    [2012, this.Teams[9], 16, 4, 38, 0, 0, 164, 97, 1350, 11, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[9], 16, 0, 0, 0, 0, 180, 98, 1426, 11, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Reggie Bush", "Team": this.Teams[1], "Headshot": "Images/Player Headshots/reggie_bush.png", "Positions": "RB", "Birthdate": new Date("1985-03-02"), "Height": "6'0\"", "Weight": "203", "ADP": 26.17,
+                "Stats":
+                [
+                    [2006, this.Teams[0], 16, 155, 565, 6, 2, 119, 88, 742, 2, 0, 1, 0, 0, 1],
+                    [2007, this.Teams[0], 12, 157, 581, 4, 7, 99, 73, 417, 2, 0, 0, 0, 0, 0],
+                    [2008, this.Teams[0], 10, 106, 404, 2, 2, 72, 52, 440, 4, 0, 0, 0, 0, 0],
+                    [2009, this.Teams[0], 14, 70, 390, 5, 2, 68, 47, 335, 3, 0, 0, 0, 0, 0],
+                    [2010, this.Teams[0], 8, 36, 150, 0, 0, 43, 34, 208, 1, 0, 0, 0, 0, 0],
+                    [2011, this.Teams[20], 15, 216, 1086, 6, 4, 52, 43, 296, 1, 0, 0, 0, 0, 0],
+                    [2012, this.Teams[20], 16, 227, 986, 6, 4, 52, 35, 292, 2, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[1], 14, 223, 1006, 4, 5, 80, 54, 506, 3, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Matt Forte", "Team": this.Teams[7], "Headshot": "Images/Player Headshots/matt_forte.png", "Positions": "RB", "Birthdate": new Date("1985-12-10"), "Height": "6'2\"", "Weight": "218", "ADP": 16.71,
+                "Stats":
+                [
+                    [2008, this.Teams[7], 16, 316, 1238, 8, 1, 77, 63, 477, 4, 0, 0, 0, 0, 0],
+                    [2009, this.Teams[7], 16, 258, 929, 4, 5, 71, 57, 471, 0, 0, 0, 0, 0, 0],
+                    [2010, this.Teams[7], 16, 237, 1069, 6, 0, 70, 51, 547, 3, 0, 0, 0, 0, 0],
+                    [2011, this.Teams[7], 12, 203, 997, 3, 1, 76, 52, 490, 1, 0, 1, 0, 0, 0],
+                    [2012, this.Teams[7], 15, 248, 1094, 5, 2, 60, 44, 340, 1, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[7], 16, 289, 1339, 9, 2, 94, 74, 594, 3, 0, 0, 0, 0, 0]
+                ]
+            },
             {
                 "Name": "Tom Brady", "Team": this.Teams[5], "Headshot": "Images/Player Headshots/tom_brady.png", "Positions": "QB", "Birthdate": new Date("1977-08-03"), "Height": "6'4\"", "Weight": "225", "ADP": 5.97,
                 "Stats":
@@ -250,15 +332,107 @@ class DemoNflDataProvider {
                     [2013, this.Teams[5], 16, 23, 57, 2, 2, 0, 0, 0, 0, 393, 605, 4765, 34, 8]
                 ]
             },
-            { "Name": "Alfred Morris", "Team": this.Teams[26], "Headshot": "Images/Player Headshots/alfred_morris.png", "Positions": "RB", "ADP": 5.97 },
-            { "Name": "Andre Johnson", "Team": this.Teams[8], "Headshot": "Images/Player Headshots/andre_johnson.png", "Positions": "WR", "ADP": 18.43 },
-            { "Name": "Cam Newton", "Team": this.Teams[20], "Headshot": "Images/Player Headshots/cam_newton.png", "Positions": "QB", "ADP": 9.2 },
-            { "Name": "Roddy White", "Team": this.Teams[6], "Headshot": "Images/Player Headshots/roddy_white.png", "Positions": "WR", "ADP": 22.64 },
-            { "Name": "Randall Cobb", "Team": this.Teams[10], "Headshot": "Images/Player Headshots/randall_cobb.png", "Positions": "WR", "ADP": 22.64 },
-            { "Name": "Jimmy Graham", "Team": this.Teams[0], "Headshot": "Images/Player Headshots/jimmy_graham.png", "Positions": "TE", "ADP": 19.76 },
-            { "Name": "Julio Jones", "Team": this.Teams[6], "Headshot": "Images/Player Headshots/julio_jones.png", "Positions": "WR", "ADP": 19.79 },
-            { "Name": "Demaryius Thomas", "Team": this.Teams[29], "Headshot": "Images/Player Headshots/demaryius_thomas.png", "Positions": "WR", "ADP": 19.79 },
-            { "Name": "Darren McFadden", "Team": this.Teams[3], "Headshot": "Images/Player Headshots/darren_mcfadden.png", "Positions": "RB", "ADP": 13.79 }];
+            {
+                "Name": "Alfred Morris", "Team": this.Teams[26], "Headshot": "Images/Player Headshots/alfred_morris.png", "Positions": "RB", "Birthdate": new Date("1988-12-12"), "Height": "5'10\"", "Weight": "218", "ADP": 5.97,
+                "Stats":
+                [
+                    [2012, this.Teams[26], 16, 335, 1613, 13, 4, 16, 11, 77, 0, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[26], 16, 276, 1275, 7, 5, 12, 9, 78, 0, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Andre Johnson", "Team": this.Teams[8], "Headshot": "Images/Player Headshots/andre_johnson.png", "Positions": "WR", "Birthdate": new Date("1981-07-11"), "Height": "6'3\"", "Weight": "230", "ADP": 18.43,
+                "Stats":
+                [
+                    [2003, this.Teams[8], 16, 5, 10, 0, 0, 0, 66, 976, 4, 0, 0, 0, 0, 0],
+                    [2004, this.Teams[8], 16, 4, 12, 0, 0, 0, 79, 1142, 6, 0, 0, 0, 0, 0],
+                    [2005, this.Teams[8], 13, 6, 10, 0, 1, 0, 63, 688, 2, 0, 0, 0, 0, 0],
+                    [2006, this.Teams[8], 16, 3, 14, 0, 0, 166, 103, 1147, 5, 0, 0, 0, 0, 0],
+                    [2007, this.Teams[8], 9, 0, 0, 0, 0, 86, 60, 851, 8, 0, 0, 0, 0, 0],
+                    [2008, this.Teams[8], 16, 0, 0, 0, 0, 170, 115, 1575, 8, 0, 0, 0, 0, 0],
+                    [2009, this.Teams[8], 16, 2, 10, 0, 0, 170, 101, 1569, 9, 0, 0, 0, 0, 0],
+                    [2010, this.Teams[8], 13, 2, 10, 0, 0, 138, 86, 1216, 8, 0, 0, 0, 0, 0],
+                    [2011, this.Teams[8], 7, 1, 8, 0, 0, 51, 33, 492, 2, 0, 0, 0, 0, 0],
+                    [2012, this.Teams[8], 16, 0, 0, 0, 0, 164, 112, 1598, 4, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[8], 16, 0, 0, 0, 0, 181, 109, 1407, 5, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Cam Newton", "Team": this.Teams[20], "Headshot": "Images/Player Headshots/cam_newton.png", "Positions": "QB", "Birthdate": new Date("1989-05-11"), "Height": "6'5\"", "Weight": "245", "ADP": 9.2,
+                "Stats":
+                [
+                    [2011, this.Teams[16], 16, 126, 706, 14, 2, 1, 1, 27, 0, 310, 517, 4051, 21, 17],
+                    [2012, this.Teams[16], 16, 127, 741, 8, 4, 0, 0, 0, 0, 280, 485, 3869, 19, 12],
+                    [2013, this.Teams[16], 16, 111, 585, 6, 1, 0, 0, 0, 0, 292, 473, 3379, 24, 13]
+                ]
+            },
+            {
+                "Name": "Roddy White", "Team": this.Teams[6], "Headshot": "Images/Player Headshots/roddy_white.png", "Positions": "WR", "Birthdate": new Date("1981-11-02"), "Height": "6'0\"", "Weight": "211", "ADP": 22.64,
+                "Stats":
+                [
+                    [2005, this.Teams[6], 16, 4, 12, 0, 0, 0, 29, 446, 3, 0, 0, 0, 0, 0],
+                    [2006, this.Teams[6], 16, 0, 0, 0, 0, 66, 30, 506, 0, 0, 0, 0, 0, 0],
+                    [2007, this.Teams[6], 16, 1, 2, 0, 0, 137, 83, 1202, 6, 0, 0, 0, 0, 0],
+                    [2008, this.Teams[6], 16, 2, 4, 0, 0, 148, 88, 1382, 7, 0, 0, 0, 0, 0],
+                    [2009, this.Teams[6], 16, 1, 2, 0, 0, 165, 85, 1153, 11, 0, 0, 0, 0, 0],
+                    [2010, this.Teams[6], 16, 1, 3, 0, 0, 179, 115, 1389, 10, 0, 0, 0, 0, 0],
+                    [2011, this.Teams[6], 16, 0, 0, 0, 0, 181, 100, 1296, 8, 0, 0, 0, 0, 0],
+                    [2012, this.Teams[6], 16, 0, 0, 0, 0, 143, 92, 1351, 7, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[6], 13, 0, 0, 0, 0, 99, 63, 711, 3, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Randall Cobb", "Team": this.Teams[10], "Headshot": "Images/Player Headshots/randall_cobb.png", "Positions": "WR", "Birthdate": new Date("1990-08-22"), "Height": "5'10\"", "Weight": "192", "ADP": 22.64,
+                "Stats":
+                [
+                    [2011, this.Teams[10], 15, 2, 5, 0, 0, 31, 25, 375, 1, 0, 1, 0, 0, 0],
+                    [2012, this.Teams[10], 15, 10, 132, 0, 0, 104, 80, 954, 8, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[10], 6, 4, 78, 0, 0, 46, 31, 433, 4, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Jimmy Graham", "Team": this.Teams[0], "Headshot": "Images/Player Headshots/jimmy_graham.png", "Positions": "TE", "Birthdate": new Date("1986-11-24"), "ADP": 19.76,
+                "Stats":
+                [
+                    [2010, this.Teams[0], 15, 1, 3, 0, 0, 43, 31, 356, 5, 0, 0, 0, 0, 0],
+                    [2011, this.Teams[0], 16, 0, 0, 0, 0, 149, 99, 1310, 11, 0, 0, 0, 0, 0],
+                    [2012, this.Teams[0], 15, 0, 0, 0, 0, 135, 85, 982, 9, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[0], 16, 0, 0, 0, 0, 144, 86, 1215, 16, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Julio Jones", "Team": this.Teams[6], "Headshot": "Images/Player Headshots/julio_jones.png", "Positions": "WR", "Birthdate": new Date("1989-02-03"), "Height": "6'3\"", "Weight": "220", "ADP": 19.79,
+                "Stats":
+                [
+                    [2011, this.Teams[6], 13, 6, 56, 0, 0, 96, 54, 959, 8, 0, 0, 0, 0, 0],
+                    [2012, this.Teams[6], 16, 6, 30, 0, 0, 129, 79, 1198, 10, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[6], 5, 1, 7, 0, 0, 60, 41, 580, 2, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Demaryius Thomas", "Team": this.Teams[29], "Headshot": "Images/Player Headshots/demaryius_thomas.png", "Positions": "WR", "Birthdate": new Date("1987-12-25"), "Height": "6'3\"", "Weight": "229", "ADP": 19.79,
+                "Stats":
+                [
+                    [2010, this.Teams[29], 10, 2, 1, 0, 1, 39, 22, 283, 2, 0, 0, 0, 0, 0],
+                    [2011, this.Teams[29], 11, 1, 5, 0, 0, 70, 32, 551, 4, 0, 1, 0, 0, 0],
+                    [2012, this.Teams[29], 16, 0, 0, 0, 0, 141, 94, 1434, 10, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[29], 16, 0, 0, 0, 0, 143, 92, 1430, 14, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                "Name": "Darren McFadden", "Team": this.Teams[3], "Headshot": "Images/Player Headshots/darren_mcfadden.png", "Positions": "RB", "Birthdate": new Date("1987-08-27"), "Height": "6'1\"", "Weight": "218", "ADP": 13.79,
+                "Stats":
+                [
+                    [2008, this.Teams[3], 13, 113, 499, 4, 3, 39, 29, 285, 0, 0, 0, 0, 0, 0],
+                    [2009, this.Teams[3], 12, 104, 357, 1, 4, 35, 21, 245, 0, 0, 0, 0, 0, 0],
+                    [2010, this.Teams[3], 13, 223, 1157, 7, 3, 61, 47, 507, 3, 0, 1, 0, 0, 0],
+                    [2011, this.Teams[3], 7, 113, 614, 4, 1, 23, 19, 154, 1, 0, 0, 0, 0, 0],
+                    [2012, this.Teams[3], 12, 216, 707, 2, 1, 62, 42, 258, 1, 0, 0, 0, 0, 0],
+                    [2013, this.Teams[3], 10, 114, 379, 5, 1, 26, 17, 108, 0, 1, 1, 16, 1, 0]
+                ]
+            }
+        ];
+
         for (var i = 0; i < fp.length; i++) {
             var fantasyPlayer = new FantasyPlayer();
             fantasyPlayer.Rank = i + 1;
@@ -271,9 +445,10 @@ class DemoNflDataProvider {
             fantasyPlayer.Weight = fp[i]["Weight"];
             fantasyPlayer.ADP = fp[i]["ADP"];
             fantasyPlayer.Stats = new Array<Stats>();
-            if (fp[i]["Stats"]) {
-                for (var j = 0; j < fp[i]["Stats"].length; j++) {
-                    var array = fp[i]["Stats"][j];
+            var stats = fp[i]["Stats"];
+            if (stats) {
+                for (var j = 0; j < stats.length; j++) {
+                    var array = <any>stats[j];
                     var s = new Stats();
                     s.Year = array[0];
                     s.Team = array[1];
@@ -325,7 +500,7 @@ class DemoNflDataProvider {
             { "Abbreviation": "PIT", "Logo": "Images/Team Logos/PIT.png", "Location": "Pittsburgh", "Nickname": "Steelers", "ByeWeek": 4 },
             { "Abbreviation": "BAL", "Logo": "Images/Team Logos/BAL.png", "Location": "Baltimore", "Nickname": "Ravens", "ByeWeek": 8 },
             { "Abbreviation": "PHI", "Logo": "Images/Team Logos/PHI.png", "Location": "Philadelphia", "Nickname": "Eagles", "ByeWeek": 7 },
-            { "Abbreviation": "CAR", "Logo": "Images/Team Logos/CAR.png", "Location": "Carolina", "Nickname": "Panthers", "ByeWeek": 6 },
+            { "Abbreviation": "MIA", "Logo": "Images/Team Logos/MIA.png", "Location": "Miami", "Nickname": "Dolphins", "ByeWeek": 6 },
             { "Abbreviation": "TB", "Logo": "Images/Team Logos/TB.png", "Location": "Tampa Bay", "Nickname": "Buccaneers", "ByeWeek": 0 },
             { "Abbreviation": "SF", "Logo": "Images/Team Logos/SF.png", "Location": "San Francisco", "Nickname": "49ers", "ByeWeek": 0 },
             { "Abbreviation": "STL", "Logo": "Images/Team Logos/STL.png", "Location": "St Louis", "Nickname": "Rams", "ByeWeek": 0 },
