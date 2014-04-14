@@ -316,6 +316,7 @@ module Fayde {
         XamlNode: UINode;
         private _ClipListener: Media.IGeometryListener = null;
         private _EffectListener: Media.Effects.IEffectListener = null;
+        private _TransformListener: Media.ITransformChangedListener = null;
         CreateNode(): UINode { return new UINode(this); }
         CreateLayoutUpdater(uin: UINode): LayoutUpdater { return new LayoutUpdater(uin); }
         
@@ -333,7 +334,7 @@ module Fayde {
         static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", () => Media.Brush, UIElement);
         static OpacityProperty = DependencyProperty.RegisterCore("Opacity", () => Number, UIElement, 1.0, (d, args) => (<UIElement>d).XamlNode.InvalidateOpacity());
         static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateProjection());
-        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", () => Media.Transform, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
+        static RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", () => Media.Transform, UIElement, undefined, (d, args) => (<UIElement>d)._RenderTransformChanged(args), undefined, undefined, undefined, false);
         static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
         static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
         static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
@@ -479,6 +480,13 @@ module Fayde {
                 oldTriggers.DetachTarget(this);
             if (newTriggers instanceof TriggerCollection)
                 newTriggers.AttachTarget(this);
+        }
+        private _RenderTransformChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (this._TransformListener)
+                this._TransformListener.Detach();
+            this.XamlNode.LayoutUpdater.UpdateTransform();
+            if (args.NewValue instanceof Media.Transform)
+                this._TransformListener = (<Media.Transform>args.NewValue).Listen((source: Media.Transform) => this.XamlNode.LayoutUpdater.UpdateTransform());
         }
 
         MeasureOverride(availableSize: size): size {

@@ -16,25 +16,30 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="main.ts" />
     <TypeScriptCompile Include="runner.ts" />
     <TypeScriptCompile Include="mocks\TestControl.ts" />
     <TypeScriptCompile Include="mocks\TestConverter.ts" />
-    <Content Include="scripts\Fayde.d.ts" />
-    <Content Include="scripts\qunit-1.13.0.css" />
-    <Content Include="scripts\qunit-1.13.0.js" />
-    <Content Include="scripts\qunit.d.ts" />
-    <Content Include="scripts\require.d.ts" />
-    <Content Include="scripts\require.js" />
-    <Content Include="scripts\text.js" />
+    <Content Include="lib\Fayde.Controls\Fayde.Controls.d.ts" />
+    <Content Include="lib\Fayde.Controls\Fayde.Controls.js" />
+    <Content Include="lib\Fayde.Controls\Themes\Default.theme.xml" />
+    <Content Include="lib\Fayde.Controls\Themes\Metro.theme.xml" />
+    <Content Include="lib\Fayde\Fayde.d.ts" />
+    <Content Include="lib\qunit\qunit-1.13.0.css" />
+    <Content Include="lib\qunit\qunit-1.13.0.js" />
+    <Content Include="lib\qunit\qunit.d.ts" />
+    <Content Include="lib\requirejs\require.d.ts" />
+    <Content Include="lib\requirejs\require.js" />
+    <Content Include="lib\requirejs\text.js" />
     <TypeScriptCompile Include="tests\DependencyLoadTests.ts" />
     <TypeScriptCompile Include="tests\DataTemplateTests.ts" />
+    <TypeScriptCompile Include="tests\DependencyPropertyTests.ts" />
+    <TypeScriptCompile Include="tests\ItemContainersManagerTests.ts" />
+    <TypeScriptCompile Include="tests\FormatTests.ts" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />
     <TypeScriptCompile Include="tests\XamlNodeTests.ts" />
     <TypeScriptCompile Include="tests\XamlLoadTests.ts" />
     <TypeScriptCompile Include="tests\BindingTests.ts" />
-    <TypeScriptCompile Include="tests\ItemsControlTests.ts" />
     <TypeScriptCompile Include="tests\MarkupExpressionTests.ts" />
     <TypeScriptCompile Include="tests\PrimitivesTests.ts" />
     <TypeScriptCompile Include="tests\ProviderTests.ts" />

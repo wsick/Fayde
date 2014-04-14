@@ -15,6 +15,14 @@ module Fayde.Data {
         constructor(mode?: RelativeSourceMode) {
             if (mode) this.Mode = mode;
         }
+
+        Clone(): RelativeSource {
+            var rs = new RelativeSource();
+            rs.Mode = this.Mode;
+            rs._AncestorLevel = this._AncestorLevel;
+            rs.AncestorType = this.AncestorType;
+            return rs;
+        }
     }
     Fayde.RegisterType(RelativeSource, "Fayde.Data", Fayde.XMLNS);
 }

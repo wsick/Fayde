@@ -1,5 +1,5 @@
-/// <reference path="../scripts/qunit.d.ts" />
-/// <reference path="../scripts/Fayde.d.ts" />
+/// <reference path="../lib/qunit/qunit.d.ts" />
+/// <reference path="../lib/Fayde/Fayde.d.ts" />
 
 export function run() {
     QUnit.module("Primitives Tests");
@@ -170,6 +170,15 @@ export function run() {
         strictEqual(d.Second, 45, "ctor7 second");
         strictEqual(d.Millisecond, 500, "ctor7 millisecond");
         strictEqual(d.Kind, DateTimeKind.Utc, "ctor7 kind");
+
+        d = new DateTime(1397133466779);
+        var utc = d.ToUniversalTime();
+        strictEqual(utc.Hour, 12, "ToUniversalTime Hour");
+
+        var d1 = DateTime.MinValue;
+        var d2 = d1.Date;
+        strictEqual(d1.Kind, d2.Kind);
+        ok(!isNaN(d2.Ticks));
     });
 
     test("Vector", () => {

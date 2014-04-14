@@ -54,7 +54,6 @@ module Fayde.Data {
             if (this._Cached)
                 return this._CachedValue;
 
-            this._Cached = true;
             if (this.PropertyPathWalker.IsPathBroken) {
                 var target = this.Target;
                 if (target && target.XamlNode.IsAttached && (!(target instanceof Fayde.FrameworkElement) || (<FrameworkElement>target).XamlNode.IsLoaded))
@@ -65,6 +64,7 @@ module Fayde.Data {
             }
 
             this._CachedValue = this._ConvertToType(propd, this._CachedValue);
+            this._Cached = true;
             return this._CachedValue;
         }
 
@@ -115,19 +115,12 @@ module Fayde.Data {
         private _FindSourceByElementName(): XamlObject {
             var name = this.ParentBinding.ElementName;
             var xobj: XamlObject = this.Target;
-            var source: XamlObject;
-            var parent: XamlObject;
-            while (xobj) {
-                source = xobj.FindName(name);
-                if (source)
-                    return source;
-                if (xobj.TemplateOwner)
-                    xobj = xobj.TemplateOwner;
-                else if ((parent = xobj.Parent) && (parent instanceof UIElement) && Controls.ItemsControl.GetItemsOwner(<UIElement>parent))
-                    xobj = parent;
-                else
-                    xobj = null;
-            }
+            if (!xobj)
+                return undefined;
+            var source = xobj.FindName(name, true);
+            if (source)
+                return source;
+            //TODO: Crawl out of ListBoxItem?
             return undefined;
         }
 
@@ -273,6 +266,8 @@ module Fayde.Data {
                     exception = err;
                     if (exception instanceof TargetInvocationException)
                         exception = (<TargetInvocationException>exception).InnerException;
+                } else {
+                    console.warn(err);
                 }
             } finally {
                 this.IsUpdating = oldUpdating;
@@ -315,7 +310,7 @@ module Fayde.Data {
                     if (format) {
                         if (format.indexOf("{0") < 0)
                             format = "{0:" + format + "}";
-                        value = StringEx.Format(format, value);
+                        value = Localization.Format(format, value);
                     }
                 }
             } catch (err) {

@@ -1,0 +1,26 @@
+<Page xmlns="http://schemas.wsick.com/fayde"
+      xmlns:x="http://schemas.wsick.com/fayde/x"
+      xmlns:controls="lib:Fayde.Controls"
+      Title="Home">
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <controls:TreeView>
+            <controls:TreeViewItem Header="Root">
+                <controls:TreeViewItem Header="Level 2">
+                    <controls:TreeViewItem Header="Level 3 - 1" />
+                    <controls:TreeViewItem Header="Level 3 - 2" />
+                </controls:TreeViewItem>
+            </controls:TreeViewItem>
+        </controls:TreeView>
+        <controls:TreeView ItemsSource="{Binding TreeData}" Grid.Row="1">
+            <controls:TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                    <TextBlock Text="{Binding Name}" />
+                </HierarchicalDataTemplate>
+            </controls:TreeView.ItemTemplate>
+        </controls:TreeView>
+    </Grid>
+</Page>

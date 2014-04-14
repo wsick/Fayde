@@ -1,5 +1,5 @@
-/// <reference path="../scripts/qunit.d.ts" />
-/// <reference path="../scripts/Fayde.d.ts" />
+/// <reference path="../lib/qunit/qunit.d.ts" />
+/// <reference path="../lib/Fayde/Fayde.d.ts" />
 
 export function run() {
     QUnit.module("Timeline Tests");
@@ -14,17 +14,17 @@ export function run() {
         duration = storyboard.GetNaturalDuration();
         ok(duration.IsAutomatic, "Adding a default animation also gives an automatic duration for the owning storyboard.");
 
-        a1.Duration = new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100));
+        a1.Duration = new Duration(new TimeSpan(0, 0, 0, 0, 100));
         duration = storyboard.GetNaturalDuration();
         strictEqual(duration.TimeSpan.Milliseconds, 100, "Storyboard natural duration should be 100 milliseconds.");
 
         var a2 = new Fayde.Media.Animation.DoubleAnimation();
-        a2.Duration = new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 50));
+        a2.Duration = new Duration(new TimeSpan(0, 0, 0, 0, 50));
         storyboard.Children.Add(a2);
         duration = storyboard.GetNaturalDuration();
         strictEqual(duration.TimeSpan.Milliseconds, 100, "Storyboard natural duration should still be 100 milliseconds.");
 
-        a2.Duration = new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 200));
+        a2.Duration = new Duration(new TimeSpan(0, 0, 0, 0, 200));
         duration = storyboard.GetNaturalDuration();
         strictEqual(duration.TimeSpan.Milliseconds, 200, "Storyboard natural duration should now be 200 milliseconds.");
 
@@ -40,7 +40,7 @@ export function run() {
         duration = storyboard.GetNaturalDuration();
         strictEqual(duration.TimeSpan.Milliseconds, 400, "Speed Ratio of 2.0 on Animation #2 should speed up natural duration.");
 
-        a2.BeginTime = TimeSpan.FromArgs(0, 0, 0, 0, 50);
+        a2.BeginTime = new TimeSpan(0, 0, 0, 0, 50);
         duration = storyboard.GetNaturalDuration();
         strictEqual(duration.TimeSpan.Milliseconds, 450, "BeginTime of 0:0:0.05 on Animation #2 should increase natural duration.");
 
@@ -56,7 +56,7 @@ export function run() {
         a1.From = 1.0;
         a1.To = 2.0;
         storyboard.Children.Add(a1);
-        a1.Duration = new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100));
+        a1.Duration = new Duration(new TimeSpan(0, 0, 0, 0, 100));
         //Animation #1 delays 0ms, duration of 200ms, no speed up, no auto reverse, run once
         var b1 = new Fayde.Controls.Border();
         Fayde.Media.Animation.Storyboard.SetTargetProperty(a1, new Fayde.Data.PropertyPath("(FrameworkElement.Height)"));
@@ -66,11 +66,11 @@ export function run() {
         a2.From = 0.5;
         a2.To = 1.0;
         storyboard.Children.Add(a2);
-        a2.Duration = new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 200));
+        a2.Duration = new Duration(new TimeSpan(0, 0, 0, 0, 200));
         a2.RepeatBehavior = Fayde.Media.Animation.RepeatBehavior.FromIterationCount(2);
         a2.AutoReverse = true;
         a2.SpeedRatio = 2.0;
-        a2.BeginTime = TimeSpan.FromArgs(0, 0, 0, 0, 50);
+        a2.BeginTime = new TimeSpan(0, 0, 0, 0, 50);
         //Animation #2 delays 50ms, duration of 200ms, sped up x2, autoreverse, run twice
         var b2 = new Fayde.Controls.Border();
         Fayde.Media.Animation.Storyboard.SetTargetProperty(a2, new Fayde.Data.PropertyPath("(FrameworkElement.Height)"));

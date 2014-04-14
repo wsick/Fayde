@@ -114,7 +114,12 @@ module Fayde.Controls {
             var content = this.Content;
             var info = Primitives.IScrollInfo_.As(content);
             if (!info && content instanceof ItemsPresenter) {
-                info = Primitives.IScrollInfo_.As((<ItemsPresenter>content).ElementRoot);
+                var ip = <ItemsPresenter>content;
+                var err = new BError();
+                ip.XamlNode.ApplyTemplateWithError(err);
+                if (err.Message)
+                    err.ThrowException();
+                info = Primitives.IScrollInfo_.As(ip.Panel);
             }
 
             if (!info)
@@ -184,6 +189,7 @@ module Fayde.Controls {
 
         MeasureOverride(availableSize: size): size {
             var scrollOwner = this.ScrollOwner;
+
             var cr = this.XamlNode.ContentRoot;
             if (!scrollOwner || !cr)
                 return super.MeasureOverride(availableSize);

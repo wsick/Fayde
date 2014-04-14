@@ -73,6 +73,7 @@
     <Content Include="Tests\lib\Fayde.Controls\Fayde.Controls.js" />
     <Content Include="Tests\Controls\contentcontrol.fap" />
     <TypeScriptCompile Include="Tests\Controls\TestClass.ts" />
+    <TypeScriptCompile Include="Tests\Stress\LargeList.ts" />
     <Content Include="Tests\Toy\default2.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -94,6 +95,9 @@
     <TypeScriptCompile Include="Tests\Binding\DoubleListBoxViewModel.ts" />
     <Content Include="Tests\Binding\DoubleListBoxViewModel.js" />
     <Content Include="Tests\Binding\find-ancestor.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Binding\dt-binding.fap">
       <SubType>Designer</SubType>
     </Content>
     <None Include="Tests\Binding\observablecoll-count.fap" />
@@ -197,6 +201,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Tests\Controls\gridsplitter.fap" />
+    <Content Include="Tests\Controls\itemscontrol.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>
@@ -262,6 +269,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Tests\Theme\Silverlight.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Stress\listbox.fap">
       <SubType>Designer</SubType>
     </Content>
     <None Include="Web.Debug.config">

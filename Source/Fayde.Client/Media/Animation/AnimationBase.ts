@@ -35,7 +35,7 @@ module Fayde.Media.Animation {
                 return;
             AnimationStore.ApplyCurrent(animStorage);
         }
-        GetNaturalDurationCore(): Duration { return new Duration(TimeSpan.FromArgs(0, 0, 0, 1)); }
+        GetNaturalDurationCore(): Duration { return Duration.Automatic; }
 
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): any { return undefined; }
 
@@ -50,7 +50,8 @@ module Fayde.Media.Animation {
             resolution.Target = refobj.Value;
             if (!targetProperty) {
                 error.Number = BError.XamlParse;
-                error.Message = "Could not resolve property for storyboard. [" + resolution.Property.Path.toString() + "]";
+                var name = Storyboard.GetTargetName(this);
+                error.Message = "Could not resolve property for storyboard. (" + name + ")->[" + resolution.Property.Path.toString() + "]";
                 return false;
             }
             if (!this.Resolve(resolution.Target, targetProperty)) {

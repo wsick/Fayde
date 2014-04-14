@@ -1,5 +1,5 @@
-class StringEx {
-    static Format(format: string, ...items: any[]): string {
+module StringEx {
+    export function Format(format: string, ...items: any[]): string {
         var args = arguments;
         return format.replace(/{(\d+)}/g, function (match: string, ...matches: any[]): string {
             var i = parseInt(matches[0]);

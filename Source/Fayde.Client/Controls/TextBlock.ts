@@ -342,6 +342,7 @@ module Fayde.Controls {
     }
     Fayde.RegisterType(TextBlock, "Fayde.Controls", Fayde.XMLNS);
     Xaml.Content(TextBlock, TextBlock.InlinesProperty);
+    Xaml.TextContent(TextBlock, TextBlock.TextProperty);
 
     var TextBlockInheritedProps = [
         TextBlock.FontFamilyProperty,

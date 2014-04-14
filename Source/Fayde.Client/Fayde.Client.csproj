@@ -41,7 +41,6 @@
     <TypeScriptCompile Include="Controls\HyperlinkButton.ts" />
     <TypeScriptCompile Include="Controls\Image.ts" />
     <TypeScriptCompile Include="Controls\ItemCollection.ts" />
-    <TypeScriptCompile Include="Controls\ItemContainerGenerator.ts" />
     <TypeScriptCompile Include="Controls\ItemsControl.ts" />
     <TypeScriptCompile Include="Controls\ItemsPanelTemplate.ts" />
     <TypeScriptCompile Include="Controls\ItemsPresenter.ts" />
@@ -54,7 +53,6 @@
     <TypeScriptCompile Include="Controls\Primitives\ButtonBase.ts" />
     <TypeScriptCompile Include="Controls\Primitives\DragEventArgs.ts" />
     <TypeScriptCompile Include="Controls\Primitives\IScrollInfo.ts" />
-    <TypeScriptCompile Include="Controls\Primitives\ItemsChangedEventArgs.ts" />
     <TypeScriptCompile Include="Controls\Primitives\Popup.ts" />
     <TypeScriptCompile Include="Controls\Primitives\RangeBase.ts" />
     <TypeScriptCompile Include="Controls\Primitives\RepeatButton.ts" />
@@ -298,6 +296,16 @@
     <TypeScriptCompile Include="require.d.ts" />
     <TypeScriptCompile Include="Runtime\Library.ts" />
     <TypeScriptCompile Include="Core\Providers\StyleSwapper.ts" />
+    <TypeScriptCompile Include="Engine\DebugVisual.ts" />
+    <TypeScriptCompile Include="Controls\Internal\RangeCoercer.ts" />
+    <TypeScriptCompile Include="Controls\Internal\ItemContainersManager.ts" />
+    <TypeScriptCompile Include="Localization\NumberFormatInfo.ts" />
+    <TypeScriptCompile Include="Localization\DateTimeFormatInfo.ts" />
+    <TypeScriptCompile Include="Localization\Format.ts" />
+    <TypeScriptCompile Include="Localization\DateTimeFormatter.ts" />
+    <TypeScriptCompile Include="Localization\NumberFormatter.ts" />
+    <TypeScriptCompile Include="Localization\TimeSpanFormatter.ts" />
+    <TypeScriptCompile Include="Localization\Calendar.ts" />
     <Content Include="Themes\Metro.theme.xml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -35,10 +35,13 @@ module Fayde.Controls {
             }
 
             var content = xobj.Content;
-            if (content instanceof UIElement)
+            if (content instanceof UIElement) {
                 this._ContentRoot = content;
-            else
+                xobj.DataContext = undefined;
+            } else {
+                xobj.DataContext = content == null ? null : content;
                 this._ContentRoot = this._GetContentTemplate(content ? content.constructor : null).GetVisualTree(xobj);
+            }
 
             if (!this._ContentRoot)
                 return false;
@@ -53,18 +56,11 @@ module Fayde.Controls {
         }
 
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
-            var newContent = args.NewValue;
-            var newUie: UIElement;
-            if (newContent instanceof UIElement) newUie = newContent;
-
-            if (newUie || args.OldValue instanceof UIElement)
+            var isUIContent = args.NewValue instanceof UIElement;
+            if (isUIContent || args.OldValue instanceof UIElement)
                 this.ClearRoot();
-
-            if (newContent && !newUie)
-                this.XObject.DataContext = newContent;
-            else
-                this.XObject.DataContext = undefined;
-
+            else if (!isUIContent)
+                this.XObject.DataContext = args.NewValue == null ? null : args.NewValue;
             this.LayoutUpdater.InvalidateMeasure();
         }
         _ContentTemplateChanged() {

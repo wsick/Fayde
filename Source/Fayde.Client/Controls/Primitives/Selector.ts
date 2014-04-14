@@ -20,7 +20,6 @@ module Fayde.Controls.Primitives {
         SelectionChanged: RoutedEvent<SelectionChangedEventArgs> = new RoutedEvent<SelectionChangedEventArgs>();
         private _Selection: SelectorSelection;
         private _SelectedItems: Collections.ObservableCollection<any> = new Collections.ObservableCollection<any>();
-        private _Initializing: boolean = false;
         _SelectedItemsIsInvalid: boolean = false;
         $TemplateScrollViewer: ScrollViewer = null;
         private _SelectedValueWalker: Data.PropertyPathWalker = null;
@@ -53,7 +52,7 @@ module Fayde.Controls.Primitives {
                 this.SelectedItem = icv.CurrentItem;
         }
         private _OnSelectedIndexChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (this._Selection.IsUpdating || this._Initializing)
+            if (this._Selection.IsUpdating)
                 return;
 
             var items = this.Items;
@@ -63,7 +62,7 @@ module Fayde.Controls.Primitives {
                 this._Selection.Select(items.GetValueAt(args.NewValue));
         }
         private _OnSelectedItemChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (this._Selection.IsUpdating || this._Initializing)
+            if (this._Selection.IsUpdating)
                 return;
 
             if (args.NewValue == null)
@@ -76,15 +75,12 @@ module Fayde.Controls.Primitives {
                 this._Selection.ClearSelection();
         }
         private _OnSelectedValueChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (this._Selection.IsUpdating || this._Initializing)
+            if (this._Selection.IsUpdating)
                 return;
             this._SelectItemFromValue(args.NewValue, false);
         }
         private _OnSelectedValuePathChanged(args: IDependencyPropertyChangedEventArgs) {
             this._SelectedValueWalker = !args.NewValue ? null : new Data.PropertyPathWalker(args.NewValue);
-
-            if (this._Initializing)
-                return;
             this._SelectItemFromValue(this.SelectedValue, true);
         }
         private _OnSelectionModeChanged(args: DependencyPropertyChangedEventArgs) {
@@ -108,11 +104,7 @@ module Fayde.Controls.Primitives {
         }
 
         OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
-            if (this._Initializing) {
-                super.OnItemsChanged(e);
-                return;
-            }
-
+            super.OnItemsChanged(e);
             var item: any;
             switch (e.Action) {
                 case Collections.NotifyCollectionChangedAction.Add:
@@ -150,8 +142,6 @@ module Fayde.Controls.Primitives {
                 default:
                     throw new NotSupportedException("Collection changed action '" + e.Action + "' not supported");
             }
-
-            super.OnItemsChanged(e);
         }
         OnItemsSourceChanged(args: IDependencyPropertyChangedEventArgs) {
             super.OnItemsSourceChanged(args);
@@ -172,14 +162,15 @@ module Fayde.Controls.Primitives {
             }
         }
         OnItemContainerStyleChanged(oldStyle, newStyle) { }
-        ClearContainerForItem(element: DependencyObject, item: any) {
+
+        ClearContainerForItem(element: UIElement, item: any) {
             super.ClearContainerForItem(element, item);
             var lbi = <ListBoxItem>element;
             lbi.ParentSelector = null;
             if (lbi !== item)
                 lbi.Content = null;
         }
-        PrepareContainerForItem(element: DependencyObject, item: any) {
+        PrepareContainerForItem(element: UIElement, item: any) {
             super.PrepareContainerForItem(element, item);
             var lbi = <ListBoxItem>element;
             lbi.ParentSelector = this;
@@ -241,7 +232,7 @@ module Fayde.Controls.Primitives {
                     continue;
                 lbi = null;
                 if (oldValue instanceof ListBoxItem) lbi = <ListBoxItem>oldValue;
-                lbi = lbi || <ListBoxItem>this.ItemContainerGenerator.ContainerFromItem(oldValue);
+                lbi = lbi || <ListBoxItem>this.ItemContainersManager.ContainerFromItem(oldValue);
                 if (lbi)
                     lbi.IsSelected = false;
             }
@@ -254,7 +245,7 @@ module Fayde.Controls.Primitives {
                     continue;
                 lbi = null;
                 if (newValue instanceof ListBoxItem) lbi = <ListBoxItem>newValue;
-                lbi = lbi || <ListBoxItem>this.ItemContainerGenerator.ContainerFromItem(newValue);
+                lbi = lbi || <ListBoxItem>this.ItemContainersManager.ContainerFromItem(newValue);
                 if (lbi) {
                     lbi.IsSelected = true;
                     lbi.Focus();
@@ -268,10 +259,10 @@ module Fayde.Controls.Primitives {
         OnSelectionChanged(args: SelectionChangedEventArgs) { }
 
         NotifyListItemClicked(lbi: ListBoxItem) {
-            this._Selection.Select(this.ItemContainerGenerator.ItemFromContainer(lbi));
+            this._Selection.Select(this.ItemContainersManager.ItemFromContainer(lbi));
         }
         NotifyListItemLoaded(lbi: ListBoxItem) {
-            if (this.ItemContainerGenerator.ItemFromContainer(lbi) === this.SelectedItem) {
+            if (this.ItemContainersManager.ItemFromContainer(lbi) === this.SelectedItem) {
                 lbi.IsSelected = true;
                 lbi.Focus();
             }

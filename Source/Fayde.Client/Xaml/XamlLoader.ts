@@ -74,6 +74,7 @@ module Fayde.Xaml {
             var xobj = <XamlObject>val;
             var xnode = xobj.XamlNode;
 
+            xnode.DocNameScope = ctx.NameScope;
             var nameAttr = el.attributes.getNamedItemNS(Fayde.XMLNSX, "Name");
             if (nameAttr) {
                 var name = nameAttr.value;
@@ -204,9 +205,11 @@ module Fayde.Xaml {
         var dobj: DependencyObject;
         var contentPropd: DependencyProperty;
         var contentCollection: XamlObjectCollection<any>;
+        var textContentPropd: DependencyProperty;
         if (owner instanceof DependencyObject) {
             dobj = owner;
             contentPropd = Content.Get(ownerType);
+            textContentPropd = TextContent.Get(ownerType);
             if (contentPropd instanceof DependencyProperty) {
                 if (contentPropd.IsImmutable) {
                     contentCollection = dobj[contentPropd.Name];
@@ -360,10 +363,15 @@ module Fayde.Xaml {
                     child = child.nextElementSibling;
                 }
 
-                if (!hasSetContent && !el.firstElementChild && contentPropd) {
+                if (!hasSetContent && !el.firstElementChild) {
                     var text = el.textContent;
-                    if (text && (text = text.trim()))
-                        dobj.SetValue(contentPropd, text);
+                    if (text) text = text.trim();
+                    if (text) {
+                        if (textContentPropd)
+                            dobj.SetValue(textContentPropd, text);
+                        else if (!contentPropd.IsImmutable)
+                            dobj.SetValue(contentPropd, text);
+                    }
                 }
 
                 if (rd)
@@ -446,6 +454,8 @@ module Fayde.Xaml {
                                 return;
                             }
                         }
+                        if (!el.firstElementChild)
+                            return;
                         dobj.SetValue(propd, createObject(el.firstElementChild, ctx));
                     }
                 } else { //<[ns:]Type> (Content)

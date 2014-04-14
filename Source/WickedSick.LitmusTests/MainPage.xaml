@@ -18,7 +18,9 @@
     <!--<tests:ImageTest />-->
     <!--<tests:ScrollBarTest />-->
     <Grid>
-        <tests:GridSplitterTest />
+        <!--<tests:UpDownTest />-->
+        <tests:ListBoxTest />
+        <!--<tests:GridSplitterTest />-->
         <!--<tests:ListBoxSelectionTest />-->
         <!--<tests:BorderTest />-->
         <!--<tests:nfldraft />-->

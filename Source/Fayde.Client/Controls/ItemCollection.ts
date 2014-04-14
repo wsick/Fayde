@@ -4,7 +4,8 @@ module Fayde.Controls {
     export interface IItemCollection {
         ItemsChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
         ToArray(): any[];
-        
+        Count: number;
+
         GetValueAt(index: number): any;
         GetRange(startIndex: number, endIndex: number): any[];
         SetValueAt(index: number, value: any);
@@ -18,19 +19,8 @@ module Fayde.Controls {
         Clear();
     }
 
-    export interface IItemCollectionHidden extends IItemCollection {
-        IsReadOnly: boolean;
-        SetValueAtImpl(index: number, value: any);
-        AddImpl(value: any);
-        AddRangeImpl(values: any[]);
-        InsertImpl(index: number, value: any);
-        RemoveImpl(value: any);
-        RemoveAtImpl(index: number);
-        ClearImpl();
-    }
-
-    export class ItemCollection extends XamlObjectCollection<any> implements IItemCollection, IItemCollectionHidden {
-        ItemsChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs> = new MulticastEvent<Collections.NotifyCollectionChangedEventArgs>();
+    export class ItemCollection extends XamlObjectCollection<any> implements IItemCollection {
+        ItemsChanged = new MulticastEvent<Collections.NotifyCollectionChangedEventArgs>();
         ToArray(): any[] { return this._ht.slice(0); }
 
         get Count(): number { return this._ht.length; }
@@ -75,7 +65,7 @@ module Fayde.Controls {
         AddRange(values: any[]) {
             this._ValidateReadOnly();
             if (!values) return;
-            for (var i = 0 ; i < values.length; i++) {
+            for (var i = 0; i < values.length; i++) {
                 if (values[i] == null) throw new ArgumentException("value");
             }
             this.AddRangeImpl(values);
@@ -103,7 +93,7 @@ module Fayde.Controls {
                 ht.splice(index, 0, value);
             this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
         }
-        
+
         IndexOf(value: XamlObject): number {
             return this._ht.indexOf(value);
         }
@@ -135,17 +125,18 @@ module Fayde.Controls {
             var item = this._ht.splice(index, 1)[0];
             this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(item, index));
         }
-        
-        Clear():boolean {
+
+        Clear(): boolean {
             this._ValidateReadOnly();
             this.ClearImpl();
             return true;
         }
         ClearImpl() {
+            var old = this._ht;
             this._ht = [];
-            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Reset());
+            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Reset(old));
         }
-        
+
         private _ValidateReadOnly() {
             if (this.IsReadOnly)
                 throw new InvalidOperationException("The collection is readonly.");

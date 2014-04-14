@@ -41,7 +41,7 @@ module Fayde.Controls {
                 window.location.href = this.NavigateUri.toString();
                 return;
             }
-            var targetUie: XamlObject = this.FindName(targetName);
+            var targetUie = this.FindName(targetName, true);
             if (targetUie instanceof Frame) {
                 window.location.hash = this.NavigateUri.toString();
             } else {

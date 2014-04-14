@@ -43,6 +43,7 @@ module Fayde.Controls.Primitives {
         }
         OnMouseEnter(e: Input.MouseEventArgs) {
             super.OnMouseEnter(e);
+            this.UpdateVisualState();
 
             if (this.ClickMode !== ClickMode.Hover || !this.IsEnabled)
                 return;
@@ -54,6 +55,7 @@ module Fayde.Controls.Primitives {
         }
         OnMouseLeave(e: Input.MouseEventArgs) {
             super.OnMouseLeave(e);
+            this.UpdateVisualState();
 
             if (this.ClickMode !== ClickMode.Hover || !this.IsEnabled)
                 return;

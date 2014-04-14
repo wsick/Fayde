@@ -18,6 +18,7 @@ define(["require", "exports"], function(require, exports) {
                 { Name: "Item2", Data: 1 },
                 { Name: "Item3", Data: 2 }
             ];
+            this.SomeDate = DateTime.Now;
             this.SelectedItem = this.AllItems[0];
         }
         TestViewModel.prototype.TestMethod = function (e) {

@@ -152,11 +152,12 @@ module Fayde {
         ReadLocalValue(propd: DependencyProperty): any {
             if (!propd)
                 throw new ArgumentException("No property specified.");
-            var expr = this._Expressions[propd._ID]
+            var expr = this._Expressions[propd._ID];
+            var val: any;
             if (expr)
-                return expr.GetValue(propd);
-                
-            var val = this.ReadLocalValueInternal(propd);
+                val = expr.GetValue(propd);
+            else
+                val = this.ReadLocalValueInternal(propd);
             if (val === undefined)
                 return DependencyProperty.UnsetValue;
             return val;

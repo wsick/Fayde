@@ -1,0 +1,12 @@
+ <Page xmlns="http://schemas.wsick.com/fayde"
+      xmlns:x="http://schemas.wsick.com/fayde/x"
+      xmlns:controls="lib:Fayde.Controls"
+      Title="Home">
+    <StackPanel Margin="5">
+        <controls:NumericUpDown x:Name="ProgressValue" DecimalPlaces="0" Increment="1" Value="50" />
+        <ProgressBar Value="{Binding ElementName=ProgressValue, Path=Value}" Height="20" Width="200" Margin="0,5" />
+        <controls:NumericUpDown Margin="3" DecimalPlaces="0" Increment="1" />
+        <controls:NumericUpDown Margin="3" DecimalPlaces="1" Increment="0.1" />
+        <controls:NumericUpDown Margin="3" DecimalPlaces="2" Increment="0.01" />
+    </StackPanel>
+</Page>

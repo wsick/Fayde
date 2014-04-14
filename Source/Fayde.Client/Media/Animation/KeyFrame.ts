@@ -90,7 +90,7 @@ module Fayde.Media.Animation {
             } else if (hasTimeSpanKeyFrame) {
                 totalInterpolationTime = highestKeyTimeTimeSpan;
             } else {
-                totalInterpolationTime = TimeSpan.FromTicks(TimeSpan._TicksPerSecond);
+                totalInterpolationTime = new TimeSpan(TimeSpan._TicksPerSecond);
             }
             //LOOKS USELESS: animation._TotalKeyTime = totalInterpolationTime;
 

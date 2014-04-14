@@ -27,6 +27,7 @@
     <Content Include="Silo\image-load.html" />
     <Content Include="Silo\lineargradient-pattern.html" />
     <Content Include="Silo\matrix-multiplypoint.html" />
+    <Content Include="Silo\overrides.html" />
     <Content Include="Silo\silo1.html" />
     <Content Include="Silo\UnitTestValidation.htm" />
     <Content Include="web.config" />

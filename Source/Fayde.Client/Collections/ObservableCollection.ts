@@ -14,6 +14,8 @@ module Fayde.Collections {
 
         get Count(): number { return this._ht.length; }
 
+        ToArray(): T[] { return this._ht.slice(0); }
+
         GetValueAt(index: number): T {
             var ht = this._ht;
             if (index < 0 || index >= ht.length)
@@ -75,8 +77,9 @@ module Fayde.Collections {
             this._RaisePropertyChanged("Count");
         }
         Clear() {
+            var old = this._ht;
             this._ht = [];
-            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Reset());
+            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Reset(old));
             this._RaisePropertyChanged("Count");
         }
         private _RaisePropertyChanged(propertyName: string) {

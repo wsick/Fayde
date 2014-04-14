@@ -1,5 +1,5 @@
-/// <reference path="../scripts/qunit.d.ts" />
-/// <reference path="../scripts/Fayde.d.ts" />
+/// <reference path="../lib/qunit/qunit.d.ts" />
+/// <reference path="../lib/Fayde/Fayde.d.ts" />
 /// <amd-dependency path="../mocks/TestControl" />
 
 export function run() {
@@ -46,6 +46,20 @@ export function run() {
         strictEqual(bg.Color.ToHexStringNoAlpha(), "#aabbcc", "Color");
     });
 
+    test("Empty property value", () => {
+        var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+            + "<StackPanel.DataContext>"
+            + "<!-- someone commented out -->"
+            + "</StackPanel.DataContext>"
+            + "</StackPanel>";
+        try {
+            var sp = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+            ok(true);
+        } catch (err) {
+            ok(false, err);
+        }
+    });
+
     test("Enum tag", () => {
         var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
             + "<StackPanel.Orientation>"
@@ -78,6 +92,12 @@ export function run() {
         var xaml = "<CheckBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">Hey</CheckBox>";
         var checkbox = <Fayde.Controls.CheckBox>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
         strictEqual(checkbox.Content, "Hey", "Text Content");
+    });
+
+    test("TextBlock Text", () => {
+        var xaml = "<TextBlock xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">Hey</TextBlock>";
+        var tb = <Fayde.Controls.TextBlock>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+        strictEqual(tb.Text, "Hey", "Text Content");
     });
 
     test("FrameworkElement Resources", () => {
@@ -157,19 +177,6 @@ export function run() {
         checkbox.ApplyTemplate();
         var r = <Fayde.Shapes.Rectangle>Fayde.VisualTreeHelper.GetChild(checkbox, 0);
         strictEqual(r.StrokeThickness, 1, "StrokeThickness");
-    });
-
-    QUnit.asyncTest("Theme", 1, () => {
-        var theme = <Fayde.Theme>Fayde.ConvertAnyToType("Theme.Metro.xml", Fayde.Theme);
-        theme.Resolve()
-            .success(res => {
-                ok(true, "Theme resolved.");
-                start();
-            })
-            .error(error => {
-                ok(false, error);
-                start();
-            });
     });
 
     test("HierarchicalDataTemplate", () => {
@@ -256,6 +263,9 @@ export function run() {
             + "<VisualStateManager.VisualStateGroups>"
             + "<VisualStateGroup x:Name=\"CommonStates\">"
             + "<VisualState x:Name=\"Normal\" />"
+            + "<VisualState x:Name=\"Disabled\">"
+            + "    <!-- composite controls will gain focus and visualize it -->"
+            + "</VisualState>"
             + "</VisualStateGroup>"
             + "</VisualStateManager.VisualStateGroups>"
             + "</Grid>";
@@ -264,6 +274,12 @@ export function run() {
         var groups = Fayde.Media.VSM.VisualStateManager.GetVisualStateGroups(root);
         strictEqual((<any>groups).constructor, Fayde.Media.VSM.VisualStateGroupCollection, "VisualStateGroups on Grid should be a VisualStateGroupCollection.");
         strictEqual(groups.Count, 1, "There should be 1 VisualStateGroup in collection.");
+        var states = groups.GetValueAt(0).States;
+        strictEqual(states.Count, 2);
+        var storyboard = states.GetValueAt(0).Storyboard;
+        ok(storyboard == null || storyboard instanceof Fayde.Media.Animation.Storyboard);
+        storyboard = states.GetValueAt(1).Storyboard;
+        ok(storyboard == null || storyboard instanceof Fayde.Media.Animation.Storyboard);
     });
 
     test("Events", () => {
