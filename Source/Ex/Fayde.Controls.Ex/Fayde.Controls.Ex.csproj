@@ -96,7 +96,7 @@
     <TypeScriptCompile Include="TabPanel.ts" />
     <TypeScriptCompile Include="TabControl.ts" />
     <TypeScriptCompile Include="TabItem.ts" />
+    <TypeScriptCompile Include="WrapPanel.ts" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
 </Project>
