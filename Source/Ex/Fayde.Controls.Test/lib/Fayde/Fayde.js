@@ -21,6 +21,47 @@
 })(NumberEx || (NumberEx = {}));
 var Fayde;
 (function (Fayde) {
+    function Annotation(type, name, value, forbidMultiple) {
+        var at = type;
+        var anns = at.$$annotations;
+        if (!anns)
+            Object.defineProperty(at, "$$annotations", { value: (anns = []), writable: false });
+        var ann = anns[name];
+        if (!ann)
+            anns[name] = ann = [];
+        if (forbidMultiple && ann.length > 0)
+            throw new InvalidOperationException("Only 1 content annotation allowed per type [" + type.constructor.name + "].");
+        ann.push(value);
+    }
+    Fayde.Annotation = Annotation;
+    function GetAnnotations(type, name) {
+        var at = type;
+        var anns = at.$$annotations;
+        if (!anns)
+            return undefined;
+        return (anns[name] || []).slice(0);
+    }
+    Fayde.GetAnnotations = GetAnnotations;
+
+    function CreateTypedAnnotation(name) {
+        function ta(type) {
+            var values = [];
+            for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                values[_i] = arguments[_i + 1];
+            }
+            for (var i = 0, len = values.length; i < len; i++) {
+                Annotation(type, name, values[i]);
+            }
+        }
+        ta.Get = function (type) {
+            return GetAnnotations(type, name);
+        };
+        return ta;
+    }
+    Fayde.CreateTypedAnnotation = CreateTypedAnnotation;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     (function (Xaml) {
         Xaml.Content = (function () {
             function ca(type, prop) {
@@ -63,47 +104,6 @@ var Fayde;
         })();
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    function Annotation(type, name, value, forbidMultiple) {
-        var at = type;
-        var anns = at.$$annotations;
-        if (!anns)
-            Object.defineProperty(at, "$$annotations", { value: (anns = []), writable: false });
-        var ann = anns[name];
-        if (!ann)
-            anns[name] = ann = [];
-        if (forbidMultiple && ann.length > 0)
-            throw new InvalidOperationException("Only 1 content annotation allowed per type [" + type.constructor.name + "].");
-        ann.push(value);
-    }
-    Fayde.Annotation = Annotation;
-    function GetAnnotations(type, name) {
-        var at = type;
-        var anns = at.$$annotations;
-        if (!anns)
-            return undefined;
-        return (anns[name] || []).slice(0);
-    }
-    Fayde.GetAnnotations = GetAnnotations;
-
-    function CreateTypedAnnotation(name) {
-        function ta(type) {
-            var values = [];
-            for (var _i = 0; _i < (arguments.length - 1); _i++) {
-                values[_i] = arguments[_i + 1];
-            }
-            for (var i = 0, len = values.length; i < len; i++) {
-                Annotation(type, name, values[i]);
-            }
-        }
-        ta.Get = function (type) {
-            return GetAnnotations(type, name);
-        };
-        return ta;
-    }
-    Fayde.CreateTypedAnnotation = CreateTypedAnnotation;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -229,7 +229,7 @@ var Fayde;
                 var attr = attrs[i];
                 getNodeDependency(attr, list);
                 getNodeValueDependency(attr, list);
-                getNodeValueImplicitDependency(attr, list);
+                getNodeValueImplicitDependency(el, attr, list);
             }
         }
         function getNodeDependency(node, list) {
@@ -259,14 +259,13 @@ var Fayde;
             }
         }
 
-        function getNodeValueImplicitDependency(attr, list) {
+        function getNodeValueImplicitDependency(ownerEl, attr, list) {
             var val = attr.value;
             if (val[0] === "{")
                 return;
-            var parent = attr.ownerElement;
-            if (parent.namespaceURI !== Fayde.XMLNS && parent.namespaceURI !== null)
+            if (ownerEl.namespaceURI !== Fayde.XMLNS && ownerEl.namespaceURI !== null)
                 return;
-            switch (parent.localName) {
+            switch (ownerEl.localName) {
                 case "DataTemplate":
                     if (attr.localName !== "DataType")
                         return;
@@ -8064,6 +8063,7 @@ var Fayde;
                 var content = xobj.Content;
                 if (content instanceof Fayde.UIElement) {
                     this._ContentRoot = content;
+                    xobj.DataContext = undefined;
                 } else {
                     xobj.DataContext = content == null ? null : content;
                     this._ContentRoot = this._GetContentTemplate(content ? content.constructor : null).GetVisualTree(xobj);
@@ -11456,7 +11456,7 @@ var Fayde;
                     window.location.href = this.NavigateUri.toString();
                     return;
                 }
-                var targetUie = this.FindName(targetName);
+                var targetUie = this.FindName(targetName, true);
                 if (targetUie instanceof Controls.Frame) {
                     window.location.hash = this.NavigateUri.toString();
                 } else {
@@ -19327,7 +19327,7 @@ var Fayde;
                         if (format) {
                             if (format.indexOf("{0") < 0)
                                 format = "{0:" + format + "}";
-                            value = StringEx.Format(format, value);
+                            value = Fayde.Localization.Format(format, value);
                         }
                     }
                 } catch (err) {
@@ -21248,6 +21248,15 @@ var ArgumentException = (function (_super) {
 })(Exception);
 Fayde.RegisterType(ArgumentException, "window", Fayde.XMLNSX);
 
+var ArgumentNullException = (function (_super) {
+    __extends(ArgumentNullException, _super);
+    function ArgumentNullException(message) {
+        _super.call(this, message);
+    }
+    return ArgumentNullException;
+})(Exception);
+Fayde.RegisterType(ArgumentNullException, "window", Fayde.XMLNSX);
+
 var InvalidOperationException = (function (_super) {
     __extends(InvalidOperationException, _super);
     function InvalidOperationException(message) {
@@ -21342,6 +21351,15 @@ var UnknownTypeException = (function (_super) {
     return UnknownTypeException;
 })(Exception);
 Fayde.RegisterType(UnknownTypeException, "window", Fayde.XMLNSX);
+
+var FormatException = (function (_super) {
+    __extends(FormatException, _super);
+    function FormatException(message) {
+        _super.call(this, message);
+    }
+    return FormatException;
+})(Exception);
+Fayde.RegisterType(FormatException, "window", Fayde.XMLNSX);
 var Fayde;
 (function (Fayde) {
     (function (Engine) {
@@ -23009,7 +23027,7 @@ var Fayde;
                     }
 
                     return {
-                        CurrentTime: TimeSpan.FromTicks(currentTimeTicks),
+                        CurrentTime: new TimeSpan(currentTimeTicks),
                         Progress: progress,
                         Completed: completed
                     };
@@ -23121,7 +23139,7 @@ var Fayde;
                     Animation.AnimationStore.ApplyCurrent(animStorage);
                 };
                 AnimationBase.prototype.GetNaturalDurationCore = function () {
-                    return new Duration(TimeSpan.FromArgs(0, 0, 0, 1));
+                    return Duration.Automatic;
                 };
 
                 AnimationBase.prototype.GetCurrentValue = function (defaultOriginalValue, defaultDestinationValue, clockData) {
@@ -23601,7 +23619,7 @@ var Fayde;
                     } else if (hasTimeSpanKeyFrame) {
                         totalInterpolationTime = highestKeyTimeTimeSpan;
                     } else {
-                        totalInterpolationTime = TimeSpan.FromTicks(TimeSpan._TicksPerSecond);
+                        totalInterpolationTime = new TimeSpan(TimeSpan._TicksPerSecond);
                     }
 
                     for (i = 0; i < len; i++) {
@@ -24898,7 +24916,7 @@ var Fayde;
 
                     if (!fullTicks)
                         return Duration.Automatic;
-                    return new Duration(TimeSpan.FromTicks(fullTicks));
+                    return new Duration(new TimeSpan(fullTicks));
                 };
                 Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () {
                     return String;
@@ -29453,6 +29471,249 @@ Fayde.RegisterTypeConverter(CornerRadius, function (val) {
     }
     return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
 });
+var TimeSpan = (function () {
+    function TimeSpan() {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            args[_i] = arguments[_i + 0];
+        }
+        this._Ticks = 0;
+        if (args.length === 0)
+            return;
+        if (args.length === 1) {
+            this._Ticks = args[0] || 0;
+            return;
+        }
+        var days = 0;
+        var hours = 0;
+        var minutes = 0;
+        var seconds = 0;
+        var milliseconds = 0;
+
+        if (args.length === 3) {
+            hours = args[0] || 0;
+            minutes = args[1] || 0;
+            seconds = args[2] || 0;
+        } else {
+            days = args[0] || 0;
+            hours = args[1] || 0;
+            minutes = args[2] || 0;
+            seconds = args[3] || 0;
+            milliseconds = args[4] || 0;
+        }
+
+        this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute) + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
+    }
+    Object.defineProperty(TimeSpan, "Zero", {
+        get: function () {
+            return new TimeSpan();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan, "MinValue", {
+        get: function () {
+            return new TimeSpan(Number.MIN_VALUE);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan, "MaxValue", {
+        get: function () {
+            return new TimeSpan(Number.MAX_VALUE);
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    Object.defineProperty(TimeSpan.prototype, "Days", {
+        get: function () {
+            return this._Ticks > 0 ? Math.floor(this._Ticks / TimeSpan._TicksPerDay) : Math.ceil(this._Ticks / TimeSpan._TicksPerDay);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Hours", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerHour) : Math.ceil(remTicks / TimeSpan._TicksPerHour);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Minutes", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            remTicks = remTicks % TimeSpan._TicksPerHour;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMinute) : Math.ceil(remTicks / TimeSpan._TicksPerMinute);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Seconds", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            remTicks = remTicks % TimeSpan._TicksPerHour;
+            remTicks = remTicks % TimeSpan._TicksPerMinute;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerSecond) : Math.ceil(remTicks / TimeSpan._TicksPerSecond);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Milliseconds", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            remTicks = remTicks % TimeSpan._TicksPerHour;
+            remTicks = remTicks % TimeSpan._TicksPerMinute;
+            remTicks = remTicks % TimeSpan._TicksPerSecond;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMillisecond) : Math.ceil(remTicks / TimeSpan._TicksPerMillisecond);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Ticks", {
+        get: function () {
+            return this._Ticks;
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    Object.defineProperty(TimeSpan.prototype, "TotalDays", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerDay;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalHours", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerHour;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalMinutes", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerMinute;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalSeconds", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerSecond;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalMilliseconds", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerMillisecond;
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    TimeSpan.prototype.AddTicks = function (ticks) {
+        if (ticks == null)
+            return;
+        if (isNaN(ticks))
+            return;
+        this._Ticks += ticks;
+    };
+    TimeSpan.prototype.AddMilliseconds = function (milliseconds) {
+        this.AddTicks(milliseconds * TimeSpan._TicksPerMillisecond);
+    };
+
+    TimeSpan.prototype.Add = function (ts2) {
+        var ts = new TimeSpan();
+        ts._Ticks = this._Ticks + ts2._Ticks;
+        return ts;
+    };
+    TimeSpan.prototype.Subtract = function (ts2) {
+        var ts = new TimeSpan();
+        ts._Ticks = this._Ticks - ts2._Ticks;
+        return ts;
+    };
+    TimeSpan.prototype.Multiply = function (v) {
+        var ts = new TimeSpan();
+        ts._Ticks = Math.round(this._Ticks * v);
+        return ts;
+    };
+    TimeSpan.prototype.Divide = function (ts2) {
+        var ts = new TimeSpan();
+        ts._Ticks = this._Ticks / ts2._Ticks;
+        return ts;
+    };
+    TimeSpan.prototype.CompareTo = function (ts2) {
+        if (this._Ticks === ts2._Ticks)
+            return 0;
+        return (this._Ticks > ts2._Ticks) ? 1 : -1;
+    };
+    TimeSpan.prototype.IsZero = function () {
+        return this._Ticks === 0;
+    };
+
+    TimeSpan.prototype.GetJsDelay = function () {
+        return this._Ticks * TimeSpan._TicksPerMillisecond;
+    };
+
+    TimeSpan.prototype.toString = function (format) {
+        if (!format)
+            return Fayde.Localization.FormatSingle(this, "c");
+        return Fayde.Localization.FormatSingle(this, format);
+    };
+    TimeSpan._TicksPerMillisecond = 1;
+    TimeSpan._TicksPerSecond = 1000;
+    TimeSpan._TicksPerMinute = TimeSpan._TicksPerSecond * 60;
+    TimeSpan._TicksPerHour = TimeSpan._TicksPerMinute * 60;
+    TimeSpan._TicksPerDay = TimeSpan._TicksPerHour * 24;
+    return TimeSpan;
+})();
+Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
+
+Fayde.RegisterTypeConverter(TimeSpan, function (val) {
+    if (val instanceof TimeSpan)
+        return val;
+    if (typeof val === "number")
+        return new TimeSpan(val);
+    val = val.toString();
+
+    var tokens = val.split(":");
+    if (tokens.length === 1) {
+        var ticks = parseFloat(val);
+        if (!isNaN(ticks))
+            return new TimeSpan(ticks);
+        throw new Exception("Invalid TimeSpan format '" + val + "'.");
+    }
+
+    if (tokens.length !== 3)
+        throw new Exception("Invalid TimeSpan format '" + val + "'.");
+
+    var days = 0;
+    var hours;
+    var minutes;
+    var seconds;
+    var milliseconds = 0;
+
+    var daysplit = tokens[0].split(".");
+    if (daysplit.length === 2) {
+        days = parseInt(daysplit[0]);
+        hours = parseInt(daysplit[1]);
+    } else if (daysplit.length === 1) {
+        hours = parseInt(daysplit[0]);
+    }
+
+    minutes = parseInt(tokens[1]);
+
+    seconds = parseFloat(tokens[2]);
+    milliseconds = seconds % 1;
+    seconds = seconds - milliseconds;
+    milliseconds *= 1000.0;
+
+    return new TimeSpan(days, hours, minutes, seconds, milliseconds);
+});
 var DayOfWeek;
 (function (DayOfWeek) {
     DayOfWeek[DayOfWeek["Sunday"] = 0] = "Sunday";
@@ -29531,7 +29792,7 @@ var DateTime = (function () {
             this._InternalDate = new Date(ticks);
         } else {
             var id = this._InternalDate = new Date();
-            id.setFullYear(year, month, day);
+            id.setFullYear(year, month - 1, day);
             id.setHours(hour);
             id.setMinutes(minute);
             id.setSeconds(second);
@@ -29550,6 +29811,20 @@ var DateTime = (function () {
                 break;
         }
     }
+    Object.defineProperty(DateTime, "MinValue", {
+        get: function () {
+            return new DateTime(-8640000000000000);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime, "MaxValue", {
+        get: function () {
+            return new DateTime(8640000000000000);
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(DateTime, "Now", {
         get: function () {
             return new DateTime(new Date().getTime());
@@ -29590,12 +29865,15 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Date", {
         get: function () {
-            var d = new Date(this._InternalDate.getTime());
+            var t = this._InternalDate.getTime();
+            if (t <= DateTime._MinDateTicks)
+                return new DateTime(DateTime._MinDateTicks, this.Kind);
+            var d = new Date(t);
             d.setHours(0);
             d.setMinutes(0);
             d.setSeconds(0);
             d.setMilliseconds(0);
-            return new DateTime(d.getTime());
+            return new DateTime(d.getTime(), this.Kind);
         },
         enumerable: true,
         configurable: true
@@ -29616,7 +29894,10 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "DayOfYear", {
         get: function () {
-            throw new NotSupportedException("DayOfYear");
+            var dt = this.Date;
+            var base = new DateTime(dt.Year, 1, 1);
+            var diff = new TimeSpan(dt.Ticks - base.Ticks);
+            return Math.floor(diff.TotalDays);
         },
         enumerable: true,
         configurable: true
@@ -29644,7 +29925,7 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Month", {
         get: function () {
-            return this._InternalDate.getMonth();
+            return this._InternalDate.getMonth() + 1;
         },
         enumerable: true,
         configurable: true
@@ -29659,7 +29940,7 @@ var DateTime = (function () {
     Object.defineProperty(DateTime.prototype, "TimeOfDay", {
         get: function () {
             var id = this._InternalDate;
-            return TimeSpan.FromArgs(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
+            return new TimeSpan(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
         },
         enumerable: true,
         configurable: true
@@ -29671,18 +29952,36 @@ var DateTime = (function () {
         enumerable: true,
         configurable: true
     });
-    DateTime.MinValue = new DateTime(-8640000000000000);
-    DateTime.MaxValue = new DateTime(8640000000000000);
+
+    DateTime.prototype.Add = function (value) {
+        return new DateTime(this.Ticks + value.Ticks);
+    };
+
+    DateTime.prototype.Subtract = function (value) {
+        if (value instanceof DateTime) {
+            return new TimeSpan(this.Ticks - value.Ticks);
+        } else if (value instanceof TimeSpan) {
+            return new DateTime(this.Ticks - value.Ticks);
+        }
+        return new DateTime(this.Ticks);
+    };
+
+    DateTime.prototype.ToUniversalTime = function () {
+        if (this.Kind === 2 /* Utc */)
+            return new DateTime(this.Ticks, 2 /* Utc */);
+        var id = this._InternalDate;
+        return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), 2 /* Utc */);
+    };
+
+    DateTime.prototype.toString = function (format) {
+        if (!format)
+            return Fayde.Localization.FormatSingle(this, "s");
+        return Fayde.Localization.FormatSingle(this, format);
+    };
+    DateTime._MinDateTicks = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
     return DateTime;
 })();
 Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
-
-var DateTimeFormatInfo = (function () {
-    function DateTimeFormatInfo() {
-        this.AbbreviatedMonthNames = [];
-    }
-    return DateTimeFormatInfo;
-})();
 var DurationType;
 (function (DurationType) {
     DurationType[DurationType["Automatic"] = 0] = "Automatic";
@@ -31098,203 +31397,6 @@ Fayde.RegisterTypeConverter(Thickness, function (val) {
     }
     return new Thickness(left, top, right, bottom);
 });
-var TimeSpan = (function () {
-    function TimeSpan() {
-        this._Ticks = 0;
-    }
-    TimeSpan.FromTicks = function (ticks) {
-        var ts = new TimeSpan();
-        ts._Ticks = ticks;
-        return ts;
-    };
-    TimeSpan.FromArgs = function (days, hours, minutes, seconds, milliseconds) {
-        var ts = new TimeSpan();
-        ts._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute) + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
-        return ts;
-    };
-
-    Object.defineProperty(TimeSpan.prototype, "Days", {
-        get: function () {
-            return Math.floor(this._Ticks / TimeSpan._TicksPerDay);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Hours", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            return Math.floor(remTicks / TimeSpan._TicksPerHour);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Minutes", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            remTicks = remTicks % TimeSpan._TicksPerHour;
-            return Math.floor(remTicks / TimeSpan._TicksPerMinute);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Seconds", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            remTicks = remTicks % TimeSpan._TicksPerHour;
-            remTicks = remTicks % TimeSpan._TicksPerMinute;
-            return Math.floor(remTicks / TimeSpan._TicksPerSecond);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Milliseconds", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            remTicks = remTicks % TimeSpan._TicksPerHour;
-            remTicks = remTicks % TimeSpan._TicksPerMinute;
-            remTicks = remTicks % TimeSpan._TicksPerSecond;
-            return Math.floor(remTicks / TimeSpan._TicksPerMillisecond);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Ticks", {
-        get: function () {
-            return this._Ticks;
-        },
-        enumerable: true,
-        configurable: true
-    });
-
-    Object.defineProperty(TimeSpan.prototype, "TotalDays", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerDay;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalHours", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerHour;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalMinutes", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerMinute;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalSeconds", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerSecond;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalMilliseconds", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerMillisecond;
-        },
-        enumerable: true,
-        configurable: true
-    });
-
-    TimeSpan.prototype.AddTicks = function (ticks) {
-        if (ticks == null)
-            return;
-        if (isNaN(ticks))
-            return;
-        this._Ticks += ticks;
-    };
-    TimeSpan.prototype.AddMilliseconds = function (milliseconds) {
-        this.AddTicks(milliseconds * TimeSpan._TicksPerMillisecond);
-    };
-
-    TimeSpan.prototype.Add = function (ts2) {
-        var ts = new TimeSpan();
-        ts._Ticks = this._Ticks + ts2._Ticks;
-        return ts;
-    };
-    TimeSpan.prototype.Subtract = function (ts2) {
-        var ts = new TimeSpan();
-        ts._Ticks = this._Ticks - ts2._Ticks;
-        return ts;
-    };
-    TimeSpan.prototype.Multiply = function (v) {
-        var ts = new TimeSpan();
-        ts._Ticks = Math.round(this._Ticks * v);
-        return ts;
-    };
-    TimeSpan.prototype.Divide = function (ts2) {
-        var ts = new TimeSpan();
-        ts._Ticks = this._Ticks / ts2._Ticks;
-        return ts;
-    };
-    TimeSpan.prototype.CompareTo = function (ts2) {
-        if (this._Ticks === ts2._Ticks)
-            return 0;
-        return (this._Ticks > ts2._Ticks) ? 1 : -1;
-    };
-    TimeSpan.prototype.IsZero = function () {
-        return this._Ticks === 0;
-    };
-
-    TimeSpan.prototype.GetJsDelay = function () {
-        return this._Ticks * TimeSpan._TicksPerMillisecond;
-    };
-    TimeSpan._TicksPerMillisecond = 1;
-    TimeSpan._TicksPerSecond = 1000;
-    TimeSpan._TicksPerMinute = TimeSpan._TicksPerSecond * 60;
-    TimeSpan._TicksPerHour = TimeSpan._TicksPerMinute * 60;
-    TimeSpan._TicksPerDay = TimeSpan._TicksPerHour * 24;
-    return TimeSpan;
-})();
-Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
-
-Fayde.RegisterTypeConverter(TimeSpan, function (val) {
-    if (val instanceof TimeSpan)
-        return val;
-    if (typeof val === "number")
-        return TimeSpan.FromTicks(val);
-    val = val.toString();
-
-    var tokens = val.split(":");
-    if (tokens.length === 1) {
-        var ticks = parseFloat(val);
-        if (!isNaN(ticks))
-            return TimeSpan.FromTicks(ticks);
-        throw new Exception("Invalid TimeSpan format '" + val + "'.");
-    }
-
-    if (tokens.length !== 3)
-        throw new Exception("Invalid TimeSpan format '" + val + "'.");
-
-    var days = 0;
-    var hours;
-    var minutes;
-    var seconds;
-    var milliseconds = 0;
-
-    var daysplit = tokens[0].split(".");
-    if (daysplit.length === 2) {
-        days = parseInt(daysplit[0]);
-        hours = parseInt(daysplit[1]);
-    } else if (daysplit.length === 1) {
-        hours = parseInt(daysplit[0]);
-    }
-
-    minutes = parseInt(tokens[1]);
-
-    seconds = parseFloat(tokens[2]);
-    milliseconds = seconds % 1;
-    seconds = seconds - milliseconds;
-    milliseconds *= 1000.0;
-
-    return TimeSpan.FromArgs(days, hours, minutes, seconds, milliseconds);
-});
 var BError = (function () {
     function BError() {
     }
@@ -31642,10 +31744,9 @@ var IndexedPropertyInfo = (function () {
     };
     return IndexedPropertyInfo;
 })();
-var StringEx = (function () {
-    function StringEx() {
-    }
-    StringEx.Format = function (format) {
+var StringEx;
+(function (StringEx) {
+    function Format(format) {
         var items = [];
         for (var _i = 0; _i < (arguments.length - 1); _i++) {
             items[_i] = arguments[_i + 1];
@@ -31659,9 +31760,9 @@ var StringEx = (function () {
             var i = parseInt(matches[0]);
             return typeof items[i] != 'undefined' ? items[i] : match;
         });
-    };
-    return StringEx;
-})();
+    }
+    StringEx.Format = Format;
+})(StringEx || (StringEx = {}));
 var TimelineProfile = (function () {
     function TimelineProfile() {
     }
@@ -37110,6 +37211,1269 @@ var Fayde;
         var Internal = Controls.Internal;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        var NumberFormatInfo = (function () {
+            function NumberFormatInfo() {
+                this.CurrencyDecimalDigits = 2;
+                this.CurrencyDecimalSeparator = ".";
+                this.CurrencyGroupSeparator = ",";
+                this.CurrencyGroupSizes = [3];
+                this.CurrencyNegativePattern = 0;
+                this.CurrencyPositivePattern = 0;
+                this.CurrencySymbol = "$";
+                this.NaNSymbol = "NaN";
+                this.NegativeInfinitySymbol = "-Infinity";
+                this.PositiveInfinitySymbol = "Infinity";
+                this.NegativeSign = "-";
+                this.PositiveSign = "+";
+                this.NumberDecimalDigits = 2;
+                this.NumberDecimalSeparator = ".";
+                this.NumberGroupSeparator = ",";
+                this.NumberGroupSizes = [3];
+                this.NumberNegativePattern = 1;
+                this.PercentDecimalDigits = 2;
+                this.PercentDecimalSeparator = ".";
+                this.PercentGroupSeparator = ",";
+                this.PercentGroupSizes = [3];
+                this.PercentNegativePattern = 0;
+                this.PercentPositivePattern = 0;
+                this.PercentSymbol = "%";
+                this.PerMilleSymbol = "‰";
+            }
+            NumberFormatInfo.prototype.FormatCurrency = function (num, precision) {
+                if (precision == null)
+                    precision = this.CurrencyDecimalDigits;
+                var rawnum = this.FormatRawNumber(Math.abs(num), precision, this.CurrencyDecimalSeparator, this.CurrencyGroupSeparator, this.CurrencyGroupSizes);
+                if (num < 0) {
+                    switch (this.CurrencyNegativePattern) {
+                        case 0:
+                        default:
+                            return "(" + this.CurrencySymbol + rawnum + ")";
+                        case 1:
+                            return [this.NegativeSign, this.CurrencySymbol, rawnum].join("");
+                        case 2:
+                            return [this.CurrencySymbol, this.NegativeSign, rawnum].join("");
+                        case 3:
+                            return [this.CurrencySymbol, rawnum, this.NegativeSign].join("");
+                        case 4:
+                            return "(" + rawnum + this.CurrencySymbol + ")";
+                        case 5:
+                            return [this.NegativeSign, rawnum, this.CurrencySymbol].join("");
+                        case 6:
+                            return [rawnum, this.NegativeSign, this.CurrencySymbol].join("");
+                        case 7:
+                            return [rawnum, this.CurrencySymbol, this.NegativeSign].join("");
+                        case 8:
+                            return [this.NegativeSign, rawnum, " ", this.CurrencySymbol].join("");
+                        case 9:
+                            return [this.NegativeSign, this.CurrencySymbol, " ", rawnum].join("");
+                        case 10:
+                            return [rawnum, " ", this.CurrencySymbol, this.NegativeSign].join("");
+                        case 11:
+                            return [this.CurrencySymbol, " ", rawnum, this.NegativeSign].join("");
+                        case 12:
+                            return [this.CurrencySymbol, " ", this.NegativeSign, rawnum].join("");
+                        case 13:
+                            return [rawnum, this.NegativeSign, " ", this.CurrencySymbol].join("");
+                        case 14:
+                            return "(" + this.CurrencySymbol + " " + rawnum + ")";
+                        case 15:
+                            return "(" + rawnum + " " + this.CurrencySymbol + ")";
+                    }
+                } else {
+                    switch (this.CurrencyPositivePattern) {
+                        case 0:
+                        default:
+                            return [this.CurrencySymbol, rawnum].join("");
+                        case 1:
+                            return [rawnum, this.CurrencySymbol].join("");
+                        case 2:
+                            return [this.CurrencySymbol, rawnum].join(" ");
+                        case 3:
+                            return [rawnum, this.CurrencySymbol].join(" ");
+                    }
+                }
+            };
+            NumberFormatInfo.prototype.FormatNumber = function (num, precision, ignoreGroupSep) {
+                if (precision == null)
+                    precision = this.NumberDecimalDigits;
+                var rawnum = this.FormatRawNumber(Math.abs(num), precision, this.NumberDecimalSeparator, ignoreGroupSep ? "" : this.NumberGroupSeparator, this.NumberGroupSizes);
+                if (num >= 0)
+                    return rawnum;
+                switch (this.NumberNegativePattern) {
+                    case 0:
+                        return "(" + rawnum + ")";
+                    case 1:
+                    default:
+                        return [this.NegativeSign, rawnum].join("");
+                    case 2:
+                        return [this.NegativeSign, rawnum].join(" ");
+                    case 3:
+                        return [rawnum, this.NegativeSign].join("");
+                    case 4:
+                        return [rawnum, this.NegativeSign].join(" ");
+                }
+            };
+            NumberFormatInfo.prototype.FormatPercent = function (num, precision) {
+                if (precision == null)
+                    precision = this.PercentDecimalDigits;
+                var rawnum = this.FormatRawNumber(Math.abs(num * 100), precision, this.PercentDecimalSeparator, this.PercentGroupSeparator, this.PercentGroupSizes);
+                var sym = this.PercentSymbol;
+                if (num < 0) {
+                    var sign = this.NegativeSign;
+                    switch (this.PercentNegativePattern) {
+                        case 0:
+                        default:
+                            return [sign, rawnum, " ", sym].join("");
+                        case 1:
+                            return [sign, rawnum, sym].join("");
+                        case 2:
+                            return [sign, sym, rawnum].join("");
+                        case 3:
+                            return [sym, sign, rawnum].join("");
+                        case 4:
+                            return [sym, rawnum, sign].join("");
+                        case 5:
+                            return [rawnum, sign, sym].join("");
+                        case 6:
+                            return [rawnum, sym, sign].join("");
+                        case 7:
+                            return [sign, sym, " ", rawnum].join("");
+                        case 8:
+                            return [sign, sym, " ", rawnum].join("");
+                        case 9:
+                            return [sym, " ", rawnum, sign].join("");
+                        case 10:
+                            return [sym, " ", sign, rawnum].join("");
+                        case 11:
+                            return [rawnum, sign, " ", sym].join("");
+                    }
+                } else {
+                    switch (this.PercentPositivePattern) {
+                        case 0:
+                        default:
+                            return [rawnum, this.PercentSymbol].join(" ");
+                        case 1:
+                            return [rawnum, this.PercentSymbol].join("");
+                        case 2:
+                            return [this.PercentSymbol, rawnum].join("");
+                        case 3:
+                            return [this.PercentSymbol, rawnum].join(" ");
+                    }
+                }
+            };
+            NumberFormatInfo.prototype.FormatGeneral = function (num, precision) {
+                if (precision == null)
+                    precision = 6;
+                var sig = sigDigits(Math.abs(num), precision);
+                var rawnum = sig.toString();
+                if (num >= 0)
+                    return rawnum;
+                return this.NegativeSign + rawnum;
+            };
+            NumberFormatInfo.prototype.FormatDecimal = function (num, precision) {
+                var rawnum = this.FormatRawNumber(Math.abs(num), 0, "", "", null);
+                var d = padded(rawnum, precision || 0, true);
+                if (num < 0)
+                    d = this.NegativeSign + d;
+                return d;
+            };
+            NumberFormatInfo.prototype.FormatExponential = function (num, precision) {
+                if (precision == null)
+                    precision = 6;
+                var e = num.toExponential(precision);
+                var tokens = e.split("e+");
+                return tokens[0] + "e" + this.PositiveSign + padded(tokens[1], 3, true);
+            };
+            NumberFormatInfo.prototype.FormatHexadecimal = function (num, precision) {
+                if (precision == null)
+                    precision = 2;
+                num = parseInt(num);
+                if (num >= 0)
+                    return padded(num.toString(16), precision, true);
+                var us = (Math.pow(2, 32) + num).toString(16);
+                if (precision >= us.length)
+                    return padded(us, precision, true);
+                var start = 0;
+                while (us.length - start > precision && us[start] === "f") {
+                    start++;
+                }
+                return us.substr(start);
+            };
+            NumberFormatInfo.prototype.FormatRawNumber = function (num, precision, decSep, groupSep, groupSizes) {
+                var rounded = round(num, precision);
+                var ip = Math.floor(rounded).toString();
+                var fp = rounded.toString().split('.')[1];
+                var pfp = padded(fp, precision);
+                if (!pfp)
+                    return grouped(ip, groupSep);
+                return [
+                    grouped(ip, groupSep),
+                    pfp
+                ].join(decSep);
+            };
+            NumberFormatInfo.Instance = new NumberFormatInfo();
+            return NumberFormatInfo;
+        })();
+        Localization.NumberFormatInfo = NumberFormatInfo;
+
+        function grouped(s, sep) {
+            if (s.length < 4)
+                return s;
+            var offset = s.length % 3;
+            if (offset !== 0) {
+                offset = 3 - offset;
+                s = new Array(offset + 1).join("0") + s;
+            }
+            return s.match(/\d\d\d/g).join(sep).substr(offset);
+        }
+        function padded(s, precision, front) {
+            if (!s)
+                return new Array(precision + 1).join("0");
+            if (s.length > precision)
+                return front ? s : s.substr(0, precision);
+            if (front)
+                return new Array(precision - s.length + 1).join("0") + s;
+            return s + new Array(precision - s.length + 1).join("0");
+        }
+        function round(num, places) {
+            var factor = Math.pow(10, places);
+            return Math.round(num * factor) / factor;
+        }
+        function sigDigits(num, digits) {
+            var n = num.toString();
+            var index = n.indexOf(".");
+            if (index > -1)
+                return round(num, digits - index);
+            return round(num, digits - n.length);
+        }
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        var Calendar = (function () {
+            function Calendar() {
+                this.ID = 1;
+                this.Eras = [1];
+                this.EraNames = ["A.D."];
+                this.CurrentEraValue = 1;
+                this.TwoDigitYearMax = 2029;
+                this.MaxSupportedDateTime = new DateTime(9999, 12, 31, 23, 59, 59, 999);
+                this.MinSupportedDateTime = new DateTime(1, 1, 1, 0, 0, 0, 0);
+            }
+            return Calendar;
+        })();
+        Localization.Calendar = Calendar;
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        (function (CalendarWeekRule) {
+            CalendarWeekRule[CalendarWeekRule["FirstDay"] = 0] = "FirstDay";
+            CalendarWeekRule[CalendarWeekRule["FirstFullWeek"] = 1] = "FirstFullWeek";
+            CalendarWeekRule[CalendarWeekRule["FirstFourDayWeek"] = 2] = "FirstFourDayWeek";
+        })(Localization.CalendarWeekRule || (Localization.CalendarWeekRule = {}));
+        var CalendarWeekRule = Localization.CalendarWeekRule;
+        var DateTimeFormatInfo = (function () {
+            function DateTimeFormatInfo() {
+                this.AbbreviatedDayNames = [
+                    "Sun",
+                    "Mon",
+                    "Tue",
+                    "Wed",
+                    "Thu",
+                    "Fri",
+                    "Sat"
+                ];
+                this.AbbreviatedMonthGenitiveNames = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                    ""
+                ];
+                this.AbbreviatedMonthNames = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec"
+                ];
+                this.AMDesignator = "AM";
+                this.Calendar = new Localization.Calendar();
+                this.CalendarWeekRule = 0 /* FirstDay */;
+                this.DateSeparator = "/";
+                this.DayNames = [
+                    "Sunday",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday"
+                ];
+                this.FirstDayOfWeek = 0 /* Sunday */;
+                this.FullDateTimePattern = "dddd, MMMM dd, yyyy h:mm:ss tt";
+                this.LongDatePattern = "dddd, MMMM dd, yyyy";
+                this.LongTimePattern = "h:mm:ss tt";
+                this.MonthDayPattern = "MMMM dd";
+                this.MonthGenitiveNames = [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December",
+                    ""
+                ];
+                this.MonthNames = [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December"
+                ];
+                this.PMDesignator = "PM";
+                this.RFC1123Pattern = "ddd, dd MMM yyyy HH':'mm':'ss 'GMT'";
+                this.ShortDatePattern = "M/d/yyyy";
+                this.ShortestDayNames = [
+                    "Su",
+                    "Mo",
+                    "Tu",
+                    "We",
+                    "Th",
+                    "Fr",
+                    "Sa"
+                ];
+                this.ShortTimePattern = "h:mm tt";
+                this.SortableDateTimePattern = "yyyy'-'MM'-'dd'T'HH':'mm':'ss";
+                this.TimeSeparator = ":";
+                this.UniversalSortableDateTimePattern = "yyyy'-'MM'-'dd HH':'mm':'ss'Z'";
+                this.YearMonthPattern = "MMMM, yyyy";
+                this.HasForceTwoDigitYears = false;
+            }
+            DateTimeFormatInfo.prototype.GetEraName = function (era) {
+                if (era === 0)
+                    era = this.Calendar.CurrentEraValue;
+                if (era < 0)
+                    throw new ArgumentException("era");
+                var eras = this.Calendar.EraNames;
+                if (era >= eras.length)
+                    throw new ArgumentException("era");
+                return eras[era];
+            };
+
+            DateTimeFormatInfo.ParseRepeatPattern = function (format, pos, patternChar) {
+                var length = format.length;
+                var index = pos + 1;
+                var code = patternChar.charCodeAt(0);
+                while (index < length && format.charCodeAt(index) === code)
+                    ++index;
+                return index - pos;
+            };
+            DateTimeFormatInfo.ParseNextChar = function (format, pos) {
+                if (pos >= format.length - 1)
+                    return -1;
+                return format.charCodeAt(pos + 1);
+            };
+            DateTimeFormatInfo.ParseQuoteString = function (format, pos, result) {
+                var length = format.length;
+                var num = pos;
+                var ch1 = format[pos++];
+                var flag = false;
+                var special = String.fromCharCode(92);
+                while (pos < length) {
+                    var ch2 = format[pos++];
+                    if (ch2 === ch1) {
+                        flag = true;
+                        break;
+                    } else if (ch2 === special) {
+                        if (pos >= length)
+                            throw new FormatException("Invalid format string.");
+                        result.push(format[pos++]);
+                    } else
+                        result.push(ch2);
+                }
+                if (flag)
+                    return pos - num;
+                throw new FormatException("Bad quote: " + ch1);
+            };
+            DateTimeFormatInfo.FormatDigits = function (sb, value, len, overrideLenLimit) {
+                if (!overrideLenLimit && len > 2)
+                    len = 2;
+
+                var s = Math.floor(value).toString();
+                while (s.length < len)
+                    s = "0" + s;
+                sb.push(s);
+            };
+            DateTimeFormatInfo.FormatMonth = function (month, repeat, info) {
+                if (repeat === 3)
+                    return info.AbbreviatedMonthNames[month - 1];
+                return info.MonthNames[month - 1];
+            };
+            DateTimeFormatInfo.FormatDayOfWeek = function (dayOfWeek, repeat, info) {
+                if (repeat === 3)
+                    return info.AbbreviatedDayNames[dayOfWeek];
+                return info.DayNames[dayOfWeek];
+            };
+
+            DateTimeFormatInfo.HebrewFormatDigits = function (sb, digits) {
+                console.warn("Hebrew not implemented");
+                return digits.toString();
+            };
+            DateTimeFormatInfo.FormatHebrewMonthName = function (obj, month, repeat, info) {
+                console.warn("Hebrew not implemented");
+                return DateTimeFormatInfo.FormatMonth(month, repeat, info);
+
+                if (month >= 7)
+                    ++month;
+                if (repeat === 3)
+                    return info.AbbreviatedMonthNames[month - 1];
+                return info.MonthNames[month - 1];
+            };
+            DateTimeFormatInfo.Instance = new DateTimeFormatInfo();
+            return DateTimeFormatInfo;
+        })();
+        Localization.DateTimeFormatInfo = DateTimeFormatInfo;
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        function Format(format) {
+            var items = [];
+            for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                items[_i] = arguments[_i + 1];
+            }
+            var sb = [];
+            appendFormat(sb, format, items);
+            return sb.join("");
+        }
+        Localization.Format = Format;
+        function FormatSingle(obj, format) {
+            return doFormattable(obj, format);
+        }
+        Localization.FormatSingle = FormatSingle;
+
+        function appendFormat(_this, format, args, provider) {
+            if (format == null || args == null)
+                throw new ArgumentNullException(format == null ? "format" : "args");
+            var index1 = 0;
+            var length = format.length;
+            var ch = 0;
+            while (true) {
+                var flag = false;
+                var repeatCount = 0;
+                var breakout = false;
+                do {
+                    if (index1 < length) {
+                        ch = format.charCodeAt(index1);
+                        ++index1;
+                        if (ch === 125) {
+                            if (index1 < length && format.charCodeAt(index1) === 125)
+                                ++index1;
+                            else
+                                formatError();
+                        }
+                        if (ch === 123) {
+                            if (index1 >= length || format.charCodeAt(index1) !== 123)
+                                --index1;
+                            else {
+                                breakout = true;
+                                ++index1;
+                            }
+                        } else {
+                            _this.push(String.fromCharCode(ch));
+                            breakout = true;
+                        }
+                    }
+                    if (index1 != length) {
+                        var index2 = index1 + 1;
+                        if (index2 === length || (ch = format.charCodeAt(index2)) < 48 || ch > 57)
+                            formatError();
+                        var index3 = 0;
+                        do {
+                            index3 = index3 * 10 + ch - 48;
+                            ++index2;
+                            if (index2 == length)
+                                formatError();
+                            ch = format.charCodeAt(index2);
+                        } while(ch >= 48 && ch <= 57 && index3 < 1000000);
+                        if (index3 >= args.length)
+                            throw new FormatException("Index out of range.");
+                        while (index2 < length && (ch = format.charCodeAt(index2)) === 32)
+                            ++index2;
+                        flag = false;
+                        var num = 0;
+                        if (ch === 44) {
+                            ++index2;
+                            while (index2 < length && format.charCodeAt(index2) === 32)
+                                ++index2;
+                            if (index2 == length)
+                                formatError();
+                            ch = format.charCodeAt(index2);
+                            if (ch === 45) {
+                                flag = true;
+                                ++index2;
+                                if (index2 == length)
+                                    formatError();
+                                ch = format.charCodeAt(index2);
+                            }
+                            if (ch < 48 || ch > 57)
+                                formatError();
+                            do {
+                                num = num * 10 + ch - 48;
+                                ++index2;
+                                if (index2 == length)
+                                    formatError();
+                                ch = format.charCodeAt(index2);
+                            } while(ch >= 48 && ch <= 57 && num < 1000000);
+                        }
+                        while (index2 < length && (ch = format.charCodeAt(index2)) === 32)
+                            ++index2;
+                        var obj = args[index3];
+                        var stringBuilder = null;
+                        if (ch === 58) {
+                            var index4 = index2 + 1;
+                            while (true) {
+                                if (index4 === length)
+                                    formatError();
+                                ch = format.charCodeAt(index4);
+                                ++index4;
+                                if (ch === 123) {
+                                    if (index4 < length && format.charCodeAt(index4) === 123)
+                                        ++index4;
+                                    else
+                                        formatError();
+                                } else if (ch === 125) {
+                                    if (index4 < length && format.charCodeAt(index4) === 125)
+                                        ++index4;
+                                    else
+                                        break;
+                                }
+                                stringBuilder = stringBuilder || [];
+                                stringBuilder.push(String.fromCharCode(ch));
+                            }
+                            index2 = index4 - 1;
+                        }
+                        if (ch !== 125)
+                            formatError();
+                        index1 = index2 + 1;
+                        var str = formatItem(obj, stringBuilder, provider) || "";
+                        repeatCount = num - str.length;
+                        if (!flag && repeatCount > 0)
+                            pushMany(_this, ' ', repeatCount);
+                        _this.push(str);
+                    } else
+                        return;
+                } while(!flag || repeatCount <= 0);
+                if (!breakout)
+                    pushMany(_this, ' ', repeatCount);
+            }
+        }
+        function formatItem(obj, stringBuilder, provider) {
+            var format1 = null;
+            var str = null;
+
+            if (str == null) {
+                if (format1 == null && stringBuilder != null)
+                    format1 = stringBuilderToString(stringBuilder);
+                var formatted = doFormattable(obj, format1, provider);
+                if (formatted !== undefined)
+                    str = formatted;
+            }
+            return str;
+        }
+        function pushMany(arr, s, count) {
+            for (var i = count - 1; i >= 0; i--) {
+                arr.push(s);
+            }
+        }
+        function formatError() {
+            return new FormatException("Invalid format string.");
+        }
+        function stringBuilderToString(arr) {
+            return arr.join("");
+        }
+
+        var formatters = [];
+        function RegisterFormattable(type, formatter) {
+            formatters[type] = formatter;
+        }
+        Localization.RegisterFormattable = RegisterFormattable;
+        function doFormattable(obj, format, provider) {
+            if (obj == null)
+                return undefined;
+            var type = obj.constructor;
+            var formatter = formatters[type];
+            if (!formatter)
+                return undefined;
+            return formatter(obj, format, provider);
+        }
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        Localization.RegisterFormattable(DateTime, function (obj, format, provider) {
+            if (!format)
+                return undefined;
+            if (obj == null)
+                return null;
+            if (obj.constructor !== DateTime)
+                return null;
+            var res = tryStandardFormat(obj, format);
+            if (res != undefined)
+                return res;
+            return tryCustomFormat(obj, format, TimeSpan.MinValue);
+        });
+
+        function tryStandardFormat(obj, format) {
+            if (format.length !== 1)
+                return undefined;
+            var ch = format[0];
+            if (!ch)
+                return undefined;
+            var f = standardFormatters[ch];
+            if (!f)
+                return undefined;
+            return f(obj);
+        }
+
+        var standardFormatters = [];
+        standardFormatters["d"] = function (obj) {
+            return [
+                obj.Month.toString(),
+                obj.Day.toString(),
+                obj.Year.toString()
+            ].join("/");
+        };
+        standardFormatters["D"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            return [
+                info.DayNames[obj.DayOfWeek],
+                ", ",
+                info.MonthNames[obj.Month - 1],
+                " ",
+                obj.Day.toString(),
+                ", ",
+                obj.Year.toString()
+            ].join("");
+        };
+        standardFormatters["f"] = function (obj) {
+            return [
+                standardFormatters["D"](obj),
+                standardFormatters["t"](obj)
+            ].join(" ");
+        };
+        standardFormatters["F"] = function (obj) {
+            return [
+                standardFormatters["D"](obj),
+                standardFormatters["T"](obj)
+            ].join(" ");
+        };
+        standardFormatters["g"] = function (obj) {
+            return [
+                standardFormatters["d"](obj),
+                standardFormatters["t"](obj)
+            ].join(" ");
+        };
+        standardFormatters["G"] = function (obj) {
+            return [
+                standardFormatters["d"](obj),
+                standardFormatters["T"](obj)
+            ].join(" ");
+        };
+        standardFormatters["m"] = standardFormatters["M"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            return [
+                info.MonthNames[obj.Month - 1],
+                obj.Day
+            ].join(" ");
+        };
+        standardFormatters["r"] = standardFormatters["R"] = function (obj) {
+            var utc = obj.ToUniversalTime();
+            var info = Localization.DateTimeFormatInfo.Instance;
+            return [
+                info.AbbreviatedDayNames[utc.DayOfWeek],
+                ", ",
+                utc.Day,
+                " ",
+                info.AbbreviatedMonthNames[utc.Month - 1],
+                " ",
+                utc.Year,
+                " ",
+                utc.Hour,
+                ":",
+                utc.Minute,
+                ":",
+                utc.Second,
+                " GMT"
+            ].join("");
+        };
+        standardFormatters["s"] = function (obj) {
+            return [
+                obj.Year,
+                "-",
+                padded(obj.Month),
+                "-",
+                padded(obj.Day),
+                "T",
+                padded(obj.Hour),
+                ":",
+                padded(obj.Minute),
+                ":",
+                padded(obj.Second)
+            ].join("");
+        };
+        standardFormatters["t"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var hour = obj.Hour;
+            var desig = info.AMDesignator;
+            if (hour > 12) {
+                hour -= 12;
+                desig = info.PMDesignator;
+            }
+            return [
+                hour.toString(),
+                ":",
+                obj.Minute.toString(),
+                " ",
+                desig
+            ].join("");
+        };
+        standardFormatters["T"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var hour = obj.Hour;
+            var desig = info.AMDesignator;
+            if (hour > 12) {
+                hour -= 12;
+                desig = info.PMDesignator;
+            }
+            return [
+                hour.toString(),
+                ":",
+                obj.Minute.toString(),
+                ":",
+                obj.Second.toString(),
+                " ",
+                desig
+            ].join("");
+        };
+        standardFormatters["u"] = function (obj) {
+            return [
+                obj.Year.toString(),
+                "-",
+                padded(obj.Month),
+                "-",
+                padded(obj.Day),
+                " ",
+                padded(obj.Hour),
+                ":",
+                padded(obj.Minute),
+                ":",
+                padded(obj.Second),
+                "Z"
+            ].join("");
+        };
+        standardFormatters["U"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var hour = obj.Hour;
+            var desig = info.AMDesignator;
+            if (hour > 12) {
+                hour -= 12;
+                desig = info.PMDesignator;
+            }
+            return [
+                info.DayNames[obj.DayOfWeek],
+                ", ",
+                info.MonthNames[obj.Month - 1],
+                " ",
+                obj.Day.toString(),
+                ", ",
+                obj.Year.toString(),
+                " ",
+                hour.toString(),
+                ":",
+                obj.Minute.toString(),
+                ":",
+                obj.Second.toString(),
+                " ",
+                desig
+            ].join("");
+        };
+        standardFormatters["y"] = standardFormatters["Y"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            return [
+                info.MonthNames[obj.Month - 1],
+                obj.Year
+            ].join(", ");
+        };
+
+        function padded(num) {
+            return num < 10 ? "0" + num.toString() : num.toString();
+        }
+
+        function tryCustomFormat(obj, format, offset) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var calendar = info.Calendar;
+            var stringBuilder = [];
+            var flag = calendar.ID === 8;
+            var timeOnly = true;
+            var index = 0;
+            var len;
+            while (index < format.length) {
+                var patternChar = format[index];
+                switch (patternChar) {
+                    case 'm':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, obj.Minute, len);
+                        break;
+                    case 's':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, obj.Second, len);
+                        break;
+                    case 't':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        if (len === 1) {
+                            if (obj.Hour < 12) {
+                                if (info.AMDesignator.length >= 1) {
+                                    stringBuilder.push(info.AMDesignator[0]);
+                                    break;
+                                } else
+                                    break;
+                            } else if (info.PMDesignator.length >= 1) {
+                                stringBuilder.push(info.PMDesignator[0]);
+                                break;
+                            } else
+                                break;
+                        } else {
+                            stringBuilder.push(obj.Hour < 12 ? info.AMDesignator : info.PMDesignator);
+                            break;
+                        }
+                    case 'y':
+                        var year = obj.Year;
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        if (info.HasForceTwoDigitYears)
+                            Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, year, len <= 2 ? len : 2);
+                        else if (calendar.ID === 8)
+                            Localization.DateTimeFormatInfo.HebrewFormatDigits(stringBuilder, year);
+                        else if (len <= 2) {
+                            Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, year % 100, len);
+                        } else {
+                            stringBuilder.push(Localization.FormatSingle(year, "D" + len.toString()));
+                        }
+                        timeOnly = false;
+                        break;
+                    case 'z':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+
+                        console.warn("DateTime 'z' not implemented");
+                        break;
+                    case 'K':
+                        len = 1;
+
+                        console.warn("DateTime 'K' not implemented");
+                        break;
+                    case 'M':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        var month = obj.Month;
+                        if (len <= 2) {
+                            if (flag)
+                                Localization.DateTimeFormatInfo.HebrewFormatDigits(stringBuilder, month);
+                            else
+                                Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, month, len);
+                        } else if (flag)
+                            stringBuilder.push(Localization.DateTimeFormatInfo.FormatHebrewMonthName(obj, month, len, info));
+                        else
+                            stringBuilder.push(Localization.DateTimeFormatInfo.FormatMonth(month, len, info));
+                        timeOnly = false;
+                        break;
+                    case '\\':
+                        var num2 = Localization.DateTimeFormatInfo.ParseNextChar(format, index);
+                        if (num2 < 0)
+                            throw formatError();
+                        stringBuilder.push(String.fromCharCode(num2));
+                        len = 2;
+                        break;
+                    case 'd':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        if (len <= 2) {
+                            var dayOfMonth = obj.Day;
+                            if (flag)
+                                Localization.DateTimeFormatInfo.HebrewFormatDigits(stringBuilder, dayOfMonth);
+                            else
+                                Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, dayOfMonth, len);
+                        } else {
+                            var dayOfWeek = obj.DayOfWeek;
+                            stringBuilder.push(Localization.DateTimeFormatInfo.FormatDayOfWeek(dayOfWeek, len, info));
+                        }
+                        timeOnly = false;
+                        break;
+                    case 'f':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        if (len > 7)
+                            throw formatError();
+                        stringBuilder.push(msf(obj.Millisecond, len));
+                        break;
+                    case 'F':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        if (len > 7)
+                            throw formatError();
+                        stringBuilder.push(msF(obj.Millisecond, len));
+                        break;
+                    case 'g':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        stringBuilder.push(info.GetEraName(1));
+                        break;
+                    case 'h':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        var num5 = obj.Hour % 12;
+                        if (num5 === 0)
+                            num5 = 12;
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, num5, len);
+                        break;
+                    case '/':
+                        stringBuilder.push(info.DateSeparator);
+                        len = 1;
+                        break;
+                    case ':':
+                        stringBuilder.push(info.TimeSeparator);
+                        len = 1;
+                        break;
+                    case 'H':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, obj.Hour, len);
+                        break;
+                    case '"':
+                    case '\'':
+                        len = Localization.DateTimeFormatInfo.ParseQuoteString(format, index, stringBuilder);
+                        break;
+                    case '%':
+                        var num6 = Localization.DateTimeFormatInfo.ParseNextChar(format, index);
+                        if (num6 < 0 || num6 === 37)
+                            throw formatError();
+                        stringBuilder.push(tryCustomFormat(obj, String.fromCharCode(num6), offset));
+                        len = 2;
+                        break;
+                    default:
+                        stringBuilder.push(patternChar);
+                        len = 1;
+                        break;
+                }
+                index += len;
+            }
+            return stringBuilder.join("");
+        }
+
+        function msf(ms, len) {
+            var s = Math.abs(ms).toString();
+            while (s.length < 3)
+                s = "0" + s;
+            s += "0000";
+            return s.substr(0, len);
+        }
+        function msF(ms, len) {
+            var f = msf(ms, len);
+            var end = f.length - 1;
+            for (; end >= 0; end--) {
+                if (f[end] !== "0")
+                    break;
+            }
+            return f.slice(0, end + 1);
+        }
+
+        function formatError() {
+            return new FormatException("Invalid format string.");
+        }
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        Localization.RegisterFormattable(Number, function (obj, format, provider) {
+            if (obj == null)
+                return null;
+            if (obj.constructor !== Number)
+                return null;
+            var res = tryStandardFormat(obj, format);
+            if (res != undefined)
+                return res;
+            return format;
+        });
+
+        function tryStandardFormat(obj, format) {
+            var ch = format[0];
+            if (!ch)
+                return undefined;
+            var lowerch = ch.toLowerCase();
+            if (lowerch < "a" || lowerch > "z")
+                return undefined;
+            var prec = null;
+            if (format.length > 1) {
+                var prec = parseInt(format.substr(1));
+                if (isNaN(prec))
+                    return undefined;
+            }
+
+            var f = standardFormatters[ch] || standardFormatters[lowerch];
+            if (!f)
+                return undefined;
+            return f(obj, prec);
+        }
+
+        var standardFormatters = [];
+        standardFormatters["c"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatCurrency(obj, precision);
+        };
+        standardFormatters["d"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatDecimal(obj, precision);
+        };
+        standardFormatters["E"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatExponential(obj, precision).toUpperCase();
+        };
+        standardFormatters["e"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatExponential(obj, precision);
+        };
+        standardFormatters["f"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatNumber(obj, precision, true);
+        };
+        standardFormatters["g"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatGeneral(obj, precision);
+        };
+        standardFormatters["n"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatNumber(obj, precision);
+        };
+        standardFormatters["p"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatPercent(obj, precision);
+        };
+        standardFormatters["X"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatHexadecimal(obj, precision).toUpperCase();
+        };
+        standardFormatters["x"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatHexadecimal(obj, precision);
+        };
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        Localization.RegisterFormattable(TimeSpan, function (obj, format, provider) {
+            if (!format)
+                return undefined;
+            if (obj == null)
+                return null;
+            if (obj.constructor !== TimeSpan)
+                return null;
+            var res = tryStandardFormat(obj, format);
+            if (res != undefined)
+                return res;
+            return tryCustomFormat(obj, format);
+        });
+
+        function tryStandardFormat(obj, format) {
+            if (format.length !== 1)
+                return undefined;
+            var ch = format[0];
+            if (!ch)
+                return undefined;
+            var f = standardFormatters[ch];
+            if (!f)
+                return undefined;
+            return f(obj);
+        }
+
+        var standardFormatters = [];
+        standardFormatters["c"] = standardFormatters["t"] = standardFormatters["T"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var s = [
+                padded(obj.Hours),
+                padded(obj.Minutes),
+                padded(obj.Seconds)
+            ].join(info.TimeSeparator);
+            var days = obj.Days;
+            if (days)
+                s = Math.abs(days) + "." + s;
+            var ms = obj.Milliseconds;
+            if (ms)
+                s += "." + msf(ms, 7);
+            if (obj.Ticks < 0)
+                s = "-" + s;
+            return s;
+        };
+        standardFormatters["g"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var s = [
+                Math.abs(obj.Hours),
+                padded(obj.Minutes),
+                padded(obj.Seconds)
+            ].join(info.TimeSeparator);
+            var days = obj.Days;
+            if (days)
+                s = Math.abs(days) + ":" + s;
+            var ms = obj.Milliseconds;
+            if (ms)
+                s += "." + msF(ms, 7);
+            if (obj.Ticks < 0)
+                s = "-" + s;
+            return s;
+        };
+        standardFormatters["G"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var s = [
+                Math.abs(obj.Days),
+                padded(obj.Hours),
+                padded(obj.Minutes),
+                padded(obj.Seconds)
+            ].join(info.TimeSeparator);
+            var ms = obj.Milliseconds;
+            s += "." + msf(ms, 7);
+            if (obj.Ticks < 0)
+                s = "-" + s;
+            return s;
+        };
+
+        function tryCustomFormat(obj, format) {
+            var days = Math.abs(obj.Days);
+            var hours = Math.abs(obj.Hours);
+            var minutes = Math.abs(obj.Minutes);
+            var seconds = Math.abs(obj.Seconds);
+            var ms = Math.abs(obj.Milliseconds);
+
+            var len;
+            var pos = 0;
+            var stringBuilder = [];
+            while (pos < format.length) {
+                var patternChar = format[pos];
+                switch (patternChar) {
+                    case 'm':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 2)
+                            throw formatError();
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, minutes, len);
+                        break;
+                    case 's':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 2)
+                            throw formatError();
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, seconds, len);
+                        break;
+                    case '\\':
+                        var num7 = Localization.DateTimeFormatInfo.ParseNextChar(format, pos);
+                        if (num7 < 0)
+                            throw formatError();
+                        stringBuilder.push(String.fromCharCode(num7));
+                        len = 2;
+                        break;
+                    case 'd':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 8)
+                            throw formatError();
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, days, len, true);
+                        break;
+                    case 'f':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 7)
+                            throw formatError();
+                        stringBuilder.push(msf(ms, len));
+                        break;
+                    case 'F':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 7)
+                            throw formatError();
+                        stringBuilder.push(msF(ms, len));
+                        break;
+                    case 'h':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 2)
+                            throw formatError();
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, hours, len);
+                        break;
+                    case '"':
+                    case '\'':
+                        len = Localization.DateTimeFormatInfo.ParseQuoteString(format, pos, stringBuilder);
+                        break;
+                    case '%':
+                        var num9 = Localization.DateTimeFormatInfo.ParseNextChar(format, pos);
+                        if (num9 < 0 || num9 === 37)
+                            throw formatError();
+                        stringBuilder.push(tryCustomFormat(obj, String.fromCharCode(num9)));
+                        len = 2;
+                        break;
+                    default:
+                        throw formatError();
+                }
+                pos += len;
+            }
+            return stringBuilder.join("");
+        }
+
+        function padded(num) {
+            var s = Math.abs(num).toString();
+            return (s.length === 1) ? "0" + s : s;
+        }
+        function msf(ms, len) {
+            var s = Math.abs(ms).toString();
+            while (s.length < 3)
+                s = "0" + s;
+            s += "0000";
+            return s.substr(0, len);
+        }
+        function msF(ms, len) {
+            var f = msf(ms, len);
+            var end = f.length - 1;
+            for (; end >= 0; end--) {
+                if (f[end] !== "0")
+                    break;
+            }
+            return f.slice(0, end + 1);
+        }
+
+        function formatError() {
+            return new FormatException("Invalid format string.");
+        }
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {

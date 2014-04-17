@@ -18,11 +18,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="default.html" />
-    <Content Include="lib\Fayde\Fayde.d.ts" />
     <Content Include="lib\Fayde\Fayde.js" />
     <Content Include="lib\Fayde\Themes\Default.theme.xml" />
     <Content Include="lib\Fayde\Themes\Metro.theme.xml" />
-    <Content Include="lib\requirejs\require.d.ts" />
     <Content Include="lib\requirejs\require.js" />
     <Content Include="lib\requirejs\text.js" />
     <Content Include="Views\treeview.fayde">
@@ -31,6 +29,8 @@
     <Content Include="Views\home.fayde" />
     <Content Include="packages.config" />
     <None Include="Views\numericupdown.fayde" />
+    <TypeScriptCompile Include="lib\Fayde\Fayde.d.ts" />
+    <TypeScriptCompile Include="lib\requirejs\require.d.ts" />
     <TypeScriptCompile Include="ViewModels\MainViewModel.ts" />
     <Content Include="web.config" />
   </ItemGroup>
@@ -39,6 +39,7 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="Views\domainupdown.fayde" />
+    <Content Include="Views\wrappanel.fayde" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
