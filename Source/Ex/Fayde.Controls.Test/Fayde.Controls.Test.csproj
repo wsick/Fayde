@@ -29,8 +29,8 @@
     <Content Include="Views\home.fayde" />
     <Content Include="packages.config" />
     <None Include="Views\numericupdown.fayde" />
-    <TypeScriptCompile Include="lib\Fayde\Fayde.d.ts" />
-    <TypeScriptCompile Include="lib\requirejs\require.d.ts" />
+    <Content Include="lib\Fayde\Fayde.d.ts" />
+    <Content Include="lib\requirejs\require.d.ts" />
     <TypeScriptCompile Include="ViewModels\MainViewModel.ts" />
     <Content Include="web.config" />
   </ItemGroup>
