@@ -34,8 +34,8 @@ module Fayde.Controls.Primitives {
             if (!!e.NewValue)
                 return;
             this._DoWithSuspend(() => {
-                this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
-                this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                this.SetCurrentValue(ButtonBase.IsFocusedProperty, false);
+                this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
                 this._IsMouseCaptured = false;
                 this._IsSpaceKeyDown = false;
                 this._IsMouseLeftButtonDown = false;
@@ -49,7 +49,7 @@ module Fayde.Controls.Primitives {
                 return;
 
             this._DoWithSuspend(() => {
-                this.SetValueInternal(ButtonBase.IsPressedProperty, true);
+                this.SetCurrentValue(ButtonBase.IsPressedProperty, true);
                 this.OnClick();
             });
         }
@@ -61,7 +61,7 @@ module Fayde.Controls.Primitives {
                 return;
 
             this._DoWithSuspend(() => {
-                this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
             });
         }
         OnMouseMove(e: Input.MouseEventArgs) {
@@ -70,7 +70,7 @@ module Fayde.Controls.Primitives {
             this._MousePosition = e.GetPosition(this);
 
             if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
-                this.SetValueInternal(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
+                this.SetCurrentValue(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
             }
         }
         OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
@@ -88,7 +88,7 @@ module Fayde.Controls.Primitives {
                 this.Focus();
                 this._CaptureMouseInternal();
                 if (this._IsMouseCaptured)
-                    this.SetValueInternal(ButtonBase.IsPressedProperty, true);
+                    this.SetCurrentValue(ButtonBase.IsPressedProperty, true);
             });
 
             if (clickMode === ClickMode.Press)
@@ -110,24 +110,24 @@ module Fayde.Controls.Primitives {
 
             if (!this._IsSpaceKeyDown) {
                 this._ReleaseMouseCaptureInternal();
-                this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
             }
         }
 
         OnGotFocus(e: RoutedEventArgs) {
             super.OnGotFocus(e);
-            this.SetValueInternal(ButtonBase.IsFocusedProperty, true);
+            this.SetCurrentValue(ButtonBase.IsFocusedProperty, true);
             this.UpdateVisualState();
         }
         OnLostFocus(e: RoutedEventArgs) {
             super.OnLostFocus(e);
-            this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
+            this.SetCurrentValue(ButtonBase.IsFocusedProperty, false);
 
             if (this.ClickMode === ClickMode.Hover)
                 return;
 
             this._DoWithSuspend(() => {
-                this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
                 this._ReleaseMouseCaptureInternal();
                 this._IsSpaceKeyDown = false;
             });
