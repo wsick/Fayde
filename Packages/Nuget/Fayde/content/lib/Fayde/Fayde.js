@@ -5866,8 +5866,8 @@ var Fayde;
                     if (!!e.NewValue)
                         return;
                     this._DoWithSuspend(function () {
-                        _this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
-                        _this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                        _this.SetCurrentValue(ButtonBase.IsFocusedProperty, false);
+                        _this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
                         _this._IsMouseCaptured = false;
                         _this._IsSpaceKeyDown = false;
                         _this._IsMouseLeftButtonDown = false;
@@ -5882,7 +5882,7 @@ var Fayde;
                         return;
 
                     this._DoWithSuspend(function () {
-                        _this.SetValueInternal(ButtonBase.IsPressedProperty, true);
+                        _this.SetCurrentValue(ButtonBase.IsPressedProperty, true);
                         _this.OnClick();
                     });
                 };
@@ -5895,7 +5895,7 @@ var Fayde;
                         return;
 
                     this._DoWithSuspend(function () {
-                        _this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                        _this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
                     });
                 };
                 ButtonBase.prototype.OnMouseMove = function (e) {
@@ -5904,7 +5904,7 @@ var Fayde;
                     this._MousePosition = e.GetPosition(this);
 
                     if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== 2 /* Hover */ && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
-                        this.SetValueInternal(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
+                        this.SetCurrentValue(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
                     }
                 };
                 ButtonBase.prototype.OnMouseLeftButtonDown = function (e) {
@@ -5923,7 +5923,7 @@ var Fayde;
                         _this.Focus();
                         _this._CaptureMouseInternal();
                         if (_this._IsMouseCaptured)
-                            _this.SetValueInternal(ButtonBase.IsPressedProperty, true);
+                            _this.SetCurrentValue(ButtonBase.IsPressedProperty, true);
                     });
 
                     if (clickMode === 1 /* Press */)
@@ -5945,25 +5945,25 @@ var Fayde;
 
                     if (!this._IsSpaceKeyDown) {
                         this._ReleaseMouseCaptureInternal();
-                        this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                        this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
                     }
                 };
 
                 ButtonBase.prototype.OnGotFocus = function (e) {
                     _super.prototype.OnGotFocus.call(this, e);
-                    this.SetValueInternal(ButtonBase.IsFocusedProperty, true);
+                    this.SetCurrentValue(ButtonBase.IsFocusedProperty, true);
                     this.UpdateVisualState();
                 };
                 ButtonBase.prototype.OnLostFocus = function (e) {
                     var _this = this;
                     _super.prototype.OnLostFocus.call(this, e);
-                    this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
+                    this.SetCurrentValue(ButtonBase.IsFocusedProperty, false);
 
                     if (this.ClickMode === 2 /* Hover */)
                         return;
 
                     this._DoWithSuspend(function () {
-                        _this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                        _this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
                         _this._ReleaseMouseCaptureInternal();
                         _this._IsSpaceKeyDown = false;
                     });
@@ -7698,6 +7698,8 @@ var Fayde;
                     return resolution.Type;
                 } else if (propd === Fayde.Setter.PropertyProperty) {
                     var ownerStyle = findOwnerStyle();
+                    if (!(ownerStyle.TargetType))
+                        throw new XamlParseException("Style must have a TargetType.");
                     return resolveDependencyProperty(value, ownerStyle.TargetType, attr);
                 }
                 if (tt === String)
@@ -18002,12 +18004,13 @@ var Fayde;
         };
 
         Style.prototype.Validate = function (instance, error) {
+            var targetType = this.TargetType;
             var parentType = instance.constructor;
 
             if (this._IsSealed) {
-                if (!(instance instanceof this.TargetType)) {
+                if (!(instance instanceof targetType)) {
                     error.Number = BError.XamlParse;
-                    error.Message = "Style.TargetType (" + this.TargetType.name + ") is not a subclass of (" + parentType.name + ")";
+                    error.Message = "Style.TargetType (" + targetType.name + ") is not a subclass of (" + parentType.name + ")";
                     return false;
                 }
                 return true;
