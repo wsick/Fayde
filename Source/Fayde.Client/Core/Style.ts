@@ -29,12 +29,13 @@ module Fayde {
         }
 
         Validate(instance: DependencyObject, error: BError): boolean {
+            var targetType = this.TargetType;
             var parentType = <Function>(<any>instance).constructor;
 
             if (this._IsSealed) {
-                if (!(instance instanceof this.TargetType)) {
+                if (!(instance instanceof targetType)) {
                     error.Number = BError.XamlParse;
-                    error.Message = "Style.TargetType (" + (<any>this.TargetType).name + ") is not a subclass of (" + (<any>parentType).name + ")";
+                    error.Message = "Style.TargetType (" + (<any>targetType).name + ") is not a subclass of (" + (<any>parentType).name + ")";
                     return false;
                 }
                 return true;

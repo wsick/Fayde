@@ -272,6 +272,8 @@ module Fayde.Xaml {
                 return resolution.Type;
             } else if (propd === Fayde.Setter.PropertyProperty) {
                 var ownerStyle = findOwnerStyle();
+                if (!(ownerStyle.TargetType))
+                    throw new XamlParseException("Style must have a TargetType.");
                 return resolveDependencyProperty(value, ownerStyle.TargetType, attr);
             }
             if (tt === String)

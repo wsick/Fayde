@@ -135,6 +135,22 @@ export function run() {
         var setter = setters.GetValueAt(0);
         strictEqual(setter.Property, Fayde.FrameworkElement.MarginProperty, "Setter Property should be Margin property.");
         ok(Thickness.Equals(setter.ConvertedValue, new Thickness(1, 1, 1, 1)), "Setter Value should be a Thickness (1, 1, 1, 1).");
+
+
+        xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+            + "<StackPanel.Resources>"
+            + "<Style x:Key=\"SomeStyle\">"
+            + "<Setter Property=\"Margin\" Value=\"1\" />"
+            + "</Style>"
+            + "</StackPanel.Resources>"
+            + "</StackPanel>";
+        try {
+            root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+            ok(false, "Loading a style without a TargetType should fail.");
+        } catch (err) {
+            ok(err instanceof XamlParseException, "Error from loading a Style without a TargetType should be a XamlParseException.");
+            strictEqual(err.Message, "Style must have a TargetType.");
+        }
     });
 
     test("Setter+Template Binding", () => {
