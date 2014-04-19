@@ -296,4 +296,9 @@ export function run() {
         ft("{0:x4}", -1, "ffff");
         ft("{0:X4}", -1, "FFFF");
     });
+
+    test("Interpolation", () => {
+        var interp = Fayde.Localization.Format("Testing {0} {1} {2}", 1, 2, 3);
+        strictEqual(interp, "Testing 1 2 3");
+    });
 } 

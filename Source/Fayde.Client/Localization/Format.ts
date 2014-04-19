@@ -26,7 +26,7 @@
                         if (index1 < length && format.charCodeAt(index1) === 125)
                             ++index1;
                         else
-                            formatError();
+                            throw formatError();
                     }
                     if (ch === 123) {
                         if (index1 >= length || format.charCodeAt(index1) !== 123)
@@ -34,22 +34,24 @@
                         else {
                             breakout = true;
                             ++index1;
+                            break;
                         }
                     } else {
                         _this.push(String.fromCharCode(ch));
                         breakout = true;
+                        break;
                     }
                 }
                 if (index1 != length) {
                     var index2 = index1 + 1;
                     if (index2 === length || (ch = format.charCodeAt(index2)) < 48 || ch > 57)
-                        formatError();
+                        throw formatError();
                     var index3 = 0;
                     do {
                         index3 = index3 * 10 + ch - 48;
                         ++index2;
                         if (index2 == length)
-                            formatError();
+                            throw formatError();
                         ch = format.charCodeAt(index2);
                     }
                     while (ch >= 48 && ch <= 57 && index3 < 1000000);
@@ -64,22 +66,22 @@
                         while (index2 < length && format.charCodeAt(index2) === 32)
                             ++index2;
                         if (index2 == length)
-                            formatError();
+                            throw formatError();
                         ch = format.charCodeAt(index2);
                         if (ch === 45) {
                             flag = true;
                             ++index2;
                             if (index2 == length)
-                                formatError();
+                                throw formatError();
                             ch = format.charCodeAt(index2);
                         }
                         if (ch < 48 || ch > 57)
-                            formatError();
+                            throw formatError();
                         do {
                             num = num * 10 + ch - 48;
                             ++index2;
                             if (index2 == length)
-                                formatError();
+                                throw formatError();
                             ch = format.charCodeAt(index2);
                         } while (ch >= 48 && ch <= 57 && num < 1000000);
                     }
@@ -91,14 +93,14 @@
                         var index4 = index2 + 1;
                         while (true) {
                             if (index4 === length)
-                                formatError();
+                                throw formatError();
                             ch = format.charCodeAt(index4);
                             ++index4;
                             if (ch === 123) {
                                 if (index4 < length && format.charCodeAt(index4) === 123)
                                     ++index4;
                                 else
-                                    formatError();
+                                    throw formatError();
                             } else if (ch === 125) {
                                 if (index4 < length && format.charCodeAt(index4) === 125)
                                     ++index4;
@@ -111,7 +113,7 @@
                         index2 = index4 - 1;
                     }
                     if (ch !== 125)
-                        formatError();
+                        throw formatError();
                     index1 = index2 + 1;
                     var str = formatItem(obj, stringBuilder, provider) || "";
                     repeatCount = num - str.length;
@@ -139,7 +141,7 @@
         if (str == null) {
             if (format1 == null && stringBuilder != null)
                 format1 = stringBuilderToString(stringBuilder);
-            var formatted = doFormattable(obj, format1, provider);
+            var formatted = format1 == null ? (obj == null ? "" : obj.toString()) : doFormattable(obj, format1, provider);
             if (formatted !== undefined)
                 str = formatted;
         }
