@@ -144,6 +144,11 @@ export function run() {
         */
     });
 
+    test("DateTime: Edge #1", () => {
+        testCustomDateTime(new DateTime(2014, 4, 27), "{0: dd MMM yyyy }", " 27 Apr 2014 ");
+        testCustomDateTime(new DateTime(0, 0, 0, 10, 30, 45), "{0: HH:mm:ss}", " 10:30:45");
+    });
+
     test("TimeSpan: Constant", () => {
         ftt("{0:c}", TimeSpan.Zero, "00:00:00");
         ftt("{0:c}", new TimeSpan(0, 0, 30, 0), "00:30:00");
