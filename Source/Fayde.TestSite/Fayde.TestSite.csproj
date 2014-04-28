@@ -68,6 +68,8 @@
     <Content Include="Images\twitter.png" />
     <Content Include="Media\freeze_gopher.mp3" />
     <Content Include="Silverlight.js" />
+    <TypeScriptCompile Include="Tests\Format\TestViewModel.ts" />
+    <Content Include="Tests\Format\TestViewModel.js" />
     <Content Include="Tests\lib\Fayde.Controls\Themes\Default.theme.xml" />
     <Content Include="Tests\lib\Fayde.Controls\Themes\Metro.theme.xml" />
     <Content Include="Tests\lib\Fayde.Controls\Fayde.Controls.js" />
@@ -202,6 +204,9 @@
     </Content>
     <Content Include="Tests\Controls\gridsplitter.fap" />
     <Content Include="Tests\Controls\itemscontrol.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Format\datetime.fap">
       <SubType>Designer</SubType>
     </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">
