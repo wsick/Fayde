@@ -5,6 +5,7 @@ module Fayde.Data {
         TemplatedParent = 1,
         Self = 2,
         FindAncestor = 3,
+        ItemsControlParent = 4,
     }
     Fayde.RegisterEnum(RelativeSourceMode, "RelativeSourceMode", Fayde.XMLNS);
 

@@ -319,6 +319,8 @@ module Fayde {
         private _TransformListener: Media.ITransformChangedListener = null;
         CreateNode(): UINode { return new UINode(this); }
         CreateLayoutUpdater(uin: UINode): LayoutUpdater { return new LayoutUpdater(uin); }
+
+        get IsItemsControl(): boolean { return false; }
         
         get VisualParent() {
             var vpNode = this.XamlNode.VisualParentNode;

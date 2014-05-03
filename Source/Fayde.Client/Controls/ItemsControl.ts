@@ -21,6 +21,8 @@ module Fayde.Controls {
         XamlNode: ItemsControlNode;
         CreateNode(): ItemsControlNode { return new ItemsControlNode(this); }
 
+        get IsItemsControl(): boolean { return true; }
+
         static DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", () => String, ItemsControl, null, (d, args) => (<ItemsControl>d).OnDisplayMemberPathChanged(args));
         static ItemsPanelProperty = DependencyProperty.Register("ItemsPanel", () => ItemsPanelTemplate, ItemsControl);
         static ItemsSourceProperty = DependencyProperty.RegisterFull("ItemsSource", () => IEnumerable_, ItemsControl, null, (d, args) => (<ItemsControl>d).OnItemsSourceChanged(args));

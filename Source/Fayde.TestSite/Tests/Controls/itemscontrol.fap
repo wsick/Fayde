@@ -4,7 +4,7 @@
     ThemeName="Metro">
     <Grid>
         <Border BorderBrush="Black" BorderThickness="1">
-            <ItemsControl x:Name="MyListBox" Width="200" Height="100" Background="Yellow">
+            <ItemsControl x:Name="MyListBox" Width="200" Height="100" Background="Yellow" Tag="Test">
                 <ListBoxItem Content="Text 1" />
                 <ListBoxItem Content="Text 2" />
                 <ListBoxItem Content="Text 3" />
@@ -15,6 +15,13 @@
                 <ListBoxItem Content="Text 8" />
                 <ListBoxItem Content="Text 9" />
                 <ListBoxItem Content="Text 10" />
+                <ListBoxItem>
+                    <ListBoxItem.ContentTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=Tag, RelativeSource={RelativeSource ItemsControlParent}}" />
+                        </DataTemplate>
+                    </ListBoxItem.ContentTemplate>
+                </ListBoxItem>
             </ItemsControl>
         </Border>
     </Grid>

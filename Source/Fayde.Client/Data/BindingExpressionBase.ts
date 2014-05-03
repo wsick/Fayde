@@ -108,6 +108,8 @@ module Fayde.Data {
                         return this.Target.TemplateOwner;
                     case RelativeSourceMode.FindAncestor:
                         return findAncestor(this.Target, rs);
+                    case RelativeSourceMode.ItemsControlParent:
+                        return findItemsControlAncestor(this.Target, rs);
                 }
             }
             return this._DataContext;
@@ -379,6 +381,16 @@ module Fayde.Data {
         }
         for (var parent = VisualTreeHelper.GetParent(target); parent != null; parent = VisualTreeHelper.GetParent(parent)) {
             if (parent instanceof ancestorType && --ancestorLevel < 1)
+                return parent;
+        }
+    }
+    function findItemsControlAncestor(target: XamlObject, relSource: Data.RelativeSource): XamlObject {
+        if (!(target instanceof DependencyObject))
+            return;
+        var ancestorLevel = relSource.AncestorLevel;
+        ancestorLevel = ancestorLevel || 1; //NOTE: Will coerce 0 to 1 also
+        for (var parent = VisualTreeHelper.GetParent(<DependencyObject>target); parent != null; parent = VisualTreeHelper.GetParent(parent)) {
+            if (!!(<UIElement>parent).IsItemsControl && --ancestorLevel < 1)
                 return parent;
         }
     }
