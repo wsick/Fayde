@@ -14,9 +14,11 @@ class TestViewModel extends Fayde.MVVM.ViewModelBase {
     ];
     SelectedItem: any;
     SomeDate: DateTime = DateTime.Now;
+    TestCommand: Fayde.MVVM.RelayCommand;
     constructor() {
         super();
         this.SelectedItem = this.AllItems[0];
+        this.TestCommand = new Fayde.MVVM.RelayCommand(parameter => alert("TestCommand executed."));
     }
     TestMethod(e: Fayde.IEventBindingArgs<EventArgs>) {
         if (!this || !(this instanceof TestViewModel))

@@ -17285,13 +17285,15 @@ var Fayde;
 
             if (typeof etarget === "function") {
                 etarget.call(context, cargs);
-            } else if (Nullstone.DoesInheritFrom(etarget, Fayde.Input.ICommand_)) {
+            } else {
+                var ecmd = Fayde.Input.ICommand_.As(etarget);
+                if (!ecmd) {
+                    console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
+                    return;
+                }
                 var ecmd = etarget;
                 if (ecmd.CanExecute.call(context, cargs))
                     ecmd.Execute.call(context, cargs);
-            } else {
-                console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
-                return;
             }
         };
         return EventBindingExpression;

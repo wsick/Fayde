@@ -10,5 +10,6 @@
         <Button Content="Click Me" Click="{EventBinding TestMethod}" />
         <Button Content="Click Me (with Command Parameter)" Click="{EventBinding TestMethod, CommandParameter={Binding ElementName=RootStackPanel}}" />
         <Button Content="RelativeSource Click" DataContext="{x:Null}" Click="{EventBinding Command={Binding DataContext.TestMethod, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}}, CommandParameter={Binding ElementName=RootStackPanel}}" />
+        <Button Content="Click Me (with ICommand)" Click="{EventBinding TestCommand, CommandParameter={Binding ElementName=RootStackPanel}}" />
     </StackPanel>
 </Application>

@@ -88,13 +88,15 @@ module Fayde {
 
             if (typeof etarget === "function") {
                 (<Function>etarget).call(context, cargs);
-            } else if (Nullstone.DoesInheritFrom(etarget, Fayde.Input.ICommand_)) {
+            } else {
+                var ecmd = Fayde.Input.ICommand_.As(etarget);
+                if (!ecmd) {
+                    console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
+                    return;
+                }
                 var ecmd = <Fayde.Input.ICommand>etarget;
                 if (ecmd.CanExecute.call(context, cargs))
                     ecmd.Execute.call(context, cargs);
-            } else {
-                console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
-                return;
             }
         }
     }

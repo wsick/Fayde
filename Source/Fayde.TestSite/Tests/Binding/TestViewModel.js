@@ -20,6 +20,9 @@ define(["require", "exports"], function(require, exports) {
             ];
             this.SomeDate = DateTime.Now;
             this.SelectedItem = this.AllItems[0];
+            this.TestCommand = new Fayde.MVVM.RelayCommand(function (parameter) {
+                return alert("TestCommand executed.");
+            });
         }
         TestViewModel.prototype.TestMethod = function (e) {
             if (!this || !(this instanceof TestViewModel))
