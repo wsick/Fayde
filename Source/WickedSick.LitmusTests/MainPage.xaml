@@ -18,8 +18,20 @@
     <!--<tests:ImageTest />-->
     <!--<tests:ScrollBarTest />-->
     <Grid>
+        <Grid x:Name="TestGrid" Width="201" Height="100">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Background="Orange"></Border>
+            <Border Grid.Column="1" Background="OrangeRed"></Border>
+            <Border Grid.Column="2" Background="Red"></Border>
+            <Border Grid.Column="3"  Background="OliveDrab"></Border>
+        </Grid>
         <!--<tests:UpDownTest />-->
-        <tests:ListBoxTest />
+        <!--<tests:ListBoxTest />-->
         <!--<tests:GridSplitterTest />-->
         <!--<tests:ListBoxSelectionTest />-->
         <!--<tests:BorderTest />-->

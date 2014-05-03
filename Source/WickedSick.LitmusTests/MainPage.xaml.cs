@@ -17,6 +17,12 @@ namespace WickedSick.LitmusTests
         public MainPage()
         {
             InitializeComponent();
+            LayoutUpdated += MainPage_LayoutUpdated;
+        }
+
+        void MainPage_LayoutUpdated(object sender, EventArgs e)
+        {
+            var cds = TestGrid.ColumnDefinitions.Select(cd => cd.ActualWidth).ToList();
         }
     }
 }
