@@ -252,7 +252,7 @@ module Fayde.Data {
                 return;
 
             if (newDO) {
-                var propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this._PropertyName);
+                var propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this._PropertyName, true);
                 if (propd) {
                     this.DependencyProperty = propd;
                     this._DPListener = listener = propd.Store.ListenToChanged(newDO, propd, this.OnPropertyChanged, this);
