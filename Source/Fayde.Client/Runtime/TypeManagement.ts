@@ -85,6 +85,8 @@ module Fayde {
             return null;
         var p = (<any>type).$$parent;
         if (!p) {
+            if (!type.prototype)
+                return undefined;
             p = <Function>Object.getPrototypeOf(type.prototype).constructor;
             Object.defineProperty(type, "$$parent", { value: p, writable: false });
         }

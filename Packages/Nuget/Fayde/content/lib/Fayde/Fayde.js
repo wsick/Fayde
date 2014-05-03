@@ -413,6 +413,8 @@ var Fayde;
             return null;
         var p = type.$$parent;
         if (!p) {
+            if (!type.prototype)
+                return undefined;
             p = Object.getPrototypeOf(type.prototype).constructor;
             Object.defineProperty(type, "$$parent", { value: p, writable: false });
         }
