@@ -2848,6 +2848,14 @@ var Fayde;
             return new Fayde.LayoutUpdater(uin);
         };
 
+        Object.defineProperty(UIElement.prototype, "IsItemsControl", {
+            get: function () {
+                return false;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
         Object.defineProperty(UIElement.prototype, "VisualParent", {
             get: function () {
                 var vpNode = this.XamlNode.VisualParentNode;
@@ -7058,6 +7066,14 @@ var Fayde;
             ItemsControl.prototype.CreateNode = function () {
                 return new ItemsControlNode(this);
             };
+
+            Object.defineProperty(ItemsControl.prototype, "IsItemsControl", {
+                get: function () {
+                    return true;
+                },
+                enumerable: true,
+                configurable: true
+            });
 
             ItemsControl.GetIsItemsHost = function (d) {
                 return d.GetValue(ItemsControl.IsItemsHostProperty) === true;
@@ -17704,6 +17720,8 @@ var Fayde;
                         return target.TemplateOwner;
                     case 3 /* FindAncestor */:
                         return findAncestor(target, binding.RelativeSource);
+                    case 4 /* ItemsControlParent */:
+                        return findItemsControlAncestor(target, binding.RelativeSource);
                 }
             }
         }
@@ -17735,6 +17753,16 @@ var Fayde;
         }
         for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
             if (parent instanceof ancestorType && --ancestorLevel < 1)
+                return parent;
+        }
+    }
+    function findItemsControlAncestor(target, relSource) {
+        if (!(target instanceof Fayde.DependencyObject))
+            return;
+        var ancestorLevel = relSource.AncestorLevel;
+        ancestorLevel = ancestorLevel || 1; //NOTE: Will coerce 0 to 1 also
+        for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
+            if (!!parent.IsItemsControl && --ancestorLevel < 1)
                 return parent;
         }
     }
@@ -19595,6 +19623,8 @@ var Fayde;
                             return this.Target.TemplateOwner;
                         case 3 /* FindAncestor */:
                             return findAncestor(this.Target, rs);
+                        case 4 /* ItemsControlParent */:
+                            return findItemsControlAncestor(this.Target, rs);
                     }
                 }
                 return this._DataContext;
@@ -19872,6 +19902,16 @@ var Fayde;
                     return parent;
             }
         }
+        function findItemsControlAncestor(target, relSource) {
+            if (!(target instanceof Fayde.DependencyObject))
+                return;
+            var ancestorLevel = relSource.AncestorLevel;
+            ancestorLevel = ancestorLevel || 1; //NOTE: Will coerce 0 to 1 also
+            for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
+                if (!!parent.IsItemsControl && --ancestorLevel < 1)
+                    return parent;
+            }
+        }
     })(Fayde.Data || (Fayde.Data = {}));
     var Data = Fayde.Data;
 })(Fayde || (Fayde = {}));
@@ -19920,6 +19960,7 @@ var Fayde;
             RelativeSourceMode[RelativeSourceMode["TemplatedParent"] = 1] = "TemplatedParent";
             RelativeSourceMode[RelativeSourceMode["Self"] = 2] = "Self";
             RelativeSourceMode[RelativeSourceMode["FindAncestor"] = 3] = "FindAncestor";
+            RelativeSourceMode[RelativeSourceMode["ItemsControlParent"] = 4] = "ItemsControlParent";
         })(Data.RelativeSourceMode || (Data.RelativeSourceMode = {}));
         var RelativeSourceMode = Data.RelativeSourceMode;
         Fayde.RegisterEnum(RelativeSourceMode, "RelativeSourceMode", Fayde.XMLNS);

@@ -572,6 +572,7 @@ declare module Fayde {
         private _TransformListener;
         public CreateNode(): UINode;
         public CreateLayoutUpdater(uin: UINode): LayoutUpdater;
+        public IsItemsControl : boolean;
         public VisualParent : UIElement;
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;
@@ -1333,6 +1334,7 @@ declare module Fayde.Controls {
     class ItemsControl extends Control {
         public XamlNode: ItemsControlNode;
         public CreateNode(): ItemsControlNode;
+        public IsItemsControl : boolean;
         static DisplayMemberPathProperty: DependencyProperty;
         static ItemsPanelProperty: DependencyProperty;
         static ItemsSourceProperty: DependencyProperty;
@@ -3309,6 +3311,7 @@ declare module Fayde.Data {
         TemplatedParent = 1,
         Self = 2,
         FindAncestor = 3,
+        ItemsControlParent = 4,
     }
     enum BindingMode {
         TwoWay = 0,
