@@ -1438,6 +1438,7 @@ declare module Fayde.Controls {
         public ClearRoot(): void;
         public _ContentChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _ContentTemplateChanged(): void;
+        private _ShouldInvalidateImplicitTemplate(oldValue, newValue);
         private _GetContentTemplate(type);
     }
     class ContentPresenter extends FrameworkElement {

@@ -8103,15 +8103,28 @@ var Fayde;
 
             ContentPresenterNode.prototype._ContentChanged = function (args) {
                 var isUIContent = args.NewValue instanceof Fayde.UIElement;
-                if (isUIContent || args.OldValue instanceof Fayde.UIElement)
+                if (isUIContent || args.OldValue instanceof Fayde.UIElement) {
                     this.ClearRoot();
-                else if (!isUIContent)
+                } else if (!isUIContent) {
+                    if (this._ShouldInvalidateImplicitTemplate(args.OldValue, args.NewValue))
+                        this.ClearRoot();
                     this.XObject.DataContext = args.NewValue == null ? null : args.NewValue;
+                }
                 this.LayoutUpdater.InvalidateMeasure();
             };
             ContentPresenterNode.prototype._ContentTemplateChanged = function () {
                 this.ClearRoot();
                 this.LayoutUpdater.InvalidateMeasure();
+            };
+
+            ContentPresenterNode.prototype._ShouldInvalidateImplicitTemplate = function (oldValue, newValue) {
+                var octor = oldValue ? oldValue.constructor : null;
+                var nctor = newValue ? newValue.constructor : null;
+                if (octor !== nctor)
+                    return true;
+                if (octor === Object)
+                    return true;
+                return false;
             };
 
             ContentPresenterNode.prototype._GetContentTemplate = function (type) {

@@ -57,15 +57,29 @@ module Fayde.Controls {
 
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
             var isUIContent = args.NewValue instanceof UIElement;
-            if (isUIContent || args.OldValue instanceof UIElement)
+            if (isUIContent || args.OldValue instanceof UIElement) {
                 this.ClearRoot();
-            else if (!isUIContent)
+            } else if (!isUIContent) {
+                if (this._ShouldInvalidateImplicitTemplate(args.OldValue, args.NewValue))
+                    this.ClearRoot();
                 this.XObject.DataContext = args.NewValue == null ? null : args.NewValue;
+            }
             this.LayoutUpdater.InvalidateMeasure();
         }
         _ContentTemplateChanged() {
             this.ClearRoot();
             this.LayoutUpdater.InvalidateMeasure();
+        }
+
+        private _ShouldInvalidateImplicitTemplate(oldValue: any, newValue: any): boolean {
+            //NOTE: If we are using an implicit data template, we need to make sure we invalidate when Content changes
+            var octor = oldValue ? oldValue.constructor : null;
+            var nctor = newValue ? newValue.constructor : null;
+            if (octor !== nctor)
+                return true;
+            if (octor === Object)
+                return true;
+            return false;
         }
 
         private _GetContentTemplate(type: Function): DataTemplate {
@@ -93,7 +107,7 @@ module Fayde.Controls {
                         return dt;
                 }
             }
-
+            
             return getFallbackTemplate();
         }
     }
