@@ -13,6 +13,8 @@ $revision = ([int]$tokens.Get(3) + 1).ToString()
 $newversion = "$major.$minor.$build.$revision"
 Set-Content -Value $newversion $vpath
 
+Add-Content ($scriptsdestdir + "\Fayde.js") "`nFayde.Version = `"$major.$minor.$build.$revision`";"
+
 $specfile = $PWD.Path + "\Fayde.nuspec"
 [xml]$specxml = New-Object System.Xml.XmlDocument
 $specxml.PreserveWhitespace = $true
