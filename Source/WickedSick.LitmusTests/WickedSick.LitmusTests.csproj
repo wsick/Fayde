@@ -96,6 +96,7 @@
     </Compile>
     <Compile Include="Controls\ListBoxMonitor.cs" />
     <Compile Include="Controls\VirtualizingStackPanelMonitor.cs" />
+    <Compile Include="MainViewModel.cs" />
     <Compile Include="Tests\BorderTest.xaml.cs">
       <DependentUpon>BorderTest.xaml</DependentUpon>
     </Compile>
@@ -158,8 +159,8 @@
     <Compile Include="Tests\ShapeStretch.xaml.cs">
       <DependentUpon>ShapeStretch.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Tests\UpDownTest.xaml.cs">
-      <DependentUpon>UpDownTest.xaml</DependentUpon>
+    <Compile Include="Tests\TextBoxTest.xaml.cs">
+      <DependentUpon>TextBoxTest.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -247,7 +248,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Tests\UpDownTest.xaml">
+    <Page Include="Tests\TextBoxTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
