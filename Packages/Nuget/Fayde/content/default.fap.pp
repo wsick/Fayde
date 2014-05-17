@@ -1,7 +1,7 @@
 ﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    Theme="Metro">
+    ThemeName="Metro">
     <Application.Resources>
     </Application.Resources>
     <Grid x:Name="LayoutRoot">
