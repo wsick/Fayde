@@ -13,7 +13,7 @@ module Fayde.Data {
 
         private _IsDataContextBound: boolean;
         private _DataContext: any;
-        private _TwoWayTextBox: Controls.TextBox = null;
+        private _TwoWayLostFocusElement: UIElement = null;
 
         get DataItem(): any { return this.PropertyPathWalker.Source; }
 
@@ -39,8 +39,8 @@ module Fayde.Data {
                 writable: false
             });
 
-            if (target instanceof Controls.TextBox && binding.Mode === BindingMode.TwoWay)
-                this._TwoWayTextBox = <Controls.TextBox>target;
+            if (binding.Mode === BindingMode.TwoWay && (target instanceof Controls.TextBox || target instanceof Controls.PasswordBox))
+                this._TwoWayLostFocusElement = <UIElement>target;
 
             this._IsDataContextBound = !binding.ElementName && !binding.Source && !binding.RelativeSource;
 
@@ -80,8 +80,8 @@ module Fayde.Data {
             var source = this._FindSource();
             this.PropertyPathWalker.Update(source);
 
-            if (this._TwoWayTextBox)
-                this._TwoWayTextBox.LostFocus.Subscribe(this._TextBoxLostFocus, this);
+            if (this._TwoWayLostFocusElement)
+                this._TwoWayLostFocusElement.LostFocus.Subscribe(this._TargetLostFocus, this);
 
             if (this.ParentBinding.Mode === BindingMode.TwoWay && this.Property.IsCustom) {
                 this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
@@ -134,8 +134,8 @@ module Fayde.Data {
 
             super.OnDetached(element);
 
-            if (this._TwoWayTextBox)
-                this._TwoWayTextBox.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
+            if (this._TwoWayLostFocusElement)
+                this._TwoWayLostFocusElement.LostFocus.Unsubscribe(this._TargetLostFocus, this);
 
             /*
             if (this.Target && this.CurrentError != null) {
@@ -171,7 +171,7 @@ module Fayde.Data {
                 console.warn("[BINDING] UpdateSource: " + err.toString());
             }
         }
-        private _TextBoxLostFocus() {
+        private _TargetLostFocus(sender: any, e: EventArgs) {
             if (this.ParentBinding.UpdateSourceTrigger === UpdateSourceTrigger.Explicit)
                 return;
             this._UpdateSourceObject();
@@ -179,7 +179,7 @@ module Fayde.Data {
         private _ShouldUpdateSource() {
             if (this.IsUpdating)
                 return false;
-            if (!this._TwoWayTextBox)
+            if (!this._TwoWayLostFocusElement)
                 return this.ParentBinding.UpdateSourceTrigger !== UpdateSourceTrigger.Explicit;
             return this.ParentBinding.UpdateSourceTrigger === UpdateSourceTrigger.PropertyChanged;
         }
