@@ -337,7 +337,6 @@ declare module Fayde {
         public SetValue(propd: DependencyProperty, value: any): void;
         public SetValueInternal(propd: DependencyProperty, value: any): void;
         public SetCurrentValue(propd: DependencyProperty, value: any): void;
-        public SetStoreValue(propd: DependencyProperty, value: any): void;
         public ClearValue(propd: DependencyProperty): void;
         public ReadLocalValue(propd: DependencyProperty): any;
         public ReadLocalValueInternal(propd: DependencyProperty): any;
@@ -3283,7 +3282,8 @@ declare module Fayde.Data {
         public _TryUpdateSourceObject(value: any): void;
         private _UpdateSourceCallback(sender, args);
         private _TextBoxLostFocus();
-        private _UpdateSourceObject(value?, force?);
+        private _ShouldUpdateSource();
+        private _UpdateSourceObject(value?);
         public OnDataContextChanged(newDataContext: any): void;
         private _Invalidate();
         public Refresh(): void;
