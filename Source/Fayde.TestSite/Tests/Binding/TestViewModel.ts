@@ -12,6 +12,7 @@ class TestViewModel extends Fayde.MVVM.ViewModelBase {
         { Name: "Item2", Data: 1 },
         { Name: "Item3", Data: 2 }
     ];
+    SomeText = "";
     SelectedItem: any;
     SomeDate: DateTime = DateTime.Now;
     TestCommand: Fayde.MVVM.RelayCommand;
@@ -32,7 +33,7 @@ class TestViewModel extends Fayde.MVVM.ViewModelBase {
         this.ObsItems.Add(this.ObsItems.Count.toString());
     }
     private static ctor = (() => {
-        Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem"]);
+        Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem", "SomeText"]);
     })();
 }
 export = TestViewModel;

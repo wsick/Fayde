@@ -157,27 +157,35 @@ module Fayde.Data {
         IsBrokenChanged() { this.Refresh(); }
         ValueChanged() { this.Refresh(); }
         UpdateSource() {
-            return this._UpdateSourceObject(undefined, true);
+            return this._UpdateSourceObject();
         }
         _TryUpdateSourceObject(value: any) {
-            if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === UpdateSourceTrigger.Default)
-                this._UpdateSourceObject(value, false);
+            if (this._ShouldUpdateSource())
+                this._UpdateSourceObject(value);
         }
         private _UpdateSourceCallback(sender, args: IDependencyPropertyChangedEventArgs) {
             try {
-                if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === UpdateSourceTrigger.Default)
-                    this._UpdateSourceObject(this.Target.GetValue(this.Property), false);
+                if (this._ShouldUpdateSource())
+                    this._UpdateSourceObject(this.Target.GetValue(this.Property));
             } catch (err) {
                 console.warn("[BINDING] UpdateSource: " + err.toString());
             }
         }
         private _TextBoxLostFocus() {
+            if (this.ParentBinding.UpdateSourceTrigger === UpdateSourceTrigger.Explicit)
+                return;
             this._UpdateSourceObject();
         }
-        private _UpdateSourceObject(value?: any, force?: boolean) {
+        private _ShouldUpdateSource() {
+            if (this.IsUpdating)
+                return false;
+            if (!this._TwoWayTextBox)
+                return this.ParentBinding.UpdateSourceTrigger !== UpdateSourceTrigger.Explicit;
+            return this.ParentBinding.UpdateSourceTrigger === UpdateSourceTrigger.PropertyChanged;
+        }
+        private _UpdateSourceObject(value?: any) {
             if (value === undefined)
                 value = this.Target.GetValue(this.Property);
-            force = force === true;
             var binding = this.ParentBinding;
             if (binding.Mode !== BindingMode.TwoWay)
                 return;
@@ -188,10 +196,6 @@ module Fayde.Data {
             var node = this.PropertyPathWalker.FinalNode;
 
             try {
-                // If the user calls BindingExpresion.UpdateSource (), we must update regardless of focus state.
-                // Otherwise we only update if the textbox is unfocused.
-                if (!force && this._TwoWayTextBox && Application.Current.MainSurface.FocusedNode === this.Target.XamlNode)
-                    return;
                 if (this.PropertyPathWalker.IsPathBroken)
                     return;
                 value = this._ConvertFromTargetToSource(binding, node, value);
