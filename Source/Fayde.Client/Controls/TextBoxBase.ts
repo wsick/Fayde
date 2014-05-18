@@ -274,7 +274,7 @@ module Fayde.Controls {
         
         private _SyncText() {
             this._SettingValue = false;
-            this.SetStoreValue(this._TextProperty, this._Buffer);
+            this.SetCurrentValue(this._TextProperty, this._Buffer);
             this._SettingValue = true;
         }
         _EmitTextChanged() { }

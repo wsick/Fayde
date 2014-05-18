@@ -55,7 +55,7 @@ module Fayde.Data {
                 var clonedValue = Fayde.Clone(value);
                 if (clonedValue instanceof DependencyObject) {
                     newLu = clonedValue;
-                    data.lu.SetStoreValue(data.res, clonedValue);
+                    data.lu.SetCurrentValue(data.res, clonedValue);
                     clonedValue = data.lu.GetValue(data.res);
                     data.promotedValues[clonedValue._ID] = clonedValue;
                 }
