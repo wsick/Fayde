@@ -19092,7 +19092,7 @@ var Fayde;
             __extends(BindingExpressionBase, _super);
             function BindingExpressionBase(binding, target, propd) {
                 _super.call(this);
-                this._TwoWayTextBox = null;
+                this._TwoWayLostFocusElement = null;
                 this._Cached = false;
                 this._CachedValue = undefined;
                 this._Init(binding, target, propd);
@@ -19119,8 +19119,8 @@ var Fayde;
                     writable: false
                 });
 
-                if (target instanceof Fayde.Controls.TextBox && binding.Mode === 0 /* TwoWay */)
-                    this._TwoWayTextBox = target;
+                if (binding.Mode === 0 /* TwoWay */ && (target instanceof Fayde.Controls.TextBox || target instanceof Fayde.Controls.PasswordBox))
+                    this._TwoWayLostFocusElement = target;
 
                 this._IsDataContextBound = !binding.ElementName && !binding.Source && !binding.RelativeSource;
 
@@ -19163,8 +19163,8 @@ var Fayde;
                 var source = this._FindSource();
                 this.PropertyPathWalker.Update(source);
 
-                if (this._TwoWayTextBox)
-                    this._TwoWayTextBox.LostFocus.Subscribe(this._TextBoxLostFocus, this);
+                if (this._TwoWayLostFocusElement)
+                    this._TwoWayLostFocusElement.LostFocus.Subscribe(this._TargetLostFocus, this);
 
                 if (this.ParentBinding.Mode === 0 /* TwoWay */ && this.Property.IsCustom) {
                     this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
@@ -19218,8 +19218,8 @@ var Fayde;
 
                 _super.prototype.OnDetached.call(this, element);
 
-                if (this._TwoWayTextBox)
-                    this._TwoWayTextBox.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
+                if (this._TwoWayLostFocusElement)
+                    this._TwoWayLostFocusElement.LostFocus.Unsubscribe(this._TargetLostFocus, this);
 
                 if (this._PropertyListener) {
                     this._PropertyListener.Detach();
@@ -19252,7 +19252,7 @@ var Fayde;
                     console.warn("[BINDING] UpdateSource: " + err.toString());
                 }
             };
-            BindingExpressionBase.prototype._TextBoxLostFocus = function () {
+            BindingExpressionBase.prototype._TargetLostFocus = function (sender, e) {
                 if (this.ParentBinding.UpdateSourceTrigger === 3 /* Explicit */)
                     return;
                 this._UpdateSourceObject();
@@ -19260,7 +19260,7 @@ var Fayde;
             BindingExpressionBase.prototype._ShouldUpdateSource = function () {
                 if (this.IsUpdating)
                     return false;
-                if (!this._TwoWayTextBox)
+                if (!this._TwoWayLostFocusElement)
                     return this.ParentBinding.UpdateSourceTrigger !== 3 /* Explicit */;
                 return this.ParentBinding.UpdateSourceTrigger === 1 /* PropertyChanged */;
             };
@@ -38944,4 +38944,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.36";
+Fayde.Version = "0.9.8.37";

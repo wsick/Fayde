@@ -3264,7 +3264,7 @@ declare module Fayde.Data {
         private _SourceAvailableMonitor;
         private _IsDataContextBound;
         private _DataContext;
-        private _TwoWayTextBox;
+        private _TwoWayLostFocusElement;
         public DataItem : any;
         private _Cached;
         private _CachedValue;
@@ -3281,7 +3281,7 @@ declare module Fayde.Data {
         public UpdateSource(): void;
         public _TryUpdateSourceObject(value: any): void;
         private _UpdateSourceCallback(sender, args);
-        private _TextBoxLostFocus();
+        private _TargetLostFocus(sender, e);
         private _ShouldUpdateSource();
         private _UpdateSourceObject(value?);
         public OnDataContextChanged(newDataContext: any): void;
