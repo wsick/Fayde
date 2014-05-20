@@ -122,12 +122,22 @@ module Fayde.Controls {
         Listen(listener: ITextModelListener) { this._ModelListener = listener; }
         Unlisten(listener: ITextModelListener) { if (this._ModelListener === listener) this._ModelListener = null; }
         _ModelChanged(type: TextBoxModelChangedType, newValue: any) {
+            this._UpdateFont();
+            
             var listener = this._ModelListener;
             if (!listener) return;
             listener.OnTextModelChanged({
                 Changed: type,
                 NewValue: newValue
             });
+        }
+
+        private _UpdateFont() {
+            this._Font.Family = this.FontFamily;
+            this._Font.Size = this.FontSize;
+            this._Font.Stretch = this.FontStretch;
+            this._Font.Style = this.FontStyle;
+            this._Font.Weight = this.FontWeight;
         }
 
         _SelectedTextChanged(newValue: string) {

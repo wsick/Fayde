@@ -1,7 +1,7 @@
 /// <reference path="TextBoxBase.ts" />
 
 module Fayde.Controls {
-    export class TextBox extends TextBoxBase implements Text.ITextAttributesSource {
+    export class TextBox extends TextBoxBase implements Text.ITextAttributesSource, IFontChangeable {
         static AcceptsReturnProperty: DependencyProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false, (d, args) => (<TextBox>d).$AcceptsReturn = (args.NewValue === true));
         static CaretBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBox);
         static MaxLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);
@@ -116,7 +116,7 @@ module Fayde.Controls {
             if (this.$View)
                 this.$View.SetEnableCursor(!this.$IsReadOnly);
         }
-        private _FontChanged(args: IDependencyPropertyChangedEventArgs) { this._ModelChanged(TextBoxModelChangedType.Font, args.NewValue); }
+        FontChanged(args: IDependencyPropertyChangedEventArgs) { this._ModelChanged(TextBoxModelChangedType.Font, args.NewValue); }
         private _SelectionBackgroundListener: Media.IBrushChangedListener;
         private _SelectionBackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
             var newBrush = <Media.Brush>args.NewValue;
