@@ -13,6 +13,7 @@ import ItemContainersManagerTests = require("tests/ItemContainersManagerTests");
 import BindingTests = require("tests/BindingTests");
 import UriMapperTests = require("tests/UriMapperTests");
 import DependencyLoadTests = require("tests/DependencyLoadTests");
+import DeepObservableCollectionTests = require("tests/DeepObservableCollectionTests");
 
 export function run() {
     PrimitivesTests.run();
@@ -30,6 +31,7 @@ export function run() {
     BindingTests.run();
     UriMapperTests.run();
     DependencyLoadTests.run();
+    DeepObservableCollectionTests.run();
 
     QUnit.load();
     QUnit.start();

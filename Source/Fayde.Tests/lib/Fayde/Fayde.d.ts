@@ -572,6 +572,7 @@ declare module Fayde {
         private _TransformListener;
         public CreateNode(): UINode;
         public CreateLayoutUpdater(uin: UINode): LayoutUpdater;
+        public IsItemsControl : boolean;
         public VisualParent : UIElement;
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;
@@ -1333,6 +1334,7 @@ declare module Fayde.Controls {
     class ItemsControl extends Control {
         public XamlNode: ItemsControlNode;
         public CreateNode(): ItemsControlNode;
+        public IsItemsControl : boolean;
         static DisplayMemberPathProperty: DependencyProperty;
         static ItemsPanelProperty: DependencyProperty;
         static ItemsSourceProperty: DependencyProperty;
@@ -1436,6 +1438,7 @@ declare module Fayde.Controls {
         public ClearRoot(): void;
         public _ContentChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _ContentTemplateChanged(): void;
+        private _ShouldInvalidateImplicitTemplate(oldValue, newValue);
         private _GetContentTemplate(type);
     }
     class ContentPresenter extends FrameworkElement {
@@ -3309,6 +3312,7 @@ declare module Fayde.Data {
         TemplatedParent = 1,
         Self = 2,
         FindAncestor = 3,
+        ItemsControlParent = 4,
     }
     enum BindingMode {
         TwoWay = 0,
@@ -5311,6 +5315,42 @@ declare class CornerRadius implements ICloneable {
     static Equals(cr1: CornerRadius, cr2: CornerRadius): boolean;
     public Clone(): CornerRadius;
 }
+declare class TimeSpan {
+    static _TicksPerMillisecond: number;
+    static _TicksPerSecond: number;
+    static _TicksPerMinute: number;
+    static _TicksPerHour: number;
+    static _TicksPerDay: number;
+    private _Ticks;
+    static Zero : TimeSpan;
+    static MinValue : TimeSpan;
+    static MaxValue : TimeSpan;
+    constructor();
+    constructor(ticks: number);
+    constructor(hours: number, minutes: number, seconds: number);
+    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
+    public Days : number;
+    public Hours : number;
+    public Minutes : number;
+    public Seconds : number;
+    public Milliseconds : number;
+    public Ticks : number;
+    public TotalDays : number;
+    public TotalHours : number;
+    public TotalMinutes : number;
+    public TotalSeconds : number;
+    public TotalMilliseconds : number;
+    public AddTicks(ticks: number): void;
+    public AddMilliseconds(milliseconds: number): void;
+    public Add(ts2: TimeSpan): TimeSpan;
+    public Subtract(ts2: TimeSpan): TimeSpan;
+    public Multiply(v: number): TimeSpan;
+    public Divide(ts2: TimeSpan): TimeSpan;
+    public CompareTo(ts2: TimeSpan): number;
+    public IsZero(): boolean;
+    public GetJsDelay(): number;
+    public toString(format?: string): string;
+}
 declare enum DayOfWeek {
     Sunday = 0,
     Monday = 1,
@@ -5326,6 +5366,7 @@ declare enum DateTimeKind {
     Utc = 2,
 }
 declare class DateTime {
+    private static _MinDateTicks;
     static MinValue : DateTime;
     static MaxValue : DateTime;
     static Now : DateTime;
@@ -5357,6 +5398,7 @@ declare class DateTime {
     public Subtract(value: DateTime): TimeSpan;
     public Subtract(value: TimeSpan): DateTime;
     public ToUniversalTime(): DateTime;
+    public toString(format?: string): string;
 }
 declare enum DurationType {
     Automatic = 0,
@@ -5523,40 +5565,6 @@ declare class Thickness implements ICloneable {
     public toString(): string;
     public Clone(): Thickness;
     static Equals(thickness1: Thickness, thickness2: Thickness): boolean;
-}
-declare class TimeSpan {
-    static _TicksPerMillisecond: number;
-    static _TicksPerSecond: number;
-    static _TicksPerMinute: number;
-    static _TicksPerHour: number;
-    static _TicksPerDay: number;
-    private _Ticks;
-    static Zero : TimeSpan;
-    constructor();
-    constructor(ticks: number);
-    constructor(hours: number, minutes: number, seconds: number);
-    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
-    public Days : number;
-    public Hours : number;
-    public Minutes : number;
-    public Seconds : number;
-    public Milliseconds : number;
-    public Ticks : number;
-    public TotalDays : number;
-    public TotalHours : number;
-    public TotalMinutes : number;
-    public TotalSeconds : number;
-    public TotalMilliseconds : number;
-    public AddTicks(ticks: number): void;
-    public AddMilliseconds(milliseconds: number): void;
-    public Add(ts2: TimeSpan): TimeSpan;
-    public Subtract(ts2: TimeSpan): TimeSpan;
-    public Multiply(v: number): TimeSpan;
-    public Divide(ts2: TimeSpan): TimeSpan;
-    public CompareTo(ts2: TimeSpan): number;
-    public IsZero(): boolean;
-    public GetJsDelay(): number;
-    public ToString(format?: string): string;
 }
 declare class BError {
     static Argument: number;
@@ -6567,6 +6575,17 @@ declare module Fayde.Localization {
     }
 }
 declare module Fayde.Localization {
+    class Calendar {
+        public ID: number;
+        public Eras: number[];
+        public EraNames: string[];
+        public CurrentEraValue: number;
+        public TwoDigitYearMax: number;
+        public MaxSupportedDateTime: DateTime;
+        public MinSupportedDateTime: DateTime;
+    }
+}
+declare module Fayde.Localization {
     enum CalendarWeekRule {
         FirstDay = 0,
         FirstFullWeek = 1,
@@ -6577,7 +6596,7 @@ declare module Fayde.Localization {
         public AbbreviatedMonthGenitiveNames: string[];
         public AbbreviatedMonthNames: string[];
         public AMDesignator: string;
-        public Calendar: any;
+        public Calendar: Calendar;
         public CalendarWeekRule: CalendarWeekRule;
         public DateSeparator: string;
         public DayNames: string[];
@@ -6597,7 +6616,17 @@ declare module Fayde.Localization {
         public TimeSeparator: string;
         public UniversalSortableDateTimePattern: string;
         public YearMonthPattern: string;
+        public HasForceTwoDigitYears: boolean;
+        public GetEraName(era: number): string;
         static Instance: DateTimeFormatInfo;
+        static ParseRepeatPattern(format: string, pos: number, patternChar: string): number;
+        static ParseNextChar(format: string, pos: number): number;
+        static ParseQuoteString(format: string, pos: number, result: string[]): number;
+        static FormatDigits(sb: string[], value: number, len: number, overrideLenLimit?: boolean): void;
+        static FormatMonth(month: number, repeat: number, info: DateTimeFormatInfo): string;
+        static FormatDayOfWeek(dayOfWeek: DayOfWeek, repeat: number, info: DateTimeFormatInfo): string;
+        static HebrewFormatDigits(sb: string[], digits: number): string;
+        static FormatHebrewMonthName(obj: DateTime, month: number, repeat: number, info: DateTimeFormatInfo): string;
     }
 }
 declare module Fayde.Localization {
@@ -6613,6 +6642,20 @@ declare module Fayde.Localization {
 declare module Fayde.Localization {
 }
 declare module Fayde.Localization {
+}
+declare module Fayde.Collections {
+    class DeepObservableCollection<T> extends ObservableCollection<T> {
+        public ItemPropertyChanged: MulticastEvent<ItemPropertyChangedEventArgs<T>>;
+        constructor();
+        private _OnCollectionChanged(sender, e);
+        private _OnItemPropertyChanged(sender, e);
+    }
+}
+declare module Fayde.Collections {
+    class ItemPropertyChangedEventArgs<T> extends PropertyChangedEventArgs {
+        public Item: T;
+        constructor(item: T, propertyName: string);
+    }
 }
 declare module Fayde.Xaml {
     interface IMarkupParseContext {

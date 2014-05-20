@@ -35,6 +35,8 @@
     <TypeScriptCompile Include="tests\DependencyPropertyTests.ts" />
     <TypeScriptCompile Include="tests\ItemContainersManagerTests.ts" />
     <TypeScriptCompile Include="tests\FormatTests.ts" />
+    <TypeScriptCompile Include="tests\DeepObservableCollectionTests.ts" />
+    <TypeScriptCompile Include="mocks\TestObservable.ts" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />
     <TypeScriptCompile Include="tests\XamlNodeTests.ts" />

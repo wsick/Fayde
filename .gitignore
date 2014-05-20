@@ -78,3 +78,5 @@ Source/Experimental/Fayde.Experimental.Test/Tests/runner.js
 Source/Experimental/Fayde.Experimental/Fayde.Experimental.d.ts
 Source/Fayde.Tests/tests/FormatTests.js
 Source/Fayde.TestSite/Tests/Format/TestViewModel.js
+Source/Fayde.Tests/mocks/TestObservable.js
+Source/Fayde.Tests/tests/DeepObservableCollectionTests.js
