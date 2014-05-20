@@ -69,6 +69,9 @@
     <Content Include="Media\freeze_gopher.mp3" />
     <Content Include="Silverlight.js" />
     <TypeScriptCompile Include="Tests\Format\TestViewModel.ts" />
+    <None Include="Tests\Binding\update-source-trigger.fap">
+      <SubType>Designer</SubType>
+    </None>
     <Content Include="Tests\Format\TestViewModel.js" />
     <Content Include="Tests\lib\Fayde.Controls\Themes\Default.theme.xml" />
     <Content Include="Tests\lib\Fayde.Controls\Themes\Metro.theme.xml" />

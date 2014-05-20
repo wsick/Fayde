@@ -18,6 +18,10 @@
     <!--<tests:ImageTest />-->
     <!--<tests:ScrollBarTest />-->
     <Grid>
+        <Grid.DataContext>
+            <local:MainViewModel />
+        </Grid.DataContext>
+        <!--
         <Grid x:Name="TestGrid" Width="201" Height="100">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -29,7 +33,8 @@
             <Border Grid.Column="1" Background="OrangeRed"></Border>
             <Border Grid.Column="2" Background="Red"></Border>
             <Border Grid.Column="3"  Background="OliveDrab"></Border>
-        </Grid>
+        </Grid>-->
+        <tests:TextBoxTest />
         <!--<tests:UpDownTest />-->
         <!--<tests:ListBoxTest />-->
         <!--<tests:GridSplitterTest />-->

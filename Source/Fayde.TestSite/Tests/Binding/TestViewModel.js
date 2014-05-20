@@ -18,6 +18,7 @@ define(["require", "exports"], function(require, exports) {
                 { Name: "Item2", Data: 1 },
                 { Name: "Item3", Data: 2 }
             ];
+            this.SomeText = "";
             this.SomeDate = DateTime.Now;
             this.SelectedItem = this.AllItems[0];
             this.TestCommand = new Fayde.MVVM.RelayCommand(function (parameter) {
@@ -36,7 +37,7 @@ define(["require", "exports"], function(require, exports) {
             this.ObsItems.Add(this.ObsItems.Count.toString());
         };
         TestViewModel.ctor = (function () {
-            Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem"]);
+            Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem", "SomeText"]);
         })();
         return TestViewModel;
     })(Fayde.MVVM.ViewModelBase);

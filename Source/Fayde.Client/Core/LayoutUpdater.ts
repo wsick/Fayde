@@ -563,7 +563,7 @@ module Fayde {
             var raw = mat4.toAffineMat3(result);
             if (raw) {
                 var mt = new Media.MatrixTransform();
-                mt.SetStoreValue(Media.MatrixTransform.MatrixProperty, new Media.Matrix(raw));
+                mt.SetCurrentValue(Media.MatrixTransform.MatrixProperty, new Media.Matrix(raw));
                 return mt;
             }
 

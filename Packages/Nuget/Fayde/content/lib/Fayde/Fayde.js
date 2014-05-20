@@ -1855,10 +1855,6 @@ var Fayde;
             if (expr instanceof Fayde.Data.BindingExpressionBase)
                 expr._TryUpdateSourceObject(value);
         };
-        DependencyObject.prototype.SetStoreValue = function (propd, value) {
-            var storage = Fayde.Providers.GetStorage(this, propd);
-            propd.Store.SetLocalValue(storage, value);
-        };
         DependencyObject.prototype.ClearValue = function (propd) {
             if (!propd)
                 throw new ArgumentException("No dependency property.");
@@ -3645,7 +3641,7 @@ var Fayde;
             var raw = mat4.toAffineMat3(result);
             if (raw) {
                 var mt = new Fayde.Media.MatrixTransform();
-                mt.SetStoreValue(Fayde.Media.MatrixTransform.MatrixProperty, new Fayde.Media.Matrix(raw));
+                mt.SetCurrentValue(Fayde.Media.MatrixTransform.MatrixProperty, new Fayde.Media.Matrix(raw));
                 return mt;
             }
 
@@ -9102,14 +9098,14 @@ var Fayde;
                     this._FocusChanged(this.XamlNode._HasFocus());
                 };
                 Thumb.prototype._FocusChanged = function (hasFocus) {
-                    this.SetStoreValue(Thumb.IsFocusedProperty, hasFocus);
+                    this.SetCurrentValue(Thumb.IsFocusedProperty, hasFocus);
                     this.UpdateVisualState();
                 };
 
                 Thumb.prototype.OnLostMouseCapture = function (e) {
                     if (!this.IsDragging || !this.IsEnabled)
                         return;
-                    this.SetStoreValue(Thumb.IsDraggingProperty, false);
+                    this.SetCurrentValue(Thumb.IsDraggingProperty, false);
                     this._RaiseDragCompleted(false);
                 };
                 Thumb.prototype.OnMouseEnter = function (e) {
@@ -9126,7 +9122,7 @@ var Fayde;
                         return;
                     e.Handled = true;
                     this.CaptureMouse();
-                    this.SetStoreValue(Thumb.IsDraggingProperty, true);
+                    this.SetCurrentValue(Thumb.IsDraggingProperty, true);
 
                     var vpNode = this.XamlNode.VisualParentNode;
                     this._Origin = this._PreviousPosition = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
@@ -9153,7 +9149,7 @@ var Fayde;
                 Thumb.prototype.CancelDrag = function () {
                     if (!this.IsDragging)
                         return;
-                    this.SetStoreValue(Thumb.IsDraggingProperty, false);
+                    this.SetCurrentValue(Thumb.IsDraggingProperty, false);
                     this._RaiseDragCompleted(true);
                 };
 
@@ -13116,7 +13112,7 @@ var Fayde;
 
             TextBoxBase.prototype._SyncText = function () {
                 this._SettingValue = false;
-                this.SetStoreValue(this._TextProperty, this._Buffer);
+                this.SetCurrentValue(this._TextProperty, this._Buffer);
                 this._SettingValue = true;
             };
             TextBoxBase.prototype._EmitTextChanged = function () {
@@ -15360,7 +15356,7 @@ var Fayde;
 
                 var inlines = xobj.Inlines;
                 this._SetsValue = false;
-                xobj.SetStoreValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
+                xobj.SetCurrentValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
                 this._SetsValue = true;
 
                 this._UpdateLayoutAttributes();
@@ -18167,10 +18163,10 @@ var Fayde;
                 this.IsUpdating = true;
                 var targetProp = this.TargetProperty;
                 try  {
-                    this._Target.SetStoreValue(targetProp, this.GetValue(null));
+                    this._Target.SetCurrentValue(targetProp, this.GetValue(null));
                 } catch (err2) {
                     var val = targetProp.DefaultValue;
-                    this._Target.SetStoreValue(targetProp, val);
+                    this._Target.SetCurrentValue(targetProp, val);
                 }
             } catch (err) {
             } finally {
@@ -19096,7 +19092,7 @@ var Fayde;
             __extends(BindingExpressionBase, _super);
             function BindingExpressionBase(binding, target, propd) {
                 _super.call(this);
-                this._TwoWayTextBox = null;
+                this._TwoWayLostFocusElement = null;
                 this._Cached = false;
                 this._CachedValue = undefined;
                 this._Init(binding, target, propd);
@@ -19123,8 +19119,8 @@ var Fayde;
                     writable: false
                 });
 
-                if (target instanceof Fayde.Controls.TextBox && binding.Mode === 0 /* TwoWay */)
-                    this._TwoWayTextBox = target;
+                if (binding.Mode === 0 /* TwoWay */ && (target instanceof Fayde.Controls.TextBox || target instanceof Fayde.Controls.PasswordBox))
+                    this._TwoWayLostFocusElement = target;
 
                 this._IsDataContextBound = !binding.ElementName && !binding.Source && !binding.RelativeSource;
 
@@ -19167,8 +19163,8 @@ var Fayde;
                 var source = this._FindSource();
                 this.PropertyPathWalker.Update(source);
 
-                if (this._TwoWayTextBox)
-                    this._TwoWayTextBox.LostFocus.Subscribe(this._TextBoxLostFocus, this);
+                if (this._TwoWayLostFocusElement)
+                    this._TwoWayLostFocusElement.LostFocus.Subscribe(this._TargetLostFocus, this);
 
                 if (this.ParentBinding.Mode === 0 /* TwoWay */ && this.Property.IsCustom) {
                     this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
@@ -19222,8 +19218,8 @@ var Fayde;
 
                 _super.prototype.OnDetached.call(this, element);
 
-                if (this._TwoWayTextBox)
-                    this._TwoWayTextBox.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
+                if (this._TwoWayLostFocusElement)
+                    this._TwoWayLostFocusElement.LostFocus.Unsubscribe(this._TargetLostFocus, this);
 
                 if (this._PropertyListener) {
                     this._PropertyListener.Detach();
@@ -19242,27 +19238,35 @@ var Fayde;
                 this.Refresh();
             };
             BindingExpressionBase.prototype.UpdateSource = function () {
-                return this._UpdateSourceObject(undefined, true);
+                return this._UpdateSourceObject();
             };
             BindingExpressionBase.prototype._TryUpdateSourceObject = function (value) {
-                if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === 0 /* Default */)
-                    this._UpdateSourceObject(value, false);
+                if (this._ShouldUpdateSource())
+                    this._UpdateSourceObject(value);
             };
             BindingExpressionBase.prototype._UpdateSourceCallback = function (sender, args) {
                 try  {
-                    if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === 0 /* Default */)
-                        this._UpdateSourceObject(this.Target.GetValue(this.Property), false);
+                    if (this._ShouldUpdateSource())
+                        this._UpdateSourceObject(this.Target.GetValue(this.Property));
                 } catch (err) {
                     console.warn("[BINDING] UpdateSource: " + err.toString());
                 }
             };
-            BindingExpressionBase.prototype._TextBoxLostFocus = function () {
+            BindingExpressionBase.prototype._TargetLostFocus = function (sender, e) {
+                if (this.ParentBinding.UpdateSourceTrigger === 3 /* Explicit */)
+                    return;
                 this._UpdateSourceObject();
             };
-            BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
+            BindingExpressionBase.prototype._ShouldUpdateSource = function () {
+                if (this.IsUpdating)
+                    return false;
+                if (!this._TwoWayLostFocusElement)
+                    return this.ParentBinding.UpdateSourceTrigger !== 3 /* Explicit */;
+                return this.ParentBinding.UpdateSourceTrigger === 1 /* PropertyChanged */;
+            };
+            BindingExpressionBase.prototype._UpdateSourceObject = function (value) {
                 if (value === undefined)
                     value = this.Target.GetValue(this.Property);
-                force = force === true;
                 var binding = this.ParentBinding;
                 if (binding.Mode !== 0 /* TwoWay */)
                     return;
@@ -19273,8 +19277,6 @@ var Fayde;
                 var node = this.PropertyPathWalker.FinalNode;
 
                 try  {
-                    if (!force && this._TwoWayTextBox && Fayde.Application.Current.MainSurface.FocusedNode === this.Target.XamlNode)
-                        return;
                     if (this.PropertyPathWalker.IsPathBroken)
                         return;
                     value = this._ConvertFromTargetToSource(binding, node, value);
@@ -19541,7 +19543,7 @@ var Fayde;
                     var clonedValue = Fayde.Clone(value);
                     if (clonedValue instanceof Fayde.DependencyObject) {
                         newLu = clonedValue;
-                        data.lu.SetStoreValue(data.res, clonedValue);
+                        data.lu.SetCurrentValue(data.res, clonedValue);
                         clonedValue = data.lu.GetValue(data.res);
                         data.promotedValues[clonedValue._ID] = clonedValue;
                     }
@@ -38942,4 +38944,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.35";
+Fayde.Version = "0.9.8.37";

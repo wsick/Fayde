@@ -10,19 +10,13 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
-namespace WickedSick.LitmusTests
+namespace WickedSick.LitmusTests.Tests
 {
-    public partial class MainPage : UserControl
+    public partial class TextBoxTest : UserControl
     {
-        public MainPage()
+        public TextBoxTest()
         {
             InitializeComponent();
-            LayoutUpdated += MainPage_LayoutUpdated;
-        }
-
-        void MainPage_LayoutUpdated(object sender, EventArgs e)
-        {
-            //var cds = TestGrid.ColumnDefinitions.Select(cd => cd.ActualWidth).ToList();
         }
     }
 }

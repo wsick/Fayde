@@ -242,7 +242,7 @@ module Fayde.Controls {
             
             var inlines = xobj.Inlines;
             this._SetsValue = false;
-            xobj.SetStoreValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
+            xobj.SetCurrentValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
             this._SetsValue = true;
 
             this._UpdateLayoutAttributes();

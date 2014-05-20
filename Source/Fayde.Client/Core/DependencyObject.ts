@@ -132,10 +132,6 @@ module Fayde {
             if (expr instanceof Data.BindingExpressionBase)
                 expr._TryUpdateSourceObject(value);
         }
-        SetStoreValue(propd: DependencyProperty, value: any) {
-            var storage = Providers.GetStorage(this, propd);
-            propd.Store.SetLocalValue(storage, value);
-        }
         ClearValue(propd: DependencyProperty) {
             if (!propd)
                 throw new ArgumentException("No dependency property.");

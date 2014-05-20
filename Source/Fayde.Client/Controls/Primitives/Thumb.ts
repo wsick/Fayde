@@ -37,14 +37,14 @@ module Fayde.Controls.Primitives {
             this._FocusChanged(this.XamlNode._HasFocus());
         }
         private _FocusChanged(hasFocus: boolean) {
-            this.SetStoreValue(Thumb.IsFocusedProperty, hasFocus);
+            this.SetCurrentValue(Thumb.IsFocusedProperty, hasFocus);
             this.UpdateVisualState();
         }
 
         OnLostMouseCapture(e: Input.MouseEventArgs) {
             if (!this.IsDragging || !this.IsEnabled)
                 return;
-            this.SetStoreValue(Thumb.IsDraggingProperty, false);
+            this.SetCurrentValue(Thumb.IsDraggingProperty, false);
             this._RaiseDragCompleted(false);
         }
         OnMouseEnter(e: Input.MouseEventArgs) {
@@ -61,7 +61,7 @@ module Fayde.Controls.Primitives {
                 return;
             e.Handled = true;
             this.CaptureMouse();
-            this.SetStoreValue(Thumb.IsDraggingProperty, true);
+            this.SetCurrentValue(Thumb.IsDraggingProperty, true);
 
             var vpNode = this.XamlNode.VisualParentNode;
             this._Origin = this._PreviousPosition = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
@@ -88,7 +88,7 @@ module Fayde.Controls.Primitives {
         CancelDrag() {
             if (!this.IsDragging)
                 return;
-            this.SetStoreValue(Thumb.IsDraggingProperty, false);
+            this.SetCurrentValue(Thumb.IsDraggingProperty, false);
             this._RaiseDragCompleted(true);
         }
 

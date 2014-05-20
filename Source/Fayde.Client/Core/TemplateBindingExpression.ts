@@ -56,10 +56,10 @@ module Fayde {
                 this.IsUpdating = true;
                 var targetProp = this.TargetProperty;
                 try {
-                    this._Target.SetStoreValue(targetProp, this.GetValue(null));
+                    this._Target.SetCurrentValue(targetProp, this.GetValue(null));
                 } catch (err2) {
                     var val = targetProp.DefaultValue;
-                    this._Target.SetStoreValue(targetProp, val);
+                    this._Target.SetCurrentValue(targetProp, val);
                 }
             } catch (err) {
 
