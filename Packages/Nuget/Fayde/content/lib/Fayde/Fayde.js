@@ -38542,6 +38542,56 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    (function (Collections) {
+        var DeepObservableCollection = (function (_super) {
+            __extends(DeepObservableCollection, _super);
+            function DeepObservableCollection() {
+                _super.call(this);
+                this.ItemPropertyChanged = new MulticastEvent();
+                this.CollectionChanged.Subscribe(this._OnCollectionChanged, this);
+            }
+            DeepObservableCollection.prototype._OnCollectionChanged = function (sender, e) {
+                if (e.NewItems) {
+                    for (var i = 0; i < e.NewItems.length; i++) {
+                        var notify = Fayde.INotifyPropertyChanged_.As(e.NewItems[i]);
+                        if (notify)
+                            notify.PropertyChanged.Subscribe(this._OnItemPropertyChanged, this);
+                    }
+                }
+                if (e.OldItems) {
+                    for (var i = 0; i < e.OldItems.length; i++) {
+                        var notify = Fayde.INotifyPropertyChanged_.As(e.OldItems[i]);
+                        if (notify)
+                            notify.PropertyChanged.Unsubscribe(this._OnItemPropertyChanged, this);
+                    }
+                }
+            };
+            DeepObservableCollection.prototype._OnItemPropertyChanged = function (sender, e) {
+                this.ItemPropertyChanged.Raise(this, new Collections.ItemPropertyChangedEventArgs(sender, e.PropertyName));
+            };
+            return DeepObservableCollection;
+        })(Collections.ObservableCollection);
+        Collections.DeepObservableCollection = DeepObservableCollection;
+    })(Fayde.Collections || (Fayde.Collections = {}));
+    var Collections = Fayde.Collections;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Collections) {
+        var ItemPropertyChangedEventArgs = (function (_super) {
+            __extends(ItemPropertyChangedEventArgs, _super);
+            function ItemPropertyChangedEventArgs(item, propertyName) {
+                _super.call(this, propertyName);
+                Object.defineProperty(this, "Item", { value: item, writable: false });
+            }
+            return ItemPropertyChangedEventArgs;
+        })(Fayde.PropertyChangedEventArgs);
+        Collections.ItemPropertyChangedEventArgs = ItemPropertyChangedEventArgs;
+    })(Fayde.Collections || (Fayde.Collections = {}));
+    var Collections = Fayde.Collections;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     (function (Xaml) {
         Xaml.IMarkup_ = Fayde.RegisterInterface("IMarkup");
 
@@ -38944,4 +38994,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.37";
+Fayde.Version = "0.9.8.38";

@@ -6643,6 +6643,20 @@ declare module Fayde.Localization {
 }
 declare module Fayde.Localization {
 }
+declare module Fayde.Collections {
+    class DeepObservableCollection<T> extends ObservableCollection<T> {
+        public ItemPropertyChanged: MulticastEvent<ItemPropertyChangedEventArgs<T>>;
+        constructor();
+        private _OnCollectionChanged(sender, e);
+        private _OnItemPropertyChanged(sender, e);
+    }
+}
+declare module Fayde.Collections {
+    class ItemPropertyChangedEventArgs<T> extends PropertyChangedEventArgs {
+        public Item: T;
+        constructor(item: T, propertyName: string);
+    }
+}
 declare module Fayde.Xaml {
     interface IMarkupParseContext {
         Owner: DependencyObject;
