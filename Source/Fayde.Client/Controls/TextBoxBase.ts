@@ -73,19 +73,19 @@ module Fayde.Controls {
 
         get SelectionCursor(): number { return this._SelectionCursor; }
         get HasSelectedText(): boolean { return this._SelectionCursor !== this._SelectionAnchor; }
-        get CaretBrush(): Media.Brush { return undefined; }
-        get TextAlignment(): TextAlignment { return undefined; }
-        get TextWrapping(): TextWrapping { return undefined; }
-        get SelectionStart(): number { return undefined; }
-        get SelectionLength(): number { return undefined; }
+        CaretBrush: Media.Brush;
+        TextAlignment: TextAlignment;
+        TextWrapping: TextWrapping;
+        SelectionStart: number;
+        SelectionLength: number;
         get DisplayText(): string { return undefined; }
 
-        get SelectionBackground(): Media.Brush { return undefined; }
-        get Background(): Media.Brush { return undefined; }
-        get SelectionForeground(): Media.Brush { return undefined; }
-        get Foreground(): Media.Brush { return undefined; }
+        SelectionBackground: Media.Brush;
+        SelectionForeground: Media.Brush;
+        Background: Media.Brush;
+        Foreground: Media.Brush;
         get Font(): Font { return this._Font; }
-        get Direction(): FlowDirection { return undefined; }
+        get Direction(): FlowDirection { return this.FlowDirection; }
         get TextDecorations(): TextDecorations { return Fayde.TextDecorations.None; }
 
         OnApplyTemplate() {
