@@ -2258,16 +2258,16 @@ declare module Fayde.Controls {
         public Cursor : CursorType;
         public SelectionCursor : number;
         public HasSelectedText : boolean;
-        public CaretBrush : Media.Brush;
-        public TextAlignment : TextAlignment;
-        public TextWrapping : TextWrapping;
-        public SelectionStart : number;
-        public SelectionLength : number;
+        public CaretBrush: Media.Brush;
+        public TextAlignment: TextAlignment;
+        public TextWrapping: TextWrapping;
+        public SelectionStart: number;
+        public SelectionLength: number;
         public DisplayText : string;
-        public SelectionBackground : Media.Brush;
-        public Background : Media.Brush;
-        public SelectionForeground : Media.Brush;
-        public Foreground : Media.Brush;
+        public SelectionBackground: Media.Brush;
+        public SelectionForeground: Media.Brush;
+        public Background: Media.Brush;
+        public Foreground: Media.Brush;
         public Font : Font;
         public Direction : FlowDirection;
         public TextDecorations : TextDecorations;
@@ -2276,6 +2276,7 @@ declare module Fayde.Controls {
         public Listen(listener: ITextModelListener): void;
         public Unlisten(listener: ITextModelListener): void;
         public _ModelChanged(type: TextBoxModelChangedType, newValue: any): void;
+        private _UpdateFont();
         public _SelectedTextChanged(newValue: string): void;
         public _SelectionStartChanged(newValue: number): void;
         public _SelectionLengthChanged(newValue: number): void;
@@ -2643,7 +2644,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class TextBox extends TextBoxBase implements Text.ITextAttributesSource {
+    class TextBox extends TextBoxBase implements Text.ITextAttributesSource, IFontChangeable {
         static AcceptsReturnProperty: DependencyProperty;
         static CaretBrushProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
@@ -2686,7 +2687,7 @@ declare module Fayde.Controls {
         public _EmitTextChanged(): void;
         public _EmitSelectionChanged(): void;
         private _IsReadOnlyChanged(args);
-        private _FontChanged(args);
+        public FontChanged(args: IDependencyPropertyChangedEventArgs): void;
         private _SelectionBackgroundListener;
         private _SelectionBackgroundChanged(args);
         private _SelectionForegroundListener;

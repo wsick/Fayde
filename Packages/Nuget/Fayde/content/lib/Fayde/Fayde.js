@@ -12828,41 +12828,7 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(TextBoxBase.prototype, "CaretBrush", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "TextAlignment", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "TextWrapping", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "SelectionStart", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "SelectionLength", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
+
             Object.defineProperty(TextBoxBase.prototype, "DisplayText", {
                 get: function () {
                     return undefined;
@@ -12871,34 +12837,6 @@ var Fayde;
                 configurable: true
             });
 
-            Object.defineProperty(TextBoxBase.prototype, "SelectionBackground", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "Background", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "SelectionForeground", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "Foreground", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
             Object.defineProperty(TextBoxBase.prototype, "Font", {
                 get: function () {
                     return this._Font;
@@ -12908,7 +12846,7 @@ var Fayde;
             });
             Object.defineProperty(TextBoxBase.prototype, "Direction", {
                 get: function () {
-                    return undefined;
+                    return this.FlowDirection;
                 },
                 enumerable: true,
                 configurable: true
@@ -12959,6 +12897,8 @@ var Fayde;
                     this._ModelListener = null;
             };
             TextBoxBase.prototype._ModelChanged = function (type, newValue) {
+                this._UpdateFont();
+
                 var listener = this._ModelListener;
                 if (!listener)
                     return;
@@ -12966,6 +12906,14 @@ var Fayde;
                     Changed: type,
                     NewValue: newValue
                 });
+            };
+
+            TextBoxBase.prototype._UpdateFont = function () {
+                this._Font.Family = this.FontFamily;
+                this._Font.Size = this.FontSize;
+                this._Font.Stretch = this.FontStretch;
+                this._Font.Style = this.FontStyle;
+                this._Font.Weight = this.FontWeight;
             };
 
             TextBoxBase.prototype._SelectedTextChanged = function (newValue) {
@@ -15614,7 +15562,7 @@ var Fayde;
                 if (this.$View)
                     this.$View.SetEnableCursor(!this.$IsReadOnly);
             };
-            TextBox.prototype._FontChanged = function (args) {
+            TextBox.prototype.FontChanged = function (args) {
                 this._ModelChanged(5 /* Font */, args.NewValue);
             };
 
@@ -38994,4 +38942,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.38";
+Fayde.Version = "0.9.8.39";
