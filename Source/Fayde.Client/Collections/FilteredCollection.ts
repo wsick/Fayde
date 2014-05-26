@@ -7,9 +7,9 @@
             this.Update();
         }
         
-        constructor(source: Fayde.Collections.DeepObservableCollection<T>, public Filter: (item: any) => boolean) {
+        constructor(public Filter: (item: any) => boolean, source?: Fayde.Collections.DeepObservableCollection<T>) {
             super();
-            this.Source = source;
+            this.Source = source || new Fayde.Collections.DeepObservableCollection<T>();
             source.CollectionChanged.Subscribe(this._OnSourceCollectionChanged, this);
             source.ItemPropertyChanged.Subscribe(this._OnSourceItemPropertyChanged, this);
         }
