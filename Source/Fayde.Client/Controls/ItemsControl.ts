@@ -153,7 +153,8 @@ module Fayde.Controls {
             }
             this.OnItemsChanged(e);
         }
-        OnItemsChanged(e: Collections.NotifyCollectionChangedECollectionChangedEventArgs(e.Action) {
+        OnItemsChanged(e: Collections.CollectionChangedEventArgs) {
+            switch (e.Action) {
                 case Collections.CollectionChangedAction.Add:
                     this.OnItemsAdded(e.NewStartingIndex, e.NewItems);
                     break;

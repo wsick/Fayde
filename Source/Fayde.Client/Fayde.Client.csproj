@@ -21,7 +21,7 @@
     <TypeScriptCompile Include="Runtime\Annotations.ts" />
     <TypeScriptCompile Include="Xaml\XamlDocument.ts" />
     <TypeScriptCompile Include="Collections\INotifyCollectionChanged.ts" />
-    <TypeScriptCompile Include="Collections\NotifyCollectionChangedEventArgs.ts" />
+    <TypeScriptCompile Include="Collections\CollectionChangedEventArgs.ts" />
     <TypeScriptCompile Include="Collections\ObservableCollection.ts" />
     <TypeScriptCompile Include="Controls\Border.ts" />
     <TypeScriptCompile Include="Controls\Button.ts" />
