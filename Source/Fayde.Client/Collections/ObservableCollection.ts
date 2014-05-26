@@ -9,7 +9,7 @@ module Fayde.Collections {
         GetEnumerator(): IEnumerator<T> {
             return ArrayEx.GetEnumerator(this._ht);
         }
-        CollectionChanged = new MulticastEvent<NotifyCollectionChangedEventArgs>();
+        CollectionChanged = new MulticastEvent<CollectionChangedEventArgs>();
         PropertyChanged = new MulticastEvent<PropertyChangedEventArgs>();
 
         get Count(): number { return this._ht.length; }
@@ -28,11 +28,11 @@ module Fayde.Collections {
                 throw new IndexOutOfRangeException(index);
             var oldValue = ht[index];
             ht[index] = value;
-            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Replace(value, oldValue, index));
+            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Replace(value, oldValue, index));
         }
         Add(value: T) {
             var index = this._ht.push(value) - 1;
-            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Add(value, index));
+            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Add(value, index));
             this._RaisePropertyChanged("Count");
         }
         AddRange(values: T[]) {
@@ -41,7 +41,7 @@ module Fayde.Collections {
             for (var i = 0; i < len; i++) {
                 this._ht.push(values[i]);
             }
-            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.AddRange(values, index));
+            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.AddRange(values, index));
             this._RaisePropertyChanged("Count");
         }
         Insert(value: T, index: number) {
@@ -52,7 +52,7 @@ module Fayde.Collections {
                 ht.push(value);
             else
                 ht.splice(index, 0, value);
-            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Add(value, index));
+            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Add(value, index));
             this._RaisePropertyChanged("Count");
         }
         IndexOf(value: T): number {
@@ -66,20 +66,20 @@ module Fayde.Collections {
             if (index < 0)
                 return;
             this._ht.splice(index, 1);
-            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Remove(value, index));
+            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Remove(value, index));
             this._RaisePropertyChanged("Count");
         }
         RemoveAt(index: number) {
             if (index < 0 || index >= this._ht.length)
                 throw new IndexOutOfRangeException(index);
             var item = this._ht.splice(index, 1)[0];
-            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Remove(item, index));
+            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Remove(item, index));
             this._RaisePropertyChanged("Count");
         }
         Clear() {
             var old = this._ht;
             this._ht = [];
-            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Reset(old));
+            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Reset(old));
             this._RaisePropertyChanged("Count");
         }
         private _RaisePropertyChanged(propertyName: string) {

@@ -103,11 +103,11 @@ module Fayde.Controls.Primitives {
             }
         }
 
-        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
+        OnItemsChanged(e: Collections.CollectionChangedEventArgs) {
             super.OnItemsChanged(e);
             var item: any;
             switch (e.Action) {
-                case Collections.NotifyCollectionChangedAction.Add:
+                case Collections.CollectionChangedAction.Add:
                     var lbi: ListBoxItem;
                     if (e.NewItems[0] instanceof ListBoxItem) lbi = <ListBoxItem>e.NewItems[0];
                     if (lbi != null && lbi.IsSelected && !this.SelectedItems.Contains(lbi)) {
@@ -116,7 +116,7 @@ module Fayde.Controls.Primitives {
                         this._Selection.Select(this.SelectedItem);
                     }
                     break;
-                case Collections.NotifyCollectionChangedAction.Reset:
+                case Collections.CollectionChangedAction.Reset:
                     var o: any;
                     var icv = Data.ICollectionView_.As(this.ItemsSource);
                     if (icv && this.SynchronizeWithCurrentItem)
@@ -128,14 +128,14 @@ module Fayde.Controls.Primitives {
                     else
                         this._Selection.ClearSelection();
                     break;
-                case Collections.NotifyCollectionChangedAction.Remove:
+                case Collections.CollectionChangedAction.Remove:
                     item = e.OldItems[0];
                     if (this.SelectedItems.Contains(item))
                         this._Selection.Unselect(item);
                     else if (e.OldStartingIndex <= this.SelectedIndex)
                         this._Selection.Select(this.SelectedItem);
                     break;
-                case Collections.NotifyCollectionChangedAction.Replace:
+                case Collections.CollectionChangedAction.Replace:
                     item = e.OldItems[0];
                     this._Selection.Unselect(item);
                     break;

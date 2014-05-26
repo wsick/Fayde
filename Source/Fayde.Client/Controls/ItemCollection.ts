@@ -2,7 +2,7 @@
 
 module Fayde.Controls {
     export interface IItemCollection {
-        ItemsChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
+        ItemsChanged: MulticastEvent<Collections.CollectionChangedEventArgs>;
         ToArray(): any[];
         Count: number;
 
@@ -20,7 +20,7 @@ module Fayde.Controls {
     }
 
     export class ItemCollection extends XamlObjectCollection<any> implements IItemCollection {
-        ItemsChanged = new MulticastEvent<Collections.NotifyCollectionChangedEventArgs>();
+        ItemsChanged = new MulticastEvent<Collections.CollectionChangedEventArgs>();
         ToArray(): any[] { return this._ht.slice(0); }
 
         get Count(): number { return this._ht.length; }
@@ -47,7 +47,7 @@ module Fayde.Controls {
                 throw new IndexOutOfRangeException(index);
             var oldValue = ht[index];
             ht[index] = value;
-            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Replace(value, oldValue, index));
+            this.ItemsChanged.Raise(this, Collections.CollectionChangedEventArgs.Replace(value, oldValue, index));
         }
 
         Add(value: XamlObject): number {
@@ -58,7 +58,7 @@ module Fayde.Controls {
         }
         AddImpl(value: any): number {
             var index = this._ht.push(value) - 1;
-            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+            this.ItemsChanged.Raise(this, Collections.CollectionChangedEventArgs.Add(value, index));
             return index;
         }
 
@@ -73,7 +73,7 @@ module Fayde.Controls {
         AddRangeImpl(values: any[]) {
             var index = this._ht.length;
             this._ht = this._ht.concat(values);
-            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
+            this.ItemsChanged.Raise(this, Collections.CollectionChangedEventArgs.AddRange(values, index));
         }
 
         Insert(index: number, value: XamlObject): boolean {
@@ -91,7 +91,7 @@ module Fayde.Controls {
                 ht.push(value);
             else
                 ht.splice(index, 0, value);
-            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+            this.ItemsChanged.Raise(this, Collections.CollectionChangedEventArgs.Add(value, index));
         }
 
         IndexOf(value: XamlObject): number {
@@ -111,7 +111,7 @@ module Fayde.Controls {
             if (index < 0)
                 return;
             this._ht.splice(index, 1);
-            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(value, index));
+            this.ItemsChanged.Raise(this, Collections.CollectionChangedEventArgs.Remove(value, index));
         }
 
         RemoveAt(index: number): boolean {
@@ -123,7 +123,7 @@ module Fayde.Controls {
         }
         RemoveAtImpl(index: number) {
             var item = this._ht.splice(index, 1)[0];
-            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(item, index));
+            this.ItemsChanged.Raise(this, Collections.CollectionChangedEventArgs.Remove(item, index));
         }
 
         Clear(): boolean {
@@ -134,7 +134,7 @@ module Fayde.Controls {
         ClearImpl() {
             var old = this._ht;
             this._ht = [];
-            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Reset(old));
+            this.ItemsChanged.Raise(this, Collections.CollectionChangedEventArgs.Reset(old));
         }
 
         private _ValidateReadOnly() {

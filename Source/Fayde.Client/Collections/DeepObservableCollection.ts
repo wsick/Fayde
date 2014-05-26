@@ -8,7 +8,7 @@ module Fayde.Collections {
             this.CollectionChanged.Subscribe(this._OnCollectionChanged, this);
         }
 
-        private _OnCollectionChanged(sender: any, e: NotifyCollectionChangedEventArgs) {
+        private _OnCollectionChanged(sender: any, e: CollectionChangedEventArgs) {
             if (e.NewItems) {
                 for (var i = 0; i < e.NewItems.length; i++) {
                     var notify = INotifyPropertyChanged_.As(e.NewItems[i]);

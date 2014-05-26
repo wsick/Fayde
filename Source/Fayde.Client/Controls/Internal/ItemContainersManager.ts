@@ -1,6 +1,6 @@
 module Fayde.Controls.Internal {
-    import NotifyCollectionChangedEventArgs = Collections.NotifyCollectionChangedEventArgs;
-    import NotifyCollectionChangedAction = Collections.NotifyCollectionChangedAction;
+    import NotifyCollectionChangedEventArgs = Collections.CollectionChangedEventArgs;
+    import NotifyCollectionChangedAction = Collections.CollectionChangedAction;
     import INotifyCollectionChanged_ = Collections.INotifyCollectionChanged_;
 
     export interface IItemContainersOwner {

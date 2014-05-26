@@ -59,7 +59,7 @@ module Fayde.Controls {
             } finally {
                 this._SuspendItemsChanged = false;
             }
-            this.OnItemsChanged(Collections.NotifyCollectionChangedEventArgs.Reset(items.ToArray()));
+            this.OnItemsChanged(Collections.CollectionChangedEventArgs.Reset(items.ToArray()));
 
             //Notify new
             this._IsDataBound = !!e.NewValue;
@@ -72,7 +72,7 @@ module Fayde.Controls {
                 this._SuspendItemsChanged = false;
             }
             if (arr)
-                this.OnItemsChanged(Collections.NotifyCollectionChangedEventArgs.AddRange(arr, 0));
+                this.OnItemsChanged(Collections.CollectionChangedEventArgs.AddRange(arr, 0));
 
             //Subscribe to new
             var nc = Collections.INotifyCollectionChanged_.As(e.NewValue);
@@ -119,32 +119,32 @@ module Fayde.Controls {
         
         private _IsDataBound = false;
         private _SuspendItemsChanged = false;
-        private _OnItemsUpdated(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
+        private _OnItemsUpdated(sender: any, e: Collections.CollectionChangedEventArgs) {
             if (this._SuspendItemsChanged) //Ignore OnItemsSourceChanged operations
                 return;
             if (this._IsDataBound)
                 throw new InvalidOperationException("Cannot modify Items while bound to ItemsSource.");
             this.OnItemsChanged(e);
         }
-        private _OnItemsSourceUpdated(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
+        private _OnItemsSourceUpdated(sender: any, e: Collections.CollectionChangedEventArgs) {
             var items = this.Items;
             try {
                 this._SuspendItemsChanged = true;
                 switch (e.Action) {
-                    case Collections.NotifyCollectionChangedAction.Add:
+                    case Collections.CollectionChangedAction.Add:
                         for (var i = 0, len = e.NewItems.length; i < len; i++) {
                             items.Insert(e.NewStartingIndex + i, e.NewItems[i]);
                         }
                         break;
-                    case Collections.NotifyCollectionChangedAction.Remove:
+                    case Collections.CollectionChangedAction.Remove:
                         for (var i = 0, len = e.OldItems.length; i < len; i++) {
                             items.RemoveAt(e.OldStartingIndex);
                         }
                         break;
-                    case Collections.NotifyCollectionChangedAction.Replace:
+                    case Collections.CollectionChangedAction.Replace:
                         items.SetValueAt(e.NewStartingIndex, e.NewItems[0]);
                         break;
-                    case Collections.NotifyCollectionChangedAction.Reset:
+                    case Collections.CollectionChangedAction.Reset:
                         items.Clear();
                         break;
                 }
@@ -153,19 +153,18 @@ module Fayde.Controls {
             }
             this.OnItemsChanged(e);
         }
-        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
-            switch (e.Action) {
-                case Collections.NotifyCollectionChangedAction.Add:
+        OnItemsChanged(e: Collections.NotifyCollectionChangedECollectionChangedEventArgs(e.Action) {
+                case Collections.CollectionChangedAction.Add:
                     this.OnItemsAdded(e.NewStartingIndex, e.NewItems);
                     break;
-                case Collections.NotifyCollectionChangedAction.Remove:
+                case Collections.CollectionChangedAction.Remove:
                     this.OnItemsRemoved(e.OldStartingIndex, e.OldItems);
                     break;
-                case Collections.NotifyCollectionChangedAction.Replace:
+                case Collections.CollectionChangedAction.Replace:
                     this.OnItemsRemoved(e.NewStartingIndex, e.OldItems);
                     this.OnItemsAdded(e.NewStartingIndex, e.NewItems);
                     break;
-                case Collections.NotifyCollectionChangedAction.Reset:
+                case Collections.CollectionChangedAction.Reset:
                     this.OnItemsRemoved(0, e.OldItems);
                     break;
             }

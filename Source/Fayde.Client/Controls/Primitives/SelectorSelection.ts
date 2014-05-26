@@ -16,7 +16,7 @@ module Fayde.Controls.Primitives {
             this._Owner.SelectedItems.CollectionChanged.Subscribe(this._HandleOwnerSelectionChanged, this);
         }
 
-        private _HandleOwnerSelectionChanged(sender, e: Collections.NotifyCollectionChangedEventArgs) {
+        private _HandleOwnerSelectionChanged(sender, e: Collections.CollectionChangedEventArgs) {
             if (this._IsUpdating)
                 return;
             if (this.Mode === SelectionMode.Single)
@@ -25,21 +25,21 @@ module Fayde.Controls.Primitives {
                 var items = this._SelectedItems;
                 this._IsUpdating = true;
                 switch (e.Action) {
-                    case Collections.NotifyCollectionChangedAction.Add:
+                    case Collections.CollectionChangedAction.Add:
                         if (items.indexOf(e.NewItems[0]) < 0)
                             this.AddToSelected(e.NewItems[0]);
                         break;
-                    case Collections.NotifyCollectionChangedAction.Remove:
+                    case Collections.CollectionChangedAction.Remove:
                         if (items.indexOf(e.OldItems[0]) > -1)
                             this.RemoveFromSelected(e.OldItems[0]);
                         break;
-                    case Collections.NotifyCollectionChangedAction.Replace:
+                    case Collections.CollectionChangedAction.Replace:
                         if (items.indexOf(e.OldItems[0]) > -1)
                             this.RemoveFromSelected(e.OldItems[0]);
                         if (items.indexOf(e.NewItems[0]) < 0)
                             this.AddToSelected(e.NewItems[0]);
                         break;
-                    case Collections.NotifyCollectionChangedAction.Reset:
+                    case Collections.CollectionChangedAction.Reset:
                         var ownerItems = this._Owner.SelectedItems;
 
                         var item: any;
