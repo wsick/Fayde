@@ -6,9 +6,17 @@
             this._Source = value;
             this.Update();
         }
+
+        private _Filter: (item: any) => boolean;
+        get Filter() { return this._Filter; }
+        set Filter(value: (item: any) => boolean) {
+            this._Filter = value;
+            this.Update();
+        }
         
-        constructor(public Filter: (item: any) => boolean, source?: Fayde.Collections.DeepObservableCollection<T>) {
+        constructor(filter?: (item: any) => boolean, source?: Fayde.Collections.DeepObservableCollection<T>) {
             super();
+            this.Filter = filter;
             this.Source = source || new Fayde.Collections.DeepObservableCollection<T>();
             source.CollectionChanged.Subscribe(this._OnSourceCollectionChanged, this);
             source.ItemPropertyChanged.Subscribe(this._OnSourceItemPropertyChanged, this);
@@ -24,6 +32,8 @@
         }
 
         Update() {
+            if (!this._Source)
+                return;
             var filter = this.Filter || ((item: any) => true);
             for (var i = 0, j = 0, enumerator = this._Source.GetEnumerator(); enumerator.MoveNext(); i++) {
                 var isIncluded = filter(enumerator.Current);

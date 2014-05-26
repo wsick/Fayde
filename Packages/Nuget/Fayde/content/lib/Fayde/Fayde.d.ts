@@ -80,7 +80,7 @@ declare module Fayde {
 }
 declare module Fayde.Collections {
     interface INotifyCollectionChanged {
-        CollectionChanged: MulticastEvent<NotifyCollectionChangedEventArgs>;
+        CollectionChanged: MulticastEvent<CollectionChangedEventArgs>;
     }
     var INotifyCollectionChanged_: IInterfaceDeclaration<INotifyCollectionChanged>;
 }
@@ -88,23 +88,23 @@ declare class EventArgs {
     static Empty: EventArgs;
 }
 declare module Fayde.Collections {
-    enum NotifyCollectionChangedAction {
+    enum CollectionChangedAction {
         Add = 1,
         Remove = 2,
         Replace = 3,
         Reset = 4,
     }
-    class NotifyCollectionChangedEventArgs extends EventArgs {
-        public Action: NotifyCollectionChangedAction;
+    class CollectionChangedEventArgs extends EventArgs {
+        public Action: CollectionChangedAction;
         public OldStartingIndex: number;
         public NewStartingIndex: number;
         public OldItems: any[];
         public NewItems: any[];
-        static Reset(allValues: any[]): NotifyCollectionChangedEventArgs;
-        static Replace(newValue: any, oldValue: any, index: number): NotifyCollectionChangedEventArgs;
-        static Add(newValue: any, index: number): NotifyCollectionChangedEventArgs;
-        static AddRange(newValues: any[], index: number): NotifyCollectionChangedEventArgs;
-        static Remove(oldValue: any, index: number): NotifyCollectionChangedEventArgs;
+        static Reset(allValues: any[]): CollectionChangedEventArgs;
+        static Replace(newValue: any, oldValue: any, index: number): CollectionChangedEventArgs;
+        static Add(newValue: any, index: number): CollectionChangedEventArgs;
+        static AddRange(newValues: any[], index: number): CollectionChangedEventArgs;
+        static Remove(oldValue: any, index: number): CollectionChangedEventArgs;
     }
 }
 declare module Fayde {
@@ -141,7 +141,7 @@ declare module Fayde.Collections {
     class ObservableCollection<T> implements IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {
         private _ht;
         public GetEnumerator(): IEnumerator<T>;
-        public CollectionChanged: MulticastEvent<NotifyCollectionChangedEventArgs>;
+        public CollectionChanged: MulticastEvent<CollectionChangedEventArgs>;
         public PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
         public Count : number;
         public ToArray(): T[];
@@ -1361,7 +1361,7 @@ declare module Fayde.Controls {
         private _SuspendItemsChanged;
         private _OnItemsUpdated(sender, e);
         private _OnItemsSourceUpdated(sender, e);
-        public OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs): void;
+        public OnItemsChanged(e: Collections.CollectionChangedEventArgs): void;
         public OnItemsAdded(index: number, newItems: any[]): void;
         public OnItemsRemoved(index: number, oldItems: any[]): void;
         private UpdateContainerTemplate(container, item);
@@ -1401,7 +1401,7 @@ declare module Fayde.Controls.Primitives {
         private _OnSelectedValuePathChanged(args);
         private _OnSelectionModeChanged(args);
         public OnApplyTemplate(): void;
-        public OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs): void;
+        public OnItemsChanged(e: Collections.CollectionChangedEventArgs): void;
         public OnItemsSourceChanged(args: IDependencyPropertyChangedEventArgs): void;
         public OnItemContainerStyleChanged(oldStyle: any, newStyle: any): void;
         public ClearContainerForItem(element: UIElement, item: any): void;
@@ -2005,7 +2005,7 @@ declare module Fayde.Controls {
 }
 declare module Fayde.Controls {
     interface IItemCollection {
-        ItemsChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
+        ItemsChanged: MulticastEvent<Collections.CollectionChangedEventArgs>;
         ToArray(): any[];
         Count: number;
         GetValueAt(index: number): any;
@@ -2021,7 +2021,7 @@ declare module Fayde.Controls {
         Clear(): any;
     }
     class ItemCollection extends XamlObjectCollection<any> implements IItemCollection {
-        public ItemsChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
+        public ItemsChanged: MulticastEvent<Collections.CollectionChangedEventArgs>;
         public ToArray(): any[];
         public Count : number;
         public IsReadOnly: boolean;
@@ -6656,6 +6656,18 @@ declare module Fayde.Collections {
     class ItemPropertyChangedEventArgs<T> extends PropertyChangedEventArgs {
         public Item: T;
         constructor(item: T, propertyName: string);
+    }
+}
+declare module Fayde.Collections {
+    class FilteredCollection<T> extends DeepObservableCollection<T> {
+        private _Source;
+        public Source : DeepObservableCollection<T>;
+        private _Filter;
+        public Filter : (item: any) => boolean;
+        constructor(filter?: (item: any) => boolean, source?: DeepObservableCollection<T>);
+        private _OnSourceCollectionChanged(sender, e);
+        private _OnSourceItemPropertyChanged(sender, e);
+        public Update(): void;
     }
 }
 declare module Fayde.Xaml {

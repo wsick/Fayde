@@ -597,22 +597,22 @@ var __extends = this.__extends || function (d, b) {
 var Fayde;
 (function (Fayde) {
     (function (Collections) {
-        (function (NotifyCollectionChangedAction) {
-            NotifyCollectionChangedAction[NotifyCollectionChangedAction["Add"] = 1] = "Add";
-            NotifyCollectionChangedAction[NotifyCollectionChangedAction["Remove"] = 2] = "Remove";
-            NotifyCollectionChangedAction[NotifyCollectionChangedAction["Replace"] = 3] = "Replace";
-            NotifyCollectionChangedAction[NotifyCollectionChangedAction["Reset"] = 4] = "Reset";
-        })(Collections.NotifyCollectionChangedAction || (Collections.NotifyCollectionChangedAction = {}));
-        var NotifyCollectionChangedAction = Collections.NotifyCollectionChangedAction;
-        Fayde.RegisterEnum(NotifyCollectionChangedAction, "NotifyCollectionChangedAction");
+        (function (CollectionChangedAction) {
+            CollectionChangedAction[CollectionChangedAction["Add"] = 1] = "Add";
+            CollectionChangedAction[CollectionChangedAction["Remove"] = 2] = "Remove";
+            CollectionChangedAction[CollectionChangedAction["Replace"] = 3] = "Replace";
+            CollectionChangedAction[CollectionChangedAction["Reset"] = 4] = "Reset";
+        })(Collections.CollectionChangedAction || (Collections.CollectionChangedAction = {}));
+        var CollectionChangedAction = Collections.CollectionChangedAction;
+        Fayde.RegisterEnum(CollectionChangedAction, "NotifyCollectionChangedAction");
 
-        var NotifyCollectionChangedEventArgs = (function (_super) {
-            __extends(NotifyCollectionChangedEventArgs, _super);
-            function NotifyCollectionChangedEventArgs() {
+        var CollectionChangedEventArgs = (function (_super) {
+            __extends(CollectionChangedEventArgs, _super);
+            function CollectionChangedEventArgs() {
                 _super.apply(this, arguments);
             }
-            NotifyCollectionChangedEventArgs.Reset = function (allValues) {
-                var args = new NotifyCollectionChangedEventArgs();
+            CollectionChangedEventArgs.Reset = function (allValues) {
+                var args = new CollectionChangedEventArgs();
                 Object.defineProperty(args, "Action", { value: 4 /* Reset */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: 0, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
@@ -620,8 +620,8 @@ var Fayde;
                 Object.defineProperty(args, "NewItems", { value: null, writable: false });
                 return args;
             };
-            NotifyCollectionChangedEventArgs.Replace = function (newValue, oldValue, index) {
-                var args = new NotifyCollectionChangedEventArgs();
+            CollectionChangedEventArgs.Replace = function (newValue, oldValue, index) {
+                var args = new CollectionChangedEventArgs();
                 Object.defineProperty(args, "Action", { value: 3 /* Replace */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
@@ -629,8 +629,8 @@ var Fayde;
                 Object.defineProperty(args, "NewItems", { value: [newValue], writable: false });
                 return args;
             };
-            NotifyCollectionChangedEventArgs.Add = function (newValue, index) {
-                var args = new NotifyCollectionChangedEventArgs();
+            CollectionChangedEventArgs.Add = function (newValue, index) {
+                var args = new CollectionChangedEventArgs();
                 Object.defineProperty(args, "Action", { value: 1 /* Add */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
@@ -638,8 +638,8 @@ var Fayde;
                 Object.defineProperty(args, "NewItems", { value: [newValue], writable: false });
                 return args;
             };
-            NotifyCollectionChangedEventArgs.AddRange = function (newValues, index) {
-                var args = new NotifyCollectionChangedEventArgs();
+            CollectionChangedEventArgs.AddRange = function (newValues, index) {
+                var args = new CollectionChangedEventArgs();
                 Object.defineProperty(args, "Action", { value: 1 /* Add */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
@@ -647,8 +647,8 @@ var Fayde;
                 Object.defineProperty(args, "NewItems", { value: newValues, writable: false });
                 return args;
             };
-            NotifyCollectionChangedEventArgs.Remove = function (oldValue, index) {
-                var args = new NotifyCollectionChangedEventArgs();
+            CollectionChangedEventArgs.Remove = function (oldValue, index) {
+                var args = new CollectionChangedEventArgs();
                 Object.defineProperty(args, "Action", { value: 2 /* Remove */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: index, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
@@ -656,9 +656,9 @@ var Fayde;
                 Object.defineProperty(args, "NewItems", { value: null, writable: false });
                 return args;
             };
-            return NotifyCollectionChangedEventArgs;
+            return CollectionChangedEventArgs;
         })(EventArgs);
-        Collections.NotifyCollectionChangedEventArgs = NotifyCollectionChangedEventArgs;
+        Collections.CollectionChangedEventArgs = CollectionChangedEventArgs;
     })(Fayde.Collections || (Fayde.Collections = {}));
     var Collections = Fayde.Collections;
 })(Fayde || (Fayde = {}));
@@ -832,11 +832,11 @@ var Fayde;
                     throw new IndexOutOfRangeException(index);
                 var oldValue = ht[index];
                 ht[index] = value;
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Replace(value, oldValue, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Replace(value, oldValue, index));
             };
             ObservableCollection.prototype.Add = function (value) {
                 var index = this._ht.push(value) - 1;
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Add(value, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.AddRange = function (values) {
@@ -845,7 +845,7 @@ var Fayde;
                 for (var i = 0; i < len; i++) {
                     this._ht.push(values[i]);
                 }
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.AddRange(values, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.Insert = function (value, index) {
@@ -856,7 +856,7 @@ var Fayde;
                     ht.push(value);
                 else
                     ht.splice(index, 0, value);
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Add(value, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.IndexOf = function (value) {
@@ -870,20 +870,20 @@ var Fayde;
                 if (index < 0)
                     return;
                 this._ht.splice(index, 1);
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(value, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Remove(value, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.RemoveAt = function (index) {
                 if (index < 0 || index >= this._ht.length)
                     throw new IndexOutOfRangeException(index);
                 var item = this._ht.splice(index, 1)[0];
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(item, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Remove(item, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.Clear = function () {
                 var old = this._ht;
                 this._ht = [];
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Reset(old));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Reset(old));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype._RaisePropertyChanged = function (propertyName) {
@@ -6955,7 +6955,7 @@ var Fayde;
                 } finally {
                     this._SuspendItemsChanged = false;
                 }
-                this.OnItemsChanged(Fayde.Collections.NotifyCollectionChangedEventArgs.Reset(items.ToArray()));
+                this.OnItemsChanged(Fayde.Collections.CollectionChangedEventArgs.Reset(items.ToArray()));
 
                 this._IsDataBound = !!e.NewValue;
                 var arr = e.NewValue ? Fayde.Enumerable.ToArray(e.NewValue) : null;
@@ -6967,7 +6967,7 @@ var Fayde;
                     this._SuspendItemsChanged = false;
                 }
                 if (arr)
-                    this.OnItemsChanged(Fayde.Collections.NotifyCollectionChangedEventArgs.AddRange(arr, 0));
+                    this.OnItemsChanged(Fayde.Collections.CollectionChangedEventArgs.AddRange(arr, 0));
 
                 var nc = Fayde.Collections.INotifyCollectionChanged_.As(e.NewValue);
                 if (nc)
@@ -11934,7 +11934,7 @@ var Fayde;
                     throw new IndexOutOfRangeException(index);
                 var oldValue = ht[index];
                 ht[index] = value;
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Replace(value, oldValue, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Replace(value, oldValue, index));
             };
 
             ItemCollection.prototype.Add = function (value) {
@@ -11945,7 +11945,7 @@ var Fayde;
             };
             ItemCollection.prototype.AddImpl = function (value) {
                 var index = this._ht.push(value) - 1;
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Add(value, index));
                 return index;
             };
 
@@ -11962,7 +11962,7 @@ var Fayde;
             ItemCollection.prototype.AddRangeImpl = function (values) {
                 var index = this._ht.length;
                 this._ht = this._ht.concat(values);
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.AddRange(values, index));
             };
 
             ItemCollection.prototype.Insert = function (index, value) {
@@ -11980,7 +11980,7 @@ var Fayde;
                     ht.push(value);
                 else
                     ht.splice(index, 0, value);
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Add(value, index));
             };
 
             ItemCollection.prototype.IndexOf = function (value) {
@@ -12000,7 +12000,7 @@ var Fayde;
                 if (index < 0)
                     return;
                 this._ht.splice(index, 1);
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Remove(value, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Remove(value, index));
             };
 
             ItemCollection.prototype.RemoveAt = function (index) {
@@ -12012,7 +12012,7 @@ var Fayde;
             };
             ItemCollection.prototype.RemoveAtImpl = function (index) {
                 var item = this._ht.splice(index, 1)[0];
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Remove(item, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Remove(item, index));
             };
 
             ItemCollection.prototype.Clear = function () {
@@ -12023,7 +12023,7 @@ var Fayde;
             ItemCollection.prototype.ClearImpl = function () {
                 var old = this._ht;
                 this._ht = [];
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Reset(old));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Reset(old));
             };
 
             ItemCollection.prototype._ValidateReadOnly = function () {
@@ -38540,6 +38540,74 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    (function (Collections) {
+        var FilteredCollection = (function (_super) {
+            __extends(FilteredCollection, _super);
+            function FilteredCollection(filter, source) {
+                _super.call(this);
+                this.Filter = filter;
+                this.Source = source || new Fayde.Collections.DeepObservableCollection();
+                source.CollectionChanged.Subscribe(this._OnSourceCollectionChanged, this);
+                source.ItemPropertyChanged.Subscribe(this._OnSourceItemPropertyChanged, this);
+            }
+            Object.defineProperty(FilteredCollection.prototype, "Source", {
+                get: function () {
+                    return this._Source;
+                },
+                set: function (value) {
+                    this._Source = value;
+                    this.Update();
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            Object.defineProperty(FilteredCollection.prototype, "Filter", {
+                get: function () {
+                    return this._Filter;
+                },
+                set: function (value) {
+                    this._Filter = value;
+                    this.Update();
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            FilteredCollection.prototype._OnSourceCollectionChanged = function (sender, e) {
+                this.Update();
+            };
+            FilteredCollection.prototype._OnSourceItemPropertyChanged = function (sender, e) {
+                this.Update();
+                if (this.Filter && this.Filter(e.Item))
+                    this.ItemPropertyChanged.Raise(this, e);
+            };
+
+            FilteredCollection.prototype.Update = function () {
+                if (!this._Source)
+                    return;
+                var filter = this.Filter || (function (item) {
+                    return true;
+                });
+                for (var i = 0, j = 0, enumerator = this._Source.GetEnumerator(); enumerator.MoveNext(); i++) {
+                    var isIncluded = filter(enumerator.Current);
+                    var isCurrent = j < this.Count && this.GetValueAt(j) === enumerator.Current;
+                    if (isIncluded && !isCurrent)
+                        this.Insert(enumerator.Current, j);
+                    else if (!isIncluded && isCurrent)
+                        this.RemoveAt(j);
+                    if (isIncluded)
+                        j++;
+                }
+            };
+            return FilteredCollection;
+        })(Fayde.Collections.DeepObservableCollection);
+        Collections.FilteredCollection = FilteredCollection;
+    })(Fayde.Collections || (Fayde.Collections = {}));
+    var Collections = Fayde.Collections;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     (function (Xaml) {
         Xaml.IMarkup_ = Fayde.RegisterInterface("IMarkup");
 
@@ -38942,4 +39010,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.39";
+Fayde.Version = "0.9.8.40";
