@@ -23,12 +23,14 @@ module Fayde.Controls {
                 return false;
 
             var xobj = this.XObject;
+            // This is meant to create {TemplateBinding ...} as a convenience when user doesn't
+            // This really should check for a value or an expression
             if (xobj.TemplateOwner instanceof ContentControl) {
-                if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === DependencyProperty.UnsetValue) {
+                if (!xobj.HasValueOrExpression(ContentPresenter.ContentProperty)) {
                     xobj.SetValue(ContentPresenter.ContentProperty,
                         new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
                 }
-                if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === DependencyProperty.UnsetValue) {
+                if (!xobj.HasValueOrExpression(ContentPresenter.ContentTemplateProperty)) {
                     xobj.SetValue(ContentPresenter.ContentTemplateProperty,
                         new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
                 }

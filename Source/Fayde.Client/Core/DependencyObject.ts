@@ -183,6 +183,11 @@ module Fayde {
             if (expr instanceof Data.BindingExpressionBase)
                 return <Data.BindingExpressionBase>expr;
         }
+        HasValueOrExpression(propd: DependencyProperty): boolean {
+            if (this._Expressions[propd._ID] instanceof Expression)
+                return true;
+            return this.ReadLocalValueInternal(propd) !== undefined;
+        }
         SetBinding(propd: DependencyProperty, binding: Data.Binding): Data.BindingExpressionBase {
             if (!propd)
                 throw new ArgumentException("propd");
