@@ -344,6 +344,7 @@ declare module Fayde {
         private _RemoveExpression(propd);
         public _HasDeferredValueExpression(propd: DependencyProperty): boolean;
         public GetBindingExpression(propd: DependencyProperty): Data.BindingExpressionBase;
+        public HasValueOrExpression(propd: DependencyProperty): boolean;
         public SetBinding(propd: DependencyProperty, binding: Data.Binding): Data.BindingExpressionBase;
         public CloneCore(source: DependencyObject): void;
     }

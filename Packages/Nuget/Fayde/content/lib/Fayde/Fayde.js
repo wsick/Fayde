@@ -1906,6 +1906,11 @@ var Fayde;
             if (expr instanceof Fayde.Data.BindingExpressionBase)
                 return expr;
         };
+        DependencyObject.prototype.HasValueOrExpression = function (propd) {
+            if (this._Expressions[propd._ID] instanceof Fayde.Expression)
+                return true;
+            return this.ReadLocalValueInternal(propd) !== undefined;
+        };
         DependencyObject.prototype.SetBinding = function (propd, binding) {
             if (!propd)
                 throw new ArgumentException("propd");
@@ -8067,11 +8072,12 @@ var Fayde;
                     return false;
 
                 var xobj = this.XObject;
+
                 if (xobj.TemplateOwner instanceof Controls.ContentControl) {
-                    if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === DependencyProperty.UnsetValue) {
+                    if (!xobj.HasValueOrExpression(ContentPresenter.ContentProperty)) {
                         xobj.SetValue(ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(Controls.ContentControl.ContentProperty, ContentPresenter.ContentProperty));
                     }
-                    if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === DependencyProperty.UnsetValue) {
+                    if (!xobj.HasValueOrExpression(ContentPresenter.ContentTemplateProperty)) {
                         xobj.SetValue(ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(Controls.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
                     }
                 }
@@ -39010,4 +39016,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.40";
+Fayde.Version = "0.9.8.41";
