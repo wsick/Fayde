@@ -1096,7 +1096,6 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
-/// <reference path="Primitives/MenuBase.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
@@ -1357,7 +1356,6 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
-/// <reference path="Spinner.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
@@ -1401,7 +1399,7 @@ var Fayde;
                 this.ValueChanging.Raise(this, e);
             };
             UpDownBase.prototype.OnValueChanged = function (e) {
-                this.ValueChanged.Raise(this, e); //WTF: compiler choking without cast for some odd reason
+                this.ValueChanged.Raise(this, e);
                 this.SetTextBoxText();
             };
 
@@ -1589,7 +1587,6 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
-/// <reference path="UpDownBase.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
@@ -2072,7 +2069,6 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
-/// <reference path="Primitives/MenuBase.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
@@ -2190,8 +2186,6 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
-/// <reference path="UpDownBase.ts" />
-/// <reference path="Spinner.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
@@ -4744,8 +4738,8 @@ var Fayde;
                     if (this.Orientation === 1 /* Vertical */) {
                         if (availableSize.Height < (offsetY + s.Height)) {
                             offsetX += colWidth;
-                            offsetY = 0; //reset offsetY to 0
-                            colWidth = 0; //reset col spacing
+                            offsetY = 0;
+                            colWidth = 0;
                         }
                         colWidth = Math.max(colWidth, s.Width);
                         measured.Height = Math.max(measured.Height, offsetY + s.Height);
@@ -4753,9 +4747,9 @@ var Fayde;
                         offsetY += s.Height;
                     } else {
                         if (availableSize.Width < (offsetX + s.Width)) {
-                            offsetX = 0; // reset offsetX to 0
+                            offsetX = 0;
                             offsetY += rowHeight;
-                            rowHeight = 0; //reset row height
+                            rowHeight = 0;
                         }
                         rowHeight = Math.max(rowHeight, s.Height);
 
@@ -4779,9 +4773,9 @@ var Fayde;
                     var s = child.DesiredSize;
                     if (this.Orientation === 1 /* Vertical */) {
                         if (finalSize.Height < (offsetY + s.Height)) {
-                            offsetX += colWidth; //and colWidth
-                            offsetY = 0; //reset OffsetY to top
-                            colWidth = 0; //reset colWidth
+                            offsetX += colWidth;
+                            offsetY = 0;
+                            colWidth = 0;
                         }
                         colWidth = Math.max(colWidth, s.Width);
                         rect.set(childFinal, offsetX, offsetY, s.Width, s.Height);
@@ -4789,9 +4783,9 @@ var Fayde;
                         offsetY += s.Height;
                     } else {
                         if (finalSize.Width < (offsetX + s.Width)) {
-                            offsetX = 0; // reset offsetX to 0
-                            offsetY += rowHeight; //offsetY + lastrow height
-                            rowHeight = 0; //reset row spacing
+                            offsetX = 0;
+                            offsetY += rowHeight;
+                            rowHeight = 0;
                         }
                         rowHeight = Math.max(rowHeight, s.Height);
                         rect.set(childFinal, offsetX, offsetY, s.Width, s.Height);
@@ -4829,4 +4823,3 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
-//# sourceMappingURL=Fayde.Controls.Ex.js.map
