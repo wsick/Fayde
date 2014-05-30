@@ -198,7 +198,7 @@ var Fayde;
             for (var i = 0; i < list.length; i++) {
                 var lib = Fayde.Library.Get(list[i]);
                 if (lib && (index = ctx.Resolving.indexOf(lib)) > -1) {
-                    list.splice(index, 1);
+                    list.splice(i, 1);
                     i--;
                 }
             }
@@ -39016,4 +39016,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.41";
+Fayde.Version = "0.9.8.42";
