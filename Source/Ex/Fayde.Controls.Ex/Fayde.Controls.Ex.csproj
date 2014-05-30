@@ -86,7 +86,7 @@
     <TypeScriptCompile Include="Internal\ScrollEx.ts" />
     <TypeScriptCompile Include="TreeViewItem.ts" />
     <TypeScriptCompile Include="TreeView.ts" />
-    <TypeScriptCompile Include="Fayde.d.ts" />
+    <TypeScriptCompile Include="lib\Fayde\Fayde.d.ts" />
     <Content Include="Themes\Metro.theme.xml">
       <SubType>Designer</SubType>
     </Content>

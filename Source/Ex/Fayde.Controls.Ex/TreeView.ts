@@ -84,7 +84,7 @@ module Fayde.Controls {
             super.ClearContainerForItem(element, item);
         }
 
-        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
+        OnItemsChanged(e: Collections.CollectionChangedEventArgs) {
             if (!e)
                 throw new ArgumentException("e");
             super.OnItemsChanged(e);
@@ -95,12 +95,12 @@ module Fayde.Controls {
             }
 
             switch (e.Action) {
-                case Collections.NotifyCollectionChangedAction.Remove:
-                case Collections.NotifyCollectionChangedAction.Reset:
+                case Collections.CollectionChangedAction.Remove:
+                case Collections.CollectionChangedAction.Reset:
                     if (this.SelectedItem != null && !this.IsSelectedContainerHookedUp)
                         this.SelectFirstItem();
                     break;
-                case Collections.NotifyCollectionChangedAction.Replace:
+                case Collections.CollectionChangedAction.Replace:
                     var selectedItem = this.SelectedItem;
                     if (selectedItem != null && (e.OldItems == null || Nullstone.Equals(selectedItem, e.OldItems[0])))
                         this.ChangeSelection(selectedItem, this.SelectedContainer, false);

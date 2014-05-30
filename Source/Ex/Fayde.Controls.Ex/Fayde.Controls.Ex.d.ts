@@ -622,7 +622,7 @@ declare module Fayde.Controls {
         public IsItemItsOwnContainer(item: any): boolean;
         public PrepareContainerForItem(element: UIElement, item: any): void;
         public ClearContainerForItem(element: UIElement, item: any): void;
-        public OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs): void;
+        public OnItemsChanged(e: Collections.CollectionChangedEventArgs): void;
         public OnExpanded(e: RoutedEventArgs): void;
         public OnCollapsed(e: RoutedEventArgs): void;
         private ToggleExpanded();
@@ -681,7 +681,7 @@ declare module Fayde.Controls {
         public IsItemItsOwnContainer(item: any): boolean;
         public PrepareContainerForItem(element: UIElement, item: any): void;
         public ClearContainerForItem(element: UIElement, item: any): void;
-        public OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs): void;
+        public OnItemsChanged(e: Collections.CollectionChangedEventArgs): void;
         public CheckForSelectedDescendents(item: TreeViewItem): void;
         public PropagateKeyDown(e: Input.KeyEventArgs): void;
         public OnKeyDown(e: Input.KeyEventArgs): void;
@@ -746,7 +746,7 @@ declare module Fayde.Controls {
         private OnSelectedIndexChanged(args);
         private OnSelectedContentChanged(args);
         private OnTabStripPlacementPropertyChanged(args);
-        public OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs): void;
+        public OnItemsChanged(e: Collections.CollectionChangedEventArgs): void;
         public OnKeyDown(e: Input.KeyEventArgs): void;
         private _FindEndTabItem();
         private _FindHomeTabItem();

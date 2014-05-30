@@ -413,6 +413,8 @@ var Fayde;
             return null;
         var p = type.$$parent;
         if (!p) {
+            if (!type.prototype)
+                return undefined;
             p = Object.getPrototypeOf(type.prototype).constructor;
             Object.defineProperty(type, "$$parent", { value: p, writable: false });
         }
@@ -595,22 +597,22 @@ var __extends = this.__extends || function (d, b) {
 var Fayde;
 (function (Fayde) {
     (function (Collections) {
-        (function (NotifyCollectionChangedAction) {
-            NotifyCollectionChangedAction[NotifyCollectionChangedAction["Add"] = 1] = "Add";
-            NotifyCollectionChangedAction[NotifyCollectionChangedAction["Remove"] = 2] = "Remove";
-            NotifyCollectionChangedAction[NotifyCollectionChangedAction["Replace"] = 3] = "Replace";
-            NotifyCollectionChangedAction[NotifyCollectionChangedAction["Reset"] = 4] = "Reset";
-        })(Collections.NotifyCollectionChangedAction || (Collections.NotifyCollectionChangedAction = {}));
-        var NotifyCollectionChangedAction = Collections.NotifyCollectionChangedAction;
-        Fayde.RegisterEnum(NotifyCollectionChangedAction, "NotifyCollectionChangedAction");
+        (function (CollectionChangedAction) {
+            CollectionChangedAction[CollectionChangedAction["Add"] = 1] = "Add";
+            CollectionChangedAction[CollectionChangedAction["Remove"] = 2] = "Remove";
+            CollectionChangedAction[CollectionChangedAction["Replace"] = 3] = "Replace";
+            CollectionChangedAction[CollectionChangedAction["Reset"] = 4] = "Reset";
+        })(Collections.CollectionChangedAction || (Collections.CollectionChangedAction = {}));
+        var CollectionChangedAction = Collections.CollectionChangedAction;
+        Fayde.RegisterEnum(CollectionChangedAction, "NotifyCollectionChangedAction");
 
-        var NotifyCollectionChangedEventArgs = (function (_super) {
-            __extends(NotifyCollectionChangedEventArgs, _super);
-            function NotifyCollectionChangedEventArgs() {
+        var CollectionChangedEventArgs = (function (_super) {
+            __extends(CollectionChangedEventArgs, _super);
+            function CollectionChangedEventArgs() {
                 _super.apply(this, arguments);
             }
-            NotifyCollectionChangedEventArgs.Reset = function (allValues) {
-                var args = new NotifyCollectionChangedEventArgs();
+            CollectionChangedEventArgs.Reset = function (allValues) {
+                var args = new CollectionChangedEventArgs();
                 Object.defineProperty(args, "Action", { value: 4 /* Reset */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: 0, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
@@ -618,8 +620,8 @@ var Fayde;
                 Object.defineProperty(args, "NewItems", { value: null, writable: false });
                 return args;
             };
-            NotifyCollectionChangedEventArgs.Replace = function (newValue, oldValue, index) {
-                var args = new NotifyCollectionChangedEventArgs();
+            CollectionChangedEventArgs.Replace = function (newValue, oldValue, index) {
+                var args = new CollectionChangedEventArgs();
                 Object.defineProperty(args, "Action", { value: 3 /* Replace */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
@@ -627,8 +629,8 @@ var Fayde;
                 Object.defineProperty(args, "NewItems", { value: [newValue], writable: false });
                 return args;
             };
-            NotifyCollectionChangedEventArgs.Add = function (newValue, index) {
-                var args = new NotifyCollectionChangedEventArgs();
+            CollectionChangedEventArgs.Add = function (newValue, index) {
+                var args = new CollectionChangedEventArgs();
                 Object.defineProperty(args, "Action", { value: 1 /* Add */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
@@ -636,8 +638,8 @@ var Fayde;
                 Object.defineProperty(args, "NewItems", { value: [newValue], writable: false });
                 return args;
             };
-            NotifyCollectionChangedEventArgs.AddRange = function (newValues, index) {
-                var args = new NotifyCollectionChangedEventArgs();
+            CollectionChangedEventArgs.AddRange = function (newValues, index) {
+                var args = new CollectionChangedEventArgs();
                 Object.defineProperty(args, "Action", { value: 1 /* Add */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
@@ -645,8 +647,8 @@ var Fayde;
                 Object.defineProperty(args, "NewItems", { value: newValues, writable: false });
                 return args;
             };
-            NotifyCollectionChangedEventArgs.Remove = function (oldValue, index) {
-                var args = new NotifyCollectionChangedEventArgs();
+            CollectionChangedEventArgs.Remove = function (oldValue, index) {
+                var args = new CollectionChangedEventArgs();
                 Object.defineProperty(args, "Action", { value: 2 /* Remove */, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: index, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
@@ -654,9 +656,9 @@ var Fayde;
                 Object.defineProperty(args, "NewItems", { value: null, writable: false });
                 return args;
             };
-            return NotifyCollectionChangedEventArgs;
+            return CollectionChangedEventArgs;
         })(EventArgs);
-        Collections.NotifyCollectionChangedEventArgs = NotifyCollectionChangedEventArgs;
+        Collections.CollectionChangedEventArgs = CollectionChangedEventArgs;
     })(Fayde.Collections || (Fayde.Collections = {}));
     var Collections = Fayde.Collections;
 })(Fayde || (Fayde = {}));
@@ -830,11 +832,11 @@ var Fayde;
                     throw new IndexOutOfRangeException(index);
                 var oldValue = ht[index];
                 ht[index] = value;
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Replace(value, oldValue, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Replace(value, oldValue, index));
             };
             ObservableCollection.prototype.Add = function (value) {
                 var index = this._ht.push(value) - 1;
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Add(value, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.AddRange = function (values) {
@@ -843,7 +845,7 @@ var Fayde;
                 for (var i = 0; i < len; i++) {
                     this._ht.push(values[i]);
                 }
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.AddRange(values, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.Insert = function (value, index) {
@@ -854,7 +856,7 @@ var Fayde;
                     ht.push(value);
                 else
                     ht.splice(index, 0, value);
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Add(value, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.IndexOf = function (value) {
@@ -868,20 +870,20 @@ var Fayde;
                 if (index < 0)
                     return;
                 this._ht.splice(index, 1);
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(value, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Remove(value, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.RemoveAt = function (index) {
                 if (index < 0 || index >= this._ht.length)
                     throw new IndexOutOfRangeException(index);
                 var item = this._ht.splice(index, 1)[0];
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(item, index));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Remove(item, index));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.Clear = function () {
                 var old = this._ht;
                 this._ht = [];
-                this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Reset(old));
+                this.CollectionChanged.Raise(this, Collections.CollectionChangedEventArgs.Reset(old));
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype._RaisePropertyChanged = function (propertyName) {
@@ -1853,10 +1855,6 @@ var Fayde;
             if (expr instanceof Fayde.Data.BindingExpressionBase)
                 expr._TryUpdateSourceObject(value);
         };
-        DependencyObject.prototype.SetStoreValue = function (propd, value) {
-            var storage = Fayde.Providers.GetStorage(this, propd);
-            propd.Store.SetLocalValue(storage, value);
-        };
         DependencyObject.prototype.ClearValue = function (propd) {
             if (!propd)
                 throw new ArgumentException("No dependency property.");
@@ -1907,6 +1905,11 @@ var Fayde;
             var expr = this._Expressions[propd._ID];
             if (expr instanceof Fayde.Data.BindingExpressionBase)
                 return expr;
+        };
+        DependencyObject.prototype.HasValueOrExpression = function (propd) {
+            if (this._Expressions[propd._ID] instanceof Fayde.Expression)
+                return true;
+            return this.ReadLocalValueInternal(propd) !== undefined;
         };
         DependencyObject.prototype.SetBinding = function (propd, binding) {
             if (!propd)
@@ -2799,6 +2802,14 @@ var Fayde;
             return new Fayde.LayoutUpdater(uin);
         };
 
+        Object.defineProperty(UIElement.prototype, "IsItemsControl", {
+            get: function () {
+                return false;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
         Object.defineProperty(UIElement.prototype, "VisualParent", {
             get: function () {
                 var vpNode = this.XamlNode.VisualParentNode;
@@ -3635,7 +3646,7 @@ var Fayde;
             var raw = mat4.toAffineMat3(result);
             if (raw) {
                 var mt = new Fayde.Media.MatrixTransform();
-                mt.SetStoreValue(Fayde.Media.MatrixTransform.MatrixProperty, new Fayde.Media.Matrix(raw));
+                mt.SetCurrentValue(Fayde.Media.MatrixTransform.MatrixProperty, new Fayde.Media.Matrix(raw));
                 return mt;
             }
 
@@ -5866,8 +5877,8 @@ var Fayde;
                     if (!!e.NewValue)
                         return;
                     this._DoWithSuspend(function () {
-                        _this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
-                        _this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                        _this.SetCurrentValue(ButtonBase.IsFocusedProperty, false);
+                        _this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
                         _this._IsMouseCaptured = false;
                         _this._IsSpaceKeyDown = false;
                         _this._IsMouseLeftButtonDown = false;
@@ -5882,7 +5893,7 @@ var Fayde;
                         return;
 
                     this._DoWithSuspend(function () {
-                        _this.SetValueInternal(ButtonBase.IsPressedProperty, true);
+                        _this.SetCurrentValue(ButtonBase.IsPressedProperty, true);
                         _this.OnClick();
                     });
                 };
@@ -5895,7 +5906,7 @@ var Fayde;
                         return;
 
                     this._DoWithSuspend(function () {
-                        _this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                        _this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
                     });
                 };
                 ButtonBase.prototype.OnMouseMove = function (e) {
@@ -5904,7 +5915,7 @@ var Fayde;
                     this._MousePosition = e.GetPosition(this);
 
                     if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== 2 /* Hover */ && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
-                        this.SetValueInternal(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
+                        this.SetCurrentValue(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
                     }
                 };
                 ButtonBase.prototype.OnMouseLeftButtonDown = function (e) {
@@ -5923,7 +5934,7 @@ var Fayde;
                         _this.Focus();
                         _this._CaptureMouseInternal();
                         if (_this._IsMouseCaptured)
-                            _this.SetValueInternal(ButtonBase.IsPressedProperty, true);
+                            _this.SetCurrentValue(ButtonBase.IsPressedProperty, true);
                     });
 
                     if (clickMode === 1 /* Press */)
@@ -5945,25 +5956,25 @@ var Fayde;
 
                     if (!this._IsSpaceKeyDown) {
                         this._ReleaseMouseCaptureInternal();
-                        this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                        this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
                     }
                 };
 
                 ButtonBase.prototype.OnGotFocus = function (e) {
                     _super.prototype.OnGotFocus.call(this, e);
-                    this.SetValueInternal(ButtonBase.IsFocusedProperty, true);
+                    this.SetCurrentValue(ButtonBase.IsFocusedProperty, true);
                     this.UpdateVisualState();
                 };
                 ButtonBase.prototype.OnLostFocus = function (e) {
                     var _this = this;
                     _super.prototype.OnLostFocus.call(this, e);
-                    this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
+                    this.SetCurrentValue(ButtonBase.IsFocusedProperty, false);
 
                     if (this.ClickMode === 2 /* Hover */)
                         return;
 
                     this._DoWithSuspend(function () {
-                        _this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                        _this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
                         _this._ReleaseMouseCaptureInternal();
                         _this._IsSpaceKeyDown = false;
                     });
@@ -6916,6 +6927,14 @@ var Fayde;
                 return new ItemsControlNode(this);
             };
 
+            Object.defineProperty(ItemsControl.prototype, "IsItemsControl", {
+                get: function () {
+                    return true;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             ItemsControl.GetIsItemsHost = function (d) {
                 return d.GetValue(ItemsControl.IsItemsHostProperty) === true;
             };
@@ -6941,7 +6960,7 @@ var Fayde;
                 } finally {
                     this._SuspendItemsChanged = false;
                 }
-                this.OnItemsChanged(Fayde.Collections.NotifyCollectionChangedEventArgs.Reset(items.ToArray()));
+                this.OnItemsChanged(Fayde.Collections.CollectionChangedEventArgs.Reset(items.ToArray()));
 
                 this._IsDataBound = !!e.NewValue;
                 var arr = e.NewValue ? Fayde.Enumerable.ToArray(e.NewValue) : null;
@@ -6953,7 +6972,7 @@ var Fayde;
                     this._SuspendItemsChanged = false;
                 }
                 if (arr)
-                    this.OnItemsChanged(Fayde.Collections.NotifyCollectionChangedEventArgs.AddRange(arr, 0));
+                    this.OnItemsChanged(Fayde.Collections.CollectionChangedEventArgs.AddRange(arr, 0));
 
                 var nc = Fayde.Collections.INotifyCollectionChanged_.As(e.NewValue);
                 if (nc)
@@ -7698,6 +7717,8 @@ var Fayde;
                     return resolution.Type;
                 } else if (propd === Fayde.Setter.PropertyProperty) {
                     var ownerStyle = findOwnerStyle();
+                    if (!(ownerStyle.TargetType))
+                        throw new XamlParseException("Style must have a TargetType.");
                     return resolveDependencyProperty(value, ownerStyle.TargetType, attr);
                 }
                 if (tt === String)
@@ -8051,11 +8072,12 @@ var Fayde;
                     return false;
 
                 var xobj = this.XObject;
+
                 if (xobj.TemplateOwner instanceof Controls.ContentControl) {
-                    if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === DependencyProperty.UnsetValue) {
+                    if (!xobj.HasValueOrExpression(ContentPresenter.ContentProperty)) {
                         xobj.SetValue(ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(Controls.ContentControl.ContentProperty, ContentPresenter.ContentProperty));
                     }
-                    if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === DependencyProperty.UnsetValue) {
+                    if (!xobj.HasValueOrExpression(ContentPresenter.ContentTemplateProperty)) {
                         xobj.SetValue(ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(Controls.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
                     }
                 }
@@ -8083,15 +8105,28 @@ var Fayde;
 
             ContentPresenterNode.prototype._ContentChanged = function (args) {
                 var isUIContent = args.NewValue instanceof Fayde.UIElement;
-                if (isUIContent || args.OldValue instanceof Fayde.UIElement)
+                if (isUIContent || args.OldValue instanceof Fayde.UIElement) {
                     this.ClearRoot();
-                else if (!isUIContent)
+                } else if (!isUIContent) {
+                    if (this._ShouldInvalidateImplicitTemplate(args.OldValue, args.NewValue))
+                        this.ClearRoot();
                     this.XObject.DataContext = args.NewValue == null ? null : args.NewValue;
+                }
                 this.LayoutUpdater.InvalidateMeasure();
             };
             ContentPresenterNode.prototype._ContentTemplateChanged = function () {
                 this.ClearRoot();
                 this.LayoutUpdater.InvalidateMeasure();
+            };
+
+            ContentPresenterNode.prototype._ShouldInvalidateImplicitTemplate = function (oldValue, newValue) {
+                var octor = oldValue ? oldValue.constructor : null;
+                var nctor = newValue ? newValue.constructor : null;
+                if (octor !== nctor)
+                    return true;
+                if (octor === Object)
+                    return true;
+                return false;
             };
 
             ContentPresenterNode.prototype._GetContentTemplate = function (type) {
@@ -9069,14 +9104,14 @@ var Fayde;
                     this._FocusChanged(this.XamlNode._HasFocus());
                 };
                 Thumb.prototype._FocusChanged = function (hasFocus) {
-                    this.SetStoreValue(Thumb.IsFocusedProperty, hasFocus);
+                    this.SetCurrentValue(Thumb.IsFocusedProperty, hasFocus);
                     this.UpdateVisualState();
                 };
 
                 Thumb.prototype.OnLostMouseCapture = function (e) {
                     if (!this.IsDragging || !this.IsEnabled)
                         return;
-                    this.SetStoreValue(Thumb.IsDraggingProperty, false);
+                    this.SetCurrentValue(Thumb.IsDraggingProperty, false);
                     this._RaiseDragCompleted(false);
                 };
                 Thumb.prototype.OnMouseEnter = function (e) {
@@ -9093,7 +9128,7 @@ var Fayde;
                         return;
                     e.Handled = true;
                     this.CaptureMouse();
-                    this.SetStoreValue(Thumb.IsDraggingProperty, true);
+                    this.SetCurrentValue(Thumb.IsDraggingProperty, true);
 
                     var vpNode = this.XamlNode.VisualParentNode;
                     this._Origin = this._PreviousPosition = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
@@ -9120,7 +9155,7 @@ var Fayde;
                 Thumb.prototype.CancelDrag = function () {
                     if (!this.IsDragging)
                         return;
-                    this.SetStoreValue(Thumb.IsDraggingProperty, false);
+                    this.SetCurrentValue(Thumb.IsDraggingProperty, false);
                     this._RaiseDragCompleted(true);
                 };
 
@@ -11905,7 +11940,7 @@ var Fayde;
                     throw new IndexOutOfRangeException(index);
                 var oldValue = ht[index];
                 ht[index] = value;
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Replace(value, oldValue, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Replace(value, oldValue, index));
             };
 
             ItemCollection.prototype.Add = function (value) {
@@ -11916,7 +11951,7 @@ var Fayde;
             };
             ItemCollection.prototype.AddImpl = function (value) {
                 var index = this._ht.push(value) - 1;
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Add(value, index));
                 return index;
             };
 
@@ -11933,7 +11968,7 @@ var Fayde;
             ItemCollection.prototype.AddRangeImpl = function (values) {
                 var index = this._ht.length;
                 this._ht = this._ht.concat(values);
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.AddRange(values, index));
             };
 
             ItemCollection.prototype.Insert = function (index, value) {
@@ -11951,7 +11986,7 @@ var Fayde;
                     ht.push(value);
                 else
                     ht.splice(index, 0, value);
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Add(value, index));
             };
 
             ItemCollection.prototype.IndexOf = function (value) {
@@ -11971,7 +12006,7 @@ var Fayde;
                 if (index < 0)
                     return;
                 this._ht.splice(index, 1);
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Remove(value, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Remove(value, index));
             };
 
             ItemCollection.prototype.RemoveAt = function (index) {
@@ -11983,7 +12018,7 @@ var Fayde;
             };
             ItemCollection.prototype.RemoveAtImpl = function (index) {
                 var item = this._ht.splice(index, 1)[0];
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Remove(item, index));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Remove(item, index));
             };
 
             ItemCollection.prototype.Clear = function () {
@@ -11994,7 +12029,7 @@ var Fayde;
             ItemCollection.prototype.ClearImpl = function () {
                 var old = this._ht;
                 this._ht = [];
-                this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Reset(old));
+                this.ItemsChanged.Raise(this, Fayde.Collections.CollectionChangedEventArgs.Reset(old));
             };
 
             ItemCollection.prototype._ValidateReadOnly = function () {
@@ -12799,41 +12834,7 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(TextBoxBase.prototype, "CaretBrush", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "TextAlignment", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "TextWrapping", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "SelectionStart", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "SelectionLength", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
+
             Object.defineProperty(TextBoxBase.prototype, "DisplayText", {
                 get: function () {
                     return undefined;
@@ -12842,34 +12843,6 @@ var Fayde;
                 configurable: true
             });
 
-            Object.defineProperty(TextBoxBase.prototype, "SelectionBackground", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "Background", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "SelectionForeground", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "Foreground", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
             Object.defineProperty(TextBoxBase.prototype, "Font", {
                 get: function () {
                     return this._Font;
@@ -12879,7 +12852,7 @@ var Fayde;
             });
             Object.defineProperty(TextBoxBase.prototype, "Direction", {
                 get: function () {
-                    return undefined;
+                    return this.FlowDirection;
                 },
                 enumerable: true,
                 configurable: true
@@ -12930,6 +12903,8 @@ var Fayde;
                     this._ModelListener = null;
             };
             TextBoxBase.prototype._ModelChanged = function (type, newValue) {
+                this._UpdateFont();
+
                 var listener = this._ModelListener;
                 if (!listener)
                     return;
@@ -12937,6 +12912,14 @@ var Fayde;
                     Changed: type,
                     NewValue: newValue
                 });
+            };
+
+            TextBoxBase.prototype._UpdateFont = function () {
+                this._Font.Family = this.FontFamily;
+                this._Font.Size = this.FontSize;
+                this._Font.Stretch = this.FontStretch;
+                this._Font.Style = this.FontStyle;
+                this._Font.Weight = this.FontWeight;
             };
 
             TextBoxBase.prototype._SelectedTextChanged = function (newValue) {
@@ -13083,7 +13066,7 @@ var Fayde;
 
             TextBoxBase.prototype._SyncText = function () {
                 this._SettingValue = false;
-                this.SetStoreValue(this._TextProperty, this._Buffer);
+                this.SetCurrentValue(this._TextProperty, this._Buffer);
                 this._SettingValue = true;
             };
             TextBoxBase.prototype._EmitTextChanged = function () {
@@ -15327,7 +15310,7 @@ var Fayde;
 
                 var inlines = xobj.Inlines;
                 this._SetsValue = false;
-                xobj.SetStoreValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
+                xobj.SetCurrentValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
                 this._SetsValue = true;
 
                 this._UpdateLayoutAttributes();
@@ -15585,7 +15568,7 @@ var Fayde;
                 if (this.$View)
                     this.$View.SetEnableCursor(!this.$IsReadOnly);
             };
-            TextBox.prototype._FontChanged = function (args) {
+            TextBox.prototype.FontChanged = function (args) {
                 this._ModelChanged(5 /* Font */, args.NewValue);
             };
 
@@ -17265,13 +17248,15 @@ var Fayde;
 
             if (typeof etarget === "function") {
                 etarget.call(context, cargs);
-            } else if (Nullstone.DoesInheritFrom(etarget, Fayde.Input.ICommand_)) {
+            } else {
+                var ecmd = Fayde.Input.ICommand_.As(etarget);
+                if (!ecmd) {
+                    console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
+                    return;
+                }
                 var ecmd = etarget;
                 if (ecmd.CanExecute.call(context, cargs))
                     ecmd.Execute.call(context, cargs);
-            } else {
-                console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
-                return;
             }
         };
         return EventBindingExpression;
@@ -17294,6 +17279,8 @@ var Fayde;
                         return target.TemplateOwner;
                     case 3 /* FindAncestor */:
                         return findAncestor(target, binding.RelativeSource);
+                    case 4 /* ItemsControlParent */:
+                        return findItemsControlAncestor(target, binding.RelativeSource);
                 }
             }
         }
@@ -17324,6 +17311,16 @@ var Fayde;
         }
         for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
             if (parent instanceof ancestorType && --ancestorLevel < 1)
+                return parent;
+        }
+    }
+    function findItemsControlAncestor(target, relSource) {
+        if (!(target instanceof Fayde.DependencyObject))
+            return;
+        var ancestorLevel = relSource.AncestorLevel;
+        ancestorLevel = ancestorLevel || 1;
+        for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
+            if (!!parent.IsItemsControl && --ancestorLevel < 1)
                 return parent;
         }
     }
@@ -18002,12 +17999,13 @@ var Fayde;
         };
 
         Style.prototype.Validate = function (instance, error) {
+            var targetType = this.TargetType;
             var parentType = instance.constructor;
 
             if (this._IsSealed) {
-                if (!(instance instanceof this.TargetType)) {
+                if (!(instance instanceof targetType)) {
                     error.Number = BError.XamlParse;
-                    error.Message = "Style.TargetType (" + this.TargetType.name + ") is not a subclass of (" + parentType.name + ")";
+                    error.Message = "Style.TargetType (" + targetType.name + ") is not a subclass of (" + parentType.name + ")";
                     return false;
                 }
                 return true;
@@ -18119,10 +18117,10 @@ var Fayde;
                 this.IsUpdating = true;
                 var targetProp = this.TargetProperty;
                 try  {
-                    this._Target.SetStoreValue(targetProp, this.GetValue(null));
+                    this._Target.SetCurrentValue(targetProp, this.GetValue(null));
                 } catch (err2) {
                     var val = targetProp.DefaultValue;
-                    this._Target.SetStoreValue(targetProp, val);
+                    this._Target.SetCurrentValue(targetProp, val);
                 }
             } catch (err) {
             } finally {
@@ -19048,7 +19046,7 @@ var Fayde;
             __extends(BindingExpressionBase, _super);
             function BindingExpressionBase(binding, target, propd) {
                 _super.call(this);
-                this._TwoWayTextBox = null;
+                this._TwoWayLostFocusElement = null;
                 this._Cached = false;
                 this._CachedValue = undefined;
                 this._Init(binding, target, propd);
@@ -19075,8 +19073,8 @@ var Fayde;
                     writable: false
                 });
 
-                if (target instanceof Fayde.Controls.TextBox && binding.Mode === 0 /* TwoWay */)
-                    this._TwoWayTextBox = target;
+                if (binding.Mode === 0 /* TwoWay */ && (target instanceof Fayde.Controls.TextBox || target instanceof Fayde.Controls.PasswordBox))
+                    this._TwoWayLostFocusElement = target;
 
                 this._IsDataContextBound = !binding.ElementName && !binding.Source && !binding.RelativeSource;
 
@@ -19119,8 +19117,8 @@ var Fayde;
                 var source = this._FindSource();
                 this.PropertyPathWalker.Update(source);
 
-                if (this._TwoWayTextBox)
-                    this._TwoWayTextBox.LostFocus.Subscribe(this._TextBoxLostFocus, this);
+                if (this._TwoWayLostFocusElement)
+                    this._TwoWayLostFocusElement.LostFocus.Subscribe(this._TargetLostFocus, this);
 
                 if (this.ParentBinding.Mode === 0 /* TwoWay */ && this.Property.IsCustom) {
                     this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
@@ -19148,6 +19146,8 @@ var Fayde;
                             return this.Target.TemplateOwner;
                         case 3 /* FindAncestor */:
                             return findAncestor(this.Target, rs);
+                        case 4 /* ItemsControlParent */:
+                            return findItemsControlAncestor(this.Target, rs);
                     }
                 }
                 return this._DataContext;
@@ -19172,8 +19172,8 @@ var Fayde;
 
                 _super.prototype.OnDetached.call(this, element);
 
-                if (this._TwoWayTextBox)
-                    this._TwoWayTextBox.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
+                if (this._TwoWayLostFocusElement)
+                    this._TwoWayLostFocusElement.LostFocus.Unsubscribe(this._TargetLostFocus, this);
 
                 if (this._PropertyListener) {
                     this._PropertyListener.Detach();
@@ -19192,27 +19192,35 @@ var Fayde;
                 this.Refresh();
             };
             BindingExpressionBase.prototype.UpdateSource = function () {
-                return this._UpdateSourceObject(undefined, true);
+                return this._UpdateSourceObject();
             };
             BindingExpressionBase.prototype._TryUpdateSourceObject = function (value) {
-                if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === 0 /* Default */)
-                    this._UpdateSourceObject(value, false);
+                if (this._ShouldUpdateSource())
+                    this._UpdateSourceObject(value);
             };
             BindingExpressionBase.prototype._UpdateSourceCallback = function (sender, args) {
                 try  {
-                    if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === 0 /* Default */)
-                        this._UpdateSourceObject(this.Target.GetValue(this.Property), false);
+                    if (this._ShouldUpdateSource())
+                        this._UpdateSourceObject(this.Target.GetValue(this.Property));
                 } catch (err) {
                     console.warn("[BINDING] UpdateSource: " + err.toString());
                 }
             };
-            BindingExpressionBase.prototype._TextBoxLostFocus = function () {
+            BindingExpressionBase.prototype._TargetLostFocus = function (sender, e) {
+                if (this.ParentBinding.UpdateSourceTrigger === 3 /* Explicit */)
+                    return;
                 this._UpdateSourceObject();
             };
-            BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
+            BindingExpressionBase.prototype._ShouldUpdateSource = function () {
+                if (this.IsUpdating)
+                    return false;
+                if (!this._TwoWayLostFocusElement)
+                    return this.ParentBinding.UpdateSourceTrigger !== 3 /* Explicit */;
+                return this.ParentBinding.UpdateSourceTrigger === 1 /* PropertyChanged */;
+            };
+            BindingExpressionBase.prototype._UpdateSourceObject = function (value) {
                 if (value === undefined)
                     value = this.Target.GetValue(this.Property);
-                force = force === true;
                 var binding = this.ParentBinding;
                 if (binding.Mode !== 0 /* TwoWay */)
                     return;
@@ -19223,8 +19231,6 @@ var Fayde;
                 var node = this.PropertyPathWalker.FinalNode;
 
                 try  {
-                    if (!force && this._TwoWayTextBox && Fayde.Application.Current.MainSurface.FocusedNode === this.Target.XamlNode)
-                        return;
                     if (this.PropertyPathWalker.IsPathBroken)
                         return;
                     value = this._ConvertFromTargetToSource(binding, node, value);
@@ -19366,6 +19372,16 @@ var Fayde;
                     return parent;
             }
         }
+        function findItemsControlAncestor(target, relSource) {
+            if (!(target instanceof Fayde.DependencyObject))
+                return;
+            var ancestorLevel = relSource.AncestorLevel;
+            ancestorLevel = ancestorLevel || 1;
+            for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
+                if (!!parent.IsItemsControl && --ancestorLevel < 1)
+                    return parent;
+            }
+        }
     })(Fayde.Data || (Fayde.Data = {}));
     var Data = Fayde.Data;
 })(Fayde || (Fayde = {}));
@@ -19411,6 +19427,7 @@ var Fayde;
             RelativeSourceMode[RelativeSourceMode["TemplatedParent"] = 1] = "TemplatedParent";
             RelativeSourceMode[RelativeSourceMode["Self"] = 2] = "Self";
             RelativeSourceMode[RelativeSourceMode["FindAncestor"] = 3] = "FindAncestor";
+            RelativeSourceMode[RelativeSourceMode["ItemsControlParent"] = 4] = "ItemsControlParent";
         })(Data.RelativeSourceMode || (Data.RelativeSourceMode = {}));
         var RelativeSourceMode = Data.RelativeSourceMode;
         Fayde.RegisterEnum(RelativeSourceMode, "RelativeSourceMode", Fayde.XMLNS);
@@ -19480,7 +19497,7 @@ var Fayde;
                     var clonedValue = Fayde.Clone(value);
                     if (clonedValue instanceof Fayde.DependencyObject) {
                         newLu = clonedValue;
-                        data.lu.SetStoreValue(data.res, clonedValue);
+                        data.lu.SetCurrentValue(data.res, clonedValue);
                         clonedValue = data.lu.GetValue(data.res);
                         data.promotedValues[clonedValue._ID] = clonedValue;
                     }
@@ -20135,7 +20152,7 @@ var Fayde;
                     return;
 
                 if (newDO) {
-                    var propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this._PropertyName);
+                    var propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this._PropertyName, true);
                     if (propd) {
                         this.DependencyProperty = propd;
                         this._DPListener = listener = propd.Store.ListenToChanged(newDO, propd, this.OnPropertyChanged, this);
@@ -37710,7 +37727,7 @@ var Fayde;
                             if (index1 < length && format.charCodeAt(index1) === 125)
                                 ++index1;
                             else
-                                formatError();
+                                throw formatError();
                         }
                         if (ch === 123) {
                             if (index1 >= length || format.charCodeAt(index1) !== 123)
@@ -37718,22 +37735,24 @@ var Fayde;
                             else {
                                 breakout = true;
                                 ++index1;
+                                break;
                             }
                         } else {
                             _this.push(String.fromCharCode(ch));
                             breakout = true;
+                            break;
                         }
                     }
                     if (index1 != length) {
                         var index2 = index1 + 1;
                         if (index2 === length || (ch = format.charCodeAt(index2)) < 48 || ch > 57)
-                            formatError();
+                            throw formatError();
                         var index3 = 0;
                         do {
                             index3 = index3 * 10 + ch - 48;
                             ++index2;
                             if (index2 == length)
-                                formatError();
+                                throw formatError();
                             ch = format.charCodeAt(index2);
                         } while(ch >= 48 && ch <= 57 && index3 < 1000000);
                         if (index3 >= args.length)
@@ -37747,22 +37766,22 @@ var Fayde;
                             while (index2 < length && format.charCodeAt(index2) === 32)
                                 ++index2;
                             if (index2 == length)
-                                formatError();
+                                throw formatError();
                             ch = format.charCodeAt(index2);
                             if (ch === 45) {
                                 flag = true;
                                 ++index2;
                                 if (index2 == length)
-                                    formatError();
+                                    throw formatError();
                                 ch = format.charCodeAt(index2);
                             }
                             if (ch < 48 || ch > 57)
-                                formatError();
+                                throw formatError();
                             do {
                                 num = num * 10 + ch - 48;
                                 ++index2;
                                 if (index2 == length)
-                                    formatError();
+                                    throw formatError();
                                 ch = format.charCodeAt(index2);
                             } while(ch >= 48 && ch <= 57 && num < 1000000);
                         }
@@ -37774,14 +37793,14 @@ var Fayde;
                             var index4 = index2 + 1;
                             while (true) {
                                 if (index4 === length)
-                                    formatError();
+                                    throw formatError();
                                 ch = format.charCodeAt(index4);
                                 ++index4;
                                 if (ch === 123) {
                                     if (index4 < length && format.charCodeAt(index4) === 123)
                                         ++index4;
                                     else
-                                        formatError();
+                                        throw formatError();
                                 } else if (ch === 125) {
                                     if (index4 < length && format.charCodeAt(index4) === 125)
                                         ++index4;
@@ -37794,7 +37813,7 @@ var Fayde;
                             index2 = index4 - 1;
                         }
                         if (ch !== 125)
-                            formatError();
+                            throw formatError();
                         index1 = index2 + 1;
                         var str = formatItem(obj, stringBuilder, provider) || "";
                         repeatCount = num - str.length;
@@ -37815,7 +37834,7 @@ var Fayde;
             if (str == null) {
                 if (format1 == null && stringBuilder != null)
                     format1 = stringBuilderToString(stringBuilder);
-                var formatted = doFormattable(obj, format1, provider);
+                var formatted = format1 == null ? (obj == null ? "" : obj.toString()) : doFormattable(obj, format1, provider);
                 if (formatted !== undefined)
                     str = formatted;
             }
@@ -38477,6 +38496,124 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    (function (Collections) {
+        var DeepObservableCollection = (function (_super) {
+            __extends(DeepObservableCollection, _super);
+            function DeepObservableCollection() {
+                _super.call(this);
+                this.ItemPropertyChanged = new MulticastEvent();
+                this.CollectionChanged.Subscribe(this._OnCollectionChanged, this);
+            }
+            DeepObservableCollection.prototype._OnCollectionChanged = function (sender, e) {
+                if (e.NewItems) {
+                    for (var i = 0; i < e.NewItems.length; i++) {
+                        var notify = Fayde.INotifyPropertyChanged_.As(e.NewItems[i]);
+                        if (notify)
+                            notify.PropertyChanged.Subscribe(this._OnItemPropertyChanged, this);
+                    }
+                }
+                if (e.OldItems) {
+                    for (var i = 0; i < e.OldItems.length; i++) {
+                        var notify = Fayde.INotifyPropertyChanged_.As(e.OldItems[i]);
+                        if (notify)
+                            notify.PropertyChanged.Unsubscribe(this._OnItemPropertyChanged, this);
+                    }
+                }
+            };
+            DeepObservableCollection.prototype._OnItemPropertyChanged = function (sender, e) {
+                this.ItemPropertyChanged.Raise(this, new Collections.ItemPropertyChangedEventArgs(sender, e.PropertyName));
+            };
+            return DeepObservableCollection;
+        })(Collections.ObservableCollection);
+        Collections.DeepObservableCollection = DeepObservableCollection;
+    })(Fayde.Collections || (Fayde.Collections = {}));
+    var Collections = Fayde.Collections;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Collections) {
+        var ItemPropertyChangedEventArgs = (function (_super) {
+            __extends(ItemPropertyChangedEventArgs, _super);
+            function ItemPropertyChangedEventArgs(item, propertyName) {
+                _super.call(this, propertyName);
+                Object.defineProperty(this, "Item", { value: item, writable: false });
+            }
+            return ItemPropertyChangedEventArgs;
+        })(Fayde.PropertyChangedEventArgs);
+        Collections.ItemPropertyChangedEventArgs = ItemPropertyChangedEventArgs;
+    })(Fayde.Collections || (Fayde.Collections = {}));
+    var Collections = Fayde.Collections;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Collections) {
+        var FilteredCollection = (function (_super) {
+            __extends(FilteredCollection, _super);
+            function FilteredCollection(filter, source) {
+                _super.call(this);
+                this.Filter = filter;
+                this.Source = source || new Fayde.Collections.DeepObservableCollection();
+                source.CollectionChanged.Subscribe(this._OnSourceCollectionChanged, this);
+                source.ItemPropertyChanged.Subscribe(this._OnSourceItemPropertyChanged, this);
+            }
+            Object.defineProperty(FilteredCollection.prototype, "Source", {
+                get: function () {
+                    return this._Source;
+                },
+                set: function (value) {
+                    this._Source = value;
+                    this.Update();
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            Object.defineProperty(FilteredCollection.prototype, "Filter", {
+                get: function () {
+                    return this._Filter;
+                },
+                set: function (value) {
+                    this._Filter = value;
+                    this.Update();
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            FilteredCollection.prototype._OnSourceCollectionChanged = function (sender, e) {
+                this.Update();
+            };
+            FilteredCollection.prototype._OnSourceItemPropertyChanged = function (sender, e) {
+                this.Update();
+                if (this.Filter && this.Filter(e.Item))
+                    this.ItemPropertyChanged.Raise(this, e);
+            };
+
+            FilteredCollection.prototype.Update = function () {
+                if (!this._Source)
+                    return;
+                var filter = this.Filter || (function (item) {
+                    return true;
+                });
+                for (var i = 0, j = 0, enumerator = this._Source.GetEnumerator(); enumerator.MoveNext(); i++) {
+                    var isIncluded = filter(enumerator.Current);
+                    var isCurrent = j < this.Count && this.GetValueAt(j) === enumerator.Current;
+                    if (isIncluded && !isCurrent)
+                        this.Insert(enumerator.Current, j);
+                    else if (!isIncluded && isCurrent)
+                        this.RemoveAt(j);
+                    if (isIncluded)
+                        j++;
+                }
+            };
+            return FilteredCollection;
+        })(Fayde.Collections.DeepObservableCollection);
+        Collections.FilteredCollection = FilteredCollection;
+    })(Fayde.Collections || (Fayde.Collections = {}));
+    var Collections = Fayde.Collections;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     (function (Xaml) {
         Xaml.IMarkup_ = Fayde.RegisterInterface("IMarkup");
 
@@ -38878,3 +39015,5 @@ var Fayde;
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
+
+Fayde.Version = "0.9.8.41";

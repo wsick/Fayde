@@ -51,12 +51,12 @@ module Fayde.Controls {
             if (cc)
                 cc.CollectionChanged.Subscribe(this._ItemsSourceModified, this);
         }
-        private _ItemsSourceModified(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
+        private _ItemsSourceModified(sender: any, e: Collections.CollectionChangedEventArgs) {
             var coll = <Collections.ObservableCollection<any>>sender;
             var index: number;
             this.Items.IsReadOnly = false;
             switch (e.Action) {
-                case Collections.NotifyCollectionChangedAction.Add:
+                case Collections.CollectionChangedAction.Add:
                     var enumerator = ArrayEx.GetEnumerator(e.NewItems);
                     index = e.NewStartingIndex;
                     while (enumerator.MoveNext()) {
@@ -64,13 +64,13 @@ module Fayde.Controls {
                         index++;
                     }
                     break;
-                case Collections.NotifyCollectionChangedAction.Remove:
+                case Collections.CollectionChangedAction.Remove:
                     var enumerator = ArrayEx.GetEnumerator(e.OldItems);
                     while (enumerator.MoveNext()) {
                         this.Items.RemoveAt(e.OldStartingIndex);
                     }
                     break;
-                case Collections.NotifyCollectionChangedAction.Replace:
+                case Collections.CollectionChangedAction.Replace:
                     var enumerator = ArrayEx.GetEnumerator(e.NewItems);
                     index = e.NewStartingIndex;
                     while (enumerator.MoveNext()) {
@@ -78,14 +78,14 @@ module Fayde.Controls {
                         index++;
                     }
                     break;
-                case Collections.NotifyCollectionChangedAction.Reset:
+                case Collections.CollectionChangedAction.Reset:
                     this.Items.Clear();
                     this.Items.AddRange(coll.ToArray());
                     break;
             }
             this.Items.IsReadOnly = true;
         }
-        private _OnItemsChanged(sender: any, e: Collections.NotifyCollectionChangedEventArgs) {
+        private _OnItemsChanged(sender: any, e: Collections.CollectionChangedEventArgs) {
             this._Coercer.UpdateTextBoxText();
         }
         

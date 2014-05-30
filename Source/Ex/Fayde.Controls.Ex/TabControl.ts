@@ -133,10 +133,10 @@ module Fayde.Controls {
             }
         }
 
-        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
+        OnItemsChanged(e: Collections.CollectionChangedEventArgs) {
             super.OnItemsChanged(e);
             switch (e.Action) {
-                case Collections.NotifyCollectionChangedAction.Add:
+                case Collections.CollectionChangedAction.Add:
                     var index1 = -1;
                     var len = e.NewItems.length;
                     for (var i = 0; i < len; i++) {
@@ -175,7 +175,7 @@ module Fayde.Controls {
                     this.SelectedItem = this._GetItemAtIndex(index1);
                     this.SelectedIndex = index1;
                     break;
-                case Collections.NotifyCollectionChangedAction.Remove:
+                case Collections.CollectionChangedAction.Remove:
                     var len = e.OldItems.length;
                     var tabItem: TabItem;
                     for (var i = 0; i < len; i++) {
@@ -189,7 +189,7 @@ module Fayde.Controls {
                             this.SelectedItem = this._GetItemAtIndex(this.SelectedIndex);
                     }
                     break;
-                case Collections.NotifyCollectionChangedAction.Reset:
+                case Collections.CollectionChangedAction.Reset:
                     this._ClearTabPanel();
                     this.SelectedIndex = -1;
                     var tabItem: TabItem;

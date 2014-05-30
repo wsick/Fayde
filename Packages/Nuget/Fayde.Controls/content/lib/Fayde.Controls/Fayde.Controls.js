@@ -19,7 +19,7 @@ var Fayde;
                 this._DragStart = null;
                 this._IsDragging = false;
                 this.DefaultStyleKey = this.constructor;
-                this._Helper = new Fayde.Controls.Internal.GridSplitterResizer(this);
+                this._Helper = new Controls.Internal.GridSplitterResizer(this);
                 this.LayoutUpdated.Subscribe(this._OnLayoutUpdated, this);
             }
             GridSplitter.prototype.OnApplyTemplate = function () {
@@ -117,9 +117,9 @@ var Fayde;
 
             GridSplitter.prototype.InitHelper = function () {
                 var parent = this.VisualParent;
-                if (!(parent instanceof Fayde.Controls.Grid))
+                if (!(parent instanceof Controls.Grid))
                     return;
-                this._Helper = new Fayde.Controls.Internal.GridSplitterResizer(this);
+                this._Helper = new Controls.Internal.GridSplitterResizer(this);
                 if (this._Helper.Setup(this, parent))
                     return;
                 this._Helper = null;
@@ -142,7 +142,7 @@ var Fayde;
                 return e.GetPosition(this);
             };
             return GridSplitter;
-        })(Fayde.Controls.Control);
+        })(Controls.Control);
         Controls.GridSplitter = GridSplitter;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -155,7 +155,7 @@ var Fayde;
             function HeaderedItemsControl() {
                 _super.call(this);
                 this._HeaderIsItem = false;
-                this._ItemsControlHelper = new Fayde.Controls.Internal.ItemsControlHelper(this);
+                this._ItemsControlHelper = new Controls.Internal.ItemsControlHelper(this);
             }
             HeaderedItemsControl.prototype.OnHeaderChanged = function (oldHeader, newHeader) {
             };
@@ -174,7 +174,7 @@ var Fayde;
 
             HeaderedItemsControl.prototype.PrepareContainerForItem = function (element, item) {
                 var control = element;
-                if (!(control instanceof Fayde.Controls.Control))
+                if (!(control instanceof Controls.Control))
                     control = null;
 
                 var ics = this.ItemContainerStyle;
@@ -192,7 +192,7 @@ var Fayde;
                     return;
                 var itemTemplate = parentItemsControl.ItemTemplate;
                 if (itemTemplate != null)
-                    control.SetValue(Fayde.Controls.ItemsControl.ItemTemplateProperty, itemTemplate);
+                    control.SetValue(Controls.ItemsControl.ItemTemplateProperty, itemTemplate);
                 if (parentItemContainerStyle != null && HeaderedItemsControl.HasDefaultValue(control, HeaderedItemsControl.ItemContainerStyleProperty))
                     control.SetValue(HeaderedItemsControl.ItemContainerStyleProperty, parentItemContainerStyle);
                 if (control._HeaderIsItem || HeaderedItemsControl.HasDefaultValue(control, HeaderedItemsControl.HeaderProperty)) {
@@ -206,10 +206,10 @@ var Fayde;
                 var hierarchicalDataTemplate = itemTemplate;
                 if (!(hierarchicalDataTemplate instanceof Fayde.HierarchicalDataTemplate))
                     return;
-                if (hierarchicalDataTemplate.ItemsSource != null && HeaderedItemsControl.HasDefaultValue(control, Fayde.Controls.ItemsControl.ItemsSourceProperty)) {
+                if (hierarchicalDataTemplate.ItemsSource != null && HeaderedItemsControl.HasDefaultValue(control, Controls.ItemsControl.ItemsSourceProperty)) {
                     var itemssourcebinding = hierarchicalDataTemplate.ItemsSource;
                     var headeredItemsControl = control;
-                    var dp = Fayde.Controls.ItemsControl.ItemsSourceProperty;
+                    var dp = Controls.ItemsControl.ItemsSourceProperty;
                     var binding1 = new Fayde.Data.Binding();
                     binding1.Converter = itemssourcebinding.Converter;
                     binding1.ConverterCulture = itemssourcebinding.ConverterCulture;
@@ -222,7 +222,7 @@ var Fayde;
                     headeredItemsControl.SetBinding(dp, binding1);
                 }
                 if (hierarchicalDataTemplate.IsItemTemplateSet && control.ItemTemplate === itemTemplate) {
-                    control.ClearValue(Fayde.Controls.ItemsControl.ItemTemplateProperty);
+                    control.ClearValue(Controls.ItemsControl.ItemTemplateProperty);
                     if (hierarchicalDataTemplate.ItemTemplate != null)
                         control.ItemTemplate = hierarchicalDataTemplate.ItemTemplate;
                 }
@@ -252,7 +252,7 @@ var Fayde;
                 return Fayde.Style;
             }, HeaderedItemsControl);
             return HeaderedItemsControl;
-        })(Fayde.Controls.ItemsControl);
+        })(Controls.ItemsControl);
         Controls.HeaderedItemsControl = HeaderedItemsControl;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -289,10 +289,10 @@ var Fayde;
                 }
                 GridSplitterResizer.prototype.Setup = function (gs, grid) {
                     var isColumns = this.Direction === 1 /* Columns */;
-                    var span = isColumns ? Fayde.Controls.Grid.GetColumnSpan(gs) : Fayde.Controls.Grid.GetRowSpan(gs);
+                    var span = isColumns ? Controls.Grid.GetColumnSpan(gs) : Controls.Grid.GetRowSpan(gs);
                     if (span > 1)
                         return false;
-                    var index = isColumns ? Fayde.Controls.Grid.GetColumn(gs) : Fayde.Controls.Grid.GetRow(gs);
+                    var index = isColumns ? Controls.Grid.GetColumn(gs) : Controls.Grid.GetRow(gs);
                     var indices = this.GetBehaviorIndices(index);
                     var defs = isColumns ? grid.ColumnDefinitions : grid.RowDefinitions;
                     if (indices[0] < 0 || indices[1] >= defs.Count)
@@ -339,9 +339,9 @@ var Fayde;
                     var columnDefinitions;
                     if (this.SplitBehavior !== 0 /* Split */) {
                         if (this.SplitBehavior === 1 /* ResizeDefinition1 */)
-                            this.DS1.Size = new Fayde.Controls.GridLength(definition1Pixels, 1 /* Pixel */);
+                            this.DS1.Size = new Controls.GridLength(definition1Pixels, 1 /* Pixel */);
                         else
-                            this.DS2.Size = new Fayde.Controls.GridLength(definition2Pixels, 1 /* Pixel */);
+                            this.DS2.Size = new Controls.GridLength(definition2Pixels, 1 /* Pixel */);
                         return;
                     }
 
@@ -350,11 +350,11 @@ var Fayde;
                     while (enumerator.MoveNext()) {
                         var ds = createSize(enumerator.Current);
                         if (this.DS1.Index === i)
-                            ds.Size = new Fayde.Controls.GridLength(definition1Pixels, 2 /* Star */);
+                            ds.Size = new Controls.GridLength(definition1Pixels, 2 /* Star */);
                         else if (this.DS2.Index === i)
-                            ds.Size = new Fayde.Controls.GridLength(definition2Pixels, 2 /* Star */);
+                            ds.Size = new Controls.GridLength(definition2Pixels, 2 /* Star */);
                         else if (ds.IsStar)
-                            ds.Size = new Fayde.Controls.GridLength(ds.ActualSize, 2 /* Star */);
+                            ds.Size = new Controls.GridLength(ds.ActualSize, 2 /* Star */);
                         i++;
                     }
                 };
@@ -500,7 +500,7 @@ var Fayde;
                     this.RequestedVal = this.Value;
                 };
                 return FormattedRangeCoercer;
-            })(Fayde.Controls.Internal.RangeCoercer);
+            })(Internal.RangeCoercer);
             Internal.FormattedRangeCoercer = FormattedRangeCoercer;
         })(Controls.Internal || (Controls.Internal = {}));
         var Internal = Controls.Internal;
@@ -556,7 +556,7 @@ var Fayde;
                 };
 
                 TextBoxFormatter.prototype.ApplyValue = function (text) {
-                    var e1 = new Fayde.Controls.UpDownParsingEventArgs(text);
+                    var e1 = new Controls.UpDownParsingEventArgs(text);
                     var obj1;
                     var error = null;
                     try  {
@@ -580,7 +580,7 @@ var Fayde;
                             this.UpdateTextBoxText();
                         this.OnCoerceValue(e1.Value);
                     } else {
-                        var e2 = new Fayde.Controls.UpDownParseErrorEventArgs(text, error);
+                        var e2 = new Controls.UpDownParseErrorEventArgs(text, error);
                         this.OnParseError(e2);
                         if (!e2.Handled)
                             this.UpdateTextBoxText();
@@ -869,7 +869,7 @@ var Fayde;
                         this.IsInvalidInput = !this.Owner.TryParseValue(text, val);
                         this.OnCoerceValue(val.Value);
                     } catch (err) {
-                        var e = new Fayde.Controls.UpDownParseErrorEventArgs(text, err);
+                        var e = new Controls.UpDownParseErrorEventArgs(text, err);
                         this.OnParseError(e);
                         if (!e.Handled)
                             this.UpdateTextBoxText();
@@ -934,7 +934,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var ButtonBase = Fayde.Controls.Primitives.ButtonBase;
+        var ButtonBase = Controls.Primitives.ButtonBase;
 
         var Spinner = (function (_super) {
             __extends(Spinner, _super);
@@ -977,10 +977,10 @@ var Fayde;
             };
 
             Spinner.prototype.OnIncreaseClick = function (sender, e) {
-                this.OnSpin(new Fayde.Controls.SpinEventArgs(0 /* Increase */));
+                this.OnSpin(new Controls.SpinEventArgs(0 /* Increase */));
             };
             Spinner.prototype.OnDecreaseClick = function (sender, e) {
-                this.OnSpin(new Fayde.Controls.SpinEventArgs(1 /* Decrease */));
+                this.OnSpin(new Controls.SpinEventArgs(1 /* Decrease */));
             };
             Spinner.prototype.EnableButtons = function () {
                 if (this._IncreaseButton)
@@ -1033,16 +1033,16 @@ var Fayde;
                 this.UpdateVisualState();
             };
             Spinner.ValidSpinDirectionProperty = DependencyProperty.Register("ValidSpinDirection", function () {
-                return new Enum(Fayde.Controls.ValidSpinDirections);
+                return new Enum(Controls.ValidSpinDirections);
             }, Spinner, 1 /* Increase */, function (d, args) {
                 return d.OnValidSpinDirectionChanged(args);
             });
             return Spinner;
-        })(Fayde.Controls.ContentControl);
+        })(Controls.ContentControl);
         Controls.Spinner = Spinner;
         Fayde.Xaml.Content(Spinner, Spinner.ContentProperty);
-        Fayde.Controls.TemplateVisualStates(Spinner, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "IncreaseStates", Name: "IncreaseEnabled" }, { GroupName: "IncreaseStates", Name: "IncreaseDisabled" }, { GroupName: "DecreaseStates", Name: "DecreaseEnabled" }, { GroupName: "DecreaseStates", Name: "DecreaseDisabled" });
-        Fayde.Controls.TemplateParts(Spinner, { Name: "IncreaseButton", Type: Fayde.Controls.Primitives.ButtonBase }, { Name: "DecreaseButton", Type: Fayde.Controls.Primitives.ButtonBase });
+        Controls.TemplateVisualStates(Spinner, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "IncreaseStates", Name: "IncreaseEnabled" }, { GroupName: "IncreaseStates", Name: "IncreaseDisabled" }, { GroupName: "DecreaseStates", Name: "DecreaseEnabled" }, { GroupName: "DecreaseStates", Name: "DecreaseDisabled" });
+        Controls.TemplateParts(Spinner, { Name: "IncreaseButton", Type: Controls.Primitives.ButtonBase }, { Name: "DecreaseButton", Type: Controls.Primitives.ButtonBase });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -1056,15 +1056,15 @@ var Fayde;
                     _super.apply(this, arguments);
                 }
                 MenuBase.prototype.IsItemItsOwnContainer = function (item) {
-                    return item instanceof Fayde.Controls.MenuItem || item instanceof Fayde.Controls.Separator;
+                    return item instanceof Controls.MenuItem || item instanceof Controls.Separator;
                 };
                 MenuBase.prototype.GetContainerForItem = function () {
-                    return new Fayde.Controls.MenuItem();
+                    return new Controls.MenuItem();
                 };
                 MenuBase.prototype.PrepareContainerForItem = function (element, item) {
                     _super.prototype.PrepareContainerForItem.call(this, element, item);
                     var menuItem = element;
-                    if (!(menuItem instanceof Fayde.Controls.MenuItem))
+                    if (!(menuItem instanceof Controls.MenuItem))
                         return;
                     menuItem.ParentMenuBase = this;
                     if (menuItem != item) {
@@ -1072,12 +1072,12 @@ var Fayde;
                         var itemContainerStyle = this.ItemContainerStyle;
                         if (itemTemplate != null)
                             menuItem.SetValue(Fayde.Controls.ItemsControl.ItemTemplateProperty, itemTemplate);
-                        if (itemContainerStyle != null && MenuBase.HasDefaultValue(menuItem, Fayde.Controls.HeaderedItemsControl.ItemContainerStyleProperty))
-                            menuItem.SetValue(Fayde.Controls.HeaderedItemsControl.ItemContainerStyleProperty, itemContainerStyle);
-                        if (MenuBase.HasDefaultValue(menuItem, Fayde.Controls.HeaderedItemsControl.HeaderProperty))
+                        if (itemContainerStyle != null && MenuBase.HasDefaultValue(menuItem, Controls.HeaderedItemsControl.ItemContainerStyleProperty))
+                            menuItem.SetValue(Controls.HeaderedItemsControl.ItemContainerStyleProperty, itemContainerStyle);
+                        if (MenuBase.HasDefaultValue(menuItem, Controls.HeaderedItemsControl.HeaderProperty))
                             menuItem.Header = item;
                         if (itemTemplate != null)
-                            menuItem.SetValue(Fayde.Controls.HeaderedItemsControl.HeaderTemplateProperty, itemTemplate);
+                            menuItem.SetValue(Controls.HeaderedItemsControl.HeaderTemplateProperty, itemTemplate);
                         if (itemContainerStyle != null)
                             menuItem.SetValue(Fayde.FrameworkElement.StyleProperty, itemContainerStyle);
                     }
@@ -1096,6 +1096,7 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
+/// <reference path="Primitives/MenuBase.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
@@ -1224,8 +1225,8 @@ var Fayde;
                 var val1_4 = Math.min(val1_2, this._RootVisual.ActualHeight - this.ActualHeight);
                 var length1 = Math.max(val1_3, 0.0);
                 var length2 = Math.max(val1_4, 0.0);
-                Fayde.Controls.Canvas.SetLeft(this, length1);
-                Fayde.Controls.Canvas.SetTop(this, length2);
+                Controls.Canvas.SetLeft(this, length1);
+                Controls.Canvas.SetTop(this, length2);
                 this._Overlay.Width = this._RootVisual.ActualWidth;
                 this._Overlay.Height = this._RootVisual.ActualHeight;
             };
@@ -1233,7 +1234,7 @@ var Fayde;
                 this._PopupAlignmentPoint = position;
                 this.InitializeRootVisual();
                 var contextMenu1 = this;
-                var canvas1 = new Fayde.Controls.Canvas();
+                var canvas1 = new Controls.Canvas();
                 canvas1.Background = new Fayde.Media.SolidColorBrush(Color.KnownColors.Transparent);
                 var canvas2 = canvas1;
                 contextMenu1._Overlay = canvas2;
@@ -1241,7 +1242,7 @@ var Fayde;
                 this._Overlay.MouseRightButtonDown.Subscribe(this._HandleOverlayMouseButtonDown, this);
                 this._Overlay.Children.Add(this);
                 var contextMenu2 = this;
-                var popup1 = new Fayde.Controls.Primitives.Popup();
+                var popup1 = new Controls.Primitives.Popup();
                 popup1.Child = this._Overlay;
                 var popup2 = popup1;
                 contextMenu2._Popup = popup2;
@@ -1296,14 +1297,14 @@ var Fayde;
                 var count = this.Items.Count;
                 var num = down ? -1 : count;
                 var menuItem1 = this.XamlNode.GetFocusedElement();
-                if (menuItem1 instanceof Fayde.Controls.MenuItem && this === menuItem1.ParentMenuBase)
+                if (menuItem1 instanceof Controls.MenuItem && this === menuItem1.ParentMenuBase)
                     num = this.ItemContainersManager.IndexFromContainer(menuItem1);
                 var index = num;
                 var menuItem2;
                 do {
                     index = (index + count + (down ? 1 : -1)) % count;
                     menuItem2 = this.ItemContainersManager.ContainerFromIndex(index);
-                    if (!(menuItem2 instanceof Fayde.Controls.MenuItem))
+                    if (!(menuItem2 instanceof Controls.MenuItem))
                         menuItem2 = null;
                 } while((!menuItem2 || (!menuItem2.IsEnabled || !menuItem2.Focus())) && index !== num);
             };
@@ -1319,7 +1320,7 @@ var Fayde;
                 return Boolean;
             }, ContextMenu, false);
             return ContextMenu;
-        })(Fayde.Controls.Primitives.MenuBase);
+        })(Controls.Primitives.MenuBase);
         Controls.ContextMenu = ContextMenu;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -1341,14 +1342,14 @@ var Fayde;
                 if (!(fe instanceof Fayde.FrameworkElement))
                     return;
                 var oldMenu = args.OldValue;
-                if (oldMenu instanceof Fayde.Controls.ContextMenu)
+                if (oldMenu instanceof Controls.ContextMenu)
                     oldMenu.Owner = null;
                 var newMenu = args.NewValue;
-                if (newMenu instanceof Fayde.Controls.ContextMenu)
+                if (newMenu instanceof Controls.ContextMenu)
                     newMenu.Owner = fe;
             };
             ContextMenuService.ContextMenuProperty = DependencyProperty.RegisterAttached("ContextMenu", function () {
-                return Fayde.Controls.ContextMenu;
+                return Controls.ContextMenu;
             }, ContextMenuService, undefined, ContextMenuService.OnContextMenuPropertyChanged);
             return ContextMenuService;
         })();
@@ -1356,6 +1357,7 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
+/// <reference path="Spinner.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
@@ -1399,7 +1401,7 @@ var Fayde;
                 this.ValueChanging.Raise(this, e);
             };
             UpDownBase.prototype.OnValueChanged = function (e) {
-                this.ValueChanged.Raise(this, e);
+                this.ValueChanged.Raise(this, e); //WTF: compiler choking without cast for some odd reason
                 this.SetTextBoxText();
             };
 
@@ -1422,7 +1424,7 @@ var Fayde;
                     this._TextBox.GotFocus.Unsubscribe(this.TextBox_GotFocus, this);
                     this._TextBox.LostFocus.Unsubscribe(this.TextBox_LostFocus, this);
                 }
-                if (d instanceof Fayde.Controls.TextBox)
+                if (d instanceof Controls.TextBox)
                     this._TextBox = d;
                 else
                     this._TextBox = null;
@@ -1433,7 +1435,7 @@ var Fayde;
             UpDownBase.prototype.SetSpinner = function (d) {
                 if (this._Spinner)
                     this._Spinner.Spin.Unsubscribe(this.Spinner_Spin, this);
-                if (d instanceof Fayde.Controls.Spinner)
+                if (d instanceof Controls.Spinner)
                     this._Spinner = d;
                 else
                     this._Spinner = null;
@@ -1472,7 +1474,7 @@ var Fayde;
             };
 
             UpDownBase.prototype.ApplyValue = function (text) {
-                var e1 = new Fayde.Controls.UpDownParsingEventArgs(text);
+                var e1 = new Controls.UpDownParsingEventArgs(text);
                 var obj1;
                 var error = null;
                 try  {
@@ -1496,7 +1498,7 @@ var Fayde;
                         this.SetTextBoxText();
                     this.Value = e1.Value;
                 } else {
-                    var e2 = new Fayde.Controls.UpDownParseErrorEventArgs(text, error);
+                    var e2 = new Controls.UpDownParseErrorEventArgs(text, error);
                     this.OnParseError(e2);
                     if (!e2.Handled)
                         this.SetTextBoxText();
@@ -1580,13 +1582,14 @@ var Fayde;
                 return d.OnIsEditableChanged(args);
             });
             return UpDownBase;
-        })(Fayde.Controls.Control);
+        })(Controls.Control);
         Controls.UpDownBase = UpDownBase;
-        Fayde.Controls.TemplateVisualStates(UpDownBase, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" });
-        Fayde.Controls.TemplateParts(UpDownBase, { Name: "Text", Type: Fayde.Controls.TextBox }, { Name: "Spinner", Type: Fayde.Controls.Spinner });
+        Controls.TemplateVisualStates(UpDownBase, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" });
+        Controls.TemplateParts(UpDownBase, { Name: "Text", Type: Controls.TextBox }, { Name: "Spinner", Type: Controls.Spinner });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
+/// <reference path="UpDownBase.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
@@ -1601,10 +1604,10 @@ var Fayde;
                 this._CanEditByFocus = false;
                 this.DefaultStyleKey = this.constructor;
 
-                Object.defineProperty(this, "Items", { value: new Fayde.Controls.Internal.ObservableObjectCollection(), writable: false });
+                Object.defineProperty(this, "Items", { value: new Controls.Internal.ObservableObjectCollection(), writable: false });
                 this.Items.CollectionChanged.Subscribe(this._OnItemsChanged, this);
 
-                this._Coercer = new Fayde.Controls.Internal.DomainCoercer(this, function (val) {
+                this._Coercer = new Controls.Internal.DomainCoercer(this, function (val) {
                     return _this.SetCurrentValue(DomainUpDown.ValueProperty, val);
                 }, function (val) {
                     return _this.SetCurrentValue(DomainUpDown.CurrentIndexProperty, val);
@@ -1710,7 +1713,7 @@ var Fayde;
                     return vbe ? vbe.ValueBinding : null;
                 },
                 set: function (value) {
-                    this._ValueBindingEvaluator = new Fayde.Controls.Internal.BindingSourceEvaluator(value);
+                    this._ValueBindingEvaluator = new Controls.Internal.BindingSourceEvaluator(value);
                 },
                 enumerable: true,
                 configurable: true
@@ -1721,10 +1724,10 @@ var Fayde;
 
                 if (this._SpinFlow)
                     this._SpinFlow.Dispose();
-                this._SpinFlow = new Fayde.Controls.Internal.SpinFlow(this, this.GetTemplateChild("Spinner", Fayde.Controls.Spinner));
+                this._SpinFlow = new Controls.Internal.SpinFlow(this, this.GetTemplateChild("Spinner", Controls.Spinner));
 
                 this._Coercer.Detach();
-                this._Coercer.Attach(this.GetTemplateChild("Text", Fayde.Controls.TextBox));
+                this._Coercer.Attach(this.GetTemplateChild("Text", Controls.TextBox));
 
                 this.UpdateValidSpinDirection();
                 this.UpdateVisualState();
@@ -1889,7 +1892,7 @@ var Fayde;
                 return d._OnIsCyclicChanged(args);
             });
             DomainUpDown.InvalidInputActionProperty = DependencyProperty.RegisterFull("InvalidInputAction", function () {
-                return new Enum(Fayde.Controls.InvalidInputAction);
+                return new Enum(Controls.InvalidInputAction);
             }, DomainUpDown, 0 /* UseFallbackItem */, undefined, undefined, false, inputActionValidator, true);
             DomainUpDown.FallbackItemProperty = DependencyProperty.Register("FallbackItem", function () {
                 return Object;
@@ -1903,9 +1906,9 @@ var Fayde;
                 return Fayde.DataTemplate;
             }, DomainUpDown);
             return DomainUpDown;
-        })(Fayde.Controls.Control);
+        })(Controls.Control);
         Controls.DomainUpDown = DomainUpDown;
-        Fayde.Controls.TemplateVisualStates(DomainUpDown, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" }, { GroupName: "DomainStates", Name: "ValidDomain" }, { GroupName: "DomainStates", Name: "InvalidDomain" });
+        Controls.TemplateVisualStates(DomainUpDown, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" }, { GroupName: "DomainStates", Name: "ValidDomain" }, { GroupName: "DomainStates", Name: "InvalidDomain" });
 
         function inputActionValidator(d, propd, value) {
             switch (value) {
@@ -2069,6 +2072,7 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
+/// <reference path="Primitives/MenuBase.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
@@ -2151,7 +2155,7 @@ var Fayde;
 
             MenuItem.prototype.OnClick = function () {
                 var contextMenu = this.ParentMenuBase;
-                if (contextMenu instanceof Fayde.Controls.ContextMenu)
+                if (contextMenu instanceof Controls.ContextMenu)
                     contextMenu.ChildMenuItemClicked();
                 this.Click.Raise(this, new Fayde.RoutedEventArgs());
                 if (this.Command == null || !this.Command.CanExecute(this.CommandParameter))
@@ -2182,10 +2186,12 @@ var Fayde;
             return MenuItem;
         })(Fayde.Controls.HeaderedItemsControl);
         Controls.MenuItem = MenuItem;
-        Fayde.Controls.TemplateVisualStates(MenuItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" });
+        Controls.TemplateVisualStates(MenuItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
+/// <reference path="UpDownBase.ts" />
+/// <reference path="Spinner.ts" />
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
@@ -2197,7 +2203,7 @@ var Fayde;
                 this.Parsing = new Fayde.RoutedEvent();
                 this.ParseError = new Fayde.RoutedEvent();
                 this.DefaultStyleKey = this.constructor;
-                this._Coercer = new Fayde.Controls.Internal.FormattedRangeCoercer(this, function (val) {
+                this._Coercer = new Controls.Internal.FormattedRangeCoercer(this, function (val) {
                     return _this.SetCurrentValue(NumericUpDown.MaximumProperty, val);
                 }, function (val) {
                     return _this.SetCurrentValue(NumericUpDown.ValueProperty, val);
@@ -2228,11 +2234,11 @@ var Fayde;
 
                 if (this._SpinFlow)
                     this._SpinFlow.Dispose();
-                this._SpinFlow = new Fayde.Controls.Internal.SpinFlow(this, this.GetTemplateChild("Spinner", Fayde.Controls.Spinner));
+                this._SpinFlow = new Controls.Internal.SpinFlow(this, this.GetTemplateChild("Spinner", Controls.Spinner));
 
                 if (this._Formatter)
                     this._Formatter.Dispose();
-                this._Formatter = new Fayde.Controls.Internal.TextBoxFormatter(this, this.GetTemplateChild("Text", Fayde.Controls.TextBox), function (val) {
+                this._Formatter = new Controls.Internal.TextBoxFormatter(this, this.GetTemplateChild("Text", Controls.TextBox), function (val) {
                     return _this.SetCurrentValue(NumericUpDown.ValueProperty, val);
                 });
 
@@ -2297,10 +2303,10 @@ var Fayde;
                 return d._Formatter.UpdateIsEditable();
             });
             return NumericUpDown;
-        })(Fayde.Controls.Control);
+        })(Controls.Control);
         Controls.NumericUpDown = NumericUpDown;
-        Fayde.Controls.TemplateVisualStates(NumericUpDown, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
-        Fayde.Controls.TemplateParts(NumericUpDown, { Name: "Text", Type: Fayde.Controls.TextBox }, { Name: "Spinner", Type: Fayde.Controls.Spinner });
+        Controls.TemplateVisualStates(NumericUpDown, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
+        Controls.TemplateParts(NumericUpDown, { Name: "Text", Type: Controls.TextBox }, { Name: "Spinner", Type: Controls.Spinner });
 
         function numberValidator(d, propd, value) {
             if (typeof value !== "number")
@@ -2329,7 +2335,7 @@ var Fayde;
                 this.DefaultStyleKey = this.constructor;
             }
             return Separator;
-        })(Fayde.Controls.Control);
+        })(Controls.Control);
         Controls.Separator = Separator;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -2393,7 +2399,7 @@ var Fayde;
                 }
                 Object.defineProperty(ItemsControlHelper.prototype, "ItemsHost", {
                     get: function () {
-                        if (!(this._itemsHost instanceof Fayde.Controls.Panel) && this.ItemsControl != null && this.ItemsControl.ItemContainersManager != null) {
+                        if (!(this._itemsHost instanceof Controls.Panel) && this.ItemsControl != null && this.ItemsControl.ItemContainersManager != null) {
                             var container = this.ItemsControl.ItemContainersManager.ContainerFromIndex(0);
                             if (container != null)
                                 this._itemsHost = Fayde.VisualTreeHelper.GetParent(container);
@@ -2410,7 +2416,7 @@ var Fayde;
                             if (itemsHost != null) {
                                 for (var cur = itemsHost; cur !== this.ItemsControl && cur != null; cur = Fayde.VisualTreeHelper.GetParent(cur)) {
                                     var scrollViewer = cur;
-                                    if (scrollViewer instanceof Fayde.Controls.ScrollViewer) {
+                                    if (scrollViewer instanceof Controls.ScrollViewer) {
                                         this._scrollHost = scrollViewer;
                                         break;
                                     }
@@ -2431,7 +2437,7 @@ var Fayde;
                 ItemsControlHelper.PrepareContainerForItemOverride = function (element, parentItemContainerStyle) {
                     if (!parentItemContainerStyle)
                         return;
-                    var control = element instanceof Fayde.Controls.Control ? element : null;
+                    var control = element instanceof Controls.Control ? element : null;
                     if (!control || control.Style != null)
                         return;
                     control.SetValue(Fayde.FrameworkElement.StyleProperty, parentItemContainerStyle);
@@ -2606,7 +2612,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var ScrollExtensions = Fayde.Controls.Internal.ScrollEx;
+        var ScrollExtensions = Controls.Internal.ScrollEx;
 
         var TreeViewItem = (function (_super) {
             __extends(TreeViewItem, _super);
@@ -2617,14 +2623,14 @@ var Fayde;
                 this.Selected = new Fayde.RoutedEvent();
                 this.Unselected = new Fayde.RoutedEvent();
                 this._AllowWrite = false;
-                this._MultiClick = new Fayde.Controls.Internal.MultiClickHelper();
+                this._MultiClick = new Controls.Internal.MultiClickHelper();
                 this._IsPressed = false;
                 this.DefaultStyleKey = this.constructor;
             }
             TreeViewItem.prototype.$SetHasItems = function (value) {
                 try  {
                     this._AllowWrite = true;
-                    this.SetValueInternal(TreeViewItem.HasItemsProperty, value);
+                    this.SetCurrentValue(TreeViewItem.HasItemsProperty, value);
                 } finally {
                     this._AllowWrite = false;
                 }
@@ -2644,7 +2650,7 @@ var Fayde;
                     this.IgnorePropertyChange = false;
                 else if (!this._AllowWrite) {
                     this.IgnorePropertyChange = true;
-                    this.SetValueInternal(TreeViewItem.HasItemsProperty, e.OldValue);
+                    this.SetCurrentValue(TreeViewItem.HasItemsProperty, e.OldValue);
                     throw new InvalidOperationException("Cannot set read-only property HasItems.");
                 } else
                     this.UpdateVisualState();
@@ -2776,7 +2782,7 @@ var Fayde;
                 get: function () {
                     for (var tvi = this; tvi != null; tvi = tvi.ParentTreeViewItem) {
                         var treeView = tvi.ParentItemsControl;
-                        if (treeView instanceof Fayde.Controls.TreeView)
+                        if (treeView instanceof Controls.TreeView)
                             return treeView;
                     }
                     return null;
@@ -2787,7 +2793,7 @@ var Fayde;
 
             Object.defineProperty(TreeViewItem.prototype, "IsRoot", {
                 get: function () {
-                    return this.ParentItemsControl instanceof Fayde.Controls.TreeView;
+                    return this.ParentItemsControl instanceof Controls.TreeView;
                 },
                 enumerable: true,
                 configurable: true
@@ -2802,7 +2808,7 @@ var Fayde;
 
             TreeViewItem.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
-                this.ExpanderButton = this.GetTemplateChild("ExpanderButton", Fayde.Controls.Primitives.ToggleButton);
+                this.ExpanderButton = this.GetTemplateChild("ExpanderButton", Controls.Primitives.ToggleButton);
                 this.HeaderElement = this.GetTemplateChild("Header", Fayde.FrameworkElement);
                 this.ExpansionStateGroup = Fayde.Media.VSM.VisualStateManager.GetGroup(this, "ExpansionStates");
                 this.UpdateVisualState(false);
@@ -3237,10 +3243,10 @@ var Fayde;
                 return d.OnIsSelectionActiveChanged(args);
             });
             return TreeViewItem;
-        })(Fayde.Controls.HeaderedItemsControl);
+        })(Controls.HeaderedItemsControl);
         Controls.TreeViewItem = TreeViewItem;
-        Fayde.Controls.TemplateVisualStates(TreeViewItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ExpansionStates", Name: "Collapsed" }, { GroupName: "ExpansionStates", Name: "Expanded" }, { GroupName: "HasItemsStates", Name: "HasItems" }, { GroupName: "HasItemsStates", Name: "NoItems" }, { GroupName: "SelectionStates", Name: "Unselected" }, { GroupName: "SelectionStates", Name: "Selected" }, { GroupName: "SelectionStates", Name: "SelectedInactive" });
-        Fayde.Controls.TemplateParts(TreeViewItem, { Name: "Header", Type: Fayde.FrameworkElement }, { Name: "ExpanderButton", Type: Fayde.Controls.Primitives.ToggleButton });
+        Controls.TemplateVisualStates(TreeViewItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ExpansionStates", Name: "Collapsed" }, { GroupName: "ExpansionStates", Name: "Expanded" }, { GroupName: "HasItemsStates", Name: "HasItems" }, { GroupName: "HasItemsStates", Name: "NoItems" }, { GroupName: "SelectionStates", Name: "Unselected" }, { GroupName: "SelectionStates", Name: "Selected" }, { GroupName: "SelectionStates", Name: "SelectedInactive" });
+        Controls.TemplateParts(TreeViewItem, { Name: "Header", Type: Fayde.FrameworkElement }, { Name: "ExpanderButton", Type: Controls.Primitives.ToggleButton });
 
         function calculateDelta(up, element, scrollHost, top, bottom, closeEdge) {
             var top1 = { Value: 0 };
@@ -3262,7 +3268,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var ScrollEx = Fayde.Controls.Internal.ScrollEx;
+        var ScrollEx = Controls.Internal.ScrollEx;
 
         var TreeView = (function (_super) {
             __extends(TreeView, _super);
@@ -3270,7 +3276,7 @@ var Fayde;
                 _super.call(this);
                 this.SelectedItemChanged = new Fayde.RoutedPropertyChangedEvent();
                 this.DefaultStyleKey = this.constructor;
-                this.ItemsControlHelper = new Fayde.Controls.Internal.ItemsControlHelper(this);
+                this.ItemsControlHelper = new Controls.Internal.ItemsControlHelper(this);
             }
             TreeView.prototype.OnSelectedItemChanged = function (e) {
                 if (this._IgnorePropertyChange)
@@ -3307,22 +3313,22 @@ var Fayde;
             };
 
             TreeView.prototype.GetContainerForItem = function () {
-                return new Fayde.Controls.TreeViewItem();
+                return new Controls.TreeViewItem();
             };
             TreeView.prototype.IsItemItsOwnContainer = function (item) {
-                return item instanceof Fayde.Controls.TreeViewItem;
+                return item instanceof Controls.TreeViewItem;
             };
             TreeView.prototype.PrepareContainerForItem = function (element, item) {
                 var treeViewItem = element;
-                if (treeViewItem instanceof Fayde.Controls.TreeViewItem)
+                if (treeViewItem instanceof Controls.TreeViewItem)
                     treeViewItem.ParentItemsControl = this;
-                Fayde.Controls.Internal.ItemsControlHelper.PrepareContainerForItemOverride(element, this.ItemContainerStyle);
-                Fayde.Controls.HeaderedItemsControl.PrepareHeaderedItemsControlContainer(treeViewItem, item, this, this.ItemContainerStyle);
+                Controls.Internal.ItemsControlHelper.PrepareContainerForItemOverride(element, this.ItemContainerStyle);
+                Controls.HeaderedItemsControl.PrepareHeaderedItemsControlContainer(treeViewItem, item, this, this.ItemContainerStyle);
                 _super.prototype.PrepareContainerForItem.call(this, element, item);
             };
             TreeView.prototype.ClearContainerForItem = function (element, item) {
                 var treeViewItem = element;
-                if (treeViewItem instanceof Fayde.Controls.TreeViewItem)
+                if (treeViewItem instanceof Controls.TreeViewItem)
                     treeViewItem.ParentItemsControl = null;
                 _super.prototype.ClearContainerForItem.call(this, element, item);
             };
@@ -3473,20 +3479,20 @@ var Fayde;
                             index += up ? -1 : 1;
                             if (0 <= index && index < count) {
                                 tvi2 = itemsControl.ItemContainersManager.ContainerFromIndex(index);
-                                if (!(tvi2 instanceof Fayde.Controls.TreeViewItem))
+                                if (!(tvi2 instanceof Controls.TreeViewItem))
                                     tvi2 = null;
                             } else if (itemsControl === this) {
                                 tvi2 = null;
                             } else {
                                 while (itemsControl != null) {
-                                    var tvi3 = itemsControl instanceof Fayde.Controls.TreeViewItem ? itemsControl : null;
+                                    var tvi3 = itemsControl instanceof Controls.TreeViewItem ? itemsControl : null;
                                     itemsControl = tvi3.ParentItemsControl;
                                     if (itemsControl != null) {
                                         count = itemsControl.Items.Count;
                                         index = itemsControl.ItemContainersManager.IndexFromContainer(tvi3) + (up ? -1 : 1);
                                         if (index > -1 && index < count) {
                                             tvi2 = itemsControl.ItemContainersManager.ContainerFromIndex(index);
-                                            if (!(tvi2 instanceof Fayde.Controls.TreeViewItem))
+                                            if (!(tvi2 instanceof Controls.TreeViewItem))
                                                 tvi2 = null;
                                             break;
                                         } else if (itemsControl == this) {
@@ -3598,15 +3604,15 @@ var Fayde;
                 } else {
                     var binding = new Fayde.Data.Binding(selectedValuePath);
                     binding.Source = item;
-                    var contentControl = new Fayde.Controls.ContentControl();
-                    contentControl.SetBinding(Fayde.Controls.ContentControl.ContentProperty, binding);
+                    var contentControl = new Controls.ContentControl();
+                    contentControl.SetBinding(Controls.ContentControl.ContentProperty, binding);
                     this.SelectedValue = contentControl.Content;
-                    contentControl.ClearValue(Fayde.Controls.ContentControl.ContentProperty);
+                    contentControl.ClearValue(Controls.ContentControl.ContentProperty);
                 }
             };
             TreeView.prototype.SelectFirstItem = function () {
                 var container = this.ItemContainersManager.ContainerFromIndex(0);
-                var selected = container instanceof Fayde.Controls.TreeViewItem;
+                var selected = container instanceof Controls.TreeViewItem;
                 if (!selected)
                     container = this.SelectedContainer;
                 this.ChangeSelection(selected ? this.ItemContainersManager.ItemFromContainer(container) : this.SelectedItem, container, selected);
@@ -3622,7 +3628,7 @@ var Fayde;
             TreeView.prototype.FocusLastItem = function () {
                 for (var index = this.Items.Count - 1; index >= 0; --index) {
                     var tvi = this.ItemContainersManager.ContainerFromIndex(index);
-                    if (tvi instanceof Fayde.Controls.TreeViewItem && tvi.IsEnabled)
+                    if (tvi instanceof Controls.TreeViewItem && tvi.IsEnabled)
                         return tvi.FocusInto();
                 }
                 return false;
@@ -3648,9 +3654,9 @@ var Fayde;
                 return d.OnItemContainerStyleChanged(args);
             });
             return TreeView;
-        })(Fayde.Controls.ItemsControl);
+        })(Controls.ItemsControl);
         Controls.TreeView = TreeView;
-        Fayde.Controls.TemplateVisualStates(TreeView, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
+        Controls.TemplateVisualStates(TreeView, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
 
         Object.defineProperty(TreeView.prototype, "SelectedValue", {
             get: function () {
@@ -3693,7 +3699,7 @@ var Fayde;
             }
             Object.defineProperty(TabPanel.prototype, "TabAlignment", {
                 get: function () {
-                    var tabControlParent = Fayde.VisualTreeHelper.GetParentOfType(this, Fayde.Controls.TabControl);
+                    var tabControlParent = Fayde.VisualTreeHelper.GetParentOfType(this, Controls.TabControl);
                     if (tabControlParent != null)
                         return tabControlParent.TabStripPlacement;
                     return 1 /* Top */;
@@ -3797,11 +3803,11 @@ var Fayde;
                     if (flag2)
                         size2.Width = arrangeSize.Width - size1.Width;
                     var tabItem = uie;
-                    if (tabItem instanceof Fayde.Controls.TabItem) {
+                    if (tabItem instanceof Controls.TabItem) {
                         if (tabItem.IsSelected)
-                            tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 1);
+                            tabItem.SetValue(Controls.Canvas.ZIndexProperty, 1);
                         else
-                            tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 0);
+                            tabItem.SetValue(Controls.Canvas.ZIndexProperty, 0);
                     }
                     var arrSize = new rect();
                     rect.set(arrSize, size1.Width, size1.Height, size2.Width, size2.Height);
@@ -3829,11 +3835,11 @@ var Fayde;
                     uie = childEnumerator.Current;
                     if (uie.Visibility !== 1 /* Collapsed */) {
                         var tabItem = uie;
-                        if (tabItem instanceof Fayde.Controls.TabItem) {
+                        if (tabItem instanceof Controls.TabItem) {
                             if (tabItem.IsSelected)
-                                tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 1);
+                                tabItem.SetValue(Controls.Canvas.ZIndexProperty, 1);
                             else
-                                tabItem.SetValue(Fayde.Controls.Canvas.ZIndexProperty, 0);
+                                tabItem.SetValue(Controls.Canvas.ZIndexProperty, 0);
                         }
                         var sizeWithoutMargin = getDesiredSizeWithoutMargin(uie);
                         var arrSize = new rect();
@@ -3852,7 +3858,7 @@ var Fayde;
                     var uie;
                     while (childEnumerator.MoveNext()) {
                         uie = childEnumerator.Current;
-                        if (uie.GetValue(Fayde.Controls.TabItem.IsSelectedProperty))
+                        if (uie.GetValue(Controls.TabItem.IsSelectedProperty))
                             return index;
                         if (index < solution.length && solution[index] === num)
                             ++index;
@@ -3976,15 +3982,15 @@ var Fayde;
                 return arr;
             };
             return TabPanel;
-        })(Fayde.Controls.Panel);
+        })(Controls.Panel);
         Controls.TabPanel = TabPanel;
 
         function getDesiredSizeWithoutMargin(uie) {
             var num = 0.0;
             var tabItem = uie;
-            if (tabItem instanceof Fayde.Controls.TabItem && tabItem.IsSelected) {
+            if (tabItem instanceof Controls.TabItem && tabItem.IsSelected) {
                 var panel = tabItem.GetTemplate(tabItem.IsSelected, tabItem.TabStripPlacement);
-                if (!(panel instanceof Fayde.Controls.Panel))
+                if (!(panel instanceof Controls.Panel))
                     panel = null;
                 var fe = ((panel == null || panel.Children.Count <= 0) ? null : panel.Children.GetValueAt(0));
                 if (fe instanceof Fayde.FrameworkElement)
@@ -4046,19 +4052,19 @@ var Fayde;
                 this._ElementTemplateBottom = this.GetTemplateChild("TemplateBottom", Fayde.FrameworkElement);
                 this._ElementTemplateLeft = this.GetTemplateChild("TemplateLeft", Fayde.FrameworkElement);
                 this._ElementTemplateRight = this.GetTemplateChild("TemplateRight", Fayde.FrameworkElement);
-                this._ElementTabPanelTop = this.GetTemplateChild("TabPanelTop", Fayde.Controls.TabPanel);
-                this._ElementTabPanelBottom = this.GetTemplateChild("TabPanelBottom", Fayde.Controls.TabPanel);
-                this._ElementTabPanelLeft = this.GetTemplateChild("TabPanelLeft", Fayde.Controls.TabPanel);
-                this._ElementTabPanelRight = this.GetTemplateChild("TabPanelRight", Fayde.Controls.TabPanel);
-                this._ElementContentTop = this.GetTemplateChild("ContentTop", Fayde.Controls.ContentPresenter);
-                this._ElementContentBottom = this.GetTemplateChild("ContentBottom", Fayde.Controls.ContentPresenter);
-                this._ElementContentLeft = this.GetTemplateChild("ContentLeft", Fayde.Controls.ContentPresenter);
-                this._ElementContentRight = this.GetTemplateChild("ContentRight", Fayde.Controls.ContentPresenter);
+                this._ElementTabPanelTop = this.GetTemplateChild("TabPanelTop", Controls.TabPanel);
+                this._ElementTabPanelBottom = this.GetTemplateChild("TabPanelBottom", Controls.TabPanel);
+                this._ElementTabPanelLeft = this.GetTemplateChild("TabPanelLeft", Controls.TabPanel);
+                this._ElementTabPanelRight = this.GetTemplateChild("TabPanelRight", Controls.TabPanel);
+                this._ElementContentTop = this.GetTemplateChild("ContentTop", Controls.ContentPresenter);
+                this._ElementContentBottom = this.GetTemplateChild("ContentBottom", Controls.ContentPresenter);
+                this._ElementContentLeft = this.GetTemplateChild("ContentLeft", Controls.ContentPresenter);
+                this._ElementContentRight = this.GetTemplateChild("ContentRight", Controls.ContentPresenter);
 
                 var enumerator = this.Items.GetEnumerator();
                 while (enumerator.MoveNext()) {
                     var tabItem = enumerator.Current;
-                    if (!(tabItem instanceof Fayde.Controls.TabItem))
+                    if (!(tabItem instanceof Controls.TabItem))
                         this._ThrowInvalidTabItem(tabItem);
                     this._AddToTabPanel(tabItem);
                 }
@@ -4124,7 +4130,7 @@ var Fayde;
                         for (var i = 0; i < len; i++) {
                             var obj = e.NewItems[i];
                             var tabItem = obj;
-                            if (!(tabItem instanceof Fayde.Controls.TabItem))
+                            if (!(tabItem instanceof Controls.TabItem))
                                 this._ThrowInvalidTabItem(tabItem);
                             var index2 = this.Items.IndexOf(tabItem);
                             this._InsertIntoTabPanel(index2, tabItem);
@@ -4140,14 +4146,14 @@ var Fayde;
                             var enumerator = this.Items.GetEnumerator();
                             while (enumerator.MoveNext()) {
                                 var tabItem = enumerator.Current;
-                                if (!(tabItem instanceof Fayde.Controls.TabItem))
+                                if (!(tabItem instanceof Controls.TabItem))
                                     this._ThrowInvalidTabItem(tabItem);
                                 if (tabItem.IsSelected)
                                     return;
                             }
                             if (this.Items.Count <= 1) {
                                 var item0 = this.Items.GetValueAt(0);
-                                var iss = item0.ReadLocalValue(Fayde.Controls.TabItem.IsSelectedProperty);
+                                var iss = item0.ReadLocalValue(Controls.TabItem.IsSelectedProperty);
                                 if (iss !== false)
                                     index1 = 0;
                             } else {
@@ -4178,7 +4184,7 @@ var Fayde;
                         var enumerator = this.Items.GetEnumerator();
                         while (enumerator.MoveNext()) {
                             tabItem = enumerator.Current;
-                            if (!(tabItem instanceof Fayde.Controls.TabItem))
+                            if (!(tabItem instanceof Controls.TabItem))
                                 this._ThrowInvalidTabItem(tabItem);
                             this._AddToTabPanel(tabItem);
                             if (tabItem.IsSelected)
@@ -4247,7 +4253,7 @@ var Fayde;
                 var enumerator = this.Items.GetEnumerator();
                 while (enumerator.MoveNext()) {
                     var tabItem = enumerator.Current;
-                    if (!(tabItem instanceof Fayde.Controls.TabItem))
+                    if (!(tabItem instanceof Controls.TabItem))
                         this._ThrowInvalidTabItem(tabItem);
                     if (tabItem !== newItem && tabItem.IsSelected) {
                         tabItem.IsSelected = false;
@@ -4264,7 +4270,7 @@ var Fayde;
                 var newItems = [];
                 if (newItem != null)
                     newItems.push(newItem);
-                var e = new Fayde.Controls.Primitives.SelectionChangedEventArgs(oldItems, newItems);
+                var e = new Controls.Primitives.SelectionChangedEventArgs(oldItems, newItems);
                 this.OnSelectionChanged(e);
                 this.SelectionChanged.Raise(this, e);
             };
@@ -4288,7 +4294,7 @@ var Fayde;
                         var ti;
                         while (enumerator.MoveNext()) {
                             ti = enumerator.Current;
-                            if (!(ti instanceof Fayde.Controls.TabItem))
+                            if (!(ti instanceof Controls.TabItem))
                                 this._ThrowInvalidTabItem(ti);
                             this._AddToTabPanel(ti);
                         }
@@ -4304,7 +4310,7 @@ var Fayde;
             };
             TabControl.prototype.UpdateSelectedContent = function (content) {
                 var tabItem = this.SelectedItem;
-                if (!(tabItem instanceof Fayde.Controls.TabItem))
+                if (!(tabItem instanceof Controls.TabItem))
                     return;
                 var contentHost = this._GetContentHost(this.TabStripPlacement);
                 if (contentHost == null)
@@ -4413,7 +4419,7 @@ var Fayde;
                 if (index < 0 || index >= this.Items.Count)
                     return null;
                 var item = this.Items.GetValueAt(index);
-                if (item instanceof Fayde.Controls.TabItem)
+                if (item instanceof Controls.TabItem)
                     return item;
             };
 
@@ -4441,15 +4447,15 @@ var Fayde;
                 return d.OnSelectedContentChanged(args);
             });
             TabControl.TabStripPlacementProperty = DependencyProperty.Register("TabStripPlacement", function () {
-                return new Enum(Fayde.Controls.Dock);
+                return new Enum(Controls.Dock);
             }, TabControl, 1 /* Top */, function (d, args) {
                 return d.OnTabStripPlacementPropertyChanged(args);
             });
             return TabControl;
-        })(Fayde.Controls.ItemsControl);
+        })(Controls.ItemsControl);
         Controls.TabControl = TabControl;
-        Fayde.Controls.TemplateVisualStates(TabControl, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "Disabled" });
-        Fayde.Controls.TemplateParts(TabControl, { Name: "TemplateLeft", Type: Fayde.FrameworkElement }, { Name: "ContentLeft", Type: Fayde.Controls.ContentPresenter }, { Name: "TabPanelLeft", Type: Fayde.Controls.TabPanel }, { Name: "TemplateTop", Type: Fayde.FrameworkElement }, { Name: "ContentTop", Type: Fayde.Controls.ContentPresenter }, { Name: "TabPanelTop", Type: Fayde.Controls.TabPanel }, { Name: "TemplateRight", Type: Fayde.FrameworkElement }, { Name: "ContentRight", Type: Fayde.Controls.ContentPresenter }, { Name: "TabPanelRight", Type: Fayde.Controls.TabPanel }, { Name: "TemplateBottom", Type: Fayde.FrameworkElement }, { Name: "ContentBottom", Type: Fayde.Controls.ContentPresenter }, { Name: "TabPanelBottom", Type: Fayde.Controls.TabPanel });
+        Controls.TemplateVisualStates(TabControl, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "Disabled" });
+        Controls.TemplateParts(TabControl, { Name: "TemplateLeft", Type: Fayde.FrameworkElement }, { Name: "ContentLeft", Type: Controls.ContentPresenter }, { Name: "TabPanelLeft", Type: Controls.TabPanel }, { Name: "TemplateTop", Type: Fayde.FrameworkElement }, { Name: "ContentTop", Type: Controls.ContentPresenter }, { Name: "TabPanelTop", Type: Controls.TabPanel }, { Name: "TemplateRight", Type: Fayde.FrameworkElement }, { Name: "ContentRight", Type: Controls.ContentPresenter }, { Name: "TabPanelRight", Type: Controls.TabPanel }, { Name: "TemplateBottom", Type: Fayde.FrameworkElement }, { Name: "ContentBottom", Type: Controls.ContentPresenter }, { Name: "TabPanelBottom", Type: Controls.TabPanel });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -4478,7 +4484,7 @@ var Fayde;
             });
             Object.defineProperty(TabItem.prototype, "TabControlParent", {
                 get: function () {
-                    return Fayde.VisualTreeHelper.GetParentOfType(this, Fayde.Controls.TabControl);
+                    return Fayde.VisualTreeHelper.GetParentOfType(this, Controls.TabControl);
                 },
                 enumerable: true,
                 configurable: true
@@ -4615,11 +4621,11 @@ var Fayde;
 
             TabItem.prototype.GetTemplate = function (isSelected, tabPlacement) {
                 var e = isSelected ? this._SelectedElements : this._UnselectedElements;
-                return e[Fayde.Controls.Dock[tabPlacement]].Template;
+                return e[Controls.Dock[tabPlacement]].Template;
             };
             TabItem.prototype._GetContentControl = function (isSelected, tabPlacement) {
                 var e = isSelected ? this._SelectedElements : this._UnselectedElements;
-                return e[Fayde.Controls.Dock[tabPlacement]].Header;
+                return e[Controls.Dock[tabPlacement]].Header;
             };
 
             TabItem.prototype._FindPreviousTabItem = function (startIndex) {
@@ -4660,10 +4666,10 @@ var Fayde;
                 return d._OnIsSelectedChanged(args);
             });
             return TabItem;
-        })(Fayde.Controls.ContentControl);
+        })(Controls.ContentControl);
         Controls.TabItem = TabItem;
-        Fayde.Controls.TemplateVisualStates(TabItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "SelectionStates", Name: "Unselected" }, { GroupName: "SelectionStates", Name: "Selected" });
-        Fayde.Controls.TemplateParts(TabItem, { Name: "HeaderLeftSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderTopSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderRightSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderBottomSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateLeftSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateTopSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateRightSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateBottomSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderLeftUnselected", Type: Fayde.FrameworkElement }, { Name: "HeaderTopUnselected", Type: Fayde.FrameworkElement }, { Name: "HeaderRightUnselected", Type: Fayde.FrameworkElement }, { Name: "HeaderBottomUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateLeftUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateTopUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateRightUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateBottomUnselected", Type: Fayde.FrameworkElement });
+        Controls.TemplateVisualStates(TabItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "SelectionStates", Name: "Unselected" }, { GroupName: "SelectionStates", Name: "Selected" });
+        Controls.TemplateParts(TabItem, { Name: "HeaderLeftSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderTopSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderRightSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderBottomSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateLeftSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateTopSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateRightSelected", Type: Fayde.FrameworkElement }, { Name: "TemplateBottomSelected", Type: Fayde.FrameworkElement }, { Name: "HeaderLeftUnselected", Type: Fayde.FrameworkElement }, { Name: "HeaderTopUnselected", Type: Fayde.FrameworkElement }, { Name: "HeaderRightUnselected", Type: Fayde.FrameworkElement }, { Name: "HeaderBottomUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateLeftUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateTopUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateRightUnselected", Type: Fayde.FrameworkElement }, { Name: "TemplateBottomUnselected", Type: Fayde.FrameworkElement });
 
         var Elements = (function () {
             function Elements() {
@@ -4687,7 +4693,7 @@ var Fayde;
             }
             Element.prototype.OnApplyTemplate = function (control, isSelected, dock) {
                 var post = dock + (isSelected ? "Selected" : "Unselected");
-                this.Header = control.GetTemplateChild("Header" + post, Fayde.Controls.ContentControl);
+                this.Header = control.GetTemplateChild("Header" + post, Controls.ContentControl);
                 this.Template = control.GetTemplateChild("Template" + post, Fayde.FrameworkElement);
             };
             return Element;
@@ -4695,3 +4701,132 @@ var Fayde;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        var WrapPanel = (function (_super) {
+            __extends(WrapPanel, _super);
+            function WrapPanel() {
+                _super.apply(this, arguments);
+            }
+            WrapPanel.prototype.OnPropertyChange = function () {
+                this.InvalidateMeasure();
+            };
+
+            WrapPanel.prototype.MeasureOverride = function (availableSize) {
+                var measured = new size();
+                if (this.Orientation === 1 /* Vertical */) {
+                    if (!isNaN(this.Width))
+                        availableSize.Width = this.Width;
+                    availableSize.Width = Math.min(availableSize.Width, this.MaxWidth);
+                    availableSize.Width = Math.max(availableSize.Width, this.MinWidth);
+                } else {
+                    if (!isNaN(this.Height))
+                        availableSize.Height = this.Height;
+                    availableSize.Height = Math.min(availableSize.Height, this.MaxHeight);
+                    availableSize.Height = Math.max(availableSize.Height, this.MinHeight);
+                }
+                var colWidth = 0;
+                var rowHeight = 0;
+                var offsetX = 0;
+                var offsetY = 0;
+                for (var i = 0; i < this.Children.Count; i++) {
+                    var child = this.Children.GetValueAt(i);
+                    if (child != null) {
+                        if (isNaN(child.Width) && !isNaN(this.ItemWidth))
+                            child.Width = this.ItemWidth;
+                        if (isNaN(child.Height) && !isNaN(this.ItemHeight))
+                            child.Height = this.ItemHeight;
+                    }
+                    child.Measure(availableSize);
+                    var s = child.DesiredSize;
+
+                    if (this.Orientation === 1 /* Vertical */) {
+                        if (availableSize.Height < (offsetY + s.Height)) {
+                            offsetX += colWidth;
+                            offsetY = 0; //reset offsetY to 0
+                            colWidth = 0; //reset col spacing
+                        }
+                        colWidth = Math.max(colWidth, s.Width);
+                        measured.Height = Math.max(measured.Height, offsetY + s.Height);
+                        measured.Width = Math.max(measured.Width, offsetX + s.Width);
+                        offsetY += s.Height;
+                    } else {
+                        if (availableSize.Width < (offsetX + s.Width)) {
+                            offsetX = 0; // reset offsetX to 0
+                            offsetY += rowHeight;
+                            rowHeight = 0; //reset row height
+                        }
+                        rowHeight = Math.max(rowHeight, s.Height);
+
+                        measured.Height = Math.max(measured.Height, offsetY + s.Height);
+                        measured.Width = Math.max(measured.Width, offsetX + s.Width);
+                        offsetX += s.Width;
+                    }
+                }
+                return measured;
+            };
+
+            WrapPanel.prototype.ArrangeOverride = function (finalSize) {
+                var arranged = size.copyTo(finalSize);
+                var offsetX = 0;
+                var offsetY = 0;
+                var colWidth = 0;
+                var rowHeight = 0;
+                var childFinal = new rect();
+                for (var i = 0; i < this.Children.Count; i++) {
+                    var child = this.Children.GetValueAt(i);
+                    var s = child.DesiredSize;
+                    if (this.Orientation === 1 /* Vertical */) {
+                        if (finalSize.Height < (offsetY + s.Height)) {
+                            offsetX += colWidth; //and colWidth
+                            offsetY = 0; //reset OffsetY to top
+                            colWidth = 0; //reset colWidth
+                        }
+                        colWidth = Math.max(colWidth, s.Width);
+                        rect.set(childFinal, offsetX, offsetY, s.Width, s.Height);
+                        child.Arrange(childFinal);
+                        offsetY += s.Height;
+                    } else {
+                        if (finalSize.Width < (offsetX + s.Width)) {
+                            offsetX = 0; // reset offsetX to 0
+                            offsetY += rowHeight; //offsetY + lastrow height
+                            rowHeight = 0; //reset row spacing
+                        }
+                        rowHeight = Math.max(rowHeight, s.Height);
+                        rect.set(childFinal, offsetX, offsetY, s.Width, s.Height);
+                        child.Arrange(childFinal);
+                        offsetX += s.Width;
+                    }
+                }
+                if (this.Orientation === 1 /* Vertical */)
+                    arranged.Height = Math.max(arranged.Height, finalSize.Height);
+                else
+                    arranged.Width = Math.max(arranged.Width, finalSize.Width);
+
+                return arranged;
+            };
+            WrapPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () {
+                return new Enum(Fayde.Orientation);
+            }, WrapPanel, 0 /* Horizontal */, function (d, args) {
+                return d.OnPropertyChange();
+            });
+
+            WrapPanel.ItemWidthProperty = DependencyProperty.Register("ItemWidth", function () {
+                return Number;
+            }, WrapPanel, Number.NaN, function (d, args) {
+                return d.OnPropertyChange();
+            });
+
+            WrapPanel.ItemHeightProperty = DependencyProperty.Register("ItemHeight", function () {
+                return Number;
+            }, WrapPanel, Number.NaN, function (d, args) {
+                return d.OnPropertyChange();
+            });
+            return WrapPanel;
+        })(Fayde.Controls.Panel);
+        Controls.WrapPanel = WrapPanel;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+//# sourceMappingURL=Fayde.Controls.Ex.js.map

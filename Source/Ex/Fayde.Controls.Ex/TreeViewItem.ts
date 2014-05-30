@@ -242,7 +242,7 @@ module Fayde.Controls {
             super.ClearContainerForItem(element, item);
         }
 
-        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
+        OnItemsChanged(e: Collections.CollectionChangedEventArgs) {
             super.OnItemsChanged(e);
             this.$SetHasItems(this.Items.Count > 0);
             if (e.NewItems != null) {
@@ -251,8 +251,8 @@ module Fayde.Controls {
                 }
             }
             switch (e.Action) {
-                case Collections.NotifyCollectionChangedAction.Remove:
-                case Collections.NotifyCollectionChangedAction.Reset:
+                case Collections.CollectionChangedAction.Remove:
+                case Collections.CollectionChangedAction.Reset:
                     if (this.ContainsSelection) {
                         var parentTreeView = this.ParentTreeView;
                         if (parentTreeView != null && !parentTreeView.IsSelectedContainerHookedUp) {
@@ -261,7 +261,7 @@ module Fayde.Controls {
                         }
                     }
                     break;
-                case Collections.NotifyCollectionChangedAction.Replace:
+                case Collections.CollectionChangedAction.Replace:
                     if (this.ContainsSelection) {
                         var parentTreeView = this.ParentTreeView;
                         if (parentTreeView != null) {

@@ -1,5 +1,5 @@
 declare module Fayde.Controls {
-    class GridSplitter extends Controls.Control {
+    class GridSplitter extends Control {
         private _Helper;
         private _HorizontalTemplate;
         private _VerticalTemplate;
@@ -9,34 +9,34 @@ declare module Fayde.Controls {
         public OnApplyTemplate(): void;
         private _OnLayoutUpdated(sender, e);
         private _OnResizeDirectionChanged();
-        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
-        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
+        public OnGotFocus(e: RoutedEventArgs): void;
+        public OnLostFocus(e: RoutedEventArgs): void;
+        public OnKeyDown(e: Input.KeyEventArgs): void;
+        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
+        public OnMouseMove(e: Input.MouseEventArgs): void;
         private InitHelper();
         private _HandleMove(horiz, vert, isKeyboard);
         private _GetTransformedPos(e);
     }
 }
 declare module Fayde.Controls {
-    class HeaderedItemsControl extends Controls.ItemsControl {
+    class HeaderedItemsControl extends ItemsControl {
         private _HeaderIsItem;
         private _ItemsControlHelper;
         static HeaderProperty: DependencyProperty;
         public Header: any;
         public OnHeaderChanged(oldHeader: any, newHeader: any): void;
         static HeaderTemplateProperty: DependencyProperty;
-        public HeaderTemplate: Fayde.DataTemplate;
-        public OnHeaderTemplateChanged(oldHeaderTemplate: Fayde.DataTemplate, newHeaderTemplate: Fayde.DataTemplate): void;
+        public HeaderTemplate: DataTemplate;
+        public OnHeaderTemplateChanged(oldHeaderTemplate: DataTemplate, newHeaderTemplate: DataTemplate): void;
         static ItemContainerStyleProperty: DependencyProperty;
-        public ItemContainerStyle: Fayde.Style;
+        public ItemContainerStyle: Style;
         private OnItemContainerStyleChanged(args);
         constructor();
         public OnApplyTemplate(): void;
-        public PrepareContainerForItem(element: Fayde.UIElement, item: any): void;
-        static PrepareHeaderedItemsControlContainer(control: HeaderedItemsControl, item: any, parentItemsControl: Controls.ItemsControl, parentItemContainerStyle: Fayde.Style): void;
+        public PrepareContainerForItem(element: UIElement, item: any): void;
+        static PrepareHeaderedItemsControlContainer(control: HeaderedItemsControl, item: any, parentItemsControl: ItemsControl, parentItemContainerStyle: Style): void;
         private static HasDefaultValue(control, propd);
     }
 }
@@ -65,10 +65,10 @@ declare module Fayde.Controls.Internal {
         public SplitterLength: number;
         public DS1: IDefinitionSize;
         public DS2: IDefinitionSize;
-        constructor(gs: Controls.GridSplitter);
-        public Setup(gs: Controls.GridSplitter, grid: Controls.Grid): boolean;
-        public Move(grid: Controls.Grid, horiz: number, vert: number): boolean;
-        public UpdateResizeDirection(gs: Controls.GridSplitter): boolean;
+        constructor(gs: GridSplitter);
+        public Setup(gs: GridSplitter, grid: Grid): boolean;
+        public Move(grid: Grid, horiz: number, vert: number): boolean;
+        public UpdateResizeDirection(gs: GridSplitter): boolean;
         private SetLengths(grid, definition1Pixels, definition2Pixels);
         private GetConstraints();
         private GetBehaviorIndices(index);
@@ -77,22 +77,22 @@ declare module Fayde.Controls.Internal {
         ActualSize: number;
         MaxSize: number;
         MinSize: number;
-        Size: Controls.GridLength;
+        Size: GridLength;
         IsStar: boolean;
         Index: number;
         OrigActualSize: number;
     }
 }
 declare module Fayde.Controls.Internal {
-    interface IFormattedRange extends Internal.IRange {
+    interface IFormattedRange extends IRange {
         DecimalPlaces: number;
         OnDecimalPlacesChanged(oldDecPlaces: number, newDecPlaces: number): any;
     }
-    interface IFormattedRangeCoercer extends Internal.IRangeCoercer {
+    interface IFormattedRangeCoercer extends IRangeCoercer {
         OnDecimalPlacesChanged(oldDecPlaces: number, newDecPlaces: number): any;
         AddToValue(inc: number): any;
     }
-    class FormattedRangeCoercer extends Internal.RangeCoercer implements IFormattedRangeCoercer {
+    class FormattedRangeCoercer extends RangeCoercer implements IFormattedRangeCoercer {
         public OnCoerceFormat: () => void;
         constructor(range: IFormattedRange, onCoerceMaximum: (val: any) => void, onCoerceValue: (val: any) => void, OnCoerceFormat: () => void);
         public OnDecimalPlacesChanged(oldDecPlaces: number, newDecPlaces: number): void;
@@ -105,8 +105,8 @@ declare module Fayde.Controls.Internal {
         IsEditable: boolean;
         ParseValue(text: string): T;
         FormatValue(val: T): string;
-        Parsing: Fayde.RoutedEvent<Controls.UpDownParsingEventArgs<T>>;
-        ParseError: Fayde.RoutedEvent<Controls.UpDownParseErrorEventArgs>;
+        Parsing: RoutedEvent<UpDownParsingEventArgs<T>>;
+        ParseError: RoutedEvent<UpDownParseErrorEventArgs>;
     }
     interface ITextBoxFormatter {
         ProcessUserInput(): any;
@@ -116,25 +116,25 @@ declare module Fayde.Controls.Internal {
     }
     class TextBoxFormatter<T> implements ITextBoxFormatter {
         public Control: IFormattedControl<T>;
-        public TextBox: Controls.TextBox;
+        public TextBox: TextBox;
         public OnCoerceValue: (val: any) => void;
         public Value : T;
         public Text: string;
-        constructor(Control: IFormattedControl<T>, TextBox: Controls.TextBox, OnCoerceValue: (val: any) => void);
+        constructor(Control: IFormattedControl<T>, TextBox: TextBox, OnCoerceValue: (val: any) => void);
         public ProcessUserInput(): void;
         public Dispose(): void;
         private TextBox_LostFocus(sender, e);
         private TextBox_GotFocus(sender, e);
         public ApplyValue(text: string): void;
-        public OnParseError(e: Controls.UpDownParseErrorEventArgs): void;
-        public OnParsing(e: Controls.UpDownParsingEventArgs<T>): void;
+        public OnParseError(e: UpDownParseErrorEventArgs): void;
+        public OnParsing(e: UpDownParsingEventArgs<T>): void;
         public SelectAllText(): void;
         public UpdateTextBoxText(): void;
         public UpdateIsEditable(): void;
     }
 }
 declare module Fayde.Controls.Internal {
-    interface ISpinOwner extends Fayde.UIElement {
+    interface ISpinOwner extends UIElement {
         OnSpin(): any;
         OnIncrement(): any;
         OnDecrement(): any;
@@ -145,8 +145,8 @@ declare module Fayde.Controls.Internal {
     }
     class SpinFlow implements ISpinFlow {
         public Owner: ISpinOwner;
-        public Spinner: Controls.Spinner;
-        constructor(Owner: ISpinOwner, Spinner: Controls.Spinner);
+        public Spinner: Spinner;
+        constructor(Owner: ISpinOwner, Spinner: Spinner);
         public UpdateValid(increase: boolean, decrease: boolean): void;
         public Dispose(): void;
         private OnKeyDown(sender, e);
@@ -157,9 +157,9 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls.Internal {
-    interface IDomainOwner extends Fayde.UIElement {
-        Items: Internal.ObservableObjectCollection;
-        InvalidInputAction: Controls.InvalidInputAction;
+    interface IDomainOwner extends UIElement {
+        Items: ObservableObjectCollection;
+        InvalidInputAction: InvalidInputAction;
         FallbackItem: any;
         Value: any;
         CurrentIndex: number;
@@ -170,7 +170,7 @@ declare module Fayde.Controls.Internal {
         OnIsInvalidInputChanged(isInvalidInput: boolean): any;
         TryParseValue(text: string, ov: IOutValue): boolean;
         FormatValue(): string;
-        ParseError: Fayde.RoutedEvent<Controls.UpDownParseErrorEventArgs>;
+        ParseError: RoutedEvent<UpDownParseErrorEventArgs>;
     }
     interface IDomainCoercer {
         IsEditing: boolean;
@@ -180,7 +180,7 @@ declare module Fayde.Controls.Internal {
         UpdateTextBoxText(): any;
         UpdateIsEditable(): any;
         ProcessUserInput(): any;
-        Attach(textBox: Controls.TextBox): any;
+        Attach(textBox: TextBox): any;
         Detach(): any;
         EscapeFocus(): any;
     }
@@ -188,7 +188,7 @@ declare module Fayde.Controls.Internal {
         public Owner: IDomainOwner;
         public OnCoerceValue: (val: any) => void;
         public OnCoerceCurrentIndex: (val: number) => void;
-        public TextBox: Controls.TextBox;
+        public TextBox: TextBox;
         public Text: string;
         public IsCoercing: boolean;
         private _IsEditing;
@@ -197,7 +197,7 @@ declare module Fayde.Controls.Internal {
         private _IsInvalidInput;
         public IsInvalidInput : boolean;
         constructor(Owner: IDomainOwner, OnCoerceValue: (val: any) => void, OnCoerceCurrentIndex: (val: number) => void);
-        public Attach(textBox: Controls.TextBox): void;
+        public Attach(textBox: TextBox): void;
         public Detach(): void;
         private OnKeyDown(sender, e);
         public EscapeFocus(): void;
@@ -209,7 +209,7 @@ declare module Fayde.Controls.Internal {
         public UpdateTextBoxText(): void;
         public UpdateIsEditable(): void;
         public ProcessUserInput(): void;
-        public OnParseError(e: Controls.UpDownParseErrorEventArgs): void;
+        public OnParseError(e: UpDownParseErrorEventArgs): void;
         private ApplyValue(text);
     }
 }
@@ -218,16 +218,16 @@ declare module Fayde.Controls.Internal {
         public ClickCount: number;
         public LastClickTime: number;
         public LastClickPosition: Point;
-        public OnMouseLeftButtonDown(control: Controls.Control, e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonDown(control: Control, e: Input.MouseButtonEventArgs): void;
     }
 }
 declare module Fayde.Controls {
-    class Spinner extends Controls.ContentControl {
+    class Spinner extends ContentControl {
         static ValidSpinDirectionProperty: DependencyProperty;
-        public ValidSpinDirection: Controls.ValidSpinDirections;
+        public ValidSpinDirection: ValidSpinDirections;
         public OnValidSpinDirectionChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public Spin: Fayde.RoutedEvent<Controls.SpinEventArgs>;
-        public OnSpin(e: Controls.SpinEventArgs): void;
+        public Spin: RoutedEvent<SpinEventArgs>;
+        public OnSpin(e: SpinEventArgs): void;
         private _IncreaseButton;
         private _DecreaseButton;
         constructor();
@@ -239,26 +239,26 @@ declare module Fayde.Controls {
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
         public GoToStateIncrease(gotoFunc: (state: string) => boolean): boolean;
         public GoToStateDecrease(gotoFunc: (state: string) => boolean): boolean;
-        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
-        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
+        public OnMouseEnter(e: Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
+        public OnGotFocus(e: RoutedEventArgs): void;
+        public OnLostFocus(e: RoutedEventArgs): void;
     }
 }
 declare module Fayde.Controls.Primitives {
-    class MenuBase extends Controls.ItemsControl {
+    class MenuBase extends ItemsControl {
         static ItemContainerStyleProperty: DependencyProperty;
-        public ItemContainerStyle: Fayde.Style;
+        public ItemContainerStyle: Style;
         public IsItemItsOwnContainer(item: any): boolean;
-        public GetContainerForItem(): Fayde.UIElement;
-        public PrepareContainerForItem(element: Fayde.UIElement, item: any): void;
+        public GetContainerForItem(): UIElement;
+        public PrepareContainerForItem(element: UIElement, item: any): void;
         private static HasDefaultValue(control, propd);
     }
 }
 declare module Fayde.Controls {
-    class ContextMenu extends Controls.Primitives.MenuBase {
+    class ContextMenu extends Primitives.MenuBase {
         static HorizontalOffsetProperty: DependencyProperty;
         public HorizontalOffset: number;
         private OnHorizontalOffsetChanged(args);
@@ -268,14 +268,14 @@ declare module Fayde.Controls {
         static IsOpenProperty: DependencyProperty;
         public IsOpen: boolean;
         private OnIsOpenChanged(args);
-        public Opened: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
-        public Closed: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        public Opened: RoutedEvent<RoutedEventArgs>;
+        public Closed: RoutedEvent<RoutedEventArgs>;
         constructor();
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseRightButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnKeyDown(e: Input.KeyEventArgs): void;
+        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
+        public OnMouseRightButtonDown(e: Input.MouseButtonEventArgs): void;
         private _Owner;
-        public Owner : Fayde.DependencyObject;
+        public Owner : DependencyObject;
         private _MousePosition;
         private _PopupAlignmentPoint;
         private _SettingIsOpen;
@@ -291,49 +291,49 @@ declare module Fayde.Controls {
         private InitializeRootVisual();
         private UpdateContextMenuPlacement();
         private OpenPopup(position);
-        public OnOpened(e: Fayde.RoutedEventArgs): void;
+        public OnOpened(e: RoutedEventArgs): void;
         private ClosePopup();
-        public OnClosed(e: Fayde.RoutedEventArgs): void;
+        public OnClosed(e: RoutedEventArgs): void;
         private FocusNextItem(down);
     }
 }
 declare module Fayde.Controls {
     class ContextMenuService {
         static ContextMenuProperty: DependencyProperty;
-        static GetContextMenu(d: Fayde.DependencyObject): Controls.ContextMenu;
-        static SetContextMenu(d: Fayde.DependencyObject, value: Controls.ContextMenu): void;
+        static GetContextMenu(d: DependencyObject): ContextMenu;
+        static SetContextMenu(d: DependencyObject, value: ContextMenu): void;
         private static OnContextMenuPropertyChanged(d, args);
     }
 }
 declare module Fayde.Controls {
-    class UpDownBase<T> extends Controls.Control {
+    class UpDownBase<T> extends Control {
         private _IgnoreValueChange;
-        public _TextBox: Controls.TextBox;
-        public _Spinner: Controls.Spinner;
+        public _TextBox: TextBox;
+        public _Spinner: Spinner;
         private _Text;
         static SpinnerStyleProperty: DependencyProperty;
-        public SpinnerStyle: Fayde.Style;
+        public SpinnerStyle: Style;
         private OnSpinnerStyleChanged(oldStyle, newStyle);
         public Value: T;
         public _OnValueChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public OnValueChanging(e: Fayde.RoutedPropertyChangingEventArgs<T>): void;
-        public OnValueChanged(e: Fayde.RoutedPropertyChangedEventArgs<T>): void;
+        public OnValueChanging(e: RoutedPropertyChangingEventArgs<T>): void;
+        public OnValueChanged(e: RoutedPropertyChangedEventArgs<T>): void;
         static IsEditableProperty: DependencyProperty;
         public IsEditable: boolean;
         private OnIsEditableChanged(args);
-        public ValueChanging: Fayde.RoutedPropertyChangingEvent<T>;
-        public ValueChanged: Fayde.RoutedPropertyChangedEvent<T>;
-        public Parsing: Fayde.RoutedEvent<Controls.UpDownParsingEventArgs<T>>;
-        public ParseError: Fayde.RoutedEvent<Controls.UpDownParseErrorEventArgs>;
+        public ValueChanging: RoutedPropertyChangingEvent<T>;
+        public ValueChanged: RoutedPropertyChangedEvent<T>;
+        public Parsing: RoutedEvent<UpDownParsingEventArgs<T>>;
+        public ParseError: RoutedEvent<UpDownParseErrorEventArgs>;
         constructor();
         public OnApplyTemplate(): void;
         private SetTextBox(d);
         private SetSpinner(d);
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
+        public OnKeyDown(e: Input.KeyEventArgs): void;
+        public OnMouseWheel(e: Input.MouseWheelEventArgs): void;
         public ApplyValue(text: string): void;
-        public OnParseError(e: Controls.UpDownParseErrorEventArgs): void;
-        public OnParsing(e: Controls.UpDownParsingEventArgs<T>): void;
+        public OnParseError(e: UpDownParseErrorEventArgs): void;
+        public OnParsing(e: UpDownParsingEventArgs<T>): void;
         public ParseValue(text: string): T;
         public FormatValue(): string;
         public SelectAllText(): void;
@@ -341,7 +341,7 @@ declare module Fayde.Controls {
         private TextBox_LostFocus(sender, e);
         private TextBox_GotFocus(sender, e);
         private Spinner_Spin(sender, e);
-        public OnSpin(e: Controls.SpinEventArgs): void;
+        public OnSpin(e: SpinEventArgs): void;
         private ProcessUserInput();
         private DoDecrement();
         public OnDecrement(): void;
@@ -350,7 +350,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class DomainUpDown extends Controls.Control {
+    class DomainUpDown extends Control {
         static ValueProperty: DependencyProperty;
         static IsEditableProperty: DependencyProperty;
         static SpinnerStyleProperty: DependencyProperty;
@@ -362,36 +362,36 @@ declare module Fayde.Controls {
         static ItemTemplateProperty: DependencyProperty;
         public Value: any;
         public IsEditable: boolean;
-        public SpinnerStyle: Fayde.Style;
+        public SpinnerStyle: Style;
         public CurrentIndex: number;
         public IsCyclic: boolean;
-        public InvalidInputAction: Controls.InvalidInputAction;
+        public InvalidInputAction: InvalidInputAction;
         public FallbackItem: any;
-        public ItemsSource: Fayde.IEnumerable<any>;
-        public ItemTemplate: Fayde.DataTemplate;
-        public Items: Controls.Internal.ObservableObjectCollection;
+        public ItemsSource: IEnumerable<any>;
+        public ItemTemplate: DataTemplate;
+        public Items: Internal.ObservableObjectCollection;
         public OnValueChanged(oldItem: any, newItem: any): void;
         public OnCurrentIndexChanged(oldIndex: number, newIndex: number): void;
         private _OnIsCyclicChanged(args);
         private _OnItemsSourceChanged(oldItemsSource, newItemsSource);
         private _ItemsSourceModified(sender, e);
         private _OnItemsChanged(sender, e);
-        public ValueChanging: Fayde.RoutedPropertyChangingEvent<number>;
-        public ParseError: Fayde.RoutedEvent<Controls.UpDownParseErrorEventArgs>;
+        public ValueChanging: RoutedPropertyChangingEvent<number>;
+        public ParseError: RoutedEvent<UpDownParseErrorEventArgs>;
         public ValueMemberPath : string;
         private _ValueBindingEvaluator;
-        public ValueMemberBinding : Fayde.Data.Binding;
+        public ValueMemberBinding : Data.Binding;
         private _Coercer;
         private _SpinFlow;
         private _CanEditByFocus;
         constructor();
         public OnApplyTemplate(): void;
-        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
-        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnGotFocus(e: RoutedEventArgs): void;
+        public OnLostFocus(e: RoutedEventArgs): void;
+        public OnMouseEnter(e: Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
         public GoToStates(gotoFunc: (state: string) => boolean): void;
         public GoToStateEditing(gotoFunc: (state: string) => boolean): boolean;
         public GoToStateValid(gotoFunc: (state: string) => boolean): boolean;
@@ -428,19 +428,19 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls.Internal {
-    class BindingSourceEvaluator<T> extends Fayde.FrameworkElement {
+    class BindingSourceEvaluator<T> extends FrameworkElement {
         static ValueProperty: DependencyProperty;
         public Value: T;
         private _ValueBinding;
-        public ValueBinding : Fayde.Data.Binding;
-        constructor(binding: Fayde.Data.Binding);
+        public ValueBinding : Data.Binding;
+        constructor(binding: Data.Binding);
         public GetDynamicValue(source: any): T;
     }
 }
 declare module Fayde.Controls.Internal {
-    class ObservableObjectCollection extends Fayde.Collections.ObservableCollection<any> {
+    class ObservableObjectCollection extends Collections.ObservableCollection<any> {
         public IsReadOnly: boolean;
-        constructor(collection?: Fayde.IEnumerable<any>);
+        constructor(collection?: IEnumerable<any>);
         public Add(value: any): void;
         public AddRange(values: any[]): void;
         public Insert(item: any, index: number): void;
@@ -450,11 +450,11 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls {
-    class MenuItem extends Controls.HeaderedItemsControl {
-        public ParentMenuBase: Controls.Primitives.MenuBase;
-        public Click: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+    class MenuItem extends HeaderedItemsControl {
+        public ParentMenuBase: Primitives.MenuBase;
+        public Click: RoutedEvent<RoutedEventArgs>;
         static CommandProperty: DependencyProperty;
-        public Command: Fayde.Input.ICommand;
+        public Command: Input.ICommand;
         private OnCommandChanged(args);
         private _CanExecuteChanged(sender, e);
         static CommandParameterProperty: DependencyProperty;
@@ -465,19 +465,19 @@ declare module Fayde.Controls {
         constructor();
         public OnApplyTemplate(): void;
         private UpdateIsEnabled();
-        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
-        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseRightButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public OnGotFocus(e: RoutedEventArgs): void;
+        public OnLostFocus(e: RoutedEventArgs): void;
+        public OnMouseEnter(e: Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
+        public OnMouseRightButtonDown(e: Input.MouseButtonEventArgs): void;
+        public OnKeyDown(e: Input.KeyEventArgs): void;
         private OnClick();
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
     }
 }
 declare module Fayde.Controls {
-    class NumericUpDown extends Controls.Control {
+    class NumericUpDown extends Control {
         static MinimumProperty: DependencyProperty;
         static MaximumProperty: DependencyProperty;
         static ValueProperty: DependencyProperty;
@@ -490,15 +490,15 @@ declare module Fayde.Controls {
         public Value: number;
         public Increment: number;
         public DecimalPlaces: number;
-        public SpinnerStyle: Fayde.Style;
+        public SpinnerStyle: Style;
         public IsEditable: boolean;
         public OnMinimumChanged(oldMinimum: number, newMinimum: number): void;
         public OnMaximumChanged(oldMaximum: number, newMaximum: number): void;
         public OnValueChanged(oldValue: number, newValue: number): void;
         public OnIncrementChanged(oldIncrement: number, newIncrement: number): void;
         public OnDecimalPlacesChanged(oldDecimalPlaces: number, newDecimalPlaces: number): void;
-        public Parsing: Fayde.RoutedEvent<Controls.UpDownParsingEventArgs<number>>;
-        public ParseError: Fayde.RoutedEvent<Controls.UpDownParseErrorEventArgs>;
+        public Parsing: RoutedEvent<UpDownParsingEventArgs<number>>;
+        public ParseError: RoutedEvent<UpDownParseErrorEventArgs>;
         private _Coercer;
         private _Formatter;
         private _SpinFlow;
@@ -513,18 +513,18 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class Separator extends Controls.Control {
+    class Separator extends Control {
         constructor();
     }
 }
 declare module Fayde.Controls {
-    class SpinEventArgs extends Fayde.RoutedEventArgs {
-        public Direction: Controls.SpinDirection;
-        constructor(direction: Controls.SpinDirection);
+    class SpinEventArgs extends RoutedEventArgs {
+        public Direction: SpinDirection;
+        constructor(direction: SpinDirection);
     }
 }
 declare module Fayde.Controls {
-    class UpDownParseErrorEventArgs extends Fayde.RoutedEventArgs {
+    class UpDownParseErrorEventArgs extends RoutedEventArgs {
         public Text: string;
         public Error: Error;
         public Handled: boolean;
@@ -532,7 +532,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class UpDownParsingEventArgs<T> extends Fayde.RoutedEventArgs {
+    class UpDownParsingEventArgs<T> extends RoutedEventArgs {
         public Text: string;
         public Value: T;
         public Handled: boolean;
@@ -543,34 +543,34 @@ declare module Fayde.Controls.Internal {
     class ItemsControlHelper {
         private _itemsHost;
         private _scrollHost;
-        public ItemsControl: Controls.ItemsControl;
-        public ItemsHost : Controls.Panel;
-        public ScrollHost : Controls.ScrollViewer;
-        constructor(control: Controls.ItemsControl);
+        public ItemsControl: ItemsControl;
+        public ItemsHost : Panel;
+        public ScrollHost : ScrollViewer;
+        constructor(control: ItemsControl);
         public OnApplyTemplate(): void;
-        static PrepareContainerForItemOverride(element: Fayde.DependencyObject, parentItemContainerStyle: Fayde.Style): void;
-        public UpdateItemContainerStyle(itemContainerStyle: Fayde.Style): void;
-        public ScrollIntoView(element: Fayde.FrameworkElement): void;
+        static PrepareContainerForItemOverride(element: DependencyObject, parentItemContainerStyle: Style): void;
+        public UpdateItemContainerStyle(itemContainerStyle: Style): void;
+        public ScrollIntoView(element: FrameworkElement): void;
     }
 }
 declare module Fayde.Controls.Internal {
     class ScrollEx {
-        static HandleKey(sv: Controls.ScrollViewer, key: Fayde.Input.Key, flowDirection: Fayde.FlowDirection): boolean;
-        static LineUp(viewer: Controls.ScrollViewer): void;
-        static LineDown(viewer: Controls.ScrollViewer): void;
-        static LineLeft(viewer: Controls.ScrollViewer): void;
-        static LineRight(viewer: Controls.ScrollViewer): void;
-        static PageUp(viewer: Controls.ScrollViewer): void;
-        static PageDown(viewer: Controls.ScrollViewer): void;
-        static PageLeft(viewer: Controls.ScrollViewer): void;
-        static PageRight(viewer: Controls.ScrollViewer): void;
-        static ScrollToTop(viewer: Controls.ScrollViewer): void;
-        static ScrollToBottom(viewer: Controls.ScrollViewer): void;
-        static GetTopAndBottom(element: Fayde.FrameworkElement, parent: Fayde.FrameworkElement, top: IOutValue, bottom: IOutValue): void;
+        static HandleKey(sv: ScrollViewer, key: Input.Key, flowDirection: FlowDirection): boolean;
+        static LineUp(viewer: ScrollViewer): void;
+        static LineDown(viewer: ScrollViewer): void;
+        static LineLeft(viewer: ScrollViewer): void;
+        static LineRight(viewer: ScrollViewer): void;
+        static PageUp(viewer: ScrollViewer): void;
+        static PageDown(viewer: ScrollViewer): void;
+        static PageLeft(viewer: ScrollViewer): void;
+        static PageRight(viewer: ScrollViewer): void;
+        static ScrollToTop(viewer: ScrollViewer): void;
+        static ScrollToBottom(viewer: ScrollViewer): void;
+        static GetTopAndBottom(element: FrameworkElement, parent: FrameworkElement, top: IOutValue, bottom: IOutValue): void;
     }
 }
 declare module Fayde.Controls {
-    class TreeViewItem extends Controls.HeaderedItemsControl {
+    class TreeViewItem extends HeaderedItemsControl {
         static HasItemsProperty: DependencyProperty;
         static IsExpandedProperty: DependencyProperty;
         static IsSelectedProperty: DependencyProperty;
@@ -585,10 +585,10 @@ declare module Fayde.Controls {
         private OnIsExpandedPropertyChanged(e);
         private OnIsSelectedChanged(e);
         private OnIsSelectionActiveChanged(e);
-        public Collapsed: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
-        public Expanded: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
-        public Selected: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
-        public Unselected: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
+        public Collapsed: RoutedEvent<RoutedEventArgs>;
+        public Expanded: RoutedEvent<RoutedEventArgs>;
+        public Selected: RoutedEvent<RoutedEventArgs>;
+        public Unselected: RoutedEvent<RoutedEventArgs>;
         private _AllowWrite;
         public IgnorePropertyChange: boolean;
         private ContainsSelection;
@@ -598,11 +598,11 @@ declare module Fayde.Controls {
         private _expanderButton;
         private ExpanderButton;
         private _headerElement;
-        public HeaderElement : Fayde.FrameworkElement;
+        public HeaderElement : FrameworkElement;
         private _expansionStateGroup;
         private ExpansionStateGroup;
         private _parentItemsControl;
-        public ParentItemsControl : Controls.ItemsControl;
+        public ParentItemsControl : ItemsControl;
         private ParentTreeViewItem;
         private ParentTreeView;
         private IsRoot;
@@ -618,32 +618,32 @@ declare module Fayde.Controls {
         public GoToStateExpansion(gotoFunc: (state: string) => boolean): boolean;
         public GoToStateHasItems(gotoFunc: (state: string) => boolean): boolean;
         public GoToStateSelection(gotoFunc: (state: string) => boolean): boolean;
-        public GetContainerForItem(): Fayde.UIElement;
+        public GetContainerForItem(): UIElement;
         public IsItemItsOwnContainer(item: any): boolean;
-        public PrepareContainerForItem(element: Fayde.UIElement, item: any): void;
-        public ClearContainerForItem(element: Fayde.UIElement, item: any): void;
-        public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
-        public OnExpanded(e: Fayde.RoutedEventArgs): void;
-        public OnCollapsed(e: Fayde.RoutedEventArgs): void;
+        public PrepareContainerForItem(element: UIElement, item: any): void;
+        public ClearContainerForItem(element: UIElement, item: any): void;
+        public OnItemsChanged(e: Collections.CollectionChangedEventArgs): void;
+        public OnExpanded(e: RoutedEventArgs): void;
+        public OnCollapsed(e: RoutedEventArgs): void;
         private ToggleExpanded();
-        public OnSelected(e: Fayde.RoutedEventArgs): void;
-        public OnUnselected(e: Fayde.RoutedEventArgs): void;
-        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
-        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
+        public OnSelected(e: RoutedEventArgs): void;
+        public OnUnselected(e: RoutedEventArgs): void;
+        public OnGotFocus(e: RoutedEventArgs): void;
+        public OnLostFocus(e: RoutedEventArgs): void;
         private OnExpanderGotFocus(sender, e);
-        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
+        public OnMouseEnter(e: Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Input.MouseEventArgs): void;
         private OnHeaderMouseLeftButtonDown(sender, e);
         private OnExpanderClick(sender, e);
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
         public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public OnKeyDown(e: Input.KeyEventArgs): void;
         public HandleRightKey(): boolean;
         public HandleLeftKey(): boolean;
         public HandleDownKey(): boolean;
         public HandleUpKey(): boolean;
-        public HandleScrollByPage(up: boolean, scrollHost: Controls.ScrollViewer, viewportHeight: number, top: number, bottom: number, currentDelta: IOutValue): boolean;
+        public HandleScrollByPage(up: boolean, scrollHost: ScrollViewer, viewportHeight: number, top: number, bottom: number, currentDelta: IOutValue): boolean;
         private Select(selected);
         public UpdateContainsSelection(selected: boolean): void;
         private AllowKeyHandleEvent();
@@ -655,7 +655,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class TreeView extends Controls.ItemsControl {
+    class TreeView extends ItemsControl {
         static SelectedItemProperty: DependencyProperty;
         static SelectedValueProperty: DependencyProperty;
         static SelectedValuePathProperty: DependencyProperty;
@@ -663,38 +663,38 @@ declare module Fayde.Controls {
         public SelectedItem: any;
         public SelectedValue: any;
         public SelectedValuePath: string;
-        public ItemContainerStyle: Fayde.Style;
+        public ItemContainerStyle: Style;
         private OnSelectedItemChanged(e);
         private OnSelectedValueChanged(e);
         private OnSelectedValuePathChanged(e);
         private OnItemContainerStyleChanged(e);
         private _AllowWrite;
         private _IgnorePropertyChange;
-        public SelectedContainer: Controls.TreeViewItem;
+        public SelectedContainer: TreeViewItem;
         public IsSelectedContainerHookedUp: boolean;
         public IsSelectionChangeActive: boolean;
-        public ItemsControlHelper: Controls.Internal.ItemsControlHelper;
+        public ItemsControlHelper: Internal.ItemsControlHelper;
         private SelectedItemChanged;
         constructor();
         public OnApplyTemplate(): void;
-        public GetContainerForItem(): Fayde.UIElement;
+        public GetContainerForItem(): UIElement;
         public IsItemItsOwnContainer(item: any): boolean;
-        public PrepareContainerForItem(element: Fayde.UIElement, item: any): void;
-        public ClearContainerForItem(element: Fayde.UIElement, item: any): void;
-        public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
-        public CheckForSelectedDescendents(item: Controls.TreeViewItem): void;
-        public PropagateKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public PrepareContainerForItem(element: UIElement, item: any): void;
+        public ClearContainerForItem(element: UIElement, item: any): void;
+        public OnItemsChanged(e: Collections.CollectionChangedEventArgs): void;
+        public CheckForSelectedDescendents(item: TreeViewItem): void;
+        public PropagateKeyDown(e: Input.KeyEventArgs): void;
+        public OnKeyDown(e: Input.KeyEventArgs): void;
         private HandleScrollByPage(up);
-        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
+        public OnMouseEnter(e: Input.MouseEventArgs): void;
+        public OnMouseLeave(e: Input.MouseEventArgs): void;
+        public OnMouseMove(e: Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
         public HandleMouseButtonDown(): boolean;
-        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
-        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        public ChangeSelection(itemOrContainer: any, container: Controls.TreeViewItem, selected: boolean): void;
+        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
+        public OnGotFocus(e: RoutedEventArgs): void;
+        public OnLostFocus(e: RoutedEventArgs): void;
+        public ChangeSelection(itemOrContainer: any, container: TreeViewItem, selected: boolean): void;
         private UpdateSelectedValue(item);
         private SelectFirstItem();
         private FocusFirstItem();
@@ -702,7 +702,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class TabPanel extends Controls.Panel {
+    class TabPanel extends Panel {
         private _NumberOfRows;
         private _RowHeight;
         private TabAlignment;
@@ -716,7 +716,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class TabControl extends Controls.ItemsControl {
+    class TabControl extends ItemsControl {
         static SelectedItemProperty: DependencyProperty;
         static SelectedIndexProperty: DependencyProperty;
         static SelectedContentProperty: DependencyProperty;
@@ -724,8 +724,8 @@ declare module Fayde.Controls {
         public SelectedItem: any;
         public SelectedIndex: number;
         public SelectedContent: any;
-        public TabStripPlacement: Controls.Dock;
-        public SelectionChanged: Fayde.RoutedEvent<Controls.Primitives.SelectionChangedEventArgs>;
+        public TabStripPlacement: Dock;
+        public SelectionChanged: RoutedEvent<Primitives.SelectionChangedEventArgs>;
         private _ElementTemplateTop;
         private _ElementTemplateBottom;
         private _ElementTemplateLeft;
@@ -746,12 +746,12 @@ declare module Fayde.Controls {
         private OnSelectedIndexChanged(args);
         private OnSelectedContentChanged(args);
         private OnTabStripPlacementPropertyChanged(args);
-        public OnItemsChanged(e: Fayde.Collections.NotifyCollectionChangedEventArgs): void;
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
+        public OnItemsChanged(e: Collections.CollectionChangedEventArgs): void;
+        public OnKeyDown(e: Input.KeyEventArgs): void;
         private _FindEndTabItem();
         private _FindHomeTabItem();
         private SelectItem(oldItem, newItem);
-        public OnSelectionChanged(e: Controls.Primitives.SelectionChangedEventArgs): void;
+        public OnSelectionChanged(e: Primitives.SelectionChangedEventArgs): void;
         private UpdateTabPanelLayout(oldValue, newValue);
         private UpdateSelectedContent(content);
         private EnsureLanguageBinding(tabItem);
@@ -768,7 +768,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class TabItem extends Controls.ContentControl {
+    class TabItem extends ContentControl {
         static HasHeaderProperty: DependencyProperty;
         static HeaderProperty: DependencyProperty;
         static HeaderTemplateProperty: DependencyProperty;
@@ -776,35 +776,48 @@ declare module Fayde.Controls {
         static IsSelectedProperty: DependencyProperty;
         public HasHeader: boolean;
         public Header: any;
-        public HeaderTemplate: Fayde.DataTemplate;
+        public HeaderTemplate: DataTemplate;
         public IsFocused: boolean;
         public IsSelected: boolean;
         private _SelectedElements;
         private _UnselectedElements;
         private _PreviousTemplate;
         private _PreviousHeader;
-        public TabStripPlacement : Controls.Dock;
+        public TabStripPlacement : Dock;
         private TabControlParent;
         constructor();
         public OnApplyTemplate(): void;
         private _OnHeaderChanged(args);
         public OnHeaderChanged(oldValue: any, newValue: any): void;
-        public OnHeaderTemplateChanged(oldHeaderTemplate: Fayde.DataTemplate, newHeaderTemplate: Fayde.DataTemplate): void;
+        public OnHeaderTemplateChanged(oldHeaderTemplate: DataTemplate, newHeaderTemplate: DataTemplate): void;
         private _OnIsSelectedChanged(args);
-        public OnSelected(e: Fayde.RoutedEventArgs): void;
-        public OnUnselected(e: Fayde.RoutedEventArgs): void;
+        public OnSelected(e: RoutedEventArgs): void;
+        public OnUnselected(e: RoutedEventArgs): void;
         public UpdateVisualState(useTransitions?: boolean): void;
         private _UpdateHeaderVisuals();
-        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnGotFocus(e: Fayde.RoutedEventArgs): void;
-        public OnLostFocus(e: Fayde.RoutedEventArgs): void;
+        public OnMouseLeave(e: Input.MouseEventArgs): void;
+        public OnMouseEnter(e: Input.MouseEventArgs): void;
+        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
+        public OnGotFocus(e: RoutedEventArgs): void;
+        public OnLostFocus(e: RoutedEventArgs): void;
         public OnContentChanged(oldContent: any, newContent: any): void;
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        public GetTemplate(isSelected: boolean, tabPlacement: Controls.Dock): Fayde.FrameworkElement;
+        public OnKeyDown(e: Input.KeyEventArgs): void;
+        public GetTemplate(isSelected: boolean, tabPlacement: Dock): FrameworkElement;
         private _GetContentControl(isSelected, tabPlacement);
         private _FindPreviousTabItem(startIndex);
         private _FindNextTabItem(startIndex);
+    }
+}
+declare module Fayde.Controls {
+    class WrapPanel extends Panel {
+        static OrientationProperty: DependencyProperty;
+        public Orientation: Orientation;
+        static ItemWidthProperty: DependencyProperty;
+        public ItemWidth: number;
+        static ItemHeightProperty: DependencyProperty;
+        public ItemHeight: number;
+        private OnPropertyChange();
+        public MeasureOverride(availableSize: size): size;
+        public ArrangeOverride(finalSize: size): size;
     }
 }
