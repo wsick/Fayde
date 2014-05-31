@@ -29974,6 +29974,40 @@ var DateTime = (function () {
         return new DateTime(this.Ticks + value.Ticks);
     };
 
+    DateTime.prototype.AddYears = function (value) {
+        if (value < -10000 || value > 10000)
+            throw new ArgumentOutOfRangeException("Invalid number of years.");
+        return this.AddMonths(value * 12);
+    };
+    DateTime.prototype.AddMonths = function (value) {
+        var dte = new Date(this.Ticks);
+        var ticks = dte.setMonth(dte.getMonth() + value);
+        if (isNaN(ticks))
+            throw new ArgumentOutOfRangeException("Date out of range.");
+        return new DateTime(ticks);
+    };
+    DateTime.prototype.AddDays = function (value) {
+        return this.AddTicks(value * TimeSpan._TicksPerDay);
+    };
+    DateTime.prototype.AddHours = function (value) {
+        return this.AddTicks(value * TimeSpan._TicksPerHour);
+    };
+    DateTime.prototype.AddMinutes = function (value) {
+        return this.AddTicks(value * TimeSpan._TicksPerMinute);
+    };
+    DateTime.prototype.AddSeconds = function (value) {
+        return this.AddTicks(value * TimeSpan._TicksPerSecond);
+    };
+    DateTime.prototype.AddMilliseconds = function (value) {
+        return this.AddTicks(value * TimeSpan._TicksPerMillisecond);
+    };
+    DateTime.prototype.AddTicks = function (value) {
+        var ticks = this.Ticks + value;
+        if (DateTime._MinDateTicks > ticks || DateTime._MaxDateTicks < ticks)
+            throw new ArgumentOutOfRangeException("Date out of range.");
+        return new DateTime(ticks);
+    };
+
     DateTime.prototype.Subtract = function (value) {
         if (value instanceof DateTime) {
             return new TimeSpan(this.Ticks - value.Ticks);
@@ -29996,6 +30030,7 @@ var DateTime = (function () {
         return Fayde.Localization.FormatSingle(this, format);
     };
     DateTime._MinDateTicks = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
+    DateTime._MaxDateTicks = 8640000000000000;
     return DateTime;
 })();
 Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
@@ -39016,4 +39051,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.42";
+Fayde.Version = "0.9.8.43";
