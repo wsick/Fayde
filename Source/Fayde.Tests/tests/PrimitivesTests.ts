@@ -179,6 +179,10 @@ export function run() {
         var d2 = d1.Date;
         strictEqual(d1.Kind, d2.Kind);
         ok(!isNaN(d2.Ticks));
+
+        d = new DateTime(2014, 2, 3);
+        d = d.AddMonths(5);
+        strictEqual(DateTime.Compare(d, new DateTime(2014, 7, 3)), 0);
     });
 
     test("Vector", () => {

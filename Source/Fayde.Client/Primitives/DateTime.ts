@@ -21,6 +21,7 @@ Fayde.RegisterEnum(DateTimeKind, "DateTimeKind", Fayde.XMLNS);
 
 class DateTime {
     private static _MinDateTicks: number = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
+    private static _MaxDateTicks: number = 8640000000000000;
 
     static get MinValue() { return new DateTime(-8640000000000000); }
     static get MaxValue() { return new DateTime(8640000000000000); }
@@ -152,6 +153,40 @@ class DateTime {
 
     Add(value: TimeSpan): DateTime {
         return new DateTime(this.Ticks + value.Ticks);
+    }
+
+    AddYears(value: number): DateTime {
+        if (value < -10000 || value > 10000)
+            throw new ArgumentOutOfRangeException("Invalid number of years.");
+        return this.AddMonths(value * 12);
+    }
+    AddMonths(value: number) {
+        var dte = new Date(this.Ticks);
+        var ticks = dte.setMonth(dte.getMonth() + value);
+        if (isNaN(ticks))
+            throw new ArgumentOutOfRangeException("Date out of range.");
+        return new DateTime(ticks);
+    }
+    AddDays(value: number): DateTime {
+        return this.AddTicks(value * TimeSpan._TicksPerDay);
+    }
+    AddHours(value: number): DateTime {
+        return this.AddTicks(value * TimeSpan._TicksPerHour);
+    }
+    AddMinutes(value: number): DateTime {
+        return this.AddTicks(value * TimeSpan._TicksPerMinute);
+    }
+    AddSeconds(value: number): DateTime {
+        return this.AddTicks(value * TimeSpan._TicksPerSecond);
+    }
+    AddMilliseconds(value: number): DateTime {
+        return this.AddTicks(value * TimeSpan._TicksPerMillisecond);
+    }
+    AddTicks(value: number): DateTime {
+        var ticks = this.Ticks + value;
+        if (DateTime._MinDateTicks > ticks || DateTime._MaxDateTicks < ticks)
+            throw new ArgumentOutOfRangeException("Date out of range.");
+        return new DateTime(ticks);
     }
 
     Subtract(value: DateTime): TimeSpan;
