@@ -5369,6 +5369,7 @@ declare enum DateTimeKind {
 }
 declare class DateTime {
     private static _MinDateTicks;
+    private static _MaxDateTicks;
     static MinValue : DateTime;
     static MaxValue : DateTime;
     static Now : DateTime;
@@ -5397,6 +5398,14 @@ declare class DateTime {
     public TimeOfDay : TimeSpan;
     public Year : number;
     public Add(value: TimeSpan): DateTime;
+    public AddYears(value: number): DateTime;
+    public AddMonths(value: number): DateTime;
+    public AddDays(value: number): DateTime;
+    public AddHours(value: number): DateTime;
+    public AddMinutes(value: number): DateTime;
+    public AddSeconds(value: number): DateTime;
+    public AddMilliseconds(value: number): DateTime;
+    public AddTicks(value: number): DateTime;
     public Subtract(value: DateTime): TimeSpan;
     public Subtract(value: TimeSpan): DateTime;
     public ToUniversalTime(): DateTime;

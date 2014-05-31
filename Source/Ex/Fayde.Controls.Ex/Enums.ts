@@ -26,4 +26,10 @@ module Fayde.Controls {
         Bottom
     }
     Fayde.RegisterEnum(Dock, "Dock");
+
+    export enum DatePickerFormat {
+        Long,
+        Short,
+    }
+    Fayde.RegisterEnum(DatePickerFormat, "DatePickerFormat");
 }
