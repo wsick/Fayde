@@ -121,7 +121,8 @@ module Fayde.Controls {
             (<UINode>xn).LayoutUpdater.Invalidate();
         if (xn.IsAttached) {
             var panelNode = <PanelNode>(<UINode>xn).VisualParentNode;
-            panelNode._InvalidateChildrenZIndices();
+            if (panelNode instanceof PanelNode)
+                panelNode._InvalidateChildrenZIndices();
         }
     }
     export class Panel extends FrameworkElement {
