@@ -80,3 +80,4 @@ Source/Fayde.Tests/tests/FormatTests.js
 Source/Fayde.TestSite/Tests/Format/TestViewModel.js
 Source/Fayde.Tests/mocks/TestObservable.js
 Source/Fayde.Tests/tests/DeepObservableCollectionTests.js
+Source/Ex/Fayde.Controls.Ex/Fayde.Controls.Ex.d.ts
