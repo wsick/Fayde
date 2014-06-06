@@ -32,19 +32,4 @@ module Fayde.Controls {
         Short,
     }
     Fayde.RegisterEnum(DatePickerFormat, "DatePickerFormat");
-
-    export enum CalendarMode {
-        Month,
-        Year,
-        Decade,
-    }
-    Fayde.RegisterEnum(CalendarMode, "CalendarMode");
-
-    export enum CalendarSelectionMode {
-        SingleDate,
-        SingleRange,
-        MultipleRange,
-        None
-    }
-    Fayde.RegisterEnum(CalendarSelectionMode, "CalendarSelectionMode");
 }
