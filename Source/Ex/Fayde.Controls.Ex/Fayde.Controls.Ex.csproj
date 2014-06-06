@@ -66,15 +66,7 @@
     <TypeScriptCompile Include="Internal\DomainCoercer.ts" />
     <TypeScriptCompile Include="Internal\MultiClickHelper.ts" />
     <TypeScriptCompile Include="DatePicker.ts" />
-    <TypeScriptCompile Include="DatePickerDateValidationErrorEventArgs.ts" />
-    <TypeScriptCompile Include="Calendar\CalendarDateRange.ts" />
-    <TypeScriptCompile Include="Calendar\CalendarBlackoutDatesCollection.ts" />
-    <TypeScriptCompile Include="Calendar\Calendar.ts" />
-    <TypeScriptCompile Include="Calendar\CalendarItem.ts" />
-    <TypeScriptCompile Include="Calendar\CalendarDayButton.ts" />
-    <TypeScriptCompile Include="Calendar\CalendarButton.ts" />
-    <TypeScriptCompile Include="Calendar\CalendarModeChangedEventArgs.ts" />
-    <TypeScriptCompile Include="Calendar\CalendarDateChangedEventArgs.ts" />
+    <TypeScriptCompile Include="Internal\SelectionHandler.ts" />
     <Content Include="Themes\awaiting-generic.xml" />
     <TypeScriptCompile Include="Spinner.ts" />
     <TypeScriptCompile Include="ContextMenu.ts" />

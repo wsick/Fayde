@@ -1,49 +1,125 @@
 ﻿module Fayde.Controls {
     export class DatePicker extends Control {
-        static CalendarStyleProperty = DependencyProperty.Register("CalendarStyle", () => Style, DatePicker);
-        static DisplayDateProperty = DependencyProperty.Register("DisplayDate", () => DateTime, DatePicker);
-        static DisplayDateStartProperty = DependencyProperty.Register("DisplayDateStart", () => DateTime, DatePicker);
-        static DisplayDateEndProperty = DependencyProperty.Register("DisplayDateEnd", () => DateTime, DatePicker);
-        static FirstDayOfWeekProperty = DependencyProperty.Register("FirstDayOfWeek", () => new Enum(DayOfWeek), DatePicker);
-        static IsDropDownOpenProperty = DependencyProperty.Register("IsDropDownOpen", () => Boolean, DatePicker);
-        static IsTodayHighlightedProperty = DependencyProperty.Register("IsTodayHighlighted", () => Boolean, DatePicker);
-        static SelectedDateProperty = DependencyProperty.Register("SelectedDate", () => DateTime, DatePicker);
-        static SelectedDateFormatProperty = DependencyProperty.Register("SelectedDateFormat", () => new Enum(DatePickerFormat), DatePicker, DatePickerFormat.Short);
-        static SelectionBackgroundProperty = DependencyProperty.Register("SelectionBackground", () => Media.Brush, DatePicker);
-        static TextProperty = DependencyProperty.Register("Text", () => String, DatePicker, "");
-        CalendarStyle: Style;
-        DisplayDate: DateTime;
-        DisplayDateStart: DateTime;
-        DisplayDateEnd: DateTime;
-        FirstDayOfWeek: DayOfWeek;
-        IsDropDownOpen: boolean;
-        IsTodayHighlighted: boolean;
+        static SelectedMonthProperty = DependencyProperty.Register("SelectedMonth", () => Number, DatePicker, NaN, (d, args) => (<DatePicker>d).OnSelectedMonthChanged(args));
+        static SelectedDayProperty = DependencyProperty.Register("SelectedDay", () => Number, DatePicker, NaN, (d, args) => (<DatePicker>d).OnSelectedDayChanged(args));
+        static SelectedYearProperty = DependencyProperty.Register("SelectedYear", () => Number, DatePicker, NaN, (d, args) => (<DatePicker>d).OnSelectedYearChanged(args));
+        static SelectedDateProperty = DependencyProperty.Register("SelectedDate", () => DateTime, DatePicker, undefined, (d, args) => (<DatePicker>d).OnSelectedDateChanged(args));
+        SelectedMonth: number;
+        SelectedDay: number;
+        SelectedYear: number;
         SelectedDate: DateTime;
-        SelectedDateFormat: DatePickerFormat;
-        SelectionBackground: Media.Brush;
-        Text: string;
-        
-        CalendarOpened = new RoutedEvent<RoutedEventArgs>();
-        CalendarClosed = new RoutedEvent<RoutedEventArgs>();
-        DateValidationError = new MulticastEvent<DatePickerDateValidationErrorEventArgs>();
-        SelectedDateChanged = new MulticastEvent<Primitives.SelectionChangedEventArgs>();
 
-        private _Calendar: Calendar = null;
-        get BlackoutDates(): CalendarBlackoutDatesCollection { return this._Calendar.BlackoutDates; }
+        private OnSelectedMonthChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.CoerceMonth(args.NewValue);
+            this.CoerceDate();
+        }
+        private OnSelectedDayChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.CoerceDay(args.NewValue);
+            this.CoerceDate();
+        }
+        private OnSelectedYearChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.CoerceYear(args.NewValue);
+            this.CoerceDate();
+        }
+        private OnSelectedDateChanged(args: IDependencyPropertyChangedEventArgs) {
+            var dt = <DateTime>args.NewValue;
+            if (dt instanceof DateTime) {
+                this.CoerceMonth(dt.Month);
+                this.CoerceDay(dt.Day);
+                this.CoerceYear(dt.Year);
+            } else {
+                this.CoerceMonth(NaN);
+                this.CoerceDay(NaN);
+                this.CoerceYear(NaN);
+            }
+        }
+
+        private _MonthTextBox: TextBox = null;
+        private _DayTextBox: TextBox = null;
+        private _YearTextBox: TextBox = null;
+        
+        private _SelectionHandler: Internal.SelectionHandler = null;
 
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
-            this.DisplayDate = DateTime.Today;
         }
 
-        //TODO: Implement
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            
+            if (this._MonthTextBox)
+                this._MonthTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+            this._MonthTextBox = <TextBox>this.GetTemplateChild("MonthTextBox", TextBox);
+            if (this._MonthTextBox)
+                this._MonthTextBox.LostFocus.Subscribe(this._LostFocus, this);
+            
+            if (this._DayTextBox)
+                this._DayTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+            this._DayTextBox = <TextBox>this.GetTemplateChild("DayTextBox", TextBox);
+            if (this._DayTextBox)
+                this._DayTextBox.LostFocus.Subscribe(this._LostFocus, this);
+            
+            if (this._YearTextBox)
+                this._YearTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+            this._YearTextBox = <TextBox>this.GetTemplateChild("YearTextBox", TextBox);
+            if (this._YearTextBox)
+                this._YearTextBox.LostFocus.Subscribe(this._LostFocus, this);
+
+            var boxes = [this._MonthTextBox, this._DayTextBox, this._YearTextBox];
+            if (this._SelectionHandler)
+                this._SelectionHandler.Dispose();
+            this._SelectionHandler = new Internal.SelectionHandler(boxes);
+        }
+
+        private _LostFocus(sender: any, e: RoutedEventArgs) {
+            if (sender === this._MonthTextBox) {
+                this.CoerceMonth(parseFloat(this._MonthTextBox.Text));
+            } else if (sender === this._DayTextBox) {
+                this.CoerceDay(parseFloat(this._DayTextBox.Text));
+            } else if (sender === this._YearTextBox) {
+                this.CoerceYear(parseFloat(this._YearTextBox.Text));
+            }
+        }
+
+        private CoerceMonth(month: any) {
+            month = Math.max(1, Math.min(12, month));
+            if (!isNaN(month) || !isNaN(this.SelectedMonth))
+                this.SetCurrentValue(DatePicker.SelectedMonthProperty, month);
+            this._UpdateText();
+        }
+        private CoerceDay(day: any) {
+            day = Math.max(1, Math.min(31, parseFloat(day)));
+            if (!isNaN(day) || !isNaN(this.SelectedDay))
+                this.SetCurrentValue(DatePicker.SelectedDayProperty, day);
+            this._UpdateText();
+        }
+        private CoerceYear(year: any) {
+            var maxYear = DateTime.MaxValue.Year - 1;
+            year = Math.min(maxYear, Math.max(0, year));
+            if (!isNaN(year) || !isNaN(this.SelectedYear))
+                this.SetCurrentValue(DatePicker.SelectedYearProperty, year);
+            this._UpdateText();
+        }
+        private CoerceDate() {
+            var m = this.SelectedMonth;
+            var d = this.SelectedDay;
+            var y = this.SelectedYear;
+            if (isNaN(m) || isNaN(d) || isNaN(y))
+                return;
+            var dte = new DateTime(y, m, d);
+            this.SetCurrentValue(DatePicker.SelectedDateProperty, dte);
+        }
+        private _UpdateText() {
+            this._MonthTextBox.Text = formatNumber(this.SelectedMonth, 2, "MM");
+            this._DayTextBox.Text = formatNumber(this.SelectedDay, 2, "DD");
+            this._YearTextBox.Text = formatNumber(this.SelectedYear, 4, "YYYY");
+        }
     }
     TemplateParts(DatePicker,
-        { Name: "TextBox", Type: DatePickerTextBox },
-        { Name: "Popup", Type: Primitives.Popup },
-        { Name: "Root", Type: FrameworkElement },
-        { Name: "Button", Type: Button });
+        { Name: "MonthTextBox", Type: TextBox },
+        { Name: "DayTextBox", Type: TextBox },
+        { Name: "YearTextBox", Type: TextBox });
     TemplateVisualStates(DatePicker,
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "Disabled" },
@@ -51,4 +127,10 @@
         { GroupName: "ValidationStates", Name: "InvalidFocused" },
         { GroupName: "ValidationStates", Name: "InvalidUnfocused" });
     //[StyleTypedProperty(Property = "CalendarStyle", StyleTargetType = typeof (Calendar))]
-} 
+    
+    function formatNumber(n: number, digits: number, fallback: string) {
+        if (isNaN(n))
+            return fallback;
+        return Localization.Format("{0:d" + digits + "}", n);
+    }
+}

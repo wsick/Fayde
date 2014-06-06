@@ -30,6 +30,9 @@
     </Content>
     <Content Include="Views\home.fayde" />
     <Content Include="packages.config" />
+    <Content Include="Views\datepicker.fayde">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Views\numericupdown.fayde" />
     <TypeScriptCompile Include="ViewModels\MainViewModel.ts" />
     <Content Include="web.config" />
