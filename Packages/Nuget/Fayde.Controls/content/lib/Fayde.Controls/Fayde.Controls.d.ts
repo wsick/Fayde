@@ -222,6 +222,48 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls {
+    class DatePicker extends Control {
+        static SelectedMonthProperty: DependencyProperty;
+        static SelectedDayProperty: DependencyProperty;
+        static SelectedYearProperty: DependencyProperty;
+        static SelectedDateProperty: DependencyProperty;
+        public SelectedMonth: number;
+        public SelectedDay: number;
+        public SelectedYear: number;
+        public SelectedDate: DateTime;
+        private OnSelectedMonthChanged(args);
+        private OnSelectedDayChanged(args);
+        private OnSelectedYearChanged(args);
+        private OnSelectedDateChanged(args);
+        private _MonthTextBox;
+        private _DayTextBox;
+        private _YearTextBox;
+        private _SelectionHandler;
+        constructor();
+        public OnApplyTemplate(): void;
+        private _LostFocus(sender, e);
+        private CoerceMonth(month);
+        private CoerceDay(day);
+        private CoerceYear(year);
+        private CoerceDate();
+        private _UpdateText();
+    }
+}
+declare module Fayde.Controls.Internal {
+    class SelectionHandler {
+        private _ActiveBox;
+        public ActiveBox : TextBox;
+        private _IsMouseDown;
+        private _TextBoxes;
+        constructor(textBoxes: TextBox[]);
+        public Dispose(): void;
+        private _GotFocus(sender, e);
+        private _MouseDown(sender, e);
+        private _MouseUp(sender, e);
+        private _LostFocus(sender, e);
+    }
+}
+declare module Fayde.Controls {
     class Spinner extends ContentControl {
         static ValidSpinDirectionProperty: DependencyProperty;
         public ValidSpinDirection: ValidSpinDirections;
@@ -425,6 +467,10 @@ declare module Fayde.Controls {
         Top = 1,
         Right = 2,
         Bottom = 3,
+    }
+    enum DatePickerFormat {
+        Long = 0,
+        Short = 1,
     }
 }
 declare module Fayde.Controls.Internal {

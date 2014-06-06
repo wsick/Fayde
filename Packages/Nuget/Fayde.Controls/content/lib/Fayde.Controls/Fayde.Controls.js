@@ -934,6 +934,215 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        var DatePicker = (function (_super) {
+            __extends(DatePicker, _super);
+            function DatePicker() {
+                _super.call(this);
+                this._MonthTextBox = null;
+                this._DayTextBox = null;
+                this._YearTextBox = null;
+                this._SelectionHandler = null;
+                this.DefaultStyleKey = this.constructor;
+            }
+            DatePicker.prototype.OnSelectedMonthChanged = function (args) {
+                this.CoerceMonth(args.NewValue);
+                this.CoerceDate();
+            };
+            DatePicker.prototype.OnSelectedDayChanged = function (args) {
+                this.CoerceDay(args.NewValue);
+                this.CoerceDate();
+            };
+            DatePicker.prototype.OnSelectedYearChanged = function (args) {
+                this.CoerceYear(args.NewValue);
+                this.CoerceDate();
+            };
+            DatePicker.prototype.OnSelectedDateChanged = function (args) {
+                var dt = args.NewValue;
+                if (dt instanceof DateTime) {
+                    this.CoerceMonth(dt.Month);
+                    this.CoerceDay(dt.Day);
+                    this.CoerceYear(dt.Year);
+                } else {
+                    this.CoerceMonth(NaN);
+                    this.CoerceDay(NaN);
+                    this.CoerceYear(NaN);
+                }
+            };
+
+            DatePicker.prototype.OnApplyTemplate = function () {
+                _super.prototype.OnApplyTemplate.call(this);
+
+                if (this._MonthTextBox)
+                    this._MonthTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+                this._MonthTextBox = this.GetTemplateChild("MonthTextBox", Controls.TextBox);
+                if (this._MonthTextBox)
+                    this._MonthTextBox.LostFocus.Subscribe(this._LostFocus, this);
+
+                if (this._DayTextBox)
+                    this._DayTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+                this._DayTextBox = this.GetTemplateChild("DayTextBox", Controls.TextBox);
+                if (this._DayTextBox)
+                    this._DayTextBox.LostFocus.Subscribe(this._LostFocus, this);
+
+                if (this._YearTextBox)
+                    this._YearTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+                this._YearTextBox = this.GetTemplateChild("YearTextBox", Controls.TextBox);
+                if (this._YearTextBox)
+                    this._YearTextBox.LostFocus.Subscribe(this._LostFocus, this);
+
+                var boxes = [this._MonthTextBox, this._DayTextBox, this._YearTextBox];
+                if (this._SelectionHandler)
+                    this._SelectionHandler.Dispose();
+                this._SelectionHandler = new Controls.Internal.SelectionHandler(boxes);
+            };
+
+            DatePicker.prototype._LostFocus = function (sender, e) {
+                if (sender === this._MonthTextBox) {
+                    this.CoerceMonth(parseFloat(this._MonthTextBox.Text));
+                } else if (sender === this._DayTextBox) {
+                    this.CoerceDay(parseFloat(this._DayTextBox.Text));
+                } else if (sender === this._YearTextBox) {
+                    this.CoerceYear(parseFloat(this._YearTextBox.Text));
+                }
+            };
+
+            DatePicker.prototype.CoerceMonth = function (month) {
+                month = Math.max(1, Math.min(12, month));
+                if (!isNaN(month) || !isNaN(this.SelectedMonth))
+                    this.SetCurrentValue(DatePicker.SelectedMonthProperty, month);
+                this._UpdateText();
+            };
+            DatePicker.prototype.CoerceDay = function (day) {
+                day = Math.max(1, Math.min(31, parseFloat(day)));
+                if (!isNaN(day) || !isNaN(this.SelectedDay))
+                    this.SetCurrentValue(DatePicker.SelectedDayProperty, day);
+                this._UpdateText();
+            };
+            DatePicker.prototype.CoerceYear = function (year) {
+                var maxYear = DateTime.MaxValue.Year - 1;
+                year = Math.min(maxYear, Math.max(0, year));
+                if (!isNaN(year) || !isNaN(this.SelectedYear))
+                    this.SetCurrentValue(DatePicker.SelectedYearProperty, year);
+                this._UpdateText();
+            };
+            DatePicker.prototype.CoerceDate = function () {
+                var m = this.SelectedMonth;
+                var d = this.SelectedDay;
+                var y = this.SelectedYear;
+                if (isNaN(m) || isNaN(d) || isNaN(y))
+                    return;
+                var dte = new DateTime(y, m, d);
+                this.SetCurrentValue(DatePicker.SelectedDateProperty, dte);
+            };
+            DatePicker.prototype._UpdateText = function () {
+                this._MonthTextBox.Text = formatNumber(this.SelectedMonth, 2, "MM");
+                this._DayTextBox.Text = formatNumber(this.SelectedDay, 2, "DD");
+                this._YearTextBox.Text = formatNumber(this.SelectedYear, 4, "YYYY");
+            };
+            DatePicker.SelectedMonthProperty = DependencyProperty.Register("SelectedMonth", function () {
+                return Number;
+            }, DatePicker, NaN, function (d, args) {
+                return d.OnSelectedMonthChanged(args);
+            });
+            DatePicker.SelectedDayProperty = DependencyProperty.Register("SelectedDay", function () {
+                return Number;
+            }, DatePicker, NaN, function (d, args) {
+                return d.OnSelectedDayChanged(args);
+            });
+            DatePicker.SelectedYearProperty = DependencyProperty.Register("SelectedYear", function () {
+                return Number;
+            }, DatePicker, NaN, function (d, args) {
+                return d.OnSelectedYearChanged(args);
+            });
+            DatePicker.SelectedDateProperty = DependencyProperty.Register("SelectedDate", function () {
+                return DateTime;
+            }, DatePicker, undefined, function (d, args) {
+                return d.OnSelectedDateChanged(args);
+            });
+            return DatePicker;
+        })(Controls.Control);
+        Controls.DatePicker = DatePicker;
+        Controls.TemplateParts(DatePicker, { Name: "MonthTextBox", Type: Controls.TextBox }, { Name: "DayTextBox", Type: Controls.TextBox }, { Name: "YearTextBox", Type: Controls.TextBox });
+        Controls.TemplateVisualStates(DatePicker, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidFocused" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" });
+
+        function formatNumber(n, digits, fallback) {
+            if (isNaN(n))
+                return fallback;
+            return Fayde.Localization.Format("{0:d" + digits + "}", n);
+        }
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Internal) {
+            var SelectionHandler = (function () {
+                function SelectionHandler(textBoxes) {
+                    var _this = this;
+                    this._ActiveBox = null;
+                    this._IsMouseDown = false;
+                    this._TextBoxes = [];
+                    this._TextBoxes = textBoxes = textBoxes.filter(function (tb) {
+                        return !!tb;
+                    });
+                    textBoxes.forEach(function (tb) {
+                        tb.MouseLeftButtonDown.Subscribe(_this._MouseDown, _this);
+                        tb.MouseLeftButtonUp.Subscribe(_this._MouseUp, _this);
+                        tb.GotFocus.Subscribe(_this._GotFocus, _this);
+                        tb.LostFocus.Subscribe(_this._LostFocus, _this);
+                    });
+                }
+                Object.defineProperty(SelectionHandler.prototype, "ActiveBox", {
+                    get: function () {
+                        return this._ActiveBox;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
+                SelectionHandler.prototype.Dispose = function () {
+                    var _this = this;
+                    this._TextBoxes.forEach(function (tb) {
+                        tb.MouseLeftButtonDown.Unsubscribe(_this._MouseDown, _this);
+                        tb.MouseLeftButtonUp.Unsubscribe(_this._MouseUp, _this);
+                        tb.GotFocus.Unsubscribe(_this._GotFocus, _this);
+                        tb.LostFocus.Unsubscribe(_this._LostFocus, _this);
+                    });
+                };
+
+                SelectionHandler.prototype._GotFocus = function (sender, e) {
+                    if (this._IsMouseDown)
+                        return;
+                    sender.SelectAll();
+                };
+                SelectionHandler.prototype._MouseDown = function (sender, e) {
+                    this._IsMouseDown = true;
+                };
+                SelectionHandler.prototype._MouseUp = function (sender, e) {
+                    this._IsMouseDown = false;
+                    if (this._ActiveBox === sender)
+                        return;
+                    this._ActiveBox = sender;
+                    if (this._ActiveBox.SelectionLength <= 0)
+                        sender.SelectAll();
+                };
+                SelectionHandler.prototype._LostFocus = function (sender, e) {
+                    sender.Select(0, 0);
+                    if (this._ActiveBox === sender)
+                        this._ActiveBox = null;
+                };
+                return SelectionHandler;
+            })();
+            Internal.SelectionHandler = SelectionHandler;
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
         var ButtonBase = Controls.Primitives.ButtonBase;
 
         var Spinner = (function (_super) {
@@ -1957,6 +2166,13 @@ var Fayde;
         })(Controls.Dock || (Controls.Dock = {}));
         var Dock = Controls.Dock;
         Fayde.RegisterEnum(Dock, "Dock");
+
+        (function (DatePickerFormat) {
+            DatePickerFormat[DatePickerFormat["Long"] = 0] = "Long";
+            DatePickerFormat[DatePickerFormat["Short"] = 1] = "Short";
+        })(Controls.DatePickerFormat || (Controls.DatePickerFormat = {}));
+        var DatePickerFormat = Controls.DatePickerFormat;
+        Fayde.RegisterEnum(DatePickerFormat, "DatePickerFormat");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
