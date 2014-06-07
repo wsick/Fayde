@@ -32,4 +32,10 @@ module Fayde.Controls {
         Short,
     }
     Fayde.RegisterEnum(DatePickerFormat, "DatePickerFormat");
+
+    export enum TimeDisplayMode {
+        Regular,
+        Military
+    }
+    Fayde.RegisterEnum(TimeDisplayMode, "TimeDisplayMode");
 }

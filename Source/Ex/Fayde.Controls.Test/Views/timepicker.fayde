@@ -1,0 +1,8 @@
+<Page xmlns="http://schemas.wsick.com/fayde"
+      xmlns:x="http://schemas.wsick.com/fayde/x"
+      xmlns:controls="lib:Fayde.Controls"
+      Title="Home">
+    <StackPanel Margin="5">
+        <controls:TimePicker />
+    </StackPanel>
+</Page>

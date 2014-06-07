@@ -57,6 +57,7 @@
     <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="TimePicker.ts" />
     <TypeScriptCompile Include="GridSplitter.ts" />
     <TypeScriptCompile Include="HeaderedItemsControl.ts" />
     <TypeScriptCompile Include="Internal\GridSplitterResizer.ts" />
@@ -67,6 +68,7 @@
     <TypeScriptCompile Include="Internal\MultiClickHelper.ts" />
     <TypeScriptCompile Include="DatePicker.ts" />
     <TypeScriptCompile Include="Internal\SelectionHandler.ts" />
+    <TypeScriptCompile Include="Internal\EventGesture.ts" />
     <Content Include="Themes\awaiting-generic.xml" />
     <TypeScriptCompile Include="Spinner.ts" />
     <TypeScriptCompile Include="ContextMenu.ts" />

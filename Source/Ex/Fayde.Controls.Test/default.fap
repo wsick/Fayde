@@ -20,6 +20,7 @@
             <HyperlinkButton TargetName="ContentFrame" NavigateUri="/treeview" Content="TreeView" />
             <HyperlinkButton TargetName="ContentFrame" NavigateUri="/wrappanel" Content="WrapPanel" />
             <HyperlinkButton TargetName="ContentFrame" NavigateUri="/datepicker" Content="DatePicker" />
+            <HyperlinkButton TargetName="ContentFrame" NavigateUri="/timepicker" Content="TimePicker" />
         </StackPanel>
         <Frame x:Name="ContentFrame" Grid.Column="1">
             <Frame.UriMapper>

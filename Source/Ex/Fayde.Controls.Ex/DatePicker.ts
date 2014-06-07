@@ -37,7 +37,11 @@
         private _MonthTextBox: TextBox = null;
         private _DayTextBox: TextBox = null;
         private _YearTextBox: TextBox = null;
-        
+
+        private _MonthGesture = new Internal.EventGesture<TextBox>();
+        private _DayGesture = new Internal.EventGesture<TextBox>();
+        private _YearGesture = new Internal.EventGesture<TextBox>();
+
         private _SelectionHandler: Internal.SelectionHandler = null;
 
         constructor() {
@@ -47,39 +51,25 @@
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            
-            if (this._MonthTextBox)
-                this._MonthTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+
+            this._MonthGesture.Detach();
             this._MonthTextBox = <TextBox>this.GetTemplateChild("MonthTextBox", TextBox);
             if (this._MonthTextBox)
-                this._MonthTextBox.LostFocus.Subscribe(this._LostFocus, this);
-            
-            if (this._DayTextBox)
-                this._DayTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+                this._MonthGesture.Attach(this._MonthTextBox.LostFocus, (tb) => this.CoerceMonth(tb.Text));
+
+            this._DayGesture.Detach();
             this._DayTextBox = <TextBox>this.GetTemplateChild("DayTextBox", TextBox);
             if (this._DayTextBox)
-                this._DayTextBox.LostFocus.Subscribe(this._LostFocus, this);
-            
-            if (this._YearTextBox)
-                this._YearTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+                this._DayGesture.Attach(this._DayTextBox.LostFocus, (tb) => this.CoerceDay(tb.Text));
+
+            this._YearGesture.Detach();
             this._YearTextBox = <TextBox>this.GetTemplateChild("YearTextBox", TextBox);
             if (this._YearTextBox)
-                this._YearTextBox.LostFocus.Subscribe(this._LostFocus, this);
+                this._YearGesture.Attach(this._YearTextBox.LostFocus, (tb) => this.CoerceDay(tb.Text));
 
-            var boxes = [this._MonthTextBox, this._DayTextBox, this._YearTextBox];
             if (this._SelectionHandler)
                 this._SelectionHandler.Dispose();
-            this._SelectionHandler = new Internal.SelectionHandler(boxes);
-        }
-
-        private _LostFocus(sender: any, e: RoutedEventArgs) {
-            if (sender === this._MonthTextBox) {
-                this.CoerceMonth(parseFloat(this._MonthTextBox.Text));
-            } else if (sender === this._DayTextBox) {
-                this.CoerceDay(parseFloat(this._DayTextBox.Text));
-            } else if (sender === this._YearTextBox) {
-                this.CoerceYear(parseFloat(this._YearTextBox.Text));
-            }
+            this._SelectionHandler = new Internal.SelectionHandler([this._MonthTextBox, this._DayTextBox, this._YearTextBox]);
         }
 
         private CoerceMonth(month: any) {
@@ -108,12 +98,18 @@
             if (isNaN(m) || isNaN(d) || isNaN(y))
                 return;
             var dte = new DateTime(y, m, d);
+            if (DateTime.Compare(dte, this.SelectedDate) === 0)
+                return;
             this.SetCurrentValue(DatePicker.SelectedDateProperty, dte);
         }
+
         private _UpdateText() {
-            this._MonthTextBox.Text = formatNumber(this.SelectedMonth, 2, "MM");
-            this._DayTextBox.Text = formatNumber(this.SelectedDay, 2, "DD");
-            this._YearTextBox.Text = formatNumber(this.SelectedYear, 4, "YYYY");
+            if (this._MonthTextBox)
+                this._MonthTextBox.Text = formatNumber(this.SelectedMonth, 2, "MM");
+            if (this._DayTextBox)
+                this._DayTextBox.Text = formatNumber(this.SelectedDay, 2, "DD");
+            if (this._YearTextBox)
+                this._YearTextBox.Text = formatNumber(this.SelectedYear, 4, "YYYY");
         }
     }
     TemplateParts(DatePicker,
@@ -127,7 +123,7 @@
         { GroupName: "ValidationStates", Name: "InvalidFocused" },
         { GroupName: "ValidationStates", Name: "InvalidUnfocused" });
     //[StyleTypedProperty(Property = "CalendarStyle", StyleTargetType = typeof (Calendar))]
-    
+
     function formatNumber(n: number, digits: number, fallback: string) {
         if (isNaN(n))
             return fallback;
