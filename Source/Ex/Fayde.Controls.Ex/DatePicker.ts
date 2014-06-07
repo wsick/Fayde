@@ -70,6 +70,8 @@
             if (this._SelectionHandler)
                 this._SelectionHandler.Dispose();
             this._SelectionHandler = new Internal.SelectionHandler([this._MonthTextBox, this._DayTextBox, this._YearTextBox]);
+
+            this._UpdateText();
         }
 
         private CoerceMonth(month: any) {
