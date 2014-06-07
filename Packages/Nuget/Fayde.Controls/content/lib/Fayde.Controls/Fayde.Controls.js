@@ -7,6 +7,216 @@
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        var TimePicker = (function (_super) {
+            __extends(TimePicker, _super);
+            function TimePicker() {
+                _super.call(this);
+                this._HourTextBox = null;
+                this._MinuteTextBox = null;
+                this._SecondTextBox = null;
+                this._SecondSeparator = null;
+                this._SuffixTextBlock = null;
+                this._HourGesture = new Controls.Internal.EventGesture();
+                this._MinuteGesture = new Controls.Internal.EventGesture();
+                this._SecondGesture = new Controls.Internal.EventGesture();
+                this._SuffixGesture = new Controls.Internal.EventGesture();
+                this._SelectionHandler = null;
+                this.DefaultStyleKey = this.constructor;
+                this.CoerceTime();
+            }
+            TimePicker.prototype.OnSelectedHourChanged = function (args) {
+                this.CoerceHour(args.NewValue);
+                this.CoerceTime();
+            };
+            TimePicker.prototype.OnSelectedMinuteChanged = function (args) {
+                this.CoerceMinute(args.NewValue);
+                this.CoerceTime();
+            };
+            TimePicker.prototype.OnSelectedSecondChanged = function (args) {
+                this.CoerceSecond(args.NewValue);
+                this.CoerceTime();
+            };
+            TimePicker.prototype.OnSelectedTimeChanged = function (args) {
+                var ts = args.NewValue;
+                if (ts instanceof TimeSpan) {
+                    this.CoerceHour(ts.Hours);
+                    this.CoerceMinute(ts.Minutes);
+                    this.CoerceSecond(ts.Seconds);
+                } else {
+                    this.CoerceHour(NaN);
+                    this.CoerceMinute(NaN);
+                    this.CoerceSecond(NaN);
+                }
+            };
+            TimePicker.prototype.OnDisplayModeChanged = function (args) {
+                this._UpdateText();
+            };
+
+            TimePicker.prototype.OnApplyTemplate = function () {
+                var _this = this;
+                _super.prototype.OnApplyTemplate.call(this);
+
+                this._HourGesture.Detach();
+                this._HourTextBox = this.GetTemplateChild("HourTextBox", Controls.TextBox);
+                if (this._HourTextBox)
+                    this._HourGesture.Attach(this._HourTextBox.LostFocus, function (tb) {
+                        return _this.CoerceHour(_this._GetHourInput());
+                    });
+
+                this._MinuteGesture.Detach();
+                this._MinuteTextBox = this.GetTemplateChild("MinuteTextBox", Controls.TextBox);
+                if (this._MinuteTextBox)
+                    this._MinuteGesture.Attach(this._MinuteTextBox.LostFocus, function (tb) {
+                        return _this.CoerceMinute(tb.Text);
+                    });
+
+                this._SecondGesture.Detach();
+                this._SecondTextBox = this.GetTemplateChild("SecondTextBox", Controls.TextBox);
+                if (this._SecondTextBox)
+                    this._SecondGesture.Attach(this._SecondTextBox.LostFocus, function (tb) {
+                        return _this.CoerceSecond(tb.Text);
+                    });
+
+                this._SecondSeparator = this.GetTemplateChild("SecondSeparator", Fayde.FrameworkElement);
+
+                this._SuffixGesture.Detach();
+                this._SuffixTextBlock = this.GetTemplateChild("SuffixTextBlock", Controls.TextBlock);
+                if (this._SuffixTextBlock)
+                    this._SuffixGesture.Attach(this._SuffixTextBlock.MouseLeftButtonUp, function (tb) {
+                        return _this.ToggleAmPm();
+                    });
+
+                if (this._SelectionHandler)
+                    this._SelectionHandler.Dispose();
+                this._SelectionHandler = new Controls.Internal.SelectionHandler([this._HourTextBox, this._MinuteTextBox, this._SecondTextBox]);
+
+                this._UpdateText();
+            };
+
+            TimePicker.prototype._GetHourInput = function () {
+                var text = this._HourTextBox.Text;
+                if (this.DisplayMode === 1 /* Military */)
+                    return text;
+                var h = parseFloat(text);
+                var isa = !!this._SuffixTextBlock && this._SuffixTextBlock.Text === "AM";
+                if (isa && h === 12)
+                    return "00";
+                if (!isa && h < 12)
+                    return (h + 12).toString();
+                return text;
+            };
+
+            TimePicker.prototype.CoerceHour = function (hour) {
+                hour = Math.max(0, Math.min(23, hour));
+                hour = hour || 0;
+                this.SetCurrentValue(TimePicker.SelectedHourProperty, hour);
+                this._UpdateText();
+            };
+            TimePicker.prototype.CoerceMinute = function (minute) {
+                minute = Math.max(0, Math.min(59, minute));
+                minute = minute || 0;
+                this.SetCurrentValue(TimePicker.SelectedMinuteProperty, minute);
+                this._UpdateText();
+            };
+            TimePicker.prototype.CoerceSecond = function (second) {
+                second = Math.max(0, Math.min(59, second));
+                second = second || 0;
+                this.SetCurrentValue(TimePicker.SelectedSecondProperty, second);
+                this._UpdateText();
+            };
+            TimePicker.prototype.CoerceTime = function () {
+                var ts = new TimeSpan(this.SelectedHour, this.SelectedMinute, this.SelectedSecond);
+                var old = this.SelectedTime;
+                if (!!old && ts.CompareTo(old) === 0)
+                    return;
+                this.SetCurrentValue(TimePicker.SelectedTimeProperty, ts);
+            };
+            TimePicker.prototype.ToggleAmPm = function () {
+                var hour = this.SelectedHour;
+                if (hour >= 12)
+                    hour -= 12;
+                else
+                    hour += 12;
+                this.CoerceHour(hour);
+            };
+
+            TimePicker.prototype._UpdateText = function () {
+                var isMilitary = this.DisplayMode === 1 /* Military */;
+                var h = this.SelectedHour;
+                var m = this.SelectedMinute;
+                var s = this.SelectedSecond;
+                var isSecondShown = this.IsSecondsShown;
+
+                var hd = h;
+                if (!isMilitary) {
+                    hd = hd >= 12 ? (hd - 12) : hd;
+                    hd = hd === 0 ? 12 : hd;
+                }
+
+                if (this._HourTextBox)
+                    this._HourTextBox.Text = formatNumber(hd, 2, "00");
+                if (this._MinuteTextBox)
+                    this._MinuteTextBox.Text = formatNumber(m, 2, "00");
+                if (this._SecondTextBox) {
+                    this._SecondTextBox.Text = formatNumber(s, 2, "00");
+                    this._SecondTextBox.Visibility = isSecondShown ? 0 /* Visible */ : 1 /* Collapsed */;
+                }
+
+                if (this._SecondSeparator)
+                    this._SecondSeparator.Visibility = isSecondShown ? 0 /* Visible */ : 1 /* Collapsed */;
+
+                if (this._SuffixTextBlock) {
+                    this._SuffixTextBlock.Visibility = isMilitary ? 1 /* Collapsed */ : 0 /* Visible */;
+                    this._SuffixTextBlock.Text = h >= 12 ? "PM" : "AM";
+                }
+            };
+            TimePicker.SelectedHourProperty = DependencyProperty.Register("SelectedHour", function () {
+                return Number;
+            }, TimePicker, 0, function (d, args) {
+                return d.OnSelectedHourChanged(args);
+            });
+            TimePicker.SelectedMinuteProperty = DependencyProperty.Register("SelectedMinute", function () {
+                return Number;
+            }, TimePicker, 0, function (d, args) {
+                return d.OnSelectedMinuteChanged(args);
+            });
+            TimePicker.SelectedSecondProperty = DependencyProperty.Register("SelectedSecond", function () {
+                return Number;
+            }, TimePicker, 0, function (d, args) {
+                return d.OnSelectedSecondChanged(args);
+            });
+            TimePicker.SelectedTimeProperty = DependencyProperty.Register("SelectedTime", function () {
+                return TimeSpan;
+            }, TimePicker, undefined, function (d, args) {
+                return d.OnSelectedTimeChanged(args);
+            });
+            TimePicker.IsSecondsShownProperty = DependencyProperty.Register("IsSecondsShown", function () {
+                return Boolean;
+            }, TimePicker, true, function (d, args) {
+                return d._UpdateText();
+            });
+            TimePicker.DisplayModeProperty = DependencyProperty.Register("DisplayMode", function () {
+                return new Enum(Controls.TimeDisplayMode);
+            }, TimePicker, 0 /* Regular */, function (d, args) {
+                return d.OnDisplayModeChanged(args);
+            });
+            return TimePicker;
+        })(Controls.Control);
+        Controls.TimePicker = TimePicker;
+        Controls.TemplateParts(TimePicker, { Name: "HourTextBox", Type: Controls.TextBox }, { Name: "MinuteTextBox", Type: Controls.TextBox }, { Name: "SecondTextBox", Type: Controls.TextBox }, { Name: "SecondSeparator", Type: Fayde.FrameworkElement }, { Name: "SuffixTextBlock", Type: Controls.TextBlock });
+        Controls.TemplateVisualStates(TimePicker, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidFocused" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" });
+
+        function formatNumber(n, digits, fallback) {
+            if (isNaN(n))
+                return fallback;
+            return Fayde.Localization.Format("{0:d" + digits + "}", n);
+        }
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
         var dragIncrement = 1;
         var keyIncrement = 10;
 
@@ -941,6 +1151,9 @@ var Fayde;
                 this._MonthTextBox = null;
                 this._DayTextBox = null;
                 this._YearTextBox = null;
+                this._MonthGesture = new Controls.Internal.EventGesture();
+                this._DayGesture = new Controls.Internal.EventGesture();
+                this._YearGesture = new Controls.Internal.EventGesture();
                 this._SelectionHandler = null;
                 this.DefaultStyleKey = this.constructor;
             }
@@ -970,40 +1183,33 @@ var Fayde;
             };
 
             DatePicker.prototype.OnApplyTemplate = function () {
+                var _this = this;
                 _super.prototype.OnApplyTemplate.call(this);
 
-                if (this._MonthTextBox)
-                    this._MonthTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+                this._MonthGesture.Detach();
                 this._MonthTextBox = this.GetTemplateChild("MonthTextBox", Controls.TextBox);
                 if (this._MonthTextBox)
-                    this._MonthTextBox.LostFocus.Subscribe(this._LostFocus, this);
+                    this._MonthGesture.Attach(this._MonthTextBox.LostFocus, function (tb) {
+                        return _this.CoerceMonth(tb.Text);
+                    });
 
-                if (this._DayTextBox)
-                    this._DayTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+                this._DayGesture.Detach();
                 this._DayTextBox = this.GetTemplateChild("DayTextBox", Controls.TextBox);
                 if (this._DayTextBox)
-                    this._DayTextBox.LostFocus.Subscribe(this._LostFocus, this);
+                    this._DayGesture.Attach(this._DayTextBox.LostFocus, function (tb) {
+                        return _this.CoerceDay(tb.Text);
+                    });
 
-                if (this._YearTextBox)
-                    this._YearTextBox.LostFocus.Unsubscribe(this._LostFocus, this);
+                this._YearGesture.Detach();
                 this._YearTextBox = this.GetTemplateChild("YearTextBox", Controls.TextBox);
                 if (this._YearTextBox)
-                    this._YearTextBox.LostFocus.Subscribe(this._LostFocus, this);
+                    this._YearGesture.Attach(this._YearTextBox.LostFocus, function (tb) {
+                        return _this.CoerceDay(tb.Text);
+                    });
 
-                var boxes = [this._MonthTextBox, this._DayTextBox, this._YearTextBox];
                 if (this._SelectionHandler)
                     this._SelectionHandler.Dispose();
-                this._SelectionHandler = new Controls.Internal.SelectionHandler(boxes);
-            };
-
-            DatePicker.prototype._LostFocus = function (sender, e) {
-                if (sender === this._MonthTextBox) {
-                    this.CoerceMonth(parseFloat(this._MonthTextBox.Text));
-                } else if (sender === this._DayTextBox) {
-                    this.CoerceDay(parseFloat(this._DayTextBox.Text));
-                } else if (sender === this._YearTextBox) {
-                    this.CoerceYear(parseFloat(this._YearTextBox.Text));
-                }
+                this._SelectionHandler = new Controls.Internal.SelectionHandler([this._MonthTextBox, this._DayTextBox, this._YearTextBox]);
             };
 
             DatePicker.prototype.CoerceMonth = function (month) {
@@ -1032,12 +1238,18 @@ var Fayde;
                 if (isNaN(m) || isNaN(d) || isNaN(y))
                     return;
                 var dte = new DateTime(y, m, d);
+                if (DateTime.Compare(dte, this.SelectedDate) === 0)
+                    return;
                 this.SetCurrentValue(DatePicker.SelectedDateProperty, dte);
             };
+
             DatePicker.prototype._UpdateText = function () {
-                this._MonthTextBox.Text = formatNumber(this.SelectedMonth, 2, "MM");
-                this._DayTextBox.Text = formatNumber(this.SelectedDay, 2, "DD");
-                this._YearTextBox.Text = formatNumber(this.SelectedYear, 4, "YYYY");
+                if (this._MonthTextBox)
+                    this._MonthTextBox.Text = formatNumber(this.SelectedMonth, 2, "MM");
+                if (this._DayTextBox)
+                    this._DayTextBox.Text = formatNumber(this.SelectedDay, 2, "DD");
+                if (this._YearTextBox)
+                    this._YearTextBox.Text = formatNumber(this.SelectedYear, 4, "YYYY");
             };
             DatePicker.SelectedMonthProperty = DependencyProperty.Register("SelectedMonth", function () {
                 return Number;
@@ -1135,6 +1347,37 @@ var Fayde;
                 return SelectionHandler;
             })();
             Internal.SelectionHandler = SelectionHandler;
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Internal) {
+            var EventGesture = (function () {
+                function EventGesture() {
+                }
+                EventGesture.prototype.Attach = function (event, callback) {
+                    var _this = this;
+                    this._Callback = callback;
+                    event.Subscribe(this._OnEvent, this);
+                    this.Detach = function () {
+                        event.Unsubscribe(_this._OnEvent, _this);
+                        _this.Detach = function () {
+                        };
+                    };
+                };
+                EventGesture.prototype.Detach = function () {
+                };
+
+                EventGesture.prototype._OnEvent = function (sender, e) {
+                    this._Callback && this._Callback(sender, e);
+                };
+                return EventGesture;
+            })();
+            Internal.EventGesture = EventGesture;
         })(Controls.Internal || (Controls.Internal = {}));
         var Internal = Controls.Internal;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -2173,6 +2416,13 @@ var Fayde;
         })(Controls.DatePickerFormat || (Controls.DatePickerFormat = {}));
         var DatePickerFormat = Controls.DatePickerFormat;
         Fayde.RegisterEnum(DatePickerFormat, "DatePickerFormat");
+
+        (function (TimeDisplayMode) {
+            TimeDisplayMode[TimeDisplayMode["Regular"] = 0] = "Regular";
+            TimeDisplayMode[TimeDisplayMode["Military"] = 1] = "Military";
+        })(Controls.TimeDisplayMode || (Controls.TimeDisplayMode = {}));
+        var TimeDisplayMode = Controls.TimeDisplayMode;
+        Fayde.RegisterEnum(TimeDisplayMode, "TimeDisplayMode");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

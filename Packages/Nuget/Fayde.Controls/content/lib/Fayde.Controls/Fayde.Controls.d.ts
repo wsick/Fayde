@@ -1,3 +1,43 @@
+﻿declare module Fayde.Controls {
+    class TimePicker extends Control {
+        static SelectedHourProperty: DependencyProperty;
+        static SelectedMinuteProperty: DependencyProperty;
+        static SelectedSecondProperty: DependencyProperty;
+        static SelectedTimeProperty: DependencyProperty;
+        static IsSecondsShownProperty: DependencyProperty;
+        static DisplayModeProperty: DependencyProperty;
+        public SelectedHour: number;
+        public SelectedMinute: number;
+        public SelectedSecond: number;
+        public SelectedTime: TimeSpan;
+        public IsSecondsShown: boolean;
+        public DisplayMode: TimeDisplayMode;
+        private OnSelectedHourChanged(args);
+        private OnSelectedMinuteChanged(args);
+        private OnSelectedSecondChanged(args);
+        private OnSelectedTimeChanged(args);
+        private OnDisplayModeChanged(args);
+        private _HourTextBox;
+        private _MinuteTextBox;
+        private _SecondTextBox;
+        private _SecondSeparator;
+        private _SuffixTextBlock;
+        private _HourGesture;
+        private _MinuteGesture;
+        private _SecondGesture;
+        private _SuffixGesture;
+        private _SelectionHandler;
+        constructor();
+        public OnApplyTemplate(): void;
+        private _GetHourInput();
+        private CoerceHour(hour);
+        private CoerceMinute(minute);
+        private CoerceSecond(second);
+        private CoerceTime();
+        private ToggleAmPm();
+        private _UpdateText();
+    }
+}
 declare module Fayde.Controls {
     class GridSplitter extends Control {
         private _Helper;
@@ -238,10 +278,12 @@ declare module Fayde.Controls {
         private _MonthTextBox;
         private _DayTextBox;
         private _YearTextBox;
+        private _MonthGesture;
+        private _DayGesture;
+        private _YearGesture;
         private _SelectionHandler;
         constructor();
         public OnApplyTemplate(): void;
-        private _LostFocus(sender, e);
         private CoerceMonth(month);
         private CoerceDay(day);
         private CoerceYear(year);
@@ -261,6 +303,15 @@ declare module Fayde.Controls.Internal {
         private _MouseDown(sender, e);
         private _MouseUp(sender, e);
         private _LostFocus(sender, e);
+    }
+}
+declare module Fayde.Controls.Internal {
+    class EventGesture<T extends UIElement> {
+        public Target: UIElement;
+        private _Callback;
+        public Attach(event: MulticastEvent<EventArgs>, callback: (t: T, e: EventArgs) => void): void;
+        public Detach(): void;
+        private _OnEvent(sender, e);
     }
 }
 declare module Fayde.Controls {
@@ -471,6 +522,10 @@ declare module Fayde.Controls {
     enum DatePickerFormat {
         Long = 0,
         Short = 1,
+    }
+    enum TimeDisplayMode {
+        Regular = 0,
+        Military = 1,
     }
 }
 declare module Fayde.Controls.Internal {
