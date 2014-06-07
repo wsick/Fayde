@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.wsick.com/fayde/x"
     xmlns:controls="lib:Fayde.Controls"
     xmlns:vms="ViewModels"
-    Theme="Metro">
+    ThemeName="Default">
     <Application.Resources>
     </Application.Resources>
     <Grid x:Name="LayoutRoot">
