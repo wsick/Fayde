@@ -1210,6 +1210,8 @@ var Fayde;
                 if (this._SelectionHandler)
                     this._SelectionHandler.Dispose();
                 this._SelectionHandler = new Controls.Internal.SelectionHandler([this._MonthTextBox, this._DayTextBox, this._YearTextBox]);
+
+                this._UpdateText();
             };
 
             DatePicker.prototype.CoerceMonth = function (month) {
