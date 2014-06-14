@@ -144,6 +144,9 @@ class TimeSpan {
             return Fayde.Localization.FormatSingle(this, "c");
         return Fayde.Localization.FormatSingle(this, format);
     }
+    valueOf(): Object {
+        return this.Ticks;
+    }
 }
 Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
 

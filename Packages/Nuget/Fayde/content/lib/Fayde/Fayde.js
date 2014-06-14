@@ -29698,6 +29698,9 @@ var TimeSpan = (function () {
             return Fayde.Localization.FormatSingle(this, "c");
         return Fayde.Localization.FormatSingle(this, format);
     };
+    TimeSpan.prototype.valueOf = function () {
+        return this.Ticks;
+    };
     TimeSpan._TicksPerMillisecond = 1;
     TimeSpan._TicksPerSecond = 1000;
     TimeSpan._TicksPerMinute = TimeSpan._TicksPerSecond * 60;
@@ -30051,6 +30054,9 @@ var DateTime = (function () {
         if (!format)
             return Fayde.Localization.FormatSingle(this, "s");
         return Fayde.Localization.FormatSingle(this, format);
+    };
+    DateTime.prototype.valueOf = function () {
+        return this.Ticks;
     };
     DateTime._MinDateTicks = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
     DateTime._MaxDateTicks = 8640000000000000;
@@ -39074,4 +39080,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.44";
+Fayde.Version = "0.9.8.45";

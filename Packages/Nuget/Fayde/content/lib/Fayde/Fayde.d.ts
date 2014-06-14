@@ -5357,6 +5357,7 @@ declare class TimeSpan {
     public IsZero(): boolean;
     public GetJsDelay(): number;
     public toString(format?: string): string;
+    public valueOf(): Object;
 }
 declare enum DayOfWeek {
     Sunday = 0,
@@ -5416,6 +5417,7 @@ declare class DateTime {
     public Subtract(value: TimeSpan): DateTime;
     public ToUniversalTime(): DateTime;
     public toString(format?: string): string;
+    public valueOf(): Object;
 }
 declare enum DurationType {
     Automatic = 0,

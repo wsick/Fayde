@@ -218,5 +218,8 @@ class DateTime {
             return Fayde.Localization.FormatSingle(this, "s");
         return Fayde.Localization.FormatSingle(this, format);
     }
+    valueOf(): Object {
+        return this.Ticks;
+    }
 }
 Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
