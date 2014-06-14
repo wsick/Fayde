@@ -5327,6 +5327,11 @@ declare class TimeSpan {
     static Zero : TimeSpan;
     static MinValue : TimeSpan;
     static MaxValue : TimeSpan;
+    static FromDays(value: number): TimeSpan;
+    static FromHours(value: number): TimeSpan;
+    static FromMinutes(value: number): TimeSpan;
+    static FromSeconds(value: number): TimeSpan;
+    static FromMilliseconds(value: number): TimeSpan;
     constructor();
     constructor(ticks: number);
     constructor(hours: number, minutes: number, seconds: number);
@@ -5375,6 +5380,7 @@ declare class DateTime {
     static Now : DateTime;
     static Today : DateTime;
     static Compare(dt1: DateTime, dt2: DateTime): number;
+    static DaysInMonth(year: number, month: number): number;
     private _InternalDate;
     private _Kind;
     constructor();

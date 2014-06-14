@@ -37,6 +37,12 @@ class DateTime {
         return 0;
     }
 
+    static DaysInMonth(year: number, month: number): number {
+        var ticks = new Date(year, (month - 1) + 1, 1).getTime() - TimeSpan._TicksPerDay;
+        var dt = new DateTime(ticks);
+        return dt.Day;
+    }
+
     private _InternalDate: Date = null;
     private _Kind: DateTimeKind;
 

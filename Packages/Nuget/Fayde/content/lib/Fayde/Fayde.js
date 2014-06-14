@@ -6390,7 +6390,8 @@ var Fayde;
                 xn.LayoutUpdater.Invalidate();
             if (xn.IsAttached) {
                 var panelNode = xn.VisualParentNode;
-                panelNode._InvalidateChildrenZIndices();
+                if (panelNode instanceof PanelNode)
+                    panelNode._InvalidateChildrenZIndices();
             }
         }
         var Panel = (function (_super) {
@@ -29543,6 +29544,22 @@ var TimeSpan = (function () {
         configurable: true
     });
 
+    TimeSpan.FromDays = function (value) {
+        return new TimeSpan(value * this._TicksPerDay);
+    };
+    TimeSpan.FromHours = function (value) {
+        return new TimeSpan(value * this._TicksPerHour);
+    };
+    TimeSpan.FromMinutes = function (value) {
+        return new TimeSpan(value * this._TicksPerMinute);
+    };
+    TimeSpan.FromSeconds = function (value) {
+        return new TimeSpan(value * this._TicksPerSecond);
+    };
+    TimeSpan.FromMilliseconds = function (value) {
+        return new TimeSpan(value * this._TicksPerMillisecond);
+    };
+
     Object.defineProperty(TimeSpan.prototype, "Days", {
         get: function () {
             return this._Ticks > 0 ? Math.floor(this._Ticks / TimeSpan._TicksPerDay) : Math.ceil(this._Ticks / TimeSpan._TicksPerDay);
@@ -29864,6 +29881,12 @@ var DateTime = (function () {
         if (t1 > t2)
             return 1;
         return 0;
+    };
+
+    DateTime.DaysInMonth = function (year, month) {
+        var ticks = new Date(year, (month - 1) + 1, 1).getTime() - TimeSpan._TicksPerDay;
+        var dt = new DateTime(ticks);
+        return dt.Day;
     };
 
     Object.defineProperty(DateTime.prototype, "Ticks", {
@@ -39051,4 +39074,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.43";
+Fayde.Version = "0.9.8.44";

@@ -13,6 +13,22 @@ class TimeSpan {
     static get MinValue(): TimeSpan { return new TimeSpan(Number.MIN_VALUE); }
     static get MaxValue(): TimeSpan { return new TimeSpan(Number.MAX_VALUE); }
 
+    static FromDays(value: number): TimeSpan {
+        return new TimeSpan(value * this._TicksPerDay);
+    }
+    static FromHours(value: number): TimeSpan {
+        return new TimeSpan(value * this._TicksPerHour);
+    }
+    static FromMinutes(value: number): TimeSpan {
+        return new TimeSpan(value * this._TicksPerMinute);
+    }
+    static FromSeconds(value: number): TimeSpan {
+        return new TimeSpan(value * this._TicksPerSecond);
+    }
+    static FromMilliseconds(value: number): TimeSpan {
+        return new TimeSpan(value * this._TicksPerMillisecond);
+    }
+
     constructor();
     constructor(ticks: number);
     constructor(hours: number, minutes: number, seconds: number);

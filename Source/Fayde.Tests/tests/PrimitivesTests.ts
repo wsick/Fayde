@@ -185,6 +185,27 @@ export function run() {
         strictEqual(DateTime.Compare(d, new DateTime(2014, 7, 3)), 0);
     });
 
+    test("DateTime: DaysInMonth", () => {
+        strictEqual(DateTime.DaysInMonth(2014, 1), 31);
+
+        strictEqual(DateTime.DaysInMonth(2012, 2), 29);
+        strictEqual(DateTime.DaysInMonth(2013, 2), 28);
+        strictEqual(DateTime.DaysInMonth(2014, 2), 28);
+        strictEqual(DateTime.DaysInMonth(2015, 2), 28);
+        strictEqual(DateTime.DaysInMonth(2016, 2), 29);
+
+        strictEqual(DateTime.DaysInMonth(2014, 3), 31);
+        strictEqual(DateTime.DaysInMonth(2014, 4), 30);
+        strictEqual(DateTime.DaysInMonth(2014, 5), 31);
+        strictEqual(DateTime.DaysInMonth(2014, 6), 30);
+        strictEqual(DateTime.DaysInMonth(2014, 7), 31);
+        strictEqual(DateTime.DaysInMonth(2014, 8), 31);
+        strictEqual(DateTime.DaysInMonth(2014, 9), 30);
+        strictEqual(DateTime.DaysInMonth(2014, 10), 31);
+        strictEqual(DateTime.DaysInMonth(2014, 11), 30);
+        strictEqual(DateTime.DaysInMonth(2014, 12), 31);
+    });
+
     test("Vector", () => {
         var EPSILON = 1e-10;
         function close(a: number, b: number, message: string) {
