@@ -30,7 +30,7 @@ module Fayde.Media {
 
             var enumerator = figures.GetEnumerator();
             while (enumerator.moveNext()) {
-                (<PathFigure>enumerator.Current).MergeInto(p);
+                (<PathFigure>enumerator.current).MergeInto(p);
             }
             return p;
         }

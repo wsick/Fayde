@@ -105,7 +105,7 @@ module Fayde.Controls {
             var newStyle = <Style>args.NewValue;
             var enumerator = this.ItemContainersManager.GetEnumerator();
             while (enumerator.moveNext()) {
-                var container = <FrameworkElement>enumerator.Current;
+                var container = <FrameworkElement>enumerator.current;
                 if (container && container !== enumerator.CurrentItem)
                     container.Style = newStyle;
             }

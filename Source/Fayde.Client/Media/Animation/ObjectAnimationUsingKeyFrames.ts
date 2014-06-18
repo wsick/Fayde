@@ -5,7 +5,7 @@ module Fayde.Media.Animation {
         Resolve(target: DependencyObject, propd: DependencyProperty): boolean {
             var enumerator = this.KeyFrames.GetEnumerator();
             while (enumerator.moveNext()) {
-                var keyFrame = <ObjectKeyFrame>enumerator.Current;
+                var keyFrame = <ObjectKeyFrame>enumerator.current;
                 var value = keyFrame.Value;
                 if (value == null) {
                     keyFrame.ConvertedValue = undefined;

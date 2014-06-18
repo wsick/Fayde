@@ -97,7 +97,7 @@ module Fayde.Providers {
             var enumerator = ownerNode.GetInheritedEnumerator();
             var uin: UINode;
             while (enumerator.moveNext()) {
-                uin = <UINode>enumerator.Current;
+                uin = <UINode>enumerator.current;
                 if (!this.SetInheritedValue(uin, propd, newValue))
                     this.Propagate(uin, propd, newValue);
             }

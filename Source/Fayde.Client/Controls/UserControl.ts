@@ -52,7 +52,7 @@ module Fayde.Controls {
 
             var enumerator = this.Node.GetVisualTreeEnumerator();
             while (enumerator.moveNext()) {
-                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                var childLu = (<UINode>enumerator.current).LayoutUpdater;
                 childLu._Measure(availableSize, error);
                 desired = size.copyTo(childLu.DesiredSize);
             }
@@ -76,7 +76,7 @@ module Fayde.Controls {
 
             var enumerator = this.Node.GetVisualTreeEnumerator();
             while (enumerator.moveNext()) {
-                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                var childLu = (<UINode>enumerator.current).LayoutUpdater;
                 var childRect = rect.fromSize(finalSize);
                 if (border) rect.shrinkByThickness(childRect, border);
                 childLu._Arrange(childRect, error);

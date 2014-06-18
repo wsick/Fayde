@@ -84,11 +84,11 @@ module Fayde.Media {
             var p3: Point;
             var enumerator = points.GetEnumerator();
             while (enumerator.moveNext()) {
-                p1 = enumerator.Current;
+                p1 = enumerator.current;
                 enumerator.moveNext();
-                p2 = enumerator.Current;
+                p2 = enumerator.current;
                 enumerator.moveNext();
-                p3 = enumerator.Current;
+                p3 = enumerator.current;
                 path.CubicBezier(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
             }
         }
@@ -109,7 +109,7 @@ module Fayde.Media {
             var p: Point;
             var enumerator = this.Points.GetEnumerator();
             while (enumerator.moveNext()) {
-                p = enumerator.Current;
+                p = enumerator.current;
                 path.Line(p.X, p.Y);
             }
             NotImplemented("PolyLineSegment._Append");
@@ -142,11 +142,11 @@ module Fayde.Media {
             var y3: number;
             var enumerator = points.GetEnumerator();
             while (enumerator.moveNext()) {
-                x1 = enumerator.Current.X;
-                y1 = enumerator.Current.Y;
+                x1 = enumerator.current.X;
+                y1 = enumerator.current.Y;
                 enumerator.moveNext();
-                x2 = enumerator.Current.X;
-                y2 = enumerator.Current.Y;
+                x2 = enumerator.current.X;
+                y2 = enumerator.current.Y;
                 x3 = x2;
                 y3 = y2;
                 

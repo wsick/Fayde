@@ -11,7 +11,7 @@ module Fayde {
                 return;
             var enumerator = this.GetEnumerator();
             while (enumerator.moveNext()) {
-                (<Setter>enumerator.Current)._Seal(targetType);
+                (<Setter>enumerator.current)._Seal(targetType);
             }
             this._IsSealed = true;
         }

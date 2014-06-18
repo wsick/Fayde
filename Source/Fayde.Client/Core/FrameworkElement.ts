@@ -44,7 +44,7 @@ module Fayde {
             }
             var enumerator = this.GetVisualTreeEnumerator();
             while (enumerator.moveNext()) {
-                enumerator.Current.SetIsLoaded(newIsLoaded);
+                enumerator.current.SetIsLoaded(newIsLoaded);
             }
             if (newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?

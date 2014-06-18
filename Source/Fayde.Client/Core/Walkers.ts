@@ -18,7 +18,7 @@ module Fayde {
         var enumerator = style.Setters.GetEnumerator(true);
         var setter: Setter;
         while (enumerator.moveNext()) {
-            setter = <Setter>enumerator.Current;
+            setter = <Setter>enumerator.current;
             if (!(setter instanceof Fayde.Setter))
                 continue;
             var propd = setter.Property;
@@ -85,7 +85,7 @@ module Fayde {
                     var enumerator = last.GetVisualTreeEnumerator(dir);
                     var insertIndex = 0;
                     while (enumerator.moveNext()) {
-                        walkList.splice(insertIndex, 0, enumerator.Current);
+                        walkList.splice(insertIndex, 0, enumerator.current);
                         insertIndex++;
                     }
                 }

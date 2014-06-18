@@ -159,7 +159,7 @@ module Fayde.Controls {
             var count = inlines.Count;
             var enumerator = inlines.GetEnumerator();
             while (enumerator.moveNext()) {
-                length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.Current, length, runs);
+                length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.current, length, runs);
             }
             if (count > 0)
                 this._WasSet = true;
@@ -180,7 +180,7 @@ module Fayde.Controls {
                 var inlines = (<Documents.Span>item).Inlines;
                 var enumerator = inlines.GetEnumerator();
                 while (enumerator.moveNext()) {
-                    length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.Current, length, runs);
+                    length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.current, length, runs);
                 }
             }
             return length;
@@ -192,7 +192,7 @@ module Fayde.Controls {
             var block = "";
             var enumerator = inlines.GetEnumerator();
             while (enumerator.moveNext()) {
-                block += (<Documents.Inline>enumerator.Current)._SerializeText();
+                block += (<Documents.Inline>enumerator.current)._SerializeText();
             }
             return block;
         }

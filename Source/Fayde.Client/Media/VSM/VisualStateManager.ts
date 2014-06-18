@@ -106,7 +106,7 @@ module Fayde.Media.VSM {
                 return false;
             var enumerator = groups.GetEnumerator();
             while (enumerator.moveNext()) {
-                (<VisualStateGroup>enumerator.Current).StopCurrentStoryboards(root);
+                (<VisualStateGroup>enumerator.current).StopCurrentStoryboards(root);
             }
         }
 
@@ -117,7 +117,7 @@ module Fayde.Media.VSM {
             var enumerator = control.XamlNode.GetVisualTreeEnumerator();
             var node: FENode = null;
             if (enumerator.moveNext()) {
-                node = enumerator.Current;
+                node = enumerator.current;
                 if (!(node instanceof FENode))
                     node = null;
             }
@@ -132,15 +132,15 @@ module Fayde.Media.VSM {
                 return null;
             var enumerator = groups.GetEnumerator();
             while (enumerator.moveNext()) {
-                if (enumerator.Current.Name === name)
-                    return enumerator.Current;
+                if (enumerator.current.Name === name)
+                    return enumerator.current;
             }
             return null;
         }
         private static _TryGetState(groups: VisualStateGroupCollection, stateName: string, data: IStateData): boolean {
             var enumerator = groups.GetEnumerator();
             while (enumerator.moveNext()) {
-                data.group = enumerator.Current;
+                data.group = enumerator.current;
                 data.state = data.group.GetState(stateName);
                 if (data.state)
                     return true;
@@ -165,7 +165,7 @@ module Fayde.Media.VSM {
             var enumerator = group.Transitions.GetEnumerator();
             var transition: VisualTransition;
             while (enumerator.moveNext()) {
-                transition = enumerator.Current;
+                transition = enumerator.current;
                 if (!defaultTransition && transition.IsDefault) {
                     defaultTransition = transition;
                     continue;

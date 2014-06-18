@@ -108,7 +108,7 @@ module Fayde.Controls {
             var childSize = size.createInfinite();
             var enumerator = this.Node.GetVisualTreeEnumerator();
             while (enumerator.moveNext()) {
-                var childNode = enumerator.Current;
+                var childNode = enumerator.current;
                 childNode.LayoutUpdater._Measure(childSize, error);
             }
             return new size();
@@ -116,7 +116,7 @@ module Fayde.Controls {
         ArrangeOverride(finalSize: size, error: BError): size {
             var enumerator = this.Node.GetVisualTreeEnumerator();
             while (enumerator.moveNext()) {
-                var childNode = enumerator.Current;
+                var childNode = enumerator.current;
                 var lu = childNode.LayoutUpdater;
                 var childFinal = rect.fromSize(lu.DesiredSize);
                 childFinal.X = Canvas.GetLeft(childNode.XObject);

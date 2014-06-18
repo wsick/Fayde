@@ -23,13 +23,13 @@ module Fayde {
 
     export class Enumerable<T> implements IEnumerable<T>, IEnumerator<T> {
         GetEnumerator(): IEnumerator<T> { return this; }
-        Current: T = null;
+        current: T = null;
         moveNext(): boolean { return false; }
 
         Aggregate<TAccumulate>(seed: TAccumulate, func: (u: TAccumulate, t: T) => TAccumulate): TAccumulate {
             var cur = seed;
             while (this.moveNext()) {
-                cur = func(cur, this.Current);
+                cur = func(cur, this.current);
             }
             return cur;
         }
@@ -41,14 +41,14 @@ module Fayde {
         }
         All(filter: (t: T) => boolean): boolean {
             while (this.moveNext()) {
-                if (filter(this.Current) !== true)
+                if (filter(this.current) !== true)
                     return false;
             }
             return true;
         }
         Any(filter: (t: T) => boolean): boolean {
             while (this.moveNext()) {
-                if (filter(this.Current) === true)
+                if (filter(this.current) === true)
                     return true;
             }
             return false;
@@ -57,7 +57,7 @@ module Fayde {
             var total = 0;
             var count = 0;
             while (this.moveNext()) {
-                total += func(this.Current);
+                total += func(this.current);
                 count++;
             }
             return total / count;
@@ -79,7 +79,7 @@ module Fayde {
                 return false;
             var enumerator = enumerable.GetEnumerator();
             while (enumerator.moveNext()) {
-                if (enumerator.Current === item)
+                if (enumerator.current === item)
                     return true;
             }
             return false;
@@ -88,7 +88,7 @@ module Fayde {
             var i = 0;
             var enumerator = enumerable.GetEnumerator();
             while (enumerator.moveNext()) {
-                if (enumerator.Current === item)
+                if (enumerator.current === item)
                     return i;
                 i++;
             }
@@ -100,7 +100,7 @@ module Fayde {
             var cur: any;
             var enumerator = enumerable.GetEnumerator();
             while (enumerator.moveNext()) {
-                cur = enumerator.Current;
+                cur = enumerator.current;
                 if (!filter)
                     return cur;
                 if (filter(cur))
@@ -116,7 +116,7 @@ module Fayde {
                 if (!enumerator.moveNext())
                     throw new IndexOutOfRangeException(i);
             }
-            return enumerator.Current;
+            return enumerator.current;
         }
         static ElementAtOrDefault<S>(enumerable: IEnumerable<S>, index: number): S {
             if (!enumerable)
@@ -126,7 +126,7 @@ module Fayde {
                 if (!enumerator.moveNext())
                     return null;
             }
-            return enumerator.Current;
+            return enumerator.current;
         }
         static Where<S>(enumerable: IEnumerable<S>, filter: (item: S) => boolean): IEnumerable<S> {
             return new WhereEnumerable<S>(enumerable, filter);
@@ -135,7 +135,7 @@ module Fayde {
             var e = enumerable.GetEnumerator();
             var a = [];
             while (e.moveNext()) {
-                a.push(e.Current);
+                a.push(e.current);
             }
             return a;
         }
@@ -152,9 +152,9 @@ module Fayde {
         MoveNext(): boolean {
             var c: T;
             while (this._PreviousEnumerator.moveNext()) {
-                c = this._PreviousEnumerator.Current;
+                c = this._PreviousEnumerator.current;
                 if (this._Filter(c) === true) {
-                    this.Current = c;
+                    this.current = c;
                     return true;
                 }
             }
@@ -173,11 +173,11 @@ module Fayde {
         MoveNext(): boolean {
             var c: TIn;
             if (this._PreviousEnumerator.moveNext()) {
-                c = this._PreviousEnumerator.Current;
-                this.Current = this._Projection(c);
+                c = this._PreviousEnumerator.current;
+                this.current = this._Projection(c);
                 return true;
             } else {
-                this.Current = null;
+                this.current = null;
                 return false;
             }
         }

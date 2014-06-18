@@ -39,7 +39,7 @@ module Fayde.Media.VSM {
             var enumerator = this.States.GetEnumerator();
             var state: VisualState;
             while (enumerator.moveNext()) {
-                state = enumerator.Current;
+                state = enumerator.current;
                 if (state.Name === stateName)
                     return state;
             }
@@ -81,7 +81,7 @@ module Fayde.Media.VSM {
             var enumerator = ArrayEx.GetEnumerator(curStoryboards);
             var storyboard: Animation.Storyboard;
             while (enumerator.moveNext()) {
-                storyboard = enumerator.Current;
+                storyboard = enumerator.current;
                 if (!storyboard)
                     continue;
                 element.Resources.Set((<any>storyboard)._ID, undefined);

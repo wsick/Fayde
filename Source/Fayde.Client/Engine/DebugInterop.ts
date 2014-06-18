@@ -68,7 +68,7 @@ module Fayde {
             var cur: UINode;
             var children: IDebugInteropCache[];
             while (enumerator.moveNext()) {
-                cur = enumerator.Current;
+                cur = enumerator.current;
                 var childItem = this.CreateDebugInteropCacheItem(cur);
                 item.Children.push(childItem);
                 this.PopulateCacheChildren(childItem);

@@ -32,7 +32,7 @@ module Fayde {
         arr.push({ node: uin, level: level });
         var enumerator = uin.GetVisualTreeEnumerator();
         while (enumerator.moveNext()) {
-            flattenTree(enumerator.Current, arr, level + 1);
+            flattenTree(enumerator.current, arr, level + 1);
         }
         return arr;
     }
@@ -119,7 +119,7 @@ module Fayde {
         var e = en.GetEnumerator();
         var arr: T[] = [];
         while (e.moveNext()) {
-            arr.push(e.Current);
+            arr.push(e.current);
         }
         return arr;
     }

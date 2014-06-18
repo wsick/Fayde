@@ -127,7 +127,7 @@ module Fayde {
 
             var childNode: UINode;
             while (enumerator.moveNext()) {
-                childNode = enumerator.Current;
+                childNode = enumerator.current;
                 str += VisualTreeHelper.__DebugTree(childNode, matchNode, tabIndex + 1, func);
             }
 
@@ -188,7 +188,7 @@ module Fayde {
                 var rowdef: Controls.RowDefinition;
                 var i = 0;
                 while (enumerator.moveNext()) {
-                    rowdef = enumerator.Current;
+                    rowdef = enumerator.current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + rowdef.ActualHeight + "\n";
                     i++;
@@ -202,7 +202,7 @@ module Fayde {
                 var coldef: Controls.ColumnDefinition;
                 var i = 0;
                 while (enumerator2.moveNext()) {
-                    coldef = enumerator2.Current;
+                    coldef = enumerator2.current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + coldef.ActualWidth + "\n";
                     i++;

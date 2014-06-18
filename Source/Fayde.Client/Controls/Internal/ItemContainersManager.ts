@@ -140,17 +140,17 @@ module Fayde.Controls.Internal {
             var len = count == null ? carr.length : count;
 
             var i = 0;
-            var e = <IContainerEnumerator>{ moveNext: undefined, Current: undefined, CurrentItem: undefined, CurrentIndex: -1 };
+            var e = <IContainerEnumerator>{ moveNext: undefined, current: undefined, CurrentItem: undefined, CurrentIndex: -1 };
             e.moveNext = function () {
                 i++;
                 index++;
                 e.CurrentIndex = index;
                 if (i > len || index >= carr.length) {
-                    e.Current = undefined;
+                    e.current = undefined;
                     e.CurrentItem = undefined;
                     return false;
                 }
-                e.Current = carr[index];
+                e.current = carr[index];
                 e.CurrentItem = iarr[index];
                 return true;
             };

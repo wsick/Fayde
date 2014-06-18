@@ -59,10 +59,10 @@ module Fayde.Shapes {
             var path = new Fayde.Path.RawPath();
             var enumerator = points.GetEnumerator();
             enumerator.moveNext();
-            var p = <Point>enumerator.Current;
+            var p = <Point>enumerator.current;
             path.Move(p.X, p.Y);
             while (enumerator.moveNext()) {
-                p = enumerator.Current;
+                p = enumerator.current;
                 path.Line(p.X, p.Y);
             }
             path.Close();

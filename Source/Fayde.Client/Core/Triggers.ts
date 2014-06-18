@@ -11,7 +11,7 @@ module Fayde {
         Fire() {
             var enumerator = this.GetEnumerator();
             while (enumerator.moveNext()) {
-                (<TriggerAction>enumerator.Current).Fire();
+                (<TriggerAction>enumerator.current).Fire();
             }
         }
     }
@@ -105,13 +105,13 @@ module Fayde {
         AttachTarget(target: XamlObject) {
             var enumerator = this.GetEnumerator();
             while (enumerator.moveNext()) {
-                (<TriggerBase>enumerator.Current).Attach(target);
+                (<TriggerBase>enumerator.current).Attach(target);
             }
         }
         DetachTarget(target: XamlObject) {
             var enumerator = this.GetEnumerator();
             while (enumerator.moveNext()) {
-                (<TriggerBase>enumerator.Current).Detach(target);
+                (<TriggerBase>enumerator.current).Detach(target);
             }
         }
     }

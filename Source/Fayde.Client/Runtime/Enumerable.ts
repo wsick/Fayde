@@ -10,7 +10,7 @@ module Fayde {
     };
 
     export interface IEnumerator<T> {
-        Current: T;
+        current: T;
         moveNext(): boolean;
     }
     export var IEnumerator_ = Fayde.RegisterInterface<IEnumerator<any>>("IEnumerator");
@@ -18,24 +18,24 @@ module Fayde {
     export class ArrayEx {
         static EmptyEnumerator: IEnumerator<any> = {
             moveNext: function () { return false; },
-            Current: undefined
+            current: undefined
         };
         static AsEnumerable<T>(arr: T[]): IEnumerable<T> {
             return <IEnumerable<T>><any>arr;
         }
         static GetEnumerator<T>(arr: T[], isReverse?: boolean): IEnumerator<T> {
             var len = arr.length;
-            var e = <IEnumerator<T>>{ moveNext: undefined, Current: undefined };
+            var e = <IEnumerator<T>>{ moveNext: undefined, current: undefined };
             var index;
             if (isReverse) {
                 index = len;
                 e.moveNext = function () {
                     index--;
                     if (index < 0) {
-                        e.Current = undefined;
+                        e.current = undefined;
                         return false;
                     }
-                    e.Current = arr[index];
+                    e.current = arr[index];
                     return true;
                 };
             } else {
@@ -43,10 +43,10 @@ module Fayde {
                 e.moveNext = function () {
                     index++;
                     if (index >= len) {
-                        e.Current = undefined;
+                        e.current = undefined;
                         return false;
                     }
-                    e.Current = arr[index];
+                    e.current = arr[index];
                     return true;
                 };
             }
@@ -54,17 +54,17 @@ module Fayde {
         }
         static GetNodeEnumerator<T extends XamlObject, U extends XamlNode>(arr: T[], isReverse?: boolean): IEnumerator<U> {
             var len = arr.length;
-            var e = <IEnumerator<U>>{ moveNext: undefined, Current: undefined };
+            var e = <IEnumerator<U>>{ moveNext: undefined, current: undefined };
             var index;
             if (isReverse) {
                 index = len;
                 e.moveNext = function () {
                     index--;
                     if (index < 0) {
-                        e.Current = undefined;
+                        e.current = undefined;
                         return false;
                     }
-                    e.Current = <U>arr[index].XamlNode;
+                    e.current = <U>arr[index].XamlNode;
                     return true;
                 };
             } else {
@@ -72,10 +72,10 @@ module Fayde {
                 e.moveNext = function () {
                     index++;
                     if (index >= len) {
-                        e.Current = undefined;
+                        e.current = undefined;
                         return false;
                     }
-                    e.Current = <U>arr[index].XamlNode;
+                    e.current = <U>arr[index].XamlNode;
                     return true;
                 };
             }

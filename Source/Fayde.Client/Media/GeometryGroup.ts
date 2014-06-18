@@ -18,7 +18,7 @@ module Fayde.Media {
             var bounds = new rect();
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.moveNext()) {
-                rect.unionLogical(bounds, (<Geometry>enumerator.Current).GetBounds(pars));
+                rect.unionLogical(bounds, (<Geometry>enumerator.current).GetBounds(pars));
             }
             return bounds;
         }
@@ -30,7 +30,7 @@ module Fayde.Media {
             }
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.moveNext()) {
-                (<Geometry>enumerator.Current).Draw(ctx);
+                (<Geometry>enumerator.current).Draw(ctx);
             }
             if (transform != null)
                 ctx.restore();
