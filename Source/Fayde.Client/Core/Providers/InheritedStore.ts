@@ -96,7 +96,7 @@ module Fayde.Providers {
         private Propagate(ownerNode: XamlNode, propd: DependencyProperty, newValue: any) {
             var enumerator = ownerNode.GetInheritedEnumerator();
             var uin: UINode;
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 uin = <UINode>enumerator.Current;
                 if (!this.SetInheritedValue(uin, propd, newValue))
                     this.Propagate(uin, propd, newValue);

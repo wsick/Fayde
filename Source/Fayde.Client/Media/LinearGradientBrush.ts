@@ -13,7 +13,7 @@ module Fayde.Media {
             var end = data.end;
             var grd = ctx.createLinearGradient(start.X, start.Y, end.X, end.Y);
             var enumerator = this.GradientStops.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 var stop: GradientStop = enumerator.Current;
                 grd.addColorStop(stop.Offset, stop.Color.toString());
             }
@@ -35,7 +35,7 @@ module Fayde.Media {
             var curOffset = 0.0;
             for (var i = 0; i < steps; i++) {
                 var enumerator = this.GradientStops.GetEnumerator();
-                while (enumerator.MoveNext()) {
+                while (enumerator.moveNext()) {
                     var stop: GradientStop = enumerator.Current;
                     grd.addColorStop(curOffset + (stop.Offset / steps), stop.Color.toString());
                 }
@@ -68,7 +68,7 @@ module Fayde.Media {
         toString(): string {
             var enumerator = this.GradientStops.GetEnumerator();
             var ser = [];
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 ser.push(enumerator.Current.toString());
             }
             return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";

@@ -10,7 +10,7 @@ module Fayde {
             if (this._IsSealed)
                 return;
             var enumerator = this.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 (<Setter>enumerator.Current)._Seal(targetType);
             }
             this._IsSealed = true;

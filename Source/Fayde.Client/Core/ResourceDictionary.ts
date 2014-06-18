@@ -11,7 +11,7 @@ module Fayde {
         Get(key: any): any {
             var enumerator = this.GetEnumerator();
             var cur: any;
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 cur = enumerator.Current.Get(key);
                 if (cur !== undefined)
                     return cur;
@@ -44,7 +44,7 @@ module Fayde {
             }
 
             var enumerator = subtreeRoot.MergedDictionaries.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 if (!this._AssertNoCycles(enumerator.Current, firstAncestorNode, error))
                     return false;
             }

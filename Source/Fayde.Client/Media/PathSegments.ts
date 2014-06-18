@@ -83,11 +83,11 @@ module Fayde.Media {
             var p2: Point;
             var p3: Point;
             var enumerator = points.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 p1 = enumerator.Current;
-                enumerator.MoveNext();
+                enumerator.moveNext();
                 p2 = enumerator.Current;
-                enumerator.MoveNext();
+                enumerator.moveNext();
                 p3 = enumerator.Current;
                 path.CubicBezier(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
             }
@@ -108,7 +108,7 @@ module Fayde.Media {
         _Append(path: Path.RawPath) {
             var p: Point;
             var enumerator = this.Points.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 p = enumerator.Current;
                 path.Line(p.X, p.Y);
             }
@@ -141,10 +141,10 @@ module Fayde.Media {
             var x3: number;
             var y3: number;
             var enumerator = points.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 x1 = enumerator.Current.X;
                 y1 = enumerator.Current.Y;
-                enumerator.MoveNext();
+                enumerator.moveNext();
                 x2 = enumerator.Current.X;
                 y2 = enumerator.Current.Y;
                 x3 = x2;

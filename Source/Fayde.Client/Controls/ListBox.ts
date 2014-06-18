@@ -167,7 +167,7 @@ module Fayde.Controls {
             var oldStyle = <Style>args.OldValue;
             var newStyle = <Style>args.NewValue;
             var enumerator = this.ItemContainersManager.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 var lbi = <ListBoxItem>enumerator.Current;
                 if (lbi instanceof ListBoxItem && lbi.Style === oldStyle)
                     lbi.Style = newStyle;

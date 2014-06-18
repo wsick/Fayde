@@ -43,7 +43,7 @@ module Fayde {
                 Providers.ImplicitStyleBroker.Set(xobj, Providers.StyleMask.All);
             }
             var enumerator = this.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 enumerator.Current.SetIsLoaded(newIsLoaded);
             }
             if (newIsLoaded) {

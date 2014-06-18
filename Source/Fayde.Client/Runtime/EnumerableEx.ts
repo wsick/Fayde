@@ -24,11 +24,11 @@ module Fayde {
     export class Enumerable<T> implements IEnumerable<T>, IEnumerator<T> {
         GetEnumerator(): IEnumerator<T> { return this; }
         Current: T = null;
-        MoveNext(): boolean { return false; }
+        moveNext(): boolean { return false; }
 
         Aggregate<TAccumulate>(seed: TAccumulate, func: (u: TAccumulate, t: T) => TAccumulate): TAccumulate {
             var cur = seed;
-            while (this.MoveNext()) {
+            while (this.moveNext()) {
                 cur = func(cur, this.Current);
             }
             return cur;
@@ -40,14 +40,14 @@ module Fayde {
             return new SelectEnumerable<T, TOut>(this, projection);
         }
         All(filter: (t: T) => boolean): boolean {
-            while (this.MoveNext()) {
+            while (this.moveNext()) {
                 if (filter(this.Current) !== true)
                     return false;
             }
             return true;
         }
         Any(filter: (t: T) => boolean): boolean {
-            while (this.MoveNext()) {
+            while (this.moveNext()) {
                 if (filter(this.Current) === true)
                     return true;
             }
@@ -56,7 +56,7 @@ module Fayde {
         Average(func: (t: T) => number): number {
             var total = 0;
             var count = 0;
-            while (this.MoveNext()) {
+            while (this.moveNext()) {
                 total += func(this.Current);
                 count++;
             }
@@ -68,7 +68,7 @@ module Fayde {
             var count = 0;
             if (enumerable) {
                 var enumerator = enumerable.GetEnumerator();
-                while (enumerator.MoveNext()) {
+                while (enumerator.moveNext()) {
                     count++;
                 }
             }
@@ -78,7 +78,7 @@ module Fayde {
             if (!enumerable)
                 return false;
             var enumerator = enumerable.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 if (enumerator.Current === item)
                     return true;
             }
@@ -87,7 +87,7 @@ module Fayde {
         static IndexOf<S>(enumerable: IEnumerable<S>, item: S): number {
             var i = 0;
             var enumerator = enumerable.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 if (enumerator.Current === item)
                     return i;
                 i++;
@@ -99,7 +99,7 @@ module Fayde {
                 return null;
             var cur: any;
             var enumerator = enumerable.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 cur = enumerator.Current;
                 if (!filter)
                     return cur;
@@ -113,7 +113,7 @@ module Fayde {
                 return null;
             var enumerator = enumerable.GetEnumerator();
             for (var i = 0; i <= index; i++) {
-                if (!enumerator.MoveNext())
+                if (!enumerator.moveNext())
                     throw new IndexOutOfRangeException(i);
             }
             return enumerator.Current;
@@ -123,7 +123,7 @@ module Fayde {
                 return null;
             var enumerator = enumerable.GetEnumerator();
             for (var i = 0; i <= index; i++) {
-                if (!enumerator.MoveNext())
+                if (!enumerator.moveNext())
                     return null;
             }
             return enumerator.Current;
@@ -134,7 +134,7 @@ module Fayde {
         static ToArray<S>(enumerable: IEnumerable<S>): S[] {
             var e = enumerable.GetEnumerator();
             var a = [];
-            while (e.MoveNext()) {
+            while (e.moveNext()) {
                 a.push(e.Current);
             }
             return a;
@@ -151,7 +151,7 @@ module Fayde {
         }
         MoveNext(): boolean {
             var c: T;
-            while (this._PreviousEnumerator.MoveNext()) {
+            while (this._PreviousEnumerator.moveNext()) {
                 c = this._PreviousEnumerator.Current;
                 if (this._Filter(c) === true) {
                     this.Current = c;
@@ -172,7 +172,7 @@ module Fayde {
         }
         MoveNext(): boolean {
             var c: TIn;
-            if (this._PreviousEnumerator.MoveNext()) {
+            if (this._PreviousEnumerator.moveNext()) {
                 c = this._PreviousEnumerator.Current;
                 this.Current = this._Projection(c);
                 return true;

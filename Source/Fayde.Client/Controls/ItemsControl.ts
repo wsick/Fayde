@@ -41,7 +41,7 @@ module Fayde.Controls {
 
         OnDisplayMemberPathChanged(e: IDependencyPropertyChangedEventArgs) {
             var enumerator = this.ItemContainersManager.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 this.UpdateContainerTemplate(enumerator.Current, enumerator.CurrentItem);
             }
         }
@@ -81,7 +81,7 @@ module Fayde.Controls {
         }
         OnItemTemplateChanged(e: IDependencyPropertyChangedEventArgs) {
             var enumerator = this.ItemContainersManager.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 this.UpdateContainerTemplate(enumerator.Current, enumerator.CurrentItem);
             }
         }

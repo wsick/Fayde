@@ -105,7 +105,7 @@ module Fayde.Media.VSM {
             if (!groups)
                 return false;
             var enumerator = groups.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 (<VisualStateGroup>enumerator.Current).StopCurrentStoryboards(root);
             }
         }
@@ -116,7 +116,7 @@ module Fayde.Media.VSM {
 
             var enumerator = control.XamlNode.GetVisualTreeEnumerator();
             var node: FENode = null;
-            if (enumerator.MoveNext()) {
+            if (enumerator.moveNext()) {
                 node = enumerator.Current;
                 if (!(node instanceof FENode))
                     node = null;
@@ -131,7 +131,7 @@ module Fayde.Media.VSM {
             if (!groups)
                 return null;
             var enumerator = groups.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 if (enumerator.Current.Name === name)
                     return enumerator.Current;
             }
@@ -139,7 +139,7 @@ module Fayde.Media.VSM {
         }
         private static _TryGetState(groups: VisualStateGroupCollection, stateName: string, data: IStateData): boolean {
             var enumerator = groups.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 data.group = enumerator.Current;
                 data.state = data.group.GetState(stateName);
                 if (data.state)
@@ -164,7 +164,7 @@ module Fayde.Media.VSM {
 
             var enumerator = group.Transitions.GetEnumerator();
             var transition: VisualTransition;
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 transition = enumerator.Current;
                 if (!defaultTransition && transition.IsDefault) {
                     defaultTransition = transition;

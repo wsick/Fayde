@@ -358,7 +358,7 @@ module Fayde.Controls {
             return (<Media.SolidColorBrush>brush).Color.A < 1.0;
         if (brush instanceof Media.LinearGradientBrush) {
             var enumerator = (<Media.LinearGradientBrush>brush).GradientStops.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 if (enumerator.Current.Color.A < 1.0)
                     return true;
             }

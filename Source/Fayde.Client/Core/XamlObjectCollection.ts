@@ -118,7 +118,7 @@ module Fayde {
 
         CloneCore(source: XamlObjectCollection<T>) {
             var enumerator = ArrayEx.GetEnumerator(source._ht);
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 this.Add(Fayde.Clone(enumerator.Current));
             }
         }

@@ -44,7 +44,7 @@ module Fayde.Controls.Primitives {
 
                         var item: any;
                         var enumerator = ownerItems.GetEnumerator();
-                        while (enumerator.MoveNext()) {
+                        while (enumerator.moveNext()) {
                             item = enumerator.Current;
                             if (ownerItems.Contains(item))
                                 continue;
@@ -53,7 +53,7 @@ module Fayde.Controls.Primitives {
                         }
 
                         enumerator = ownerItems.GetEnumerator();
-                        while (enumerator.MoveNext()) {
+                        while (enumerator.moveNext()) {
                             item = enumerator.Current;
                             if (items.indexOf(item) < 0)
                                 this.AddToSelected(item);

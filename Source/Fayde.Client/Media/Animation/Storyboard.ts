@@ -58,7 +58,7 @@ module Fayde.Media.Animation {
             var error = new BError();
             var promotedValues: any[] = [];
             var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 var animation = <AnimationBase>enumerator.Current;
                 if (!animation._Hookup(promotedValues, error))
                     error.ThrowException();
@@ -68,14 +68,14 @@ module Fayde.Media.Animation {
         Pause() {
             super.Pause();
             var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 (<Timeline>enumerator.Current).Pause();
             }
         }
         Resume() {
             super.Resume();
             var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 (<Timeline>enumerator.Current).Resume();
             }
         }
@@ -85,7 +85,7 @@ module Fayde.Media.Animation {
             super.Stop();
             Application.Current.UnregisterStoryboard(this);
             var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 (<Timeline>enumerator.Current).Stop();
             }
         }
@@ -94,7 +94,7 @@ module Fayde.Media.Animation {
             if (Animation.Log)
                 console.log(getLogMessage("Storyboard.UpdateInternal", this, false, clockData));
             var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 (<Timeline>enumerator.Current).Update(clockData.CurrentTime.Ticks);
             }
         }
@@ -102,7 +102,7 @@ module Fayde.Media.Animation {
         GetNaturalDurationCore(): Duration {
             var fullTicks = 0;
             var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 var timeline = <Timeline>enumerator.Current;
                 var dur = timeline.GetNaturalDuration();
                 if (dur.IsAutomatic)
@@ -142,7 +142,7 @@ module Fayde.Media.Animation {
 
         var enumerator = storyboard.Children.GetEnumerator();
         var animation: Timeline;
-        while (enumerator.MoveNext()) {
+        while (enumerator.moveNext()) {
             animation = enumerator.Current;
             cur = "";
             cur += "(";

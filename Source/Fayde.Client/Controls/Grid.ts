@@ -87,7 +87,7 @@ module Fayde.Controls {
                 var cols = grid.ColumnDefinitions;
                 if (cols) {
                     var enumerator = cols.GetEnumerator();
-                    while (enumerator.MoveNext()) {
+                    while (enumerator.moveNext()) {
                         cuml += enumerator.Current.ActualWidth;
                         ctx.beginPath();
                         ctx.setLineDash([5]);
@@ -100,7 +100,7 @@ module Fayde.Controls {
                 if (rows) {
                     cuml = -1;
                     var enumerator2 = rows.GetEnumerator();
-                    while (enumerator2.MoveNext()) {
+                    while (enumerator2.moveNext()) {
                         cuml += enumerator2.Current.ActualHeight;
                         ctx.beginPath();
                         ctx.setLineDash([5]);
@@ -163,7 +163,7 @@ module Fayde.Controls {
                 var enumerator = rows.GetEnumerator();
                 var rowdef: RowDefinition = null;
                 var height: GridLength = null;
-                while (enumerator.MoveNext()) {
+                while (enumerator.moveNext()) {
                     rowdef = enumerator.Current;
                     height = rowdef.Height;
                     if (!height) height = defaultGridLength;
@@ -196,7 +196,7 @@ module Fayde.Controls {
                 var enumerator2 = cols.GetEnumerator();
                 var coldef: ColumnDefinition = null;
                 var width: GridLength = null;
-                while (enumerator2.MoveNext()) {
+                while (enumerator2.moveNext()) {
                     coldef = enumerator2.Current;
                     var width = coldef.Width;
                     if (!width) width = defaultGridLength;
@@ -263,7 +263,7 @@ module Fayde.Controls {
                 }
 
                 var e4 = grid.XamlNode.GetVisualTreeEnumerator();
-                while (e4.MoveNext()) {
+                while (e4.moveNext()) {
                     childNode = e4.Current;
                     child = childNode.XObject;
                     childLu = childNode.LayoutUpdater;
@@ -393,14 +393,14 @@ module Fayde.Controls {
 
             var i: number = 0;
             var enumerator = cols.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 enumerator.Current.SetValueInternal(ColumnDefinition.ActualWidthProperty, cm[i][i].OfferedSize);
                 i++;
             }
 
             i = 0;
             var enumerator2 = rows.GetEnumerator();
-            while (enumerator2.MoveNext()) {
+            while (enumerator2.moveNext()) {
                 enumerator2.Current.SetValueInternal(RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
                 i++;
             }
@@ -408,7 +408,7 @@ module Fayde.Controls {
             var enumerator3 = grid.XamlNode.GetVisualTreeEnumerator();
             var childNode: UINode;
             var child: UIElement;
-            while (enumerator3.MoveNext()) {
+            while (enumerator3.moveNext()) {
                 childNode = enumerator3.Current;
                 child = childNode.XObject;
 
@@ -457,7 +457,7 @@ module Fayde.Controls {
             var row: RowDefinition = null;
             i = 0;
             var enumerator = rows.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 row = enumerator.Current;
                 cur = rm[i][i];
                 if (cur.Type === GridUnitType.Star)
@@ -485,7 +485,7 @@ module Fayde.Controls {
             var col: ColumnDefinition = null;
             i = 0;
             var enumerator = cols.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 col = enumerator.Current;
                 cur = cm[i][i];
                 if (cur.Type === GridUnitType.Star)
@@ -703,7 +703,7 @@ module Fayde.Controls {
         var childNode: UINode = null;
         var child: UIElement;
         var enumerator = grid.XamlNode.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
-        while (enumerator.MoveNext()) {
+        while (enumerator.moveNext()) {
             childNode = enumerator.Current;
             child = childNode.XObject;
 

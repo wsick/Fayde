@@ -31,7 +31,7 @@ module Fayde {
         level = level || 0;
         arr.push({ node: uin, level: level });
         var enumerator = uin.GetVisualTreeEnumerator();
-        while (enumerator.MoveNext()) {
+        while (enumerator.moveNext()) {
             flattenTree(enumerator.Current, arr, level + 1);
         }
         return arr;
@@ -118,7 +118,7 @@ module Fayde {
     function enumToArray<T>(en: IEnumerable<T>): T[] {
         var e = en.GetEnumerator();
         var arr: T[] = [];
-        while (e.MoveNext()) {
+        while (e.moveNext()) {
             arr.push(e.Current);
         }
         return arr;

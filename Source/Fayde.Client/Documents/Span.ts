@@ -24,7 +24,7 @@ module Fayde.Documents {
         _SerializeText(): string {
             var str = "";
             var enumerator = this.Inlines.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 str += (<TextElement>enumerator.Current)._SerializeText();
             }
             return str;

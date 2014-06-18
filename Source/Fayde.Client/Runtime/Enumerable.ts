@@ -11,13 +11,13 @@ module Fayde {
 
     export interface IEnumerator<T> {
         Current: T;
-        MoveNext(): boolean;
+        moveNext(): boolean;
     }
     export var IEnumerator_ = Fayde.RegisterInterface<IEnumerator<any>>("IEnumerator");
 
     export class ArrayEx {
         static EmptyEnumerator: IEnumerator<any> = {
-            MoveNext: function () { return false; },
+            moveNext: function () { return false; },
             Current: undefined
         };
         static AsEnumerable<T>(arr: T[]): IEnumerable<T> {
@@ -25,11 +25,11 @@ module Fayde {
         }
         static GetEnumerator<T>(arr: T[], isReverse?: boolean): IEnumerator<T> {
             var len = arr.length;
-            var e = { MoveNext: undefined, Current: undefined };
+            var e = <IEnumerator<T>>{ moveNext: undefined, Current: undefined };
             var index;
             if (isReverse) {
                 index = len;
-                e.MoveNext = function () {
+                e.moveNext = function () {
                     index--;
                     if (index < 0) {
                         e.Current = undefined;
@@ -40,7 +40,7 @@ module Fayde {
                 };
             } else {
                 index = -1;
-                e.MoveNext = function () {
+                e.moveNext = function () {
                     index++;
                     if (index >= len) {
                         e.Current = undefined;
@@ -54,28 +54,28 @@ module Fayde {
         }
         static GetNodeEnumerator<T extends XamlObject, U extends XamlNode>(arr: T[], isReverse?: boolean): IEnumerator<U> {
             var len = arr.length;
-            var e = { MoveNext: undefined, Current: undefined };
+            var e = <IEnumerator<U>>{ moveNext: undefined, Current: undefined };
             var index;
             if (isReverse) {
                 index = len;
-                e.MoveNext = function () {
+                e.moveNext = function () {
                     index--;
                     if (index < 0) {
                         e.Current = undefined;
                         return false;
                     }
-                    e.Current = arr[index].XamlNode;
+                    e.Current = <U>arr[index].XamlNode;
                     return true;
                 };
             } else {
                 index = -1;
-                e.MoveNext = function () {
+                e.moveNext = function () {
                     index++;
                     if (index >= len) {
                         e.Current = undefined;
                         return false;
                     }
-                    e.Current = arr[index].XamlNode;
+                    e.Current = <U>arr[index].XamlNode;
                     return true;
                 };
             }

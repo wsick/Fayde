@@ -67,7 +67,7 @@ module Fayde {
             var enumerator = item.Node.GetVisualTreeEnumerator();
             var cur: UINode;
             var children: IDebugInteropCache[];
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 cur = enumerator.Current;
                 var childItem = this.CreateDebugInteropCacheItem(cur);
                 item.Children.push(childItem);

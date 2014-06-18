@@ -42,7 +42,7 @@ module Fayde.Controls {
             var child: UIElement;
             var childNode: UINode;
             var childLu: LayoutUpdater;
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 child = enumerator.Current;
                 childNode = child.XamlNode;
                 var childLu = childNode.LayoutUpdater;
@@ -74,7 +74,7 @@ module Fayde.Controls {
             var child: UIElement;
             var childNode: UINode;
             var childLu: LayoutUpdater;
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 child = enumerator.Current;
                 childNode = child.XamlNode;
                 var childLu = childNode.LayoutUpdater;

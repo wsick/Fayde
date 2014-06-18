@@ -13,7 +13,7 @@ module Fayde.Navigation {
         MapUri(uri: Uri): Uri {
             var enumerator = this.UriMappings.GetEnumerator();
             var mapped: Uri;
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 mapped = enumerator.Current.MapUri(uri);
                 if (mapped)
                     return mapped;

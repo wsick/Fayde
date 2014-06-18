@@ -104,7 +104,7 @@ module Fayde.Controls {
         OnItemContainerStyleChanged(args: IDependencyPropertyChangedEventArgs) {
             var newStyle = <Style>args.NewValue;
             var enumerator = this.ItemContainersManager.GetEnumerator();
-            while (enumerator.MoveNext()) {
+            while (enumerator.moveNext()) {
                 var container = <FrameworkElement>enumerator.Current;
                 if (container && container !== enumerator.CurrentItem)
                     container.Style = newStyle;
