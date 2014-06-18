@@ -184,7 +184,7 @@ module Fayde {
             if (rcount > 0) {
                 str += tabs;
                 str += "  Rows (" + rcount + "):\n";
-                enumerator = rds.GetEnumerator();
+                enumerator = rds.getEnumerator();
                 var rowdef: Controls.RowDefinition;
                 var i = 0;
                 while (enumerator.moveNext()) {
@@ -198,7 +198,7 @@ module Fayde {
             if (ccount > 0) {
                 str += tabs;
                 str += "  Columns (" + ccount + "):\n";
-                enumerator2 = cds.GetEnumerator();
+                enumerator2 = cds.getEnumerator();
                 var coldef: Controls.ColumnDefinition;
                 var i = 0;
                 while (enumerator2.moveNext()) {

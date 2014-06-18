@@ -57,7 +57,7 @@ module Fayde.Shapes {
             this.SFlags = ShapeFlags.Normal;
 
             var path = new Fayde.Path.RawPath();
-            var enumerator = points.GetEnumerator();
+            var enumerator = points.getEnumerator();
             enumerator.moveNext();
             var p = <Point>enumerator.current;
             path.Move(p.X, p.Y);

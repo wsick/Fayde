@@ -28,7 +28,7 @@ module Fayde.Media {
             if (!figures)
                 return;
 
-            var enumerator = figures.GetEnumerator();
+            var enumerator = figures.getEnumerator();
             while (enumerator.moveNext()) {
                 (<PathFigure>enumerator.current).MergeInto(p);
             }

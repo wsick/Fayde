@@ -116,7 +116,7 @@ module Fayde {
     }
     
     function enumToArray<T>(en: IEnumerable<T>): T[] {
-        var e = en.GetEnumerator();
+        var e = en.getEnumerator();
         var arr: T[] = [];
         while (e.moveNext()) {
             arr.push(e.current);

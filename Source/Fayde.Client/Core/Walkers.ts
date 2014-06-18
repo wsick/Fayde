@@ -15,7 +15,7 @@ module Fayde {
     }
 
     function mergeSetters(arr: any[], dps: any[], style: Style) {
-        var enumerator = style.Setters.GetEnumerator(true);
+        var enumerator = style.Setters.getEnumerator(true);
         var setter: Setter;
         while (enumerator.moveNext()) {
             setter = <Setter>enumerator.current;

@@ -36,7 +36,7 @@ module Fayde.Media.VSM {
         }
 
         GetState(stateName: string): VisualState {
-            var enumerator = this.States.GetEnumerator();
+            var enumerator = this.States.getEnumerator();
             var state: VisualState;
             while (enumerator.moveNext()) {
                 state = enumerator.current;

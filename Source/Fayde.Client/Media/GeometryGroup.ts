@@ -16,7 +16,7 @@ module Fayde.Media {
 
         ComputePathBounds(pars: Path.IStrokeParameters): rect {
             var bounds = new rect();
-            var enumerator = this.Children.GetEnumerator();
+            var enumerator = this.Children.getEnumerator();
             while (enumerator.moveNext()) {
                 rect.unionLogical(bounds, (<Geometry>enumerator.current).GetBounds(pars));
             }
@@ -28,7 +28,7 @@ module Fayde.Media {
                 ctx.save();
                 ctx.transformTransform(transform);
             }
-            var enumerator = this.Children.GetEnumerator();
+            var enumerator = this.Children.getEnumerator();
             while (enumerator.moveNext()) {
                 (<Geometry>enumerator.current).Draw(ctx);
             }

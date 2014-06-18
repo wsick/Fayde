@@ -2,11 +2,11 @@
 
 module Fayde {
     export interface IEnumerable<T> {
-        GetEnumerator(reverse?: boolean): IEnumerator<T>;
+        getEnumerator(reverse?: boolean): IEnumerator<T>;
     }
     export var IEnumerable_ = Fayde.RegisterInterface<IEnumerable<any>>("IEnumerable");
     IEnumerable_.Is = (o: any): boolean => {
-        return o && o.GetEnumerator && typeof o.GetEnumerator === "function";
+        return o && o.getEnumerator && typeof o.getEnumerator === "function";
     };
 
     export interface IEnumerator<T> {

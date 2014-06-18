@@ -43,7 +43,7 @@ module Fayde.Controls.Primitives {
                         var ownerItems = this._Owner.SelectedItems;
 
                         var item: any;
-                        var enumerator = ownerItems.GetEnumerator();
+                        var enumerator = ownerItems.getEnumerator();
                         while (enumerator.moveNext()) {
                             item = enumerator.current;
                             if (ownerItems.Contains(item))
@@ -52,7 +52,7 @@ module Fayde.Controls.Primitives {
                                 this.RemoveFromSelected(item);
                         }
 
-                        enumerator = ownerItems.GetEnumerator();
+                        enumerator = ownerItems.getEnumerator();
                         while (enumerator.moveNext()) {
                             item = enumerator.current;
                             if (items.indexOf(item) < 0)

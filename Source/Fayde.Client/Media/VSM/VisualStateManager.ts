@@ -104,7 +104,7 @@ module Fayde.Media.VSM {
             var groups = VisualStateManager.GetVisualStateGroups(root);
             if (!groups)
                 return false;
-            var enumerator = groups.GetEnumerator();
+            var enumerator = groups.getEnumerator();
             while (enumerator.moveNext()) {
                 (<VisualStateGroup>enumerator.current).StopCurrentStoryboards(root);
             }
@@ -130,7 +130,7 @@ module Fayde.Media.VSM {
             var groups = VisualStateManager.GetVisualStateGroups(root);
             if (!groups)
                 return null;
-            var enumerator = groups.GetEnumerator();
+            var enumerator = groups.getEnumerator();
             while (enumerator.moveNext()) {
                 if (enumerator.current.Name === name)
                     return enumerator.current;
@@ -138,7 +138,7 @@ module Fayde.Media.VSM {
             return null;
         }
         private static _TryGetState(groups: VisualStateGroupCollection, stateName: string, data: IStateData): boolean {
-            var enumerator = groups.GetEnumerator();
+            var enumerator = groups.getEnumerator();
             while (enumerator.moveNext()) {
                 data.group = enumerator.current;
                 data.state = data.group.GetState(stateName);
@@ -162,7 +162,7 @@ module Fayde.Media.VSM {
             var defaultTransition = null;
             var bestScore = -1;
 
-            var enumerator = group.Transitions.GetEnumerator();
+            var enumerator = group.Transitions.getEnumerator();
             var transition: VisualTransition;
             while (enumerator.moveNext()) {
                 transition = enumerator.current;

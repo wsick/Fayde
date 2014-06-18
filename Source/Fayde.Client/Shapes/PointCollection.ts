@@ -86,7 +86,7 @@ module Fayde.Shapes {
         }
         Contains(value: Point): boolean { return this.IndexOf(value) > -1; }
 
-        GetEnumerator(reverse?: boolean): IEnumerator<Point> { return ArrayEx.GetEnumerator(this._ht, reverse); }
+        getEnumerator(reverse?: boolean): IEnumerator<Point> { return ArrayEx.GetEnumerator(this._ht, reverse); }
     }
     Fayde.RegisterType(PointCollection, "Fayde.Shapes", Fayde.XMLNS);
 

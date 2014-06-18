@@ -35,7 +35,7 @@
             if (!this._Source)
                 return;
             var filter = this.Filter || ((item: any) => true);
-            for (var i = 0, j = 0, enumerator = this._Source.GetEnumerator(); enumerator.moveNext(); i++) {
+            for (var i = 0, j = 0, enumerator = this._Source.getEnumerator(); enumerator.moveNext(); i++) {
                 var isIncluded = filter(enumerator.current);
                 var isCurrent = j < this.Count && this.GetValueAt(j) === enumerator.current;
                 if (isIncluded && !isCurrent)

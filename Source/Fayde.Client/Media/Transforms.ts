@@ -142,7 +142,7 @@ module Fayde.Media {
         }
 
         _BuildValue(): number[] {
-            var enumerator = this.Children.GetEnumerator(true);
+            var enumerator = this.Children.getEnumerator(true);
             var cur = mat3.identity();
             while (enumerator.moveNext()) {
                 mat3.multiply((<Transform>enumerator.current).Value._Raw, cur, cur); //cur = cur * child

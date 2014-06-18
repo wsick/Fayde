@@ -82,7 +82,7 @@ module Fayde.Media {
             var p1: Point;
             var p2: Point;
             var p3: Point;
-            var enumerator = points.GetEnumerator();
+            var enumerator = points.getEnumerator();
             while (enumerator.moveNext()) {
                 p1 = enumerator.current;
                 enumerator.moveNext();
@@ -107,7 +107,7 @@ module Fayde.Media {
 
         _Append(path: Path.RawPath) {
             var p: Point;
-            var enumerator = this.Points.GetEnumerator();
+            var enumerator = this.Points.getEnumerator();
             while (enumerator.moveNext()) {
                 p = enumerator.current;
                 path.Line(p.X, p.Y);
@@ -140,7 +140,7 @@ module Fayde.Media {
             var y2: number;
             var x3: number;
             var y3: number;
-            var enumerator = points.GetEnumerator();
+            var enumerator = points.getEnumerator();
             while (enumerator.moveNext()) {
                 x1 = enumerator.current.X;
                 y1 = enumerator.current.Y;

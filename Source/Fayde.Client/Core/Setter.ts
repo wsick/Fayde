@@ -9,7 +9,7 @@ module Fayde {
         _Seal(targetType: Function) {
             if (this._IsSealed)
                 return;
-            var enumerator = this.GetEnumerator();
+            var enumerator = this.getEnumerator();
             while (enumerator.moveNext()) {
                 (<Setter>enumerator.current)._Seal(targetType);
             }

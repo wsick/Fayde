@@ -103,7 +103,7 @@ module Fayde {
                 value.XamlNode.Detach();
         }
 
-        GetEnumerator(reverse?: boolean): IEnumerator<T> {
+        getEnumerator(reverse?: boolean): IEnumerator<T> {
             return Fayde.ArrayEx.GetEnumerator(this._ht, reverse);
         }
         GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U> {

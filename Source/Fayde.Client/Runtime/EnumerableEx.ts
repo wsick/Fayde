@@ -22,7 +22,7 @@ module Fayde {
     //}
 
     export class Enumerable<T> implements IEnumerable<T>, IEnumerator<T> {
-        GetEnumerator(): IEnumerator<T> { return this; }
+        getEnumerator(): IEnumerator<T> { return this; }
         current: T = null;
         moveNext(): boolean { return false; }
 
@@ -67,7 +67,7 @@ module Fayde {
         static Count<S>(enumerable: IEnumerable<S>): number {
             var count = 0;
             if (enumerable) {
-                var enumerator = enumerable.GetEnumerator();
+                var enumerator = enumerable.getEnumerator();
                 while (enumerator.moveNext()) {
                     count++;
                 }
@@ -77,7 +77,7 @@ module Fayde {
         static Contains<S>(enumerable: IEnumerable<S>, item: S): boolean {
             if (!enumerable)
                 return false;
-            var enumerator = enumerable.GetEnumerator();
+            var enumerator = enumerable.getEnumerator();
             while (enumerator.moveNext()) {
                 if (enumerator.current === item)
                     return true;
@@ -86,7 +86,7 @@ module Fayde {
         }
         static IndexOf<S>(enumerable: IEnumerable<S>, item: S): number {
             var i = 0;
-            var enumerator = enumerable.GetEnumerator();
+            var enumerator = enumerable.getEnumerator();
             while (enumerator.moveNext()) {
                 if (enumerator.current === item)
                     return i;
@@ -98,7 +98,7 @@ module Fayde {
             if (!enumerable)
                 return null;
             var cur: any;
-            var enumerator = enumerable.GetEnumerator();
+            var enumerator = enumerable.getEnumerator();
             while (enumerator.moveNext()) {
                 cur = enumerator.current;
                 if (!filter)
@@ -111,7 +111,7 @@ module Fayde {
         static ElementAt<S>(enumerable: IEnumerable<S>, index: number): S {
             if (!enumerable)
                 return null;
-            var enumerator = enumerable.GetEnumerator();
+            var enumerator = enumerable.getEnumerator();
             for (var i = 0; i <= index; i++) {
                 if (!enumerator.moveNext())
                     throw new IndexOutOfRangeException(i);
@@ -121,7 +121,7 @@ module Fayde {
         static ElementAtOrDefault<S>(enumerable: IEnumerable<S>, index: number): S {
             if (!enumerable)
                 return null;
-            var enumerator = enumerable.GetEnumerator();
+            var enumerator = enumerable.getEnumerator();
             for (var i = 0; i <= index; i++) {
                 if (!enumerator.moveNext())
                     return null;
@@ -132,7 +132,7 @@ module Fayde {
             return new WhereEnumerable<S>(enumerable, filter);
         }
         static ToArray<S>(enumerable: IEnumerable<S>): S[] {
-            var e = enumerable.GetEnumerator();
+            var e = enumerable.getEnumerator();
             var a = [];
             while (e.moveNext()) {
                 a.push(e.current);
@@ -147,7 +147,7 @@ module Fayde {
         constructor(e: IEnumerable<T>, filter: (t: T) => boolean) {
             super();
             this._Filter = filter;
-            this._PreviousEnumerator = e.GetEnumerator();
+            this._PreviousEnumerator = e.getEnumerator();
         }
         MoveNext(): boolean {
             var c: T;
@@ -168,7 +168,7 @@ module Fayde {
         constructor(e: IEnumerable<TIn>, projection: (t: TIn) => TOut) {
             super();
             this._Projection = projection;
-            this._PreviousEnumerator = e.GetEnumerator();
+            this._PreviousEnumerator = e.getEnumerator();
         }
         MoveNext(): boolean {
             var c: TIn;

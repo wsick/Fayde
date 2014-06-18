@@ -86,7 +86,7 @@ module Fayde.Controls {
                 var cuml = -1;
                 var cols = grid.ColumnDefinitions;
                 if (cols) {
-                    var enumerator = cols.GetEnumerator();
+                    var enumerator = cols.getEnumerator();
                     while (enumerator.moveNext()) {
                         cuml += enumerator.current.ActualWidth;
                         ctx.beginPath();
@@ -99,7 +99,7 @@ module Fayde.Controls {
                 var rows = grid.RowDefinitions;
                 if (rows) {
                     cuml = -1;
-                    var enumerator2 = rows.GetEnumerator();
+                    var enumerator2 = rows.getEnumerator();
                     while (enumerator2.moveNext()) {
                         cuml += enumerator2.current.ActualHeight;
                         ctx.beginPath();
@@ -160,7 +160,7 @@ module Fayde.Controls {
                 totalStars.Height += 1.0;
             } else {
                 i = 0;
-                var enumerator = rows.GetEnumerator();
+                var enumerator = rows.getEnumerator();
                 var rowdef: RowDefinition = null;
                 var height: GridLength = null;
                 while (enumerator.moveNext()) {
@@ -193,7 +193,7 @@ module Fayde.Controls {
                 totalStars.Width += 1.0;
             } else {
                 i = 0;
-                var enumerator2 = cols.GetEnumerator();
+                var enumerator2 = cols.getEnumerator();
                 var coldef: ColumnDefinition = null;
                 var width: GridLength = null;
                 while (enumerator2.moveNext()) {
@@ -392,14 +392,14 @@ module Fayde.Controls {
                 this._ExpandStarRows(grid, finalSize);
 
             var i: number = 0;
-            var enumerator = cols.GetEnumerator();
+            var enumerator = cols.getEnumerator();
             while (enumerator.moveNext()) {
                 enumerator.current.SetValueInternal(ColumnDefinition.ActualWidthProperty, cm[i][i].OfferedSize);
                 i++;
             }
 
             i = 0;
-            var enumerator2 = rows.GetEnumerator();
+            var enumerator2 = rows.getEnumerator();
             while (enumerator2.moveNext()) {
                 enumerator2.current.SetValueInternal(RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
                 i++;
@@ -456,7 +456,7 @@ module Fayde.Controls {
 
             var row: RowDefinition = null;
             i = 0;
-            var enumerator = rows.GetEnumerator();
+            var enumerator = rows.getEnumerator();
             while (enumerator.moveNext()) {
                 row = enumerator.current;
                 cur = rm[i][i];
@@ -484,7 +484,7 @@ module Fayde.Controls {
 
             var col: ColumnDefinition = null;
             i = 0;
-            var enumerator = cols.GetEnumerator();
+            var enumerator = cols.getEnumerator();
             while (enumerator.moveNext()) {
                 col = enumerator.current;
                 cur = cm[i][i];

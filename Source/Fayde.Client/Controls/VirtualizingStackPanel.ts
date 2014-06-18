@@ -74,7 +74,7 @@ module Fayde.Controls {
 
             var uin = uie.XamlNode;
             var isVertical = this.Orientation === Orientation.Vertical;
-            var enumerator = this.Children.GetEnumerator();
+            var enumerator = this.Children.getEnumerator();
             while (enumerator.moveNext()) {
                 var child = enumerator.current;
                 var childNode = child.XamlNode;
@@ -241,7 +241,7 @@ module Fayde.Controls {
             else
                 arranged.Width = 0;
 
-            var enumerator = this.Children.GetEnumerator();
+            var enumerator = this.Children.getEnumerator();
             while (enumerator.moveNext()) {
                 var child = enumerator.current;
                 var desired = child.DesiredSize;
