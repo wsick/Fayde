@@ -88,13 +88,13 @@ module Fayde {
         
         var str = "";
 
-        var rds = enumToArray(grid.RowDefinitions)
+        var rds = enumToArray<Controls.RowDefinition>(grid.RowDefinitions)
             .map((rd, i) => serializeRowDef(rd, i, level))
             .join("\n");
         if (rds)
             str += repeatString("\t", level) + "  Rows (" + grid.RowDefinitions.Count + "):\n" + rds;
 
-        var cds = enumToArray(grid.ColumnDefinitions)
+        var cds = enumToArray<Controls.ColumnDefinition>(grid.ColumnDefinitions)
             .map((cd, i) => serializeColDef(cd, i, level))
             .join("\n");
         if (cds) {

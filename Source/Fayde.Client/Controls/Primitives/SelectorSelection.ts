@@ -172,7 +172,7 @@ module Fayde.Controls.Primitives {
                     throw new NotSupportedException("Cannot call SelectAll when in Single select mode");
 
                 var selectedItems = this._SelectedItems;
-                var select = ArrayEx.Except(items, selectedItems);
+                var select = except(items, selectedItems);
                 if (select.length === 0)
                     return;
 
@@ -288,7 +288,7 @@ module Fayde.Controls.Primitives {
         var c: any;
         for (var i = 0, len = arr1.length; i < len; i++) {
             c = arr1[i];
-            if (arr2.indexOf(c) === -1)
+            if (arr2.indexOf(c) < 0)
                 r.push(c);
         }
         return r;

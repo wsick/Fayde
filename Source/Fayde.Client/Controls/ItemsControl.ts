@@ -63,7 +63,7 @@ module Fayde.Controls {
 
             //Notify new
             this._IsDataBound = !!e.NewValue;
-            var arr = e.NewValue ? Enumerable.ToArray(e.NewValue) : null;
+            var arr = toArray(e.NewValue);
             try {
                 this._SuspendItemsChanged = true;
                 if (arr)
@@ -213,4 +213,18 @@ module Fayde.Controls {
     }
     Fayde.RegisterType(ItemsControl, "Fayde.Controls", Fayde.XMLNS);
     Xaml.Content(ItemsControl, ItemsControl.ItemsProperty);
+
+    function toArray(value: any): any[] {
+        if (value instanceof Array)
+            return <any[]>value;
+        var enu = IEnumerable_.As(value);
+        if (enu) {
+            var arr = [];
+            for (var en = enu.getEnumerator(); en.moveNext();) {
+                arr.push(en.current);
+            }
+            return arr;
+        }
+        return null;
+    }
 }

@@ -2,7 +2,7 @@
 
 module Fayde {
     export interface IEnumerable<T> {
-        getEnumerator(reverse?: boolean): IEnumerator<T>;
+        getEnumerator(): IEnumerator<T>;
     }
     export var IEnumerable_ = Fayde.RegisterInterface<IEnumerable<any>>("IEnumerable");
     IEnumerable_.Is = (o: any): boolean => {
@@ -20,9 +20,6 @@ module Fayde {
             moveNext: function () { return false; },
             current: undefined
         };
-        static AsEnumerable<T>(arr: T[]): IEnumerable<T> {
-            return <IEnumerable<T>><any>arr;
-        }
         static GetEnumerator<T>(arr: T[], isReverse?: boolean): IEnumerator<T> {
             var len = arr.length;
             var e = <IEnumerator<T>>{ moveNext: undefined, current: undefined };
@@ -81,37 +78,5 @@ module Fayde {
             }
             return e;
         }
-
-        static RemoveIfContains<T>(arr: T[], item: T): boolean {
-            var index = arr.indexOf(item);
-            if (index < 0)
-                return false;
-            arr.splice(index, 1);
-            return true;
-        }
-
-        static Except<T>(arr1: T[], arr2: T[]): T[] {
-            var cur: T;
-            var rarr: T[] = [];
-            for (var i = 0; i < arr1.length; i++) {
-                cur = arr1[i];
-                if (arr2.indexOf(cur) < 0)
-                    rarr.push(cur);
-            }
-            return rarr;
-        }
-
-        static Fill<T>(arr: T[], index: number, count: number, fill: T) {
-            for (var i = index; i < index + count; i++) {
-                arr.splice(i, 0, fill);
-            }
-        }
     }
-
-    Object.defineProperty(Array.prototype, "GetEnumerator", {
-        value: function <T>(isReverse?: boolean): IEnumerator<T> {
-            return ArrayEx.GetEnumerator<T>(this, isReverse);
-        },
-        enumerable: false
-    });
 }
