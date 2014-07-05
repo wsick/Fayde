@@ -33040,7 +33040,6 @@ var Fayde;
                     p = enumerator.Current;
                     path.Line(p.X, p.Y);
                 }
-                path.Close();
                 return path;
             };
             return PolylineLayoutUpdater;
@@ -39080,4 +39079,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.45";
+Fayde.Version = "0.9.8.46";
