@@ -65,7 +65,6 @@ module Fayde.Shapes {
                 p = enumerator.Current;
                 path.Line(p.X, p.Y);
             }
-            path.Close();
             return path;
         }
     }
