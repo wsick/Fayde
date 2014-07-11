@@ -4835,6 +4835,9 @@ var Fayde;
         FrameworkElement.ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", function () {
             return Fayde.ResourceDictionary;
         }, FrameworkElement);
+        FrameworkElement.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () {
+            return Function;
+        }, FrameworkElement);
         return FrameworkElement;
     })(Fayde.UIElement);
     Fayde.FrameworkElement = FrameworkElement;
@@ -5642,9 +5645,6 @@ var Fayde;
             }, Control, 1 /* Center */, function (d, args) {
                 return d._ContentAlignmentChanged(args);
             });
-            Control.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () {
-                return Function;
-            }, Control);
             return Control;
         })(Fayde.FrameworkElement);
         Controls.Control = Control;
@@ -39079,4 +39079,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.46";
+Fayde.Version = "0.9.8.47";
