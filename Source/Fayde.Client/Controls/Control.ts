@@ -116,7 +116,6 @@ module Fayde.Controls {
         static TabNavigationProperty: DependencyProperty = DependencyProperty.Register("TabNavigation", () => new Enum(Input.KeyboardNavigationMode), Control, Input.KeyboardNavigationMode.Local);
         static TemplateProperty: DependencyProperty = DependencyProperty.Register("Template", () => ControlTemplate, Control, undefined, (d, args) => (<Control>d).XamlNode.OnTemplateChanged(args.OldValue, args.NewValue));
         static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
-        static DefaultStyleKeyProperty: DependencyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, Control);
 
         IsInheritable(propd: DependencyProperty): boolean {
             if (ControlInheritedProperties.indexOf(propd) > -1)
@@ -141,7 +140,6 @@ module Fayde.Controls {
         TabNavigation: Input.KeyboardNavigationMode;
         Template: ControlTemplate;
         VerticalContentAlignment: VerticalAlignment;
-        DefaultStyleKey: Function;
 
         get IsFocused() { return this.XamlNode.IsFocused; }
 

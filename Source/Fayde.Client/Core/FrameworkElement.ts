@@ -152,7 +152,6 @@ module Fayde {
     Fayde.RegisterType(FENode, "Fayde");
 
     export class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
-        DefaultStyleKey: any;
         XamlNode: FENode;
         Resources: Fayde.ResourceDictionary;
         constructor() {
@@ -178,6 +177,7 @@ module Fayde {
         static VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
         static WidthProperty = DependencyProperty.Register("Width", () => Length, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, FrameworkElement);
+        static DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, FrameworkElement);
         
         IsInheritable(propd: DependencyProperty): boolean {
             if (propd === FrameworkElement.FlowDirectionProperty)
@@ -201,6 +201,7 @@ module Fayde {
         Style: Style;
         VerticalAlignment: VerticalAlignment;
         Width: number;
+        DefaultStyleKey: Function;
 
         SizeChanged = new RoutedEvent<RoutedEventArgs>();
         Loaded = new RoutedEvent<RoutedEventArgs>();

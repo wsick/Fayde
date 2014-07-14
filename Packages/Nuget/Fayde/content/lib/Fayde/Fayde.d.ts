@@ -837,7 +837,6 @@ declare module Fayde {
         public _FlowDirectionChanged(args: IDependencyPropertyChangedEventArgs): void;
     }
     class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
-        public DefaultStyleKey: any;
         public XamlNode: FENode;
         public Resources: ResourceDictionary;
         constructor();
@@ -858,6 +857,7 @@ declare module Fayde {
         static VerticalAlignmentProperty: DependencyProperty;
         static WidthProperty: DependencyProperty;
         static ResourcesProperty: ImmutableDependencyProperty<ResourceDictionary>;
+        static DefaultStyleKeyProperty: DependencyProperty;
         public IsInheritable(propd: DependencyProperty): boolean;
         public ActualHeight: number;
         public ActualWidth: number;
@@ -873,6 +873,7 @@ declare module Fayde {
         public Style: Style;
         public VerticalAlignment: VerticalAlignment;
         public Width: number;
+        public DefaultStyleKey: Function;
         public SizeChanged: RoutedEvent<RoutedEventArgs>;
         public Loaded: RoutedEvent<RoutedEventArgs>;
         public Unloaded: RoutedEvent<RoutedEventArgs>;
@@ -1018,7 +1019,6 @@ declare module Fayde.Controls {
         static TabNavigationProperty: DependencyProperty;
         static TemplateProperty: DependencyProperty;
         static VerticalContentAlignmentProperty: DependencyProperty;
-        static DefaultStyleKeyProperty: DependencyProperty;
         public IsInheritable(propd: DependencyProperty): boolean;
         public Background: Media.Brush;
         public BorderBrush: Media.Brush;
@@ -1037,7 +1037,6 @@ declare module Fayde.Controls {
         public TabNavigation: Input.KeyboardNavigationMode;
         public Template: ControlTemplate;
         public VerticalContentAlignment: VerticalAlignment;
-        public DefaultStyleKey: Function;
         public IsFocused : boolean;
         public GetTemplateChild(childName: string, type?: Function): DependencyObject;
         public ApplyTemplate(): boolean;
