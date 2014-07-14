@@ -1,5 +1,0 @@
-﻿<Page Title="Button Test">
-  <Grid>
-    <Button Content="PLEASE WORK!" />
-  </Grid>
-</Page>

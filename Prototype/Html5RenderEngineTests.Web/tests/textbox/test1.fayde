@@ -1,5 +1,0 @@
-﻿<Page Title="TextBox Test">
-  <Grid>
-	  <TextBox Text="RAWR" />
-  </Grid>
-</Page>

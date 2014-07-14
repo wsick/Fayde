@@ -1,5 +1,0 @@
-﻿<Page>
-  <Grid>
-    <HyperlinkButton HorizontalAlignment="Center" VerticalAlignment="Center" Content="Some Link" NavigateUri="/tests/grid/test4.fayde"></HyperlinkButton>
-  </Grid>
-</Page>
