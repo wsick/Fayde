@@ -1,18 +1,15 @@
 {
     "name": "Fayde",
-    "version": "0.9.8",
+    "version": "0.9.8.47",
     "homepage": "http://fayde.wsick.com",
     "authors": [
         "BSick7 <brad.sickles@gmail.com>"
     ],
     "ignore": [
         "Demos",
-        "Links",
         "Packages",
-        "Prototype",
         "Source",
         "ThirdParty",
-        "Tools",
-        "Website"
+        "Tools"
     ]
 }
