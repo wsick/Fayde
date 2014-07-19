@@ -6,9 +6,8 @@
         "BSick7 <brad.sickles@gmail.com>"
     ],
     "ignore": [
-        "Packages",
+        "nuget",
         "Source",
-        "ThirdParty",
         "Tools"
     ]
 }
