@@ -6,7 +6,6 @@
         "BSick7 <brad.sickles@gmail.com>"
     ],
     "ignore": [
-        "Demos",
         "Packages",
         "Source",
         "ThirdParty",
