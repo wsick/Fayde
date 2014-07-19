@@ -39079,4 +39079,4 @@ var Fayde;
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 
-Fayde.Version = "0.9.8.47";
+Fayde.Version = "0.9.9";
