@@ -6,9 +6,12 @@
         "BSick7 <brad.sickles@gmail.com>"
     ],
     "ignore": [
+        "litmus",
         "nuget",
+        "proto",
         "Source",
         "test",
+        "testsite",
         "Tools"
     ]
 }
