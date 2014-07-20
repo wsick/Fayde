@@ -6,50 +6,18 @@
     <title>Fayde Tests</title>
 
     <link rel="stylesheet" href="lib/qunit/qunit/qunit.css" type="text/css"/>
-    <script data-config="true">
-        var require = {
-            baseUrl: "./",
-            paths: {
-                "text": "lib/requirejs-text/text",
-                "Fayde": "/Fayde/Fayde",
-                "qunit": "lib/qunit/qunit/qunit"
-            },
-            deps: ["text", "Fayde", "qunit", "runner"],
-            callback: function (text, Fayde) {
-                require("runner").run();
-            },
-            shim: {
-                "Fayde": {
-                    exports: "Fayde"
-                },
-                "qunit": {
-                    exports: "qunit",
-                    init: function () {
-                        QUnit.config.autoload = false;
-                        QUnit.config.autostart = false;
-                    }
-                },
-                "runner": {
-                    deps: ["Fayde"]
-                }
-            }
-        };
+    <script src="lib/qunit/qunit/qunit.js"></script>
+    <script>
+        QUnit.config.autostart = false;
     </script>
-    <script data-lib="Fayde.Controls">
-        require.shim["lib/Fayde.Controls/Fayde.Controls"] = {
-            exports: "Fayde.Controls"
-        };
-    </script>
-    <script src="lib/requirejs/require.js"></script>
-    <!-- your tests, any and all to run with the given fixtures below -->
+    <script src="require-config.js"></script>
+    <script src="lib/requirejs/require.js" data-main="runner.js"></script>
 </head>
 <body>
 <div id="qunit"></div>
 <!-- QUnit fills this with results, etc -->
 <div id='qunit-fixture'>
-
     <!-- any HTML you want to be present in each test (will be reset for each test) -->
-
 </div>
 </body>
 </html>

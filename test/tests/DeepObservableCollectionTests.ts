@@ -4,7 +4,7 @@
 import TestObservable = require("../mocks/TestObservable");
 import DeepObservableCollection = Fayde.Collections.DeepObservableCollection;
 
-export function run() {
+export function load() {
     QUnit.module("DeepObservableCollection Tests");
 
     test("ItemPropertyChanged", () => {

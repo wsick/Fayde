@@ -7,7 +7,7 @@
 //Test isattached modification
 //Test AttachTo/Detach
 
-export function run() {
+export function load() {
     QUnit.module("XamlNode Tests");
 
     test("AttachTo & Detach", () => {

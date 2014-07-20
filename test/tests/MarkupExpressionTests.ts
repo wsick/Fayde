@@ -2,8 +2,9 @@
 /// <reference path="../lib/Fayde/Fayde.d.ts" />
 /// <amd-dependency path="../mocks/TestConverter" />
 
-export function run() {
+export function load() {
     QUnit.module("Markup Expression Tests");
+
     test("x:Null", () => {
         var xaml = "<Border xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Tag=\"{x:Null}\"></Border>";
         var border = <Fayde.Controls.Border>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);

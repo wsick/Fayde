@@ -1,7 +1,7 @@
 /// <reference path="../qunit.d.ts" />
 /// <reference path="../lib/Fayde/Fayde.d.ts" />
 
-export function run() {
+export function load() {
     QUnit.module("Dependency Property Tests");
 
     function coercer(dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any): any {

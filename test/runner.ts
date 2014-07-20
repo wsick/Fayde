@@ -1,40 +1,31 @@
 /// <reference path="qunit.d.ts" />
 
-import PrimitivesTests = require("tests/PrimitivesTests");
-import FormatTests = require("tests/FormatTests");
-import TypeConverterTests = require("tests/TypeConverterTests");
-import MarkupExpressionTests = require("tests/MarkupExpressionTests");
-import XamlNodeTests = require("tests/XamlNodeTests");
-import ProviderTests = require("tests/ProviderTests");
-import DependencyPropertyTests = require("tests/DependencyPropertyTests");
-import XamlLoadTests = require("tests/XamlLoadTests");
-import DataTemplateTests = require("tests/DataTemplateTests");
-import TransformTests = require("tests/TransformTests");
-import TimelineTests = require("tests/TimelineTests");
-import ItemContainersManagerTests = require("tests/ItemContainersManagerTests");
-import BindingTests = require("tests/BindingTests");
-import UriMapperTests = require("tests/UriMapperTests");
-import DependencyLoadTests = require("tests/DependencyLoadTests");
-import DeepObservableCollectionTests = require("tests/DeepObservableCollectionTests");
+declare var require;
+module runner {
+    var testModules = [
+        "tests/PrimitivesTests",
+        "tests/FormatTests",
+        "tests/TypeConverterTests",
+        "tests/MarkupExpressionTests",
+        "tests/XamlNodeTests",
+        "tests/ProviderTests",
+        "tests/DependencyPropertyTests",
+        "tests/XamlLoadTests",
+        "tests/DataTemplateTests",
+        "tests/TransformTests",
+        "tests/TimelineTests",
+        "tests/ItemContainersManagerTests",
+        "tests/BindingTests",
+        "tests/UriMapperTests",
+        "tests/DependencyLoadTests",
+        "tests/DeepObservableCollectionTests"
+    ];
 
-export function run() {
-    PrimitivesTests.run();
-    FormatTests.run();
-    TypeConverterTests.run();
-    MarkupExpressionTests.run();
-    XamlNodeTests.run();
-    ProviderTests.run();
-    DependencyPropertyTests.run();
-    XamlLoadTests.run();
-    DataTemplateTests.run();
-    TransformTests.run();
-    TimelineTests.run();
-    ItemContainersManagerTests.run();
-    BindingTests.run();
-    UriMapperTests.run();
-    DependencyLoadTests.run();
-    DeepObservableCollectionTests.run();
-
-    (<any>QUnit).load();
-    QUnit.start();
+    require(testModules, (...modules: any[]) => {
+        for (var i = 0; i < modules.length; i++) {
+            modules[i].load();
+        }
+        QUnit.load();
+        QUnit.start();
+    });
 }

@@ -2,7 +2,7 @@
 /// <reference path="../lib/Fayde/Fayde.d.ts" />
 /// <amd-dependency path="../mocks/TestControl" />
 
-export function run() {
+export function load() {
     QUnit.module("Xaml Load Tests");
 
     test("Valid XAML Document", () => {

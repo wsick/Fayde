@@ -1,7 +1,7 @@
 /// <reference path="../qunit.d.ts" />
 /// <reference path="../lib/Fayde/Fayde.d.ts" />
 
-export function run() {
+export function load() {
     QUnit.module("Provider Tests");
 
     var Mock1Property = DependencyProperty.Register("Mock1", () => String, Fayde.DependencyObject);

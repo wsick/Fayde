@@ -3,7 +3,7 @@
 
 import Format = Fayde.Localization.Format;
 
-export function run() {
+export function load() {
     QUnit.module("Format Tests");
 
     function ft(format: string, num: number, expected: string) {

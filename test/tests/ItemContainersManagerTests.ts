@@ -7,7 +7,7 @@ import ContentControl = Fayde.Controls.ContentControl;
 import ItemContainersManager = Fayde.Controls.Internal.ItemContainersManager;
 import ListBoxItem = Fayde.Controls.ListBoxItem;
 
-export function run() {
+export function load() {
     QUnit.module("ItemContainersManager Tests");
 
     var owner: Fayde.Controls.Internal.IItemContainersOwner = {
