@@ -164,7 +164,8 @@ export function load() {
         strictEqual(d, Duration.Forever, "Forever");
 
         d = <Duration>Fayde.ConvertAnyToType("02:03:04", Duration);
-        strictEqual(d.TimeSpan.CompareTo(new TimeSpan(0, 2, 3, 4, 0)), 0, "TimeSpan");
+        strictEqual(d.Type, DurationType.TimeSpan, "TimeSpan #1");
+        strictEqual(d.TimeSpan.CompareTo(new TimeSpan(0, 2, 3, 4, 0)), 0, "TimeSpan #2");
     });
 
     test("Brush", () => {
