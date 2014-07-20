@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LitmusTests", "LitmusTests.csproj", "{C66B3310-4ACF-4CFF-B533-14B254F8B649}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LitmusTests.Web", "..\LitmusTests.Web\LitmusTests.Web.csproj", "{5F2E26A9-232C-4F1B-A87F-DF4D60D947D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C66B3310-4ACF-4CFF-B533-14B254F8B649}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C66B3310-4ACF-4CFF-B533-14B254F8B649}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C66B3310-4ACF-4CFF-B533-14B254F8B649}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C66B3310-4ACF-4CFF-B533-14B254F8B649}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F2E26A9-232C-4F1B-A87F-DF4D60D947D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F2E26A9-232C-4F1B-A87F-DF4D60D947D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F2E26A9-232C-4F1B-A87F-DF4D60D947D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F2E26A9-232C-4F1B-A87F-DF4D60D947D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

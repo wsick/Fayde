@@ -19,7 +19,8 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
-    <SilverlightApplicationList>{8EBC2ED0-1EDD-4204-BD21-1F5EF6B6494F}|..\WickedSick.LitmusTests\WickedSick.LitmusTests.csproj|ClientBin|False</SilverlightApplicationList>
+    <SilverlightApplicationList>
+    </SilverlightApplicationList>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,7 +59,6 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ClientBin\WickedSick.LitmusTests.xap" />
     <Content Include="Images\calvin_johnson.png" />
     <Content Include="Images\github.png" />
     <Content Include="Images\header_overlay.png" />
@@ -67,7 +67,6 @@
     <Content Include="Images\tile-test.png" />
     <Content Include="Images\twitter.png" />
     <Content Include="Media\freeze_gopher.mp3" />
-    <Content Include="Silverlight.js" />
     <TypeScriptCompile Include="Tests\Format\TestViewModel.ts" />
     <None Include="Tests\Binding\update-source-trigger.fap">
       <SubType>Designer</SubType>
@@ -222,8 +221,6 @@
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="LitmusTests.aspx" />
-    <Content Include="LitmusTests.html" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
