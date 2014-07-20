@@ -16,6 +16,8 @@ export function load() {
             });
     });
 
+    /*
+
     asyncTest("XamlDocument Missing Load", () => {
         Fayde.Xaml.XamlDocument.GetAsync("nofile.xml")
             .success(res => {
@@ -28,13 +30,15 @@ export function load() {
             });
     });
 
+    */
+
     asyncTest("Library Load", () => {
         var library = Fayde.Library.Get("lib:Fayde.Controls");
         var timeout = setTimeout(() => {
             start();
             ok(false, "Timed out.");
         }, 1000);
-        library.Resolve({ ThemeName: "Default", Resolving: [] })
+        library.Resolve(<Fayde.IDependencyAsyncContext>{ ThemeName: "Default", Resolving: <Fayde.Library[]>[] })
             .success(res => {
                 window.clearTimeout(timeout);
                 start();

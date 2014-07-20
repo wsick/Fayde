@@ -10,7 +10,7 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('./package.json'),
         typescript: {
             build: {
-                src: ['src/**/*.ts'],
+                src: ['Source/Fayde.Client/**/*.ts'],
                 dest: 'Fayde.js',
                 options: {
                     target: 'es5',
@@ -30,9 +30,9 @@ module.exports = function (grunt) {
         copy: {
             pretest: {
                 files: [
-                    { expand: true, flatten: true, src: ['Source/Fayde.Client/Themes/*'], dest: 'test/lib/Fayde/Themes', filter: 'isFile' },
-                    { expand: true, flatten: true, src: ['Source/Fayde.Client/Fayde.js'], dest: 'test/lib/Fayde', filter: 'isFile' },
-                    { expand: true, flatten: true, src: ['Source/Fayde.Client/Fayde.d.ts'], dest: 'test/lib/Fayde', filter: 'isFile' }
+                    { expand: true, flatten: true, src: ['Themes/*'], dest: 'test/lib/Fayde/Themes', filter: 'isFile' },
+                    { expand: true, flatten: true, src: ['Fayde.js'], dest: 'test/lib/Fayde', filter: 'isFile' },
+                    { expand: true, flatten: true, src: ['Fayde.d.ts'], dest: 'test/lib/Fayde', filter: 'isFile' }
                 ]
             }
         },

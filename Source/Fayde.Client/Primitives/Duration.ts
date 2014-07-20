@@ -25,7 +25,6 @@ class Duration implements ICloneable {
     get TimeSpan(): TimeSpan {
         if (this._Type === DurationType.TimeSpan)
             return this._TimeSpan;
-        throw new InvalidOperationException("Duration does not have a TimeSpan.");
     }
     get HasTimeSpan(): boolean { return this._Type === DurationType.TimeSpan }
     get IsForever(): boolean { return this._Type === DurationType.Forever; }
