@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.TestSite", "Fayde.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Tests", "Fayde.Tests\Fayde.Tests.csproj", "{F8F5F04B-D2B7-4992-A5D1-CAAC1283ACFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Silo", "Fayde.Silo\Fayde.Silo.csproj", "{641AEB45-2885-4FA9-8184-B7C5161B952B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Client", "Fayde.Client\Fayde.Client.csproj", "{E9C887CB-89E6-4721-B611-4ACBC5B89419}"
 EndProject
 Global
@@ -25,10 +23,6 @@ Global
 		{F8F5F04B-D2B7-4992-A5D1-CAAC1283ACFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8F5F04B-D2B7-4992-A5D1-CAAC1283ACFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8F5F04B-D2B7-4992-A5D1-CAAC1283ACFB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{641AEB45-2885-4FA9-8184-B7C5161B952B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{641AEB45-2885-4FA9-8184-B7C5161B952B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{641AEB45-2885-4FA9-8184-B7C5161B952B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{641AEB45-2885-4FA9-8184-B7C5161B952B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E9C887CB-89E6-4721-B611-4ACBC5B89419}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E9C887CB-89E6-4721-B611-4ACBC5B89419}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9C887CB-89E6-4721-B611-4ACBC5B89419}.Release|Any CPU.ActiveCfg = Release|Any CPU
