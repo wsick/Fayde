@@ -9,10 +9,10 @@ module Fayde {
 
     export class ResourceDictionaryCollection extends XamlObjectCollection<ResourceDictionary> {
         Get(key: any): any {
-            var enumerator = this.GetEnumerator();
+            var enumerator = this.getEnumerator();
             var cur: any;
-            while (enumerator.MoveNext()) {
-                cur = enumerator.Current.Get(key);
+            while (enumerator.moveNext()) {
+                cur = enumerator.current.Get(key);
                 if (cur !== undefined)
                     return cur;
             }
@@ -43,9 +43,9 @@ module Fayde {
                 curNode = curNode.ParentNode;
             }
 
-            var enumerator = subtreeRoot.MergedDictionaries.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                if (!this._AssertNoCycles(enumerator.Current, firstAncestorNode, error))
+            var enumerator = subtreeRoot.MergedDictionaries.getEnumerator();
+            while (enumerator.moveNext()) {
+                if (!this._AssertNoCycles(enumerator.current, firstAncestorNode, error))
                     return false;
             }
 
@@ -126,7 +126,7 @@ module Fayde {
                 (<XamlObject>oldvalue).XamlNode.Detach();
         }
 
-        GetEnumerator(reverse?: boolean): IEnumerator<any> {
+        getEnumerator(reverse?: boolean): IEnumerator<any> {
             return Fayde.ArrayEx.GetEnumerator(this._Values, reverse);
         }
         GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U> {

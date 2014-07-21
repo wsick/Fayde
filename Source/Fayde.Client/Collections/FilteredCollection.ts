@@ -35,11 +35,11 @@
             if (!this._Source)
                 return;
             var filter = this.Filter || ((item: any) => true);
-            for (var i = 0, j = 0, enumerator = this._Source.GetEnumerator(); enumerator.MoveNext(); i++) {
-                var isIncluded = filter(enumerator.Current);
-                var isCurrent = j < this.Count && this.GetValueAt(j) === enumerator.Current;
+            for (var i = 0, j = 0, enumerator = this._Source.getEnumerator(); enumerator.moveNext(); i++) {
+                var isIncluded = filter(enumerator.current);
+                var isCurrent = j < this.Count && this.GetValueAt(j) === enumerator.current;
                 if (isIncluded && !isCurrent)
-                    this.Insert(enumerator.Current, j);
+                    this.Insert(enumerator.current, j);
                 else if (!isIncluded && isCurrent)
                     this.RemoveAt(j);
                 if (isIncluded)

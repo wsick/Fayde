@@ -57,9 +57,9 @@ module Fayde.Media.Animation {
             this.Reset();
             var error = new BError();
             var promotedValues: any[] = [];
-            var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                var animation = <AnimationBase>enumerator.Current;
+            var enumerator = this.Children.getEnumerator();
+            while (enumerator.moveNext()) {
+                var animation = <AnimationBase>enumerator.current;
                 if (!animation._Hookup(promotedValues, error))
                     error.ThrowException();
             }
@@ -67,16 +67,16 @@ module Fayde.Media.Animation {
         }
         Pause() {
             super.Pause();
-            var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<Timeline>enumerator.Current).Pause();
+            var enumerator = this.Children.getEnumerator();
+            while (enumerator.moveNext()) {
+                (<Timeline>enumerator.current).Pause();
             }
         }
         Resume() {
             super.Resume();
-            var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<Timeline>enumerator.Current).Resume();
+            var enumerator = this.Children.getEnumerator();
+            while (enumerator.moveNext()) {
+                (<Timeline>enumerator.current).Resume();
             }
         }
         Stop() {
@@ -84,26 +84,26 @@ module Fayde.Media.Animation {
                 console.log(getLogMessage("Storyboard.Stop", this, false));
             super.Stop();
             Application.Current.UnregisterStoryboard(this);
-            var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<Timeline>enumerator.Current).Stop();
+            var enumerator = this.Children.getEnumerator();
+            while (enumerator.moveNext()) {
+                (<Timeline>enumerator.current).Stop();
             }
         }
 
         UpdateInternal(clockData: IClockData) {
             if (Animation.Log)
                 console.log(getLogMessage("Storyboard.UpdateInternal", this, false, clockData));
-            var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<Timeline>enumerator.Current).Update(clockData.CurrentTime.Ticks);
+            var enumerator = this.Children.getEnumerator();
+            while (enumerator.moveNext()) {
+                (<Timeline>enumerator.current).Update(clockData.CurrentTime.Ticks);
             }
         }
 
         GetNaturalDurationCore(): Duration {
             var fullTicks = 0;
-            var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                var timeline = <Timeline>enumerator.Current;
+            var enumerator = this.Children.getEnumerator();
+            while (enumerator.moveNext()) {
+                var timeline = <Timeline>enumerator.current;
                 var dur = timeline.GetNaturalDuration();
                 if (dur.IsAutomatic)
                     continue;
@@ -140,10 +140,10 @@ module Fayde.Media.Animation {
         var anims = [];
         var cur = "";
 
-        var enumerator = storyboard.Children.GetEnumerator();
+        var enumerator = storyboard.Children.getEnumerator();
         var animation: Timeline;
-        while (enumerator.MoveNext()) {
-            animation = enumerator.Current;
+        while (enumerator.moveNext()) {
+            animation = enumerator.current;
             cur = "";
             cur += "(";
             cur += (<any>animation).constructor.name;

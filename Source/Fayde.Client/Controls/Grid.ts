@@ -86,9 +86,9 @@ module Fayde.Controls {
                 var cuml = -1;
                 var cols = grid.ColumnDefinitions;
                 if (cols) {
-                    var enumerator = cols.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        cuml += enumerator.Current.ActualWidth;
+                    var enumerator = cols.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        cuml += enumerator.current.ActualWidth;
                         ctx.beginPath();
                         ctx.setLineDash([5]);
                         ctx.moveTo(cuml, 0);
@@ -99,9 +99,9 @@ module Fayde.Controls {
                 var rows = grid.RowDefinitions;
                 if (rows) {
                     cuml = -1;
-                    var enumerator2 = rows.GetEnumerator();
-                    while (enumerator2.MoveNext()) {
-                        cuml += enumerator2.Current.ActualHeight;
+                    var enumerator2 = rows.getEnumerator();
+                    while (enumerator2.moveNext()) {
+                        cuml += enumerator2.current.ActualHeight;
                         ctx.beginPath();
                         ctx.setLineDash([5]);
                         ctx.moveTo(0, cuml);
@@ -160,11 +160,11 @@ module Fayde.Controls {
                 totalStars.Height += 1.0;
             } else {
                 i = 0;
-                var enumerator = rows.GetEnumerator();
+                var enumerator = rows.getEnumerator();
                 var rowdef: RowDefinition = null;
                 var height: GridLength = null;
-                while (enumerator.MoveNext()) {
-                    rowdef = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    rowdef = enumerator.current;
                     height = rowdef.Height;
                     if (!height) height = defaultGridLength;
                     rowdef.SetValueInternal(RowDefinition.ActualHeightProperty, Number.POSITIVE_INFINITY);
@@ -193,11 +193,11 @@ module Fayde.Controls {
                 totalStars.Width += 1.0;
             } else {
                 i = 0;
-                var enumerator2 = cols.GetEnumerator();
+                var enumerator2 = cols.getEnumerator();
                 var coldef: ColumnDefinition = null;
                 var width: GridLength = null;
-                while (enumerator2.MoveNext()) {
-                    coldef = enumerator2.Current;
+                while (enumerator2.moveNext()) {
+                    coldef = enumerator2.current;
                     var width = coldef.Width;
                     if (!width) width = defaultGridLength;
                     coldef.SetValueInternal(ColumnDefinition.ActualWidthProperty, Number.POSITIVE_INFINITY);
@@ -263,8 +263,8 @@ module Fayde.Controls {
                 }
 
                 var e4 = grid.XamlNode.GetVisualTreeEnumerator();
-                while (e4.MoveNext()) {
-                    childNode = e4.Current;
+                while (e4.moveNext()) {
+                    childNode = e4.current;
                     child = childNode.XObject;
                     childLu = childNode.LayoutUpdater;
 
@@ -392,24 +392,24 @@ module Fayde.Controls {
                 this._ExpandStarRows(grid, finalSize);
 
             var i: number = 0;
-            var enumerator = cols.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                enumerator.Current.SetValueInternal(ColumnDefinition.ActualWidthProperty, cm[i][i].OfferedSize);
+            var enumerator = cols.getEnumerator();
+            while (enumerator.moveNext()) {
+                enumerator.current.SetValueInternal(ColumnDefinition.ActualWidthProperty, cm[i][i].OfferedSize);
                 i++;
             }
 
             i = 0;
-            var enumerator2 = rows.GetEnumerator();
-            while (enumerator2.MoveNext()) {
-                enumerator2.Current.SetValueInternal(RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
+            var enumerator2 = rows.getEnumerator();
+            while (enumerator2.moveNext()) {
+                enumerator2.current.SetValueInternal(RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
                 i++;
             }
 
             var enumerator3 = grid.XamlNode.GetVisualTreeEnumerator();
             var childNode: UINode;
             var child: UIElement;
-            while (enumerator3.MoveNext()) {
-                childNode = enumerator3.Current;
+            while (enumerator3.moveNext()) {
+                childNode = enumerator3.current;
                 child = childNode.XObject;
 
                 var col = Math.min(Grid.GetColumn(child), cm.length - 1);
@@ -456,9 +456,9 @@ module Fayde.Controls {
 
             var row: RowDefinition = null;
             i = 0;
-            var enumerator = rows.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                row = enumerator.Current;
+            var enumerator = rows.getEnumerator();
+            while (enumerator.moveNext()) {
+                row = enumerator.current;
                 cur = rm[i][i];
                 if (cur.Type === GridUnitType.Star)
                     row.SetValueInternal(RowDefinition.ActualHeightProperty, cur.OfferedSize);
@@ -484,9 +484,9 @@ module Fayde.Controls {
 
             var col: ColumnDefinition = null;
             i = 0;
-            var enumerator = cols.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                col = enumerator.Current;
+            var enumerator = cols.getEnumerator();
+            while (enumerator.moveNext()) {
+                col = enumerator.current;
                 cur = cm[i][i];
                 if (cur.Type === GridUnitType.Star)
                     col.SetValueInternal(ColumnDefinition.ActualWidthProperty, cur.OfferedSize);
@@ -703,8 +703,8 @@ module Fayde.Controls {
         var childNode: UINode = null;
         var child: UIElement;
         var enumerator = grid.XamlNode.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
-        while (enumerator.MoveNext()) {
-            childNode = enumerator.Current;
+        while (enumerator.moveNext()) {
+            childNode = enumerator.current;
             child = childNode.XObject;
 
             starCol = false;

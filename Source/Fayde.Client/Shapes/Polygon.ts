@@ -56,19 +56,19 @@ module Fayde.Shapes {
             this.SFlags = ShapeFlags.Normal;
 
             var path = new Fayde.Path.RawPath();
-            var enumerator = points.GetEnumerator();
-            enumerator.MoveNext();
-            var p = enumerator.Current;
+            var enumerator = points.getEnumerator();
+            enumerator.moveNext();
+            var p = enumerator.current;
             if (count === 2) {
-                enumerator.MoveNext();
-                var p2 = enumerator.Current;
+                enumerator.moveNext();
+                var p2 = enumerator.current;
                 extendLine(p, p2, this.StrokeThickness);
                 path.Move(p.X, p.Y);
                 path.Line(p2.X, p2.Y);
             } else {
                 path.Move(p.X, p.Y);
-                while (enumerator.MoveNext()) {
-                    p = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    p = enumerator.current;
                     path.Line(p.X, p.Y);
                 }
             }

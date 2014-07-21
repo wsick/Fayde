@@ -107,16 +107,16 @@ module Fayde.Controls {
         MeasureOverride(availableSize: size, error: BError): size {
             var childSize = size.createInfinite();
             var enumerator = this.Node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var childNode = enumerator.Current;
+            while (enumerator.moveNext()) {
+                var childNode = enumerator.current;
                 childNode.LayoutUpdater._Measure(childSize, error);
             }
             return new size();
         }
         ArrangeOverride(finalSize: size, error: BError): size {
             var enumerator = this.Node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var childNode = enumerator.Current;
+            while (enumerator.moveNext()) {
+                var childNode = enumerator.current;
                 var lu = childNode.LayoutUpdater;
                 var childFinal = rect.fromSize(lu.DesiredSize);
                 childFinal.X = Canvas.GetLeft(childNode.XObject);

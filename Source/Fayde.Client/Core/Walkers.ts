@@ -15,10 +15,10 @@ module Fayde {
     }
 
     function mergeSetters(arr: any[], dps: any[], style: Style) {
-        var enumerator = style.Setters.GetEnumerator(true);
+        var enumerator = style.Setters.getEnumerator(true);
         var setter: Setter;
-        while (enumerator.MoveNext()) {
-            setter = <Setter>enumerator.Current;
+        while (enumerator.moveNext()) {
+            setter = <Setter>enumerator.current;
             if (!(setter instanceof Fayde.Setter))
                 continue;
             var propd = setter.Property;
@@ -84,8 +84,8 @@ module Fayde {
                 if (last) {
                     var enumerator = last.GetVisualTreeEnumerator(dir);
                     var insertIndex = 0;
-                    while (enumerator.MoveNext()) {
-                        walkList.splice(insertIndex, 0, enumerator.Current);
+                    while (enumerator.moveNext()) {
+                        walkList.splice(insertIndex, 0, enumerator.current);
                         insertIndex++;
                     }
                 }

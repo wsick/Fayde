@@ -3,9 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    <script src="lib/requirejs/require.js"></script>
-    <script>
-        require.config({
+    <script data-config="true">
+        var require = {
             baseUrl: "./",
             paths: {
                 "text": "lib/requirejs/text",
@@ -24,8 +23,14 @@
                     exports: "Fayde.Controls"
                 }
             }
-        });
+        };
     </script>
+    <script data-lib="Fayde.Controls">
+    require.shim["lib/Fayde.Controls/Fayde.Controls"] = {
+        exports: "Fayde.Controls"
+    };
+    </script>
+    <script src="lib/requirejs/require.js"></script>
     <style>
         *
         {

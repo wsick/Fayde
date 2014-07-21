@@ -3,9 +3,9 @@
 module Fayde.Media.Animation {
     export class ObjectAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
         Resolve(target: DependencyObject, propd: DependencyProperty): boolean {
-            var enumerator = this.KeyFrames.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                var keyFrame = <ObjectKeyFrame>enumerator.Current;
+            var enumerator = this.KeyFrames.getEnumerator();
+            while (enumerator.moveNext()) {
+                var keyFrame = <ObjectKeyFrame>enumerator.current;
                 var value = keyFrame.Value;
                 if (value == null) {
                     keyFrame.ConvertedValue = undefined;

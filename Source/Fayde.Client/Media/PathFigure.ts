@@ -32,9 +32,9 @@ module Fayde.Media {
             var start = this.StartPoint;
             p.Move(start.X, start.Y);
 
-            var enumerator = this.Segments.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<PathSegment>enumerator.Current)._Append(p);
+            var enumerator = this.Segments.getEnumerator();
+            while (enumerator.moveNext()) {
+                (<PathSegment>enumerator.current)._Append(p);
             }
             if (this.IsClosed)
                 p.Close();

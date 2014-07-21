@@ -246,7 +246,6 @@
     <TypeScriptCompile Include="Runtime\Debug.ts" />
     <TypeScriptCompile Include="Runtime\Enum.ts" />
     <TypeScriptCompile Include="Runtime\Enumerable.ts" />
-    <TypeScriptCompile Include="Runtime\EnumerableEx.ts" />
     <TypeScriptCompile Include="Runtime\EventArgs.ts" />
     <TypeScriptCompile Include="Runtime\MulticastEvent.ts" />
     <TypeScriptCompile Include="Runtime\Nullstone.ts" />

@@ -38,12 +38,12 @@ module Fayde.Controls {
                 childAvailable.Height = Math.max(childAvailable.Height, sp.MinHeight);
             }
 
-            var enumerator = sp.Children.GetEnumerator();
+            var enumerator = sp.Children.getEnumerator();
             var child: UIElement;
             var childNode: UINode;
             var childLu: LayoutUpdater;
-            while (enumerator.MoveNext()) {
-                child = enumerator.Current;
+            while (enumerator.moveNext()) {
+                child = enumerator.current;
                 childNode = child.XamlNode;
                 var childLu = childNode.LayoutUpdater;
 
@@ -70,12 +70,12 @@ module Fayde.Controls {
             else
                 arranged.Width = 0;
 
-            var enumerator = sp.Children.GetEnumerator();
+            var enumerator = sp.Children.getEnumerator();
             var child: UIElement;
             var childNode: UINode;
             var childLu: LayoutUpdater;
-            while (enumerator.MoveNext()) {
-                child = enumerator.Current;
+            while (enumerator.moveNext()) {
+                child = enumerator.current;
                 childNode = child.XamlNode;
                 var childLu = childNode.LayoutUpdater;
 

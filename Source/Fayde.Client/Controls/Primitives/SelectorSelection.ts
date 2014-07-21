@@ -43,18 +43,18 @@ module Fayde.Controls.Primitives {
                         var ownerItems = this._Owner.SelectedItems;
 
                         var item: any;
-                        var enumerator = ownerItems.GetEnumerator();
-                        while (enumerator.MoveNext()) {
-                            item = enumerator.Current;
+                        var enumerator = ownerItems.getEnumerator();
+                        while (enumerator.moveNext()) {
+                            item = enumerator.current;
                             if (ownerItems.Contains(item))
                                 continue;
                             if (items.indexOf(item) > -1)
                                 this.RemoveFromSelected(item);
                         }
 
-                        enumerator = ownerItems.GetEnumerator();
-                        while (enumerator.MoveNext()) {
-                            item = enumerator.Current;
+                        enumerator = ownerItems.getEnumerator();
+                        while (enumerator.moveNext()) {
+                            item = enumerator.current;
                             if (items.indexOf(item) < 0)
                                 this.AddToSelected(item);
                         }
@@ -172,7 +172,7 @@ module Fayde.Controls.Primitives {
                     throw new NotSupportedException("Cannot call SelectAll when in Single select mode");
 
                 var selectedItems = this._SelectedItems;
-                var select = ArrayEx.Except(items, selectedItems);
+                var select = except(items, selectedItems);
                 if (select.length === 0)
                     return;
 
@@ -288,7 +288,7 @@ module Fayde.Controls.Primitives {
         var c: any;
         for (var i = 0, len = arr1.length; i < len; i++) {
             c = arr1[i];
-            if (arr2.indexOf(c) === -1)
+            if (arr2.indexOf(c) < 0)
                 r.push(c);
         }
         return r;

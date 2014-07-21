@@ -12,9 +12,9 @@ module Fayde.Media {
             var start = data.start;
             var end = data.end;
             var grd = ctx.createLinearGradient(start.X, start.Y, end.X, end.Y);
-            var enumerator = this.GradientStops.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                var stop: GradientStop = enumerator.Current;
+            var enumerator = this.GradientStops.getEnumerator();
+            while (enumerator.moveNext()) {
+                var stop: GradientStop = enumerator.current;
                 grd.addColorStop(stop.Offset, stop.Color.toString());
             }
             return grd;
@@ -34,9 +34,9 @@ module Fayde.Media {
             var steps = (last.x - first.x) / dir.x;
             var curOffset = 0.0;
             for (var i = 0; i < steps; i++) {
-                var enumerator = this.GradientStops.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    var stop: GradientStop = enumerator.Current;
+                var enumerator = this.GradientStops.getEnumerator();
+                while (enumerator.moveNext()) {
+                    var stop: GradientStop = enumerator.current;
                     grd.addColorStop(curOffset + (stop.Offset / steps), stop.Color.toString());
                 }
 
@@ -66,10 +66,10 @@ module Fayde.Media {
         }
 
         toString(): string {
-            var enumerator = this.GradientStops.GetEnumerator();
+            var enumerator = this.GradientStops.getEnumerator();
             var ser = [];
-            while (enumerator.MoveNext()) {
-                ser.push(enumerator.Current.toString());
+            while (enumerator.moveNext()) {
+                ser.push(enumerator.current.toString());
             }
             return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";
         }

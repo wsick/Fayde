@@ -6,7 +6,7 @@ module Fayde.Collections {
     export class ObservableCollection<T> implements IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {
         private _ht: T[] = [];
 
-        GetEnumerator(): IEnumerator<T> {
+        getEnumerator(): IEnumerator<T> {
             return ArrayEx.GetEnumerator(this._ht);
         }
         CollectionChanged = new MulticastEvent<CollectionChangedEventArgs>();

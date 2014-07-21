@@ -35,7 +35,7 @@ export function run() {
         icm.OnItemsAdded(0, [1, 2, 3, 4, 5]);
 
         var count = 0;
-        for (var i = 0, enumerator = icm.GetEnumerator(0, 5); enumerator.MoveNext(); i++) {
+        for (var i = 0, enumerator = icm.GetEnumerator(0, 5); enumerator.moveNext(); i++) {
             strictEqual(enumerator.CurrentItem, i + 1);
             strictEqual(enumerator.CurrentIndex, i);
             count++;
@@ -48,7 +48,7 @@ export function run() {
         icm.OnItemsAdded(0, [1, 2, 3, 4, 5]);
 
         var count = 0;
-        for (var i = 2, enumerator = icm.GetEnumerator(2, 2); enumerator.MoveNext(); i++) {
+        for (var i = 2, enumerator = icm.GetEnumerator(2, 2); enumerator.moveNext(); i++) {
             strictEqual(enumerator.CurrentItem, i + 1);
             strictEqual(enumerator.CurrentIndex, i);
             count++;
@@ -60,7 +60,7 @@ export function run() {
         icm.OnItemsAdded(0, [1, 2, 3, 4, 5]);
 
         var count = 0;
-        for (var i = 4, enumerator = icm.GetEnumerator(4, 2); enumerator.MoveNext(); i++) {
+        for (var i = 4, enumerator = icm.GetEnumerator(4, 2); enumerator.moveNext(); i++) {
             strictEqual(enumerator.CurrentItem, i + 1);
             strictEqual(enumerator.CurrentIndex, i);
             count++;

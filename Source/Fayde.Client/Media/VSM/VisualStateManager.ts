@@ -104,9 +104,9 @@ module Fayde.Media.VSM {
             var groups = VisualStateManager.GetVisualStateGroups(root);
             if (!groups)
                 return false;
-            var enumerator = groups.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<VisualStateGroup>enumerator.Current).StopCurrentStoryboards(root);
+            var enumerator = groups.getEnumerator();
+            while (enumerator.moveNext()) {
+                (<VisualStateGroup>enumerator.current).StopCurrentStoryboards(root);
             }
         }
 
@@ -116,8 +116,8 @@ module Fayde.Media.VSM {
 
             var enumerator = control.XamlNode.GetVisualTreeEnumerator();
             var node: FENode = null;
-            if (enumerator.MoveNext()) {
-                node = enumerator.Current;
+            if (enumerator.moveNext()) {
+                node = enumerator.current;
                 if (!(node instanceof FENode))
                     node = null;
             }
@@ -130,17 +130,17 @@ module Fayde.Media.VSM {
             var groups = VisualStateManager.GetVisualStateGroups(root);
             if (!groups)
                 return null;
-            var enumerator = groups.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                if (enumerator.Current.Name === name)
-                    return enumerator.Current;
+            var enumerator = groups.getEnumerator();
+            while (enumerator.moveNext()) {
+                if (enumerator.current.Name === name)
+                    return enumerator.current;
             }
             return null;
         }
         private static _TryGetState(groups: VisualStateGroupCollection, stateName: string, data: IStateData): boolean {
-            var enumerator = groups.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                data.group = enumerator.Current;
+            var enumerator = groups.getEnumerator();
+            while (enumerator.moveNext()) {
+                data.group = enumerator.current;
                 data.state = data.group.GetState(stateName);
                 if (data.state)
                     return true;
@@ -162,10 +162,10 @@ module Fayde.Media.VSM {
             var defaultTransition = null;
             var bestScore = -1;
 
-            var enumerator = group.Transitions.GetEnumerator();
+            var enumerator = group.Transitions.getEnumerator();
             var transition: VisualTransition;
-            while (enumerator.MoveNext()) {
-                transition = enumerator.Current;
+            while (enumerator.moveNext()) {
+                transition = enumerator.current;
                 if (!defaultTransition && transition.IsDefault) {
                     defaultTransition = transition;
                     continue;

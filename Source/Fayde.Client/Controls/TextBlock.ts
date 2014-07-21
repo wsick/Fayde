@@ -157,9 +157,9 @@ module Fayde.Controls {
             var length = 0;
             var runs: Text.ITextAttributes[] = [];
             var count = inlines.Count;
-            var enumerator = inlines.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.Current, length, runs);
+            var enumerator = inlines.getEnumerator();
+            while (enumerator.moveNext()) {
+                length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.current, length, runs);
             }
             if (count > 0)
                 this._WasSet = true;
@@ -178,9 +178,9 @@ module Fayde.Controls {
                 length += 1; //line break length
             } else if (item instanceof Documents.Span) {
                 var inlines = (<Documents.Span>item).Inlines;
-                var enumerator = inlines.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.Current, length, runs);
+                var enumerator = inlines.getEnumerator();
+                while (enumerator.moveNext()) {
+                    length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.current, length, runs);
                 }
             }
             return length;
@@ -190,9 +190,9 @@ module Fayde.Controls {
             if (!inlines)
                 return "";
             var block = "";
-            var enumerator = inlines.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                block += (<Documents.Inline>enumerator.Current)._SerializeText();
+            var enumerator = inlines.getEnumerator();
+            while (enumerator.moveNext()) {
+                block += (<Documents.Inline>enumerator.current)._SerializeText();
             }
             return block;
         }

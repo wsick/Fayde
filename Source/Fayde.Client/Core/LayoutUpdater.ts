@@ -306,8 +306,8 @@ module Fayde {
         }
         private _PropagateDirtyFlagToChildren(dirt: _Dirty) {
             var enumerator = this.Node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                (<UINode>enumerator.Current).LayoutUpdater._AddDirtyElement(dirt);
+            while (enumerator.moveNext()) {
+                (<UINode>enumerator.current).LayoutUpdater._AddDirtyElement(dirt);
             }
         }
         private _AddDirtyElement(dirt: _Dirty) {
@@ -638,8 +638,8 @@ module Fayde {
 
             var node = this.Node;
             var enumerator = node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var item = <UINode>enumerator.Current;
+            while (enumerator.moveNext()) {
+                var item = <UINode>enumerator.current;
                 var itemlu = item.LayoutUpdater;
                 if (itemlu.TotalIsRenderVisible)
                     rect.union(ewc, itemlu.GlobalBoundsWithChildren);
@@ -955,8 +955,8 @@ module Fayde {
             size.max(availableSize, desired);
 
             var enumerator = node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var childNode = <FENode>enumerator.Current;
+            while (enumerator.moveNext()) {
+                var childNode = <FENode>enumerator.current;
                 var childLu = childNode.LayoutUpdater;
                 childLu._Measure(availableSize, error);
                 desired = size.copyTo(childLu.DesiredSize);
@@ -1206,8 +1206,8 @@ module Fayde {
             arranged = size.copyTo(finalSize);
 
             var enumerator = node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var childNode = <FENode>enumerator.Current;
+            while (enumerator.moveNext()) {
+                var childNode = <FENode>enumerator.current;
                 var childRect = rect.fromSize(finalSize);
                 childNode.LayoutUpdater._Arrange(childRect, error);
                 size.max(arranged, finalSize);
@@ -1253,8 +1253,8 @@ module Fayde {
 
             Fayde.Render.DebugIndent++;
             var enumerator = this.Node.GetVisualTreeEnumerator(VisualTreeDirection.ZFoward);
-            while (enumerator.MoveNext()) {
-                (<UINode>enumerator.Current).LayoutUpdater.DoRender(ctx, region);
+            while (enumerator.moveNext()) {
+                (<UINode>enumerator.current).LayoutUpdater.DoRender(ctx, region);
             }
             Fayde.Render.DebugIndent--;
 
@@ -1290,8 +1290,8 @@ module Fayde {
 
             uinlist.unshift(thisNode);
             var enumerator = thisNode.GetVisualTreeEnumerator(VisualTreeDirection.ZFoward);
-            while (enumerator.MoveNext()) {
-                (<UINode>enumerator.Current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist, true);
+            while (enumerator.moveNext()) {
+                (<UINode>enumerator.current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist, true);
             }
 
             if (thisNode === uinlist[0]) {
@@ -1322,8 +1322,8 @@ module Fayde {
             uinlist.unshift(thisNode);
             var hit = false;
             var enumerator = thisNode.GetVisualTreeEnumerator(VisualTreeDirection.ZReverse);
-            while (enumerator.MoveNext()) {
-                var childNode = (<FENode>enumerator.Current);
+            while (enumerator.moveNext()) {
+                var childNode = (<FENode>enumerator.current);
                 childNode.LayoutUpdater.HitTestPoint(ctx, p, uinlist);
                 if (thisNode !== uinlist[0]) {
                     hit = true;

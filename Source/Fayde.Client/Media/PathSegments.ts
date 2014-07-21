@@ -82,13 +82,13 @@ module Fayde.Media {
             var p1: Point;
             var p2: Point;
             var p3: Point;
-            var enumerator = points.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                p1 = enumerator.Current;
-                enumerator.MoveNext();
-                p2 = enumerator.Current;
-                enumerator.MoveNext();
-                p3 = enumerator.Current;
+            var enumerator = points.getEnumerator();
+            while (enumerator.moveNext()) {
+                p1 = enumerator.current;
+                enumerator.moveNext();
+                p2 = enumerator.current;
+                enumerator.moveNext();
+                p3 = enumerator.current;
                 path.CubicBezier(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
             }
         }
@@ -107,9 +107,9 @@ module Fayde.Media {
 
         _Append(path: Path.RawPath) {
             var p: Point;
-            var enumerator = this.Points.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                p = enumerator.Current;
+            var enumerator = this.Points.getEnumerator();
+            while (enumerator.moveNext()) {
+                p = enumerator.current;
                 path.Line(p.X, p.Y);
             }
             NotImplemented("PolyLineSegment._Append");
@@ -140,13 +140,13 @@ module Fayde.Media {
             var y2: number;
             var x3: number;
             var y3: number;
-            var enumerator = points.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                x1 = enumerator.Current.X;
-                y1 = enumerator.Current.Y;
-                enumerator.MoveNext();
-                x2 = enumerator.Current.X;
-                y2 = enumerator.Current.Y;
+            var enumerator = points.getEnumerator();
+            while (enumerator.moveNext()) {
+                x1 = enumerator.current.X;
+                y1 = enumerator.current.Y;
+                enumerator.moveNext();
+                x2 = enumerator.current.X;
+                y2 = enumerator.current.Y;
                 x3 = x2;
                 y3 = y2;
                 

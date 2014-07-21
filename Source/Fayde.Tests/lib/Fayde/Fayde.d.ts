@@ -109,22 +109,18 @@ declare module Fayde.Collections {
 }
 declare module Fayde {
     interface IEnumerable<T> {
-        GetEnumerator(reverse?: boolean): IEnumerator<T>;
+        getEnumerator(): IEnumerator<T>;
     }
     var IEnumerable_: IInterfaceDeclaration<IEnumerable<any>>;
     interface IEnumerator<T> {
-        Current: T;
-        MoveNext(): boolean;
+        current: T;
+        moveNext(): boolean;
     }
     var IEnumerator_: IInterfaceDeclaration<IEnumerator<any>>;
     class ArrayEx {
         static EmptyEnumerator: IEnumerator<any>;
-        static AsEnumerable<T>(arr: T[]): IEnumerable<T>;
         static GetEnumerator<T>(arr: T[], isReverse?: boolean): IEnumerator<T>;
         static GetNodeEnumerator<T extends XamlObject, U extends XamlNode>(arr: T[], isReverse?: boolean): IEnumerator<U>;
-        static RemoveIfContains<T>(arr: T[], item: T): boolean;
-        static Except<T>(arr1: T[], arr2: T[]): T[];
-        static Fill<T>(arr: T[], index: number, count: number, fill: T): void;
     }
 }
 declare module Fayde {
@@ -140,7 +136,7 @@ declare module Fayde {
 declare module Fayde.Collections {
     class ObservableCollection<T> implements IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {
         private _ht;
-        public GetEnumerator(): IEnumerator<T>;
+        public getEnumerator(): IEnumerator<T>;
         public CollectionChanged: MulticastEvent<CollectionChangedEventArgs>;
         public PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
         public Count : number;
@@ -1199,7 +1195,7 @@ declare module Fayde {
         public CanAdd(value: T): boolean;
         public AddingToCollection(value: T, error: BError): boolean;
         public RemovedFromCollection(value: T, isValueSafe: boolean): void;
-        public GetEnumerator(reverse?: boolean): IEnumerator<T>;
+        public getEnumerator(reverse?: boolean): IEnumerator<T>;
         public GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U>;
         public _RaiseItemAdded(value: T, index: number): void;
         public _RaiseItemRemoved(value: T, index: number): void;
@@ -3033,7 +3029,7 @@ declare module Fayde {
         public Get(key: any): any;
         public Set(key: any, value: any): boolean;
         public Remove(key: any): boolean;
-        public GetEnumerator(reverse?: boolean): IEnumerator<any>;
+        public getEnumerator(reverse?: boolean): IEnumerator<any>;
         public GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U>;
     }
 }
@@ -5357,6 +5353,7 @@ declare class TimeSpan {
     public IsZero(): boolean;
     public GetJsDelay(): number;
     public toString(format?: string): string;
+    public valueOf(): Object;
 }
 declare enum DayOfWeek {
     Sunday = 0,
@@ -5416,6 +5413,7 @@ declare class DateTime {
     public Subtract(value: TimeSpan): DateTime;
     public ToUniversalTime(): DateTime;
     public toString(format?: string): string;
+    public valueOf(): Object;
 }
 declare enum DurationType {
     Automatic = 0,
@@ -5622,27 +5620,6 @@ declare class Enum implements IType {
     public Object: any;
     constructor(Object: any);
 }
-declare module Fayde {
-    class Enumerable<T> implements IEnumerable<T>, IEnumerator<T> {
-        public GetEnumerator(): IEnumerator<T>;
-        public Current: T;
-        public MoveNext(): boolean;
-        public Aggregate<TAccumulate>(seed: TAccumulate, func: (u: TAccumulate, t: T) => TAccumulate): TAccumulate;
-        public Where(filter: (t: T) => boolean): IEnumerable<T>;
-        public Select<TOut>(projection: (t: T) => TOut): IEnumerable<TOut>;
-        public All(filter: (t: T) => boolean): boolean;
-        public Any(filter: (t: T) => boolean): boolean;
-        public Average(func: (t: T) => number): number;
-        static Count<S>(enumerable: IEnumerable<S>): number;
-        static Contains<S>(enumerable: IEnumerable<S>, item: S): boolean;
-        static IndexOf<S>(enumerable: IEnumerable<S>, item: S): number;
-        static FirstOrDefault<S>(enumerable: IEnumerable<S>, filter?: (item: S) => boolean): S;
-        static ElementAt<S>(enumerable: IEnumerable<S>, index: number): S;
-        static ElementAtOrDefault<S>(enumerable: IEnumerable<S>, index: number): S;
-        static Where<S>(enumerable: IEnumerable<S>, filter: (item: S) => boolean): IEnumerable<S>;
-        static ToArray<S>(enumerable: IEnumerable<S>): S[];
-    }
-}
 interface IPropertyInfo {
 }
 declare class PropertyInfo implements IPropertyInfo {
@@ -5827,7 +5804,7 @@ declare module Fayde.Shapes {
         public Clear(): void;
         public IndexOf(value: Point): number;
         public Contains(value: Point): boolean;
-        public GetEnumerator(reverse?: boolean): IEnumerator<Point>;
+        public getEnumerator(reverse?: boolean): IEnumerator<Point>;
     }
 }
 declare module Fayde.Shapes {

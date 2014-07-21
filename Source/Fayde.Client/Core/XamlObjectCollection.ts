@@ -103,7 +103,7 @@ module Fayde {
                 value.XamlNode.Detach();
         }
 
-        GetEnumerator(reverse?: boolean): IEnumerator<T> {
+        getEnumerator(reverse?: boolean): IEnumerator<T> {
             return Fayde.ArrayEx.GetEnumerator(this._ht, reverse);
         }
         GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U> {
@@ -118,8 +118,8 @@ module Fayde {
 
         CloneCore(source: XamlObjectCollection<T>) {
             var enumerator = ArrayEx.GetEnumerator(source._ht);
-            while (enumerator.MoveNext()) {
-                this.Add(Fayde.Clone(enumerator.Current));
+            while (enumerator.moveNext()) {
+                this.Add(Fayde.Clone(enumerator.current));
             }
         }
 

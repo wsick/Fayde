@@ -43,8 +43,8 @@ module Fayde {
                 Providers.ImplicitStyleBroker.Set(xobj, Providers.StyleMask.All);
             }
             var enumerator = this.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                enumerator.Current.SetIsLoaded(newIsLoaded);
+            while (enumerator.moveNext()) {
+                enumerator.current.SetIsLoaded(newIsLoaded);
             }
             if (newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?

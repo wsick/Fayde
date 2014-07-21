@@ -9,9 +9,9 @@ module Fayde {
     
     export class TriggerActionCollection extends XamlObjectCollection<TriggerAction> {
         Fire() {
-            var enumerator = this.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<TriggerAction>enumerator.Current).Fire();
+            var enumerator = this.getEnumerator();
+            while (enumerator.moveNext()) {
+                (<TriggerAction>enumerator.current).Fire();
             }
         }
     }
@@ -103,15 +103,15 @@ module Fayde {
         }
 
         AttachTarget(target: XamlObject) {
-            var enumerator = this.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<TriggerBase>enumerator.Current).Attach(target);
+            var enumerator = this.getEnumerator();
+            while (enumerator.moveNext()) {
+                (<TriggerBase>enumerator.current).Attach(target);
             }
         }
         DetachTarget(target: XamlObject) {
-            var enumerator = this.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<TriggerBase>enumerator.Current).Detach(target);
+            var enumerator = this.getEnumerator();
+            while (enumerator.moveNext()) {
+                (<TriggerBase>enumerator.current).Detach(target);
             }
         }
     }
