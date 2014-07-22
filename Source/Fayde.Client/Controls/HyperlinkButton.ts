@@ -37,12 +37,16 @@ module Fayde.Controls {
         */
         private _Navigate() {
             var targetName = this.TargetName;
+            var targetUie;
             if (!targetName) {
-                window.location.href = this.NavigateUri.toString();
-                return;
+                targetUie = VisualTreeHelper.GetParentOfType(this, Fayde.Controls.Frame);
+            } else {
+                targetUie = this.FindName(targetName, true);
             }
-            var targetUie = this.FindName(targetName, true);
-            if (targetUie instanceof Frame) {
+
+            if (!targetUie) {
+                window.location.href = this.NavigateUri.toString();
+            } else if (targetUie instanceof Frame) {
                 window.location.hash = this.NavigateUri.toString();
             } else {
                 window.open(this.NavigateUri.toString(), targetName);
