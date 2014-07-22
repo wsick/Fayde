@@ -1,0 +1,8 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    ThemeName="Metro">
+    <Grid Background="Silver">
+        <TextBlock FontSize="40" Foreground="White" Text="Testing Foreground and FontSize" />
+    </Grid>
+</Application>

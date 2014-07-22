@@ -1,0 +1,9 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    ThemeName="Metro">
+    <Grid x:Name="LayoutRoot">
+        <ScrollBar Width="30" Height="300" Orientation="Vertical">
+        </ScrollBar>
+    </Grid>
+</Application>

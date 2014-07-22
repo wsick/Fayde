@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="/Fayde/Fayde.js"></script>
+    <script src="util.js"></script>
+    <script type="text/javascript">
+        var config = {
+            w: 800,
+            h: 800,
+            bg: "#eeeeee"
+        };
+        var canvas;
+        var ctx;
+        var info;
+
+        function load() {
+            var canvas = addCanvas(config);
+            ctx = canvas.getContext("2d");
+            info = document.getElementById("info");
+            go();
+        }
+
+        function go() {
+            var s = randomPoint(0, config.w, 0, config.h);
+            var rnd = cubicbezier.random(config);
+
+            var path = new Fayde.Path.RawPath();
+            path.Move(s.x, s.y);
+            path.CubicBezier(rnd.cp1x, rnd.cp1y, rnd.cp2x, rnd.cp2y, rnd.x, rnd.y);
+
+            var strokePars = randomStrokeParameters();
+
+            ctx.clearRect(0, 0, config.w, config.h);
+            path.Draw(ctx);
+            pathStroke(ctx, "rgb(0,0,0)", strokePars);
+
+            drawGuideLine(ctx, s.x, s.y, rnd.cp1x, rnd.cp1y, 1);
+            drawGuideLine(ctx, rnd.cp1x, rnd.cp1y, rnd.cp2x, rnd.cp2y, 2);
+            drawGuideLine(ctx, rnd.cp2x, rnd.cp2y, rnd.x, rnd.y, 3);
+
+            drawStartPoint(ctx, s.x, s.y);
+            drawControlPoint(ctx, rnd.cp1x, rnd.cp1y, 1);
+            drawControlPoint(ctx, rnd.cp2x, rnd.cp2y, 2);
+            drawEndPoint(ctx, rnd.x, rnd.y);
+
+            drawBoundingBox(path, strokePars);
+
+            var m = cubicbezier.maxima(s.x, rnd.cp1x, rnd.cp2x, rnd.x, s.y, rnd.cp1y, rnd.cp2y, rnd.y);
+            drawPoint(ctx, m[0].x, m[0].y, "#0aaa00");
+            drawPoint(ctx, m[1].x, m[1].y, "#0aaa00");
+            drawPoint(ctx, m[2].x, m[2].y, "#0aaa00");
+            drawPoint(ctx, m[3].x, m[3].y, "#0aaa00");
+
+            dumpinfo(strokePars);
+        }
+
+        function dumpinfo(pars) {
+            info.innerText = strokeParamsToString(pars);
+        }
+    </script>
+</head>
+<body onload="load()">
+    <input type="button" value="again" onclick="go()" />
+    <span id="info"></span>
+    <br />
+</body>
+</html>

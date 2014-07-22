@@ -25,6 +25,13 @@ module.exports = function (grunt) {
                     module: 'amd',
                     sourceMap: true
                 }
+            },
+            testsite: {
+                src: ['testsite/**/*.ts'],
+                options: {
+                    target: 'es5',
+                    module: 'amd'
+                }
             }
         },
         copy: {
@@ -33,6 +40,13 @@ module.exports = function (grunt) {
                     { expand: true, flatten: true, src: ['Themes/*'], dest: 'test/lib/Fayde/Themes', filter: 'isFile' },
                     { expand: true, flatten: true, src: ['Fayde.js'], dest: 'test/lib/Fayde', filter: 'isFile' },
                     { expand: true, flatten: true, src: ['Fayde.d.ts'], dest: 'test/lib/Fayde', filter: 'isFile' }
+                ]
+            },
+            pretestsite: {
+                files: [
+                    { expand: true, flatten: true, src: ['Themes/*'], dest: 'testsite/lib/Fayde/Themes', filter: 'isFile' },
+                    { expand: true, flatten: true, src: ['Fayde.js'], dest: 'testsite/lib/Fayde', filter: 'isFile' },
+                    { expand: true, flatten: true, src: ['Fayde.d.ts'], dest: 'testsite/lib/Fayde', filter: 'isFile' }
                 ]
             }
         },
@@ -61,8 +75,27 @@ module.exports = function (grunt) {
         }
     });
 
+    grunt.registerTask('install:test', 'Install test dependencies', function () {
+        var exec = require('child_process').exec;
+        var cb = this.async();
+        exec('bower install', {cwd: './test'}, function (err, stdout, stderr) {
+            console.log(stdout);
+            cb();
+        });
+    });
+
+    grunt.registerTask('install:testsite', 'Install test site dependencies', function () {
+        var exec = require('child_process').exec;
+        var cb = this.async();
+        exec('bower install', {cwd: './testsite'}, function (err, stdout, stderr) {
+            console.log(stdout);
+            cb();
+        });
+    });
+
     grunt.registerTask('default', ['typescript:build']);
-    grunt.registerTask('test', ['typescript:build', 'copy:pretest', 'typescript:test', 'qunit']);
+    grunt.registerTask('test', ['install:test', 'typescript:build', 'copy:pretest', 'typescript:test', 'qunit']);
+    grunt.registerTask('testsite', ['install:testsite', 'typescript:build', 'copy:pretestsite', 'typescript:testsite']);
     grunt.registerTask('package', ['shell:package']);
     grunt.registerTask('publish', ['shell:package', 'shell:publish']);
 };

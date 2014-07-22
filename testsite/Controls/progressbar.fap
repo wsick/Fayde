@@ -1,0 +1,11 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    ThemeName="Metro">
+    <StackPanel Width="100">
+        <ProgressBar Value="50" Margin="0,5" />
+        <!--
+        <ProgressBar Value="50" Margin="0,5" IsIndeterminate="True" />
+        -->
+    </StackPanel>
+</Application>

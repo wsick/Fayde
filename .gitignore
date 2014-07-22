@@ -106,3 +106,10 @@ test/tests/UriMapperTests.js
 test/tests/XamlLoadTests.js
 test/tests/XamlNodeTests.js
 test/lib
+testsite/lib
+testsite/Binding/DoubleListBoxViewModel.js
+testsite/Binding/TestViewModel.js
+testsite/Controls/TestClass.js
+testsite/Format/TestViewModel.js
+testsite/Shapes/map.js
+testsite/Stress/LargeList.js
