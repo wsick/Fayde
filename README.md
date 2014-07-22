@@ -9,6 +9,7 @@ Make sure all prerequisites are installed.
 * bower
 
 Now run these commands from the root directory.
+
     > npm install
     > cd test
     > bower install
