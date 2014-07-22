@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.wsick.com/fayde/x"
     ThemeName="Metro">
     <StackPanel>
-        <Image Source="../Images/testing.jpg" />
-        <Image Source="../Images/testing.jpg" />
+        <Image Source="Images/testing.jpg" />
+        <Image Source="Images/testing.jpg" />
     </StackPanel>
 </Application>

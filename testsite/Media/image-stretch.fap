@@ -17,7 +17,7 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <TextBlock Text="Stretch: None" />
-            <Image Grid.Row="1" Source="../Images/testing.jpg" Stretch="None" />
+            <Image Grid.Row="1" Source="Images/testing.jpg" Stretch="None" />
         </Grid>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
@@ -25,7 +25,7 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <TextBlock Text="Stretch: Uniform" />
-            <Image Grid.Row="1" Source="../Images/testing.jpg" Stretch="Uniform" />
+            <Image Grid.Row="1" Source="Images/testing.jpg" Stretch="Uniform" />
         </Grid>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
@@ -33,7 +33,7 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <TextBlock Text="Stretch: UniformToFill" />
-            <Image Grid.Row="1" Source="../Images/testing.jpg" Stretch="UniformToFill" />
+            <Image Grid.Row="1" Source="Images/testing.jpg" Stretch="UniformToFill" />
         </Grid>
         <Grid Grid.Column="1" Grid.Row="1">
             <Grid.RowDefinitions>
@@ -41,7 +41,7 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <TextBlock Text="Stretch: Fill" />
-            <Image Grid.Row="1" Source="../Images/testing.jpg" Stretch="Fill" />
+            <Image Grid.Row="1" Source="Images/testing.jpg" Stretch="Fill" />
         </Grid>
     </Grid>
 </Application>

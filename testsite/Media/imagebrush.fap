@@ -13,22 +13,22 @@
         </Grid.ColumnDefinitions>
         <Grid>
             <Grid.Background>
-                <ImageBrush Stretch="None" ImageSource="../Images/tile-test.png" />
+                <ImageBrush Stretch="None" ImageSource="Images/tile-test.png" />
             </Grid.Background>
         </Grid>
         <Grid Grid.Column="1">
             <Grid.Background>
-                <ImageBrush Stretch="Fill" ImageSource="../Images/tile-test.png" />
+                <ImageBrush Stretch="Fill" ImageSource="Images/tile-test.png" />
             </Grid.Background>
         </Grid>
         <Grid Grid.Row="1">
             <Grid.Background>
-                <ImageBrush Stretch="Uniform" ImageSource="../Images/tile-test.png" />
+                <ImageBrush Stretch="Uniform" ImageSource="Images/tile-test.png" />
             </Grid.Background>
         </Grid>
         <Grid Grid.Row="1" Grid.Column="1">
             <Grid.Background>
-                <ImageBrush Stretch="UniformToFill" ImageSource="../Images/tile-test.png" />
+                <ImageBrush Stretch="UniformToFill" ImageSource="Images/tile-test.png" />
             </Grid.Background>
         </Grid>
     </Grid>
