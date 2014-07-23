@@ -19,11 +19,10 @@ module.exports = function (grunt) {
             vers.bump(part);
             grunt.log.writeln('Updated version: ' + vers);
 
-            pkg.version = vers.toString();
-            grunt.config.pkg.version = pkg.version;
+            grunt.version = pkg.version = vers.toString();
             grunt.file.write('./package.json', JSON.stringify(pkg, undefined, 2));
         } catch (err) {
-            grunt.fail.fatal('Error bumping version.', err);
+            grunt.fail.fatal('Error bumping version:' + err);
         }
 
     }

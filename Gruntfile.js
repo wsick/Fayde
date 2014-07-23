@@ -7,9 +7,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-shell');
+    grunt.loadNpmTasks('grunt-nuget');
 
     grunt.initConfig({
-        nuget: grunt.file.readJSON('./nuget.json'),
         pkg: grunt.file.readJSON('./package.json'),
         setup: {
             test: {
@@ -68,28 +68,26 @@ module.exports = function (grunt) {
             files: 'src/**/*.ts',
             tasks: ['typescript:build']
         },
-        shell: {
-            package: {
-                options: {
-                    stdout: true,
-                    stderr: true
-                },
-                command: 'powershell ./package.ps1 <%= pkg.version %>'
-            },
-            publish: {
-                options: {
-                    stdout: true,
-                    stderr: true
-                },
-                command: 'nuget push "./nuget/exjs.<%= pkg.version %>.nupkg" <%= nuget.apiKey %>'
-            }
-        },
         version: {
             bump: {
             },
             apply: {
                 src: './build/_VersionTemplate._ts',
                 dest: './Source/Fayde.Client/_Version.ts'
+            }
+        },
+        nugetpack: {
+            dist: {
+                src: './nuget/Fayde.nuspec',
+                dest: './nuget/',
+                options: {
+                    version: '<%= pkg.version %>'
+                }
+            }
+        },
+        nugetpush: {
+            dist: {
+                src: './nuget/Fayde.<%= pkg.version %>.nupkg'
             }
         }
     });
@@ -99,7 +97,7 @@ module.exports = function (grunt) {
     grunt.registerTask('testsite', ['setup:testsite', 'version:apply', 'typescript:build', 'copy:pretestsite', 'typescript:testsite']);
     setup(grunt);
     version(grunt);
-    grunt.registerTask('package', ['shell:package']);
-    grunt.registerTask('publish', ['shell:package', 'shell:publish']);
+    grunt.registerTask('package', ['nugetpack:dist']);
+    grunt.registerTask('publish', ['nugetpack:dist', 'nugetpush:dist']);
 
 };
