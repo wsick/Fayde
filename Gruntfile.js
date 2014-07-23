@@ -1,6 +1,4 @@
-var bump_version = require('./build/bump-version'),
-    set_version = require('./build/set-version'),
-    apply_version = require('./build/apply-version'),
+var version = require('./build/version'),
     setup = require('./build/setup');
 
 module.exports = function (grunt) {
@@ -86,9 +84,13 @@ module.exports = function (grunt) {
                 command: 'nuget push "./nuget/exjs.<%= pkg.version %>.nupkg" <%= nuget.apiKey %>'
             }
         },
-        "version:apply": {
-            src: './build/_VersionTemplate._ts',
-            dest: './Source/Fayde.Client/_Version.ts'
+        version: {
+            bump: {
+            },
+            apply: {
+                src: './build/_VersionTemplate._ts',
+                dest: './Source/Fayde.Client/_Version.ts'
+            }
         }
     });
 
@@ -96,9 +98,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['setup:test', 'version:apply', 'typescript:build', 'copy:pretest', 'typescript:test', 'qunit']);
     grunt.registerTask('testsite', ['setup:testsite', 'version:apply', 'typescript:build', 'copy:pretestsite', 'typescript:testsite']);
     setup(grunt);
-    bump_version(grunt);
-    set_version(grunt);
-    apply_version(grunt);
+    version(grunt);
     grunt.registerTask('package', ['shell:package']);
     grunt.registerTask('publish', ['shell:package', 'shell:publish']);
 
