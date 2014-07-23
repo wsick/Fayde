@@ -1,6 +1,7 @@
 var bump_version = require('./build/bump-version'),
     set_version = require('./build/set-version'),
-    apply_version = require('./build/apply-version');
+    apply_version = require('./build/apply-version'),
+    setup = require('./build/setup');
 
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
@@ -12,6 +13,14 @@ module.exports = function (grunt) {
     grunt.initConfig({
         nuget: grunt.file.readJSON('./nuget.json'),
         pkg: grunt.file.readJSON('./package.json'),
+        setup: {
+            test: {
+                cwd: './test'
+            },
+            testsite: {
+                cwd: './testsite'
+            }
+        },
         typescript: {
             build: {
                 src: ['build/FaydeVersion.ts', 'Source/Fayde.Client/**/*.ts'],
@@ -83,32 +92,13 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('install:test', 'Install test dependencies', function () {
-        var exec = require('child_process').exec;
-        var cb = this.async();
-        exec('bower install', {cwd: './test'}, function (err, stdout, stderr) {
-            console.log(stdout);
-            cb();
-        });
-    });
-
-    grunt.registerTask('install:testsite', 'Install test site dependencies', function () {
-        var exec = require('child_process').exec;
-        var cb = this.async();
-        exec('bower install', {cwd: './testsite'}, function (err, stdout, stderr) {
-            console.log(stdout);
-            cb();
-        });
-    });
-
     grunt.registerTask('default', ['version:apply', 'typescript:build']);
-    grunt.registerTask('test', ['install:test', 'version:apply', 'typescript:build', 'copy:pretest', 'typescript:test', 'qunit']);
-    grunt.registerTask('testsite', ['install:testsite', 'version:apply', 'typescript:build', 'copy:pretestsite', 'typescript:testsite']);
-
+    grunt.registerTask('test', ['setup:test', 'version:apply', 'typescript:build', 'copy:pretest', 'typescript:test', 'qunit']);
+    grunt.registerTask('testsite', ['setup:testsite', 'version:apply', 'typescript:build', 'copy:pretestsite', 'typescript:testsite']);
+    setup(grunt);
     bump_version(grunt);
     set_version(grunt);
     apply_version(grunt);
-
     grunt.registerTask('package', ['shell:package']);
     grunt.registerTask('publish', ['shell:package', 'shell:publish']);
 
