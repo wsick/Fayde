@@ -1,4 +1,6 @@
-var Version = require('./build/version');
+var bump_version = require('./build/bump-version'),
+    set_version = require('./build/set-version'),
+    apply_version = require('./build/apply-version');
 
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
@@ -12,7 +14,7 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('./package.json'),
         typescript: {
             build: {
-                src: ['Source/Fayde.Client/**/*.ts'],
+                src: ['build/FaydeVersion.ts', 'Source/Fayde.Client/**/*.ts'],
                 dest: 'Fayde.js',
                 options: {
                     target: 'es5',
@@ -74,6 +76,10 @@ module.exports = function (grunt) {
                 },
                 command: 'nuget push "./nuget/exjs.<%= pkg.version %>.nupkg" <%= nuget.apiKey %>'
             }
+        },
+        "version:apply": {
+            src: './build/_VersionTemplate._ts',
+            dest: './Source/Fayde.Client/_Version.ts'
         }
     });
 
@@ -95,33 +101,15 @@ module.exports = function (grunt) {
         });
     });
 
-    grunt.registerTask('default', ['typescript:build']);
-    grunt.registerTask('test', ['install:test', 'typescript:build', 'copy:pretest', 'typescript:test', 'qunit']);
-    grunt.registerTask('testsite', ['install:testsite', 'typescript:build', 'copy:pretestsite', 'typescript:testsite']);
+    grunt.registerTask('default', ['version:apply', 'typescript:build']);
+    grunt.registerTask('test', ['install:test', 'version:apply', 'typescript:build', 'copy:pretest', 'typescript:test', 'qunit']);
+    grunt.registerTask('testsite', ['install:testsite', 'version:apply', 'typescript:build', 'copy:pretestsite', 'typescript:testsite']);
 
-    grunt.registerTask('bump', 'Bumps package version', function (arg1) {
-        try {
-            var pkg = grunt.file.readJSON('./package.json');
-            var vers = new Version(pkg.version);
-            grunt.log.writeln('Current version: ' + vers);
-            vers.bump(arg1);
-            pkg.version = vers.toString();
-            grunt.log.writeln('Updated version: ' + vers);
-            grunt.file.write('./package.json', JSON.stringify(pkg, undefined, 2));
-        } catch (err) {
-            grunt.log.writeln('Error bumping version.', err);
-        }
-    });
-    grunt.registerTask('version', 'Sets package version', function (arg1) {
-        try {
-            var pkg = grunt.file.readJSON('./package.json');
-            pkg.version = new Version(arg1).toString();
-            grunt.file.write('./package.json', JSON.stringify(pkg, undefined, 2));
-        } catch (err) {
-            grunt.log.writeln('Error setting version.', err);
-        }
-    });
+    bump_version(grunt);
+    set_version(grunt);
+    apply_version(grunt);
 
     grunt.registerTask('package', ['shell:package']);
     grunt.registerTask('publish', ['shell:package', 'shell:publish']);
+
 };

@@ -113,3 +113,4 @@ testsite/Controls/TestClass.js
 testsite/Format/TestViewModel.js
 testsite/Shapes/map.js
 testsite/Stress/LargeList.js
+Source/Fayde.Client/_Version.ts
