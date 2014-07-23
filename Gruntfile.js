@@ -1,3 +1,5 @@
+var Version = require('./build/version');
+
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-contrib-copy');
@@ -96,6 +98,30 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['typescript:build']);
     grunt.registerTask('test', ['install:test', 'typescript:build', 'copy:pretest', 'typescript:test', 'qunit']);
     grunt.registerTask('testsite', ['install:testsite', 'typescript:build', 'copy:pretestsite', 'typescript:testsite']);
+
+    grunt.registerTask('bump', 'Bumps package version', function (arg1) {
+        try {
+            var pkg = grunt.file.readJSON('./package.json');
+            var vers = new Version(pkg.version);
+            grunt.log.writeln('Current version: ' + vers);
+            vers.bump(arg1);
+            pkg.version = vers.toString();
+            grunt.log.writeln('Updated version: ' + vers);
+            grunt.file.write('./package.json', JSON.stringify(pkg, undefined, 2));
+        } catch (err) {
+            grunt.log.writeln('Error bumping version.', err);
+        }
+    });
+    grunt.registerTask('version', 'Sets package version', function (arg1) {
+        try {
+            var pkg = grunt.file.readJSON('./package.json');
+            pkg.version = new Version(arg1).toString();
+            grunt.file.write('./package.json', JSON.stringify(pkg, undefined, 2));
+        } catch (err) {
+            grunt.log.writeln('Error setting version.', err);
+        }
+    });
+
     grunt.registerTask('package', ['shell:package']);
     grunt.registerTask('publish', ['shell:package', 'shell:publish']);
 };
