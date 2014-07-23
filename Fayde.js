@@ -11488,12 +11488,16 @@ var Fayde;
 
             HyperlinkButton.prototype._Navigate = function () {
                 var targetName = this.TargetName;
+                var targetUie;
                 if (!targetName) {
-                    window.location.href = this.NavigateUri.toString();
-                    return;
+                    targetUie = Fayde.VisualTreeHelper.GetParentOfType(this, Fayde.Controls.Frame);
+                } else {
+                    targetUie = this.FindName(targetName, true);
                 }
-                var targetUie = this.FindName(targetName, true);
-                if (targetUie instanceof Controls.Frame) {
+
+                if (!targetUie) {
+                    window.location.href = this.NavigateUri.toString();
+                } else if (targetUie instanceof Controls.Frame) {
                     window.location.hash = this.NavigateUri.toString();
                 } else {
                     window.open(this.NavigateUri.toString(), targetName);
