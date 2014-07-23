@@ -20,7 +20,7 @@ module.exports = function (grunt) {
         },
         typescript: {
             build: {
-                src: ['src/**/*.ts'],
+                src: ['src/_Version.ts', 'src/**/*.ts'],
                 dest: 'Fayde.js',
                 options: {
                     target: 'es5',

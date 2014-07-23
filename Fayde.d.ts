@@ -1,40 +1,5 @@
-﻿declare module NumberEx {
-    function AreClose(val1: number, val2: number): boolean;
-    function IsLessThanClose(val1: number, val2: number): boolean;
-    function IsGreaterThanClose(val1: number, val2: number): boolean;
-}
 declare module Fayde {
-    function Annotation(type: Function, name: string, value: any, forbidMultiple?: boolean): void;
-    function GetAnnotations(type: Function, name: string): any[];
-    interface ITypedAnnotation<T> {
-        (type: Function, ...values: T[]): any;
-        Get(type: Function): T[];
-    }
-    function CreateTypedAnnotation<T>(name: string): ITypedAnnotation<T>;
-}
-declare module Fayde.Xaml {
-    interface IContentAnnotation {
-        (type: Function, prop: DependencyProperty): any;
-        Get(type: Function): DependencyProperty;
-    }
-    var Content: IContentAnnotation;
-    interface ITextContentAnnotation {
-        (type: Function, prop: DependencyProperty): any;
-        Get(type: Function): DependencyProperty;
-    }
-    var TextContent: ITextContentAnnotation;
-}
-declare module Fayde.Xaml {
-    class XamlDocument {
-        private _RequiredDependencies;
-        public Document: Document;
-        constructor(xaml: string);
-        static Get(url: Uri): XamlDocument;
-        static Get(url: string): XamlDocument;
-        static GetAsync(url: string, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
-        static GetAsync(url: Uri, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
-        public Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<any>;
-    }
+    var Version: string;
 }
 interface IInterfaceDeclaration<T> extends IType {
     Name: string;
@@ -78,12 +43,6 @@ declare module Fayde {
     function RegisterTypeConverter(type: Function, converter: (val: any) => any): void;
     function RegisterEnumConverter(e: any, converter: (val: any) => any): void;
 }
-declare module Fayde.Collections {
-    interface INotifyCollectionChanged {
-        CollectionChanged: MulticastEvent<CollectionChangedEventArgs>;
-    }
-    var INotifyCollectionChanged_: IInterfaceDeclaration<INotifyCollectionChanged>;
-}
 declare class EventArgs {
     static Empty: EventArgs;
 }
@@ -109,23 +68,25 @@ declare module Fayde.Collections {
 }
 declare module Fayde {
     interface IEnumerable<T> {
-        GetEnumerator(reverse?: boolean): IEnumerator<T>;
+        getEnumerator(): IEnumerator<T>;
     }
     var IEnumerable_: IInterfaceDeclaration<IEnumerable<any>>;
     interface IEnumerator<T> {
-        Current: T;
-        MoveNext(): boolean;
+        current: T;
+        moveNext(): boolean;
     }
     var IEnumerator_: IInterfaceDeclaration<IEnumerator<any>>;
     class ArrayEx {
         static EmptyEnumerator: IEnumerator<any>;
-        static AsEnumerable<T>(arr: T[]): IEnumerable<T>;
         static GetEnumerator<T>(arr: T[], isReverse?: boolean): IEnumerator<T>;
         static GetNodeEnumerator<T extends XamlObject, U extends XamlNode>(arr: T[], isReverse?: boolean): IEnumerator<U>;
-        static RemoveIfContains<T>(arr: T[], item: T): boolean;
-        static Except<T>(arr1: T[], arr2: T[]): T[];
-        static Fill<T>(arr: T[], index: number, count: number, fill: T): void;
     }
+}
+declare module Fayde.Collections {
+    interface INotifyCollectionChanged {
+        CollectionChanged: MulticastEvent<CollectionChangedEventArgs>;
+    }
+    var INotifyCollectionChanged_: IInterfaceDeclaration<INotifyCollectionChanged>;
 }
 declare module Fayde {
     class PropertyChangedEventArgs extends EventArgs {
@@ -140,7 +101,7 @@ declare module Fayde {
 declare module Fayde.Collections {
     class ObservableCollection<T> implements IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {
         private _ht;
-        public GetEnumerator(): IEnumerator<T>;
+        public getEnumerator(): IEnumerator<T>;
         public CollectionChanged: MulticastEvent<CollectionChangedEventArgs>;
         public PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
         public Count : number;
@@ -156,6 +117,32 @@ declare module Fayde.Collections {
         public RemoveAt(index: number): void;
         public Clear(): void;
         private _RaisePropertyChanged(propertyName);
+    }
+}
+declare module Fayde.Collections {
+    class DeepObservableCollection<T> extends ObservableCollection<T> {
+        public ItemPropertyChanged: MulticastEvent<ItemPropertyChangedEventArgs<T>>;
+        constructor();
+        private _OnCollectionChanged(sender, e);
+        private _OnItemPropertyChanged(sender, e);
+    }
+}
+declare module Fayde.Collections {
+    class FilteredCollection<T> extends DeepObservableCollection<T> {
+        private _Source;
+        public Source : DeepObservableCollection<T>;
+        private _Filter;
+        public Filter : (item: any) => boolean;
+        constructor(filter?: (item: any) => boolean, source?: DeepObservableCollection<T>);
+        private _OnSourceCollectionChanged(sender, e);
+        private _OnSourceItemPropertyChanged(sender, e);
+        public Update(): void;
+    }
+}
+declare module Fayde.Collections {
+    class ItemPropertyChangedEventArgs<T> extends PropertyChangedEventArgs {
+        public Item: T;
+        constructor(item: T, propertyName: string);
     }
 }
 declare module Fayde {
@@ -887,6 +874,27 @@ declare module Fayde {
         public _HeightChanged(args: IDependencyPropertyChangedEventArgs): void;
     }
 }
+declare module Fayde {
+    function Annotation(type: Function, name: string, value: any, forbidMultiple?: boolean): void;
+    function GetAnnotations(type: Function, name: string): any[];
+    interface ITypedAnnotation<T> {
+        (type: Function, ...values: T[]): any;
+        Get(type: Function): T[];
+    }
+    function CreateTypedAnnotation<T>(name: string): ITypedAnnotation<T>;
+}
+declare module Fayde.Xaml {
+    interface IContentAnnotation {
+        (type: Function, prop: DependencyProperty): any;
+        Get(type: Function): DependencyProperty;
+    }
+    var Content: IContentAnnotation;
+    interface ITextContentAnnotation {
+        (type: Function, prop: DependencyProperty): any;
+        Get(type: Function): DependencyProperty;
+    }
+    var TextContent: ITextContentAnnotation;
+}
 declare module Fayde.Controls {
     class Border extends FrameworkElement {
         public CreateLayoutUpdater(node: UINode): BorderLayoutUpdater;
@@ -1198,7 +1206,7 @@ declare module Fayde {
         public CanAdd(value: T): boolean;
         public AddingToCollection(value: T, error: BError): boolean;
         public RemovedFromCollection(value: T, isValueSafe: boolean): void;
-        public GetEnumerator(reverse?: boolean): IEnumerator<T>;
+        public getEnumerator(reverse?: boolean): IEnumerator<T>;
         public GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U>;
         public _RaiseItemAdded(value: T, index: number): void;
         public _RaiseItemRemoved(value: T, index: number): void;
@@ -1416,6 +1424,18 @@ declare module Fayde.Controls.Primitives {
         public NotifyListItemLoaded(lbi: ListBoxItem): void;
         public NotifyListItemGotFocus(lbi: ListBoxItem): void;
         public NotifyListItemLostFocus(lbi: ListBoxItem): void;
+    }
+}
+declare module Fayde.Xaml {
+    class XamlDocument {
+        private _RequiredDependencies;
+        public Document: Document;
+        constructor(xaml: string);
+        static Get(url: Uri): XamlDocument;
+        static Get(url: string): XamlDocument;
+        static GetAsync(url: string, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
+        static GetAsync(url: Uri, ctx?: IDependencyAsyncContext): IAsyncRequest<XamlDocument>;
+        public Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<any>;
     }
 }
 declare module Fayde.Xaml {
@@ -1933,6 +1953,17 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
+    class HeaderedContentControl extends ContentControl {
+        static HeaderProperty: DependencyProperty;
+        public Header: any;
+        static HeaderTemplateProperty: DependencyProperty;
+        public HeaderTemplate: DataTemplate;
+        constructor();
+        public OnHeaderChanged(oldHeader: any, newHeader: any): void;
+        public OnHeaderTemplateChanged(oldHeaderTemplate: DataTemplate, newHeaderTemplate: DataTemplate): void;
+    }
+}
+declare module Fayde.Controls {
     class HyperlinkButton extends Primitives.ButtonBase {
         static NavigateUriProperty: DependencyProperty;
         static TargetNameProperty: DependencyProperty;
@@ -2001,6 +2032,91 @@ declare module Fayde.Controls {
     interface IImageRenderMetrics {
         Matrix: number[];
         Overlap: number;
+    }
+}
+declare module Fayde.Controls.Internal {
+    interface IItemContainersOwner {
+        PrepareContainerForItem(container: UIElement, item: any): any;
+        ClearContainerForItem(container: UIElement, item: any): any;
+        GetContainerForItem(): UIElement;
+        IsItemItsOwnContainer(item: any): boolean;
+    }
+    interface IItemContainersManager {
+        IsRecycling: boolean;
+        IndexFromContainer(container: UIElement): number;
+        ContainerFromIndex(index: number): UIElement;
+        ItemFromContainer(container: UIElement): any;
+        ContainerFromItem(item: any): UIElement;
+        OnItemsAdded(index: number, newItems: any[]): any;
+        OnItemsRemoved(index: number, oldItems: any[]): any;
+        DisposeContainers(index?: number, count?: number): UIElement[];
+        CreateGenerator(index: number, count: number): IContainerGenerator;
+        GetEnumerator(index?: number, count?: number): IContainerEnumerator;
+    }
+    class ItemContainersManager implements IItemContainersManager {
+        public Owner: IItemContainersOwner;
+        private _Items;
+        private _Containers;
+        private _Cache;
+        public IsRecycling: boolean;
+        constructor(Owner: IItemContainersOwner);
+        public IndexFromContainer(container: UIElement): number;
+        public ContainerFromIndex(index: number): UIElement;
+        public ItemFromContainer(container: UIElement): any;
+        public ContainerFromItem(item: any): UIElement;
+        public OnItemsAdded(index: number, newItems: any[]): void;
+        public OnItemsRemoved(index: number, oldItems: any[]): void;
+        public DisposeContainers(index?: number, count?: number): UIElement[];
+        public CreateGenerator(index: number, count: number): IContainerGenerator;
+        public GetEnumerator(start?: number, count?: number): IContainerEnumerator;
+    }
+    interface IContainerGenerator {
+        IsCurrentNew: boolean;
+        Current: UIElement;
+        CurrentItem: any;
+        CurrentIndex: number;
+        GenerateIndex: number;
+        Generate(): boolean;
+    }
+    interface IContainerEnumerator extends IEnumerator<UIElement> {
+        CurrentItem: any;
+        CurrentIndex: number;
+    }
+}
+declare module Fayde.Controls.Internal {
+    interface IRange {
+        Minimum: number;
+        Maximum: number;
+        Value: number;
+        OnMinimumChanged(oldMin: number, newMin: number): any;
+        OnMaximumChanged(oldMax: number, newMax: number): any;
+        OnValueChanged(oldVal: number, newVal: number): any;
+    }
+    interface IRangeCoercer {
+        OnMinimumChanged(oldMinimum: number, newMinimum: number): any;
+        OnMaximumChanged(oldMaximum: number, newMaximum: number): any;
+        OnValueChanged(oldValue: number, newValue: number): any;
+    }
+    class RangeCoercer implements IRangeCoercer {
+        public Range: IRange;
+        public OnCoerceMaximum: (val: any) => void;
+        public OnCoerceValue: (val: any) => void;
+        public InitialMax: number;
+        public InitialVal: number;
+        public RequestedMax: number;
+        public RequestedVal: number;
+        public PreCoercedMax: number;
+        public PreCoercedVal: number;
+        public CoerceDepth: number;
+        public Minimum : number;
+        public Maximum : number;
+        public Value : number;
+        constructor(Range: IRange, OnCoerceMaximum: (val: any) => void, OnCoerceValue: (val: any) => void);
+        public OnMinimumChanged(oldMinimum: number, newMinimum: number): void;
+        public OnMaximumChanged(oldMaximum: number, newMaximum: number): void;
+        public OnValueChanged(oldValue: number, newValue: number): void;
+        public CoerceMaximum(): void;
+        public CoerceValue(): void;
     }
 }
 declare module Fayde.Controls {
@@ -3010,6 +3126,9 @@ declare module Fayde.Providers {
         static Set(fe: FrameworkElement, newStyle: Style): void;
     }
 }
+declare module Fayde.Providers {
+    function SwapStyles(fe: FrameworkElement, oldWalker: IStyleWalker, newWalker: IStyleWalker, isImplicit: boolean): void;
+}
 declare module Fayde {
     interface IResourcable {
         Resources: ResourceDictionary;
@@ -3032,7 +3151,7 @@ declare module Fayde {
         public Get(key: any): any;
         public Set(key: any, value: any): boolean;
         public Remove(key: any): boolean;
-        public GetEnumerator(reverse?: boolean): IEnumerator<any>;
+        public getEnumerator(reverse?: boolean): IEnumerator<any>;
         public GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U>;
     }
 }
@@ -3630,6 +3749,9 @@ declare module Fayde {
         private static _StringifyReplacer(key, value, visited?);
     }
 }
+declare module Fayde {
+    function _VisualTree(id: number): string;
+}
 declare class Exception {
     public Message: string;
     constructor(message: string);
@@ -3743,6 +3865,28 @@ declare module Fayde.Engine {
         static Kill(): void;
     }
 }
+declare module Fayde {
+    interface RenderContextEx extends CanvasRenderingContext2D {
+        currentTransform: number[];
+        resetTransform(): any;
+        transformMatrix(mat: number[]): any;
+        transformTransform(transform: Media.Transform): any;
+        pretransformMatrix(mat: number[]): any;
+        pretransformTransform(transform: Media.Transform): any;
+        clear(r: rect): any;
+        fillEx(brush: Media.Brush, r: rect, fillRule?: string): any;
+        fillRectEx(brush: Media.Brush, r: rect, fillRule?: string): any;
+        setupStroke(pars: Path.IStrokeParameters): boolean;
+        strokeEx(brush: Media.Brush, pars: Path.IStrokeParameters, region: rect): any;
+        isPointInStroke(x: number, y: number): any;
+        isPointInStrokeEx(pars: Path.IStrokeParameters, x: number, y: number): any;
+        clipRect(r: rect): any;
+        clipGeometry(g: Media.Geometry): any;
+        hasFillRule: boolean;
+        createTemporaryContext(width: number, height: number): RenderContextEx;
+    }
+    function ExtendRenderContext(ctx: CanvasRenderingContext2D): RenderContextEx;
+}
 declare var resizeTimeout: number;
 declare module Fayde {
     class Surface {
@@ -3794,6 +3938,23 @@ declare module Fayde {
         public __GetById(id: number): UIElement;
     }
 }
+declare module Fayde {
+    class Theme {
+        constructor(uri?: Uri);
+        private _Uri;
+        public Uri : Uri;
+        public Resources: ResourceDictionary;
+        static Get(url: string): Theme;
+        private _IsLoaded;
+        private _LoadError;
+        private _Deferrables;
+        public Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<Theme>;
+        private _Load(ctx);
+        private _HandleSuccess(xd);
+        private _HandleError(error);
+        public GetImplicitStyle(type: any): Style;
+    }
+}
 declare module Fayde.Input {
     interface ICommand {
         Execute(parameter: any): any;
@@ -3806,6 +3967,12 @@ declare module Fayde.Input {
     module InteractionHelper {
         function GetLogicalKey(flowDirection: FlowDirection, key: Key): Key;
     }
+}
+declare module Fayde.Input {
+    interface IKeyInterop {
+        RegisterEvents(inputHandler: Engine.InputManager): any;
+    }
+    function CreateKeyInterop(): IKeyInterop;
 }
 declare module Fayde.Input {
     class KeyboardNavigation {
@@ -3828,12 +3995,6 @@ declare module Fayde.Input {
         static GetTabNavigation(d: DependencyObject): KeyboardNavigationMode;
         static SetTabNavigation(d: DependencyObject, value: KeyboardNavigationMode): void;
     }
-}
-declare module Fayde.Input {
-    interface IKeyInterop {
-        RegisterEvents(inputHandler: Engine.InputManager): any;
-    }
-    function CreateKeyInterop(): IKeyInterop;
 }
 declare module Fayde.Input {
     class MouseEventArgs extends RoutedEventArgs {
@@ -3866,6 +4027,369 @@ declare module Fayde.Input {
         IsRightButton(button: number): boolean;
     }
     function CreateMouseInterop(): IMouseInterop;
+}
+declare module Fayde.Input {
+    class TouchEventArgs extends RoutedEventArgs {
+        public Device: ITouchDevice;
+        constructor(device: ITouchDevice);
+        public GetTouchPoint(relativeTo: UIElement): TouchPoint;
+    }
+}
+interface Touch {
+    identifier: number;
+    target: EventTarget;
+    screenX: number;
+    screenY: number;
+    clientX: number;
+    clientY: number;
+    pageX: number;
+    pageY: number;
+    radiusX: number;
+    radiusY: number;
+    rotationAngle: number;
+    force: number;
+}
+interface TouchList {
+    length: number;
+    item(index: number): Touch;
+    identifiedTouch(identifier: number): Touch;
+}
+interface TouchEvent extends UIEvent {
+    touches: TouchList;
+    targetTouches: TouchList;
+    changedTouches: TouchList;
+    altKey: boolean;
+    metaKey: boolean;
+    ctrlKey: boolean;
+    shiftKey: boolean;
+    initTouchEvent(type: string, canBubble: boolean, cancelable: boolean, view: any, detail: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, touches: TouchList, targetTouches: TouchList, changedTouches: TouchList): any;
+}
+declare var TouchEvent: {
+    prototype: TouchEvent;
+    new(): TouchEvent;
+};
+declare module Fayde.Input.TouchInternal {
+    interface ITouchHandler {
+        HandleTouches(type: TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+    }
+    class ActiveTouchBase {
+        public Identifier: number;
+        public Position: Point;
+        public Device: ITouchDevice;
+        public InputList: UINode[];
+        private _IsEmitting;
+        private _PendingCapture;
+        private _PendingReleaseCapture;
+        private _Captured;
+        private _CapturedInputList;
+        private _FinishReleaseCaptureFunc;
+        constructor(touchHandler: ITouchHandler);
+        public Capture(uie: UIElement): boolean;
+        public ReleaseCapture(uie: UIElement): void;
+        private _PerformCapture(uin);
+        private _PerformReleaseCapture();
+        public Emit(type: TouchInputType, newInputList: UINode[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+        private _EmitList(type, list, endIndex?);
+        public GetTouchPoint(relativeTo: UIElement): TouchPoint;
+        public CreateTouchPoint(p: Point): TouchPoint;
+        private CreateTouchDevice();
+    }
+}
+declare module Fayde.Input.TouchInternal {
+    interface IOffset {
+        left: number;
+        top: number;
+    }
+    class TouchInteropBase implements ITouchInterop, ITouchHandler {
+        public Input: Engine.InputManager;
+        public CanvasOffset: IOffset;
+        public ActiveTouches: ActiveTouchBase[];
+        public CoordinateOffset : IOffset;
+        public Register(input: Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _CalcOffset(canvas);
+        public HandleTouches(type: TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+    }
+}
+declare module Fayde.Input.TouchInternal {
+    class NonPointerTouchInterop extends TouchInteropBase {
+        public Register(input: Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _HandleTouchStart(e);
+        private _HandleTouchEnd(e);
+        private _HandleTouchMove(e);
+        private _HandleTouchEnter(e);
+        private _HandleTouchLeave(e);
+        private TouchArrayFromList(list);
+        private FindTouchInList(identifier);
+    }
+}
+declare module Fayde.Input.TouchInternal {
+    class PointerTouchInterop extends TouchInteropBase {
+        public Register(input: Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _HandlePointerDown(e);
+        private _HandlePointerUp(e);
+        private _HandlePointerMove(e);
+        private _HandlePointerEnter(e);
+        private _HandlePointerLeave(e);
+        private GetActiveTouch(e);
+        private FindTouchInList(identifier);
+    }
+}
+declare module Fayde.Input {
+    interface ITouchDevice {
+        Identifier: number;
+        Captured: UIElement;
+        Capture(uie: UIElement): boolean;
+        ReleaseCapture(uie: UIElement): any;
+        GetTouchPoint(relativeTo: UIElement): TouchPoint;
+    }
+    enum TouchInputType {
+        NoOp = 0,
+        TouchDown = 1,
+        TouchUp = 2,
+        TouchMove = 3,
+        TouchEnter = 4,
+        TouchLeave = 5,
+    }
+    interface ITouchInterop {
+        Register(input: Engine.InputManager, canvas: HTMLCanvasElement): any;
+    }
+    function CreateTouchInterop(): ITouchInterop;
+}
+declare module Fayde.Input {
+    class TouchPoint {
+        public Position: Point;
+        public Force: number;
+        constructor(position: Point, force: number);
+    }
+}
+declare class TimeSpan {
+    static _TicksPerMillisecond: number;
+    static _TicksPerSecond: number;
+    static _TicksPerMinute: number;
+    static _TicksPerHour: number;
+    static _TicksPerDay: number;
+    private _Ticks;
+    static Zero : TimeSpan;
+    static MinValue : TimeSpan;
+    static MaxValue : TimeSpan;
+    static FromDays(value: number): TimeSpan;
+    static FromHours(value: number): TimeSpan;
+    static FromMinutes(value: number): TimeSpan;
+    static FromSeconds(value: number): TimeSpan;
+    static FromMilliseconds(value: number): TimeSpan;
+    constructor();
+    constructor(ticks: number);
+    constructor(hours: number, minutes: number, seconds: number);
+    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
+    public Days : number;
+    public Hours : number;
+    public Minutes : number;
+    public Seconds : number;
+    public Milliseconds : number;
+    public Ticks : number;
+    public TotalDays : number;
+    public TotalHours : number;
+    public TotalMinutes : number;
+    public TotalSeconds : number;
+    public TotalMilliseconds : number;
+    public AddTicks(ticks: number): void;
+    public AddMilliseconds(milliseconds: number): void;
+    public Add(ts2: TimeSpan): TimeSpan;
+    public Subtract(ts2: TimeSpan): TimeSpan;
+    public Multiply(v: number): TimeSpan;
+    public Divide(ts2: TimeSpan): TimeSpan;
+    public CompareTo(ts2: TimeSpan): number;
+    public IsZero(): boolean;
+    public GetJsDelay(): number;
+    public toString(format?: string): string;
+    public valueOf(): Object;
+}
+declare enum DayOfWeek {
+    Sunday = 0,
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+    Thursday = 4,
+    Friday = 5,
+    Saturday = 6,
+}
+declare enum DateTimeKind {
+    Local = 0,
+    Unspecified = 1,
+    Utc = 2,
+}
+declare class DateTime {
+    private static _MinDateTicks;
+    private static _MaxDateTicks;
+    static MinValue : DateTime;
+    static MaxValue : DateTime;
+    static Now : DateTime;
+    static Today : DateTime;
+    static Compare(dt1: DateTime, dt2: DateTime): number;
+    static DaysInMonth(year: number, month: number): number;
+    private _InternalDate;
+    private _Kind;
+    constructor();
+    constructor(ticks: number);
+    constructor(ticks: number, kind: DateTimeKind);
+    constructor(year: number, month: number, day: number);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number, kind: DateTimeKind);
+    public Ticks : number;
+    public Kind : DateTimeKind;
+    public Date : DateTime;
+    public Day : number;
+    public DayOfWeek : DayOfWeek;
+    public DayOfYear : number;
+    public Hour : number;
+    public Millisecond : number;
+    public Minute : number;
+    public Month : number;
+    public Second : number;
+    public TimeOfDay : TimeSpan;
+    public Year : number;
+    public Add(value: TimeSpan): DateTime;
+    public AddYears(value: number): DateTime;
+    public AddMonths(value: number): DateTime;
+    public AddDays(value: number): DateTime;
+    public AddHours(value: number): DateTime;
+    public AddMinutes(value: number): DateTime;
+    public AddSeconds(value: number): DateTime;
+    public AddMilliseconds(value: number): DateTime;
+    public AddTicks(value: number): DateTime;
+    public Subtract(value: DateTime): TimeSpan;
+    public Subtract(value: TimeSpan): DateTime;
+    public ToUniversalTime(): DateTime;
+    public toString(format?: string): string;
+    public valueOf(): Object;
+}
+declare module Fayde.Localization {
+    class Calendar {
+        public ID: number;
+        public Eras: number[];
+        public EraNames: string[];
+        public CurrentEraValue: number;
+        public TwoDigitYearMax: number;
+        public MaxSupportedDateTime: DateTime;
+        public MinSupportedDateTime: DateTime;
+    }
+}
+declare module Fayde.Localization {
+    enum CalendarWeekRule {
+        FirstDay = 0,
+        FirstFullWeek = 1,
+        FirstFourDayWeek = 2,
+    }
+    class DateTimeFormatInfo {
+        public AbbreviatedDayNames: string[];
+        public AbbreviatedMonthGenitiveNames: string[];
+        public AbbreviatedMonthNames: string[];
+        public AMDesignator: string;
+        public Calendar: Calendar;
+        public CalendarWeekRule: CalendarWeekRule;
+        public DateSeparator: string;
+        public DayNames: string[];
+        public FirstDayOfWeek: DayOfWeek;
+        public FullDateTimePattern: string;
+        public LongDatePattern: string;
+        public LongTimePattern: string;
+        public MonthDayPattern: string;
+        public MonthGenitiveNames: string[];
+        public MonthNames: string[];
+        public PMDesignator: string;
+        public RFC1123Pattern: string;
+        public ShortDatePattern: string;
+        public ShortestDayNames: string[];
+        public ShortTimePattern: string;
+        public SortableDateTimePattern: string;
+        public TimeSeparator: string;
+        public UniversalSortableDateTimePattern: string;
+        public YearMonthPattern: string;
+        public HasForceTwoDigitYears: boolean;
+        public GetEraName(era: number): string;
+        static Instance: DateTimeFormatInfo;
+        static ParseRepeatPattern(format: string, pos: number, patternChar: string): number;
+        static ParseNextChar(format: string, pos: number): number;
+        static ParseQuoteString(format: string, pos: number, result: string[]): number;
+        static FormatDigits(sb: string[], value: number, len: number, overrideLenLimit?: boolean): void;
+        static FormatMonth(month: number, repeat: number, info: DateTimeFormatInfo): string;
+        static FormatDayOfWeek(dayOfWeek: DayOfWeek, repeat: number, info: DateTimeFormatInfo): string;
+        static HebrewFormatDigits(sb: string[], digits: number): string;
+        static FormatHebrewMonthName(obj: DateTime, month: number, repeat: number, info: DateTimeFormatInfo): string;
+    }
+}
+declare module Fayde.Localization {
+    function Format(format: string, ...items: any[]): string;
+    function FormatSingle(obj: any, format: string): string;
+    interface IFormattable {
+        (obj: any, format: string, provider?: any): string;
+    }
+    function RegisterFormattable(type: Function, formatter: IFormattable): void;
+}
+declare module Fayde.Localization {
+}
+declare module Fayde.Localization {
+    class NumberFormatInfo {
+        public CurrencyDecimalDigits: number;
+        public CurrencyDecimalSeparator: string;
+        public CurrencyGroupSeparator: string;
+        public CurrencyGroupSizes: number[];
+        public CurrencyNegativePattern: number;
+        public CurrencyPositivePattern: number;
+        public CurrencySymbol: string;
+        public NaNSymbol: string;
+        public NegativeInfinitySymbol: string;
+        public PositiveInfinitySymbol: string;
+        public NegativeSign: string;
+        public PositiveSign: string;
+        public NumberDecimalDigits: number;
+        public NumberDecimalSeparator: string;
+        public NumberGroupSeparator: string;
+        public NumberGroupSizes: number[];
+        public NumberNegativePattern: number;
+        public PercentDecimalDigits: number;
+        public PercentDecimalSeparator: string;
+        public PercentGroupSeparator: string;
+        public PercentGroupSizes: number[];
+        public PercentNegativePattern: number;
+        public PercentPositivePattern: number;
+        public PercentSymbol: string;
+        public PerMilleSymbol: string;
+        static Instance: NumberFormatInfo;
+        public FormatCurrency(num: number, precision: number): string;
+        public FormatNumber(num: number, precision: number, ignoreGroupSep?: boolean): string;
+        public FormatPercent(num: number, precision: number): string;
+        public FormatGeneral(num: number, precision: number): string;
+        public FormatDecimal(num: number, precision: number): string;
+        public FormatExponential(num: number, precision: number): string;
+        public FormatHexadecimal(num: number, precision: number): string;
+        public FormatRawNumber(num: number, precision: number, decSep: string, groupSep: string, groupSizes: number[]): string;
+    }
+}
+declare module Fayde.Localization {
+}
+declare module Fayde.Localization {
+}
+declare module Fayde.MVVM {
+    function NotifyProperties(type: any, propNames: string[]): void;
+    class ObservableObject implements INotifyPropertyChanged {
+        public PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
+        public OnPropertyChanged(propertyName: string): void;
+    }
+}
+declare module Fayde.MVVM {
+    class RelayCommand implements Input.ICommand {
+        constructor(execute?: (parameter: any) => void, canExecute?: (parameter: any) => boolean);
+        public Execute(parameter: any): void;
+        public CanExecute(parameter: any): boolean;
+        public CanExecuteChanged: MulticastEvent<EventArgs>;
+        public ForceCanExecuteChanged(): void;
+    }
+}
+declare module Fayde.MVVM {
+    class ViewModelBase extends ObservableObject {
+    }
 }
 declare module Fayde.Media.Animation {
     enum EasingMode {
@@ -4803,6 +5327,15 @@ declare module Fayde.Media.Imaging {
     }
 }
 declare module Fayde.Media {
+    class LineGeometry extends Geometry {
+        static StartPointProperty: DependencyProperty;
+        static EndPointProperty: DependencyProperty;
+        public StartPoint: Point;
+        public EndPoint: Point;
+        public _Build(): Path.RawPath;
+    }
+}
+declare module Fayde.Media {
     class LinearGradientBrush extends GradientBrush {
         static StartPointProperty: DependencyProperty;
         static EndPointProperty: DependencyProperty;
@@ -4813,15 +5346,6 @@ declare module Fayde.Media {
         public _CreateReflect(ctx: CanvasRenderingContext2D, bounds: rect): void;
         private _GetPointData(bounds);
         public toString(): string;
-    }
-}
-declare module Fayde.Media {
-    class LineGeometry extends Geometry {
-        static StartPointProperty: DependencyProperty;
-        static EndPointProperty: DependencyProperty;
-        public StartPoint: Point;
-        public EndPoint: Point;
-        public _Build(): Path.RawPath;
     }
 }
 declare module Fayde.Media {
@@ -5251,26 +5775,6 @@ declare module Fayde.Media.VSM {
         public IsDefault : boolean;
     }
 }
-declare module Fayde.MVVM {
-    function NotifyProperties(type: any, propNames: string[]): void;
-    class ObservableObject implements INotifyPropertyChanged {
-        public PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
-        public OnPropertyChanged(propertyName: string): void;
-    }
-}
-declare module Fayde.MVVM {
-    class RelayCommand implements Input.ICommand {
-        constructor(execute?: (parameter: any) => void, canExecute?: (parameter: any) => boolean);
-        public Execute(parameter: any): void;
-        public CanExecute(parameter: any): boolean;
-        public CanExecuteChanged: MulticastEvent<EventArgs>;
-        public ForceCanExecuteChanged(): void;
-    }
-}
-declare module Fayde.MVVM {
-    class ViewModelBase extends ObservableObject {
-    }
-}
 declare module Fayde.Navigation {
     class NavigationService {
         public Href: string;
@@ -5297,6 +5801,165 @@ declare module Fayde.Navigation {
         public MapUri(uri: Uri): Uri;
     }
 }
+declare module Fayde.Path {
+    interface IArc extends IPathEntry {
+        x: number;
+        y: number;
+        radius: number;
+        sAngle: number;
+        eAngle: number;
+        aClockwise: boolean;
+    }
+    function Arc(x: number, y: number, radius: number, sa: number, ea: number, cc: boolean): IArc;
+}
+declare function radToDegrees(rad: any): number;
+declare module Fayde.Path {
+    interface IArcTo extends IPathEntry {
+        cpx: number;
+        cpy: number;
+        x: number;
+        y: number;
+        radius: number;
+    }
+    function ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): IArcTo;
+}
+declare module Fayde.Path {
+    interface IClose extends IPathEntry {
+        isClose: boolean;
+    }
+    function Close(): IClose;
+}
+declare module Fayde.Path {
+    interface ICubicBezier extends IPathEntry {
+        cp1x: number;
+        cp1y: number;
+        cp2x: number;
+        cp2y: number;
+        x: number;
+        y: number;
+    }
+    function CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): ICubicBezier;
+}
+declare module Fayde.Path {
+    interface IEllipse extends IPathEntry {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    }
+    function Ellipse(x: number, y: number, width: number, height: number): IEllipse;
+}
+declare module Fayde.Path {
+    interface IEllipticalArc extends IPathEntry {
+        width: number;
+        height: number;
+        rotationAngle: number;
+        isLargeArcFlag: boolean;
+        sweepDirectionFlag: Shapes.SweepDirection;
+        ex: number;
+        ey: number;
+    }
+    function EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number): IEllipticalArc;
+}
+declare module Fayde.Path {
+    interface ILine extends IPathEntry {
+        x: number;
+        y: number;
+    }
+    function Line(x: number, y: number): ILine;
+}
+declare module Fayde.Path {
+    interface IMove extends IPathEntry {
+        x: number;
+        y: number;
+        isMove: boolean;
+    }
+    function Move(x: number, y: number): IMove;
+}
+declare module Fayde.Path {
+    interface IQuadraticBezier extends IPathEntry {
+        cpx: number;
+        cpy: number;
+        x: number;
+        y: number;
+    }
+    function QuadraticBezier(cpx: number, cpy: number, x: number, y: number): IQuadraticBezier;
+}
+declare module Fayde.Path {
+    interface IStrokeParameters {
+        thickness: number;
+        join: Shapes.PenLineJoin;
+        startCap: Shapes.PenLineCap;
+        endCap: Shapes.PenLineCap;
+        miterLimit: number;
+    }
+    interface IBoundingBox {
+        l: number;
+        r: number;
+        t: number;
+        b: number;
+    }
+    interface IPathEntry {
+        sx: number;
+        sy: number;
+        ex: number;
+        ey: number;
+        isSingle: boolean;
+        draw: (canvasCtx: CanvasRenderingContext2D) => void;
+        extendFillBox: (box: IBoundingBox) => void;
+        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters) => void;
+        getStartVector(): number[];
+        getEndVector(): number[];
+    }
+    class RawPath {
+        private _Path;
+        private _EndX;
+        private _EndY;
+        public EndX : number;
+        public EndY : number;
+        public Move(x: number, y: number): void;
+        public Line(x: number, y: number): void;
+        public Rect(x: number, y: number, width: number, height: number): void;
+        public RoundedRectFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): void;
+        public RoundedRect(x: number, y: number, width: number, height: number, radiusX: number, radiusY: number): void;
+        public QuadraticBezier(cpx: number, cpy: number, x: number, y: number): void;
+        public CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
+        public Ellipse(x: number, y: number, width: number, height: number): void;
+        public EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number): void;
+        public Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: boolean): void;
+        public ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): void;
+        public Close(): void;
+        public Draw(ctx: CanvasRenderingContext2D): void;
+        public CalculateBounds(pars?: IStrokeParameters): rect;
+        private _CalcFillBox();
+        private _CalcStrokeBox(pars);
+        static Merge(path1: RawPath, path2: RawPath): void;
+        public Serialize(): string;
+    }
+    function findMiterTips(previous: IPathEntry, entry: IPathEntry, hs: number, miterLimit: number): {
+        x: number;
+        y: number;
+    }[];
+    function findBevelTips(previous: IPathEntry, entry: IPathEntry, hs: number): {
+        x: number;
+        y: number;
+    }[];
+}
+declare module Fayde.Path {
+    interface IRect extends IPathEntry {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    }
+    function Rect(x: number, y: number, width: number, height: number): IRect;
+}
+declare module Fayde.Path {
+    function RectRounded(x: number, y: number, width: number, height: number, radiusX: number, radiusY: number): IRect;
+}
+declare module Fayde.Path {
+    function RectRoundedFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): IRect;
+}
 declare class Clip {
     public X: number;
     public Y: number;
@@ -5315,108 +5978,6 @@ declare class CornerRadius implements ICloneable {
     public toString(): string;
     static Equals(cr1: CornerRadius, cr2: CornerRadius): boolean;
     public Clone(): CornerRadius;
-}
-declare class TimeSpan {
-    static _TicksPerMillisecond: number;
-    static _TicksPerSecond: number;
-    static _TicksPerMinute: number;
-    static _TicksPerHour: number;
-    static _TicksPerDay: number;
-    private _Ticks;
-    static Zero : TimeSpan;
-    static MinValue : TimeSpan;
-    static MaxValue : TimeSpan;
-    static FromDays(value: number): TimeSpan;
-    static FromHours(value: number): TimeSpan;
-    static FromMinutes(value: number): TimeSpan;
-    static FromSeconds(value: number): TimeSpan;
-    static FromMilliseconds(value: number): TimeSpan;
-    constructor();
-    constructor(ticks: number);
-    constructor(hours: number, minutes: number, seconds: number);
-    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
-    public Days : number;
-    public Hours : number;
-    public Minutes : number;
-    public Seconds : number;
-    public Milliseconds : number;
-    public Ticks : number;
-    public TotalDays : number;
-    public TotalHours : number;
-    public TotalMinutes : number;
-    public TotalSeconds : number;
-    public TotalMilliseconds : number;
-    public AddTicks(ticks: number): void;
-    public AddMilliseconds(milliseconds: number): void;
-    public Add(ts2: TimeSpan): TimeSpan;
-    public Subtract(ts2: TimeSpan): TimeSpan;
-    public Multiply(v: number): TimeSpan;
-    public Divide(ts2: TimeSpan): TimeSpan;
-    public CompareTo(ts2: TimeSpan): number;
-    public IsZero(): boolean;
-    public GetJsDelay(): number;
-    public toString(format?: string): string;
-    public valueOf(): Object;
-}
-declare enum DayOfWeek {
-    Sunday = 0,
-    Monday = 1,
-    Tuesday = 2,
-    Wednesday = 3,
-    Thursday = 4,
-    Friday = 5,
-    Saturday = 6,
-}
-declare enum DateTimeKind {
-    Local = 0,
-    Unspecified = 1,
-    Utc = 2,
-}
-declare class DateTime {
-    private static _MinDateTicks;
-    private static _MaxDateTicks;
-    static MinValue : DateTime;
-    static MaxValue : DateTime;
-    static Now : DateTime;
-    static Today : DateTime;
-    static Compare(dt1: DateTime, dt2: DateTime): number;
-    static DaysInMonth(year: number, month: number): number;
-    private _InternalDate;
-    private _Kind;
-    constructor();
-    constructor(ticks: number);
-    constructor(ticks: number, kind: DateTimeKind);
-    constructor(year: number, month: number, day: number);
-    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number);
-    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number);
-    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number, kind: DateTimeKind);
-    public Ticks : number;
-    public Kind : DateTimeKind;
-    public Date : DateTime;
-    public Day : number;
-    public DayOfWeek : DayOfWeek;
-    public DayOfYear : number;
-    public Hour : number;
-    public Millisecond : number;
-    public Minute : number;
-    public Month : number;
-    public Second : number;
-    public TimeOfDay : TimeSpan;
-    public Year : number;
-    public Add(value: TimeSpan): DateTime;
-    public AddYears(value: number): DateTime;
-    public AddMonths(value: number): DateTime;
-    public AddDays(value: number): DateTime;
-    public AddHours(value: number): DateTime;
-    public AddMinutes(value: number): DateTime;
-    public AddSeconds(value: number): DateTime;
-    public AddMilliseconds(value: number): DateTime;
-    public AddTicks(value: number): DateTime;
-    public Subtract(value: DateTime): TimeSpan;
-    public Subtract(value: TimeSpan): DateTime;
-    public ToUniversalTime(): DateTime;
-    public toString(format?: string): string;
-    public valueOf(): Object;
 }
 declare enum DurationType {
     Automatic = 0,
@@ -5506,6 +6067,29 @@ declare module mat4 {
     function translate(mat: number[], x: number, y: number, z: number): number[];
     function scale(mat: number[], x: number, y: number, z: number): number[];
 }
+declare class Thickness implements ICloneable {
+    public Left: number;
+    public Top: number;
+    public Right: number;
+    public Bottom: number;
+    constructor(left?: number, top?: number, right?: number, bottom?: number);
+    public Plus(thickness2: Thickness): Thickness;
+    public IsEmpty(): boolean;
+    public IsBalanced(): boolean;
+    public toString(): string;
+    public Clone(): Thickness;
+    static Equals(thickness1: Thickness, thickness2: Thickness): boolean;
+}
+declare module Vector {
+    function create(x: number, y: number): number[];
+    function reverse(v: number[]): number[];
+    function orthogonal(v: number[]): number[];
+    function normalize(v: number[]): number[];
+    function rotate(v: number[], theta: number): number[];
+    function angleBetween(u: number[], v: number[]): number;
+    function isClockwiseTo(v1: number[], v2: number[]): boolean;
+    function intersection(s1: number[], d1: number[], s2: number[], d2: number[]): number[];
+}
 declare var RectOverlap: {
     Out: number;
     In: number;
@@ -5571,19 +6155,6 @@ declare class size implements ICloneable, ISize {
     static min(dest: size, other: size): size;
     static max(dest: size, other: size): size;
 }
-declare class Thickness implements ICloneable {
-    public Left: number;
-    public Top: number;
-    public Right: number;
-    public Bottom: number;
-    constructor(left?: number, top?: number, right?: number, bottom?: number);
-    public Plus(thickness2: Thickness): Thickness;
-    public IsEmpty(): boolean;
-    public IsBalanced(): boolean;
-    public toString(): string;
-    public Clone(): Thickness;
-    static Equals(thickness1: Thickness, thickness2: Thickness): boolean;
-}
 declare class BError {
     static Argument: number;
     static InvalidOperation: number;
@@ -5623,26 +6194,52 @@ declare class Enum implements IType {
     public Object: any;
     constructor(Object: any);
 }
+interface IAsyncRequest<T> {
+    success(callback: (result: T) => void): IAsyncRequest<T>;
+    error(callback: (error: any) => void): IAsyncRequest<T>;
+}
+interface IDeferrable<T> {
+    resolve: (result: T) => void;
+    reject: (error: any) => void;
+    request: IAsyncRequest<T>;
+}
+declare function defer<T>(): IDeferrable<T>;
+declare function deferArraySimple(arr: IAsyncRequest<any>[]): IAsyncRequest<any>;
+declare function deferArray<S, T>(arr: S[], resolver: (s: S) => IAsyncRequest<T>): IAsyncRequest<T[]>;
 declare module Fayde {
-    class Enumerable<T> implements IEnumerable<T>, IEnumerator<T> {
-        public GetEnumerator(): IEnumerator<T>;
-        public Current: T;
-        public MoveNext(): boolean;
-        public Aggregate<TAccumulate>(seed: TAccumulate, func: (u: TAccumulate, t: T) => TAccumulate): TAccumulate;
-        public Where(filter: (t: T) => boolean): IEnumerable<T>;
-        public Select<TOut>(projection: (t: T) => TOut): IEnumerable<TOut>;
-        public All(filter: (t: T) => boolean): boolean;
-        public Any(filter: (t: T) => boolean): boolean;
-        public Average(func: (t: T) => number): number;
-        static Count<S>(enumerable: IEnumerable<S>): number;
-        static Contains<S>(enumerable: IEnumerable<S>, item: S): boolean;
-        static IndexOf<S>(enumerable: IEnumerable<S>, item: S): number;
-        static FirstOrDefault<S>(enumerable: IEnumerable<S>, filter?: (item: S) => boolean): S;
-        static ElementAt<S>(enumerable: IEnumerable<S>, index: number): S;
-        static ElementAtOrDefault<S>(enumerable: IEnumerable<S>, index: number): S;
-        static Where<S>(enumerable: IEnumerable<S>, filter: (item: S) => boolean): IEnumerable<S>;
-        static ToArray<S>(enumerable: IEnumerable<S>): S[];
+    interface IDependencyAsyncContext {
+        ThemeName: string;
+        Resolving: Library[];
     }
+    class Library {
+        public Name: string;
+        private _Module;
+        public Module : any;
+        private _CurrentTheme;
+        public CurrentTheme : Theme;
+        private _Themes;
+        private _IsLoading;
+        private _IsLoaded;
+        private _LoadError;
+        private _Deferrables;
+        constructor(Name: string);
+        static TryGetClass(xmlns: string, xmlname: string): any;
+        static Get(xmlns: string): Library;
+        static GetThemeStyle(type: any): Style;
+        static ChangeTheme(themeName: string): IAsyncRequest<any>;
+        public Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<Library>;
+        private _Load(ctx);
+        private _LoadTheme(ctx);
+        private _FinishLoad(ctx, error?);
+        public GetModuleRequireUrl(): string;
+        public GetThemeRequireUrl(themeName: string): string;
+    }
+    function RegisterLibrary(name: string, moduleUrl?: string, themeUrlFunc?: (themeName: string) => string): Library;
+}
+declare module NumberEx {
+    function AreClose(val1: number, val2: number): boolean;
+    function IsLessThanClose(val1: number, val2: number): boolean;
+    function IsGreaterThanClose(val1: number, val2: number): boolean;
 }
 interface IPropertyInfo {
 }
@@ -5828,7 +6425,7 @@ declare module Fayde.Shapes {
         public Clear(): void;
         public IndexOf(value: Point): number;
         public Contains(value: Point): boolean;
-        public GetEnumerator(reverse?: boolean): IEnumerator<Point>;
+        public getEnumerator(reverse?: boolean): IEnumerator<Point>;
     }
 }
 declare module Fayde.Shapes {
@@ -6066,625 +6663,6 @@ declare module Fayde.Text {
         private _OverrideLineHeight();
         private _GetLineHeightOverride();
         private _GetDescendOverride();
-    }
-}
-declare module Fayde.Controls {
-    class HeaderedContentControl extends ContentControl {
-        static HeaderProperty: DependencyProperty;
-        public Header: any;
-        static HeaderTemplateProperty: DependencyProperty;
-        public HeaderTemplate: DataTemplate;
-        constructor();
-        public OnHeaderChanged(oldHeader: any, newHeader: any): void;
-        public OnHeaderTemplateChanged(oldHeaderTemplate: DataTemplate, newHeaderTemplate: DataTemplate): void;
-    }
-}
-declare module Fayde {
-    interface RenderContextEx extends CanvasRenderingContext2D {
-        currentTransform: number[];
-        resetTransform(): any;
-        transformMatrix(mat: number[]): any;
-        transformTransform(transform: Media.Transform): any;
-        pretransformMatrix(mat: number[]): any;
-        pretransformTransform(transform: Media.Transform): any;
-        clear(r: rect): any;
-        fillEx(brush: Media.Brush, r: rect, fillRule?: string): any;
-        fillRectEx(brush: Media.Brush, r: rect, fillRule?: string): any;
-        setupStroke(pars: Path.IStrokeParameters): boolean;
-        strokeEx(brush: Media.Brush, pars: Path.IStrokeParameters, region: rect): any;
-        isPointInStroke(x: number, y: number): any;
-        isPointInStrokeEx(pars: Path.IStrokeParameters, x: number, y: number): any;
-        clipRect(r: rect): any;
-        clipGeometry(g: Media.Geometry): any;
-        hasFillRule: boolean;
-        createTemporaryContext(width: number, height: number): RenderContextEx;
-    }
-    function ExtendRenderContext(ctx: CanvasRenderingContext2D): RenderContextEx;
-}
-declare module Fayde {
-    class Theme {
-        constructor(uri?: Uri);
-        private _Uri;
-        public Uri : Uri;
-        public Resources: ResourceDictionary;
-        static Get(url: string): Theme;
-        private _IsLoaded;
-        private _LoadError;
-        private _Deferrables;
-        public Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<Theme>;
-        private _Load(ctx);
-        private _HandleSuccess(xd);
-        private _HandleError(error);
-        public GetImplicitStyle(type: any): Style;
-    }
-}
-declare module Fayde.Path {
-    interface IArc extends IPathEntry {
-        x: number;
-        y: number;
-        radius: number;
-        sAngle: number;
-        eAngle: number;
-        aClockwise: boolean;
-    }
-    function Arc(x: number, y: number, radius: number, sa: number, ea: number, cc: boolean): IArc;
-}
-declare function radToDegrees(rad: any): number;
-declare module Fayde.Path {
-    interface IArcTo extends IPathEntry {
-        cpx: number;
-        cpy: number;
-        x: number;
-        y: number;
-        radius: number;
-    }
-    function ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): IArcTo;
-}
-declare module Fayde.Path {
-    interface IClose extends IPathEntry {
-        isClose: boolean;
-    }
-    function Close(): IClose;
-}
-declare module Fayde.Path {
-    interface ICubicBezier extends IPathEntry {
-        cp1x: number;
-        cp1y: number;
-        cp2x: number;
-        cp2y: number;
-        x: number;
-        y: number;
-    }
-    function CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): ICubicBezier;
-}
-declare module Fayde.Path {
-    interface IEllipticalArc extends IPathEntry {
-        width: number;
-        height: number;
-        rotationAngle: number;
-        isLargeArcFlag: boolean;
-        sweepDirectionFlag: Shapes.SweepDirection;
-        ex: number;
-        ey: number;
-    }
-    function EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number): IEllipticalArc;
-}
-declare module Fayde.Path {
-    interface ILine extends IPathEntry {
-        x: number;
-        y: number;
-    }
-    function Line(x: number, y: number): ILine;
-}
-declare module Fayde.Path {
-    interface IMove extends IPathEntry {
-        x: number;
-        y: number;
-        isMove: boolean;
-    }
-    function Move(x: number, y: number): IMove;
-}
-declare module Fayde.Path {
-    interface IQuadraticBezier extends IPathEntry {
-        cpx: number;
-        cpy: number;
-        x: number;
-        y: number;
-    }
-    function QuadraticBezier(cpx: number, cpy: number, x: number, y: number): IQuadraticBezier;
-}
-declare module Fayde.Input {
-    interface ITouchDevice {
-        Identifier: number;
-        Captured: UIElement;
-        Capture(uie: UIElement): boolean;
-        ReleaseCapture(uie: UIElement): any;
-        GetTouchPoint(relativeTo: UIElement): TouchPoint;
-    }
-    enum TouchInputType {
-        NoOp = 0,
-        TouchDown = 1,
-        TouchUp = 2,
-        TouchMove = 3,
-        TouchEnter = 4,
-        TouchLeave = 5,
-    }
-    interface ITouchInterop {
-        Register(input: Engine.InputManager, canvas: HTMLCanvasElement): any;
-    }
-    function CreateTouchInterop(): ITouchInterop;
-}
-declare module Fayde.Input {
-    class TouchEventArgs extends RoutedEventArgs {
-        public Device: ITouchDevice;
-        constructor(device: ITouchDevice);
-        public GetTouchPoint(relativeTo: UIElement): TouchPoint;
-    }
-}
-declare module Fayde.Input {
-    class TouchPoint {
-        public Position: Point;
-        public Force: number;
-        constructor(position: Point, force: number);
-    }
-}
-interface Touch {
-    identifier: number;
-    target: EventTarget;
-    screenX: number;
-    screenY: number;
-    clientX: number;
-    clientY: number;
-    pageX: number;
-    pageY: number;
-    radiusX: number;
-    radiusY: number;
-    rotationAngle: number;
-    force: number;
-}
-interface TouchList {
-    length: number;
-    item(index: number): Touch;
-    identifiedTouch(identifier: number): Touch;
-}
-interface TouchEvent extends UIEvent {
-    touches: TouchList;
-    targetTouches: TouchList;
-    changedTouches: TouchList;
-    altKey: boolean;
-    metaKey: boolean;
-    ctrlKey: boolean;
-    shiftKey: boolean;
-    initTouchEvent(type: string, canBubble: boolean, cancelable: boolean, view: any, detail: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, touches: TouchList, targetTouches: TouchList, changedTouches: TouchList): any;
-}
-declare var TouchEvent: {
-    prototype: TouchEvent;
-    new(): TouchEvent;
-};
-declare module Fayde.Input.TouchInternal {
-    interface ITouchHandler {
-        HandleTouches(type: TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
-    }
-    class ActiveTouchBase {
-        public Identifier: number;
-        public Position: Point;
-        public Device: ITouchDevice;
-        public InputList: UINode[];
-        private _IsEmitting;
-        private _PendingCapture;
-        private _PendingReleaseCapture;
-        private _Captured;
-        private _CapturedInputList;
-        private _FinishReleaseCaptureFunc;
-        constructor(touchHandler: ITouchHandler);
-        public Capture(uie: UIElement): boolean;
-        public ReleaseCapture(uie: UIElement): void;
-        private _PerformCapture(uin);
-        private _PerformReleaseCapture();
-        public Emit(type: TouchInputType, newInputList: UINode[], emitLeave?: boolean, emitEnter?: boolean): boolean;
-        private _EmitList(type, list, endIndex?);
-        public GetTouchPoint(relativeTo: UIElement): TouchPoint;
-        public CreateTouchPoint(p: Point): TouchPoint;
-        private CreateTouchDevice();
-    }
-}
-declare module Fayde.Input.TouchInternal {
-    interface IOffset {
-        left: number;
-        top: number;
-    }
-    class TouchInteropBase implements ITouchInterop, ITouchHandler {
-        public Input: Engine.InputManager;
-        public CanvasOffset: IOffset;
-        public ActiveTouches: ActiveTouchBase[];
-        public CoordinateOffset : IOffset;
-        public Register(input: Engine.InputManager, canvas: HTMLCanvasElement): void;
-        private _CalcOffset(canvas);
-        public HandleTouches(type: TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
-    }
-}
-declare module Fayde.Input.TouchInternal {
-    class PointerTouchInterop extends TouchInteropBase {
-        public Register(input: Engine.InputManager, canvas: HTMLCanvasElement): void;
-        private _HandlePointerDown(e);
-        private _HandlePointerUp(e);
-        private _HandlePointerMove(e);
-        private _HandlePointerEnter(e);
-        private _HandlePointerLeave(e);
-        private GetActiveTouch(e);
-        private FindTouchInList(identifier);
-    }
-}
-declare module Fayde.Input.TouchInternal {
-    class NonPointerTouchInterop extends TouchInteropBase {
-        public Register(input: Engine.InputManager, canvas: HTMLCanvasElement): void;
-        private _HandleTouchStart(e);
-        private _HandleTouchEnd(e);
-        private _HandleTouchMove(e);
-        private _HandleTouchEnter(e);
-        private _HandleTouchLeave(e);
-        private TouchArrayFromList(list);
-        private FindTouchInList(identifier);
-    }
-}
-declare module Fayde.Path {
-    interface IRect extends IPathEntry {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    }
-    function Rect(x: number, y: number, width: number, height: number): IRect;
-}
-declare module Fayde.Path {
-    interface IStrokeParameters {
-        thickness: number;
-        join: Shapes.PenLineJoin;
-        startCap: Shapes.PenLineCap;
-        endCap: Shapes.PenLineCap;
-        miterLimit: number;
-    }
-    interface IBoundingBox {
-        l: number;
-        r: number;
-        t: number;
-        b: number;
-    }
-    interface IPathEntry {
-        sx: number;
-        sy: number;
-        ex: number;
-        ey: number;
-        isSingle: boolean;
-        draw: (canvasCtx: CanvasRenderingContext2D) => void;
-        extendFillBox: (box: IBoundingBox) => void;
-        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters) => void;
-        getStartVector(): number[];
-        getEndVector(): number[];
-    }
-    class RawPath {
-        private _Path;
-        private _EndX;
-        private _EndY;
-        public EndX : number;
-        public EndY : number;
-        public Move(x: number, y: number): void;
-        public Line(x: number, y: number): void;
-        public Rect(x: number, y: number, width: number, height: number): void;
-        public RoundedRectFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): void;
-        public RoundedRect(x: number, y: number, width: number, height: number, radiusX: number, radiusY: number): void;
-        public QuadraticBezier(cpx: number, cpy: number, x: number, y: number): void;
-        public CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
-        public Ellipse(x: number, y: number, width: number, height: number): void;
-        public EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number): void;
-        public Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: boolean): void;
-        public ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): void;
-        public Close(): void;
-        public Draw(ctx: CanvasRenderingContext2D): void;
-        public CalculateBounds(pars?: IStrokeParameters): rect;
-        private _CalcFillBox();
-        private _CalcStrokeBox(pars);
-        static Merge(path1: RawPath, path2: RawPath): void;
-        public Serialize(): string;
-    }
-    function findMiterTips(previous: IPathEntry, entry: IPathEntry, hs: number, miterLimit: number): {
-        x: number;
-        y: number;
-    }[];
-    function findBevelTips(previous: IPathEntry, entry: IPathEntry, hs: number): {
-        x: number;
-        y: number;
-    }[];
-}
-declare module Fayde.Path {
-    function RectRounded(x: number, y: number, width: number, height: number, radiusX: number, radiusY: number): IRect;
-}
-declare module Fayde.Path {
-    function RectRoundedFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): IRect;
-}
-declare module Fayde.Path {
-    interface IEllipse extends IPathEntry {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    }
-    function Ellipse(x: number, y: number, width: number, height: number): IEllipse;
-}
-declare module Vector {
-    function create(x: number, y: number): number[];
-    function reverse(v: number[]): number[];
-    function orthogonal(v: number[]): number[];
-    function normalize(v: number[]): number[];
-    function rotate(v: number[], theta: number): number[];
-    function angleBetween(u: number[], v: number[]): number;
-    function isClockwiseTo(v1: number[], v2: number[]): boolean;
-    function intersection(s1: number[], d1: number[], s2: number[], d2: number[]): number[];
-}
-interface IAsyncRequest<T> {
-    success(callback: (result: T) => void): IAsyncRequest<T>;
-    error(callback: (error: any) => void): IAsyncRequest<T>;
-}
-interface IDeferrable<T> {
-    resolve: (result: T) => void;
-    reject: (error: any) => void;
-    request: IAsyncRequest<T>;
-}
-declare function defer<T>(): IDeferrable<T>;
-declare function deferArraySimple(arr: IAsyncRequest<any>[]): IAsyncRequest<any>;
-declare function deferArray<S, T>(arr: S[], resolver: (s: S) => IAsyncRequest<T>): IAsyncRequest<T[]>;
-declare module Fayde {
-    interface IDependencyAsyncContext {
-        ThemeName: string;
-        Resolving: Library[];
-    }
-    class Library {
-        public Name: string;
-        private _Module;
-        public Module : any;
-        private _CurrentTheme;
-        public CurrentTheme : Theme;
-        private _Themes;
-        private _IsLoading;
-        private _IsLoaded;
-        private _LoadError;
-        private _Deferrables;
-        constructor(Name: string);
-        static TryGetClass(xmlns: string, xmlname: string): any;
-        static Get(xmlns: string): Library;
-        static GetThemeStyle(type: any): Style;
-        static ChangeTheme(themeName: string): IAsyncRequest<any>;
-        public Resolve(ctx: IDependencyAsyncContext): IAsyncRequest<Library>;
-        private _Load(ctx);
-        private _LoadTheme(ctx);
-        private _FinishLoad(ctx, error?);
-        public GetModuleRequireUrl(): string;
-        public GetThemeRequireUrl(themeName: string): string;
-    }
-    function RegisterLibrary(name: string, moduleUrl?: string, themeUrlFunc?: (themeName: string) => string): Library;
-}
-declare module Fayde.Providers {
-    function SwapStyles(fe: FrameworkElement, oldWalker: IStyleWalker, newWalker: IStyleWalker, isImplicit: boolean): void;
-}
-declare module Fayde {
-    function _VisualTree(id: number): string;
-}
-declare module Fayde.Controls.Internal {
-    interface IRange {
-        Minimum: number;
-        Maximum: number;
-        Value: number;
-        OnMinimumChanged(oldMin: number, newMin: number): any;
-        OnMaximumChanged(oldMax: number, newMax: number): any;
-        OnValueChanged(oldVal: number, newVal: number): any;
-    }
-    interface IRangeCoercer {
-        OnMinimumChanged(oldMinimum: number, newMinimum: number): any;
-        OnMaximumChanged(oldMaximum: number, newMaximum: number): any;
-        OnValueChanged(oldValue: number, newValue: number): any;
-    }
-    class RangeCoercer implements IRangeCoercer {
-        public Range: IRange;
-        public OnCoerceMaximum: (val: any) => void;
-        public OnCoerceValue: (val: any) => void;
-        public InitialMax: number;
-        public InitialVal: number;
-        public RequestedMax: number;
-        public RequestedVal: number;
-        public PreCoercedMax: number;
-        public PreCoercedVal: number;
-        public CoerceDepth: number;
-        public Minimum : number;
-        public Maximum : number;
-        public Value : number;
-        constructor(Range: IRange, OnCoerceMaximum: (val: any) => void, OnCoerceValue: (val: any) => void);
-        public OnMinimumChanged(oldMinimum: number, newMinimum: number): void;
-        public OnMaximumChanged(oldMaximum: number, newMaximum: number): void;
-        public OnValueChanged(oldValue: number, newValue: number): void;
-        public CoerceMaximum(): void;
-        public CoerceValue(): void;
-    }
-}
-declare module Fayde.Controls.Internal {
-    interface IItemContainersOwner {
-        PrepareContainerForItem(container: UIElement, item: any): any;
-        ClearContainerForItem(container: UIElement, item: any): any;
-        GetContainerForItem(): UIElement;
-        IsItemItsOwnContainer(item: any): boolean;
-    }
-    interface IItemContainersManager {
-        IsRecycling: boolean;
-        IndexFromContainer(container: UIElement): number;
-        ContainerFromIndex(index: number): UIElement;
-        ItemFromContainer(container: UIElement): any;
-        ContainerFromItem(item: any): UIElement;
-        OnItemsAdded(index: number, newItems: any[]): any;
-        OnItemsRemoved(index: number, oldItems: any[]): any;
-        DisposeContainers(index?: number, count?: number): UIElement[];
-        CreateGenerator(index: number, count: number): IContainerGenerator;
-        GetEnumerator(index?: number, count?: number): IContainerEnumerator;
-    }
-    class ItemContainersManager implements IItemContainersManager {
-        public Owner: IItemContainersOwner;
-        private _Items;
-        private _Containers;
-        private _Cache;
-        public IsRecycling: boolean;
-        constructor(Owner: IItemContainersOwner);
-        public IndexFromContainer(container: UIElement): number;
-        public ContainerFromIndex(index: number): UIElement;
-        public ItemFromContainer(container: UIElement): any;
-        public ContainerFromItem(item: any): UIElement;
-        public OnItemsAdded(index: number, newItems: any[]): void;
-        public OnItemsRemoved(index: number, oldItems: any[]): void;
-        public DisposeContainers(index?: number, count?: number): UIElement[];
-        public CreateGenerator(index: number, count: number): IContainerGenerator;
-        public GetEnumerator(start?: number, count?: number): IContainerEnumerator;
-    }
-    interface IContainerGenerator {
-        IsCurrentNew: boolean;
-        Current: UIElement;
-        CurrentItem: any;
-        CurrentIndex: number;
-        GenerateIndex: number;
-        Generate(): boolean;
-    }
-    interface IContainerEnumerator extends IEnumerator<UIElement> {
-        CurrentItem: any;
-        CurrentIndex: number;
-    }
-}
-declare module Fayde.Localization {
-    class NumberFormatInfo {
-        public CurrencyDecimalDigits: number;
-        public CurrencyDecimalSeparator: string;
-        public CurrencyGroupSeparator: string;
-        public CurrencyGroupSizes: number[];
-        public CurrencyNegativePattern: number;
-        public CurrencyPositivePattern: number;
-        public CurrencySymbol: string;
-        public NaNSymbol: string;
-        public NegativeInfinitySymbol: string;
-        public PositiveInfinitySymbol: string;
-        public NegativeSign: string;
-        public PositiveSign: string;
-        public NumberDecimalDigits: number;
-        public NumberDecimalSeparator: string;
-        public NumberGroupSeparator: string;
-        public NumberGroupSizes: number[];
-        public NumberNegativePattern: number;
-        public PercentDecimalDigits: number;
-        public PercentDecimalSeparator: string;
-        public PercentGroupSeparator: string;
-        public PercentGroupSizes: number[];
-        public PercentNegativePattern: number;
-        public PercentPositivePattern: number;
-        public PercentSymbol: string;
-        public PerMilleSymbol: string;
-        static Instance: NumberFormatInfo;
-        public FormatCurrency(num: number, precision: number): string;
-        public FormatNumber(num: number, precision: number, ignoreGroupSep?: boolean): string;
-        public FormatPercent(num: number, precision: number): string;
-        public FormatGeneral(num: number, precision: number): string;
-        public FormatDecimal(num: number, precision: number): string;
-        public FormatExponential(num: number, precision: number): string;
-        public FormatHexadecimal(num: number, precision: number): string;
-        public FormatRawNumber(num: number, precision: number, decSep: string, groupSep: string, groupSizes: number[]): string;
-    }
-}
-declare module Fayde.Localization {
-    class Calendar {
-        public ID: number;
-        public Eras: number[];
-        public EraNames: string[];
-        public CurrentEraValue: number;
-        public TwoDigitYearMax: number;
-        public MaxSupportedDateTime: DateTime;
-        public MinSupportedDateTime: DateTime;
-    }
-}
-declare module Fayde.Localization {
-    enum CalendarWeekRule {
-        FirstDay = 0,
-        FirstFullWeek = 1,
-        FirstFourDayWeek = 2,
-    }
-    class DateTimeFormatInfo {
-        public AbbreviatedDayNames: string[];
-        public AbbreviatedMonthGenitiveNames: string[];
-        public AbbreviatedMonthNames: string[];
-        public AMDesignator: string;
-        public Calendar: Calendar;
-        public CalendarWeekRule: CalendarWeekRule;
-        public DateSeparator: string;
-        public DayNames: string[];
-        public FirstDayOfWeek: DayOfWeek;
-        public FullDateTimePattern: string;
-        public LongDatePattern: string;
-        public LongTimePattern: string;
-        public MonthDayPattern: string;
-        public MonthGenitiveNames: string[];
-        public MonthNames: string[];
-        public PMDesignator: string;
-        public RFC1123Pattern: string;
-        public ShortDatePattern: string;
-        public ShortestDayNames: string[];
-        public ShortTimePattern: string;
-        public SortableDateTimePattern: string;
-        public TimeSeparator: string;
-        public UniversalSortableDateTimePattern: string;
-        public YearMonthPattern: string;
-        public HasForceTwoDigitYears: boolean;
-        public GetEraName(era: number): string;
-        static Instance: DateTimeFormatInfo;
-        static ParseRepeatPattern(format: string, pos: number, patternChar: string): number;
-        static ParseNextChar(format: string, pos: number): number;
-        static ParseQuoteString(format: string, pos: number, result: string[]): number;
-        static FormatDigits(sb: string[], value: number, len: number, overrideLenLimit?: boolean): void;
-        static FormatMonth(month: number, repeat: number, info: DateTimeFormatInfo): string;
-        static FormatDayOfWeek(dayOfWeek: DayOfWeek, repeat: number, info: DateTimeFormatInfo): string;
-        static HebrewFormatDigits(sb: string[], digits: number): string;
-        static FormatHebrewMonthName(obj: DateTime, month: number, repeat: number, info: DateTimeFormatInfo): string;
-    }
-}
-declare module Fayde.Localization {
-    function Format(format: string, ...items: any[]): string;
-    function FormatSingle(obj: any, format: string): string;
-    interface IFormattable {
-        (obj: any, format: string, provider?: any): string;
-    }
-    function RegisterFormattable(type: Function, formatter: IFormattable): void;
-}
-declare module Fayde.Localization {
-}
-declare module Fayde.Localization {
-}
-declare module Fayde.Localization {
-}
-declare module Fayde.Collections {
-    class DeepObservableCollection<T> extends ObservableCollection<T> {
-        public ItemPropertyChanged: MulticastEvent<ItemPropertyChangedEventArgs<T>>;
-        constructor();
-        private _OnCollectionChanged(sender, e);
-        private _OnItemPropertyChanged(sender, e);
-    }
-}
-declare module Fayde.Collections {
-    class ItemPropertyChangedEventArgs<T> extends PropertyChangedEventArgs {
-        public Item: T;
-        constructor(item: T, propertyName: string);
-    }
-}
-declare module Fayde.Collections {
-    class FilteredCollection<T> extends DeepObservableCollection<T> {
-        private _Source;
-        public Source : DeepObservableCollection<T>;
-        private _Filter;
-        public Filter : (item: any) => boolean;
-        constructor(filter?: (item: any) => boolean, source?: DeepObservableCollection<T>);
-        private _OnSourceCollectionChanged(sender, e);
-        private _OnSourceItemPropertyChanged(sender, e);
-        public Update(): void;
     }
 }
 declare module Fayde.Xaml {
