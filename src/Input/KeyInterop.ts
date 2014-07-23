@@ -1,4 +1,4 @@
-/// <reference path="../Input/KeyEventArgs.ts" />
+/// <reference path="KeyEventArgs.ts" />
 
 
 // Good Resource: http://unixpapa.com/js/key.html

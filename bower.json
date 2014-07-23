@@ -6,10 +6,11 @@
         "BSick7 <brad.sickles@gmail.com>"
     ],
     "ignore": [
+        "build",
         "litmus",
         "nuget",
         "proto",
-        "Source",
+        "src",
         "test",
         "testsite",
         "Tools"

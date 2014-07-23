@@ -21,7 +21,7 @@ module.exports = function (grunt) {
         },
         typescript: {
             build: {
-                src: ['build/FaydeVersion.ts', 'Source/Fayde.Client/**/*.ts'],
+                src: ['src/**/*.ts'],
                 dest: 'Fayde.js',
                 options: {
                     target: 'es5',
@@ -73,7 +73,7 @@ module.exports = function (grunt) {
             },
             apply: {
                 src: './build/_VersionTemplate._ts',
-                dest: './Source/Fayde.Client/_Version.ts'
+                dest: './src/_Version.ts'
             }
         },
         nugetpack: {

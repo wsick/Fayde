@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
+/// <reference path="TypeManagement.ts" />
 
 module Fayde {
     export interface IEnumerable<T> {

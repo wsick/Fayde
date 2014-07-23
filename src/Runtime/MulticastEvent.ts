@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
+/// <reference path="TypeManagement.ts" />
 
 interface IEventListener<T extends EventArgs> {
     Closure: any;

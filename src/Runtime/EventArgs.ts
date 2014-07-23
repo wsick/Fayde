@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
+/// <reference path="TypeManagement.ts" />
 
 class EventArgs {
     static Empty: EventArgs = new EventArgs();
