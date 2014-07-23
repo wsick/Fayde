@@ -1,5 +1,5 @@
 {
-  "name": "Fayde",
+  "name": "fayde",
   "version": "0.10.0",
   "description": "Cross-platform/cross-browser XAML framework",
   "main": "Gruntfile.js",
