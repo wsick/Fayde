@@ -12,6 +12,7 @@ module.exports = function (grunt) {
     function bump(data, args) {
         try {
             var pkg = grunt.file.readJSON('./package.json');
+            var bower = grunt.file.readJSON('./bower.json');
 
             var vers = new Version(pkg.version);
             grunt.log.writeln('Current version: ' + vers);
@@ -19,8 +20,9 @@ module.exports = function (grunt) {
             vers.bump(part);
             grunt.log.writeln('Updated version: ' + vers);
 
-            grunt.version = pkg.version = vers.toString();
+            grunt.version = bower.version = pkg.version = vers.toString();
             grunt.file.write('./package.json', JSON.stringify(pkg, undefined, 2));
+            grunt.file.write('./bower.json', JSON.stringify(bower, undefined, 2));
         } catch (err) {
             grunt.fail.fatal('Error bumping version:' + err);
         }

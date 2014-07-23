@@ -1,18 +1,18 @@
 {
-    "name": "Fayde",
-    "version": "0.9.10",
-    "homepage": "http://fayde.wsick.com",
-    "authors": [
-        "BSick7 <brad.sickles@gmail.com>"
-    ],
-    "ignore": [
-        "build",
-        "litmus",
-        "nuget",
-        "proto",
-        "src",
-        "test",
-        "testsite",
-        "tools"
-    ]
+  "name": "Fayde",
+  "version": "0.10.0",
+  "homepage": "http://fayde.wsick.com",
+  "authors": [
+    "BSick7 <brad.sickles@gmail.com>"
+  ],
+  "ignore": [
+    "build",
+    "litmus",
+    "nuget",
+    "proto",
+    "src",
+    "test",
+    "testsite",
+    "tools"
+  ]
 }
