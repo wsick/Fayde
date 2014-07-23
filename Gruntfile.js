@@ -6,6 +6,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-open');
     grunt.loadNpmTasks('grunt-nuget');
 
     grunt.initConfig({
@@ -63,9 +66,44 @@ module.exports = function (grunt) {
         qunit: {
             all: ['test/**/*.html']
         },
+        connect: {
+            server: {
+                options: {
+                    port: 8001,
+                    base: './testsite/'
+                }
+            }
+        },
         watch: {
-            files: 'src/**/*.ts',
-            tasks: ['typescript:build']
+            src: {
+                files: ['src/**/*.ts'],
+                tasks: ['typescript:build']
+            },
+            dist: {
+                files: ['Fayde.js'],
+                tasks: ['copy:pretestsite']
+            },
+            testsitets: {
+                files: ['testsite/**/*.ts'],
+                tasks: ['typescript:testsite']
+            },
+            testsitejs: {
+                files: ['testsite/**/*.js'],
+                options: {
+                    livereload: 35729
+                }
+            },
+            testsitefay: {
+                files: ['testsite/**/*.fap', 'testsite/**/*.fayde'],
+                options: {
+                    livereload: 35729
+                }
+            }
+        },
+        open: {
+            testsite: {
+                path: 'http://localhost:8001/index.html'
+            }
         },
         version: {
             bump: {
@@ -93,7 +131,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', ['version:apply', 'typescript:build']);
     grunt.registerTask('test', ['setup:test', 'version:apply', 'typescript:build', 'copy:pretest', 'typescript:test', 'qunit']);
-    grunt.registerTask('testsite', ['setup:testsite', 'version:apply', 'typescript:build', 'copy:pretestsite', 'typescript:testsite']);
+    grunt.registerTask('testsite', ['setup:testsite', 'version:apply', 'typescript:build', 'copy:pretestsite', 'typescript:testsite', 'connect', 'open', 'watch']);
     setup(grunt);
     version(grunt);
     grunt.registerTask('package', ['nugetpack:dist']);
