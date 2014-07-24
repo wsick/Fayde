@@ -61,6 +61,13 @@ module.exports = function (grunt) {
                     { expand: true, flatten: true, src: ['Fayde.js'], dest: 'testsite/lib/Fayde', filter: 'isFile' },
                     { expand: true, flatten: true, src: ['Fayde.d.ts'], dest: 'testsite/lib/Fayde', filter: 'isFile' }
                 ]
+            },
+            deploy: {
+                files: [
+                    { expand: true, flatten: true, src: ['Themes/*'], dest: 'nuget/content/lib/Fayde/Themes', filter: 'isFile' },
+                    { expand: true, flatten: true, src: ['Fayde.js'], dest: 'nuget/content/lib/Fayde', filter: 'isFile' },
+                    { expand: true, flatten: true, src: ['Fayde.d.ts'], dest: 'nuget/content/lib/Fayde', filter: 'isFile' }
+                ]
             }
         },
         qunit: {
@@ -134,7 +141,7 @@ module.exports = function (grunt) {
     grunt.registerTask('testsite', ['setup:testsite', 'version:apply', 'typescript:build', 'copy:pretestsite', 'typescript:testsite', 'connect', 'open', 'watch']);
     setup(grunt);
     version(grunt);
-    grunt.registerTask('package', ['nugetpack:dist']);
-    grunt.registerTask('publish', ['nugetpack:dist', 'nugetpush:dist']);
+    grunt.registerTask('package', ['copy:desploy', 'nugetpack:dist']);
+    grunt.registerTask('publish', ['copy:desploy', 'nugetpack:dist', 'nugetpush:dist']);
 
 };

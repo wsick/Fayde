@@ -18,7 +18,3 @@ var require = {
         }
     }
 };
-
-require.shim["lib/Fayde.Controls/Fayde.Controls"] = {
-    exports: "Fayde.Controls"
-};
