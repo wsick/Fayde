@@ -1,327 +1,6 @@
-﻿var NumberEx;
-(function (NumberEx) {
-    var epsilon = 1.192093E-07;
-    var adjustment = 10;
-    function AreClose(val1, val2) {
-        if (val1 === val2)
-            return true;
-        var softdiff = (Math.abs(val1) + Math.abs(val2) + adjustment) * epsilon;
-        var diff = val1 - val2;
-        return -softdiff < diff && diff < softdiff;
-    }
-    NumberEx.AreClose = AreClose;
-    function IsLessThanClose(val1, val2) {
-        return val1 > val2 || !AreClose(val1, val2);
-    }
-    NumberEx.IsLessThanClose = IsLessThanClose;
-    function IsGreaterThanClose(val1, val2) {
-        return val1 > val2 || !AreClose(val1, val2);
-    }
-    NumberEx.IsGreaterThanClose = IsGreaterThanClose;
-})(NumberEx || (NumberEx = {}));
-var Fayde;
+﻿var Fayde;
 (function (Fayde) {
-    function Annotation(type, name, value, forbidMultiple) {
-        var at = type;
-        var anns = at.$$annotations;
-        if (!anns)
-            Object.defineProperty(at, "$$annotations", { value: (anns = []), writable: false });
-        var ann = anns[name];
-        if (!ann)
-            anns[name] = ann = [];
-        if (forbidMultiple && ann.length > 0)
-            throw new InvalidOperationException("Only 1 content annotation allowed per type [" + type.constructor.name + "].");
-        ann.push(value);
-    }
-    Fayde.Annotation = Annotation;
-    function GetAnnotations(type, name) {
-        var at = type;
-        var anns = at.$$annotations;
-        if (!anns)
-            return undefined;
-        return (anns[name] || []).slice(0);
-    }
-    Fayde.GetAnnotations = GetAnnotations;
-
-    function CreateTypedAnnotation(name) {
-        function ta(type) {
-            var values = [];
-            for (var _i = 0; _i < (arguments.length - 1); _i++) {
-                values[_i] = arguments[_i + 1];
-            }
-            for (var i = 0, len = values.length; i < len; i++) {
-                Annotation(type, name, values[i]);
-            }
-        }
-        ta.Get = function (type) {
-            return GetAnnotations(type, name);
-        };
-        return ta;
-    }
-    Fayde.CreateTypedAnnotation = CreateTypedAnnotation;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Xaml) {
-        Xaml.Content = (function () {
-            function ca(type, prop) {
-                Fayde.Annotation(type, "Content", prop, true);
-            }
-            ca.Get = function (type) {
-                var cur = type;
-                while (cur) {
-                    var anns = Fayde.GetAnnotations(cur, "Content");
-                    if (anns) {
-                        var cp = anns[0];
-                        if (cp)
-                            return cp;
-                    }
-                    cur = Fayde.GetTypeParent(cur);
-                }
-                return undefined;
-            };
-            return ca;
-        })();
-
-        Xaml.TextContent = (function () {
-            function tca(type, prop) {
-                Fayde.Annotation(type, "TextContent", prop, true);
-            }
-            tca.Get = function (type) {
-                var cur = type;
-                while (cur) {
-                    var anns = Fayde.GetAnnotations(cur, "TextContent");
-                    if (anns) {
-                        var cp = anns[0];
-                        if (cp)
-                            return cp;
-                    }
-                    cur = Fayde.GetTypeParent(cur);
-                }
-                return undefined;
-            };
-            return tca;
-        })();
-    })(Fayde.Xaml || (Fayde.Xaml = {}));
-    var Xaml = Fayde.Xaml;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Xaml) {
-        var W3URI = "http://www.w3.org/2000/xmlns/";
-        var parser = new DOMParser();
-
-        var regXds = [];
-
-        var XamlDocument = (function () {
-            function XamlDocument(xaml) {
-                this._RequiredDependencies = [];
-                this.Document = parser.parseFromString(xaml, "text/xml");
-            }
-            XamlDocument.Get = function (url) {
-                if (url instanceof Uri)
-                    url = url.toString();
-                url = "text!" + url;
-                var xd = regXds[url];
-                if (xd)
-                    return xd;
-                var xaml = require(url);
-                if (!xaml)
-                    return null;
-                return regXds[url] = new XamlDocument(xaml);
-            };
-
-            XamlDocument.GetAsync = function (url, ctx) {
-                if (url instanceof Uri)
-                    url = url.toString();
-                var xamlUrl = "text!" + url;
-
-                var d = defer();
-
-                var xd = regXds[xamlUrl];
-                if (xd) {
-                    d.resolve(xd);
-                    return d.request;
-                }
-
-                ctx = ctx || createContext();
-                require([xamlUrl], function (xaml) {
-                    xd = new XamlDocument(xaml);
-                    xd.Resolve(ctx).success(function (o) {
-                        return d.resolve(regXds[xamlUrl] = xd);
-                    }).error(d.reject);
-                }, d.reject);
-
-                return d.request;
-            };
-            XamlDocument.prototype.Resolve = function (ctx) {
-                var _this = this;
-                var d = defer();
-                var deps = this._RequiredDependencies;
-                addDependencies(this.Document.documentElement, deps);
-                ignoreCircularReferences(deps, ctx);
-                if (deps.length > 0) {
-                    discoverAppTheme(this.Document.documentElement, ctx);
-                    deferArray(deps, function (dep) {
-                        return resolveDependency(dep, ctx);
-                    }).success(function (ds) {
-                        return d.resolve(_this);
-                    }).error(d.reject);
-                } else {
-                    d.resolve(this);
-                }
-                return d.request;
-            };
-            return XamlDocument;
-        })();
-        Xaml.XamlDocument = XamlDocument;
-
-        function resolveDependency(dep, ctx) {
-            var d = defer();
-
-            if (dep.indexOf("lib:") === 0) {
-                var library = Fayde.Library.Get(dep);
-                if (!library) {
-                    d.reject("Could not resolve library: '" + dep + "'.");
-                    return d.request;
-                }
-                return library.Resolve(ctx);
-            }
-
-            require([dep], d.resolve, d.reject);
-            return d.request;
-        }
-        function ignoreCircularReferences(list, ctx) {
-            if (!ctx)
-                return;
-            var index;
-            for (var i = 0; i < list.length; i++) {
-                var lib = Fayde.Library.Get(list[i]);
-                if (lib && (index = ctx.Resolving.indexOf(lib)) > -1) {
-                    list.splice(i, 1);
-                    i--;
-                }
-            }
-        }
-
-        function addDependencies(el, list) {
-            while (el) {
-                getNodeDependency(el, list);
-                getAttributeDependencies(el, list);
-                getResourceDictionaryDependency(el, list);
-                addDependencies(el.firstElementChild, list);
-                el = el.nextElementSibling;
-            }
-        }
-        function getResourceDictionaryDependency(el, list) {
-            if (el.localName !== "ResourceDictionary")
-                return;
-            if (el.namespaceURI !== Fayde.XMLNS)
-                return;
-            var srcAttr = el.getAttribute("Source");
-            if (!srcAttr)
-                return;
-            list.push("text!" + srcAttr);
-        }
-        function getAttributeDependencies(el, list) {
-            var attrs = el.attributes;
-            for (var i = 0, len = attrs.length; i < len; i++) {
-                var attr = attrs[i];
-                getNodeDependency(attr, list);
-                getNodeValueDependency(attr, list);
-                getNodeValueImplicitDependency(el, attr, list);
-            }
-        }
-        function getNodeDependency(node, list) {
-            var nsUri = node.namespaceURI;
-            if (!nsUri || nsUri === W3URI || nsUri === Fayde.XMLNS || nsUri === Fayde.XMLNSX)
-                return;
-            var ln = node.localName;
-            var index = ln.indexOf(".");
-            if (index > -1)
-                ln = ln.substr(0, index);
-            var format = nsUri + "/" + ln;
-            if (nsUri.indexOf("lib:") === 0) {
-                if (list.indexOf(nsUri) > -1)
-                    return;
-                list.push(nsUri);
-            } else {
-                if (list.indexOf(format) > -1)
-                    return;
-                list.push(format);
-            }
-        }
-        function getNodeValueDependency(attr, list) {
-            var val = attr.value;
-            var components = Xaml.MarkupExpressionParser.GetComponents(val);
-            if (components && components[0] === "x:Type") {
-                addFullyQualifiedType(attr, components[1], list);
-            }
-        }
-
-        function getNodeValueImplicitDependency(ownerEl, attr, list) {
-            var val = attr.value;
-            if (val[0] === "{")
-                return;
-            if (ownerEl.namespaceURI !== Fayde.XMLNS && ownerEl.namespaceURI !== null)
-                return;
-            switch (ownerEl.localName) {
-                case "DataTemplate":
-                    if (attr.localName !== "DataType")
-                        return;
-                    break;
-                case "ControlTemplate":
-                    if (attr.localName !== "TargetType")
-                        return;
-                    break;
-                case "Style":
-                    if (attr.localName !== "TargetType")
-                        return;
-                    break;
-                default:
-                    return;
-            }
-            addFullyQualifiedType(attr, val, list);
-        }
-        function addFullyQualifiedType(attr, type, list) {
-            var index = type.indexOf(":");
-            if (index > -1) {
-                var prefix = type.substr(0, index);
-                var name = type.substr(index + 1);
-                var nsUri = attr.lookupNamespaceURI(prefix);
-                if (!nsUri)
-                    return;
-                if (nsUri.indexOf("lib:") === 0) {
-                    if (list.indexOf(nsUri) > -1)
-                        return;
-                    list.push(nsUri);
-                } else {
-                    var format = nsUri + "/" + name;
-                    if (list.indexOf(format) > -1)
-                        return;
-                    list.push(format);
-                }
-            }
-        }
-        function discoverAppTheme(el, ctx) {
-            if (el.localName === "Application") {
-                if (!el.namespaceURI || el.namespaceURI === Fayde.XMLNS) {
-                    var tnattr = el.attributes.getNamedItem("ThemeName");
-                    if (tnattr)
-                        ctx.ThemeName = tnattr.value;
-                }
-            }
-        }
-
-        function createContext() {
-            var app = Fayde.Application.Current;
-            return {
-                ThemeName: app ? app.ThemeName : "Default",
-                Resolving: []
-            };
-        }
-    })(Fayde.Xaml || (Fayde.Xaml = {}));
-    var Xaml = Fayde.Xaml;
+    Fayde.Version = '0.10.0';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -571,16 +250,6 @@ var Fayde;
     }
     Fayde.RegisterEnumConverter = RegisterEnumConverter;
 })(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Collections) {
-        Collections.INotifyCollectionChanged_ = Fayde.RegisterInterface("INotifyCollectionChanged");
-        Collections.INotifyCollectionChanged_.Is = function (o) {
-            return o && o.CollectionChanged instanceof MulticastEvent;
-        };
-    })(Fayde.Collections || (Fayde.Collections = {}));
-    var Collections = Fayde.Collections;
-})(Fayde || (Fayde = {}));
 var EventArgs = (function () {
     function EventArgs() {
     }
@@ -666,7 +335,7 @@ var Fayde;
 (function (Fayde) {
     Fayde.IEnumerable_ = Fayde.RegisterInterface("IEnumerable");
     Fayde.IEnumerable_.Is = function (o) {
-        return o && o.GetEnumerator && typeof o.GetEnumerator === "function";
+        return o && o.getEnumerator && typeof o.getEnumerator === "function";
     };
 
     Fayde.IEnumerator_ = Fayde.RegisterInterface("IEnumerator");
@@ -674,33 +343,30 @@ var Fayde;
     var ArrayEx = (function () {
         function ArrayEx() {
         }
-        ArrayEx.AsEnumerable = function (arr) {
-            return arr;
-        };
         ArrayEx.GetEnumerator = function (arr, isReverse) {
             var len = arr.length;
-            var e = { MoveNext: undefined, Current: undefined };
+            var e = { moveNext: undefined, current: undefined };
             var index;
             if (isReverse) {
                 index = len;
-                e.MoveNext = function () {
+                e.moveNext = function () {
                     index--;
                     if (index < 0) {
-                        e.Current = undefined;
+                        e.current = undefined;
                         return false;
                     }
-                    e.Current = arr[index];
+                    e.current = arr[index];
                     return true;
                 };
             } else {
                 index = -1;
-                e.MoveNext = function () {
+                e.moveNext = function () {
                     index++;
                     if (index >= len) {
-                        e.Current = undefined;
+                        e.current = undefined;
                         return false;
                     }
-                    e.Current = arr[index];
+                    e.current = arr[index];
                     return true;
                 };
             }
@@ -708,74 +374,52 @@ var Fayde;
         };
         ArrayEx.GetNodeEnumerator = function (arr, isReverse) {
             var len = arr.length;
-            var e = { MoveNext: undefined, Current: undefined };
+            var e = { moveNext: undefined, current: undefined };
             var index;
             if (isReverse) {
                 index = len;
-                e.MoveNext = function () {
+                e.moveNext = function () {
                     index--;
                     if (index < 0) {
-                        e.Current = undefined;
+                        e.current = undefined;
                         return false;
                     }
-                    e.Current = arr[index].XamlNode;
+                    e.current = arr[index].XamlNode;
                     return true;
                 };
             } else {
                 index = -1;
-                e.MoveNext = function () {
+                e.moveNext = function () {
                     index++;
                     if (index >= len) {
-                        e.Current = undefined;
+                        e.current = undefined;
                         return false;
                     }
-                    e.Current = arr[index].XamlNode;
+                    e.current = arr[index].XamlNode;
                     return true;
                 };
             }
             return e;
         };
-
-        ArrayEx.RemoveIfContains = function (arr, item) {
-            var index = arr.indexOf(item);
-            if (index < 0)
-                return false;
-            arr.splice(index, 1);
-            return true;
-        };
-
-        ArrayEx.Except = function (arr1, arr2) {
-            var cur;
-            var rarr = [];
-            for (var i = 0; i < arr1.length; i++) {
-                cur = arr1[i];
-                if (arr2.indexOf(cur) < 0)
-                    rarr.push(cur);
-            }
-            return rarr;
-        };
-
-        ArrayEx.Fill = function (arr, index, count, fill) {
-            for (var i = index; i < index + count; i++) {
-                arr.splice(i, 0, fill);
-            }
-        };
         ArrayEx.EmptyEnumerator = {
-            MoveNext: function () {
+            moveNext: function () {
                 return false;
             },
-            Current: undefined
+            current: undefined
         };
         return ArrayEx;
     })();
     Fayde.ArrayEx = ArrayEx;
-
-    Object.defineProperty(Array.prototype, "GetEnumerator", {
-        value: function (isReverse) {
-            return ArrayEx.GetEnumerator(this, isReverse);
-        },
-        enumerable: false
-    });
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Collections) {
+        Collections.INotifyCollectionChanged_ = Fayde.RegisterInterface("INotifyCollectionChanged");
+        Collections.INotifyCollectionChanged_.Is = function (o) {
+            return o && o.CollectionChanged instanceof MulticastEvent;
+        };
+    })(Fayde.Collections || (Fayde.Collections = {}));
+    var Collections = Fayde.Collections;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -804,7 +448,7 @@ var Fayde;
                 this.CollectionChanged = new MulticastEvent();
                 this.PropertyChanged = new MulticastEvent();
             }
-            ObservableCollection.prototype.GetEnumerator = function () {
+            ObservableCollection.prototype.getEnumerator = function () {
                 return Fayde.ArrayEx.GetEnumerator(this._ht);
             };
 
@@ -893,6 +537,124 @@ var Fayde;
         })();
         Collections.ObservableCollection = ObservableCollection;
         Fayde.RegisterType(ObservableCollection, "Fayde.Collections", Fayde.XMLNS);
+    })(Fayde.Collections || (Fayde.Collections = {}));
+    var Collections = Fayde.Collections;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Collections) {
+        var DeepObservableCollection = (function (_super) {
+            __extends(DeepObservableCollection, _super);
+            function DeepObservableCollection() {
+                _super.call(this);
+                this.ItemPropertyChanged = new MulticastEvent();
+                this.CollectionChanged.Subscribe(this._OnCollectionChanged, this);
+            }
+            DeepObservableCollection.prototype._OnCollectionChanged = function (sender, e) {
+                if (e.NewItems) {
+                    for (var i = 0; i < e.NewItems.length; i++) {
+                        var notify = Fayde.INotifyPropertyChanged_.As(e.NewItems[i]);
+                        if (notify)
+                            notify.PropertyChanged.Subscribe(this._OnItemPropertyChanged, this);
+                    }
+                }
+                if (e.OldItems) {
+                    for (var i = 0; i < e.OldItems.length; i++) {
+                        var notify = Fayde.INotifyPropertyChanged_.As(e.OldItems[i]);
+                        if (notify)
+                            notify.PropertyChanged.Unsubscribe(this._OnItemPropertyChanged, this);
+                    }
+                }
+            };
+            DeepObservableCollection.prototype._OnItemPropertyChanged = function (sender, e) {
+                this.ItemPropertyChanged.Raise(this, new Collections.ItemPropertyChangedEventArgs(sender, e.PropertyName));
+            };
+            return DeepObservableCollection;
+        })(Collections.ObservableCollection);
+        Collections.DeepObservableCollection = DeepObservableCollection;
+    })(Fayde.Collections || (Fayde.Collections = {}));
+    var Collections = Fayde.Collections;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Collections) {
+        var FilteredCollection = (function (_super) {
+            __extends(FilteredCollection, _super);
+            function FilteredCollection(filter, source) {
+                _super.call(this);
+                this.Filter = filter;
+                this.Source = source || new Fayde.Collections.DeepObservableCollection();
+                source.CollectionChanged.Subscribe(this._OnSourceCollectionChanged, this);
+                source.ItemPropertyChanged.Subscribe(this._OnSourceItemPropertyChanged, this);
+            }
+            Object.defineProperty(FilteredCollection.prototype, "Source", {
+                get: function () {
+                    return this._Source;
+                },
+                set: function (value) {
+                    this._Source = value;
+                    this.Update();
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            Object.defineProperty(FilteredCollection.prototype, "Filter", {
+                get: function () {
+                    return this._Filter;
+                },
+                set: function (value) {
+                    this._Filter = value;
+                    this.Update();
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            FilteredCollection.prototype._OnSourceCollectionChanged = function (sender, e) {
+                this.Update();
+            };
+            FilteredCollection.prototype._OnSourceItemPropertyChanged = function (sender, e) {
+                this.Update();
+                if (this.Filter && this.Filter(e.Item))
+                    this.ItemPropertyChanged.Raise(this, e);
+            };
+
+            FilteredCollection.prototype.Update = function () {
+                if (!this._Source)
+                    return;
+                var filter = this.Filter || (function (item) {
+                    return true;
+                });
+                for (var i = 0, j = 0, enumerator = this._Source.getEnumerator(); enumerator.moveNext(); i++) {
+                    var isIncluded = filter(enumerator.current);
+                    var isCurrent = j < this.Count && this.GetValueAt(j) === enumerator.current;
+                    if (isIncluded && !isCurrent)
+                        this.Insert(enumerator.current, j);
+                    else if (!isIncluded && isCurrent)
+                        this.RemoveAt(j);
+                    if (isIncluded)
+                        j++;
+                }
+            };
+            return FilteredCollection;
+        })(Fayde.Collections.DeepObservableCollection);
+        Collections.FilteredCollection = FilteredCollection;
+    })(Fayde.Collections || (Fayde.Collections = {}));
+    var Collections = Fayde.Collections;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Collections) {
+        var ItemPropertyChangedEventArgs = (function (_super) {
+            __extends(ItemPropertyChangedEventArgs, _super);
+            function ItemPropertyChangedEventArgs(item, propertyName) {
+                _super.call(this, propertyName);
+                Object.defineProperty(this, "Item", { value: item, writable: false });
+            }
+            return ItemPropertyChangedEventArgs;
+        })(Fayde.PropertyChangedEventArgs);
+        Collections.ItemPropertyChangedEventArgs = ItemPropertyChangedEventArgs;
     })(Fayde.Collections || (Fayde.Collections = {}));
     var Collections = Fayde.Collections;
 })(Fayde || (Fayde = {}));
@@ -2036,8 +1798,8 @@ var Fayde;
             InheritedStore.prototype.Propagate = function (ownerNode, propd, newValue) {
                 var enumerator = ownerNode.GetInheritedEnumerator();
                 var uin;
-                while (enumerator.MoveNext()) {
-                    uin = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    uin = enumerator.current;
                     if (!this.SetInheritedValue(uin, propd, newValue))
                         this.Propagate(uin, propd, newValue);
                 }
@@ -3399,8 +3161,8 @@ var Fayde;
         };
         LayoutUpdater.prototype._PropagateDirtyFlagToChildren = function (dirt) {
             var enumerator = this.Node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                enumerator.Current.LayoutUpdater._AddDirtyElement(dirt);
+            while (enumerator.moveNext()) {
+                enumerator.current.LayoutUpdater._AddDirtyElement(dirt);
             }
         };
         LayoutUpdater.prototype._AddDirtyElement = function (dirt) {
@@ -3721,8 +3483,8 @@ var Fayde;
 
             var node = this.Node;
             var enumerator = node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var item = enumerator.Current;
+            while (enumerator.moveNext()) {
+                var item = enumerator.current;
                 var itemlu = item.LayoutUpdater;
                 if (itemlu.TotalIsRenderVisible)
                     rect.union(ewc, itemlu.GlobalBoundsWithChildren);
@@ -4037,8 +3799,8 @@ var Fayde;
             size.max(availableSize, desired);
 
             var enumerator = node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var childNode = enumerator.Current;
+            while (enumerator.moveNext()) {
+                var childNode = enumerator.current;
                 var childLu = childNode.LayoutUpdater;
                 childLu._Measure(availableSize, error);
                 desired = size.copyTo(childLu.DesiredSize);
@@ -4283,8 +4045,8 @@ var Fayde;
             arranged = size.copyTo(finalSize);
 
             var enumerator = node.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var childNode = enumerator.Current;
+            while (enumerator.moveNext()) {
+                var childNode = enumerator.current;
                 var childRect = rect.fromSize(finalSize);
                 childNode.LayoutUpdater._Arrange(childRect, error);
                 size.max(arranged, finalSize);
@@ -4330,8 +4092,8 @@ var Fayde;
 
             Fayde.Render.DebugIndent++;
             var enumerator = this.Node.GetVisualTreeEnumerator(2 /* ZFoward */);
-            while (enumerator.MoveNext()) {
-                enumerator.Current.LayoutUpdater.DoRender(ctx, region);
+            while (enumerator.moveNext()) {
+                enumerator.current.LayoutUpdater.DoRender(ctx, region);
             }
             Fayde.Render.DebugIndent--;
 
@@ -4368,8 +4130,8 @@ var Fayde;
 
             uinlist.unshift(thisNode);
             var enumerator = thisNode.GetVisualTreeEnumerator(2 /* ZFoward */);
-            while (enumerator.MoveNext()) {
-                enumerator.Current.LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist, true);
+            while (enumerator.moveNext()) {
+                enumerator.current.LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist, true);
             }
 
             if (thisNode === uinlist[0]) {
@@ -4400,8 +4162,8 @@ var Fayde;
             uinlist.unshift(thisNode);
             var hit = false;
             var enumerator = thisNode.GetVisualTreeEnumerator(3 /* ZReverse */);
-            while (enumerator.MoveNext()) {
-                var childNode = enumerator.Current;
+            while (enumerator.moveNext()) {
+                var childNode = enumerator.current;
                 childNode.LayoutUpdater.HitTestPoint(ctx, p, uinlist);
                 if (thisNode !== uinlist[0]) {
                     hit = true;
@@ -4617,8 +4379,8 @@ var Fayde;
                 Fayde.Providers.ImplicitStyleBroker.Set(xobj, Fayde.Providers.StyleMask.All);
             }
             var enumerator = this.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                enumerator.Current.SetIsLoaded(newIsLoaded);
+            while (enumerator.moveNext()) {
+                enumerator.current.SetIsLoaded(newIsLoaded);
             }
             if (newIsLoaded) {
                 xobj.Loaded.Raise(xobj, new Fayde.RoutedEventArgs());
@@ -4845,6 +4607,92 @@ var Fayde;
 
     FrameworkElement.ActualWidthProperty.Store = Fayde.Providers.ActualSizeStore.Instance;
     FrameworkElement.ActualHeightProperty.Store = Fayde.Providers.ActualSizeStore.Instance;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    function Annotation(type, name, value, forbidMultiple) {
+        var at = type;
+        var anns = at.$$annotations;
+        if (!anns)
+            Object.defineProperty(at, "$$annotations", { value: (anns = []), writable: false });
+        var ann = anns[name];
+        if (!ann)
+            anns[name] = ann = [];
+        if (forbidMultiple && ann.length > 0)
+            throw new InvalidOperationException("Only 1 content annotation allowed per type [" + type.constructor.name + "].");
+        ann.push(value);
+    }
+    Fayde.Annotation = Annotation;
+    function GetAnnotations(type, name) {
+        var at = type;
+        var anns = at.$$annotations;
+        if (!anns)
+            return undefined;
+        return (anns[name] || []).slice(0);
+    }
+    Fayde.GetAnnotations = GetAnnotations;
+
+    function CreateTypedAnnotation(name) {
+        function ta(type) {
+            var values = [];
+            for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                values[_i] = arguments[_i + 1];
+            }
+            for (var i = 0, len = values.length; i < len; i++) {
+                Annotation(type, name, values[i]);
+            }
+        }
+        ta.Get = function (type) {
+            return GetAnnotations(type, name);
+        };
+        return ta;
+    }
+    Fayde.CreateTypedAnnotation = CreateTypedAnnotation;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Xaml) {
+        Xaml.Content = (function () {
+            function ca(type, prop) {
+                Fayde.Annotation(type, "Content", prop, true);
+            }
+            ca.Get = function (type) {
+                var cur = type;
+                while (cur) {
+                    var anns = Fayde.GetAnnotations(cur, "Content");
+                    if (anns) {
+                        var cp = anns[0];
+                        if (cp)
+                            return cp;
+                    }
+                    cur = Fayde.GetTypeParent(cur);
+                }
+                return undefined;
+            };
+            return ca;
+        })();
+
+        Xaml.TextContent = (function () {
+            function tca(type, prop) {
+                Fayde.Annotation(type, "TextContent", prop, true);
+            }
+            tca.Get = function (type) {
+                var cur = type;
+                while (cur) {
+                    var anns = Fayde.GetAnnotations(cur, "TextContent");
+                    if (anns) {
+                        var cp = anns[0];
+                        if (cp)
+                            return cp;
+                    }
+                    cur = Fayde.GetTypeParent(cur);
+                }
+                return undefined;
+            };
+            return tca;
+        })();
+    })(Fayde.Xaml || (Fayde.Xaml = {}));
+    var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -5199,9 +5047,9 @@ var Fayde;
             if (brush instanceof Fayde.Media.SolidColorBrush)
                 return brush.Color.A < 1.0;
             if (brush instanceof Fayde.Media.LinearGradientBrush) {
-                var enumerator = brush.GradientStops.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    if (enumerator.Current.Color.A < 1.0)
+                var enumerator = brush.GradientStops.getEnumerator();
+                while (enumerator.moveNext()) {
+                    if (enumerator.current.Color.A < 1.0)
                         return true;
                 }
                 return false;
@@ -6221,7 +6069,7 @@ var Fayde;
                 value.XamlNode.Detach();
         };
 
-        XamlObjectCollection.prototype.GetEnumerator = function (reverse) {
+        XamlObjectCollection.prototype.getEnumerator = function (reverse) {
             return Fayde.ArrayEx.GetEnumerator(this._ht, reverse);
         };
         XamlObjectCollection.prototype.GetNodeEnumerator = function (reverse) {
@@ -6240,8 +6088,8 @@ var Fayde;
 
         XamlObjectCollection.prototype.CloneCore = function (source) {
             var enumerator = Fayde.ArrayEx.GetEnumerator(source._ht);
-            while (enumerator.MoveNext()) {
-                this.Add(Fayde.Clone(enumerator.Current));
+            while (enumerator.moveNext()) {
+                this.Add(Fayde.Clone(enumerator.current));
             }
         };
 
@@ -6635,16 +6483,16 @@ var Fayde;
             CanvasLayoutUpdater.prototype.MeasureOverride = function (availableSize, error) {
                 var childSize = size.createInfinite();
                 var enumerator = this.Node.GetVisualTreeEnumerator();
-                while (enumerator.MoveNext()) {
-                    var childNode = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    var childNode = enumerator.current;
                     childNode.LayoutUpdater._Measure(childSize, error);
                 }
                 return new size();
             };
             CanvasLayoutUpdater.prototype.ArrangeOverride = function (finalSize, error) {
                 var enumerator = this.Node.GetVisualTreeEnumerator();
-                while (enumerator.MoveNext()) {
-                    var childNode = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    var childNode = enumerator.current;
                     var lu = childNode.LayoutUpdater;
                     var childFinal = rect.fromSize(lu.DesiredSize);
                     childFinal.X = Canvas.GetLeft(childNode.XObject);
@@ -6945,8 +6793,8 @@ var Fayde;
 
             ItemsControl.prototype.OnDisplayMemberPathChanged = function (e) {
                 var enumerator = this.ItemContainersManager.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    this.UpdateContainerTemplate(enumerator.Current, enumerator.CurrentItem);
+                while (enumerator.moveNext()) {
+                    this.UpdateContainerTemplate(enumerator.current, enumerator.CurrentItem);
                 }
             };
             ItemsControl.prototype.OnItemsSourceChanged = function (e) {
@@ -6964,7 +6812,7 @@ var Fayde;
                 this.OnItemsChanged(Fayde.Collections.CollectionChangedEventArgs.Reset(items.ToArray()));
 
                 this._IsDataBound = !!e.NewValue;
-                var arr = e.NewValue ? Fayde.Enumerable.ToArray(e.NewValue) : null;
+                var arr = toArray(e.NewValue);
                 try  {
                     this._SuspendItemsChanged = true;
                     if (arr)
@@ -6981,8 +6829,8 @@ var Fayde;
             };
             ItemsControl.prototype.OnItemTemplateChanged = function (e) {
                 var enumerator = this.ItemContainersManager.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    this.UpdateContainerTemplate(enumerator.Current, enumerator.CurrentItem);
+                while (enumerator.moveNext()) {
+                    this.UpdateContainerTemplate(enumerator.current, enumerator.CurrentItem);
                 }
             };
 
@@ -7138,6 +6986,20 @@ var Fayde;
         Controls.ItemsControl = ItemsControl;
         Fayde.RegisterType(ItemsControl, "Fayde.Controls", Fayde.XMLNS);
         Fayde.Xaml.Content(ItemsControl, ItemsControl.ItemsProperty);
+
+        function toArray(value) {
+            if (value instanceof Array)
+                return value;
+            var enu = Fayde.IEnumerable_.As(value);
+            if (enu) {
+                var arr = [];
+                for (var en = enu.getEnumerator(); en.moveNext();) {
+                    arr.push(en.current);
+                }
+                return arr;
+            }
+            return null;
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -7454,6 +7316,224 @@ var Fayde;
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Xaml) {
+        var W3URI = "http://www.w3.org/2000/xmlns/";
+        var parser = new DOMParser();
+
+        var regXds = [];
+
+        var XamlDocument = (function () {
+            function XamlDocument(xaml) {
+                this._RequiredDependencies = [];
+                this.Document = parser.parseFromString(xaml, "text/xml");
+            }
+            XamlDocument.Get = function (url) {
+                if (url instanceof Uri)
+                    url = url.toString();
+                url = "text!" + url;
+                var xd = regXds[url];
+                if (xd)
+                    return xd;
+                var xaml = require(url);
+                if (!xaml)
+                    return null;
+                return regXds[url] = new XamlDocument(xaml);
+            };
+
+            XamlDocument.GetAsync = function (url, ctx) {
+                if (url instanceof Uri)
+                    url = url.toString();
+                var xamlUrl = "text!" + url;
+
+                var d = defer();
+
+                var xd = regXds[xamlUrl];
+                if (xd) {
+                    d.resolve(xd);
+                    return d.request;
+                }
+
+                ctx = ctx || createContext();
+                require([xamlUrl], function (xaml) {
+                    xd = new XamlDocument(xaml);
+                    xd.Resolve(ctx).success(function (o) {
+                        return d.resolve(regXds[xamlUrl] = xd);
+                    }).error(d.reject);
+                }, d.reject);
+
+                return d.request;
+            };
+            XamlDocument.prototype.Resolve = function (ctx) {
+                var _this = this;
+                var d = defer();
+                var deps = this._RequiredDependencies;
+                addDependencies(this.Document.documentElement, deps);
+                ignoreCircularReferences(deps, ctx);
+                if (deps.length > 0) {
+                    discoverAppTheme(this.Document.documentElement, ctx);
+                    deferArray(deps, function (dep) {
+                        return resolveDependency(dep, ctx);
+                    }).success(function (ds) {
+                        return d.resolve(_this);
+                    }).error(d.reject);
+                } else {
+                    d.resolve(this);
+                }
+                return d.request;
+            };
+            return XamlDocument;
+        })();
+        Xaml.XamlDocument = XamlDocument;
+
+        function resolveDependency(dep, ctx) {
+            var d = defer();
+
+            if (dep.indexOf("lib:") === 0) {
+                var library = Fayde.Library.Get(dep);
+                if (!library) {
+                    d.reject("Could not resolve library: '" + dep + "'.");
+                    return d.request;
+                }
+                return library.Resolve(ctx);
+            }
+
+            require([dep], d.resolve, d.reject);
+            return d.request;
+        }
+        function ignoreCircularReferences(list, ctx) {
+            if (!ctx)
+                return;
+            var index;
+            for (var i = 0; i < list.length; i++) {
+                var lib = Fayde.Library.Get(list[i]);
+                if (lib && (index = ctx.Resolving.indexOf(lib)) > -1) {
+                    list.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        function addDependencies(el, list) {
+            while (el) {
+                getNodeDependency(el, list);
+                getAttributeDependencies(el, list);
+                getResourceDictionaryDependency(el, list);
+                addDependencies(el.firstElementChild, list);
+                el = el.nextElementSibling;
+            }
+        }
+        function getResourceDictionaryDependency(el, list) {
+            if (el.localName !== "ResourceDictionary")
+                return;
+            if (el.namespaceURI !== Fayde.XMLNS)
+                return;
+            var srcAttr = el.getAttribute("Source");
+            if (!srcAttr)
+                return;
+            list.push("text!" + srcAttr);
+        }
+        function getAttributeDependencies(el, list) {
+            var attrs = el.attributes;
+            for (var i = 0, len = attrs.length; i < len; i++) {
+                var attr = attrs[i];
+                getNodeDependency(attr, list);
+                getNodeValueDependency(attr, list);
+                getNodeValueImplicitDependency(el, attr, list);
+            }
+        }
+        function getNodeDependency(node, list) {
+            var nsUri = node.namespaceURI;
+            if (!nsUri || nsUri === W3URI || nsUri === Fayde.XMLNS || nsUri === Fayde.XMLNSX)
+                return;
+            var ln = node.localName;
+            var index = ln.indexOf(".");
+            if (index > -1)
+                ln = ln.substr(0, index);
+            var format = nsUri + "/" + ln;
+            if (nsUri.indexOf("lib:") === 0) {
+                if (list.indexOf(nsUri) > -1)
+                    return;
+                list.push(nsUri);
+            } else {
+                if (list.indexOf(format) > -1)
+                    return;
+                list.push(format);
+            }
+        }
+        function getNodeValueDependency(attr, list) {
+            var val = attr.value;
+            var components = Xaml.MarkupExpressionParser.GetComponents(val);
+            if (components && components[0] === "x:Type") {
+                addFullyQualifiedType(attr, components[1], list);
+            }
+        }
+
+        function getNodeValueImplicitDependency(ownerEl, attr, list) {
+            var val = attr.value;
+            if (val[0] === "{")
+                return;
+            if (ownerEl.namespaceURI !== Fayde.XMLNS && ownerEl.namespaceURI !== null)
+                return;
+            switch (ownerEl.localName) {
+                case "DataTemplate":
+                    if (attr.localName !== "DataType")
+                        return;
+                    break;
+                case "ControlTemplate":
+                    if (attr.localName !== "TargetType")
+                        return;
+                    break;
+                case "Style":
+                    if (attr.localName !== "TargetType")
+                        return;
+                    break;
+                default:
+                    return;
+            }
+            addFullyQualifiedType(attr, val, list);
+        }
+        function addFullyQualifiedType(attr, type, list) {
+            var index = type.indexOf(":");
+            if (index > -1) {
+                var prefix = type.substr(0, index);
+                var name = type.substr(index + 1);
+                var nsUri = attr.lookupNamespaceURI(prefix);
+                if (!nsUri)
+                    return;
+                if (nsUri.indexOf("lib:") === 0) {
+                    if (list.indexOf(nsUri) > -1)
+                        return;
+                    list.push(nsUri);
+                } else {
+                    var format = nsUri + "/" + name;
+                    if (list.indexOf(format) > -1)
+                        return;
+                    list.push(format);
+                }
+            }
+        }
+        function discoverAppTheme(el, ctx) {
+            if (el.localName === "Application") {
+                if (!el.namespaceURI || el.namespaceURI === Fayde.XMLNS) {
+                    var tnattr = el.attributes.getNamedItem("ThemeName");
+                    if (tnattr)
+                        ctx.ThemeName = tnattr.value;
+                }
+            }
+        }
+
+        function createContext() {
+            var app = Fayde.Application.Current;
+            return {
+                ThemeName: app ? app.ThemeName : "Default",
+                Resolving: []
+            };
+        }
+    })(Fayde.Xaml || (Fayde.Xaml = {}));
+    var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -10005,8 +10085,8 @@ var Fayde;
             ComboBox.prototype.OnItemContainerStyleChanged = function (args) {
                 var newStyle = args.NewValue;
                 var enumerator = this.ItemContainersManager.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    var container = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    var container = enumerator.current;
                     if (container && container !== enumerator.CurrentItem)
                         container.Style = newStyle;
                 }
@@ -10475,8 +10555,8 @@ var Fayde;
                     size.shrinkByThickness(availableSize, border);
 
                 var enumerator = this.Node.GetVisualTreeEnumerator();
-                while (enumerator.MoveNext()) {
-                    var childLu = enumerator.Current.LayoutUpdater;
+                while (enumerator.moveNext()) {
+                    var childLu = enumerator.current.LayoutUpdater;
                     childLu._Measure(availableSize, error);
                     desired = size.copyTo(childLu.DesiredSize);
                 }
@@ -10501,8 +10581,8 @@ var Fayde;
                 var arranged = null;
 
                 var enumerator = this.Node.GetVisualTreeEnumerator();
-                while (enumerator.MoveNext()) {
-                    var childLu = enumerator.Current.LayoutUpdater;
+                while (enumerator.moveNext()) {
+                    var childLu = enumerator.current.LayoutUpdater;
                     var childRect = rect.fromSize(finalSize);
                     if (border)
                         rect.shrinkByThickness(childRect, border);
@@ -10776,9 +10856,9 @@ var Fayde;
                     var cuml = -1;
                     var cols = grid.ColumnDefinitions;
                     if (cols) {
-                        var enumerator = cols.GetEnumerator();
-                        while (enumerator.MoveNext()) {
-                            cuml += enumerator.Current.ActualWidth;
+                        var enumerator = cols.getEnumerator();
+                        while (enumerator.moveNext()) {
+                            cuml += enumerator.current.ActualWidth;
                             ctx.beginPath();
                             ctx.setLineDash([5]);
                             ctx.moveTo(cuml, 0);
@@ -10789,9 +10869,9 @@ var Fayde;
                     var rows = grid.RowDefinitions;
                     if (rows) {
                         cuml = -1;
-                        var enumerator2 = rows.GetEnumerator();
-                        while (enumerator2.MoveNext()) {
-                            cuml += enumerator2.Current.ActualHeight;
+                        var enumerator2 = rows.getEnumerator();
+                        while (enumerator2.moveNext()) {
+                            cuml += enumerator2.current.ActualHeight;
                             ctx.beginPath();
                             ctx.setLineDash([5]);
                             ctx.moveTo(0, cuml);
@@ -10855,11 +10935,11 @@ var Fayde;
                     totalStars.Height += 1.0;
                 } else {
                     i = 0;
-                    var enumerator = rows.GetEnumerator();
+                    var enumerator = rows.getEnumerator();
                     var rowdef = null;
                     var height = null;
-                    while (enumerator.MoveNext()) {
-                        rowdef = enumerator.Current;
+                    while (enumerator.moveNext()) {
+                        rowdef = enumerator.current;
                         height = rowdef.Height;
                         if (!height)
                             height = defaultGridLength;
@@ -10889,11 +10969,11 @@ var Fayde;
                     totalStars.Width += 1.0;
                 } else {
                     i = 0;
-                    var enumerator2 = cols.GetEnumerator();
+                    var enumerator2 = cols.getEnumerator();
                     var coldef = null;
                     var width = null;
-                    while (enumerator2.MoveNext()) {
-                        coldef = enumerator2.Current;
+                    while (enumerator2.moveNext()) {
+                        coldef = enumerator2.current;
                         var width = coldef.Width;
                         if (!width)
                             width = defaultGridLength;
@@ -10960,8 +11040,8 @@ var Fayde;
                     }
 
                     var e4 = grid.XamlNode.GetVisualTreeEnumerator();
-                    while (e4.MoveNext()) {
-                        childNode = e4.Current;
+                    while (e4.moveNext()) {
+                        childNode = e4.current;
                         child = childNode.XObject;
                         childLu = childNode.LayoutUpdater;
 
@@ -11088,24 +11168,24 @@ var Fayde;
                     this._ExpandStarRows(grid, finalSize);
 
                 var i = 0;
-                var enumerator = cols.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    enumerator.Current.SetValueInternal(Controls.ColumnDefinition.ActualWidthProperty, cm[i][i].OfferedSize);
+                var enumerator = cols.getEnumerator();
+                while (enumerator.moveNext()) {
+                    enumerator.current.SetValueInternal(Controls.ColumnDefinition.ActualWidthProperty, cm[i][i].OfferedSize);
                     i++;
                 }
 
                 i = 0;
-                var enumerator2 = rows.GetEnumerator();
-                while (enumerator2.MoveNext()) {
-                    enumerator2.Current.SetValueInternal(Controls.RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
+                var enumerator2 = rows.getEnumerator();
+                while (enumerator2.moveNext()) {
+                    enumerator2.current.SetValueInternal(Controls.RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
                     i++;
                 }
 
                 var enumerator3 = grid.XamlNode.GetVisualTreeEnumerator();
                 var childNode;
                 var child;
-                while (enumerator3.MoveNext()) {
-                    childNode = enumerator3.Current;
+                while (enumerator3.moveNext()) {
+                    childNode = enumerator3.current;
                     child = childNode.XObject;
 
                     var col = Math.min(Grid.GetColumn(child), cm.length - 1);
@@ -11152,9 +11232,9 @@ var Fayde;
 
                 var row = null;
                 i = 0;
-                var enumerator = rows.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    row = enumerator.Current;
+                var enumerator = rows.getEnumerator();
+                while (enumerator.moveNext()) {
+                    row = enumerator.current;
                     cur = rm[i][i];
                     if (cur.Type === 2 /* Star */)
                         row.SetValueInternal(Controls.RowDefinition.ActualHeightProperty, cur.OfferedSize);
@@ -11180,9 +11260,9 @@ var Fayde;
 
                 var col = null;
                 i = 0;
-                var enumerator = cols.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    col = enumerator.Current;
+                var enumerator = cols.getEnumerator();
+                while (enumerator.moveNext()) {
+                    col = enumerator.current;
                     cur = cm[i][i];
                     if (cur.Type === 2 /* Star */)
                         col.SetValueInternal(Controls.ColumnDefinition.ActualWidthProperty, cur.OfferedSize);
@@ -11384,8 +11464,8 @@ var Fayde;
             var childNode = null;
             var child;
             var enumerator = grid.XamlNode.GetVisualTreeEnumerator(0 /* Logical */);
-            while (enumerator.MoveNext()) {
-                childNode = enumerator.Current;
+            while (enumerator.moveNext()) {
+                childNode = enumerator.current;
                 child = childNode.XObject;
 
                 starCol = false;
@@ -11469,6 +11549,37 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        var HeaderedContentControl = (function (_super) {
+            __extends(HeaderedContentControl, _super);
+            function HeaderedContentControl() {
+                _super.call(this);
+                this.DefaultStyleKey = this.constructor;
+            }
+            HeaderedContentControl.prototype.OnHeaderChanged = function (oldHeader, newHeader) {
+            };
+            HeaderedContentControl.prototype.OnHeaderTemplateChanged = function (oldHeaderTemplate, newHeaderTemplate) {
+            };
+            HeaderedContentControl.HeaderProperty = DependencyProperty.Register("Header", function () {
+                return Object;
+            }, HeaderedContentControl, undefined, function (d, args) {
+                return d.OnHeaderChanged(args.OldValue, args.NewValue);
+            });
+
+            HeaderedContentControl.HeaderTemplateProperty = DependencyProperty.Register("HeaderTemplate", function () {
+                return Fayde.DataTemplate;
+            }, HeaderedContentControl, undefined, function (d, args) {
+                return d.OnHeaderTemplateChanged(args.OldValue, args.NewValue);
+            });
+            return HeaderedContentControl;
+        })(Controls.ContentControl);
+        Controls.HeaderedContentControl = HeaderedContentControl;
+        Fayde.RegisterType(HeaderedContentControl, "Fayde.Controls", Fayde.XMLNS);
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
         var HyperlinkButton = (function (_super) {
             __extends(HyperlinkButton, _super);
             function HyperlinkButton() {
@@ -11488,12 +11599,16 @@ var Fayde;
 
             HyperlinkButton.prototype._Navigate = function () {
                 var targetName = this.TargetName;
+                var targetUie;
                 if (!targetName) {
-                    window.location.href = this.NavigateUri.toString();
-                    return;
+                    targetUie = Fayde.VisualTreeHelper.GetParentOfType(this, Fayde.Controls.Frame);
+                } else {
+                    targetUie = this.FindName(targetName, true);
                 }
-                var targetUie = this.FindName(targetName, true);
-                if (targetUie instanceof Controls.Frame) {
+
+                if (!targetUie) {
+                    window.location.href = this.NavigateUri.toString();
+                } else if (targetUie instanceof Controls.Frame) {
                     window.location.hash = this.NavigateUri.toString();
                 } else {
                     window.open(this.NavigateUri.toString(), targetName);
@@ -11894,6 +12009,281 @@ var Fayde;
                 Overlap: overlap
             };
         }
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Internal) {
+            var ItemContainersManager = (function () {
+                function ItemContainersManager(Owner) {
+                    this.Owner = Owner;
+                    this._Items = [];
+                    this._Containers = [];
+                    this._Cache = [];
+                    this.IsRecycling = false;
+                }
+                ItemContainersManager.prototype.IndexFromContainer = function (container) {
+                    return this._Containers.indexOf(container);
+                };
+                ItemContainersManager.prototype.ContainerFromIndex = function (index) {
+                    return this._Containers[index];
+                };
+                ItemContainersManager.prototype.ItemFromContainer = function (container) {
+                    var index = this._Containers.indexOf(container);
+                    if (index < 0)
+                        return null;
+                    return this._Items[index];
+                };
+                ItemContainersManager.prototype.ContainerFromItem = function (item) {
+                    if (item == null)
+                        return null;
+                    var index = this._Items.indexOf(item);
+                    if (index < 0)
+                        return null;
+                    return this._Containers[index];
+                };
+
+                ItemContainersManager.prototype.OnItemsAdded = function (index, newItems) {
+                    var items = this._Items;
+                    var containers = this._Containers;
+                    for (var i = 0, len = newItems.length; i < len; i++) {
+                        items.splice(index + i, 0, newItems[i]);
+                        containers.splice(index + i, 0, null);
+                    }
+                };
+                ItemContainersManager.prototype.OnItemsRemoved = function (index, oldItems) {
+                    this.DisposeContainers(index, oldItems.length);
+                    this._Items.splice(index, oldItems.length);
+                    this._Containers.splice(index, oldItems.length);
+                };
+                ItemContainersManager.prototype.DisposeContainers = function (index, count) {
+                    var containers = this._Containers;
+                    var items = this._Items;
+                    if (index == null)
+                        index = 0;
+                    if (count == null)
+                        count = containers.length;
+
+                    if (this.IsRecycling)
+                        this._Cache.push.apply(this._Cache, containers.slice(index, index + count));
+
+                    var disposed = [];
+
+                    var ic = this.Owner;
+                    for (var i = index; i < index + count; i++) {
+                        var container = containers[i];
+                        if (!container)
+                            continue;
+                        disposed.push(container);
+                        var item = items[i];
+                        ic.ClearContainerForItem(container, item);
+                        containers[i] = null;
+                    }
+
+                    return disposed;
+                };
+
+                ItemContainersManager.prototype.CreateGenerator = function (index, count) {
+                    var generator = {
+                        IsCurrentNew: false,
+                        Current: undefined,
+                        CurrentItem: undefined,
+                        CurrentIndex: index - 1,
+                        GenerateIndex: -1,
+                        Generate: function () {
+                            return false;
+                        }
+                    };
+
+                    var ic = this.Owner;
+                    var icm = this;
+                    var containers = this._Containers;
+                    var items = this._Items;
+                    var cache = this._Cache;
+                    generator.Generate = function () {
+                        generator.GenerateIndex++;
+                        generator.CurrentIndex++;
+                        generator.IsCurrentNew = false;
+                        if (generator.CurrentIndex < 0 || generator.GenerateIndex >= count || generator.CurrentIndex >= containers.length) {
+                            generator.Current = undefined;
+                            generator.CurrentItem = undefined;
+                            return false;
+                        }
+                        generator.CurrentItem = items[generator.CurrentIndex];
+                        if ((generator.Current = containers[generator.CurrentIndex]) == null) {
+                            if (ic.IsItemItsOwnContainer(generator.CurrentItem)) {
+                                if (generator.CurrentItem instanceof Fayde.UIElement)
+                                    generator.Current = generator.CurrentItem;
+                                generator.IsCurrentNew = true;
+                            } else if (cache.length > 0) {
+                                generator.Current = cache.pop();
+                            } else {
+                                generator.Current = ic.GetContainerForItem();
+                                generator.IsCurrentNew = true;
+                            }
+                            containers[generator.CurrentIndex] = generator.Current;
+                        }
+
+                        return true;
+                    };
+
+                    return generator;
+                };
+                ItemContainersManager.prototype.GetEnumerator = function (start, count) {
+                    var carr = this._Containers;
+                    var iarr = this._Items;
+
+                    var index = (start || 0) - 1;
+                    var len = count == null ? carr.length : count;
+
+                    var i = 0;
+                    var e = { moveNext: undefined, current: undefined, CurrentItem: undefined, CurrentIndex: -1 };
+                    e.moveNext = function () {
+                        i++;
+                        index++;
+                        e.CurrentIndex = index;
+                        if (i > len || index >= carr.length) {
+                            e.current = undefined;
+                            e.CurrentItem = undefined;
+                            return false;
+                        }
+                        e.current = carr[index];
+                        e.CurrentItem = iarr[index];
+                        return true;
+                    };
+                    return e;
+                };
+                return ItemContainersManager;
+            })();
+            Internal.ItemContainersManager = ItemContainersManager;
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Internal) {
+            var RangeCoercer = (function () {
+                function RangeCoercer(Range, OnCoerceMaximum, OnCoerceValue) {
+                    this.Range = Range;
+                    this.OnCoerceMaximum = OnCoerceMaximum;
+                    this.OnCoerceValue = OnCoerceValue;
+                    this.InitialMax = 1;
+                    this.InitialVal = 0;
+                    this.RequestedMax = 1;
+                    this.RequestedVal = 0;
+                    this.PreCoercedMax = 1;
+                    this.PreCoercedVal = 0;
+                    this.CoerceDepth = 0;
+                }
+                Object.defineProperty(RangeCoercer.prototype, "Minimum", {
+                    get: function () {
+                        return this.Range.Minimum;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(RangeCoercer.prototype, "Maximum", {
+                    get: function () {
+                        return this.Range.Maximum;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(RangeCoercer.prototype, "Value", {
+                    get: function () {
+                        return this.Range.Value;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
+                RangeCoercer.prototype.OnMinimumChanged = function (oldMinimum, newMinimum) {
+                    if (this.CoerceDepth === 0) {
+                        this.InitialMax = this.Maximum;
+                        this.InitialVal = this.Value;
+                    }
+                    this.CoerceDepth++;
+                    this.CoerceMaximum();
+                    this.CoerceValue();
+                    this.CoerceDepth--;
+                    if (this.CoerceDepth > 0)
+                        return;
+
+                    this.OnMinimumChanged(oldMinimum, newMinimum);
+                    var max = this.Maximum;
+                    if (!NumberEx.AreClose(this.InitialMax, max))
+                        this.Range.OnMaximumChanged(this.InitialMax, max);
+                    var val = this.Value;
+                    if (!NumberEx.AreClose(this.InitialVal, val))
+                        this.Range.OnValueChanged(this.InitialVal, val);
+                };
+                RangeCoercer.prototype.OnMaximumChanged = function (oldMaximum, newMaximum) {
+                    if (this.CoerceDepth === 0) {
+                        this.RequestedMax = newMaximum;
+                        this.InitialMax = oldMaximum;
+                        this.InitialVal = this.Value;
+                    }
+                    this.CoerceDepth++;
+                    this.CoerceMaximum();
+                    this.CoerceValue();
+                    this.CoerceDepth--;
+                    if (this.CoerceDepth !== 0)
+                        return;
+
+                    this.PreCoercedMax = newMaximum;
+                    var max = this.Maximum;
+                    if (!NumberEx.AreClose(this.InitialMax, max))
+                        this.Range.OnMaximumChanged(this.InitialMax, max);
+                    var val = this.Value;
+                    if (!NumberEx.AreClose(this.InitialVal, val))
+                        this.Range.OnValueChanged(this.InitialVal, val);
+                };
+                RangeCoercer.prototype.OnValueChanged = function (oldValue, newValue) {
+                    if (this.CoerceDepth === 0) {
+                        this.RequestedVal = newValue;
+                        this.InitialVal = oldValue;
+                    }
+                    this.CoerceDepth++;
+                    this.CoerceValue();
+                    this.CoerceDepth--;
+                    if (this.CoerceDepth !== 0)
+                        return;
+
+                    this.PreCoercedVal = newValue;
+                    var val = this.Value;
+                    if (!NumberEx.AreClose(this.InitialVal, val))
+                        this.Range.OnValueChanged(this.InitialVal, val);
+                };
+
+                RangeCoercer.prototype.CoerceMaximum = function () {
+                    var min = this.Minimum;
+                    var max = this.Maximum;
+                    if (!NumberEx.AreClose(this.RequestedMax, max) && this.RequestedMax >= min)
+                        this.OnCoerceMaximum(this.RequestedMax);
+                    else if (max < min)
+                        this.OnCoerceMaximum(min);
+                };
+                RangeCoercer.prototype.CoerceValue = function () {
+                    var min = this.Minimum;
+                    var max = this.Maximum;
+                    var val = this.Value;
+                    if (!NumberEx.AreClose(this.RequestedVal, val) && this.RequestedVal >= min && this.RequestedVal <= max)
+                        this.OnCoerceValue(this.RequestedVal);
+                    else if (val < min)
+                        this.OnCoerceValue(min);
+                    else if (val > max)
+                        this.OnCoerceValue(max);
+                };
+                return RangeCoercer;
+            })();
+            Internal.RangeCoercer = RangeCoercer;
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -12359,8 +12749,8 @@ var Fayde;
                 var oldStyle = args.OldValue;
                 var newStyle = args.NewValue;
                 var enumerator = this.ItemContainersManager.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    var lbi = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    var lbi = enumerator.current;
                     if (lbi instanceof Controls.ListBoxItem && lbi.Style === oldStyle)
                         lbi.Style = newStyle;
                 }
@@ -14083,18 +14473,18 @@ var Fayde;
                                 var ownerItems = this._Owner.SelectedItems;
 
                                 var item;
-                                var enumerator = ownerItems.GetEnumerator();
-                                while (enumerator.MoveNext()) {
-                                    item = enumerator.Current;
+                                var enumerator = ownerItems.getEnumerator();
+                                while (enumerator.moveNext()) {
+                                    item = enumerator.current;
                                     if (ownerItems.Contains(item))
                                         continue;
                                     if (items.indexOf(item) > -1)
                                         this.RemoveFromSelected(item);
                                 }
 
-                                enumerator = ownerItems.GetEnumerator();
-                                while (enumerator.MoveNext()) {
-                                    item = enumerator.Current;
+                                enumerator = ownerItems.getEnumerator();
+                                while (enumerator.moveNext()) {
+                                    item = enumerator.current;
                                     if (items.indexOf(item) < 0)
                                         this.AddToSelected(item);
                                 }
@@ -14213,7 +14603,7 @@ var Fayde;
                             throw new NotSupportedException("Cannot call SelectAll when in Single select mode");
 
                         var selectedItems = this._SelectedItems;
-                        var select = Fayde.ArrayEx.Except(items, selectedItems);
+                        var select = except(items, selectedItems);
                         if (select.length === 0)
                             return;
 
@@ -14332,7 +14722,7 @@ var Fayde;
                 var c;
                 for (var i = 0, len = arr1.length; i < len; i++) {
                     c = arr1[i];
-                    if (arr2.indexOf(c) === -1)
+                    if (arr2.indexOf(c) < 0)
                         r.push(c);
                 }
                 return r;
@@ -14983,12 +15373,12 @@ var Fayde;
                     childAvailable.Height = Math.max(childAvailable.Height, sp.MinHeight);
                 }
 
-                var enumerator = sp.Children.GetEnumerator();
+                var enumerator = sp.Children.getEnumerator();
                 var child;
                 var childNode;
                 var childLu;
-                while (enumerator.MoveNext()) {
-                    child = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    child = enumerator.current;
                     childNode = child.XamlNode;
                     var childLu = childNode.LayoutUpdater;
 
@@ -15015,12 +15405,12 @@ var Fayde;
                 else
                     arranged.Width = 0;
 
-                var enumerator = sp.Children.GetEnumerator();
+                var enumerator = sp.Children.getEnumerator();
                 var child;
                 var childNode;
                 var childLu;
-                while (enumerator.MoveNext()) {
-                    child = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    child = enumerator.current;
                     childNode = child.XamlNode;
                     var childLu = childNode.LayoutUpdater;
 
@@ -15226,9 +15616,9 @@ var Fayde;
                 var length = 0;
                 var runs = [];
                 var count = inlines.Count;
-                var enumerator = inlines.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    length = this._UpdateLayoutAttributesForInline(enumerator.Current, length, runs);
+                var enumerator = inlines.getEnumerator();
+                while (enumerator.moveNext()) {
+                    length = this._UpdateLayoutAttributesForInline(enumerator.current, length, runs);
                 }
                 if (count > 0)
                     this._WasSet = true;
@@ -15247,9 +15637,9 @@ var Fayde;
                     length += 1;
                 } else if (item instanceof Fayde.Documents.Span) {
                     var inlines = item.Inlines;
-                    var enumerator = inlines.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        length = this._UpdateLayoutAttributesForInline(enumerator.Current, length, runs);
+                    var enumerator = inlines.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        length = this._UpdateLayoutAttributesForInline(enumerator.current, length, runs);
                     }
                 }
                 return length;
@@ -15259,9 +15649,9 @@ var Fayde;
                 if (!inlines)
                     return "";
                 var block = "";
-                var enumerator = inlines.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    block += enumerator.Current._SerializeText();
+                var enumerator = inlines.getEnumerator();
+                while (enumerator.moveNext()) {
+                    block += enumerator.current._SerializeText();
                 }
                 return block;
             };
@@ -16808,9 +17198,9 @@ var Fayde;
 
                 var uin = uie.XamlNode;
                 var isVertical = this.Orientation === 1 /* Vertical */;
-                var enumerator = this.Children.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    var child = enumerator.Current;
+                var enumerator = this.Children.getEnumerator();
+                while (enumerator.moveNext()) {
+                    var child = enumerator.current;
                     var childNode = child.XamlNode;
                     var childRenderSize = childNode.LayoutUpdater.RenderSize;
                     if (uin === childNode) {
@@ -16965,9 +17355,9 @@ var Fayde;
                 else
                     arranged.Width = 0;
 
-                var enumerator = this.Children.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    var child = enumerator.Current;
+                var enumerator = this.Children.getEnumerator();
+                while (enumerator.moveNext()) {
+                    var child = enumerator.current;
                     var desired = child.DesiredSize;
                     if (!isHorizontal) {
                         desired.Width = finalSize.Width;
@@ -17619,16 +18009,70 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    (function (Providers) {
+        function SwapStyles(fe, oldWalker, newWalker, isImplicit) {
+            var arr = fe._PropertyStorage;
+            var oldSetter = oldWalker.Step();
+            var newSetter = newWalker.Step();
+
+            var storage;
+            var value;
+            var propd;
+            while (oldSetter || newSetter) {
+                if (oldSetter && newSetter) {
+                    switch (Fayde.Setter.Compare(oldSetter, newSetter)) {
+                        case 0:
+                            value = newSetter.ConvertedValue;
+                            propd = newSetter.Property;
+                            oldSetter = oldWalker.Step();
+                            newSetter = newWalker.Step();
+                            break;
+                        case -1:
+                            value = undefined;
+                            propd = oldSetter.Property;
+                            oldSetter = oldWalker.Step();
+                            break;
+                        case 1:
+                            value = newSetter.ConvertedValue;
+                            propd = newSetter.Property;
+                            newSetter = newWalker.Step();
+                            break;
+                    }
+                } else if (newSetter) {
+                    value = newSetter.ConvertedValue;
+                    propd = newSetter.Property;
+                    newSetter = newWalker.Step();
+                } else {
+                    value = undefined;
+                    propd = oldSetter.Property;
+                    oldSetter = oldWalker.Step();
+                }
+
+                storage = arr[propd._ID];
+                if (!storage)
+                    storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
+                if (isImplicit)
+                    propd.Store.SetImplicitStyle(storage, value);
+                else
+                    propd.Store.SetLocalStyleValue(storage, value);
+            }
+        }
+        Providers.SwapStyles = SwapStyles;
+    })(Fayde.Providers || (Fayde.Providers = {}));
+    var Providers = Fayde.Providers;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     var ResourceDictionaryCollection = (function (_super) {
         __extends(ResourceDictionaryCollection, _super);
         function ResourceDictionaryCollection() {
             _super.apply(this, arguments);
         }
         ResourceDictionaryCollection.prototype.Get = function (key) {
-            var enumerator = this.GetEnumerator();
+            var enumerator = this.getEnumerator();
             var cur;
-            while (enumerator.MoveNext()) {
-                cur = enumerator.Current.Get(key);
+            while (enumerator.moveNext()) {
+                cur = enumerator.current.Get(key);
                 if (cur !== undefined)
                     return cur;
             }
@@ -17659,9 +18103,9 @@ var Fayde;
                 curNode = curNode.ParentNode;
             }
 
-            var enumerator = subtreeRoot.MergedDictionaries.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                if (!this._AssertNoCycles(enumerator.Current, firstAncestorNode, error))
+            var enumerator = subtreeRoot.MergedDictionaries.getEnumerator();
+            while (enumerator.moveNext()) {
+                if (!this._AssertNoCycles(enumerator.current, firstAncestorNode, error))
                     return false;
             }
 
@@ -17755,7 +18199,7 @@ var Fayde;
                 oldvalue.XamlNode.Detach();
         };
 
-        ResourceDictionary.prototype.GetEnumerator = function (reverse) {
+        ResourceDictionary.prototype.getEnumerator = function (reverse) {
             return Fayde.ArrayEx.GetEnumerator(this._Values, reverse);
         };
         ResourceDictionary.prototype.GetNodeEnumerator = function (reverse) {
@@ -17894,9 +18338,9 @@ var Fayde;
         SetterCollection.prototype._Seal = function (targetType) {
             if (this._IsSealed)
                 return;
-            var enumerator = this.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                enumerator.Current._Seal(targetType);
+            var enumerator = this.getEnumerator();
+            while (enumerator.moveNext()) {
+                enumerator.current._Seal(targetType);
             }
             this._IsSealed = true;
         };
@@ -18169,9 +18613,9 @@ var Fayde;
             _super.apply(this, arguments);
         }
         TriggerActionCollection.prototype.Fire = function () {
-            var enumerator = this.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                enumerator.Current.Fire();
+            var enumerator = this.getEnumerator();
+            while (enumerator.moveNext()) {
+                enumerator.current.Fire();
             }
         };
         return TriggerActionCollection;
@@ -18283,15 +18727,15 @@ var Fayde;
         };
 
         TriggerCollection.prototype.AttachTarget = function (target) {
-            var enumerator = this.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                enumerator.Current.Attach(target);
+            var enumerator = this.getEnumerator();
+            while (enumerator.moveNext()) {
+                enumerator.current.Attach(target);
             }
         };
         TriggerCollection.prototype.DetachTarget = function (target) {
-            var enumerator = this.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                enumerator.Current.Detach(target);
+            var enumerator = this.getEnumerator();
+            while (enumerator.moveNext()) {
+                enumerator.current.Detach(target);
             }
         };
         return TriggerCollection;
@@ -18431,8 +18875,8 @@ var Fayde;
                 return str;
 
             var childNode;
-            while (enumerator.MoveNext()) {
-                childNode = enumerator.Current;
+            while (enumerator.moveNext()) {
+                childNode = enumerator.current;
                 str += VisualTreeHelper.__DebugTree(childNode, matchNode, tabIndex + 1, func);
             }
 
@@ -18489,11 +18933,11 @@ var Fayde;
             if (rcount > 0) {
                 str += tabs;
                 str += "  Rows (" + rcount + "):\n";
-                enumerator = rds.GetEnumerator();
+                enumerator = rds.getEnumerator();
                 var rowdef;
                 var i = 0;
-                while (enumerator.MoveNext()) {
-                    rowdef = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    rowdef = enumerator.current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + rowdef.ActualHeight + "\n";
                     i++;
@@ -18503,11 +18947,11 @@ var Fayde;
             if (ccount > 0) {
                 str += tabs;
                 str += "  Columns (" + ccount + "):\n";
-                enumerator2 = cds.GetEnumerator();
+                enumerator2 = cds.getEnumerator();
                 var coldef;
                 var i = 0;
-                while (enumerator2.MoveNext()) {
-                    coldef = enumerator2.Current;
+                while (enumerator2.moveNext()) {
+                    coldef = enumerator2.current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + coldef.ActualWidth + "\n";
                     i++;
@@ -18545,10 +18989,10 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     function mergeSetters(arr, dps, style) {
-        var enumerator = style.Setters.GetEnumerator(true);
+        var enumerator = style.Setters.getEnumerator(true);
         var setter;
-        while (enumerator.MoveNext()) {
-            setter = enumerator.Current;
+        while (enumerator.moveNext()) {
+            setter = enumerator.current;
             if (!(setter instanceof Fayde.Setter))
                 continue;
             var propd = setter.Property;
@@ -18616,8 +19060,8 @@ var Fayde;
                 if (last) {
                     var enumerator = last.GetVisualTreeEnumerator(dir);
                     var insertIndex = 0;
-                    while (enumerator.MoveNext()) {
-                        walkList.splice(insertIndex, 0, enumerator.Current);
+                    while (enumerator.moveNext()) {
+                        walkList.splice(insertIndex, 0, enumerator.current);
                         insertIndex++;
                     }
                 }
@@ -20720,9 +21164,9 @@ var Fayde;
 
             Span.prototype._SerializeText = function () {
                 var str = "";
-                var enumerator = this.Inlines.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    str += enumerator.Current._SerializeText();
+                var enumerator = this.Inlines.getEnumerator();
+                while (enumerator.moveNext()) {
+                    str += enumerator.current._SerializeText();
                 }
                 return str;
             };
@@ -21068,8 +21512,8 @@ var Fayde;
             var enumerator = item.Node.GetVisualTreeEnumerator();
             var cur;
             var children;
-            while (enumerator.MoveNext()) {
-                cur = enumerator.Current;
+            while (enumerator.moveNext()) {
+                cur = enumerator.current;
                 var childItem = this.CreateDebugInteropCacheItem(cur);
                 item.Children.push(childItem);
                 this.PopulateCacheChildren(childItem);
@@ -21242,6 +21686,136 @@ var Fayde;
         return DebugInterop;
     })();
     Fayde.DebugInterop = DebugInterop;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    function _VisualTree(id) {
+        var uin = findNodeById(id);
+        return flattenTree(uin).map(serializeTreeNode).join("\n");
+    }
+    Fayde._VisualTree = _VisualTree;
+
+    function findNodeById(id) {
+        var rv = Fayde.Application.Current.RootVisual;
+        var topNode = (rv) ? rv.XamlNode : null;
+        if (!topNode)
+            return;
+
+        if (!id)
+            return topNode;
+
+        var walker = Fayde.DeepTreeWalker(topNode);
+        var curNode;
+        while (curNode = walker.Step()) {
+            if (curNode.XObject._ID === id)
+                return curNode;
+        }
+    }
+
+    function flattenTree(uin, arr, level) {
+        arr = arr || [];
+        level = level || 0;
+        arr.push({ node: uin, level: level });
+        var enumerator = uin.GetVisualTreeEnumerator();
+        while (enumerator.moveNext()) {
+            flattenTree(enumerator.current, arr, level + 1);
+        }
+        return arr;
+    }
+    function serializeTreeNode(tn) {
+        var s = repeatString("\t", tn.level);
+        var uie = tn.node.XObject;
+        s += uie.constructor.name;
+        var id = uie._ID;
+        if (id)
+            s += "[" + id + "]";
+        var name = tn.node.Name;
+        s += " [";
+        var ns = tn.node.NameScope;
+        if (!ns)
+            s += "^";
+        else if (ns.IsRoot)
+            s += "+";
+        else
+            s += "-";
+        s += name + "]";
+
+        s += serializeUIElement(uie);
+
+        if (uie instanceof Fayde.Controls.Grid)
+            s += serializeGrid(uie, tn.level);
+
+        return s;
+    }
+    function serializeUIElement(uie) {
+        var str = "(";
+        if (uie.Visibility === 0 /* Visible */)
+            str += "Visible";
+        else
+            str += "Collapsed";
+
+        var lu = uie.XamlNode.LayoutUpdater;
+        if (lu) {
+            str += " ";
+            var p = lu.VisualOffset;
+            if (p)
+                str += p.toString();
+            var s = size.fromRaw(lu.ActualWidth, lu.ActualHeight);
+            str += " ";
+            str += s.toString();
+        }
+        str += ")";
+
+        return str;
+    }
+
+    function serializeGrid(grid, level) {
+        if (!grid)
+            return "";
+
+        var str = "";
+
+        var rds = enumToArray(grid.RowDefinitions).map(function (rd, i) {
+            return serializeRowDef(rd, i, level);
+        }).join("\n");
+        if (rds)
+            str += repeatString("\t", level) + "  Rows (" + grid.RowDefinitions.Count + "):\n" + rds;
+
+        var cds = enumToArray(grid.ColumnDefinitions).map(function (cd, i) {
+            return serializeColDef(cd, i, level);
+        }).join("\n");
+        if (cds) {
+            if (str)
+                str += "\n";
+            str += repeatString("\t", level) + "  Columns (" + grid.ColumnDefinitions.Count + "):\n" + cds;
+        }
+
+        if (str)
+            return "\n" + str;
+        return "";
+    }
+    function serializeRowDef(row, index, level) {
+        return repeatString("\t", level + 1) + "[" + index + "] -> " + row.ActualHeight;
+    }
+    function serializeColDef(col, index, level) {
+        return repeatString("\t", level + 1) + "[" + index + "] -> " + col.ActualWidth;
+    }
+
+    function enumToArray(en) {
+        var e = en.getEnumerator();
+        var arr = [];
+        while (e.moveNext()) {
+            arr.push(e.current);
+        }
+        return arr;
+    }
+    function repeatString(s, n) {
+        var str = "";
+        for (var i = 0; i < n; i++) {
+            str += s;
+        }
+        return str;
+    }
 })(Fayde || (Fayde = {}));
 var Exception = (function () {
     function Exception(message) {
@@ -21860,6 +22434,233 @@ var Fayde;
     })(Fayde.Engine || (Fayde.Engine = {}));
     var Engine = Fayde.Engine;
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    function ExtendRenderContext(ctx) {
+        var c = ctx;
+        Ex.Transforms(c);
+        Ex.TransformEx(c);
+        Ex.LineDash(c);
+        Ex.Clear(c);
+        Ex.Fill(c);
+        Ex.Stroke(c);
+        Ex.Clip(c);
+        Ex.FillRule(c);
+        Ex.Temporary(c);
+        return c;
+    }
+    Fayde.ExtendRenderContext = ExtendRenderContext;
+
+    var Ex;
+    (function (Ex) {
+        function Transforms(ctx) {
+            var hasct = !!Object.getOwnPropertyDescriptor(ctx, "currentTransform");
+            if (hasct)
+                return true;
+            var mozct = Object.getOwnPropertyDescriptor(ctx, "mozCurrentTransform");
+            if (mozct) {
+                Object.defineProperty(ctx, "currentTransform", {
+                    get: function () {
+                        return ctx.mozCurrentTransform;
+                    },
+                    set: function (value) {
+                        ctx.mozCurrentTransform = value;
+                    }
+                });
+                return true;
+            }
+
+            var transforms = [];
+            var super_ = CanvasRenderingContext2D.prototype;
+
+            ctx.save = function () {
+                super_.save.call(ctx);
+                var ct = ctx.currentTransform;
+                transforms.push(ct);
+                ctx.currentTransform = !ct ? mat3.identity() : mat3.create(ct);
+            };
+            ctx.restore = function () {
+                var cur = transforms.pop();
+                ctx.currentTransform = cur;
+                super_.restore.call(ctx);
+            };
+
+            ctx.setTransform = function (m11, m12, m21, m22, dx, dy) {
+                ctx.currentTransform = mat3.create([m11, m12, dx, m21, m22, dy, 0, 0, 1]);
+                super_.setTransform.call(ctx, m11, m12, m21, m22, dx, dy);
+            };
+
+            ctx.resetTransform = function () {
+                ctx.currentTransform = mat3.identity();
+                if (super_.resetTransform)
+                    super_.resetTransform.call(ctx);
+            };
+            ctx.transform = function (m11, m12, m21, m22, dx, dy) {
+                var ct = ctx.currentTransform;
+                mat3.multiply(ct, mat3.create([m11, m12, dx, m21, m22, dy, 0, 0, 1]), ct);
+                super_.transform.call(ctx, m11, m12, m21, m22, dx, dy);
+                ctx.currentTransform = ct;
+            };
+            ctx.rotate = function (angle) {
+                var ct = ctx.currentTransform;
+                var r = mat3.createRotate(angle);
+                mat3.multiply(ct, r, ct);
+                super_.rotate.call(ctx, angle);
+            };
+            ctx.scale = function (x, y) {
+                var ct = ctx.currentTransform;
+                mat3.scale(ct, x, y);
+                super_.scale.call(ctx, x, y);
+            };
+            ctx.translate = function (x, y) {
+                var ct = ctx.currentTransform;
+                mat3.translate(ct, x, y);
+                super_.translate.call(ctx, x, y);
+            };
+
+            return false;
+        }
+        Ex.Transforms = Transforms;
+        function TransformEx(ctx) {
+            ctx.transformMatrix = function (mat) {
+                var ct = ctx.currentTransform;
+                mat3.multiply(ct, mat, ct);
+                ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+            };
+            ctx.transformTransform = function (transform) {
+                var v = transform.Value;
+                var mat;
+                if (!v || !(mat = v._Raw))
+                    return;
+                ctx.transformMatrix(mat);
+            };
+            ctx.pretransformMatrix = function (mat) {
+                var ct = ctx.currentTransform;
+                mat3.multiply(mat, ct, ct);
+                ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+            };
+            ctx.pretransformTransform = function (transform) {
+                var v = transform.Value;
+                var mat;
+                if (!v || !(mat = v._Raw))
+                    return;
+                ctx.pretransformMatrix(mat);
+            };
+        }
+        Ex.TransformEx = TransformEx;
+        function LineDash(ctx) {
+            if (!ctx.setLineDash)
+                ctx.setLineDash = function (segments) {
+                };
+        }
+        Ex.LineDash = LineDash;
+        function Clear(ctx) {
+            ctx.clear = function (r) {
+                ctx.clearRect(r.X, r.Y, r.Width, r.Height);
+            };
+        }
+        Ex.Clear = Clear;
+        function Fill(ctx) {
+            ctx.fillEx = function (brush, r, fillRule) {
+                brush.SetupBrush(ctx, r);
+                ctx.fillStyle = brush.ToHtml5Object();
+                if (!fillRule)
+                    return ctx.fill();
+                ctx.fillRule = ctx.msFillRule = fillRule;
+                ctx.fill(fillRule);
+            };
+            ctx.fillRectEx = function (brush, r, fillRule) {
+                brush.SetupBrush(ctx, r);
+                ctx.fillStyle = brush.ToHtml5Object();
+                ctx.beginPath();
+                ctx.rect(r.X, r.Y, r.Width, r.Height);
+                if (!fillRule)
+                    return ctx.fill();
+                ctx.fillRule = ctx.msFillRule = fillRule;
+                ctx.fill(fillRule);
+            };
+        }
+        Ex.Fill = Fill;
+        function Stroke(ctx) {
+            var caps = [
+                "butt",
+                "square",
+                "round",
+                "butt"
+            ];
+            var joins = [
+                "miter",
+                "bevel",
+                "round"
+            ];
+            ctx.setupStroke = function (pars) {
+                if (!pars)
+                    return false;
+                ctx.lineWidth = pars.thickness;
+                ctx.lineCap = caps[pars.startCap || pars.endCap || 0] || caps[0];
+                ctx.lineJoin = joins[pars.join || 0] || joins[0];
+                ctx.miterLimit = pars.miterLimit;
+                return true;
+            };
+            ctx.strokeEx = function (brush, pars, region) {
+                if (!region || !ctx.setupStroke(pars))
+                    return;
+                brush.SetupBrush(ctx, region);
+                ctx.strokeStyle = brush.ToHtml5Object();
+                ctx.stroke();
+            };
+            ctx.isPointInStroke = ctx.isPointInStroke || function (x, y) {
+                return false;
+            };
+            ctx.isPointInStrokeEx = function (pars, x, y) {
+                if (!pars)
+                    return;
+                ctx.setupStroke(pars);
+                return ctx.isPointInStroke(x, y);
+            };
+        }
+        Ex.Stroke = Stroke;
+        function Clip(ctx) {
+            ctx.clipRect = function (r) {
+                ctx.beginPath();
+                ctx.rect(r.X, r.Y, r.Width, r.Height);
+                ctx.clip();
+            };
+            ctx.clipGeometry = function (g) {
+                g.Draw(ctx);
+                ctx.clip();
+            };
+        }
+        Ex.Clip = Clip;
+        function FillRule(ctx) {
+            ctx.hasFillRule = true;
+            if (navigator.appName === "Microsoft Internet Explorer") {
+                var version = getIEVersion();
+                ctx.hasFillRule = version < 0 || version > 10;
+            }
+        }
+        Ex.FillRule = FillRule;
+        function Temporary(ctx) {
+            var tempCanvas = document.createElement("canvas");
+            var tempContext;
+            ctx.createTemporaryContext = function (width, height) {
+                if (!tempContext)
+                    tempContext = ExtendRenderContext(tempCanvas.getContext("2d"));
+                tempCanvas.width = width;
+                tempCanvas.height = height;
+                return tempContext;
+            };
+        }
+        Ex.Temporary = Temporary;
+    })(Ex || (Ex = {}));
+
+    function getIEVersion() {
+        var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(navigator.userAgent) != null)
+            return parseFloat(RegExp.$1);
+        return -1;
+    }
+})(Fayde || (Fayde = {}));
 var resizeTimeout;
 
 var Fayde;
@@ -22222,6 +23023,97 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    var themes = [];
+    var Theme = (function () {
+        function Theme(uri) {
+            this.Resources = null;
+            this._IsLoaded = false;
+            this._LoadError = null;
+            this._Deferrables = [];
+            if (uri)
+                this.Uri = uri;
+        }
+        Object.defineProperty(Theme.prototype, "Uri", {
+            get: function () {
+                return this._Uri;
+            },
+            set: function (value) {
+                if (this._Uri)
+                    return;
+                this._Uri = value;
+                themes[value.toString()] = this;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        Theme.Get = function (url) {
+            return themes[url] || new Theme(new Uri(url));
+        };
+
+        Theme.prototype.Resolve = function (ctx) {
+            this._Load(ctx);
+
+            var d = defer();
+            if (this._IsLoaded) {
+                d.resolve(this);
+                return d.request;
+            }
+            if (this._LoadError) {
+                d.reject(this._LoadError);
+                return d.request;
+            }
+            this._Deferrables.push(d);
+            return d.request;
+        };
+
+        Theme.prototype._Load = function (ctx) {
+            var _this = this;
+            var uri = this.Uri;
+            if (!uri)
+                return;
+            Fayde.Xaml.XamlDocument.GetAsync(uri.toString(), ctx).success(function (xd) {
+                return _this._HandleSuccess(xd);
+            }).error(function (error) {
+                return _this._HandleError(error);
+            });
+        };
+        Theme.prototype._HandleSuccess = function (xd) {
+            var rd = Fayde.Xaml.Load(xd.Document);
+            if (!(rd instanceof Fayde.ResourceDictionary))
+                return this._HandleError("Theme root must be a ResourceDictionary.");
+            Object.defineProperty(this, "Resources", { value: rd, writable: false });
+            this._IsLoaded = true;
+            for (var i = 0, ds = this._Deferrables, len = ds.length; i < len; i++) {
+                ds[i].resolve(this);
+            }
+            this._Deferrables = [];
+        };
+        Theme.prototype._HandleError = function (error) {
+            this._LoadError = error;
+            this._IsLoaded = true;
+            for (var i = 0, ds = this._Deferrables, len = ds.length; i < len; i++) {
+                ds[i].reject(error);
+            }
+            this._Deferrables = [];
+        };
+
+        Theme.prototype.GetImplicitStyle = function (type) {
+            var rd = this.Resources;
+            if (!rd)
+                return;
+            var style = rd.Get(type);
+            if (style instanceof Fayde.Style)
+                return style;
+            return undefined;
+        };
+        return Theme;
+    })();
+    Fayde.Theme = Theme;
+    Fayde.RegisterType(Theme, "Fayde", Fayde.XMLNS);
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     (function (Input) {
         Input.ICommand_ = Fayde.RegisterInterface("ICommand");
     })(Fayde.Input || (Fayde.Input = {}));
@@ -22246,83 +23138,6 @@ var Fayde;
             InteractionHelper.GetLogicalKey = GetLogicalKey;
         })(Input.InteractionHelper || (Input.InteractionHelper = {}));
         var InteractionHelper = Input.InteractionHelper;
-    })(Fayde.Input || (Fayde.Input = {}));
-    var Input = Fayde.Input;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Input) {
-        var KeyboardNavigation = (function () {
-            function KeyboardNavigation() {
-            }
-            KeyboardNavigation.GetAcceptsReturn = function (d) {
-                return d.GetValue(KeyboardNavigation.AcceptsReturnProperty);
-            };
-            KeyboardNavigation.SetAcceptsReturn = function (d, value) {
-                d.SetValue(KeyboardNavigation.AcceptsReturnProperty, value);
-            };
-
-            KeyboardNavigation.GetControlTabNavigation = function (d) {
-                return d.GetValue(KeyboardNavigation.ControlTabNavigationProperty);
-            };
-            KeyboardNavigation.SetControlTabNavigation = function (d, value) {
-                d.SetValue(KeyboardNavigation.ControlTabNavigationProperty, value);
-            };
-
-            KeyboardNavigation.GetDirectionalNavigation = function (d) {
-                return d.GetValue(KeyboardNavigation.DirectionalNavigationProperty);
-            };
-            KeyboardNavigation.SetDirectionalNavigation = function (d, value) {
-                d.SetValue(KeyboardNavigation.DirectionalNavigationProperty, value);
-            };
-
-            KeyboardNavigation.GetIsTabStop = function (d) {
-                return d.GetValue(KeyboardNavigation.IsTabStopProperty);
-            };
-            KeyboardNavigation.SetIsTabStop = function (d, value) {
-                d.SetValue(KeyboardNavigation.IsTabStopProperty, value);
-            };
-
-            KeyboardNavigation.GetTabIndex = function (d) {
-                return d.GetValue(KeyboardNavigation.TabIndexProperty);
-            };
-            KeyboardNavigation.SetTabIndex = function (d, value) {
-                d.SetValue(KeyboardNavigation.TabIndexProperty, value);
-            };
-
-            KeyboardNavigation.GetTabNavigation = function (d) {
-                return d.GetValue(KeyboardNavigation.TabNavigationProperty);
-            };
-            KeyboardNavigation.SetTabNavigation = function (d, value) {
-                d.SetValue(KeyboardNavigation.TabNavigationProperty, value);
-            };
-            KeyboardNavigation.AcceptsReturnProperty = DependencyProperty.RegisterAttached("AcceptsReturn", function () {
-                return Boolean;
-            }, KeyboardNavigation);
-
-            KeyboardNavigation.ControlTabNavigationProperty = DependencyProperty.RegisterAttached("ControlTabNavigation", function () {
-                return new Enum(Input.KeyboardNavigationMode);
-            }, KeyboardNavigation);
-
-            KeyboardNavigation.DirectionalNavigationProperty = DependencyProperty.RegisterAttached("DirectionalNavigation", function () {
-                return new Enum(Input.KeyboardNavigationMode);
-            }, KeyboardNavigation);
-
-            KeyboardNavigation.IsTabStopProperty = DependencyProperty.RegisterAttached("IsTabStop", function () {
-                return Boolean;
-            }, KeyboardNavigation);
-
-            KeyboardNavigation.TabIndexProperty = DependencyProperty.RegisterAttached("TabIndex", function () {
-                return Number;
-            }, KeyboardNavigation);
-
-            KeyboardNavigation.TabNavigationProperty = DependencyProperty.RegisterAttached("TabNavigation", function () {
-                return new Enum(Input.KeyboardNavigationMode);
-            }, KeyboardNavigation);
-            return KeyboardNavigation;
-        })();
-        Input.KeyboardNavigation = KeyboardNavigation;
-        Fayde.RegisterType(KeyboardNavigation, "Fayde.Input", Fayde.XMLNS);
     })(Fayde.Input || (Fayde.Input = {}));
     var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));
@@ -22582,6 +23397,83 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Input) {
+        var KeyboardNavigation = (function () {
+            function KeyboardNavigation() {
+            }
+            KeyboardNavigation.GetAcceptsReturn = function (d) {
+                return d.GetValue(KeyboardNavigation.AcceptsReturnProperty);
+            };
+            KeyboardNavigation.SetAcceptsReturn = function (d, value) {
+                d.SetValue(KeyboardNavigation.AcceptsReturnProperty, value);
+            };
+
+            KeyboardNavigation.GetControlTabNavigation = function (d) {
+                return d.GetValue(KeyboardNavigation.ControlTabNavigationProperty);
+            };
+            KeyboardNavigation.SetControlTabNavigation = function (d, value) {
+                d.SetValue(KeyboardNavigation.ControlTabNavigationProperty, value);
+            };
+
+            KeyboardNavigation.GetDirectionalNavigation = function (d) {
+                return d.GetValue(KeyboardNavigation.DirectionalNavigationProperty);
+            };
+            KeyboardNavigation.SetDirectionalNavigation = function (d, value) {
+                d.SetValue(KeyboardNavigation.DirectionalNavigationProperty, value);
+            };
+
+            KeyboardNavigation.GetIsTabStop = function (d) {
+                return d.GetValue(KeyboardNavigation.IsTabStopProperty);
+            };
+            KeyboardNavigation.SetIsTabStop = function (d, value) {
+                d.SetValue(KeyboardNavigation.IsTabStopProperty, value);
+            };
+
+            KeyboardNavigation.GetTabIndex = function (d) {
+                return d.GetValue(KeyboardNavigation.TabIndexProperty);
+            };
+            KeyboardNavigation.SetTabIndex = function (d, value) {
+                d.SetValue(KeyboardNavigation.TabIndexProperty, value);
+            };
+
+            KeyboardNavigation.GetTabNavigation = function (d) {
+                return d.GetValue(KeyboardNavigation.TabNavigationProperty);
+            };
+            KeyboardNavigation.SetTabNavigation = function (d, value) {
+                d.SetValue(KeyboardNavigation.TabNavigationProperty, value);
+            };
+            KeyboardNavigation.AcceptsReturnProperty = DependencyProperty.RegisterAttached("AcceptsReturn", function () {
+                return Boolean;
+            }, KeyboardNavigation);
+
+            KeyboardNavigation.ControlTabNavigationProperty = DependencyProperty.RegisterAttached("ControlTabNavigation", function () {
+                return new Enum(Input.KeyboardNavigationMode);
+            }, KeyboardNavigation);
+
+            KeyboardNavigation.DirectionalNavigationProperty = DependencyProperty.RegisterAttached("DirectionalNavigation", function () {
+                return new Enum(Input.KeyboardNavigationMode);
+            }, KeyboardNavigation);
+
+            KeyboardNavigation.IsTabStopProperty = DependencyProperty.RegisterAttached("IsTabStop", function () {
+                return Boolean;
+            }, KeyboardNavigation);
+
+            KeyboardNavigation.TabIndexProperty = DependencyProperty.RegisterAttached("TabIndex", function () {
+                return Number;
+            }, KeyboardNavigation);
+
+            KeyboardNavigation.TabNavigationProperty = DependencyProperty.RegisterAttached("TabNavigation", function () {
+                return new Enum(Input.KeyboardNavigationMode);
+            }, KeyboardNavigation);
+            return KeyboardNavigation;
+        })();
+        Input.KeyboardNavigation = KeyboardNavigation;
+        Fayde.RegisterType(KeyboardNavigation, "Fayde.Input", Fayde.XMLNS);
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
         var MouseEventArgs = (function (_super) {
             __extends(MouseEventArgs, _super);
             function MouseEventArgs(absolutePos) {
@@ -22804,6 +23696,2461 @@ var Fayde;
         }
     })(Fayde.Input || (Fayde.Input = {}));
     var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        var TouchEventArgs = (function (_super) {
+            __extends(TouchEventArgs, _super);
+            function TouchEventArgs(device) {
+                _super.call(this);
+                this.Device = device;
+            }
+            TouchEventArgs.prototype.GetTouchPoint = function (relativeTo) {
+                return this.Device.GetTouchPoint(relativeTo);
+            };
+            return TouchEventArgs;
+        })(Fayde.RoutedEventArgs);
+        Input.TouchEventArgs = TouchEventArgs;
+        Fayde.RegisterType(TouchEventArgs, "Fayde.Input", Fayde.XMLNS);
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        (function (TouchInternal) {
+            var ActiveTouchBase = (function () {
+                function ActiveTouchBase(touchHandler) {
+                    var _this = this;
+                    this.InputList = [];
+                    this._IsEmitting = false;
+                    this._PendingCapture = null;
+                    this._PendingReleaseCapture = false;
+                    this._Captured = null;
+                    this._CapturedInputList = null;
+                    Object.defineProperty(this, "Device", { value: this.CreateTouchDevice(), writable: false });
+                    this._FinishReleaseCaptureFunc = function () {
+                        return touchHandler.HandleTouches(0 /* NoOp */, [_this], false, true);
+                    };
+                }
+                ActiveTouchBase.prototype.Capture = function (uie) {
+                    var uin = uie.XamlNode;
+                    if (this._Captured === uin || this._PendingCapture === uin)
+                        return true;
+                    if (!this._IsEmitting)
+                        return false;
+                    this._PendingCapture = uin;
+                    return true;
+                };
+                ActiveTouchBase.prototype.ReleaseCapture = function (uie) {
+                    var uin = uie.XamlNode;
+                    if (this._Captured !== uin && this._PendingCapture !== uin)
+                        return;
+                    if (this._IsEmitting)
+                        this._PendingReleaseCapture = true;
+                    else
+                        this._PerformReleaseCapture();
+                };
+                ActiveTouchBase.prototype._PerformCapture = function (uin) {
+                    this._Captured = uin;
+                    var newInputList = [];
+                    while (uin != null) {
+                        newInputList.push(uin);
+                        uin = uin.VisualParentNode;
+                    }
+                    this._CapturedInputList = newInputList;
+                    this._PendingCapture = null;
+                };
+                ActiveTouchBase.prototype._PerformReleaseCapture = function () {
+                    var oldCaptured = this._Captured;
+                    this._PendingReleaseCapture = false;
+                    oldCaptured._EmitLostTouchCapture(new Input.TouchEventArgs(this.Device));
+                    this._FinishReleaseCaptureFunc();
+                };
+
+                ActiveTouchBase.prototype.Emit = function (type, newInputList, emitLeave, emitEnter) {
+                    if (this._IsEmitting)
+                        return;
+                    this._IsEmitting = true;
+                    var handled = false;
+
+                    var indices = { Index1: -1, Index2: -1 };
+                    findFirstCommonElement(this.InputList, newInputList, indices);
+                    if (emitLeave !== false)
+                        this._EmitList(5 /* TouchLeave */, this.InputList, indices.Index1);
+                    if (emitEnter !== false)
+                        this._EmitList(4 /* TouchEnter */, newInputList, indices.Index2);
+
+                    var handled = false;
+                    if (type !== 0 /* NoOp */)
+                        handled = this._EmitList(type, this._Captured ? this._CapturedInputList : newInputList);
+                    this.InputList = newInputList;
+
+                    if (this._PendingCapture)
+                        this._PerformCapture(this._PendingCapture);
+                    if (this._PendingReleaseCapture)
+                        this._PerformReleaseCapture();
+
+                    this._IsEmitting = false;
+                    return handled;
+                };
+                ActiveTouchBase.prototype._EmitList = function (type, list, endIndex) {
+                    var handled = false;
+                    if (endIndex === 0)
+                        return handled;
+                    if (!endIndex || endIndex === -1)
+                        endIndex = list.length;
+                    var args = new Input.TouchEventArgs(this.Device);
+                    var node = list[0];
+                    if (node && args instanceof Fayde.RoutedEventArgs)
+                        args.Source = node.XObject;
+                    for (var i = 0; i < endIndex; i++) {
+                        node = list[i];
+                        if (type === 5 /* TouchLeave */)
+                            args.Source = node.XObject;
+                        if (node._EmitTouchEvent(type, args))
+                            handled = true;
+                        if (type === 5 /* TouchLeave */)
+                            args = new Input.TouchEventArgs(this.Device);
+                    }
+                    return handled;
+                };
+
+                ActiveTouchBase.prototype.GetTouchPoint = function (relativeTo) {
+                    if (!relativeTo)
+                        return this.CreateTouchPoint(this.Position.Clone());
+                    if (!(relativeTo instanceof Fayde.UIElement))
+                        throw new ArgumentException("Specified relative object must be a UIElement.");
+
+                    var p = this.Position.Clone();
+                    relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
+                    return this.CreateTouchPoint(p);
+                };
+                ActiveTouchBase.prototype.CreateTouchPoint = function (p) {
+                    return new Input.TouchPoint(p, 0);
+                };
+
+                ActiveTouchBase.prototype.CreateTouchDevice = function () {
+                    var _this = this;
+                    var d = {
+                        Identifier: null,
+                        Captured: null,
+                        Capture: function (uie) {
+                            return _this.Capture(uie);
+                        },
+                        ReleaseCapture: function (uie) {
+                            return _this.ReleaseCapture(uie);
+                        },
+                        GetTouchPoint: function (relativeTo) {
+                            return _this.GetTouchPoint(relativeTo);
+                        }
+                    };
+                    Object.defineProperty(d, "Identifier", { get: function () {
+                            return _this.Identifier;
+                        } });
+                    Object.defineProperty(d, "Captured", { get: function () {
+                            return _this._Captured;
+                        } });
+                    return d;
+                };
+                return ActiveTouchBase;
+            })();
+            TouchInternal.ActiveTouchBase = ActiveTouchBase;
+
+            function findFirstCommonElement(list1, list2, outObj) {
+                var i = list1.length - 1;
+                var j = list2.length - 1;
+                outObj.Index1 = -1;
+                outObj.Index2 = -1;
+                while (i >= 0 && j >= 0) {
+                    if (list1[i] !== list2[j])
+                        return;
+                    outObj.Index1 = i--;
+                    outObj.Index2 = j--;
+                }
+            }
+        })(Input.TouchInternal || (Input.TouchInternal = {}));
+        var TouchInternal = Input.TouchInternal;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        (function (TouchInternal) {
+            var TouchInteropBase = (function () {
+                function TouchInteropBase() {
+                    this.CanvasOffset = null;
+                    this.ActiveTouches = [];
+                }
+                Object.defineProperty(TouchInteropBase.prototype, "CoordinateOffset", {
+                    get: function () {
+                        return {
+                            left: window.pageXOffset + this.CanvasOffset.left,
+                            top: window.pageYOffset + this.CanvasOffset.top
+                        };
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
+                TouchInteropBase.prototype.Register = function (input, canvas) {
+                    this.Input = input;
+                    this.CanvasOffset = this._CalcOffset(canvas);
+                };
+                TouchInteropBase.prototype._CalcOffset = function (canvas) {
+                    var left = 0;
+                    var top = 0;
+                    var cur = canvas;
+                    if (cur.offsetParent) {
+                        do {
+                            left += cur.offsetLeft;
+                            top += cur.offsetTop;
+                        } while(cur = cur.offsetParent);
+                    }
+                    return { left: left, top: top };
+                };
+
+                TouchInteropBase.prototype.HandleTouches = function (type, touches, emitLeave, emitEnter) {
+                    var touch;
+                    var handled = false;
+                    while (touch = touches.shift()) {
+                        var inputList = this.Input.HitTestPoint(touch.Position);
+                        if (inputList)
+                            handled = handled || touch.Emit(type, inputList, emitLeave, emitEnter);
+                    }
+                    return handled;
+                };
+                return TouchInteropBase;
+            })();
+            TouchInternal.TouchInteropBase = TouchInteropBase;
+        })(Input.TouchInternal || (Input.TouchInternal = {}));
+        var TouchInternal = Input.TouchInternal;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        (function (TouchInternal) {
+            var NonPointerActiveTouch = (function (_super) {
+                __extends(NonPointerActiveTouch, _super);
+                function NonPointerActiveTouch() {
+                    _super.apply(this, arguments);
+                }
+                NonPointerActiveTouch.prototype.Init = function (t, offset) {
+                    this.TouchObject = t;
+                    this.Identifier = t.identifier;
+                    this.Position = new Point(t.clientX + offset.left, t.clientY + offset.top);
+                };
+                NonPointerActiveTouch.prototype.CreateTouchPoint = function (p) {
+                    var to = this.TouchObject;
+                    return new Input.TouchPoint(p, to.force);
+                };
+                return NonPointerActiveTouch;
+            })(TouchInternal.ActiveTouchBase);
+
+            var NonPointerTouchInterop = (function (_super) {
+                __extends(NonPointerTouchInterop, _super);
+                function NonPointerTouchInterop() {
+                    _super.apply(this, arguments);
+                }
+                NonPointerTouchInterop.prototype.Register = function (input, canvas) {
+                    var _this = this;
+                    _super.prototype.Register.call(this, input, canvas);
+
+                    canvas.addEventListener("touchstart", function (e) {
+                        return _this._HandleTouchStart(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchend", function (e) {
+                        return _this._HandleTouchEnd(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchmove", function (e) {
+                        return _this._HandleTouchMove(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchenter", function (e) {
+                        return _this._HandleTouchEnter(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchleave", function (e) {
+                        return _this._HandleTouchLeave(window.event ? window.event : e);
+                    });
+                };
+
+                NonPointerTouchInterop.prototype._HandleTouchStart = function (e) {
+                    e.preventDefault();
+                    Fayde.Engine.Inspection.Kill();
+
+                    var newTouches = this.TouchArrayFromList(e.changedTouches);
+                    this.ActiveTouches = this.ActiveTouches.concat(newTouches);
+
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(1 /* TouchDown */, newTouches);
+                    this.Input.SetIsUserInitiatedEvent(false);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchEnd = function (e) {
+                    var oldTouches = this.TouchArrayFromList(e.changedTouches);
+
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(2 /* TouchUp */, oldTouches);
+                    this.Input.SetIsUserInitiatedEvent(false);
+
+                    removeFromArray(this.ActiveTouches, oldTouches);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchMove = function (e) {
+                    var touches = this.TouchArrayFromList(e.changedTouches);
+                    this.HandleTouches(3 /* TouchMove */, touches);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchEnter = function (e) {
+                    var touches = this.TouchArrayFromList(e.changedTouches);
+                    this.HandleTouches(4 /* TouchEnter */, touches);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchLeave = function (e) {
+                    var touches = this.TouchArrayFromList(e.changedTouches);
+                    this.HandleTouches(5 /* TouchLeave */, touches);
+                };
+
+                NonPointerTouchInterop.prototype.TouchArrayFromList = function (list) {
+                    var len = list.length;
+                    var touches = [];
+                    var curto;
+                    var cur;
+                    for (var i = 0; i < len; i++) {
+                        var curto = list.item(i);
+                        cur = this.FindTouchInList(curto.identifier) || new NonPointerActiveTouch(this);
+                        cur.Init(curto, this.CoordinateOffset);
+                        touches.push(cur);
+                    }
+                    return touches;
+                };
+                NonPointerTouchInterop.prototype.FindTouchInList = function (identifier) {
+                    var at = this.ActiveTouches;
+                    var len = at.length;
+                    for (var i = 0; i < len; i++) {
+                        if (at[i].Identifier === identifier)
+                            return at[i];
+                    }
+                    return null;
+                };
+                return NonPointerTouchInterop;
+            })(TouchInternal.TouchInteropBase);
+            TouchInternal.NonPointerTouchInterop = NonPointerTouchInterop;
+
+            function removeFromArray(arr, toRemove) {
+                var len = toRemove.length;
+                for (var i = 0; i < len; i++) {
+                    var index = arr.indexOf(toRemove[i]);
+                    if (index > -1)
+                        arr.splice(index, 1);
+                }
+            }
+        })(Input.TouchInternal || (Input.TouchInternal = {}));
+        var TouchInternal = Input.TouchInternal;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        (function (TouchInternal) {
+            var PointerActiveTouch = (function (_super) {
+                __extends(PointerActiveTouch, _super);
+                function PointerActiveTouch() {
+                    _super.apply(this, arguments);
+                }
+                PointerActiveTouch.prototype.Init = function (t, offset) {
+                    this.TouchObject = t;
+                    this.Identifier = t.pointerId;
+                    this.Position = new Point(t.clientX + offset.left, t.clientY + offset.top);
+                };
+                PointerActiveTouch.prototype.CreateTouchPoint = function (p) {
+                    var to = this.TouchObject;
+                    return new Input.TouchPoint(p, to.pressure);
+                };
+                return PointerActiveTouch;
+            })(TouchInternal.ActiveTouchBase);
+
+            var PointerTouchInterop = (function (_super) {
+                __extends(PointerTouchInterop, _super);
+                function PointerTouchInterop() {
+                    _super.apply(this, arguments);
+                }
+                PointerTouchInterop.prototype.Register = function (input, canvas) {
+                    var _this = this;
+                    _super.prototype.Register.call(this, input, canvas);
+                    canvas.style.msTouchAction = "none";
+                    canvas.style.touchAction = "none";
+
+                    canvas.addEventListener("selectstart", function (e) {
+                        e.preventDefault();
+                    });
+                    if (navigator.msPointerEnabled) {
+                        canvas.addEventListener("MSPointerDown", function (e) {
+                            return _this._HandlePointerDown(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerUp", function (e) {
+                            return _this._HandlePointerUp(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerMove", function (e) {
+                            return _this._HandlePointerMove(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerEnter", function (e) {
+                            return _this._HandlePointerEnter(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerLeave", function (e) {
+                            return _this._HandlePointerLeave(window.event ? window.event : e);
+                        });
+                    } else {
+                        canvas.addEventListener("pointerdown", function (e) {
+                            return _this._HandlePointerDown(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointerup", function (e) {
+                            return _this._HandlePointerUp(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointermove", function (e) {
+                            return _this._HandlePointerMove(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointerenter", function (e) {
+                            return _this._HandlePointerEnter(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointerleave", function (e) {
+                            return _this._HandlePointerLeave(window.event ? window.event : e);
+                        });
+                    }
+                };
+
+                PointerTouchInterop.prototype._HandlePointerDown = function (e) {
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
+                        return;
+                    e.preventDefault();
+                    Fayde.Engine.Inspection.Kill();
+
+                    var cur = this.GetActiveTouch(e);
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(1 /* TouchDown */, [cur]);
+                    this.Input.SetIsUserInitiatedEvent(false);
+                };
+                PointerTouchInterop.prototype._HandlePointerUp = function (e) {
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(2 /* TouchUp */, [cur]);
+                    this.Input.SetIsUserInitiatedEvent(false);
+                    var index = this.ActiveTouches.indexOf(cur);
+                    if (index > -1)
+                        this.ActiveTouches.splice(index, 1);
+                };
+                PointerTouchInterop.prototype._HandlePointerMove = function (e) {
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.HandleTouches(3 /* TouchMove */, [cur]);
+                };
+                PointerTouchInterop.prototype._HandlePointerEnter = function (e) {
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.HandleTouches(4 /* TouchEnter */, [cur]);
+                };
+                PointerTouchInterop.prototype._HandlePointerLeave = function (e) {
+                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.HandleTouches(5 /* TouchLeave */, [cur]);
+                };
+
+                PointerTouchInterop.prototype.GetActiveTouch = function (e) {
+                    var existing = this.FindTouchInList(e.pointerId);
+                    var cur = existing || new PointerActiveTouch(this);
+                    if (!existing)
+                        this.ActiveTouches.push(cur);
+                    cur.Init(e, this.CoordinateOffset);
+                    return cur;
+                };
+                PointerTouchInterop.prototype.FindTouchInList = function (identifier) {
+                    var at = this.ActiveTouches;
+                    var len = at.length;
+                    for (var i = 0; i < len; i++) {
+                        if (at[i].Identifier === identifier)
+                            return at[i];
+                    }
+                    return null;
+                };
+                return PointerTouchInterop;
+            })(TouchInternal.TouchInteropBase);
+            TouchInternal.PointerTouchInterop = PointerTouchInterop;
+        })(Input.TouchInternal || (Input.TouchInternal = {}));
+        var TouchInternal = Input.TouchInternal;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        (function (TouchInputType) {
+            TouchInputType[TouchInputType["NoOp"] = 0] = "NoOp";
+            TouchInputType[TouchInputType["TouchDown"] = 1] = "TouchDown";
+            TouchInputType[TouchInputType["TouchUp"] = 2] = "TouchUp";
+            TouchInputType[TouchInputType["TouchMove"] = 3] = "TouchMove";
+            TouchInputType[TouchInputType["TouchEnter"] = 4] = "TouchEnter";
+            TouchInputType[TouchInputType["TouchLeave"] = 5] = "TouchLeave";
+        })(Input.TouchInputType || (Input.TouchInputType = {}));
+        var TouchInputType = Input.TouchInputType;
+
+        function CreateTouchInterop() {
+            if (navigator.msPointerEnabled || navigator.pointerEnabled)
+                return new Input.TouchInternal.PointerTouchInterop();
+            if ("ontouchstart" in window)
+                return new Input.TouchInternal.NonPointerTouchInterop();
+            return new DummyTouchInterop();
+        }
+        Input.CreateTouchInterop = CreateTouchInterop;
+
+        var DummyTouchInterop = (function () {
+            function DummyTouchInterop() {
+            }
+            DummyTouchInterop.prototype.Register = function (input, canvas) {
+            };
+            return DummyTouchInterop;
+        })();
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        var TouchPoint = (function () {
+            function TouchPoint(position, force) {
+                Object.defineProperty(this, "Position", { value: position, writable: false });
+
+                Object.defineProperty(this, "Force", { value: force, writable: false });
+            }
+            return TouchPoint;
+        })();
+        Input.TouchPoint = TouchPoint;
+        Fayde.RegisterType(TouchPoint, "Fayde.Input", Fayde.XMLNS);
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var TimeSpan = (function () {
+    function TimeSpan() {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            args[_i] = arguments[_i + 0];
+        }
+        this._Ticks = 0;
+        if (args.length === 0)
+            return;
+        if (args.length === 1) {
+            this._Ticks = args[0] || 0;
+            return;
+        }
+        var days = 0;
+        var hours = 0;
+        var minutes = 0;
+        var seconds = 0;
+        var milliseconds = 0;
+
+        if (args.length === 3) {
+            hours = args[0] || 0;
+            minutes = args[1] || 0;
+            seconds = args[2] || 0;
+        } else {
+            days = args[0] || 0;
+            hours = args[1] || 0;
+            minutes = args[2] || 0;
+            seconds = args[3] || 0;
+            milliseconds = args[4] || 0;
+        }
+
+        this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute) + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
+    }
+    Object.defineProperty(TimeSpan, "Zero", {
+        get: function () {
+            return new TimeSpan();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan, "MinValue", {
+        get: function () {
+            return new TimeSpan(Number.MIN_VALUE);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan, "MaxValue", {
+        get: function () {
+            return new TimeSpan(Number.MAX_VALUE);
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    TimeSpan.FromDays = function (value) {
+        return new TimeSpan(value * this._TicksPerDay);
+    };
+    TimeSpan.FromHours = function (value) {
+        return new TimeSpan(value * this._TicksPerHour);
+    };
+    TimeSpan.FromMinutes = function (value) {
+        return new TimeSpan(value * this._TicksPerMinute);
+    };
+    TimeSpan.FromSeconds = function (value) {
+        return new TimeSpan(value * this._TicksPerSecond);
+    };
+    TimeSpan.FromMilliseconds = function (value) {
+        return new TimeSpan(value * this._TicksPerMillisecond);
+    };
+
+    Object.defineProperty(TimeSpan.prototype, "Days", {
+        get: function () {
+            return this._Ticks > 0 ? Math.floor(this._Ticks / TimeSpan._TicksPerDay) : Math.ceil(this._Ticks / TimeSpan._TicksPerDay);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Hours", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerHour) : Math.ceil(remTicks / TimeSpan._TicksPerHour);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Minutes", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            remTicks = remTicks % TimeSpan._TicksPerHour;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMinute) : Math.ceil(remTicks / TimeSpan._TicksPerMinute);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Seconds", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            remTicks = remTicks % TimeSpan._TicksPerHour;
+            remTicks = remTicks % TimeSpan._TicksPerMinute;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerSecond) : Math.ceil(remTicks / TimeSpan._TicksPerSecond);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Milliseconds", {
+        get: function () {
+            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+            remTicks = remTicks % TimeSpan._TicksPerHour;
+            remTicks = remTicks % TimeSpan._TicksPerMinute;
+            remTicks = remTicks % TimeSpan._TicksPerSecond;
+            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMillisecond) : Math.ceil(remTicks / TimeSpan._TicksPerMillisecond);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "Ticks", {
+        get: function () {
+            return this._Ticks;
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    Object.defineProperty(TimeSpan.prototype, "TotalDays", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerDay;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalHours", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerHour;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalMinutes", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerMinute;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalSeconds", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerSecond;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimeSpan.prototype, "TotalMilliseconds", {
+        get: function () {
+            return this._Ticks / TimeSpan._TicksPerMillisecond;
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    TimeSpan.prototype.AddTicks = function (ticks) {
+        if (ticks == null)
+            return;
+        if (isNaN(ticks))
+            return;
+        this._Ticks += ticks;
+    };
+    TimeSpan.prototype.AddMilliseconds = function (milliseconds) {
+        this.AddTicks(milliseconds * TimeSpan._TicksPerMillisecond);
+    };
+
+    TimeSpan.prototype.Add = function (ts2) {
+        var ts = new TimeSpan();
+        ts._Ticks = this._Ticks + ts2._Ticks;
+        return ts;
+    };
+    TimeSpan.prototype.Subtract = function (ts2) {
+        var ts = new TimeSpan();
+        ts._Ticks = this._Ticks - ts2._Ticks;
+        return ts;
+    };
+    TimeSpan.prototype.Multiply = function (v) {
+        var ts = new TimeSpan();
+        ts._Ticks = Math.round(this._Ticks * v);
+        return ts;
+    };
+    TimeSpan.prototype.Divide = function (ts2) {
+        var ts = new TimeSpan();
+        ts._Ticks = this._Ticks / ts2._Ticks;
+        return ts;
+    };
+    TimeSpan.prototype.CompareTo = function (ts2) {
+        if (this._Ticks === ts2._Ticks)
+            return 0;
+        return (this._Ticks > ts2._Ticks) ? 1 : -1;
+    };
+    TimeSpan.prototype.IsZero = function () {
+        return this._Ticks === 0;
+    };
+
+    TimeSpan.prototype.GetJsDelay = function () {
+        return this._Ticks * TimeSpan._TicksPerMillisecond;
+    };
+
+    TimeSpan.prototype.toString = function (format) {
+        if (!format)
+            return Fayde.Localization.FormatSingle(this, "c");
+        return Fayde.Localization.FormatSingle(this, format);
+    };
+    TimeSpan.prototype.valueOf = function () {
+        return this.Ticks;
+    };
+    TimeSpan._TicksPerMillisecond = 1;
+    TimeSpan._TicksPerSecond = 1000;
+    TimeSpan._TicksPerMinute = TimeSpan._TicksPerSecond * 60;
+    TimeSpan._TicksPerHour = TimeSpan._TicksPerMinute * 60;
+    TimeSpan._TicksPerDay = TimeSpan._TicksPerHour * 24;
+    return TimeSpan;
+})();
+Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
+
+Fayde.RegisterTypeConverter(TimeSpan, function (val) {
+    if (val instanceof TimeSpan)
+        return val;
+    if (typeof val === "number")
+        return new TimeSpan(val);
+    val = val.toString();
+
+    var tokens = val.split(":");
+    if (tokens.length === 1) {
+        var ticks = parseFloat(val);
+        if (!isNaN(ticks))
+            return new TimeSpan(ticks);
+        throw new Exception("Invalid TimeSpan format '" + val + "'.");
+    }
+
+    if (tokens.length !== 3)
+        throw new Exception("Invalid TimeSpan format '" + val + "'.");
+
+    var days = 0;
+    var hours;
+    var minutes;
+    var seconds;
+    var milliseconds = 0;
+
+    var daysplit = tokens[0].split(".");
+    if (daysplit.length === 2) {
+        days = parseInt(daysplit[0]);
+        hours = parseInt(daysplit[1]);
+    } else if (daysplit.length === 1) {
+        hours = parseInt(daysplit[0]);
+    }
+
+    minutes = parseInt(tokens[1]);
+
+    seconds = parseFloat(tokens[2]);
+    milliseconds = seconds % 1;
+    seconds = seconds - milliseconds;
+    milliseconds *= 1000.0;
+
+    return new TimeSpan(days, hours, minutes, seconds, milliseconds);
+});
+var DayOfWeek;
+(function (DayOfWeek) {
+    DayOfWeek[DayOfWeek["Sunday"] = 0] = "Sunday";
+    DayOfWeek[DayOfWeek["Monday"] = 1] = "Monday";
+    DayOfWeek[DayOfWeek["Tuesday"] = 2] = "Tuesday";
+    DayOfWeek[DayOfWeek["Wednesday"] = 3] = "Wednesday";
+    DayOfWeek[DayOfWeek["Thursday"] = 4] = "Thursday";
+    DayOfWeek[DayOfWeek["Friday"] = 5] = "Friday";
+    DayOfWeek[DayOfWeek["Saturday"] = 6] = "Saturday";
+})(DayOfWeek || (DayOfWeek = {}));
+Fayde.RegisterEnum(DayOfWeek, "DayOfWeek", Fayde.XMLNS);
+
+var DateTimeKind;
+(function (DateTimeKind) {
+    DateTimeKind[DateTimeKind["Local"] = 0] = "Local";
+    DateTimeKind[DateTimeKind["Unspecified"] = 1] = "Unspecified";
+    DateTimeKind[DateTimeKind["Utc"] = 2] = "Utc";
+})(DateTimeKind || (DateTimeKind = {}));
+Fayde.RegisterEnum(DateTimeKind, "DateTimeKind", Fayde.XMLNS);
+
+var DateTime = (function () {
+    function DateTime() {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            args[_i] = arguments[_i + 0];
+        }
+        this._InternalDate = null;
+        var ticks = null;
+        var kind = 1 /* Unspecified */;
+        var year = 0;
+        var month = 0;
+        var day = 0;
+        var hour = 0;
+        var minute = 0;
+        var second = 0;
+        var millisecond = 0;
+
+        if (args.length === 1) {
+            ticks = args[0];
+        } else if (args.length === 2) {
+            ticks = args[0];
+            kind = args[1];
+        } else if (args.length === 3) {
+            year = args[0];
+            month = args[1];
+            day = args[2];
+        } else if (args.length === 6) {
+            year = args[0];
+            month = args[1];
+            day = args[2];
+            hour = args[3];
+            minute = args[4];
+            second = args[5];
+        } else if (args.length === 7) {
+            year = args[0];
+            month = args[1];
+            day = args[2];
+            hour = args[3];
+            minute = args[4];
+            second = args[5];
+            millisecond = args[6];
+        } else if (args.length === 8) {
+            year = args[0];
+            month = args[1];
+            day = args[2];
+            hour = args[3];
+            minute = args[4];
+            second = args[5];
+            millisecond = args[6];
+            kind = args[7];
+        } else {
+            ticks = 0;
+        }
+
+        if (ticks != null) {
+            this._InternalDate = new Date(ticks);
+        } else {
+            var id = this._InternalDate = new Date();
+            id.setFullYear(year, month - 1, day);
+            id.setHours(hour);
+            id.setMinutes(minute);
+            id.setSeconds(second);
+            id.setMilliseconds(millisecond);
+        }
+        switch (kind) {
+            case 0:
+                this._Kind = 0 /* Local */;
+                break;
+            default:
+            case 1:
+                this._Kind = 1 /* Unspecified */;
+                break;
+            case 2:
+                this._Kind = 2 /* Utc */;
+                break;
+        }
+    }
+    Object.defineProperty(DateTime, "MinValue", {
+        get: function () {
+            return new DateTime(-8640000000000000);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime, "MaxValue", {
+        get: function () {
+            return new DateTime(8640000000000000);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime, "Now", {
+        get: function () {
+            return new DateTime(new Date().getTime());
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime, "Today", {
+        get: function () {
+            return DateTime.Now.Date;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    DateTime.Compare = function (dt1, dt2) {
+        var t1 = dt1._InternalDate.getTime();
+        var t2 = dt2._InternalDate.getTime();
+        if (t1 < t2)
+            return -1;
+        if (t1 > t2)
+            return 1;
+        return 0;
+    };
+
+    DateTime.DaysInMonth = function (year, month) {
+        var ticks = new Date(year, (month - 1) + 1, 1).getTime() - TimeSpan._TicksPerDay;
+        var dt = new DateTime(ticks);
+        return dt.Day;
+    };
+
+    Object.defineProperty(DateTime.prototype, "Ticks", {
+        get: function () {
+            return this._InternalDate.getTime();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Kind", {
+        get: function () {
+            return this._Kind;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Date", {
+        get: function () {
+            var t = this._InternalDate.getTime();
+            if (t <= DateTime._MinDateTicks)
+                return new DateTime(DateTime._MinDateTicks, this.Kind);
+            var d = new Date(t);
+            d.setHours(0);
+            d.setMinutes(0);
+            d.setSeconds(0);
+            d.setMilliseconds(0);
+            return new DateTime(d.getTime(), this.Kind);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Day", {
+        get: function () {
+            return this._InternalDate.getDate();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "DayOfWeek", {
+        get: function () {
+            return this._InternalDate.getDay();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "DayOfYear", {
+        get: function () {
+            var dt = this.Date;
+            var base = new DateTime(dt.Year, 1, 1);
+            var diff = new TimeSpan(dt.Ticks - base.Ticks);
+            return Math.floor(diff.TotalDays);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Hour", {
+        get: function () {
+            return this._InternalDate.getHours();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Millisecond", {
+        get: function () {
+            return this._InternalDate.getMilliseconds();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Minute", {
+        get: function () {
+            return this._InternalDate.getMinutes();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Month", {
+        get: function () {
+            return this._InternalDate.getMonth() + 1;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Second", {
+        get: function () {
+            return this._InternalDate.getSeconds();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "TimeOfDay", {
+        get: function () {
+            var id = this._InternalDate;
+            return new TimeSpan(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Year", {
+        get: function () {
+            return this._InternalDate.getFullYear();
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    DateTime.prototype.Add = function (value) {
+        return new DateTime(this.Ticks + value.Ticks);
+    };
+
+    DateTime.prototype.AddYears = function (value) {
+        if (value < -10000 || value > 10000)
+            throw new ArgumentOutOfRangeException("Invalid number of years.");
+        return this.AddMonths(value * 12);
+    };
+    DateTime.prototype.AddMonths = function (value) {
+        var dte = new Date(this.Ticks);
+        var ticks = dte.setMonth(dte.getMonth() + value);
+        if (isNaN(ticks))
+            throw new ArgumentOutOfRangeException("Date out of range.");
+        return new DateTime(ticks);
+    };
+    DateTime.prototype.AddDays = function (value) {
+        return this.AddTicks(value * TimeSpan._TicksPerDay);
+    };
+    DateTime.prototype.AddHours = function (value) {
+        return this.AddTicks(value * TimeSpan._TicksPerHour);
+    };
+    DateTime.prototype.AddMinutes = function (value) {
+        return this.AddTicks(value * TimeSpan._TicksPerMinute);
+    };
+    DateTime.prototype.AddSeconds = function (value) {
+        return this.AddTicks(value * TimeSpan._TicksPerSecond);
+    };
+    DateTime.prototype.AddMilliseconds = function (value) {
+        return this.AddTicks(value * TimeSpan._TicksPerMillisecond);
+    };
+    DateTime.prototype.AddTicks = function (value) {
+        var ticks = this.Ticks + value;
+        if (DateTime._MinDateTicks > ticks || DateTime._MaxDateTicks < ticks)
+            throw new ArgumentOutOfRangeException("Date out of range.");
+        return new DateTime(ticks);
+    };
+
+    DateTime.prototype.Subtract = function (value) {
+        if (value instanceof DateTime) {
+            return new TimeSpan(this.Ticks - value.Ticks);
+        } else if (value instanceof TimeSpan) {
+            return new DateTime(this.Ticks - value.Ticks);
+        }
+        return new DateTime(this.Ticks);
+    };
+
+    DateTime.prototype.ToUniversalTime = function () {
+        if (this.Kind === 2 /* Utc */)
+            return new DateTime(this.Ticks, 2 /* Utc */);
+        var id = this._InternalDate;
+        return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), 2 /* Utc */);
+    };
+
+    DateTime.prototype.toString = function (format) {
+        if (!format)
+            return Fayde.Localization.FormatSingle(this, "s");
+        return Fayde.Localization.FormatSingle(this, format);
+    };
+    DateTime.prototype.valueOf = function () {
+        return this.Ticks;
+    };
+    DateTime._MinDateTicks = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
+    DateTime._MaxDateTicks = 8640000000000000;
+    return DateTime;
+})();
+Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        var Calendar = (function () {
+            function Calendar() {
+                this.ID = 1;
+                this.Eras = [1];
+                this.EraNames = ["A.D."];
+                this.CurrentEraValue = 1;
+                this.TwoDigitYearMax = 2029;
+                this.MaxSupportedDateTime = new DateTime(9999, 12, 31, 23, 59, 59, 999);
+                this.MinSupportedDateTime = new DateTime(1, 1, 1, 0, 0, 0, 0);
+            }
+            return Calendar;
+        })();
+        Localization.Calendar = Calendar;
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        (function (CalendarWeekRule) {
+            CalendarWeekRule[CalendarWeekRule["FirstDay"] = 0] = "FirstDay";
+            CalendarWeekRule[CalendarWeekRule["FirstFullWeek"] = 1] = "FirstFullWeek";
+            CalendarWeekRule[CalendarWeekRule["FirstFourDayWeek"] = 2] = "FirstFourDayWeek";
+        })(Localization.CalendarWeekRule || (Localization.CalendarWeekRule = {}));
+        var CalendarWeekRule = Localization.CalendarWeekRule;
+        var DateTimeFormatInfo = (function () {
+            function DateTimeFormatInfo() {
+                this.AbbreviatedDayNames = [
+                    "Sun",
+                    "Mon",
+                    "Tue",
+                    "Wed",
+                    "Thu",
+                    "Fri",
+                    "Sat"
+                ];
+                this.AbbreviatedMonthGenitiveNames = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                    ""
+                ];
+                this.AbbreviatedMonthNames = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec"
+                ];
+                this.AMDesignator = "AM";
+                this.Calendar = new Localization.Calendar();
+                this.CalendarWeekRule = 0 /* FirstDay */;
+                this.DateSeparator = "/";
+                this.DayNames = [
+                    "Sunday",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday"
+                ];
+                this.FirstDayOfWeek = 0 /* Sunday */;
+                this.FullDateTimePattern = "dddd, MMMM dd, yyyy h:mm:ss tt";
+                this.LongDatePattern = "dddd, MMMM dd, yyyy";
+                this.LongTimePattern = "h:mm:ss tt";
+                this.MonthDayPattern = "MMMM dd";
+                this.MonthGenitiveNames = [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December",
+                    ""
+                ];
+                this.MonthNames = [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December"
+                ];
+                this.PMDesignator = "PM";
+                this.RFC1123Pattern = "ddd, dd MMM yyyy HH':'mm':'ss 'GMT'";
+                this.ShortDatePattern = "M/d/yyyy";
+                this.ShortestDayNames = [
+                    "Su",
+                    "Mo",
+                    "Tu",
+                    "We",
+                    "Th",
+                    "Fr",
+                    "Sa"
+                ];
+                this.ShortTimePattern = "h:mm tt";
+                this.SortableDateTimePattern = "yyyy'-'MM'-'dd'T'HH':'mm':'ss";
+                this.TimeSeparator = ":";
+                this.UniversalSortableDateTimePattern = "yyyy'-'MM'-'dd HH':'mm':'ss'Z'";
+                this.YearMonthPattern = "MMMM, yyyy";
+                this.HasForceTwoDigitYears = false;
+            }
+            DateTimeFormatInfo.prototype.GetEraName = function (era) {
+                if (era === 0)
+                    era = this.Calendar.CurrentEraValue;
+                if (era < 0)
+                    throw new ArgumentException("era");
+                var eras = this.Calendar.EraNames;
+                if (era >= eras.length)
+                    throw new ArgumentException("era");
+                return eras[era];
+            };
+
+            DateTimeFormatInfo.ParseRepeatPattern = function (format, pos, patternChar) {
+                var length = format.length;
+                var index = pos + 1;
+                var code = patternChar.charCodeAt(0);
+                while (index < length && format.charCodeAt(index) === code)
+                    ++index;
+                return index - pos;
+            };
+            DateTimeFormatInfo.ParseNextChar = function (format, pos) {
+                if (pos >= format.length - 1)
+                    return -1;
+                return format.charCodeAt(pos + 1);
+            };
+            DateTimeFormatInfo.ParseQuoteString = function (format, pos, result) {
+                var length = format.length;
+                var num = pos;
+                var ch1 = format[pos++];
+                var flag = false;
+                var special = String.fromCharCode(92);
+                while (pos < length) {
+                    var ch2 = format[pos++];
+                    if (ch2 === ch1) {
+                        flag = true;
+                        break;
+                    } else if (ch2 === special) {
+                        if (pos >= length)
+                            throw new FormatException("Invalid format string.");
+                        result.push(format[pos++]);
+                    } else
+                        result.push(ch2);
+                }
+                if (flag)
+                    return pos - num;
+                throw new FormatException("Bad quote: " + ch1);
+            };
+            DateTimeFormatInfo.FormatDigits = function (sb, value, len, overrideLenLimit) {
+                if (!overrideLenLimit && len > 2)
+                    len = 2;
+
+                var s = Math.floor(value).toString();
+                while (s.length < len)
+                    s = "0" + s;
+                sb.push(s);
+            };
+            DateTimeFormatInfo.FormatMonth = function (month, repeat, info) {
+                if (repeat === 3)
+                    return info.AbbreviatedMonthNames[month - 1];
+                return info.MonthNames[month - 1];
+            };
+            DateTimeFormatInfo.FormatDayOfWeek = function (dayOfWeek, repeat, info) {
+                if (repeat === 3)
+                    return info.AbbreviatedDayNames[dayOfWeek];
+                return info.DayNames[dayOfWeek];
+            };
+
+            DateTimeFormatInfo.HebrewFormatDigits = function (sb, digits) {
+                console.warn("Hebrew not implemented");
+                return digits.toString();
+            };
+            DateTimeFormatInfo.FormatHebrewMonthName = function (obj, month, repeat, info) {
+                console.warn("Hebrew not implemented");
+                return DateTimeFormatInfo.FormatMonth(month, repeat, info);
+
+                if (month >= 7)
+                    ++month;
+                if (repeat === 3)
+                    return info.AbbreviatedMonthNames[month - 1];
+                return info.MonthNames[month - 1];
+            };
+            DateTimeFormatInfo.Instance = new DateTimeFormatInfo();
+            return DateTimeFormatInfo;
+        })();
+        Localization.DateTimeFormatInfo = DateTimeFormatInfo;
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        function Format(format) {
+            var items = [];
+            for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                items[_i] = arguments[_i + 1];
+            }
+            var sb = [];
+            appendFormat(sb, format, items);
+            return sb.join("");
+        }
+        Localization.Format = Format;
+        function FormatSingle(obj, format) {
+            return doFormattable(obj, format);
+        }
+        Localization.FormatSingle = FormatSingle;
+
+        function appendFormat(_this, format, args, provider) {
+            if (format == null || args == null)
+                throw new ArgumentNullException(format == null ? "format" : "args");
+            var index1 = 0;
+            var length = format.length;
+            var ch = 0;
+            while (true) {
+                var flag = false;
+                var repeatCount = 0;
+                var breakout = false;
+                do {
+                    if (index1 < length) {
+                        ch = format.charCodeAt(index1);
+                        ++index1;
+                        if (ch === 125) {
+                            if (index1 < length && format.charCodeAt(index1) === 125)
+                                ++index1;
+                            else
+                                throw formatError();
+                        }
+                        if (ch === 123) {
+                            if (index1 >= length || format.charCodeAt(index1) !== 123)
+                                --index1;
+                            else {
+                                breakout = true;
+                                ++index1;
+                                break;
+                            }
+                        } else {
+                            _this.push(String.fromCharCode(ch));
+                            breakout = true;
+                            break;
+                        }
+                    }
+                    if (index1 != length) {
+                        var index2 = index1 + 1;
+                        if (index2 === length || (ch = format.charCodeAt(index2)) < 48 || ch > 57)
+                            throw formatError();
+                        var index3 = 0;
+                        do {
+                            index3 = index3 * 10 + ch - 48;
+                            ++index2;
+                            if (index2 == length)
+                                throw formatError();
+                            ch = format.charCodeAt(index2);
+                        } while(ch >= 48 && ch <= 57 && index3 < 1000000);
+                        if (index3 >= args.length)
+                            throw new FormatException("Index out of range.");
+                        while (index2 < length && (ch = format.charCodeAt(index2)) === 32)
+                            ++index2;
+                        flag = false;
+                        var num = 0;
+                        if (ch === 44) {
+                            ++index2;
+                            while (index2 < length && format.charCodeAt(index2) === 32)
+                                ++index2;
+                            if (index2 == length)
+                                throw formatError();
+                            ch = format.charCodeAt(index2);
+                            if (ch === 45) {
+                                flag = true;
+                                ++index2;
+                                if (index2 == length)
+                                    throw formatError();
+                                ch = format.charCodeAt(index2);
+                            }
+                            if (ch < 48 || ch > 57)
+                                throw formatError();
+                            do {
+                                num = num * 10 + ch - 48;
+                                ++index2;
+                                if (index2 == length)
+                                    throw formatError();
+                                ch = format.charCodeAt(index2);
+                            } while(ch >= 48 && ch <= 57 && num < 1000000);
+                        }
+                        while (index2 < length && (ch = format.charCodeAt(index2)) === 32)
+                            ++index2;
+                        var obj = args[index3];
+                        var stringBuilder = null;
+                        if (ch === 58) {
+                            var index4 = index2 + 1;
+                            while (true) {
+                                if (index4 === length)
+                                    throw formatError();
+                                ch = format.charCodeAt(index4);
+                                ++index4;
+                                if (ch === 123) {
+                                    if (index4 < length && format.charCodeAt(index4) === 123)
+                                        ++index4;
+                                    else
+                                        throw formatError();
+                                } else if (ch === 125) {
+                                    if (index4 < length && format.charCodeAt(index4) === 125)
+                                        ++index4;
+                                    else
+                                        break;
+                                }
+                                stringBuilder = stringBuilder || [];
+                                stringBuilder.push(String.fromCharCode(ch));
+                            }
+                            index2 = index4 - 1;
+                        }
+                        if (ch !== 125)
+                            throw formatError();
+                        index1 = index2 + 1;
+                        var str = formatItem(obj, stringBuilder, provider) || "";
+                        repeatCount = num - str.length;
+                        if (!flag && repeatCount > 0)
+                            pushMany(_this, ' ', repeatCount);
+                        _this.push(str);
+                    } else
+                        return;
+                } while(!flag || repeatCount <= 0);
+                if (!breakout)
+                    pushMany(_this, ' ', repeatCount);
+            }
+        }
+        function formatItem(obj, stringBuilder, provider) {
+            var format1 = null;
+            var str = null;
+
+            if (str == null) {
+                if (format1 == null && stringBuilder != null)
+                    format1 = stringBuilderToString(stringBuilder);
+                var formatted = format1 == null ? (obj == null ? "" : obj.toString()) : doFormattable(obj, format1, provider);
+                if (formatted !== undefined)
+                    str = formatted;
+            }
+            return str;
+        }
+        function pushMany(arr, s, count) {
+            for (var i = count - 1; i >= 0; i--) {
+                arr.push(s);
+            }
+        }
+        function formatError() {
+            return new FormatException("Invalid format string.");
+        }
+        function stringBuilderToString(arr) {
+            return arr.join("");
+        }
+
+        var formatters = [];
+        function RegisterFormattable(type, formatter) {
+            formatters[type] = formatter;
+        }
+        Localization.RegisterFormattable = RegisterFormattable;
+        function doFormattable(obj, format, provider) {
+            if (obj == null)
+                return undefined;
+            var type = obj.constructor;
+            var formatter = formatters[type];
+            if (!formatter)
+                return undefined;
+            return formatter(obj, format, provider);
+        }
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        Localization.RegisterFormattable(DateTime, function (obj, format, provider) {
+            if (!format)
+                return undefined;
+            if (obj == null)
+                return null;
+            if (obj.constructor !== DateTime)
+                return null;
+            var res = tryStandardFormat(obj, format);
+            if (res != undefined)
+                return res;
+            return tryCustomFormat(obj, format, TimeSpan.MinValue);
+        });
+
+        function tryStandardFormat(obj, format) {
+            if (format.length !== 1)
+                return undefined;
+            var ch = format[0];
+            if (!ch)
+                return undefined;
+            var f = standardFormatters[ch];
+            if (!f)
+                return undefined;
+            return f(obj);
+        }
+
+        var standardFormatters = [];
+        standardFormatters["d"] = function (obj) {
+            return [
+                obj.Month.toString(),
+                obj.Day.toString(),
+                obj.Year.toString()
+            ].join("/");
+        };
+        standardFormatters["D"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            return [
+                info.DayNames[obj.DayOfWeek],
+                ", ",
+                info.MonthNames[obj.Month - 1],
+                " ",
+                obj.Day.toString(),
+                ", ",
+                obj.Year.toString()
+            ].join("");
+        };
+        standardFormatters["f"] = function (obj) {
+            return [
+                standardFormatters["D"](obj),
+                standardFormatters["t"](obj)
+            ].join(" ");
+        };
+        standardFormatters["F"] = function (obj) {
+            return [
+                standardFormatters["D"](obj),
+                standardFormatters["T"](obj)
+            ].join(" ");
+        };
+        standardFormatters["g"] = function (obj) {
+            return [
+                standardFormatters["d"](obj),
+                standardFormatters["t"](obj)
+            ].join(" ");
+        };
+        standardFormatters["G"] = function (obj) {
+            return [
+                standardFormatters["d"](obj),
+                standardFormatters["T"](obj)
+            ].join(" ");
+        };
+        standardFormatters["m"] = standardFormatters["M"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            return [
+                info.MonthNames[obj.Month - 1],
+                obj.Day
+            ].join(" ");
+        };
+        standardFormatters["r"] = standardFormatters["R"] = function (obj) {
+            var utc = obj.ToUniversalTime();
+            var info = Localization.DateTimeFormatInfo.Instance;
+            return [
+                info.AbbreviatedDayNames[utc.DayOfWeek],
+                ", ",
+                utc.Day,
+                " ",
+                info.AbbreviatedMonthNames[utc.Month - 1],
+                " ",
+                utc.Year,
+                " ",
+                utc.Hour,
+                ":",
+                utc.Minute,
+                ":",
+                utc.Second,
+                " GMT"
+            ].join("");
+        };
+        standardFormatters["s"] = function (obj) {
+            return [
+                obj.Year,
+                "-",
+                padded(obj.Month),
+                "-",
+                padded(obj.Day),
+                "T",
+                padded(obj.Hour),
+                ":",
+                padded(obj.Minute),
+                ":",
+                padded(obj.Second)
+            ].join("");
+        };
+        standardFormatters["t"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var hour = obj.Hour;
+            var desig = info.AMDesignator;
+            if (hour > 12) {
+                hour -= 12;
+                desig = info.PMDesignator;
+            }
+            return [
+                hour.toString(),
+                ":",
+                obj.Minute.toString(),
+                " ",
+                desig
+            ].join("");
+        };
+        standardFormatters["T"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var hour = obj.Hour;
+            var desig = info.AMDesignator;
+            if (hour > 12) {
+                hour -= 12;
+                desig = info.PMDesignator;
+            }
+            return [
+                hour.toString(),
+                ":",
+                obj.Minute.toString(),
+                ":",
+                obj.Second.toString(),
+                " ",
+                desig
+            ].join("");
+        };
+        standardFormatters["u"] = function (obj) {
+            return [
+                obj.Year.toString(),
+                "-",
+                padded(obj.Month),
+                "-",
+                padded(obj.Day),
+                " ",
+                padded(obj.Hour),
+                ":",
+                padded(obj.Minute),
+                ":",
+                padded(obj.Second),
+                "Z"
+            ].join("");
+        };
+        standardFormatters["U"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var hour = obj.Hour;
+            var desig = info.AMDesignator;
+            if (hour > 12) {
+                hour -= 12;
+                desig = info.PMDesignator;
+            }
+            return [
+                info.DayNames[obj.DayOfWeek],
+                ", ",
+                info.MonthNames[obj.Month - 1],
+                " ",
+                obj.Day.toString(),
+                ", ",
+                obj.Year.toString(),
+                " ",
+                hour.toString(),
+                ":",
+                obj.Minute.toString(),
+                ":",
+                obj.Second.toString(),
+                " ",
+                desig
+            ].join("");
+        };
+        standardFormatters["y"] = standardFormatters["Y"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            return [
+                info.MonthNames[obj.Month - 1],
+                obj.Year
+            ].join(", ");
+        };
+
+        function padded(num) {
+            return num < 10 ? "0" + num.toString() : num.toString();
+        }
+
+        function tryCustomFormat(obj, format, offset) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var calendar = info.Calendar;
+            var stringBuilder = [];
+            var flag = calendar.ID === 8;
+            var timeOnly = true;
+            var index = 0;
+            var len;
+            while (index < format.length) {
+                var patternChar = format[index];
+                switch (patternChar) {
+                    case 'm':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, obj.Minute, len);
+                        break;
+                    case 's':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, obj.Second, len);
+                        break;
+                    case 't':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        if (len === 1) {
+                            if (obj.Hour < 12) {
+                                if (info.AMDesignator.length >= 1) {
+                                    stringBuilder.push(info.AMDesignator[0]);
+                                    break;
+                                } else
+                                    break;
+                            } else if (info.PMDesignator.length >= 1) {
+                                stringBuilder.push(info.PMDesignator[0]);
+                                break;
+                            } else
+                                break;
+                        } else {
+                            stringBuilder.push(obj.Hour < 12 ? info.AMDesignator : info.PMDesignator);
+                            break;
+                        }
+                    case 'y':
+                        var year = obj.Year;
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        if (info.HasForceTwoDigitYears)
+                            Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, year, len <= 2 ? len : 2);
+                        else if (calendar.ID === 8)
+                            Localization.DateTimeFormatInfo.HebrewFormatDigits(stringBuilder, year);
+                        else if (len <= 2) {
+                            Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, year % 100, len);
+                        } else {
+                            stringBuilder.push(Localization.FormatSingle(year, "D" + len.toString()));
+                        }
+                        timeOnly = false;
+                        break;
+                    case 'z':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+
+                        console.warn("DateTime 'z' not implemented");
+                        break;
+                    case 'K':
+                        len = 1;
+
+                        console.warn("DateTime 'K' not implemented");
+                        break;
+                    case 'M':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        var month = obj.Month;
+                        if (len <= 2) {
+                            if (flag)
+                                Localization.DateTimeFormatInfo.HebrewFormatDigits(stringBuilder, month);
+                            else
+                                Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, month, len);
+                        } else if (flag)
+                            stringBuilder.push(Localization.DateTimeFormatInfo.FormatHebrewMonthName(obj, month, len, info));
+                        else
+                            stringBuilder.push(Localization.DateTimeFormatInfo.FormatMonth(month, len, info));
+                        timeOnly = false;
+                        break;
+                    case '\\':
+                        var num2 = Localization.DateTimeFormatInfo.ParseNextChar(format, index);
+                        if (num2 < 0)
+                            throw formatError();
+                        stringBuilder.push(String.fromCharCode(num2));
+                        len = 2;
+                        break;
+                    case 'd':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        if (len <= 2) {
+                            var dayOfMonth = obj.Day;
+                            if (flag)
+                                Localization.DateTimeFormatInfo.HebrewFormatDigits(stringBuilder, dayOfMonth);
+                            else
+                                Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, dayOfMonth, len);
+                        } else {
+                            var dayOfWeek = obj.DayOfWeek;
+                            stringBuilder.push(Localization.DateTimeFormatInfo.FormatDayOfWeek(dayOfWeek, len, info));
+                        }
+                        timeOnly = false;
+                        break;
+                    case 'f':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        if (len > 7)
+                            throw formatError();
+                        stringBuilder.push(msf(obj.Millisecond, len));
+                        break;
+                    case 'F':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        if (len > 7)
+                            throw formatError();
+                        stringBuilder.push(msF(obj.Millisecond, len));
+                        break;
+                    case 'g':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        stringBuilder.push(info.GetEraName(1));
+                        break;
+                    case 'h':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        var num5 = obj.Hour % 12;
+                        if (num5 === 0)
+                            num5 = 12;
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, num5, len);
+                        break;
+                    case '/':
+                        stringBuilder.push(info.DateSeparator);
+                        len = 1;
+                        break;
+                    case ':':
+                        stringBuilder.push(info.TimeSeparator);
+                        len = 1;
+                        break;
+                    case 'H':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, obj.Hour, len);
+                        break;
+                    case '"':
+                    case '\'':
+                        len = Localization.DateTimeFormatInfo.ParseQuoteString(format, index, stringBuilder);
+                        break;
+                    case '%':
+                        var num6 = Localization.DateTimeFormatInfo.ParseNextChar(format, index);
+                        if (num6 < 0 || num6 === 37)
+                            throw formatError();
+                        stringBuilder.push(tryCustomFormat(obj, String.fromCharCode(num6), offset));
+                        len = 2;
+                        break;
+                    default:
+                        stringBuilder.push(patternChar);
+                        len = 1;
+                        break;
+                }
+                index += len;
+            }
+            return stringBuilder.join("");
+        }
+
+        function msf(ms, len) {
+            var s = Math.abs(ms).toString();
+            while (s.length < 3)
+                s = "0" + s;
+            s += "0000";
+            return s.substr(0, len);
+        }
+        function msF(ms, len) {
+            var f = msf(ms, len);
+            var end = f.length - 1;
+            for (; end >= 0; end--) {
+                if (f[end] !== "0")
+                    break;
+            }
+            return f.slice(0, end + 1);
+        }
+
+        function formatError() {
+            return new FormatException("Invalid format string.");
+        }
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        var NumberFormatInfo = (function () {
+            function NumberFormatInfo() {
+                this.CurrencyDecimalDigits = 2;
+                this.CurrencyDecimalSeparator = ".";
+                this.CurrencyGroupSeparator = ",";
+                this.CurrencyGroupSizes = [3];
+                this.CurrencyNegativePattern = 0;
+                this.CurrencyPositivePattern = 0;
+                this.CurrencySymbol = "$";
+                this.NaNSymbol = "NaN";
+                this.NegativeInfinitySymbol = "-Infinity";
+                this.PositiveInfinitySymbol = "Infinity";
+                this.NegativeSign = "-";
+                this.PositiveSign = "+";
+                this.NumberDecimalDigits = 2;
+                this.NumberDecimalSeparator = ".";
+                this.NumberGroupSeparator = ",";
+                this.NumberGroupSizes = [3];
+                this.NumberNegativePattern = 1;
+                this.PercentDecimalDigits = 2;
+                this.PercentDecimalSeparator = ".";
+                this.PercentGroupSeparator = ",";
+                this.PercentGroupSizes = [3];
+                this.PercentNegativePattern = 0;
+                this.PercentPositivePattern = 0;
+                this.PercentSymbol = "%";
+                this.PerMilleSymbol = "‰";
+            }
+            NumberFormatInfo.prototype.FormatCurrency = function (num, precision) {
+                if (precision == null)
+                    precision = this.CurrencyDecimalDigits;
+                var rawnum = this.FormatRawNumber(Math.abs(num), precision, this.CurrencyDecimalSeparator, this.CurrencyGroupSeparator, this.CurrencyGroupSizes);
+                if (num < 0) {
+                    switch (this.CurrencyNegativePattern) {
+                        case 0:
+                        default:
+                            return "(" + this.CurrencySymbol + rawnum + ")";
+                        case 1:
+                            return [this.NegativeSign, this.CurrencySymbol, rawnum].join("");
+                        case 2:
+                            return [this.CurrencySymbol, this.NegativeSign, rawnum].join("");
+                        case 3:
+                            return [this.CurrencySymbol, rawnum, this.NegativeSign].join("");
+                        case 4:
+                            return "(" + rawnum + this.CurrencySymbol + ")";
+                        case 5:
+                            return [this.NegativeSign, rawnum, this.CurrencySymbol].join("");
+                        case 6:
+                            return [rawnum, this.NegativeSign, this.CurrencySymbol].join("");
+                        case 7:
+                            return [rawnum, this.CurrencySymbol, this.NegativeSign].join("");
+                        case 8:
+                            return [this.NegativeSign, rawnum, " ", this.CurrencySymbol].join("");
+                        case 9:
+                            return [this.NegativeSign, this.CurrencySymbol, " ", rawnum].join("");
+                        case 10:
+                            return [rawnum, " ", this.CurrencySymbol, this.NegativeSign].join("");
+                        case 11:
+                            return [this.CurrencySymbol, " ", rawnum, this.NegativeSign].join("");
+                        case 12:
+                            return [this.CurrencySymbol, " ", this.NegativeSign, rawnum].join("");
+                        case 13:
+                            return [rawnum, this.NegativeSign, " ", this.CurrencySymbol].join("");
+                        case 14:
+                            return "(" + this.CurrencySymbol + " " + rawnum + ")";
+                        case 15:
+                            return "(" + rawnum + " " + this.CurrencySymbol + ")";
+                    }
+                } else {
+                    switch (this.CurrencyPositivePattern) {
+                        case 0:
+                        default:
+                            return [this.CurrencySymbol, rawnum].join("");
+                        case 1:
+                            return [rawnum, this.CurrencySymbol].join("");
+                        case 2:
+                            return [this.CurrencySymbol, rawnum].join(" ");
+                        case 3:
+                            return [rawnum, this.CurrencySymbol].join(" ");
+                    }
+                }
+            };
+            NumberFormatInfo.prototype.FormatNumber = function (num, precision, ignoreGroupSep) {
+                if (precision == null)
+                    precision = this.NumberDecimalDigits;
+                var rawnum = this.FormatRawNumber(Math.abs(num), precision, this.NumberDecimalSeparator, ignoreGroupSep ? "" : this.NumberGroupSeparator, this.NumberGroupSizes);
+                if (num >= 0)
+                    return rawnum;
+                switch (this.NumberNegativePattern) {
+                    case 0:
+                        return "(" + rawnum + ")";
+                    case 1:
+                    default:
+                        return [this.NegativeSign, rawnum].join("");
+                    case 2:
+                        return [this.NegativeSign, rawnum].join(" ");
+                    case 3:
+                        return [rawnum, this.NegativeSign].join("");
+                    case 4:
+                        return [rawnum, this.NegativeSign].join(" ");
+                }
+            };
+            NumberFormatInfo.prototype.FormatPercent = function (num, precision) {
+                if (precision == null)
+                    precision = this.PercentDecimalDigits;
+                var rawnum = this.FormatRawNumber(Math.abs(num * 100), precision, this.PercentDecimalSeparator, this.PercentGroupSeparator, this.PercentGroupSizes);
+                var sym = this.PercentSymbol;
+                if (num < 0) {
+                    var sign = this.NegativeSign;
+                    switch (this.PercentNegativePattern) {
+                        case 0:
+                        default:
+                            return [sign, rawnum, " ", sym].join("");
+                        case 1:
+                            return [sign, rawnum, sym].join("");
+                        case 2:
+                            return [sign, sym, rawnum].join("");
+                        case 3:
+                            return [sym, sign, rawnum].join("");
+                        case 4:
+                            return [sym, rawnum, sign].join("");
+                        case 5:
+                            return [rawnum, sign, sym].join("");
+                        case 6:
+                            return [rawnum, sym, sign].join("");
+                        case 7:
+                            return [sign, sym, " ", rawnum].join("");
+                        case 8:
+                            return [sign, sym, " ", rawnum].join("");
+                        case 9:
+                            return [sym, " ", rawnum, sign].join("");
+                        case 10:
+                            return [sym, " ", sign, rawnum].join("");
+                        case 11:
+                            return [rawnum, sign, " ", sym].join("");
+                    }
+                } else {
+                    switch (this.PercentPositivePattern) {
+                        case 0:
+                        default:
+                            return [rawnum, this.PercentSymbol].join(" ");
+                        case 1:
+                            return [rawnum, this.PercentSymbol].join("");
+                        case 2:
+                            return [this.PercentSymbol, rawnum].join("");
+                        case 3:
+                            return [this.PercentSymbol, rawnum].join(" ");
+                    }
+                }
+            };
+            NumberFormatInfo.prototype.FormatGeneral = function (num, precision) {
+                if (precision == null)
+                    precision = 6;
+                var sig = sigDigits(Math.abs(num), precision);
+                var rawnum = sig.toString();
+                if (num >= 0)
+                    return rawnum;
+                return this.NegativeSign + rawnum;
+            };
+            NumberFormatInfo.prototype.FormatDecimal = function (num, precision) {
+                var rawnum = this.FormatRawNumber(Math.abs(num), 0, "", "", null);
+                var d = padded(rawnum, precision || 0, true);
+                if (num < 0)
+                    d = this.NegativeSign + d;
+                return d;
+            };
+            NumberFormatInfo.prototype.FormatExponential = function (num, precision) {
+                if (precision == null)
+                    precision = 6;
+                var e = num.toExponential(precision);
+                var tokens = e.split("e+");
+                return tokens[0] + "e" + this.PositiveSign + padded(tokens[1], 3, true);
+            };
+            NumberFormatInfo.prototype.FormatHexadecimal = function (num, precision) {
+                if (precision == null)
+                    precision = 2;
+                num = parseInt(num);
+                if (num >= 0)
+                    return padded(num.toString(16), precision, true);
+                var us = (Math.pow(2, 32) + num).toString(16);
+                if (precision >= us.length)
+                    return padded(us, precision, true);
+                var start = 0;
+                while (us.length - start > precision && us[start] === "f") {
+                    start++;
+                }
+                return us.substr(start);
+            };
+            NumberFormatInfo.prototype.FormatRawNumber = function (num, precision, decSep, groupSep, groupSizes) {
+                var rounded = round(num, precision);
+                var ip = Math.floor(rounded).toString();
+                var fp = rounded.toString().split('.')[1];
+                var pfp = padded(fp, precision);
+                if (!pfp)
+                    return grouped(ip, groupSep);
+                return [
+                    grouped(ip, groupSep),
+                    pfp
+                ].join(decSep);
+            };
+            NumberFormatInfo.Instance = new NumberFormatInfo();
+            return NumberFormatInfo;
+        })();
+        Localization.NumberFormatInfo = NumberFormatInfo;
+
+        function grouped(s, sep) {
+            if (s.length < 4)
+                return s;
+            var offset = s.length % 3;
+            if (offset !== 0) {
+                offset = 3 - offset;
+                s = new Array(offset + 1).join("0") + s;
+            }
+            return s.match(/\d\d\d/g).join(sep).substr(offset);
+        }
+        function padded(s, precision, front) {
+            if (!s)
+                return new Array(precision + 1).join("0");
+            if (s.length > precision)
+                return front ? s : s.substr(0, precision);
+            if (front)
+                return new Array(precision - s.length + 1).join("0") + s;
+            return s + new Array(precision - s.length + 1).join("0");
+        }
+        function round(num, places) {
+            var factor = Math.pow(10, places);
+            return Math.round(num * factor) / factor;
+        }
+        function sigDigits(num, digits) {
+            var n = num.toString();
+            var index = n.indexOf(".");
+            if (index > -1)
+                return round(num, digits - index);
+            return round(num, digits - n.length);
+        }
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        Localization.RegisterFormattable(Number, function (obj, format, provider) {
+            if (obj == null)
+                return null;
+            if (obj.constructor !== Number)
+                return null;
+            var res = tryStandardFormat(obj, format);
+            if (res != undefined)
+                return res;
+            return format;
+        });
+
+        function tryStandardFormat(obj, format) {
+            var ch = format[0];
+            if (!ch)
+                return undefined;
+            var lowerch = ch.toLowerCase();
+            if (lowerch < "a" || lowerch > "z")
+                return undefined;
+            var prec = null;
+            if (format.length > 1) {
+                var prec = parseInt(format.substr(1));
+                if (isNaN(prec))
+                    return undefined;
+            }
+
+            var f = standardFormatters[ch] || standardFormatters[lowerch];
+            if (!f)
+                return undefined;
+            return f(obj, prec);
+        }
+
+        var standardFormatters = [];
+        standardFormatters["c"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatCurrency(obj, precision);
+        };
+        standardFormatters["d"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatDecimal(obj, precision);
+        };
+        standardFormatters["E"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatExponential(obj, precision).toUpperCase();
+        };
+        standardFormatters["e"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatExponential(obj, precision);
+        };
+        standardFormatters["f"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatNumber(obj, precision, true);
+        };
+        standardFormatters["g"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatGeneral(obj, precision);
+        };
+        standardFormatters["n"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatNumber(obj, precision);
+        };
+        standardFormatters["p"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatPercent(obj, precision);
+        };
+        standardFormatters["X"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatHexadecimal(obj, precision).toUpperCase();
+        };
+        standardFormatters["x"] = function (obj, precision) {
+            return Localization.NumberFormatInfo.Instance.FormatHexadecimal(obj, precision);
+        };
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Localization) {
+        Localization.RegisterFormattable(TimeSpan, function (obj, format, provider) {
+            if (!format)
+                return undefined;
+            if (obj == null)
+                return null;
+            if (obj.constructor !== TimeSpan)
+                return null;
+            var res = tryStandardFormat(obj, format);
+            if (res != undefined)
+                return res;
+            return tryCustomFormat(obj, format);
+        });
+
+        function tryStandardFormat(obj, format) {
+            if (format.length !== 1)
+                return undefined;
+            var ch = format[0];
+            if (!ch)
+                return undefined;
+            var f = standardFormatters[ch];
+            if (!f)
+                return undefined;
+            return f(obj);
+        }
+
+        var standardFormatters = [];
+        standardFormatters["c"] = standardFormatters["t"] = standardFormatters["T"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var s = [
+                padded(obj.Hours),
+                padded(obj.Minutes),
+                padded(obj.Seconds)
+            ].join(info.TimeSeparator);
+            var days = obj.Days;
+            if (days)
+                s = Math.abs(days) + "." + s;
+            var ms = obj.Milliseconds;
+            if (ms)
+                s += "." + msf(ms, 7);
+            if (obj.Ticks < 0)
+                s = "-" + s;
+            return s;
+        };
+        standardFormatters["g"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var s = [
+                Math.abs(obj.Hours),
+                padded(obj.Minutes),
+                padded(obj.Seconds)
+            ].join(info.TimeSeparator);
+            var days = obj.Days;
+            if (days)
+                s = Math.abs(days) + ":" + s;
+            var ms = obj.Milliseconds;
+            if (ms)
+                s += "." + msF(ms, 7);
+            if (obj.Ticks < 0)
+                s = "-" + s;
+            return s;
+        };
+        standardFormatters["G"] = function (obj) {
+            var info = Localization.DateTimeFormatInfo.Instance;
+            var s = [
+                Math.abs(obj.Days),
+                padded(obj.Hours),
+                padded(obj.Minutes),
+                padded(obj.Seconds)
+            ].join(info.TimeSeparator);
+            var ms = obj.Milliseconds;
+            s += "." + msf(ms, 7);
+            if (obj.Ticks < 0)
+                s = "-" + s;
+            return s;
+        };
+
+        function tryCustomFormat(obj, format) {
+            var days = Math.abs(obj.Days);
+            var hours = Math.abs(obj.Hours);
+            var minutes = Math.abs(obj.Minutes);
+            var seconds = Math.abs(obj.Seconds);
+            var ms = Math.abs(obj.Milliseconds);
+
+            var len;
+            var pos = 0;
+            var stringBuilder = [];
+            while (pos < format.length) {
+                var patternChar = format[pos];
+                switch (patternChar) {
+                    case 'm':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 2)
+                            throw formatError();
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, minutes, len);
+                        break;
+                    case 's':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 2)
+                            throw formatError();
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, seconds, len);
+                        break;
+                    case '\\':
+                        var num7 = Localization.DateTimeFormatInfo.ParseNextChar(format, pos);
+                        if (num7 < 0)
+                            throw formatError();
+                        stringBuilder.push(String.fromCharCode(num7));
+                        len = 2;
+                        break;
+                    case 'd':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 8)
+                            throw formatError();
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, days, len, true);
+                        break;
+                    case 'f':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 7)
+                            throw formatError();
+                        stringBuilder.push(msf(ms, len));
+                        break;
+                    case 'F':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 7)
+                            throw formatError();
+                        stringBuilder.push(msF(ms, len));
+                        break;
+                    case 'h':
+                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
+                        if (len > 2)
+                            throw formatError();
+                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, hours, len);
+                        break;
+                    case '"':
+                    case '\'':
+                        len = Localization.DateTimeFormatInfo.ParseQuoteString(format, pos, stringBuilder);
+                        break;
+                    case '%':
+                        var num9 = Localization.DateTimeFormatInfo.ParseNextChar(format, pos);
+                        if (num9 < 0 || num9 === 37)
+                            throw formatError();
+                        stringBuilder.push(tryCustomFormat(obj, String.fromCharCode(num9)));
+                        len = 2;
+                        break;
+                    default:
+                        throw formatError();
+                }
+                pos += len;
+            }
+            return stringBuilder.join("");
+        }
+
+        function padded(num) {
+            var s = Math.abs(num).toString();
+            return (s.length === 1) ? "0" + s : s;
+        }
+        function msf(ms, len) {
+            var s = Math.abs(ms).toString();
+            while (s.length < 3)
+                s = "0" + s;
+            s += "0000";
+            return s.substr(0, len);
+        }
+        function msF(ms, len) {
+            var f = msf(ms, len);
+            var end = f.length - 1;
+            for (; end >= 0; end--) {
+                if (f[end] !== "0")
+                    break;
+            }
+            return f.slice(0, end + 1);
+        }
+
+        function formatError() {
+            return new FormatException("Invalid format string.");
+        }
+    })(Fayde.Localization || (Fayde.Localization = {}));
+    var Localization = Fayde.Localization;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (MVVM) {
+        function NotifyProperties(type, propNames) {
+            var len = propNames.length;
+            for (var i = 0; i < len; i++) {
+                (function () {
+                    var propName = propNames[i];
+                    var backingName = "$" + propName + "$";
+                    Object.defineProperty(type.prototype, propName, {
+                        get: function () {
+                            return this[backingName];
+                        },
+                        set: function (value) {
+                            this[backingName] = value;
+                            this.OnPropertyChanged(propName);
+                        }
+                    });
+                })();
+            }
+        }
+        MVVM.NotifyProperties = NotifyProperties;
+
+        var ObservableObject = (function () {
+            function ObservableObject() {
+                this.PropertyChanged = new MulticastEvent();
+            }
+            ObservableObject.prototype.OnPropertyChanged = function (propertyName) {
+                this.PropertyChanged.Raise(this, new Fayde.PropertyChangedEventArgs(propertyName));
+            };
+            return ObservableObject;
+        })();
+        MVVM.ObservableObject = ObservableObject;
+        Fayde.RegisterType(ObservableObject, "Fayde.MVVM", Fayde.XMLNS);
+    })(Fayde.MVVM || (Fayde.MVVM = {}));
+    var MVVM = Fayde.MVVM;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (MVVM) {
+        var RelayCommand = (function () {
+            function RelayCommand(execute, canExecute) {
+                this.CanExecuteChanged = new MulticastEvent();
+                if (execute)
+                    this.Execute = execute;
+                if (canExecute)
+                    this.CanExecute = canExecute;
+            }
+            RelayCommand.prototype.Execute = function (parameter) {
+            };
+            RelayCommand.prototype.CanExecute = function (parameter) {
+                return true;
+            };
+
+            RelayCommand.prototype.ForceCanExecuteChanged = function () {
+                this.CanExecuteChanged.Raise(this, EventArgs.Empty);
+            };
+            return RelayCommand;
+        })();
+        MVVM.RelayCommand = RelayCommand;
+        Fayde.RegisterType(RelayCommand, "Fayde.MVVM", Fayde.XMLNS);
+        Fayde.RegisterTypeInterfaces(RelayCommand, Fayde.Input.ICommand_);
+    })(Fayde.MVVM || (Fayde.MVVM = {}));
+    var MVVM = Fayde.MVVM;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (MVVM) {
+        var ViewModelBase = (function (_super) {
+            __extends(ViewModelBase, _super);
+            function ViewModelBase() {
+                _super.apply(this, arguments);
+            }
+            return ViewModelBase;
+        })(MVVM.ObservableObject);
+        MVVM.ViewModelBase = ViewModelBase;
+        Fayde.RegisterType(ViewModelBase, "Fayde.MVVM", Fayde.XMLNS);
+    })(Fayde.MVVM || (Fayde.MVVM = {}));
+    var MVVM = Fayde.MVVM;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -24510,9 +27857,9 @@ var Fayde;
                     _super.apply(this, arguments);
                 }
                 ObjectAnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
-                    var enumerator = this.KeyFrames.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        var keyFrame = enumerator.Current;
+                    var enumerator = this.KeyFrames.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        var keyFrame = enumerator.current;
                         var value = keyFrame.Value;
                         if (value == null) {
                             keyFrame.ConvertedValue = undefined;
@@ -24860,9 +28207,9 @@ var Fayde;
                     this.Reset();
                     var error = new BError();
                     var promotedValues = [];
-                    var enumerator = this.Children.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        var animation = enumerator.Current;
+                    var enumerator = this.Children.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        var animation = enumerator.current;
                         if (!animation._Hookup(promotedValues, error))
                             error.ThrowException();
                     }
@@ -24870,16 +28217,16 @@ var Fayde;
                 };
                 Storyboard.prototype.Pause = function () {
                     _super.prototype.Pause.call(this);
-                    var enumerator = this.Children.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        enumerator.Current.Pause();
+                    var enumerator = this.Children.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        enumerator.current.Pause();
                     }
                 };
                 Storyboard.prototype.Resume = function () {
                     _super.prototype.Resume.call(this);
-                    var enumerator = this.Children.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        enumerator.Current.Resume();
+                    var enumerator = this.Children.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        enumerator.current.Resume();
                     }
                 };
                 Storyboard.prototype.Stop = function () {
@@ -24887,26 +28234,26 @@ var Fayde;
                         console.log(getLogMessage("Storyboard.Stop", this, false));
                     _super.prototype.Stop.call(this);
                     Fayde.Application.Current.UnregisterStoryboard(this);
-                    var enumerator = this.Children.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        enumerator.Current.Stop();
+                    var enumerator = this.Children.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        enumerator.current.Stop();
                     }
                 };
 
                 Storyboard.prototype.UpdateInternal = function (clockData) {
                     if (Animation.Log)
                         console.log(getLogMessage("Storyboard.UpdateInternal", this, false, clockData));
-                    var enumerator = this.Children.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        enumerator.Current.Update(clockData.CurrentTime.Ticks);
+                    var enumerator = this.Children.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        enumerator.current.Update(clockData.CurrentTime.Ticks);
                     }
                 };
 
                 Storyboard.prototype.GetNaturalDurationCore = function () {
                     var fullTicks = 0;
-                    var enumerator = this.Children.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        var timeline = enumerator.Current;
+                    var enumerator = this.Children.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        var timeline = enumerator.current;
                         var dur = timeline.GetNaturalDuration();
                         if (dur.IsAutomatic)
                             continue;
@@ -24957,10 +28304,10 @@ var Fayde;
                 var anims = [];
                 var cur = "";
 
-                var enumerator = storyboard.Children.GetEnumerator();
+                var enumerator = storyboard.Children.getEnumerator();
                 var animation;
-                while (enumerator.MoveNext()) {
-                    animation = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    animation = enumerator.current;
                     cur = "";
                     cur += "(";
                     cur += animation.constructor.name;
@@ -25812,9 +29159,9 @@ var Fayde;
             }
             GeometryGroup.prototype.ComputePathBounds = function (pars) {
                 var bounds = new rect();
-                var enumerator = this.Children.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    rect.unionLogical(bounds, enumerator.Current.GetBounds(pars));
+                var enumerator = this.Children.getEnumerator();
+                while (enumerator.moveNext()) {
+                    rect.unionLogical(bounds, enumerator.current.GetBounds(pars));
                 }
                 return bounds;
             };
@@ -25824,9 +29171,9 @@ var Fayde;
                     ctx.save();
                     ctx.transformTransform(transform);
                 }
-                var enumerator = this.Children.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    enumerator.Current.Draw(ctx);
+                var enumerator = this.Children.getEnumerator();
+                while (enumerator.moveNext()) {
+                    enumerator.current.Draw(ctx);
                 }
                 if (transform != null)
                     ctx.restore();
@@ -26515,6 +29862,40 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Media) {
+        var LineGeometry = (function (_super) {
+            __extends(LineGeometry, _super);
+            function LineGeometry() {
+                _super.apply(this, arguments);
+            }
+            LineGeometry.prototype._Build = function () {
+                var p1 = this.StartPoint;
+                var p2 = this.EndPoint;
+
+                var p = new Fayde.Path.RawPath();
+                p.Move(p1.X, p1.Y);
+                p.Line(p2.X, p2.Y);
+                return p;
+            };
+            LineGeometry.StartPointProperty = DependencyProperty.Register("StartPoint", function () {
+                return Point;
+            }, LineGeometry, undefined, function (d, args) {
+                return d._InvalidateGeometry();
+            });
+            LineGeometry.EndPointProperty = DependencyProperty.Register("EndPoint", function () {
+                return Point;
+            }, LineGeometry, undefined, function (d, args) {
+                return d._InvalidateGeometry();
+            });
+            return LineGeometry;
+        })(Media.Geometry);
+        Media.LineGeometry = LineGeometry;
+        Fayde.RegisterType(LineGeometry, "Fayde.Media", Fayde.XMLNS);
+    })(Fayde.Media || (Fayde.Media = {}));
+    var Media = Fayde.Media;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Media) {
         var LinearGradientBrush = (function (_super) {
             __extends(LinearGradientBrush, _super);
             function LinearGradientBrush() {
@@ -26525,9 +29906,9 @@ var Fayde;
                 var start = data.start;
                 var end = data.end;
                 var grd = ctx.createLinearGradient(start.X, start.Y, end.X, end.Y);
-                var enumerator = this.GradientStops.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    var stop = enumerator.Current;
+                var enumerator = this.GradientStops.getEnumerator();
+                while (enumerator.moveNext()) {
+                    var stop = enumerator.current;
                     grd.addColorStop(stop.Offset, stop.Color.toString());
                 }
                 return grd;
@@ -26547,9 +29928,9 @@ var Fayde;
                 var steps = (last.x - first.x) / dir.x;
                 var curOffset = 0.0;
                 for (var i = 0; i < steps; i++) {
-                    var enumerator = this.GradientStops.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        var stop = enumerator.Current;
+                    var enumerator = this.GradientStops.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        var stop = enumerator.current;
                         grd.addColorStop(curOffset + (stop.Offset / steps), stop.Color.toString());
                     }
 
@@ -26579,10 +29960,10 @@ var Fayde;
             };
 
             LinearGradientBrush.prototype.toString = function () {
-                var enumerator = this.GradientStops.GetEnumerator();
+                var enumerator = this.GradientStops.getEnumerator();
                 var ser = [];
-                while (enumerator.MoveNext()) {
-                    ser.push(enumerator.Current.toString());
+                while (enumerator.moveNext()) {
+                    ser.push(enumerator.current.toString());
                 }
                 return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";
             };
@@ -26600,40 +29981,6 @@ var Fayde;
         })(Media.GradientBrush);
         Media.LinearGradientBrush = LinearGradientBrush;
         Fayde.RegisterType(LinearGradientBrush, "Fayde.Media", Fayde.XMLNS);
-    })(Fayde.Media || (Fayde.Media = {}));
-    var Media = Fayde.Media;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Media) {
-        var LineGeometry = (function (_super) {
-            __extends(LineGeometry, _super);
-            function LineGeometry() {
-                _super.apply(this, arguments);
-            }
-            LineGeometry.prototype._Build = function () {
-                var p1 = this.StartPoint;
-                var p2 = this.EndPoint;
-
-                var p = new Fayde.Path.RawPath();
-                p.Move(p1.X, p1.Y);
-                p.Line(p2.X, p2.Y);
-                return p;
-            };
-            LineGeometry.StartPointProperty = DependencyProperty.Register("StartPoint", function () {
-                return Point;
-            }, LineGeometry, undefined, function (d, args) {
-                return d._InvalidateGeometry();
-            });
-            LineGeometry.EndPointProperty = DependencyProperty.Register("EndPoint", function () {
-                return Point;
-            }, LineGeometry, undefined, function (d, args) {
-                return d._InvalidateGeometry();
-            });
-            return LineGeometry;
-        })(Media.Geometry);
-        Media.LineGeometry = LineGeometry;
-        Fayde.RegisterType(LineGeometry, "Fayde.Media", Fayde.XMLNS);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -27554,9 +30901,9 @@ var Fayde;
                 var start = this.StartPoint;
                 p.Move(start.X, start.Y);
 
-                var enumerator = this.Segments.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    enumerator.Current._Append(p);
+                var enumerator = this.Segments.getEnumerator();
+                while (enumerator.moveNext()) {
+                    enumerator.current._Append(p);
                 }
                 if (this.IsClosed)
                     p.Close();
@@ -27681,9 +31028,9 @@ var Fayde;
                 if (!figures)
                     return;
 
-                var enumerator = figures.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    enumerator.Current.MergeInto(p);
+                var enumerator = figures.getEnumerator();
+                while (enumerator.moveNext()) {
+                    enumerator.current.MergeInto(p);
                 }
                 return p;
             };
@@ -27878,13 +31225,13 @@ var Fayde;
                 var p1;
                 var p2;
                 var p3;
-                var enumerator = points.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    p1 = enumerator.Current;
-                    enumerator.MoveNext();
-                    p2 = enumerator.Current;
-                    enumerator.MoveNext();
-                    p3 = enumerator.Current;
+                var enumerator = points.getEnumerator();
+                while (enumerator.moveNext()) {
+                    p1 = enumerator.current;
+                    enumerator.moveNext();
+                    p2 = enumerator.current;
+                    enumerator.moveNext();
+                    p3 = enumerator.current;
                     path.CubicBezier(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
                 }
             };
@@ -27905,9 +31252,9 @@ var Fayde;
             }
             PolyLineSegment.prototype._Append = function (path) {
                 var p;
-                var enumerator = this.Points.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    p = enumerator.Current;
+                var enumerator = this.Points.getEnumerator();
+                while (enumerator.moveNext()) {
+                    p = enumerator.current;
                     path.Line(p.X, p.Y);
                 }
                 NotImplemented("PolyLineSegment._Append");
@@ -27940,13 +31287,13 @@ var Fayde;
                 var y2;
                 var x3;
                 var y3;
-                var enumerator = points.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    x1 = enumerator.Current.X;
-                    y1 = enumerator.Current.Y;
-                    enumerator.MoveNext();
-                    x2 = enumerator.Current.X;
-                    y2 = enumerator.Current.Y;
+                var enumerator = points.getEnumerator();
+                while (enumerator.moveNext()) {
+                    x1 = enumerator.current.X;
+                    y1 = enumerator.current.Y;
+                    enumerator.moveNext();
+                    x2 = enumerator.current.X;
+                    y2 = enumerator.current.Y;
                     x3 = x2;
                     y3 = y2;
 
@@ -28643,10 +31990,10 @@ var Fayde;
                 });
             }
             TransformGroup.prototype._BuildValue = function () {
-                var enumerator = this.Children.GetEnumerator(true);
+                var enumerator = this.Children.getEnumerator(true);
                 var cur = mat3.identity();
-                while (enumerator.MoveNext()) {
-                    mat3.multiply(enumerator.Current.Value._Raw, cur, cur);
+                while (enumerator.moveNext()) {
+                    mat3.multiply(enumerator.current.Value._Raw, cur, cur);
                 }
                 return cur;
             };
@@ -28729,10 +32076,10 @@ var Fayde;
                 });
 
                 VisualStateGroup.prototype.GetState = function (stateName) {
-                    var enumerator = this.States.GetEnumerator();
+                    var enumerator = this.States.getEnumerator();
                     var state;
-                    while (enumerator.MoveNext()) {
-                        state = enumerator.Current;
+                    while (enumerator.moveNext()) {
+                        state = enumerator.current;
                         if (state.Name === stateName)
                             return state;
                     }
@@ -28772,8 +32119,8 @@ var Fayde;
                     var curStoryboards = this._CurrentStoryboards;
                     var enumerator = Fayde.ArrayEx.GetEnumerator(curStoryboards);
                     var storyboard;
-                    while (enumerator.MoveNext()) {
-                        storyboard = enumerator.Current;
+                    while (enumerator.moveNext()) {
+                        storyboard = enumerator.current;
                         if (!storyboard)
                             continue;
                         element.Resources.Set(storyboard._ID, undefined);
@@ -28927,9 +32274,9 @@ var Fayde;
                     var groups = VisualStateManager.GetVisualStateGroups(root);
                     if (!groups)
                         return false;
-                    var enumerator = groups.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        enumerator.Current.StopCurrentStoryboards(root);
+                    var enumerator = groups.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        enumerator.current.StopCurrentStoryboards(root);
                     }
                 };
 
@@ -28939,8 +32286,8 @@ var Fayde;
 
                     var enumerator = control.XamlNode.GetVisualTreeEnumerator();
                     var node = null;
-                    if (enumerator.MoveNext()) {
-                        node = enumerator.Current;
+                    if (enumerator.moveNext()) {
+                        node = enumerator.current;
                         if (!(node instanceof Fayde.FENode))
                             node = null;
                     }
@@ -28953,17 +32300,17 @@ var Fayde;
                     var groups = VisualStateManager.GetVisualStateGroups(root);
                     if (!groups)
                         return null;
-                    var enumerator = groups.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        if (enumerator.Current.Name === name)
-                            return enumerator.Current;
+                    var enumerator = groups.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        if (enumerator.current.Name === name)
+                            return enumerator.current;
                     }
                     return null;
                 };
                 VisualStateManager._TryGetState = function (groups, stateName, data) {
-                    var enumerator = groups.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        data.group = enumerator.Current;
+                    var enumerator = groups.getEnumerator();
+                    while (enumerator.moveNext()) {
+                        data.group = enumerator.current;
                         data.state = data.group.GetState(stateName);
                         if (data.state)
                             return true;
@@ -28985,10 +32332,10 @@ var Fayde;
                     var defaultTransition = null;
                     var bestScore = -1;
 
-                    var enumerator = group.Transitions.GetEnumerator();
+                    var enumerator = group.Transitions.getEnumerator();
                     var transition;
-                    while (enumerator.MoveNext()) {
-                        transition = enumerator.Current;
+                    while (enumerator.moveNext()) {
+                        transition = enumerator.current;
                         if (!defaultTransition && transition.IsDefault) {
                             defaultTransition = transition;
                             continue;
@@ -29189,86 +32536,6 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    (function (MVVM) {
-        function NotifyProperties(type, propNames) {
-            var len = propNames.length;
-            for (var i = 0; i < len; i++) {
-                (function () {
-                    var propName = propNames[i];
-                    var backingName = "$" + propName + "$";
-                    Object.defineProperty(type.prototype, propName, {
-                        get: function () {
-                            return this[backingName];
-                        },
-                        set: function (value) {
-                            this[backingName] = value;
-                            this.OnPropertyChanged(propName);
-                        }
-                    });
-                })();
-            }
-        }
-        MVVM.NotifyProperties = NotifyProperties;
-
-        var ObservableObject = (function () {
-            function ObservableObject() {
-                this.PropertyChanged = new MulticastEvent();
-            }
-            ObservableObject.prototype.OnPropertyChanged = function (propertyName) {
-                this.PropertyChanged.Raise(this, new Fayde.PropertyChangedEventArgs(propertyName));
-            };
-            return ObservableObject;
-        })();
-        MVVM.ObservableObject = ObservableObject;
-        Fayde.RegisterType(ObservableObject, "Fayde.MVVM", Fayde.XMLNS);
-    })(Fayde.MVVM || (Fayde.MVVM = {}));
-    var MVVM = Fayde.MVVM;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (MVVM) {
-        var RelayCommand = (function () {
-            function RelayCommand(execute, canExecute) {
-                this.CanExecuteChanged = new MulticastEvent();
-                if (execute)
-                    this.Execute = execute;
-                if (canExecute)
-                    this.CanExecute = canExecute;
-            }
-            RelayCommand.prototype.Execute = function (parameter) {
-            };
-            RelayCommand.prototype.CanExecute = function (parameter) {
-                return true;
-            };
-
-            RelayCommand.prototype.ForceCanExecuteChanged = function () {
-                this.CanExecuteChanged.Raise(this, EventArgs.Empty);
-            };
-            return RelayCommand;
-        })();
-        MVVM.RelayCommand = RelayCommand;
-        Fayde.RegisterType(RelayCommand, "Fayde.MVVM", Fayde.XMLNS);
-        Fayde.RegisterTypeInterfaces(RelayCommand, Fayde.Input.ICommand_);
-    })(Fayde.MVVM || (Fayde.MVVM = {}));
-    var MVVM = Fayde.MVVM;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (MVVM) {
-        var ViewModelBase = (function (_super) {
-            __extends(ViewModelBase, _super);
-            function ViewModelBase() {
-                _super.apply(this, arguments);
-            }
-            return ViewModelBase;
-        })(MVVM.ObservableObject);
-        MVVM.ViewModelBase = ViewModelBase;
-        Fayde.RegisterType(ViewModelBase, "Fayde.MVVM", Fayde.XMLNS);
-    })(Fayde.MVVM || (Fayde.MVVM = {}));
-    var MVVM = Fayde.MVVM;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
     (function (Navigation) {
         var NavigationService = (function () {
             function NavigationService() {
@@ -29308,10 +32575,10 @@ var Fayde;
                 UriMapper.UriMappingsProperty.Initialize(this);
             }
             UriMapper.prototype.MapUri = function (uri) {
-                var enumerator = this.UriMappings.GetEnumerator();
+                var enumerator = this.UriMappings.getEnumerator();
                 var mapped;
-                while (enumerator.MoveNext()) {
-                    mapped = enumerator.Current.MapUri(uri);
+                while (enumerator.moveNext()) {
+                    mapped = enumerator.current.MapUri(uri);
                     if (mapped)
                         return mapped;
                 }
@@ -29427,6 +32694,1300 @@ var Fayde;
     })(Fayde.Navigation || (Fayde.Navigation = {}));
     var Navigation = Fayde.Navigation;
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Arc(x, y, radius, sa, ea, cc) {
+            var inited = false;
+
+            var sx;
+            var sy;
+
+            var ex;
+            var ey;
+
+            var l;
+            var r;
+            var t;
+            var b;
+
+            var cl;
+            var cr;
+            var ct;
+            var cb;
+
+            function init() {
+                if (inited)
+                    return;
+                sx = x + (radius * Math.cos(sa));
+                sy = y + (radius * Math.sin(sa));
+                ex = x + (radius * Math.cos(ea));
+                ey = y + (radius * Math.sin(ea));
+
+                l = x - radius;
+                cl = arcContainsPoint(sx, sy, ex, ey, l, y, cc);
+
+                r = x + radius;
+                cr = arcContainsPoint(sx, sy, ex, ey, r, y, cc);
+
+                t = y - radius;
+                ct = arcContainsPoint(sx, sy, ex, ey, x, t, cc);
+
+                b = y + radius;
+                cb = arcContainsPoint(sx, sy, ex, ey, x, b, cc);
+
+                inited = true;
+            }
+
+            return {
+                sx: null,
+                sy: null,
+                isSingle: true,
+                x: x,
+                y: y,
+                ex: x,
+                ey: y,
+                radius: radius,
+                sAngle: sa,
+                eAngle: ea,
+                aClockwise: cc,
+                draw: function (ctx) {
+                    ctx.arc(x, y, radius, sa, ea, cc);
+                },
+                extendFillBox: function (box) {
+                    if (ea === sa)
+                        return;
+                    init();
+                    this.ex = ex;
+                    this.ey = ey;
+
+                    box.l = Math.min(box.l, sx, ex);
+                    box.r = Math.max(box.r, sx, ex);
+                    box.t = Math.min(box.t, sy, ey);
+                    box.b = Math.max(box.b, sy, ey);
+
+                    if (cl)
+                        box.l = Math.min(box.l, l);
+                    if (cr)
+                        box.r = Math.max(box.r, r);
+                    if (ct)
+                        box.t = Math.min(box.t, t);
+                    if (cb)
+                        box.b = Math.max(box.b, b);
+                },
+                extendStrokeBox: function (box, pars) {
+                    if (ea === sa)
+                        return;
+                    init();
+                    this.ex = ex;
+                    this.ey = ey;
+
+                    box.l = Math.min(box.l, sx, ex);
+                    box.r = Math.max(box.r, sx, ex);
+                    box.t = Math.min(box.t, sy, ey);
+                    box.b = Math.max(box.b, sy, ey);
+
+                    var hs = pars.thickness / 2.0;
+                    if (cl)
+                        box.l = Math.min(box.l, l - hs);
+                    if (cr)
+                        box.r = Math.max(box.r, r + hs);
+                    if (ct)
+                        box.t = Math.min(box.t, t - hs);
+                    if (cb)
+                        box.b = Math.max(box.b, b + hs);
+
+                    var cap = pars.startCap || pars.endCap || 0;
+                    var sv = this.getStartVector();
+                    sv[0] = -sv[0];
+                    sv[1] = -sv[1];
+                    var ss = getCapSpread(sx, sy, pars.thickness, cap, sv);
+                    var ev = this.getEndVector();
+                    var es = getCapSpread(ex, ey, pars.thickness, cap, ev);
+
+                    box.l = Math.min(box.l, ss.x1, ss.x2, es.x1, es.x2);
+                    box.r = Math.max(box.r, ss.x1, ss.x2, es.x1, es.x2);
+                    box.t = Math.min(box.t, ss.y1, ss.y2, es.y1, es.y2);
+                    box.b = Math.max(box.b, ss.y1, ss.y2, es.y1, es.y2);
+                },
+                toString: function () {
+                    return "";
+                },
+                getStartVector: function () {
+                    var rv = [
+                        sx - x,
+                        sy - y
+                    ];
+                    if (cc)
+                        return [rv[1], -rv[0]];
+                    return [-rv[1], rv[0]];
+                },
+                getEndVector: function () {
+                    var rv = [
+                        ex - x,
+                        ey - y
+                    ];
+                    if (cc)
+                        return [rv[1], -rv[0]];
+                    return [-rv[1], rv[0]];
+                }
+            };
+        }
+        Path.Arc = Arc;
+
+        function arcContainsPoint(sx, sy, ex, ey, cpx, cpy, cc) {
+            var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
+            if (n === 0)
+                return true;
+            if (n > 0 && cc)
+                return true;
+            if (n < 0 && !cc)
+                return true;
+            return false;
+        }
+
+        function getCapSpread(x, y, thickness, cap, vector) {
+            var hs = thickness / 2.0;
+            switch (cap) {
+                case 2 /* Round */:
+                    return {
+                        x1: x - hs,
+                        x2: x + hs,
+                        y1: y - hs,
+                        y2: y + hs
+                    };
+                    break;
+                case 1 /* Square */:
+                    var ed = normalizeVector(vector);
+                    var edo = perpendicularVector(ed);
+                    return {
+                        x1: x + hs * (ed[0] + edo[0]),
+                        x2: x + hs * (ed[0] - edo[0]),
+                        y1: y + hs * (ed[1] + edo[1]),
+                        y2: y + hs * (ed[1] - edo[1])
+                    };
+                    break;
+                case 0 /* Flat */:
+                default:
+                    var ed = normalizeVector(vector);
+                    var edo = perpendicularVector(ed);
+                    return {
+                        x1: x + hs * edo[0],
+                        x2: x + hs * -edo[0],
+                        y1: y + hs * edo[1],
+                        y2: y + hs * -edo[1]
+                    };
+                    break;
+            }
+        }
+        function normalizeVector(v) {
+            var len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
+            return [
+                v[0] / len,
+                v[1] / len
+            ];
+        }
+        function perpendicularVector(v) {
+            return [
+                -v[1],
+                v[0]
+            ];
+        }
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+function radToDegrees(rad) {
+    return rad * 180 / Math.PI;
+}
+
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        var EPSILON = 1e-10;
+
+        function ArcTo(cpx, cpy, x, y, radius) {
+            var line;
+            var arc;
+            var inited = false;
+            function init(prevX, prevY) {
+                if (inited)
+                    return;
+                if (line && arc)
+                    return arc;
+                var v1 = [cpx - prevX, cpy - prevY];
+                var v2 = [x - cpx, y - cpy];
+                var inner_theta = Math.PI - Vector.angleBetween(v1, v2);
+
+                var a = getTangentPoint(inner_theta, radius, [prevX, prevY], v1, true);
+                var b = getTangentPoint(inner_theta, radius, [cpx, cpy], v2, false);
+
+                var c = getPerpendicularIntersections(a, v1, b, v2);
+
+                var cc = !Vector.isClockwiseTo(v1, v2);
+
+                var sa = Math.atan2(a[1] - c[1], a[0] - c[0]);
+                if (sa < 0)
+                    sa = (2 * Math.PI) + sa;
+                var ea = Math.atan2(b[1] - c[1], b[0] - c[0]);
+                if (ea < 0)
+                    ea = (2 * Math.PI) + ea;
+
+                line = Path.Line(a[0], a[1]);
+                line.sx = prevX;
+                line.sy = prevY;
+                arc = Path.Arc(c[0], c[1], radius, sa, ea, cc);
+                inited = true;
+            }
+
+            return {
+                sx: null,
+                sy: null,
+                isSingle: false,
+                cpx: cpx,
+                cpy: cpy,
+                x: x,
+                y: y,
+                ex: x,
+                ey: y,
+                radius: radius,
+                draw: function (ctx) {
+                    ctx.arcTo(cpx, cpy, x, y, radius);
+                },
+                extendFillBox: function (box) {
+                    init(this.sx, this.sy);
+                    this.ex = arc.ex;
+                    this.ey = arc.ey;
+
+                    box.l = Math.min(box.l, this.sx);
+                    box.r = Math.max(box.r, this.sx);
+                    box.t = Math.min(box.t, this.sy);
+                    box.b = Math.max(box.b, this.sy);
+
+                    line.extendFillBox(box);
+                    arc.extendFillBox(box);
+                },
+                extendStrokeBox: function (box, pars) {
+                    init(this.sx, this.sy);
+                    this.ex = arc.ex;
+                    this.ey = arc.ey;
+
+                    var hs = pars.thickness / 2;
+                    box.l = Math.min(box.l, this.sx - hs);
+                    box.r = Math.max(box.r, this.sx + hs);
+                    box.t = Math.min(box.t, this.sy - hs);
+                    box.b = Math.max(box.b, this.sy + hs);
+
+                    line.extendStrokeBox(box, pars);
+                    arc.extendStrokeBox(box, pars);
+                },
+                toString: function () {
+                    return "";
+                },
+                getStartVector: function () {
+                    init(this.sx, this.sy);
+                    return line.getStartVector();
+                },
+                getEndVector: function () {
+                    return arc.getEndVector();
+                }
+            };
+        }
+        Path.ArcTo = ArcTo;
+
+        function getTangentPoint(theta, radius, s, d, invert) {
+            var len = Math.sqrt(d[0] * d[0] + d[1] * d[1]);
+            var f = radius / Math.tan(theta / 2);
+            var t = f / len;
+            if (invert)
+                t = 1 - t;
+            return [s[0] + t * d[0], s[1] + t * d[1]];
+        }
+        function getPerpendicularIntersections(s1, d1, s2, d2) {
+            return Vector.intersection(s1, Vector.orthogonal(d1.slice(0)), s2, Vector.orthogonal(d2.slice(0)));
+        }
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Close() {
+            return {
+                sx: null,
+                sy: null,
+                ex: null,
+                ey: null,
+                isSingle: false,
+                isClose: true,
+                draw: function (ctx) {
+                    ctx.closePath();
+                },
+                extendFillBox: function (box) {
+                },
+                extendStrokeBox: function (box, pars) {
+                },
+                toString: function () {
+                    return "Z";
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
+                }
+            };
+        }
+        Path.Close = Close;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y) {
+            return {
+                sx: null,
+                sy: null,
+                ex: x,
+                ey: y,
+                isSingle: false,
+                cp1x: cp1x,
+                cp1y: cp1y,
+                cp2x: cp2x,
+                cp2y: cp2y,
+                x: x,
+                y: y,
+                draw: function (ctx) {
+                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
+                },
+                extendFillBox: function (box) {
+                    var m = getMaxima(this.sx, cp1x, cp2x, x, this.sy, cp1y, cp2y, y);
+                    if (m.x[0] != null) {
+                        box.l = Math.min(box.l, m.x[0]);
+                        box.r = Math.max(box.r, m.x[0]);
+                    }
+                    if (m.x[1] != null) {
+                        box.l = Math.min(box.l, m.x[1]);
+                        box.r = Math.max(box.r, m.x[1]);
+                    }
+                    if (m.y[0] != null) {
+                        box.t = Math.min(box.t, m.y[0]);
+                        box.b = Math.max(box.b, m.y[0]);
+                    }
+                    if (m.y[1] != null) {
+                        box.t = Math.min(box.t, m.y[1]);
+                        box.b = Math.max(box.b, m.y[1]);
+                    }
+
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
+                },
+                extendStrokeBox: function (box, pars) {
+                    var hs = pars.thickness / 2.0;
+
+                    var m = getMaxima(this.sx, cp1x, cp2x, x, this.sy, cp1y, cp2y, y);
+                    if (m.x[0] != null) {
+                        box.l = Math.min(box.l, m.x[0] - hs);
+                        box.r = Math.max(box.r, m.x[0] + hs);
+                    }
+                    if (m.x[1] != null) {
+                        box.l = Math.min(box.l, m.x[1] - hs);
+                        box.r = Math.max(box.r, m.x[1] + hs);
+                    }
+                    if (m.y[0] != null) {
+                        box.t = Math.min(box.t, m.y[0] - hs);
+                        box.b = Math.max(box.b, m.y[0] + hs);
+                    }
+                    if (m.y[1] != null) {
+                        box.t = Math.min(box.t, m.y[1] - hs);
+                        box.b = Math.max(box.b, m.y[1] + hs);
+                    }
+
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
+                },
+                toString: function () {
+                    return "C" + cp1x.toString() + "," + cp1y.toString() + " " + cp2x.toString() + "," + cp2y.toString() + " " + x.toString() + "," + y.toString();
+                },
+                getStartVector: function () {
+                    return [
+                        3 * (cp1x - this.sx),
+                        3 * (cp1y - this.sy)
+                    ];
+                },
+                getEndVector: function () {
+                    return [
+                        3 * (x - cp2x),
+                        3 * (y - cp2y)
+                    ];
+                }
+            };
+        }
+        Path.CubicBezier = CubicBezier;
+
+        
+        function getMaxima(x1, x2, x3, x4, y1, y2, y3, y4) {
+            return {
+                x: cod(x1, x2, x3, x4),
+                y: cod(y1, y2, y3, y4)
+            };
+        }
+        function cod(a, b, c, d) {
+            var u = 2 * a - 4 * b + 2 * c;
+            var v = b - a;
+            var w = -a + 3 * b + d - 3 * c;
+            var rt = Math.sqrt(u * u - 4 * v * w);
+
+            var cods = [null, null];
+            if (isNaN(rt))
+                return cods;
+
+            var t, ot;
+
+            t = (-u + rt) / (2 * w);
+            if (t >= 0 && t <= 1) {
+                ot = 1 - t;
+                cods[0] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+            }
+
+            t = (-u - rt) / (2 * w);
+            if (t >= 0 && t <= 1) {
+                ot = 1 - t;
+                cods[1] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+            }
+
+            return cods;
+        }
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Ellipse(x, y, width, height) {
+            var radiusX = width / 2;
+            var radiusY = height / 2;
+            var right = x + width;
+            var bottom = y + height;
+            var centerX = x + radiusX;
+            var centerY = y + radiusY;
+
+            return {
+                sx: null,
+                sy: null,
+                ex: x,
+                ey: y,
+                isSingle: true,
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+                draw: function (ctx) {
+                    ctx.beginPath();
+                    if (width === height) {
+                        ctx.arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
+                        return;
+                    }
+
+                    var kappa = .5522848;
+                    var ox = radiusX * kappa;
+                    var oy = radiusY * kappa;
+
+                    ctx.moveTo(x, centerY);
+
+                    ctx.bezierCurveTo(x, centerY - oy, centerX - ox, y, centerX, y);
+
+                    ctx.bezierCurveTo(centerX + ox, y, right, centerY - oy, right, centerY);
+
+                    ctx.bezierCurveTo(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
+
+                    ctx.bezierCurveTo(centerX - ox, bottom, x, centerY + oy, x, centerY);
+                    ctx.closePath();
+                },
+                extendFillBox: function (box) {
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x + width);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y + height);
+                },
+                extendStrokeBox: function (box, pars) {
+                    var hs = pars.thickness / 2.0;
+                    box.l = Math.min(box.l, x - hs);
+                    box.r = Math.max(box.r, x + width + hs);
+                    box.t = Math.min(box.t, y - hs);
+                    box.b = Math.max(box.b, y + height + hs);
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
+                }
+            };
+        }
+        Path.Ellipse = Ellipse;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
+            return {
+                sx: null,
+                sy: null,
+                isSingle: false,
+                width: width,
+                height: height,
+                rotationAngle: rotationAngle,
+                isLargeArcFlag: isLargeArcFlag,
+                sweepDirectionFlag: sweepDirectionFlag,
+                ex: ex,
+                ey: ey,
+                draw: function (ctx) {
+                    console.warn("[NOT IMPLEMENTED] Draw Elliptical Arc");
+                },
+                extendFillBox: function (box) {
+                    console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc");
+                },
+                extendStrokeBox: function (box, pars) {
+                    console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc (with stroke)");
+                },
+                toString: function () {
+                    return "A" + width.toString() + "," + height.toString() + " " + rotationAngle.toString() + " " + isLargeArcFlag.toString() + " " + sweepDirectionFlag.toString() + " " + ex.toString() + "," + ey.toString();
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
+                }
+            };
+        }
+        Path.EllipticalArc = EllipticalArc;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Line(x, y) {
+            return {
+                isSingle: false,
+                sx: null,
+                sy: null,
+                x: x,
+                y: y,
+                ex: x,
+                ey: y,
+                draw: function (ctx) {
+                    ctx.lineTo(x, y);
+                },
+                extendFillBox: function (box) {
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
+                },
+                extendStrokeBox: function (box, pars) {
+                    this.extendFillBox(box);
+                },
+                toString: function () {
+                    return "L" + x.toString() + "," + y.toString();
+                },
+                getStartVector: function () {
+                    return [
+                        x - this.sx,
+                        y - this.sy
+                    ];
+                },
+                getEndVector: function () {
+                    return [
+                        x - this.sx,
+                        y - this.sy
+                    ];
+                }
+            };
+        }
+        Path.Line = Line;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Move(x, y) {
+            return {
+                sx: null,
+                sy: null,
+                ex: x,
+                ey: y,
+                isSingle: false,
+                isMove: true,
+                x: x,
+                y: y,
+                draw: function (ctx) {
+                    ctx.moveTo(x, y);
+                },
+                extendFillBox: function (box) {
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
+                },
+                extendStrokeBox: function (box, pars) {
+                    this.extendFillBox(box);
+                },
+                toString: function () {
+                    return "M" + x.toString() + "," + y.toString();
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
+                }
+            };
+        }
+        Path.Move = Move;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function QuadraticBezier(cpx, cpy, x, y) {
+            return {
+                sx: null,
+                sy: null,
+                ex: x,
+                ey: y,
+                isSingle: false,
+                cpx: cpx,
+                cpy: cpy,
+                x: x,
+                y: y,
+                draw: function (ctx) {
+                    ctx.quadraticCurveTo(cpx, cpy, x, y);
+                },
+                extendFillBox: function (box) {
+                    var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
+                    if (m.x != null) {
+                        box.l = Math.min(box.l, m.x);
+                        box.r = Math.max(box.r, m.x);
+                    }
+                    if (m.y != null) {
+                        box.t = Math.min(box.t, m.y);
+                        box.b = Math.max(box.b, m.y);
+                    }
+
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
+                },
+                extendStrokeBox: function (box, pars) {
+                    var hs = pars.thickness / 2.0;
+
+                    var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
+                    if (m.x) {
+                        box.l = Math.min(box.l, m.x - hs);
+                        box.r = Math.max(box.r, m.x + hs);
+                    }
+                    if (m.y) {
+                        box.t = Math.min(box.t, m.y - hs);
+                        box.b = Math.max(box.b, m.y + hs);
+                    }
+
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
+                },
+                toString: function () {
+                    return "Q" + cpx.toString() + "," + cpy.toString() + " " + x.toString() + "," + y.toString();
+                },
+                getStartVector: function () {
+                    return [
+                        2 * (cpx - this.sx),
+                        2 * (cpy - this.sy)
+                    ];
+                },
+                getEndVector: function () {
+                    return [
+                        2 * (x - cpx),
+                        2 * (y - cpy)
+                    ];
+                }
+            };
+        }
+        Path.QuadraticBezier = QuadraticBezier;
+
+        
+        function getMaxima(x1, x2, x3, y1, y2, y3) {
+            return {
+                x: cod(x1, x2, x3),
+                y: cod(y1, y2, y3)
+            };
+        }
+        function cod(a, b, c) {
+            var t = (a - b) / (a - 2 * b + c);
+            if (t < 0 || t > 1)
+                return null;
+            return (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
+        }
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        
+
+        var RawPath = (function () {
+            function RawPath() {
+                this._Path = [];
+                this._EndX = 0.0;
+                this._EndY = 0.0;
+            }
+            Object.defineProperty(RawPath.prototype, "EndX", {
+                get: function () {
+                    return this._EndX;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(RawPath.prototype, "EndY", {
+                get: function () {
+                    return this._EndY;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            RawPath.prototype.Move = function (x, y) {
+                this._Path.push(Path.Move(x, y));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Line = function (x, y) {
+                this._Path.push(Path.Line(x, y));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Rect = function (x, y, width, height) {
+                this._Path.push(Path.Rect(x, y, width, height));
+            };
+            RawPath.prototype.RoundedRectFull = function (x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
+                this._Path.push(Path.RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.RoundedRect = function (x, y, width, height, radiusX, radiusY) {
+                this._Path.push(Path.RectRounded(x, y, width, height, radiusX, radiusY));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.QuadraticBezier = function (cpx, cpy, x, y) {
+                this._Path.push(Path.QuadraticBezier(cpx, cpy, x, y));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.CubicBezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
+                this._Path.push(Path.CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Ellipse = function (x, y, width, height) {
+                this._Path.push(Path.Ellipse(x, y, width, height));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
+                this._Path.push(Path.EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey));
+            };
+            RawPath.prototype.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
+                this._Path.push(Path.Arc(x, y, r, sAngle, eAngle, aClockwise));
+            };
+            RawPath.prototype.ArcTo = function (cpx, cpy, x, y, radius) {
+                var arcto = Path.ArcTo(cpx, cpy, x, y, radius);
+                this._Path.push(arcto);
+                this._EndX = arcto.ex;
+                this._EndY = arcto.ey;
+            };
+            RawPath.prototype.Close = function () {
+                this._Path.push(Path.Close());
+            };
+
+            RawPath.prototype.Draw = function (ctx) {
+                ctx.beginPath();
+                var path = this._Path;
+                var len = path.length;
+                for (var i = 0; i < len; i++) {
+                    path[i].draw(ctx);
+                }
+            };
+            RawPath.prototype.CalculateBounds = function (pars) {
+                var box = pars && pars.thickness > 1 ? this._CalcStrokeBox(pars) : this._CalcFillBox();
+                var r = new rect();
+                rect.set(r, box.l, box.t, Math.max(0, box.r - box.l), Math.max(0, box.b - box.t));
+                return r;
+            };
+            RawPath.prototype._CalcFillBox = function () {
+                var path = this._Path;
+                var len = path.length;
+                var box = {
+                    l: Number.POSITIVE_INFINITY,
+                    r: Number.NEGATIVE_INFINITY,
+                    t: Number.POSITIVE_INFINITY,
+                    b: Number.NEGATIVE_INFINITY
+                };
+                var curx = null;
+                var cury = null;
+                var entry;
+                for (var i = 0; i < len; i++) {
+                    entry = path[i];
+                    entry.sx = curx;
+                    entry.sy = cury;
+
+                    entry.extendFillBox(box);
+
+                    curx = entry.ex || 0;
+                    cury = entry.ey || 0;
+                }
+                return box;
+            };
+            RawPath.prototype._CalcStrokeBox = function (pars) {
+                var box = {
+                    l: Number.POSITIVE_INFINITY,
+                    r: Number.NEGATIVE_INFINITY,
+                    t: Number.POSITIVE_INFINITY,
+                    b: Number.NEGATIVE_INFINITY
+                };
+                processStrokedBounds(box, this._Path, pars);
+                return box;
+            };
+
+            RawPath.Merge = function (path1, path2) {
+                path1._Path.push.apply(path1._Path, path2._Path);
+                path1._EndX += path2._EndX;
+                path1._EndY += path2._EndY;
+            };
+
+            RawPath.prototype.Serialize = function () {
+                var path = this._Path;
+                var len = path.length;
+                var s = "";
+                for (var i = 0; i < len; i++) {
+                    if (i > 0)
+                        s += " ";
+                    s += path[i].toString();
+                }
+                return s;
+            };
+            return RawPath;
+        })();
+        Path.RawPath = RawPath;
+        function expandStartCap(box, entry, pars) {
+            var v;
+            var hs = pars.thickness / 2.0;
+            var cap = pars.startCap || pars.endCap || 0;
+            switch (cap) {
+                case 2 /* Round */:
+                    box.l = Math.min(box.l, entry.sx - hs);
+                    box.r = Math.max(box.r, entry.sx + hs);
+                    box.t = Math.min(box.t, entry.sy - hs);
+                    box.b = Math.max(box.b, entry.sy + hs);
+                    break;
+                case 1 /* Square */:
+                    if (!(v = entry.getStartVector()))
+                        return;
+                    if (!v[0] || !v[1])
+                        return;
+                    var sd = Vector.reverse(Vector.normalize(v.slice(0)));
+                    var sdo = Vector.orthogonal(sd.slice(0));
+
+                    var x1 = entry.sx + hs * (sd[0] + sdo[0]);
+                    var x2 = entry.sx + hs * (sd[0] - sdo[0]);
+                    var y1 = entry.sy + hs * (sd[1] + sdo[1]);
+                    var y2 = entry.sy + hs * (sd[1] - sdo[1]);
+
+                    box.l = Math.min(box.l, x1, x2);
+                    box.r = Math.max(box.r, x1, x2);
+                    box.t = Math.min(box.t, y1, y2);
+                    box.b = Math.max(box.b, y1, y2);
+                    break;
+                case 0 /* Flat */:
+                default:
+                    if (!(v = entry.getStartVector()))
+                        return;
+                    if (!v[0] || !v[1])
+                        return;
+                    var sdo = Vector.orthogonal(Vector.normalize(v.slice(0)));
+
+                    var x1 = entry.sx + hs * sdo[0];
+                    var x2 = entry.sx + hs * -sdo[0];
+                    var y1 = entry.sy + hs * sdo[1];
+                    var y2 = entry.sy + hs * -sdo[1];
+
+                    box.l = Math.min(box.l, x1, x2);
+                    box.r = Math.max(box.r, x1, x2);
+                    box.t = Math.min(box.t, y1, y2);
+                    box.b = Math.max(box.b, y1, y2);
+                    break;
+            }
+        }
+        function expandEndCap(box, entry, pars) {
+            var ex = entry.ex;
+            var ey = entry.ey;
+
+            var v;
+            var hs = pars.thickness / 2.0;
+            var cap = pars.startCap || pars.endCap || 0;
+            switch (cap) {
+                case 2 /* Round */:
+                    box.l = Math.min(box.l, ex - hs);
+                    box.r = Math.max(box.r, ex + hs);
+                    box.t = Math.min(box.t, ey - hs);
+                    box.b = Math.max(box.b, ey + hs);
+                    break;
+                case 1 /* Square */:
+                    if (!(v = entry.getEndVector()))
+                        return;
+                    var ed = Vector.normalize(v.slice(0));
+                    var edo = Vector.orthogonal(ed.slice(0));
+
+                    var x1 = ex + hs * (ed[0] + edo[0]);
+                    var x2 = ex + hs * (ed[0] - edo[0]);
+                    var y1 = ey + hs * (ed[1] + edo[1]);
+                    var y2 = ey + hs * (ed[1] - edo[1]);
+
+                    box.l = Math.min(box.l, x1, x2);
+                    box.r = Math.max(box.r, x1, x2);
+                    box.t = Math.min(box.t, y1, y2);
+                    box.b = Math.max(box.b, y1, y2);
+                    break;
+                case 0 /* Flat */:
+                default:
+                    if (!(v = entry.getEndVector()))
+                        return;
+                    var edo = Vector.orthogonal(Vector.normalize(v.slice(0)));
+
+                    var x1 = ex + hs * edo[0];
+                    var x2 = ex + hs * -edo[0];
+                    var y1 = ey + hs * edo[1];
+                    var y2 = ey + hs * -edo[1];
+
+                    box.l = Math.min(box.l, x1, x2);
+                    box.r = Math.max(box.r, x1, x2);
+                    box.t = Math.min(box.t, y1, y2);
+                    box.b = Math.max(box.b, y1, y2);
+                    break;
+            }
+        }
+        function expandLineJoin(box, previous, entry, pars) {
+            var hs = pars.thickness / 2.0;
+            if (pars.join === 2 /* Round */) {
+                box.l = Math.min(box.l, entry.sx - hs);
+                box.r = Math.max(box.r, entry.sx + hs);
+                box.t = Math.min(box.t, entry.sy - hs);
+                box.b = Math.max(box.b, entry.sy + hs);
+            }
+            var tips = (pars.join === 0 /* Miter */) ? findMiterTips(previous, entry, hs, pars.miterLimit) : findBevelTips(previous, entry, hs);
+            if (!tips)
+                return;
+            var x1 = tips[0].x;
+            var x2 = tips[1].x;
+            var y1 = tips[0].y;
+            var y2 = tips[1].y;
+            box.l = Math.min(box.l, x1, x2);
+            box.r = Math.max(box.r, x1, x2);
+            box.t = Math.min(box.t, y1, y2);
+            box.b = Math.max(box.b, y1, y2);
+        }
+
+        function processStrokedBounds(box, entries, pars) {
+            var len = entries.length;
+            var last = null;
+            var curx = null;
+            var cury = null;
+            var sx = null;
+            var sy = null;
+
+            var isLastEntryMove = false;
+
+            function processEntry(entry, i) {
+                entry.sx = curx;
+                entry.sy = cury;
+
+                if (!entry.isSingle) {
+                    if (!entry.isMove && isLastEntryMove) {
+                        sx = entry.sx;
+                        sy = entry.sy;
+                        expandStartCap(box, entry, pars);
+                    }
+                    if (!isLastEntryMove && i > 0)
+                        expandLineJoin(box, last, entry, pars);
+                }
+
+                entry.extendStrokeBox(box, pars);
+
+                curx = entry.ex || 0;
+                cury = entry.ey || 0;
+                isLastEntryMove = !!entry.isMove;
+                last = entry;
+            }
+
+            for (var i = 0; i < len; i++) {
+                processEntry(entries[i], i);
+            }
+            var end = entries[len - 1];
+            if (end && !end.isSingle)
+                expandEndCap(box, end, pars);
+        }
+        function findMiterTips(previous, entry, hs, miterLimit) {
+            var x = entry.sx;
+            var y = entry.sy;
+
+            var av = previous.getEndVector();
+            var bv = entry.getStartVector();
+            if (!av || !bv)
+                return null;
+            Vector.reverse(av);
+            var tau = Vector.angleBetween(av, bv) / 2;
+            if (isNaN(tau))
+                return null;
+
+            var miterRatio = 1 / Math.sin(tau);
+            if (miterRatio > miterLimit)
+                return findBevelTips(previous, entry, hs);
+
+            var cv = Vector.isClockwiseTo(av, bv) ? av.slice(0) : bv.slice(0);
+            Vector.normalize(Vector.reverse(Vector.rotate(cv, tau)));
+
+            var miterLen = hs * miterRatio;
+
+            var tip = { x: x + miterLen * cv[0], y: y + miterLen * cv[1] };
+            return [
+                tip,
+                tip
+            ];
+        }
+        Path.findMiterTips = findMiterTips;
+        function findBevelTips(previous, entry, hs) {
+            var x = entry.sx;
+            var y = entry.sy;
+
+            var av = previous.getEndVector();
+            var bv = entry.getStartVector();
+            if (!av || !bv)
+                return;
+            Vector.normalize(Vector.reverse(av));
+            Vector.normalize(bv);
+            var avo, bvo;
+            if (Vector.isClockwiseTo(av, bv)) {
+                avo = Vector.orthogonal(av.slice(0));
+                bvo = Vector.reverse(Vector.orthogonal(bv.slice(0)));
+            } else {
+                avo = Vector.reverse(Vector.orthogonal(av.slice(0)));
+                bvo = Vector.orthogonal(bv.slice(0));
+            }
+
+            return [
+                { x: x - hs * avo[0], y: y - hs * avo[1] },
+                { x: x - hs * bvo[0], y: y - hs * bvo[1] }
+            ];
+        }
+        Path.findBevelTips = findBevelTips;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Rect(x, y, width, height) {
+            return {
+                sx: null,
+                sy: null,
+                isSingle: true,
+                x: x,
+                y: y,
+                ex: x,
+                ey: y,
+                width: width,
+                height: height,
+                draw: function (ctx) {
+                    ctx.rect(x, y, width, height);
+                },
+                extendFillBox: function (box) {
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x + width);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y + height);
+                },
+                extendStrokeBox: function (box, pars) {
+                    var hs = pars.thickness / 2.0;
+                    box.l = Math.min(box.l, x - hs);
+                    box.r = Math.max(box.r, x + width + hs);
+                    box.t = Math.min(box.t, y - hs);
+                    box.b = Math.max(box.b, y + height + hs);
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
+                }
+            };
+        }
+        Path.Rect = Rect;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function RectRounded(x, y, width, height, radiusX, radiusY) {
+            if (radiusX === 0.0 && radiusY === 0.0)
+                return Path.Rect(x, y, width, height);
+
+            var left = x;
+            var top = y;
+            var right = x + width;
+            var bottom = y + height;
+
+            return {
+                sx: null,
+                sy: null,
+                ex: x,
+                ey: y,
+                isSingle: true,
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+                radiusX: radiusX,
+                radiusY: radiusY,
+                draw: function (ctx) {
+                    ctx.beginPath();
+                    ctx.moveTo(left + radiusX, top);
+
+                    ctx.lineTo(right - radiusX, top);
+
+                    ctx.quadraticCurveTo(right, top, right, top + radiusY);
+
+                    ctx.lineTo(right, bottom - radiusY);
+
+                    ctx.quadraticCurveTo(right, bottom, right - radiusX, bottom);
+
+                    ctx.lineTo(left + radiusX, bottom);
+
+                    ctx.quadraticCurveTo(left, bottom, left, bottom - radiusY);
+
+                    ctx.lineTo(left, top + radiusY);
+
+                    ctx.quadraticCurveTo(left, top, left + radiusX, top);
+                    ctx.closePath();
+                },
+                extendFillBox: function (box) {
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x + width);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y + height);
+                },
+                extendStrokeBox: function (box, pars) {
+                    var hs = pars.thickness / 2.0;
+                    box.l = Math.min(box.l, x - hs);
+                    box.r = Math.max(box.r, x + width + hs);
+                    box.t = Math.min(box.t, y - hs);
+                    box.b = Math.max(box.b, y + height + hs);
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
+                }
+            };
+        }
+        Path.RectRounded = RectRounded;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
+            var left = x;
+            var top = y;
+            var right = x + width;
+            var bottom = y + height;
+
+            return {
+                sx: null,
+                sy: null,
+                ex: x,
+                ey: y,
+                isSingle: true,
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+                draw: function (ctx) {
+                    var right = left + width;
+                    var bottom = top + height;
+                    ctx.beginPath();
+                    ctx.moveTo(left + topLeft, top);
+
+                    ctx.lineTo(right - topRight, top);
+
+                    if (topRight > 0)
+                        ctx.quadraticCurveTo(right, top, right, top + topRight);
+
+                    ctx.lineTo(right, bottom - bottomRight);
+
+                    if (bottomRight > 0)
+                        ctx.quadraticCurveTo(right, bottom, right - bottomRight, bottom);
+
+                    ctx.lineTo(left + bottomLeft, bottom);
+
+                    if (bottomLeft > 0)
+                        ctx.quadraticCurveTo(left, bottom, left, bottom - bottomLeft);
+
+                    ctx.lineTo(left, top + topLeft);
+
+                    if (topLeft > 0)
+                        ctx.quadraticCurveTo(left, top, left + topLeft, top);
+                    ctx.closePath();
+                },
+                extendFillBox: function (box) {
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x + width);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y + height);
+                },
+                extendStrokeBox: function (box, pars) {
+                    var hs = pars.thickness / 2.0;
+                    box.l = Math.min(box.l, x - hs);
+                    box.r = Math.max(box.r, x + width + hs);
+                    box.t = Math.min(box.t, y - hs);
+                    box.b = Math.max(box.b, y + height + hs);
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
+                }
+            };
+        }
+        Path.RectRoundedFull = RectRoundedFull;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
 var Clip = (function () {
     function Clip(r) {
         var rounded = rect.roundOut(rect.copyTo(r));
@@ -29489,580 +34050,6 @@ Fayde.RegisterTypeConverter(CornerRadius, function (val) {
     }
     return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
 });
-var TimeSpan = (function () {
-    function TimeSpan() {
-        var args = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            args[_i] = arguments[_i + 0];
-        }
-        this._Ticks = 0;
-        if (args.length === 0)
-            return;
-        if (args.length === 1) {
-            this._Ticks = args[0] || 0;
-            return;
-        }
-        var days = 0;
-        var hours = 0;
-        var minutes = 0;
-        var seconds = 0;
-        var milliseconds = 0;
-
-        if (args.length === 3) {
-            hours = args[0] || 0;
-            minutes = args[1] || 0;
-            seconds = args[2] || 0;
-        } else {
-            days = args[0] || 0;
-            hours = args[1] || 0;
-            minutes = args[2] || 0;
-            seconds = args[3] || 0;
-            milliseconds = args[4] || 0;
-        }
-
-        this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute) + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
-    }
-    Object.defineProperty(TimeSpan, "Zero", {
-        get: function () {
-            return new TimeSpan();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan, "MinValue", {
-        get: function () {
-            return new TimeSpan(Number.MIN_VALUE);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan, "MaxValue", {
-        get: function () {
-            return new TimeSpan(Number.MAX_VALUE);
-        },
-        enumerable: true,
-        configurable: true
-    });
-
-    TimeSpan.FromDays = function (value) {
-        return new TimeSpan(value * this._TicksPerDay);
-    };
-    TimeSpan.FromHours = function (value) {
-        return new TimeSpan(value * this._TicksPerHour);
-    };
-    TimeSpan.FromMinutes = function (value) {
-        return new TimeSpan(value * this._TicksPerMinute);
-    };
-    TimeSpan.FromSeconds = function (value) {
-        return new TimeSpan(value * this._TicksPerSecond);
-    };
-    TimeSpan.FromMilliseconds = function (value) {
-        return new TimeSpan(value * this._TicksPerMillisecond);
-    };
-
-    Object.defineProperty(TimeSpan.prototype, "Days", {
-        get: function () {
-            return this._Ticks > 0 ? Math.floor(this._Ticks / TimeSpan._TicksPerDay) : Math.ceil(this._Ticks / TimeSpan._TicksPerDay);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Hours", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerHour) : Math.ceil(remTicks / TimeSpan._TicksPerHour);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Minutes", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            remTicks = remTicks % TimeSpan._TicksPerHour;
-            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMinute) : Math.ceil(remTicks / TimeSpan._TicksPerMinute);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Seconds", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            remTicks = remTicks % TimeSpan._TicksPerHour;
-            remTicks = remTicks % TimeSpan._TicksPerMinute;
-            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerSecond) : Math.ceil(remTicks / TimeSpan._TicksPerSecond);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Milliseconds", {
-        get: function () {
-            var remTicks = this._Ticks % TimeSpan._TicksPerDay;
-            remTicks = remTicks % TimeSpan._TicksPerHour;
-            remTicks = remTicks % TimeSpan._TicksPerMinute;
-            remTicks = remTicks % TimeSpan._TicksPerSecond;
-            return remTicks > 0 ? Math.floor(remTicks / TimeSpan._TicksPerMillisecond) : Math.ceil(remTicks / TimeSpan._TicksPerMillisecond);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "Ticks", {
-        get: function () {
-            return this._Ticks;
-        },
-        enumerable: true,
-        configurable: true
-    });
-
-    Object.defineProperty(TimeSpan.prototype, "TotalDays", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerDay;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalHours", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerHour;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalMinutes", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerMinute;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalSeconds", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerSecond;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeSpan.prototype, "TotalMilliseconds", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerMillisecond;
-        },
-        enumerable: true,
-        configurable: true
-    });
-
-    TimeSpan.prototype.AddTicks = function (ticks) {
-        if (ticks == null)
-            return;
-        if (isNaN(ticks))
-            return;
-        this._Ticks += ticks;
-    };
-    TimeSpan.prototype.AddMilliseconds = function (milliseconds) {
-        this.AddTicks(milliseconds * TimeSpan._TicksPerMillisecond);
-    };
-
-    TimeSpan.prototype.Add = function (ts2) {
-        var ts = new TimeSpan();
-        ts._Ticks = this._Ticks + ts2._Ticks;
-        return ts;
-    };
-    TimeSpan.prototype.Subtract = function (ts2) {
-        var ts = new TimeSpan();
-        ts._Ticks = this._Ticks - ts2._Ticks;
-        return ts;
-    };
-    TimeSpan.prototype.Multiply = function (v) {
-        var ts = new TimeSpan();
-        ts._Ticks = Math.round(this._Ticks * v);
-        return ts;
-    };
-    TimeSpan.prototype.Divide = function (ts2) {
-        var ts = new TimeSpan();
-        ts._Ticks = this._Ticks / ts2._Ticks;
-        return ts;
-    };
-    TimeSpan.prototype.CompareTo = function (ts2) {
-        if (this._Ticks === ts2._Ticks)
-            return 0;
-        return (this._Ticks > ts2._Ticks) ? 1 : -1;
-    };
-    TimeSpan.prototype.IsZero = function () {
-        return this._Ticks === 0;
-    };
-
-    TimeSpan.prototype.GetJsDelay = function () {
-        return this._Ticks * TimeSpan._TicksPerMillisecond;
-    };
-
-    TimeSpan.prototype.toString = function (format) {
-        if (!format)
-            return Fayde.Localization.FormatSingle(this, "c");
-        return Fayde.Localization.FormatSingle(this, format);
-    };
-    TimeSpan.prototype.valueOf = function () {
-        return this.Ticks;
-    };
-    TimeSpan._TicksPerMillisecond = 1;
-    TimeSpan._TicksPerSecond = 1000;
-    TimeSpan._TicksPerMinute = TimeSpan._TicksPerSecond * 60;
-    TimeSpan._TicksPerHour = TimeSpan._TicksPerMinute * 60;
-    TimeSpan._TicksPerDay = TimeSpan._TicksPerHour * 24;
-    return TimeSpan;
-})();
-Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
-
-Fayde.RegisterTypeConverter(TimeSpan, function (val) {
-    if (val instanceof TimeSpan)
-        return val;
-    if (typeof val === "number")
-        return new TimeSpan(val);
-    val = val.toString();
-
-    var tokens = val.split(":");
-    if (tokens.length === 1) {
-        var ticks = parseFloat(val);
-        if (!isNaN(ticks))
-            return new TimeSpan(ticks);
-        throw new Exception("Invalid TimeSpan format '" + val + "'.");
-    }
-
-    if (tokens.length !== 3)
-        throw new Exception("Invalid TimeSpan format '" + val + "'.");
-
-    var days = 0;
-    var hours;
-    var minutes;
-    var seconds;
-    var milliseconds = 0;
-
-    var daysplit = tokens[0].split(".");
-    if (daysplit.length === 2) {
-        days = parseInt(daysplit[0]);
-        hours = parseInt(daysplit[1]);
-    } else if (daysplit.length === 1) {
-        hours = parseInt(daysplit[0]);
-    }
-
-    minutes = parseInt(tokens[1]);
-
-    seconds = parseFloat(tokens[2]);
-    milliseconds = seconds % 1;
-    seconds = seconds - milliseconds;
-    milliseconds *= 1000.0;
-
-    return new TimeSpan(days, hours, minutes, seconds, milliseconds);
-});
-var DayOfWeek;
-(function (DayOfWeek) {
-    DayOfWeek[DayOfWeek["Sunday"] = 0] = "Sunday";
-    DayOfWeek[DayOfWeek["Monday"] = 1] = "Monday";
-    DayOfWeek[DayOfWeek["Tuesday"] = 2] = "Tuesday";
-    DayOfWeek[DayOfWeek["Wednesday"] = 3] = "Wednesday";
-    DayOfWeek[DayOfWeek["Thursday"] = 4] = "Thursday";
-    DayOfWeek[DayOfWeek["Friday"] = 5] = "Friday";
-    DayOfWeek[DayOfWeek["Saturday"] = 6] = "Saturday";
-})(DayOfWeek || (DayOfWeek = {}));
-Fayde.RegisterEnum(DayOfWeek, "DayOfWeek", Fayde.XMLNS);
-
-var DateTimeKind;
-(function (DateTimeKind) {
-    DateTimeKind[DateTimeKind["Local"] = 0] = "Local";
-    DateTimeKind[DateTimeKind["Unspecified"] = 1] = "Unspecified";
-    DateTimeKind[DateTimeKind["Utc"] = 2] = "Utc";
-})(DateTimeKind || (DateTimeKind = {}));
-Fayde.RegisterEnum(DateTimeKind, "DateTimeKind", Fayde.XMLNS);
-
-var DateTime = (function () {
-    function DateTime() {
-        var args = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            args[_i] = arguments[_i + 0];
-        }
-        this._InternalDate = null;
-        var ticks = null;
-        var kind = 1 /* Unspecified */;
-        var year = 0;
-        var month = 0;
-        var day = 0;
-        var hour = 0;
-        var minute = 0;
-        var second = 0;
-        var millisecond = 0;
-
-        if (args.length === 1) {
-            ticks = args[0];
-        } else if (args.length === 2) {
-            ticks = args[0];
-            kind = args[1];
-        } else if (args.length === 3) {
-            year = args[0];
-            month = args[1];
-            day = args[2];
-        } else if (args.length === 6) {
-            year = args[0];
-            month = args[1];
-            day = args[2];
-            hour = args[3];
-            minute = args[4];
-            second = args[5];
-        } else if (args.length === 7) {
-            year = args[0];
-            month = args[1];
-            day = args[2];
-            hour = args[3];
-            minute = args[4];
-            second = args[5];
-            millisecond = args[6];
-        } else if (args.length === 8) {
-            year = args[0];
-            month = args[1];
-            day = args[2];
-            hour = args[3];
-            minute = args[4];
-            second = args[5];
-            millisecond = args[6];
-            kind = args[7];
-        } else {
-            ticks = 0;
-        }
-
-        if (ticks != null) {
-            this._InternalDate = new Date(ticks);
-        } else {
-            var id = this._InternalDate = new Date();
-            id.setFullYear(year, month - 1, day);
-            id.setHours(hour);
-            id.setMinutes(minute);
-            id.setSeconds(second);
-            id.setMilliseconds(millisecond);
-        }
-        switch (kind) {
-            case 0:
-                this._Kind = 0 /* Local */;
-                break;
-            default:
-            case 1:
-                this._Kind = 1 /* Unspecified */;
-                break;
-            case 2:
-                this._Kind = 2 /* Utc */;
-                break;
-        }
-    }
-    Object.defineProperty(DateTime, "MinValue", {
-        get: function () {
-            return new DateTime(-8640000000000000);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime, "MaxValue", {
-        get: function () {
-            return new DateTime(8640000000000000);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime, "Now", {
-        get: function () {
-            return new DateTime(new Date().getTime());
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime, "Today", {
-        get: function () {
-            return DateTime.Now.Date;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    DateTime.Compare = function (dt1, dt2) {
-        var t1 = dt1._InternalDate.getTime();
-        var t2 = dt2._InternalDate.getTime();
-        if (t1 < t2)
-            return -1;
-        if (t1 > t2)
-            return 1;
-        return 0;
-    };
-
-    DateTime.DaysInMonth = function (year, month) {
-        var ticks = new Date(year, (month - 1) + 1, 1).getTime() - TimeSpan._TicksPerDay;
-        var dt = new DateTime(ticks);
-        return dt.Day;
-    };
-
-    Object.defineProperty(DateTime.prototype, "Ticks", {
-        get: function () {
-            return this._InternalDate.getTime();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "Kind", {
-        get: function () {
-            return this._Kind;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "Date", {
-        get: function () {
-            var t = this._InternalDate.getTime();
-            if (t <= DateTime._MinDateTicks)
-                return new DateTime(DateTime._MinDateTicks, this.Kind);
-            var d = new Date(t);
-            d.setHours(0);
-            d.setMinutes(0);
-            d.setSeconds(0);
-            d.setMilliseconds(0);
-            return new DateTime(d.getTime(), this.Kind);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "Day", {
-        get: function () {
-            return this._InternalDate.getDate();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "DayOfWeek", {
-        get: function () {
-            return this._InternalDate.getDay();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "DayOfYear", {
-        get: function () {
-            var dt = this.Date;
-            var base = new DateTime(dt.Year, 1, 1);
-            var diff = new TimeSpan(dt.Ticks - base.Ticks);
-            return Math.floor(diff.TotalDays);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "Hour", {
-        get: function () {
-            return this._InternalDate.getHours();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "Millisecond", {
-        get: function () {
-            return this._InternalDate.getMilliseconds();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "Minute", {
-        get: function () {
-            return this._InternalDate.getMinutes();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "Month", {
-        get: function () {
-            return this._InternalDate.getMonth() + 1;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "Second", {
-        get: function () {
-            return this._InternalDate.getSeconds();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "TimeOfDay", {
-        get: function () {
-            var id = this._InternalDate;
-            return new TimeSpan(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "Year", {
-        get: function () {
-            return this._InternalDate.getFullYear();
-        },
-        enumerable: true,
-        configurable: true
-    });
-
-    DateTime.prototype.Add = function (value) {
-        return new DateTime(this.Ticks + value.Ticks);
-    };
-
-    DateTime.prototype.AddYears = function (value) {
-        if (value < -10000 || value > 10000)
-            throw new ArgumentOutOfRangeException("Invalid number of years.");
-        return this.AddMonths(value * 12);
-    };
-    DateTime.prototype.AddMonths = function (value) {
-        var dte = new Date(this.Ticks);
-        var ticks = dte.setMonth(dte.getMonth() + value);
-        if (isNaN(ticks))
-            throw new ArgumentOutOfRangeException("Date out of range.");
-        return new DateTime(ticks);
-    };
-    DateTime.prototype.AddDays = function (value) {
-        return this.AddTicks(value * TimeSpan._TicksPerDay);
-    };
-    DateTime.prototype.AddHours = function (value) {
-        return this.AddTicks(value * TimeSpan._TicksPerHour);
-    };
-    DateTime.prototype.AddMinutes = function (value) {
-        return this.AddTicks(value * TimeSpan._TicksPerMinute);
-    };
-    DateTime.prototype.AddSeconds = function (value) {
-        return this.AddTicks(value * TimeSpan._TicksPerSecond);
-    };
-    DateTime.prototype.AddMilliseconds = function (value) {
-        return this.AddTicks(value * TimeSpan._TicksPerMillisecond);
-    };
-    DateTime.prototype.AddTicks = function (value) {
-        var ticks = this.Ticks + value;
-        if (DateTime._MinDateTicks > ticks || DateTime._MaxDateTicks < ticks)
-            throw new ArgumentOutOfRangeException("Date out of range.");
-        return new DateTime(ticks);
-    };
-
-    DateTime.prototype.Subtract = function (value) {
-        if (value instanceof DateTime) {
-            return new TimeSpan(this.Ticks - value.Ticks);
-        } else if (value instanceof TimeSpan) {
-            return new DateTime(this.Ticks - value.Ticks);
-        }
-        return new DateTime(this.Ticks);
-    };
-
-    DateTime.prototype.ToUniversalTime = function () {
-        if (this.Kind === 2 /* Utc */)
-            return new DateTime(this.Ticks, 2 /* Utc */);
-        var id = this._InternalDate;
-        return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), 2 /* Utc */);
-    };
-
-    DateTime.prototype.toString = function (format) {
-        if (!format)
-            return Fayde.Localization.FormatSingle(this, "s");
-        return Fayde.Localization.FormatSingle(this, format);
-    };
-    DateTime.prototype.valueOf = function () {
-        return this.Ticks;
-    };
-    DateTime._MinDateTicks = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
-    DateTime._MaxDateTicks = 8640000000000000;
-    return DateTime;
-})();
-Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
 var DurationType;
 (function (DurationType) {
     DurationType[DurationType["Automatic"] = 0] = "Automatic";
@@ -30093,7 +34080,6 @@ var Duration = (function () {
         get: function () {
             if (this._Type === 2 /* TimeSpan */)
                 return this._TimeSpan;
-            throw new InvalidOperationException("Duration does not have a TimeSpan.");
         },
         enumerable: true,
         configurable: true
@@ -30952,6 +34938,157 @@ var mat4;
     }
     mat4.scale = scale;
 })(mat4 || (mat4 = {}));
+var Thickness = (function () {
+    function Thickness(left, top, right, bottom) {
+        this.Left = left == null ? 0 : left;
+        this.Top = top == null ? 0 : top;
+        this.Right = right == null ? 0 : right;
+        this.Bottom = bottom == null ? 0 : bottom;
+    }
+    Thickness.prototype.Plus = function (thickness2) {
+        var t = new Thickness();
+        t.Left = this.Left + thickness2.Left;
+        t.Right = this.Right + thickness2.Right;
+        t.Top = this.Top + thickness2.Top;
+        t.Bottom = this.Bottom + thickness2.Bottom;
+        return t;
+    };
+    Thickness.prototype.IsEmpty = function () {
+        return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
+    };
+    Thickness.prototype.IsBalanced = function () {
+        return this.Left === this.Top && this.Left === this.Right && this.Left === this.Bottom;
+    };
+
+    Thickness.prototype.toString = function () {
+        return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
+    };
+
+    Thickness.prototype.Clone = function () {
+        return new Thickness(this.Left, this.Top, this.Right, this.Bottom);
+    };
+
+    Thickness.Equals = function (thickness1, thickness2) {
+        if (thickness1 == null && thickness2 == null)
+            return true;
+        if (thickness1 == null || thickness2 == null)
+            return false;
+        return thickness1.Left === thickness2.Left && thickness1.Top === thickness2.Top && thickness1.Right === thickness2.Right && thickness1.Bottom === thickness2.Bottom;
+    };
+    return Thickness;
+})();
+Fayde.RegisterType(Thickness, "window", Fayde.XMLNSX);
+
+Fayde.RegisterTypeConverter(Thickness, function (val) {
+    if (!val)
+        return new Thickness();
+    if (typeof val === "number")
+        return new Thickness(val, val, val, val);
+    if (val instanceof Thickness) {
+        var t = val;
+        return new Thickness(t.Left, t.Top, t.Right, t.Bottom);
+    }
+    var tokens = val.toString().split(",");
+    var left, top, right, bottom;
+    if (tokens.length === 1) {
+        left = top = right = bottom = parseFloat(tokens[0]);
+    } else if (tokens.length === 2) {
+        left = right = parseFloat(tokens[0]);
+        top = bottom = parseFloat(tokens[1]);
+    } else if (tokens.length === 4) {
+        left = parseFloat(tokens[0]);
+        top = parseFloat(tokens[1]);
+        right = parseFloat(tokens[2]);
+        bottom = parseFloat(tokens[3]);
+    } else {
+        throw new Exception("Cannot parse Thickness value '" + val + "'");
+    }
+    return new Thickness(left, top, right, bottom);
+});
+var Vector;
+(function (Vector) {
+    var EPSILON = 1e-10;
+
+    function create(x, y) {
+        return [x, y];
+    }
+    Vector.create = create;
+
+    function reverse(v) {
+        v[0] = -v[0];
+        v[1] = -v[1];
+        return v;
+    }
+    Vector.reverse = reverse;
+
+    function orthogonal(v) {
+        var x = v[0], y = v[1];
+        v[0] = -y;
+        v[1] = x;
+        return v;
+    }
+    Vector.orthogonal = orthogonal;
+
+    function normalize(v) {
+        var x = v[0], y = v[1];
+        var len = Math.sqrt(x * x + y * y);
+        v[0] = x / len;
+        v[1] = y / len;
+        return v;
+    }
+    Vector.normalize = normalize;
+
+    function rotate(v, theta) {
+        var c = Math.cos(theta);
+        var s = Math.sin(theta);
+        var x = v[0];
+        var y = v[1];
+        v[0] = x * c - y * s;
+        v[1] = x * s + y * c;
+        return v;
+    }
+    Vector.rotate = rotate;
+
+    function angleBetween(u, v) {
+        var ux = u[0], uy = u[1], vx = v[0], vy = v[1];
+        var num = ux * vx + uy * vy;
+        var den = Math.sqrt(ux * ux + uy * uy) * Math.sqrt(vx * vx + vy * vy);
+        return Math.acos(num / den);
+    }
+    Vector.angleBetween = angleBetween;
+
+    function isClockwiseTo(v1, v2) {
+        var theta = angleBetween(v1, v2);
+        var nv1 = normalize(v1.slice(0));
+        var nv2 = normalize(v2.slice(0));
+        rotate(nv1, theta);
+        var nx = Math.abs(nv1[0] - nv2[0]);
+        var ny = Math.abs(nv1[1] - nv2[1]);
+        return nx < EPSILON && ny < EPSILON;
+    }
+    Vector.isClockwiseTo = isClockwiseTo;
+
+    function intersection(s1, d1, s2, d2) {
+        var x1 = s1[0];
+        var y1 = s1[1];
+        var x2 = x1 + d1[0];
+        var y2 = y1 + d1[1];
+
+        var x3 = s2[0];
+        var y3 = s2[1];
+        var x4 = x3 + d2[0];
+        var y4 = y3 + d2[1];
+
+        var det = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+        if (det === 0)
+            return null;
+
+        var xn = ((x1 * y2 - y1 * x2) * (x3 - x4)) - ((x1 - x2) * (x3 * y4 - y3 * x4));
+        var yn = ((x1 * y2 - y1 * x2) * (y3 - y4)) - ((y1 - y2) * (x3 * y4 - y3 * x4));
+        return [xn / det, yn / det];
+    }
+    Vector.intersection = intersection;
+})(Vector || (Vector = {}));
 var RectOverlap = {
     Out: 0,
     In: 1,
@@ -31411,73 +35548,6 @@ var size = (function () {
     return size;
 })();
 Fayde.RegisterType(size, "window", Fayde.XMLNSX);
-var Thickness = (function () {
-    function Thickness(left, top, right, bottom) {
-        this.Left = left == null ? 0 : left;
-        this.Top = top == null ? 0 : top;
-        this.Right = right == null ? 0 : right;
-        this.Bottom = bottom == null ? 0 : bottom;
-    }
-    Thickness.prototype.Plus = function (thickness2) {
-        var t = new Thickness();
-        t.Left = this.Left + thickness2.Left;
-        t.Right = this.Right + thickness2.Right;
-        t.Top = this.Top + thickness2.Top;
-        t.Bottom = this.Bottom + thickness2.Bottom;
-        return t;
-    };
-    Thickness.prototype.IsEmpty = function () {
-        return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
-    };
-    Thickness.prototype.IsBalanced = function () {
-        return this.Left === this.Top && this.Left === this.Right && this.Left === this.Bottom;
-    };
-
-    Thickness.prototype.toString = function () {
-        return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
-    };
-
-    Thickness.prototype.Clone = function () {
-        return new Thickness(this.Left, this.Top, this.Right, this.Bottom);
-    };
-
-    Thickness.Equals = function (thickness1, thickness2) {
-        if (thickness1 == null && thickness2 == null)
-            return true;
-        if (thickness1 == null || thickness2 == null)
-            return false;
-        return thickness1.Left === thickness2.Left && thickness1.Top === thickness2.Top && thickness1.Right === thickness2.Right && thickness1.Bottom === thickness2.Bottom;
-    };
-    return Thickness;
-})();
-Fayde.RegisterType(Thickness, "window", Fayde.XMLNSX);
-
-Fayde.RegisterTypeConverter(Thickness, function (val) {
-    if (!val)
-        return new Thickness();
-    if (typeof val === "number")
-        return new Thickness(val, val, val, val);
-    if (val instanceof Thickness) {
-        var t = val;
-        return new Thickness(t.Left, t.Top, t.Right, t.Bottom);
-    }
-    var tokens = val.toString().split(",");
-    var left, top, right, bottom;
-    if (tokens.length === 1) {
-        left = top = right = bottom = parseFloat(tokens[0]);
-    } else if (tokens.length === 2) {
-        left = right = parseFloat(tokens[0]);
-        top = bottom = parseFloat(tokens[1]);
-    } else if (tokens.length === 4) {
-        left = parseFloat(tokens[0]);
-        top = parseFloat(tokens[1]);
-        right = parseFloat(tokens[2]);
-        bottom = parseFloat(tokens[3]);
-    } else {
-        throw new Exception("Cannot parse Thickness value '" + val + "'");
-    }
-    return new Thickness(left, top, right, bottom);
-});
 var BError = (function () {
     function BError() {
     }
@@ -31549,187 +35619,296 @@ var Enum = (function () {
     return Enum;
 })();
 Fayde.RegisterType(Enum, "Fayde");
+function defer() {
+    var resolved = false;
+    var errored = false;
+    var resolvedobj = undefined;
+    var errorobj = undefined;
+
+    var s;
+    var e;
+    var c;
+    var p = {
+        success: function (callback) {
+            s = callback;
+            if (resolved)
+                callback(resolvedobj);
+            return this;
+        },
+        error: function (callback) {
+            e = callback;
+            if (errored)
+                callback(errorobj);
+            return this;
+        }
+    };
+
+    var d = {
+        request: p,
+        resolve: function (result) {
+            resolved = true;
+            resolvedobj = result;
+            s && s(result);
+        },
+        reject: function (error) {
+            errored = true;
+            errorobj = error;
+            e && e(error);
+        }
+    };
+    return d;
+}
+function deferArraySimple(arr) {
+    var d = defer();
+
+    var os = [];
+    var errors = [];
+    for (var i = 0, len = arr.length; i < len; i++) {
+        arr[i].success(tryFinish).error(function (error) {
+            errors.push(error);
+            tryFinish(null);
+        });
+    }
+
+    function tryFinish(o) {
+        os.push(o);
+        if (os.length === arr.length) {
+            if (errors.length > 0)
+                return d.reject(errors);
+            d.resolve(os);
+        }
+    }
+
+    return d.request;
+}
+function deferArray(arr, resolver) {
+    var d = defer();
+
+    var ts = [];
+    var errors = [];
+    for (var i = 0, len = arr.length; i < len; i++) {
+        resolver(arr[i]).success(tryFinish).error(function (error) {
+            errors.push(error);
+            tryFinish(null);
+        });
+    }
+
+    function tryFinish(t) {
+        ts.push(t);
+        if (ts.length === arr.length) {
+            if (errors.length > 0)
+                return d.reject(errors);
+            d.resolve(ts);
+        }
+    }
+
+    return d.request;
+}
 var Fayde;
 (function (Fayde) {
-    var Enumerable = (function () {
-        function Enumerable() {
-            this.Current = null;
+    var Library = (function () {
+        function Library(Name) {
+            this.Name = Name;
+            this._Module = undefined;
+            this._CurrentTheme = undefined;
+            this._Themes = [];
+            this._IsLoading = false;
+            this._IsLoaded = false;
+            this._LoadError = null;
+            this._Deferrables = [];
         }
-        Enumerable.prototype.GetEnumerator = function () {
-            return this;
+        Object.defineProperty(Library.prototype, "Module", {
+            get: function () {
+                return this._Module;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        Object.defineProperty(Library.prototype, "CurrentTheme", {
+            get: function () {
+                return this._CurrentTheme;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        Library.TryGetClass = function (xmlns, xmlname) {
+            var libName;
+            if (xmlns.indexOf("lib:") === 0)
+                libName = xmlns.substr("lib:".length);
+
+            var library = Library.Get(xmlns);
+            if (!libName && (!library || !library.Module))
+                return undefined;
+
+            if (!library)
+                throw new Exception("Could not find library: '" + libName + "'.");
+            if (!library.Module)
+                throw new Exception("Could not acquire module in library: '" + libName + "'.");
+
+            var c = library.Module[xmlname];
+            if (c)
+                return c;
+
+            if (libName)
+                throw new Exception("Could not find type [" + xmlname + "] in library: '" + libName + "'.");
+        };
+        Library.Get = function (xmlns) {
+            if (xmlns.indexOf("lib:") !== 0)
+                return undefined;
+            var name = xmlns.substr("lib:".length);
+            return libraries[name] || (libraries[name] = new Library(name));
+        };
+        Library.GetThemeStyle = function (type) {
+            for (var id in libraries) {
+                var library = libraries[id];
+                if (!library.CurrentTheme)
+                    continue;
+                var style = library.CurrentTheme.GetImplicitStyle(type);
+                if (style)
+                    return style;
+            }
+            return undefined;
+        };
+        Library.ChangeTheme = function (themeName) {
+            var reqs = [];
+            var library;
+            for (var name in libraries) {
+                library = libraries[name];
+                reqs.push(library._LoadTheme({ ThemeName: themeName, Resolving: [] }));
+            }
+            return deferArraySimple(reqs);
         };
 
-        Enumerable.prototype.MoveNext = function () {
-            return false;
+        Library.prototype.Resolve = function (ctx) {
+            ctx.Resolving.push(this);
+            this._Load(ctx);
+
+            var d = defer();
+            if (this._IsLoaded) {
+                d.resolve(this);
+                return d.request;
+            }
+            if (this._LoadError) {
+                d.reject(this._LoadError);
+                return d.request;
+            }
+            this._Deferrables.push(d);
+            return d.request;
         };
 
-        Enumerable.prototype.Aggregate = function (seed, func) {
-            var cur = seed;
-            while (this.MoveNext()) {
-                cur = func(cur, this.Current);
+        Library.prototype._Load = function (ctx) {
+            var _this = this;
+            if (this._IsLoading || this._IsLoaded)
+                return;
+            this._IsLoading = true;
+
+            if (this.Name === "Fayde") {
+                this._Module = Fayde;
+                this._LoadTheme(ctx).success(function (theme) {
+                    return _this._FinishLoad(ctx);
+                }).error(function (err) {
+                    return _this._FinishLoad(ctx, err);
+                });
+                return;
             }
-            return cur;
+
+            var moduleUrl = this.GetModuleRequireUrl();
+            require([moduleUrl], function (res) {
+                _this._Module = res;
+                _this._LoadTheme(ctx).success(function (theme) {
+                    return _this._FinishLoad(ctx);
+                }).error(function (err) {
+                    return _this._FinishLoad(ctx, err);
+                });
+            }, function (error) {
+                return _this._FinishLoad(ctx, error);
+            });
         };
-        Enumerable.prototype.Where = function (filter) {
-            return new WhereEnumerable(this, filter);
-        };
-        Enumerable.prototype.Select = function (projection) {
-            return new SelectEnumerable(this, projection);
-        };
-        Enumerable.prototype.All = function (filter) {
-            while (this.MoveNext()) {
-                if (filter(this.Current) !== true)
-                    return false;
+        Library.prototype._LoadTheme = function (ctx) {
+            var _this = this;
+            var d = defer();
+            var themeUrl = this.GetThemeRequireUrl(ctx.ThemeName);
+            if (!themeUrl) {
+                this._CurrentTheme = undefined;
+                d.resolve(undefined);
+                return d.request;
             }
-            return true;
-        };
-        Enumerable.prototype.Any = function (filter) {
-            while (this.MoveNext()) {
-                if (filter(this.Current) === true)
-                    return true;
+            var theme = this._Themes[ctx.ThemeName];
+            if (theme) {
+                d.resolve(this._CurrentTheme = theme);
+                return d.request;
             }
-            return false;
+            theme = this._Themes[ctx.ThemeName] = Fayde.Theme.Get(themeUrl);
+            theme.Resolve(ctx).success(function (res) {
+                return d.resolve(_this._CurrentTheme = res);
+            }).error(d.reject);
+            return d.request;
         };
-        Enumerable.prototype.Average = function (func) {
-            var total = 0;
-            var count = 0;
-            while (this.MoveNext()) {
-                total += func(this.Current);
-                count++;
+        Library.prototype._FinishLoad = function (ctx, error) {
+            this._LoadError = error;
+            var index = ctx.Resolving.indexOf(this);
+            if (index > -1)
+                ctx.Resolving.splice(index, 1);
+
+            this._IsLoading = false;
+            this._IsLoaded = true;
+            for (var i = 0, ds = this._Deferrables, len = ds.length; i < len; i++) {
+                if (error)
+                    ds[i].reject(error);
+                else
+                    ds[i].resolve(this);
             }
-            return total / count;
         };
 
-        Enumerable.Count = function (enumerable) {
-            var count = 0;
-            if (enumerable) {
-                var enumerator = enumerable.GetEnumerator();
-                while (enumerator.MoveNext()) {
-                    count++;
-                }
-            }
-            return count;
+        Library.prototype.GetModuleRequireUrl = function () {
+            return "lib/" + this.Name + "/" + this.Name;
         };
-        Enumerable.Contains = function (enumerable, item) {
-            if (!enumerable)
-                return false;
-            var enumerator = enumerable.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                if (enumerator.Current === item)
-                    return true;
-            }
-            return false;
+        Library.prototype.GetThemeRequireUrl = function (themeName) {
+            return "lib/" + this.Name + "/Themes/" + themeName + ".theme.xml";
         };
-        Enumerable.IndexOf = function (enumerable, item) {
-            var i = 0;
-            var enumerator = enumerable.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                if (enumerator.Current === item)
-                    return i;
-                i++;
-            }
-            return -1;
-        };
-        Enumerable.FirstOrDefault = function (enumerable, filter) {
-            if (!enumerable)
-                return null;
-            var cur;
-            var enumerator = enumerable.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                cur = enumerator.Current;
-                if (!filter)
-                    return cur;
-                if (filter(cur))
-                    return cur;
-            }
-            return null;
-        };
-        Enumerable.ElementAt = function (enumerable, index) {
-            if (!enumerable)
-                return null;
-            var enumerator = enumerable.GetEnumerator();
-            for (var i = 0; i <= index; i++) {
-                if (!enumerator.MoveNext())
-                    throw new IndexOutOfRangeException(i);
-            }
-            return enumerator.Current;
-        };
-        Enumerable.ElementAtOrDefault = function (enumerable, index) {
-            if (!enumerable)
-                return null;
-            var enumerator = enumerable.GetEnumerator();
-            for (var i = 0; i <= index; i++) {
-                if (!enumerator.MoveNext())
-                    return null;
-            }
-            return enumerator.Current;
-        };
-        Enumerable.Where = function (enumerable, filter) {
-            return new WhereEnumerable(enumerable, filter);
-        };
-        Enumerable.ToArray = function (enumerable) {
-            var e = enumerable.GetEnumerator();
-            var a = [];
-            while (e.MoveNext()) {
-                a.push(e.Current);
-            }
-            return a;
-        };
-        return Enumerable;
+        return Library;
     })();
-    Fayde.Enumerable = Enumerable;
+    Fayde.Library = Library;
 
-    var WhereEnumerable = (function (_super) {
-        __extends(WhereEnumerable, _super);
-        function WhereEnumerable(e, filter) {
-            _super.call(this);
-            this._Filter = filter;
-            this._PreviousEnumerator = e.GetEnumerator();
-        }
-        WhereEnumerable.prototype.MoveNext = function () {
-            var c;
-            while (this._PreviousEnumerator.MoveNext()) {
-                c = this._PreviousEnumerator.Current;
-                if (this._Filter(c) === true) {
-                    this.Current = c;
-                    return true;
-                }
-            }
-            return false;
-        };
-        return WhereEnumerable;
-    })(Enumerable);
-
-    var SelectEnumerable = (function (_super) {
-        __extends(SelectEnumerable, _super);
-        function SelectEnumerable(e, projection) {
-            _super.call(this);
-            this._Projection = projection;
-            this._PreviousEnumerator = e.GetEnumerator();
-        }
-        SelectEnumerable.prototype.MoveNext = function () {
-            var c;
-            if (this._PreviousEnumerator.MoveNext()) {
-                c = this._PreviousEnumerator.Current;
-                this.Current = this._Projection(c);
-                return true;
-            } else {
-                this.Current = null;
-                return false;
-            }
-        };
-        return SelectEnumerable;
-    })(Enumerable);
-
-    Object.defineProperty(Array.prototype, "Aggregate", { value: Enumerable.prototype.Aggregate, enumerable: false });
-    Object.defineProperty(Array.prototype, "Where", { value: function (filter) {
-            return new WhereEnumerable(this, filter);
-        }, enumerable: false });
-    Object.defineProperty(Array.prototype, "Select", { value: Enumerable.prototype.Select, enumerable: false });
-    Object.defineProperty(Array.prototype, "All", { value: Enumerable.prototype.All, enumerable: false });
-    Object.defineProperty(Array.prototype, "Any", { value: Enumerable.prototype.Any, enumerable: false });
-    Object.defineProperty(Array.prototype, "Average", { value: Enumerable.prototype.Average, enumerable: false });
+    var libraries = [];
+    function RegisterLibrary(name, moduleUrl, themeUrlFunc) {
+        var library = libraries[name];
+        if (library)
+            throw new Exception("Library already registered: '" + name + "'.");
+        library = libraries[name] = new Library(name);
+        if (moduleUrl)
+            library.GetModuleRequireUrl = function () {
+                return moduleUrl;
+            };
+        if (themeUrlFunc)
+            library.GetThemeRequireUrl = themeUrlFunc;
+        return library;
+    }
+    Fayde.RegisterLibrary = RegisterLibrary;
 })(Fayde || (Fayde = {}));
+var NumberEx;
+(function (NumberEx) {
+    var epsilon = 1.192093E-07;
+    var adjustment = 10;
+    function AreClose(val1, val2) {
+        if (val1 === val2)
+            return true;
+        var softdiff = (Math.abs(val1) + Math.abs(val2) + adjustment) * epsilon;
+        var diff = val1 - val2;
+        return -softdiff < diff && diff < softdiff;
+    }
+    NumberEx.AreClose = AreClose;
+    function IsLessThanClose(val1, val2) {
+        return val1 > val2 || !AreClose(val1, val2);
+    }
+    NumberEx.IsLessThanClose = IsLessThanClose;
+    function IsGreaterThanClose(val1, val2) {
+        return val1 > val2 || !AreClose(val1, val2);
+    }
+    NumberEx.IsGreaterThanClose = IsGreaterThanClose;
+})(NumberEx || (NumberEx = {}));
 var PropertyInfo = (function () {
     function PropertyInfo() {
     }
@@ -32804,7 +36983,7 @@ var Fayde;
                 return this.IndexOf(value) > -1;
             };
 
-            PointCollection.prototype.GetEnumerator = function (reverse) {
+            PointCollection.prototype.getEnumerator = function (reverse) {
                 return Fayde.ArrayEx.GetEnumerator(this._ht, reverse);
             };
             return PointCollection;
@@ -32892,19 +37071,19 @@ var Fayde;
                 this.SFlags = 2 /* Normal */;
 
                 var path = new Fayde.Path.RawPath();
-                var enumerator = points.GetEnumerator();
-                enumerator.MoveNext();
-                var p = enumerator.Current;
+                var enumerator = points.getEnumerator();
+                enumerator.moveNext();
+                var p = enumerator.current;
                 if (count === 2) {
-                    enumerator.MoveNext();
-                    var p2 = enumerator.Current;
+                    enumerator.moveNext();
+                    var p2 = enumerator.current;
                     extendLine(p, p2, this.StrokeThickness);
                     path.Move(p.X, p.Y);
                     path.Line(p2.X, p2.Y);
                 } else {
                     path.Move(p.X, p.Y);
-                    while (enumerator.MoveNext()) {
-                        p = enumerator.Current;
+                    while (enumerator.moveNext()) {
+                        p = enumerator.current;
                         path.Line(p.X, p.Y);
                     }
                 }
@@ -33032,12 +37211,12 @@ var Fayde;
                 this.SFlags = 2 /* Normal */;
 
                 var path = new Fayde.Path.RawPath();
-                var enumerator = points.GetEnumerator();
-                enumerator.MoveNext();
-                var p = enumerator.Current;
+                var enumerator = points.getEnumerator();
+                enumerator.moveNext();
+                var p = enumerator.current;
                 path.Move(p.X, p.Y);
-                while (enumerator.MoveNext()) {
-                    p = enumerator.Current;
+                while (enumerator.moveNext()) {
+                    p = enumerator.current;
                     path.Line(p.X, p.Y);
                 }
                 return path;
@@ -34303,4380 +38482,6 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    (function (Controls) {
-        var HeaderedContentControl = (function (_super) {
-            __extends(HeaderedContentControl, _super);
-            function HeaderedContentControl() {
-                _super.call(this);
-                this.DefaultStyleKey = this.constructor;
-            }
-            HeaderedContentControl.prototype.OnHeaderChanged = function (oldHeader, newHeader) {
-            };
-            HeaderedContentControl.prototype.OnHeaderTemplateChanged = function (oldHeaderTemplate, newHeaderTemplate) {
-            };
-            HeaderedContentControl.HeaderProperty = DependencyProperty.Register("Header", function () {
-                return Object;
-            }, HeaderedContentControl, undefined, function (d, args) {
-                return d.OnHeaderChanged(args.OldValue, args.NewValue);
-            });
-
-            HeaderedContentControl.HeaderTemplateProperty = DependencyProperty.Register("HeaderTemplate", function () {
-                return Fayde.DataTemplate;
-            }, HeaderedContentControl, undefined, function (d, args) {
-                return d.OnHeaderTemplateChanged(args.OldValue, args.NewValue);
-            });
-            return HeaderedContentControl;
-        })(Controls.ContentControl);
-        Controls.HeaderedContentControl = HeaderedContentControl;
-        Fayde.RegisterType(HeaderedContentControl, "Fayde.Controls", Fayde.XMLNS);
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    function ExtendRenderContext(ctx) {
-        var c = ctx;
-        Ex.Transforms(c);
-        Ex.TransformEx(c);
-        Ex.LineDash(c);
-        Ex.Clear(c);
-        Ex.Fill(c);
-        Ex.Stroke(c);
-        Ex.Clip(c);
-        Ex.FillRule(c);
-        Ex.Temporary(c);
-        return c;
-    }
-    Fayde.ExtendRenderContext = ExtendRenderContext;
-
-    var Ex;
-    (function (Ex) {
-        function Transforms(ctx) {
-            var hasct = !!Object.getOwnPropertyDescriptor(ctx, "currentTransform");
-            if (hasct)
-                return true;
-            var mozct = Object.getOwnPropertyDescriptor(ctx, "mozCurrentTransform");
-            if (mozct) {
-                Object.defineProperty(ctx, "currentTransform", {
-                    get: function () {
-                        return ctx.mozCurrentTransform;
-                    },
-                    set: function (value) {
-                        ctx.mozCurrentTransform = value;
-                    }
-                });
-                return true;
-            }
-
-            var transforms = [];
-            var super_ = CanvasRenderingContext2D.prototype;
-
-            ctx.save = function () {
-                super_.save.call(ctx);
-                var ct = ctx.currentTransform;
-                transforms.push(ct);
-                ctx.currentTransform = !ct ? mat3.identity() : mat3.create(ct);
-            };
-            ctx.restore = function () {
-                var cur = transforms.pop();
-                ctx.currentTransform = cur;
-                super_.restore.call(ctx);
-            };
-
-            ctx.setTransform = function (m11, m12, m21, m22, dx, dy) {
-                ctx.currentTransform = mat3.create([m11, m12, dx, m21, m22, dy, 0, 0, 1]);
-                super_.setTransform.call(ctx, m11, m12, m21, m22, dx, dy);
-            };
-
-            ctx.resetTransform = function () {
-                ctx.currentTransform = mat3.identity();
-                if (super_.resetTransform)
-                    super_.resetTransform.call(ctx);
-            };
-            ctx.transform = function (m11, m12, m21, m22, dx, dy) {
-                var ct = ctx.currentTransform;
-                mat3.multiply(ct, mat3.create([m11, m12, dx, m21, m22, dy, 0, 0, 1]), ct);
-                super_.transform.call(ctx, m11, m12, m21, m22, dx, dy);
-                ctx.currentTransform = ct;
-            };
-            ctx.rotate = function (angle) {
-                var ct = ctx.currentTransform;
-                var r = mat3.createRotate(angle);
-                mat3.multiply(ct, r, ct);
-                super_.rotate.call(ctx, angle);
-            };
-            ctx.scale = function (x, y) {
-                var ct = ctx.currentTransform;
-                mat3.scale(ct, x, y);
-                super_.scale.call(ctx, x, y);
-            };
-            ctx.translate = function (x, y) {
-                var ct = ctx.currentTransform;
-                mat3.translate(ct, x, y);
-                super_.translate.call(ctx, x, y);
-            };
-
-            return false;
-        }
-        Ex.Transforms = Transforms;
-        function TransformEx(ctx) {
-            ctx.transformMatrix = function (mat) {
-                var ct = ctx.currentTransform;
-                mat3.multiply(ct, mat, ct);
-                ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-            };
-            ctx.transformTransform = function (transform) {
-                var v = transform.Value;
-                var mat;
-                if (!v || !(mat = v._Raw))
-                    return;
-                ctx.transformMatrix(mat);
-            };
-            ctx.pretransformMatrix = function (mat) {
-                var ct = ctx.currentTransform;
-                mat3.multiply(mat, ct, ct);
-                ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-            };
-            ctx.pretransformTransform = function (transform) {
-                var v = transform.Value;
-                var mat;
-                if (!v || !(mat = v._Raw))
-                    return;
-                ctx.pretransformMatrix(mat);
-            };
-        }
-        Ex.TransformEx = TransformEx;
-        function LineDash(ctx) {
-            if (!ctx.setLineDash)
-                ctx.setLineDash = function (segments) {
-                };
-        }
-        Ex.LineDash = LineDash;
-        function Clear(ctx) {
-            ctx.clear = function (r) {
-                ctx.clearRect(r.X, r.Y, r.Width, r.Height);
-            };
-        }
-        Ex.Clear = Clear;
-        function Fill(ctx) {
-            ctx.fillEx = function (brush, r, fillRule) {
-                brush.SetupBrush(ctx, r);
-                ctx.fillStyle = brush.ToHtml5Object();
-                if (!fillRule)
-                    return ctx.fill();
-                ctx.fillRule = ctx.msFillRule = fillRule;
-                ctx.fill(fillRule);
-            };
-            ctx.fillRectEx = function (brush, r, fillRule) {
-                brush.SetupBrush(ctx, r);
-                ctx.fillStyle = brush.ToHtml5Object();
-                ctx.beginPath();
-                ctx.rect(r.X, r.Y, r.Width, r.Height);
-                if (!fillRule)
-                    return ctx.fill();
-                ctx.fillRule = ctx.msFillRule = fillRule;
-                ctx.fill(fillRule);
-            };
-        }
-        Ex.Fill = Fill;
-        function Stroke(ctx) {
-            var caps = [
-                "butt",
-                "square",
-                "round",
-                "butt"
-            ];
-            var joins = [
-                "miter",
-                "bevel",
-                "round"
-            ];
-            ctx.setupStroke = function (pars) {
-                if (!pars)
-                    return false;
-                ctx.lineWidth = pars.thickness;
-                ctx.lineCap = caps[pars.startCap || pars.endCap || 0] || caps[0];
-                ctx.lineJoin = joins[pars.join || 0] || joins[0];
-                ctx.miterLimit = pars.miterLimit;
-                return true;
-            };
-            ctx.strokeEx = function (brush, pars, region) {
-                if (!region || !ctx.setupStroke(pars))
-                    return;
-                brush.SetupBrush(ctx, region);
-                ctx.strokeStyle = brush.ToHtml5Object();
-                ctx.stroke();
-            };
-            ctx.isPointInStroke = ctx.isPointInStroke || function (x, y) {
-                return false;
-            };
-            ctx.isPointInStrokeEx = function (pars, x, y) {
-                if (!pars)
-                    return;
-                ctx.setupStroke(pars);
-                return ctx.isPointInStroke(x, y);
-            };
-        }
-        Ex.Stroke = Stroke;
-        function Clip(ctx) {
-            ctx.clipRect = function (r) {
-                ctx.beginPath();
-                ctx.rect(r.X, r.Y, r.Width, r.Height);
-                ctx.clip();
-            };
-            ctx.clipGeometry = function (g) {
-                g.Draw(ctx);
-                ctx.clip();
-            };
-        }
-        Ex.Clip = Clip;
-        function FillRule(ctx) {
-            ctx.hasFillRule = true;
-            if (navigator.appName === "Microsoft Internet Explorer") {
-                var version = getIEVersion();
-                ctx.hasFillRule = version < 0 || version > 10;
-            }
-        }
-        Ex.FillRule = FillRule;
-        function Temporary(ctx) {
-            var tempCanvas = document.createElement("canvas");
-            var tempContext;
-            ctx.createTemporaryContext = function (width, height) {
-                if (!tempContext)
-                    tempContext = ExtendRenderContext(tempCanvas.getContext("2d"));
-                tempCanvas.width = width;
-                tempCanvas.height = height;
-                return tempContext;
-            };
-        }
-        Ex.Temporary = Temporary;
-    })(Ex || (Ex = {}));
-
-    function getIEVersion() {
-        var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-        if (re.exec(navigator.userAgent) != null)
-            return parseFloat(RegExp.$1);
-        return -1;
-    }
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var themes = [];
-    var Theme = (function () {
-        function Theme(uri) {
-            this.Resources = null;
-            this._IsLoaded = false;
-            this._LoadError = null;
-            this._Deferrables = [];
-            if (uri)
-                this.Uri = uri;
-        }
-        Object.defineProperty(Theme.prototype, "Uri", {
-            get: function () {
-                return this._Uri;
-            },
-            set: function (value) {
-                if (this._Uri)
-                    return;
-                this._Uri = value;
-                themes[value.toString()] = this;
-            },
-            enumerable: true,
-            configurable: true
-        });
-
-        Theme.Get = function (url) {
-            return themes[url] || new Theme(new Uri(url));
-        };
-
-        Theme.prototype.Resolve = function (ctx) {
-            this._Load(ctx);
-
-            var d = defer();
-            if (this._IsLoaded) {
-                d.resolve(this);
-                return d.request;
-            }
-            if (this._LoadError) {
-                d.reject(this._LoadError);
-                return d.request;
-            }
-            this._Deferrables.push(d);
-            return d.request;
-        };
-
-        Theme.prototype._Load = function (ctx) {
-            var _this = this;
-            var uri = this.Uri;
-            if (!uri)
-                return;
-            Fayde.Xaml.XamlDocument.GetAsync(uri.toString(), ctx).success(function (xd) {
-                return _this._HandleSuccess(xd);
-            }).error(function (error) {
-                return _this._HandleError(error);
-            });
-        };
-        Theme.prototype._HandleSuccess = function (xd) {
-            var rd = Fayde.Xaml.Load(xd.Document);
-            if (!(rd instanceof Fayde.ResourceDictionary))
-                return this._HandleError("Theme root must be a ResourceDictionary.");
-            Object.defineProperty(this, "Resources", { value: rd, writable: false });
-            this._IsLoaded = true;
-            for (var i = 0, ds = this._Deferrables, len = ds.length; i < len; i++) {
-                ds[i].resolve(this);
-            }
-            this._Deferrables = [];
-        };
-        Theme.prototype._HandleError = function (error) {
-            this._LoadError = error;
-            this._IsLoaded = true;
-            for (var i = 0, ds = this._Deferrables, len = ds.length; i < len; i++) {
-                ds[i].reject(error);
-            }
-            this._Deferrables = [];
-        };
-
-        Theme.prototype.GetImplicitStyle = function (type) {
-            var rd = this.Resources;
-            if (!rd)
-                return;
-            var style = rd.Get(type);
-            if (style instanceof Fayde.Style)
-                return style;
-            return undefined;
-        };
-        return Theme;
-    })();
-    Fayde.Theme = Theme;
-    Fayde.RegisterType(Theme, "Fayde", Fayde.XMLNS);
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Arc(x, y, radius, sa, ea, cc) {
-            var inited = false;
-
-            var sx;
-            var sy;
-
-            var ex;
-            var ey;
-
-            var l;
-            var r;
-            var t;
-            var b;
-
-            var cl;
-            var cr;
-            var ct;
-            var cb;
-
-            function init() {
-                if (inited)
-                    return;
-                sx = x + (radius * Math.cos(sa));
-                sy = y + (radius * Math.sin(sa));
-                ex = x + (radius * Math.cos(ea));
-                ey = y + (radius * Math.sin(ea));
-
-                l = x - radius;
-                cl = arcContainsPoint(sx, sy, ex, ey, l, y, cc);
-
-                r = x + radius;
-                cr = arcContainsPoint(sx, sy, ex, ey, r, y, cc);
-
-                t = y - radius;
-                ct = arcContainsPoint(sx, sy, ex, ey, x, t, cc);
-
-                b = y + radius;
-                cb = arcContainsPoint(sx, sy, ex, ey, x, b, cc);
-
-                inited = true;
-            }
-
-            return {
-                sx: null,
-                sy: null,
-                isSingle: true,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                radius: radius,
-                sAngle: sa,
-                eAngle: ea,
-                aClockwise: cc,
-                draw: function (ctx) {
-                    ctx.arc(x, y, radius, sa, ea, cc);
-                },
-                extendFillBox: function (box) {
-                    if (ea === sa)
-                        return;
-                    init();
-                    this.ex = ex;
-                    this.ey = ey;
-
-                    box.l = Math.min(box.l, sx, ex);
-                    box.r = Math.max(box.r, sx, ex);
-                    box.t = Math.min(box.t, sy, ey);
-                    box.b = Math.max(box.b, sy, ey);
-
-                    if (cl)
-                        box.l = Math.min(box.l, l);
-                    if (cr)
-                        box.r = Math.max(box.r, r);
-                    if (ct)
-                        box.t = Math.min(box.t, t);
-                    if (cb)
-                        box.b = Math.max(box.b, b);
-                },
-                extendStrokeBox: function (box, pars) {
-                    if (ea === sa)
-                        return;
-                    init();
-                    this.ex = ex;
-                    this.ey = ey;
-
-                    box.l = Math.min(box.l, sx, ex);
-                    box.r = Math.max(box.r, sx, ex);
-                    box.t = Math.min(box.t, sy, ey);
-                    box.b = Math.max(box.b, sy, ey);
-
-                    var hs = pars.thickness / 2.0;
-                    if (cl)
-                        box.l = Math.min(box.l, l - hs);
-                    if (cr)
-                        box.r = Math.max(box.r, r + hs);
-                    if (ct)
-                        box.t = Math.min(box.t, t - hs);
-                    if (cb)
-                        box.b = Math.max(box.b, b + hs);
-
-                    var cap = pars.startCap || pars.endCap || 0;
-                    var sv = this.getStartVector();
-                    sv[0] = -sv[0];
-                    sv[1] = -sv[1];
-                    var ss = getCapSpread(sx, sy, pars.thickness, cap, sv);
-                    var ev = this.getEndVector();
-                    var es = getCapSpread(ex, ey, pars.thickness, cap, ev);
-
-                    box.l = Math.min(box.l, ss.x1, ss.x2, es.x1, es.x2);
-                    box.r = Math.max(box.r, ss.x1, ss.x2, es.x1, es.x2);
-                    box.t = Math.min(box.t, ss.y1, ss.y2, es.y1, es.y2);
-                    box.b = Math.max(box.b, ss.y1, ss.y2, es.y1, es.y2);
-                },
-                toString: function () {
-                    return "";
-                },
-                getStartVector: function () {
-                    var rv = [
-                        sx - x,
-                        sy - y
-                    ];
-                    if (cc)
-                        return [rv[1], -rv[0]];
-                    return [-rv[1], rv[0]];
-                },
-                getEndVector: function () {
-                    var rv = [
-                        ex - x,
-                        ey - y
-                    ];
-                    if (cc)
-                        return [rv[1], -rv[0]];
-                    return [-rv[1], rv[0]];
-                }
-            };
-        }
-        Path.Arc = Arc;
-
-        function arcContainsPoint(sx, sy, ex, ey, cpx, cpy, cc) {
-            var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
-            if (n === 0)
-                return true;
-            if (n > 0 && cc)
-                return true;
-            if (n < 0 && !cc)
-                return true;
-            return false;
-        }
-
-        function getCapSpread(x, y, thickness, cap, vector) {
-            var hs = thickness / 2.0;
-            switch (cap) {
-                case 2 /* Round */:
-                    return {
-                        x1: x - hs,
-                        x2: x + hs,
-                        y1: y - hs,
-                        y2: y + hs
-                    };
-                    break;
-                case 1 /* Square */:
-                    var ed = normalizeVector(vector);
-                    var edo = perpendicularVector(ed);
-                    return {
-                        x1: x + hs * (ed[0] + edo[0]),
-                        x2: x + hs * (ed[0] - edo[0]),
-                        y1: y + hs * (ed[1] + edo[1]),
-                        y2: y + hs * (ed[1] - edo[1])
-                    };
-                    break;
-                case 0 /* Flat */:
-                default:
-                    var ed = normalizeVector(vector);
-                    var edo = perpendicularVector(ed);
-                    return {
-                        x1: x + hs * edo[0],
-                        x2: x + hs * -edo[0],
-                        y1: y + hs * edo[1],
-                        y2: y + hs * -edo[1]
-                    };
-                    break;
-            }
-        }
-        function normalizeVector(v) {
-            var len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
-            return [
-                v[0] / len,
-                v[1] / len
-            ];
-        }
-        function perpendicularVector(v) {
-            return [
-                -v[1],
-                v[0]
-            ];
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-function radToDegrees(rad) {
-    return rad * 180 / Math.PI;
-}
-
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        var EPSILON = 1e-10;
-
-        function ArcTo(cpx, cpy, x, y, radius) {
-            var line;
-            var arc;
-            var inited = false;
-            function init(prevX, prevY) {
-                if (inited)
-                    return;
-                if (line && arc)
-                    return arc;
-                var v1 = [cpx - prevX, cpy - prevY];
-                var v2 = [x - cpx, y - cpy];
-                var inner_theta = Math.PI - Vector.angleBetween(v1, v2);
-
-                var a = getTangentPoint(inner_theta, radius, [prevX, prevY], v1, true);
-                var b = getTangentPoint(inner_theta, radius, [cpx, cpy], v2, false);
-
-                var c = getPerpendicularIntersections(a, v1, b, v2);
-
-                var cc = !Vector.isClockwiseTo(v1, v2);
-
-                var sa = Math.atan2(a[1] - c[1], a[0] - c[0]);
-                if (sa < 0)
-                    sa = (2 * Math.PI) + sa;
-                var ea = Math.atan2(b[1] - c[1], b[0] - c[0]);
-                if (ea < 0)
-                    ea = (2 * Math.PI) + ea;
-
-                line = Path.Line(a[0], a[1]);
-                line.sx = prevX;
-                line.sy = prevY;
-                arc = Path.Arc(c[0], c[1], radius, sa, ea, cc);
-                inited = true;
-            }
-
-            return {
-                sx: null,
-                sy: null,
-                isSingle: false,
-                cpx: cpx,
-                cpy: cpy,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                radius: radius,
-                draw: function (ctx) {
-                    ctx.arcTo(cpx, cpy, x, y, radius);
-                },
-                extendFillBox: function (box) {
-                    init(this.sx, this.sy);
-                    this.ex = arc.ex;
-                    this.ey = arc.ey;
-
-                    box.l = Math.min(box.l, this.sx);
-                    box.r = Math.max(box.r, this.sx);
-                    box.t = Math.min(box.t, this.sy);
-                    box.b = Math.max(box.b, this.sy);
-
-                    line.extendFillBox(box);
-                    arc.extendFillBox(box);
-                },
-                extendStrokeBox: function (box, pars) {
-                    init(this.sx, this.sy);
-                    this.ex = arc.ex;
-                    this.ey = arc.ey;
-
-                    var hs = pars.thickness / 2;
-                    box.l = Math.min(box.l, this.sx - hs);
-                    box.r = Math.max(box.r, this.sx + hs);
-                    box.t = Math.min(box.t, this.sy - hs);
-                    box.b = Math.max(box.b, this.sy + hs);
-
-                    line.extendStrokeBox(box, pars);
-                    arc.extendStrokeBox(box, pars);
-                },
-                toString: function () {
-                    return "";
-                },
-                getStartVector: function () {
-                    init(this.sx, this.sy);
-                    return line.getStartVector();
-                },
-                getEndVector: function () {
-                    return arc.getEndVector();
-                }
-            };
-        }
-        Path.ArcTo = ArcTo;
-
-        function getTangentPoint(theta, radius, s, d, invert) {
-            var len = Math.sqrt(d[0] * d[0] + d[1] * d[1]);
-            var f = radius / Math.tan(theta / 2);
-            var t = f / len;
-            if (invert)
-                t = 1 - t;
-            return [s[0] + t * d[0], s[1] + t * d[1]];
-        }
-        function getPerpendicularIntersections(s1, d1, s2, d2) {
-            return Vector.intersection(s1, Vector.orthogonal(d1.slice(0)), s2, Vector.orthogonal(d2.slice(0)));
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Close() {
-            return {
-                sx: null,
-                sy: null,
-                ex: null,
-                ey: null,
-                isSingle: false,
-                isClose: true,
-                draw: function (ctx) {
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                },
-                extendStrokeBox: function (box, pars) {
-                },
-                toString: function () {
-                    return "Z";
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.Close = Close;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y) {
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: false,
-                cp1x: cp1x,
-                cp1y: cp1y,
-                cp2x: cp2x,
-                cp2y: cp2y,
-                x: x,
-                y: y,
-                draw: function (ctx) {
-                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
-                },
-                extendFillBox: function (box) {
-                    var m = getMaxima(this.sx, cp1x, cp2x, x, this.sy, cp1y, cp2y, y);
-                    if (m.x[0] != null) {
-                        box.l = Math.min(box.l, m.x[0]);
-                        box.r = Math.max(box.r, m.x[0]);
-                    }
-                    if (m.x[1] != null) {
-                        box.l = Math.min(box.l, m.x[1]);
-                        box.r = Math.max(box.r, m.x[1]);
-                    }
-                    if (m.y[0] != null) {
-                        box.t = Math.min(box.t, m.y[0]);
-                        box.b = Math.max(box.b, m.y[0]);
-                    }
-                    if (m.y[1] != null) {
-                        box.t = Math.min(box.t, m.y[1]);
-                        box.b = Math.max(box.b, m.y[1]);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-
-                    var m = getMaxima(this.sx, cp1x, cp2x, x, this.sy, cp1y, cp2y, y);
-                    if (m.x[0] != null) {
-                        box.l = Math.min(box.l, m.x[0] - hs);
-                        box.r = Math.max(box.r, m.x[0] + hs);
-                    }
-                    if (m.x[1] != null) {
-                        box.l = Math.min(box.l, m.x[1] - hs);
-                        box.r = Math.max(box.r, m.x[1] + hs);
-                    }
-                    if (m.y[0] != null) {
-                        box.t = Math.min(box.t, m.y[0] - hs);
-                        box.b = Math.max(box.b, m.y[0] + hs);
-                    }
-                    if (m.y[1] != null) {
-                        box.t = Math.min(box.t, m.y[1] - hs);
-                        box.b = Math.max(box.b, m.y[1] + hs);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                toString: function () {
-                    return "C" + cp1x.toString() + "," + cp1y.toString() + " " + cp2x.toString() + "," + cp2y.toString() + " " + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    return [
-                        3 * (cp1x - this.sx),
-                        3 * (cp1y - this.sy)
-                    ];
-                },
-                getEndVector: function () {
-                    return [
-                        3 * (x - cp2x),
-                        3 * (y - cp2y)
-                    ];
-                }
-            };
-        }
-        Path.CubicBezier = CubicBezier;
-
-        
-        function getMaxima(x1, x2, x3, x4, y1, y2, y3, y4) {
-            return {
-                x: cod(x1, x2, x3, x4),
-                y: cod(y1, y2, y3, y4)
-            };
-        }
-        function cod(a, b, c, d) {
-            var u = 2 * a - 4 * b + 2 * c;
-            var v = b - a;
-            var w = -a + 3 * b + d - 3 * c;
-            var rt = Math.sqrt(u * u - 4 * v * w);
-
-            var cods = [null, null];
-            if (isNaN(rt))
-                return cods;
-
-            var t, ot;
-
-            t = (-u + rt) / (2 * w);
-            if (t >= 0 && t <= 1) {
-                ot = 1 - t;
-                cods[0] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-            }
-
-            t = (-u - rt) / (2 * w);
-            if (t >= 0 && t <= 1) {
-                ot = 1 - t;
-                cods[1] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-            }
-
-            return cods;
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
-            return {
-                sx: null,
-                sy: null,
-                isSingle: false,
-                width: width,
-                height: height,
-                rotationAngle: rotationAngle,
-                isLargeArcFlag: isLargeArcFlag,
-                sweepDirectionFlag: sweepDirectionFlag,
-                ex: ex,
-                ey: ey,
-                draw: function (ctx) {
-                    console.warn("[NOT IMPLEMENTED] Draw Elliptical Arc");
-                },
-                extendFillBox: function (box) {
-                    console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc");
-                },
-                extendStrokeBox: function (box, pars) {
-                    console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc (with stroke)");
-                },
-                toString: function () {
-                    return "A" + width.toString() + "," + height.toString() + " " + rotationAngle.toString() + " " + isLargeArcFlag.toString() + " " + sweepDirectionFlag.toString() + " " + ex.toString() + "," + ey.toString();
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.EllipticalArc = EllipticalArc;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Line(x, y) {
-            return {
-                isSingle: false,
-                sx: null,
-                sy: null,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                draw: function (ctx) {
-                    ctx.lineTo(x, y);
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    this.extendFillBox(box);
-                },
-                toString: function () {
-                    return "L" + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    return [
-                        x - this.sx,
-                        y - this.sy
-                    ];
-                },
-                getEndVector: function () {
-                    return [
-                        x - this.sx,
-                        y - this.sy
-                    ];
-                }
-            };
-        }
-        Path.Line = Line;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Move(x, y) {
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: false,
-                isMove: true,
-                x: x,
-                y: y,
-                draw: function (ctx) {
-                    ctx.moveTo(x, y);
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    this.extendFillBox(box);
-                },
-                toString: function () {
-                    return "M" + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.Move = Move;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function QuadraticBezier(cpx, cpy, x, y) {
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: false,
-                cpx: cpx,
-                cpy: cpy,
-                x: x,
-                y: y,
-                draw: function (ctx) {
-                    ctx.quadraticCurveTo(cpx, cpy, x, y);
-                },
-                extendFillBox: function (box) {
-                    var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
-                    if (m.x != null) {
-                        box.l = Math.min(box.l, m.x);
-                        box.r = Math.max(box.r, m.x);
-                    }
-                    if (m.y != null) {
-                        box.t = Math.min(box.t, m.y);
-                        box.b = Math.max(box.b, m.y);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-
-                    var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
-                    if (m.x) {
-                        box.l = Math.min(box.l, m.x - hs);
-                        box.r = Math.max(box.r, m.x + hs);
-                    }
-                    if (m.y) {
-                        box.t = Math.min(box.t, m.y - hs);
-                        box.b = Math.max(box.b, m.y + hs);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                toString: function () {
-                    return "Q" + cpx.toString() + "," + cpy.toString() + " " + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    return [
-                        2 * (cpx - this.sx),
-                        2 * (cpy - this.sy)
-                    ];
-                },
-                getEndVector: function () {
-                    return [
-                        2 * (x - cpx),
-                        2 * (y - cpy)
-                    ];
-                }
-            };
-        }
-        Path.QuadraticBezier = QuadraticBezier;
-
-        
-        function getMaxima(x1, x2, x3, y1, y2, y3) {
-            return {
-                x: cod(x1, x2, x3),
-                y: cod(y1, y2, y3)
-            };
-        }
-        function cod(a, b, c) {
-            var t = (a - b) / (a - 2 * b + c);
-            if (t < 0 || t > 1)
-                return null;
-            return (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Input) {
-        (function (TouchInputType) {
-            TouchInputType[TouchInputType["NoOp"] = 0] = "NoOp";
-            TouchInputType[TouchInputType["TouchDown"] = 1] = "TouchDown";
-            TouchInputType[TouchInputType["TouchUp"] = 2] = "TouchUp";
-            TouchInputType[TouchInputType["TouchMove"] = 3] = "TouchMove";
-            TouchInputType[TouchInputType["TouchEnter"] = 4] = "TouchEnter";
-            TouchInputType[TouchInputType["TouchLeave"] = 5] = "TouchLeave";
-        })(Input.TouchInputType || (Input.TouchInputType = {}));
-        var TouchInputType = Input.TouchInputType;
-
-        function CreateTouchInterop() {
-            if (navigator.msPointerEnabled || navigator.pointerEnabled)
-                return new Input.TouchInternal.PointerTouchInterop();
-            if ("ontouchstart" in window)
-                return new Input.TouchInternal.NonPointerTouchInterop();
-            return new DummyTouchInterop();
-        }
-        Input.CreateTouchInterop = CreateTouchInterop;
-
-        var DummyTouchInterop = (function () {
-            function DummyTouchInterop() {
-            }
-            DummyTouchInterop.prototype.Register = function (input, canvas) {
-            };
-            return DummyTouchInterop;
-        })();
-    })(Fayde.Input || (Fayde.Input = {}));
-    var Input = Fayde.Input;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Input) {
-        var TouchEventArgs = (function (_super) {
-            __extends(TouchEventArgs, _super);
-            function TouchEventArgs(device) {
-                _super.call(this);
-                this.Device = device;
-            }
-            TouchEventArgs.prototype.GetTouchPoint = function (relativeTo) {
-                return this.Device.GetTouchPoint(relativeTo);
-            };
-            return TouchEventArgs;
-        })(Fayde.RoutedEventArgs);
-        Input.TouchEventArgs = TouchEventArgs;
-        Fayde.RegisterType(TouchEventArgs, "Fayde.Input", Fayde.XMLNS);
-    })(Fayde.Input || (Fayde.Input = {}));
-    var Input = Fayde.Input;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Input) {
-        var TouchPoint = (function () {
-            function TouchPoint(position, force) {
-                Object.defineProperty(this, "Position", { value: position, writable: false });
-
-                Object.defineProperty(this, "Force", { value: force, writable: false });
-            }
-            return TouchPoint;
-        })();
-        Input.TouchPoint = TouchPoint;
-        Fayde.RegisterType(TouchPoint, "Fayde.Input", Fayde.XMLNS);
-    })(Fayde.Input || (Fayde.Input = {}));
-    var Input = Fayde.Input;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Input) {
-        (function (TouchInternal) {
-            var ActiveTouchBase = (function () {
-                function ActiveTouchBase(touchHandler) {
-                    var _this = this;
-                    this.InputList = [];
-                    this._IsEmitting = false;
-                    this._PendingCapture = null;
-                    this._PendingReleaseCapture = false;
-                    this._Captured = null;
-                    this._CapturedInputList = null;
-                    Object.defineProperty(this, "Device", { value: this.CreateTouchDevice(), writable: false });
-                    this._FinishReleaseCaptureFunc = function () {
-                        return touchHandler.HandleTouches(0 /* NoOp */, [_this], false, true);
-                    };
-                }
-                ActiveTouchBase.prototype.Capture = function (uie) {
-                    var uin = uie.XamlNode;
-                    if (this._Captured === uin || this._PendingCapture === uin)
-                        return true;
-                    if (!this._IsEmitting)
-                        return false;
-                    this._PendingCapture = uin;
-                    return true;
-                };
-                ActiveTouchBase.prototype.ReleaseCapture = function (uie) {
-                    var uin = uie.XamlNode;
-                    if (this._Captured !== uin && this._PendingCapture !== uin)
-                        return;
-                    if (this._IsEmitting)
-                        this._PendingReleaseCapture = true;
-                    else
-                        this._PerformReleaseCapture();
-                };
-                ActiveTouchBase.prototype._PerformCapture = function (uin) {
-                    this._Captured = uin;
-                    var newInputList = [];
-                    while (uin != null) {
-                        newInputList.push(uin);
-                        uin = uin.VisualParentNode;
-                    }
-                    this._CapturedInputList = newInputList;
-                    this._PendingCapture = null;
-                };
-                ActiveTouchBase.prototype._PerformReleaseCapture = function () {
-                    var oldCaptured = this._Captured;
-                    this._PendingReleaseCapture = false;
-                    oldCaptured._EmitLostTouchCapture(new Input.TouchEventArgs(this.Device));
-                    this._FinishReleaseCaptureFunc();
-                };
-
-                ActiveTouchBase.prototype.Emit = function (type, newInputList, emitLeave, emitEnter) {
-                    if (this._IsEmitting)
-                        return;
-                    this._IsEmitting = true;
-                    var handled = false;
-
-                    var indices = { Index1: -1, Index2: -1 };
-                    findFirstCommonElement(this.InputList, newInputList, indices);
-                    if (emitLeave !== false)
-                        this._EmitList(5 /* TouchLeave */, this.InputList, indices.Index1);
-                    if (emitEnter !== false)
-                        this._EmitList(4 /* TouchEnter */, newInputList, indices.Index2);
-
-                    var handled = false;
-                    if (type !== 0 /* NoOp */)
-                        handled = this._EmitList(type, this._Captured ? this._CapturedInputList : newInputList);
-                    this.InputList = newInputList;
-
-                    if (this._PendingCapture)
-                        this._PerformCapture(this._PendingCapture);
-                    if (this._PendingReleaseCapture)
-                        this._PerformReleaseCapture();
-
-                    this._IsEmitting = false;
-                    return handled;
-                };
-                ActiveTouchBase.prototype._EmitList = function (type, list, endIndex) {
-                    var handled = false;
-                    if (endIndex === 0)
-                        return handled;
-                    if (!endIndex || endIndex === -1)
-                        endIndex = list.length;
-                    var args = new Input.TouchEventArgs(this.Device);
-                    var node = list[0];
-                    if (node && args instanceof Fayde.RoutedEventArgs)
-                        args.Source = node.XObject;
-                    for (var i = 0; i < endIndex; i++) {
-                        node = list[i];
-                        if (type === 5 /* TouchLeave */)
-                            args.Source = node.XObject;
-                        if (node._EmitTouchEvent(type, args))
-                            handled = true;
-                        if (type === 5 /* TouchLeave */)
-                            args = new Input.TouchEventArgs(this.Device);
-                    }
-                    return handled;
-                };
-
-                ActiveTouchBase.prototype.GetTouchPoint = function (relativeTo) {
-                    if (!relativeTo)
-                        return this.CreateTouchPoint(this.Position.Clone());
-                    if (!(relativeTo instanceof Fayde.UIElement))
-                        throw new ArgumentException("Specified relative object must be a UIElement.");
-
-                    var p = this.Position.Clone();
-                    relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
-                    return this.CreateTouchPoint(p);
-                };
-                ActiveTouchBase.prototype.CreateTouchPoint = function (p) {
-                    return new Input.TouchPoint(p, 0);
-                };
-
-                ActiveTouchBase.prototype.CreateTouchDevice = function () {
-                    var _this = this;
-                    var d = {
-                        Identifier: null,
-                        Captured: null,
-                        Capture: function (uie) {
-                            return _this.Capture(uie);
-                        },
-                        ReleaseCapture: function (uie) {
-                            return _this.ReleaseCapture(uie);
-                        },
-                        GetTouchPoint: function (relativeTo) {
-                            return _this.GetTouchPoint(relativeTo);
-                        }
-                    };
-                    Object.defineProperty(d, "Identifier", { get: function () {
-                            return _this.Identifier;
-                        } });
-                    Object.defineProperty(d, "Captured", { get: function () {
-                            return _this._Captured;
-                        } });
-                    return d;
-                };
-                return ActiveTouchBase;
-            })();
-            TouchInternal.ActiveTouchBase = ActiveTouchBase;
-
-            function findFirstCommonElement(list1, list2, outObj) {
-                var i = list1.length - 1;
-                var j = list2.length - 1;
-                outObj.Index1 = -1;
-                outObj.Index2 = -1;
-                while (i >= 0 && j >= 0) {
-                    if (list1[i] !== list2[j])
-                        return;
-                    outObj.Index1 = i--;
-                    outObj.Index2 = j--;
-                }
-            }
-        })(Input.TouchInternal || (Input.TouchInternal = {}));
-        var TouchInternal = Input.TouchInternal;
-    })(Fayde.Input || (Fayde.Input = {}));
-    var Input = Fayde.Input;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Input) {
-        (function (TouchInternal) {
-            var TouchInteropBase = (function () {
-                function TouchInteropBase() {
-                    this.CanvasOffset = null;
-                    this.ActiveTouches = [];
-                }
-                Object.defineProperty(TouchInteropBase.prototype, "CoordinateOffset", {
-                    get: function () {
-                        return {
-                            left: window.pageXOffset + this.CanvasOffset.left,
-                            top: window.pageYOffset + this.CanvasOffset.top
-                        };
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-
-                TouchInteropBase.prototype.Register = function (input, canvas) {
-                    this.Input = input;
-                    this.CanvasOffset = this._CalcOffset(canvas);
-                };
-                TouchInteropBase.prototype._CalcOffset = function (canvas) {
-                    var left = 0;
-                    var top = 0;
-                    var cur = canvas;
-                    if (cur.offsetParent) {
-                        do {
-                            left += cur.offsetLeft;
-                            top += cur.offsetTop;
-                        } while(cur = cur.offsetParent);
-                    }
-                    return { left: left, top: top };
-                };
-
-                TouchInteropBase.prototype.HandleTouches = function (type, touches, emitLeave, emitEnter) {
-                    var touch;
-                    var handled = false;
-                    while (touch = touches.shift()) {
-                        var inputList = this.Input.HitTestPoint(touch.Position);
-                        if (inputList)
-                            handled = handled || touch.Emit(type, inputList, emitLeave, emitEnter);
-                    }
-                    return handled;
-                };
-                return TouchInteropBase;
-            })();
-            TouchInternal.TouchInteropBase = TouchInteropBase;
-        })(Input.TouchInternal || (Input.TouchInternal = {}));
-        var TouchInternal = Input.TouchInternal;
-    })(Fayde.Input || (Fayde.Input = {}));
-    var Input = Fayde.Input;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Input) {
-        (function (TouchInternal) {
-            var PointerActiveTouch = (function (_super) {
-                __extends(PointerActiveTouch, _super);
-                function PointerActiveTouch() {
-                    _super.apply(this, arguments);
-                }
-                PointerActiveTouch.prototype.Init = function (t, offset) {
-                    this.TouchObject = t;
-                    this.Identifier = t.pointerId;
-                    this.Position = new Point(t.clientX + offset.left, t.clientY + offset.top);
-                };
-                PointerActiveTouch.prototype.CreateTouchPoint = function (p) {
-                    var to = this.TouchObject;
-                    return new Input.TouchPoint(p, to.pressure);
-                };
-                return PointerActiveTouch;
-            })(TouchInternal.ActiveTouchBase);
-
-            var PointerTouchInterop = (function (_super) {
-                __extends(PointerTouchInterop, _super);
-                function PointerTouchInterop() {
-                    _super.apply(this, arguments);
-                }
-                PointerTouchInterop.prototype.Register = function (input, canvas) {
-                    var _this = this;
-                    _super.prototype.Register.call(this, input, canvas);
-                    canvas.style.msTouchAction = "none";
-                    canvas.style.touchAction = "none";
-
-                    canvas.addEventListener("selectstart", function (e) {
-                        e.preventDefault();
-                    });
-                    if (navigator.msPointerEnabled) {
-                        canvas.addEventListener("MSPointerDown", function (e) {
-                            return _this._HandlePointerDown(window.event ? window.event : e);
-                        });
-                        canvas.addEventListener("MSPointerUp", function (e) {
-                            return _this._HandlePointerUp(window.event ? window.event : e);
-                        });
-                        canvas.addEventListener("MSPointerMove", function (e) {
-                            return _this._HandlePointerMove(window.event ? window.event : e);
-                        });
-                        canvas.addEventListener("MSPointerEnter", function (e) {
-                            return _this._HandlePointerEnter(window.event ? window.event : e);
-                        });
-                        canvas.addEventListener("MSPointerLeave", function (e) {
-                            return _this._HandlePointerLeave(window.event ? window.event : e);
-                        });
-                    } else {
-                        canvas.addEventListener("pointerdown", function (e) {
-                            return _this._HandlePointerDown(window.event ? window.event : e);
-                        });
-                        canvas.addEventListener("pointerup", function (e) {
-                            return _this._HandlePointerUp(window.event ? window.event : e);
-                        });
-                        canvas.addEventListener("pointermove", function (e) {
-                            return _this._HandlePointerMove(window.event ? window.event : e);
-                        });
-                        canvas.addEventListener("pointerenter", function (e) {
-                            return _this._HandlePointerEnter(window.event ? window.event : e);
-                        });
-                        canvas.addEventListener("pointerleave", function (e) {
-                            return _this._HandlePointerLeave(window.event ? window.event : e);
-                        });
-                    }
-                };
-
-                PointerTouchInterop.prototype._HandlePointerDown = function (e) {
-                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
-                        return;
-                    e.preventDefault();
-                    Fayde.Engine.Inspection.Kill();
-
-                    var cur = this.GetActiveTouch(e);
-                    this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(1 /* TouchDown */, [cur]);
-                    this.Input.SetIsUserInitiatedEvent(false);
-                };
-                PointerTouchInterop.prototype._HandlePointerUp = function (e) {
-                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
-                        return;
-                    var cur = this.GetActiveTouch(e);
-                    this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(2 /* TouchUp */, [cur]);
-                    this.Input.SetIsUserInitiatedEvent(false);
-                    var index = this.ActiveTouches.indexOf(cur);
-                    if (index > -1)
-                        this.ActiveTouches.splice(index, 1);
-                };
-                PointerTouchInterop.prototype._HandlePointerMove = function (e) {
-                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
-                        return;
-                    var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(3 /* TouchMove */, [cur]);
-                };
-                PointerTouchInterop.prototype._HandlePointerEnter = function (e) {
-                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
-                        return;
-                    var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(4 /* TouchEnter */, [cur]);
-                };
-                PointerTouchInterop.prototype._HandlePointerLeave = function (e) {
-                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
-                        return;
-                    var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(5 /* TouchLeave */, [cur]);
-                };
-
-                PointerTouchInterop.prototype.GetActiveTouch = function (e) {
-                    var existing = this.FindTouchInList(e.pointerId);
-                    var cur = existing || new PointerActiveTouch(this);
-                    if (!existing)
-                        this.ActiveTouches.push(cur);
-                    cur.Init(e, this.CoordinateOffset);
-                    return cur;
-                };
-                PointerTouchInterop.prototype.FindTouchInList = function (identifier) {
-                    var at = this.ActiveTouches;
-                    var len = at.length;
-                    for (var i = 0; i < len; i++) {
-                        if (at[i].Identifier === identifier)
-                            return at[i];
-                    }
-                    return null;
-                };
-                return PointerTouchInterop;
-            })(TouchInternal.TouchInteropBase);
-            TouchInternal.PointerTouchInterop = PointerTouchInterop;
-        })(Input.TouchInternal || (Input.TouchInternal = {}));
-        var TouchInternal = Input.TouchInternal;
-    })(Fayde.Input || (Fayde.Input = {}));
-    var Input = Fayde.Input;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Input) {
-        (function (TouchInternal) {
-            var NonPointerActiveTouch = (function (_super) {
-                __extends(NonPointerActiveTouch, _super);
-                function NonPointerActiveTouch() {
-                    _super.apply(this, arguments);
-                }
-                NonPointerActiveTouch.prototype.Init = function (t, offset) {
-                    this.TouchObject = t;
-                    this.Identifier = t.identifier;
-                    this.Position = new Point(t.clientX + offset.left, t.clientY + offset.top);
-                };
-                NonPointerActiveTouch.prototype.CreateTouchPoint = function (p) {
-                    var to = this.TouchObject;
-                    return new Input.TouchPoint(p, to.force);
-                };
-                return NonPointerActiveTouch;
-            })(TouchInternal.ActiveTouchBase);
-
-            var NonPointerTouchInterop = (function (_super) {
-                __extends(NonPointerTouchInterop, _super);
-                function NonPointerTouchInterop() {
-                    _super.apply(this, arguments);
-                }
-                NonPointerTouchInterop.prototype.Register = function (input, canvas) {
-                    var _this = this;
-                    _super.prototype.Register.call(this, input, canvas);
-
-                    canvas.addEventListener("touchstart", function (e) {
-                        return _this._HandleTouchStart(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("touchend", function (e) {
-                        return _this._HandleTouchEnd(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("touchmove", function (e) {
-                        return _this._HandleTouchMove(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("touchenter", function (e) {
-                        return _this._HandleTouchEnter(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("touchleave", function (e) {
-                        return _this._HandleTouchLeave(window.event ? window.event : e);
-                    });
-                };
-
-                NonPointerTouchInterop.prototype._HandleTouchStart = function (e) {
-                    e.preventDefault();
-                    Fayde.Engine.Inspection.Kill();
-
-                    var newTouches = this.TouchArrayFromList(e.changedTouches);
-                    this.ActiveTouches = this.ActiveTouches.concat(newTouches);
-
-                    this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(1 /* TouchDown */, newTouches);
-                    this.Input.SetIsUserInitiatedEvent(false);
-                };
-                NonPointerTouchInterop.prototype._HandleTouchEnd = function (e) {
-                    var oldTouches = this.TouchArrayFromList(e.changedTouches);
-
-                    this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(2 /* TouchUp */, oldTouches);
-                    this.Input.SetIsUserInitiatedEvent(false);
-
-                    removeFromArray(this.ActiveTouches, oldTouches);
-                };
-                NonPointerTouchInterop.prototype._HandleTouchMove = function (e) {
-                    var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(3 /* TouchMove */, touches);
-                };
-                NonPointerTouchInterop.prototype._HandleTouchEnter = function (e) {
-                    var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(4 /* TouchEnter */, touches);
-                };
-                NonPointerTouchInterop.prototype._HandleTouchLeave = function (e) {
-                    var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(5 /* TouchLeave */, touches);
-                };
-
-                NonPointerTouchInterop.prototype.TouchArrayFromList = function (list) {
-                    var len = list.length;
-                    var touches = [];
-                    var curto;
-                    var cur;
-                    for (var i = 0; i < len; i++) {
-                        var curto = list.item(i);
-                        cur = this.FindTouchInList(curto.identifier) || new NonPointerActiveTouch(this);
-                        cur.Init(curto, this.CoordinateOffset);
-                        touches.push(cur);
-                    }
-                    return touches;
-                };
-                NonPointerTouchInterop.prototype.FindTouchInList = function (identifier) {
-                    var at = this.ActiveTouches;
-                    var len = at.length;
-                    for (var i = 0; i < len; i++) {
-                        if (at[i].Identifier === identifier)
-                            return at[i];
-                    }
-                    return null;
-                };
-                return NonPointerTouchInterop;
-            })(TouchInternal.TouchInteropBase);
-            TouchInternal.NonPointerTouchInterop = NonPointerTouchInterop;
-
-            function removeFromArray(arr, toRemove) {
-                var len = toRemove.length;
-                for (var i = 0; i < len; i++) {
-                    var index = arr.indexOf(toRemove[i]);
-                    if (index > -1)
-                        arr.splice(index, 1);
-                }
-            }
-        })(Input.TouchInternal || (Input.TouchInternal = {}));
-        var TouchInternal = Input.TouchInternal;
-    })(Fayde.Input || (Fayde.Input = {}));
-    var Input = Fayde.Input;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Rect(x, y, width, height) {
-            return {
-                sx: null,
-                sy: null,
-                isSingle: true,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                width: width,
-                height: height,
-                draw: function (ctx) {
-                    ctx.rect(x, y, width, height);
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.Rect = Rect;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        
-
-        var RawPath = (function () {
-            function RawPath() {
-                this._Path = [];
-                this._EndX = 0.0;
-                this._EndY = 0.0;
-            }
-            Object.defineProperty(RawPath.prototype, "EndX", {
-                get: function () {
-                    return this._EndX;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(RawPath.prototype, "EndY", {
-                get: function () {
-                    return this._EndY;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            RawPath.prototype.Move = function (x, y) {
-                this._Path.push(Path.Move(x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Line = function (x, y) {
-                this._Path.push(Path.Line(x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Rect = function (x, y, width, height) {
-                this._Path.push(Path.Rect(x, y, width, height));
-            };
-            RawPath.prototype.RoundedRectFull = function (x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
-                this._Path.push(Path.RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.RoundedRect = function (x, y, width, height, radiusX, radiusY) {
-                this._Path.push(Path.RectRounded(x, y, width, height, radiusX, radiusY));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.QuadraticBezier = function (cpx, cpy, x, y) {
-                this._Path.push(Path.QuadraticBezier(cpx, cpy, x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.CubicBezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
-                this._Path.push(Path.CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Ellipse = function (x, y, width, height) {
-                this._Path.push(Path.Ellipse(x, y, width, height));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
-                this._Path.push(Path.EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey));
-            };
-            RawPath.prototype.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
-                this._Path.push(Path.Arc(x, y, r, sAngle, eAngle, aClockwise));
-            };
-            RawPath.prototype.ArcTo = function (cpx, cpy, x, y, radius) {
-                var arcto = Path.ArcTo(cpx, cpy, x, y, radius);
-                this._Path.push(arcto);
-                this._EndX = arcto.ex;
-                this._EndY = arcto.ey;
-            };
-            RawPath.prototype.Close = function () {
-                this._Path.push(Path.Close());
-            };
-
-            RawPath.prototype.Draw = function (ctx) {
-                ctx.beginPath();
-                var path = this._Path;
-                var len = path.length;
-                for (var i = 0; i < len; i++) {
-                    path[i].draw(ctx);
-                }
-            };
-            RawPath.prototype.CalculateBounds = function (pars) {
-                var box = pars && pars.thickness > 1 ? this._CalcStrokeBox(pars) : this._CalcFillBox();
-                var r = new rect();
-                rect.set(r, box.l, box.t, Math.max(0, box.r - box.l), Math.max(0, box.b - box.t));
-                return r;
-            };
-            RawPath.prototype._CalcFillBox = function () {
-                var path = this._Path;
-                var len = path.length;
-                var box = {
-                    l: Number.POSITIVE_INFINITY,
-                    r: Number.NEGATIVE_INFINITY,
-                    t: Number.POSITIVE_INFINITY,
-                    b: Number.NEGATIVE_INFINITY
-                };
-                var curx = null;
-                var cury = null;
-                var entry;
-                for (var i = 0; i < len; i++) {
-                    entry = path[i];
-                    entry.sx = curx;
-                    entry.sy = cury;
-
-                    entry.extendFillBox(box);
-
-                    curx = entry.ex || 0;
-                    cury = entry.ey || 0;
-                }
-                return box;
-            };
-            RawPath.prototype._CalcStrokeBox = function (pars) {
-                var box = {
-                    l: Number.POSITIVE_INFINITY,
-                    r: Number.NEGATIVE_INFINITY,
-                    t: Number.POSITIVE_INFINITY,
-                    b: Number.NEGATIVE_INFINITY
-                };
-                processStrokedBounds(box, this._Path, pars);
-                return box;
-            };
-
-            RawPath.Merge = function (path1, path2) {
-                path1._Path.push.apply(path1._Path, path2._Path);
-                path1._EndX += path2._EndX;
-                path1._EndY += path2._EndY;
-            };
-
-            RawPath.prototype.Serialize = function () {
-                var path = this._Path;
-                var len = path.length;
-                var s = "";
-                for (var i = 0; i < len; i++) {
-                    if (i > 0)
-                        s += " ";
-                    s += path[i].toString();
-                }
-                return s;
-            };
-            return RawPath;
-        })();
-        Path.RawPath = RawPath;
-        function expandStartCap(box, entry, pars) {
-            var v;
-            var hs = pars.thickness / 2.0;
-            var cap = pars.startCap || pars.endCap || 0;
-            switch (cap) {
-                case 2 /* Round */:
-                    box.l = Math.min(box.l, entry.sx - hs);
-                    box.r = Math.max(box.r, entry.sx + hs);
-                    box.t = Math.min(box.t, entry.sy - hs);
-                    box.b = Math.max(box.b, entry.sy + hs);
-                    break;
-                case 1 /* Square */:
-                    if (!(v = entry.getStartVector()))
-                        return;
-                    if (!v[0] || !v[1])
-                        return;
-                    var sd = Vector.reverse(Vector.normalize(v.slice(0)));
-                    var sdo = Vector.orthogonal(sd.slice(0));
-
-                    var x1 = entry.sx + hs * (sd[0] + sdo[0]);
-                    var x2 = entry.sx + hs * (sd[0] - sdo[0]);
-                    var y1 = entry.sy + hs * (sd[1] + sdo[1]);
-                    var y2 = entry.sy + hs * (sd[1] - sdo[1]);
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-                case 0 /* Flat */:
-                default:
-                    if (!(v = entry.getStartVector()))
-                        return;
-                    if (!v[0] || !v[1])
-                        return;
-                    var sdo = Vector.orthogonal(Vector.normalize(v.slice(0)));
-
-                    var x1 = entry.sx + hs * sdo[0];
-                    var x2 = entry.sx + hs * -sdo[0];
-                    var y1 = entry.sy + hs * sdo[1];
-                    var y2 = entry.sy + hs * -sdo[1];
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-            }
-        }
-        function expandEndCap(box, entry, pars) {
-            var ex = entry.ex;
-            var ey = entry.ey;
-
-            var v;
-            var hs = pars.thickness / 2.0;
-            var cap = pars.startCap || pars.endCap || 0;
-            switch (cap) {
-                case 2 /* Round */:
-                    box.l = Math.min(box.l, ex - hs);
-                    box.r = Math.max(box.r, ex + hs);
-                    box.t = Math.min(box.t, ey - hs);
-                    box.b = Math.max(box.b, ey + hs);
-                    break;
-                case 1 /* Square */:
-                    if (!(v = entry.getEndVector()))
-                        return;
-                    var ed = Vector.normalize(v.slice(0));
-                    var edo = Vector.orthogonal(ed.slice(0));
-
-                    var x1 = ex + hs * (ed[0] + edo[0]);
-                    var x2 = ex + hs * (ed[0] - edo[0]);
-                    var y1 = ey + hs * (ed[1] + edo[1]);
-                    var y2 = ey + hs * (ed[1] - edo[1]);
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-                case 0 /* Flat */:
-                default:
-                    if (!(v = entry.getEndVector()))
-                        return;
-                    var edo = Vector.orthogonal(Vector.normalize(v.slice(0)));
-
-                    var x1 = ex + hs * edo[0];
-                    var x2 = ex + hs * -edo[0];
-                    var y1 = ey + hs * edo[1];
-                    var y2 = ey + hs * -edo[1];
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-            }
-        }
-        function expandLineJoin(box, previous, entry, pars) {
-            var hs = pars.thickness / 2.0;
-            if (pars.join === 2 /* Round */) {
-                box.l = Math.min(box.l, entry.sx - hs);
-                box.r = Math.max(box.r, entry.sx + hs);
-                box.t = Math.min(box.t, entry.sy - hs);
-                box.b = Math.max(box.b, entry.sy + hs);
-            }
-            var tips = (pars.join === 0 /* Miter */) ? findMiterTips(previous, entry, hs, pars.miterLimit) : findBevelTips(previous, entry, hs);
-            if (!tips)
-                return;
-            var x1 = tips[0].x;
-            var x2 = tips[1].x;
-            var y1 = tips[0].y;
-            var y2 = tips[1].y;
-            box.l = Math.min(box.l, x1, x2);
-            box.r = Math.max(box.r, x1, x2);
-            box.t = Math.min(box.t, y1, y2);
-            box.b = Math.max(box.b, y1, y2);
-        }
-
-        function processStrokedBounds(box, entries, pars) {
-            var len = entries.length;
-            var last = null;
-            var curx = null;
-            var cury = null;
-            var sx = null;
-            var sy = null;
-
-            var isLastEntryMove = false;
-
-            function processEntry(entry, i) {
-                entry.sx = curx;
-                entry.sy = cury;
-
-                if (!entry.isSingle) {
-                    if (!entry.isMove && isLastEntryMove) {
-                        sx = entry.sx;
-                        sy = entry.sy;
-                        expandStartCap(box, entry, pars);
-                    }
-                    if (!isLastEntryMove && i > 0)
-                        expandLineJoin(box, last, entry, pars);
-                }
-
-                entry.extendStrokeBox(box, pars);
-
-                curx = entry.ex || 0;
-                cury = entry.ey || 0;
-                isLastEntryMove = !!entry.isMove;
-                last = entry;
-            }
-
-            for (var i = 0; i < len; i++) {
-                processEntry(entries[i], i);
-            }
-            var end = entries[len - 1];
-            if (end && !end.isSingle)
-                expandEndCap(box, end, pars);
-        }
-        function findMiterTips(previous, entry, hs, miterLimit) {
-            var x = entry.sx;
-            var y = entry.sy;
-
-            var av = previous.getEndVector();
-            var bv = entry.getStartVector();
-            if (!av || !bv)
-                return null;
-            Vector.reverse(av);
-            var tau = Vector.angleBetween(av, bv) / 2;
-            if (isNaN(tau))
-                return null;
-
-            var miterRatio = 1 / Math.sin(tau);
-            if (miterRatio > miterLimit)
-                return findBevelTips(previous, entry, hs);
-
-            var cv = Vector.isClockwiseTo(av, bv) ? av.slice(0) : bv.slice(0);
-            Vector.normalize(Vector.reverse(Vector.rotate(cv, tau)));
-
-            var miterLen = hs * miterRatio;
-
-            var tip = { x: x + miterLen * cv[0], y: y + miterLen * cv[1] };
-            return [
-                tip,
-                tip
-            ];
-        }
-        Path.findMiterTips = findMiterTips;
-        function findBevelTips(previous, entry, hs) {
-            var x = entry.sx;
-            var y = entry.sy;
-
-            var av = previous.getEndVector();
-            var bv = entry.getStartVector();
-            if (!av || !bv)
-                return;
-            Vector.normalize(Vector.reverse(av));
-            Vector.normalize(bv);
-            var avo, bvo;
-            if (Vector.isClockwiseTo(av, bv)) {
-                avo = Vector.orthogonal(av.slice(0));
-                bvo = Vector.reverse(Vector.orthogonal(bv.slice(0)));
-            } else {
-                avo = Vector.reverse(Vector.orthogonal(av.slice(0)));
-                bvo = Vector.orthogonal(bv.slice(0));
-            }
-
-            return [
-                { x: x - hs * avo[0], y: y - hs * avo[1] },
-                { x: x - hs * bvo[0], y: y - hs * bvo[1] }
-            ];
-        }
-        Path.findBevelTips = findBevelTips;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function RectRounded(x, y, width, height, radiusX, radiusY) {
-            if (radiusX === 0.0 && radiusY === 0.0)
-                return Path.Rect(x, y, width, height);
-
-            var left = x;
-            var top = y;
-            var right = x + width;
-            var bottom = y + height;
-
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: true,
-                x: x,
-                y: y,
-                width: width,
-                height: height,
-                radiusX: radiusX,
-                radiusY: radiusY,
-                draw: function (ctx) {
-                    ctx.beginPath();
-                    ctx.moveTo(left + radiusX, top);
-
-                    ctx.lineTo(right - radiusX, top);
-
-                    ctx.quadraticCurveTo(right, top, right, top + radiusY);
-
-                    ctx.lineTo(right, bottom - radiusY);
-
-                    ctx.quadraticCurveTo(right, bottom, right - radiusX, bottom);
-
-                    ctx.lineTo(left + radiusX, bottom);
-
-                    ctx.quadraticCurveTo(left, bottom, left, bottom - radiusY);
-
-                    ctx.lineTo(left, top + radiusY);
-
-                    ctx.quadraticCurveTo(left, top, left + radiusX, top);
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.RectRounded = RectRounded;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
-            var left = x;
-            var top = y;
-            var right = x + width;
-            var bottom = y + height;
-
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: true,
-                x: x,
-                y: y,
-                width: width,
-                height: height,
-                draw: function (ctx) {
-                    var right = left + width;
-                    var bottom = top + height;
-                    ctx.beginPath();
-                    ctx.moveTo(left + topLeft, top);
-
-                    ctx.lineTo(right - topRight, top);
-
-                    if (topRight > 0)
-                        ctx.quadraticCurveTo(right, top, right, top + topRight);
-
-                    ctx.lineTo(right, bottom - bottomRight);
-
-                    if (bottomRight > 0)
-                        ctx.quadraticCurveTo(right, bottom, right - bottomRight, bottom);
-
-                    ctx.lineTo(left + bottomLeft, bottom);
-
-                    if (bottomLeft > 0)
-                        ctx.quadraticCurveTo(left, bottom, left, bottom - bottomLeft);
-
-                    ctx.lineTo(left, top + topLeft);
-
-                    if (topLeft > 0)
-                        ctx.quadraticCurveTo(left, top, left + topLeft, top);
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.RectRoundedFull = RectRoundedFull;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Ellipse(x, y, width, height) {
-            var radiusX = width / 2;
-            var radiusY = height / 2;
-            var right = x + width;
-            var bottom = y + height;
-            var centerX = x + radiusX;
-            var centerY = y + radiusY;
-
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: true,
-                x: x,
-                y: y,
-                width: width,
-                height: height,
-                draw: function (ctx) {
-                    ctx.beginPath();
-                    if (width === height) {
-                        ctx.arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
-                        return;
-                    }
-
-                    var kappa = .5522848;
-                    var ox = radiusX * kappa;
-                    var oy = radiusY * kappa;
-
-                    ctx.moveTo(x, centerY);
-
-                    ctx.bezierCurveTo(x, centerY - oy, centerX - ox, y, centerX, y);
-
-                    ctx.bezierCurveTo(centerX + ox, y, right, centerY - oy, right, centerY);
-
-                    ctx.bezierCurveTo(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
-
-                    ctx.bezierCurveTo(centerX - ox, bottom, x, centerY + oy, x, centerY);
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.Ellipse = Ellipse;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Vector;
-(function (Vector) {
-    var EPSILON = 1e-10;
-
-    function create(x, y) {
-        return [x, y];
-    }
-    Vector.create = create;
-
-    function reverse(v) {
-        v[0] = -v[0];
-        v[1] = -v[1];
-        return v;
-    }
-    Vector.reverse = reverse;
-
-    function orthogonal(v) {
-        var x = v[0], y = v[1];
-        v[0] = -y;
-        v[1] = x;
-        return v;
-    }
-    Vector.orthogonal = orthogonal;
-
-    function normalize(v) {
-        var x = v[0], y = v[1];
-        var len = Math.sqrt(x * x + y * y);
-        v[0] = x / len;
-        v[1] = y / len;
-        return v;
-    }
-    Vector.normalize = normalize;
-
-    function rotate(v, theta) {
-        var c = Math.cos(theta);
-        var s = Math.sin(theta);
-        var x = v[0];
-        var y = v[1];
-        v[0] = x * c - y * s;
-        v[1] = x * s + y * c;
-        return v;
-    }
-    Vector.rotate = rotate;
-
-    function angleBetween(u, v) {
-        var ux = u[0], uy = u[1], vx = v[0], vy = v[1];
-        var num = ux * vx + uy * vy;
-        var den = Math.sqrt(ux * ux + uy * uy) * Math.sqrt(vx * vx + vy * vy);
-        return Math.acos(num / den);
-    }
-    Vector.angleBetween = angleBetween;
-
-    function isClockwiseTo(v1, v2) {
-        var theta = angleBetween(v1, v2);
-        var nv1 = normalize(v1.slice(0));
-        var nv2 = normalize(v2.slice(0));
-        rotate(nv1, theta);
-        var nx = Math.abs(nv1[0] - nv2[0]);
-        var ny = Math.abs(nv1[1] - nv2[1]);
-        return nx < EPSILON && ny < EPSILON;
-    }
-    Vector.isClockwiseTo = isClockwiseTo;
-
-    function intersection(s1, d1, s2, d2) {
-        var x1 = s1[0];
-        var y1 = s1[1];
-        var x2 = x1 + d1[0];
-        var y2 = y1 + d1[1];
-
-        var x3 = s2[0];
-        var y3 = s2[1];
-        var x4 = x3 + d2[0];
-        var y4 = y3 + d2[1];
-
-        var det = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-        if (det === 0)
-            return null;
-
-        var xn = ((x1 * y2 - y1 * x2) * (x3 - x4)) - ((x1 - x2) * (x3 * y4 - y3 * x4));
-        var yn = ((x1 * y2 - y1 * x2) * (y3 - y4)) - ((y1 - y2) * (x3 * y4 - y3 * x4));
-        return [xn / det, yn / det];
-    }
-    Vector.intersection = intersection;
-})(Vector || (Vector = {}));
-function defer() {
-    var resolved = false;
-    var errored = false;
-    var resolvedobj = undefined;
-    var errorobj = undefined;
-
-    var s;
-    var e;
-    var c;
-    var p = {
-        success: function (callback) {
-            s = callback;
-            if (resolved)
-                callback(resolvedobj);
-            return this;
-        },
-        error: function (callback) {
-            e = callback;
-            if (errored)
-                callback(errorobj);
-            return this;
-        }
-    };
-
-    var d = {
-        request: p,
-        resolve: function (result) {
-            resolved = true;
-            resolvedobj = result;
-            s && s(result);
-        },
-        reject: function (error) {
-            errored = true;
-            errorobj = error;
-            e && e(error);
-        }
-    };
-    return d;
-}
-function deferArraySimple(arr) {
-    var d = defer();
-
-    var os = [];
-    var errors = [];
-    for (var i = 0, len = arr.length; i < len; i++) {
-        arr[i].success(tryFinish).error(function (error) {
-            errors.push(error);
-            tryFinish(null);
-        });
-    }
-
-    function tryFinish(o) {
-        os.push(o);
-        if (os.length === arr.length) {
-            if (errors.length > 0)
-                return d.reject(errors);
-            d.resolve(os);
-        }
-    }
-
-    return d.request;
-}
-function deferArray(arr, resolver) {
-    var d = defer();
-
-    var ts = [];
-    var errors = [];
-    for (var i = 0, len = arr.length; i < len; i++) {
-        resolver(arr[i]).success(tryFinish).error(function (error) {
-            errors.push(error);
-            tryFinish(null);
-        });
-    }
-
-    function tryFinish(t) {
-        ts.push(t);
-        if (ts.length === arr.length) {
-            if (errors.length > 0)
-                return d.reject(errors);
-            d.resolve(ts);
-        }
-    }
-
-    return d.request;
-}
-var Fayde;
-(function (Fayde) {
-    var Library = (function () {
-        function Library(Name) {
-            this.Name = Name;
-            this._Module = undefined;
-            this._CurrentTheme = undefined;
-            this._Themes = [];
-            this._IsLoading = false;
-            this._IsLoaded = false;
-            this._LoadError = null;
-            this._Deferrables = [];
-        }
-        Object.defineProperty(Library.prototype, "Module", {
-            get: function () {
-                return this._Module;
-            },
-            enumerable: true,
-            configurable: true
-        });
-
-        Object.defineProperty(Library.prototype, "CurrentTheme", {
-            get: function () {
-                return this._CurrentTheme;
-            },
-            enumerable: true,
-            configurable: true
-        });
-
-        Library.TryGetClass = function (xmlns, xmlname) {
-            var libName;
-            if (xmlns.indexOf("lib:") === 0)
-                libName = xmlns.substr("lib:".length);
-
-            var library = Library.Get(xmlns);
-            if (!libName && (!library || !library.Module))
-                return undefined;
-
-            if (!library)
-                throw new Exception("Could not find library: '" + libName + "'.");
-            if (!library.Module)
-                throw new Exception("Could not acquire module in library: '" + libName + "'.");
-
-            var c = library.Module[xmlname];
-            if (c)
-                return c;
-
-            if (libName)
-                throw new Exception("Could not find type [" + xmlname + "] in library: '" + libName + "'.");
-        };
-        Library.Get = function (xmlns) {
-            if (xmlns.indexOf("lib:") !== 0)
-                return undefined;
-            var name = xmlns.substr("lib:".length);
-            return libraries[name] || (libraries[name] = new Library(name));
-        };
-        Library.GetThemeStyle = function (type) {
-            for (var id in libraries) {
-                var library = libraries[id];
-                if (!library.CurrentTheme)
-                    continue;
-                var style = library.CurrentTheme.GetImplicitStyle(type);
-                if (style)
-                    return style;
-            }
-            return undefined;
-        };
-        Library.ChangeTheme = function (themeName) {
-            var reqs = [];
-            var library;
-            for (var name in libraries) {
-                library = libraries[name];
-                reqs.push(library._LoadTheme({ ThemeName: themeName, Resolving: [] }));
-            }
-            return deferArraySimple(reqs);
-        };
-
-        Library.prototype.Resolve = function (ctx) {
-            ctx.Resolving.push(this);
-            this._Load(ctx);
-
-            var d = defer();
-            if (this._IsLoaded) {
-                d.resolve(this);
-                return d.request;
-            }
-            if (this._LoadError) {
-                d.reject(this._LoadError);
-                return d.request;
-            }
-            this._Deferrables.push(d);
-            return d.request;
-        };
-
-        Library.prototype._Load = function (ctx) {
-            var _this = this;
-            if (this._IsLoading || this._IsLoaded)
-                return;
-            this._IsLoading = true;
-
-            if (this.Name === "Fayde") {
-                this._Module = Fayde;
-                this._LoadTheme(ctx).success(function (theme) {
-                    return _this._FinishLoad(ctx);
-                }).error(function (err) {
-                    return _this._FinishLoad(ctx, err);
-                });
-                return;
-            }
-
-            var moduleUrl = this.GetModuleRequireUrl();
-            require([moduleUrl], function (res) {
-                _this._Module = res;
-                _this._LoadTheme(ctx).success(function (theme) {
-                    return _this._FinishLoad(ctx);
-                }).error(function (err) {
-                    return _this._FinishLoad(ctx, err);
-                });
-            }, function (error) {
-                return _this._FinishLoad(ctx, error);
-            });
-        };
-        Library.prototype._LoadTheme = function (ctx) {
-            var _this = this;
-            var d = defer();
-            var themeUrl = this.GetThemeRequireUrl(ctx.ThemeName);
-            if (!themeUrl) {
-                this._CurrentTheme = undefined;
-                d.resolve(undefined);
-                return d.request;
-            }
-            var theme = this._Themes[ctx.ThemeName];
-            if (theme) {
-                d.resolve(this._CurrentTheme = theme);
-                return d.request;
-            }
-            theme = this._Themes[ctx.ThemeName] = Fayde.Theme.Get(themeUrl);
-            theme.Resolve(ctx).success(function (res) {
-                return d.resolve(_this._CurrentTheme = res);
-            }).error(d.reject);
-            return d.request;
-        };
-        Library.prototype._FinishLoad = function (ctx, error) {
-            this._LoadError = error;
-            var index = ctx.Resolving.indexOf(this);
-            if (index > -1)
-                ctx.Resolving.splice(index, 1);
-
-            this._IsLoading = false;
-            this._IsLoaded = true;
-            for (var i = 0, ds = this._Deferrables, len = ds.length; i < len; i++) {
-                if (error)
-                    ds[i].reject(error);
-                else
-                    ds[i].resolve(this);
-            }
-        };
-
-        Library.prototype.GetModuleRequireUrl = function () {
-            return "lib/" + this.Name + "/" + this.Name;
-        };
-        Library.prototype.GetThemeRequireUrl = function (themeName) {
-            return "lib/" + this.Name + "/Themes/" + themeName + ".theme.xml";
-        };
-        return Library;
-    })();
-    Fayde.Library = Library;
-
-    var libraries = [];
-    function RegisterLibrary(name, moduleUrl, themeUrlFunc) {
-        var library = libraries[name];
-        if (library)
-            throw new Exception("Library already registered: '" + name + "'.");
-        library = libraries[name] = new Library(name);
-        if (moduleUrl)
-            library.GetModuleRequireUrl = function () {
-                return moduleUrl;
-            };
-        if (themeUrlFunc)
-            library.GetThemeRequireUrl = themeUrlFunc;
-        return library;
-    }
-    Fayde.RegisterLibrary = RegisterLibrary;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Providers) {
-        function SwapStyles(fe, oldWalker, newWalker, isImplicit) {
-            var arr = fe._PropertyStorage;
-            var oldSetter = oldWalker.Step();
-            var newSetter = newWalker.Step();
-
-            var storage;
-            var value;
-            var propd;
-            while (oldSetter || newSetter) {
-                if (oldSetter && newSetter) {
-                    switch (Fayde.Setter.Compare(oldSetter, newSetter)) {
-                        case 0:
-                            value = newSetter.ConvertedValue;
-                            propd = newSetter.Property;
-                            oldSetter = oldWalker.Step();
-                            newSetter = newWalker.Step();
-                            break;
-                        case -1:
-                            value = undefined;
-                            propd = oldSetter.Property;
-                            oldSetter = oldWalker.Step();
-                            break;
-                        case 1:
-                            value = newSetter.ConvertedValue;
-                            propd = newSetter.Property;
-                            newSetter = newWalker.Step();
-                            break;
-                    }
-                } else if (newSetter) {
-                    value = newSetter.ConvertedValue;
-                    propd = newSetter.Property;
-                    newSetter = newWalker.Step();
-                } else {
-                    value = undefined;
-                    propd = oldSetter.Property;
-                    oldSetter = oldWalker.Step();
-                }
-
-                storage = arr[propd._ID];
-                if (!storage)
-                    storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
-                if (isImplicit)
-                    propd.Store.SetImplicitStyle(storage, value);
-                else
-                    propd.Store.SetLocalStyleValue(storage, value);
-            }
-        }
-        Providers.SwapStyles = SwapStyles;
-    })(Fayde.Providers || (Fayde.Providers = {}));
-    var Providers = Fayde.Providers;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    function _VisualTree(id) {
-        var uin = findNodeById(id);
-        return flattenTree(uin).map(serializeTreeNode).join("\n");
-    }
-    Fayde._VisualTree = _VisualTree;
-
-    function findNodeById(id) {
-        var rv = Fayde.Application.Current.RootVisual;
-        var topNode = (rv) ? rv.XamlNode : null;
-        if (!topNode)
-            return;
-
-        if (!id)
-            return topNode;
-
-        var walker = Fayde.DeepTreeWalker(topNode);
-        var curNode;
-        while (curNode = walker.Step()) {
-            if (curNode.XObject._ID === id)
-                return curNode;
-        }
-    }
-
-    function flattenTree(uin, arr, level) {
-        arr = arr || [];
-        level = level || 0;
-        arr.push({ node: uin, level: level });
-        var enumerator = uin.GetVisualTreeEnumerator();
-        while (enumerator.MoveNext()) {
-            flattenTree(enumerator.Current, arr, level + 1);
-        }
-        return arr;
-    }
-    function serializeTreeNode(tn) {
-        var s = repeatString("\t", tn.level);
-        var uie = tn.node.XObject;
-        s += uie.constructor.name;
-        var id = uie._ID;
-        if (id)
-            s += "[" + id + "]";
-        var name = tn.node.Name;
-        s += " [";
-        var ns = tn.node.NameScope;
-        if (!ns)
-            s += "^";
-        else if (ns.IsRoot)
-            s += "+";
-        else
-            s += "-";
-        s += name + "]";
-
-        s += serializeUIElement(uie);
-
-        if (uie instanceof Fayde.Controls.Grid)
-            s += serializeGrid(uie, tn.level);
-
-        return s;
-    }
-    function serializeUIElement(uie) {
-        var str = "(";
-        if (uie.Visibility === 0 /* Visible */)
-            str += "Visible";
-        else
-            str += "Collapsed";
-
-        var lu = uie.XamlNode.LayoutUpdater;
-        if (lu) {
-            str += " ";
-            var p = lu.VisualOffset;
-            if (p)
-                str += p.toString();
-            var s = size.fromRaw(lu.ActualWidth, lu.ActualHeight);
-            str += " ";
-            str += s.toString();
-        }
-        str += ")";
-
-        return str;
-    }
-
-    function serializeGrid(grid, level) {
-        if (!grid)
-            return "";
-
-        var str = "";
-
-        var rds = enumToArray(grid.RowDefinitions).map(function (rd, i) {
-            return serializeRowDef(rd, i, level);
-        }).join("\n");
-        if (rds)
-            str += repeatString("\t", level) + "  Rows (" + grid.RowDefinitions.Count + "):\n" + rds;
-
-        var cds = enumToArray(grid.ColumnDefinitions).map(function (cd, i) {
-            return serializeColDef(cd, i, level);
-        }).join("\n");
-        if (cds) {
-            if (str)
-                str += "\n";
-            str += repeatString("\t", level) + "  Columns (" + grid.ColumnDefinitions.Count + "):\n" + cds;
-        }
-
-        if (str)
-            return "\n" + str;
-        return "";
-    }
-    function serializeRowDef(row, index, level) {
-        return repeatString("\t", level + 1) + "[" + index + "] -> " + row.ActualHeight;
-    }
-    function serializeColDef(col, index, level) {
-        return repeatString("\t", level + 1) + "[" + index + "] -> " + col.ActualWidth;
-    }
-
-    function enumToArray(en) {
-        var e = en.GetEnumerator();
-        var arr = [];
-        while (e.MoveNext()) {
-            arr.push(e.Current);
-        }
-        return arr;
-    }
-    function repeatString(s, n) {
-        var str = "";
-        for (var i = 0; i < n; i++) {
-            str += s;
-        }
-        return str;
-    }
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        (function (Internal) {
-            var RangeCoercer = (function () {
-                function RangeCoercer(Range, OnCoerceMaximum, OnCoerceValue) {
-                    this.Range = Range;
-                    this.OnCoerceMaximum = OnCoerceMaximum;
-                    this.OnCoerceValue = OnCoerceValue;
-                    this.InitialMax = 1;
-                    this.InitialVal = 0;
-                    this.RequestedMax = 1;
-                    this.RequestedVal = 0;
-                    this.PreCoercedMax = 1;
-                    this.PreCoercedVal = 0;
-                    this.CoerceDepth = 0;
-                }
-                Object.defineProperty(RangeCoercer.prototype, "Minimum", {
-                    get: function () {
-                        return this.Range.Minimum;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(RangeCoercer.prototype, "Maximum", {
-                    get: function () {
-                        return this.Range.Maximum;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(RangeCoercer.prototype, "Value", {
-                    get: function () {
-                        return this.Range.Value;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-
-                RangeCoercer.prototype.OnMinimumChanged = function (oldMinimum, newMinimum) {
-                    if (this.CoerceDepth === 0) {
-                        this.InitialMax = this.Maximum;
-                        this.InitialVal = this.Value;
-                    }
-                    this.CoerceDepth++;
-                    this.CoerceMaximum();
-                    this.CoerceValue();
-                    this.CoerceDepth--;
-                    if (this.CoerceDepth > 0)
-                        return;
-
-                    this.OnMinimumChanged(oldMinimum, newMinimum);
-                    var max = this.Maximum;
-                    if (!NumberEx.AreClose(this.InitialMax, max))
-                        this.Range.OnMaximumChanged(this.InitialMax, max);
-                    var val = this.Value;
-                    if (!NumberEx.AreClose(this.InitialVal, val))
-                        this.Range.OnValueChanged(this.InitialVal, val);
-                };
-                RangeCoercer.prototype.OnMaximumChanged = function (oldMaximum, newMaximum) {
-                    if (this.CoerceDepth === 0) {
-                        this.RequestedMax = newMaximum;
-                        this.InitialMax = oldMaximum;
-                        this.InitialVal = this.Value;
-                    }
-                    this.CoerceDepth++;
-                    this.CoerceMaximum();
-                    this.CoerceValue();
-                    this.CoerceDepth--;
-                    if (this.CoerceDepth !== 0)
-                        return;
-
-                    this.PreCoercedMax = newMaximum;
-                    var max = this.Maximum;
-                    if (!NumberEx.AreClose(this.InitialMax, max))
-                        this.Range.OnMaximumChanged(this.InitialMax, max);
-                    var val = this.Value;
-                    if (!NumberEx.AreClose(this.InitialVal, val))
-                        this.Range.OnValueChanged(this.InitialVal, val);
-                };
-                RangeCoercer.prototype.OnValueChanged = function (oldValue, newValue) {
-                    if (this.CoerceDepth === 0) {
-                        this.RequestedVal = newValue;
-                        this.InitialVal = oldValue;
-                    }
-                    this.CoerceDepth++;
-                    this.CoerceValue();
-                    this.CoerceDepth--;
-                    if (this.CoerceDepth !== 0)
-                        return;
-
-                    this.PreCoercedVal = newValue;
-                    var val = this.Value;
-                    if (!NumberEx.AreClose(this.InitialVal, val))
-                        this.Range.OnValueChanged(this.InitialVal, val);
-                };
-
-                RangeCoercer.prototype.CoerceMaximum = function () {
-                    var min = this.Minimum;
-                    var max = this.Maximum;
-                    if (!NumberEx.AreClose(this.RequestedMax, max) && this.RequestedMax >= min)
-                        this.OnCoerceMaximum(this.RequestedMax);
-                    else if (max < min)
-                        this.OnCoerceMaximum(min);
-                };
-                RangeCoercer.prototype.CoerceValue = function () {
-                    var min = this.Minimum;
-                    var max = this.Maximum;
-                    var val = this.Value;
-                    if (!NumberEx.AreClose(this.RequestedVal, val) && this.RequestedVal >= min && this.RequestedVal <= max)
-                        this.OnCoerceValue(this.RequestedVal);
-                    else if (val < min)
-                        this.OnCoerceValue(min);
-                    else if (val > max)
-                        this.OnCoerceValue(max);
-                };
-                return RangeCoercer;
-            })();
-            Internal.RangeCoercer = RangeCoercer;
-        })(Controls.Internal || (Controls.Internal = {}));
-        var Internal = Controls.Internal;
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        (function (Internal) {
-            var ItemContainersManager = (function () {
-                function ItemContainersManager(Owner) {
-                    this.Owner = Owner;
-                    this._Items = [];
-                    this._Containers = [];
-                    this._Cache = [];
-                    this.IsRecycling = false;
-                }
-                ItemContainersManager.prototype.IndexFromContainer = function (container) {
-                    return this._Containers.indexOf(container);
-                };
-                ItemContainersManager.prototype.ContainerFromIndex = function (index) {
-                    return this._Containers[index];
-                };
-                ItemContainersManager.prototype.ItemFromContainer = function (container) {
-                    var index = this._Containers.indexOf(container);
-                    if (index < 0)
-                        return null;
-                    return this._Items[index];
-                };
-                ItemContainersManager.prototype.ContainerFromItem = function (item) {
-                    if (item == null)
-                        return null;
-                    var index = this._Items.indexOf(item);
-                    if (index < 0)
-                        return null;
-                    return this._Containers[index];
-                };
-
-                ItemContainersManager.prototype.OnItemsAdded = function (index, newItems) {
-                    var items = this._Items;
-                    var containers = this._Containers;
-                    for (var i = 0, len = newItems.length; i < len; i++) {
-                        items.splice(index + i, 0, newItems[i]);
-                        containers.splice(index + i, 0, null);
-                    }
-                };
-                ItemContainersManager.prototype.OnItemsRemoved = function (index, oldItems) {
-                    this.DisposeContainers(index, oldItems.length);
-                    this._Items.splice(index, oldItems.length);
-                    this._Containers.splice(index, oldItems.length);
-                };
-                ItemContainersManager.prototype.DisposeContainers = function (index, count) {
-                    var containers = this._Containers;
-                    var items = this._Items;
-                    if (index == null)
-                        index = 0;
-                    if (count == null)
-                        count = containers.length;
-
-                    if (this.IsRecycling)
-                        this._Cache.push.apply(this._Cache, containers.slice(index, index + count));
-
-                    var disposed = [];
-
-                    var ic = this.Owner;
-                    for (var i = index; i < index + count; i++) {
-                        var container = containers[i];
-                        if (!container)
-                            continue;
-                        disposed.push(container);
-                        var item = items[i];
-                        ic.ClearContainerForItem(container, item);
-                        containers[i] = null;
-                    }
-
-                    return disposed;
-                };
-
-                ItemContainersManager.prototype.CreateGenerator = function (index, count) {
-                    var generator = {
-                        IsCurrentNew: false,
-                        Current: undefined,
-                        CurrentItem: undefined,
-                        CurrentIndex: index - 1,
-                        GenerateIndex: -1,
-                        Generate: function () {
-                            return false;
-                        }
-                    };
-
-                    var ic = this.Owner;
-                    var icm = this;
-                    var containers = this._Containers;
-                    var items = this._Items;
-                    var cache = this._Cache;
-                    generator.Generate = function () {
-                        generator.GenerateIndex++;
-                        generator.CurrentIndex++;
-                        generator.IsCurrentNew = false;
-                        if (generator.CurrentIndex < 0 || generator.GenerateIndex >= count || generator.CurrentIndex >= containers.length) {
-                            generator.Current = undefined;
-                            generator.CurrentItem = undefined;
-                            return false;
-                        }
-                        generator.CurrentItem = items[generator.CurrentIndex];
-                        if ((generator.Current = containers[generator.CurrentIndex]) == null) {
-                            if (ic.IsItemItsOwnContainer(generator.CurrentItem)) {
-                                if (generator.CurrentItem instanceof Fayde.UIElement)
-                                    generator.Current = generator.CurrentItem;
-                                generator.IsCurrentNew = true;
-                            } else if (cache.length > 0) {
-                                generator.Current = cache.pop();
-                            } else {
-                                generator.Current = ic.GetContainerForItem();
-                                generator.IsCurrentNew = true;
-                            }
-                            containers[generator.CurrentIndex] = generator.Current;
-                        }
-
-                        return true;
-                    };
-
-                    return generator;
-                };
-                ItemContainersManager.prototype.GetEnumerator = function (start, count) {
-                    var carr = this._Containers;
-                    var iarr = this._Items;
-
-                    var index = (start || 0) - 1;
-                    var len = count == null ? carr.length : count;
-
-                    var i = 0;
-                    var e = { MoveNext: undefined, Current: undefined, CurrentItem: undefined, CurrentIndex: -1 };
-                    e.MoveNext = function () {
-                        i++;
-                        index++;
-                        e.CurrentIndex = index;
-                        if (i > len || index >= carr.length) {
-                            e.Current = undefined;
-                            e.CurrentItem = undefined;
-                            return false;
-                        }
-                        e.Current = carr[index];
-                        e.CurrentItem = iarr[index];
-                        return true;
-                    };
-                    return e;
-                };
-                return ItemContainersManager;
-            })();
-            Internal.ItemContainersManager = ItemContainersManager;
-        })(Controls.Internal || (Controls.Internal = {}));
-        var Internal = Controls.Internal;
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Localization) {
-        var NumberFormatInfo = (function () {
-            function NumberFormatInfo() {
-                this.CurrencyDecimalDigits = 2;
-                this.CurrencyDecimalSeparator = ".";
-                this.CurrencyGroupSeparator = ",";
-                this.CurrencyGroupSizes = [3];
-                this.CurrencyNegativePattern = 0;
-                this.CurrencyPositivePattern = 0;
-                this.CurrencySymbol = "$";
-                this.NaNSymbol = "NaN";
-                this.NegativeInfinitySymbol = "-Infinity";
-                this.PositiveInfinitySymbol = "Infinity";
-                this.NegativeSign = "-";
-                this.PositiveSign = "+";
-                this.NumberDecimalDigits = 2;
-                this.NumberDecimalSeparator = ".";
-                this.NumberGroupSeparator = ",";
-                this.NumberGroupSizes = [3];
-                this.NumberNegativePattern = 1;
-                this.PercentDecimalDigits = 2;
-                this.PercentDecimalSeparator = ".";
-                this.PercentGroupSeparator = ",";
-                this.PercentGroupSizes = [3];
-                this.PercentNegativePattern = 0;
-                this.PercentPositivePattern = 0;
-                this.PercentSymbol = "%";
-                this.PerMilleSymbol = "‰";
-            }
-            NumberFormatInfo.prototype.FormatCurrency = function (num, precision) {
-                if (precision == null)
-                    precision = this.CurrencyDecimalDigits;
-                var rawnum = this.FormatRawNumber(Math.abs(num), precision, this.CurrencyDecimalSeparator, this.CurrencyGroupSeparator, this.CurrencyGroupSizes);
-                if (num < 0) {
-                    switch (this.CurrencyNegativePattern) {
-                        case 0:
-                        default:
-                            return "(" + this.CurrencySymbol + rawnum + ")";
-                        case 1:
-                            return [this.NegativeSign, this.CurrencySymbol, rawnum].join("");
-                        case 2:
-                            return [this.CurrencySymbol, this.NegativeSign, rawnum].join("");
-                        case 3:
-                            return [this.CurrencySymbol, rawnum, this.NegativeSign].join("");
-                        case 4:
-                            return "(" + rawnum + this.CurrencySymbol + ")";
-                        case 5:
-                            return [this.NegativeSign, rawnum, this.CurrencySymbol].join("");
-                        case 6:
-                            return [rawnum, this.NegativeSign, this.CurrencySymbol].join("");
-                        case 7:
-                            return [rawnum, this.CurrencySymbol, this.NegativeSign].join("");
-                        case 8:
-                            return [this.NegativeSign, rawnum, " ", this.CurrencySymbol].join("");
-                        case 9:
-                            return [this.NegativeSign, this.CurrencySymbol, " ", rawnum].join("");
-                        case 10:
-                            return [rawnum, " ", this.CurrencySymbol, this.NegativeSign].join("");
-                        case 11:
-                            return [this.CurrencySymbol, " ", rawnum, this.NegativeSign].join("");
-                        case 12:
-                            return [this.CurrencySymbol, " ", this.NegativeSign, rawnum].join("");
-                        case 13:
-                            return [rawnum, this.NegativeSign, " ", this.CurrencySymbol].join("");
-                        case 14:
-                            return "(" + this.CurrencySymbol + " " + rawnum + ")";
-                        case 15:
-                            return "(" + rawnum + " " + this.CurrencySymbol + ")";
-                    }
-                } else {
-                    switch (this.CurrencyPositivePattern) {
-                        case 0:
-                        default:
-                            return [this.CurrencySymbol, rawnum].join("");
-                        case 1:
-                            return [rawnum, this.CurrencySymbol].join("");
-                        case 2:
-                            return [this.CurrencySymbol, rawnum].join(" ");
-                        case 3:
-                            return [rawnum, this.CurrencySymbol].join(" ");
-                    }
-                }
-            };
-            NumberFormatInfo.prototype.FormatNumber = function (num, precision, ignoreGroupSep) {
-                if (precision == null)
-                    precision = this.NumberDecimalDigits;
-                var rawnum = this.FormatRawNumber(Math.abs(num), precision, this.NumberDecimalSeparator, ignoreGroupSep ? "" : this.NumberGroupSeparator, this.NumberGroupSizes);
-                if (num >= 0)
-                    return rawnum;
-                switch (this.NumberNegativePattern) {
-                    case 0:
-                        return "(" + rawnum + ")";
-                    case 1:
-                    default:
-                        return [this.NegativeSign, rawnum].join("");
-                    case 2:
-                        return [this.NegativeSign, rawnum].join(" ");
-                    case 3:
-                        return [rawnum, this.NegativeSign].join("");
-                    case 4:
-                        return [rawnum, this.NegativeSign].join(" ");
-                }
-            };
-            NumberFormatInfo.prototype.FormatPercent = function (num, precision) {
-                if (precision == null)
-                    precision = this.PercentDecimalDigits;
-                var rawnum = this.FormatRawNumber(Math.abs(num * 100), precision, this.PercentDecimalSeparator, this.PercentGroupSeparator, this.PercentGroupSizes);
-                var sym = this.PercentSymbol;
-                if (num < 0) {
-                    var sign = this.NegativeSign;
-                    switch (this.PercentNegativePattern) {
-                        case 0:
-                        default:
-                            return [sign, rawnum, " ", sym].join("");
-                        case 1:
-                            return [sign, rawnum, sym].join("");
-                        case 2:
-                            return [sign, sym, rawnum].join("");
-                        case 3:
-                            return [sym, sign, rawnum].join("");
-                        case 4:
-                            return [sym, rawnum, sign].join("");
-                        case 5:
-                            return [rawnum, sign, sym].join("");
-                        case 6:
-                            return [rawnum, sym, sign].join("");
-                        case 7:
-                            return [sign, sym, " ", rawnum].join("");
-                        case 8:
-                            return [sign, sym, " ", rawnum].join("");
-                        case 9:
-                            return [sym, " ", rawnum, sign].join("");
-                        case 10:
-                            return [sym, " ", sign, rawnum].join("");
-                        case 11:
-                            return [rawnum, sign, " ", sym].join("");
-                    }
-                } else {
-                    switch (this.PercentPositivePattern) {
-                        case 0:
-                        default:
-                            return [rawnum, this.PercentSymbol].join(" ");
-                        case 1:
-                            return [rawnum, this.PercentSymbol].join("");
-                        case 2:
-                            return [this.PercentSymbol, rawnum].join("");
-                        case 3:
-                            return [this.PercentSymbol, rawnum].join(" ");
-                    }
-                }
-            };
-            NumberFormatInfo.prototype.FormatGeneral = function (num, precision) {
-                if (precision == null)
-                    precision = 6;
-                var sig = sigDigits(Math.abs(num), precision);
-                var rawnum = sig.toString();
-                if (num >= 0)
-                    return rawnum;
-                return this.NegativeSign + rawnum;
-            };
-            NumberFormatInfo.prototype.FormatDecimal = function (num, precision) {
-                var rawnum = this.FormatRawNumber(Math.abs(num), 0, "", "", null);
-                var d = padded(rawnum, precision || 0, true);
-                if (num < 0)
-                    d = this.NegativeSign + d;
-                return d;
-            };
-            NumberFormatInfo.prototype.FormatExponential = function (num, precision) {
-                if (precision == null)
-                    precision = 6;
-                var e = num.toExponential(precision);
-                var tokens = e.split("e+");
-                return tokens[0] + "e" + this.PositiveSign + padded(tokens[1], 3, true);
-            };
-            NumberFormatInfo.prototype.FormatHexadecimal = function (num, precision) {
-                if (precision == null)
-                    precision = 2;
-                num = parseInt(num);
-                if (num >= 0)
-                    return padded(num.toString(16), precision, true);
-                var us = (Math.pow(2, 32) + num).toString(16);
-                if (precision >= us.length)
-                    return padded(us, precision, true);
-                var start = 0;
-                while (us.length - start > precision && us[start] === "f") {
-                    start++;
-                }
-                return us.substr(start);
-            };
-            NumberFormatInfo.prototype.FormatRawNumber = function (num, precision, decSep, groupSep, groupSizes) {
-                var rounded = round(num, precision);
-                var ip = Math.floor(rounded).toString();
-                var fp = rounded.toString().split('.')[1];
-                var pfp = padded(fp, precision);
-                if (!pfp)
-                    return grouped(ip, groupSep);
-                return [
-                    grouped(ip, groupSep),
-                    pfp
-                ].join(decSep);
-            };
-            NumberFormatInfo.Instance = new NumberFormatInfo();
-            return NumberFormatInfo;
-        })();
-        Localization.NumberFormatInfo = NumberFormatInfo;
-
-        function grouped(s, sep) {
-            if (s.length < 4)
-                return s;
-            var offset = s.length % 3;
-            if (offset !== 0) {
-                offset = 3 - offset;
-                s = new Array(offset + 1).join("0") + s;
-            }
-            return s.match(/\d\d\d/g).join(sep).substr(offset);
-        }
-        function padded(s, precision, front) {
-            if (!s)
-                return new Array(precision + 1).join("0");
-            if (s.length > precision)
-                return front ? s : s.substr(0, precision);
-            if (front)
-                return new Array(precision - s.length + 1).join("0") + s;
-            return s + new Array(precision - s.length + 1).join("0");
-        }
-        function round(num, places) {
-            var factor = Math.pow(10, places);
-            return Math.round(num * factor) / factor;
-        }
-        function sigDigits(num, digits) {
-            var n = num.toString();
-            var index = n.indexOf(".");
-            if (index > -1)
-                return round(num, digits - index);
-            return round(num, digits - n.length);
-        }
-    })(Fayde.Localization || (Fayde.Localization = {}));
-    var Localization = Fayde.Localization;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Localization) {
-        var Calendar = (function () {
-            function Calendar() {
-                this.ID = 1;
-                this.Eras = [1];
-                this.EraNames = ["A.D."];
-                this.CurrentEraValue = 1;
-                this.TwoDigitYearMax = 2029;
-                this.MaxSupportedDateTime = new DateTime(9999, 12, 31, 23, 59, 59, 999);
-                this.MinSupportedDateTime = new DateTime(1, 1, 1, 0, 0, 0, 0);
-            }
-            return Calendar;
-        })();
-        Localization.Calendar = Calendar;
-    })(Fayde.Localization || (Fayde.Localization = {}));
-    var Localization = Fayde.Localization;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Localization) {
-        (function (CalendarWeekRule) {
-            CalendarWeekRule[CalendarWeekRule["FirstDay"] = 0] = "FirstDay";
-            CalendarWeekRule[CalendarWeekRule["FirstFullWeek"] = 1] = "FirstFullWeek";
-            CalendarWeekRule[CalendarWeekRule["FirstFourDayWeek"] = 2] = "FirstFourDayWeek";
-        })(Localization.CalendarWeekRule || (Localization.CalendarWeekRule = {}));
-        var CalendarWeekRule = Localization.CalendarWeekRule;
-        var DateTimeFormatInfo = (function () {
-            function DateTimeFormatInfo() {
-                this.AbbreviatedDayNames = [
-                    "Sun",
-                    "Mon",
-                    "Tue",
-                    "Wed",
-                    "Thu",
-                    "Fri",
-                    "Sat"
-                ];
-                this.AbbreviatedMonthGenitiveNames = [
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                    ""
-                ];
-                this.AbbreviatedMonthNames = [
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec"
-                ];
-                this.AMDesignator = "AM";
-                this.Calendar = new Localization.Calendar();
-                this.CalendarWeekRule = 0 /* FirstDay */;
-                this.DateSeparator = "/";
-                this.DayNames = [
-                    "Sunday",
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday"
-                ];
-                this.FirstDayOfWeek = 0 /* Sunday */;
-                this.FullDateTimePattern = "dddd, MMMM dd, yyyy h:mm:ss tt";
-                this.LongDatePattern = "dddd, MMMM dd, yyyy";
-                this.LongTimePattern = "h:mm:ss tt";
-                this.MonthDayPattern = "MMMM dd";
-                this.MonthGenitiveNames = [
-                    "January",
-                    "February",
-                    "March",
-                    "April",
-                    "May",
-                    "June",
-                    "July",
-                    "August",
-                    "September",
-                    "October",
-                    "November",
-                    "December",
-                    ""
-                ];
-                this.MonthNames = [
-                    "January",
-                    "February",
-                    "March",
-                    "April",
-                    "May",
-                    "June",
-                    "July",
-                    "August",
-                    "September",
-                    "October",
-                    "November",
-                    "December"
-                ];
-                this.PMDesignator = "PM";
-                this.RFC1123Pattern = "ddd, dd MMM yyyy HH':'mm':'ss 'GMT'";
-                this.ShortDatePattern = "M/d/yyyy";
-                this.ShortestDayNames = [
-                    "Su",
-                    "Mo",
-                    "Tu",
-                    "We",
-                    "Th",
-                    "Fr",
-                    "Sa"
-                ];
-                this.ShortTimePattern = "h:mm tt";
-                this.SortableDateTimePattern = "yyyy'-'MM'-'dd'T'HH':'mm':'ss";
-                this.TimeSeparator = ":";
-                this.UniversalSortableDateTimePattern = "yyyy'-'MM'-'dd HH':'mm':'ss'Z'";
-                this.YearMonthPattern = "MMMM, yyyy";
-                this.HasForceTwoDigitYears = false;
-            }
-            DateTimeFormatInfo.prototype.GetEraName = function (era) {
-                if (era === 0)
-                    era = this.Calendar.CurrentEraValue;
-                if (era < 0)
-                    throw new ArgumentException("era");
-                var eras = this.Calendar.EraNames;
-                if (era >= eras.length)
-                    throw new ArgumentException("era");
-                return eras[era];
-            };
-
-            DateTimeFormatInfo.ParseRepeatPattern = function (format, pos, patternChar) {
-                var length = format.length;
-                var index = pos + 1;
-                var code = patternChar.charCodeAt(0);
-                while (index < length && format.charCodeAt(index) === code)
-                    ++index;
-                return index - pos;
-            };
-            DateTimeFormatInfo.ParseNextChar = function (format, pos) {
-                if (pos >= format.length - 1)
-                    return -1;
-                return format.charCodeAt(pos + 1);
-            };
-            DateTimeFormatInfo.ParseQuoteString = function (format, pos, result) {
-                var length = format.length;
-                var num = pos;
-                var ch1 = format[pos++];
-                var flag = false;
-                var special = String.fromCharCode(92);
-                while (pos < length) {
-                    var ch2 = format[pos++];
-                    if (ch2 === ch1) {
-                        flag = true;
-                        break;
-                    } else if (ch2 === special) {
-                        if (pos >= length)
-                            throw new FormatException("Invalid format string.");
-                        result.push(format[pos++]);
-                    } else
-                        result.push(ch2);
-                }
-                if (flag)
-                    return pos - num;
-                throw new FormatException("Bad quote: " + ch1);
-            };
-            DateTimeFormatInfo.FormatDigits = function (sb, value, len, overrideLenLimit) {
-                if (!overrideLenLimit && len > 2)
-                    len = 2;
-
-                var s = Math.floor(value).toString();
-                while (s.length < len)
-                    s = "0" + s;
-                sb.push(s);
-            };
-            DateTimeFormatInfo.FormatMonth = function (month, repeat, info) {
-                if (repeat === 3)
-                    return info.AbbreviatedMonthNames[month - 1];
-                return info.MonthNames[month - 1];
-            };
-            DateTimeFormatInfo.FormatDayOfWeek = function (dayOfWeek, repeat, info) {
-                if (repeat === 3)
-                    return info.AbbreviatedDayNames[dayOfWeek];
-                return info.DayNames[dayOfWeek];
-            };
-
-            DateTimeFormatInfo.HebrewFormatDigits = function (sb, digits) {
-                console.warn("Hebrew not implemented");
-                return digits.toString();
-            };
-            DateTimeFormatInfo.FormatHebrewMonthName = function (obj, month, repeat, info) {
-                console.warn("Hebrew not implemented");
-                return DateTimeFormatInfo.FormatMonth(month, repeat, info);
-
-                if (month >= 7)
-                    ++month;
-                if (repeat === 3)
-                    return info.AbbreviatedMonthNames[month - 1];
-                return info.MonthNames[month - 1];
-            };
-            DateTimeFormatInfo.Instance = new DateTimeFormatInfo();
-            return DateTimeFormatInfo;
-        })();
-        Localization.DateTimeFormatInfo = DateTimeFormatInfo;
-    })(Fayde.Localization || (Fayde.Localization = {}));
-    var Localization = Fayde.Localization;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Localization) {
-        function Format(format) {
-            var items = [];
-            for (var _i = 0; _i < (arguments.length - 1); _i++) {
-                items[_i] = arguments[_i + 1];
-            }
-            var sb = [];
-            appendFormat(sb, format, items);
-            return sb.join("");
-        }
-        Localization.Format = Format;
-        function FormatSingle(obj, format) {
-            return doFormattable(obj, format);
-        }
-        Localization.FormatSingle = FormatSingle;
-
-        function appendFormat(_this, format, args, provider) {
-            if (format == null || args == null)
-                throw new ArgumentNullException(format == null ? "format" : "args");
-            var index1 = 0;
-            var length = format.length;
-            var ch = 0;
-            while (true) {
-                var flag = false;
-                var repeatCount = 0;
-                var breakout = false;
-                do {
-                    if (index1 < length) {
-                        ch = format.charCodeAt(index1);
-                        ++index1;
-                        if (ch === 125) {
-                            if (index1 < length && format.charCodeAt(index1) === 125)
-                                ++index1;
-                            else
-                                throw formatError();
-                        }
-                        if (ch === 123) {
-                            if (index1 >= length || format.charCodeAt(index1) !== 123)
-                                --index1;
-                            else {
-                                breakout = true;
-                                ++index1;
-                                break;
-                            }
-                        } else {
-                            _this.push(String.fromCharCode(ch));
-                            breakout = true;
-                            break;
-                        }
-                    }
-                    if (index1 != length) {
-                        var index2 = index1 + 1;
-                        if (index2 === length || (ch = format.charCodeAt(index2)) < 48 || ch > 57)
-                            throw formatError();
-                        var index3 = 0;
-                        do {
-                            index3 = index3 * 10 + ch - 48;
-                            ++index2;
-                            if (index2 == length)
-                                throw formatError();
-                            ch = format.charCodeAt(index2);
-                        } while(ch >= 48 && ch <= 57 && index3 < 1000000);
-                        if (index3 >= args.length)
-                            throw new FormatException("Index out of range.");
-                        while (index2 < length && (ch = format.charCodeAt(index2)) === 32)
-                            ++index2;
-                        flag = false;
-                        var num = 0;
-                        if (ch === 44) {
-                            ++index2;
-                            while (index2 < length && format.charCodeAt(index2) === 32)
-                                ++index2;
-                            if (index2 == length)
-                                throw formatError();
-                            ch = format.charCodeAt(index2);
-                            if (ch === 45) {
-                                flag = true;
-                                ++index2;
-                                if (index2 == length)
-                                    throw formatError();
-                                ch = format.charCodeAt(index2);
-                            }
-                            if (ch < 48 || ch > 57)
-                                throw formatError();
-                            do {
-                                num = num * 10 + ch - 48;
-                                ++index2;
-                                if (index2 == length)
-                                    throw formatError();
-                                ch = format.charCodeAt(index2);
-                            } while(ch >= 48 && ch <= 57 && num < 1000000);
-                        }
-                        while (index2 < length && (ch = format.charCodeAt(index2)) === 32)
-                            ++index2;
-                        var obj = args[index3];
-                        var stringBuilder = null;
-                        if (ch === 58) {
-                            var index4 = index2 + 1;
-                            while (true) {
-                                if (index4 === length)
-                                    throw formatError();
-                                ch = format.charCodeAt(index4);
-                                ++index4;
-                                if (ch === 123) {
-                                    if (index4 < length && format.charCodeAt(index4) === 123)
-                                        ++index4;
-                                    else
-                                        throw formatError();
-                                } else if (ch === 125) {
-                                    if (index4 < length && format.charCodeAt(index4) === 125)
-                                        ++index4;
-                                    else
-                                        break;
-                                }
-                                stringBuilder = stringBuilder || [];
-                                stringBuilder.push(String.fromCharCode(ch));
-                            }
-                            index2 = index4 - 1;
-                        }
-                        if (ch !== 125)
-                            throw formatError();
-                        index1 = index2 + 1;
-                        var str = formatItem(obj, stringBuilder, provider) || "";
-                        repeatCount = num - str.length;
-                        if (!flag && repeatCount > 0)
-                            pushMany(_this, ' ', repeatCount);
-                        _this.push(str);
-                    } else
-                        return;
-                } while(!flag || repeatCount <= 0);
-                if (!breakout)
-                    pushMany(_this, ' ', repeatCount);
-            }
-        }
-        function formatItem(obj, stringBuilder, provider) {
-            var format1 = null;
-            var str = null;
-
-            if (str == null) {
-                if (format1 == null && stringBuilder != null)
-                    format1 = stringBuilderToString(stringBuilder);
-                var formatted = format1 == null ? (obj == null ? "" : obj.toString()) : doFormattable(obj, format1, provider);
-                if (formatted !== undefined)
-                    str = formatted;
-            }
-            return str;
-        }
-        function pushMany(arr, s, count) {
-            for (var i = count - 1; i >= 0; i--) {
-                arr.push(s);
-            }
-        }
-        function formatError() {
-            return new FormatException("Invalid format string.");
-        }
-        function stringBuilderToString(arr) {
-            return arr.join("");
-        }
-
-        var formatters = [];
-        function RegisterFormattable(type, formatter) {
-            formatters[type] = formatter;
-        }
-        Localization.RegisterFormattable = RegisterFormattable;
-        function doFormattable(obj, format, provider) {
-            if (obj == null)
-                return undefined;
-            var type = obj.constructor;
-            var formatter = formatters[type];
-            if (!formatter)
-                return undefined;
-            return formatter(obj, format, provider);
-        }
-    })(Fayde.Localization || (Fayde.Localization = {}));
-    var Localization = Fayde.Localization;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Localization) {
-        Localization.RegisterFormattable(DateTime, function (obj, format, provider) {
-            if (!format)
-                return undefined;
-            if (obj == null)
-                return null;
-            if (obj.constructor !== DateTime)
-                return null;
-            var res = tryStandardFormat(obj, format);
-            if (res != undefined)
-                return res;
-            return tryCustomFormat(obj, format, TimeSpan.MinValue);
-        });
-
-        function tryStandardFormat(obj, format) {
-            if (format.length !== 1)
-                return undefined;
-            var ch = format[0];
-            if (!ch)
-                return undefined;
-            var f = standardFormatters[ch];
-            if (!f)
-                return undefined;
-            return f(obj);
-        }
-
-        var standardFormatters = [];
-        standardFormatters["d"] = function (obj) {
-            return [
-                obj.Month.toString(),
-                obj.Day.toString(),
-                obj.Year.toString()
-            ].join("/");
-        };
-        standardFormatters["D"] = function (obj) {
-            var info = Localization.DateTimeFormatInfo.Instance;
-            return [
-                info.DayNames[obj.DayOfWeek],
-                ", ",
-                info.MonthNames[obj.Month - 1],
-                " ",
-                obj.Day.toString(),
-                ", ",
-                obj.Year.toString()
-            ].join("");
-        };
-        standardFormatters["f"] = function (obj) {
-            return [
-                standardFormatters["D"](obj),
-                standardFormatters["t"](obj)
-            ].join(" ");
-        };
-        standardFormatters["F"] = function (obj) {
-            return [
-                standardFormatters["D"](obj),
-                standardFormatters["T"](obj)
-            ].join(" ");
-        };
-        standardFormatters["g"] = function (obj) {
-            return [
-                standardFormatters["d"](obj),
-                standardFormatters["t"](obj)
-            ].join(" ");
-        };
-        standardFormatters["G"] = function (obj) {
-            return [
-                standardFormatters["d"](obj),
-                standardFormatters["T"](obj)
-            ].join(" ");
-        };
-        standardFormatters["m"] = standardFormatters["M"] = function (obj) {
-            var info = Localization.DateTimeFormatInfo.Instance;
-            return [
-                info.MonthNames[obj.Month - 1],
-                obj.Day
-            ].join(" ");
-        };
-        standardFormatters["r"] = standardFormatters["R"] = function (obj) {
-            var utc = obj.ToUniversalTime();
-            var info = Localization.DateTimeFormatInfo.Instance;
-            return [
-                info.AbbreviatedDayNames[utc.DayOfWeek],
-                ", ",
-                utc.Day,
-                " ",
-                info.AbbreviatedMonthNames[utc.Month - 1],
-                " ",
-                utc.Year,
-                " ",
-                utc.Hour,
-                ":",
-                utc.Minute,
-                ":",
-                utc.Second,
-                " GMT"
-            ].join("");
-        };
-        standardFormatters["s"] = function (obj) {
-            return [
-                obj.Year,
-                "-",
-                padded(obj.Month),
-                "-",
-                padded(obj.Day),
-                "T",
-                padded(obj.Hour),
-                ":",
-                padded(obj.Minute),
-                ":",
-                padded(obj.Second)
-            ].join("");
-        };
-        standardFormatters["t"] = function (obj) {
-            var info = Localization.DateTimeFormatInfo.Instance;
-            var hour = obj.Hour;
-            var desig = info.AMDesignator;
-            if (hour > 12) {
-                hour -= 12;
-                desig = info.PMDesignator;
-            }
-            return [
-                hour.toString(),
-                ":",
-                obj.Minute.toString(),
-                " ",
-                desig
-            ].join("");
-        };
-        standardFormatters["T"] = function (obj) {
-            var info = Localization.DateTimeFormatInfo.Instance;
-            var hour = obj.Hour;
-            var desig = info.AMDesignator;
-            if (hour > 12) {
-                hour -= 12;
-                desig = info.PMDesignator;
-            }
-            return [
-                hour.toString(),
-                ":",
-                obj.Minute.toString(),
-                ":",
-                obj.Second.toString(),
-                " ",
-                desig
-            ].join("");
-        };
-        standardFormatters["u"] = function (obj) {
-            return [
-                obj.Year.toString(),
-                "-",
-                padded(obj.Month),
-                "-",
-                padded(obj.Day),
-                " ",
-                padded(obj.Hour),
-                ":",
-                padded(obj.Minute),
-                ":",
-                padded(obj.Second),
-                "Z"
-            ].join("");
-        };
-        standardFormatters["U"] = function (obj) {
-            var info = Localization.DateTimeFormatInfo.Instance;
-            var hour = obj.Hour;
-            var desig = info.AMDesignator;
-            if (hour > 12) {
-                hour -= 12;
-                desig = info.PMDesignator;
-            }
-            return [
-                info.DayNames[obj.DayOfWeek],
-                ", ",
-                info.MonthNames[obj.Month - 1],
-                " ",
-                obj.Day.toString(),
-                ", ",
-                obj.Year.toString(),
-                " ",
-                hour.toString(),
-                ":",
-                obj.Minute.toString(),
-                ":",
-                obj.Second.toString(),
-                " ",
-                desig
-            ].join("");
-        };
-        standardFormatters["y"] = standardFormatters["Y"] = function (obj) {
-            var info = Localization.DateTimeFormatInfo.Instance;
-            return [
-                info.MonthNames[obj.Month - 1],
-                obj.Year
-            ].join(", ");
-        };
-
-        function padded(num) {
-            return num < 10 ? "0" + num.toString() : num.toString();
-        }
-
-        function tryCustomFormat(obj, format, offset) {
-            var info = Localization.DateTimeFormatInfo.Instance;
-            var calendar = info.Calendar;
-            var stringBuilder = [];
-            var flag = calendar.ID === 8;
-            var timeOnly = true;
-            var index = 0;
-            var len;
-            while (index < format.length) {
-                var patternChar = format[index];
-                switch (patternChar) {
-                    case 'm':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, obj.Minute, len);
-                        break;
-                    case 's':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, obj.Second, len);
-                        break;
-                    case 't':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                        if (len === 1) {
-                            if (obj.Hour < 12) {
-                                if (info.AMDesignator.length >= 1) {
-                                    stringBuilder.push(info.AMDesignator[0]);
-                                    break;
-                                } else
-                                    break;
-                            } else if (info.PMDesignator.length >= 1) {
-                                stringBuilder.push(info.PMDesignator[0]);
-                                break;
-                            } else
-                                break;
-                        } else {
-                            stringBuilder.push(obj.Hour < 12 ? info.AMDesignator : info.PMDesignator);
-                            break;
-                        }
-                    case 'y':
-                        var year = obj.Year;
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                        if (info.HasForceTwoDigitYears)
-                            Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, year, len <= 2 ? len : 2);
-                        else if (calendar.ID === 8)
-                            Localization.DateTimeFormatInfo.HebrewFormatDigits(stringBuilder, year);
-                        else if (len <= 2) {
-                            Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, year % 100, len);
-                        } else {
-                            stringBuilder.push(Localization.FormatSingle(year, "D" + len.toString()));
-                        }
-                        timeOnly = false;
-                        break;
-                    case 'z':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-
-                        console.warn("DateTime 'z' not implemented");
-                        break;
-                    case 'K':
-                        len = 1;
-
-                        console.warn("DateTime 'K' not implemented");
-                        break;
-                    case 'M':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                        var month = obj.Month;
-                        if (len <= 2) {
-                            if (flag)
-                                Localization.DateTimeFormatInfo.HebrewFormatDigits(stringBuilder, month);
-                            else
-                                Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, month, len);
-                        } else if (flag)
-                            stringBuilder.push(Localization.DateTimeFormatInfo.FormatHebrewMonthName(obj, month, len, info));
-                        else
-                            stringBuilder.push(Localization.DateTimeFormatInfo.FormatMonth(month, len, info));
-                        timeOnly = false;
-                        break;
-                    case '\\':
-                        var num2 = Localization.DateTimeFormatInfo.ParseNextChar(format, index);
-                        if (num2 < 0)
-                            throw formatError();
-                        stringBuilder.push(String.fromCharCode(num2));
-                        len = 2;
-                        break;
-                    case 'd':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                        if (len <= 2) {
-                            var dayOfMonth = obj.Day;
-                            if (flag)
-                                Localization.DateTimeFormatInfo.HebrewFormatDigits(stringBuilder, dayOfMonth);
-                            else
-                                Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, dayOfMonth, len);
-                        } else {
-                            var dayOfWeek = obj.DayOfWeek;
-                            stringBuilder.push(Localization.DateTimeFormatInfo.FormatDayOfWeek(dayOfWeek, len, info));
-                        }
-                        timeOnly = false;
-                        break;
-                    case 'f':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                        if (len > 7)
-                            throw formatError();
-                        stringBuilder.push(msf(obj.Millisecond, len));
-                        break;
-                    case 'F':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                        if (len > 7)
-                            throw formatError();
-                        stringBuilder.push(msF(obj.Millisecond, len));
-                        break;
-                    case 'g':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                        stringBuilder.push(info.GetEraName(1));
-                        break;
-                    case 'h':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                        var num5 = obj.Hour % 12;
-                        if (num5 === 0)
-                            num5 = 12;
-                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, num5, len);
-                        break;
-                    case '/':
-                        stringBuilder.push(info.DateSeparator);
-                        len = 1;
-                        break;
-                    case ':':
-                        stringBuilder.push(info.TimeSeparator);
-                        len = 1;
-                        break;
-                    case 'H':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, index, patternChar);
-                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, obj.Hour, len);
-                        break;
-                    case '"':
-                    case '\'':
-                        len = Localization.DateTimeFormatInfo.ParseQuoteString(format, index, stringBuilder);
-                        break;
-                    case '%':
-                        var num6 = Localization.DateTimeFormatInfo.ParseNextChar(format, index);
-                        if (num6 < 0 || num6 === 37)
-                            throw formatError();
-                        stringBuilder.push(tryCustomFormat(obj, String.fromCharCode(num6), offset));
-                        len = 2;
-                        break;
-                    default:
-                        stringBuilder.push(patternChar);
-                        len = 1;
-                        break;
-                }
-                index += len;
-            }
-            return stringBuilder.join("");
-        }
-
-        function msf(ms, len) {
-            var s = Math.abs(ms).toString();
-            while (s.length < 3)
-                s = "0" + s;
-            s += "0000";
-            return s.substr(0, len);
-        }
-        function msF(ms, len) {
-            var f = msf(ms, len);
-            var end = f.length - 1;
-            for (; end >= 0; end--) {
-                if (f[end] !== "0")
-                    break;
-            }
-            return f.slice(0, end + 1);
-        }
-
-        function formatError() {
-            return new FormatException("Invalid format string.");
-        }
-    })(Fayde.Localization || (Fayde.Localization = {}));
-    var Localization = Fayde.Localization;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Localization) {
-        Localization.RegisterFormattable(Number, function (obj, format, provider) {
-            if (obj == null)
-                return null;
-            if (obj.constructor !== Number)
-                return null;
-            var res = tryStandardFormat(obj, format);
-            if (res != undefined)
-                return res;
-            return format;
-        });
-
-        function tryStandardFormat(obj, format) {
-            var ch = format[0];
-            if (!ch)
-                return undefined;
-            var lowerch = ch.toLowerCase();
-            if (lowerch < "a" || lowerch > "z")
-                return undefined;
-            var prec = null;
-            if (format.length > 1) {
-                var prec = parseInt(format.substr(1));
-                if (isNaN(prec))
-                    return undefined;
-            }
-
-            var f = standardFormatters[ch] || standardFormatters[lowerch];
-            if (!f)
-                return undefined;
-            return f(obj, prec);
-        }
-
-        var standardFormatters = [];
-        standardFormatters["c"] = function (obj, precision) {
-            return Localization.NumberFormatInfo.Instance.FormatCurrency(obj, precision);
-        };
-        standardFormatters["d"] = function (obj, precision) {
-            return Localization.NumberFormatInfo.Instance.FormatDecimal(obj, precision);
-        };
-        standardFormatters["E"] = function (obj, precision) {
-            return Localization.NumberFormatInfo.Instance.FormatExponential(obj, precision).toUpperCase();
-        };
-        standardFormatters["e"] = function (obj, precision) {
-            return Localization.NumberFormatInfo.Instance.FormatExponential(obj, precision);
-        };
-        standardFormatters["f"] = function (obj, precision) {
-            return Localization.NumberFormatInfo.Instance.FormatNumber(obj, precision, true);
-        };
-        standardFormatters["g"] = function (obj, precision) {
-            return Localization.NumberFormatInfo.Instance.FormatGeneral(obj, precision);
-        };
-        standardFormatters["n"] = function (obj, precision) {
-            return Localization.NumberFormatInfo.Instance.FormatNumber(obj, precision);
-        };
-        standardFormatters["p"] = function (obj, precision) {
-            return Localization.NumberFormatInfo.Instance.FormatPercent(obj, precision);
-        };
-        standardFormatters["X"] = function (obj, precision) {
-            return Localization.NumberFormatInfo.Instance.FormatHexadecimal(obj, precision).toUpperCase();
-        };
-        standardFormatters["x"] = function (obj, precision) {
-            return Localization.NumberFormatInfo.Instance.FormatHexadecimal(obj, precision);
-        };
-    })(Fayde.Localization || (Fayde.Localization = {}));
-    var Localization = Fayde.Localization;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Localization) {
-        Localization.RegisterFormattable(TimeSpan, function (obj, format, provider) {
-            if (!format)
-                return undefined;
-            if (obj == null)
-                return null;
-            if (obj.constructor !== TimeSpan)
-                return null;
-            var res = tryStandardFormat(obj, format);
-            if (res != undefined)
-                return res;
-            return tryCustomFormat(obj, format);
-        });
-
-        function tryStandardFormat(obj, format) {
-            if (format.length !== 1)
-                return undefined;
-            var ch = format[0];
-            if (!ch)
-                return undefined;
-            var f = standardFormatters[ch];
-            if (!f)
-                return undefined;
-            return f(obj);
-        }
-
-        var standardFormatters = [];
-        standardFormatters["c"] = standardFormatters["t"] = standardFormatters["T"] = function (obj) {
-            var info = Localization.DateTimeFormatInfo.Instance;
-            var s = [
-                padded(obj.Hours),
-                padded(obj.Minutes),
-                padded(obj.Seconds)
-            ].join(info.TimeSeparator);
-            var days = obj.Days;
-            if (days)
-                s = Math.abs(days) + "." + s;
-            var ms = obj.Milliseconds;
-            if (ms)
-                s += "." + msf(ms, 7);
-            if (obj.Ticks < 0)
-                s = "-" + s;
-            return s;
-        };
-        standardFormatters["g"] = function (obj) {
-            var info = Localization.DateTimeFormatInfo.Instance;
-            var s = [
-                Math.abs(obj.Hours),
-                padded(obj.Minutes),
-                padded(obj.Seconds)
-            ].join(info.TimeSeparator);
-            var days = obj.Days;
-            if (days)
-                s = Math.abs(days) + ":" + s;
-            var ms = obj.Milliseconds;
-            if (ms)
-                s += "." + msF(ms, 7);
-            if (obj.Ticks < 0)
-                s = "-" + s;
-            return s;
-        };
-        standardFormatters["G"] = function (obj) {
-            var info = Localization.DateTimeFormatInfo.Instance;
-            var s = [
-                Math.abs(obj.Days),
-                padded(obj.Hours),
-                padded(obj.Minutes),
-                padded(obj.Seconds)
-            ].join(info.TimeSeparator);
-            var ms = obj.Milliseconds;
-            s += "." + msf(ms, 7);
-            if (obj.Ticks < 0)
-                s = "-" + s;
-            return s;
-        };
-
-        function tryCustomFormat(obj, format) {
-            var days = Math.abs(obj.Days);
-            var hours = Math.abs(obj.Hours);
-            var minutes = Math.abs(obj.Minutes);
-            var seconds = Math.abs(obj.Seconds);
-            var ms = Math.abs(obj.Milliseconds);
-
-            var len;
-            var pos = 0;
-            var stringBuilder = [];
-            while (pos < format.length) {
-                var patternChar = format[pos];
-                switch (patternChar) {
-                    case 'm':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
-                        if (len > 2)
-                            throw formatError();
-                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, minutes, len);
-                        break;
-                    case 's':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
-                        if (len > 2)
-                            throw formatError();
-                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, seconds, len);
-                        break;
-                    case '\\':
-                        var num7 = Localization.DateTimeFormatInfo.ParseNextChar(format, pos);
-                        if (num7 < 0)
-                            throw formatError();
-                        stringBuilder.push(String.fromCharCode(num7));
-                        len = 2;
-                        break;
-                    case 'd':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
-                        if (len > 8)
-                            throw formatError();
-                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, days, len, true);
-                        break;
-                    case 'f':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
-                        if (len > 7)
-                            throw formatError();
-                        stringBuilder.push(msf(ms, len));
-                        break;
-                    case 'F':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
-                        if (len > 7)
-                            throw formatError();
-                        stringBuilder.push(msF(ms, len));
-                        break;
-                    case 'h':
-                        len = Localization.DateTimeFormatInfo.ParseRepeatPattern(format, pos, patternChar);
-                        if (len > 2)
-                            throw formatError();
-                        Localization.DateTimeFormatInfo.FormatDigits(stringBuilder, hours, len);
-                        break;
-                    case '"':
-                    case '\'':
-                        len = Localization.DateTimeFormatInfo.ParseQuoteString(format, pos, stringBuilder);
-                        break;
-                    case '%':
-                        var num9 = Localization.DateTimeFormatInfo.ParseNextChar(format, pos);
-                        if (num9 < 0 || num9 === 37)
-                            throw formatError();
-                        stringBuilder.push(tryCustomFormat(obj, String.fromCharCode(num9)));
-                        len = 2;
-                        break;
-                    default:
-                        throw formatError();
-                }
-                pos += len;
-            }
-            return stringBuilder.join("");
-        }
-
-        function padded(num) {
-            var s = Math.abs(num).toString();
-            return (s.length === 1) ? "0" + s : s;
-        }
-        function msf(ms, len) {
-            var s = Math.abs(ms).toString();
-            while (s.length < 3)
-                s = "0" + s;
-            s += "0000";
-            return s.substr(0, len);
-        }
-        function msF(ms, len) {
-            var f = msf(ms, len);
-            var end = f.length - 1;
-            for (; end >= 0; end--) {
-                if (f[end] !== "0")
-                    break;
-            }
-            return f.slice(0, end + 1);
-        }
-
-        function formatError() {
-            return new FormatException("Invalid format string.");
-        }
-    })(Fayde.Localization || (Fayde.Localization = {}));
-    var Localization = Fayde.Localization;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Collections) {
-        var DeepObservableCollection = (function (_super) {
-            __extends(DeepObservableCollection, _super);
-            function DeepObservableCollection() {
-                _super.call(this);
-                this.ItemPropertyChanged = new MulticastEvent();
-                this.CollectionChanged.Subscribe(this._OnCollectionChanged, this);
-            }
-            DeepObservableCollection.prototype._OnCollectionChanged = function (sender, e) {
-                if (e.NewItems) {
-                    for (var i = 0; i < e.NewItems.length; i++) {
-                        var notify = Fayde.INotifyPropertyChanged_.As(e.NewItems[i]);
-                        if (notify)
-                            notify.PropertyChanged.Subscribe(this._OnItemPropertyChanged, this);
-                    }
-                }
-                if (e.OldItems) {
-                    for (var i = 0; i < e.OldItems.length; i++) {
-                        var notify = Fayde.INotifyPropertyChanged_.As(e.OldItems[i]);
-                        if (notify)
-                            notify.PropertyChanged.Unsubscribe(this._OnItemPropertyChanged, this);
-                    }
-                }
-            };
-            DeepObservableCollection.prototype._OnItemPropertyChanged = function (sender, e) {
-                this.ItemPropertyChanged.Raise(this, new Collections.ItemPropertyChangedEventArgs(sender, e.PropertyName));
-            };
-            return DeepObservableCollection;
-        })(Collections.ObservableCollection);
-        Collections.DeepObservableCollection = DeepObservableCollection;
-    })(Fayde.Collections || (Fayde.Collections = {}));
-    var Collections = Fayde.Collections;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Collections) {
-        var ItemPropertyChangedEventArgs = (function (_super) {
-            __extends(ItemPropertyChangedEventArgs, _super);
-            function ItemPropertyChangedEventArgs(item, propertyName) {
-                _super.call(this, propertyName);
-                Object.defineProperty(this, "Item", { value: item, writable: false });
-            }
-            return ItemPropertyChangedEventArgs;
-        })(Fayde.PropertyChangedEventArgs);
-        Collections.ItemPropertyChangedEventArgs = ItemPropertyChangedEventArgs;
-    })(Fayde.Collections || (Fayde.Collections = {}));
-    var Collections = Fayde.Collections;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Collections) {
-        var FilteredCollection = (function (_super) {
-            __extends(FilteredCollection, _super);
-            function FilteredCollection(filter, source) {
-                _super.call(this);
-                this.Filter = filter;
-                this.Source = source || new Fayde.Collections.DeepObservableCollection();
-                source.CollectionChanged.Subscribe(this._OnSourceCollectionChanged, this);
-                source.ItemPropertyChanged.Subscribe(this._OnSourceItemPropertyChanged, this);
-            }
-            Object.defineProperty(FilteredCollection.prototype, "Source", {
-                get: function () {
-                    return this._Source;
-                },
-                set: function (value) {
-                    this._Source = value;
-                    this.Update();
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(FilteredCollection.prototype, "Filter", {
-                get: function () {
-                    return this._Filter;
-                },
-                set: function (value) {
-                    this._Filter = value;
-                    this.Update();
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            FilteredCollection.prototype._OnSourceCollectionChanged = function (sender, e) {
-                this.Update();
-            };
-            FilteredCollection.prototype._OnSourceItemPropertyChanged = function (sender, e) {
-                this.Update();
-                if (this.Filter && this.Filter(e.Item))
-                    this.ItemPropertyChanged.Raise(this, e);
-            };
-
-            FilteredCollection.prototype.Update = function () {
-                if (!this._Source)
-                    return;
-                var filter = this.Filter || (function (item) {
-                    return true;
-                });
-                for (var i = 0, j = 0, enumerator = this._Source.GetEnumerator(); enumerator.MoveNext(); i++) {
-                    var isIncluded = filter(enumerator.Current);
-                    var isCurrent = j < this.Count && this.GetValueAt(j) === enumerator.Current;
-                    if (isIncluded && !isCurrent)
-                        this.Insert(enumerator.Current, j);
-                    else if (!isIncluded && isCurrent)
-                        this.RemoveAt(j);
-                    if (isIncluded)
-                        j++;
-                }
-            };
-            return FilteredCollection;
-        })(Fayde.Collections.DeepObservableCollection);
-        Collections.FilteredCollection = FilteredCollection;
-    })(Fayde.Collections || (Fayde.Collections = {}));
-    var Collections = Fayde.Collections;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
     (function (Xaml) {
         Xaml.IMarkup_ = Fayde.RegisterInterface("IMarkup");
 
@@ -39078,5 +38883,4 @@ var Fayde;
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
-
-Fayde.Version = "0.9.9";
+//# sourceMappingURL=Fayde.js.map

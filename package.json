@@ -1,6 +1,6 @@
 {
   "name": "fayde",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Cross-platform/cross-browser XAML framework",
   "main": "Gruntfile.js",
   "directories": {
