@@ -141,7 +141,7 @@ module.exports = function (grunt) {
     grunt.registerTask('testsite', ['setup:testsite', 'version:apply', 'typescript:build', 'copy:pretestsite', 'typescript:testsite', 'connect', 'open', 'watch']);
     setup(grunt);
     version(grunt);
-    grunt.registerTask('package', ['copy:desploy', 'nugetpack:dist']);
-    grunt.registerTask('publish', ['copy:desploy', 'nugetpack:dist', 'nugetpush:dist']);
+    grunt.registerTask('package', ['copy:deploy', 'nugetpack:dist']);
+    grunt.registerTask('publish', ['copy:deploy', 'nugetpack:dist', 'nugetpush:dist']);
 
 };
