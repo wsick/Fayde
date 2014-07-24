@@ -13,6 +13,7 @@
     "src",
     "test",
     "testsite",
-    "tools"
+    "Tools",
+    "Gruntfile.js"
   ]
 }
