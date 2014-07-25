@@ -3,14 +3,20 @@
 /// <reference path="../Xaml/XamlLoader.ts" />
 /// <reference path="Page.ts" />
 
-module Fayde.Controls {
-    var errorxd = new Xaml.XamlDocument("<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" Title=\"Error\"><TextBlock Text=\"An error occurred navigating.\" /></Page>");
+module Fayde.Controls
+{
     var errorPage: Page;
+<<<<<<< HEAD
     function getErrorPage(error: string): Page {
+=======
+    function getErrorPage(error: string): Page
+    {
+>>>>>>> parent of c4089a9... Revert "Change to Frame to display actual error when something happens in loading a page."
         return errorPage = errorPage || <Page>Xaml.Load(new Xaml.XamlDocument("<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" Title=\"Error\"><TextBlock Text=\"" + error + ".\" /></Page>").Document);
     }
 
-    export class Frame extends ContentControl {
+    export class Frame extends ContentControl
+    {
         static IsDeepLinkedProperty: DependencyProperty = DependencyProperty.Register("IsDeepLinked", () => Boolean, Frame, true);
         static CurrentSourceProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("CurrentSource", () => Uri, Frame);
         static SourceProperty: DependencyProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
@@ -28,34 +34,43 @@ module Fayde.Controls {
         //NavigationStopped = new MulticastEvent();
         //FragmentNavigation = new MulticastEvent();
 
-        constructor() {
+        constructor()
+        {
             super();
             this.Loaded.Subscribe(this._FrameLoaded, this);
         }
 
-        Navigate(uri: Uri) {
+        Navigate(uri: Uri)
+        {
             this._LoadContent(uri);
         }
-        GoForward() {
+        GoForward()
+        {
             //TODO: Implement
         }
-        GoBackward() {
+        GoBackward()
+        {
             //TODO: Implement
         }
-        StopLoading() {
+        StopLoading()
+        {
             //TODO: Implement
         }
-        private _FrameLoaded(sender, e: RoutedEventArgs) {
-            if (this.IsDeepLinked) {
+        private _FrameLoaded(sender, e: RoutedEventArgs)
+        {
+            if (this.IsDeepLinked)
+            {
                 this._NavService.LocationChanged.Subscribe(this._HandleDeepLink, this);
                 this._HandleDeepLink();
             }
         }
-        private _HandleDeepLink() {
+        private _HandleDeepLink()
+        {
             this._LoadContent(new Uri(this._NavService.Href + "#" + this._NavService.Hash));
         }
 
-        private _LoadContent(source: Uri) {
+        private _LoadContent(source: Uri)
+        {
             this.SetValueInternal(Frame.CurrentSourceProperty, source);
             this.StopLoading();
 
@@ -73,23 +88,31 @@ module Fayde.Controls {
                 .success(page => this._HandleSuccess(page))
                 .error(error => this._HandleError(error));
         }
-        private _HandleSuccess(page: Page) {
+        private _HandleSuccess(page: Page)
+        {
             this._SetPage(page);
             TimelineProfile.Navigate(false);
             TimelineProfile.IsNextLayoutPassProfiled = true;
         }
+<<<<<<< HEAD
         private _HandleError(error: string) {
+=======
+        private _HandleError(error: string)
+        {
+>>>>>>> parent of c4089a9... Revert "Change to Frame to display actual error when something happens in loading a page."
             this._SetPage(getErrorPage(error));
             TimelineProfile.Navigate(false);
         }
-        private _SetPage(page: Page) {
+        private _SetPage(page: Page)
+        {
             document.title = page.Title;
             this.Content = page;
             if (page.DataContext == null)
                 page.DataContext = this.DataContext;
         }
 
-        private SourcePropertyChanged(args: IDependencyPropertyChangedEventArgs) {
+        private SourcePropertyChanged(args: IDependencyPropertyChangedEventArgs)
+        {
             //TODO: Ignore in design mode
             if (true)//if loaded and not updating source from nav service
                 this.Navigate(args.NewValue);
