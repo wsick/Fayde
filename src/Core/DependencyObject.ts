@@ -30,7 +30,7 @@ module Fayde {
             var expr: Expression;
             for (var id in exprs) {
                 expr = exprs[id];
-                if (!expr)
+                if (!(expr instanceof Expression))
                     continue;
                 //DataContextProperty expressions are updated in DataContextStore
                 if (id === dcpid)
