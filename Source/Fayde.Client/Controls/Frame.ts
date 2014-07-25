@@ -6,8 +6,8 @@
 module Fayde.Controls {
     var errorxd = new Xaml.XamlDocument("<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" Title=\"Error\"><TextBlock Text=\"An error occurred navigating.\" /></Page>");
     var errorPage: Page;
-    function getErrorPage(): Page {
-        return errorPage = errorPage || <Page>Xaml.Load(errorxd.Document);
+    function getErrorPage(error: string): Page {
+        return errorPage = errorPage || <Page>Xaml.Load(new Xaml.XamlDocument("<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" Title=\"Error\"><TextBlock Text=\"" + error + ".\" /></Page>").Document);
     }
 
     export class Frame extends ContentControl {
@@ -79,7 +79,7 @@ module Fayde.Controls {
             TimelineProfile.IsNextLayoutPassProfiled = true;
         }
         private _HandleError(error: string) {
-            this._SetPage(getErrorPage());
+            this._SetPage(getErrorPage(error));
             TimelineProfile.Navigate(false);
         }
         private _SetPage(page: Page) {
