@@ -1,0 +1,27 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    ThemeName="Metro">
+    <StackPanel>
+        <Border Width="200" Height="100" Background="Green" Margin="20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="20" Color="Black" />
+            </Border.Effect>
+        </Border>
+        <Border Width="200" Height="100" Background="Blue"  Margin="20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="20" Color="Black" />
+            </Border.Effect>
+        </Border>
+        <Border Width="200" Height="100" Background="Red"  Margin="20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="0" ShadowDepth="20" Color="Black" />
+            </Border.Effect>
+        </Border>
+        <Image Grid.Column="0" Margin="-20, 0, 0, 0" Width="200" Source="Images/calvin_johnson.png">
+            <Image.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="20" Color="#2B2F33"/>
+            </Image.Effect>
+        </Image>
+    </StackPanel>
+</Application>

@@ -1,8 +1,0 @@
-﻿<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
-      xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
-      JsType="HelloWorldExample.Root"
-      Title="Fayde Page">
-    <Grid x:Name="LayoutRoot">
-		<TextBlock Text="Hello World" />
-    </Grid>
-</Page>

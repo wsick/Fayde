@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset='UTF-8'/>
+    <meta http-equiv='content-type' content='text/html; charset=utf-8'/>
+    <title>Fayde Test Site</title>
+</head>
+<body>
+<script>
+    var tests = [
+        'App/library.fap',
+        'Binding/double-listbox.fap',
+        'Binding/dt-binding.fap',
+        'Binding/eventbinding.fap',
+        'Binding/find-ancestor.fap',
+        'Binding/observablecoll-count.fap',
+        'Binding/selected-item.fap',
+        'Binding/update-source-trigger.fap',
+        'Controls/border.fap',
+        'Controls/button.fap',
+        'Controls/checkbox.fap',
+        'Controls/combobox.fap',
+        'Controls/contentcontrol.fap',
+        'Controls/grid.fap',
+        'Controls/gridsplitter.fap',
+        'Controls/hyperlinkbutton.fap',
+        'Controls/itemscontrol.fap',
+        'Controls/listbox.fap',
+        'Controls/passwordbox.fap',
+        'Controls/progressbar.fap',
+        'Controls/radiobutton.fap',
+        'Controls/scrollbar.fap',
+        'Controls/scrollviewer.fap',
+        'Controls/slider.fap',
+        'Controls/stackpanel.fap',
+        'Controls/textblock.fap',
+        'Controls/textbox.fap',
+        'Format/datetime.fap',
+        'IssueTests/dropshadowblur.fap',
+        'IssueTests/issue11.fap',
+        'IssueTests/issue37.fap',
+        'Media/image-stack.fap',
+        'Media/image-stretch.fap',
+        'Media/imagebrush.fap',
+        'Media/imaging.fap',
+        'Media/mediaelement-basic.fap',
+        'Media/mediaelement-stack.fap',
+        'Navigation/default.fap',
+        'Shapes/map.fap',
+        'Shapes/path.fap',
+        'Shapes/rectangle-basic.fap',
+        'Shapes/rectangle-grid.fap',
+        'Shapes/shape-stack.fap',
+        'Shapes/shape-stretch.fap',
+        'Shapes/shapes.fap',
+        'Stress/listbox.fap',
+        'Theme/Metro.fap',
+        'Theme/Silverlight.fap',
+        'Toy/default2.fap',
+        'Toy/default3.fap',
+        'Toy/default6.fap',
+        'Toy/default7.fap',
+        'Toy/default8.fap'
+    ];
+    for (var i = 0; i < tests.length; i++) {
+        var a = document.createElement('a');
+        a.href = 'test.html?app=' + tests[i];
+        a.innerText = tests[i];
+        document.body.appendChild(a);
+        document.body.appendChild(document.createElement('br'));
+    }
+</script>
+</body>
+</html>
