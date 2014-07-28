@@ -6,8 +6,11 @@ Inspired by Silverlight; XAML engine using Javascript and rendering to the HTML5
 * nodejs
 * grunt
 * bower
+* yeoman (used for scaffolding new applications)
 
 ## How to use
+
+Install the Fayde application generator for yeoman.  Then use yeoman to generate a new application.
 
     > npm install -g generator-fayde
     > mkdir <project directory name>
