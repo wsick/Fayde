@@ -1,14 +1,20 @@
 ## Fayde
 Inspired by Silverlight; XAML engine using Javascript and rendering to the HTML5 Canvas.
 
-### Setting up development environment
+## Dependencies
 
-Make sure all prerequisites are installed.
 * nodejs
 * grunt
 * bower
 
-Now run from the root directory.
+## How to use
+
+    > npm install -g generator-fayde
+    > mkdir <project directory name>
+    > cd <project directory name>
+    > yo fayde
+
+### Set up development environment
 
     > npm install
 
