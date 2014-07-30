@@ -6166,7 +6166,7 @@ declare class BError {
     public ThrowException(): void;
 }
 declare module Fayde {
-    function Configure(json: any): void;
+    function LoadConfigJson(onComplete: (config: any, err?: any) => void): void;
 }
 declare module Fayde {
     module Render {

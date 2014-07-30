@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.11.0';
+    Fayde.Version = '0.11.1';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -35580,12 +35580,28 @@ var BError = (function () {
 })();
 var Fayde;
 (function (Fayde) {
-    function Configure(json) {
-        if (!json)
-            return;
-        configureLibs(json.libs || {});
+    var jsonFile = 'fayde.json';
+
+    function LoadConfigJson(onComplete) {
+        require(['text!' + jsonFile], function (jsontext) {
+            return configure(jsontext, onComplete);
+        }, function (err) {
+            return onComplete(err);
+        });
     }
-    Fayde.Configure = Configure;
+    Fayde.LoadConfigJson = LoadConfigJson;
+
+    function configure(jsontext, onComplete) {
+        var json;
+        try  {
+            json = JSON.parse(jsontext);
+        } catch (err) {
+            return onComplete(null, err);
+        }
+        if (json)
+            configureLibs(json.libs || {});
+        onComplete(json);
+    }
 
     function configureLibs(json) {
         var libs = [];

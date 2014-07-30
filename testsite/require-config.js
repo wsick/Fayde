@@ -6,15 +6,9 @@ var require = {
     },
     deps: ["text", "Fayde"],
     callback: function (text, Fayde) {
-        requirejs(['text!fayde.json'], function (faydejson) {
-            try {
-                Fayde.Configure(JSON.parse(faydejson));
-            } catch (err) {
-                console.warn("Invalid fayde.json.", err);
-            }
-            Fayde.Run();
-        }, function (err) {
-            console.warn('Could not load fayde.json', err);
+        Fayde.LoadConfigJson(function (config, err) {
+            if (err)
+                console.warn('Could not load fayde configuration file.', err);
             Fayde.Run();
         });
     },
@@ -22,9 +16,6 @@ var require = {
         "Fayde": {
             exports: "Fayde",
             deps: ["text"]
-        },
-        "runner": {
-            deps: ["Fayde"]
         }
     }
 };

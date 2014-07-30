@@ -1,8 +1,24 @@
 module Fayde {
-    export function Configure (json: any) {
-        if (!json)
-            return;
-        configureLibs(json.libs || {});
+    var jsonFile = 'fayde.json';
+
+    declare var require;
+
+    export function LoadConfigJson (onComplete: (config: any, err?: any) => void) {
+        require(['text!' + jsonFile],
+            (jsontext) => configure(jsontext, onComplete),
+            (err) => onComplete(err));
+    }
+
+    function configure (jsontext: string, onComplete: (config: any, err?: any) => void) {
+        var json: any;
+        try {
+            json = JSON.parse(jsontext);
+        } catch (err) {
+            return onComplete(null, err);
+        }
+        if (json)
+            configureLibs(json.libs || {});
+        onComplete(json);
     }
 
     interface ILibraryConfig {

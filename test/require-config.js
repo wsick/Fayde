@@ -8,14 +8,10 @@ var require = {
     shim: {
         "Fayde": {
             exports: "Fayde",
-            deps: ['text']
+            deps: ["text"]
         },
         "runner": {
             deps: ["Fayde"]
         }
     }
-};
-
-require.shim["lib/Fayde.Controls/Fayde.Controls"] = {
-    exports: "Fayde.Controls"
 };
