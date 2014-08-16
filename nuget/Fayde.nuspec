@@ -10,10 +10,10 @@
         <tags>fayde xaml silverlight</tags>
     </metadata>
     <files>
-        <file src="content\lib\Fayde\Themes\Default.theme.xml" target="content\lib\Fayde\Themes\Default.theme.xml" />
-        <file src="content\lib\Fayde\Themes\Metro.theme.xml" target="content\lib\Fayde\Themes\Metro.theme.xml" />
-        <file src="content\lib\Fayde\Fayde.d.ts" target="content\lib\Fayde\Fayde.d.ts" />
-        <file src="content\lib\Fayde\Fayde.js" target="content\lib\Fayde\Fayde.js" />
+        <file src="..\Themes\Default.theme.xml" target="content\lib\Fayde\Themes\Default.theme.xml" />
+        <file src="..\Themes\Metro.theme.xml" target="content\lib\Fayde\Themes\Metro.theme.xml" />
+        <file src="..\Fayde.d.ts" target="content\lib\Fayde\Fayde.d.ts" />
+        <file src="..\Fayde.js" target="content\lib\Fayde\Fayde.js" />
         <file src="content\lib\requirejs\require.d.ts" target="content\lib\requirejs\require.d.ts" />
         <file src="content\lib\requirejs\require.js" target="content\lib\requirejs\require.js" />
         <file src="content\lib\requirejs\text.js" target="content\lib\requirejs\text.js" />
