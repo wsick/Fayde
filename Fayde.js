@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.11.1';
+    Fayde.Version = '0.11.2';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -10635,10 +10635,16 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        var errorxd = new Fayde.Xaml.XamlDocument("<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" Title=\"Error\"><TextBlock Text=\"An error occurred navigating.\" /></Page>");
-        var errorPage;
-        function getErrorPage() {
-            return errorPage = errorPage || Fayde.Xaml.Load(errorxd.Document);
+        function createErrorDoc(error) {
+            var safe = (error || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+            var xaml = '<Page xmlns="' + Fayde.XMLNS + '" xmlns:x="' + Fayde.XMLNSX + '" Title="Error">';
+            xaml += '<TextBlock Text="' + safe + '" />';
+            xaml += '</Page>';
+            return new Fayde.Xaml.XamlDocument(xaml);
+        }
+
+        function getErrorPage(error) {
+            return Fayde.Xaml.Load(createErrorDoc(error).Document);
         }
 
         var Frame = (function (_super) {
@@ -10651,18 +10657,23 @@ var Fayde;
             Frame.prototype.Navigate = function (uri) {
                 this._LoadContent(uri);
             };
+
             Frame.prototype.GoForward = function () {
             };
+
             Frame.prototype.GoBackward = function () {
             };
+
             Frame.prototype.StopLoading = function () {
             };
+
             Frame.prototype._FrameLoaded = function (sender, e) {
                 if (this.IsDeepLinked) {
                     this._NavService.LocationChanged.Subscribe(this._HandleDeepLink, this);
                     this._HandleDeepLink();
                 }
             };
+
             Frame.prototype._HandleDeepLink = function () {
                 this._LoadContent(new Uri(this._NavService.Href + "#" + this._NavService.Hash));
             };
@@ -10688,15 +10699,18 @@ var Fayde;
                     return _this._HandleError(error);
                 });
             };
+
             Frame.prototype._HandleSuccess = function (page) {
                 this._SetPage(page);
                 TimelineProfile.Navigate(false);
                 TimelineProfile.IsNextLayoutPassProfiled = true;
             };
+
             Frame.prototype._HandleError = function (error) {
-                this._SetPage(getErrorPage());
+                this._SetPage(getErrorPage(error));
                 TimelineProfile.Navigate(false);
             };
+
             Frame.prototype._SetPage = function (page) {
                 document.title = page.Title;
                 this.Content = page;
