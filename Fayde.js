@@ -10688,7 +10688,7 @@ var Fayde;
                 TimelineProfile.Navigate(true, fragment);
 
                 var targetUri = new Uri(fragment, 1 /* Relative */);
-                var target = undefined;
+                var target = null;
                 if (this.RouteMapper) {
                     this._CurrentRoute = this.RouteMapper.MapUri(targetUri);
                     if (!this._CurrentRoute)

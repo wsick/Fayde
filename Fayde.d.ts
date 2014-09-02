@@ -4380,10 +4380,10 @@ declare module Fayde.Navigation {
         public HashParams: {
             [key: string]: string;
         };
-        public DataContext: Object;
+        public DataContext: any;
         constructor(view: Uri, hashParams: {
             [key: string]: string;
-        }, dataContext: Object);
+        }, dataContext: any);
     }
 }
 declare module Fayde.MVVM {
