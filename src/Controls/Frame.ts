@@ -82,7 +82,7 @@ module Fayde.Controls {
             TimelineProfile.Navigate(true, fragment);
 
             var targetUri = new Uri(fragment, UriKind.Relative);
-            var target = undefined;
+            var target: string = null;
             if (this.RouteMapper) {
                 this._CurrentRoute = this.RouteMapper.MapUri(targetUri);
                 if (!this._CurrentRoute)
