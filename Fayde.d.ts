@@ -1872,11 +1872,14 @@ declare module Fayde.Controls {
         static CurrentSourceProperty: DependencyProperty;
         static SourceProperty: DependencyProperty;
         static UriMapperProperty: DependencyProperty;
+        static RouteMapperProperty: DependencyProperty;
         public IsDeepLinked: boolean;
         public CurrentSource: Uri;
         public Source: Uri;
         public UriMapper: Navigation.UriMapper;
+        public RouteMapper: Navigation.RouteMapper;
         private _NavService;
+        private _CurrentRoute;
         constructor();
         public Navigate(uri: Uri): void;
         public GoForward(): void;
@@ -4371,6 +4374,24 @@ declare module Fayde.Localization {
 }
 declare module Fayde.Localization {
 }
+declare module Fayde.Navigation {
+    class Route {
+        public View: Uri;
+        public HashParams: {
+            [key: string]: string;
+        };
+        public DataContext: Object;
+        constructor(view: Uri, hashParams: {
+            [key: string]: string;
+        }, dataContext: Object);
+    }
+}
+declare module Fayde.MVVM {
+    interface IViewModelProvider {
+        ResolveViewModel(route: Navigation.Route): any;
+    }
+    var IViewModelProvider_: IInterfaceDeclaration<IViewModelProvider>;
+}
 declare module Fayde.MVVM {
     function NotifyProperties(type: any, propNames: string[]): void;
     class ObservableObject implements INotifyPropertyChanged {
@@ -5782,6 +5803,25 @@ declare module Fayde.Navigation {
         public LocationChanged: MulticastEvent<EventArgs>;
         constructor();
         private _HandleFragmentChange();
+    }
+}
+declare module Fayde.Navigation {
+    class RouteMapping extends DependencyObject {
+        static ViewProperty: DependencyProperty;
+        static UriProperty: DependencyProperty;
+        public View: Uri;
+        public Uri: Uri;
+        public MapUri(uri: Uri): Route;
+    }
+}
+declare module Fayde.Navigation {
+    class RouteMapper extends DependencyObject {
+        static RouteMappingsProperty: ImmutableDependencyProperty<XamlObjectCollection<RouteMapping>>;
+        static ViewModelProviderProperty: DependencyProperty;
+        public RouteMappings: XamlObjectCollection<RouteMapping>;
+        public ViewModelProvider: MVVM.IViewModelProvider;
+        constructor();
+        public MapUri(uri: Uri): Route;
     }
 }
 declare module Fayde.Navigation {

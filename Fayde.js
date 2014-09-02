@@ -10652,6 +10652,7 @@ var Fayde;
             function Frame() {
                 _super.call(this);
                 this._NavService = new Fayde.Navigation.NavigationService();
+                this._CurrentRoute = undefined;
                 this.Loaded.Subscribe(this._FrameLoaded, this);
             }
             Frame.prototype.Navigate = function (uri) {
@@ -10687,11 +10688,18 @@ var Fayde;
                 TimelineProfile.Navigate(true, fragment);
 
                 var targetUri = new Uri(fragment, 1 /* Relative */);
-                if (this.UriMapper)
-                    targetUri = this.UriMapper.MapUri(targetUri);
-                var target = targetUri.toString();
-                if (!target)
-                    throw new InvalidOperationException("Cannot resolve empty url.");
+                var target = undefined;
+                if (this.RouteMapper) {
+                    this._CurrentRoute = this.RouteMapper.MapUri(targetUri);
+                    if (!this._CurrentRoute)
+                        throw new InvalidOperationException("Route could not be mapped." + targetUri.toString());
+                    target = this._CurrentRoute.View.toString();
+                } else if (this.UriMapper) {
+                    var mapped = this.UriMapper.MapUri(targetUri);
+                    if (!mapped)
+                        throw new InvalidOperationException("Uri could not be mapped." + targetUri.toString());
+                    target = mapped.toString();
+                }
 
                 Controls.Page.GetAsync(target).success(function (page) {
                     return _this._HandleSuccess(page);
@@ -10714,6 +10722,8 @@ var Fayde;
             Frame.prototype._SetPage = function (page) {
                 document.title = page.Title;
                 this.Content = page;
+                if (this._CurrentRoute)
+                    page.DataContext = this._CurrentRoute.DataContext;
                 if (page.DataContext == null)
                     page.DataContext = this.DataContext;
             };
@@ -10735,6 +10745,9 @@ var Fayde;
             });
             Frame.UriMapperProperty = DependencyProperty.Register("UriMapper", function () {
                 return Fayde.Navigation.UriMapper;
+            }, Frame);
+            Frame.RouteMapperProperty = DependencyProperty.Register("RouteMapper", function () {
+                return Fayde.Navigation.RouteMapper;
             }, Frame);
             return Frame;
         })(Controls.ContentControl);
@@ -26088,6 +26101,29 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    (function (Navigation) {
+        var Route = (function () {
+            function Route(view, hashParams, dataContext) {
+                this.View = view;
+                this.HashParams = hashParams;
+                this.DataContext = dataContext;
+            }
+            return Route;
+        })();
+        Navigation.Route = Route;
+        Fayde.RegisterType(Route, "Fayde.Navigation", Fayde.XMLNS);
+    })(Fayde.Navigation || (Fayde.Navigation = {}));
+    var Navigation = Fayde.Navigation;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (MVVM) {
+        MVVM.IViewModelProvider_ = Fayde.RegisterInterface("IViewModelProvider");
+    })(Fayde.MVVM || (Fayde.MVVM = {}));
+    var MVVM = Fayde.MVVM;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     (function (MVVM) {
         function NotifyProperties(type, propNames) {
             var len = propNames.length;
@@ -32576,6 +32612,135 @@ var Fayde;
         })();
         Navigation.NavigationService = NavigationService;
         Fayde.RegisterType(NavigationService, "Fayde.Navigation", Fayde.XMLNS);
+    })(Fayde.Navigation || (Fayde.Navigation = {}));
+    var Navigation = Fayde.Navigation;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Navigation) {
+        var RouteMapping = (function (_super) {
+            __extends(RouteMapping, _super);
+            function RouteMapping() {
+                _super.apply(this, arguments);
+            }
+            RouteMapping.prototype.MapUri = function (uri) {
+                var matcher = createUriMatcher(this.Uri.toString(), uri.toString());
+                var result = matcher.Match();
+                if (!result)
+                    return undefined;
+
+                if (!this.View)
+                    throw new InvalidOperationException("RouteMapping must have a view. (" + this.Uri.toString() + ")");
+                var hashParams = {};
+                for (var i = 0; i < result.length; i++) {
+                    var key = result[i].Identifier;
+                    var value = result[i].Value;
+                    hashParams[key] = value;
+                }
+                return new Navigation.Route(this.View, hashParams, null);
+            };
+            RouteMapping.ViewProperty = DependencyProperty.Register("View", function () {
+                return Uri;
+            }, RouteMapping);
+            RouteMapping.UriProperty = DependencyProperty.Register("Uri", function () {
+                return Uri;
+            }, RouteMapping);
+            return RouteMapping;
+        })(Fayde.DependencyObject);
+        Navigation.RouteMapping = RouteMapping;
+        Fayde.RegisterType(RouteMapping, "Fayde.Navigation", Fayde.XMLNS);
+
+        function createUriMatcher(matchTemplate, actual) {
+            var i = 0;
+            var j = 0;
+
+            function collectTokenInfo() {
+                var tokenInfo = {
+                    Identifier: null,
+                    Terminator: null,
+                    Value: null
+                };
+                var index = matchTemplate.indexOf('}', i);
+                if (index < 0)
+                    throw new InvalidOperationException("Invalid Uri format. '{' needs a closing '}'.");
+                var len = index - i + 1;
+                tokenInfo.Identifier = matchTemplate.substr(i + 1, len - 2);
+                if (!tokenInfo.Identifier)
+                    throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
+                i += len;
+                tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
+                return tokenInfo;
+            }
+
+            function findTokenValue(tokenInfo) {
+                if (tokenInfo.Terminator === '\0') {
+                    tokenInfo.Value = actual.substr(j);
+                    if (tokenInfo.Value)
+                        j += tokenInfo.Value.length;
+                    return tokenInfo;
+                }
+                tokenInfo.Value = "";
+                while (j < actual.length) {
+                    if (actual[j] == tokenInfo.Terminator)
+                        return;
+                    tokenInfo.Value += actual[j];
+                    j++;
+                }
+            }
+
+            return {
+                Match: function () {
+                    var tokens = [];
+                    while (i < matchTemplate.length && j < actual.length) {
+                        if (matchTemplate[i] === "{") {
+                            tokens.push(findTokenValue(collectTokenInfo()));
+                            continue;
+                        }
+                        if (matchTemplate[i] !== actual[i])
+                            return null;
+                        i++;
+                        j++;
+                    }
+                    return tokens;
+                }
+            };
+        }
+    })(Fayde.Navigation || (Fayde.Navigation = {}));
+    var Navigation = Fayde.Navigation;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Navigation) {
+        var RouteMapper = (function (_super) {
+            __extends(RouteMapper, _super);
+            function RouteMapper() {
+                _super.call(this);
+                RouteMapper.RouteMappingsProperty.Initialize(this);
+            }
+            RouteMapper.prototype.MapUri = function (uri) {
+                var enumerator = this.RouteMappings.getEnumerator();
+                var mapped;
+                while (enumerator.moveNext()) {
+                    mapped = enumerator.current.MapUri(uri);
+                    if (mapped) {
+                        var vm = this.ViewModelProvider.ResolveViewModel(mapped);
+                        mapped.DataContext = vm;
+                        return mapped;
+                    }
+                }
+                return undefined;
+            };
+            RouteMapper.RouteMappingsProperty = DependencyProperty.RegisterImmutable("RouteMappings", function () {
+                return Fayde.XamlObjectCollection;
+            }, RouteMapper);
+            RouteMapper.ViewModelProviderProperty = DependencyProperty.Register("ViewModelProvider", function () {
+                return Fayde.MVVM.IViewModelProvider_;
+            }, RouteMapper);
+            return RouteMapper;
+        })(Fayde.DependencyObject);
+        Navigation.RouteMapper = RouteMapper;
+        Fayde.RegisterType(RouteMapper, "Fayde.Navigation", Fayde.XMLNS);
+        Fayde.Xaml.Content(RouteMapper, RouteMapper.RouteMappingsProperty);
     })(Fayde.Navigation || (Fayde.Navigation = {}));
     var Navigation = Fayde.Navigation;
 })(Fayde || (Fayde = {}));

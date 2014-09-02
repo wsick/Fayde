@@ -26,12 +26,15 @@ module Fayde.Controls {
         static CurrentSourceProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("CurrentSource", () => Uri, Frame);
         static SourceProperty: DependencyProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
         static UriMapperProperty = DependencyProperty.Register("UriMapper", () => Navigation.UriMapper, Frame);
+        static RouteMapperProperty = DependencyProperty.Register("RouteMapper", () => Navigation.RouteMapper, Frame);
         IsDeepLinked: boolean;
         CurrentSource: Uri;
         Source: Uri;
         UriMapper: Navigation.UriMapper;
+        RouteMapper: Navigation.RouteMapper;
 
         private _NavService: Navigation.NavigationService = new Navigation.NavigationService();
+        private _CurrentRoute: Fayde.Navigation.Route = undefined;
 
         //Navigated = new MulticastEvent();
         //Navigating = new MulticastEvent();
@@ -79,11 +82,19 @@ module Fayde.Controls {
             TimelineProfile.Navigate(true, fragment);
 
             var targetUri = new Uri(fragment, UriKind.Relative);
-            if (this.UriMapper)
-                targetUri = this.UriMapper.MapUri(targetUri);
-            var target = targetUri.toString();
-            if (!target)
-                throw new InvalidOperationException("Cannot resolve empty url.");
+            var target = undefined;
+            if (this.RouteMapper) {
+                this._CurrentRoute = this.RouteMapper.MapUri(targetUri);
+                if (!this._CurrentRoute)
+                    throw new InvalidOperationException("Route could not be mapped." + targetUri.toString());
+                target = this._CurrentRoute.View.toString();
+            }
+            else if (this.UriMapper) {
+                var mapped = this.UriMapper.MapUri(targetUri);
+                if (!mapped)
+                    throw new InvalidOperationException("Uri could not be mapped." + targetUri.toString());
+                target = mapped.toString();
+            }
 
             Page.GetAsync(target)
                 .success(page => this._HandleSuccess(page))
@@ -101,9 +112,11 @@ module Fayde.Controls {
             TimelineProfile.Navigate(false);
         }
 
-        private _SetPage (page: Page) {
+        private _SetPage(page: Page) {
             document.title = page.Title;
             this.Content = page;
+            if (this._CurrentRoute)
+                page.DataContext = this._CurrentRoute.DataContext;
             if (page.DataContext == null)
                 page.DataContext = this.DataContext;
         }
