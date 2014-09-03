@@ -22,7 +22,7 @@ module Fayde.Navigation {
             while (enumerator.moveNext()) {
                 mapped = enumerator.current.MapUri(uri);
                 if (mapped) {
-                    var vm: any = this.ViewModelProvider.ResolveViewModel(mapped);
+                    var vm: any = this.ViewModelProvider ? this.ViewModelProvider.ResolveViewModel(mapped) : null;
                     mapped.DataContext = vm;
                     return mapped;
                 }

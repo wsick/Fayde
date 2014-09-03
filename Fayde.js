@@ -32669,6 +32669,7 @@ var Fayde;
                     throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
                 i += len;
                 tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
+                console.log("identifier: " + tokenInfo.Identifier + ", terminator: " + tokenInfo.Terminator);
                 return tokenInfo;
             }
 
@@ -32686,11 +32687,19 @@ var Fayde;
                     tokenInfo.Value += actual[j];
                     j++;
                 }
+                console.log("value: " + tokenInfo.Value);
             }
 
             return {
                 Match: function () {
                     var tokens = [];
+
+                    if (matchTemplate.length === 0) {
+                        if (actual.length === 0)
+                            return tokens;
+                        return null;
+                    }
+
                     while (i < matchTemplate.length && j < actual.length) {
                         if (matchTemplate[i] === "{") {
                             tokens.push(findTokenValue(collectTokenInfo()));
@@ -32723,7 +32732,7 @@ var Fayde;
                 while (enumerator.moveNext()) {
                     mapped = enumerator.current.MapUri(uri);
                     if (mapped) {
-                        var vm = this.ViewModelProvider.ResolveViewModel(mapped);
+                        var vm = this.ViewModelProvider ? this.ViewModelProvider.ResolveViewModel(mapped) : null;
                         mapped.DataContext = vm;
                         return mapped;
                     }
