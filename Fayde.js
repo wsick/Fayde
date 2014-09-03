@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.11.2';
+    Fayde.Version = '0.11.3';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
