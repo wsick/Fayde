@@ -10,7 +10,7 @@ module Fayde.Media {
         CenterX: number;
         CenterY: number;
 
-        _BuildValue(): number[] {
+        _BuildValue (): number[] {
             var cx = this.CenterX;
             var cy = this.CenterY;
             var angle = 360 - this.Angle; //Rotation matrix rotates counter-clockwise; Silverlight rotates clockwise
@@ -37,7 +37,7 @@ module Fayde.Media {
         ScaleX: number;
         ScaleY: number;
 
-        _BuildValue(): number[] {
+        _BuildValue (): number[] {
             var cx = this.CenterX;
             var cy = this.CenterY;
             var m = mat3.createScale(this.ScaleX, this.ScaleY);
@@ -62,7 +62,7 @@ module Fayde.Media {
         CenterX: number;
         CenterY: number;
 
-        _BuildValue(): number[] {
+        _BuildValue (): number[] {
             var cx = this.CenterX;
             var cy = this.CenterY;
             var angleXRad = Math.PI / 180 * this.AngleX;
@@ -85,45 +85,26 @@ module Fayde.Media {
         X: number;
         Y: number;
 
-        _BuildValue(): number[] {
+        _BuildValue (): number[] {
             return mat3.createTranslate(this.X, this.Y);
         }
     }
     Fayde.RegisterType(TranslateTransform, "Fayde.Media", Fayde.XMLNS);
 
-    export interface ITransformChangedChildListener extends ITransformChangedListener {
-        Child: Transform;
-    }
-
     export class TransformCollection extends XamlObjectCollection<Transform> {
-        private _Relayer: () => void = function () { };
-        private _ChildTransformListeners: ITransformChangedChildListener[] = [];
-
-        AddingToCollection(value: Transform, error: BError): boolean {
+        AddingToCollection (value: Transform, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
-            var listener = <ITransformChangedChildListener>value.Listen(() => this._Relayer());
-            listener.Child = value;
-            this._ChildTransformListeners.push(listener);
-            this._Relayer();
+            ReactTo(value, this, () => Incite(this));
+            Incite(this);
             return true;
         }
-        RemovedFromCollection(value: Transform, isValueSafe: boolean) {
+
+        RemovedFromCollection (value: Transform, isValueSafe: boolean) {
             if (!super.RemovedFromCollection(value, isValueSafe))
                 return false;
-            var listeners = this._ChildTransformListeners;
-            var len = listeners.length;
-            for (var i = 0; i < len; i++) {
-                if (listeners[i].Child === value) {
-                    listeners.splice(i, 1)[0].Detach();
-                    break;
-                }
-            }
-            this._Relayer();
-        }
-
-        RelayChanges(func: () => void ) {
-            this._Relayer = func;
+            UnreactTo(value, this);
+            Incite(this);
         }
     }
     Fayde.RegisterType(TransformCollection, "Fayde.Media", Fayde.XMLNS);
@@ -132,16 +113,13 @@ module Fayde.Media {
         static ChildrenProperty = DependencyProperty.RegisterImmutable<TransformCollection>("Children", () => TransformCollection, TransformGroup);
         Children: TransformCollection;
 
-        private _TransformListener: ITransformChangedListener;
-
-        constructor() {
+        constructor () {
             super();
             var coll = TransformGroup.ChildrenProperty.Initialize(this);
-            coll.AttachTo(this);
-            coll.RelayChanges(() => this._InvalidateValue());
+            ReactTo(coll.AttachTo(this), this, () => this._InvalidateValue());
         }
 
-        _BuildValue(): number[] {
+        _BuildValue (): number[] {
             var enumerator = this.Children.getEnumerator(true);
             var cur = mat3.identity();
             while (enumerator.moveNext()) {

@@ -1,11 +1,6 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde.Media {
-    export interface IMatrixChangedListener {
-        Callback: (newMatrix: Matrix) => void;
-        Detach();
-    }
-
     export class Matrix {
         _Raw: number[];
         private _Inverse: Matrix = null;
@@ -48,27 +43,9 @@ module Fayde.Media {
             return inverse;
         }
 
-        private _Listeners: IMatrixChangedListener[] = [];
-        Listen(func: (newMatrix: Matrix) => void ): IMatrixChangedListener {
-            var listeners = this._Listeners;
-            var listener = {
-                Callback: func,
-                Detach: () => {
-                    var index = listeners.indexOf(listener);
-                    if (index > -1)
-                        listeners.splice(index, 1);
-                }
-            };
-            listeners.push(listener);
-            return listener;
-        }
         private _OnChanged() {
             this._Inverse = null;
-            var listeners = this._Listeners;
-            var len = listeners.length;
-            for (var i = 0; i < len; i++) {
-                listeners[i].Callback(this);
-            }
+            Incite(this);
         }
 
         Clone(): Matrix {

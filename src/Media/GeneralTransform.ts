@@ -6,12 +6,20 @@ module Fayde.Media {
         Transform(p: Point): Point { return p; }
         TransformBounds(r: rect): rect { return r; }
         TryTransform(inPoint: Point, outPoint: Point): boolean { return false; }
+
+        static copyMatTo (gt: GeneralTransform, mat: number[]) {
+            if (gt instanceof InternalTransform) {
+                mat3.set(mat4.toAffineMat3((<InternalTransform>gt).Value._Raw), mat);
+            } else {
+                mat3.set((<Transform>gt).Value._Raw, mat);
+            }
+        }
     }
     Fayde.RegisterType(GeneralTransform, "Fayde.Media", Fayde.XMLNS);
 
     export class InternalTransform extends GeneralTransform {
         private _Raw: number[];
-        
+
         constructor(raw: number[]) {
             super();
             this._Raw = raw;

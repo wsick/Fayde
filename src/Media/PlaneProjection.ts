@@ -41,12 +41,12 @@ module Fayde.Media {
         RotationY: number;
         RotationZ: number;
 
-        GetDistanceFromXYPlane(): number {
-            var w = Math.max(this._ObjectWidth, 1.0);
-            var h = Math.max(this._ObjectHeight, 1.0);
+        getDistanceFromXYPlane(objectWidth: number, objectHeight: number): number {
+            var w = Math.max(objectWidth, 1.0);
+            var h = Math.max(objectHeight, 1.0);
             var p = [w / 2.0, h / 2.0, 0.0, 1.0];
 
-            var m = this.GetTransform();
+            var m = this.getTransform();
             mat4.transformVec4(m, p, p);
 
             if (p[3] === 0.0)
