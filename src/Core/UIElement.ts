@@ -182,14 +182,6 @@ module Fayde {
             Surface.ReleaseMouseCapture(this);
         }
 
-        InvalidateParent(r: minerva.Rect) {
-            var vpNode = this.VisualParentNode;
-            if (vpNode)
-                vpNode.LayoutUpdater.Invalidate(r);
-            else if (this.IsAttached)
-                this._Surface.invalidate(r);
-        }
-
         IsAncestorOf(uin: UINode) {
             var vpNode = uin;
             while (vpNode && vpNode !== this)
@@ -197,48 +189,19 @@ module Fayde {
             return vpNode === this;
         }
 
-        TransformToVisual(uin: UINode): Media.GeneralTransform {
-            if (uin && !uin.IsAttached)
+        TransformToVisual (uin?: UINode): Media.GeneralTransform {
+            var raw = minerva.core.Updater.transformToVisual(this.LayoutUpdater, uin ? uin.LayoutUpdater : null);
+            if (!raw)
                 throw new ArgumentException("UIElement not attached.");
-
-            var curNode = this;
-            var ok = false;
-            var surface = this._Surface;
-            if (this.IsAttached) {
-                while (curNode) {
-                    if (curNode.IsTopLevel)
-                        ok = true;
-                    curNode = curNode.VisualParentNode;
-                }
-            }
-
-            if (!ok)
-                throw new ArgumentException("UIElement not attached.");
-
-            if (uin && !uin.IsTopLevel) {
-                ok = false;
-                curNode = uin.VisualParentNode;
-                if (curNode && uin.IsAttached) {
-                    while (curNode) {
-                        if (curNode.IsTopLevel)
-                            ok = true;
-                        curNode = curNode.VisualParentNode;
-                    }
-                }
-                if (!ok)
-                    throw new ArgumentException("UIElement not attached.");
-            }
-
-            return this.LayoutUpdater.TransformToVisual(uin);
+            var mt = new Media.MatrixTransform();
+            mt.SetCurrentValue(Media.MatrixTransform.MatrixProperty, new Media.Matrix(raw));
+            return mt;
         }
     }
     Fayde.RegisterType(UINode, "Fayde");
 
     export class UIElement extends DependencyObject implements Providers.IIsPropertyInheritable {
         XamlNode: UINode;
-        private _ClipListener: Media.IGeometryListener = null;
-        private _EffectListener: Media.Effects.IEffectListener = null;
-        private _TransformListener: Media.ITransformChangedListener = null;
         CreateNode(): UINode { return new UINode(this); }
         CreateLayoutUpdater(): minerva.core.Updater { return new minerva.core.Updater(); }
 
@@ -257,8 +220,8 @@ module Fayde {
         static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", () => Boolean, UIElement, true, MReaction('isHitTestVisible'));
         static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", () => Media.Brush, UIElement);
         static OpacityProperty = DependencyProperty.RegisterCore("Opacity", () => Number, UIElement, 1.0, MReaction('opacity'));
-        static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement, undefined, MReaction('projection',  Media.Projection.copyMatTo));
-        static RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", () => Media.Transform, UIElement, undefined, MLReaction('renderTransform', Media.Transform.copyMatTo), undefined, undefined, undefined, false);
+        static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement, undefined, MReaction('projection'));
+        static RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", () => Media.Transform, UIElement, undefined, MLReaction('renderTransform', Media.GeneralTransform.copyMatTo), undefined, undefined, undefined, false);
         static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, MReaction('renderTransformOrigin'));
         static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
         static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
@@ -270,8 +233,14 @@ module Fayde {
         }
 
         get IsMouseOver() { return this.XamlNode.IsMouseOver; }
-        get DesiredSize(): Size { return this.XamlNode.LayoutUpdater.DesiredSize; }
-        get RenderSize(): Size { return this.XamlNode.LayoutUpdater.RenderSize; }
+        get DesiredSize(): minerva.Size {
+            var ds = this.XamlNode.LayoutUpdater.assets.desiredSize;
+            return new minerva.Size(ds.width, ds.height);
+        }
+        get RenderSize(): minerva.Size {
+            var ds = this.XamlNode.LayoutUpdater.assets.renderSize;
+            return new minerva.Size(ds.width, ds.height);
+        }
 
         //AllowDrop: boolean;
         //CacheMode;
