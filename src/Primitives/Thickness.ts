@@ -1,63 +1,18 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
 
-class Thickness implements ICloneable {
-    Left: number;
-    Top: number;
-    Right: number;
-    Bottom: number;
-    constructor(left?: number, top?: number, right?: number, bottom?: number) {
-        this.Left = left == null ? 0 : left;
-        this.Top = top == null ? 0 : top;
-        this.Right = right == null ? 0 : right;
-        this.Bottom = bottom == null ? 0 : bottom;
-    }
+minerva.Thickness.prototype.Clone = function(): Thickness {
+    return new minerva.Thickness(this.left, this.top, this.right, this.bottom);
+};
+Fayde.RegisterType(minerva.Thickness, "window", Fayde.XMLNSX);
 
-    Plus(thickness2: Thickness) {
-        var t = new Thickness();
-        t.Left = this.Left + thickness2.Left;
-        t.Right = this.Right + thickness2.Right;
-        t.Top = this.Top + thickness2.Top;
-        t.Bottom = this.Bottom + thickness2.Bottom;
-        return t;
-    }
-    IsEmpty(): boolean {
-        return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
-    }
-    IsBalanced(): boolean {
-        return this.Left === this.Top
-            && this.Left === this.Right
-            && this.Left === this.Bottom;
-    }
-
-    toString(): string {
-        return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
-    }
-
-    Clone(): Thickness {
-        return new Thickness(this.Left, this.Top, this.Right, this.Bottom);
-    }
-
-    static Equals(thickness1: Thickness, thickness2: Thickness) {
-        if (thickness1 == null && thickness2 == null)
-            return true;
-        if (thickness1 == null || thickness2 == null)
-            return false;
-        return thickness1.Left === thickness2.Left
-            && thickness1.Top === thickness2.Top
-            && thickness1.Right === thickness2.Right
-            && thickness1.Bottom === thickness2.Bottom;
-    }
-}
-Fayde.RegisterType(Thickness, "window", Fayde.XMLNSX);
-
-Fayde.RegisterTypeConverter(Thickness, (val: any): Thickness => {
+Fayde.RegisterTypeConverter(minerva.Thickness, (val: any): Thickness => {
     if (!val)
-        return new Thickness();
+        return new minerva.Thickness();
     if (typeof val === "number")
-        return new Thickness(val, val, val, val);
-    if (val instanceof Thickness) {
-        var t = <Thickness>val;
-        return new Thickness(t.Left, t.Top, t.Right, t.Bottom);
+        return new minerva.Thickness(val, val, val, val);
+    if (val instanceof minerva.Thickness) {
+        var t = <minerva.Thickness>val;
+        return new minerva.Thickness(t.left, t.top, t.right, t.bottom);
     }
     var tokens = val.toString().split(",");
     var left, top, right, bottom;
@@ -74,5 +29,5 @@ Fayde.RegisterTypeConverter(Thickness, (val: any): Thickness => {
     } else {
         throw new Exception("Cannot parse Thickness value '" + val + "'");
     }
-    return new Thickness(left, top, right, bottom);
+    return new minerva.Thickness(left, top, right, bottom);
 });

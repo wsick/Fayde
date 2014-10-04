@@ -44,12 +44,31 @@ module Fayde {
             this.detachLayer(uie.XamlNode.LayoutUpdater);
         }
 
-        get FocusedNode (): UINode {
-            return this.$$inputMgr.FocusedNode;
-        }
-
         Focus (node: Controls.ControlNode, recurse?: boolean): boolean {
             return this.$$inputMgr.Focus(node, recurse);
+        }
+
+        static HasFocus (uie: UIElement): boolean {
+            var uin = uie.XamlNode;
+            var surface = <Surface>uin.LayoutUpdater.tree.surface;
+            if (!surface)
+                return false;
+            var curNode = surface.$$inputMgr.FocusedNode;
+            while (curNode) {
+                if (curNode === uin)
+                    return true;
+                curNode = curNode.VisualParentNode;
+            }
+            return false;
+        }
+
+        static GetFocusedElement (uie: UIElement): UIElement {
+            var uin = uie.XamlNode;
+            var surface = <Surface>uin.LayoutUpdater.tree.surface;
+            if (!surface)
+                return null;
+            var curNode = surface.$$inputMgr.FocusedNode;
+            return curNode.XObject;
         }
 
         static RemoveFocusFrom (uie: UIElement) {

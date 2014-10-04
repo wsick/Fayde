@@ -185,7 +185,7 @@ module Fayde {
             }
             return TypeResolver.Resolve(ns, typeName);
         }
-    }
+    };
 
     function tryGetRequireClass(xmlns: string, xmlname: string): any {
         var format = xmlns + "/" + xmlname;
@@ -200,24 +200,24 @@ module Fayde {
             return val;
         var c = val.toString().toUpperCase();
         return c === "TRUE" ? true : (c === "FALSE" ? false : null);
-    }
+    };
     converters[String] = function (val: any): String {
         if (val == null) return "";
         return val.toString();
-    }
+    };
     converters[Number] = function (val: any): Number {
         if (!val) return 0;
         if (typeof val === "number")
             return val;
-        if (val instanceof Thickness)
-            return (<Thickness>val).Left;
+        if (val instanceof minerva.Thickness)
+            return (<minerva.Thickness>val).left;
         return parseFloat(val.toString());
-    }
+    };
     converters[Date] = function (val: any): Date {
         if (val == null)
             return new Date(0);
         return new Date(val.toString());
-    }
+    };
     converters[RegExp] = function (val: any): RegExp {
         if (val instanceof RegExp)
             return val;
@@ -225,7 +225,7 @@ module Fayde {
             throw new XamlParseException("Cannot specify an empty RegExp.");
         val = val.toString();
         return new RegExp(val);
-    }
+    };
     export function ConvertAnyToType(val: any, type: Function): any {
         var converter: (val: any) => any = (<any>converters)[type];
         if (converter)

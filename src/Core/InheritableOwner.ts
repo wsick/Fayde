@@ -9,13 +9,7 @@ module Fayde {
 
     export class InheritableOwner {
         static UseLayoutRoundingProperty: DependencyProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, InheritableOwner, true, MReaction('useLayoutRounding'));
-
-        static _FlowDirectionPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            var feNode = (<FrameworkElement>dobj).XamlNode;
-            if (feNode._FlowDirectionChanged)
-                feNode._FlowDirectionChanged(args);
-        }
-        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), InheritableOwner, FlowDirection.LeftToRight, InheritableOwner._FlowDirectionPropertyChanged);
+        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), InheritableOwner, FlowDirection.LeftToRight, MReaction('flowDirection'));
 
         static _FontFamilyPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             if ((<IFontChangeable><any>dobj).FontChanged)
