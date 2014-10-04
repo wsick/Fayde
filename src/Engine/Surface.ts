@@ -52,8 +52,11 @@ module Fayde {
             return this.$$inputMgr.Focus(node, recurse);
         }
 
-        RemoveFocusFrom (lu: LayoutUpdater) {
-            this.$$inputMgr.OnNodeDetached(lu.Node);
+        static RemoveFocusFrom (uie: UIElement) {
+            var node = uie.XamlNode;
+            var surface = <Surface>node.LayoutUpdater.tree.surface;
+            if (surface)
+                surface.$$inputMgr.OnNodeDetached(node);
         }
 
         HitTestPoint (pos: Point): UINode[] {

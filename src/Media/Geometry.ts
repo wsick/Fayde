@@ -2,25 +2,20 @@
 /// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Media {
-    export interface IGeometryListener {
-        GeometryChanged(newGeometry: Geometry);
-    }
-
     export class Geometry extends DependencyObject {
         private _Path: Path.RawPath = null;
         private _LocalBounds: rect = new rect();
-        private _Listener: IGeometryListener = null;
 
-        static TransformProperty: DependencyProperty = DependencyProperty.Register("Transform", () => Transform, Geometry, undefined, (d, args) => (<Geometry>d)._TransformChanged(args));
+        static TransformProperty: DependencyProperty = DependencyProperty.Register("Transform", () => Transform, Geometry, undefined, LReaction((g: Geometry, nv, ov) => g._InvalidateGeometry()));
         Transform: Transform;
 
-        constructor() {
+        constructor () {
             super();
             this._LocalBounds.Width = Number.NEGATIVE_INFINITY;
             this._LocalBounds.Height = Number.NEGATIVE_INFINITY;
         }
 
-        GetBounds(pars?: Path.IStrokeParameters): rect {
+        GetBounds (pars?: Path.IStrokeParameters): rect {
             var compute = rect.isEmpty(this._LocalBounds);
 
             if (!this._Path) {
@@ -38,7 +33,8 @@ module Fayde.Media {
 
             return bounds;
         }
-        Draw(ctx: RenderContextEx) {
+
+        Draw (ctx: RenderContextEx) {
             if (!this._Path)
                 return;
 
@@ -51,37 +47,26 @@ module Fayde.Media {
             if (transform != null)
                 ctx.restore();
         }
-        ComputePathBounds(pars: Path.IStrokeParameters): rect {
+
+        ComputePathBounds (pars: Path.IStrokeParameters): rect {
             if (!this._Path)
                 this._Path = this._Build();
             if (!this._Path)
                 return new rect();
             return this._Path.CalculateBounds(pars);
         }
-        _InvalidateGeometry() {
+
+        _InvalidateGeometry () {
             this._Path = null;
             rect.set(this._LocalBounds, 0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(this);
+            Incite(this);
         }
-        _Build(): Path.RawPath { return undefined; }
 
-        Listen(listener: IGeometryListener) { this._Listener = listener; }
-        Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
-
-        private _TransformListener: ITransformChangedListener;
-        private _TransformChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (this._TransformListener) {
-                this._TransformListener.Detach();
-                this._TransformListener = null;
-            }
-            var newt = <Transform>args.NewValue;
-            if (newt)
-                this._TransformListener = newt.Listen((source: Transform) => this._InvalidateGeometry());
-            this._InvalidateGeometry();
+        _Build (): Path.RawPath {
+            return undefined;
         }
-        
-        Serialize(): string {
+
+        Serialize (): string {
             var path = this._Path;
             if (!path)
                 return;
@@ -90,28 +75,19 @@ module Fayde.Media {
     }
     Fayde.RegisterType(Geometry, "Fayde.Media", Fayde.XMLNS);
 
-    export class GeometryCollection extends XamlObjectCollection<Geometry> implements IGeometryListener {
-        private _Listener: IGeometryListener;
-        Listen(listener: IGeometryListener) { this._Listener = listener; }
-        Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
-
-        AddingToCollection(value: Geometry, error: BError): boolean {
+    export class GeometryCollection extends XamlObjectCollection<Geometry> {
+        AddingToCollection (value: Geometry, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
-            value.Listen(this);
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(value);
+            ReactTo(value, this, () => Incite(this));
+            Incite(this);
             return true;
         }
-        RemovedFromCollection(value: Geometry, isValueSafe: boolean) {
+
+        RemovedFromCollection (value: Geometry, isValueSafe: boolean) {
             super.RemovedFromCollection(value, isValueSafe);
-            value.Unlisten(this);
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(value);
-        }
-        GeometryChanged(newGeometry: Geometry) {
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(newGeometry);
+            UnreactTo(value, this);
+            Incite(this);
         }
     }
     Fayde.RegisterType(GeometryCollection, "Fayde.Media", Fayde.XMLNS);

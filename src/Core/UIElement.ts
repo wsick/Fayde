@@ -252,18 +252,18 @@ module Fayde {
 
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;
-        static ClipProperty = DependencyProperty.RegisterCore("Clip", () => Media.Geometry, UIElement, undefined, (d, args) => (<UIElement>d)._ClipChanged(args));
-        static EffectProperty = DependencyProperty.Register("Effect", () => Media.Effects.Effect, UIElement, undefined, (d, args) => (<UIElement>d)._EffectChanged(args));
+        static ClipProperty = DependencyProperty.RegisterCore("Clip", () => Media.Geometry, UIElement, undefined, MLReaction('clip'));
+        static EffectProperty = DependencyProperty.Register("Effect", () => Media.Effects.Effect, UIElement, undefined, MLReaction('effect'));
         static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", () => Boolean, UIElement, true, MReaction('isHitTestVisible'));
         static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", () => Media.Brush, UIElement);
         static OpacityProperty = DependencyProperty.RegisterCore("Opacity", () => Number, UIElement, 1.0, MReaction('opacity'));
-        static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateProjection());
-        static RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", () => Media.Transform, UIElement, undefined, (d, args) => (<UIElement>d)._RenderTransformChanged(args), undefined, undefined, undefined, false);
-        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
+        static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement, undefined, MReaction('projection',  Media.Projection.copyMatTo));
+        static RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", () => Media.Transform, UIElement, undefined, MLReaction('renderTransform', Media.Transform.copyMatTo), undefined, undefined, undefined, false);
+        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, MReaction('renderTransformOrigin'));
         static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
         static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
         static UseLayoutRoundingProperty = InheritableOwner.UseLayoutRoundingProperty.ExtendTo(UIElement);
-        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
+        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, MReaction('visibility', null, (uie, nv, ov) => Surface.RemoveFocusFrom(uie)));
 
         IsInheritable(propd: DependencyProperty): boolean {
             return propd === UIElement.UseLayoutRoundingProperty;
@@ -353,34 +353,6 @@ module Fayde {
         OnGotTouchCapture(e: Input.TouchEventArgs) { }
         OnLostTouchCapture(e: Input.TouchEventArgs) { }
 
-        private _ClipChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldClip: Media.Geometry = args.OldValue;
-            var newClip: Media.Geometry = args.NewValue;
-            minerva.core.reactTo.clip(this.XamlNode.LayoutUpdater, oldClip, newClip);
-            if (oldClip == newClip)
-                return;
-            if (oldClip)
-                oldClip.Unlisten(this._ClipListener);
-            if (newClip) {
-                if (!this._ClipListener)
-                    this._ClipListener = { GeometryChanged: (newGeometry: Media.Geometry) => this.XamlNode.InvalidateClip(newGeometry, newGeometry) };
-                newClip.Listen(this._ClipListener);
-            }
-        }
-        private _EffectChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldEffect: Media.Effects.Effect = args.OldValue;
-            var newEffect: Media.Effects.Effect = args.NewValue;
-            minerva.core.reactTo.effect(this.XamlNode.LayoutUpdater, oldEffect, newEffect);
-            if (oldEffect === newEffect)
-                return;
-            if (oldEffect)
-                oldEffect.Unlisten(this._EffectListener);
-            if (newEffect) {
-                if (!this._EffectListener)
-                    this._EffectListener = { EffectChanged: (effect: Media.Effects.Effect) => this.XamlNode.InvalidateEffect(effect, effect) };
-                newEffect.Listen(this._EffectListener);
-            }
-        }
         private _TriggersChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldTriggers = <TriggerCollection>args.OldValue;
             var newTriggers = <TriggerCollection>args.NewValue;
@@ -388,13 +360,6 @@ module Fayde {
                 oldTriggers.DetachTarget(this);
             if (newTriggers instanceof TriggerCollection)
                 newTriggers.AttachTarget(this);
-        }
-        private _RenderTransformChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (this._TransformListener)
-                this._TransformListener.Detach();
-            this.XamlNode.LayoutUpdater.UpdateTransform();
-            if (args.NewValue instanceof Media.Transform)
-                this._TransformListener = (<Media.Transform>args.NewValue).Listen((source: Media.Transform) => this.XamlNode.LayoutUpdater.UpdateTransform());
         }
     }
     Fayde.RegisterType(UIElement, "Fayde", Fayde.XMLNS);

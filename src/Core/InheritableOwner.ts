@@ -8,13 +8,7 @@ module Fayde {
     }
 
     export class InheritableOwner {
-        static _UseLayoutRoundingPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            var uie = <UIElement>dobj;
-            var lu = uie.XamlNode.LayoutUpdater;
-            lu.InvalidateMeasure();
-            lu.InvalidateArrange();
-        }
-        static UseLayoutRoundingProperty: DependencyProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, InheritableOwner, true, InheritableOwner._UseLayoutRoundingPropertyChanged);
+        static UseLayoutRoundingProperty: DependencyProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, InheritableOwner, true, MReaction('useLayoutRounding'));
 
         static _FlowDirectionPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             var feNode = (<FrameworkElement>dobj).XamlNode;
