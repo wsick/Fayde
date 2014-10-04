@@ -113,15 +113,6 @@ module Fayde {
             this.Node = uin;
         }
 
-        OnIsAttachedChanged(newIsAttached: boolean, visualParentNode: UINode) {
-            this.UpdateTotalRenderVisibility();
-            this.UpdateTotalHitTestVisibility();
-            if (!newIsAttached) {
-                this._CacheInvalidateHint();
-                var surface = this.Surface;
-                if (surface) surface.OnNodeDetached(this);
-            }
-        }
         OnAddedToTree() {
             this.UpdateTotalRenderVisibility();
             this.UpdateTotalHitTestVisibility();

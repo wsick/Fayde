@@ -6,27 +6,12 @@
 module Fayde {
     export class UINode extends DONode {
         XObject: UIElement;
-        LayoutUpdater: LayoutUpdater;
-        IsTopLevel: boolean = false;
-        _Surface: Surface;
+        LayoutUpdater: minerva.core.Updater;
         IsMouseOver: boolean = false;
-
-        SetSurfaceFromVisualParent(): UINode {
-            if (this._Surface)
-                return this.VisualParentNode;
-            var vpNode = this.VisualParentNode;
-            if (vpNode)
-                this.SetSurface(vpNode._Surface);
-            return vpNode;
-        }
-        SetSurface(surface: Surface) {
-            this._Surface = surface;
-            this.LayoutUpdater.Surface = surface;
-        }
 
         constructor(xobj: UIElement) {
             super(xobj);
-            this.LayoutUpdater = xobj.CreateLayoutUpdater(this);
+            this.LayoutUpdater = xobj.CreateLayoutUpdater();
         }
 
         VisualParentNode: UINode;
@@ -40,39 +25,21 @@ module Fayde {
         }
 
         GetInheritedEnumerator(): IEnumerator<DONode> {
+            //TODO: May need to change this
             return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
-        }
-
-        OnIsAttachedChanged(newIsAttached: boolean) {
-            var vpNode: UINode = null;
-            if (newIsAttached)
-                vpNode = this.SetSurfaceFromVisualParent();
-            this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, vpNode);
-            super.OnIsAttachedChanged(newIsAttached);
         }
 
         IsLoaded: boolean = false;
         SetIsLoaded(value: boolean) { }
 
         OnVisualChildAttached(uie: UIElement) {
-            var lu = this.LayoutUpdater;
-            lu.UpdateBounds(true);
-            lu.InvalidateMeasure();
-            // lu.PreviousConstraint = undefined;
-
             var un = uie.XamlNode;
-            un.SetVisualParentNode(this);
             Providers.InheritedStore.PropagateInheritedOnAdd(this.XObject, un);
-            un.LayoutUpdater.OnAddedToTree();
+            un.SetVisualParentNode(this);
         }
         OnVisualChildDetached(uie: UIElement) {
-            var lu = this.LayoutUpdater;
             var un = uie.XamlNode;
-            lu.Invalidate(un.LayoutUpdater.SurfaceBoundsWithChildren);
-            lu.InvalidateMeasure();
-
             un.SetVisualParentNode(null);
-            un.LayoutUpdater.OnRemovedFromTree();
             Providers.InheritedStore.ClearInheritedOnRemove(this.XObject, un);
         }
 
@@ -80,11 +47,7 @@ module Fayde {
             if (this.VisualParentNode === visualParentNode)
                 return;
             this.VisualParentNode = visualParentNode;
-            if (visualParentNode) {
-                this.SetSurface(visualParentNode._Surface);
-            } else {
-                this.SetSurface(null);
-            }
+            this.LayoutUpdater.setVisualParent(visualParentNode.LayoutUpdater);
         }
 
         Focus(recurse?: boolean): boolean { return false; }
@@ -205,67 +168,26 @@ module Fayde {
             x.OnLostTouchCapture(e);
             x.LostTouchCapture.Raise(this, e);
         }
-        
+
         CanCaptureMouse(): boolean { return true; }
         CaptureMouse(): boolean {
             if (!this.IsAttached)
                 return false;
-            this._Surface.SetMouseCapture(this);
+            Surface.SetMouseCapture(this);
             return true;
         }
         ReleaseMouseCapture() {
             if (!this.IsAttached)
                 return;
-            this._Surface.ReleaseMouseCapture(this);
+            Surface.ReleaseMouseCapture(this);
         }
-        
-        ResortChildrenByZIndex() { }
 
-        InvalidateParent(r: rect) {
+        InvalidateParent(r: minerva.Rect) {
             var vpNode = this.VisualParentNode;
             if (vpNode)
                 vpNode.LayoutUpdater.Invalidate(r);
             else if (this.IsAttached)
-                this._Surface._Invalidate(r);
-        }
-        InvalidateClip(oldClip: Media.Geometry, newClip: Media.Geometry) {
-            var lu = this.LayoutUpdater;
-            if (!newClip)
-                rect.clear(lu.ClipBounds);
-            else
-                rect.copyTo(newClip.GetBounds(), lu.ClipBounds);
-            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
-            lu.UpdateBounds(true);
-            lu.UpdateClip();
-        }
-        InvalidateEffect(oldEffect: Media.Effects.Effect, newEffect: Media.Effects.Effect) {
-            var lu = this.LayoutUpdater;
-            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
-            var changed = (newEffect) ? newEffect.GetPadding(lu.EffectPadding) : false;
-            if (changed)
-                lu.UpdateBounds();
-            lu.ComputeComposite();
-
-            if (oldEffect !== newEffect && this.IsAttached)
-                lu.UpdateTransform();
-        }
-        InvalidateOpacity() {
-            var lu = this.LayoutUpdater;
-            lu.UpdateTotalRenderVisibility();
-            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
-        }
-        InvalidateVisibility(newVisibility: Visibility) {
-            var lu = this.LayoutUpdater;
-            lu.InvalidateVisibility(newVisibility);
-            lu.UpdateTotalRenderVisibility();
-            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
-
-            lu.InvalidateMeasure();
-            var vpNode = this.VisualParentNode;
-            if (vpNode)
-                vpNode.LayoutUpdater.InvalidateMeasure();
-            var surface = this._Surface;
-            if (surface) surface.RemoveFocusFrom(lu);
+                this._Surface.invalidate(r);
         }
 
         IsAncestorOf(uin: UINode) {
@@ -318,10 +240,10 @@ module Fayde {
         private _EffectListener: Media.Effects.IEffectListener = null;
         private _TransformListener: Media.ITransformChangedListener = null;
         CreateNode(): UINode { return new UINode(this); }
-        CreateLayoutUpdater(uin: UINode): LayoutUpdater { return new LayoutUpdater(uin); }
+        CreateLayoutUpdater(): minerva.core.Updater { return new minerva.core.Updater(); }
 
         get IsItemsControl(): boolean { return false; }
-        
+
         get VisualParent() {
             var vpNode = this.XamlNode.VisualParentNode;
             if (vpNode) return vpNode.XObject;
@@ -332,9 +254,9 @@ module Fayde {
         static CacheModeProperty: DependencyProperty;
         static ClipProperty = DependencyProperty.RegisterCore("Clip", () => Media.Geometry, UIElement, undefined, (d, args) => (<UIElement>d)._ClipChanged(args));
         static EffectProperty = DependencyProperty.Register("Effect", () => Media.Effects.Effect, UIElement, undefined, (d, args) => (<UIElement>d)._EffectChanged(args));
-        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", () => Boolean, UIElement, true, (d, args) => (<UIElement>d)._IsHitTestVisibleChanged(args));
+        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", () => Boolean, UIElement, true, MReaction('isHitTestVisible'));
         static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", () => Media.Brush, UIElement);
-        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", () => Number, UIElement, 1.0, (d, args) => (<UIElement>d).XamlNode.InvalidateOpacity());
+        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", () => Number, UIElement, 1.0, MReaction('opacity'));
         static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateProjection());
         static RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", () => Media.Transform, UIElement, undefined, (d, args) => (<UIElement>d)._RenderTransformChanged(args), undefined, undefined, undefined, false);
         static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
@@ -342,14 +264,14 @@ module Fayde {
         static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
         static UseLayoutRoundingProperty = InheritableOwner.UseLayoutRoundingProperty.ExtendTo(UIElement);
         static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
-        
+
         IsInheritable(propd: DependencyProperty): boolean {
             return propd === UIElement.UseLayoutRoundingProperty;
         }
 
         get IsMouseOver() { return this.XamlNode.IsMouseOver; }
-        get DesiredSize(): size { return this.XamlNode.LayoutUpdater.DesiredSize; }
-        get RenderSize(): size { return this.XamlNode.LayoutUpdater.RenderSize; }
+        get DesiredSize(): Size { return this.XamlNode.LayoutUpdater.DesiredSize; }
+        get RenderSize(): Size { return this.XamlNode.LayoutUpdater.RenderSize; }
 
         //AllowDrop: boolean;
         //CacheMode;
@@ -366,7 +288,7 @@ module Fayde {
         Triggers: TriggerCollection;
         UseLayoutRounding: boolean;
         Visibility: Visibility;
-        
+
         Focus(): boolean { return this.XamlNode.Focus(); }
         CaptureMouse():boolean { return this.XamlNode.CaptureMouse(); }
         ReleaseMouseCapture() { this.XamlNode.ReleaseMouseCapture(); }
@@ -380,19 +302,13 @@ module Fayde {
             return this.XamlNode.TransformToVisual(uin);
         }
 
-        InvalidateMeasure() { this.XamlNode.LayoutUpdater.InvalidateMeasure(); }
-        Measure(availableSize: size) {
-            var error = new BError();
-            this.XamlNode.LayoutUpdater._Measure(availableSize, error);
-            if (error.Message)
-                error.ThrowException();
+        InvalidateMeasure() { this.XamlNode.LayoutUpdater.invalidateMeasure(); }
+        Measure(availableSize: minerva.Size) {
+            this.XamlNode.LayoutUpdater.measure(availableSize);
         }
-        InvalidateArrange() { this.XamlNode.LayoutUpdater.InvalidateArrange(); }
-        Arrange(finalRect: rect) {
-            var error = new BError();
-            this.XamlNode.LayoutUpdater._Arrange(finalRect, error);
-            if (error.Message)
-                error.ThrowException();
+        InvalidateArrange() { this.XamlNode.LayoutUpdater.invalidateArrange(); }
+        Arrange(finalRect: minerva.Rect) {
+            this.XamlNode.LayoutUpdater.arrange(finalRect);
         }
 
         LostFocus = new RoutedEvent<RoutedEventArgs>();
@@ -415,7 +331,7 @@ module Fayde {
         TouchMove = new RoutedEvent<Input.TouchEventArgs>();
         GotTouchCapture = new RoutedEvent<Input.TouchEventArgs>();
         LostTouchCapture = new RoutedEvent<Input.TouchEventArgs>();
-        
+
         OnGotFocus(e: RoutedEventArgs) { }
         OnLostFocus(e: RoutedEventArgs) { }
         OnLostMouseCapture(e: Input.MouseEventArgs) { }
@@ -440,7 +356,7 @@ module Fayde {
         private _ClipChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldClip: Media.Geometry = args.OldValue;
             var newClip: Media.Geometry = args.NewValue;
-            this.XamlNode.InvalidateClip(oldClip, newClip);
+            minerva.core.reactTo.clip(this.XamlNode.LayoutUpdater, oldClip, newClip);
             if (oldClip == newClip)
                 return;
             if (oldClip)
@@ -454,7 +370,7 @@ module Fayde {
         private _EffectChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldEffect: Media.Effects.Effect = args.OldValue;
             var newEffect: Media.Effects.Effect = args.NewValue;
-            this.XamlNode.InvalidateEffect(oldEffect, newEffect);
+            minerva.core.reactTo.effect(this.XamlNode.LayoutUpdater, oldEffect, newEffect);
             if (oldEffect === newEffect)
                 return;
             if (oldEffect)
@@ -464,16 +380,6 @@ module Fayde {
                     this._EffectListener = { EffectChanged: (effect: Media.Effects.Effect) => this.XamlNode.InvalidateEffect(effect, effect) };
                 newEffect.Listen(this._EffectListener);
             }
-        }
-        private _UseLayoutRoundingChanged(args: IDependencyPropertyChangedEventArgs) {
-            var lu = this.XamlNode.LayoutUpdater;
-            lu.InvalidateMeasure();
-            lu.InvalidateArrange();
-        }
-        private _IsHitTestVisibleChanged(args: IDependencyPropertyChangedEventArgs) {
-            var lu = this.XamlNode.LayoutUpdater;
-            lu.InvalidateHitTestVisibility(args.NewValue === true);
-            lu.UpdateTotalHitTestVisibility();
         }
         private _TriggersChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldTriggers = <TriggerCollection>args.OldValue;
@@ -489,13 +395,6 @@ module Fayde {
             this.XamlNode.LayoutUpdater.UpdateTransform();
             if (args.NewValue instanceof Media.Transform)
                 this._TransformListener = (<Media.Transform>args.NewValue).Listen((source: Media.Transform) => this.XamlNode.LayoutUpdater.UpdateTransform());
-        }
-
-        MeasureOverride(availableSize: size): size {
-            return undefined;
-        }
-        ArrangeOverride(finalSize: size): size {
-            return undefined;
         }
     }
     Fayde.RegisterType(UIElement, "Fayde", Fayde.XMLNS);

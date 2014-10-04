@@ -38,3 +38,5 @@ testsite/Format/TestViewModel.js
 testsite/Shapes/map.js
 testsite/Stress/LargeList.js
 src/_Version.ts
+bower_components/
+src/minerva.d.ts
