@@ -180,8 +180,8 @@ module Fayde.Controls.Primitives {
         }
         private _IsValidMousePosition(): boolean {
             var pos = this._MousePosition;
-            return pos.X >= 0.0 && pos.X <= this.ActualWidth
-                && pos.Y >= 0.0 && pos.Y <= this.ActualHeight;
+            return pos.x >= 0.0 && pos.x <= this.ActualWidth
+                && pos.y >= 0.0 && pos.y <= this.ActualHeight;
         }
 
         private OnCommandChanged(args: IDependencyPropertyChangedEventArgs) {
