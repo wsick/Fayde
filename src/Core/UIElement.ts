@@ -215,18 +215,18 @@ module Fayde {
 
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;
-        static ClipProperty = DependencyProperty.RegisterCore("Clip", () => Media.Geometry, UIElement, undefined, MLReaction('clip'));
-        static EffectProperty = DependencyProperty.Register("Effect", () => Media.Effects.Effect, UIElement, undefined, MLReaction('effect'));
-        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", () => Boolean, UIElement, true, MReaction('isHitTestVisible'));
+        static ClipProperty = DependencyProperty.RegisterCore("Clip", () => Media.Geometry, UIElement);
+        static EffectProperty = DependencyProperty.Register("Effect", () => Media.Effects.Effect, UIElement);
+        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", () => Boolean, UIElement, true);
         static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", () => Media.Brush, UIElement);
-        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", () => Number, UIElement, 1.0, MReaction('opacity'));
-        static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement, undefined, MReaction('projection'));
-        static RenderTransformProperty = DependencyProperty.RegisterFull("RenderTransform", () => Media.Transform, UIElement, undefined, MLReaction('renderTransform', Media.GeneralTransform.copyMatTo), undefined, undefined, undefined, false);
-        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, MReaction('renderTransformOrigin'));
+        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", () => Number, UIElement, 1.0);
+        static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement);
+        static RenderTransformProperty = DependencyProperty.RegisterCore("RenderTransform", () => Media.Transform, UIElement);
+        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement);
         static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
         static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
         static UseLayoutRoundingProperty = InheritableOwner.UseLayoutRoundingProperty.ExtendTo(UIElement);
-        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, MReaction('visibility', null, (uie, nv, ov) => Surface.RemoveFocusFrom(uie)));
+        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible);
 
         IsInheritable(propd: DependencyProperty): boolean {
             return propd === UIElement.UseLayoutRoundingProperty;
@@ -332,4 +332,18 @@ module Fayde {
         }
     }
     Fayde.RegisterType(UIElement, "Fayde", Fayde.XMLNS);
+
+    module reactions {
+        UIReaction<minerva.IGeometry>(UIElement.ClipProperty, minerva.core.reactTo.clip);
+        UIReaction<minerva.IEffect>(UIElement.EffectProperty, minerva.core.reactTo.effect);
+        UIReaction<boolean>(UIElement.IsHitTestVisibleProperty, minerva.core.reactTo.isHitTestVisible, false);
+        UIReaction<number>(UIElement.OpacityProperty, minerva.core.reactTo.opacity, false);
+        UIReaction<Media.Projection>(UIElement.ProjectionProperty, minerva.core.reactTo.projection);
+        UIReaction<Media.GeneralTransform>(UIElement.RenderTransformProperty, minerva.core.reactTo.renderTransform, true, (src, dest) => Media.GeneralTransform.copyMatTo(src, <number[]><any>dest));
+        UIReaction<minerva.Point>(UIElement.RenderTransformOriginProperty, minerva.core.reactTo.renderTransformOrigin, false, minerva.Point.copyTo);
+        UIReaction<minerva.Visibility>(UIElement.VisibilityProperty, (upd, nv, ov, uie?) => {
+            minerva.core.reactTo.visibility(upd, nv, ov);
+            Surface.RemoveFocusFrom(uie);
+        }, false);
+    }
 }

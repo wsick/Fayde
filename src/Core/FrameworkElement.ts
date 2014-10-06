@@ -113,17 +113,17 @@ module Fayde {
         static ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty = DependencyProperty.Register("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
         static FlowDirectionProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
-        static HeightProperty = DependencyProperty.Register("Height", () => Length, FrameworkElement, NaN, MReaction('height'));
-        static HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, MReaction('horizontalAlignment'));
+        static HeightProperty = DependencyProperty.Register("Height", () => Length, FrameworkElement, NaN);
+        static HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch);
         static LanguageProperty = InheritableOwner.LanguageProperty.ExtendTo(FrameworkElement);
-        static MarginProperty = DependencyProperty.RegisterCore("Margin", () => minerva.Thickness, FrameworkElement, undefined, MReaction('margin', minerva.Thickness.copyTo));
-        static MaxHeightProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, MReaction('maxHeight'));
-        static MaxWidthProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, MReaction('maxWidth'));
-        static MinHeightProperty = DependencyProperty.Register("MinHeight", () => Number, FrameworkElement, 0.0, (d, args) => MReaction('minHeight'));
-        static MinWidthProperty = DependencyProperty.Register("MinWidth", () => Number, FrameworkElement, 0.0, (d, args) => MReaction('minWidth'));
-        static StyleProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (d, args) => Reaction(Providers.LocalStyleBroker.Set));
-        static VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, MReaction('verticalAlignment'));
-        static WidthProperty = DependencyProperty.Register("Width", () => Length, FrameworkElement, NaN, MReaction('width'));
+        static MarginProperty = DependencyProperty.RegisterCore("Margin", () => minerva.Thickness, FrameworkElement);
+        static MaxHeightProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY);
+        static MaxWidthProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY);
+        static MinHeightProperty = DependencyProperty.Register("MinHeight", () => Number, FrameworkElement, 0.0);
+        static MinWidthProperty = DependencyProperty.Register("MinWidth", () => Number, FrameworkElement, 0.0);
+        static StyleProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (dobj, args) => Providers.LocalStyleBroker.Set(<FrameworkElement>dobj, args.NewValue));
+        static VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch);
+        static WidthProperty = DependencyProperty.Register("Width", () => Length, FrameworkElement, NaN);
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, FrameworkElement);
         static DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, FrameworkElement);
         
@@ -137,7 +137,7 @@ module Fayde {
                 
         ActualHeight: number;
         ActualWidth: number;
-        FlowDirection: FlowDirection;
+        FlowDirection: minerva.FlowDirection;
         Height: number;
         HorizontalAlignment: HorizontalAlignment;
         Language: string;
@@ -165,4 +165,16 @@ module Fayde {
 
     FrameworkElement.ActualWidthProperty.Store = Providers.ActualSizeStore.Instance;
     FrameworkElement.ActualHeightProperty.Store = Providers.ActualSizeStore.Instance;
+
+    module reactions {
+        UIReaction<number>(FrameworkElement.WidthProperty, minerva.core.reactTo.width, false);
+        UIReaction<number>(FrameworkElement.HeightProperty, minerva.core.reactTo.height, false);
+        UIReaction<number>(FrameworkElement.MaxWidthProperty, minerva.core.reactTo.maxWidth, false);
+        UIReaction<number>(FrameworkElement.MaxHeightProperty, minerva.core.reactTo.maxHeight, false);
+        UIReaction<number>(FrameworkElement.MinWidthProperty, minerva.core.reactTo.minWidth, false);
+        UIReaction<number>(FrameworkElement.MinHeightProperty, minerva.core.reactTo.minHeight, false);
+        UIReaction<minerva.Thickness>(FrameworkElement.MarginProperty, minerva.core.reactTo.margin, false, minerva.Thickness.copyTo);
+        UIReaction<minerva.HorizontalAlignment>(FrameworkElement.HorizontalAlignmentProperty, minerva.core.reactTo.horizontalAlignment, false);
+        UIReaction<minerva.VerticalAlignment>(FrameworkElement.VerticalAlignmentProperty, minerva.core.reactTo.verticalAlignment, false);
+    }
 }
