@@ -9,15 +9,16 @@ module Fayde.Controls {
     }
 
     export class ControlNode extends FENode {
-        _Surface: Surface;
         XObject: Control;
         TemplateRoot: FrameworkElement;
         IsFocused: boolean = false;
 
         constructor(xobj: Control) {
             super(xobj);
-            this.LayoutUpdater.SetContainerMode(true);
-            this.LayoutUpdater.IsNeverInsideObject = true;
+            var lu = this.LayoutUpdater;
+            lu.tree.isContainer = lu.tree.isLayoutContainer = true;
+            //TODO: Use for hit-testing
+            //this.LayoutUpdater.IsNeverInsideObject = true;
         }
 
         TabTo() {
@@ -65,7 +66,7 @@ module Fayde.Controls {
                 if (!this.DetachVisualChild(<UIElement>subtree.XObject, error))
                     error.ThrowException();
             }
-            this.LayoutUpdater.InvalidateMeasure();
+            this.LayoutUpdater.invalidateMeasure();
         }
         
         get IsEnabled(): boolean { return this.XObject.IsEnabled; }
@@ -76,9 +77,7 @@ module Fayde.Controls {
         OnIsEnabledChanged(oldValue: boolean, newValue: boolean) {
             if (!newValue) {
                 this.IsMouseOver = false;
-                var surface = this._Surface;
-                if (surface) {
-                    surface.RemoveFocusFrom(this.LayoutUpdater);
+                if (Surface.RemoveFocusFrom(this.XObject)) {
                     TabNavigationWalker.Focus(this, true);
                 }
                 this.ReleaseMouseCapture();
@@ -87,8 +86,7 @@ module Fayde.Controls {
         }
 
         Focus(recurse?: boolean): boolean {
-            var surface = this._Surface || Fayde.Application.Current.MainSurface;
-            return surface.Focus(this, recurse);
+            return Surface.Focus(this.XObject, recurse);
         }
 
         CanCaptureMouse(): boolean { return this.XObject.IsEnabled; }
@@ -101,21 +99,21 @@ module Fayde.Controls {
 
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Control);
-        static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderThickness", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
+        static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderThickness", () => Thickness, Control);
         static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(Control);
         static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty.ExtendTo(Control);
         static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty.ExtendTo(Control);
         static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty.ExtendTo(Control);
         static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty.ExtendTo(Control);
         static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty.ExtendTo(Control);
-        static HorizontalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalContentAlignment", () => new Enum(HorizontalAlignment), Control, HorizontalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
-        static IsEnabledProperty: DependencyProperty = DependencyProperty.Register("IsEnabled", () => Boolean, Control, true, (d, args) => (<Control>d)._IsEnabledChanged(args));
+        static HorizontalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalContentAlignment", () => new Enum(HorizontalAlignment), Control, HorizontalAlignment.Center);
+        static IsEnabledProperty: DependencyProperty = DependencyProperty.Register("IsEnabled", () => Boolean, Control, true);
         static IsTabStopProperty: DependencyProperty = DependencyProperty.Register("IsTabStop", () => Boolean, Control, true);
-        static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
+        static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, Control);
         static TabIndexProperty: DependencyProperty = DependencyProperty.Register("TabIndex", () => Number, Control);
         static TabNavigationProperty: DependencyProperty = DependencyProperty.Register("TabNavigation", () => new Enum(Input.KeyboardNavigationMode), Control, Input.KeyboardNavigationMode.Local);
         static TemplateProperty: DependencyProperty = DependencyProperty.Register("Template", () => ControlTemplate, Control, undefined, (d, args) => (<Control>d).XamlNode.OnTemplateChanged(args.OldValue, args.NewValue));
-        static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
+        static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center);
 
         IsInheritable(propd: DependencyProperty): boolean {
             if (ControlInheritedProperties.indexOf(propd) > -1)
@@ -167,17 +165,7 @@ module Fayde.Controls {
             return undefined;
         }
 
-        IsEnabledChanged: MulticastEvent<DependencyPropertyChangedEventArgs> = new MulticastEvent<DependencyPropertyChangedEventArgs>();
-        _IsEnabledChanged(args: IDependencyPropertyChangedEventArgs) {
-            var lu = this.XamlNode.LayoutUpdater;
-            lu.ShouldSkipHitTest = args.NewValue === false;
-            lu.CanHitElement = args.NewValue !== false;
-            this.OnIsEnabledChanged(args);
-            if (args.NewValue !== true)
-                this.XamlNode.IsMouseOver = false;
-            this.UpdateVisualState();
-            this.IsEnabledChanged.RaiseAsync(this, args);
-        }
+        IsEnabledChanged = new MulticastEvent<DependencyPropertyChangedEventArgs>();
         OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) { }
 
         OnGotFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = true; }
@@ -208,20 +196,33 @@ module Fayde.Controls {
         GoToStateSelection(gotoFunc: (state: string) => boolean): boolean {
             return false;
         }
-
-        private _PaddingChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
-        }
-        private _BorderThicknessChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
-        }
-        private _ContentAlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.XamlNode.LayoutUpdater.InvalidateArrange();
-        }
     }
     Fayde.RegisterType(Control, "Fayde.Controls", Fayde.XMLNS);
 
     Control.IsEnabledProperty.Store = Providers.IsEnabledStore.Instance;
+
+    module reactions {
+        UIReaction<boolean>(Control.IsEnabledProperty, (upd, nv, ov, control?: Control) => {
+            //TODO: Use for hit testing
+            //upd.ShouldSkipHitTest = args.NewValue === false;
+            //upd.CanHitElement = args.NewValue !== false;
+            var args = {
+                Property: Control.IsEnabledProperty,
+                OldValue: ov,
+                NewValue: nv
+            };
+            control.OnIsEnabledChanged(args);
+            if (nv !== true)
+                control.XamlNode.IsMouseOver = false;
+            control.UpdateVisualState();
+            control.IsEnabledChanged.RaiseAsync(control, args);
+        });
+        //TODO: Do these make sense? These properties are usually bound to child visuals which will invalidate
+        UIReaction<minerva.Thickness>(Control.PaddingProperty, (upd, nv, ov) => upd.invalidateMeasure());
+        UIReaction<minerva.Thickness>(Control.BorderThicknessProperty, (upd, nv, ov) => upd.invalidateMeasure());
+        UIReaction<HorizontalAlignment>(Control.HorizontalContentAlignmentProperty, (upd, nv, ov) => upd.invalidateArrange());
+        UIReaction<VerticalAlignment>(Control.VerticalContentAlignmentProperty, (upd, nv, ov) => upd.invalidateArrange());
+    }
 
     var ControlInheritedProperties = [
         Control.FontFamilyProperty,

@@ -116,7 +116,7 @@ module Fayde {
         static HeightProperty = DependencyProperty.Register("Height", () => Length, FrameworkElement, NaN);
         static HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch);
         static LanguageProperty = InheritableOwner.LanguageProperty.ExtendTo(FrameworkElement);
-        static MarginProperty = DependencyProperty.RegisterCore("Margin", () => minerva.Thickness, FrameworkElement);
+        static MarginProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement);
         static MaxHeightProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY);
         static MaxWidthProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY);
         static MinHeightProperty = DependencyProperty.Register("MinHeight", () => Number, FrameworkElement, 0.0);
@@ -141,7 +141,7 @@ module Fayde {
         Height: number;
         HorizontalAlignment: HorizontalAlignment;
         Language: string;
-        Margin: minerva.Thickness;
+        Margin: Thickness;
         MaxWidth: number;
         MaxHeight: number;
         MinWidth: number;
@@ -173,7 +173,7 @@ module Fayde {
         UIReaction<number>(FrameworkElement.MaxHeightProperty, minerva.core.reactTo.maxHeight, false);
         UIReaction<number>(FrameworkElement.MinWidthProperty, minerva.core.reactTo.minWidth, false);
         UIReaction<number>(FrameworkElement.MinHeightProperty, minerva.core.reactTo.minHeight, false);
-        UIReaction<minerva.Thickness>(FrameworkElement.MarginProperty, minerva.core.reactTo.margin, false, minerva.Thickness.copyTo);
+        UIReaction<Thickness>(FrameworkElement.MarginProperty, minerva.core.reactTo.margin, false, minerva.Thickness.copyTo);
         UIReaction<minerva.HorizontalAlignment>(FrameworkElement.HorizontalAlignmentProperty, minerva.core.reactTo.horizontalAlignment, false);
         UIReaction<minerva.VerticalAlignment>(FrameworkElement.VerticalAlignmentProperty, minerva.core.reactTo.verticalAlignment, false);
     }

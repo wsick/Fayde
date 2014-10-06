@@ -1,18 +1,20 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
 
-minerva.Thickness.prototype.Clone = function(): Thickness {
-    return new minerva.Thickness(this.left, this.top, this.right, this.bottom);
-};
-Fayde.RegisterType(minerva.Thickness, "window", Fayde.XMLNSX);
+class Thickness extends minerva.Thickness {
+    Clone (): Thickness {
+        return new Thickness(this.left, this.top, this.right, this.bottom);
+    }
+}
+Fayde.RegisterType(Thickness, "window", Fayde.XMLNSX);
 
-Fayde.RegisterTypeConverter(minerva.Thickness, (val: any): Thickness => {
+Fayde.RegisterTypeConverter(Thickness, (val: any): Thickness => {
     if (!val)
-        return new minerva.Thickness();
+        return new Thickness();
     if (typeof val === "number")
-        return new minerva.Thickness(val, val, val, val);
-    if (val instanceof minerva.Thickness) {
-        var t = <minerva.Thickness>val;
-        return new minerva.Thickness(t.left, t.top, t.right, t.bottom);
+        return new Thickness(val, val, val, val);
+    if (val instanceof Thickness) {
+        var t = <Thickness>val;
+        return new Thickness(t.left, t.top, t.right, t.bottom);
     }
     var tokens = val.toString().split(",");
     var left, top, right, bottom;

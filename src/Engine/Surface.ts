@@ -62,6 +62,14 @@ module Fayde {
             return false;
         }
 
+        static Focus(uie: Controls.Control, recurse?: boolean): boolean {
+            var uin = uie.XamlNode;
+            var surface = <Surface>uin.LayoutUpdater.tree.surface;
+            if (!surface)
+                return false;
+            return surface.$$inputMgr.Focus(uin, recurse);
+        }
+
         static GetFocusedElement (uie: UIElement): UIElement {
             var uin = uie.XamlNode;
             var surface = <Surface>uin.LayoutUpdater.tree.surface;
@@ -71,11 +79,13 @@ module Fayde {
             return curNode.XObject;
         }
 
-        static RemoveFocusFrom (uie: UIElement) {
+        static RemoveFocusFrom (uie: UIElement): boolean {
             var node = uie.XamlNode;
             var surface = <Surface>node.LayoutUpdater.tree.surface;
-            if (surface)
-                surface.$$inputMgr.OnNodeDetached(node);
+            if (!surface)
+                return false;
+            surface.$$inputMgr.OnNodeDetached(node);
+            return true;
         }
 
         HitTestPoint (pos: Point): UINode[] {

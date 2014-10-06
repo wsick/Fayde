@@ -9,10 +9,10 @@ module Fayde.Controls {
 
         static BackgroundProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Border);
         static BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Border);
-        static BorderThicknessProperty = DependencyProperty.Register("BorderThickness", () => minerva.Thickness, Border); //TODO: Validator
+        static BorderThicknessProperty = DependencyProperty.Register("BorderThickness", () => Thickness, Border); //TODO: Validator
         static ChildProperty = DependencyProperty.Register("Child", () => UIElement, Border);
         static CornerRadiusProperty = DependencyProperty.Register("CornerRadius", () => CornerRadius, Border); //TODO: Validator
-        static PaddingProperty = DependencyProperty.Register("Padding", () => minerva.Thickness, Border); //TODO: Validator
+        static PaddingProperty = DependencyProperty.Register("Padding", () => Thickness, Border); //TODO: Validator
         Background: Media.Brush;
         BorderBrush: Media.Brush;
         BorderThickness: minerva.Thickness;
@@ -31,8 +31,8 @@ module Fayde.Controls {
         //lu.CanHitElement = newBrush != null || this.Background != null;//TODO: Use this in hit testing
         upd.invalidate();
     });
-    UIReaction<minerva.Thickness>(Border.BorderThicknessProperty, (upd, nv, ov, border) => upd.invalidateMeasure(), false, minerva.Thickness.copyTo);
-    UIReaction<minerva.Thickness>(Border.PaddingProperty, (upd, nv, ov, border) => upd.invalidateMeasure(), false, minerva.Thickness.copyTo);
+    UIReaction<Thickness>(Border.BorderThicknessProperty, (upd, nv, ov, border) => upd.invalidateMeasure(), false, minerva.Thickness.copyTo);
+    UIReaction<Thickness>(Border.PaddingProperty, (upd, nv, ov, border) => upd.invalidateMeasure(), false, minerva.Thickness.copyTo);
     UIReaction<UIElement>(Border.ChildProperty, (upd, nv, ov, border: Border) => {
         var node = border.XamlNode;
         var error = new BError();
