@@ -2,14 +2,14 @@
 
 module Fayde.Controls {
     export class Grid extends Panel implements IRowDefinitionsListener, IColumnDefinitionsListener {
-        CreateLayoutUpdater(node: PanelNode) { return new GridLayoutUpdater(node); }
+        //CreateLayoutUpdater(node: PanelNode) { return new GridLayoutUpdater(node); }
 
         private static _AttachedPropChanged(d: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             var dNode = <UINode>d.XamlNode;
             var gridNode = dNode.VisualParentNode;
             if (gridNode)
-                gridNode.LayoutUpdater.InvalidateMeasure();
-            dNode.LayoutUpdater.InvalidateMeasure();
+                gridNode.LayoutUpdater.invalidateMeasure();
+            dNode.LayoutUpdater.invalidateMeasure();
         }
 
         static ColumnProperty: DependencyProperty = DependencyProperty.RegisterAttached("Column", () => Number, Grid, 0, Grid._AttachedPropChanged);
@@ -43,18 +43,19 @@ module Fayde.Controls {
 
         private _ShowGridLinesChanged(args: IDependencyPropertyChangedEventArgs) {
             var lu = this.XamlNode.LayoutUpdater;
-            lu.Invalidate();
-            lu.InvalidateMeasure();
+            lu.invalidate();
+            lu.invalidateMeasure();
         }
         RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection) {
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            this.XamlNode.LayoutUpdater.invalidateMeasure();
         }
         ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection) {
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            this.XamlNode.LayoutUpdater.invalidateMeasure();
         }
     }
     Fayde.RegisterType(Grid, "Fayde.Controls", Fayde.XMLNS);
 
+    /*
     export class GridLayoutUpdater extends PanelLayoutUpdater {
         private _Measurer = new GridMeasurer();
 
@@ -737,4 +738,5 @@ module Fayde.Controls {
             HasAutoStar: has
         };
     }
+    */
 }
