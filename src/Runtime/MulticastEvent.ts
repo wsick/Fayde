@@ -7,6 +7,9 @@ interface IEventListener<T extends EventArgs> {
 
 class MulticastEvent<T extends EventArgs> {
     private _Listeners: IEventListener<T>[] = [];
+    get HasListeners(): boolean {
+        return this._Listeners.length > 0;
+    }
     Subscribe(callback: (sender: any, e: T) => void , closure: any) {
         this._Listeners.push({ Closure: closure, Callback: callback });
     }

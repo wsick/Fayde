@@ -82,8 +82,7 @@ module Fayde.Controls {
 
             if (this.$Popup != null) {
                 this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
-                this.$Popup.XamlNode.CatchClickedOutside();
-                this.$Popup.ClickedOutside.Subscribe(this._PopupClickedOutside, this);
+                this.$Popup.WatchOutsideClick(this._PopupClickedOutside, this);
 
                 var child = this.$Popup.Child;
                 if (child != null) {
@@ -266,7 +265,7 @@ module Fayde.Controls {
             if (this.$DisplayedItem != null) {
                 this.$SelectionBoxItemTemplate = this.$DisplayedItem.ContentTemplate;
                 if (content instanceof Fayde.UIElement)
-                    this.$DisplayedItem.Content = null
+                    this.$DisplayedItem.Content = null;
                 else
                     this.$DisplayedItem = null;
             } else {

@@ -46,10 +46,11 @@ module Fayde.Controls {
         CreateNode(): PanelNode { return new PanelNode(this); }
         CreateLayoutUpdater() { return new minerva.controls.panel.PanelUpdater(); }
 
-        static ZIndexProperty = DependencyProperty.RegisterAttached("ZIndex", () => Number, Panel, 0);
-
         static BackgroundProperty = DependencyProperty.Register("Background", () => Media.Brush, Panel);
         static ChildrenProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<UIElement>>("Children", () => PanelChildrenCollection, Panel);
+        static ZIndexProperty = DependencyProperty.RegisterAttached("ZIndex", () => Number, Panel, 0);
+        static GetZIndex(uie: UIElement): number { return uie.GetValue(Panel.ZIndexProperty); }
+        static SetZIndex(uie: UIElement, value: number) { uie.SetValue(Panel.ZIndexProperty, value); }
         Background: Media.Brush;
         Children: XamlObjectCollection<UIElement>;
 
@@ -60,9 +61,6 @@ module Fayde.Controls {
             var error = new BError();
             this.XamlNode.SetSubtreeNode(coll.XamlNode, error);
         }
-
-        static GetZIndex(uie: UIElement): number { return uie.GetValue(Panel.ZIndexProperty); }
-        static SetZIndex(uie: UIElement, value: number) { uie.SetValue(Panel.ZIndexProperty, value); }
     }
     Fayde.RegisterType(Panel, "Fayde.Controls", Fayde.XMLNS);
     Xaml.Content(Panel, Panel.ChildrenProperty);
@@ -75,6 +73,6 @@ module Fayde.Controls {
             //TODO: Use for hit testing
             //lu.CanHitElement = newBrush != null;
         });
-        UIReactionAttached<number>(Panel.ZIndexProperty, minerva.core.reactTo.zIndex);
+        UIReactionAttached<number>(Panel.ZIndexProperty, minerva.controls.panel.reactTo.zIndex);
     }
 }
