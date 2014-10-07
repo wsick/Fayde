@@ -1,6 +1,6 @@
 module Fayde {
     export interface IUIReactionCallback<T> {
-        (updater: minerva.core.Updater, nv: T, ov: T, uie?: UIElement): void;
+        (updater: minerva.core.Updater, ov: T, nv: T, uie?: UIElement): void;
     }
 
     export function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: (src: TValue, dest: TValue) => void);
@@ -24,7 +24,7 @@ module Fayde {
 
     function reaction<T>(callback: IUIReactionCallback<T>) {
         return (uie: UIElement, args: DependencyPropertyChangedEventArgs) => {
-            callback && callback(uie.XamlNode.LayoutUpdater, args.NewValue, args.OldValue, uie);
+            callback && callback(uie.XamlNode.LayoutUpdater, args.OldValue, args.NewValue, uie);
         };
     }
 
@@ -37,7 +37,7 @@ module Fayde {
                 upd[name] = nv;
             else
                 syncer(nv, upd[name]);
-            callback && callback(upd, nv, ov, uie);
+            callback && callback(upd, ov, nv, uie);
         };
     }
 
@@ -47,7 +47,7 @@ module Fayde {
             var nv = args.NewValue;
             var upd = uie.XamlNode.LayoutUpdater;
             UnreactTo(ov, uie);
-            callback && callback(upd, nv, ov, uie);
+            callback && callback(upd, ov, nv, uie);
             ReactTo(nv, uie, () => callback(upd, nv, nv, uie));
         };
     }
@@ -62,7 +62,7 @@ module Fayde {
                 upd[name] = nv;
             else
                 syncer(nv, upd[name]);
-            callback && callback(upd, nv, ov, uie);
+            callback && callback(upd, ov, nv, uie);
             ReactTo(nv, uie, () => callback && callback(upd, nv, nv, uie));
         };
     }

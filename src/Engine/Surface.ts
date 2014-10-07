@@ -1,4 +1,3 @@
-/// <reference path="../minerva" />
 /// <reference path="../Runtime/TypeManagement.ts" />
 
 var resizeTimeout: number;

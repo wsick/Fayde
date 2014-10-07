@@ -341,8 +341,8 @@ module Fayde {
         UIReaction<Media.Projection>(UIElement.ProjectionProperty, minerva.core.reactTo.projection);
         UIReaction<Media.GeneralTransform>(UIElement.RenderTransformProperty, minerva.core.reactTo.renderTransform, true, (src, dest) => Media.GeneralTransform.copyMatTo(src, <number[]><any>dest));
         UIReaction<minerva.Point>(UIElement.RenderTransformOriginProperty, minerva.core.reactTo.renderTransformOrigin, false, minerva.Point.copyTo);
-        UIReaction<minerva.Visibility>(UIElement.VisibilityProperty, (upd, nv, ov, uie?) => {
-            minerva.core.reactTo.visibility(upd, nv, ov);
+        UIReaction<minerva.Visibility>(UIElement.VisibilityProperty, (upd, ov, nv, uie?) => {
+            minerva.core.reactTo.visibility(upd, ov, nv);
             Surface.RemoveFocusFrom(uie);
         }, false);
     }

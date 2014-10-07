@@ -12,7 +12,7 @@ module Fayde.Controls {
     Fayde.RegisterType(StackPanel, "Fayde.Controls", Fayde.XMLNS);
 
     module reactions {
-        UIReaction<minerva.Orientation>(StackPanel.OrientationProperty, (upd, nv, ov) => {
+        UIReaction<minerva.Orientation>(StackPanel.OrientationProperty, (upd, ov, nv) => {
             upd.invalidateMeasure();
             upd.invalidateArrange();
         });
