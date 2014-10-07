@@ -8,7 +8,7 @@ module Fayde.Controls {
             if (!d) return;
             if (d instanceof ScrollViewer) {
                 var sv = <ScrollViewer>d;
-                sv.XamlNode.LayoutUpdater.InvalidateMeasure();
+                sv.XamlNode.LayoutUpdater.invalidateMeasure();
                 var scrollInfo = sv.ScrollInfo;
                 if (scrollInfo) {
                     scrollInfo.CanHorizontallyScroll = sv.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled;
@@ -99,13 +99,13 @@ module Fayde.Controls {
             var w = Math.max(0, this.ExtentWidth - this.ViewportWidth);
             if (w !== this.ScrollableWidth) {
                 this.SetValueInternal(ScrollViewer.ScrollableWidthProperty, w);
-                lu.InvalidateMeasure();
+                lu.invalidateMeasure();
             }
 
             var h = Math.max(0, this.ExtentHeight - this.ViewportHeight);
             if (h !== this.ScrollableHeight) {
                 this.SetValueInternal(ScrollViewer.ScrollableHeightProperty, h);
-                lu.InvalidateMeasure();
+                lu.invalidateMeasure();
             }
         }
         private _UpdateScrollBarVisibility() {
@@ -129,7 +129,7 @@ module Fayde.Controls {
 
             if (horizontalVisibility !== this.ComputedHorizontalScrollBarVisibility) {
                 this.SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, horizontalVisibility);
-                lu.InvalidateMeasure();
+                lu.invalidateMeasure();
             }
 
             var verticalVisibility = Fayde.Visibility.Visible;
@@ -149,7 +149,7 @@ module Fayde.Controls {
 
             if (verticalVisibility !== this.ComputedVerticalScrollBarVisibility) {
                 this.SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, verticalVisibility);
-                lu.InvalidateMeasure();
+                lu.invalidateMeasure();
             }
         }
         private _UpdateScrollBar(orientation: Orientation, value: number) {
