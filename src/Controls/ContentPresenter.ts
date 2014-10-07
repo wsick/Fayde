@@ -66,11 +66,11 @@ module Fayde.Controls {
                     this.ClearRoot();
                 this.XObject.DataContext = args.NewValue == null ? null : args.NewValue;
             }
-            this.LayoutUpdater.InvalidateMeasure();
+            this.LayoutUpdater.invalidateMeasure();
         }
         _ContentTemplateChanged() {
             this.ClearRoot();
-            this.LayoutUpdater.InvalidateMeasure();
+            this.LayoutUpdater.invalidateMeasure();
         }
 
         private _ShouldInvalidateImplicitTemplate(oldValue: any, newValue: any): boolean {
@@ -102,7 +102,8 @@ module Fayde.Controls {
                     }
                     node = node.ParentNode;
                 }
-                var app = this._Surface ? this._Surface.App : null;
+                var surface = <Surface>this.LayoutUpdater.tree.surface;
+                var app = surface ? surface.App : null;
                 if (app) {
                     dt = app.Resources.Get(type);
                     if (dt instanceof DataTemplate)
