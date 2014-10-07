@@ -3,9 +3,9 @@
 module Fayde.Media {
     export class GeneralTransform extends DependencyObject {
         Inverse: GeneralTransform;
-        Transform(p: Point): Point { return p; }
+        Transform(p: minerva.IPoint): Point { return p; }
         TransformBounds(r: rect): rect { return r; }
-        TryTransform(inPoint: Point, outPoint: Point): boolean { return false; }
+        TryTransform(inPoint: minerva.IPoint, outPoint: minerva.IPoint): boolean { return false; }
 
         static copyMatTo (gt: GeneralTransform, mat: number[]) {
             if (gt instanceof InternalTransform) {
@@ -28,13 +28,13 @@ module Fayde.Media {
         get Inverse(): InternalTransform { return new InternalTransform(mat4.inverse(this._Raw, mat4.create())); }
         get Value(): Matrix3D { return Matrix3D.FromRaw(this._Raw); }
 
-        Transform(p: Point): Point {
-            var pi = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
+        Transform(p: minerva.IPoint): Point {
+            var pi = vec4.createFrom(p.x, p.y, 0.0, 1.0);
             var po = vec4.create();
             mat4.transformVec4(this._Raw, pi, po);
             if (po[3] !== 0.0) {
                 var w = 1.0 / po[3];
-                return new Point(po[0] * w, p[1] * w);
+                return new Point(po[0] * w, po[1] * w);
             }
             return new Point(NaN, NaN);
         }

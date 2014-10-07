@@ -26,12 +26,12 @@ module Fayde.Media {
             return mt;
         }
 
-        Transform(p: Point): Point {
+        Transform(p: minerva.IPoint): Point {
             var val = this.Value;
             var v: number[];
             if (!val || !(v = val._Raw))
-                return new Point(p.X, p.Y);
-            v = mat3.transformVec2(v, vec2.createFrom(p.X, p.Y));
+                return new Point(p.x, p.y);
+            v = mat3.transformVec2(v, vec2.createFrom(p.x, p.y));
             return new Point(v[0], v[1]);
         }
         TransformBounds(r: rect): rect {
@@ -42,7 +42,7 @@ module Fayde.Media {
                 return rect.copyTo(r);
             return rect.transform(rect.copyTo(r), v._Raw);
         }
-        TryTransform(inPoint: Point, outPoint: Point): boolean {
+        TryTransform(inPoint: minerva.IPoint, outPoint: minerva.IPoint): boolean {
             return false;
         }
 
