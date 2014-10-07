@@ -11,7 +11,8 @@ module Fayde {
 
         constructor(xobj: UIElement) {
             super(xobj);
-            this.LayoutUpdater = xobj.CreateLayoutUpdater();
+            var upd = this.LayoutUpdater = xobj.CreateLayoutUpdater();
+            upd.setAttachedValue("$node", this);
         }
 
         VisualParentNode: UINode;
@@ -22,11 +23,6 @@ module Fayde {
                 curNode = vpNode;
             }
             return curNode;
-        }
-
-        GetInheritedEnumerator(): IEnumerator<DONode> {
-            //TODO: May need to change this
-            return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
         }
 
         IsLoaded: boolean = false;

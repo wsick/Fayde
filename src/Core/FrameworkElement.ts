@@ -24,6 +24,23 @@ module Fayde {
             return true;
         }
 
+        GetInheritedEnumerator(): IEnumerator<FENode> {
+            return this.GetVisualTreeEnumerator();
+        }
+
+        GetVisualTreeEnumerator(): IEnumerator<FENode> {
+            var walker = this.LayoutUpdater.tree.walk();
+            return {
+                current: undefined,
+                moveNext: function() {
+                    if (!walker.step())
+                        return false;
+                    this.current = walker.current.getAttachedValue("$node");
+                    return true;
+                }
+            };
+        }
+
         SetIsLoaded(value: boolean) {
             if (this.IsLoaded === value)
                 return;
@@ -40,9 +57,8 @@ module Fayde {
             } else {
                 Providers.ImplicitStyleBroker.Set(xobj, Providers.StyleMask.All);
             }
-            var enumerator = this.GetVisualTreeEnumerator();
-            while (enumerator.moveNext()) {
-                enumerator.current.SetIsLoaded(newIsLoaded);
+            for (var en = this.GetVisualTreeEnumerator(); en.moveNext();) {
+                en.current.SetIsLoaded(newIsLoaded);
             }
             if (newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
@@ -89,12 +105,6 @@ module Fayde {
 
         UpdateLayout() {
             console.warn("FENode.UpdateLayout not implemented");
-        }
-
-        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator<FENode> {
-            if (this.SubtreeNode)
-                return ArrayEx.GetEnumerator([<FENode>this.SubtreeNode]);
-            return ArrayEx.EmptyEnumerator;
         }
     }
     Fayde.RegisterType(FENode, "Fayde");
