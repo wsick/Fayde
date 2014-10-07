@@ -108,43 +108,41 @@ module Fayde.Controls {
             if (!(itemsHost instanceof FrameworkElement))
                 itemsHost = null;
 
-            var ihro = itemsHostRectOut.Value = new rect();
-            var lbiro = listBoxItemsRectOut.Value = new rect();
+            var ihro = itemsHostRectOut.Value = new minerva.Rect();
+            var lbiro = listBoxItemsRectOut.Value = new minerva.Rect();
             if (!itemsHost)
                 return false;
-            ihro.Width = itemsHost.RenderSize.Width;
-            ihro.Height = itemsHost.RenderSize.Height;
+            minerva.Size.copyTo(itemsHost.RenderSize, ihro);
 
             var lbi = <ListBoxItem>this.ItemContainersManager.ContainerFromItem(item);
             if (!lbi)
                 return false;
 
-            lbiro.Width = lbi.RenderSize.Width;
-            lbiro.Height = lbi.RenderSize.Height;
+            minerva.Size.copyTo(lbi.RenderSize, lbiro);
 
             if (itemsHost instanceof Control) {
                 var padding = (<Control>itemsHost).Padding;
                 if (padding) {
-                    ihro.X = ihro.X + padding.Left;
-                    ihro.Y = ihro.Y + padding.Top;
-                    ihro.Width = ihro.Width - padding.Left - padding.Right;
-                    ihro.Height = ihro.Height - padding.Top - padding.Bottom;
+                    ihro.x = ihro.x + padding.left;
+                    ihro.y = ihro.y + padding.top;
+                    ihro.width = ihro.width - padding.left - padding.right;
+                    ihro.height = ihro.height - padding.top - padding.bottom;
                 }
             }
 
             var genXform = lbi.TransformToVisual(itemsHost);
             if (genXform != null) {
                 var ptl = genXform.Transform(new Point());
-                var pbr = genXform.Transform(new Point(lbi.RenderSize.Width, lbi.RenderSize.Height));
-                lbiro.X = Math.min(ptl.X, pbr.X);
-                lbiro.Y = Math.min(ptl.Y, pbr.Y);
-                lbiro.Width = Math.abs(ptl.X - pbr.X);
-                lbiro.Height = Math.abs(ptl.Y - pbr.Y);
+                var pbr = genXform.Transform(new Point(lbi.RenderSize.width, lbi.RenderSize.height));
+                lbiro.x = Math.min(ptl.x, pbr.x);
+                lbiro.y = Math.min(ptl.y, pbr.y);
+                lbiro.width = Math.abs(ptl.x - pbr.x);
+                lbiro.height = Math.abs(ptl.y - pbr.y);
             }
 
             return this._GetIsVerticalOrientation()
-                ? ihro.X <= lbiro.Y && rect.getBottom(ihro) >= rect.getBottom(lbiro)
-                : ihro.X <= lbiro.X && rect.getRight(ihro) >= rect.getRight(lbiro);
+                ? ihro.y <= lbiro.y && minerva.Rect.getBottom(ihro) >= minerva.Rect.getBottom(lbiro)
+                : ihro.x <= lbiro.X && minerva.Rect.getRight(ihro) >= minerva.Rect.getRight(lbiro);
         }
         private _GetFirstItemOnCurrentPage(startingIndex: number, forward: boolean): number {
             var delta = forward ? 1 : -1;
@@ -184,7 +182,7 @@ module Fayde.Controls {
                 case Input.Key.Enter:
                     if (Input.Key.Enter !== args.Key || Input.KeyboardNavigation.GetAcceptsReturn(this)) {
                         if (!Input.Keyboard.HasAlt()) {
-                            var focusedEl = this.XamlNode.GetFocusedElement();
+                            var focusedEl = Surface.GetFocusedElement(this);
                             var lbi: ListBoxItem;
                             if (focusedEl instanceof ListBoxItem) lbi = <ListBoxItem>focusedEl;
                             if (lbi) {
