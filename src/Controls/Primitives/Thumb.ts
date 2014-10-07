@@ -30,11 +30,11 @@ module Fayde.Controls.Primitives {
         
         OnGotFocus(e: RoutedEventArgs) {
             super.OnGotFocus(e);
-            this._FocusChanged(this.XamlNode._HasFocus());
+            this._FocusChanged(Surface.HasFocus(this));
         }
         OnLostFocus(e: RoutedEventArgs) {
             super.OnLostFocus(e);
-            this._FocusChanged(this.XamlNode._HasFocus());
+            this._FocusChanged(Surface.HasFocus(this));
         }
         private _FocusChanged(hasFocus: boolean) {
             this.SetCurrentValue(Thumb.IsFocusedProperty, hasFocus);
@@ -79,8 +79,8 @@ module Fayde.Controls.Primitives {
                 return;
             var vpNode = this.XamlNode.VisualParentNode;
             var p = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
-            if (!Point.Equals(p, this._PreviousPosition)) {
-                this._RaiseDragDelta(p.X - this._PreviousPosition.X, p.Y - this._PreviousPosition.Y);
+            if (!minerva.Point.isEqual(p, this._PreviousPosition)) {
+                this._RaiseDragDelta(p.x - this._PreviousPosition.x, p.y - this._PreviousPosition.y);
                 this._PreviousPosition = p;
             }
         }
@@ -93,13 +93,13 @@ module Fayde.Controls.Primitives {
         }
 
         private _RaiseDragStarted() {
-            this.DragStarted.Raise(this, new DragStartedEventArgs(this._Origin.X, this._Origin.Y));
+            this.DragStarted.Raise(this, new DragStartedEventArgs(this._Origin.x, this._Origin.y));
         }
         private _RaiseDragDelta(x: number, y: number) {
             this.DragDelta.Raise(this, new DragDeltaEventArgs(x, y));
         }
         private _RaiseDragCompleted(canceled: boolean) {
-            this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
+            this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.x - this._Origin.x, this._PreviousPosition.y - this._Origin.y, canceled));
         }
         
         GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {
