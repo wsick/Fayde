@@ -243,21 +243,21 @@ module Fayde.Controls.Primitives {
                 actual = this.ActualWidth;
                 if (this.$HorizontalSmallDecrease) {
                     var thickness = this.$HorizontalSmallDecrease.Margin;
-                    actual = actual - (this.$HorizontalSmallDecrease.ActualWidth + thickness.Left + thickness.Right);
+                    actual = actual - (this.$HorizontalSmallDecrease.ActualWidth + thickness.left + thickness.right);
                 }
                 if (this.$HorizontalSmallIncrease) {
                     var thickness = this.$HorizontalSmallIncrease.Margin;
-                    actual = actual - (this.$HorizontalSmallIncrease.ActualWidth + thickness.Left + thickness.Right);
+                    actual = actual - (this.$HorizontalSmallIncrease.ActualWidth + thickness.left + thickness.right);
                 }
             } else {
                 actual = this.ActualHeight;
                 if (this.$VerticalSmallDecrease) {
                     var thickness = this.$VerticalSmallDecrease.Margin;
-                    actual = actual - (this.$VerticalSmallDecrease.ActualHeight + thickness.Top + thickness.Bottom);
+                    actual = actual - (this.$VerticalSmallDecrease.ActualHeight + thickness.top + thickness.bottom);
                 }
                 if (this.$VerticalSmallIncrease) {
                     var thickness = this.$VerticalSmallIncrease.Margin;
-                    actual = actual - (this.$VerticalSmallIncrease.ActualHeight + thickness.Top + thickness.Bottom);
+                    actual = actual - (this.$VerticalSmallIncrease.ActualHeight + thickness.top + thickness.bottom);
                 }
             }
             return actual;
