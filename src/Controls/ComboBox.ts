@@ -163,7 +163,7 @@ module Fayde.Controls {
             e.Handled = true;
 
             var key = e.Key;
-            if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
+            if (this.FlowDirection === FlowDirection.RightToLeft) {
                 if (key === Input.Key.Left)
                     key = Input.Key.Right;
                 else if (key === Input.Key.Right)
@@ -308,48 +308,51 @@ module Fayde.Controls {
             }
 
             var offset = new Point(0, this.ActualHeight);
-            var bottomRight = new Point(offset.X + child.ActualWidth, offset.Y + child.ActualHeight);
+            var bottomRight = new Point(offset.x + child.ActualWidth, offset.y + child.ActualHeight);
 
             var topLeft = xform.Transform(offset);
             bottomRight = xform.Transform(bottomRight);
 
             var isRightToLeft = (this.FlowDirection === FlowDirection.RightToLeft);
             if (isRightToLeft) {
-                var left = bottomRight.X;
-                bottomRight.X = topLeft.X;
-                topLeft.X = left;
+                var left = bottomRight.x;
+                bottomRight.x = topLeft.x;
+                topLeft.x = left;
             }
 
             var finalOffset = new Point();
             var raw = root.ActualWidth;
-            if (bottomRight.X > raw) {
-                finalOffset.X = raw - bottomRight.X;
-            } else if (topLeft.X < 0) {
-                finalOffset.X = offset.X - topLeft.X;
+            if (bottomRight.x > raw) {
+                finalOffset.x = raw - bottomRight.x;
+            } else if (topLeft.x < 0) {
+                finalOffset.x = offset.x - topLeft.x;
             } else {
-                finalOffset.X = offset.X;
+                finalOffset.x = offset.x;
             }
 
             if (isRightToLeft)
-                finalOffset.X = -finalOffset.X;
+                finalOffset.x = -finalOffset.x;
 
             var rah = root.ActualHeight;
-            if (bottomRight.Y > rah) {
-                finalOffset.Y = -child.ActualHeight;
+            if (bottomRight.y > rah) {
+                finalOffset.y = -child.ActualHeight;
             } else {
-                finalOffset.Y = this.RenderSize.Height;
+                finalOffset.y = this.RenderSize.height;
             }
 
-            popup.HorizontalOffset = finalOffset.X;
-            popup.VerticalOffset = finalOffset.Y;
+            popup.HorizontalOffset = finalOffset.x;
+            popup.VerticalOffset = finalOffset.y;
 
             this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
         }
         private _UpdatePopupMaxHeight(height: number) {
             var child: FrameworkElement;
             if (this.$Popup && (child = <FrameworkElement>this.$Popup.Child) && child instanceof FrameworkElement) {
-                if (height === Number.POSITIVE_INFINITY)
-                    height = Application.Current.MainSurface.Extents.Height / 2.0;
+                if (height === Number.POSITIVE_INFINITY) {
+                    var surface = this.XamlNode.LayoutUpdater.tree.surface;
+                    if (surface)
+                        height = surface.height / 2.0;
+                }
                 child.MaxHeight = height;
             }
         }

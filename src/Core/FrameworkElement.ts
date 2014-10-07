@@ -147,7 +147,7 @@ module Fayde {
                 
         ActualHeight: number;
         ActualWidth: number;
-        FlowDirection: minerva.FlowDirection;
+        FlowDirection: FlowDirection;
         Height: number;
         HorizontalAlignment: HorizontalAlignment;
         Language: string;
