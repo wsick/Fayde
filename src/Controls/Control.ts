@@ -12,13 +12,10 @@ module Fayde.Controls {
         XObject: Control;
         TemplateRoot: FrameworkElement;
         IsFocused: boolean = false;
+        LayoutUpdater: minerva.controls.control.ControlUpdater;
 
         constructor(xobj: Control) {
             super(xobj);
-            var lu = this.LayoutUpdater;
-            lu.tree.isContainer = lu.tree.isLayoutContainer = true;
-            //TODO: Use for hit-testing
-            //this.LayoutUpdater.IsNeverInsideObject = true;
         }
 
         TabTo() {
@@ -96,6 +93,7 @@ module Fayde.Controls {
     export class Control extends FrameworkElement implements Providers.IIsPropertyInheritable {
         XamlNode: ControlNode;
         CreateNode(): ControlNode { return new ControlNode(this); }
+        CreateLayoutUpdater() { return new minerva.controls.control.ControlUpdater(); }
 
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Control);
