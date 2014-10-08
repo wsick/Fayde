@@ -27,10 +27,10 @@ module Fayde.Controls {
         }
 
         OnItemsAdded(index: number, newItems: any[]) { 
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            this.XamlNode.LayoutUpdater.invalidateMeasure();
         }
         OnItemsRemoved(index: number, oldItems: any[]) {
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            this.XamlNode.LayoutUpdater.invalidateMeasure();
         }
     }
     Fayde.RegisterType(VirtualizingPanel, "Fayde.Controls", Fayde.XMLNS);

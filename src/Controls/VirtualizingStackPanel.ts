@@ -16,9 +16,9 @@ module Fayde.Controls {
 
         ScrollOwner: ScrollViewer;
         get CanHorizontallyScroll() { return this._CanHorizontallyScroll; }
-        set CanHorizontallyScroll(value: boolean) { this._CanHorizontallyScroll = value; this.XamlNode.LayoutUpdater.InvalidateMeasure(); }
+        set CanHorizontallyScroll(value: boolean) { this._CanHorizontallyScroll = value; this.XamlNode.LayoutUpdater.invalidateMeasure(); }
         get CanVerticallyScroll() { return this._CanVerticallyScroll; }
-        set CanVerticallyScroll(value: boolean) { this._CanVerticallyScroll = value; this.XamlNode.LayoutUpdater.InvalidateMeasure(); }
+        set CanVerticallyScroll(value: boolean) { this._CanVerticallyScroll = value; this.XamlNode.LayoutUpdater.invalidateMeasure(); }
         get ExtentWidth() { return this._ExtentWidth; }
         get ExtentHeight() { return this._ExtentHeight; }
         get ViewportWidth() { return this._ViewportWidth; }
@@ -69,8 +69,8 @@ module Fayde.Controls {
         PageDown(): boolean { return this.SetVerticalOffset(this._VerticalOffset + this._ViewportHeight); }
         PageLeft(): boolean { return this.SetHorizontalOffset(this._HorizontalOffset - this._ViewportWidth); }
         PageRight(): boolean { return this.SetHorizontalOffset(this._HorizontalOffset + this._ViewportWidth); }
-        MakeVisible(uie: UIElement, rectangle: rect): rect {
-            var exposed = new rect();
+        MakeVisible(uie: UIElement, rectangle: minerva.Rect): minerva.Rect {
+            var exposed = new minerva.Rect();
 
             var uin = uie.XamlNode;
             var isVertical = this.Orientation === Orientation.Vertical;
@@ -78,30 +78,30 @@ module Fayde.Controls {
             while (enumerator.moveNext()) {
                 var child = enumerator.current;
                 var childNode = child.XamlNode;
-                var childRenderSize = childNode.LayoutUpdater.RenderSize;
+                var childRenderSize = childNode.LayoutUpdater.assets.renderSize;
                 if (uin === childNode) {
                     if (isVertical) {
-                        if (rectangle.X !== this._HorizontalOffset)
-                            this.SetHorizontalOffset(rectangle.X);
+                        if (rectangle.x !== this._HorizontalOffset)
+                            this.SetHorizontalOffset(rectangle.x);
 
-                        exposed.Width = Math.min(childRenderSize.Width, this._ViewportWidth);
-                        exposed.Height = childRenderSize.Height;
-                        exposed.X = this._HorizontalOffset;
+                        exposed.width = Math.min(childRenderSize.width, this._ViewportWidth);
+                        exposed.height = childRenderSize.height;
+                        exposed.x = this._HorizontalOffset;
                     } else {
-                        if (rectangle.Y !== this._VerticalOffset)
-                            this.SetVerticalOffset(rectangle.Y);
+                        if (rectangle.y !== this._VerticalOffset)
+                            this.SetVerticalOffset(rectangle.y);
 
-                        exposed.Height = Math.min(childRenderSize.Height, this._ViewportHeight);
-                        exposed.Width = childRenderSize.Width;
-                        exposed.Y = this._VerticalOffset;
+                        exposed.height = Math.min(childRenderSize.height, this._ViewportHeight);
+                        exposed.width = childRenderSize.width;
+                        exposed.y = this._VerticalOffset;
                     }
                     return exposed;
                 }
 
                 if (isVertical)
-                    exposed.Y += childRenderSize.Height;
+                    exposed.y += childRenderSize.height;
                 else
-                    exposed.X += childRenderSize.Width;
+                    exposed.x += childRenderSize.width;
             }
 
             throw new ArgumentException("Visual is not a child of this Panel");
@@ -117,9 +117,9 @@ module Fayde.Controls {
             this._HorizontalOffset = offset;
 
             if (this.Orientation === Fayde.Orientation.Horizontal)
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+                this.XamlNode.LayoutUpdater.invalidateMeasure();
             else
-                this.XamlNode.LayoutUpdater.InvalidateArrange();
+                this.XamlNode.LayoutUpdater.invalidateArrange();
 
             var scrollOwner = this.ScrollOwner;
             if (scrollOwner)
@@ -137,9 +137,9 @@ module Fayde.Controls {
             this._VerticalOffset = offset;
 
             if (this.Orientation === Fayde.Orientation.Vertical)
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+                this.XamlNode.LayoutUpdater.invalidateMeasure();
             else
-                this.XamlNode.LayoutUpdater.InvalidateArrange();
+                this.XamlNode.LayoutUpdater.invalidateArrange();
 
             var scrollOwner = this.ScrollOwner;
             if (scrollOwner)
@@ -147,12 +147,14 @@ module Fayde.Controls {
             return true;
         }
 
-        static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), VirtualizingStackPanel, Orientation.Vertical, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.InvalidateMeasure());
+        static OrientationProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), VirtualizingStackPanel, Orientation.Vertical, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.invalidateMeasure());
         Orientation: Orientation;
 
-        MeasureOverride(availableSize: size): size {
+        //TODO: Implement measure/arrange
+        /*
+        MeasureOverride(availableSize: minerva.Size): minerva.Size {
             var index: number;
-            var constraint = availableSize.Clone();
+            var constraint = new minerva.Size(availableSize.width, availableSize.height);
             var scrollOwner = this.ScrollOwner;
             var isHorizontal = this.Orientation === Orientation.Horizontal;
             if (isHorizontal) {
@@ -174,7 +176,7 @@ module Fayde.Controls {
                 children.Remove(old[i]);
             }
 
-            var measured = new size();
+            var measured = new minerva.Size();
             var viscount = 0;
             var count = ic.Items.Count;
             for (var generator = icm.CreateGenerator(index, count); generator.Generate();) {
@@ -185,13 +187,13 @@ module Fayde.Controls {
                 }
                 viscount++;
 
-                child.Measure(size.copyTo(constraint));
+                child.Measure(minerva.Size.copyTo(constraint));
                 var desired = child.DesiredSize;
 
                 if (!isHorizontal) {
                     measured.Width = Math.max(measured.Width, desired.Width);
                     measured.Height += desired.Height;
-                    if (measured.Height > availableSize.Height)
+                    if (measured.Height > availableSize.height)
                         break;
                 } else {
                     measured.Height = Math.max(measured.Height, desired.Height);
@@ -233,6 +235,8 @@ module Fayde.Controls {
 
             return measured;
         }
+        */
+        /*
         ArrangeOverride(finalSize: size): size {
             var arranged = size.copyTo(finalSize);
             var isHorizontal = this.Orientation === Orientation.Horizontal;
@@ -278,6 +282,7 @@ module Fayde.Controls {
                 arranged.Width = Math.max(arranged.Width, finalSize.Width);
             return arranged;
         }
+        */
 
         OnItemsAdded(index: number, newItems: any[]) {
             super.OnItemsAdded(index, newItems);
