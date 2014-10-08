@@ -10,7 +10,6 @@ module Fayde {
         MainSurface: Surface;
         Loaded = new MulticastEvent<EventArgs>();
         Address: Uri = null;
-        DebugInterop: DebugInterop;
         private _IsRunning: boolean = false;
         private _IsLoaded = false;
         private _Storyboards: ITimeline[] = [];
@@ -49,7 +48,6 @@ module Fayde {
             this.XamlNode.NameScope = new NameScope(true);
             var rd = Application.ResourcesProperty.Initialize(this);
             this.MainSurface = new Surface(this);
-            this.DebugInterop = new DebugInterop(this);
             this.Address = new Uri(document.URL);
         }
 
@@ -73,7 +71,6 @@ module Fayde {
             this.Loaded.RaiseAsync(this, EventArgs.Empty);
         }
         OnTicked(lastTime: number, nowTime: number) {
-            this.DebugInterop.NumFrames++;
             this.ProcessStoryboards(lastTime, nowTime);
             this.Update();
             this.Render();
