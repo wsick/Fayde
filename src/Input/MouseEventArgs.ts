@@ -14,7 +14,7 @@ module Fayde.Input {
             if (!(relativeTo instanceof UIElement))
                 throw new ArgumentException("Specified relative object must be a UIElement.");
             //TODO: If attached, should we run ProcessDirtyElements
-            relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
+            minerva.core.Updater.transformPoint(relativeTo.XamlNode.LayoutUpdater, p);
             return p;
         }
     }
