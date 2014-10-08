@@ -1,26 +1,17 @@
-var version = require('./build/version'),
-    setup = require('./build/setup');
+var version = require('./build/version');
 
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
-    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-symlink');
     grunt.loadNpmTasks('grunt-open');
     grunt.loadNpmTasks('grunt-nuget');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('./package.json'),
-        setup: {
-            test: {
-                cwd: './test'
-            },
-            testsite: {
-                cwd: './testsite'
-            }
-        },
         typescript: {
             build: {
                 src: ['lib/minerva/minerva.d.ts', 'src/_Version.ts', 'src/**/*.ts'],
@@ -32,7 +23,7 @@ module.exports = function (grunt) {
                 }
             },
             test: {
-                src: ['test/**/*.ts'],
+                src: ['test/**/*.ts', './lib/minerva/minerva.d.ts', './fayde.d.ts'],
                 options: {
                     target: 'es5',
                     module: 'amd',
@@ -40,26 +31,39 @@ module.exports = function (grunt) {
                 }
             },
             testsite: {
-                src: ['testsite/**/*.ts', '!testsite/lib/**/*.ts', 'testsite/lib/minerva/minerva.d.ts', 'testsite/lib/fayde/fayde.d.ts'],
+                src: ['testsite/**/*.ts', '!testsite/lib/**/*.ts', './lib/minerva/minerva.d.ts', './fayde.d.ts'],
                 options: {
                     target: 'es5',
                     module: 'amd'
                 }
             }
         },
-        copy: {
-            pretest: {
+        symlink: {
+            options: {
+                overwrite: false
+            },
+            test: {
                 files: [
-                    { expand: true, flatten: true, src: ['Themes/*'], dest: 'test/lib/Fayde/Themes', filter: 'isFile' },
-                    { expand: true, flatten: true, src: ['Fayde.js'], dest: 'test/lib/Fayde', filter: 'isFile' },
-                    { expand: true, flatten: true, src: ['Fayde.d.ts'], dest: 'test/lib/Fayde', filter: 'isFile' }
+                    { src: './lib/fayde.controls', dest: './test/lib/fayde.controls' },
+                    { src: './lib/minerva', dest: './test/lib/minerva' },
+                    { src: './lib/qunit', dest: './test/lib/qunit' },
+                    { src: './lib/requirejs', dest: './test/lib/requirejs' },
+                    { src: './lib/requirejs-text', dest: './test/lib/requirejs-text' },
+                    { src: './themes', dest: './testsite/lib/fayde/themes' },
+                    { src: './fayde.js', dest: './testsite/lib/fayde/fayde.js' },
+                    { src: './fayde.d.ts', dest: './testsite/lib/fayde/fayde.d.ts' }
                 ]
             },
-            pretestsite: {
+            testsite: {
                 files: [
-                    { expand: true, flatten: true, src: ['Themes/*'], dest: 'testsite/lib/Fayde/Themes', filter: 'isFile' },
-                    { expand: true, flatten: true, src: ['Fayde.js'], dest: 'testsite/lib/Fayde', filter: 'isFile' },
-                    { expand: true, flatten: true, src: ['Fayde.d.ts'], dest: 'testsite/lib/Fayde', filter: 'isFile' }
+                    { src: './lib/fayde.controls', dest: './testsite/lib/fayde.controls' },
+                    { src: './lib/minerva', dest: './testsite/lib/minerva' },
+                    { src: './lib/qunit', dest: './testsite/lib/qunit' },
+                    { src: './lib/requirejs', dest: './testsite/lib/requirejs' },
+                    { src: './lib/requirejs-text', dest: './testsite/lib/requirejs-text' },
+                    { src: './themes', dest: './testsite/lib/fayde/themes' },
+                    { src: './fayde.js', dest: './testsite/lib/fayde/fayde.js' },
+                    { src: './fayde.d.ts', dest: './testsite/lib/fayde/fayde.d.ts' }
                 ]
             }
         },
@@ -78,10 +82,6 @@ module.exports = function (grunt) {
             src: {
                 files: ['src/**/*.ts'],
                 tasks: ['typescript:build']
-            },
-            dist: {
-                files: ['Fayde.js'],
-                tasks: ['copy:pretestsite']
             },
             testsitets: {
                 files: ['testsite/**/*.ts'],
@@ -130,9 +130,8 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('default', ['version:apply', 'typescript:build']);
-    grunt.registerTask('test', ['setup:test', 'version:apply', 'typescript:build', 'copy:pretest', 'typescript:test', 'qunit']);
-    grunt.registerTask('testsite', ['setup:testsite', 'version:apply', 'typescript:build', 'copy:pretestsite', 'typescript:testsite', 'connect', 'open', 'watch']);
-    setup(grunt);
+    grunt.registerTask('test', ['version:apply', 'typescript:build', 'symlink:test', 'typescript:test', 'qunit']);
+    grunt.registerTask('testsite', ['version:apply', 'typescript:build', 'symlink:testsite', 'typescript:testsite', 'connect', 'open', 'watch']);
     version(grunt);
     grunt.registerTask('package', ['nugetpack:dist']);
     grunt.registerTask('publish', ['nugetpack:dist', 'nugetpush:dist']);
