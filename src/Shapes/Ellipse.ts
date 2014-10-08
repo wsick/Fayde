@@ -2,7 +2,7 @@
 
 module Fayde.Shapes {
     export class Ellipse extends Shape {
-        CreateLayoutUpdater(node: UINode) { return new EllipseLayoutUpdater(node); }
+        //CreateLayoutUpdater(node: UINode) { return new EllipseLayoutUpdater(node); }
 
         constructor() {
             super();
@@ -11,6 +11,8 @@ module Fayde.Shapes {
     }
     Fayde.RegisterType(Ellipse, "Fayde.Shapes", Fayde.XMLNS);
 
+    //TODO: Implement ellipse updater
+    /*
     export class EllipseLayoutUpdater extends ShapeLayoutUpdater {
         MeasureOverride(availableSize: size, error: BError): size {
             return super.MeasureOverride(new size(), error);
@@ -112,4 +114,5 @@ module Fayde.Shapes {
             return path;
         }
     }
+    */
 }

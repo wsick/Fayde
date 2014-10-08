@@ -1,19 +1,14 @@
 /// <reference path="Shape.ts" />
 
 module Fayde.Shapes {
+    import ShapeUpdater = minerva.shapes.shape.ShapeUpdater;
     export class Line extends Shape {
-        CreateLayoutUpdater(node: UINode) { return new LineLayoutUpdater(node); }
+        //CreateLayoutUpdater(node: UINode) { return new LineLayoutUpdater(node); }
 
-        private static _InvalidateCoordinate(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            var lu = <LineLayoutUpdater>(<Line>dobj).XamlNode.LayoutUpdater;
-            lu[args.Property.Name] = args.NewValue || 0;
-            lu.InvalidateNaturalBounds();
-        }
-
-        static X1Property: DependencyProperty = DependencyProperty.Register("X1", () => Number, Line, 0.0, Line._InvalidateCoordinate);
-        static Y1Property: DependencyProperty = DependencyProperty.Register("Y1", () => Number, Line, 0.0, Line._InvalidateCoordinate);
-        static X2Property: DependencyProperty = DependencyProperty.Register("X2", () => Number, Line, 0.0, Line._InvalidateCoordinate);
-        static Y2Property: DependencyProperty = DependencyProperty.Register("Y2", () => Number, Line, 0.0, Line._InvalidateCoordinate);
+        static X1Property = DependencyProperty.Register("X1", () => Number, Line, 0.0);
+        static Y1Property = DependencyProperty.Register("Y1", () => Number, Line, 0.0);
+        static X2Property = DependencyProperty.Register("X2", () => Number, Line, 0.0);
+        static Y2Property = DependencyProperty.Register("Y2", () => Number, Line, 0.0);
         X1: number;
         Y1: number;
         X2: number;
@@ -21,6 +16,15 @@ module Fayde.Shapes {
     }
     Fayde.RegisterType(Line, "Fayde.Shapes", Fayde.XMLNS);
 
+    module reactions {
+        UIReaction<number>(Line.X1Property, (upd: ShapeUpdater, ov, nv) => upd.invalidateNaturalBounds(), false);
+        UIReaction<number>(Line.Y1Property, (upd: ShapeUpdater, ov, nv) => upd.invalidateNaturalBounds(), false);
+        UIReaction<number>(Line.X2Property, (upd: ShapeUpdater, ov, nv) => upd.invalidateNaturalBounds(), false);
+        UIReaction<number>(Line.Y2Property, (upd: ShapeUpdater, ov, nv) => upd.invalidateNaturalBounds(), false);
+    }
+
+    //TODO: Implement line updater
+    /*
     export class LineLayoutUpdater extends ShapeLayoutUpdater {
         X1: number = 0;
         Y1: number = 0;
@@ -41,4 +45,5 @@ module Fayde.Shapes {
             return path;
         }
     }
+    */
 }
