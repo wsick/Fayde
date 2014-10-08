@@ -142,7 +142,7 @@ module Fayde.Controls {
 
             return this._GetIsVerticalOrientation()
                 ? ihro.y <= lbiro.y && minerva.Rect.getBottom(ihro) >= minerva.Rect.getBottom(lbiro)
-                : ihro.x <= lbiro.X && minerva.Rect.getRight(ihro) >= minerva.Rect.getRight(lbiro);
+                : ihro.x <= lbiro.x && minerva.Rect.getRight(ihro) >= minerva.Rect.getRight(lbiro);
         }
         private _GetFirstItemOnCurrentPage(startingIndex: number, forward: boolean): number {
             var delta = forward ? 1 : -1;

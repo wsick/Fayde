@@ -5,12 +5,12 @@ module Fayde.Controls.Primitives {
         private _PreviousPosition: Point = null;
         private _Origin: Point = null;
 
-        DragCompleted: RoutedEvent<DragCompletedEventArgs> = new RoutedEvent<DragCompletedEventArgs>();
-        DragDelta: RoutedEvent<DragDeltaEventArgs> = new RoutedEvent<DragDeltaEventArgs>();
-        DragStarted: RoutedEvent<DragStartedEventArgs> = new RoutedEvent<DragStartedEventArgs>();
+        DragCompleted = new RoutedEvent<DragCompletedEventArgs>();
+        DragDelta = new RoutedEvent<DragDeltaEventArgs>();
+        DragStarted = new RoutedEvent<DragStartedEventArgs>();
 
-        static IsDraggingProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsDragging", () => Boolean, Thumb, false, (d, args) => (<Thumb>d).OnDraggingChanged(args));
-        static IsFocusedProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsFocused", () => Boolean, Thumb);
+        static IsDraggingProperty = DependencyProperty.RegisterReadOnly("IsDragging", () => Boolean, Thumb, false, (d, args) => (<Thumb>d).OnDraggingChanged(args));
+        static IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", () => Boolean, Thumb);
         IsDragging: boolean;
         IsFocused: boolean;
 
