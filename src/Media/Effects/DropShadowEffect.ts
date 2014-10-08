@@ -6,37 +6,18 @@ module Fayde.Media.Effects {
         static MAX_BLUR_RADIUS: number = 20;
         static MAX_SHADOW_DEPTH: number = 300;
 
-        static BlurRadiusProperty: DependencyProperty = DependencyProperty.Register("BlurRadius", () => Number, DropShadowEffect, 5.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
-        static ColorProperty: DependencyProperty = DependencyProperty.Register("Color", () => Color, DropShadowEffect, Color.KnownColors.Black, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
-        static DirectionProperty: DependencyProperty = DependencyProperty.Register("Direction", () => Number, DropShadowEffect, 315.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
-        static OpacityProperty: DependencyProperty = DependencyProperty.Register("Opacity", () => Number, DropShadowEffect, 1.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
-        static ShadowDepthProperty: DependencyProperty = DependencyProperty.Register("ShadowDepth", () => Number, DropShadowEffect, 5.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
+        static BlurRadiusProperty = DependencyProperty.Register("BlurRadius", () => Number, DropShadowEffect, 5.0, Incite);
+        static ColorProperty = DependencyProperty.Register("Color", () => Color, DropShadowEffect, Color.KnownColors.Black, Incite);
+        static DirectionProperty = DependencyProperty.Register("Direction", () => Number, DropShadowEffect, 315.0, Incite);
+        static OpacityProperty = DependencyProperty.Register("Opacity", () => Number, DropShadowEffect, 1.0, Incite);
+        static ShadowDepthProperty = DependencyProperty.Register("ShadowDepth", () => Number, DropShadowEffect, 5.0, Incite);
         BlurRadius: number;
         Color: Color;
         Direction: number;
         Opacity: number;
         ShadowDepth: number;
 
-        Padding(): Thickness {
-            var radius = Math.min(this.BlurRadius, DropShadowEffect.MAX_BLUR_RADIUS);
-            var depth = Math.min(Math.max(0, this.ShadowDepth), DropShadowEffect.MAX_SHADOW_DEPTH);
-            var direction = this.Direction * Math.PI / 180.0;
-            var width = Math.ceil(radius);
-
-            var offsetX = Math.cos(direction) * depth;
-            var offsetY = Math.sin(direction) * depth;
-
-            var left = -offsetX + width;
-            var top = offsetY + width;
-            var right = offsetX + width;
-            var bottom = -offsetY + width;
-
-            return new Thickness(left < 1.0 ? 1.0 : Math.ceil(left),
-                top < 1.0 ? 1.0 : Math.ceil(top),
-                right < 1.0 ? 1.0 : Math.ceil(right),
-                bottom < 1.0 ? 1.0 : Math.ceil(bottom));
-        }
-        GetPadding(thickness: Thickness): boolean {
+        GetPadding (thickness: Thickness): boolean {
             var radius = Math.min(this.BlurRadius, DropShadowEffect.MAX_BLUR_RADIUS);
             var depth = Math.min(Math.max(0, this.ShadowDepth), DropShadowEffect.MAX_SHADOW_DEPTH);
             var direction = this.Direction * Math.PI / 180.0;
@@ -54,26 +35,20 @@ module Fayde.Media.Effects {
             var t = top < 1.0 ? 1.0 : Math.ceil(top);
             var r = right < 1.0 ? 1.0 : Math.ceil(right);
             var b = bottom < 1.0 ? 1.0 : Math.ceil(bottom);
-            var flag = false;
-            if (thickness.Left !== l) {
-                thickness.Left = l;
-                flag = true;
-            }
-            if (thickness.Top !== t) {
-                thickness.Top = t;
-                flag = true;
-            }
-            if (thickness.Right !== r) {
-                thickness.Right = r;
-                flag = true;
-            }
-            if (thickness.Bottom !== b) {
-                thickness.Bottom = b;
-                flag = true;
-            }
-            return flag;
+            var changed = thickness.left !== l
+                || thickness.top !== t
+                || thickness.right !== r
+                || thickness.bottom !== b;
+
+            thickness.left = l;
+            thickness.top = t;
+            thickness.right = r;
+            thickness.bottom = b;
+
+            return changed;
         }
-        PreRender(ctx: RenderContextEx) {
+
+        PreRender (ctx: minerva.core.render.RenderContext) {
             var color = this.Color;
             var opacity = color.A * this.Opacity;
 
@@ -83,10 +58,11 @@ module Fayde.Media.Effects {
             var offsetX = Math.cos(direction) * depth;
             var offsetY = -Math.sin(direction) * depth;
 
-            ctx.shadowColor = "rgba(" + color.R + "," + color.G + "," + color.B + "," + opacity + ")";
-            ctx.shadowBlur = radius;
-            ctx.shadowOffsetX = offsetX;
-            ctx.shadowOffsetY = offsetY;
+            var raw = ctx.raw;
+            raw.shadowColor = "rgba(" + color.R + "," + color.G + "," + color.B + "," + opacity + ")";
+            raw.shadowBlur = radius;
+            raw.shadowOffsetX = offsetX;
+            raw.shadowOffsetY = offsetY;
         }
     }
     Fayde.RegisterType(DropShadowEffect, "Fayde.Media.Effects", Fayde.XMLNS);

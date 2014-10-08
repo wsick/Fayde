@@ -2,15 +2,23 @@
 /// <reference path="../GeneralTransform.ts" />
 
 module Fayde.Media.Effects {
-    export class Effect extends DependencyObject {
-        static EffectMappingProperty: DependencyProperty = DependencyProperty.Register("EffectMapping", () => GeneralTransform, Effect, undefined, React);
+    export class Effect extends DependencyObject implements minerva.IEffect {
+        static EffectMappingProperty = DependencyProperty.Register("EffectMapping", () => GeneralTransform, Effect);
         EffectMapping: GeneralTransform;
 
-        Padding(): Thickness { return new Thickness(); }
-        GetPadding(thickness: Thickness): boolean { return false; }
-        PreRender(ctx: RenderContextEx) {
-            //Abstract Method
+        PreRender (ctx: minerva.core.render.RenderContext) {
+        }
+
+        PostRender (ctx: minerva.core.render.RenderContext) {
+        }
+
+        GetPadding (thickness: Thickness): boolean {
+            return false;
         }
     }
     Fayde.RegisterType(Effect, "Fayde.Media.Effects", Fayde.XMLNS);
+
+    module reactions {
+        DPReaction<GeneralTransform>(Effect.EffectMappingProperty, (dobj, ov, nv) => Incite(dobj));
+    }
 }
