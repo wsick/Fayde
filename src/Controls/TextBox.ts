@@ -2,20 +2,20 @@
 
 module Fayde.Controls {
     export class TextBox extends TextBoxBase implements Text.ITextAttributesSource, IFontChangeable {
-        static AcceptsReturnProperty: DependencyProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false, (d, args) => (<TextBox>d).$AcceptsReturn = (args.NewValue === true));
-        static CaretBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBox);
-        static MaxLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);
-        static IsReadOnlyProperty: DependencyProperty = DependencyProperty.Register("IsReadOnly", () => Boolean, TextBox, undefined, (d, args) => (<TextBox>d)._IsReadOnlyChanged(args));
-        static SelectionForegroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionForegroundChanged(args));
-        static SelectionBackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionBackgroundChanged(args));
-        static BaselineOffsetProperty: DependencyProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBox);
-        static SelectionLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionLengthChanged(args.NewValue), undefined, true, positiveIntValidator);
-        static SelectionStartProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionStartChanged(args.NewValue), undefined, true, positiveIntValidator);
-        static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBox, undefined, (d, args) => (<TextBox>d)._TextChanged(args.NewValue));
-        static TextAlignmentProperty: DependencyProperty = DependencyProperty.Register("TextAlignment", () => new Enum(TextAlignment), TextBox, TextAlignment.Left, (d, args) => (<TextBox>d)._TextAlignmentChanged(args));
-        static TextWrappingProperty: DependencyProperty = DependencyProperty.Register("TextWrapping", () => new Enum(TextWrapping), TextBox, TextWrapping.NoWrap, (d, args) => (<TextBox>d)._TextWrappingChanged(args));
-        static HorizontalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", () => new Enum(ScrollBarVisibility), TextBox, ScrollBarVisibility.Hidden, (d, args) => (<TextBox>d)._HorizontalScrollBarVisibilityChanged(args));
-        static VerticalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.Register("VerticalScrollBarVisibility", () => new Enum(ScrollBarVisibility), TextBox, ScrollBarVisibility.Hidden, (d, args) => (<TextBox>d)._VerticalScrollBarVisibilityChanged(args));
+        static AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false, (d, args) => (<TextBox>d).$AcceptsReturn = (args.NewValue === true));
+        static CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBox);
+        static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);
+        static IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", () => Boolean, TextBox, undefined, (d, args) => (<TextBox>d)._IsReadOnlyChanged(args));
+        static SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBox);
+        static SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBox);
+        static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBox);
+        static SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionLengthChanged(args.NewValue), undefined, true, positiveIntValidator);
+        static SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionStartChanged(args.NewValue), undefined, true, positiveIntValidator);
+        static TextProperty = DependencyProperty.Register("Text", () => String, TextBox, undefined, (d, args) => (<TextBox>d)._TextChanged(args.NewValue));
+        static TextAlignmentProperty = DependencyProperty.Register("TextAlignment", () => new Enum(TextAlignment), TextBox, TextAlignment.Left, (d, args) => (<TextBox>d)._TextAlignmentChanged(args));
+        static TextWrappingProperty = DependencyProperty.Register("TextWrapping", () => new Enum(TextWrapping), TextBox, TextWrapping.NoWrap, (d, args) => (<TextBox>d)._TextWrappingChanged(args));
+        static HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", () => new Enum(ScrollBarVisibility), TextBox, ScrollBarVisibility.Hidden, (d, args) => (<TextBox>d)._HorizontalScrollBarVisibilityChanged(args));
+        static VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", () => new Enum(ScrollBarVisibility), TextBox, ScrollBarVisibility.Hidden, (d, args) => (<TextBox>d)._VerticalScrollBarVisibilityChanged(args));
         AcceptsReturn: boolean;
         CaretBrush: Media.Brush;
         MaxLength: number;
@@ -31,9 +31,9 @@ module Fayde.Controls {
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
 
-        SelectionChanged: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
-        //TextChanged: RoutedEvent<TextChangedEventArgs> = new RoutedEvent<TextChangedEventArgs>();
-        TextChanged: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
+        SelectionChanged = new RoutedEvent<RoutedEventArgs>();
+        //TextChanged = new RoutedEvent<TextChangedEventArgs>();
+        TextChanged = new RoutedEvent<RoutedEventArgs>();
 
         constructor() {
             super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);
@@ -117,38 +117,6 @@ module Fayde.Controls {
                 this.$View.SetEnableCursor(!this.$IsReadOnly);
         }
         FontChanged(args: IDependencyPropertyChangedEventArgs) { this._ModelChanged(TextBoxModelChangedType.Font, args.NewValue); }
-        private _SelectionBackgroundListener: Media.IBrushChangedListener;
-        private _SelectionBackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
-            var newBrush = <Media.Brush>args.NewValue;
-            if (this._SelectionBackgroundListener)
-                this._SelectionBackgroundListener.Detach();
-            this._SelectionBackgroundListener = null;
-            if (newBrush) {
-                this._SelectionBackgroundListener = newBrush.Listen((brush) => {
-                    this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
-                    this.XamlNode.LayoutUpdater.invalidate();
-                });
-            }
-
-            this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
-            this.XamlNode.LayoutUpdater.invalidate();
-        }
-        private _SelectionForegroundListener: Media.IBrushChangedListener;
-        private _SelectionForegroundChanged(args: IDependencyPropertyChangedEventArgs) {
-            var newBrush = <Media.Brush>args.NewValue;
-            if (this._SelectionForegroundListener)
-                this._SelectionForegroundListener.Detach();
-            this._SelectionForegroundListener = null;
-            if (newBrush) {
-                this._SelectionForegroundListener = newBrush.Listen((brush) => {
-                    this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
-                    this.XamlNode.LayoutUpdater.invalidate();
-                });
-            }
-
-            this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
-            this.XamlNode.LayoutUpdater.invalidate();
-        }
         private _TextAlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
             this._ModelChanged(TextBoxModelChangedType.TextAlignment, args.NewValue);
         }
@@ -205,7 +173,7 @@ module Fayde.Controls {
             super.OnLostFocus(e);
             this.UpdateVisualState();
         }
-        
+
         GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {
             if (!this.IsEnabled)
                 return gotoFunc("Disabled");
@@ -229,6 +197,17 @@ module Fayde.Controls {
         { GroupName: "ValidationStates", Name: "InvalidFocused" });
     TemplateParts(TextBox,
         { Name: "ContentElement", Type: FrameworkElement });
+
+    module reactions {
+        UIReaction<Media.Brush>(TextBox.SelectionBackgroundProperty, (upd, ov, nv, tb?: TextBox) => {
+            tb._ModelChanged(TextBoxModelChangedType.Brush, nv);
+            upd.invalidate();
+        });
+        UIReaction<Media.Brush>(TextBox.SelectionForegroundProperty, (upd, ov, nv, tb?: TextBox) => {
+            tb._ModelChanged(TextBoxModelChangedType.Brush, nv);
+            upd.invalidate();
+        });
+    }
 
     function positiveIntValidator(dobj: DependencyObject, propd: DependencyProperty, value: any): boolean {
         if (typeof value !== 'number')

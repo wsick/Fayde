@@ -37,11 +37,7 @@ module Fayde {
         }
         static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), InheritableOwner, Font.DEFAULT_WEIGHT, InheritableOwner._FontWeightPropertyChanged);
 
-        static _ForegroundPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            if ((<IFontChangeable><any>dobj).FontChanged)
-                (<IFontChangeable><any>dobj).FontChanged(args);
-        }
-        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, InheritableOwner, undefined, InheritableOwner._ForegroundPropertyChanged);
+        static ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, InheritableOwner);
         
         static _TextDecorationsPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             if ((<IFontChangeable><any>dobj).FontChanged)
@@ -74,5 +70,6 @@ module Fayde {
     module reactions {
         UIReaction<boolean>(InheritableOwner.UseLayoutRoundingProperty, minerva.core.reactTo.useLayoutRounding, false);
         UIReaction<minerva.FlowDirection>(InheritableOwner.FlowDirectionProperty, minerva.core.reactTo.flowDirection, false);
+        UIReaction<Media.Brush>(InheritableOwner.ForegroundProperty, (upd, ov, nv) => upd.invalidate());
     }
 }

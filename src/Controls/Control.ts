@@ -95,23 +95,23 @@ module Fayde.Controls {
         CreateNode(): ControlNode { return new ControlNode(this); }
         CreateLayoutUpdater() { return new minerva.controls.control.ControlUpdater(); }
 
-        static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
-        static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Control);
-        static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderThickness", () => Thickness, Control);
-        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(Control);
-        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty.ExtendTo(Control);
-        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty.ExtendTo(Control);
-        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty.ExtendTo(Control);
-        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty.ExtendTo(Control);
-        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty.ExtendTo(Control);
+        static BackgroundProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
+        static BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Control);
+        static BorderThicknessProperty = DependencyProperty.RegisterCore("BorderThickness", () => Thickness, Control);
+        static FontFamilyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(Control);
+        static FontSizeProperty = InheritableOwner.FontSizeProperty.ExtendTo(Control);
+        static FontStretchProperty = InheritableOwner.FontStretchProperty.ExtendTo(Control);
+        static FontStyleProperty = InheritableOwner.FontStyleProperty.ExtendTo(Control);
+        static FontWeightProperty = InheritableOwner.FontWeightProperty.ExtendTo(Control);
+        static ForegroundProperty = InheritableOwner.ForegroundProperty.ExtendTo(Control);
         static HorizontalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalContentAlignment", () => new Enum(HorizontalAlignment), Control, HorizontalAlignment.Center);
-        static IsEnabledProperty: DependencyProperty = DependencyProperty.Register("IsEnabled", () => Boolean, Control, true);
-        static IsTabStopProperty: DependencyProperty = DependencyProperty.Register("IsTabStop", () => Boolean, Control, true);
-        static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, Control);
-        static TabIndexProperty: DependencyProperty = DependencyProperty.Register("TabIndex", () => Number, Control);
-        static TabNavigationProperty: DependencyProperty = DependencyProperty.Register("TabNavigation", () => new Enum(Input.KeyboardNavigationMode), Control, Input.KeyboardNavigationMode.Local);
-        static TemplateProperty: DependencyProperty = DependencyProperty.Register("Template", () => ControlTemplate, Control, undefined, (d, args) => (<Control>d).XamlNode.OnTemplateChanged(args.OldValue, args.NewValue));
-        static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center);
+        static IsEnabledProperty = DependencyProperty.Register("IsEnabled", () => Boolean, Control, true);
+        static IsTabStopProperty = DependencyProperty.Register("IsTabStop", () => Boolean, Control, true);
+        static PaddingProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, Control);
+        static TabIndexProperty = DependencyProperty.Register("TabIndex", () => Number, Control);
+        static TabNavigationProperty = DependencyProperty.Register("TabNavigation", () => new Enum(Input.KeyboardNavigationMode), Control, Input.KeyboardNavigationMode.Local);
+        static TemplateProperty = DependencyProperty.Register("Template", () => ControlTemplate, Control, undefined, (d, args) => (<Control>d).XamlNode.OnTemplateChanged(args.OldValue, args.NewValue));
+        static VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center);
 
         IsInheritable(propd: DependencyProperty): boolean {
             if (ControlInheritedProperties.indexOf(propd) > -1)
