@@ -2,7 +2,7 @@
 
 module Fayde.Media {
     export class SolidColorBrush extends Brush {
-        static ColorProperty: DependencyProperty = DependencyProperty.Register("Color", () => Color, SolidColorBrush, undefined, (d, args) => (<Brush>d).InvalidateBrush());
+        static ColorProperty = DependencyProperty.Register("Color", () => Color, SolidColorBrush, undefined, (d, args) => (<Brush>d).InvalidateBrush());
         Color: Color;
 
         constructor(...args: any[]) {
@@ -11,13 +11,18 @@ module Fayde.Media {
                 this.Color = args[0];
         }
 
+        isTransparent(): boolean {
+            var color = this.Color;
+            return !color || (color.A <= 0);
+        }
+
         static FromColor(color: Color): SolidColorBrush {
             var scb = new SolidColorBrush();
             scb.Color = color;
             return scb;
         }
 
-        CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any {
+        CreateBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any {
             var color = this.Color;
             if (!color)
                 return "#000000";
