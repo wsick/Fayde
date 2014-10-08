@@ -12,7 +12,7 @@ module Fayde.Controls.Internal {
         //TODO: Implement textbox view updater
         //CreateLayoutUpdater() { return new minerva.controls.textbox.TextBoxUpdater(); }
 
-        private _Cursor: rect = new rect();
+        private _Cursor = new minerva.Rect();
         private _Layout: Text.TextLayout = new Text.TextLayout();
         private _SelectionChanged: boolean = false;
         private _HadSelectedText: boolean = false;
@@ -48,9 +48,9 @@ module Fayde.Controls.Internal {
             }
 
             var lu = this.XamlNode.LayoutUpdater;
-            lu.UpdateBounds(true);
-            lu.InvalidateMeasure();
-            lu.Invalidate();
+            lu.updateBounds(true);
+            lu.invalidateMeasure();
+            lu.invalidate();
             this._Dirty = true;
         }
         SetEnableCursor(value: boolean) {
@@ -123,8 +123,9 @@ module Fayde.Controls.Internal {
                 this._HideCursor();
         }
         private _InvalidateCursor() {
-            var lu = this.XamlNode.LayoutUpdater;
-            lu.Invalidate(rect.transform(this._Cursor, lu.AbsoluteXform));
+            //TODO: Invalidate cursor
+            //var lu = this.XamlNode.LayoutUpdater;
+            //lu.invalidate(rect.transform(this._Cursor, lu.AbsoluteXform));
         }
         private _ShowCursor() {
             this._CursorVisible = true;
@@ -147,8 +148,8 @@ module Fayde.Controls.Internal {
             // rect.transform(irect, this._Xformer.AbsoluteXform);
             // this._TextBox._ImCtx.SetCursorLocation(irect);
 
-            if (!rect.isEqual(this._Cursor, current))
-                this._TextBox._EmitCursorPositionChanged(this._Cursor.Height, this._Cursor.X, this._Cursor.Y);
+            if (!minerva.Rect.isEqual(this._Cursor, current))
+                this._TextBox._EmitCursorPositionChanged(this._Cursor.height, this._Cursor.x, this._Cursor.y);
 
             if (invalidate && this._CursorVisible)
                 this._InvalidateCursor();
@@ -158,22 +159,24 @@ module Fayde.Controls.Internal {
             this._Layout.Text = text ? text : "", -1;
         }
 
-        MeasureOverride(availableSize: size) {
+        /*
+        MeasureOverride(availableSize: minerva.Size) {
             this.Layout(availableSize);
             var desired = size.copyTo(this._Layout.ActualExtents);
-            if (!isFinite(availableSize.Width))
+            if (!isFinite(availableSize.width))
                 desired.Width = Math.max(desired.Width, 11);
             size.min(desired, availableSize);
             return desired;
         }
-        ArrangeOverride(finalSize: size) {
+        ArrangeOverride(finalSize: minerva.Size) {
             this.Layout(finalSize);
             var arranged = size.copyTo(this._Layout.ActualExtents);
             size.max(arranged, finalSize);
             return arranged;
         }
-        Layout(constraint: size) {
-            this._Layout.MaxWidth = constraint.Width;
+        */
+        Layout(constraint: minerva.Size) {
+            this._Layout.MaxWidth = constraint.width;
             this._Layout.Layout();
             this._Dirty = false;
         }
@@ -226,12 +229,14 @@ module Fayde.Controls.Internal {
                     return;
             }
             if (this._Dirty) {
-                lu.InvalidateMeasure();
-                lu.UpdateBounds(true);
+                lu.invalidateMeasure();
+                lu.updateBounds(true);
             }
-            lu.Invalidate();
+            lu.invalidate();
         }
 
+        //TODO: Implement render and actual size
+        /*
         ComputeActualExtents(): size {
             this.Layout(size.createInfinite());
             return this._Layout.ActualExtents;
@@ -267,9 +272,12 @@ module Fayde.Controls.Internal {
                 ctx.stroke();
             }
         }
+        */
     }
     Fayde.RegisterType(TextBoxView, "Fayde.Controls");
 
+    //TODO: Implement textboxview updater
+    /*
     export class TextBoxViewLayoutUpdater extends LayoutUpdater {
         ComputeActualSize() {
             if (this.LayoutSlot !== undefined)
@@ -286,4 +294,5 @@ module Fayde.Controls.Internal {
             ctx.restore();
         }
     }
+    */
 }
