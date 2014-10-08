@@ -110,18 +110,17 @@ module Fayde.Controls {
 
             var mode = this.PlacementOverride != null ? this.PlacementOverride : this.Placement;
             var target = <FrameworkElement>(this.PlacementTargetOverride || this.PlacementTarget);
-            var targetBounds = new rect();
+            var targetBounds = new minerva.Rect();
 
             var point: Point = ToolTipService.MousePosition;
             if (mode !== PlacementMode.Mouse) {
                 point = new Point();
                 try {
                     if (target != null) {
-                        targetBounds = new rect();
-                        rect.set(targetBounds, 0, 0, target.ActualWidth, target.ActualHeight);
+                        targetBounds = new minerva.Rect(0, 0, target.ActualWidth, target.ActualHeight);
                         targetBounds = target.TransformToVisual(null).TransformBounds(targetBounds);
-                        point.X = targetBounds.X;
-                        point.Y = targetBounds.Y;
+                        point.x = targetBounds.x;
+                        point.y = targetBounds.y;
                     }
                 } catch (err) {
                     console.warn("Could not transform the tooltip point.");
@@ -134,19 +133,19 @@ module Fayde.Controls {
             //Move based on PlacementMode
             switch (mode) {
                 case PlacementMode.Top:
-                    point.Y = targetBounds.Y - this.ActualHeight;
+                    point.y = targetBounds.y - this.ActualHeight;
                     break;
                 case PlacementMode.Bottom:
-                    point.Y = targetBounds.Y + targetBounds.Height;
+                    point.y = targetBounds.y + targetBounds.height;
                     break;
                 case PlacementMode.Left:
-                    point.X = targetBounds.X - this.ActualWidth;
+                    point.x = targetBounds.x - this.ActualWidth;
                     break;
                 case PlacementMode.Right:
-                    point.X = targetBounds.X + targetBounds.Width;
+                    point.x = targetBounds.x + targetBounds.width;
                     break;
                 case PlacementMode.Mouse:
-                    point.Y += new TextBox().FontSize; // FIXME: Just a guess, it's about right.
+                    point.y += new TextBox().FontSize; // FIXME: Just a guess, it's about right.
                     break;
                 default:
                     throw new NotSupportedException("PlacementMode '" + mode + "' is not supported.");
@@ -154,34 +153,34 @@ module Fayde.Controls {
 
             //Constrain X
             var rootWidth = root.ActualWidth;
-            if ((point.X + this.ActualWidth) > rootWidth) {
+            if ((point.x + this.ActualWidth) > rootWidth) {
                 if (mode === PlacementMode.Right)
-                    point.X = targetBounds.X - this.ActualWidth;
+                    point.x = targetBounds.x - this.ActualWidth;
                 else
-                    point.X = rootWidth - this.ActualWidth;
-            } else if (point.X < 0) {
+                    point.x = rootWidth - this.ActualWidth;
+            } else if (point.x < 0) {
                 if (mode === PlacementMode.Left)
-                    point.X = targetBounds.X + targetBounds.Width;
+                    point.x = targetBounds.x + targetBounds.width;
                 else
-                    point.X = 0;
+                    point.x = 0;
             }
 
             //Constrain Y
             var rootHeight = root.ActualHeight;
-            if ((point.Y + this.ActualHeight) > rootHeight) {
+            if ((point.y + this.ActualHeight) > rootHeight) {
                 if (mode === PlacementMode.Bottom)
-                    point.Y = targetBounds.Y - this.ActualHeight;
+                    point.y = targetBounds.y - this.ActualHeight;
                 else
-                    point.Y = rootHeight - this.ActualHeight;
-            } else if (point.Y < 0) {
+                    point.y = rootHeight - this.ActualHeight;
+            } else if (point.y < 0) {
                 if (mode === PlacementMode.Top)
-                    point.Y = targetBounds.Y + targetBounds.Height;
+                    point.y = targetBounds.y + targetBounds.height;
                 else
-                    point.Y = 0;
+                    point.y = 0;
             }
 
-            this._ParentPopup.VerticalOffset = point.Y;
-            this._ParentPopup.HorizontalOffset = point.X;
+            this._ParentPopup.VerticalOffset = point.y;
+            this._ParentPopup.HorizontalOffset = point.x;
         }
 
         GoToStates(gotoFunc: (state: string) => boolean) {
