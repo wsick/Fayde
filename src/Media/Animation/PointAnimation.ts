@@ -31,7 +31,7 @@ module Fayde.Media.Animation {
             if (this._ToCached != null)
                 end = this._ToCached;
             else if (this._ByCached != null)
-                end = new Point(start.X + this._ByCached.X, start.Y + this._ByCached.Y);
+                end = new Point(start.x + this._ByCached.x, start.y + this._ByCached.y);
             else if (defaultDestinationValue instanceof Point)
                 end = defaultDestinationValue;
 

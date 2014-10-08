@@ -4,12 +4,12 @@ module Fayde.Media {
     export class Transform extends GeneralTransform {
         private _Value: Matrix;
 
-        constructor() {
+        constructor () {
             super();
             XamlNode.SetShareable(this.XamlNode);
         }
 
-        get Value(): Matrix {
+        get Value (): Matrix {
             var val = this._Value;
             if (!val) {
                 this._Value = val = new Matrix();
@@ -17,7 +17,8 @@ module Fayde.Media {
             }
             return val;
         }
-        get Inverse(): Transform {
+
+        get Inverse (): Transform {
             var inverse = this.Value.Inverse;
             if (!inverse)
                 return;
@@ -26,7 +27,7 @@ module Fayde.Media {
             return mt;
         }
 
-        Transform(p: minerva.IPoint): Point {
+        Transform (p: minerva.IPoint): Point {
             var val = this.Value;
             var v: number[];
             if (!val || !(v = val._Raw))
@@ -34,24 +35,29 @@ module Fayde.Media {
             v = mat3.transformVec2(v, vec2.createFrom(p.x, p.y));
             return new Point(v[0], v[1]);
         }
-        TransformBounds(r: rect): rect {
+
+        TransformBounds (r: minerva.Rect): minerva.Rect {
             if (!r)
                 return undefined;
             var v = this.Value;
+            var copy = new minerva.Rect();
+            minerva.Rect.copyTo(r, copy);
             if (!v || !v._Raw)
-                return rect.copyTo(r);
-            return rect.transform(rect.copyTo(r), v._Raw);
+                return copy;
+            return minerva.Rect.transform(copy, v._Raw);
         }
-        TryTransform(inPoint: minerva.IPoint, outPoint: minerva.IPoint): boolean {
+
+        TryTransform (inPoint: minerva.IPoint, outPoint: minerva.IPoint): boolean {
             return false;
         }
 
-        _InvalidateValue() {
+        _InvalidateValue () {
             if (this._Value !== undefined)
                 this._Value = undefined;
             Incite(this);
         }
-        _BuildValue(): number[] {
+
+        _BuildValue (): number[] {
             //Abstract Method
             return undefined;
         }
@@ -62,14 +68,14 @@ module Fayde.Media {
         static MatrixProperty: DependencyProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform, undefined, LReaction((dobj: MatrixTransform, nv, ov) => dobj._InvalidateValue()));
         Matrix: Matrix;
 
-        _BuildValue(): number[] {
+        _BuildValue (): number[] {
             var m = this.Matrix;
             if (m)
                 return m._Raw;
             return mat3.identity();
         }
 
-        Clone(): MatrixTransform {
+        Clone (): MatrixTransform {
             var xform = new MatrixTransform();
             xform.Matrix = this.Matrix.Clone();
             return xform;

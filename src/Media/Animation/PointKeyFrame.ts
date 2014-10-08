@@ -17,7 +17,7 @@ module Fayde.Media.Animation {
     Fayde.RegisterType(DiscretePointKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
     
     export class EasingPointKeyFrame extends PointKeyFrame {
-        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, EasingPointKeyFrame);
+        static EasingFunctionProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, EasingPointKeyFrame);
         EasingFunction: EasingFunctionBase;
 
         InterpolateValue(baseValue: Point, keyFrameProgress: number): Point {
@@ -58,14 +58,14 @@ module Fayde.Media.Animation {
             if (keySpline)
                 splineProgress = keySpline.GetSplineProgress(keyFrameProgress);
 
-            if (isNaN(start.X))
-                start.X = 0;
-            if (isNaN(start.Y))
-                start.Y = 0;
-            if (isNaN(end.X))
-                end.X = 0;
-            if (isNaN(end.Y))
-                end.Y = 0;
+            if (isNaN(start.x))
+                start.x = 0;
+            if (isNaN(start.y))
+                start.y = 0;
+            if (isNaN(end.x))
+                end.x = 0;
+            if (isNaN(end.y))
+                end.y = 0;
 
             return Point.LERP(start, end, splineProgress);
         }
