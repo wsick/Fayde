@@ -126,12 +126,12 @@ module Fayde.Controls {
             if (newBrush) {
                 this._SelectionBackgroundListener = newBrush.Listen((brush) => {
                     this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
-                    this.XamlNode.LayoutUpdater.Invalidate();
+                    this.XamlNode.LayoutUpdater.invalidate();
                 });
             }
 
             this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
-            this.XamlNode.LayoutUpdater.Invalidate();
+            this.XamlNode.LayoutUpdater.invalidate();
         }
         private _SelectionForegroundListener: Media.IBrushChangedListener;
         private _SelectionForegroundChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -142,12 +142,12 @@ module Fayde.Controls {
             if (newBrush) {
                 this._SelectionForegroundListener = newBrush.Listen((brush) => {
                     this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
-                    this.XamlNode.LayoutUpdater.Invalidate();
+                    this.XamlNode.LayoutUpdater.invalidate();
                 });
             }
 
             this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
-            this.XamlNode.LayoutUpdater.Invalidate();
+            this.XamlNode.LayoutUpdater.invalidate();
         }
         private _TextAlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
             this._ModelChanged(TextBoxModelChangedType.TextAlignment, args.NewValue);

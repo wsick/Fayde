@@ -14,7 +14,8 @@ module Fayde.Controls {
 
         constructor(xobj: TextBlock) {
             super(xobj);
-            this.LayoutUpdater.CanHitElement = true;
+            //TODO: Use for hit testing
+            //this.LayoutUpdater.CanHitElement = true;
         }
 
         GetInheritedEnumerator(): IEnumerator<DONode> {
@@ -24,24 +25,26 @@ module Fayde.Controls {
                 return <IEnumerator<DONode>>inlines.GetNodeEnumerator();
         }
 
-        Measure(constraint: size): size {
+        Measure(constraint: minerva.Size): minerva.Size {
             this.Layout(constraint);
-            return size.fromRaw(this._ActualWidth, this._ActualHeight);
+            return new minerva.Size(this._ActualWidth, this._ActualHeight);
         }
-        Arrange(constraint: size, padding: Thickness) {
+        Arrange(constraint: minerva.Size, padding: Thickness) {
             this.Layout(constraint);
-            var arranged = size.fromRaw(this._ActualWidth, this._ActualHeight);
-            size.max(arranged, constraint);
-            this._Layout.AvailableWidth = constraint.Width;
-            if (padding) size.growByThickness(arranged, padding);
+            var arranged = new minerva.Size(this._ActualWidth, this._ActualHeight);
+            arranged.width = Math.max(arranged.width, constraint.width);
+            arranged.height = Math.max(arranged.height, constraint.height);
+            this._Layout.AvailableWidth = constraint.width;
+            if (padding)
+                minerva.Thickness.growSize(padding, arranged);
         }
-        Layout(constraint: size) {
+        Layout(constraint: minerva.Size) {
             if (this._WasSet) {
                 if (false) {
                     this._ActualHeight = this._Font.GetActualHeight();
                     this._ActualWidth = 0.0;
                 } else {
-                    this._Layout.MaxWidth = constraint.Width;
+                    this._Layout.MaxWidth = constraint.width;
                     this._Layout.Layout();
                     var actuals = this._Layout.ActualExtents;
                     this._ActualWidth = actuals.Width;
@@ -53,8 +56,9 @@ module Fayde.Controls {
             }
             this._Dirty = false;
         }
-        ComputeActualSize(lu: LayoutUpdater, padding: Thickness): size {
-            var constraint = lu.CoerceSize(size.createInfinite());
+        /*
+        ComputeActualSize(lu: LayoutUpdater, padding: Thickness): minerva.Size {
+            var constraint = lu.CoerceSize(minerva.Size.createInfinite());
 
             if (lu.PreviousConstraint !== undefined || lu.LayoutSlot !== undefined) {
                 this._Layout.Layout();
@@ -62,13 +66,16 @@ module Fayde.Controls {
                 this._ActualWidth = actuals.Width;
                 this._ActualHeight = actuals.Height;
             } else {
-                if (padding) size.shrinkByThickness(constraint, padding);
+                if (padding) minerva.Size.shrinkByThickness(constraint, padding);
                 this.Layout(constraint);
             }
-            var result = size.fromRaw(this._ActualWidth, this._ActualHeight);
-            if (padding) size.growByThickness(result, padding);
+            var result = minerva.Size.fromRaw(this._ActualWidth, this._ActualHeight);
+            if (padding)
+                minerva.Thickness.growSize(padding, result);
             return result;
         }
+        */
+        /*
         Render(ctx: RenderContextEx) {
             var tb = this.XObject;
             var padding = tb.Padding;
@@ -79,6 +86,7 @@ module Fayde.Controls {
             }
             this._Layout.Render(ctx, null, offset);
         }
+        */
 
         _FontChanged(args: IDependencyPropertyChangedEventArgs) {
             this._UpdateFonts(false);
@@ -117,11 +125,11 @@ module Fayde.Controls {
             if (setDirty) this._Dirty = true;
             var lu = this.LayoutUpdater;
             if (this._Dirty) {
-                lu.InvalidateMeasure();
-                lu.InvalidateArrange();
-                lu.UpdateBounds(true);
+                lu.invalidateMeasure();
+                lu.invalidateArrange();
+                lu.updateBounds(true);
             }
-            lu.Invalidate();
+            lu.invalidate();
         }
 
         private _UpdateFont(force?: boolean) {
@@ -138,9 +146,9 @@ module Fayde.Controls {
             if (!this._UpdateFont(force))
                 return false;
             var lu = this.LayoutUpdater;
-            lu.InvalidateMeasure();
-            lu.InvalidateArrange();
-            lu.UpdateBounds(true);
+            lu.invalidateMeasure();
+            lu.invalidateArrange();
+            lu.updateBounds(true);
             this._Dirty = true;
             return true;
         }
@@ -149,8 +157,8 @@ module Fayde.Controls {
             var inlines = xobj.Inlines;
 
             var lu = this.LayoutUpdater;
-            lu.InvalidateMeasure();
-            lu.InvalidateArrange();
+            lu.invalidateMeasure();
+            lu.invalidateArrange();
 
             this._UpdateFont(false);
 
@@ -247,10 +255,10 @@ module Fayde.Controls {
 
             this._UpdateLayoutAttributes();
             var lu = this.LayoutUpdater;
-            lu.InvalidateMeasure();
-            lu.InvalidateArrange();
-            lu.UpdateBounds(true);
-            lu.Invalidate();
+            lu.invalidateMeasure();
+            lu.invalidateArrange();
+            lu.updateBounds(true);
+            lu.invalidate();
         }
     }
     Fayde.RegisterType(TextBlockNode, "Fayde.Controls");
@@ -258,7 +266,9 @@ module Fayde.Controls {
     export class TextBlock extends FrameworkElement implements IFontChangeable {
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
-        CreateLayoutUpdater(node: TextBlockNode) { return new TextBlockLayoutUpdater(node); }
+        CreateLayoutUpdater() { return new minerva.core.Updater(); }
+        //TODO: Implement textblock updater
+        //CreateLayoutUpdater() { return new minerva.controls.textblock.TextBlockUpdater(); }
 
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true));
         static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextBlock);
@@ -293,27 +303,29 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            
+
             var inlines = TextBlock.InlinesProperty.Initialize(this);
             inlines.AttachTo(this);
             inlines.Listen(this.XamlNode);
         }
 
-        MeasureOverride(availableSize: size): size {
-            var constraint = size.copyTo(availableSize);
+        /*
+        MeasureOverride(availableSize: minerva.Size): minerva.Size {
+            var constraint = minerva.Size.copyTo(availableSize);
             var padding = this.Padding;
-            if (padding) size.shrinkByThickness(constraint, padding);
+            if (padding) minerva.Size.shrinkByThickness(constraint, padding);
             var desired = this.XamlNode.Measure(constraint);
-            if (padding) size.growByThickness(desired, padding);
+            if (padding) minerva.Size.growByThickness(desired, padding);
             return desired;
         }
-        ArrangeOverride(finalSize: size): size {
-            var constraint = size.copyTo(finalSize);
+        ArrangeOverride(finalSize: minerva.Size): minerva.Size {
+            var constraint = minerva.Size.copyTo(finalSize);
             var padding = this.Padding;
-            if (padding) size.shrinkByThickness(constraint, padding);
+            if (padding) minerva.Size.shrinkByThickness(constraint, padding);
             this.XamlNode.Arrange(constraint, padding);
             return finalSize;
         }
+        */
 
         private _ForegroundListener: Media.IBrushChangedListener;
         FontChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -327,8 +339,8 @@ module Fayde.Controls {
                     this._ForegroundListener.Detach();
                 this._ForegroundListener = null;
                 if (newBrush)
-                    this._ForegroundListener = newBrush.Listen((brush) => lu.Invalidate());
-                lu.Invalidate();
+                    this._ForegroundListener = newBrush.Listen((brush) => lu.invalidate());
+                lu.invalidate();
             } else {
                 this.XamlNode._FontChanged(args);
             }
@@ -353,25 +365,27 @@ module Fayde.Controls {
         TextBlock.ForegroundProperty
     ];
 
+    //TODO: Implement textblock updater
+    /*
     export class TextBlockLayoutUpdater extends LayoutUpdater {
-        ComputeActualSize(): size {
+        ComputeActualSize(): minerva.Size {
             var node = <TextBlockNode>this.Node;
             var tb = <TextBlock>node.XObject;
             return node.ComputeActualSize(this, tb.Padding);
         }
 
-        ComputeExtents(actualSize: size) {
+        ComputeExtents(actualSize: minerva.Size) {
             var node = <TextBlockNode>this.Node;
-            rect.copyTo(node._Layout.RenderExtents, this.Extents);
+            minerva.Rect.copyTo(node._Layout.RenderExtents, this.Extents);
             var padding = node.XObject.Padding;
             if (padding) {
                 this.Extents.X += padding.Left;
                 this.Extents.Y += padding.Top;
             }
-            rect.copyTo(this.Extents, this.ExtentsWithChildren);
+            minerva.Rect.copyTo(this.Extents, this.ExtentsWithChildren);
         }
 
-        Render(ctx: RenderContextEx, region: rect) {
+        Render(ctx: RenderContextEx, region: minerva.Rect) {
             ctx.save();
             this.RenderLayoutClip(ctx);
             var node = <TextBlockNode>this.Node;
@@ -379,4 +393,5 @@ module Fayde.Controls {
             ctx.restore();
         }
     }
+    */
 }

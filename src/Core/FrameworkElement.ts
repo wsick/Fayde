@@ -24,7 +24,7 @@ module Fayde {
             return true;
         }
 
-        GetInheritedEnumerator(): IEnumerator<FENode> {
+        GetInheritedEnumerator(): IEnumerator<DONode> {
             return this.GetVisualTreeEnumerator();
         }
 
