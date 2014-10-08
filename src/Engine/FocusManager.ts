@@ -68,7 +68,7 @@ module Fayde.Engine {
                     loaded = loaded || check.IsLoaded;
                 }
 
-                if (loaded && cn.LayoutUpdater.TotalIsRenderVisible && c.IsTabStop)
+                if (loaded && cn.LayoutUpdater.assets.totalIsRenderVisible && c.IsTabStop)
                     return this._FocusNode(cn);
 
                 if (!recurse)
@@ -120,15 +120,18 @@ module Fayde.Engine {
             }
         }
         
-        FocusAnyLayer(layers: UINode[]) {
+        FocusAnyLayer(walker: minerva.IWalker<minerva.core.Updater>) {
             if (!this.Node) {
-                var last = layers.length - 1;
-                for (var i = last; i >= 0; i--) {
-                    if (Fayde.TabNavigationWalker.Focus(layers[i]))
+                var top: UINode;
+                for (var node;walker.step();) {
+                    node = walker.current.getAttachedValue("$node");
+                    if (!top)
+                        top = node;
+                    if (Fayde.TabNavigationWalker.Focus(node))
                         break;
                 }
-                if (!this.Node && last !== -1)
-                    this._FocusNode(layers[last]);
+                if (!this.Node && top)
+                    this._FocusNode(top);
             }
             if (this._State.IsFirstUserInitiated)
                 this.EmitChangesAsync();

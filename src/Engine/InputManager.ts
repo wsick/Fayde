@@ -71,7 +71,7 @@ module Fayde.Engine {
                 this._EmitKeyDown(focusToRoot, args);
             if (!args.Handled && args.Key === Input.Key.Tab) {
                 if (!this._Focus.TabFocus(args.Modifiers.Shift))
-                    this._Focus.FocusAnyLayer(this._Surface.GetLayers());
+                    this._Focus.FocusAnyLayer(this._Surface.walkLayers(true));
                 args.Handled = true;
             }
             this.SetIsUserInitiatedEvent(false);
