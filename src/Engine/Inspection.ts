@@ -24,8 +24,8 @@ module Fayde.Engine {
     function showMenu(pos: Point, htlist: UINode[]) {
         menu = menu || createMenu();
         fillMenu(htlist);
-        menu.style.left = pos.X.toString() + "px";
-        menu.style.top = pos.Y.toString() + "px";
+        menu.style.left = pos.x.toString() + "px";
+        menu.style.top = pos.y.toString() + "px";
         menu.style.display = "";
     }
     function createMenu(): HTMLDivElement {
