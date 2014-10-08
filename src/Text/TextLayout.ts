@@ -1,4 +1,3 @@
-
 module Fayde.Text {
     export interface IBreakOp {
         Advance: number;
@@ -19,12 +18,14 @@ module Fayde.Text {
         private _Text: string;
         private _Selected: boolean = false;
         _Advance: number = 0;
-        constructor(text: string, font: Font, selected?: boolean) {
+
+        constructor (text: string, font: Font, selected?: boolean) {
             this._Text = text;
             this._Selected = selected == true;
             this._Advance = Surface.MeasureWidth(text, font);
         }
-        _Render(ctx: RenderContextEx, origin: Point, attrs: ITextAttributes, x: number, y: number) {
+
+        _Render (ctx: minerva.core.render.RenderContext, origin: Point, attrs: ITextAttributes, x: number, y: number) {
             if (this._Text.length == 0 || this._Advance == 0.0)
                 return;
             var font = attrs.Font;
@@ -32,44 +33,49 @@ module Fayde.Text {
             ctx.translate(x, y - y0);
 
             var fontHeight = font.GetActualHeight();
-            var area = new rect();
+            var area = new minerva.Rect();
             var ox = 0;
             var oy = 0;
             if (origin) {
-                ox = origin.X;
-                oy = origin.Y;
+                ox = origin.x;
+                oy = origin.y;
             }
-            rect.set(area, ox, oy, this._Advance, fontHeight);
-            
+            area.x = ox;
+            area.y = oy;
+            area.width = this._Advance;
+            area.height = fontHeight;
+
+            var raw = ctx.raw;
             var brush = attrs.GetBackground(this._Selected);
             if (brush) {
-                ctx.fillRectEx(brush, area); //selection background
+                raw.rect(area.x, area.y, area.width, area.height);
+                ctx.fillEx(brush, area); //selection background
             }
 
             brush = attrs.GetForeground(this._Selected);
             var brushHtml5 = "#000000";
             if (brush) {
-                brush.SetupBrush(ctx, area);
-                brushHtml5 = brush.ToHtml5Object();
+                brush.setupBrush(raw, area);
+                brushHtml5 = brush.toHtml5Object();
             }
-            ctx.fillStyle = brushHtml5;
-            ctx.font = font.ToHtml5Object();
-            ctx.textAlign = "left";
+            raw.fillStyle = brushHtml5;
+            raw.font = font.ToHtml5Object();
+            raw.textAlign = "left";
             if (isFirefox) {
-                ctx.textBaseline = "bottom";
-                ctx.fillText(this._Text, 0, fontHeight);
+                raw.textBaseline = "bottom";
+                raw.fillText(this._Text, 0, fontHeight);
             } else {
-                ctx.textBaseline = "top";
-                ctx.fillText(this._Text, 0, 0);
+                raw.textBaseline = "top";
+                raw.fillText(this._Text, 0, 0);
             }
 
             if (attrs.IsUnderlined) {
-                ctx.beginPath();
-                ctx.moveTo(0, fontHeight);
-                ctx.lineTo(this._Advance, fontHeight);
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = brushHtml5;
-                ctx.stroke();
+                raw.beginPath();
+                raw.moveTo(0, fontHeight);
+                raw.lineTo(this._Advance, fontHeight);
+                raw.lineWidth = 2;
+                raw.strokeStyle = brushHtml5;
+                raw.stroke();
             }
         }
     }
@@ -80,13 +86,14 @@ module Fayde.Text {
         private _Line: TextLayoutLine = null;
         _Advance: number = 0.0; //after layout, will contain horizontal distance this run advances
         _Length: number = 0;
-        constructor(line: TextLayoutLine, attrs: ITextAttributes, start: number) {
+
+        constructor (line: TextLayoutLine, attrs: ITextAttributes, start: number) {
             this._Attrs = attrs;
             this._Start = start;
             this._Line = line;
         }
 
-        _GenerateCache() {
+        _GenerateCache () {
             var layout = this._Line._Layout;
             var selectionLength = layout.SelectionLength;
             var selectionStart = layout.SelectionStart;
@@ -124,10 +131,12 @@ module Fayde.Text {
                 index += len;
             }
         }
-        _ClearCache() {
+
+        _ClearCache () {
             this._Clusters = [];
         }
-        _Render(ctx: RenderContextEx, origin: Point, x: number, y: number) {
+
+        _Render (ctx: minerva.core.render.RenderContext, origin: Point, x: number, y: number) {
             var x0 = x;
             if (this._Clusters.length === 0)
                 this._GenerateCache();
@@ -140,7 +149,8 @@ module Fayde.Text {
                 x0 += cluster._Advance;
             }
         }
-        __Debug(allText) {
+
+        __Debug (allText) {
             return allText.substr(this._Start, this._Length);
         }
     }
@@ -155,16 +165,17 @@ module Fayde.Text {
         _Width: number = 0.0;
         _Length: number = 0;
 
-        constructor(layout: TextLayout, start: number, offset: number) {
+        constructor (layout: TextLayout, start: number, offset: number) {
             this._Layout = layout;
             this._Start = start;
             this._Offset = offset;
         }
-        GetCursorFromX(offset: Point, x: number): number {
+
+        GetCursorFromX (offset: Point, x: number): number {
             var run: TextLayoutRun = null;
             var layout = this._Layout;
             var ox: number = 0;
-            if (offset) ox = offset.X;
+            if (offset) ox = offset.x;
             var x0 = ox + layout._HorizontalAlignment(this._Advance);
             var cursor = this._Offset;
             var text = layout.Text;
@@ -223,7 +234,8 @@ module Fayde.Text {
             }
             return cursor;
         }
-        _Render(ctx, origin: Point, left: number, top: number) {
+
+        _Render (ctx, origin: Point, left: number, top: number) {
             var run: TextLayoutRun = null;
             var x0 = left;
             //var y0 = top + this._Height + this._Descend; //not using this: we set html5 canvas to render top-left corner of text at x,y
@@ -235,7 +247,8 @@ module Fayde.Text {
                 x0 += run._Advance;
             }
         }
-        __Debug(allText) {
+
+        __Debug (allText) {
             var t = "";
             t += "\t\tRuns: " + this._Runs.length.toString() + "\n";
             for (var i = 0; i < this._Runs.length; i++) {
@@ -247,7 +260,7 @@ module Fayde.Text {
         }
     }
 
-    function cloneBreakOp(bop: IBreakOp):IBreakOp {
+    function cloneBreakOp (bop: IBreakOp): IBreakOp {
         return {
             Advance: bop.Advance,
             Index: bop.Index,
@@ -255,17 +268,20 @@ module Fayde.Text {
             c: bop.c
         };
     }
-    function setWordBasics(bop: IBreakOp, word: ILayoutWord) {
+
+    function setWordBasics (bop: IBreakOp, word: ILayoutWord) {
         word.Length = this.Index;
         word.Advance = this.Advance;
     }
-    function layoutLwsp(word:ILayoutWord, text: string, font: Font) {
+
+    function layoutLwsp (word: ILayoutWord, text: string, font: Font) {
         var advance = Surface.MeasureWidth(text, font);
         word.Advance = advance;
         word.LineAdvance += advance;
         word.Length = text.length;
     }
-    function isLineBreak(text: string): number {
+
+    function isLineBreak (text: string): number {
         var c0 = text.charAt(0);
         if (c0 === '\n')
             return 1;
@@ -274,7 +290,8 @@ module Fayde.Text {
             return 2;
         return 0;
     }
-    function getWidthConstraint(availWidth: number, maxWidth: number, actualWidth: number): number {
+
+    function getWidthConstraint (availWidth: number, maxWidth: number, actualWidth: number): number {
         if (!isFinite(availWidth)) {
             if (!isFinite(maxWidth))
                 return actualWidth;
@@ -283,19 +300,21 @@ module Fayde.Text {
         }
         return availWidth;
     }
-    function validateAttributes(attributes: ITextAttributes[]): boolean {
+
+    function validateAttributes (attributes: ITextAttributes[]): boolean {
         var len = attributes.length;
         var attr: ITextAttributes = attributes[0];
         if (!attr || attr.Start !== 0)
             return false;
-        for (var i = 0 ; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             attr = attributes[i];
             if (!attr.Font) //WTF: This whole method may not be valid in our case
                 return false;
         }
         return true;
     }
-    function layoutWordWrap(word: ILayoutWord, text: string, maxWidth: number) {
+
+    function layoutWordWrap (word: ILayoutWord, text: string, maxWidth: number) {
         word.Length = 0;
         word.Advance = 0.0;
         var measuredIndex = 0;
@@ -324,11 +343,12 @@ module Fayde.Text {
             word.Advance += advance;
             word.LineAdvance += advance;
             word.Length += measuredText.length;
-            
+
         }
         return false;
     }
-    function layoutWordNoWrap(word: ILayoutWord, text: string, maxWidth: number): boolean {
+
+    function layoutWordNoWrap (word: ILayoutWord, text: string, maxWidth: number): boolean {
         var advance = Surface.MeasureWidth(text, word.Font);
         word.Advance = advance;
         word.LineAdvance += advance;
@@ -361,19 +381,28 @@ module Fayde.Text {
         private _Length: number = 0;
 
 
-        get SelectionStart(): number { return this._SelectionStart; }
-        get SelectionLength(): number { return this._SelectionLength; }
-
-        get ActualExtents(): size {
-            return size.fromRaw(this._ActualWidth, this._ActualHeight);
+        get SelectionStart (): number {
+            return this._SelectionStart;
         }
-        get RenderExtents(): rect {
+
+        get SelectionLength (): number {
+            return this._SelectionLength;
+        }
+
+        get ActualExtents (): minerva.Size {
+            return new minerva.Size(this._ActualWidth, this._ActualHeight);
+        }
+
+        get RenderExtents (): minerva.Rect {
             this.Layout();
-            return rect.set(new rect(), this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
+            return new minerva.Rect(this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
         }
 
-        get MaxWidth(): number { return this._MaxWidth; }
-        set MaxWidth(maxWidth: number) {
+        get MaxWidth (): number {
+            return this._MaxWidth;
+        }
+
+        set MaxWidth (maxWidth: number) {
             if (maxWidth === 0.0)
                 maxWidth = Number.POSITIVE_INFINITY;
             if (this._MaxWidth === maxWidth)
@@ -386,14 +415,18 @@ module Fayde.Text {
             this.ResetState();
         }
 
-        get TextAlignment() { return this._Alignment; }
-        set TextAlignment(align: TextAlignment) {
+        get TextAlignment () {
+            return this._Alignment;
+        }
+
+        set TextAlignment (align: TextAlignment) {
             if (this._Alignment === align)
                 return;
             this._Alignment = align;
             this.ResetState();
         }
-        SetTextAlignment(align: TextAlignment): boolean {
+
+        SetTextAlignment (align: TextAlignment): boolean {
             if (this._Alignment === align)
                 return false;
             this._Alignment = align;
@@ -401,9 +434,15 @@ module Fayde.Text {
             return true;
         }
 
-        get TextTrimming(): Controls.TextTrimming { return this._Trimming; }
-        set TextTrimming(value: Controls.TextTrimming) { this.SetTextTrimming(value); }
-        SetTextTrimming(value: Controls.TextTrimming): boolean {
+        get TextTrimming (): Controls.TextTrimming {
+            return this._Trimming;
+        }
+
+        set TextTrimming (value: Controls.TextTrimming) {
+            this.SetTextTrimming(value);
+        }
+
+        SetTextTrimming (value: Controls.TextTrimming): boolean {
             if (this._Trimming === value)
                 return false;
             this._Trimming = value;
@@ -411,11 +450,15 @@ module Fayde.Text {
             return true;
         }
 
-        get TextWrapping(): Controls.TextWrapping { return this._Wrapping; }
-        set TextWrapping(wrapping: Controls.TextWrapping) {
+        get TextWrapping (): Controls.TextWrapping {
+            return this._Wrapping;
+        }
+
+        set TextWrapping (wrapping: Controls.TextWrapping) {
             this.SetTextWrapping(wrapping);
         }
-        SetTextWrapping(wrapping: Controls.TextWrapping): boolean {
+
+        SetTextWrapping (wrapping: Controls.TextWrapping): boolean {
             switch (wrapping) {
                 case Fayde.Controls.TextWrapping.NoWrap:
                 case Fayde.Controls.TextWrapping.Wrap:
@@ -432,9 +475,15 @@ module Fayde.Text {
             return true;
         }
 
-        get LineStackingStrategy(): LineStackingStrategy { return this._Strategy; }
-        set LineStackingStategy(value) { this.SetLineStackingStategy(value); }
-        SetLineStackingStategy(strategy: LineStackingStrategy): boolean {
+        get LineStackingStrategy (): LineStackingStrategy {
+            return this._Strategy;
+        }
+
+        set LineStackingStategy (value) {
+            this.SetLineStackingStategy(value);
+        }
+
+        SetLineStackingStategy (strategy: LineStackingStrategy): boolean {
             if (this._Strategy === strategy)
                 return false;
             this._Strategy = strategy;
@@ -442,9 +491,15 @@ module Fayde.Text {
             return true;
         }
 
-        get LineHeight(): number { return this._LineHeight; }
-        set LineHeight(value: number) { this.SetLineHeight(value); }
-        SetLineHeight(value: number): boolean {
+        get LineHeight (): number {
+            return this._LineHeight;
+        }
+
+        set LineHeight (value: number) {
+            this.SetLineHeight(value);
+        }
+
+        SetLineHeight (value: number): boolean {
             if (this._LineHeight === value)
                 return false;
             this._LineHeight = value;
@@ -452,14 +507,20 @@ module Fayde.Text {
             return true;
         }
 
-        get TextAttributes(): ITextAttributes[] { return this._Attrs; }
-        set TextAttributes(attrs: ITextAttributes[]) {
+        get TextAttributes (): ITextAttributes[] {
+            return this._Attrs;
+        }
+
+        set TextAttributes (attrs: ITextAttributes[]) {
             this._Attrs = attrs;
             this.ResetState();
         }
 
-        get Text(): string { return this._Text; }
-        set Text(text: string) {
+        get Text (): string {
+            return this._Text;
+        }
+
+        set Text (text: string) {
             if (text != null) {
                 this._Text = text;
                 this._Length = text.length;
@@ -470,12 +531,12 @@ module Fayde.Text {
             this.ResetState();
         }
 
-        GetSelectionCursor(offset: Point, pos: number): rect {
+        GetSelectionCursor (offset: Point, pos: number): minerva.Rect {
             var ox: number = 0;
             var oy: number = 0;
             if (offset) {
-                ox = offset.X;
-                oy = offset.Y;
+                ox = offset.x;
+                oy = offset.y;
             }
             var x0 = ox;
             var y0 = oy;
@@ -535,20 +596,20 @@ module Fayde.Text {
                 }
                 break;
             }
-            var r = new rect();
-            rect.set(r, x0, y0, 1.0, height);
-            return r;
+            return new minerva.Rect(x0, y0, 1.0, height);
         }
-        GetBaselineOffset(): number {
+
+        GetBaselineOffset (): number {
             var lines = this._Lines;
             if (lines.length === 0)
                 return 0;
             var line = lines[0];
             return line._Height + line._Descend;
         }
-        GetLineFromY(offset: Point, y: number): TextLayoutLine {
+
+        GetLineFromY (offset: Point, y: number): TextLayoutLine {
             var line: TextLayoutLine = null;
-            var y0 = (offset) ? offset.Y : 0.0;
+            var y0 = (offset) ? offset.y : 0.0;
             var y1: number;
             var lines = this._Lines;
             for (var i = 0; i < lines.length; i++) {
@@ -561,15 +622,17 @@ module Fayde.Text {
                 y0 = y1;
             }
         }
-        GetLineFromIndex(index: number): TextLayoutLine {
+
+        GetLineFromIndex (index: number): TextLayoutLine {
             var lines = this._Lines;
             if (index >= lines.length || index < 0)
                 return null;
             return lines[index];
         }
-        GetCursorFromXY(offset: Point, x: number, y: number): number {
+
+        GetCursorFromXY (offset: Point, x: number, y: number): number {
             var oy: number = 0;
-            if (offset) oy = offset.Y;
+            if (offset) oy = offset.y;
             var lines = this._Lines;
             var line: TextLayoutLine;
             if (y < oy) {
@@ -579,7 +642,8 @@ module Fayde.Text {
             }
             return line.GetCursorFromX(offset, x);
         }
-        Select(start: number, length: number) {
+
+        Select (start: number, length: number) {
             if (!this._Text) {
                 this._SelectionLength = 0;
                 this._SelectionStart = 0;
@@ -609,7 +673,7 @@ module Fayde.Text {
             this._SelectionStart = newSelectionStart;
         }
 
-        Layout() {
+        Layout () {
             if (!isNaN(this._ActualWidth))
                 return;
 
@@ -768,7 +832,7 @@ module Fayde.Text {
             } while (end - index > 0);
         }
 
-        _HorizontalAlignment(lineWidth: number): number {
+        _HorizontalAlignment (lineWidth: number): number {
             var deltax = 0.0;
             var width: number;
             switch (this._Alignment) {
@@ -785,13 +849,14 @@ module Fayde.Text {
             }
             return deltax;
         }
-        Render(ctx: RenderContextEx, origin?: Point, offset?: Point) {
+
+        Render (ctx: minerva.core.render.RenderContext, origin?: Point, offset?: Point) {
             //if origin is null -> {0,0}
             //if offset is null -> {0,0}
             var line: TextLayoutLine;
             var x: number = 0.0;
-            var ox: number = (offset) ? offset.X : 0.0;
-            var y = (offset) ? offset.Y : 0.0;
+            var ox: number = (offset) ? offset.x : 0.0;
+            var y = (offset) ? offset.y : 0.0;
 
             this.Layout();
 
@@ -802,7 +867,8 @@ module Fayde.Text {
                 y += line._Height;
             }
         }
-        __Debug(): string {
+
+        __Debug (): string {
             var allText = this.Text;
             var t = "";
             t += "Lines: " + this._Lines.length.toString() + "\n";
@@ -813,31 +879,35 @@ module Fayde.Text {
             return t;
         }
 
-        ResetState() {
+        ResetState () {
             this._ActualHeight = NaN;
             this._ActualWidth = NaN;
         }
-        private _ClearCache() {
+
+        private _ClearCache () {
             for (var i = 0, lines = this._Lines, len = lines.length; i < len; i++) {
                 for (var j = 0, runs = lines[i]._Runs, len2 = runs.length; j < len2; j++) {
                     runs[j]._ClearCache();
                 }
             }
         }
-        private _ClearLines() {
+
+        private _ClearLines () {
             this._Lines = [];
         }
 
 
-        private _OverrideLineHeight(): boolean {
+        private _OverrideLineHeight (): boolean {
             return this._Strategy === LineStackingStrategy.BlockLineHeight && this._LineHeight !== 0;
         }
-        private _GetLineHeightOverride(): number {
+
+        private _GetLineHeightOverride (): number {
             if (isNaN(this._LineHeight))
                 return this._BaseHeight;
             return this._LineHeight;
         }
-        private _GetDescendOverride() {
+
+        private _GetDescendOverride () {
             if (isNaN(this._LineHeight))
                 return this._BaseDescent;
 

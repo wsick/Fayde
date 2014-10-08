@@ -47,8 +47,8 @@ module Fayde.Controls {
                     this._Layout.MaxWidth = constraint.width;
                     this._Layout.Layout();
                     var actuals = this._Layout.ActualExtents;
-                    this._ActualWidth = actuals.Width;
-                    this._ActualHeight = actuals.Height;
+                    this._ActualWidth = actuals.width;
+                    this._ActualHeight = actuals.height;
                 }
             } else {
                 this._ActualHeight = 0.0;
