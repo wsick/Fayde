@@ -2,21 +2,21 @@
 /// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Media {
-    export class Geometry extends DependencyObject {
+    export class Geometry extends DependencyObject implements minerva.IGeometry {
         private _Path: Path.RawPath = null;
-        private _LocalBounds: rect = new rect();
+        private _LocalBounds = new minerva.Rect();
 
-        static TransformProperty: DependencyProperty = DependencyProperty.Register("Transform", () => Transform, Geometry, undefined, LReaction((g: Geometry, nv, ov) => g._InvalidateGeometry()));
+        static TransformProperty = DependencyProperty.Register("Transform", () => Transform, Geometry);
         Transform: Transform;
 
         constructor () {
             super();
-            this._LocalBounds.Width = Number.NEGATIVE_INFINITY;
-            this._LocalBounds.Height = Number.NEGATIVE_INFINITY;
+            this._LocalBounds.width = Number.NEGATIVE_INFINITY;
+            this._LocalBounds.height = Number.NEGATIVE_INFINITY;
         }
 
-        GetBounds (pars?: Path.IStrokeParameters): rect {
-            var compute = rect.isEmpty(this._LocalBounds);
+        GetBounds (pars?: Path.IStrokeParameters): minerva.Rect {
+            var compute = minerva.Rect.isEmpty(this._LocalBounds);
 
             if (!this._Path) {
                 this._Path = this._Build();
@@ -24,41 +24,45 @@ module Fayde.Media {
             }
 
             if (compute)
-                rect.copyTo(this.ComputePathBounds(pars), this._LocalBounds);
-            var bounds = rect.copyTo(this._LocalBounds);
+                minerva.Rect.copyTo(this.ComputePathBounds(pars), this._LocalBounds);
 
-            var transform = this.Transform
+            var bounds = new minerva.Rect();
+            minerva.Rect.copyTo(this._LocalBounds, bounds);
+            var transform = this.Transform;
             if (transform != null)
                 bounds = transform.TransformBounds(bounds);
 
             return bounds;
         }
 
-        Draw (ctx: RenderContextEx) {
+        Draw (ctx: minerva.core.render.RenderContext) {
             if (!this._Path)
                 return;
 
+            var raw = ctx.raw;
             var transform = this.Transform;
             if (transform != null) {
-                ctx.save();
-                ctx.transformTransform(transform);
+                raw.save();
+                ctx.transformMatrix(transform.Value._Raw);
             }
-            this._Path.Draw(ctx);
+            this._Path.Draw(raw);
             if (transform != null)
-                ctx.restore();
+                raw.restore();
         }
 
-        ComputePathBounds (pars: Path.IStrokeParameters): rect {
+        ComputePathBounds (pars: Path.IStrokeParameters): minerva.Rect {
             if (!this._Path)
                 this._Path = this._Build();
             if (!this._Path)
-                return new rect();
+                return new minerva.Rect();
             return this._Path.CalculateBounds(pars);
         }
 
-        _InvalidateGeometry () {
+        InvalidateGeometry () {
             this._Path = null;
-            rect.set(this._LocalBounds, 0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+            var lb = this._LocalBounds;
+            lb.x = lb.y = 0;
+            lb.width = lb.height = Number.NEGATIVE_INFINITY;
             Incite(this);
         }
 
@@ -74,6 +78,10 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(Geometry, "Fayde.Media", Fayde.XMLNS);
+
+    module reactions {
+        DPReaction<Transform>(Geometry.TransformProperty, (geom: Geometry, ov, nv) => geom.InvalidateGeometry());
+    }
 
     export class GeometryCollection extends XamlObjectCollection<Geometry> {
         AddingToCollection (value: Geometry, error: BError): boolean {

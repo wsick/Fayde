@@ -2,31 +2,39 @@
 /// <reference path="../Shapes/Enums.ts" />
 
 module Fayde.Media {
-    export class GeometryGroup extends Geometry implements IGeometryListener {
-        static FillRulleProperty: DependencyProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), GeometryGroup, Shapes.FillRule.EvenOdd);
+    export class GeometryGroup extends Geometry {
+        static FillRulleProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), GeometryGroup, Shapes.FillRule.EvenOdd);
         static ChildrenProperty = DependencyProperty.RegisterImmutable<GeometryCollection>("Children", () => GeometryCollection, GeometryGroup);
         FillRule: Shapes.FillRule;
         Children: GeometryCollection;
-        constructor() {
+
+        constructor () {
             super();
             var coll = GeometryGroup.ChildrenProperty.Initialize(this);
             coll.AttachTo(this);
-            coll.Listen(this);
+            ReactTo(coll, this, () => this.InvalidateGeometry());
         }
 
-        ComputePathBounds(pars: Path.IStrokeParameters): rect {
-            var bounds = new rect();
-            var enumerator = this.Children.getEnumerator();
-            while (enumerator.moveNext()) {
-                rect.unionLogical(bounds, (<Geometry>enumerator.current).GetBounds(pars));
+        ComputePathBounds (pars: Path.IStrokeParameters): minerva.Rect {
+            var bounds = new minerva.Rect();
+            var cbounds: minerva.Rect;
+            for (var enumerator = this.Children.getEnumerator(); enumerator.moveNext();) {
+                cbounds = enumerator.current.GetBounds(pars);
+                if (cbounds.width <= 0 && cbounds.height <= 0)
+                    continue;
+                if (bounds.width <= 0 && bounds.height <= 0)
+                    minerva.Rect.copyTo(cbounds, bounds);
+                else
+                    minerva.Rect.union(bounds, cbounds);
             }
             return bounds;
         }
-        Draw(ctx: RenderContextEx) {
+
+        Draw (ctx: minerva.core.render.RenderContext) {
             var transform = this.Transform;
             if (transform != null) {
                 ctx.save();
-                ctx.transformTransform(transform);
+                ctx.transformMatrix(transform.Value._Raw);
             }
             var enumerator = this.Children.getEnumerator();
             while (enumerator.moveNext()) {
@@ -35,8 +43,6 @@ module Fayde.Media {
             if (transform != null)
                 ctx.restore();
         }
-
-        GeometryChanged(newGeometry: Geometry) { this._InvalidateGeometry(); }
     }
     Fayde.RegisterType(GeometryGroup, "Fayde.Media", Fayde.XMLNS);
 }
