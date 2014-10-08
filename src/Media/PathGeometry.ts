@@ -1,25 +1,25 @@
 /// <reference path="Geometry.ts" />
 
 module Fayde.Media {
-    export class PathGeometry extends Geometry implements IPathFigureListener {
+    export class PathGeometry extends Geometry {
         private _OverridePath: Path.RawPath = null;
-        static FillRuleProperty: DependencyProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), PathGeometry, Shapes.FillRule.EvenOdd, (d, args) => (<Geometry>d)._InvalidateGeometry());
+        static FillRuleProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), PathGeometry, Shapes.FillRule.EvenOdd, (d: Geometry, args) => d.InvalidateGeometry());
         static FiguresProperty = DependencyProperty.RegisterImmutable<PathFigureCollection>("Figures", () => PathFigureCollection, PathGeometry);
         FillRule: Shapes.FillRule;
         Figures: PathFigureCollection;
 
-        constructor() {
+        constructor () {
             super();
             var coll = PathGeometry.FiguresProperty.Initialize(this);
             coll.AttachTo(this);
-            coll.Listen(this);
+            ReactTo(coll, this, () => this.InvalidateFigures());
         }
 
-        OverridePath(path: Path.RawPath) {
+        OverridePath (path: Path.RawPath) {
             this._OverridePath = path;
         }
 
-        _Build(): Path.RawPath {
+        _Build (): Path.RawPath {
             if (this._OverridePath)
                 return this._OverridePath;
 
@@ -35,9 +35,9 @@ module Fayde.Media {
             return p;
         }
 
-        PathFigureChanged(newPathFigure: PathFigure) {
+        InvalidateFigures () {
             this._OverridePath = null; //Any change in PathFigures invalidates a path override
-            this._InvalidateGeometry();
+            this.InvalidateGeometry();
         }
     }
     Fayde.RegisterType(PathGeometry, "Fayde.Media", Fayde.XMLNS);
