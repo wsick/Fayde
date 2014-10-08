@@ -1,5 +1,3 @@
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 interface IItem {
     Name: string;
     Data: number;

@@ -34,9 +34,9 @@ module Fayde {
             var nv = args.NewValue;
             var upd = uie.XamlNode.LayoutUpdater;
             if (!syncer)
-                upd[name] = nv;
+                upd.assets[name] = nv;
             else
-                syncer(nv, upd[name]);
+                syncer(nv, upd.assets[name]);
             callback && callback(upd, ov, nv, uie);
         };
     }
@@ -59,9 +59,9 @@ module Fayde {
             var upd = uie.XamlNode.LayoutUpdater;
             UnreactTo(ov, uie);
             if (!syncer)
-                upd[name] = nv;
+                upd.assets[name] = nv;
             else
-                syncer(nv, upd[name]);
+                syncer(nv, upd.assets[name]);
             callback && callback(upd, ov, nv, uie);
             ReactTo(nv, uie, () => callback && callback(upd, nv, nv, uie));
         };

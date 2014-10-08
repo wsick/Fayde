@@ -1,4 +1,3 @@
-/// <reference path="bower_components/minerva/minerva.d.ts" />
 declare module Fayde {
     var Version: string;
 }
@@ -299,6 +298,12 @@ declare module Fayde.Providers {
     }
 }
 declare module Fayde {
+    interface IDPReactionCallback<T> {
+        (dobj: DependencyObject, ov: T, nv: T): void;
+    }
+    function DPReaction<TValue>(propd: DependencyProperty, callback?: IDPReactionCallback<TValue>, listen?: boolean): void;
+}
+declare module Fayde {
     class DONode extends XamlNode {
         public XObject: DependencyObject;
         constructor(xobj: DependencyObject);
@@ -329,6 +334,16 @@ declare module Fayde {
         public SetBinding(propd: DependencyProperty, binding: Data.Binding): Data.BindingExpressionBase;
         public CloneCore(source: DependencyObject): void;
     }
+}
+declare module Fayde {
+    interface IUIReactionCallback<T> {
+        (updater: minerva.core.Updater, ov: T, nv: T, uie?: UIElement): void;
+    }
+    function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: (src: TValue, dest: TValue) => void): any;
+    function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: boolean): any;
+}
+declare module Fayde {
+    function UIReactionAttached<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>): (uie: UIElement, args: DependencyPropertyChangedEventArgs) => void;
 }
 declare module Fayde.Providers {
     interface IInheritedStorage extends IPropertyStorage {
@@ -2674,12 +2689,6 @@ declare module Fayde {
     function Clone(value: any): any;
 }
 declare module Fayde {
-    interface IDPReactionCallback<T> {
-        (dobj: DependencyObject, ov: T, nv: T): void;
-    }
-    function DPReaction<TValue>(propd: DependencyProperty, callback?: IDPReactionCallback<TValue>, listen?: boolean): void;
-}
-declare module Fayde {
     class DataTemplate extends Xaml.FrameworkTemplate {
         public DataType: Function;
         constructor();
@@ -2966,16 +2975,6 @@ declare module Fayde {
         public AttachTarget(target: XamlObject): void;
         public DetachTarget(target: XamlObject): void;
     }
-}
-declare module Fayde {
-    interface IUIReactionCallback<T> {
-        (updater: minerva.core.Updater, ov: T, nv: T, uie?: UIElement): void;
-    }
-    function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: (src: TValue, dest: TValue) => void): any;
-    function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: boolean): any;
-}
-declare module Fayde {
-    function UIReactionAttached<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>): (uie: UIElement, args: DependencyPropertyChangedEventArgs) => void;
 }
 declare module Fayde {
     class VisualTreeHelper {

@@ -1474,6 +1474,35 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    function DPReaction(propd, callback, listen) {
+        if (listen === false) {
+            propd.ChangedCallback = reaction(callback);
+        } else {
+            propd.ChangedCallback = lReaction(callback);
+        }
+    }
+    Fayde.DPReaction = DPReaction;
+
+    function reaction(callback) {
+        return function (dobj, args) {
+            callback && callback(dobj, args.OldValue, args.NewValue);
+        };
+    }
+
+    function lReaction(callback) {
+        return function (dobj, args) {
+            var ov = args.OldValue;
+            var nv = args.NewValue;
+            Fayde.UnreactTo(ov, dobj);
+            callback && callback(dobj, ov, nv);
+            Fayde.ReactTo(nv, dobj, function () {
+                return callback(dobj, nv, nv);
+            });
+        };
+    }
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     var DONode = (function (_super) {
         __extends(DONode, _super);
         function DONode(xobj) {
@@ -1692,6 +1721,87 @@ var Fayde;
     Fayde.RegisterType(DependencyObject, "Fayde", Fayde.XMLNS);
 
     DependencyObject.DataContextProperty.Store = Fayde.Providers.DataContextStore.Instance;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    function UIReaction(propd, callback, listen, sync) {
+        var changed;
+        if (sync === false) {
+            changed = (listen === false) ? reaction(callback) : lReaction(callback);
+        } else {
+            var name = propd.Name;
+            name = name.charAt(0).toLowerCase() + name.substr(1);
+            if (typeof sync !== "function")
+                changed = (listen === false) ? sReaction(callback, name) : slReaction(callback, name);
+            else
+                changed = (listen === false) ? sReaction(callback, name, sync) : slReaction(callback, name, sync);
+        }
+        propd.ChangedCallback = changed;
+    }
+    Fayde.UIReaction = UIReaction;
+
+    function reaction(callback) {
+        return function (uie, args) {
+            callback && callback(uie.XamlNode.LayoutUpdater, args.OldValue, args.NewValue, uie);
+        };
+    }
+
+    function sReaction(callback, name, syncer) {
+        return function (uie, args) {
+            var ov = args.OldValue;
+            var nv = args.NewValue;
+            var upd = uie.XamlNode.LayoutUpdater;
+            if (!syncer)
+                upd.assets[name] = nv;
+            else
+                syncer(nv, upd.assets[name]);
+            callback && callback(upd, ov, nv, uie);
+        };
+    }
+
+    function lReaction(callback) {
+        return function (uie, args) {
+            var ov = args.OldValue;
+            var nv = args.NewValue;
+            var upd = uie.XamlNode.LayoutUpdater;
+            Fayde.UnreactTo(ov, uie);
+            callback && callback(upd, ov, nv, uie);
+            Fayde.ReactTo(nv, uie, function () {
+                return callback(upd, nv, nv, uie);
+            });
+        };
+    }
+
+    function slReaction(callback, name, syncer) {
+        return function (uie, args) {
+            var ov = args.OldValue;
+            var nv = args.NewValue;
+            var upd = uie.XamlNode.LayoutUpdater;
+            Fayde.UnreactTo(ov, uie);
+            if (!syncer)
+                upd.assets[name] = nv;
+            else
+                syncer(nv, upd.assets[name]);
+            callback && callback(upd, ov, nv, uie);
+            Fayde.ReactTo(nv, uie, function () {
+                return callback && callback(upd, nv, nv, uie);
+            });
+        };
+    }
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    function UIReactionAttached(propd, callback) {
+        var aname = Fayde.GetTypeName(propd.OwnerType) + '.' + propd.Name;
+        return function (uie, args) {
+            var ov = args.OldValue;
+            var nv = args.NewValue;
+            var upd = uie.XamlNode.LayoutUpdater;
+            upd.setAttachedValue(aname, nv);
+            callback && callback(upd, ov, nv, uie);
+        };
+    }
+    Fayde.UIReactionAttached = UIReactionAttached;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -13447,35 +13557,6 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    function DPReaction(propd, callback, listen) {
-        if (listen === false) {
-            propd.ChangedCallback = reaction(callback);
-        } else {
-            propd.ChangedCallback = lReaction(callback);
-        }
-    }
-    Fayde.DPReaction = DPReaction;
-
-    function reaction(callback) {
-        return function (dobj, args) {
-            callback && callback(dobj, args.OldValue, args.NewValue);
-        };
-    }
-
-    function lReaction(callback) {
-        return function (dobj, args) {
-            var ov = args.OldValue;
-            var nv = args.NewValue;
-            Fayde.UnreactTo(ov, dobj);
-            callback && callback(dobj, ov, nv);
-            Fayde.ReactTo(nv, dobj, function () {
-                return callback(dobj, nv, nv);
-            });
-        };
-    }
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
     var DataTemplate = (function (_super) {
         __extends(DataTemplate, _super);
         function DataTemplate() {
@@ -14749,87 +14830,6 @@ var Fayde;
     })(Fayde.XamlObjectCollection);
     Fayde.TriggerCollection = TriggerCollection;
     Fayde.RegisterType(TriggerCollection, "Fayde", Fayde.XMLNS);
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    function UIReaction(propd, callback, listen, sync) {
-        var changed;
-        if (sync === false) {
-            changed = (listen === false) ? reaction(callback) : lReaction(callback);
-        } else {
-            var name = propd.Name;
-            name = name.charAt(0).toLowerCase() + name.substr(1);
-            if (typeof sync !== "function")
-                changed = (listen === false) ? sReaction(callback, name) : slReaction(callback, name);
-            else
-                changed = (listen === false) ? sReaction(callback, name, sync) : slReaction(callback, name, sync);
-        }
-        propd.ChangedCallback = changed;
-    }
-    Fayde.UIReaction = UIReaction;
-
-    function reaction(callback) {
-        return function (uie, args) {
-            callback && callback(uie.XamlNode.LayoutUpdater, args.OldValue, args.NewValue, uie);
-        };
-    }
-
-    function sReaction(callback, name, syncer) {
-        return function (uie, args) {
-            var ov = args.OldValue;
-            var nv = args.NewValue;
-            var upd = uie.XamlNode.LayoutUpdater;
-            if (!syncer)
-                upd[name] = nv;
-            else
-                syncer(nv, upd[name]);
-            callback && callback(upd, ov, nv, uie);
-        };
-    }
-
-    function lReaction(callback) {
-        return function (uie, args) {
-            var ov = args.OldValue;
-            var nv = args.NewValue;
-            var upd = uie.XamlNode.LayoutUpdater;
-            Fayde.UnreactTo(ov, uie);
-            callback && callback(upd, ov, nv, uie);
-            Fayde.ReactTo(nv, uie, function () {
-                return callback(upd, nv, nv, uie);
-            });
-        };
-    }
-
-    function slReaction(callback, name, syncer) {
-        return function (uie, args) {
-            var ov = args.OldValue;
-            var nv = args.NewValue;
-            var upd = uie.XamlNode.LayoutUpdater;
-            Fayde.UnreactTo(ov, uie);
-            if (!syncer)
-                upd[name] = nv;
-            else
-                syncer(nv, upd[name]);
-            callback && callback(upd, ov, nv, uie);
-            Fayde.ReactTo(nv, uie, function () {
-                return callback && callback(upd, nv, nv, uie);
-            });
-        };
-    }
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    function UIReactionAttached(propd, callback) {
-        var aname = Fayde.GetTypeName(propd.OwnerType) + '.' + propd.Name;
-        return function (uie, args) {
-            var ov = args.OldValue;
-            var nv = args.NewValue;
-            var upd = uie.XamlNode.LayoutUpdater;
-            upd.setAttachedValue(aname, nv);
-            callback && callback(upd, ov, nv, uie);
-        };
-    }
-    Fayde.UIReactionAttached = UIReactionAttached;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {

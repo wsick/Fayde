@@ -1,5 +1,3 @@
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 import MouseEventArgs = Fayde.Input.MouseEventArgs;
 import TouchEventArgs = Fayde.Input.TouchEventArgs;
 

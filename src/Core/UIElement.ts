@@ -1,4 +1,6 @@
 /// <reference path="DependencyObject.ts" />
+/// <reference path="UIReaction.ts" />
+/// <reference path="UIReactionAttached.ts" />
 /// <reference path="Providers/InheritedStore.ts" />
 /// <reference path="Enums.ts" />
 /// <reference path="InheritableOwner.ts" />

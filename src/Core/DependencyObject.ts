@@ -3,6 +3,7 @@
 /// <reference path="DependencyProperty.ts" />
 /// <reference path="Providers/PropertyStore.ts" />
 /// <reference path="Providers/DataContextStore.ts" />
+/// <reference path="DPReaction.ts" />
 
 module Fayde {
     export class DONode extends XamlNode {

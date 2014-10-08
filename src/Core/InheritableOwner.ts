@@ -1,4 +1,5 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
+/// <reference path="UIReaction.ts" />
 /// <reference path="Providers/InheritedStore.ts" />
 /// <reference path="../Primitives/Font.ts" />
 

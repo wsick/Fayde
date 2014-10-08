@@ -40,7 +40,7 @@ module.exports = function (grunt) {
                 }
             },
             testsite: {
-                src: ['testsite/**/*.ts'],
+                src: ['testsite/**/*.ts', '!testsite/lib/**/*.ts', 'testsite/lib/minerva/minerva.d.ts', 'testsite/lib/fayde/fayde.d.ts'],
                 options: {
                     target: 'es5',
                     module: 'amd'

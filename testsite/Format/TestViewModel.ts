@@ -1,5 +1,3 @@
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 class TestViewModel extends Fayde.MVVM.ViewModelBase {
     private _Now: DateTime = DateTime.Now;
 
