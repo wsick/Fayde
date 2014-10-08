@@ -420,7 +420,7 @@ module Fayde.Controls {
 
             if (this.$View) {
                 var p = e.GetPosition(this.$View);
-                var cursor = this.$View.GetCursorFromXY(p.X, p.Y);
+                var cursor = this.$View.GetCursorFromXY(p.x, p.y);
 
                 this._ResetIMContext();
 
@@ -455,7 +455,7 @@ module Fayde.Controls {
                 var p = e.GetPosition(this.$View);
                 e.Handled = true;
 
-                cursor = this.$View.GetCursorFromXY(p.X, p.Y);
+                cursor = this.$View.GetCursorFromXY(p.x, p.y);
                 //TextDebug("TextBox.MouseMove-CursorPos: " + p.toString());
 
                 this._BatchPush();

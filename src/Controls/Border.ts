@@ -18,7 +18,7 @@ module Fayde.Controls {
         BorderThickness: minerva.Thickness;
         Child: UIElement;
         CornerRadius: CornerRadius;
-        Padding: minerva.Thickness;
+        Padding: Thickness;
     }
     Fayde.RegisterType(Border, "Fayde.Controls", Fayde.XMLNS);
     Xaml.Content(Border, Border.ChildProperty);
