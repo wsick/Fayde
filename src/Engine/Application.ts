@@ -31,18 +31,16 @@ module Fayde {
                 .error(err => console.warn("Could not change theme. " + err.toString()));
         }
         private _ApplyTheme() {
-            var layers = this.MainSurface.GetLayers();
-            for (var i = 0, len = layers.length; i < len; i++) {
-                var walker = DeepTreeWalker(layers[i]);
-                var cur: FENode;
-                while ((cur = <FENode>walker.Step())) {
-                    Providers.ImplicitStyleBroker.Set(<FrameworkElement>cur.XObject, Providers.StyleMask.Theme);
+            for (var walker = this.MainSurface.walkLayers(); walker.step(); ) {
+                for (var subwalker = walker.current.walkDeep(); subwalker.step(); ) {
+                    var node = subwalker.current.getAttachedValue("$node");
+                    Providers.ImplicitStyleBroker.Set(<FrameworkElement>node.XObject, Providers.StyleMask.Theme);
                 }
             }
         }
 
         Resized = new RoutedEvent<SizeChangedEventArgs>();
-        OnResized(oldSize: size, newSize: size) {
+        OnResized(oldSize: minerva.Size, newSize: minerva.Size) {
             this.Resized.Raise(this, new SizeChangedEventArgs(oldSize, newSize));
         }
 
@@ -55,14 +53,19 @@ module Fayde {
             this.Address = new Uri(document.URL);
         }
 
-        get RootVisual(): UIElement { return this.MainSurface._RootLayer; }
+        get RootVisual(): UIElement {
+            for (var walker = this.MainSurface.walkLayers(); walker.step();) {
+                var node = walker.current.getAttachedValue("$node");
+                return node.XObject;
+            }
+        }
 
         $$SetRootVisual(value: UIElement) {
             this._RootVisual = value;
         }
         Attach(canvas: HTMLCanvasElement) {
-            this.MainSurface.Register(canvas);
-            this.MainSurface.Attach(this._RootVisual);
+            this.MainSurface.init(canvas);
+            this.MainSurface.Attach(this._RootVisual, true);
         }
         Start() {
             this._ClockTimer.RegisterTimer(this);
@@ -89,25 +92,12 @@ module Fayde {
         private Update() {
             if (this._IsRunning)
                 return;
-
-            //var startLayoutTime;
-            //var isLayoutPassTimed;
-            //if (isLayoutPassTimed = (this._DebugFunc[3] != null))
-            //startLayoutTime = new Date().getTime();
-
             this._IsRunning = true;
-            //try {
-            var updated = this.MainSurface.ProcessDirtyElements();
-            //} catch (err) {
-            //Fatal("An error occurred processing dirty elements: " + err.toString());
-            //}
+            var updated = this.MainSurface.updateLayout();
             this._IsRunning = false;
-
-            //if (updated && isLayoutPassTimed)
-            //this._NotifyDebugLayoutPass(new Date().getTime() - startLayoutTime);
         }
         private Render() {
-            this.MainSurface.Render();
+            this.MainSurface.render();
         }
 
         RegisterStoryboard(storyboard: ITimeline) {
@@ -123,12 +113,14 @@ module Fayde {
                 sbs.splice(index, 1);
         }
 
+        /*
         private __DebugLayers(): string {
             return this.MainSurface.__DebugLayers();
         }
         private __GetById(id: number): UIElement {
             return this.MainSurface.__GetById(id);
         }
+        */
 
         static GetAsync(url: string): IAsyncRequest<Application> {
             var d = defer<Application>();

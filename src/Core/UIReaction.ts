@@ -19,7 +19,7 @@ module Fayde {
             else
                 changed = (listen === false) ? sReaction<TValue>(callback, name, sync) : slReaction<TValue>(callback, name, sync);
         }
-        propd.ChangedCallback = changed;
+        propd.ChangedCallback = <any>changed;
     }
 
     function reaction<T>(callback: IUIReactionCallback<T>) {

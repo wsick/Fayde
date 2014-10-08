@@ -62,8 +62,10 @@ module Fayde {
             return 0;
         }
         static FindElementsInHostCoordinates(intersectingPoint: Point, subtree: UIElement): UIElement[] {
-            return subtree.XamlNode.LayoutUpdater.FindElementsInHostCoordinates(intersectingPoint)
-                .map(function (uin) { return uin.XObject; });
+            //TODO: Implement find element in updater
+            //return subtree.XamlNode.LayoutUpdater.FindElementsInHostCoordinates(intersectingPoint)
+                //.map(function (uin) { return uin.XObject; });
+            return [];
         }
 
         static __Debug(ui: any, func?: (uin: UINode, tabIndex: number) => string): string {
@@ -72,8 +74,8 @@ module Fayde {
                 uin = (<UIElement>ui).XamlNode;
             } else if (ui instanceof UINode) {
                 uin = <UINode>ui;
-            } else if (ui instanceof LayoutUpdater) {
-                uin = (<LayoutUpdater>ui).Node;
+            } else if (ui instanceof minerva.core.Updater) {
+                uin = (<minerva.core.Updater>ui).getAttachedValue("$node");
             }
             
             //Find top level
@@ -116,12 +118,12 @@ module Fayde {
                 str += "+";
             else
                 str += "-";
-            str += name + "]";;
+            str += name + "]";
             if (func)
                 str += func(curNode, tabIndex);
             str += "\n";
 
-            var enumerator = curNode.GetVisualTreeEnumerator();
+            var enumerator = (<FENode>curNode).GetVisualTreeEnumerator();
             if (!enumerator) 
                 return str;
 
@@ -146,12 +148,8 @@ module Fayde {
             var lu = uin.LayoutUpdater;
             if (lu) {
                 str += " ";
-                var p = lu.VisualOffset;
-                if (p)
-                    str += p.toString();
-                var s = size.fromRaw(lu.ActualWidth, lu.ActualHeight);
-                str += " ";
-                str += s.toString();
+                var ls = lu.assets.layoutSlot;
+                str += "(" + ls.x + "," + ls.y + ")(" + ls.width + "," + ls.height + ")";
             }
             str += ")";
 
