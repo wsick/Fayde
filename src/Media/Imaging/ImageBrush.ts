@@ -9,24 +9,24 @@ module Fayde.Media.Imaging {
                 return new Media.Imaging.BitmapImage(value);
             return value;
         }
-        static ImageSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d, args) => (<ImageBrush>d)._ImageSourceChanged(args), ImageBrush._SourceCoercer);
+        static ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d: ImageBrush, args) => d._ImageSourceChanged(args), ImageBrush._SourceCoercer);
         ImageSource: ImageSource;
-        ImageFailed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
-        ImageOpened: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        ImageFailed = new MulticastEvent<EventArgs>();
+        ImageOpened = new MulticastEvent<EventArgs>();
 
-        SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect) {
+        setupBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var source = this.ImageSource;
             if (source && source.Image)
-                super.SetupBrush(ctx, bounds);
+                super.setupBrush(ctx, bounds);
         }
-        GetTileExtents(): rect {
+        GetTileExtents(): minerva.Rect {
             var source = this.ImageSource;
-            var r = new rect();
-            r.Width = source.PixelWidth;
-            r.Height = source.PixelHeight;
+            var r = new minerva.Rect();
+            r.width = source.PixelWidth;
+            r.height = source.PixelHeight;
             return r;
         }
-        DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: rect) {
+        DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var source = this.ImageSource;
             canvasCtx.rect(0, 0, source.PixelWidth, source.PixelHeight);
             canvasCtx.fillStyle = canvasCtx.createPattern(source.Image, "no-repeat");
