@@ -15,5 +15,8 @@
     "testsite",
     "Tools",
     "Gruntfile.js"
-  ]
+  ],
+  "dependencies": {
+    "minerva": "git://github.com/bsick7/minerva"
+  }
 }
