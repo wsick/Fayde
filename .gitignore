@@ -40,3 +40,4 @@ testsite/Stress/LargeList.js
 src/_Version.ts
 bower_components/
 src/minerva.d.ts
+lib/

@@ -23,7 +23,7 @@ module.exports = function (grunt) {
         },
         typescript: {
             build: {
-                src: ['src/_Version.ts', 'src/**/*.ts'],
+                src: ['lib/minerva/minerva.d.ts', 'src/_Version.ts', 'src/**/*.ts'],
                 dest: 'Fayde.js',
                 options: {
                     target: 'es5',
