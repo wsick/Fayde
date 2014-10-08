@@ -31,5 +31,5 @@ Fayde.RegisterTypeConverter(Thickness, (val: any): Thickness => {
     } else {
         throw new Exception("Cannot parse Thickness value '" + val + "'");
     }
-    return new minerva.Thickness(left, top, right, bottom);
+    return new Thickness(left, top, right, bottom);
 });

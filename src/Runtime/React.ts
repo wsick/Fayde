@@ -8,9 +8,9 @@ module Fayde {
     }
 
     export function Incite (obj: any) {
-        if (!dobj)
+        if (!obj)
             return;
-        var reactions = (<IReactable>dobj).$$reactions;
+        var reactions = (<IReactable>obj).$$reactions;
         if (!reactions)
             return;
         for (var i = 0; i < reactions.length; i++) {

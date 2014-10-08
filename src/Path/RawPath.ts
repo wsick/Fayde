@@ -88,7 +88,7 @@ module Fayde.Path {
         Close() {
             this._Path.push(Close());
         }
-       
+
         Draw(ctx: CanvasRenderingContext2D) {
             ctx.beginPath();
             var path = this._Path;
@@ -97,11 +97,9 @@ module Fayde.Path {
                 path[i].draw(ctx);
             }
         }
-        CalculateBounds(pars?: IStrokeParameters): rect {
+        CalculateBounds(pars?: IStrokeParameters): minerva.Rect {
             var box = pars && pars.thickness > 1 ? this._CalcStrokeBox(pars) : this._CalcFillBox();
-            var r = new rect();
-            rect.set(r, box.l, box.t, Math.max(0, box.r - box.l), Math.max(0, box.b - box.t));
-            return r;
+            return new minerva.Rect(box.l, box.t, Math.max(0, box.r - box.l), Math.max(0, box.b - box.t));
         }
         private _CalcFillBox(): IBoundingBox {
             var path = this._Path;
@@ -192,7 +190,7 @@ module Fayde.Path {
                 var x2 = entry.sx + hs * -sdo[0];
                 var y1 = entry.sy + hs * sdo[1];
                 var y2 = entry.sy + hs * -sdo[1];
-                
+
                 box.l = Math.min(box.l, x1, x2);
                 box.r = Math.max(box.r, x1, x2);
                 box.t = Math.min(box.t, y1, y2);
@@ -223,7 +221,7 @@ module Fayde.Path {
                 var x2 = ex + hs * (ed[0] - edo[0]);
                 var y1 = ey + hs * (ed[1] + edo[1]);
                 var y2 = ey + hs * (ed[1] - edo[1]);
-                
+
                 box.l = Math.min(box.l, x1, x2);
                 box.r = Math.max(box.r, x1, x2);
                 box.t = Math.min(box.t, y1, y2);
@@ -238,7 +236,7 @@ module Fayde.Path {
                 var x2 = ex + hs * -edo[0];
                 var y1 = ey + hs * edo[1];
                 var y2 = ey + hs * -edo[1];
-                
+
                 box.l = Math.min(box.l, x1, x2);
                 box.r = Math.max(box.r, x1, x2);
                 box.t = Math.min(box.t, y1, y2);
@@ -322,7 +320,7 @@ module Fayde.Path {
         var miterRatio = 1 / Math.sin(tau);
         if (miterRatio > miterLimit)
             return findBevelTips(previous, entry, hs);
-        
+
         //vector in direction of join point to miter tip
         var cv = Vector.isClockwiseTo(av, bv) ? av.slice(0) : bv.slice(0);
         Vector.normalize(Vector.reverse(Vector.rotate(cv, tau)));
