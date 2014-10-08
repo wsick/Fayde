@@ -3,8 +3,27 @@
 module Fayde.Media {
     export class Projection extends DependencyObject implements minerva.IProjection {
         private _ProjectionMatrix: Matrix3D = null;
+        private _ObjectWidth: number = 0;
+        get ObjectWidth (): number {
+            return this._ObjectWidth;
+        }
 
-        getDistanceFromXYPlane (objectWidth: number, objectHeight: number): number {
+        private _ObjectHeight: number = 0;
+        get ObjectHeight (): number {
+            return this._ObjectHeight;
+        }
+
+        setObjectSize (objectWidth: number, objectHeight: number) {
+            var w = Math.max(objectWidth, 1.0);
+            var h = Math.max(objectHeight, 1.0);
+            if (w !== this._ObjectWidth && h !== this._ObjectHeight) {
+                this._ObjectWidth = w;
+                this._ObjectHeight = h;
+                this._ProjectionMatrix = null;
+            }
+        }
+
+        getDistanceFromXYPlane (): number {
             return NaN;
         }
 
@@ -21,7 +40,7 @@ module Fayde.Media {
             return null;
         }
 
-        _InvalidateProjection () {
+        InvalidateProjection () {
             this._ProjectionMatrix = null;
             Incite(this);
         }
