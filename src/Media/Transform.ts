@@ -51,7 +51,7 @@ module Fayde.Media {
             return false;
         }
 
-        _InvalidateValue () {
+        InvalidateValue () {
             if (this._Value !== undefined)
                 this._Value = undefined;
             Incite(this);
@@ -65,7 +65,7 @@ module Fayde.Media {
     Fayde.RegisterType(Transform, "Fayde.Media", Fayde.XMLNS);
 
     export class MatrixTransform extends Transform {
-        static MatrixProperty: DependencyProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform, undefined, LReaction((dobj: MatrixTransform, nv, ov) => dobj._InvalidateValue()));
+        static MatrixProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform);
         Matrix: Matrix;
 
         _BuildValue (): number[] {
@@ -82,4 +82,8 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(MatrixTransform, "Fayde.Media", Fayde.XMLNS);
+
+    module reactions {
+        DPReaction<Matrix>(MatrixTransform.MatrixProperty, (mt: MatrixTransform, ov, nv) => mt.InvalidateValue());
+    }
 }

@@ -3,9 +3,9 @@
 
 module Fayde.Media {
     export class RotateTransform extends Transform {
-        static AngleProperty: DependencyProperty = DependencyProperty.Register("Angle", () => Number, RotateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
-        static CenterXProperty: DependencyProperty = DependencyProperty.Register("CenterX", () => Number, RotateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
-        static CenterYProperty: DependencyProperty = DependencyProperty.Register("CenterY", () => Number, RotateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static AngleProperty = DependencyProperty.Register("Angle", () => Number, RotateTransform, 0, (d: RotateTransform, args) => d.InvalidateValue());
+        static CenterXProperty = DependencyProperty.Register("CenterX", () => Number, RotateTransform, 0, (d: RotateTransform, args) => d.InvalidateValue());
+        static CenterYProperty = DependencyProperty.Register("CenterY", () => Number, RotateTransform, 0, (d: RotateTransform, args) => d.InvalidateValue());
         Angle: number;
         CenterX: number;
         CenterY: number;
@@ -28,10 +28,10 @@ module Fayde.Media {
     Fayde.RegisterType(RotateTransform, "Fayde.Media", Fayde.XMLNS);
 
     export class ScaleTransform extends Transform {
-        static CenterXProperty: DependencyProperty = DependencyProperty.Register("CenterX", () => Number, ScaleTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
-        static CenterYProperty: DependencyProperty = DependencyProperty.Register("CenterY", () => Number, ScaleTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
-        static ScaleXProperty: DependencyProperty = DependencyProperty.Register("ScaleX", () => Number, ScaleTransform, 1.0, (d, args) => (<Transform>d)._InvalidateValue());
-        static ScaleYProperty: DependencyProperty = DependencyProperty.Register("ScaleY", () => Number, ScaleTransform, 1.0, (d, args) => (<Transform>d)._InvalidateValue());
+        static CenterXProperty = DependencyProperty.Register("CenterX", () => Number, ScaleTransform, 0, (d: ScaleTransform, args) => d.InvalidateValue());
+        static CenterYProperty = DependencyProperty.Register("CenterY", () => Number, ScaleTransform, 0, (d: ScaleTransform, args) => d.InvalidateValue());
+        static ScaleXProperty = DependencyProperty.Register("ScaleX", () => Number, ScaleTransform, 1.0, (d: ScaleTransform, args) => d.InvalidateValue());
+        static ScaleYProperty = DependencyProperty.Register("ScaleY", () => Number, ScaleTransform, 1.0, (d: ScaleTransform, args) => d.InvalidateValue());
         CenterX: number;
         CenterY: number;
         ScaleX: number;
@@ -53,10 +53,10 @@ module Fayde.Media {
     Fayde.RegisterType(ScaleTransform, "Fayde.Media", Fayde.XMLNS);
 
     export class SkewTransform extends Transform {
-        static AngleXProperty: DependencyProperty = DependencyProperty.Register("AngleX", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
-        static AngleYProperty: DependencyProperty = DependencyProperty.Register("AngleY", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
-        static CenterXProperty: DependencyProperty = DependencyProperty.Register("CenterX", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
-        static CenterYProperty: DependencyProperty = DependencyProperty.Register("CenterY", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static AngleXProperty = DependencyProperty.Register("AngleX", () => Number, SkewTransform, 0, (d: SkewTransform, args) => d.InvalidateValue());
+        static AngleYProperty = DependencyProperty.Register("AngleY", () => Number, SkewTransform, 0, (d: SkewTransform, args) => d.InvalidateValue());
+        static CenterXProperty = DependencyProperty.Register("CenterX", () => Number, SkewTransform, 0, (d: SkewTransform, args) => d.InvalidateValue());
+        static CenterYProperty = DependencyProperty.Register("CenterY", () => Number, SkewTransform, 0, (d: SkewTransform, args) => d.InvalidateValue());
         AngleX: number;
         AngleY: number;
         CenterX: number;
@@ -80,8 +80,8 @@ module Fayde.Media {
     Fayde.RegisterType(SkewTransform, "Fayde.Media", Fayde.XMLNS);
 
     export class TranslateTransform extends Transform {
-        static XProperty: DependencyProperty = DependencyProperty.Register("X", () => Number, TranslateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
-        static YProperty: DependencyProperty = DependencyProperty.Register("Y", () => Number, TranslateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static XProperty = DependencyProperty.Register("X", () => Number, TranslateTransform, 0, (d: TranslateTransform, args) => d.InvalidateValue());
+        static YProperty = DependencyProperty.Register("Y", () => Number, TranslateTransform, 0, (d: TranslateTransform, args) => d.InvalidateValue());
         X: number;
         Y: number;
 
@@ -116,7 +116,7 @@ module Fayde.Media {
         constructor () {
             super();
             var coll = TransformGroup.ChildrenProperty.Initialize(this);
-            ReactTo(coll.AttachTo(this), this, () => this._InvalidateValue());
+            ReactTo(coll.AttachTo(this), this, () => this.InvalidateValue());
         }
 
         _BuildValue (): number[] {
