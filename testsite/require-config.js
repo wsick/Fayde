@@ -2,10 +2,11 @@ var require = {
     baseUrl: "./",
     paths: {
         "text": "lib/requirejs-text/text",
+        "minerva": "lib/minerva/minerva",
         "Fayde": "lib/Fayde/Fayde"
     },
-    deps: ["text", "Fayde"],
-    callback: function (text, Fayde) {
+    deps: ["text", "minerva", "Fayde"],
+    callback: function (text, minerva, Fayde) {
         Fayde.LoadConfigJson(function (config, err) {
             if (err)
                 console.warn('Could not load fayde configuration file.', err);
@@ -15,7 +16,7 @@ var require = {
     shim: {
         "Fayde": {
             exports: "Fayde",
-            deps: ["text"]
+            deps: ["text", "minerva"]
         }
     }
 };

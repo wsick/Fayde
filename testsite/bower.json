@@ -8,6 +8,7 @@
   "description": "Smoke Test Site for Fayde",
   "main": "tests.html",
   "dependencies": {
+    "minerva": "git://github.com/BSick7/minerva",
     "Fayde.Controls": "git://github.com/BSick7/Fayde.Controls#~0.9.9",
     "requirejs": "~2.1.14",
     "requirejs-text": "~2.0.12"
