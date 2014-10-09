@@ -35,9 +35,11 @@ module.exports = function (grunt) {
                     { src: './lib/qunit', dest: './test/lib/qunit' },
                     { src: './lib/requirejs', dest: './test/lib/requirejs' },
                     { src: './lib/requirejs-text', dest: './test/lib/requirejs-text' },
-                    { src: './themes', dest: './testsite/lib/fayde/themes' },
-                    { src: './fayde.js', dest: './testsite/lib/fayde/fayde.js' },
-                    { src: './fayde.d.ts', dest: './testsite/lib/fayde/fayde.d.ts' }
+                    { src: './themes', dest: './test/lib/fayde/themes' },
+                    { src: './fayde.js', dest: './test/lib/fayde/fayde.js' },
+                    { src: './fayde.d.ts', dest: './test/lib/fayde/fayde.d.ts' },
+                    { src: './fayde.js.map', dest: './test/lib/fayde/fayde.js.map' },
+                    { src: './src', dest: './test/lib/fayde/src' }
                 ]
             },
             testsite: {
@@ -49,7 +51,9 @@ module.exports = function (grunt) {
                     { src: './lib/requirejs-text', dest: './testsite/lib/requirejs-text' },
                     { src: './themes', dest: './testsite/lib/fayde/themes' },
                     { src: './fayde.js', dest: './testsite/lib/fayde/fayde.js' },
-                    { src: './fayde.d.ts', dest: './testsite/lib/fayde/fayde.d.ts' }
+                    { src: './fayde.d.ts', dest: './testsite/lib/fayde/fayde.d.ts' },
+                    { src: './fayde.js.map', dest: './testsite/lib/fayde/fayde.js.map' },
+                    { src: './src', dest: './testsite/lib/fayde/src' }
                 ]
             },
             localminerva: {
@@ -153,7 +157,7 @@ module.exports = function (grunt) {
     version(grunt);
     grunt.registerTask('package', ['nugetpack:dist']);
     grunt.registerTask('publish', ['nugetpack:dist', 'nugetpush:dist']);
-    grunt.registerTask('minerva:debug', ['symlink:localminerva']);
-    grunt.registerTask('minerva:reset', ['clean:bower', 'setup']);
-    grunt.registerTask('lib:link', ['clean:test', 'symlink:test', 'clean:testsite', 'symlink:testsite'])
+    grunt.registerTask('link:minerva', ['symlink:localminerva']);
+    grunt.registerTask('link:lib', ['clean:test', 'symlink:test', 'clean:testsite', 'symlink:testsite'])
+    grunt.registerTask('link:reset', ['clean:bower', 'setup']);
 };
