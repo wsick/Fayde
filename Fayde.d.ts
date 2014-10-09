@@ -343,7 +343,7 @@ declare module Fayde {
     function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: boolean): any;
 }
 declare module Fayde {
-    function UIReactionAttached<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>): (uie: UIElement, args: DependencyPropertyChangedEventArgs) => void;
+    function UIReactionAttached<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>): void;
 }
 declare module Fayde.Providers {
     interface IInheritedStorage extends IPropertyStorage {

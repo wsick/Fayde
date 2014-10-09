@@ -1792,16 +1792,19 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     function UIReactionAttached(propd, callback) {
-        var aname = Fayde.GetTypeName(propd.OwnerType) + '.' + propd.Name;
+        propd.ChangedCallback = reaction(Fayde.GetTypeName(propd.OwnerType) + '.' + propd.Name, callback);
+    }
+    Fayde.UIReactionAttached = UIReactionAttached;
+
+    function reaction(name, callback) {
         return function (uie, args) {
             var ov = args.OldValue;
             var nv = args.NewValue;
             var upd = uie.XamlNode.LayoutUpdater;
-            upd.setAttachedValue(aname, nv);
+            upd.setAttachedValue(name, nv);
             callback && callback(upd, ov, nv, uie);
         };
     }
-    Fayde.UIReactionAttached = UIReactionAttached;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -3164,7 +3167,7 @@ var Fayde;
                 error.ThrowException();
             upd.updateBounds();
             upd.invalidateMeasure();
-        }, false);
+        }, false, false);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
