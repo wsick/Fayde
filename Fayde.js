@@ -11861,7 +11861,7 @@ var Fayde;
             Fayde.UIReaction(StackPanel.OrientationProperty, function (upd, ov, nv) {
                 upd.invalidateMeasure();
                 upd.invalidateArrange();
-            });
+            }, false);
         })(reactions || (reactions = {}));
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;

@@ -15,6 +15,6 @@ module Fayde.Controls {
         UIReaction<minerva.Orientation>(StackPanel.OrientationProperty, (upd, ov, nv) => {
             upd.invalidateMeasure();
             upd.invalidateArrange();
-        });
+        }, false);
     }
 }
