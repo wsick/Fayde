@@ -15,7 +15,9 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('./package.json'),
         clean: {
-            bower: ['./lib']
+            bower: ['./lib'],
+            testsite: ['./testsite/lib'],
+            test: ['./test/lib']
         },
         setup: {
             minerva: {
@@ -95,21 +97,21 @@ module.exports = function (grunt) {
         },
         watch: {
             src: {
-                files: ['src/**/*.ts'],
+                files: ['./src/**/*.ts'],
                 tasks: ['typescript:build']
             },
             testsitets: {
-                files: ['testsite/**/*.ts'],
+                files: ['./testsite/**/*.ts', '!./testsite/lib/**/*.ts'],
                 tasks: ['typescript:testsite']
             },
             testsitejs: {
-                files: ['testsite/**/*.js'],
+                files: ['/testsite/**/*.js'],
                 options: {
                     livereload: 35729
                 }
             },
             testsitefay: {
-                files: ['testsite/**/*.fap', 'testsite/**/*.fayde'],
+                files: ['./testsite/**/*.fap', './testsite/**/*.fayde'],
                 options: {
                     livereload: 35729
                 }
@@ -145,12 +147,13 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('default', ['version:apply', 'typescript:build']);
-    grunt.registerTask('test', ['version:apply', 'typescript:build', 'symlink:test', 'typescript:test', 'qunit']);
-    grunt.registerTask('testsite', ['version:apply', 'typescript:build', 'symlink:testsite', 'typescript:testsite', 'connect', 'open', 'watch']);
+    grunt.registerTask('test', ['version:apply', 'typescript:build', 'typescript:test', 'qunit']);
+    grunt.registerTask('testsite', ['version:apply', 'typescript:build', 'typescript:testsite', 'connect', 'open', 'watch']);
     setup(grunt);
     version(grunt);
     grunt.registerTask('package', ['nugetpack:dist']);
     grunt.registerTask('publish', ['nugetpack:dist', 'nugetpush:dist']);
     grunt.registerTask('minerva:debug', ['symlink:localminerva']);
     grunt.registerTask('minerva:reset', ['clean:bower', 'setup']);
+    grunt.registerTask('lib:link', ['clean:test', 'symlink:test', 'clean:testsite', 'symlink:testsite'])
 };

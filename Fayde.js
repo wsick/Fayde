@@ -18268,7 +18268,7 @@ var Fayde;
             resizeTimeout = setTimeout(function () {
                 _this.$$stretchCanvas();
                 resizeTimeout = null;
-            }, 33);
+            }, 15);
         };
 
         Surface.prototype.$$stretchCanvas = function () {

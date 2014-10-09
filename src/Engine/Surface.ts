@@ -129,7 +129,7 @@ module Fayde {
             resizeTimeout = setTimeout(() => {
                 this.$$stretchCanvas();
                 resizeTimeout = null;
-            }, 33);
+            }, 15);
         }
 
         private $$stretchCanvas () {
