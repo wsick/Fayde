@@ -1,4 +1,5 @@
-var version = require('./build/version');
+var version = require('./build/version'),
+    setup = require('./build/setup');
 
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
@@ -7,40 +8,23 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-symlink');
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-open');
     grunt.loadNpmTasks('grunt-nuget');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('./package.json'),
-        typescript: {
-            build: {
-                src: ['lib/minerva/minerva.d.ts', 'src/_Version.ts', 'src/**/*.ts'],
-                dest: 'Fayde.js',
-                options: {
-                    target: 'es5',
-                    declaration: true,
-                    sourceMap: true
-                }
-            },
-            test: {
-                src: ['test/**/*.ts', './lib/minerva/minerva.d.ts', './fayde.d.ts'],
-                options: {
-                    target: 'es5',
-                    module: 'amd',
-                    sourceMap: true
-                }
-            },
-            testsite: {
-                src: ['testsite/**/*.ts', '!testsite/lib/**/*.ts', './lib/minerva/minerva.d.ts', './fayde.d.ts'],
-                options: {
-                    target: 'es5',
-                    module: 'amd'
-                }
+        clean: {
+            bower: ['./lib']
+        },
+        setup: {
+            minerva: {
+                cwd: '.'
             }
         },
         symlink: {
             options: {
-                overwrite: false
+                overwrite: true
             },
             test: {
                 files: [
@@ -65,6 +49,37 @@ module.exports = function (grunt) {
                     { src: './fayde.js', dest: './testsite/lib/fayde/fayde.js' },
                     { src: './fayde.d.ts', dest: './testsite/lib/fayde/fayde.d.ts' }
                 ]
+            },
+            localminerva: {
+                files: [
+                    { src: '../minerva', dest: './lib/minerva' }
+                ]
+            }
+        },
+        typescript: {
+            build: {
+                src: ['lib/minerva/minerva.d.ts', 'src/_Version.ts', 'src/**/*.ts'],
+                dest: 'Fayde.js',
+                options: {
+                    target: 'es5',
+                    declaration: true,
+                    sourceMap: true
+                }
+            },
+            test: {
+                src: ['test/**/*.ts', './lib/minerva/minerva.d.ts', './fayde.d.ts'],
+                options: {
+                    target: 'es5',
+                    module: 'amd',
+                    sourceMap: true
+                }
+            },
+            testsite: {
+                src: ['testsite/**/*.ts', '!testsite/lib/**/*.ts', './lib/minerva/minerva.d.ts', './fayde.d.ts'],
+                options: {
+                    target: 'es5',
+                    module: 'amd'
+                }
             }
         },
         qunit: {
@@ -132,8 +147,10 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['version:apply', 'typescript:build']);
     grunt.registerTask('test', ['version:apply', 'typescript:build', 'symlink:test', 'typescript:test', 'qunit']);
     grunt.registerTask('testsite', ['version:apply', 'typescript:build', 'symlink:testsite', 'typescript:testsite', 'connect', 'open', 'watch']);
+    setup(grunt);
     version(grunt);
     grunt.registerTask('package', ['nugetpack:dist']);
     grunt.registerTask('publish', ['nugetpack:dist', 'nugetpush:dist']);
-
+    grunt.registerTask('minerva:debug', ['symlink:localminerva']);
+    grunt.registerTask('minerva:reset', ['clean:bower', 'setup']);
 };

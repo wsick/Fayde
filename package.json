@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "grunt": "~0.4.4",
+    "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-connect": "^0.8.0",
     "grunt-contrib-qunit": "~0.4.0",
     "grunt-contrib-symlink": "^0.3.0",
