@@ -45,5 +45,5 @@ module Fayde.Controls {
             error.ThrowException();
         upd.updateBounds();
         upd.invalidateMeasure();
-    }, false);
+    }, false, false);
 }
