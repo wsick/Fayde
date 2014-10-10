@@ -16,20 +16,20 @@ module Fayde.Media.Imaging {
 
         setupBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var source = this.ImageSource;
-            if (source && source.Image)
+            if (source && source.image)
                 super.setupBrush(ctx, bounds);
         }
         GetTileExtents(): minerva.Rect {
             var source = this.ImageSource;
             var r = new minerva.Rect();
-            r.width = source.PixelWidth;
-            r.height = source.PixelHeight;
+            r.width = source.pixelWidth;
+            r.height = source.pixelHeight;
             return r;
         }
         DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var source = this.ImageSource;
-            canvasCtx.rect(0, 0, source.PixelWidth, source.PixelHeight);
-            canvasCtx.fillStyle = canvasCtx.createPattern(source.Image, "no-repeat");
+            canvasCtx.rect(0, 0, source.pixelWidth, source.pixelHeight);
+            canvasCtx.fillStyle = canvasCtx.createPattern(source.image, "no-repeat");
             canvasCtx.fill();
         }
         private _ImageSourceChanged(args: IDependencyPropertyChangedEventArgs) {

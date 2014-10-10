@@ -30,6 +30,8 @@ module Fayde.Controls {
 
         OnImageLoaded (source: Media.Imaging.BitmapSource, e: Event) {
             this.ImageOpened.Raise(this, EventArgs.Empty);
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.invalidateMeasure();
         }
 
         ImageChanged (source: Media.Imaging.BitmapSource) {

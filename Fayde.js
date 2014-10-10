@@ -8539,6 +8539,8 @@ var Fayde;
 
             Image.prototype.OnImageLoaded = function (source, e) {
                 this.ImageOpened.Raise(this, EventArgs.Empty);
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.invalidateMeasure();
             };
 
             Image.prototype.ImageChanged = function (source) {
@@ -24626,14 +24628,14 @@ var Fayde;
                 __extends(ImageSource, _super);
                 function ImageSource() {
                     _super.apply(this, arguments);
-                    this.PixelWidth = 0;
-                    this.PixelHeight = 0;
+                    this.pixelWidth = 0;
+                    this.pixelHeight = 0;
                 }
-                ImageSource.prototype.Lock = function () {
+                ImageSource.prototype.lock = function () {
                 };
-                ImageSource.prototype.Unlock = function () {
+                ImageSource.prototype.unlock = function () {
                 };
-                Object.defineProperty(ImageSource.prototype, "Image", {
+                Object.defineProperty(ImageSource.prototype, "image", {
                     get: function () {
                         return undefined;
                     },
@@ -24665,7 +24667,23 @@ var Fayde;
                     _super.apply(this, arguments);
                     this._Listener = null;
                 }
-                Object.defineProperty(BitmapSource.prototype, "Image", {
+                Object.defineProperty(BitmapSource.prototype, "pixelWidth", {
+                    get: function () {
+                        return this.GetValue(BitmapSource.PixelWidthProperty);
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
+                Object.defineProperty(BitmapSource.prototype, "pixelHeight", {
+                    get: function () {
+                        return this.GetValue(BitmapSource.PixelHeightProperty);
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
+                Object.defineProperty(BitmapSource.prototype, "image", {
                     get: function () {
                         return this._Image;
                     },
@@ -24688,6 +24706,7 @@ var Fayde;
                     if (listener)
                         listener.ImageChanged(this);
                 };
+
                 BitmapSource.prototype.UriSourceChanged = function (oldValue, newValue) {
                     if (!this._Image)
                         this.ResetImage();
@@ -24700,6 +24719,7 @@ var Fayde;
                 BitmapSource.prototype.Listen = function (listener) {
                     this._Listener = listener;
                 };
+
                 BitmapSource.prototype.Unlisten = function (listener) {
                     if (this._Listener === listener)
                         this._Listener = null;
@@ -24711,6 +24731,7 @@ var Fayde;
                     if (listener)
                         listener.OnImageErrored(this, e);
                 };
+
                 BitmapSource.prototype._OnLoad = function (e) {
                     this.PixelWidth = this._Image.naturalWidth;
                     this.PixelHeight = this._Image.naturalHeight;
@@ -24973,20 +24994,20 @@ var Fayde;
 
                 ImageBrush.prototype.setupBrush = function (ctx, bounds) {
                     var source = this.ImageSource;
-                    if (source && source.Image)
+                    if (source && source.image)
                         _super.prototype.setupBrush.call(this, ctx, bounds);
                 };
                 ImageBrush.prototype.GetTileExtents = function () {
                     var source = this.ImageSource;
                     var r = new minerva.Rect();
-                    r.width = source.PixelWidth;
-                    r.height = source.PixelHeight;
+                    r.width = source.pixelWidth;
+                    r.height = source.pixelHeight;
                     return r;
                 };
                 ImageBrush.prototype.DrawTile = function (canvasCtx, bounds) {
                     var source = this.ImageSource;
-                    canvasCtx.rect(0, 0, source.PixelWidth, source.PixelHeight);
-                    canvasCtx.fillStyle = canvasCtx.createPattern(source.Image, "no-repeat");
+                    canvasCtx.rect(0, 0, source.pixelWidth, source.pixelHeight);
+                    canvasCtx.fillStyle = canvasCtx.createPattern(source.image, "no-repeat");
                     canvasCtx.fill();
                 };
                 ImageBrush.prototype._ImageSourceChanged = function (args) {

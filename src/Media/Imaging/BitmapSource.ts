@@ -9,22 +9,35 @@ module Fayde.Media.Imaging {
         ImageChanged(source: BitmapSource);
     }
 
-    function intGreaterThanZeroValidator(instance: DependencyObject, propd: DependencyProperty, value: any) {
+    function intGreaterThanZeroValidator (instance: DependencyObject, propd: DependencyProperty, value: any) {
         if (typeof value !== "number")
             return false;
         return value > 0;
     }
 
     export class BitmapSource extends ImageSource {
-        static PixelWidthProperty: DependencyProperty = DependencyProperty.RegisterFull("PixelWidth", () => Number, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
-        static PixelHeightProperty: DependencyProperty = DependencyProperty.RegisterFull("PixelHeight", () => Number, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
+        static PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", () => Number, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
+        static PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", () => Number, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
+        PixelWidth: number;
+        PixelHeight: number;
 
         private _Listener: IImageChangedListener = null;
         private _Image: HTMLImageElement;
 
-        get Image(): HTMLImageElement { return this._Image; }
+        get pixelWidth (): number {
+            return this.GetValue(BitmapSource.PixelWidthProperty);
+        }
 
-        ResetImage() {
+        get pixelHeight (): number {
+            return this.GetValue(BitmapSource.PixelHeightProperty);
+        }
+
+        get image (): HTMLImageElement {
+            return this._Image;
+        }
+
+
+        ResetImage () {
             this._Image = new Image();
             this._Image.onerror = (e) => this._OnErrored(e);
             this._Image.onload = (e) => this._OnLoad(e);
@@ -33,7 +46,8 @@ module Fayde.Media.Imaging {
             var listener = this._Listener;
             if (listener) listener.ImageChanged(this);
         }
-        UriSourceChanged(oldValue: Uri, newValue: Uri) {
+
+        UriSourceChanged (oldValue: Uri, newValue: Uri) {
             if (!this._Image)
                 this.ResetImage();
             this._Image.src = newValue.toString();
@@ -41,16 +55,22 @@ module Fayde.Media.Imaging {
             if (listener) listener.ImageChanged(this);
         }
 
-        Listen(listener: IImageChangedListener) { this._Listener = listener; }
-        Unlisten(listener: IImageChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        Listen (listener: IImageChangedListener) {
+            this._Listener = listener;
+        }
 
-        _OnErrored(e: Event) {
+        Unlisten (listener: IImageChangedListener) {
+            if (this._Listener === listener) this._Listener = null;
+        }
+
+        _OnErrored (e: Event) {
             console.info("Failed to load: " + this._Image.src.toString());
             var listener = this._Listener;
             if (listener)
                 listener.OnImageErrored(this, e);
         }
-        _OnLoad(e: Event) {
+
+        _OnLoad (e: Event) {
             this.PixelWidth = this._Image.naturalWidth;
             this.PixelHeight = this._Image.naturalHeight;
             var listener = this._Listener;

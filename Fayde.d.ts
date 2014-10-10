@@ -4810,12 +4810,12 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media.Imaging {
-    class ImageSource extends DependencyObject {
-        public PixelWidth: number;
-        public PixelHeight: number;
-        public Lock(): void;
-        public Unlock(): void;
-        public Image : HTMLImageElement;
+    class ImageSource extends DependencyObject implements minerva.controls.image.IImageSource {
+        public pixelWidth: number;
+        public pixelHeight: number;
+        public lock(): void;
+        public unlock(): void;
+        public image : HTMLImageElement;
     }
 }
 declare module Fayde.Media.Imaging {
@@ -4827,9 +4827,13 @@ declare module Fayde.Media.Imaging {
     class BitmapSource extends ImageSource {
         static PixelWidthProperty: DependencyProperty;
         static PixelHeightProperty: DependencyProperty;
+        public PixelWidth: number;
+        public PixelHeight: number;
         private _Listener;
         private _Image;
-        public Image : HTMLImageElement;
+        public pixelWidth : number;
+        public pixelHeight : number;
+        public image : HTMLImageElement;
         public ResetImage(): void;
         public UriSourceChanged(oldValue: Uri, newValue: Uri): void;
         public Listen(listener: IImageChangedListener): void;
