@@ -157,7 +157,6 @@ module.exports = function (grunt) {
     version(grunt);
     grunt.registerTask('package', ['nugetpack:dist']);
     grunt.registerTask('publish', ['nugetpack:dist', 'nugetpush:dist']);
+    grunt.registerTask('lib:reset', ['clean', 'setup', 'symlink:test', 'symlink:testsite']);
     grunt.registerTask('link:minerva', ['symlink:localminerva']);
-    grunt.registerTask('link:lib', ['clean:test', 'symlink:test', 'clean:testsite', 'symlink:testsite'])
-    grunt.registerTask('link:reset', ['clean:bower', 'setup']);
 };
