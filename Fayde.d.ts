@@ -3541,7 +3541,6 @@ declare module Fayde {
         static Focus(uie: Controls.Control, recurse?: boolean): boolean;
         static GetFocusedElement(uie: UIElement): UIElement;
         static RemoveFocusFrom(uie: UIElement): boolean;
-        public HitTestPoint(pos: Point): UINode[];
         static SetMouseCapture(uin: UINode): boolean;
         static ReleaseMouseCapture(uin: UINode): void;
         static MeasureWidth(text: string, font: Font): number;

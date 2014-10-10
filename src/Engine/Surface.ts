@@ -87,22 +87,6 @@ module Fayde {
             return true;
         }
 
-        HitTestPoint (pos: Point): UINode[] {
-            return [];
-            /*
-             if (!this._RootLayer)
-             return null;
-             var list: UINode[] = [];
-             var layers = this._Layers;
-             var layerCount = layers.length;
-             for (var i = layerCount - 1; i >= 0 && list.length === 0; i--) {
-             var layer = layers[i];
-             layer.LayoutUpdater.HitTestPoint(this._RenderContext, pos, list);
-             }
-             return list;
-             */
-        }
-
         static SetMouseCapture (uin: Fayde.UINode): boolean {
             var surface = <Surface>uin.LayoutUpdater.tree.surface;
             if (!surface)

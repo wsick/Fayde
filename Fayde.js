@@ -17931,7 +17931,7 @@ var Fayde;
                 if (this._EmittingMouseEvent)
                     return false;
 
-                var newInputList = this._Surface.HitTestPoint(pos);
+                var newInputList = this.HitTestPoint(pos);
                 if (!newInputList)
                     return false;
 
@@ -17986,7 +17986,9 @@ var Fayde;
             };
 
             InputManager.prototype.HitTestPoint = function (pos) {
-                return this._Surface.HitTestPoint(pos);
+                return this._Surface.hitTest(pos).map(function (upd) {
+                    return upd.getAttachedValue("$node");
+                });
             };
 
             InputManager.prototype.UpdateCursorFromInputList = function () {
@@ -18244,10 +18246,6 @@ var Fayde;
                 return false;
             surface.$$inputMgr.OnNodeDetached(node);
             return true;
-        };
-
-        Surface.prototype.HitTestPoint = function (pos) {
-            return [];
         };
 
         Surface.SetMouseCapture = function (uin) {
