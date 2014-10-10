@@ -29,7 +29,7 @@ module.exports = function (grunt) {
                 overwrite: true
             },
             test: {
-                files: [
+                 files: [
                     { src: './lib/fayde.controls', dest: './test/lib/fayde.controls' },
                     { src: './lib/minerva', dest: './test/lib/minerva' },
                     { src: './lib/qunit', dest: './test/lib/qunit' },
