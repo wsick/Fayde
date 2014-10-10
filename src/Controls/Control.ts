@@ -201,9 +201,6 @@ module Fayde.Controls {
 
     module reactions {
         UIReaction<boolean>(Control.IsEnabledProperty, (upd, nv, ov, control?: Control) => {
-            //TODO: Use for hit testing
-            //upd.ShouldSkipHitTest = args.NewValue === false;
-            //upd.CanHitElement = args.NewValue !== false;
             var args = {
                 Property: Control.IsEnabledProperty,
                 OldValue: ov,
