@@ -214,12 +214,12 @@ module Fayde.Controls {
                 control.XamlNode.IsMouseOver = false;
             control.UpdateVisualState();
             control.IsEnabledChanged.RaiseAsync(control, args);
-        });
+        }, false);
         //TODO: Do these make sense? These properties are usually bound to child visuals which will invalidate
-        UIReaction<minerva.Thickness>(Control.PaddingProperty, (upd, nv, ov) => upd.invalidateMeasure());
-        UIReaction<minerva.Thickness>(Control.BorderThicknessProperty, (upd, nv, ov) => upd.invalidateMeasure());
-        UIReaction<HorizontalAlignment>(Control.HorizontalContentAlignmentProperty, (upd, nv, ov) => upd.invalidateArrange());
-        UIReaction<VerticalAlignment>(Control.VerticalContentAlignmentProperty, (upd, nv, ov) => upd.invalidateArrange());
+        UIReaction<minerva.Thickness>(Control.PaddingProperty, (upd, nv, ov) => upd.invalidateMeasure(), false);
+        UIReaction<minerva.Thickness>(Control.BorderThicknessProperty, (upd, nv, ov) => upd.invalidateMeasure(), false);
+        UIReaction<HorizontalAlignment>(Control.HorizontalContentAlignmentProperty, (upd, nv, ov) => upd.invalidateArrange(), false);
+        UIReaction<VerticalAlignment>(Control.VerticalContentAlignmentProperty, (upd, nv, ov) => upd.invalidateArrange(), false);
     }
 
     var ControlInheritedProperties = [
