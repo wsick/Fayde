@@ -8514,6 +8514,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        var ImageUpdater = minerva.controls.image.ImageUpdater;
         var Image = (function (_super) {
             __extends(Image, _super);
             function Image() {
@@ -8522,7 +8523,7 @@ var Fayde;
                 this.ImageFailed = new MulticastEvent();
             }
             Image.prototype.CreateLayoutUpdater = function () {
-                return new minerva.controls.image.ImageUpdater();
+                return new ImageUpdater();
             };
 
             Image._SourceCoercer = function (d, propd, value) {
@@ -8570,8 +8571,11 @@ var Fayde;
                 upd.invalidate();
             }
             upd.invalidateMeasure();
+            upd.invalidateMetrics();
         }, false);
         Fayde.UIReaction(Image.StretchProperty, function (upd, ov, nv) {
+            upd.invalidateMeasure();
+            upd.invalidateMetrics();
         }, false);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;

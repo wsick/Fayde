@@ -2,9 +2,10 @@
 /// <reference path="../Media/Enums.ts" />
 
 module Fayde.Controls {
+    import ImageUpdater = minerva.controls.image.ImageUpdater;
     export class Image extends FrameworkElement implements Media.Imaging.IImageChangedListener {
         CreateLayoutUpdater () {
-            return new minerva.controls.image.ImageUpdater();
+            return new ImageUpdater();
         }
 
         private static _SourceCoercer (d: DependencyObject, propd: DependencyProperty, value: any): any {
@@ -42,7 +43,7 @@ module Fayde.Controls {
     }
     Fayde.RegisterType(Image, "Fayde.Controls", Fayde.XMLNS);
 
-    UIReaction<Media.Imaging.ImageSource>(Image.SourceProperty, (upd, ov, nv, image?: Image) => {
+    UIReaction<Media.Imaging.ImageSource>(Image.SourceProperty, (upd: ImageUpdater, ov, nv, image?: Image) => {
         if (ov instanceof Media.Imaging.BitmapSource)
             (<Media.Imaging.BitmapSource>ov).Unlisten(image);
         if (nv instanceof Media.Imaging.BitmapSource) {
@@ -52,8 +53,10 @@ module Fayde.Controls {
             upd.invalidate();
         }
         upd.invalidateMeasure();
+        upd.invalidateMetrics();
     }, false);
-    UIReaction<minerva.Stretch>(Image.StretchProperty, (upd, ov, nv) => {
-
+    UIReaction<minerva.Stretch>(Image.StretchProperty, (upd: ImageUpdater, ov, nv) => {
+        upd.invalidateMeasure();
+        upd.invalidateMetrics();
     }, false);
 }
