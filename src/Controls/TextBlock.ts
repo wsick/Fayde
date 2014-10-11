@@ -254,6 +254,7 @@ module Fayde.Controls {
             this._SetsValue = true;
 
             this._UpdateLayoutAttributes();
+
             var lu = this.LayoutUpdater;
             lu.invalidateMeasure();
             lu.invalidateArrange();
@@ -306,7 +307,7 @@ module Fayde.Controls {
 
             var inlines = TextBlock.InlinesProperty.Initialize(this);
             inlines.AttachTo(this);
-            inlines.Listen(this.XamlNode);
+            ReactTo(inlines, this, (change?) => this.XamlNode.InlinesChanged(change.item, change.add));
         }
 
         /*

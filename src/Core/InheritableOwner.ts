@@ -9,8 +9,8 @@ module Fayde {
     }
 
     export class InheritableOwner {
-        static UseLayoutRoundingProperty: DependencyProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, InheritableOwner, true);
-        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(minerva.FlowDirection), InheritableOwner, minerva.FlowDirection.LeftToRight);
+        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, InheritableOwner, true);
+        static FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(minerva.FlowDirection), InheritableOwner, minerva.FlowDirection.LeftToRight);
 
         static _FontFamilyPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             if ((<IFontChangeable><any>dobj).FontChanged)
