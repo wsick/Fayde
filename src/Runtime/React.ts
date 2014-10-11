@@ -7,7 +7,7 @@ module Fayde {
         (val?: any): void;
     }
 
-    export function Incite (obj: any, val: any) {
+    export function Incite (obj: any, val?: any) {
         if (!obj)
             return;
         var reactions = (<IReactable>obj).$$reactions;
