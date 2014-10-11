@@ -2,8 +2,10 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 
 module Fayde.Controls {
-    export class TextBlockNode extends FENode implements Documents.IInlinesChangedListener {
+    import TextBlockUpdater = minerva.controls.textblock.TextBlockUpdater;
+    export class TextBlockNode extends FENode {
         XObject: TextBlock;
+        LayoutUpdater: TextBlockUpdater;
         private _ActualWidth: number = 0.0;
         private _ActualHeight: number = 0.0;
         _Layout: Text.TextLayout = new Text.TextLayout();
@@ -12,24 +14,23 @@ module Fayde.Controls {
         private _Font: Font = new Font();
         private _SetsValue: boolean = true;
 
-        constructor(xobj: TextBlock) {
+        constructor (xobj: TextBlock) {
             super(xobj);
-            //TODO: Use for hit testing
-            //this.LayoutUpdater.CanHitElement = true;
         }
 
-        GetInheritedEnumerator(): IEnumerator<DONode> {
+        GetInheritedEnumerator (): IEnumerator<DONode> {
             var xobj = this.XObject;
             var inlines = xobj.Inlines;
             if (inlines)
                 return <IEnumerator<DONode>>inlines.GetNodeEnumerator();
         }
 
-        Measure(constraint: minerva.Size): minerva.Size {
+        Measure (constraint: minerva.Size): minerva.Size {
             this.Layout(constraint);
             return new minerva.Size(this._ActualWidth, this._ActualHeight);
         }
-        Arrange(constraint: minerva.Size, padding: Thickness) {
+
+        Arrange (constraint: minerva.Size, padding: Thickness) {
             this.Layout(constraint);
             var arranged = new minerva.Size(this._ActualWidth, this._ActualHeight);
             arranged.width = Math.max(arranged.width, constraint.width);
@@ -38,7 +39,8 @@ module Fayde.Controls {
             if (padding)
                 minerva.Thickness.growSize(padding, arranged);
         }
-        Layout(constraint: minerva.Size) {
+
+        Layout (constraint: minerva.Size) {
             if (this._WasSet) {
                 if (false) {
                     this._ActualHeight = this._Font.GetActualHeight();
@@ -56,111 +58,55 @@ module Fayde.Controls {
             }
             this._Dirty = false;
         }
-        /*
-        ComputeActualSize(lu: LayoutUpdater, padding: Thickness): minerva.Size {
-            var constraint = lu.CoerceSize(minerva.Size.createInfinite());
 
-            if (lu.PreviousConstraint !== undefined || lu.LayoutSlot !== undefined) {
-                this._Layout.Layout();
-                var actuals = this._Layout.ActualExtents;
-                this._ActualWidth = actuals.Width;
-                this._ActualHeight = actuals.Height;
-            } else {
-                if (padding) minerva.Size.shrinkByThickness(constraint, padding);
-                this.Layout(constraint);
-            }
-            var result = minerva.Size.fromRaw(this._ActualWidth, this._ActualHeight);
-            if (padding)
-                minerva.Thickness.growSize(padding, result);
-            return result;
-        }
-        */
         /*
-        Render(ctx: RenderContextEx) {
-            var tb = this.XObject;
-            var padding = tb.Padding;
-            var offset: Point = null;
-            if (padding) offset = new Point(padding.Left, padding.Top);
-            if (tb.FlowDirection === Fayde.FlowDirection.RightToLeft) {
-                NotImplemented("TextBlock._Render: Right to left");
-            }
-            this._Layout.Render(ctx, null, offset);
-        }
-        */
+         ComputeActualSize(lu: LayoutUpdater, padding: Thickness): minerva.Size {
+         var constraint = lu.CoerceSize(minerva.Size.createInfinite());
 
-        _FontChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._UpdateFonts(false);
-            this._InvalidateDirty();
-        }
-        _TextChanged(args: IDependencyPropertyChangedEventArgs) {
+         if (lu.PreviousConstraint !== undefined || lu.LayoutSlot !== undefined) {
+         this._Layout.Layout();
+         var actuals = this._Layout.ActualExtents;
+         this._ActualWidth = actuals.Width;
+         this._ActualHeight = actuals.Height;
+         } else {
+         if (padding) minerva.Size.shrinkByThickness(constraint, padding);
+         this.Layout(constraint);
+         }
+         var result = minerva.Size.fromRaw(this._ActualWidth, this._ActualHeight);
+         if (padding)
+         minerva.Thickness.growSize(padding, result);
+         return result;
+         }
+         */
+        /*
+         Render(ctx: RenderContextEx) {
+         var tb = this.XObject;
+         var padding = tb.Padding;
+         var offset: Point = null;
+         if (padding) offset = new Point(padding.Left, padding.Top);
+         if (tb.FlowDirection === Fayde.FlowDirection.RightToLeft) {
+         NotImplemented("TextBlock._Render: Right to left");
+         }
+         this._Layout.Render(ctx, null, offset);
+         }
+         */
+
+        _TextChanged (args: IDependencyPropertyChangedEventArgs) {
             if (this._SetsValue) {
                 this._SetTextInternal(args.NewValue);
                 this._UpdateLayoutAttributes();
-                this._InvalidateDirty(true);
+                this.LayoutUpdater.invalidateTextMetrics();
             } else {
                 this._UpdateLayoutAttributes();
             }
         }
-        _LineStackingStrategyChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._Dirty = this._Layout.SetLineStackingStategy(args.NewValue);
-            this._InvalidateDirty();
-        }
-        _LineHeightChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._Dirty = this._Layout.SetLineHeight(args.NewValue);
-            this._InvalidateDirty();
-        }
-        _TextAlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._Dirty = this._Layout.SetTextAlignment(args.NewValue);
-            this._InvalidateDirty();
-        }
-        _TextTrimmingChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._Dirty = this._Layout.SetTextTrimming(args.NewValue);
-            this._InvalidateDirty();
-        }
-        _TextWrappingChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._Dirty = this._Layout.SetTextWrapping(args.NewValue);
-            this._InvalidateDirty();
-        }
-        _InvalidateDirty(setDirty?: boolean) {
-            if (setDirty) this._Dirty = true;
-            var lu = this.LayoutUpdater;
-            if (this._Dirty) {
-                lu.invalidateMeasure();
-                lu.invalidateArrange();
-                lu.updateBounds(true);
-            }
-            lu.invalidate();
-        }
 
-        private _UpdateFont(force?: boolean) {
-            var f = this._Font;
-            var xobj = this.XObject;
-            f.Family = xobj.FontFamily;
-            f.Stretch = xobj.FontStretch;
-            f.Style = xobj.FontStyle;
-            f.Weight = xobj.FontWeight;
-            f.Size = xobj.FontSize;
-            return f.IsChanged || force;
-        }
-        private _UpdateFonts(force?: boolean): boolean {
-            if (!this._UpdateFont(force))
-                return false;
-            var lu = this.LayoutUpdater;
-            lu.invalidateMeasure();
-            lu.invalidateArrange();
-            lu.updateBounds(true);
-            this._Dirty = true;
-            return true;
-        }
-        private _UpdateLayoutAttributes() {
+        private _UpdateLayoutAttributes () {
             var xobj = this.XObject;
             var inlines = xobj.Inlines;
 
             var lu = this.LayoutUpdater;
-            lu.invalidateMeasure();
-            lu.invalidateArrange();
-
-            this._UpdateFont(false);
+            lu.invalidateFont();
 
             var length = 0;
             var runs: Text.ITextAttributes[] = [];
@@ -174,7 +120,8 @@ module Fayde.Controls {
             this._Layout.Text = xobj.Text;
             this._Layout.TextAttributes = runs;
         }
-        private _UpdateLayoutAttributesForInline(item: Documents.Inline, length: number, runs: Text.ITextAttributes[]): number {
+
+        private _UpdateLayoutAttributesForInline (item: Documents.Inline, length: number, runs: Text.ITextAttributes[]): number {
             if (item instanceof Documents.Run) {
                 var text = (<Documents.Run>item).Text;
                 if (text && text.length) {
@@ -194,7 +141,7 @@ module Fayde.Controls {
             return length;
         }
 
-        private _GetTextInternal(inlines: Documents.InlineCollection) {
+        private _GetTextInternal (inlines: Documents.InlineCollection) {
             if (!inlines)
                 return "";
             var block = "";
@@ -204,7 +151,8 @@ module Fayde.Controls {
             }
             return block;
         }
-        private _SetTextInternal(text: string) {
+
+        private _SetTextInternal (text: string) {
             this._SetsValue = false;
 
             var value: Documents.Inline = null;
@@ -240,14 +188,14 @@ module Fayde.Controls {
             this._SetsValue = true;
         }
 
-        InlinesChanged(newInline: Documents.Inline, isAdd: boolean) {
+        InlinesChanged (newInline: Documents.Inline, isAdd: boolean) {
             if (!this._SetsValue)
                 return;
-            
+
             var xobj = this.XObject;
             if (isAdd)
                 Providers.InheritedStore.PropagateInheritedOnAdd(xobj, newInline.XamlNode);
-            
+
             var inlines = xobj.Inlines;
             this._SetsValue = false;
             xobj.SetCurrentValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
@@ -255,23 +203,23 @@ module Fayde.Controls {
 
             this._UpdateLayoutAttributes();
 
-            var lu = this.LayoutUpdater;
-            lu.invalidateMeasure();
-            lu.invalidateArrange();
-            lu.updateBounds(true);
-            lu.invalidate();
+            this.LayoutUpdater.invalidateTextMetrics();
         }
     }
     Fayde.RegisterType(TextBlockNode, "Fayde.Controls");
 
     export class TextBlock extends FrameworkElement implements IFontChangeable {
         XamlNode: TextBlockNode;
-        CreateNode(): TextBlockNode { return new TextBlockNode(this); }
-        CreateLayoutUpdater() { return new minerva.core.Updater(); }
-        //TODO: Implement textblock updater
-        //CreateLayoutUpdater() { return new minerva.controls.textblock.TextBlockUpdater(); }
 
-        static PaddingProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true));
+        CreateNode (): TextBlockNode {
+            return new TextBlockNode(this);
+        }
+
+        CreateLayoutUpdater () {
+            return new TextBlockUpdater();
+        }
+
+        static PaddingProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock);
         static FontFamilyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextBlock);
         static FontSizeProperty = InheritableOwner.FontSizeProperty.ExtendTo(TextBlock);
         static FontStretchProperty = InheritableOwner.FontStretchProperty.ExtendTo(TextBlock);
@@ -281,11 +229,11 @@ module Fayde.Controls {
         static TextDecorationsProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(TextBlock);
         static TextProperty = DependencyProperty.Register("Text", () => String, TextBlock, "", (d, args) => (<TextBlock>d).XamlNode._TextChanged(args));
         static InlinesProperty = DependencyProperty.RegisterImmutable<Documents.InlineCollection>("Inlines", () => Documents.InlineCollection, TextBlock);
-        static LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", () => new Enum(LineStackingStrategy), TextBlock, LineStackingStrategy.MaxHeight, (d, args) => (<TextBlock>d).XamlNode._LineStackingStrategyChanged(args));
-        static LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", () => Number, TextBlock, NaN, (d, args) => (<TextBlock>d).XamlNode._LineHeightChanged(args));
-        static TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", () => new Enum(TextAlignment), TextBlock, TextAlignment.Left, (d, args) => (<TextBlock>d).XamlNode._TextAlignmentChanged(args));
-        static TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", () => new Enum(TextTrimming), TextBlock, TextTrimming.None, (d, args) => (<TextBlock>d).XamlNode._TextTrimmingChanged(args));
-        static TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", () => new Enum(TextWrapping), TextBlock, TextWrapping.NoWrap, (d, args) => (<TextBlock>d).XamlNode._TextWrappingChanged(args));
+        static LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", () => new Enum(LineStackingStrategy), TextBlock, LineStackingStrategy.MaxHeight);
+        static LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", () => Number, TextBlock, NaN);
+        static TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", () => new Enum(TextAlignment), TextBlock, TextAlignment.Left);
+        static TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", () => new Enum(TextTrimming), TextBlock, TextTrimming.None);
+        static TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", () => new Enum(TextWrapping), TextBlock, TextWrapping.NoWrap);
         Padding: Thickness;
         Foreground: Media.Brush;
         FontFamily: string;
@@ -302,7 +250,7 @@ module Fayde.Controls {
         TextTrimming: TextTrimming;
         TextWrapping: TextWrapping;
 
-        constructor() {
+        constructor () {
             super();
 
             var inlines = TextBlock.InlinesProperty.Initialize(this);
@@ -311,33 +259,33 @@ module Fayde.Controls {
         }
 
         /*
-        MeasureOverride(availableSize: minerva.Size): minerva.Size {
-            var constraint = minerva.Size.copyTo(availableSize);
-            var padding = this.Padding;
-            if (padding) minerva.Size.shrinkByThickness(constraint, padding);
-            var desired = this.XamlNode.Measure(constraint);
-            if (padding) minerva.Size.growByThickness(desired, padding);
-            return desired;
-        }
-        ArrangeOverride(finalSize: minerva.Size): minerva.Size {
-            var constraint = minerva.Size.copyTo(finalSize);
-            var padding = this.Padding;
-            if (padding) minerva.Size.shrinkByThickness(constraint, padding);
-            this.XamlNode.Arrange(constraint, padding);
-            return finalSize;
-        }
-        */
+         MeasureOverride(availableSize: minerva.Size): minerva.Size {
+         var constraint = minerva.Size.copyTo(availableSize);
+         var padding = this.Padding;
+         if (padding) minerva.Size.shrinkByThickness(constraint, padding);
+         var desired = this.XamlNode.Measure(constraint);
+         if (padding) minerva.Size.growByThickness(desired, padding);
+         return desired;
+         }
+         ArrangeOverride(finalSize: minerva.Size): minerva.Size {
+         var constraint = minerva.Size.copyTo(finalSize);
+         var padding = this.Padding;
+         if (padding) minerva.Size.shrinkByThickness(constraint, padding);
+         this.XamlNode.Arrange(constraint, padding);
+         return finalSize;
+         }
+         */
 
-        FontChanged(args: IDependencyPropertyChangedEventArgs) {
-            var node = this.XamlNode;
-            if (args.Property === InheritableOwner.TextDecorationsProperty) {
-                node._InvalidateDirty();
-            } else {
-                this.XamlNode._FontChanged(args);
-            }
+        FontChanged (args: IDependencyPropertyChangedEventArgs) {
+            var name = args.Property.Name;
+            name = name.charAt(0).toLowerCase() + name.substr(1);
+
+            var updater = this.XamlNode.LayoutUpdater;
+            updater.assets[name] = args.NewValue;
+            updater.invalidateFont();
         }
 
-        IsInheritable(propd: DependencyProperty): boolean {
+        IsInheritable (propd: DependencyProperty): boolean {
             if (TextBlockInheritedProps.indexOf(propd) > -1)
                 return true;
             return super.IsInheritable(propd);
@@ -356,33 +304,42 @@ module Fayde.Controls {
         TextBlock.ForegroundProperty
     ];
 
+    module reactions {
+        UIReaction<Thickness>(TextBlock.PaddingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
+        UIReaction<minerva.LineStackingStrategy>(TextBlock.LineStackingStrategyProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
+        UIReaction<number>(TextBlock.LineHeightProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
+        UIReaction<minerva.TextAlignment>(TextBlock.TextAlignmentProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
+        UIReaction<minerva.TextTrimming>(TextBlock.TextTrimmingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
+        UIReaction<minerva.TextWrapping>(TextBlock.TextWrappingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
+    }
+
     //TODO: Implement textblock updater
     /*
-    export class TextBlockLayoutUpdater extends LayoutUpdater {
-        ComputeActualSize(): minerva.Size {
-            var node = <TextBlockNode>this.Node;
-            var tb = <TextBlock>node.XObject;
-            return node.ComputeActualSize(this, tb.Padding);
-        }
+     export class TextBlockLayoutUpdater extends LayoutUpdater {
+     ComputeActualSize(): minerva.Size {
+     var node = <TextBlockNode>this.Node;
+     var tb = <TextBlock>node.XObject;
+     return node.ComputeActualSize(this, tb.Padding);
+     }
 
-        ComputeExtents(actualSize: minerva.Size) {
-            var node = <TextBlockNode>this.Node;
-            minerva.Rect.copyTo(node._Layout.RenderExtents, this.Extents);
-            var padding = node.XObject.Padding;
-            if (padding) {
-                this.Extents.X += padding.Left;
-                this.Extents.Y += padding.Top;
-            }
-            minerva.Rect.copyTo(this.Extents, this.ExtentsWithChildren);
-        }
+     ComputeExtents(actualSize: minerva.Size) {
+     var node = <TextBlockNode>this.Node;
+     minerva.Rect.copyTo(node._Layout.RenderExtents, this.Extents);
+     var padding = node.XObject.Padding;
+     if (padding) {
+     this.Extents.X += padding.Left;
+     this.Extents.Y += padding.Top;
+     }
+     minerva.Rect.copyTo(this.Extents, this.ExtentsWithChildren);
+     }
 
-        Render(ctx: RenderContextEx, region: minerva.Rect) {
-            ctx.save();
-            this.RenderLayoutClip(ctx);
-            var node = <TextBlockNode>this.Node;
-            node.Render(ctx);
-            ctx.restore();
-        }
-    }
-    */
+     Render(ctx: RenderContextEx, region: minerva.Rect) {
+     ctx.save();
+     this.RenderLayoutClip(ctx);
+     var node = <TextBlockNode>this.Node;
+     node.Render(ctx);
+     ctx.restore();
+     }
+     }
+     */
 }
