@@ -24,11 +24,9 @@ module Fayde.Controls {
     Xaml.Content(Border, Border.ChildProperty);
 
     UIReaction<minerva.IBrush>(Border.BackgroundProperty, (upd, ov, nv) => {
-        //lu.CanHitElement = newBrush != null || border.BorderBrush != null;//TODO: Use this in hit testing
         upd.invalidate();
     });
     UIReaction<minerva.IBrush>(Border.BorderBrushProperty, (upd, ov, nv) => {
-        //lu.CanHitElement = newBrush != null || this.Background != null;//TODO: Use this in hit testing
         upd.invalidate();
     });
     UIReaction<Thickness>(Border.BorderThicknessProperty, (upd, ov, nv) => upd.invalidateMeasure(), false, minerva.Thickness.copyTo);

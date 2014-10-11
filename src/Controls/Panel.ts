@@ -70,8 +70,6 @@ module Fayde.Controls {
             if (nv !== ov) //nv === ov when child properties update
                 upd.updateBounds();
             upd.invalidate();
-            //TODO: Use for hit testing
-            //lu.CanHitElement = newBrush != null;
         });
         UIReactionAttached<number>(Panel.ZIndexProperty, minerva.controls.panel.reactTo.zIndex);
     }
