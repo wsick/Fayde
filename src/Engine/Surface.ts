@@ -4,8 +4,6 @@ var resizeTimeout: number;
 
 module Fayde {
     export class Surface extends minerva.engine.Surface {
-        static TestCanvas: HTMLCanvasElement = <HTMLCanvasElement>document.createElement("canvas");
-
         App: Application;
         private $$root: UIElement = null;
         private $$inputMgr: Engine.InputManager;
@@ -99,12 +97,6 @@ module Fayde {
             if (!surface)
                 return;
             surface.$$inputMgr.ReleaseMouseCapture(uin);
-        }
-
-        static MeasureWidth (text: string, font: Font): number {
-            var ctx = Surface.TestCanvas.getContext("2d");
-            ctx.font = font.ToHtml5Object();
-            return ctx.measureText(text).width;
         }
 
         private $$handleResize (evt) {
