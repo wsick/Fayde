@@ -2210,40 +2210,6 @@ var Fayde;
     var InheritableOwner = (function () {
         function InheritableOwner() {
         }
-        InheritableOwner._FontFamilyPropertyChanged = function (dobj, args) {
-            if (dobj.FontChanged)
-                dobj.FontChanged(args);
-        };
-
-        InheritableOwner._FontSizePropertyChanged = function (dobj, args) {
-            if (dobj.FontChanged)
-                dobj.FontChanged(args);
-        };
-
-        InheritableOwner._FontStretchPropertyChanged = function (dobj, args) {
-            if (dobj.FontChanged)
-                dobj.FontChanged(args);
-        };
-
-        InheritableOwner._FontStylePropertyChanged = function (dobj, args) {
-            if (dobj.FontChanged)
-                dobj.FontChanged(args);
-        };
-
-        InheritableOwner._FontWeightPropertyChanged = function (dobj, args) {
-            if (dobj.FontChanged)
-                dobj.FontChanged(args);
-        };
-
-        InheritableOwner._TextDecorationsPropertyChanged = function (dobj, args) {
-            if (dobj.FontChanged)
-                dobj.FontChanged(args);
-        };
-
-        InheritableOwner._LanguagePropertyChanged = function (dobj, args) {
-            if (dobj.FontChanged)
-                dobj.FontChanged(args);
-        };
         InheritableOwner.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () {
             return Boolean;
         }, InheritableOwner, true);
@@ -2251,37 +2217,30 @@ var Fayde;
             return new Enum(minerva.FlowDirection);
         }, InheritableOwner, 0 /* LeftToRight */);
 
-        InheritableOwner.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () {
-            return String;
-        }, InheritableOwner, Font.DEFAULT_FAMILY, InheritableOwner._FontFamilyPropertyChanged);
-
-        InheritableOwner.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () {
-            return Number;
-        }, InheritableOwner, Font.DEFAULT_SIZE, InheritableOwner._FontSizePropertyChanged);
-
-        InheritableOwner.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () {
-            return String;
-        }, InheritableOwner, Font.DEFAULT_STRETCH, InheritableOwner._FontStretchPropertyChanged);
-
-        InheritableOwner.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () {
-            return String;
-        }, InheritableOwner, Font.DEFAULT_STYLE, InheritableOwner._FontStylePropertyChanged);
-
-        InheritableOwner.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () {
-            return new Enum(Fayde.FontWeight);
-        }, InheritableOwner, Font.DEFAULT_WEIGHT, InheritableOwner._FontWeightPropertyChanged);
-
         InheritableOwner.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () {
             return Fayde.Media.Brush;
         }, InheritableOwner);
-
+        InheritableOwner.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () {
+            return String;
+        }, InheritableOwner, Font.DEFAULT_FAMILY);
+        InheritableOwner.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () {
+            return Number;
+        }, InheritableOwner, Font.DEFAULT_SIZE);
+        InheritableOwner.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () {
+            return String;
+        }, InheritableOwner, Font.DEFAULT_STRETCH);
+        InheritableOwner.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () {
+            return String;
+        }, InheritableOwner, Font.DEFAULT_STYLE);
+        InheritableOwner.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () {
+            return new Enum(Fayde.FontWeight);
+        }, InheritableOwner, Font.DEFAULT_WEIGHT);
         InheritableOwner.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () {
             return new Enum(Fayde.TextDecorations);
-        }, InheritableOwner, 0 /* None */, InheritableOwner._TextDecorationsPropertyChanged);
-
+        }, InheritableOwner, 0 /* None */);
         InheritableOwner.LanguageProperty = DependencyProperty.RegisterInheritable("Language", function () {
             return String;
-        }, InheritableOwner, undefined, InheritableOwner._LanguagePropertyChanged);
+        }, InheritableOwner);
         return InheritableOwner;
     })();
     Fayde.InheritableOwner = InheritableOwner;
@@ -2303,9 +2262,6 @@ var Fayde;
     (function (reactions) {
         Fayde.UIReaction(InheritableOwner.UseLayoutRoundingProperty, minerva.core.reactTo.useLayoutRounding, false);
         Fayde.UIReaction(InheritableOwner.FlowDirectionProperty, minerva.core.reactTo.flowDirection, false);
-        Fayde.UIReaction(InheritableOwner.ForegroundProperty, function (upd, ov, nv) {
-            return upd.invalidate();
-        });
     })(reactions || (reactions = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -3593,20 +3549,20 @@ var Fayde;
                     control.XamlNode.IsMouseOver = false;
                 control.UpdateVisualState();
                 control.IsEnabledChanged.RaiseAsync(control, args);
-            });
+            }, false);
 
             Fayde.UIReaction(Control.PaddingProperty, function (upd, nv, ov) {
                 return upd.invalidateMeasure();
-            });
+            }, false);
             Fayde.UIReaction(Control.BorderThicknessProperty, function (upd, nv, ov) {
                 return upd.invalidateMeasure();
-            });
+            }, false);
             Fayde.UIReaction(Control.HorizontalContentAlignmentProperty, function (upd, nv, ov) {
                 return upd.invalidateArrange();
-            });
+            }, false);
             Fayde.UIReaction(Control.VerticalContentAlignmentProperty, function (upd, nv, ov) {
                 return upd.invalidateArrange();
-            });
+            }, false);
         })(reactions || (reactions = {}));
 
         var ControlInheritedProperties = [
@@ -11875,13 +11831,13 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        var TextBlockUpdater = minerva.controls.textblock.TextBlockUpdater;
         var TextBlockNode = (function (_super) {
             __extends(TextBlockNode, _super);
             function TextBlockNode(xobj) {
                 _super.call(this, xobj);
                 this._ActualWidth = 0.0;
                 this._ActualHeight = 0.0;
-                this._Layout = new Fayde.Text.TextLayout();
                 this._WasSet = true;
                 this._Dirty = true;
                 this._Font = new Font();
@@ -11894,143 +11850,11 @@ var Fayde;
                     return inlines.GetNodeEnumerator();
             };
 
-            TextBlockNode.prototype.Measure = function (constraint) {
-                this.Layout(constraint);
-                return new minerva.Size(this._ActualWidth, this._ActualHeight);
-            };
-            TextBlockNode.prototype.Arrange = function (constraint, padding) {
-                this.Layout(constraint);
-                var arranged = new minerva.Size(this._ActualWidth, this._ActualHeight);
-                arranged.width = Math.max(arranged.width, constraint.width);
-                arranged.height = Math.max(arranged.height, constraint.height);
-                this._Layout.AvailableWidth = constraint.width;
-                if (padding)
-                    minerva.Thickness.growSize(padding, arranged);
-            };
-            TextBlockNode.prototype.Layout = function (constraint) {
-                if (this._WasSet) {
-                    if (false) {
-                        this._ActualHeight = this._Font.GetActualHeight();
-                        this._ActualWidth = 0.0;
-                    } else {
-                        this._Layout.MaxWidth = constraint.width;
-                        this._Layout.Layout();
-                        var actuals = this._Layout.ActualExtents;
-                        this._ActualWidth = actuals.width;
-                        this._ActualHeight = actuals.height;
-                    }
-                } else {
-                    this._ActualHeight = 0.0;
-                    this._ActualWidth = 0.0;
-                }
-                this._Dirty = false;
-            };
-
-            TextBlockNode.prototype._FontChanged = function (args) {
-                this._UpdateFonts(false);
-                this._InvalidateDirty();
-            };
             TextBlockNode.prototype._TextChanged = function (args) {
                 if (this._SetsValue) {
                     this._SetTextInternal(args.NewValue);
-                    this._UpdateLayoutAttributes();
-                    this._InvalidateDirty(true);
-                } else {
-                    this._UpdateLayoutAttributes();
+                    this.LayoutUpdater.invalidateTextMetrics();
                 }
-            };
-            TextBlockNode.prototype._LineStackingStrategyChanged = function (args) {
-                this._Dirty = this._Layout.SetLineStackingStategy(args.NewValue);
-                this._InvalidateDirty();
-            };
-            TextBlockNode.prototype._LineHeightChanged = function (args) {
-                this._Dirty = this._Layout.SetLineHeight(args.NewValue);
-                this._InvalidateDirty();
-            };
-            TextBlockNode.prototype._TextAlignmentChanged = function (args) {
-                this._Dirty = this._Layout.SetTextAlignment(args.NewValue);
-                this._InvalidateDirty();
-            };
-            TextBlockNode.prototype._TextTrimmingChanged = function (args) {
-                this._Dirty = this._Layout.SetTextTrimming(args.NewValue);
-                this._InvalidateDirty();
-            };
-            TextBlockNode.prototype._TextWrappingChanged = function (args) {
-                this._Dirty = this._Layout.SetTextWrapping(args.NewValue);
-                this._InvalidateDirty();
-            };
-            TextBlockNode.prototype._InvalidateDirty = function (setDirty) {
-                if (setDirty)
-                    this._Dirty = true;
-                var lu = this.LayoutUpdater;
-                if (this._Dirty) {
-                    lu.invalidateMeasure();
-                    lu.invalidateArrange();
-                    lu.updateBounds(true);
-                }
-                lu.invalidate();
-            };
-
-            TextBlockNode.prototype._UpdateFont = function (force) {
-                var f = this._Font;
-                var xobj = this.XObject;
-                f.Family = xobj.FontFamily;
-                f.Stretch = xobj.FontStretch;
-                f.Style = xobj.FontStyle;
-                f.Weight = xobj.FontWeight;
-                f.Size = xobj.FontSize;
-                return f.IsChanged || force;
-            };
-            TextBlockNode.prototype._UpdateFonts = function (force) {
-                if (!this._UpdateFont(force))
-                    return false;
-                var lu = this.LayoutUpdater;
-                lu.invalidateMeasure();
-                lu.invalidateArrange();
-                lu.updateBounds(true);
-                this._Dirty = true;
-                return true;
-            };
-            TextBlockNode.prototype._UpdateLayoutAttributes = function () {
-                var xobj = this.XObject;
-                var inlines = xobj.Inlines;
-
-                var lu = this.LayoutUpdater;
-                lu.invalidateMeasure();
-                lu.invalidateArrange();
-
-                this._UpdateFont(false);
-
-                var length = 0;
-                var runs = [];
-                var count = inlines.Count;
-                var enumerator = inlines.getEnumerator();
-                while (enumerator.moveNext()) {
-                    length = this._UpdateLayoutAttributesForInline(enumerator.current, length, runs);
-                }
-                if (count > 0)
-                    this._WasSet = true;
-                this._Layout.Text = xobj.Text;
-                this._Layout.TextAttributes = runs;
-            };
-            TextBlockNode.prototype._UpdateLayoutAttributesForInline = function (item, length, runs) {
-                if (item instanceof Fayde.Documents.Run) {
-                    var text = item.Text;
-                    if (text && text.length) {
-                        runs.push(new Fayde.Text.TextLayoutAttributes(item, length));
-                        length += text.length;
-                    }
-                } else if (item instanceof Fayde.Documents.LineBreak) {
-                    runs.push(new Fayde.Text.TextLayoutAttributes(item, length));
-                    length += 1;
-                } else if (item instanceof Fayde.Documents.Span) {
-                    var inlines = item.Inlines;
-                    var enumerator = inlines.getEnumerator();
-                    while (enumerator.moveNext()) {
-                        length = this._UpdateLayoutAttributesForInline(enumerator.current, length, runs);
-                    }
-                }
-                return length;
             };
 
             TextBlockNode.prototype._GetTextInternal = function (inlines) {
@@ -12043,6 +11867,7 @@ var Fayde;
                 }
                 return block;
             };
+
             TextBlockNode.prototype._SetTextInternal = function (text) {
                 this._SetsValue = false;
 
@@ -12092,12 +11917,7 @@ var Fayde;
                 xobj.SetCurrentValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
                 this._SetsValue = true;
 
-                this._UpdateLayoutAttributes();
-                var lu = this.LayoutUpdater;
-                lu.invalidateMeasure();
-                lu.invalidateArrange();
-                lu.updateBounds(true);
-                lu.invalidate();
+                this.LayoutUpdater.invalidateTextMetrics();
             };
             return TextBlockNode;
         })(Fayde.FENode);
@@ -12107,26 +11927,25 @@ var Fayde;
         var TextBlock = (function (_super) {
             __extends(TextBlock, _super);
             function TextBlock() {
+                var _this = this;
                 _super.call(this);
 
                 var inlines = TextBlock.InlinesProperty.Initialize(this);
                 inlines.AttachTo(this);
-                inlines.Listen(this.XamlNode);
+                Fayde.ReactTo(inlines, this, function (change) {
+                    return _this.XamlNode.InlinesChanged(change.item, change.add);
+                });
+
+                TextBlock.ForegroundProperty.Store.ListenToChanged(this, TextBlock.ForegroundProperty, function (tb, args) {
+                    return tb.XamlNode.LayoutUpdater.invalidate();
+                }, this);
             }
             TextBlock.prototype.CreateNode = function () {
                 return new TextBlockNode(this);
             };
-            TextBlock.prototype.CreateLayoutUpdater = function () {
-                return new minerva.core.Updater();
-            };
 
-            TextBlock.prototype.FontChanged = function (args) {
-                var node = this.XamlNode;
-                if (args.Property === Fayde.InheritableOwner.TextDecorationsProperty) {
-                    node._InvalidateDirty();
-                } else {
-                    this.XamlNode._FontChanged(args);
-                }
+            TextBlock.prototype.CreateLayoutUpdater = function () {
+                return new TextBlockUpdater();
             };
 
             TextBlock.prototype.IsInheritable = function (propd) {
@@ -12136,9 +11955,7 @@ var Fayde;
             };
             TextBlock.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () {
                 return Thickness;
-            }, TextBlock, undefined, function (d, args) {
-                return d.XamlNode._InvalidateDirty(true);
-            });
+            }, TextBlock);
             TextBlock.FontFamilyProperty = Fayde.InheritableOwner.FontFamilyProperty.ExtendTo(TextBlock);
             TextBlock.FontSizeProperty = Fayde.InheritableOwner.FontSizeProperty.ExtendTo(TextBlock);
             TextBlock.FontStretchProperty = Fayde.InheritableOwner.FontStretchProperty.ExtendTo(TextBlock);
@@ -12156,29 +11973,19 @@ var Fayde;
             }, TextBlock);
             TextBlock.LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", function () {
                 return new Enum(Fayde.LineStackingStrategy);
-            }, TextBlock, 0 /* MaxHeight */, function (d, args) {
-                return d.XamlNode._LineStackingStrategyChanged(args);
-            });
+            }, TextBlock, 0 /* MaxHeight */);
             TextBlock.LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", function () {
                 return Number;
-            }, TextBlock, NaN, function (d, args) {
-                return d.XamlNode._LineHeightChanged(args);
-            });
+            }, TextBlock, NaN);
             TextBlock.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () {
                 return new Enum(Fayde.TextAlignment);
-            }, TextBlock, 0 /* Left */, function (d, args) {
-                return d.XamlNode._TextAlignmentChanged(args);
-            });
+            }, TextBlock, 0 /* Left */);
             TextBlock.TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", function () {
                 return new Enum(Controls.TextTrimming);
-            }, TextBlock, 0 /* None */, function (d, args) {
-                return d.XamlNode._TextTrimmingChanged(args);
-            });
+            }, TextBlock, 0 /* None */);
             TextBlock.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () {
                 return new Enum(Controls.TextWrapping);
-            }, TextBlock, 0 /* NoWrap */, function (d, args) {
-                return d.XamlNode._TextWrappingChanged(args);
-            });
+            }, TextBlock, 0 /* NoWrap */);
             return TextBlock;
         })(Fayde.FrameworkElement);
         Controls.TextBlock = TextBlock;
@@ -12194,6 +12001,28 @@ var Fayde;
             TextBlock.FontWeightProperty,
             TextBlock.ForegroundProperty
         ];
+
+        var reactions;
+        (function (reactions) {
+            Fayde.UIReaction(TextBlock.PaddingProperty, function (upd, ov, nv) {
+                return upd.invalidateTextMetrics();
+            }, false);
+            Fayde.UIReaction(TextBlock.LineStackingStrategyProperty, function (upd, ov, nv) {
+                return upd.invalidateTextMetrics();
+            }, false);
+            Fayde.UIReaction(TextBlock.LineHeightProperty, function (upd, ov, nv) {
+                return upd.invalidateTextMetrics();
+            }, false);
+            Fayde.UIReaction(TextBlock.TextAlignmentProperty, function (upd, ov, nv) {
+                return upd.invalidateTextMetrics();
+            }, false);
+            Fayde.UIReaction(TextBlock.TextTrimmingProperty, function (upd, ov, nv) {
+                return upd.invalidateTextMetrics();
+            }, false);
+            Fayde.UIReaction(TextBlock.TextWrappingProperty, function (upd, ov, nv) {
+                return upd.invalidateTextMetrics();
+            }, false);
+        })(reactions || (reactions = {}));
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -12457,7 +12286,6 @@ var Fayde;
                 function TextBoxView() {
                     _super.apply(this, arguments);
                     this._Cursor = new minerva.Rect();
-                    this._Layout = new Fayde.Text.TextLayout();
                     this._SelectionChanged = false;
                     this._HadSelectedText = false;
                     this._CursorVisible = false;
@@ -12481,8 +12309,6 @@ var Fayde;
 
                     if (textBox) {
                         textBox.Listen(this);
-
-                        this._Layout.TextAttributes = [new Fayde.Text.TextLayoutAttributes(textBox)];
 
                         this._Layout.TextAlignment = textBox.TextAlignment;
                         this._Layout.TextWrapping = textBox.TextWrapping;
@@ -12613,12 +12439,7 @@ var Fayde;
                 TextBoxView.prototype.GetBaselineOffset = function () {
                     return this._Layout.GetBaselineOffset();
                 };
-                TextBoxView.prototype.GetLineFromY = function (y) {
-                    return this._Layout.GetLineFromY(null, y);
-                };
-                TextBoxView.prototype.GetLineFromIndex = function (index) {
-                    return this._Layout.GetLineFromIndex(index);
-                };
+
                 TextBoxView.prototype.GetCursorFromXY = function (x, y) {
                     return this._Layout.GetCursorFromXY(null, x, y);
                 };
@@ -16905,10 +16726,13 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Documents) {
+        var TextElementUpdater = minerva.text.element.TextElementUpdater;
+
         var TextElementNode = (function (_super) {
             __extends(TextElementNode, _super);
             function TextElementNode(xobj, inheritedWalkProperty) {
                 _super.call(this, xobj);
+                this.TextUpdater = new TextElementUpdater();
                 this.InheritedWalkProperty = inheritedWalkProperty;
             }
             TextElementNode.prototype.GetInheritedEnumerator = function () {
@@ -16926,9 +16750,7 @@ var Fayde;
         var TextElement = (function (_super) {
             __extends(TextElement, _super);
             function TextElement() {
-                _super.call(this);
-                this._Font = new Font();
-                this._UpdateFont(true);
+                _super.apply(this, arguments);
             }
             TextElement.prototype.CreateNode = function () {
                 return new TextElementNode(this, null);
@@ -16941,59 +16763,6 @@ var Fayde;
             TextElement.prototype._SerializeText = function () {
                 return undefined;
             };
-            TextElement.prototype._UpdateFont = function (force) {
-                var f = this._Font;
-                f.Family = this.FontFamily;
-                f.Stretch = this.FontStretch;
-                f.Style = this.FontStyle;
-                f.Weight = this.FontWeight;
-                f.Size = this.FontSize;
-                return f.IsChanged || force;
-            };
-
-            Object.defineProperty(TextElement.prototype, "Background", {
-                get: function () {
-                    return null;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextElement.prototype, "SelectionBackground", {
-                get: function () {
-                    return null;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(TextElement.prototype, "SelectionForeground", {
-                get: function () {
-                    return this.Foreground;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextElement.prototype, "Font", {
-                get: function () {
-                    return this._Font;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextElement.prototype, "Direction", {
-                get: function () {
-                    return 0 /* LeftToRight */;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextElement.prototype, "IsUnderlined", {
-                get: function () {
-                    return (this.TextDecorations & 1 /* Underline */) > 0;
-                },
-                enumerable: true,
-                configurable: true
-            });
 
             TextElement.prototype.Equals = function (te) {
                 if (this.FontFamily !== te.FontFamily)
@@ -17011,10 +16780,6 @@ var Fayde;
                 if (!Nullstone.Equals(this.Foreground, te.Foreground))
                     return false;
                 return true;
-            };
-
-            TextElement.prototype.FontChanged = function (args) {
-                this._UpdateFont(false);
             };
             TextElement.FontFamilyProperty = Fayde.InheritableOwner.FontFamilyProperty.ExtendTo(TextElement);
             TextElement.FontSizeProperty = Fayde.InheritableOwner.FontSizeProperty.ExtendTo(TextElement);
@@ -17039,6 +16804,31 @@ var Fayde;
             TextElement.TextDecorationsProperty,
             TextElement.LanguageProperty
         ];
+
+        var reactions;
+        (function (reactions) {
+            Documents.TextReaction(TextElement.ForegroundProperty, function (upd, ov, nv) {
+                return upd.invalidate();
+            });
+            Documents.TextReaction(TextElement.FontFamilyProperty, function (upd, ov, nv) {
+                return upd.invalidateFont();
+            }, false);
+            Documents.TextReaction(TextElement.FontSizeProperty, function (upd, ov, nv) {
+                return upd.invalidateFont();
+            }, false);
+            Documents.TextReaction(TextElement.FontStretchProperty, function (upd, ov, nv) {
+                return upd.invalidateFont();
+            }, false);
+            Documents.TextReaction(TextElement.FontStyleProperty, function (upd, ov, nv) {
+                return upd.invalidateFont();
+            }, false);
+            Documents.TextReaction(TextElement.FontWeightProperty, function (upd, ov, nv) {
+                return upd.invalidateFont();
+            }, false);
+            Documents.TextReaction(TextElement.TextDecorationsProperty, function (upd, ov, nv) {
+                return upd.invalidateFont();
+            }, false);
+        })(reactions || (reactions = {}));
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));
@@ -17108,27 +16898,22 @@ var Fayde;
             function InlineCollection() {
                 _super.apply(this, arguments);
             }
-            InlineCollection.prototype.Listen = function (listener) {
-                this._Listener = listener;
-            };
-            InlineCollection.prototype.Unlisten = function (listener) {
-                if (this._Listener === listener)
-                    this._Listener = null;
-            };
-
             InlineCollection.prototype.AddingToCollection = function (value, error) {
                 if (!_super.prototype.AddingToCollection.call(this, value, error))
                     return false;
-                var listener = this._Listener;
-                if (listener)
-                    listener.InlinesChanged(value, true);
+                Fayde.Incite(this, {
+                    item: value,
+                    add: true
+                });
                 return true;
             };
+
             InlineCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
                 _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
-                var listener = this._Listener;
-                if (listener)
-                    listener.InlinesChanged(value, false);
+                Fayde.Incite(this, {
+                    item: value,
+                    add: false
+                });
             };
             return InlineCollection;
         })(Fayde.XamlObjectCollection);
@@ -17246,18 +17031,17 @@ var Fayde;
         var Span = (function (_super) {
             __extends(Span, _super);
             function Span() {
+                var _this = this;
                 _super.call(this);
                 var coll = Span.InlinesProperty.Initialize(this);
                 coll.AttachTo(this);
-                coll.Listen(this);
+                Fayde.ReactTo(coll, this, function (obj) {
+                    if (obj.add)
+                        Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(_this, obj.item.XamlNode);
+                });
             }
             Span.prototype.CreateNode = function () {
                 return new Documents.TextElementNode(this, "Inlines");
-            };
-
-            Span.prototype.InlinesChanged = function (newInline, isAdd) {
-                if (isAdd)
-                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
             };
 
             Span.prototype._SerializeText = function () {
@@ -17276,6 +17060,76 @@ var Fayde;
         Documents.Span = Span;
         Fayde.RegisterType(Span, "Fayde.Documents", Fayde.XMLNS);
         Fayde.Xaml.Content(Span, Span.InlinesProperty);
+    })(Fayde.Documents || (Fayde.Documents = {}));
+    var Documents = Fayde.Documents;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Documents) {
+        function TextReaction(propd, callback, listen, sync) {
+            var changed;
+            if (sync === false) {
+                changed = (listen === false) ? reaction(callback) : lReaction(callback);
+            } else {
+                var name = propd.Name;
+                name = name.charAt(0).toLowerCase() + name.substr(1);
+                if (typeof sync !== "function")
+                    changed = (listen === false) ? sReaction(callback, name) : slReaction(callback, name);
+                else
+                    changed = (listen === false) ? sReaction(callback, name, sync) : slReaction(callback, name, sync);
+            }
+            propd.ChangedCallback = changed;
+        }
+        Documents.TextReaction = TextReaction;
+
+        function reaction(callback) {
+            return function (te, args) {
+                callback && callback(te.XamlNode.TextUpdater, args.OldValue, args.NewValue, te);
+            };
+        }
+
+        function sReaction(callback, name, syncer) {
+            return function (te, args) {
+                var ov = args.OldValue;
+                var nv = args.NewValue;
+                var upd = te.XamlNode.TextUpdater;
+                if (!syncer)
+                    upd.assets[name] = nv;
+                else
+                    syncer(nv, upd.assets[name]);
+                callback && callback(upd, ov, nv, te);
+            };
+        }
+
+        function lReaction(callback) {
+            return function (te, args) {
+                var ov = args.OldValue;
+                var nv = args.NewValue;
+                var upd = te.XamlNode.TextUpdater;
+                Fayde.UnreactTo(ov, te);
+                callback && callback(upd, ov, nv, te);
+                Fayde.ReactTo(nv, te, function () {
+                    return callback(upd, nv, nv, te);
+                });
+            };
+        }
+
+        function slReaction(callback, name, syncer) {
+            return function (te, args) {
+                var ov = args.OldValue;
+                var nv = args.NewValue;
+                var upd = te.XamlNode.TextUpdater;
+                Fayde.UnreactTo(ov, te);
+                if (!syncer)
+                    upd.assets[name] = nv;
+                else
+                    syncer(nv, upd.assets[name]);
+                callback && callback(upd, ov, nv, te);
+                Fayde.ReactTo(nv, te, function () {
+                    return callback && callback(upd, nv, nv, te);
+                });
+            };
+        }
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));
@@ -18262,12 +18116,6 @@ var Fayde;
             surface.$$inputMgr.ReleaseMouseCapture(uin);
         };
 
-        Surface.MeasureWidth = function (text, font) {
-            var ctx = Surface.TestCanvas.getContext("2d");
-            ctx.font = font.ToHtml5Object();
-            return ctx.measureText(text).width;
-        };
-
         Surface.prototype.$$handleResize = function (evt) {
             var _this = this;
             if (resizeTimeout)
@@ -18281,7 +18129,6 @@ var Fayde;
         Surface.prototype.$$stretchCanvas = function () {
             this.resize(window.innerWidth, window.innerHeight);
         };
-        Surface.TestCanvas = document.createElement("canvas");
         return Surface;
     })(minerva.engine.Surface);
     Fayde.Surface = Surface;
@@ -29955,14 +29802,14 @@ var IndexedPropertyInfo = (function () {
 })();
 var Fayde;
 (function (Fayde) {
-    function Incite(obj) {
+    function Incite(obj, val) {
         if (!obj)
             return;
         var reactions = obj.$$reactions;
         if (!reactions)
             return;
         for (var i = 0; i < reactions.length; i++) {
-            reactions[i]();
+            reactions[i](val);
         }
     }
     Fayde.Incite = Incite;
@@ -30586,1001 +30433,6 @@ var Fayde;
             return TextBuffer;
         })();
         Text.TextBuffer = TextBuffer;
-    })(Fayde.Text || (Fayde.Text = {}));
-    var Text = Fayde.Text;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Text) {
-        var TextLayoutAttributes = (function () {
-            function TextLayoutAttributes(source, start) {
-                this._Source = source;
-                this.Start = (start == null) ? 0 : start;
-            }
-            TextLayoutAttributes.prototype.GetBackground = function (selected) {
-                if (selected)
-                    return this._Source.SelectionBackground || TextLayoutAttributes.DEFAULT_SELECTION_BACKGROUND;
-                return undefined;
-            };
-
-            TextLayoutAttributes.prototype.GetForeground = function (selected) {
-                if (selected)
-                    return this._Source.SelectionForeground || TextLayoutAttributes.DEFAULT_SELECTION_FOREGROUND;
-                return this._Source.Foreground;
-            };
-            Object.defineProperty(TextLayoutAttributes.prototype, "Font", {
-                get: function () {
-                    return this._Source.Font;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextLayoutAttributes.prototype, "Direction", {
-                get: function () {
-                    return this._Source.Direction;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextLayoutAttributes.prototype, "IsUnderlined", {
-                get: function () {
-                    return (this._Source.TextDecorations & 1 /* Underline */) === 1 /* Underline */;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            TextLayoutAttributes.DEFAULT_SELECTION_BACKGROUND = Fayde.Media.SolidColorBrush.FromColor(Color.FromRgba(68, 68, 68, 1.0));
-
-            TextLayoutAttributes.DEFAULT_SELECTION_FOREGROUND = Fayde.Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 1.0));
-            return TextLayoutAttributes;
-        })();
-        Text.TextLayoutAttributes = TextLayoutAttributes;
-    })(Fayde.Text || (Fayde.Text = {}));
-    var Text = Fayde.Text;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Text) {
-        var isFirefox = /firefox/i.test(navigator.userAgent);
-        var TextLayoutGlyphCluster = (function () {
-            function TextLayoutGlyphCluster(text, font, selected) {
-                this._Selected = false;
-                this._Advance = 0;
-                this._Text = text;
-                this._Selected = selected == true;
-                this._Advance = Fayde.Surface.MeasureWidth(text, font);
-            }
-            TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) {
-                if (this._Text.length == 0 || this._Advance == 0.0)
-                    return;
-                var font = attrs.Font;
-                var y0 = font._Ascender();
-                ctx.translate(x, y - y0);
-
-                var fontHeight = font.GetActualHeight();
-                var area = new minerva.Rect();
-                var ox = 0;
-                var oy = 0;
-                if (origin) {
-                    ox = origin.x;
-                    oy = origin.y;
-                }
-                area.x = ox;
-                area.y = oy;
-                area.width = this._Advance;
-                area.height = fontHeight;
-
-                var raw = ctx.raw;
-                var brush = attrs.GetBackground(this._Selected);
-                if (brush) {
-                    raw.rect(area.x, area.y, area.width, area.height);
-                    ctx.fillEx(brush, area);
-                }
-
-                brush = attrs.GetForeground(this._Selected);
-                var brushHtml5 = "#000000";
-                if (brush) {
-                    brush.setupBrush(raw, area);
-                    brushHtml5 = brush.toHtml5Object();
-                }
-                raw.fillStyle = brushHtml5;
-                raw.font = font.ToHtml5Object();
-                raw.textAlign = "left";
-                if (isFirefox) {
-                    raw.textBaseline = "bottom";
-                    raw.fillText(this._Text, 0, fontHeight);
-                } else {
-                    raw.textBaseline = "top";
-                    raw.fillText(this._Text, 0, 0);
-                }
-
-                if (attrs.IsUnderlined) {
-                    raw.beginPath();
-                    raw.moveTo(0, fontHeight);
-                    raw.lineTo(this._Advance, fontHeight);
-                    raw.lineWidth = 2;
-                    raw.strokeStyle = brushHtml5;
-                    raw.stroke();
-                }
-            };
-            return TextLayoutGlyphCluster;
-        })();
-        Text.TextLayoutGlyphCluster = TextLayoutGlyphCluster;
-        var TextLayoutRun = (function () {
-            function TextLayoutRun(line, attrs, start) {
-                this._Clusters = [];
-                this._Attrs = null;
-                this._Start = 0;
-                this._Line = null;
-                this._Advance = 0.0;
-                this._Length = 0;
-                this._Attrs = attrs;
-                this._Start = start;
-                this._Line = line;
-            }
-            TextLayoutRun.prototype._GenerateCache = function () {
-                var layout = this._Line._Layout;
-                var selectionLength = layout.SelectionLength;
-                var selectionStart = layout.SelectionStart;
-                var text = layout.Text;
-                var font = this._Attrs.Font;
-
-                var len;
-                var index = this._Start;
-                var cluster1;
-                var cluster2;
-
-                if (selectionLength === 0 || this._Start < selectionStart) {
-                    len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
-                    cluster1 = new TextLayoutGlyphCluster(text.substr(this._Start, len), font);
-                    this._Clusters.push(cluster1);
-                    index += len;
-                }
-
-                var selectionEnd = selectionStart + selectionLength;
-                var runEnd = this._Start + this._Length;
-                if (index < runEnd && index < selectionEnd) {
-                    len = Math.min(runEnd - index, selectionEnd - index);
-                    cluster2 = new TextLayoutGlyphCluster(text.substr(index, len), font, true);
-                    this._Clusters.push(cluster2);
-                    index += len;
-                }
-
-                var cluster3;
-
-                if (index < runEnd) {
-                    len = runEnd - index;
-                    cluster3 = new TextLayoutGlyphCluster(text.substr(index, len), font);
-                    this._Clusters.push(cluster3);
-                    index += len;
-                }
-            };
-
-            TextLayoutRun.prototype._ClearCache = function () {
-                this._Clusters = [];
-            };
-
-            TextLayoutRun.prototype._Render = function (ctx, origin, x, y) {
-                var x0 = x;
-                if (this._Clusters.length === 0)
-                    this._GenerateCache();
-
-                for (var i = 0; i < this._Clusters.length; i++) {
-                    var cluster = this._Clusters[i];
-                    ctx.save();
-                    cluster._Render(ctx, origin, this._Attrs, x0, y);
-                    ctx.restore();
-                    x0 += cluster._Advance;
-                }
-            };
-
-            TextLayoutRun.prototype.__Debug = function (allText) {
-                return allText.substr(this._Start, this._Length);
-            };
-            return TextLayoutRun;
-        })();
-        Text.TextLayoutRun = TextLayoutRun;
-        var TextLayoutLine = (function () {
-            function TextLayoutLine(layout, start, offset) {
-                this._Runs = [];
-                this._Layout = null;
-                this._Start = 0;
-                this._Offset = 0;
-                this._Advance = 0.0;
-                this._Descend = 0.0;
-                this._Height = 0.0;
-                this._Width = 0.0;
-                this._Length = 0;
-                this._Layout = layout;
-                this._Start = start;
-                this._Offset = offset;
-            }
-            TextLayoutLine.prototype.GetCursorFromX = function (offset, x) {
-                var run = null;
-                var layout = this._Layout;
-                var ox = 0;
-                if (offset)
-                    ox = offset.x;
-                var x0 = ox + layout._HorizontalAlignment(this._Advance);
-                var cursor = this._Offset;
-                var text = layout.Text;
-                var index = this._Start;
-                var end = 0;
-                var c = null;
-
-                var i;
-                for (i = 0; i < this._Runs.length; i++) {
-                    run = this._Runs[i];
-                    if (x < (x0 + run._Advance))
-                        break;
-
-                    cursor += run._Length;
-                    index += run._Length;
-                    x0 += run._Advance;
-                    run = null;
-                }
-
-                if (run != null) {
-                    index = run._Start;
-                    end = run._Start + run._Length;
-                    var font = run._Attrs.Font;
-                    var m = 0;
-                    var ch = 0;
-                    while (index < end) {
-                        ch = index;
-                        cursor++;
-                        c = text.charAt(index);
-                        index++;
-                        if (c === '\t')
-                            c = ' ';
-                        m = Fayde.Surface.MeasureWidth(c, font);
-                        if (x <= x0 + (m / 2.0)) {
-                            index = ch;
-                            cursor--;
-                            break;
-                        }
-                        x0 += m;
-                    }
-                } else if (i > 0) {
-                    run = this._Runs[i - 1];
-                    end = run._Start + run._Length;
-                    index = run._Start;
-                    c = end - 1 < 0 ? null : text.charAt(end - 1);
-                    if (c == '\n') {
-                        cursor--;
-                        end--;
-                        c = end - 1 < 0 ? null : text.charAt(end - 1);
-                        if (c == '\r') {
-                            cursor--;
-                            end--;
-                        }
-                    }
-                }
-                return cursor;
-            };
-
-            TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
-                var run = null;
-                var x0 = left;
-
-                var y0 = top;
-
-                for (var i = 0; i < this._Runs.length; i++) {
-                    run = this._Runs[i];
-                    run._Render(ctx, origin, x0, y0);
-                    x0 += run._Advance;
-                }
-            };
-
-            TextLayoutLine.prototype.__Debug = function (allText) {
-                var t = "";
-                t += "\t\tRuns: " + this._Runs.length.toString() + "\n";
-                for (var i = 0; i < this._Runs.length; i++) {
-                    t += "\t\t\tRun " + i.toString() + ": ";
-                    t += this._Runs[i].__Debug(allText);
-                    t += "\n";
-                }
-                return t;
-            };
-            return TextLayoutLine;
-        })();
-        Text.TextLayoutLine = TextLayoutLine;
-
-        function cloneBreakOp(bop) {
-            return {
-                Advance: bop.Advance,
-                Index: bop.Index,
-                Btype: bop.Btype,
-                c: bop.c
-            };
-        }
-
-        function setWordBasics(bop, word) {
-            word.Length = this.Index;
-            word.Advance = this.Advance;
-        }
-
-        function layoutLwsp(word, text, font) {
-            var advance = Fayde.Surface.MeasureWidth(text, font);
-            word.Advance = advance;
-            word.LineAdvance += advance;
-            word.Length = text.length;
-        }
-
-        function isLineBreak(text) {
-            var c0 = text.charAt(0);
-            if (c0 === '\n')
-                return 1;
-            var c1 = text.charAt(1);
-            if (c0 === '\r' && c1 === '\n')
-                return 2;
-            return 0;
-        }
-
-        function getWidthConstraint(availWidth, maxWidth, actualWidth) {
-            if (!isFinite(availWidth)) {
-                if (!isFinite(maxWidth))
-                    return actualWidth;
-                else
-                    return Math.min(actualWidth, maxWidth);
-            }
-            return availWidth;
-        }
-
-        function validateAttributes(attributes) {
-            var len = attributes.length;
-            var attr = attributes[0];
-            if (!attr || attr.Start !== 0)
-                return false;
-            for (var i = 0; i < len; i++) {
-                attr = attributes[i];
-                if (!attr.Font)
-                    return false;
-            }
-            return true;
-        }
-
-        function layoutWordWrap(word, text, maxWidth) {
-            word.Length = 0;
-            word.Advance = 0.0;
-            var measuredIndex = 0;
-            var measuredText = "";
-            if (text.indexOf(" ", measuredIndex) === -1) {
-                var advance = Fayde.Surface.MeasureWidth(text, word.Font);
-                if (isFinite(maxWidth) && (word.LineAdvance + advance) > maxWidth) {
-                    return true;
-                }
-                word.Advance = advance;
-                word.LineAdvance = advance;
-                word.Length = text.length;
-                return false;
-            }
-            while (true) {
-                var index = text.indexOf(" ", measuredIndex);
-                if (index === -1)
-                    break;
-                index += 1;
-                measuredText = text.slice(measuredIndex, index);
-                var advance = Fayde.Surface.MeasureWidth(measuredText, word.Font);
-                if (isFinite(maxWidth) && (word.LineAdvance + advance) > maxWidth) {
-                    return true;
-                }
-                measuredIndex = index;
-                word.Advance += advance;
-                word.LineAdvance += advance;
-                word.Length += measuredText.length;
-            }
-            return false;
-        }
-
-        function layoutWordNoWrap(word, text, maxWidth) {
-            var advance = Fayde.Surface.MeasureWidth(text, word.Font);
-            word.Advance = advance;
-            word.LineAdvance += advance;
-            word.Length = text.length;
-            return false;
-        }
-
-        var TextLayout = (function () {
-            function TextLayout() {
-                this._SelectionStart = 0;
-                this._SelectionLength = 0;
-                this._Text = null;
-                this.AvailableWidth = Number.POSITIVE_INFINITY;
-                this._Strategy = 0 /* MaxHeight */;
-                this._Alignment = 0 /* Left */;
-                this._Trimming = 0 /* None */;
-                this._Wrapping = 0 /* NoWrap */;
-                this._MaxHeight = Number.POSITIVE_INFINITY;
-                this._MaxWidth = Number.POSITIVE_INFINITY;
-                this._BaseDescent = 0.0;
-                this._BaseHeight = 0.0;
-                this._ActualHeight = NaN;
-                this._ActualWidth = NaN;
-                this._LineHeight = NaN;
-                this._Lines = [];
-                this._IsWrapped = true;
-                this._Length = 0;
-            }
-            Object.defineProperty(TextLayout.prototype, "SelectionStart", {
-                get: function () {
-                    return this._SelectionStart;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(TextLayout.prototype, "SelectionLength", {
-                get: function () {
-                    return this._SelectionLength;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(TextLayout.prototype, "ActualExtents", {
-                get: function () {
-                    return new minerva.Size(this._ActualWidth, this._ActualHeight);
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(TextLayout.prototype, "RenderExtents", {
-                get: function () {
-                    this.Layout();
-                    return new minerva.Rect(this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(TextLayout.prototype, "MaxWidth", {
-                get: function () {
-                    return this._MaxWidth;
-                },
-                set: function (maxWidth) {
-                    if (maxWidth === 0.0)
-                        maxWidth = Number.POSITIVE_INFINITY;
-                    if (this._MaxWidth === maxWidth)
-                        return;
-                    if (!this._IsWrapped && (!isFinite(maxWidth) || maxWidth > this._ActualWidth)) {
-                        this._MaxWidth = maxWidth;
-                        return;
-                    }
-                    this._MaxWidth = maxWidth;
-                    this.ResetState();
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-
-            Object.defineProperty(TextLayout.prototype, "TextAlignment", {
-                get: function () {
-                    return this._Alignment;
-                },
-                set: function (align) {
-                    if (this._Alignment === align)
-                        return;
-                    this._Alignment = align;
-                    this.ResetState();
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-
-            TextLayout.prototype.SetTextAlignment = function (align) {
-                if (this._Alignment === align)
-                    return false;
-                this._Alignment = align;
-                this.ResetState();
-                return true;
-            };
-
-            Object.defineProperty(TextLayout.prototype, "TextTrimming", {
-                get: function () {
-                    return this._Trimming;
-                },
-                set: function (value) {
-                    this.SetTextTrimming(value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-
-            TextLayout.prototype.SetTextTrimming = function (value) {
-                if (this._Trimming === value)
-                    return false;
-                this._Trimming = value;
-                this.ResetState();
-                return true;
-            };
-
-            Object.defineProperty(TextLayout.prototype, "TextWrapping", {
-                get: function () {
-                    return this._Wrapping;
-                },
-                set: function (wrapping) {
-                    this.SetTextWrapping(wrapping);
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-
-            TextLayout.prototype.SetTextWrapping = function (wrapping) {
-                switch (wrapping) {
-                    case 0 /* NoWrap */:
-                    case 1 /* Wrap */:
-                        break;
-                    default:
-                        wrapping = 1 /* Wrap */;
-                        break;
-                }
-
-                if (this._Wrapping === wrapping)
-                    return false;
-                this._Wrapping = wrapping;
-                this.ResetState();
-                return true;
-            };
-
-            Object.defineProperty(TextLayout.prototype, "LineStackingStrategy", {
-                get: function () {
-                    return this._Strategy;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(TextLayout.prototype, "LineStackingStategy", {
-                set: function (value) {
-                    this.SetLineStackingStategy(value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            TextLayout.prototype.SetLineStackingStategy = function (strategy) {
-                if (this._Strategy === strategy)
-                    return false;
-                this._Strategy = strategy;
-                this.ResetState();
-                return true;
-            };
-
-            Object.defineProperty(TextLayout.prototype, "LineHeight", {
-                get: function () {
-                    return this._LineHeight;
-                },
-                set: function (value) {
-                    this.SetLineHeight(value);
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-
-            TextLayout.prototype.SetLineHeight = function (value) {
-                if (this._LineHeight === value)
-                    return false;
-                this._LineHeight = value;
-                this.ResetState();
-                return true;
-            };
-
-            Object.defineProperty(TextLayout.prototype, "TextAttributes", {
-                get: function () {
-                    return this._Attrs;
-                },
-                set: function (attrs) {
-                    this._Attrs = attrs;
-                    this.ResetState();
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-
-            Object.defineProperty(TextLayout.prototype, "Text", {
-                get: function () {
-                    return this._Text;
-                },
-                set: function (text) {
-                    if (text != null) {
-                        this._Text = text;
-                        this._Length = text.length;
-                    } else {
-                        this._Text = null;
-                        this._Length = 0;
-                    }
-                    this.ResetState();
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-
-            TextLayout.prototype.GetSelectionCursor = function (offset, pos) {
-                var ox = 0;
-                var oy = 0;
-                if (offset) {
-                    ox = offset.x;
-                    oy = offset.y;
-                }
-                var x0 = ox;
-                var y0 = oy;
-                var height = 0.0;
-                var y1 = 0.0;
-
-                var cursor = 0;
-                var end = 0;
-                var line;
-                var lines = this._Lines;
-                for (var i = 0; i < lines.length; i++) {
-                    line = lines[i];
-
-                    x0 = ox + this._HorizontalAlignment(line._Advance);
-
-                    y1 = y0 + line._Height + line._Descend;
-                    height = line._Height;
-
-                    if (pos >= cursor + line._Length) {
-                        if ((i + 1) === this._Lines.length) {
-                            if (isLineBreak(this._Text.substr(line._Start + line._Length - 1, 2))) {
-                                x0 = ox + this._HorizontalAlignment(0.0);
-                                y0 += line._Height;
-                            } else {
-                                x0 += line._Advance;
-                            }
-                            break;
-                        }
-                        cursor += line._Length;
-                        y0 += line._Height;
-                        continue;
-                    }
-
-                    var runs = line._Runs;
-                    var run = null;
-                    for (var j = 0; j < runs.length; j++) {
-                        run = runs[j];
-                        end = run._Start + run._Length;
-
-                        if (pos >= cursor + run._Length) {
-                            cursor += run._Length;
-                            x0 += run._Advance;
-                            continue;
-                        }
-
-                        if (run._Start === pos)
-                            break;
-
-                        var font = run._Attrs.Font;
-                        x0 += Fayde.Surface.MeasureWidth(this._Text.slice(run._Start, pos), font);
-                        break;
-                    }
-                    break;
-                }
-                return new minerva.Rect(x0, y0, 1.0, height);
-            };
-
-            TextLayout.prototype.GetBaselineOffset = function () {
-                var lines = this._Lines;
-                if (lines.length === 0)
-                    return 0;
-                var line = lines[0];
-                return line._Height + line._Descend;
-            };
-
-            TextLayout.prototype.GetLineFromY = function (offset, y) {
-                var line = null;
-                var y0 = (offset) ? offset.y : 0.0;
-                var y1;
-                var lines = this._Lines;
-                for (var i = 0; i < lines.length; i++) {
-                    line = lines[i];
-                    y1 = y0 + line._Height;
-                    if (y < y1) {
-                        return line;
-                    }
-                    y0 = y1;
-                }
-            };
-
-            TextLayout.prototype.GetLineFromIndex = function (index) {
-                var lines = this._Lines;
-                if (index >= lines.length || index < 0)
-                    return null;
-                return lines[index];
-            };
-
-            TextLayout.prototype.GetCursorFromXY = function (offset, x, y) {
-                var oy = 0;
-                if (offset)
-                    oy = offset.y;
-                var lines = this._Lines;
-                var line;
-                if (y < oy) {
-                    line = lines[0];
-                } else if (!(line = this.GetLineFromY(offset, y))) {
-                    line = lines[lines.length - 1];
-                }
-                return line.GetCursorFromX(offset, x);
-            };
-
-            TextLayout.prototype.Select = function (start, length) {
-                if (!this._Text) {
-                    this._SelectionLength = 0;
-                    this._SelectionStart = 0;
-                    return;
-                }
-
-                var newSelectionStart = 0;
-                var newSelectionLength = 0;
-                var index = 0;
-                var end = 0;
-                if (!false) {
-                    newSelectionStart = index = start;
-                    end = index + length;
-                    newSelectionLength = length;
-                } else {
-                    newSelectionLength = length;
-                    newSelectionStart = start;
-                }
-
-                if (this._SelectionStart === newSelectionStart && this._SelectionLength === newSelectionLength)
-                    return;
-
-                if (this._SelectionLength > 0 || newSelectionLength > 0)
-                    this._ClearCache();
-
-                this._SelectionLength = newSelectionLength;
-                this._SelectionStart = newSelectionStart;
-            };
-
-            TextLayout.prototype.Layout = function () {
-                if (!isNaN(this._ActualWidth))
-                    return;
-
-                this._ActualHeight = 0.0;
-                this._ActualWidth = 0.0;
-                this._IsWrapped = false;
-                this._ClearLines();
-
-                if (this._Text == null || !validateAttributes(this._Attrs))
-                    return;
-
-                var word = {
-                    Advance: 0.0,
-                    LineAdvance: 0.0,
-                    Length: 0.0,
-                    BreakOps: null,
-                    Font: new Font()
-                };
-                if (this._Wrapping === 1 /* Wrap */)
-                    word.BreakOps = [];
-                else
-                    word.BreakOps = null;
-                var layoutWordFunc;
-                layoutWordFunc = this._Wrapping === 0 /* NoWrap */ ? layoutWordNoWrap : layoutWordWrap;
-
-                var line = new TextLayoutLine(this, 0, 0);
-                if (this._OverrideLineHeight()) {
-                    line._Descend = this._GetDescendOverride();
-                    line._Height = this._GetLineHeightOverride();
-                }
-                this._Lines.push(line);
-
-                var index = 0;
-                var end;
-                var run;
-                var font;
-                var attrindex = 0;
-                var attrs = this._Attrs;
-                var attr = attrs[0];
-                var nattr = attrs[1];
-
-                do {
-                    end = nattr ? nattr.Start : this._Length;
-                    run = new TextLayoutRun(line, attr, index);
-                    line._Runs.push(run);
-
-                    word.Font = font = attr.Font;
-
-                    if (end - index <= 0) {
-                        if (!this._OverrideLineHeight()) {
-                            line._Descend = Math.min(line._Descend, font._Descender());
-                            line._Height = Math.max(line._Height, font.GetActualHeight());
-                        }
-                        this._ActualHeight += line._Height;
-                        break;
-                    }
-
-                    while (index < end) {
-                        var linebreak = false;
-                        var wrapped = false;
-
-                        while (index < end) {
-                            var lineBreakLength = isLineBreak(this._Text.slice(index, end));
-                            if (lineBreakLength > 0) {
-                                if (line._Length == 0 && !this._OverrideLineHeight()) {
-                                    line._Descend = font._Descender();
-                                    line._Height = font.GetActualHeight();
-                                }
-
-                                line._Length += lineBreakLength;
-                                run._Length += lineBreakLength;
-                                index += lineBreakLength;
-                                linebreak = true;
-                                break;
-                            }
-
-                            word.LineAdvance = line._Advance;
-                            if (layoutWordFunc(word, this._Text.slice(index, end), this._MaxWidth)) {
-                                this._IsWrapped = true;
-                                wrapped = true;
-                            }
-
-                            if (word.Length > 0) {
-                                if (!this._OverrideLineHeight()) {
-                                    line._Descend = Math.min(line._Descend, font._Descender());
-                                    line._Height = Math.max(line._Height, font.GetActualHeight());
-                                }
-
-                                line._Advance += word.Advance;
-                                run._Advance += word.Advance;
-                                line._Width = line._Advance;
-                                line._Length += word.Length;
-                                run._Length += word.Length;
-
-                                index += word.Length;
-                            }
-
-                            if (wrapped)
-                                break;
-
-                            word.LineAdvance = line._Advance;
-                            layoutLwsp(word, this._Text.slice(index, end), font);
-
-                            if (word.Length > 0) {
-                                if (!this._OverrideLineHeight()) {
-                                    line._Descend = Math.min(line._Descend, font._Descender());
-                                    line._Height = Math.max(line._Height, font.GetActualHeight());
-                                }
-
-                                line._Advance += word.Advance;
-                                run._Advance += word.Advance;
-                                line._Width = line._Advance;
-                                line._Length += word.Length;
-                                run._Length += word.Length;
-
-                                index += word.Length;
-                            }
-                        }
-
-                        var atend = index >= end;
-                        if (linebreak || wrapped || atend) {
-                            this._ActualWidth = Math.max(this._ActualWidth, atend ? line._Advance : line._Width);
-                            this._ActualHeight += line._Height;
-
-                            if (linebreak || wrapped) {
-                                line = new TextLayoutLine(this, index, index);
-                                if (!this._OverrideLineHeight()) {
-                                    if (end - index < 1) {
-                                        line._Descend = font._Descender();
-                                        line._Height = font.GetActualHeight();
-                                    }
-                                } else {
-                                    line._Descend = this._GetDescendOverride();
-                                    line._Height = this._GetLineHeightOverride();
-                                }
-
-                                if (linebreak && (end - index < 1))
-                                    this._ActualHeight += line._Height;
-
-                                this._Lines.push(line);
-                            }
-
-                            if (index < end) {
-                                run = new TextLayoutRun(line, attr, index);
-                                line._Runs.push(run);
-                            }
-                        }
-                    }
-
-                    attrindex++;
-                    attr = nattr;
-                    nattr = attrs[attrindex + 1];
-                } while(end - index > 0);
-            };
-
-            TextLayout.prototype._HorizontalAlignment = function (lineWidth) {
-                var deltax = 0.0;
-                var width;
-                switch (this._Alignment) {
-                    case 1 /* Center */:
-                        width = getWidthConstraint(this.AvailableWidth, this._MaxWidth, this._ActualWidth);
-                        if (lineWidth < width)
-                            deltax = (width - lineWidth) / 2.0;
-                        break;
-                    case 2 /* Right */:
-                        width = getWidthConstraint(this.AvailableWidth, this._MaxWidth, this._ActualWidth);
-                        if (lineWidth < width)
-                            deltax = width - lineWidth;
-                        break;
-                }
-                return deltax;
-            };
-
-            TextLayout.prototype.Render = function (ctx, origin, offset) {
-                var line;
-                var x = 0.0;
-                var ox = (offset) ? offset.x : 0.0;
-                var y = (offset) ? offset.y : 0.0;
-
-                this.Layout();
-
-                for (var i = 0; i < this._Lines.length; i++) {
-                    line = this._Lines[i];
-                    x = ox + this._HorizontalAlignment(line._Advance);
-                    line._Render(ctx, origin, x, y);
-                    y += line._Height;
-                }
-            };
-
-            TextLayout.prototype.__Debug = function () {
-                var allText = this.Text;
-                var t = "";
-                t += "Lines: " + this._Lines.length.toString() + "\n";
-                for (var i = 0; i < this._Lines.length; i++) {
-                    t += "\tLine " + i.toString() + ":\n";
-                    t += this._Lines[i].__Debug(allText);
-                }
-                return t;
-            };
-
-            TextLayout.prototype.ResetState = function () {
-                this._ActualHeight = NaN;
-                this._ActualWidth = NaN;
-            };
-
-            TextLayout.prototype._ClearCache = function () {
-                for (var i = 0, lines = this._Lines, len = lines.length; i < len; i++) {
-                    for (var j = 0, runs = lines[i]._Runs, len2 = runs.length; j < len2; j++) {
-                        runs[j]._ClearCache();
-                    }
-                }
-            };
-
-            TextLayout.prototype._ClearLines = function () {
-                this._Lines = [];
-            };
-
-            TextLayout.prototype._OverrideLineHeight = function () {
-                return this._Strategy === 1 /* BlockLineHeight */ && this._LineHeight !== 0;
-            };
-
-            TextLayout.prototype._GetLineHeightOverride = function () {
-                if (isNaN(this._LineHeight))
-                    return this._BaseHeight;
-                return this._LineHeight;
-            };
-
-            TextLayout.prototype._GetDescendOverride = function () {
-                if (isNaN(this._LineHeight))
-                    return this._BaseDescent;
-
-                if (this._BaseHeight == 0.0)
-                    return 0.0;
-
-                return this._LineHeight * (this._BaseDescent / this._BaseHeight);
-            };
-            return TextLayout;
-        })();
-        Text.TextLayout = TextLayout;
     })(Fayde.Text || (Fayde.Text = {}));
     var Text = Fayde.Text;
 })(Fayde || (Fayde = {}));

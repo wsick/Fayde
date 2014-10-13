@@ -1,7 +1,7 @@
 /// <reference path="TextBoxBase.ts" />
 
 module Fayde.Controls {
-    export class PasswordBox extends TextBoxBase implements Text.ITextAttributesSource {
+    export class PasswordBox extends TextBoxBase {
         static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, PasswordBox);
         static CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, PasswordBox);
         static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, PasswordBox, 0, (d, args) => (<PasswordBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);

@@ -8,7 +8,7 @@ module Fayde.Controls {
         LayoutUpdater: TextBlockUpdater;
         private _ActualWidth: number = 0.0;
         private _ActualHeight: number = 0.0;
-        _Layout: Text.TextLayout = new Text.TextLayout();
+        //_Layout: Text.TextLayout = new Text.TextLayout();
         private _WasSet: boolean = true;
         private _Dirty: boolean = true;
         private _Font: Font = new Font();
@@ -25,6 +25,7 @@ module Fayde.Controls {
                 return <IEnumerator<DONode>>inlines.GetNodeEnumerator();
         }
 
+        /*
         Measure (constraint: minerva.Size): minerva.Size {
             this.Layout(constraint);
             return new minerva.Size(this._ActualWidth, this._ActualHeight);
@@ -58,6 +59,7 @@ module Fayde.Controls {
             }
             this._Dirty = false;
         }
+        */
 
         /*
          ComputeActualSize(lu: LayoutUpdater, padding: Thickness): minerva.Size {
@@ -94,13 +96,11 @@ module Fayde.Controls {
         _TextChanged (args: IDependencyPropertyChangedEventArgs) {
             if (this._SetsValue) {
                 this._SetTextInternal(args.NewValue);
-                this._UpdateLayoutAttributes();
                 this.LayoutUpdater.invalidateTextMetrics();
-            } else {
-                this._UpdateLayoutAttributes();
             }
         }
 
+        /*
         private _UpdateLayoutAttributes () {
             var xobj = this.XObject;
             var inlines = xobj.Inlines;
@@ -140,6 +140,7 @@ module Fayde.Controls {
             }
             return length;
         }
+        */
 
         private _GetTextInternal (inlines: Documents.InlineCollection) {
             if (!inlines)
@@ -201,14 +202,12 @@ module Fayde.Controls {
             xobj.SetCurrentValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
             this._SetsValue = true;
 
-            this._UpdateLayoutAttributes();
-
             this.LayoutUpdater.invalidateTextMetrics();
         }
     }
     Fayde.RegisterType(TextBlockNode, "Fayde.Controls");
 
-    export class TextBlock extends FrameworkElement implements IFontChangeable {
+    export class TextBlock extends FrameworkElement {
         XamlNode: TextBlockNode;
 
         CreateNode (): TextBlockNode {
@@ -256,6 +255,8 @@ module Fayde.Controls {
             var inlines = TextBlock.InlinesProperty.Initialize(this);
             inlines.AttachTo(this);
             ReactTo(inlines, this, (change?) => this.XamlNode.InlinesChanged(change.item, change.add));
+
+            TextBlock.ForegroundProperty.Store.ListenToChanged(this, TextBlock.ForegroundProperty, (tb: TextBlock, args) => tb.XamlNode.LayoutUpdater.invalidate(), this);
         }
 
         /*
@@ -275,15 +276,6 @@ module Fayde.Controls {
          return finalSize;
          }
          */
-
-        FontChanged (args: IDependencyPropertyChangedEventArgs) {
-            var name = args.Property.Name;
-            name = name.charAt(0).toLowerCase() + name.substr(1);
-
-            var updater = this.XamlNode.LayoutUpdater;
-            updater.assets[name] = args.NewValue;
-            updater.invalidateFont();
-        }
 
         IsInheritable (propd: DependencyProperty): boolean {
             if (TextBlockInheritedProps.indexOf(propd) > -1)

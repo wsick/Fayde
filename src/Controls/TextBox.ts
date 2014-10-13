@@ -1,7 +1,7 @@
 /// <reference path="TextBoxBase.ts" />
 
 module Fayde.Controls {
-    export class TextBox extends TextBoxBase implements Text.ITextAttributesSource, IFontChangeable {
+    export class TextBox extends TextBoxBase {
         static AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false, (d, args) => (<TextBox>d).$AcceptsReturn = (args.NewValue === true));
         static CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBox);
         static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);

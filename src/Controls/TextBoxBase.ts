@@ -29,7 +29,7 @@ module Fayde.Controls {
 
     var Key = Input.Key;
     var MAX_UNDO_COUNT = 10;
-    export class TextBoxBase extends Control implements Text.ITextAttributesSource, Text.IBufferOwner {
+    export class TextBoxBase extends Control implements Text.IBufferOwner {
         private _Undo: Text.ITextBoxUndoAction[] = [];
         private _Redo: Text.ITextBoxUndoAction[] = [];
         _Buffer: string = "";

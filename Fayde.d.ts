@@ -492,26 +492,16 @@ declare class Font {
     private static _MeasureHeight(font);
 }
 declare module Fayde {
-    interface IFontChangeable {
-        FontChanged(args: IDependencyPropertyChangedEventArgs): any;
-    }
     class InheritableOwner {
         static UseLayoutRoundingProperty: DependencyProperty;
         static FlowDirectionProperty: DependencyProperty;
-        static _FontFamilyPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
-        static FontFamilyProperty: DependencyProperty;
-        static _FontSizePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
-        static FontSizeProperty: DependencyProperty;
-        static _FontStretchPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
-        static FontStretchProperty: DependencyProperty;
-        static _FontStylePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
-        static FontStyleProperty: DependencyProperty;
-        static _FontWeightPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
-        static FontWeightProperty: DependencyProperty;
         static ForegroundProperty: DependencyProperty;
-        static _TextDecorationsPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
+        static FontFamilyProperty: DependencyProperty;
+        static FontSizeProperty: DependencyProperty;
+        static FontStretchProperty: DependencyProperty;
+        static FontStyleProperty: DependencyProperty;
+        static FontWeightProperty: DependencyProperty;
         static TextDecorationsProperty: DependencyProperty;
-        static _LanguagePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs): void;
         static LanguageProperty: DependencyProperty;
         static AllInheritedProperties: DependencyProperty[];
     }
@@ -2085,7 +2075,7 @@ declare module Fayde.Controls {
     interface ITextModelListener {
         OnTextModelChanged(args: ITextModelArgs): any;
     }
-    class TextBoxBase extends Control implements Text.ITextAttributesSource, Text.IBufferOwner {
+    class TextBoxBase extends Control implements Text.IBufferOwner {
         private _Undo;
         private _Redo;
         public _Buffer: string;
@@ -2179,7 +2169,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class PasswordBox extends TextBoxBase implements Text.ITextAttributesSource {
+    class PasswordBox extends TextBoxBase {
         static BaselineOffsetProperty: DependencyProperty;
         static CaretBrushProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
@@ -2410,40 +2400,26 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class TextBlockNode extends FENode implements Documents.IInlinesChangedListener {
+    class TextBlockNode extends FENode {
         public XObject: TextBlock;
+        public LayoutUpdater: minerva.controls.textblock.TextBlockUpdater;
         private _ActualWidth;
         private _ActualHeight;
-        public _Layout: Text.TextLayout;
         private _WasSet;
         private _Dirty;
         private _Font;
         private _SetsValue;
         constructor(xobj: TextBlock);
         public GetInheritedEnumerator(): IEnumerator<DONode>;
-        public Measure(constraint: minerva.Size): minerva.Size;
-        public Arrange(constraint: minerva.Size, padding: Thickness): void;
-        public Layout(constraint: minerva.Size): void;
-        public _FontChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _TextChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public _LineStackingStrategyChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public _LineHeightChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public _TextAlignmentChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public _TextTrimmingChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public _TextWrappingChanged(args: IDependencyPropertyChangedEventArgs): void;
-        public _InvalidateDirty(setDirty?: boolean): void;
-        private _UpdateFont(force?);
-        private _UpdateFonts(force?);
-        private _UpdateLayoutAttributes();
-        private _UpdateLayoutAttributesForInline(item, length, runs);
         private _GetTextInternal(inlines);
         private _SetTextInternal(text);
         public InlinesChanged(newInline: Documents.Inline, isAdd: boolean): void;
     }
-    class TextBlock extends FrameworkElement implements IFontChangeable {
+    class TextBlock extends FrameworkElement {
         public XamlNode: TextBlockNode;
         public CreateNode(): TextBlockNode;
-        public CreateLayoutUpdater(): minerva.core.Updater;
+        public CreateLayoutUpdater(): minerva.controls.textblock.TextBlockUpdater;
         static PaddingProperty: DependencyProperty;
         static FontFamilyProperty: DependencyProperty;
         static FontSizeProperty: DependencyProperty;
@@ -2475,12 +2451,11 @@ declare module Fayde.Controls {
         public TextTrimming: TextTrimming;
         public TextWrapping: TextWrapping;
         constructor();
-        public FontChanged(args: IDependencyPropertyChangedEventArgs): void;
         public IsInheritable(propd: DependencyProperty): boolean;
     }
 }
 declare module Fayde.Controls {
-    class TextBox extends TextBoxBase implements Text.ITextAttributesSource, IFontChangeable {
+    class TextBox extends TextBoxBase {
         static AcceptsReturnProperty: DependencyProperty;
         static CaretBrushProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
@@ -2564,8 +2539,6 @@ declare module Fayde.Controls.Internal {
         private _UpdateText();
         public Layout(constraint: minerva.Size): void;
         public GetBaselineOffset(): number;
-        public GetLineFromY(y: number): Text.TextLayoutLine;
-        public GetLineFromIndex(index: number): Text.TextLayoutLine;
         public GetCursorFromXY(x: number, y: number): number;
         public OnLostFocus(e: any): void;
         public OnGotFocus(e: any): void;
@@ -3244,11 +3217,12 @@ declare module Fayde.Data {
 declare module Fayde.Documents {
     class TextElementNode extends DONode {
         public XObject: TextElement;
+        public TextUpdater: minerva.text.element.TextElementUpdater;
         constructor(xobj: TextElement, inheritedWalkProperty: string);
         public InheritedWalkProperty: string;
         public GetInheritedEnumerator(): IEnumerator<DONode>;
     }
-    class TextElement extends DependencyObject implements Text.ITextAttributesSource, IFontChangeable, Providers.IIsPropertyInheritable {
+    class TextElement extends DependencyObject implements Providers.IIsPropertyInheritable {
         public XamlNode: TextElementNode;
         public CreateNode(): TextElementNode;
         static FontFamilyProperty: DependencyProperty;
@@ -3268,19 +3242,9 @@ declare module Fayde.Documents {
         public Language: string;
         public TextDecorations: TextDecorations;
         public IsInheritable(propd: DependencyProperty): boolean;
-        private _Font;
-        constructor();
         public _SerializeText(): string;
-        private _UpdateFont(force?);
-        public Background : Media.Brush;
-        public SelectionBackground : Media.Brush;
-        public SelectionForeground : Media.Brush;
-        public Font : Font;
-        public Direction : FlowDirection;
-        public IsUnderlined : boolean;
         public Start: number;
         public Equals(te: TextElement): boolean;
-        public FontChanged(args: IDependencyPropertyChangedEventArgs): void;
     }
 }
 declare module Fayde.Documents {
@@ -3298,16 +3262,10 @@ declare module Fayde.Documents {
     }
 }
 declare module Fayde.Documents {
-    interface IInlinesChangedListener {
-        InlinesChanged(newInline: Inline, isAdd: boolean): any;
-    }
     class Inline extends TextElement {
         public Autogen: boolean;
     }
     class InlineCollection extends XamlObjectCollection<Inline> {
-        private _Listener;
-        public Listen(listener: IInlinesChangedListener): void;
-        public Unlisten(listener: IInlinesChangedListener): void;
         public AddingToCollection(value: Inline, error: BError): boolean;
         public RemovedFromCollection(value: Inline, isValueSafe: boolean): void;
     }
@@ -3345,14 +3303,19 @@ declare module Fayde.Documents {
     }
 }
 declare module Fayde.Documents {
-    class Span extends Inline implements IInlinesChangedListener {
+    class Span extends Inline {
         public CreateNode(): TextElementNode;
         static InlinesProperty: ImmutableDependencyProperty<InlineCollection>;
         public Inlines: InlineCollection;
         constructor();
-        public InlinesChanged(newInline: Inline, isAdd: boolean): void;
         public _SerializeText(): string;
     }
+}
+declare module Fayde.Documents {
+    interface ITextReactionCallback<T> {
+        (updater: minerva.text.element.TextElementUpdater, ov: T, nv: T, te?: TextElement): void;
+    }
+    function TextReaction<TValue>(propd: DependencyProperty, callback?: ITextReactionCallback<TValue>, listen?: boolean, sync?: any): void;
 }
 declare module Fayde.Documents {
     class Underline extends Span {
@@ -3527,7 +3490,6 @@ declare module Fayde.Engine {
 declare var resizeTimeout: number;
 declare module Fayde {
     class Surface extends minerva.engine.Surface {
-        static TestCanvas: HTMLCanvasElement;
         public App: Application;
         private $$root;
         private $$inputMgr;
@@ -3543,7 +3505,6 @@ declare module Fayde {
         static RemoveFocusFrom(uie: UIElement): boolean;
         static SetMouseCapture(uin: UINode): boolean;
         static ReleaseMouseCapture(uin: UINode): void;
-        static MeasureWidth(text: string, font: Font): number;
         private $$handleResize(evt);
         private $$stretchCanvas();
     }
@@ -5653,8 +5614,8 @@ declare class IndexedPropertyInfo implements IPropertyInfo {
     static Find(typeOrObj: any): IndexedPropertyInfo;
 }
 declare module Fayde {
-    function Incite(obj: any): void;
-    function ReactTo(obj: any, scope: any, changed: () => void): void;
+    function Incite(obj: any, val?: any): void;
+    function ReactTo(obj: any, scope: any, changed: (val?: any) => void): void;
     function UnreactTo(obj: any, scope: any): void;
 }
 declare module StringEx {
@@ -5830,142 +5791,6 @@ declare module Fayde.Text {
         static Cut(text: string, start: number, len: number): string;
         static Insert(text: string, index: number, str: string): string;
         static Replace(text: string, start: number, len: number, str: string): string;
-    }
-}
-declare module Fayde.Text {
-    interface ITextAttributes {
-        GetBackground(selected: boolean): Media.Brush;
-        GetForeground(selected: boolean): Media.Brush;
-        Font: Font;
-        Direction: FlowDirection;
-        IsUnderlined: boolean;
-        Start: number;
-    }
-    interface ITextAttributesSource {
-        SelectionBackground: Media.Brush;
-        Background: Media.Brush;
-        SelectionForeground: Media.Brush;
-        Foreground: Media.Brush;
-        Font: Font;
-        Direction: FlowDirection;
-        TextDecorations: TextDecorations;
-    }
-    class TextLayoutAttributes implements ITextAttributes {
-        private _Source;
-        public Start: number;
-        constructor(source: ITextAttributesSource, start?: number);
-        private static DEFAULT_SELECTION_BACKGROUND;
-        public GetBackground(selected: boolean): Media.Brush;
-        private static DEFAULT_SELECTION_FOREGROUND;
-        public GetForeground(selected: boolean): Media.Brush;
-        public Font : Font;
-        public Direction : FlowDirection;
-        public IsUnderlined : boolean;
-    }
-}
-declare module Fayde.Text {
-    interface IBreakOp {
-        Advance: number;
-        Index: number;
-        Btype: number;
-        c: string;
-    }
-    interface ILayoutWord {
-        Advance: number;
-        LineAdvance: number;
-        Length: number;
-        BreakOps: IBreakOp[];
-        Font: Font;
-    }
-    class TextLayoutGlyphCluster {
-        private _Text;
-        private _Selected;
-        public _Advance: number;
-        constructor(text: string, font: Font, selected?: boolean);
-        public _Render(ctx: minerva.core.render.RenderContext, origin: Point, attrs: ITextAttributes, x: number, y: number): void;
-    }
-    class TextLayoutRun {
-        private _Clusters;
-        public _Attrs: ITextAttributes;
-        public _Start: number;
-        private _Line;
-        public _Advance: number;
-        public _Length: number;
-        constructor(line: TextLayoutLine, attrs: ITextAttributes, start: number);
-        public _GenerateCache(): void;
-        public _ClearCache(): void;
-        public _Render(ctx: minerva.core.render.RenderContext, origin: Point, x: number, y: number): void;
-        public __Debug(allText: any): any;
-    }
-    class TextLayoutLine {
-        public _Runs: TextLayoutRun[];
-        public _Layout: TextLayout;
-        public _Start: number;
-        private _Offset;
-        public _Advance: number;
-        public _Descend: number;
-        public _Height: number;
-        public _Width: number;
-        public _Length: number;
-        constructor(layout: TextLayout, start: number, offset: number);
-        public GetCursorFromX(offset: Point, x: number): number;
-        public _Render(ctx: any, origin: Point, left: number, top: number): void;
-        public __Debug(allText: any): string;
-    }
-    class TextLayout {
-        private _Attrs;
-        private _SelectionStart;
-        private _SelectionLength;
-        private _Text;
-        public AvailableWidth: number;
-        private _Strategy;
-        private _Alignment;
-        private _Trimming;
-        private _Wrapping;
-        private _MaxHeight;
-        private _MaxWidth;
-        private _BaseDescent;
-        private _BaseHeight;
-        private _ActualHeight;
-        private _ActualWidth;
-        private _LineHeight;
-        private _Lines;
-        private _IsWrapped;
-        private _Length;
-        public SelectionStart : number;
-        public SelectionLength : number;
-        public ActualExtents : minerva.Size;
-        public RenderExtents : minerva.Rect;
-        public MaxWidth : number;
-        public TextAlignment : TextAlignment;
-        public SetTextAlignment(align: TextAlignment): boolean;
-        public TextTrimming : Controls.TextTrimming;
-        public SetTextTrimming(value: Controls.TextTrimming): boolean;
-        public TextWrapping : Controls.TextWrapping;
-        public SetTextWrapping(wrapping: Controls.TextWrapping): boolean;
-        public LineStackingStrategy : LineStackingStrategy;
-        public LineStackingStategy : any;
-        public SetLineStackingStategy(strategy: LineStackingStrategy): boolean;
-        public LineHeight : number;
-        public SetLineHeight(value: number): boolean;
-        public TextAttributes : ITextAttributes[];
-        public Text : string;
-        public GetSelectionCursor(offset: Point, pos: number): minerva.Rect;
-        public GetBaselineOffset(): number;
-        public GetLineFromY(offset: Point, y: number): TextLayoutLine;
-        public GetLineFromIndex(index: number): TextLayoutLine;
-        public GetCursorFromXY(offset: Point, x: number, y: number): number;
-        public Select(start: number, length: number): void;
-        public Layout(): void;
-        public _HorizontalAlignment(lineWidth: number): number;
-        public Render(ctx: minerva.core.render.RenderContext, origin?: Point, offset?: Point): void;
-        public __Debug(): string;
-        public ResetState(): void;
-        private _ClearCache();
-        private _ClearLines();
-        private _OverrideLineHeight();
-        private _GetLineHeightOverride();
-        private _GetDescendOverride();
     }
 }
 declare module Fayde.Xaml {

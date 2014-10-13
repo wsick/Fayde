@@ -13,7 +13,8 @@ module Fayde.Controls.Internal {
         //CreateLayoutUpdater() { return new minerva.controls.textbox.TextBoxUpdater(); }
 
         private _Cursor = new minerva.Rect();
-        private _Layout: Text.TextLayout = new Text.TextLayout();
+        //private _Layout: Text.TextLayout = new Text.TextLayout();
+        private _Layout: any;
         private _SelectionChanged: boolean = false;
         private _HadSelectedText: boolean = false;
         private _CursorVisible: boolean = false;
@@ -34,7 +35,7 @@ module Fayde.Controls.Internal {
             if (textBox) {
                 textBox.Listen(this);
 
-                this._Layout.TextAttributes = [new Text.TextLayoutAttributes(textBox)];
+                //this._Layout.TextAttributes = [new Text.TextLayoutAttributes(textBox)];
 
                 this._Layout.TextAlignment = textBox.TextAlignment;
                 this._Layout.TextWrapping = textBox.TextWrapping;
@@ -185,8 +186,8 @@ module Fayde.Controls.Internal {
             //TODO: GetTransformToUIElementWithError
             return this._Layout.GetBaselineOffset();
         }
-        GetLineFromY(y: number): Text.TextLayoutLine { return this._Layout.GetLineFromY(null, y); }
-        GetLineFromIndex(index: number): Text.TextLayoutLine { return this._Layout.GetLineFromIndex(index); }
+        //GetLineFromY(y: number): Text.TextLayoutLine { return this._Layout.GetLineFromY(null, y); }
+        //GetLineFromIndex(index: number): Text.TextLayoutLine { return this._Layout.GetLineFromIndex(index); }
         GetCursorFromXY(x: number, y: number): number { return this._Layout.GetCursorFromXY(null, x, y); }
 
         OnLostFocus(e) { this._EndCursorBlink(); }
