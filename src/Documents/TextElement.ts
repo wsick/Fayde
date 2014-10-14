@@ -38,7 +38,6 @@ module Fayde.Documents {
         static FontStyleProperty = InheritableOwner.FontStyleProperty.ExtendTo(TextElement);
         static FontWeightProperty = InheritableOwner.FontWeightProperty.ExtendTo(TextElement);
         static ForegroundProperty = InheritableOwner.ForegroundProperty.ExtendTo(TextElement);
-        static TextDecorationsProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(TextElement);
         static LanguageProperty = InheritableOwner.LanguageProperty.ExtendTo(TextElement);
         Foreground: Media.Brush;
         FontFamily: string;
@@ -47,7 +46,6 @@ module Fayde.Documents {
         FontWeight: FontWeight;
         FontSize: number;
         Language: string;
-        TextDecorations: TextDecorations;
 
         IsInheritable (propd: DependencyProperty): boolean {
             return TextElementInheritedProps.indexOf(propd) > -1;
@@ -70,8 +68,6 @@ module Fayde.Documents {
                 return false;
             if (this.FontStretch !== te.FontStretch)
                 return false;
-            if (this.TextDecorations !== te.TextDecorations)
-                return false;
             if (!Nullstone.Equals(this.Foreground, te.Foreground))
                 return false;
             return true;
@@ -86,7 +82,6 @@ module Fayde.Documents {
         TextElement.FontStyleProperty,
         TextElement.FontWeightProperty,
         TextElement.ForegroundProperty,
-        TextElement.TextDecorationsProperty,
         TextElement.LanguageProperty
     ];
 
@@ -97,6 +92,5 @@ module Fayde.Documents {
         TextReaction<string>(TextElement.FontStretchProperty, (upd, ov, nv) => upd.invalidateFont(), false);
         TextReaction<string>(TextElement.FontStyleProperty, (upd, ov, nv) => upd.invalidateFont(), false);
         TextReaction<FontWeight>(TextElement.FontWeightProperty, (upd, ov, nv) => upd.invalidateFont(), false);
-        TextReaction<TextDecorations>(TextElement.TextDecorationsProperty, (upd, ov, nv) => upd.invalidateFont(), false);
     }
 }

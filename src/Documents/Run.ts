@@ -2,8 +2,8 @@
 
 module Fayde.Documents {
     export class Run extends Inline implements Providers.IIsPropertyInheritable {
-        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(Run);
-        static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, Run);
+        static FlowDirectionProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(Run);
+        static TextProperty = DependencyProperty.Register("Text", () => String, Run);
         FlowDirection: FlowDirection;
         Text: string;
 
