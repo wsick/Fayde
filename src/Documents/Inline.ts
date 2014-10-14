@@ -21,6 +21,9 @@ module Fayde.Documents {
     Fayde.RegisterType(Inline, "Fayde.Documents", Fayde.XMLNS);
 
     module reactions {
-        TextReaction<TextDecorations>(TextElement.TextDecorationsProperty, (upd, ov, nv) => upd.invalidateFont(), false);
+        TextReaction<TextDecorations>(Inline.TextDecorationsProperty, (upd, ov, nv, te?: TextElement) => {
+            upd.invalidateFont();
+            //TODO: Invalidate parent TextElement, if parent is TextBlock, invalidate TextBlock
+        }, false);
     }
 }

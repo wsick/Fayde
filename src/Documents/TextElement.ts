@@ -24,6 +24,7 @@ module Fayde.Documents {
 
     export class TextElement extends DependencyObject implements Providers.IIsPropertyInheritable {
         XamlNode: TextElementNode;
+        TextUpdater = new minerva.text.TextUpdater();
 
         CreateNode (): TextElementNode {
             return new TextElementNode(this, null);
@@ -82,14 +83,19 @@ module Fayde.Documents {
         TextElement.LanguageProperty
     ];
 
-    /*
     module reactions {
-        TextReaction<Media.Brush>(TextElement.ForegroundProperty, (upd, ov, nv) => upd.invalidate());
-        TextReaction<string>(TextElement.FontFamilyProperty, (upd, ov, nv) => upd.invalidateFont(), false);
-        TextReaction<number>(TextElement.FontSizeProperty, (upd, ov, nv) => upd.invalidateFont(), false);
-        TextReaction<string>(TextElement.FontStretchProperty, (upd, ov, nv) => upd.invalidateFont(), false);
-        TextReaction<string>(TextElement.FontStyleProperty, (upd, ov, nv) => upd.invalidateFont(), false);
-        TextReaction<FontWeight>(TextElement.FontWeightProperty, (upd, ov, nv) => upd.invalidateFont(), false);
+        function invalidateFont (upd: minerva.text.TextUpdater, ov, nv, te?: TextElement) {
+            upd.invalidateFont();
+            //TODO: Invalidate parent TextElement, if parent is TextBlock, invalidate TextBlock
+        }
+
+        TextReaction<Media.Brush>(TextElement.ForegroundProperty, (up, ov, nv, te?: TextElement) => {
+            //TODO: Invalidate parent TextElement, if parent is TextBlock, invalidate TextBlock
+        });
+        TextReaction<string>(TextElement.FontFamilyProperty, invalidateFont, false);
+        TextReaction<number>(TextElement.FontSizeProperty, invalidateFont, false);
+        TextReaction<string>(TextElement.FontStretchProperty, invalidateFont, false);
+        TextReaction<string>(TextElement.FontStyleProperty, invalidateFont, false);
+        TextReaction<FontWeight>(TextElement.FontWeightProperty, invalidateFont, false);
     }
-    */
 }

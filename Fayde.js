@@ -11836,12 +11836,10 @@ var Fayde;
             __extends(TextBlockNode, _super);
             function TextBlockNode(xobj) {
                 _super.call(this, xobj);
-                this._ActualWidth = 0.0;
-                this._ActualHeight = 0.0;
-                this._WasSet = true;
-                this._Dirty = true;
-                this._Font = new Font();
-                this._SetsValue = true;
+                this._IsDocAuto = false;
+                this._SettingText = false;
+                this._SettingInlines = false;
+                this._AutoRun = new Fayde.Documents.Run();
             }
             TextBlockNode.prototype.GetInheritedEnumerator = function () {
                 var xobj = this.XObject;
@@ -11850,74 +11848,46 @@ var Fayde;
                     return inlines.GetNodeEnumerator();
             };
 
-            TextBlockNode.prototype._TextChanged = function (args) {
-                if (this._SetsValue) {
-                    this._SetTextInternal(args.NewValue);
-                    this.LayoutUpdater.invalidateTextMetrics();
-                }
-            };
-
-            TextBlockNode.prototype._GetTextInternal = function (inlines) {
-                if (!inlines)
-                    return "";
-                var block = "";
-                var enumerator = inlines.getEnumerator();
-                while (enumerator.moveNext()) {
-                    block += enumerator.current._SerializeText();
-                }
-                return block;
-            };
-
-            TextBlockNode.prototype._SetTextInternal = function (text) {
-                this._SetsValue = false;
-
-                var value = null;
-                var xobj = this.XObject;
-                var inlines = xobj.Inlines;
-                if (text) {
-                    var count = inlines.Count;
-                    var run = null;
-                    if (count > 0 && (value = inlines.GetValueAt(0)) && value instanceof Fayde.Documents.Run) {
-                        run = value;
-                        if (run.Autogen) {
-                            while (count > 1) {
-                                inlines.RemoveAt(count - 1);
-                                count--;
-                            }
-                        } else {
-                            run = null;
-                        }
-                    }
-                    if (!run) {
-                        inlines.Clear();
-                        run = new Fayde.Documents.Run();
-                        run.Autogen = true;
-                        inlines.Add(run);
-                    }
-                    run.Text = text;
-                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(xobj, run.XamlNode);
-                } else {
-                    inlines.Clear();
-                    xobj.Text = "";
-                }
-
-                this._SetsValue = true;
-            };
-
-            TextBlockNode.prototype.InlinesChanged = function (newInline, isAdd) {
-                if (!this._SetsValue)
+            TextBlockNode.prototype.TextChanged = function (args) {
+                if (this._SettingInlines)
                     return;
 
+                this._AutoRun.Text = args.NewValue;
+                if (!this._IsDocAuto) {
+                    this._IsDocAuto = true;
+                    this.LayoutUpdater.doctree.clear();
+                    this._SettingText = true;
+                    var inlines = this.XObject.Inlines;
+                    inlines.Clear();
+                    inlines.Add(this._AutoRun);
+                    this._SettingText = false;
+                }
+            };
+
+            TextBlockNode.prototype.InlinesChanged = function (inline, index, isAdd) {
                 var xobj = this.XObject;
                 if (isAdd)
-                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(xobj, newInline.XamlNode);
+                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(xobj, inline.XamlNode);
 
+                var updater = this.LayoutUpdater;
+                if (isAdd)
+                    updater.doctree.onChildAttached(inline.TextUpdater, index);
+                else
+                    updater.doctree.onChildDetached(inline.TextUpdater);
+
+                if (this._SettingText)
+                    return;
+
+                this._SettingInlines = true;
                 var inlines = xobj.Inlines;
-                this._SetsValue = false;
-                xobj.SetCurrentValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
-                this._SetsValue = true;
+                var text = "";
+                for (var en = inlines.getEnumerator(); en.moveNext();) {
+                    text += en.current._SerializeText();
+                }
+                xobj.SetCurrentValue(TextBlock.TextProperty, text);
+                this._SettingInlines = false;
 
-                this.LayoutUpdater.invalidateTextMetrics();
+                updater.invalidateTextMetrics();
             };
             return TextBlockNode;
         })(Fayde.FENode);
@@ -11933,12 +11903,8 @@ var Fayde;
                 var inlines = TextBlock.InlinesProperty.Initialize(this);
                 inlines.AttachTo(this);
                 Fayde.ReactTo(inlines, this, function (change) {
-                    return _this.XamlNode.InlinesChanged(change.item, change.add);
+                    return _this.XamlNode.InlinesChanged(change.item, change.index, change.add);
                 });
-
-                TextBlock.ForegroundProperty.Store.ListenToChanged(this, TextBlock.ForegroundProperty, function (tb, args) {
-                    return tb.XamlNode.LayoutUpdater.invalidate();
-                }, this);
             }
             TextBlock.prototype.CreateNode = function () {
                 return new TextBlockNode(this);
@@ -11966,7 +11932,7 @@ var Fayde;
             TextBlock.TextProperty = DependencyProperty.Register("Text", function () {
                 return String;
             }, TextBlock, "", function (d, args) {
-                return d.XamlNode._TextChanged(args);
+                return d.XamlNode.TextChanged(args);
             });
             TextBlock.InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", function () {
                 return Fayde.Documents.InlineCollection;
@@ -12004,6 +11970,9 @@ var Fayde;
 
         var reactions;
         (function (reactions) {
+            Fayde.UIReaction(TextBlock.ForegroundProperty, function (upd, ov, nv) {
+                return upd.invalidate();
+            });
             Fayde.UIReaction(TextBlock.PaddingProperty, function (upd, ov, nv) {
                 return upd.invalidateTextMetrics();
             }, false);
@@ -16726,13 +16695,10 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Documents) {
-        var TextElementUpdater = minerva.text.element.TextElementUpdater;
-
         var TextElementNode = (function (_super) {
             __extends(TextElementNode, _super);
             function TextElementNode(xobj, inheritedWalkProperty) {
                 _super.call(this, xobj);
-                this.TextUpdater = new TextElementUpdater();
                 this.InheritedWalkProperty = inheritedWalkProperty;
             }
             TextElementNode.prototype.GetInheritedEnumerator = function () {
@@ -16751,6 +16717,7 @@ var Fayde;
             __extends(TextElement, _super);
             function TextElement() {
                 _super.apply(this, arguments);
+                this.TextUpdater = new minerva.text.TextUpdater();
             }
             TextElement.prototype.CreateNode = function () {
                 return new TextElementNode(this, null);
@@ -16775,8 +16742,6 @@ var Fayde;
                     return false;
                 if (this.FontStretch !== te.FontStretch)
                     return false;
-                if (this.TextDecorations !== te.TextDecorations)
-                    return false;
                 if (!Nullstone.Equals(this.Foreground, te.Foreground))
                     return false;
                 return true;
@@ -16787,7 +16752,6 @@ var Fayde;
             TextElement.FontStyleProperty = Fayde.InheritableOwner.FontStyleProperty.ExtendTo(TextElement);
             TextElement.FontWeightProperty = Fayde.InheritableOwner.FontWeightProperty.ExtendTo(TextElement);
             TextElement.ForegroundProperty = Fayde.InheritableOwner.ForegroundProperty.ExtendTo(TextElement);
-            TextElement.TextDecorationsProperty = Fayde.InheritableOwner.TextDecorationsProperty.ExtendTo(TextElement);
             TextElement.LanguageProperty = Fayde.InheritableOwner.LanguageProperty.ExtendTo(TextElement);
             return TextElement;
         })(Fayde.DependencyObject);
@@ -16801,33 +16765,22 @@ var Fayde;
             TextElement.FontStyleProperty,
             TextElement.FontWeightProperty,
             TextElement.ForegroundProperty,
-            TextElement.TextDecorationsProperty,
             TextElement.LanguageProperty
         ];
 
         var reactions;
         (function (reactions) {
-            Documents.TextReaction(TextElement.ForegroundProperty, function (upd, ov, nv) {
-                return upd.invalidate();
+            function invalidateFont(upd, ov, nv, te) {
+                upd.invalidateFont();
+            }
+
+            Documents.TextReaction(TextElement.ForegroundProperty, function (up, ov, nv, te) {
             });
-            Documents.TextReaction(TextElement.FontFamilyProperty, function (upd, ov, nv) {
-                return upd.invalidateFont();
-            }, false);
-            Documents.TextReaction(TextElement.FontSizeProperty, function (upd, ov, nv) {
-                return upd.invalidateFont();
-            }, false);
-            Documents.TextReaction(TextElement.FontStretchProperty, function (upd, ov, nv) {
-                return upd.invalidateFont();
-            }, false);
-            Documents.TextReaction(TextElement.FontStyleProperty, function (upd, ov, nv) {
-                return upd.invalidateFont();
-            }, false);
-            Documents.TextReaction(TextElement.FontWeightProperty, function (upd, ov, nv) {
-                return upd.invalidateFont();
-            }, false);
-            Documents.TextReaction(TextElement.TextDecorationsProperty, function (upd, ov, nv) {
-                return upd.invalidateFont();
-            }, false);
+            Documents.TextReaction(TextElement.FontFamilyProperty, invalidateFont, false);
+            Documents.TextReaction(TextElement.FontSizeProperty, invalidateFont, false);
+            Documents.TextReaction(TextElement.FontStretchProperty, invalidateFont, false);
+            Documents.TextReaction(TextElement.FontStyleProperty, invalidateFont, false);
+            Documents.TextReaction(TextElement.FontWeightProperty, invalidateFont, false);
         })(reactions || (reactions = {}));
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
@@ -16886,32 +16839,53 @@ var Fayde;
             __extends(Inline, _super);
             function Inline() {
                 _super.apply(this, arguments);
-                this.Autogen = false;
             }
+            Inline.prototype.Equals = function (inline) {
+                if (this.TextDecorations !== inline.TextDecorations)
+                    return false;
+                return _super.prototype.Equals.call(this, inline);
+            };
+
+            Inline.prototype.IsInheritable = function (propd) {
+                if (propd === Inline.TextDecorationsProperty)
+                    return true;
+                return _super.prototype.IsInheritable.call(this, propd);
+            };
+            Inline.TextDecorationsProperty = Fayde.InheritableOwner.TextDecorationsProperty.ExtendTo(Inline);
             return Inline;
         })(Documents.TextElement);
         Documents.Inline = Inline;
         Fayde.RegisterType(Inline, "Fayde.Documents", Fayde.XMLNS);
 
+        var reactions;
+        (function (reactions) {
+            Documents.TextReaction(Inline.TextDecorationsProperty, function (upd, ov, nv, te) {
+                upd.invalidateFont();
+            }, false);
+        })(reactions || (reactions = {}));
+    })(Fayde.Documents || (Fayde.Documents = {}));
+    var Documents = Fayde.Documents;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Documents) {
         var InlineCollection = (function (_super) {
             __extends(InlineCollection, _super);
             function InlineCollection() {
                 _super.apply(this, arguments);
             }
-            InlineCollection.prototype.AddingToCollection = function (value, error) {
-                if (!_super.prototype.AddingToCollection.call(this, value, error))
-                    return false;
+            InlineCollection.prototype._RaiseItemAdded = function (value, index) {
                 Fayde.Incite(this, {
                     item: value,
+                    index: index,
                     add: true
                 });
-                return true;
             };
 
-            InlineCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
-                _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
+            InlineCollection.prototype._RaiseItemRemoved = function (value, index) {
                 Fayde.Incite(this, {
                     item: value,
+                    index: index,
                     add: false
                 });
             };
@@ -17084,7 +17058,7 @@ var Fayde;
 
         function reaction(callback) {
             return function (te, args) {
-                callback && callback(te.XamlNode.TextUpdater, args.OldValue, args.NewValue, te);
+                callback && callback(te.TextUpdater, args.OldValue, args.NewValue, te);
             };
         }
 
@@ -17092,7 +17066,7 @@ var Fayde;
             return function (te, args) {
                 var ov = args.OldValue;
                 var nv = args.NewValue;
-                var upd = te.XamlNode.TextUpdater;
+                var upd = te.TextUpdater;
                 if (!syncer)
                     upd.assets[name] = nv;
                 else
@@ -17105,7 +17079,7 @@ var Fayde;
             return function (te, args) {
                 var ov = args.OldValue;
                 var nv = args.NewValue;
-                var upd = te.XamlNode.TextUpdater;
+                var upd = te.TextUpdater;
                 Fayde.UnreactTo(ov, te);
                 callback && callback(upd, ov, nv, te);
                 Fayde.ReactTo(nv, te, function () {
@@ -17118,7 +17092,7 @@ var Fayde;
             return function (te, args) {
                 var ov = args.OldValue;
                 var nv = args.NewValue;
-                var upd = te.XamlNode.TextUpdater;
+                var upd = te.TextUpdater;
                 Fayde.UnreactTo(ov, te);
                 if (!syncer)
                     upd.assets[name] = nv;

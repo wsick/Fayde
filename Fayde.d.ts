@@ -2403,18 +2403,14 @@ declare module Fayde.Controls {
     class TextBlockNode extends FENode {
         public XObject: TextBlock;
         public LayoutUpdater: minerva.controls.textblock.TextBlockUpdater;
-        private _ActualWidth;
-        private _ActualHeight;
-        private _WasSet;
-        private _Dirty;
-        private _Font;
-        private _SetsValue;
+        private _IsDocAuto;
+        private _SettingText;
+        private _SettingInlines;
+        private _AutoRun;
         constructor(xobj: TextBlock);
         public GetInheritedEnumerator(): IEnumerator<DONode>;
-        public _TextChanged(args: IDependencyPropertyChangedEventArgs): void;
-        private _GetTextInternal(inlines);
-        private _SetTextInternal(text);
-        public InlinesChanged(newInline: Documents.Inline, isAdd: boolean): void;
+        public TextChanged(args: IDependencyPropertyChangedEventArgs): void;
+        public InlinesChanged(inline: Documents.Inline, index: number, isAdd: boolean): void;
     }
     class TextBlock extends FrameworkElement {
         public XamlNode: TextBlockNode;
@@ -3217,13 +3213,13 @@ declare module Fayde.Data {
 declare module Fayde.Documents {
     class TextElementNode extends DONode {
         public XObject: TextElement;
-        public TextUpdater: minerva.text.element.TextElementUpdater;
         constructor(xobj: TextElement, inheritedWalkProperty: string);
         public InheritedWalkProperty: string;
         public GetInheritedEnumerator(): IEnumerator<DONode>;
     }
     class TextElement extends DependencyObject implements Providers.IIsPropertyInheritable {
         public XamlNode: TextElementNode;
+        public TextUpdater: minerva.text.TextUpdater;
         public CreateNode(): TextElementNode;
         static FontFamilyProperty: DependencyProperty;
         static FontSizeProperty: DependencyProperty;
@@ -3231,7 +3227,6 @@ declare module Fayde.Documents {
         static FontStyleProperty: DependencyProperty;
         static FontWeightProperty: DependencyProperty;
         static ForegroundProperty: DependencyProperty;
-        static TextDecorationsProperty: DependencyProperty;
         static LanguageProperty: DependencyProperty;
         public Foreground: Media.Brush;
         public FontFamily: string;
@@ -3240,7 +3235,6 @@ declare module Fayde.Documents {
         public FontWeight: FontWeight;
         public FontSize: number;
         public Language: string;
-        public TextDecorations: TextDecorations;
         public IsInheritable(propd: DependencyProperty): boolean;
         public _SerializeText(): string;
         public Start: number;
@@ -3263,11 +3257,16 @@ declare module Fayde.Documents {
 }
 declare module Fayde.Documents {
     class Inline extends TextElement {
-        public Autogen: boolean;
+        static TextDecorationsProperty: DependencyProperty;
+        public TextDecorations: TextDecorations;
+        public Equals(inline: Inline): boolean;
+        public IsInheritable(propd: DependencyProperty): boolean;
     }
+}
+declare module Fayde.Documents {
     class InlineCollection extends XamlObjectCollection<Inline> {
-        public AddingToCollection(value: Inline, error: BError): boolean;
-        public RemovedFromCollection(value: Inline, isValueSafe: boolean): void;
+        public _RaiseItemAdded(value: Inline, index: number): void;
+        public _RaiseItemRemoved(value: Inline, index: number): void;
     }
 }
 declare module Fayde.Documents {
@@ -3313,7 +3312,7 @@ declare module Fayde.Documents {
 }
 declare module Fayde.Documents {
     interface ITextReactionCallback<T> {
-        (updater: minerva.text.element.TextElementUpdater, ov: T, nv: T, te?: TextElement): void;
+        (updater: minerva.text.TextUpdater, ov: T, nv: T, te?: TextElement): void;
     }
     function TextReaction<TValue>(propd: DependencyProperty, callback?: ITextReactionCallback<TValue>, listen?: boolean, sync?: any): void;
 }

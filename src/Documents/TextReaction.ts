@@ -1,6 +1,6 @@
 module Fayde.Documents {
     export interface ITextReactionCallback<T> {
-        (updater: minerva.text.element.TextElementUpdater, ov: T, nv: T, te?: TextElement): void;
+        (updater: minerva.text.TextUpdater, ov: T, nv: T, te?: TextElement): void;
     }
 
     export function TextReaction<TValue>(propd: DependencyProperty, callback?: ITextReactionCallback<TValue>, listen?: boolean, sync?: any) {
@@ -20,7 +20,7 @@ module Fayde.Documents {
 
     function reaction<T>(callback: ITextReactionCallback<T>) {
         return (te: TextElement, args: DependencyPropertyChangedEventArgs) => {
-            callback && callback(te.XamlNode.TextUpdater, args.OldValue, args.NewValue, te);
+            callback && callback(te.TextUpdater, args.OldValue, args.NewValue, te);
         };
     }
 
@@ -28,7 +28,7 @@ module Fayde.Documents {
         return (te: TextElement, args: DependencyPropertyChangedEventArgs) => {
             var ov = args.OldValue;
             var nv = args.NewValue;
-            var upd = te.XamlNode.TextUpdater;
+            var upd = te.TextUpdater;
             if (!syncer)
                 upd.assets[name] = nv;
             else
@@ -41,7 +41,7 @@ module Fayde.Documents {
         return (te: TextElement, args: DependencyPropertyChangedEventArgs) => {
             var ov = args.OldValue;
             var nv = args.NewValue;
-            var upd = te.XamlNode.TextUpdater;
+            var upd = te.TextUpdater;
             UnreactTo(ov, te);
             callback && callback(upd, ov, nv, te);
             ReactTo(nv, te, () => callback(upd, nv, nv, te));
@@ -52,7 +52,7 @@ module Fayde.Documents {
         return (te: TextElement, args: DependencyPropertyChangedEventArgs) => {
             var ov = args.OldValue;
             var nv = args.NewValue;
-            var upd = te.XamlNode.TextUpdater;
+            var upd = te.TextUpdater;
             UnreactTo(ov, te);
             if (!syncer)
                 upd.assets[name] = nv;
