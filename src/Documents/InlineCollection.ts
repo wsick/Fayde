@@ -1,19 +1,17 @@
 module Fayde.Documents {
     export class InlineCollection extends XamlObjectCollection<Inline> {
-        AddingToCollection (value: Inline, error: BError): boolean {
-            if (!super.AddingToCollection(value, error))
-                return false;
+        _RaiseItemAdded (value: Inline, index: number) {
             Incite(this, {
                 item: value,
+                index: index,
                 add: true
             });
-            return true;
         }
 
-        RemovedFromCollection (value: Inline, isValueSafe: boolean) {
-            super.RemovedFromCollection(value, isValueSafe);
+        _RaiseItemRemoved (value: Inline, index: number) {
             Incite(this, {
                 item: value,
+                index: index,
                 add: false
             });
         }

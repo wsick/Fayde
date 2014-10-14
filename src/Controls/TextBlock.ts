@@ -6,13 +6,11 @@ module Fayde.Controls {
     export class TextBlockNode extends FENode {
         XObject: TextBlock;
         LayoutUpdater: TextBlockUpdater;
-        private _ActualWidth: number = 0.0;
-        private _ActualHeight: number = 0.0;
-        //_Layout: Text.TextLayout = new Text.TextLayout();
-        private _WasSet: boolean = true;
-        private _Dirty: boolean = true;
-        private _Font: Font = new Font();
-        private _SetsValue: boolean = true;
+
+        private _IsDocAuto = false;
+        private _SettingText = false;
+        private _SettingInlines = false;
+        private _AutoRun = new Documents.Run();
 
         constructor (xobj: TextBlock) {
             super(xobj);
@@ -26,40 +24,40 @@ module Fayde.Controls {
         }
 
         /*
-        Measure (constraint: minerva.Size): minerva.Size {
-            this.Layout(constraint);
-            return new minerva.Size(this._ActualWidth, this._ActualHeight);
-        }
+         Measure (constraint: minerva.Size): minerva.Size {
+         this.Layout(constraint);
+         return new minerva.Size(this._ActualWidth, this._ActualHeight);
+         }
 
-        Arrange (constraint: minerva.Size, padding: Thickness) {
-            this.Layout(constraint);
-            var arranged = new minerva.Size(this._ActualWidth, this._ActualHeight);
-            arranged.width = Math.max(arranged.width, constraint.width);
-            arranged.height = Math.max(arranged.height, constraint.height);
-            this._Layout.AvailableWidth = constraint.width;
-            if (padding)
-                minerva.Thickness.growSize(padding, arranged);
-        }
+         Arrange (constraint: minerva.Size, padding: Thickness) {
+         this.Layout(constraint);
+         var arranged = new minerva.Size(this._ActualWidth, this._ActualHeight);
+         arranged.width = Math.max(arranged.width, constraint.width);
+         arranged.height = Math.max(arranged.height, constraint.height);
+         this._Layout.AvailableWidth = constraint.width;
+         if (padding)
+         minerva.Thickness.growSize(padding, arranged);
+         }
 
-        Layout (constraint: minerva.Size) {
-            if (this._WasSet) {
-                if (false) {
-                    this._ActualHeight = this._Font.GetActualHeight();
-                    this._ActualWidth = 0.0;
-                } else {
-                    this._Layout.MaxWidth = constraint.width;
-                    this._Layout.Layout();
-                    var actuals = this._Layout.ActualExtents;
-                    this._ActualWidth = actuals.width;
-                    this._ActualHeight = actuals.height;
-                }
-            } else {
-                this._ActualHeight = 0.0;
-                this._ActualWidth = 0.0;
-            }
-            this._Dirty = false;
-        }
-        */
+         Layout (constraint: minerva.Size) {
+         if (this._WasSet) {
+         if (false) {
+         this._ActualHeight = this._Font.GetActualHeight();
+         this._ActualWidth = 0.0;
+         } else {
+         this._Layout.MaxWidth = constraint.width;
+         this._Layout.Layout();
+         var actuals = this._Layout.ActualExtents;
+         this._ActualWidth = actuals.width;
+         this._ActualHeight = actuals.height;
+         }
+         } else {
+         this._ActualHeight = 0.0;
+         this._ActualWidth = 0.0;
+         }
+         this._Dirty = false;
+         }
+         */
 
         /*
          ComputeActualSize(lu: LayoutUpdater, padding: Thickness): minerva.Size {
@@ -93,116 +91,88 @@ module Fayde.Controls {
          }
          */
 
-        _TextChanged (args: IDependencyPropertyChangedEventArgs) {
-            if (this._SetsValue) {
-                this._SetTextInternal(args.NewValue);
-                this.LayoutUpdater.invalidateTextMetrics();
+        TextChanged (args: IDependencyPropertyChangedEventArgs) {
+            if (this._SettingInlines)
+                return;
+
+            this._AutoRun.Text = args.NewValue;
+            if (!this._IsDocAuto) {
+                this._IsDocAuto = true;
+                this.LayoutUpdater.doctree.clear();
+                this._SettingText = true;
+                var inlines = this.XObject.Inlines;
+                inlines.Clear();
+                inlines.Add(this._AutoRun);
+                this._SettingText = false;
             }
         }
 
         /*
-        private _UpdateLayoutAttributes () {
-            var xobj = this.XObject;
-            var inlines = xobj.Inlines;
+         private _UpdateLayoutAttributes () {
+         var xobj = this.XObject;
+         var inlines = xobj.Inlines;
 
-            var lu = this.LayoutUpdater;
-            lu.invalidateFont();
+         var lu = this.LayoutUpdater;
+         lu.invalidateFont();
 
-            var length = 0;
-            var runs: Text.ITextAttributes[] = [];
-            var count = inlines.Count;
-            var enumerator = inlines.getEnumerator();
-            while (enumerator.moveNext()) {
-                length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.current, length, runs);
-            }
-            if (count > 0)
-                this._WasSet = true;
-            this._Layout.Text = xobj.Text;
-            this._Layout.TextAttributes = runs;
-        }
+         var length = 0;
+         var runs: Text.ITextAttributes[] = [];
+         var count = inlines.Count;
+         var enumerator = inlines.getEnumerator();
+         while (enumerator.moveNext()) {
+         length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.current, length, runs);
+         }
+         if (count > 0)
+         this._WasSet = true;
+         this._Layout.Text = xobj.Text;
+         this._Layout.TextAttributes = runs;
+         }
 
-        private _UpdateLayoutAttributesForInline (item: Documents.Inline, length: number, runs: Text.ITextAttributes[]): number {
-            if (item instanceof Documents.Run) {
-                var text = (<Documents.Run>item).Text;
-                if (text && text.length) {
-                    runs.push(new Text.TextLayoutAttributes(item, length));
-                    length += text.length;
-                }
-            } else if (item instanceof Documents.LineBreak) {
-                runs.push(new Text.TextLayoutAttributes(item, length));
-                length += 1; //line break length
-            } else if (item instanceof Documents.Span) {
-                var inlines = (<Documents.Span>item).Inlines;
-                var enumerator = inlines.getEnumerator();
-                while (enumerator.moveNext()) {
-                    length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.current, length, runs);
-                }
-            }
-            return length;
-        }
-        */
+         private _UpdateLayoutAttributesForInline (item: Documents.Inline, length: number, runs: Text.ITextAttributes[]): number {
+         if (item instanceof Documents.Run) {
+         var text = (<Documents.Run>item).Text;
+         if (text && text.length) {
+         runs.push(new Text.TextLayoutAttributes(item, length));
+         length += text.length;
+         }
+         } else if (item instanceof Documents.LineBreak) {
+         runs.push(new Text.TextLayoutAttributes(item, length));
+         length += 1; //line break length
+         } else if (item instanceof Documents.Span) {
+         var inlines = (<Documents.Span>item).Inlines;
+         var enumerator = inlines.getEnumerator();
+         while (enumerator.moveNext()) {
+         length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.current, length, runs);
+         }
+         }
+         return length;
+         }
+         */
 
-        private _GetTextInternal (inlines: Documents.InlineCollection) {
-            if (!inlines)
-                return "";
-            var block = "";
-            var enumerator = inlines.getEnumerator();
-            while (enumerator.moveNext()) {
-                block += (<Documents.Inline>enumerator.current)._SerializeText();
-            }
-            return block;
-        }
-
-        private _SetTextInternal (text: string) {
-            this._SetsValue = false;
-
-            var value: Documents.Inline = null;
-            var xobj = this.XObject;
-            var inlines = xobj.Inlines;
-            if (text) {
-                var count = inlines.Count;
-                var run: Documents.Run = null;
-                if (count > 0 && (value = <Documents.Inline>inlines.GetValueAt(0)) && value instanceof Documents.Run) {
-                    run = <Documents.Run>value;
-                    if (run.Autogen) {
-                        while (count > 1) {
-                            inlines.RemoveAt(count - 1);
-                            count--;
-                        }
-                    } else {
-                        run = null;
-                    }
-                }
-                if (!run) {
-                    inlines.Clear();
-                    run = new Documents.Run();
-                    run.Autogen = true;
-                    inlines.Add(run);
-                }
-                run.Text = text;
-                Providers.InheritedStore.PropagateInheritedOnAdd(xobj, run.XamlNode);
-            } else {
-                inlines.Clear();
-                xobj.Text = "";
-            }
-
-            this._SetsValue = true;
-        }
-
-        InlinesChanged (newInline: Documents.Inline, isAdd: boolean) {
-            if (!this._SetsValue)
-                return;
-
+        InlinesChanged (inline: Documents.Inline, index: number, isAdd: boolean) {
             var xobj = this.XObject;
             if (isAdd)
-                Providers.InheritedStore.PropagateInheritedOnAdd(xobj, newInline.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(xobj, inline.XamlNode);
 
+            var updater = this.LayoutUpdater;
+            if (isAdd)
+                updater.doctree.onChildAttached(inline.TextUpdater, index);
+            else
+                updater.doctree.onChildDetached(inline.TextUpdater);
+
+            if (this._SettingText)
+                return;
+
+            this._SettingInlines = true;
             var inlines = xobj.Inlines;
-            this._SetsValue = false;
-            xobj.SetCurrentValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
-            this._SetsValue = true;
+            var text = "";
+            for (var en = inlines.getEnumerator(); en.moveNext();) {
+                text += en.current._SerializeText();
+            }
+            xobj.SetCurrentValue(TextBlock.TextProperty, text);
+            this._SettingInlines = false;
 
-            this.LayoutUpdater.invalidateTextMetrics();
+            updater.invalidateTextMetrics();
         }
     }
     Fayde.RegisterType(TextBlockNode, "Fayde.Controls");
@@ -226,7 +196,7 @@ module Fayde.Controls {
         static FontWeightProperty = InheritableOwner.FontWeightProperty.ExtendTo(TextBlock);
         static ForegroundProperty = InheritableOwner.ForegroundProperty.ExtendTo(TextBlock);
         static TextDecorationsProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(TextBlock);
-        static TextProperty = DependencyProperty.Register("Text", () => String, TextBlock, "", (d, args) => (<TextBlock>d).XamlNode._TextChanged(args));
+        static TextProperty = DependencyProperty.Register("Text", () => String, TextBlock, "", (d, args) => (<TextBlock>d).XamlNode.TextChanged(args));
         static InlinesProperty = DependencyProperty.RegisterImmutable<Documents.InlineCollection>("Inlines", () => Documents.InlineCollection, TextBlock);
         static LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", () => new Enum(LineStackingStrategy), TextBlock, LineStackingStrategy.MaxHeight);
         static LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", () => Number, TextBlock, NaN);
@@ -254,9 +224,7 @@ module Fayde.Controls {
 
             var inlines = TextBlock.InlinesProperty.Initialize(this);
             inlines.AttachTo(this);
-            ReactTo(inlines, this, (change?) => this.XamlNode.InlinesChanged(change.item, change.add));
-
-            TextBlock.ForegroundProperty.Store.ListenToChanged(this, TextBlock.ForegroundProperty, (tb: TextBlock, args) => tb.XamlNode.LayoutUpdater.invalidate(), this);
+            ReactTo(inlines, this, (change?) => this.XamlNode.InlinesChanged(change.item, change.index, change.add));
         }
 
         /*
@@ -297,6 +265,7 @@ module Fayde.Controls {
     ];
 
     module reactions {
+        UIReaction<Media.Brush>(TextBlock.ForegroundProperty, (upd, ov, nv) => upd.invalidate());
         UIReaction<Thickness>(TextBlock.PaddingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
         UIReaction<minerva.LineStackingStrategy>(TextBlock.LineStackingStrategyProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
         UIReaction<number>(TextBlock.LineHeightProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
