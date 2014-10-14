@@ -2,11 +2,8 @@
 /// <reference path="../Core/InheritableOwner.ts"/>
 
 module Fayde.Documents {
-    import TextElementUpdater = minerva.text.element.TextElementUpdater;
-
     export class TextElementNode extends DONode {
         XObject: TextElement;
-        TextUpdater = new TextElementUpdater();
 
         constructor (xobj: TextElement, inheritedWalkProperty: string) {
             super(xobj);
@@ -85,6 +82,7 @@ module Fayde.Documents {
         TextElement.LanguageProperty
     ];
 
+    /*
     module reactions {
         TextReaction<Media.Brush>(TextElement.ForegroundProperty, (upd, ov, nv) => upd.invalidate());
         TextReaction<string>(TextElement.FontFamilyProperty, (upd, ov, nv) => upd.invalidateFont(), false);
@@ -93,4 +91,5 @@ module Fayde.Documents {
         TextReaction<string>(TextElement.FontStyleProperty, (upd, ov, nv) => upd.invalidateFont(), false);
         TextReaction<FontWeight>(TextElement.FontWeightProperty, (upd, ov, nv) => upd.invalidateFont(), false);
     }
+    */
 }
