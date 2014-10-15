@@ -16711,6 +16711,76 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Documents) {
+        function TextReaction(propd, callback, listen, sync) {
+            var changed;
+            if (sync === false) {
+                changed = (listen === false) ? reaction(callback) : lReaction(callback);
+            } else {
+                var name = propd.Name;
+                name = name.charAt(0).toLowerCase() + name.substr(1);
+                if (typeof sync !== "function")
+                    changed = (listen === false) ? sReaction(callback, name) : slReaction(callback, name);
+                else
+                    changed = (listen === false) ? sReaction(callback, name, sync) : slReaction(callback, name, sync);
+            }
+            propd.ChangedCallback = changed;
+        }
+        Documents.TextReaction = TextReaction;
+
+        function reaction(callback) {
+            return function (te, args) {
+                callback && callback(te.TextUpdater, args.OldValue, args.NewValue, te);
+            };
+        }
+
+        function sReaction(callback, name, syncer) {
+            return function (te, args) {
+                var ov = args.OldValue;
+                var nv = args.NewValue;
+                var upd = te.TextUpdater;
+                if (!syncer)
+                    upd.assets[name] = nv;
+                else
+                    syncer(nv, upd.assets[name]);
+                callback && callback(upd, ov, nv, te);
+            };
+        }
+
+        function lReaction(callback) {
+            return function (te, args) {
+                var ov = args.OldValue;
+                var nv = args.NewValue;
+                var upd = te.TextUpdater;
+                Fayde.UnreactTo(ov, te);
+                callback && callback(upd, ov, nv, te);
+                Fayde.ReactTo(nv, te, function () {
+                    return callback(upd, nv, nv, te);
+                });
+            };
+        }
+
+        function slReaction(callback, name, syncer) {
+            return function (te, args) {
+                var ov = args.OldValue;
+                var nv = args.NewValue;
+                var upd = te.TextUpdater;
+                Fayde.UnreactTo(ov, te);
+                if (!syncer)
+                    upd.assets[name] = nv;
+                else
+                    syncer(nv, upd.assets[name]);
+                callback && callback(upd, ov, nv, te);
+                Fayde.ReactTo(nv, te, function () {
+                    return callback && callback(upd, nv, nv, te);
+                });
+            };
+        }
+    })(Fayde.Documents || (Fayde.Documents = {}));
+    var Documents = Fayde.Documents;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Documents) {
         var TextElementNode = (function (_super) {
             __extends(TextElementNode, _super);
             function TextElementNode(xobj, inheritedWalkProperty) {
@@ -17117,76 +17187,6 @@ var Fayde;
         Documents.Span = Span;
         Fayde.RegisterType(Span, "Fayde.Documents", Fayde.XMLNS);
         Fayde.Xaml.Content(Span, Span.InlinesProperty);
-    })(Fayde.Documents || (Fayde.Documents = {}));
-    var Documents = Fayde.Documents;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Documents) {
-        function TextReaction(propd, callback, listen, sync) {
-            var changed;
-            if (sync === false) {
-                changed = (listen === false) ? reaction(callback) : lReaction(callback);
-            } else {
-                var name = propd.Name;
-                name = name.charAt(0).toLowerCase() + name.substr(1);
-                if (typeof sync !== "function")
-                    changed = (listen === false) ? sReaction(callback, name) : slReaction(callback, name);
-                else
-                    changed = (listen === false) ? sReaction(callback, name, sync) : slReaction(callback, name, sync);
-            }
-            propd.ChangedCallback = changed;
-        }
-        Documents.TextReaction = TextReaction;
-
-        function reaction(callback) {
-            return function (te, args) {
-                callback && callback(te.TextUpdater, args.OldValue, args.NewValue, te);
-            };
-        }
-
-        function sReaction(callback, name, syncer) {
-            return function (te, args) {
-                var ov = args.OldValue;
-                var nv = args.NewValue;
-                var upd = te.TextUpdater;
-                if (!syncer)
-                    upd.assets[name] = nv;
-                else
-                    syncer(nv, upd.assets[name]);
-                callback && callback(upd, ov, nv, te);
-            };
-        }
-
-        function lReaction(callback) {
-            return function (te, args) {
-                var ov = args.OldValue;
-                var nv = args.NewValue;
-                var upd = te.TextUpdater;
-                Fayde.UnreactTo(ov, te);
-                callback && callback(upd, ov, nv, te);
-                Fayde.ReactTo(nv, te, function () {
-                    return callback(upd, nv, nv, te);
-                });
-            };
-        }
-
-        function slReaction(callback, name, syncer) {
-            return function (te, args) {
-                var ov = args.OldValue;
-                var nv = args.NewValue;
-                var upd = te.TextUpdater;
-                Fayde.UnreactTo(ov, te);
-                if (!syncer)
-                    upd.assets[name] = nv;
-                else
-                    syncer(nv, upd.assets[name]);
-                callback && callback(upd, ov, nv, te);
-                Fayde.ReactTo(nv, te, function () {
-                    return callback && callback(upd, nv, nv, te);
-                });
-            };
-        }
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));

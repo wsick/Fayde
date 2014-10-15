@@ -3212,6 +3212,12 @@ declare module Fayde.Data {
     }
 }
 declare module Fayde.Documents {
+    interface ITextReactionCallback<T> {
+        (updater: minerva.text.TextUpdater, ov: T, nv: T, te?: TextElement): void;
+    }
+    function TextReaction<TValue>(propd: DependencyProperty, callback?: ITextReactionCallback<TValue>, listen?: boolean, sync?: any): void;
+}
+declare module Fayde.Documents {
     class TextElementNode extends DONode {
         public XObject: TextElement;
         constructor(xobj: TextElement, inheritedWalkProperty: string);
@@ -3307,12 +3313,6 @@ declare module Fayde.Documents {
         public _SerializeText(): string;
         public InlinesChanged(inline: Inline, isAdd: boolean): void;
     }
-}
-declare module Fayde.Documents {
-    interface ITextReactionCallback<T> {
-        (updater: minerva.text.TextUpdater, ov: T, nv: T, te?: TextElement): void;
-    }
-    function TextReaction<TValue>(propd: DependencyProperty, callback?: ITextReactionCallback<TValue>, listen?: boolean, sync?: any): void;
 }
 declare module Fayde.Documents {
     class Underline extends Span {

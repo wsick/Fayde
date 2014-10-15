@@ -1,5 +1,6 @@
 /// <reference path="../Core/DependencyObject.ts"/>
 /// <reference path="../Core/InheritableOwner.ts"/>
+/// <reference path="TextReaction.ts"/>
 
 module Fayde.Documents {
     export class TextElementNode extends DONode {
