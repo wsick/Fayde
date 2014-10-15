@@ -1097,9 +1097,6 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    interface IColumnDefinitionListener {
-        ColumnDefinitionChanged(colDefinition: ColumnDefinition): any;
-    }
     class ColumnDefinition extends DependencyObject {
         static WidthProperty: DependencyProperty;
         static MaxWidthProperty: DependencyProperty;
@@ -1109,21 +1106,10 @@ declare module Fayde.Controls {
         public MaxWidth: number;
         public MinWidth: number;
         public ActualWidth: number;
-        private _Listener;
-        public Listen(listener: IColumnDefinitionListener): void;
-        public Unlisten(listener: IColumnDefinitionListener): void;
-        private _WidthsChanged(args);
     }
-    interface IColumnDefinitionsListener {
-        ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection): any;
-    }
-    class ColumnDefinitionCollection extends XamlObjectCollection<ColumnDefinition> implements IColumnDefinitionListener {
-        private _Listener;
-        public Listen(listener: IColumnDefinitionsListener): void;
-        public Unlisten(listener: IColumnDefinitionsListener): void;
-        public ColumnDefinitionChanged(colDefinition: ColumnDefinition): void;
-        public AddingToCollection(value: ColumnDefinition, error: BError): boolean;
-        public RemovedFromCollection(value: ColumnDefinition, isValueSafe: boolean): void;
+    class ColumnDefinitionCollection extends XamlObjectCollection<ColumnDefinition> {
+        public _RaiseItemAdded(value: ColumnDefinition, index: number): void;
+        public _RaiseItemRemoved(value: ColumnDefinition, index: number): void;
     }
 }
 declare module Fayde.Controls {
@@ -1660,8 +1646,15 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class Grid extends Panel implements IRowDefinitionsListener, IColumnDefinitionsListener {
-        private static _AttachedPropChanged(d, args);
+    class GridNode extends PanelNode {
+        public LayoutUpdater: minerva.controls.grid.GridUpdater;
+        public ColumnDefinitionsChanged(coldef: ColumnDefinition, index: number, add: boolean): void;
+        public RowDefinitionsChanged(rowdef: RowDefinition, index: number, add: boolean): void;
+    }
+    class Grid extends Panel {
+        public XamlNode: GridNode;
+        public CreateNode(): GridNode;
+        public CreateLayoutUpdater(): minerva.controls.grid.GridUpdater;
         static ColumnProperty: DependencyProperty;
         static GetColumn(d: DependencyObject): number;
         static SetColumn(d: DependencyObject, value: number): void;
@@ -1681,9 +1674,6 @@ declare module Fayde.Controls {
         public ColumnDefinitions: ColumnDefinitionCollection;
         public RowDefinitions: RowDefinitionCollection;
         constructor();
-        private _ShowGridLinesChanged(args);
-        public RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection): void;
-        public ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection): void;
     }
 }
 declare module Fayde.Controls {
@@ -2326,9 +2316,6 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    interface IRowDefinitionListener {
-        RowDefinitionChanged(rowDefinition: RowDefinition): any;
-    }
     class RowDefinition extends DependencyObject {
         static HeightProperty: DependencyProperty;
         static MaxHeightProperty: DependencyProperty;
@@ -2338,21 +2325,10 @@ declare module Fayde.Controls {
         public MaxHeight: number;
         public MinHeight: number;
         public ActualHeight: number;
-        private _Listener;
-        public Listen(listener: IRowDefinitionListener): void;
-        public Unlisten(listener: IRowDefinitionListener): void;
-        private _HeightsChanged(args);
     }
-    interface IRowDefinitionsListener {
-        RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection): any;
-    }
-    class RowDefinitionCollection extends XamlObjectCollection<RowDefinition> implements IRowDefinitionListener {
-        private _Listener;
-        public Listen(listener: IRowDefinitionsListener): void;
-        public Unlisten(listener: IRowDefinitionsListener): void;
-        public RowDefinitionChanged(rowDefinition: RowDefinition): void;
-        public AddingToCollection(value: RowDefinition, error: BError): boolean;
-        public RemovedFromCollection(value: RowDefinition, isValueSafe: boolean): void;
+    class RowDefinitionCollection extends XamlObjectCollection<RowDefinition> {
+        public _RaiseItemAdded(value: RowDefinition, index: number): void;
+        public _RaiseItemRemoved(value: RowDefinition, index: number): void;
     }
 }
 declare module Fayde.Controls {

@@ -2,33 +2,20 @@
 /// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Controls {
-    export interface IColumnDefinitionListener {
-        ColumnDefinitionChanged(colDefinition: ColumnDefinition);
-    }
-
     export class ColumnDefinition extends DependencyObject {
         //NOTE: Will not receive property changes from GridLength
-        static WidthProperty = DependencyProperty.Register("Width", () => GridLength, ColumnDefinition, undefined, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
-        static MaxWidthProperty = DependencyProperty.Register("MaxWidth", () => Number, ColumnDefinition, Number.POSITIVE_INFINITY, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
-        static MinWidthProperty = DependencyProperty.Register("MinWidth", () => Number, ColumnDefinition, 0.0, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
+        static WidthProperty = DependencyProperty.Register("Width", () => GridLength, ColumnDefinition, undefined, Incite);
+        static MaxWidthProperty = DependencyProperty.Register("MaxWidth", () => Number, ColumnDefinition, Number.POSITIVE_INFINITY, Incite);
+        static MinWidthProperty = DependencyProperty.Register("MinWidth", () => Number, ColumnDefinition, 0.0, Incite);
         static ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, ColumnDefinition, 0.0);
         Width: GridLength;
         MaxWidth: number;
         MinWidth: number;
         ActualWidth: number;
-
-        private _Listener: IColumnDefinitionListener;
-        Listen(listener: IColumnDefinitionListener) { this._Listener = listener; }
-        Unlisten(listener: IColumnDefinitionListener) { if (this._Listener === listener) this._Listener = null; }
-
-        private _WidthsChanged(args: IDependencyPropertyChangedEventArgs) {
-            var listener = this._Listener;
-            if (listener) listener.ColumnDefinitionChanged(this);
-        }
     }
     Fayde.RegisterType(ColumnDefinition, "Fayde.Controls", Fayde.XMLNS);
 
-    function ConvertColumnDefinition(o: any): ColumnDefinition {
+    function ConvertColumnDefinition (o: any): ColumnDefinition {
         if (!o || o instanceof ColumnDefinition)
             return <ColumnDefinition>o;
         var s: string = o.toString();
@@ -47,39 +34,29 @@ module Fayde.Controls {
         cd.Width = new GridLength(v, s[s.length - 1] === "*" ? GridUnitType.Star : GridUnitType.Pixel);
         return cd;
     }
+
     Fayde.RegisterTypeConverter(ColumnDefinition, ConvertColumnDefinition);
-    
-    export interface IColumnDefinitionsListener {
-        ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection);
-    }
 
-    export class ColumnDefinitionCollection extends XamlObjectCollection<ColumnDefinition> implements IColumnDefinitionListener {
-        private _Listener: IColumnDefinitionsListener;
-        Listen(listener: IColumnDefinitionsListener) { this._Listener = listener; }
-        Unlisten(listener: IColumnDefinitionsListener) { if (this._Listener === listener) this._Listener = null; }
-        ColumnDefinitionChanged(colDefinition: ColumnDefinition) {
-            var listener = this._Listener;
-            if (listener) listener.ColumnDefinitionsChanged(this);
+    export class ColumnDefinitionCollection extends XamlObjectCollection<ColumnDefinition> {
+        _RaiseItemAdded (value: ColumnDefinition, index: number) {
+            Incite(this, {
+                item: value,
+                index: index,
+                add: true
+            });
         }
 
-        AddingToCollection(value: ColumnDefinition, error: BError): boolean {
-            if (!super.AddingToCollection(value, error))
-                return false;
-            value.Listen(this);
-            var listener = this._Listener;
-            if (listener) listener.ColumnDefinitionsChanged(this);
-            return true;
-        }
-        RemovedFromCollection(value: ColumnDefinition, isValueSafe: boolean) {
-            super.RemovedFromCollection(value, isValueSafe);
-            value.Unlisten(this);
-            var listener = this._Listener;
-            if (listener) listener.ColumnDefinitionsChanged(this);
+        _RaiseItemRemoved (value: ColumnDefinition, index: number) {
+            Incite(this, {
+                item: value,
+                index: index,
+                add: false
+            });
         }
     }
     Fayde.RegisterType(ColumnDefinitionCollection, "Fayde.Controls", Fayde.XMLNS);
 
-    function ConvertColumnDefinitionCollection(o: any): ColumnDefinitionCollection {
+    function ConvertColumnDefinitionCollection (o: any): ColumnDefinitionCollection {
         if (!o || o instanceof ColumnDefinitionCollection)
             return <ColumnDefinitionCollection>o;
         if (typeof o === "string") {
@@ -95,5 +72,6 @@ module Fayde.Controls {
         }
         return undefined;
     }
+
     Fayde.RegisterTypeConverter(ColumnDefinitionCollection, ConvertColumnDefinitionCollection);
 }

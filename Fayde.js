@@ -4414,34 +4414,15 @@ var Fayde;
             function ColumnDefinition() {
                 _super.apply(this, arguments);
             }
-            ColumnDefinition.prototype.Listen = function (listener) {
-                this._Listener = listener;
-            };
-            ColumnDefinition.prototype.Unlisten = function (listener) {
-                if (this._Listener === listener)
-                    this._Listener = null;
-            };
-
-            ColumnDefinition.prototype._WidthsChanged = function (args) {
-                var listener = this._Listener;
-                if (listener)
-                    listener.ColumnDefinitionChanged(this);
-            };
             ColumnDefinition.WidthProperty = DependencyProperty.Register("Width", function () {
                 return Controls.GridLength;
-            }, ColumnDefinition, undefined, function (d, args) {
-                return d._WidthsChanged(args);
-            });
+            }, ColumnDefinition, undefined, Fayde.Incite);
             ColumnDefinition.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () {
                 return Number;
-            }, ColumnDefinition, Number.POSITIVE_INFINITY, function (d, args) {
-                return d._WidthsChanged(args);
-            });
+            }, ColumnDefinition, Number.POSITIVE_INFINITY, Fayde.Incite);
             ColumnDefinition.MinWidthProperty = DependencyProperty.Register("MinWidth", function () {
                 return Number;
-            }, ColumnDefinition, 0.0, function (d, args) {
-                return d._WidthsChanged(args);
-            });
+            }, ColumnDefinition, 0.0, Fayde.Incite);
             ColumnDefinition.ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", function () {
                 return Number;
             }, ColumnDefinition, 0.0);
@@ -4469,6 +4450,7 @@ var Fayde;
             cd.Width = new Controls.GridLength(v, s[s.length - 1] === "*" ? 2 /* Star */ : 1 /* Pixel */);
             return cd;
         }
+
         Fayde.RegisterTypeConverter(ColumnDefinition, ConvertColumnDefinition);
 
         var ColumnDefinitionCollection = (function (_super) {
@@ -4476,34 +4458,20 @@ var Fayde;
             function ColumnDefinitionCollection() {
                 _super.apply(this, arguments);
             }
-            ColumnDefinitionCollection.prototype.Listen = function (listener) {
-                this._Listener = listener;
-            };
-            ColumnDefinitionCollection.prototype.Unlisten = function (listener) {
-                if (this._Listener === listener)
-                    this._Listener = null;
-            };
-            ColumnDefinitionCollection.prototype.ColumnDefinitionChanged = function (colDefinition) {
-                var listener = this._Listener;
-                if (listener)
-                    listener.ColumnDefinitionsChanged(this);
+            ColumnDefinitionCollection.prototype._RaiseItemAdded = function (value, index) {
+                Fayde.Incite(this, {
+                    item: value,
+                    index: index,
+                    add: true
+                });
             };
 
-            ColumnDefinitionCollection.prototype.AddingToCollection = function (value, error) {
-                if (!_super.prototype.AddingToCollection.call(this, value, error))
-                    return false;
-                value.Listen(this);
-                var listener = this._Listener;
-                if (listener)
-                    listener.ColumnDefinitionsChanged(this);
-                return true;
-            };
-            ColumnDefinitionCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
-                _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
-                value.Unlisten(this);
-                var listener = this._Listener;
-                if (listener)
-                    listener.ColumnDefinitionsChanged(this);
+            ColumnDefinitionCollection.prototype._RaiseItemRemoved = function (value, index) {
+                Fayde.Incite(this, {
+                    item: value,
+                    index: index,
+                    add: false
+                });
             };
             return ColumnDefinitionCollection;
         })(Fayde.XamlObjectCollection);
@@ -4526,6 +4494,7 @@ var Fayde;
             }
             return undefined;
         }
+
         Fayde.RegisterTypeConverter(ColumnDefinitionCollection, ConvertColumnDefinitionCollection);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -8200,19 +8169,67 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        var GridNode = (function (_super) {
+            __extends(GridNode, _super);
+            function GridNode() {
+                _super.apply(this, arguments);
+            }
+            GridNode.prototype.ColumnDefinitionsChanged = function (coldef, index, add) {
+                var updater = this.LayoutUpdater;
+                var coldefs = updater.assets.columnDefinitions;
+
+                if (add) {
+                    coldefs.splice(index, 0, coldef);
+                    Fayde.ReactTo(coldef, this, function () {
+                        return updater.invalidateMeasure();
+                    });
+                } else {
+                    Fayde.UnreactTo(coldef, this);
+                    coldefs.splice(index, 1);
+                }
+
+                updater.invalidateMeasure();
+            };
+
+            GridNode.prototype.RowDefinitionsChanged = function (rowdef, index, add) {
+                var updater = this.LayoutUpdater;
+                var rowdefs = updater.assets.rowDefinitions;
+
+                if (add) {
+                    rowdefs.splice(index, 0, rowdef);
+                    Fayde.ReactTo(rowdef, this, function () {
+                        return updater.invalidateMeasure();
+                    });
+                } else {
+                    Fayde.UnreactTo(rowdef, this);
+                    rowdefs.splice(index, 1);
+                }
+
+                updater.invalidateMeasure();
+            };
+            return GridNode;
+        })(Controls.PanelNode);
+        Controls.GridNode = GridNode;
+
         var Grid = (function (_super) {
             __extends(Grid, _super);
             function Grid() {
+                var _this = this;
                 _super.call(this);
-                Grid.ColumnDefinitionsProperty.Initialize(this).Listen(this);
-                Grid.RowDefinitionsProperty.Initialize(this).Listen(this);
+                var coldefs = Grid.ColumnDefinitionsProperty.Initialize(this);
+                Fayde.ReactTo(coldefs, this, function (obj) {
+                    return _this.XamlNode.ColumnDefinitionsChanged(obj.item, obj.index, obj.add);
+                });
+                var rowdefs = Grid.RowDefinitionsProperty.Initialize(this);
+                Fayde.ReactTo(rowdefs, this, function (obj) {
+                    return _this.XamlNode.RowDefinitionsChanged(obj.item, obj.index, obj.add);
+                });
             }
-            Grid._AttachedPropChanged = function (d, args) {
-                var dNode = d.XamlNode;
-                var gridNode = dNode.VisualParentNode;
-                if (gridNode)
-                    gridNode.LayoutUpdater.invalidateMeasure();
-                dNode.LayoutUpdater.invalidateMeasure();
+            Grid.prototype.CreateNode = function () {
+                return new GridNode(this);
+            };
+            Grid.prototype.CreateLayoutUpdater = function () {
+                return new minerva.controls.grid.GridUpdater();
             };
 
             Grid.GetColumn = function (d) {
@@ -8242,33 +8259,21 @@ var Fayde;
             Grid.SetRowSpan = function (d, value) {
                 d.SetValue(Grid.RowSpanProperty, value);
             };
-
-            Grid.prototype._ShowGridLinesChanged = function (args) {
-                var lu = this.XamlNode.LayoutUpdater;
-                lu.invalidate();
-                lu.invalidateMeasure();
-            };
-            Grid.prototype.RowDefinitionsChanged = function (rowDefinitions) {
-                this.XamlNode.LayoutUpdater.invalidateMeasure();
-            };
-            Grid.prototype.ColumnDefinitionsChanged = function (colDefinitions) {
-                this.XamlNode.LayoutUpdater.invalidateMeasure();
-            };
             Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () {
                 return Number;
-            }, Grid, 0, Grid._AttachedPropChanged);
+            }, Grid, 0);
 
             Grid.ColumnSpanProperty = DependencyProperty.RegisterAttached("ColumnSpan", function () {
                 return Number;
-            }, Grid, 1, Grid._AttachedPropChanged);
+            }, Grid, 1);
 
             Grid.RowProperty = DependencyProperty.RegisterAttached("Row", function () {
                 return Number;
-            }, Grid, 0, Grid._AttachedPropChanged);
+            }, Grid, 0);
 
             Grid.RowSpanProperty = DependencyProperty.RegisterAttached("RowSpan", function () {
                 return Number;
-            }, Grid, 1, Grid._AttachedPropChanged);
+            }, Grid, 1);
 
             Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterImmutable("ColumnDefinitions", function () {
                 return Controls.ColumnDefinitionCollection;
@@ -8278,13 +8283,20 @@ var Fayde;
             }, Grid);
             Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () {
                 return Boolean;
-            }, Grid, false, function (d, args) {
-                return d._ShowGridLinesChanged(args);
-            });
+            }, Grid, false);
             return Grid;
         })(Controls.Panel);
         Controls.Grid = Grid;
         Fayde.RegisterType(Grid, "Fayde.Controls", Fayde.XMLNS);
+
+        var reactions;
+        (function (reactions) {
+            Fayde.UIReaction(Grid.ShowGridLinesProperty, minerva.controls.grid.reactTo.showGridLines, false);
+            Fayde.UIReactionAttached(Grid.ColumnProperty, minerva.controls.grid.reactTo.column);
+            Fayde.UIReactionAttached(Grid.ColumnSpanProperty, minerva.controls.grid.reactTo.columnSpan);
+            Fayde.UIReactionAttached(Grid.RowProperty, minerva.controls.grid.reactTo.row);
+            Fayde.UIReactionAttached(Grid.RowSpanProperty, minerva.controls.grid.reactTo.rowSpan);
+        })(reactions || (reactions = {}));
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -11433,34 +11445,15 @@ var Fayde;
             function RowDefinition() {
                 _super.apply(this, arguments);
             }
-            RowDefinition.prototype.Listen = function (listener) {
-                this._Listener = listener;
-            };
-            RowDefinition.prototype.Unlisten = function (listener) {
-                if (this._Listener === listener)
-                    this._Listener = null;
-            };
-
-            RowDefinition.prototype._HeightsChanged = function (args) {
-                var listener = this._Listener;
-                if (listener)
-                    listener.RowDefinitionChanged(this);
-            };
             RowDefinition.HeightProperty = DependencyProperty.Register("Height", function () {
                 return Controls.GridLength;
-            }, RowDefinition, undefined, function (d, args) {
-                return d._HeightsChanged(args);
-            });
+            }, RowDefinition, undefined, Fayde.Incite);
             RowDefinition.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () {
                 return Number;
-            }, RowDefinition, Number.POSITIVE_INFINITY, function (d, args) {
-                return d._HeightsChanged(args);
-            });
+            }, RowDefinition, Number.POSITIVE_INFINITY, Fayde.Incite);
             RowDefinition.MinHeightProperty = DependencyProperty.Register("MinHeight", function () {
                 return Number;
-            }, RowDefinition, 0.0, function (d, args) {
-                return d._HeightsChanged(args);
-            });
+            }, RowDefinition, 0.0, Fayde.Incite);
             RowDefinition.ActualHeightProperty = DependencyProperty.RegisterReadOnly("ActualHeight", function () {
                 return Number;
             }, RowDefinition, 0.0);
@@ -11488,6 +11481,7 @@ var Fayde;
             rd.Height = new Controls.GridLength(v, s[s.length - 1] === "*" ? 2 /* Star */ : 1 /* Pixel */);
             return rd;
         }
+
         Fayde.RegisterTypeConverter(RowDefinition, ConvertRowDefinition);
 
         var RowDefinitionCollection = (function (_super) {
@@ -11495,34 +11489,20 @@ var Fayde;
             function RowDefinitionCollection() {
                 _super.apply(this, arguments);
             }
-            RowDefinitionCollection.prototype.Listen = function (listener) {
-                this._Listener = listener;
-            };
-            RowDefinitionCollection.prototype.Unlisten = function (listener) {
-                if (this._Listener === listener)
-                    this._Listener = null;
-            };
-            RowDefinitionCollection.prototype.RowDefinitionChanged = function (rowDefinition) {
-                var listener = this._Listener;
-                if (listener)
-                    listener.RowDefinitionsChanged(this);
+            RowDefinitionCollection.prototype._RaiseItemAdded = function (value, index) {
+                Fayde.Incite(this, {
+                    item: value,
+                    index: index,
+                    add: true
+                });
             };
 
-            RowDefinitionCollection.prototype.AddingToCollection = function (value, error) {
-                if (!_super.prototype.AddingToCollection.call(this, value, error))
-                    return false;
-                value.Listen(this);
-                var listener = this._Listener;
-                if (listener)
-                    listener.RowDefinitionsChanged(this);
-                return true;
-            };
-            RowDefinitionCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
-                _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
-                value.Unlisten(this);
-                var listener = this._Listener;
-                if (listener)
-                    listener.RowDefinitionsChanged(this);
+            RowDefinitionCollection.prototype._RaiseItemRemoved = function (value, index) {
+                Fayde.Incite(this, {
+                    item: value,
+                    index: index,
+                    add: false
+                });
             };
             return RowDefinitionCollection;
         })(Fayde.XamlObjectCollection);
@@ -11545,6 +11525,7 @@ var Fayde;
             }
             return undefined;
         }
+
         Fayde.RegisterTypeConverter(RowDefinitionCollection, ConvertRowDefinitionCollection);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
