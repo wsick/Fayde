@@ -4414,6 +4414,9 @@ var Fayde;
             function ColumnDefinition() {
                 _super.apply(this, arguments);
             }
+            ColumnDefinition.prototype.setActualWidth = function (value) {
+                this.SetCurrentValue(ColumnDefinition.ActualWidthProperty, value);
+            };
             ColumnDefinition.WidthProperty = DependencyProperty.Register("Width", function () {
                 return Controls.GridLength;
             }, ColumnDefinition, undefined, Fayde.Incite);
@@ -4431,6 +4434,7 @@ var Fayde;
         Controls.ColumnDefinition = ColumnDefinition;
         Fayde.RegisterType(ColumnDefinition, "Fayde.Controls", Fayde.XMLNS);
 
+        var GridUnitType = minerva.controls.grid.GridUnitType;
         function ConvertColumnDefinition(o) {
             if (!o || o instanceof ColumnDefinition)
                 return o;
@@ -8303,18 +8307,13 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        (function (GridUnitType) {
-            GridUnitType[GridUnitType["Auto"] = 0] = "Auto";
-            GridUnitType[GridUnitType["Pixel"] = 1] = "Pixel";
-            GridUnitType[GridUnitType["Star"] = 2] = "Star";
-        })(Controls.GridUnitType || (Controls.GridUnitType = {}));
-        var GridUnitType = Controls.GridUnitType;
+        var GridUnitType = minerva.controls.grid.GridUnitType;
         Fayde.RegisterEnum(GridUnitType, "GridUnitType", Fayde.XMLNS);
 
         var GridLength = (function () {
             function GridLength(value, unitType) {
                 this.Value = value == null ? 0 : value;
-                this.Type = unitType == null ? 0 /* Auto */ : unitType;
+                this.Type = unitType || 0 /* Auto */;
             }
             GridLength.Equals = function (gl1, gl2) {
                 return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
@@ -11445,6 +11444,9 @@ var Fayde;
             function RowDefinition() {
                 _super.apply(this, arguments);
             }
+            RowDefinition.prototype.setActualHeight = function (value) {
+                this.SetCurrentValue(RowDefinition.ActualHeightProperty, value);
+            };
             RowDefinition.HeightProperty = DependencyProperty.Register("Height", function () {
                 return Controls.GridLength;
             }, RowDefinition, undefined, Fayde.Incite);
@@ -11462,6 +11464,7 @@ var Fayde;
         Controls.RowDefinition = RowDefinition;
         Fayde.RegisterType(RowDefinition, "Fayde.Controls", Fayde.XMLNS);
 
+        var GridUnitType = minerva.controls.grid.GridUnitType;
         function ConvertRowDefinition(o) {
             if (!o || o instanceof RowDefinition)
                 return o;
@@ -11533,6 +11536,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        var GridUnitType = minerva.controls.grid.GridUnitType;
         var Slider = (function (_super) {
             __extends(Slider, _super);
             function Slider() {

@@ -1,19 +1,15 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 
 module Fayde.Controls {
-    export enum GridUnitType {
-        Auto = 0,
-        Pixel = 1,
-        Star = 2,
-    }
+    import GridUnitType = minerva.controls.grid.GridUnitType;
     Fayde.RegisterEnum(GridUnitType, "GridUnitType", Fayde.XMLNS);
 
-    export class GridLength implements ICloneable {
+    export class GridLength implements minerva.controls.grid.IGridLength, ICloneable {
         Value: number;
         Type: GridUnitType;
         constructor(value?: number, unitType?: GridUnitType) {
             this.Value = value == null ? 0 : value;
-            this.Type = unitType == null ? GridUnitType.Auto : unitType;
+            this.Type = unitType || GridUnitType.Auto;
         }
         static Equals(gl1: GridLength, gl2: GridLength): boolean {
             return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;

@@ -1106,6 +1106,7 @@ declare module Fayde.Controls {
         public MaxWidth: number;
         public MinWidth: number;
         public ActualWidth: number;
+        public setActualWidth(value: number): void;
     }
     class ColumnDefinitionCollection extends XamlObjectCollection<ColumnDefinition> {
         public _RaiseItemAdded(value: ColumnDefinition, index: number): void;
@@ -1677,15 +1678,10 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    enum GridUnitType {
-        Auto = 0,
-        Pixel = 1,
-        Star = 2,
-    }
-    class GridLength implements ICloneable {
+    class GridLength implements minerva.controls.grid.IGridLength, ICloneable {
         public Value: number;
-        public Type: GridUnitType;
-        constructor(value?: number, unitType?: GridUnitType);
+        public Type: minerva.controls.grid.GridUnitType;
+        constructor(value?: number, unitType?: minerva.controls.grid.GridUnitType);
         static Equals(gl1: GridLength, gl2: GridLength): boolean;
         public Clone(): GridLength;
     }
@@ -2325,6 +2321,7 @@ declare module Fayde.Controls {
         public MaxHeight: number;
         public MinHeight: number;
         public ActualHeight: number;
+        public setActualHeight(value: number): void;
     }
     class RowDefinitionCollection extends XamlObjectCollection<RowDefinition> {
         public _RaiseItemAdded(value: RowDefinition, index: number): void;

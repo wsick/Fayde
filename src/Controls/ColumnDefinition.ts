@@ -12,9 +12,14 @@ module Fayde.Controls {
         MaxWidth: number;
         MinWidth: number;
         ActualWidth: number;
+
+        setActualWidth (value: number) {
+            this.SetCurrentValue(ColumnDefinition.ActualWidthProperty, value);
+        }
     }
     Fayde.RegisterType(ColumnDefinition, "Fayde.Controls", Fayde.XMLNS);
 
+    import GridUnitType = minerva.controls.grid.GridUnitType;
     function ConvertColumnDefinition (o: any): ColumnDefinition {
         if (!o || o instanceof ColumnDefinition)
             return <ColumnDefinition>o;

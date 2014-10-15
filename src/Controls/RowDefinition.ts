@@ -12,9 +12,14 @@ module Fayde.Controls {
         MaxHeight: number;
         MinHeight: number;
         ActualHeight: number;
+
+        setActualHeight (value: number) {
+            this.SetCurrentValue(RowDefinition.ActualHeightProperty, value);
+        }
     }
     Fayde.RegisterType(RowDefinition, "Fayde.Controls", Fayde.XMLNS);
 
+    import GridUnitType = minerva.controls.grid.GridUnitType;
     function ConvertRowDefinition (o: any): RowDefinition {
         if (!o || o instanceof RowDefinition)
             return <RowDefinition>o;

@@ -3,6 +3,7 @@
 /// <reference path="Primitives/Thumb.ts" />
 
 module Fayde.Controls {
+    import GridUnitType = minerva.controls.grid.GridUnitType;
     export class Slider extends Primitives.RangeBase {
         private _DragValue: number = 0;
 
