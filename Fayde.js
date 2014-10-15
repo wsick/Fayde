@@ -11855,7 +11855,7 @@ var Fayde;
                 this._AutoRun.Text = args.NewValue;
                 if (!this._IsDocAuto) {
                     this._IsDocAuto = true;
-                    this.LayoutUpdater.doctree.clear();
+                    this.LayoutUpdater.tree.clearText();
                     this._SettingText = true;
                     var inlines = this.XObject.Inlines;
                     inlines.Clear();
@@ -11871,9 +11871,9 @@ var Fayde;
 
                 var updater = this.LayoutUpdater;
                 if (isAdd)
-                    updater.doctree.onChildAttached(inline.TextUpdater, index);
+                    updater.tree.onTextAttached(inline.TextUpdater, index);
                 else
-                    updater.doctree.onChildDetached(inline.TextUpdater);
+                    updater.tree.onTextDetached(inline.TextUpdater);
 
                 if (this._SettingText)
                     return;

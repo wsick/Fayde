@@ -23,74 +23,6 @@ module Fayde.Controls {
                 return <IEnumerator<DONode>>inlines.GetNodeEnumerator();
         }
 
-        /*
-         Measure (constraint: minerva.Size): minerva.Size {
-         this.Layout(constraint);
-         return new minerva.Size(this._ActualWidth, this._ActualHeight);
-         }
-
-         Arrange (constraint: minerva.Size, padding: Thickness) {
-         this.Layout(constraint);
-         var arranged = new minerva.Size(this._ActualWidth, this._ActualHeight);
-         arranged.width = Math.max(arranged.width, constraint.width);
-         arranged.height = Math.max(arranged.height, constraint.height);
-         this._Layout.AvailableWidth = constraint.width;
-         if (padding)
-         minerva.Thickness.growSize(padding, arranged);
-         }
-
-         Layout (constraint: minerva.Size) {
-         if (this._WasSet) {
-         if (false) {
-         this._ActualHeight = this._Font.GetActualHeight();
-         this._ActualWidth = 0.0;
-         } else {
-         this._Layout.MaxWidth = constraint.width;
-         this._Layout.Layout();
-         var actuals = this._Layout.ActualExtents;
-         this._ActualWidth = actuals.width;
-         this._ActualHeight = actuals.height;
-         }
-         } else {
-         this._ActualHeight = 0.0;
-         this._ActualWidth = 0.0;
-         }
-         this._Dirty = false;
-         }
-         */
-
-        /*
-         ComputeActualSize(lu: LayoutUpdater, padding: Thickness): minerva.Size {
-         var constraint = lu.CoerceSize(minerva.Size.createInfinite());
-
-         if (lu.PreviousConstraint !== undefined || lu.LayoutSlot !== undefined) {
-         this._Layout.Layout();
-         var actuals = this._Layout.ActualExtents;
-         this._ActualWidth = actuals.Width;
-         this._ActualHeight = actuals.Height;
-         } else {
-         if (padding) minerva.Size.shrinkByThickness(constraint, padding);
-         this.Layout(constraint);
-         }
-         var result = minerva.Size.fromRaw(this._ActualWidth, this._ActualHeight);
-         if (padding)
-         minerva.Thickness.growSize(padding, result);
-         return result;
-         }
-         */
-        /*
-         Render(ctx: RenderContextEx) {
-         var tb = this.XObject;
-         var padding = tb.Padding;
-         var offset: Point = null;
-         if (padding) offset = new Point(padding.Left, padding.Top);
-         if (tb.FlowDirection === Fayde.FlowDirection.RightToLeft) {
-         NotImplemented("TextBlock._Render: Right to left");
-         }
-         this._Layout.Render(ctx, null, offset);
-         }
-         */
-
         TextChanged (args: IDependencyPropertyChangedEventArgs) {
             if (this._SettingInlines)
                 return;
@@ -98,7 +30,7 @@ module Fayde.Controls {
             this._AutoRun.Text = args.NewValue;
             if (!this._IsDocAuto) {
                 this._IsDocAuto = true;
-                this.LayoutUpdater.doctree.clear();
+                this.LayoutUpdater.tree.clearText();
                 this._SettingText = true;
                 var inlines = this.XObject.Inlines;
                 inlines.Clear();
@@ -156,9 +88,9 @@ module Fayde.Controls {
 
             var updater = this.LayoutUpdater;
             if (isAdd)
-                updater.doctree.onChildAttached(inline.TextUpdater, index);
+                updater.tree.onTextAttached(inline.TextUpdater, index);
             else
-                updater.doctree.onChildDetached(inline.TextUpdater);
+                updater.tree.onTextDetached(inline.TextUpdater);
 
             if (this._SettingText)
                 return;
@@ -227,24 +159,6 @@ module Fayde.Controls {
             ReactTo(inlines, this, (change?) => this.XamlNode.InlinesChanged(change.item, change.index, change.add));
         }
 
-        /*
-         MeasureOverride(availableSize: minerva.Size): minerva.Size {
-         var constraint = minerva.Size.copyTo(availableSize);
-         var padding = this.Padding;
-         if (padding) minerva.Size.shrinkByThickness(constraint, padding);
-         var desired = this.XamlNode.Measure(constraint);
-         if (padding) minerva.Size.growByThickness(desired, padding);
-         return desired;
-         }
-         ArrangeOverride(finalSize: minerva.Size): minerva.Size {
-         var constraint = minerva.Size.copyTo(finalSize);
-         var padding = this.Padding;
-         if (padding) minerva.Size.shrinkByThickness(constraint, padding);
-         this.XamlNode.Arrange(constraint, padding);
-         return finalSize;
-         }
-         */
-
         IsInheritable (propd: DependencyProperty): boolean {
             if (TextBlockInheritedProps.indexOf(propd) > -1)
                 return true;
@@ -273,34 +187,4 @@ module Fayde.Controls {
         UIReaction<minerva.TextTrimming>(TextBlock.TextTrimmingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
         UIReaction<minerva.TextWrapping>(TextBlock.TextWrappingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
     }
-
-    //TODO: Implement textblock updater
-    /*
-     export class TextBlockLayoutUpdater extends LayoutUpdater {
-     ComputeActualSize(): minerva.Size {
-     var node = <TextBlockNode>this.Node;
-     var tb = <TextBlock>node.XObject;
-     return node.ComputeActualSize(this, tb.Padding);
-     }
-
-     ComputeExtents(actualSize: minerva.Size) {
-     var node = <TextBlockNode>this.Node;
-     minerva.Rect.copyTo(node._Layout.RenderExtents, this.Extents);
-     var padding = node.XObject.Padding;
-     if (padding) {
-     this.Extents.X += padding.Left;
-     this.Extents.Y += padding.Top;
-     }
-     minerva.Rect.copyTo(this.Extents, this.ExtentsWithChildren);
-     }
-
-     Render(ctx: RenderContextEx, region: minerva.Rect) {
-     ctx.save();
-     this.RenderLayoutClip(ctx);
-     var node = <TextBlockNode>this.Node;
-     node.Render(ctx);
-     ctx.restore();
-     }
-     }
-     */
 }
