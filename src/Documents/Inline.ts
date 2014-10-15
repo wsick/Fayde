@@ -2,7 +2,6 @@
 
 module Fayde.Documents {
     export class Inline extends TextElement {
-        //Autogen: boolean = false;
         static TextDecorationsProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(Inline);
         TextDecorations: TextDecorations;
 
@@ -22,8 +21,10 @@ module Fayde.Documents {
 
     module reactions {
         TextReaction<TextDecorations>(Inline.TextDecorationsProperty, (upd, ov, nv, te?: TextElement) => {
-            upd.invalidateFont();
-            //TODO: Invalidate parent TextElement, if parent is TextBlock, invalidate TextBlock
+            Incite(te, {
+                type: 'font',
+                full: upd.invalidateFont()
+            });
         }, false);
     }
 }

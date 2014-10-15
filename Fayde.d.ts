@@ -2411,6 +2411,7 @@ declare module Fayde.Controls {
         public GetInheritedEnumerator(): IEnumerator<DONode>;
         public TextChanged(args: IDependencyPropertyChangedEventArgs): void;
         public InlinesChanged(inline: Documents.Inline, index: number, isAdd: boolean): void;
+        public InlineChanged(obj?: any): void;
     }
     class TextBlock extends FrameworkElement {
         public XamlNode: TextBlockNode;
@@ -3242,17 +3243,13 @@ declare module Fayde.Documents {
     }
 }
 declare module Fayde.Documents {
-    interface IBlocksChangedListener {
-        BlocksChanged(newBlock: Block, isAdd: boolean): any;
-    }
     class Block extends TextElement {
     }
+}
+declare module Fayde.Documents {
     class BlockCollection extends XamlObjectCollection<Block> {
-        private _Listener;
-        public Listen(listener: IBlocksChangedListener): void;
-        public Unlisten(listener: IBlocksChangedListener): void;
-        public AddingToCollection(value: Block, error: BError): boolean;
-        public RemovedFromCollection(value: Block, isValueSafe: boolean): void;
+        public _RaiseItemAdded(value: Block, index: number): void;
+        public _RaiseItemRemoved(value: Block, index: number): void;
     }
 }
 declare module Fayde.Documents {
@@ -3279,7 +3276,7 @@ declare module Fayde.Documents {
         static InlinesProperty: ImmutableDependencyProperty<InlineCollection>;
         public Inlines: InlineCollection;
         constructor();
-        public InlinesChanged(newInline: Inline, isAdd: boolean): void;
+        public InlinesChanged(inline: Inline, isAdd: boolean): void;
     }
 }
 declare module Fayde.Documents {
@@ -3293,12 +3290,12 @@ declare module Fayde.Documents {
     }
 }
 declare module Fayde.Documents {
-    class Section extends TextElement implements IBlocksChangedListener {
+    class Section extends TextElement {
         public CreateNode(): TextElementNode;
         static BlocksProperty: ImmutableDependencyProperty<BlockCollection>;
         public Blocks: BlockCollection;
         constructor();
-        public BlocksChanged(newBlock: Block, isAdd: boolean): void;
+        public BlocksChanged(block: Block, isAdd: boolean): void;
     }
 }
 declare module Fayde.Documents {
@@ -3308,6 +3305,7 @@ declare module Fayde.Documents {
         public Inlines: InlineCollection;
         constructor();
         public _SerializeText(): string;
+        public InlinesChanged(inline: Inline, isAdd: boolean): void;
     }
 }
 declare module Fayde.Documents {

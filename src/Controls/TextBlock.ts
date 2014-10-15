@@ -92,6 +92,11 @@ module Fayde.Controls {
             else
                 updater.tree.onTextDetached(inline.TextUpdater);
 
+            if (isAdd)
+                ReactTo(inline, this, this.InlineChanged);
+            else
+                UnreactTo(inline, this);
+
             if (this._SettingText)
                 return;
 
@@ -105,6 +110,17 @@ module Fayde.Controls {
             this._SettingInlines = false;
 
             updater.invalidateTextMetrics();
+        }
+
+        InlineChanged(obj?: any) {
+            switch (obj.type) {
+                case 'font':
+                    this.LayoutUpdater.invalidateFont(obj.full);
+                    break;
+                case 'text':
+                    this.LayoutUpdater.invalidateTextMetrics();
+                    break;
+            }
         }
     }
     Fayde.RegisterType(TextBlockNode, "Fayde.Controls");

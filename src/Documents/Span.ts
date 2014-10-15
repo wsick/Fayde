@@ -13,10 +13,7 @@ module Fayde.Documents {
             super();
             var coll = Span.InlinesProperty.Initialize(this);
             coll.AttachTo(this);
-            ReactTo(coll, this, (obj?) => {
-                if (obj.add)
-                    Providers.InheritedStore.PropagateInheritedOnAdd(this, obj.item.XamlNode);
-            });
+            ReactTo(coll, this, (obj?) => this.InlinesChanged(obj.item, obj.add));
         }
 
         _SerializeText (): string {
@@ -26,6 +23,21 @@ module Fayde.Documents {
                 str += (<TextElement>enumerator.current)._SerializeText();
             }
             return str;
+        }
+
+        InlinesChanged (inline: Inline, isAdd: boolean) {
+            if (isAdd)
+                Providers.InheritedStore.PropagateInheritedOnAdd(this, inline.XamlNode);
+
+            if (isAdd)
+                ReactTo(inline, this, (obj?) => Incite(this, obj));
+            else
+                UnreactTo(inline, this);
+
+            Incite(this, {
+                type: 'text',
+                full: true
+            });
         }
     }
     Fayde.RegisterType(Span, "Fayde.Documents", Fayde.XMLNS);

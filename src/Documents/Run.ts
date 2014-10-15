@@ -16,4 +16,13 @@ module Fayde.Documents {
         }
     }
     Fayde.RegisterType(Run, "Fayde.Documents", Fayde.XMLNS);
+
+    module reactions {
+        TextReaction<string>(Run.TextProperty, (upd, ov, nv, run?: Run) => {
+            Incite(run, {
+                type: 'text',
+                full: true
+            });
+        }, false);
+    }
 }

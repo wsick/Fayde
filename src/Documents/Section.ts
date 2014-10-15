@@ -1,23 +1,34 @@
 /// <reference path="TextElement.ts"/>
 
 module Fayde.Documents {
-    export class Section extends TextElement implements IBlocksChangedListener {
-        CreateNode(): TextElementNode {
+    export class Section extends TextElement {
+        CreateNode (): TextElementNode {
             return new TextElementNode(this, "Blocks");
         }
 
         static BlocksProperty = DependencyProperty.RegisterImmutable<BlockCollection>("Blocks", () => BlockCollection, Section);
         Blocks: BlockCollection;
 
-        constructor() {
+        constructor () {
             super();
             var coll = Section.BlocksProperty.Initialize(this);
             coll.AttachTo(this);
-            coll.Listen(this);
+            ReactTo(coll, this, (obj?) => this.BlocksChanged(obj.item, obj.add));
         }
-        BlocksChanged(newBlock: Block, isAdd: boolean) {
+
+        BlocksChanged (block: Block, isAdd: boolean) {
             if (isAdd)
-                Providers.InheritedStore.PropagateInheritedOnAdd(this, newBlock.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(this, block.XamlNode);
+
+            if (isAdd)
+                ReactTo(block, this, (obj?) => Incite(this, obj));
+            else
+                UnreactTo(block, this);
+
+            Incite(this, {
+                type: 'text',
+                full: true
+            });
         }
     }
     Fayde.RegisterType(Section, "Fayde.Documents", Fayde.XMLNS);

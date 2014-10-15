@@ -11875,6 +11875,11 @@ var Fayde;
                 else
                     updater.tree.onTextDetached(inline.TextUpdater);
 
+                if (isAdd)
+                    Fayde.ReactTo(inline, this, this.InlineChanged);
+                else
+                    Fayde.UnreactTo(inline, this);
+
                 if (this._SettingText)
                     return;
 
@@ -11888,6 +11893,17 @@ var Fayde;
                 this._SettingInlines = false;
 
                 updater.invalidateTextMetrics();
+            };
+
+            TextBlockNode.prototype.InlineChanged = function (obj) {
+                switch (obj.type) {
+                    case 'font':
+                        this.LayoutUpdater.invalidateFont(obj.full);
+                        break;
+                    case 'text':
+                        this.LayoutUpdater.invalidateTextMetrics();
+                        break;
+                }
             };
             return TextBlockNode;
         })(Fayde.FENode);
@@ -16771,10 +16787,17 @@ var Fayde;
         var reactions;
         (function (reactions) {
             function invalidateFont(upd, ov, nv, te) {
-                upd.invalidateFont();
+                Fayde.Incite(te, {
+                    type: 'font',
+                    full: upd.invalidateFont()
+                });
             }
 
             Documents.TextReaction(TextElement.ForegroundProperty, function (up, ov, nv, te) {
+                Fayde.Incite(te, {
+                    type: 'font',
+                    full: false
+                });
             });
             Documents.TextReaction(TextElement.FontFamilyProperty, invalidateFont, false);
             Documents.TextReaction(TextElement.FontSizeProperty, invalidateFont, false);
@@ -16797,33 +16820,31 @@ var Fayde;
         })(Documents.TextElement);
         Documents.Block = Block;
         Fayde.RegisterType(Block, "Fayde.Documents", Fayde.XMLNS);
-
+    })(Fayde.Documents || (Fayde.Documents = {}));
+    var Documents = Fayde.Documents;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Documents) {
         var BlockCollection = (function (_super) {
             __extends(BlockCollection, _super);
             function BlockCollection() {
                 _super.apply(this, arguments);
             }
-            BlockCollection.prototype.Listen = function (listener) {
-                this._Listener = listener;
-            };
-            BlockCollection.prototype.Unlisten = function (listener) {
-                if (this._Listener === listener)
-                    this._Listener = null;
+            BlockCollection.prototype._RaiseItemAdded = function (value, index) {
+                Fayde.Incite(this, {
+                    item: value,
+                    index: index,
+                    add: true
+                });
             };
 
-            BlockCollection.prototype.AddingToCollection = function (value, error) {
-                if (!_super.prototype.AddingToCollection.call(this, value, error))
-                    return false;
-                var listener = this._Listener;
-                if (listener)
-                    listener.BlocksChanged(value, true);
-                return true;
-            };
-            BlockCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
-                _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
-                var listener = this._Listener;
-                if (listener)
-                    listener.BlocksChanged(value, false);
+            BlockCollection.prototype._RaiseItemRemoved = function (value, index) {
+                Fayde.Incite(this, {
+                    item: value,
+                    index: index,
+                    add: false
+                });
             };
             return BlockCollection;
         })(Fayde.XamlObjectCollection);
@@ -16860,7 +16881,10 @@ var Fayde;
         var reactions;
         (function (reactions) {
             Documents.TextReaction(Inline.TextDecorationsProperty, function (upd, ov, nv, te) {
-                upd.invalidateFont();
+                Fayde.Incite(te, {
+                    type: 'font',
+                    full: upd.invalidateFont()
+                });
             }, false);
         })(reactions || (reactions = {}));
     })(Fayde.Documents || (Fayde.Documents = {}));
@@ -16917,18 +16941,34 @@ var Fayde;
         var Paragraph = (function (_super) {
             __extends(Paragraph, _super);
             function Paragraph() {
+                var _this = this;
                 _super.call(this);
                 var coll = Paragraph.InlinesProperty.Initialize(this);
                 coll.AttachTo(this);
-                coll.Listen(this);
+                Fayde.ReactTo(coll, this, function (obj) {
+                    return _this.InlinesChanged(obj.item, obj.add);
+                });
             }
             Paragraph.prototype.CreateNode = function () {
                 return new Documents.TextElementNode(this, "Inlines");
             };
 
-            Paragraph.prototype.InlinesChanged = function (newInline, isAdd) {
+            Paragraph.prototype.InlinesChanged = function (inline, isAdd) {
+                var _this = this;
                 if (isAdd)
-                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
+                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this, inline.XamlNode);
+
+                if (isAdd)
+                    Fayde.ReactTo(inline, this, function (obj) {
+                        return Fayde.Incite(_this, obj);
+                    });
+                else
+                    Fayde.UnreactTo(inline, this);
+
+                Fayde.Incite(this, {
+                    type: 'text',
+                    full: true
+                });
             };
             Paragraph.InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", function () {
                 return Documents.InlineCollection;
@@ -16966,6 +17006,16 @@ var Fayde;
         })(Documents.Inline);
         Documents.Run = Run;
         Fayde.RegisterType(Run, "Fayde.Documents", Fayde.XMLNS);
+
+        var reactions;
+        (function (reactions) {
+            Documents.TextReaction(Run.TextProperty, function (upd, ov, nv, run) {
+                Fayde.Incite(run, {
+                    type: 'text',
+                    full: true
+                });
+            }, false);
+        })(reactions || (reactions = {}));
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));
@@ -16975,18 +17025,34 @@ var Fayde;
         var Section = (function (_super) {
             __extends(Section, _super);
             function Section() {
+                var _this = this;
                 _super.call(this);
                 var coll = Section.BlocksProperty.Initialize(this);
                 coll.AttachTo(this);
-                coll.Listen(this);
+                Fayde.ReactTo(coll, this, function (obj) {
+                    return _this.BlocksChanged(obj.item, obj.add);
+                });
             }
             Section.prototype.CreateNode = function () {
                 return new Documents.TextElementNode(this, "Blocks");
             };
 
-            Section.prototype.BlocksChanged = function (newBlock, isAdd) {
+            Section.prototype.BlocksChanged = function (block, isAdd) {
+                var _this = this;
                 if (isAdd)
-                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this, newBlock.XamlNode);
+                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this, block.XamlNode);
+
+                if (isAdd)
+                    Fayde.ReactTo(block, this, function (obj) {
+                        return Fayde.Incite(_this, obj);
+                    });
+                else
+                    Fayde.UnreactTo(block, this);
+
+                Fayde.Incite(this, {
+                    type: 'text',
+                    full: true
+                });
             };
             Section.BlocksProperty = DependencyProperty.RegisterImmutable("Blocks", function () {
                 return Documents.BlockCollection;
@@ -17010,8 +17076,7 @@ var Fayde;
                 var coll = Span.InlinesProperty.Initialize(this);
                 coll.AttachTo(this);
                 Fayde.ReactTo(coll, this, function (obj) {
-                    if (obj.add)
-                        Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(_this, obj.item.XamlNode);
+                    return _this.InlinesChanged(obj.item, obj.add);
                 });
             }
             Span.prototype.CreateNode = function () {
@@ -17025,6 +17090,24 @@ var Fayde;
                     str += enumerator.current._SerializeText();
                 }
                 return str;
+            };
+
+            Span.prototype.InlinesChanged = function (inline, isAdd) {
+                var _this = this;
+                if (isAdd)
+                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this, inline.XamlNode);
+
+                if (isAdd)
+                    Fayde.ReactTo(inline, this, function (obj) {
+                        return Fayde.Incite(_this, obj);
+                    });
+                else
+                    Fayde.UnreactTo(inline, this);
+
+                Fayde.Incite(this, {
+                    type: 'text',
+                    full: true
+                });
             };
             Span.InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", function () {
                 return Documents.InlineCollection;

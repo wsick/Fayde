@@ -85,12 +85,17 @@ module Fayde.Documents {
 
     module reactions {
         function invalidateFont (upd: minerva.text.TextUpdater, ov, nv, te?: TextElement) {
-            upd.invalidateFont();
-            //TODO: Invalidate parent TextElement, if parent is TextBlock, invalidate TextBlock
+            Incite(te, {
+                type: 'font',
+                full: upd.invalidateFont()
+            });
         }
 
         TextReaction<Media.Brush>(TextElement.ForegroundProperty, (up, ov, nv, te?: TextElement) => {
-            //TODO: Invalidate parent TextElement, if parent is TextBlock, invalidate TextBlock
+            Incite(te, {
+                type: 'font',
+                full: false
+            });
         });
         TextReaction<string>(TextElement.FontFamilyProperty, invalidateFont, false);
         TextReaction<number>(TextElement.FontSizeProperty, invalidateFont, false);
