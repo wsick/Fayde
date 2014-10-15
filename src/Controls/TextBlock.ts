@@ -39,48 +39,6 @@ module Fayde.Controls {
             }
         }
 
-        /*
-         private _UpdateLayoutAttributes () {
-         var xobj = this.XObject;
-         var inlines = xobj.Inlines;
-
-         var lu = this.LayoutUpdater;
-         lu.invalidateFont();
-
-         var length = 0;
-         var runs: Text.ITextAttributes[] = [];
-         var count = inlines.Count;
-         var enumerator = inlines.getEnumerator();
-         while (enumerator.moveNext()) {
-         length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.current, length, runs);
-         }
-         if (count > 0)
-         this._WasSet = true;
-         this._Layout.Text = xobj.Text;
-         this._Layout.TextAttributes = runs;
-         }
-
-         private _UpdateLayoutAttributesForInline (item: Documents.Inline, length: number, runs: Text.ITextAttributes[]): number {
-         if (item instanceof Documents.Run) {
-         var text = (<Documents.Run>item).Text;
-         if (text && text.length) {
-         runs.push(new Text.TextLayoutAttributes(item, length));
-         length += text.length;
-         }
-         } else if (item instanceof Documents.LineBreak) {
-         runs.push(new Text.TextLayoutAttributes(item, length));
-         length += 1; //line break length
-         } else if (item instanceof Documents.Span) {
-         var inlines = (<Documents.Span>item).Inlines;
-         var enumerator = inlines.getEnumerator();
-         while (enumerator.moveNext()) {
-         length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.current, length, runs);
-         }
-         }
-         return length;
-         }
-         */
-
         InlinesChanged (inline: Documents.Inline, index: number, isAdd: boolean) {
             var xobj = this.XObject;
             if (isAdd)
