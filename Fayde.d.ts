@@ -1097,7 +1097,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class ColumnDefinition extends DependencyObject {
+    class ColumnDefinition extends DependencyObject implements minerva.controls.grid.IColumnDefinition {
         static WidthProperty: DependencyProperty;
         static MaxWidthProperty: DependencyProperty;
         static MinWidthProperty: DependencyProperty;
@@ -2316,7 +2316,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class RowDefinition extends DependencyObject {
+    class RowDefinition extends DependencyObject implements minerva.controls.grid.IRowDefinition {
         static HeightProperty: DependencyProperty;
         static MaxHeightProperty: DependencyProperty;
         static MinHeightProperty: DependencyProperty;

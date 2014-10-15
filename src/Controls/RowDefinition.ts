@@ -2,7 +2,7 @@
 /// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Controls {
-    export class RowDefinition extends DependencyObject {
+    export class RowDefinition extends DependencyObject implements minerva.controls.grid.IRowDefinition {
         //NOTE: Will not receive property changes from GridLength
         static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => GridLength, RowDefinition, undefined, Incite);
         static MaxHeightProperty: DependencyProperty = DependencyProperty.Register("MaxHeight", () => Number, RowDefinition, Number.POSITIVE_INFINITY, Incite);

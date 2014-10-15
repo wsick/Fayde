@@ -2,7 +2,7 @@
 /// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Controls {
-    export class ColumnDefinition extends DependencyObject {
+    export class ColumnDefinition extends DependencyObject implements minerva.controls.grid.IColumnDefinition {
         //NOTE: Will not receive property changes from GridLength
         static WidthProperty = DependencyProperty.Register("Width", () => GridLength, ColumnDefinition, undefined, Incite);
         static MaxWidthProperty = DependencyProperty.Register("MaxWidth", () => Number, ColumnDefinition, Number.POSITIVE_INFINITY, Incite);
