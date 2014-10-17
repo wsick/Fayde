@@ -43,24 +43,13 @@ module Fayde.Shapes {
 
     function onSizeChanged (shape: Shape, args: IDependencyPropertyChangedEventArgs) {
         var updater = <ShapeUpdater>shape.XamlNode.LayoutUpdater;
-        updater.invalidateStretch();
+        updater.invalidateMeasure();
     }
 
     module reactions {
-        UIReaction<Media.Stretch>(Shape.StretchProperty, (upd: ShapeUpdater, ov, nv) => {
-            upd.invalidateMeasure();
-            upd.invalidateStretch();
-        }, false);
-        UIReaction<Media.Brush>(Shape.FillProperty, (upd: ShapeUpdater, ov, nv) => {
-            upd.invalidate();
-            //TODO: Use for hit testing
-            //lu.CanHitElement = !!lu.Stroke || !!lu.Fill;
-        });
-        UIReaction<Media.Brush>(Shape.StrokeProperty, (upd: ShapeUpdater, ov, nv) => {
-            upd.invalidate();
-            //TODO: Use for hit testing
-            //lu.CanHitElement = !!lu.Stroke || !!lu.Fill;
-        });
+        UIReaction<Media.Stretch>(Shape.StretchProperty, (upd: ShapeUpdater, ov, nv) => upd.invalidateMeasure(), false);
+        UIReaction<Media.Brush>(Shape.FillProperty, (upd: ShapeUpdater, ov, nv) => upd.invalidateNaturalBounds());
+        UIReaction<Media.Brush>(Shape.StrokeProperty, (upd: ShapeUpdater, ov, nv) => upd.invalidateNaturalBounds());
         UIReaction<number>(Shape.StrokeThicknessProperty, (upd: ShapeUpdater, ov, nv) => upd.invalidateNaturalBounds(), false);
         UIReaction<DoubleCollection>(Shape.StrokeDashArrayProperty, (upd: ShapeUpdater, ov, nv) => upd.invalidateNaturalBounds());
         UIReaction<PenLineCap>(Shape.StrokeDashCapProperty, (upd: ShapeUpdater, ov, nv) => upd.invalidateNaturalBounds(), false);

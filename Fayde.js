@@ -30036,20 +30036,19 @@ var Fayde;
 
         function onSizeChanged(shape, args) {
             var updater = shape.XamlNode.LayoutUpdater;
-            updater.invalidateStretch();
+            updater.invalidateMeasure();
         }
 
         var reactions;
         (function (reactions) {
             Fayde.UIReaction(Shape.StretchProperty, function (upd, ov, nv) {
-                upd.invalidateMeasure();
-                upd.invalidateStretch();
+                return upd.invalidateMeasure();
             }, false);
             Fayde.UIReaction(Shape.FillProperty, function (upd, ov, nv) {
-                upd.invalidate();
+                return upd.invalidateNaturalBounds();
             });
             Fayde.UIReaction(Shape.StrokeProperty, function (upd, ov, nv) {
-                upd.invalidate();
+                return upd.invalidateNaturalBounds();
             });
             Fayde.UIReaction(Shape.StrokeThicknessProperty, function (upd, ov, nv) {
                 return upd.invalidateNaturalBounds();
