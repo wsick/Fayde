@@ -30081,12 +30081,17 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Shapes) {
+        var EllipseUpdater = minerva.shapes.ellipse.EllipseUpdater;
+
         var Ellipse = (function (_super) {
             __extends(Ellipse, _super);
             function Ellipse() {
                 _super.call(this);
                 this.Stretch = 1 /* Fill */;
             }
+            Ellipse.prototype.CreateLayoutUpdater = function () {
+                return new EllipseUpdater();
+            };
             return Ellipse;
         })(Shapes.Shape);
         Shapes.Ellipse = Ellipse;
@@ -30351,12 +30356,18 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Shapes) {
+        var RectangleUpdater = minerva.shapes.rectangle.RectangleUpdater;
+
         var Rectangle = (function (_super) {
             __extends(Rectangle, _super);
             function Rectangle() {
                 _super.call(this);
                 this.Stretch = 1 /* Fill */;
             }
+            Rectangle.prototype.CreateLayoutUpdater = function () {
+                return new RectangleUpdater();
+            };
+
             Rectangle.RadiusXProperty = DependencyProperty.Register("RadiusX", function () {
                 return Number;
             }, Rectangle, 0.0);
@@ -30371,14 +30382,10 @@ var Fayde;
         var reactions;
         (function (reactions) {
             Fayde.UIReaction(Rectangle.RadiusXProperty, function (upd, ov, nv) {
-                upd.invalidateMeasure();
-
-                upd.invalidate();
+                return upd.invalidate();
             }, false);
             Fayde.UIReaction(Rectangle.RadiusYProperty, function (upd, ov, nv) {
-                upd.invalidateMeasure();
-
-                upd.invalidate();
+                return upd.invalidate();
             }, false);
         })(reactions || (reactions = {}));
     })(Fayde.Shapes || (Fayde.Shapes = {}));

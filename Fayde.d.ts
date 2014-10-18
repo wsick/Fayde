@@ -5646,6 +5646,7 @@ declare module Fayde.Shapes {
 }
 declare module Fayde.Shapes {
     class Ellipse extends Shape {
+        public CreateLayoutUpdater(): minerva.shapes.ellipse.EllipseUpdater;
         constructor();
     }
 }
@@ -5709,6 +5710,7 @@ declare module Fayde.Shapes {
 }
 declare module Fayde.Shapes {
     class Rectangle extends Shape {
+        public CreateLayoutUpdater(): minerva.shapes.rectangle.RectangleUpdater;
         static RadiusXProperty: DependencyProperty;
         static RadiusYProperty: DependencyProperty;
         public RadiusX: number;
