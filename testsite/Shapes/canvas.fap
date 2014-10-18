@@ -3,26 +3,26 @@
     xmlns:x="http://schemas.wsick.com/fayde/x"
     ThemeName="Metro">
     <Canvas>
-        <Ellipse Canvas.Left="0" Canvas.Top="0" Width="100" Height="100" Stroke="#FF000000" StrokeThickness="5" Fill="Black">
-        </Ellipse>
-        <!--
-        <Ellipse Canvas.Left="0" Canvas.Top="0" Width="100" Height="100" Stroke="#FF000000" StrokeThickness="5" Fill="Black">
+        <Ellipse Canvas.Left="50" Canvas.Top="100" Width="100" Height="100" Stroke="#FF000000" StrokeThickness="5">
             <Ellipse.Fill>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFA3AEB9" Offset="0"/>
-                    <GradientStop Color="#FF8399A9" Offset="0.375"/>
-                    <GradientStop Color="#FF718597" Offset="0.375"/>
-                    <GradientStop Color="#FF617584" Offset="1"/>
+                    <GradientStop Color="Red" Offset="0"/>
+                    <GradientStop Color="Orange" Offset="0.2"/>
+                    <GradientStop Color="Yellow" Offset="0.4"/>
+                    <GradientStop Color="Green" Offset="0.6"/>
+                    <GradientStop Color="Blue" Offset="0.8"/>
+                    <GradientStop Color="Violet" Offset="1"/>
                 </LinearGradientBrush>
             </Ellipse.Fill>
         </Ellipse>
-        -->
+        <!--
         <Path Canvas.Left="400" Canvas.Top="0" Stretch="Uniform" Height="8" Width="4" Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z ">
             <Path.Fill>
                 <SolidColorBrush x:Name="ButtonColor" Color="#FF333333" />
             </Path.Fill>
         </Path>
-        <Rectangle Canvas.Left="100" Canvas.Top="400" Width="100" Height="100" Opacity="0" Fill="Black">
+        -->
+        <Rectangle Canvas.Left="100" Canvas.Top="150" Width="100" Height="100" Opacity="0.5" Fill="Black" Stroke="Green" StrokeThickness="10" RadiusX="20" RadiusY="40">
 
         </Rectangle>
     </Canvas>
