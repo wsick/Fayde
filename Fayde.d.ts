@@ -1480,6 +1480,9 @@ declare module Fayde.Controls.Primitives {
         private _IsCatchingClick;
         private _Catcher;
         private _VisualChild;
+        private _OverlayBrush;
+        constructor(popup: Popup);
+        public SetOverlayBrush(brush: Media.Brush): void;
         public _ChildChanged(oldChild: FrameworkElement, newChild: FrameworkElement): void;
         private _PrepareVisualChild(newChild);
         public CatchClickedOutside(): void;

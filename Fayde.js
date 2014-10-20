@@ -8275,13 +8275,15 @@ var Fayde;
         (function (Primitives) {
             var PopupNode = (function (_super) {
                 __extends(PopupNode, _super);
-                function PopupNode() {
-                    _super.apply(this, arguments);
+                function PopupNode(popup) {
+                    _super.call(this, popup);
                     this._HorizontalOffset = 0;
                     this._VerticalOffset = 0;
                     this._IsVisible = false;
                     this._IsCatchingClick = false;
                     this._Catcher = null;
+                    this._OverlayBrush = null;
+                    this.SetOverlayBrush(Fayde.Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0)));
                 }
                 PopupNode.prototype.GetInheritedEnumerator = function () {
                     var popup = this.XObject;
@@ -8297,6 +8299,12 @@ var Fayde;
                     _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
                     if (!newIsAttached && this.XObject.IsOpen)
                         this.XObject.IsOpen = false;
+                };
+
+                PopupNode.prototype.SetOverlayBrush = function (brush) {
+                    this._OverlayBrush = brush;
+                    if (this._Catcher)
+                        this._Catcher.Background = brush;
                 };
 
                 PopupNode.prototype._ChildChanged = function (oldChild, newChild) {
@@ -8315,6 +8323,7 @@ var Fayde;
                             this._Show();
                     }
                 };
+
                 PopupNode.prototype._PrepareVisualChild = function (newChild) {
                     if (!newChild)
                         return;
@@ -8328,17 +8337,19 @@ var Fayde;
 
                     if (this._IsCatchingClick && !this._Catcher) {
                         var clickCatcher = new Controls.Canvas();
-                        clickCatcher.Background = Fayde.Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
+                        clickCatcher.Background = this._OverlayBrush;
                         clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
                         clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
                         root.Children.Insert(0, clickCatcher);
                         this._Catcher = clickCatcher;
                     }
                 };
+
                 PopupNode.prototype.CatchClickedOutside = function () {
                     this._IsCatchingClick = true;
                     this._PrepareVisualChild(this.XObject.Child);
                 };
+
                 PopupNode.prototype._UpdateCatcher = function () {
                     var root = this._VisualChild;
                     if (!root)
@@ -8354,6 +8365,7 @@ var Fayde;
                     catcher.Width = root.Width;
                     catcher.Height = root.Height;
                 };
+
                 PopupNode.prototype._RaiseClickedOutside = function (sender, e) {
                     this.XObject.ClickedOutside.Raise(this, EventArgs.Empty);
                 };
@@ -8375,6 +8387,7 @@ var Fayde;
                     }
                     this._VisualChild.InvalidateMeasure();
                 };
+
                 PopupNode.prototype.OnVerticalOffsetChanged = function (args) {
                     var child = this.XObject.Child;
                     if (!child)
@@ -8402,6 +8415,7 @@ var Fayde;
                     var surface = this._Surface || Fayde.Application.Current.MainSurface;
                     surface.DetachLayer(child);
                 };
+
                 PopupNode.prototype._Show = function () {
                     this._UpdateCatcher();
                     var child = this._VisualChild;
@@ -8428,6 +8442,7 @@ var Fayde;
                 Popup.prototype.CreateNode = function () {
                     return new PopupNode(this);
                 };
+
                 Popup.prototype.CreateLayoutUpdater = function (node) {
                     return new PopupLayoutUpdater(node);
                 };
@@ -8441,6 +8456,7 @@ var Fayde;
                         newFE = args.NewValue;
                     this.XamlNode._ChildChanged(oldFE, newFE);
                 };
+
                 Popup.prototype._OnIsOpenChanged = function (args) {
                     if (args.NewValue) {
                         this.XamlNode._Show();

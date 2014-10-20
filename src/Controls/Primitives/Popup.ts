@@ -3,7 +3,8 @@
 module Fayde.Controls.Primitives {
     export class PopupNode extends FENode {
         XObject: Popup;
-        GetInheritedEnumerator(): IEnumerator<DONode> {
+
+        GetInheritedEnumerator (): IEnumerator<DONode> {
             var popup = (<Popup>this.XObject);
             if (!popup)
                 return ArrayEx.EmptyEnumerator;
@@ -13,7 +14,7 @@ module Fayde.Controls.Primitives {
             return ArrayEx.GetEnumerator([popup.Child.XamlNode]);
         }
 
-        OnIsAttachedChanged(newIsAttached: boolean) {
+        OnIsAttachedChanged (newIsAttached: boolean) {
             super.OnIsAttachedChanged(newIsAttached);
             if (!newIsAttached && this.XObject.IsOpen)
                 this.XObject.IsOpen = false;
@@ -25,8 +26,20 @@ module Fayde.Controls.Primitives {
         private _IsCatchingClick: boolean = false;
         private _Catcher: Canvas = null;
         private _VisualChild: FrameworkElement;
-        
-        _ChildChanged(oldChild: FrameworkElement, newChild: FrameworkElement) {
+        private _OverlayBrush: Media.Brush = null;
+
+        constructor (popup: Popup) {
+            super(popup);
+            this.SetOverlayBrush(Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0)));
+        }
+
+        SetOverlayBrush (brush: Media.Brush) {
+            this._OverlayBrush = brush;
+            if (this._Catcher)
+                this._Catcher.Background = brush;
+        }
+
+        _ChildChanged (oldChild: FrameworkElement, newChild: FrameworkElement) {
             var popup = this.XObject;
             this._Hide();
             if (oldChild) {
@@ -42,7 +55,8 @@ module Fayde.Controls.Primitives {
                     this._Show();
             }
         }
-        private _PrepareVisualChild(newChild: UIElement) {
+
+        private _PrepareVisualChild (newChild: UIElement) {
             if (!newChild)
                 return;
 
@@ -55,18 +69,20 @@ module Fayde.Controls.Primitives {
 
             if (this._IsCatchingClick && !this._Catcher) {
                 var clickCatcher = new Canvas();
-                clickCatcher.Background = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
+                clickCatcher.Background = this._OverlayBrush;
                 clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
                 clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
                 root.Children.Insert(0, clickCatcher);
                 this._Catcher = clickCatcher;
             }
         }
-        CatchClickedOutside() {
+
+        CatchClickedOutside () {
             this._IsCatchingClick = true;
             this._PrepareVisualChild(this.XObject.Child);
         }
-        private _UpdateCatcher() {
+
+        private _UpdateCatcher () {
             var root = this._VisualChild;
             if (!root)
                 return;
@@ -81,11 +97,12 @@ module Fayde.Controls.Primitives {
             catcher.Width = root.Width;
             catcher.Height = root.Height;
         }
-        private _RaiseClickedOutside(sender, e) {
+
+        private _RaiseClickedOutside (sender, e) {
             this.XObject.ClickedOutside.Raise(this, EventArgs.Empty);
         }
-        
-        OnHorizontalOffsetChanged(args: IDependencyPropertyChangedEventArgs) {
+
+        OnHorizontalOffsetChanged (args: IDependencyPropertyChangedEventArgs) {
             var child = this.XObject.Child;
             if (!child)
                 return;
@@ -102,7 +119,8 @@ module Fayde.Controls.Primitives {
             }
             this._VisualChild.InvalidateMeasure();
         }
-        OnVerticalOffsetChanged(args: IDependencyPropertyChangedEventArgs) {
+
+        OnVerticalOffsetChanged (args: IDependencyPropertyChangedEventArgs) {
             var child = this.XObject.Child;
             if (!child)
                 return;
@@ -120,7 +138,7 @@ module Fayde.Controls.Primitives {
             this._VisualChild.InvalidateMeasure();
         }
 
-        _Hide() {
+        _Hide () {
             var child = this._VisualChild;
             if (!this._IsVisible || !child)
                 return;
@@ -129,7 +147,8 @@ module Fayde.Controls.Primitives {
             var surface = this._Surface || Fayde.Application.Current.MainSurface;
             surface.DetachLayer(child);
         }
-        _Show() {
+
+        _Show () {
             this._UpdateCatcher();
             var child = this._VisualChild;
             if (this._IsVisible || !child)
@@ -144,8 +163,14 @@ module Fayde.Controls.Primitives {
 
     export class Popup extends FrameworkElement {
         XamlNode: PopupNode;
-        CreateNode(): PopupNode { return new PopupNode(this); }
-        CreateLayoutUpdater(node: PopupNode) { return new PopupLayoutUpdater(node); }
+
+        CreateNode (): PopupNode {
+            return new PopupNode(this);
+        }
+
+        CreateLayoutUpdater (node: PopupNode) {
+            return new PopupLayoutUpdater(node);
+        }
 
         static ChildProperty = DependencyProperty.Register("Child", () => UIElement, Popup, undefined, (d, args) => (<Popup>d)._OnChildChanged(args));
         static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d).XamlNode.OnHorizontalOffsetChanged(args));
@@ -160,14 +185,15 @@ module Fayde.Controls.Primitives {
         Closed = new MulticastEvent<EventArgs>();
         ClickedOutside = new MulticastEvent<EventArgs>();
 
-        private _OnChildChanged(args: IDependencyPropertyChangedEventArgs) {
+        private _OnChildChanged (args: IDependencyPropertyChangedEventArgs) {
             var oldFE: FrameworkElement;
             if (args.OldValue instanceof FrameworkElement) oldFE = <FrameworkElement>args.OldValue;
             var newFE: FrameworkElement;
             if (args.NewValue instanceof FrameworkElement) newFE = <FrameworkElement>args.NewValue;
             this.XamlNode._ChildChanged(oldFE, newFE);
         }
-        private _OnIsOpenChanged(args: IDependencyPropertyChangedEventArgs) {
+
+        private _OnIsOpenChanged (args: IDependencyPropertyChangedEventArgs) {
             if (args.NewValue) {
                 this.XamlNode._Show();
                 this.Opened.RaiseAsync(this, EventArgs.Empty);
@@ -181,9 +207,10 @@ module Fayde.Controls.Primitives {
     Xaml.Content(Popup, Popup.ChildProperty);
 
     export class PopupLayoutUpdater extends LayoutUpdater {
-        ComputeBounds() { }
+        ComputeBounds () {
+        }
 
-        PostComputeTransform(hasProjection: boolean) {
+        PostComputeTransform (hasProjection: boolean) {
             var popup = <Popup>this.Node.XObject;
             var child = popup.Child;
             if (!child)
