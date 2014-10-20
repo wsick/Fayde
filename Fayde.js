@@ -28818,11 +28818,16 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Shapes) {
+        var LineUpdater = minerva.shapes.line.LineUpdater;
         var Line = (function (_super) {
             __extends(Line, _super);
             function Line() {
                 _super.apply(this, arguments);
             }
+            Line.prototype.CreateLayoutUpdater = function () {
+                return new LineUpdater();
+            };
+
             Line.X1Property = DependencyProperty.Register("X1", function () {
                 return Number;
             }, Line, 0.0);
@@ -28843,16 +28848,16 @@ var Fayde;
         var reactions;
         (function (reactions) {
             Fayde.UIReaction(Line.X1Property, function (upd, ov, nv) {
-                return upd.invalidateNaturalBounds();
+                return upd.invalidatePath();
             }, false);
             Fayde.UIReaction(Line.Y1Property, function (upd, ov, nv) {
-                return upd.invalidateNaturalBounds();
+                return upd.invalidatePath();
             }, false);
             Fayde.UIReaction(Line.X2Property, function (upd, ov, nv) {
-                return upd.invalidateNaturalBounds();
+                return upd.invalidatePath();
             }, false);
             Fayde.UIReaction(Line.Y2Property, function (upd, ov, nv) {
-                return upd.invalidateNaturalBounds();
+                return upd.invalidatePath();
             }, false);
         })(reactions || (reactions = {}));
     })(Fayde.Shapes || (Fayde.Shapes = {}));

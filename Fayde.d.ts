@@ -5494,6 +5494,7 @@ declare module Fayde.Shapes {
 }
 declare module Fayde.Shapes {
     class Line extends Shape {
+        public CreateLayoutUpdater(): minerva.shapes.line.LineUpdater;
         static X1Property: DependencyProperty;
         static Y1Property: DependencyProperty;
         static X2Property: DependencyProperty;
