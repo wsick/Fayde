@@ -29002,12 +29002,17 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Shapes) {
+        var PolygonUpdater = minerva.shapes.polygon.PolygonUpdater;
         var Polygon = (function (_super) {
             __extends(Polygon, _super);
             function Polygon() {
                 _super.call(this);
                 this.Points = new Shapes.PointCollection();
             }
+            Polygon.prototype.CreateLayoutUpdater = function () {
+                return new PolygonUpdater();
+            };
+
             Polygon._PointsCoercer = function (dobj, propd, value) {
                 if (typeof value === "string")
                     value = Shapes.PointCollection.FromData(value);
@@ -29030,11 +29035,12 @@ var Fayde;
         var reactions;
         (function (reactions) {
             Fayde.UIReaction(Polygon.FillRuleProperty, function (upd, ov, nv) {
-                return upd.invalidate();
+                return upd.invalidateFillRule();
             }, false);
             Fayde.UIReaction(Polygon.PointsProperty, function (upd, ov, nv) {
-                return upd.invalidateNaturalBounds();
-            });
+                upd.assets.points = nv._ht;
+                upd.invalidate();
+            }, true, false);
         })(reactions || (reactions = {}));
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
@@ -29042,12 +29048,17 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Shapes) {
+        var PolylineUpdater = minerva.shapes.polyline.PolylineUpdater;
         var Polyline = (function (_super) {
             __extends(Polyline, _super);
             function Polyline() {
                 _super.call(this);
                 this.Points = new Shapes.PointCollection();
             }
+            Polyline.prototype.CreateLayoutUpdater = function () {
+                return new PolylineUpdater();
+            };
+
             Polyline._PointsCoercer = function (d, propd, value) {
                 if (typeof value === "string")
                     value = Shapes.PointCollection.FromData(value);
@@ -29069,12 +29080,13 @@ var Fayde;
 
         var reactions;
         (function (reactions) {
-            Fayde.UIReaction(Polyline.FillRuleProperty, function (upd, ov, nv) {
-                return upd.invalidate();
+            Fayde.UIReaction(Shapes.Polygon.FillRuleProperty, function (upd, ov, nv) {
+                return upd.invalidateFillRule();
             }, false);
-            Fayde.UIReaction(Polyline.PointsProperty, function (upd, ov, nv) {
-                return upd.invalidateNaturalBounds();
-            });
+            Fayde.UIReaction(Shapes.Polygon.PointsProperty, function (upd, ov, nv) {
+                upd.assets.points = nv._ht;
+                upd.invalidate();
+            }, true, false);
         })(reactions || (reactions = {}));
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;

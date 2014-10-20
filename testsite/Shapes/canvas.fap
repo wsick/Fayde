@@ -25,7 +25,6 @@
         <Rectangle Canvas.Left="100" Canvas.Top="150" Width="100" Height="100" Opacity="0.5" Fill="Black" Stroke="Green" StrokeThickness="10" RadiusX="20" RadiusY="40">
         </Rectangle>
         <Line X1="0" Y1="0" X2="400" Y2="400" Stroke="Orange" StrokeThickness="3">
-
         </Line>
     </Canvas>
 </Application>

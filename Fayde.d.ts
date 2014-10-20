@@ -5534,6 +5534,7 @@ declare module Fayde.Shapes {
 }
 declare module Fayde.Shapes {
     class Polygon extends Shape {
+        public CreateLayoutUpdater(): minerva.shapes.polygon.PolygonUpdater;
         private static _PointsCoercer(dobj, propd, value);
         static FillRuleProperty: DependencyProperty;
         static PointsProperty: DependencyProperty;
@@ -5544,6 +5545,7 @@ declare module Fayde.Shapes {
 }
 declare module Fayde.Shapes {
     class Polyline extends Shape {
+        public CreateLayoutUpdater(): minerva.shapes.polyline.PolylineUpdater;
         private static _PointsCoercer(d, propd, value);
         static FillRuleProperty: DependencyProperty;
         static PointsProperty: DependencyProperty;
