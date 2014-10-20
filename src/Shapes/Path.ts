@@ -1,9 +1,9 @@
 /// <reference path="Shape.ts" />
 
 module Fayde.Shapes {
-    import ShapeUpdater = minerva.shapes.shape.ShapeUpdater;
+    import PathUpdater = minerva.shapes.path.PathUpdater;
     export class Path extends Shape {
-        //CreateLayoutUpdater(node: UINode) { return new PathLayoutUpdater(node); }
+        CreateLayoutUpdater () { return new PathUpdater(); }
 
         private static _DataCoercer (dobj: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")
@@ -18,33 +18,6 @@ module Fayde.Shapes {
     Fayde.RegisterType(Path, "Fayde.Shapes", Fayde.XMLNS);
 
     module reactions {
-        UIReaction<Media.Geometry>(Path.DataProperty, (upd: ShapeUpdater, ov, nv) => upd.invalidateNaturalBounds());
+        UIReaction<Media.Geometry>(Path.DataProperty, (upd: PathUpdater, ov, nv) => upd.invalidateNaturalBounds());
     }
-
-    //TODO: Implement path updater
-    /*
-     export class PathLayoutUpdater extends ShapeLayoutUpdater {
-     Data: Media.Geometry = null;
-
-     ComputeShapeBoundsImpl(logical: boolean, matrix?: number[]): rect {
-     var geom = this.Data;
-     if (!geom) {
-     this.SFlags = ShapeFlags.Empty;
-     return new rect();
-     }
-     return geom.GetBounds(this.CreateStrokeParameters(logical));
-     }
-     Draw(ctx: RenderContextEx) {
-     var geom = this.Data;
-     if (geom)
-     geom.Draw(ctx);
-     }
-     GetFillRule(): string {
-     var geom = this.Data;
-     if (!geom)
-     return super.GetFillRule();
-     return (<Media.PathGeometry>geom).FillRule === FillRule.EvenOdd ? "evenodd" : "nonzero";
-     }
-     }
-     */
 }

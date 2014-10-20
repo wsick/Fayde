@@ -1,12 +1,16 @@
 /// <reference path="Geometry.ts" />
 
 module Fayde.Media {
-    export class PathGeometry extends Geometry {
+    export class PathGeometry extends Geometry implements minerva.shapes.path.IPathGeometry {
         private _OverridePath: minerva.path.Path = null;
         static FillRuleProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), PathGeometry, Shapes.FillRule.EvenOdd, (d: Geometry, args) => d.InvalidateGeometry());
         static FiguresProperty = DependencyProperty.RegisterImmutable<PathFigureCollection>("Figures", () => PathFigureCollection, PathGeometry);
         FillRule: Shapes.FillRule;
         Figures: PathFigureCollection;
+
+        get fillRule (): minerva.FillRule {
+            return <any>this.FillRule;
+        }
 
         constructor () {
             super();

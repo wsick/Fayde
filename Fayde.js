@@ -26049,6 +26049,14 @@ var Fayde;
                     return _this.InvalidateFigures();
                 });
             }
+            Object.defineProperty(PathGeometry.prototype, "fillRule", {
+                get: function () {
+                    return this.FillRule;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             PathGeometry.prototype.OverridePath = function (path) {
                 this._OverridePath = path;
             };
@@ -28853,11 +28861,16 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Shapes) {
+        var PathUpdater = minerva.shapes.path.PathUpdater;
         var Path = (function (_super) {
             __extends(Path, _super);
             function Path() {
                 _super.apply(this, arguments);
             }
+            Path.prototype.CreateLayoutUpdater = function () {
+                return new PathUpdater();
+            };
+
             Path._DataCoercer = function (dobj, propd, value) {
                 if (typeof value === "string")
                     return Fayde.Media.ParseGeometry(value);

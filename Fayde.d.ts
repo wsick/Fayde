@@ -4948,12 +4948,13 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media {
-    class PathGeometry extends Geometry {
+    class PathGeometry extends Geometry implements minerva.shapes.path.IPathGeometry {
         private _OverridePath;
         static FillRuleProperty: DependencyProperty;
         static FiguresProperty: ImmutableDependencyProperty<PathFigureCollection>;
         public FillRule: Shapes.FillRule;
         public Figures: PathFigureCollection;
+        public fillRule : minerva.FillRule;
         constructor();
         public OverridePath(path: minerva.path.Path): void;
         public _Build(): minerva.path.Path;
@@ -5505,6 +5506,7 @@ declare module Fayde.Shapes {
 }
 declare module Fayde.Shapes {
     class Path extends Shape {
+        public CreateLayoutUpdater(): minerva.shapes.path.PathUpdater;
         private static _DataCoercer(dobj, propd, value);
         static DataProperty: DependencyProperty;
         public Data: Media.Geometry;
