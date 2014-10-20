@@ -3,7 +3,7 @@
 
 module Fayde.Media {
     export class Geometry extends DependencyObject implements minerva.IGeometry {
-        private _Path: Path.RawPath = null;
+        private _Path: minerva.path.Path = null;
         private _LocalBounds = new minerva.Rect();
 
         static TransformProperty = DependencyProperty.Register("Transform", () => Transform, Geometry);
@@ -15,7 +15,7 @@ module Fayde.Media {
             this._LocalBounds.height = Number.NEGATIVE_INFINITY;
         }
 
-        GetBounds (pars?: Path.IStrokeParameters): minerva.Rect {
+        GetBounds (pars?: minerva.path.IStrokeParameters): minerva.Rect {
             var compute = minerva.Rect.isEmpty(this._LocalBounds);
 
             if (!this._Path) {
@@ -45,17 +45,17 @@ module Fayde.Media {
                 raw.save();
                 ctx.transformMatrix(transform.Value._Raw);
             }
-            this._Path.Draw(raw);
+            this._Path.draw(raw);
             if (transform != null)
                 raw.restore();
         }
 
-        ComputePathBounds (pars: Path.IStrokeParameters): minerva.Rect {
+        ComputePathBounds (pars: minerva.path.IStrokeParameters): minerva.Rect {
             if (!this._Path)
                 this._Path = this._Build();
             if (!this._Path)
                 return new minerva.Rect();
-            return this._Path.CalculateBounds(pars);
+            return this._Path.calcBounds(pars);
         }
 
         InvalidateGeometry () {
@@ -66,7 +66,7 @@ module Fayde.Media {
             Incite(this);
         }
 
-        _Build (): Path.RawPath {
+        _Build (): minerva.path.Path {
             return undefined;
         }
 

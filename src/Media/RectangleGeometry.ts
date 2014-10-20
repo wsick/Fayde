@@ -9,16 +9,16 @@ module Fayde.Media {
         RadiusX: number;
         RadiusY: number;
 
-        _Build (): Path.RawPath {
+        _Build (): minerva.path.Path {
             var irect = this.Rect;
             if (!irect)
-                return;
+                return null;
 
             var radiusX = this.RadiusX;
             var radiusY = this.RadiusY;
 
-            var p = new Path.RawPath();
-            p.RoundedRect(irect.x, irect.y, irect.width, irect.height, radiusX, radiusY);
+            var p = new minerva.path.Path();
+            p.roundedRect(irect.x, irect.y, irect.width, irect.height, radiusX, radiusY);
             return p;
         }
     }

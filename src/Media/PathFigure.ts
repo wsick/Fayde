@@ -12,7 +12,7 @@ module Fayde.Media {
         StartPoint: Point;
         IsFilled: boolean;
 
-        private _Path: Path.RawPath = null;
+        private _Path: minerva.path.Path = null;
 
         constructor() {
             super();
@@ -21,18 +21,18 @@ module Fayde.Media {
             ReactTo(coll, this, () => this.InvalidatePathFigure());
         }
 
-        private _Build(): Path.RawPath {
-            var p = new Path.RawPath();
+        private _Build(): minerva.path.Path {
+            var p = new minerva.path.Path();
 
             var start = this.StartPoint;
-            p.Move(start.x, start.y);
+            p.move(start.x, start.y);
 
             var enumerator = this.Segments.getEnumerator();
             while (enumerator.moveNext()) {
                 (<PathSegment>enumerator.current)._Append(p);
             }
             if (this.IsClosed)
-                p.Close();
+                p.close();
 
             return p;
         }
@@ -42,10 +42,10 @@ module Fayde.Media {
             Incite(this);
         }
 
-        MergeInto(rp: Path.RawPath) {
+        MergeInto(rp: minerva.path.Path) {
             if (!this._Path)
                 this._Path = this._Build();
-            Path.RawPath.Merge(rp, this._Path);
+            minerva.path.Path.Merge(rp, this._Path);
         }
     }
     Fayde.RegisterType(PathFigure, "Fayde.Media", Fayde.XMLNS);

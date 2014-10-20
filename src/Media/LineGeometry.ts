@@ -7,13 +7,13 @@ module Fayde.Media {
         StartPoint: Point;
         EndPoint: Point;
 
-        _Build (): Path.RawPath {
+        _Build (): minerva.path.Path {
             var p1 = this.StartPoint;
             var p2 = this.EndPoint;
 
-            var p = new Path.RawPath();
-            p.Move(p1.x, p1.y);
-            p.Line(p2.x, p2.y);
+            var p = new minerva.path.Path();
+            p.move(p1.x, p1.y);
+            p.line(p2.x, p2.y);
             return p;
         }
     }

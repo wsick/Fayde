@@ -9,15 +9,15 @@ module Fayde.Media {
         RadiusX: number;
         RadiusY: number;
 
-        _Build(): Path.RawPath {
+        _Build(): minerva.path.Path {
             var rx = this.RadiusX;
             var ry = this.RadiusY;
             var center = this.Center;
             var x = center ? center.x : 0.0;
             var y = center ? center.y : 0.0;
 
-            var p = new Path.RawPath();
-            p.Ellipse(x - rx, y - ry, rx * 2.0, ry * 2.0);
+            var p = new minerva.path.Path();
+            p.ellipse(x - rx, y - ry, rx * 2.0, ry * 2.0);
             return p;
         }
     }

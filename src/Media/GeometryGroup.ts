@@ -15,7 +15,7 @@ module Fayde.Media {
             ReactTo(coll, this, () => this.InvalidateGeometry());
         }
 
-        ComputePathBounds (pars: Path.IStrokeParameters): minerva.Rect {
+        ComputePathBounds (pars: minerva.path.IStrokeParameters): minerva.Rect {
             var bounds = new minerva.Rect();
             var cbounds: minerva.Rect;
             for (var enumerator = this.Children.getEnumerator(); enumerator.moveNext();) {

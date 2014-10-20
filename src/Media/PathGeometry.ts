@@ -2,7 +2,7 @@
 
 module Fayde.Media {
     export class PathGeometry extends Geometry {
-        private _OverridePath: Path.RawPath = null;
+        private _OverridePath: minerva.path.Path = null;
         static FillRuleProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), PathGeometry, Shapes.FillRule.EvenOdd, (d: Geometry, args) => d.InvalidateGeometry());
         static FiguresProperty = DependencyProperty.RegisterImmutable<PathFigureCollection>("Figures", () => PathFigureCollection, PathGeometry);
         FillRule: Shapes.FillRule;
@@ -15,15 +15,15 @@ module Fayde.Media {
             ReactTo(coll, this, () => this.InvalidateFigures());
         }
 
-        OverridePath (path: Path.RawPath) {
+        OverridePath (path: minerva.path.Path) {
             this._OverridePath = path;
         }
 
-        _Build (): Path.RawPath {
+        _Build (): minerva.path.Path {
             if (this._OverridePath)
                 return this._OverridePath;
 
-            var p = new Path.RawPath();
+            var p = new minerva.path.Path();
             var figures = this.Figures;
             if (!figures)
                 return;

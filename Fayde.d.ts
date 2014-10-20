@@ -4631,11 +4631,11 @@ declare module Fayde.Media {
         static TransformProperty: DependencyProperty;
         public Transform: Transform;
         constructor();
-        public GetBounds(pars?: Path.IStrokeParameters): minerva.Rect;
+        public GetBounds(pars?: minerva.path.IStrokeParameters): minerva.Rect;
         public Draw(ctx: minerva.core.render.RenderContext): void;
-        public ComputePathBounds(pars: Path.IStrokeParameters): minerva.Rect;
+        public ComputePathBounds(pars: minerva.path.IStrokeParameters): minerva.Rect;
         public InvalidateGeometry(): void;
-        public _Build(): Path.RawPath;
+        public _Build(): minerva.path.Path;
         public Serialize(): string;
     }
     class GeometryCollection extends XamlObjectCollection<Geometry> {
@@ -4651,7 +4651,7 @@ declare module Fayde.Media {
         public Center: Point;
         public RadiusX: number;
         public RadiusY: number;
-        public _Build(): Path.RawPath;
+        public _Build(): minerva.path.Path;
     }
 }
 declare module Fayde.Shapes {
@@ -4689,7 +4689,7 @@ declare module Fayde.Media {
         public FillRule: Shapes.FillRule;
         public Children: GeometryCollection;
         constructor();
-        public ComputePathBounds(pars: Path.IStrokeParameters): minerva.Rect;
+        public ComputePathBounds(pars: minerva.path.IStrokeParameters): minerva.Rect;
         public Draw(ctx: minerva.core.render.RenderContext): void;
     }
 }
@@ -4835,7 +4835,7 @@ declare module Fayde.Media {
         static EndPointProperty: DependencyProperty;
         public StartPoint: Point;
         public EndPoint: Point;
-        public _Build(): Path.RawPath;
+        public _Build(): minerva.path.Path;
     }
 }
 declare module Fayde.Media {
@@ -4940,7 +4940,7 @@ declare module Fayde.Media {
         constructor();
         private _Build();
         private InvalidatePathFigure();
-        public MergeInto(rp: Path.RawPath): void;
+        public MergeInto(rp: minerva.path.Path): void;
     }
     class PathFigureCollection extends XamlObjectCollection<PathFigure> {
         public AddingToCollection(value: PathFigure, error: BError): boolean;
@@ -4955,14 +4955,14 @@ declare module Fayde.Media {
         public FillRule: Shapes.FillRule;
         public Figures: PathFigureCollection;
         constructor();
-        public OverridePath(path: Path.RawPath): void;
-        public _Build(): Path.RawPath;
+        public OverridePath(path: minerva.path.Path): void;
+        public _Build(): minerva.path.Path;
         public InvalidateFigures(): void;
     }
 }
 declare module Fayde.Media {
     class PathSegment extends DependencyObject {
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: minerva.path.Path): void;
     }
     class PathSegmentCollection extends XamlObjectCollection<PathSegment> {
         public AddingToCollection(value: PathSegment, error: BError): boolean;
@@ -4981,7 +4981,7 @@ declare module Fayde.Media {
         public RotationAngle: number;
         public Size: minerva.Size;
         public SweepDirection: Shapes.SweepDirection;
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: minerva.path.Path): void;
     }
     class BezierSegment extends PathSegment {
         static Point1Property: DependencyProperty;
@@ -4990,37 +4990,37 @@ declare module Fayde.Media {
         public Point1: Point;
         public Point2: Point;
         public Point3: Point;
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: minerva.path.Path): void;
     }
     class LineSegment extends PathSegment {
         static PointProperty: DependencyProperty;
         public Point: Point;
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: minerva.path.Path): void;
     }
     class PolyBezierSegment extends PathSegment {
         static PointsProperty: ImmutableDependencyProperty<Shapes.PointCollection>;
         public Points: Shapes.PointCollection;
         constructor();
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: minerva.path.Path): void;
     }
     class PolyLineSegment extends PathSegment {
         static PointsProperty: ImmutableDependencyProperty<Shapes.PointCollection>;
         public Points: Shapes.PointCollection;
         constructor();
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: minerva.path.Path): void;
     }
     class PolyQuadraticBezierSegment extends PathSegment {
         static PointsProperty: ImmutableDependencyProperty<Shapes.PointCollection>;
         public Points: Shapes.PointCollection;
         constructor();
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: minerva.path.Path): void;
     }
     class QuadraticBezierSegment extends PathSegment {
         static Point1Property: DependencyProperty;
         static Point2Property: DependencyProperty;
         public Point1: Point;
         public Point2: Point;
-        public _Append(path: Path.RawPath): void;
+        public _Append(path: minerva.path.Path): void;
     }
 }
 declare module Fayde.Media {
@@ -5074,7 +5074,7 @@ declare module Fayde.Media {
         public Rect: minerva.Rect;
         public RadiusX: number;
         public RadiusY: number;
-        public _Build(): Path.RawPath;
+        public _Build(): minerva.path.Path;
     }
 }
 declare module Fayde.Media {
@@ -5258,165 +5258,6 @@ declare module Fayde.Navigation {
         public Uri: Uri;
         public MapUri(uri: Uri): Uri;
     }
-}
-declare module Fayde.Path {
-    interface IArc extends IPathEntry {
-        x: number;
-        y: number;
-        radius: number;
-        sAngle: number;
-        eAngle: number;
-        aClockwise: boolean;
-    }
-    function Arc(x: number, y: number, radius: number, sa: number, ea: number, cc: boolean): IArc;
-}
-declare function radToDegrees(rad: any): number;
-declare module Fayde.Path {
-    interface IArcTo extends IPathEntry {
-        cpx: number;
-        cpy: number;
-        x: number;
-        y: number;
-        radius: number;
-    }
-    function ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): IArcTo;
-}
-declare module Fayde.Path {
-    interface IClose extends IPathEntry {
-        isClose: boolean;
-    }
-    function Close(): IClose;
-}
-declare module Fayde.Path {
-    interface ICubicBezier extends IPathEntry {
-        cp1x: number;
-        cp1y: number;
-        cp2x: number;
-        cp2y: number;
-        x: number;
-        y: number;
-    }
-    function CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): ICubicBezier;
-}
-declare module Fayde.Path {
-    interface IEllipse extends IPathEntry {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    }
-    function Ellipse(x: number, y: number, width: number, height: number): IEllipse;
-}
-declare module Fayde.Path {
-    interface IEllipticalArc extends IPathEntry {
-        width: number;
-        height: number;
-        rotationAngle: number;
-        isLargeArcFlag: boolean;
-        sweepDirectionFlag: Shapes.SweepDirection;
-        ex: number;
-        ey: number;
-    }
-    function EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number): IEllipticalArc;
-}
-declare module Fayde.Path {
-    interface ILine extends IPathEntry {
-        x: number;
-        y: number;
-    }
-    function Line(x: number, y: number): ILine;
-}
-declare module Fayde.Path {
-    interface IMove extends IPathEntry {
-        x: number;
-        y: number;
-        isMove: boolean;
-    }
-    function Move(x: number, y: number): IMove;
-}
-declare module Fayde.Path {
-    interface IQuadraticBezier extends IPathEntry {
-        cpx: number;
-        cpy: number;
-        x: number;
-        y: number;
-    }
-    function QuadraticBezier(cpx: number, cpy: number, x: number, y: number): IQuadraticBezier;
-}
-declare module Fayde.Path {
-    interface IStrokeParameters {
-        thickness: number;
-        join: Shapes.PenLineJoin;
-        startCap: Shapes.PenLineCap;
-        endCap: Shapes.PenLineCap;
-        miterLimit: number;
-    }
-    interface IBoundingBox {
-        l: number;
-        r: number;
-        t: number;
-        b: number;
-    }
-    interface IPathEntry {
-        sx: number;
-        sy: number;
-        ex: number;
-        ey: number;
-        isSingle: boolean;
-        draw: (canvasCtx: CanvasRenderingContext2D) => void;
-        extendFillBox: (box: IBoundingBox) => void;
-        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters) => void;
-        getStartVector(): number[];
-        getEndVector(): number[];
-    }
-    class RawPath {
-        private _Path;
-        private _EndX;
-        private _EndY;
-        public EndX : number;
-        public EndY : number;
-        public Move(x: number, y: number): void;
-        public Line(x: number, y: number): void;
-        public Rect(x: number, y: number, width: number, height: number): void;
-        public RoundedRectFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): void;
-        public RoundedRect(x: number, y: number, width: number, height: number, radiusX: number, radiusY: number): void;
-        public QuadraticBezier(cpx: number, cpy: number, x: number, y: number): void;
-        public CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
-        public Ellipse(x: number, y: number, width: number, height: number): void;
-        public EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number): void;
-        public Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: boolean): void;
-        public ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): void;
-        public Close(): void;
-        public Draw(ctx: CanvasRenderingContext2D): void;
-        public CalculateBounds(pars?: IStrokeParameters): minerva.Rect;
-        private _CalcFillBox();
-        private _CalcStrokeBox(pars);
-        static Merge(path1: RawPath, path2: RawPath): void;
-        public Serialize(): string;
-    }
-    function findMiterTips(previous: IPathEntry, entry: IPathEntry, hs: number, miterLimit: number): {
-        x: number;
-        y: number;
-    }[];
-    function findBevelTips(previous: IPathEntry, entry: IPathEntry, hs: number): {
-        x: number;
-        y: number;
-    }[];
-}
-declare module Fayde.Path {
-    interface IRect extends IPathEntry {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    }
-    function Rect(x: number, y: number, width: number, height: number): IRect;
-}
-declare module Fayde.Path {
-    function RectRounded(x: number, y: number, width: number, height: number, radiusX: number, radiusY: number): IRect;
-}
-declare module Fayde.Path {
-    function RectRoundedFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): IRect;
 }
 declare class CornerRadius extends minerva.CornerRadius implements ICloneable {
     public Clone(): CornerRadius;

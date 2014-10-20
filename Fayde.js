@@ -24067,7 +24067,7 @@ var Fayde;
                     raw.save();
                     ctx.transformMatrix(transform.Value._Raw);
                 }
-                this._Path.Draw(raw);
+                this._Path.draw(raw);
                 if (transform != null)
                     raw.restore();
             };
@@ -24077,7 +24077,7 @@ var Fayde;
                     this._Path = this._Build();
                 if (!this._Path)
                     return new minerva.Rect();
-                return this._Path.CalculateBounds(pars);
+                return this._Path.calcBounds(pars);
             };
 
             Geometry.prototype.InvalidateGeometry = function () {
@@ -24156,8 +24156,8 @@ var Fayde;
                 var x = center ? center.x : 0.0;
                 var y = center ? center.y : 0.0;
 
-                var p = new Fayde.Path.RawPath();
-                p.Ellipse(x - rx, y - ry, rx * 2.0, ry * 2.0);
+                var p = new minerva.path.Path();
+                p.ellipse(x - rx, y - ry, rx * 2.0, ry * 2.0);
                 return p;
             };
             EllipseGeometry.CenterProperty = DependencyProperty.Register("Center", function () {
@@ -24945,9 +24945,9 @@ var Fayde;
                 var p1 = this.StartPoint;
                 var p2 = this.EndPoint;
 
-                var p = new Fayde.Path.RawPath();
-                p.Move(p1.x, p1.y);
-                p.Line(p2.x, p2.y);
+                var p = new minerva.path.Path();
+                p.move(p1.x, p1.y);
+                p.line(p2.x, p2.y);
                 return p;
             };
             LineGeometry.StartPointProperty = DependencyProperty.Register("StartPoint", function () {
@@ -25555,7 +25555,7 @@ var Fayde;
                 var cbzp = new Point();
                 var qbzp = new Point();
 
-                var path = new Fayde.Path.RawPath();
+                var path = new minerva.path.Path();
                 while (this.index < this.len) {
                     var c;
                     while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {
@@ -25586,7 +25586,7 @@ var Fayde;
                                 cp1.x += cp.x;
                                 cp1.y += cp.y;
                             }
-                            path.Move(cp1.x, cp1.y);
+                            path.move(cp1.x, cp1.y);
                             start.x = cp.x = cp1.x;
                             start.y = cp.y = cp1.y;
                             this.Advance();
@@ -25597,7 +25597,7 @@ var Fayde;
                                     cp1.x += cp.x;
                                     cp1.y += cp.y;
                                 }
-                                path.Line(cp1.x, cp1.y);
+                                path.line(cp1.x, cp1.y);
                             }
                             cp.x = cp1.x;
                             cp.y = cp1.y;
@@ -25615,7 +25615,7 @@ var Fayde;
                                     cp1.y += cp.y;
                                 }
 
-                                path.Line(cp1.x, cp1.y);
+                                path.line(cp1.x, cp1.y);
 
                                 cp.x = cp1.x;
                                 cp.y = cp1.y;
@@ -25634,7 +25634,7 @@ var Fayde;
                                 x += cp.x;
                             cp = new Point(x, cp.y);
 
-                            path.Line(cp.x, cp.y);
+                            path.line(cp.x, cp.y);
                             cbz = qbz = false;
                             break;
                         case 'v':
@@ -25648,7 +25648,7 @@ var Fayde;
                                 y += cp.y;
                             cp = new Point(cp.x, y);
 
-                            path.Line(cp.x, cp.y);
+                            path.line(cp.x, cp.y);
                             cbz = qbz = false;
                             break;
                         case 'c':
@@ -25677,7 +25677,7 @@ var Fayde;
                                 }
                                 this.Advance();
 
-                                path.CubicBezier(cp1.x, cp1.y, cp2.x, cp2.y, cp3.x, cp3.y);
+                                path.cubicBezier(cp1.x, cp1.y, cp2.x, cp2.y, cp3.x, cp3.y);
 
                                 cp1.x = cp3.x;
                                 cp1.y = cp3.y;
@@ -25713,7 +25713,7 @@ var Fayde;
                                 } else
                                     cp1 = cp;
 
-                                path.CubicBezier(cp1.x, cp1.y, cp2.x, cp2.y, cp3.x, cp3.y);
+                                path.cubicBezier(cp1.x, cp1.y, cp2.x, cp2.y, cp3.x, cp3.y);
 
                                 cbz = true;
                                 cbzp.x = cp2.x;
@@ -25745,7 +25745,7 @@ var Fayde;
                                 }
                                 this.Advance();
 
-                                path.QuadraticBezier(cp1.x, cp1.y, cp2.x, cp2.y);
+                                path.quadraticBezier(cp1.x, cp1.y, cp2.x, cp2.y);
 
                                 cp.x = cp2.x;
                                 cp.y = cp2.y;
@@ -25772,7 +25772,7 @@ var Fayde;
                                 } else
                                     cp1 = cp;
 
-                                path.QuadraticBezier(cp1.x, cp1.y, cp2.x, cp2.y);
+                                path.quadraticBezier(cp1.x, cp1.y, cp2.x, cp2.y);
 
                                 qbz = true;
                                 qbzp.x = cp1.x;
@@ -25805,7 +25805,7 @@ var Fayde;
                                     cp2.y += cp.y;
                                 }
 
-                                path.EllipticalArc(cp1.x, cp1.y, angle, is_large, sweep, cp2.x, cp2.y);
+                                path.ellipticalArc(cp1.x, cp1.y, angle, is_large, sweep, cp2.x, cp2.y);
 
                                 cp.x = cp2.x;
                                 cp.y = cp2.y;
@@ -25816,7 +25816,7 @@ var Fayde;
                             break;
                         case 'z':
                         case 'Z':
-                            path.Close();
+                            path.close();
 
                             cp.x = start.x;
                             cp.y = start.y;
@@ -25958,17 +25958,17 @@ var Fayde;
                 });
             }
             PathFigure.prototype._Build = function () {
-                var p = new Fayde.Path.RawPath();
+                var p = new minerva.path.Path();
 
                 var start = this.StartPoint;
-                p.Move(start.x, start.y);
+                p.move(start.x, start.y);
 
                 var enumerator = this.Segments.getEnumerator();
                 while (enumerator.moveNext()) {
                     enumerator.current._Append(p);
                 }
                 if (this.IsClosed)
-                    p.Close();
+                    p.close();
 
                 return p;
             };
@@ -25981,7 +25981,7 @@ var Fayde;
             PathFigure.prototype.MergeInto = function (rp) {
                 if (!this._Path)
                     this._Path = this._Build();
-                Fayde.Path.RawPath.Merge(rp, this._Path);
+                minerva.path.Path.Merge(rp, this._Path);
             };
             PathFigure.IsClosedProperty = DependencyProperty.RegisterCore("IsClosed", function () {
                 return Boolean;
@@ -26057,7 +26057,7 @@ var Fayde;
                 if (this._OverridePath)
                     return this._OverridePath;
 
-                var p = new Fayde.Path.RawPath();
+                var p = new minerva.path.Path();
                 var figures = this.Figures;
                 if (!figures)
                     return;
@@ -26148,7 +26148,7 @@ var Fayde;
                 var ex = endpt ? endpt.x : 0.0;
                 var ey = endpt ? endpt.y : 0.0;
 
-                path.EllipticalArc(width, height, this.RotationAngle, this.IsLargeArc, this.SweepDirection, ex, ey);
+                path.ellipticalArc(width, height, this.RotationAngle, this.IsLargeArc, this.SweepDirection, ex, ey);
             };
             ArcSegment.IsLargeArcProperty = DependencyProperty.RegisterCore("IsLargeArc", function () {
                 return Boolean;
@@ -26187,7 +26187,7 @@ var Fayde;
                 var x3 = p3 ? p3.x : 0.0;
                 var y3 = p3 ? p3.y : 0.0;
 
-                path.CubicBezier(x1, y1, x2, y2, x3, y3);
+                path.cubicBezier(x1, y1, x2, y2, x3, y3);
             };
             BezierSegment.Point1Property = DependencyProperty.Register("Point1", function () {
                 return Point;
@@ -26212,7 +26212,7 @@ var Fayde;
                 var p = this.Point;
                 var x = p ? p.x : 0.0;
                 var y = p ? p.y : 0.0;
-                path.Line(x, y);
+                path.line(x, y);
             };
             LineSegment.PointProperty = DependencyProperty.Register("Point", function () {
                 return Point;
@@ -26243,7 +26243,7 @@ var Fayde;
                     p2 = enumerator.current;
                     enumerator.moveNext();
                     p3 = enumerator.current;
-                    path.CubicBezier(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+                    path.cubicBezier(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
                 }
             };
             PolyBezierSegment.PointsProperty = DependencyProperty.RegisterImmutable("Points", function () {
@@ -26266,7 +26266,7 @@ var Fayde;
                 var enumerator = this.Points.getEnumerator();
                 while (enumerator.moveNext()) {
                     p = enumerator.current;
-                    path.Line(p.x, p.y);
+                    path.line(p.x, p.y);
                 }
                 NotImplemented("PolyLineSegment._Append");
             };
@@ -26290,8 +26290,8 @@ var Fayde;
                 if (!points || (points.Count % 2) !== 0)
                     return;
 
-                var x0 = path.EndX;
-                var y0 = path.EndY;
+                var x0 = path.endX;
+                var y0 = path.endY;
                 var x1;
                 var y1;
                 var x2;
@@ -26313,7 +26313,7 @@ var Fayde;
                     x1 = x0 + 2 * (x1 - x0) / 3;
                     y1 = y0 + 2 * (y1 - y0) / 3;
 
-                    path.CubicBezier(x1, y1, x2, y2, x3, y3);
+                    path.cubicBezier(x1, y1, x2, y2, x3, y3);
                     x0 = x3;
                     y0 = y3;
                 }
@@ -26341,7 +26341,7 @@ var Fayde;
                 var x2 = p2 ? p2.x : 0.0;
                 var y2 = p2 ? p2.y : 0.0;
 
-                path.QuadraticBezier(x1, y1, x2, y2);
+                path.quadraticBezier(x1, y1, x2, y2);
             };
             QuadraticBezierSegment.Point1Property = DependencyProperty.Register("Point1", function () {
                 return Point;
@@ -26565,13 +26565,13 @@ var Fayde;
             RectangleGeometry.prototype._Build = function () {
                 var irect = this.Rect;
                 if (!irect)
-                    return;
+                    return null;
 
                 var radiusX = this.RadiusX;
                 var radiusY = this.RadiusY;
 
-                var p = new Fayde.Path.RawPath();
-                p.RoundedRect(irect.x, irect.y, irect.width, irect.height, radiusX, radiusY);
+                var p = new minerva.path.Path();
+                p.roundedRect(irect.x, irect.y, irect.width, irect.height, radiusX, radiusY);
                 return p;
             };
             RectangleGeometry.RectProperty = DependencyProperty.RegisterCore("Rect", function () {
@@ -27670,1298 +27670,6 @@ var Fayde;
         }
     })(Fayde.Navigation || (Fayde.Navigation = {}));
     var Navigation = Fayde.Navigation;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Arc(x, y, radius, sa, ea, cc) {
-            var inited = false;
-
-            var sx;
-            var sy;
-
-            var ex;
-            var ey;
-
-            var l;
-            var r;
-            var t;
-            var b;
-
-            var cl;
-            var cr;
-            var ct;
-            var cb;
-
-            function init() {
-                if (inited)
-                    return;
-                sx = x + (radius * Math.cos(sa));
-                sy = y + (radius * Math.sin(sa));
-                ex = x + (radius * Math.cos(ea));
-                ey = y + (radius * Math.sin(ea));
-
-                l = x - radius;
-                cl = arcContainsPoint(sx, sy, ex, ey, l, y, cc);
-
-                r = x + radius;
-                cr = arcContainsPoint(sx, sy, ex, ey, r, y, cc);
-
-                t = y - radius;
-                ct = arcContainsPoint(sx, sy, ex, ey, x, t, cc);
-
-                b = y + radius;
-                cb = arcContainsPoint(sx, sy, ex, ey, x, b, cc);
-
-                inited = true;
-            }
-
-            return {
-                sx: null,
-                sy: null,
-                isSingle: true,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                radius: radius,
-                sAngle: sa,
-                eAngle: ea,
-                aClockwise: cc,
-                draw: function (ctx) {
-                    ctx.arc(x, y, radius, sa, ea, cc);
-                },
-                extendFillBox: function (box) {
-                    if (ea === sa)
-                        return;
-                    init();
-                    this.ex = ex;
-                    this.ey = ey;
-
-                    box.l = Math.min(box.l, sx, ex);
-                    box.r = Math.max(box.r, sx, ex);
-                    box.t = Math.min(box.t, sy, ey);
-                    box.b = Math.max(box.b, sy, ey);
-
-                    if (cl)
-                        box.l = Math.min(box.l, l);
-                    if (cr)
-                        box.r = Math.max(box.r, r);
-                    if (ct)
-                        box.t = Math.min(box.t, t);
-                    if (cb)
-                        box.b = Math.max(box.b, b);
-                },
-                extendStrokeBox: function (box, pars) {
-                    if (ea === sa)
-                        return;
-                    init();
-                    this.ex = ex;
-                    this.ey = ey;
-
-                    box.l = Math.min(box.l, sx, ex);
-                    box.r = Math.max(box.r, sx, ex);
-                    box.t = Math.min(box.t, sy, ey);
-                    box.b = Math.max(box.b, sy, ey);
-
-                    var hs = pars.thickness / 2.0;
-                    if (cl)
-                        box.l = Math.min(box.l, l - hs);
-                    if (cr)
-                        box.r = Math.max(box.r, r + hs);
-                    if (ct)
-                        box.t = Math.min(box.t, t - hs);
-                    if (cb)
-                        box.b = Math.max(box.b, b + hs);
-
-                    var cap = pars.startCap || pars.endCap || 0;
-                    var sv = this.getStartVector();
-                    sv[0] = -sv[0];
-                    sv[1] = -sv[1];
-                    var ss = getCapSpread(sx, sy, pars.thickness, cap, sv);
-                    var ev = this.getEndVector();
-                    var es = getCapSpread(ex, ey, pars.thickness, cap, ev);
-
-                    box.l = Math.min(box.l, ss.x1, ss.x2, es.x1, es.x2);
-                    box.r = Math.max(box.r, ss.x1, ss.x2, es.x1, es.x2);
-                    box.t = Math.min(box.t, ss.y1, ss.y2, es.y1, es.y2);
-                    box.b = Math.max(box.b, ss.y1, ss.y2, es.y1, es.y2);
-                },
-                toString: function () {
-                    return "";
-                },
-                getStartVector: function () {
-                    var rv = [
-                        sx - x,
-                        sy - y
-                    ];
-                    if (cc)
-                        return [rv[1], -rv[0]];
-                    return [-rv[1], rv[0]];
-                },
-                getEndVector: function () {
-                    var rv = [
-                        ex - x,
-                        ey - y
-                    ];
-                    if (cc)
-                        return [rv[1], -rv[0]];
-                    return [-rv[1], rv[0]];
-                }
-            };
-        }
-        Path.Arc = Arc;
-
-        function arcContainsPoint(sx, sy, ex, ey, cpx, cpy, cc) {
-            var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
-            if (n === 0)
-                return true;
-            if (n > 0 && cc)
-                return true;
-            if (n < 0 && !cc)
-                return true;
-            return false;
-        }
-
-        function getCapSpread(x, y, thickness, cap, vector) {
-            var hs = thickness / 2.0;
-            switch (cap) {
-                case 2 /* Round */:
-                    return {
-                        x1: x - hs,
-                        x2: x + hs,
-                        y1: y - hs,
-                        y2: y + hs
-                    };
-                    break;
-                case 1 /* Square */:
-                    var ed = normalizeVector(vector);
-                    var edo = perpendicularVector(ed);
-                    return {
-                        x1: x + hs * (ed[0] + edo[0]),
-                        x2: x + hs * (ed[0] - edo[0]),
-                        y1: y + hs * (ed[1] + edo[1]),
-                        y2: y + hs * (ed[1] - edo[1])
-                    };
-                    break;
-                case 0 /* Flat */:
-                default:
-                    var ed = normalizeVector(vector);
-                    var edo = perpendicularVector(ed);
-                    return {
-                        x1: x + hs * edo[0],
-                        x2: x + hs * -edo[0],
-                        y1: y + hs * edo[1],
-                        y2: y + hs * -edo[1]
-                    };
-                    break;
-            }
-        }
-        function normalizeVector(v) {
-            var len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
-            return [
-                v[0] / len,
-                v[1] / len
-            ];
-        }
-        function perpendicularVector(v) {
-            return [
-                -v[1],
-                v[0]
-            ];
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-function radToDegrees(rad) {
-    return rad * 180 / Math.PI;
-}
-
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        var EPSILON = 1e-10;
-
-        function ArcTo(cpx, cpy, x, y, radius) {
-            var line;
-            var arc;
-            var inited = false;
-            function init(prevX, prevY) {
-                if (inited)
-                    return;
-                if (line && arc)
-                    return arc;
-                var v1 = [cpx - prevX, cpy - prevY];
-                var v2 = [x - cpx, y - cpy];
-                var inner_theta = Math.PI - Vector.angleBetween(v1, v2);
-
-                var a = getTangentPoint(inner_theta, radius, [prevX, prevY], v1, true);
-                var b = getTangentPoint(inner_theta, radius, [cpx, cpy], v2, false);
-
-                var c = getPerpendicularIntersections(a, v1, b, v2);
-
-                var cc = !Vector.isClockwiseTo(v1, v2);
-
-                var sa = Math.atan2(a[1] - c[1], a[0] - c[0]);
-                if (sa < 0)
-                    sa = (2 * Math.PI) + sa;
-                var ea = Math.atan2(b[1] - c[1], b[0] - c[0]);
-                if (ea < 0)
-                    ea = (2 * Math.PI) + ea;
-
-                line = Path.Line(a[0], a[1]);
-                line.sx = prevX;
-                line.sy = prevY;
-                arc = Path.Arc(c[0], c[1], radius, sa, ea, cc);
-                inited = true;
-            }
-
-            return {
-                sx: null,
-                sy: null,
-                isSingle: false,
-                cpx: cpx,
-                cpy: cpy,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                radius: radius,
-                draw: function (ctx) {
-                    ctx.arcTo(cpx, cpy, x, y, radius);
-                },
-                extendFillBox: function (box) {
-                    init(this.sx, this.sy);
-                    this.ex = arc.ex;
-                    this.ey = arc.ey;
-
-                    box.l = Math.min(box.l, this.sx);
-                    box.r = Math.max(box.r, this.sx);
-                    box.t = Math.min(box.t, this.sy);
-                    box.b = Math.max(box.b, this.sy);
-
-                    line.extendFillBox(box);
-                    arc.extendFillBox(box);
-                },
-                extendStrokeBox: function (box, pars) {
-                    init(this.sx, this.sy);
-                    this.ex = arc.ex;
-                    this.ey = arc.ey;
-
-                    var hs = pars.thickness / 2;
-                    box.l = Math.min(box.l, this.sx - hs);
-                    box.r = Math.max(box.r, this.sx + hs);
-                    box.t = Math.min(box.t, this.sy - hs);
-                    box.b = Math.max(box.b, this.sy + hs);
-
-                    line.extendStrokeBox(box, pars);
-                    arc.extendStrokeBox(box, pars);
-                },
-                toString: function () {
-                    return "";
-                },
-                getStartVector: function () {
-                    init(this.sx, this.sy);
-                    return line.getStartVector();
-                },
-                getEndVector: function () {
-                    return arc.getEndVector();
-                }
-            };
-        }
-        Path.ArcTo = ArcTo;
-
-        function getTangentPoint(theta, radius, s, d, invert) {
-            var len = Math.sqrt(d[0] * d[0] + d[1] * d[1]);
-            var f = radius / Math.tan(theta / 2);
-            var t = f / len;
-            if (invert)
-                t = 1 - t;
-            return [s[0] + t * d[0], s[1] + t * d[1]];
-        }
-        function getPerpendicularIntersections(s1, d1, s2, d2) {
-            return Vector.intersection(s1, Vector.orthogonal(d1.slice(0)), s2, Vector.orthogonal(d2.slice(0)));
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Close() {
-            return {
-                sx: null,
-                sy: null,
-                ex: null,
-                ey: null,
-                isSingle: false,
-                isClose: true,
-                draw: function (ctx) {
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                },
-                extendStrokeBox: function (box, pars) {
-                },
-                toString: function () {
-                    return "Z";
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.Close = Close;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y) {
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: false,
-                cp1x: cp1x,
-                cp1y: cp1y,
-                cp2x: cp2x,
-                cp2y: cp2y,
-                x: x,
-                y: y,
-                draw: function (ctx) {
-                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
-                },
-                extendFillBox: function (box) {
-                    var m = getMaxima(this.sx, cp1x, cp2x, x, this.sy, cp1y, cp2y, y);
-                    if (m.x[0] != null) {
-                        box.l = Math.min(box.l, m.x[0]);
-                        box.r = Math.max(box.r, m.x[0]);
-                    }
-                    if (m.x[1] != null) {
-                        box.l = Math.min(box.l, m.x[1]);
-                        box.r = Math.max(box.r, m.x[1]);
-                    }
-                    if (m.y[0] != null) {
-                        box.t = Math.min(box.t, m.y[0]);
-                        box.b = Math.max(box.b, m.y[0]);
-                    }
-                    if (m.y[1] != null) {
-                        box.t = Math.min(box.t, m.y[1]);
-                        box.b = Math.max(box.b, m.y[1]);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-
-                    var m = getMaxima(this.sx, cp1x, cp2x, x, this.sy, cp1y, cp2y, y);
-                    if (m.x[0] != null) {
-                        box.l = Math.min(box.l, m.x[0] - hs);
-                        box.r = Math.max(box.r, m.x[0] + hs);
-                    }
-                    if (m.x[1] != null) {
-                        box.l = Math.min(box.l, m.x[1] - hs);
-                        box.r = Math.max(box.r, m.x[1] + hs);
-                    }
-                    if (m.y[0] != null) {
-                        box.t = Math.min(box.t, m.y[0] - hs);
-                        box.b = Math.max(box.b, m.y[0] + hs);
-                    }
-                    if (m.y[1] != null) {
-                        box.t = Math.min(box.t, m.y[1] - hs);
-                        box.b = Math.max(box.b, m.y[1] + hs);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                toString: function () {
-                    return "C" + cp1x.toString() + "," + cp1y.toString() + " " + cp2x.toString() + "," + cp2y.toString() + " " + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    return [
-                        3 * (cp1x - this.sx),
-                        3 * (cp1y - this.sy)
-                    ];
-                },
-                getEndVector: function () {
-                    return [
-                        3 * (x - cp2x),
-                        3 * (y - cp2y)
-                    ];
-                }
-            };
-        }
-        Path.CubicBezier = CubicBezier;
-
-        
-        function getMaxima(x1, x2, x3, x4, y1, y2, y3, y4) {
-            return {
-                x: cod(x1, x2, x3, x4),
-                y: cod(y1, y2, y3, y4)
-            };
-        }
-        function cod(a, b, c, d) {
-            var u = 2 * a - 4 * b + 2 * c;
-            var v = b - a;
-            var w = -a + 3 * b + d - 3 * c;
-            var rt = Math.sqrt(u * u - 4 * v * w);
-
-            var cods = [null, null];
-            if (isNaN(rt))
-                return cods;
-
-            var t, ot;
-
-            t = (-u + rt) / (2 * w);
-            if (t >= 0 && t <= 1) {
-                ot = 1 - t;
-                cods[0] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-            }
-
-            t = (-u - rt) / (2 * w);
-            if (t >= 0 && t <= 1) {
-                ot = 1 - t;
-                cods[1] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-            }
-
-            return cods;
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Ellipse(x, y, width, height) {
-            var radiusX = width / 2;
-            var radiusY = height / 2;
-            var right = x + width;
-            var bottom = y + height;
-            var centerX = x + radiusX;
-            var centerY = y + radiusY;
-
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: true,
-                x: x,
-                y: y,
-                width: width,
-                height: height,
-                draw: function (ctx) {
-                    ctx.beginPath();
-                    if (width === height) {
-                        ctx.arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
-                        return;
-                    }
-
-                    var kappa = .5522848;
-                    var ox = radiusX * kappa;
-                    var oy = radiusY * kappa;
-
-                    ctx.moveTo(x, centerY);
-
-                    ctx.bezierCurveTo(x, centerY - oy, centerX - ox, y, centerX, y);
-
-                    ctx.bezierCurveTo(centerX + ox, y, right, centerY - oy, right, centerY);
-
-                    ctx.bezierCurveTo(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
-
-                    ctx.bezierCurveTo(centerX - ox, bottom, x, centerY + oy, x, centerY);
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.Ellipse = Ellipse;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
-            return {
-                sx: null,
-                sy: null,
-                isSingle: false,
-                width: width,
-                height: height,
-                rotationAngle: rotationAngle,
-                isLargeArcFlag: isLargeArcFlag,
-                sweepDirectionFlag: sweepDirectionFlag,
-                ex: ex,
-                ey: ey,
-                draw: function (ctx) {
-                    console.warn("[NOT IMPLEMENTED] Draw Elliptical Arc");
-                },
-                extendFillBox: function (box) {
-                    console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc");
-                },
-                extendStrokeBox: function (box, pars) {
-                    console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc (with stroke)");
-                },
-                toString: function () {
-                    return "A" + width.toString() + "," + height.toString() + " " + rotationAngle.toString() + " " + isLargeArcFlag.toString() + " " + sweepDirectionFlag.toString() + " " + ex.toString() + "," + ey.toString();
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.EllipticalArc = EllipticalArc;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Line(x, y) {
-            return {
-                isSingle: false,
-                sx: null,
-                sy: null,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                draw: function (ctx) {
-                    ctx.lineTo(x, y);
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    this.extendFillBox(box);
-                },
-                toString: function () {
-                    return "L" + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    return [
-                        x - this.sx,
-                        y - this.sy
-                    ];
-                },
-                getEndVector: function () {
-                    return [
-                        x - this.sx,
-                        y - this.sy
-                    ];
-                }
-            };
-        }
-        Path.Line = Line;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Move(x, y) {
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: false,
-                isMove: true,
-                x: x,
-                y: y,
-                draw: function (ctx) {
-                    ctx.moveTo(x, y);
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    this.extendFillBox(box);
-                },
-                toString: function () {
-                    return "M" + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.Move = Move;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function QuadraticBezier(cpx, cpy, x, y) {
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: false,
-                cpx: cpx,
-                cpy: cpy,
-                x: x,
-                y: y,
-                draw: function (ctx) {
-                    ctx.quadraticCurveTo(cpx, cpy, x, y);
-                },
-                extendFillBox: function (box) {
-                    var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
-                    if (m.x != null) {
-                        box.l = Math.min(box.l, m.x);
-                        box.r = Math.max(box.r, m.x);
-                    }
-                    if (m.y != null) {
-                        box.t = Math.min(box.t, m.y);
-                        box.b = Math.max(box.b, m.y);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-
-                    var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
-                    if (m.x) {
-                        box.l = Math.min(box.l, m.x - hs);
-                        box.r = Math.max(box.r, m.x + hs);
-                    }
-                    if (m.y) {
-                        box.t = Math.min(box.t, m.y - hs);
-                        box.b = Math.max(box.b, m.y + hs);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                toString: function () {
-                    return "Q" + cpx.toString() + "," + cpy.toString() + " " + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    return [
-                        2 * (cpx - this.sx),
-                        2 * (cpy - this.sy)
-                    ];
-                },
-                getEndVector: function () {
-                    return [
-                        2 * (x - cpx),
-                        2 * (y - cpy)
-                    ];
-                }
-            };
-        }
-        Path.QuadraticBezier = QuadraticBezier;
-
-        
-        function getMaxima(x1, x2, x3, y1, y2, y3) {
-            return {
-                x: cod(x1, x2, x3),
-                y: cod(y1, y2, y3)
-            };
-        }
-        function cod(a, b, c) {
-            var t = (a - b) / (a - 2 * b + c);
-            if (t < 0 || t > 1)
-                return null;
-            return (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        
-
-        var RawPath = (function () {
-            function RawPath() {
-                this._Path = [];
-                this._EndX = 0.0;
-                this._EndY = 0.0;
-            }
-            Object.defineProperty(RawPath.prototype, "EndX", {
-                get: function () {
-                    return this._EndX;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(RawPath.prototype, "EndY", {
-                get: function () {
-                    return this._EndY;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            RawPath.prototype.Move = function (x, y) {
-                this._Path.push(Path.Move(x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Line = function (x, y) {
-                this._Path.push(Path.Line(x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Rect = function (x, y, width, height) {
-                this._Path.push(Path.Rect(x, y, width, height));
-            };
-            RawPath.prototype.RoundedRectFull = function (x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
-                this._Path.push(Path.RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.RoundedRect = function (x, y, width, height, radiusX, radiusY) {
-                this._Path.push(Path.RectRounded(x, y, width, height, radiusX, radiusY));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.QuadraticBezier = function (cpx, cpy, x, y) {
-                this._Path.push(Path.QuadraticBezier(cpx, cpy, x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.CubicBezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
-                this._Path.push(Path.CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Ellipse = function (x, y, width, height) {
-                this._Path.push(Path.Ellipse(x, y, width, height));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
-                this._Path.push(Path.EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey));
-            };
-            RawPath.prototype.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
-                this._Path.push(Path.Arc(x, y, r, sAngle, eAngle, aClockwise));
-            };
-            RawPath.prototype.ArcTo = function (cpx, cpy, x, y, radius) {
-                var arcto = Path.ArcTo(cpx, cpy, x, y, radius);
-                this._Path.push(arcto);
-                this._EndX = arcto.ex;
-                this._EndY = arcto.ey;
-            };
-            RawPath.prototype.Close = function () {
-                this._Path.push(Path.Close());
-            };
-
-            RawPath.prototype.Draw = function (ctx) {
-                ctx.beginPath();
-                var path = this._Path;
-                var len = path.length;
-                for (var i = 0; i < len; i++) {
-                    path[i].draw(ctx);
-                }
-            };
-            RawPath.prototype.CalculateBounds = function (pars) {
-                var box = pars && pars.thickness > 1 ? this._CalcStrokeBox(pars) : this._CalcFillBox();
-                return new minerva.Rect(box.l, box.t, Math.max(0, box.r - box.l), Math.max(0, box.b - box.t));
-            };
-            RawPath.prototype._CalcFillBox = function () {
-                var path = this._Path;
-                var len = path.length;
-                var box = {
-                    l: Number.POSITIVE_INFINITY,
-                    r: Number.NEGATIVE_INFINITY,
-                    t: Number.POSITIVE_INFINITY,
-                    b: Number.NEGATIVE_INFINITY
-                };
-                var curx = null;
-                var cury = null;
-                var entry;
-                for (var i = 0; i < len; i++) {
-                    entry = path[i];
-                    entry.sx = curx;
-                    entry.sy = cury;
-
-                    entry.extendFillBox(box);
-
-                    curx = entry.ex || 0;
-                    cury = entry.ey || 0;
-                }
-                return box;
-            };
-            RawPath.prototype._CalcStrokeBox = function (pars) {
-                var box = {
-                    l: Number.POSITIVE_INFINITY,
-                    r: Number.NEGATIVE_INFINITY,
-                    t: Number.POSITIVE_INFINITY,
-                    b: Number.NEGATIVE_INFINITY
-                };
-                processStrokedBounds(box, this._Path, pars);
-                return box;
-            };
-
-            RawPath.Merge = function (path1, path2) {
-                path1._Path.push.apply(path1._Path, path2._Path);
-                path1._EndX += path2._EndX;
-                path1._EndY += path2._EndY;
-            };
-
-            RawPath.prototype.Serialize = function () {
-                var path = this._Path;
-                var len = path.length;
-                var s = "";
-                for (var i = 0; i < len; i++) {
-                    if (i > 0)
-                        s += " ";
-                    s += path[i].toString();
-                }
-                return s;
-            };
-            return RawPath;
-        })();
-        Path.RawPath = RawPath;
-        function expandStartCap(box, entry, pars) {
-            var v;
-            var hs = pars.thickness / 2.0;
-            var cap = pars.startCap || pars.endCap || 0;
-            switch (cap) {
-                case 2 /* Round */:
-                    box.l = Math.min(box.l, entry.sx - hs);
-                    box.r = Math.max(box.r, entry.sx + hs);
-                    box.t = Math.min(box.t, entry.sy - hs);
-                    box.b = Math.max(box.b, entry.sy + hs);
-                    break;
-                case 1 /* Square */:
-                    if (!(v = entry.getStartVector()))
-                        return;
-                    if (!v[0] || !v[1])
-                        return;
-                    var sd = Vector.reverse(Vector.normalize(v.slice(0)));
-                    var sdo = Vector.orthogonal(sd.slice(0));
-
-                    var x1 = entry.sx + hs * (sd[0] + sdo[0]);
-                    var x2 = entry.sx + hs * (sd[0] - sdo[0]);
-                    var y1 = entry.sy + hs * (sd[1] + sdo[1]);
-                    var y2 = entry.sy + hs * (sd[1] - sdo[1]);
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-                case 0 /* Flat */:
-                default:
-                    if (!(v = entry.getStartVector()))
-                        return;
-                    if (!v[0] || !v[1])
-                        return;
-                    var sdo = Vector.orthogonal(Vector.normalize(v.slice(0)));
-
-                    var x1 = entry.sx + hs * sdo[0];
-                    var x2 = entry.sx + hs * -sdo[0];
-                    var y1 = entry.sy + hs * sdo[1];
-                    var y2 = entry.sy + hs * -sdo[1];
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-            }
-        }
-        function expandEndCap(box, entry, pars) {
-            var ex = entry.ex;
-            var ey = entry.ey;
-
-            var v;
-            var hs = pars.thickness / 2.0;
-            var cap = pars.startCap || pars.endCap || 0;
-            switch (cap) {
-                case 2 /* Round */:
-                    box.l = Math.min(box.l, ex - hs);
-                    box.r = Math.max(box.r, ex + hs);
-                    box.t = Math.min(box.t, ey - hs);
-                    box.b = Math.max(box.b, ey + hs);
-                    break;
-                case 1 /* Square */:
-                    if (!(v = entry.getEndVector()))
-                        return;
-                    var ed = Vector.normalize(v.slice(0));
-                    var edo = Vector.orthogonal(ed.slice(0));
-
-                    var x1 = ex + hs * (ed[0] + edo[0]);
-                    var x2 = ex + hs * (ed[0] - edo[0]);
-                    var y1 = ey + hs * (ed[1] + edo[1]);
-                    var y2 = ey + hs * (ed[1] - edo[1]);
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-                case 0 /* Flat */:
-                default:
-                    if (!(v = entry.getEndVector()))
-                        return;
-                    var edo = Vector.orthogonal(Vector.normalize(v.slice(0)));
-
-                    var x1 = ex + hs * edo[0];
-                    var x2 = ex + hs * -edo[0];
-                    var y1 = ey + hs * edo[1];
-                    var y2 = ey + hs * -edo[1];
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-            }
-        }
-        function expandLineJoin(box, previous, entry, pars) {
-            var hs = pars.thickness / 2.0;
-            if (pars.join === 2 /* Round */) {
-                box.l = Math.min(box.l, entry.sx - hs);
-                box.r = Math.max(box.r, entry.sx + hs);
-                box.t = Math.min(box.t, entry.sy - hs);
-                box.b = Math.max(box.b, entry.sy + hs);
-            }
-            var tips = (pars.join === 0 /* Miter */) ? findMiterTips(previous, entry, hs, pars.miterLimit) : findBevelTips(previous, entry, hs);
-            if (!tips)
-                return;
-            var x1 = tips[0].x;
-            var x2 = tips[1].x;
-            var y1 = tips[0].y;
-            var y2 = tips[1].y;
-            box.l = Math.min(box.l, x1, x2);
-            box.r = Math.max(box.r, x1, x2);
-            box.t = Math.min(box.t, y1, y2);
-            box.b = Math.max(box.b, y1, y2);
-        }
-
-        function processStrokedBounds(box, entries, pars) {
-            var len = entries.length;
-            var last = null;
-            var curx = null;
-            var cury = null;
-            var sx = null;
-            var sy = null;
-
-            var isLastEntryMove = false;
-
-            function processEntry(entry, i) {
-                entry.sx = curx;
-                entry.sy = cury;
-
-                if (!entry.isSingle) {
-                    if (!entry.isMove && isLastEntryMove) {
-                        sx = entry.sx;
-                        sy = entry.sy;
-                        expandStartCap(box, entry, pars);
-                    }
-                    if (!isLastEntryMove && i > 0)
-                        expandLineJoin(box, last, entry, pars);
-                }
-
-                entry.extendStrokeBox(box, pars);
-
-                curx = entry.ex || 0;
-                cury = entry.ey || 0;
-                isLastEntryMove = !!entry.isMove;
-                last = entry;
-            }
-
-            for (var i = 0; i < len; i++) {
-                processEntry(entries[i], i);
-            }
-            var end = entries[len - 1];
-            if (end && !end.isSingle)
-                expandEndCap(box, end, pars);
-        }
-        function findMiterTips(previous, entry, hs, miterLimit) {
-            var x = entry.sx;
-            var y = entry.sy;
-
-            var av = previous.getEndVector();
-            var bv = entry.getStartVector();
-            if (!av || !bv)
-                return null;
-            Vector.reverse(av);
-            var tau = Vector.angleBetween(av, bv) / 2;
-            if (isNaN(tau))
-                return null;
-
-            var miterRatio = 1 / Math.sin(tau);
-            if (miterRatio > miterLimit)
-                return findBevelTips(previous, entry, hs);
-
-            var cv = Vector.isClockwiseTo(av, bv) ? av.slice(0) : bv.slice(0);
-            Vector.normalize(Vector.reverse(Vector.rotate(cv, tau)));
-
-            var miterLen = hs * miterRatio;
-
-            var tip = { x: x + miterLen * cv[0], y: y + miterLen * cv[1] };
-            return [
-                tip,
-                tip
-            ];
-        }
-        Path.findMiterTips = findMiterTips;
-        function findBevelTips(previous, entry, hs) {
-            var x = entry.sx;
-            var y = entry.sy;
-
-            var av = previous.getEndVector();
-            var bv = entry.getStartVector();
-            if (!av || !bv)
-                return;
-            Vector.normalize(Vector.reverse(av));
-            Vector.normalize(bv);
-            var avo, bvo;
-            if (Vector.isClockwiseTo(av, bv)) {
-                avo = Vector.orthogonal(av.slice(0));
-                bvo = Vector.reverse(Vector.orthogonal(bv.slice(0)));
-            } else {
-                avo = Vector.reverse(Vector.orthogonal(av.slice(0)));
-                bvo = Vector.orthogonal(bv.slice(0));
-            }
-
-            return [
-                { x: x - hs * avo[0], y: y - hs * avo[1] },
-                { x: x - hs * bvo[0], y: y - hs * bvo[1] }
-            ];
-        }
-        Path.findBevelTips = findBevelTips;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Rect(x, y, width, height) {
-            return {
-                sx: null,
-                sy: null,
-                isSingle: true,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                width: width,
-                height: height,
-                draw: function (ctx) {
-                    ctx.rect(x, y, width, height);
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.Rect = Rect;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function RectRounded(x, y, width, height, radiusX, radiusY) {
-            if (radiusX === 0.0 && radiusY === 0.0)
-                return Path.Rect(x, y, width, height);
-
-            var left = x;
-            var top = y;
-            var right = x + width;
-            var bottom = y + height;
-
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: true,
-                x: x,
-                y: y,
-                width: width,
-                height: height,
-                radiusX: radiusX,
-                radiusY: radiusY,
-                draw: function (ctx) {
-                    ctx.beginPath();
-                    ctx.moveTo(left + radiusX, top);
-
-                    ctx.lineTo(right - radiusX, top);
-
-                    ctx.quadraticCurveTo(right, top, right, top + radiusY);
-
-                    ctx.lineTo(right, bottom - radiusY);
-
-                    ctx.quadraticCurveTo(right, bottom, right - radiusX, bottom);
-
-                    ctx.lineTo(left + radiusX, bottom);
-
-                    ctx.quadraticCurveTo(left, bottom, left, bottom - radiusY);
-
-                    ctx.lineTo(left, top + radiusY);
-
-                    ctx.quadraticCurveTo(left, top, left + radiusX, top);
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.RectRounded = RectRounded;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
-            var left = x;
-            var top = y;
-            var right = x + width;
-            var bottom = y + height;
-
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: true,
-                x: x,
-                y: y,
-                width: width,
-                height: height,
-                draw: function (ctx) {
-                    var right = left + width;
-                    var bottom = top + height;
-                    ctx.beginPath();
-                    ctx.moveTo(left + topLeft, top);
-
-                    ctx.lineTo(right - topRight, top);
-
-                    if (topRight > 0)
-                        ctx.quadraticCurveTo(right, top, right, top + topRight);
-
-                    ctx.lineTo(right, bottom - bottomRight);
-
-                    if (bottomRight > 0)
-                        ctx.quadraticCurveTo(right, bottom, right - bottomRight, bottom);
-
-                    ctx.lineTo(left + bottomLeft, bottom);
-
-                    if (bottomLeft > 0)
-                        ctx.quadraticCurveTo(left, bottom, left, bottom - bottomLeft);
-
-                    ctx.lineTo(left, top + topLeft);
-
-                    if (topLeft > 0)
-                        ctx.quadraticCurveTo(left, top, left + topLeft, top);
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.RectRoundedFull = RectRoundedFull;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
 })(Fayde || (Fayde = {}));
 var CornerRadius = (function (_super) {
     __extends(CornerRadius, _super);

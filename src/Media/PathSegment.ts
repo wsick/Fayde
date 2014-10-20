@@ -3,7 +3,7 @@
 
 module Fayde.Media {
     export class PathSegment extends DependencyObject {
-        _Append(path: Path.RawPath) {
+        _Append(path: minerva.path.Path) {
             //Abstract method
         }
     }
