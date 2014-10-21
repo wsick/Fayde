@@ -11,6 +11,7 @@ module Fayde {
         XObject: FrameworkElement;
         constructor(xobj: FrameworkElement) {
             super(xobj);
+            this.LayoutUpdater.tree.setTemplateApplier(() => this.ApplyTemplate());
         }
         SubtreeNode: XamlNode;
         SetSubtreeNode(subtreeNode: XamlNode, error: BError): boolean {
@@ -85,6 +86,13 @@ module Fayde {
             return true;
         }
 
+        ApplyTemplate(): boolean {
+            var error = new BError();
+            var result = this.ApplyTemplateWithError(error);
+            if (error.Message)
+                error.ThrowException();
+            return result;
+        }
         ApplyTemplateWithError(error: BError): boolean {
             if (this.SubtreeNode)
                 return false;
@@ -118,7 +126,7 @@ module Fayde {
             rd.AttachTo(this);
         }
         CreateNode(): FENode { return new FENode(this); }
-        
+
         static ActualHeightProperty = DependencyProperty.RegisterReadOnly("ActualHeight", () => Number, FrameworkElement);
         static ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty = DependencyProperty.Register("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
@@ -136,7 +144,7 @@ module Fayde {
         static WidthProperty = DependencyProperty.Register("Width", () => Length, FrameworkElement, NaN);
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, FrameworkElement);
         static DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, FrameworkElement);
-        
+
         IsInheritable(propd: DependencyProperty): boolean {
             if (propd === FrameworkElement.FlowDirectionProperty)
                 return true;
@@ -144,7 +152,7 @@ module Fayde {
                 return true;
             return super.IsInheritable(propd);
         }
-                
+
         ActualHeight: number;
         ActualWidth: number;
         FlowDirection: FlowDirection;

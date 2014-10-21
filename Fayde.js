@@ -2776,7 +2776,11 @@ var Fayde;
     var FENode = (function (_super) {
         __extends(FENode, _super);
         function FENode(xobj) {
+            var _this = this;
             _super.call(this, xobj);
+            this.LayoutUpdater.tree.setTemplateApplier(function () {
+                return _this.ApplyTemplate();
+            });
         }
         FENode.prototype.SetSubtreeNode = function (subtreeNode, error) {
             if (this.SubtreeNode) {
@@ -2847,6 +2851,13 @@ var Fayde;
             return true;
         };
 
+        FENode.prototype.ApplyTemplate = function () {
+            var error = new BError();
+            var result = this.ApplyTemplateWithError(error);
+            if (error.Message)
+                error.ThrowException();
+            return result;
+        };
         FENode.prototype.ApplyTemplateWithError = function (error) {
             if (this.SubtreeNode)
                 return false;
@@ -29624,5 +29635,35 @@ var Fayde;
         Fayde.RegisterType(TemplateBinding, "Fayde.Xaml", Fayde.XMLNS);
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    function debugLayers() {
+        var arr = [];
+        var app = Fayde.Application.Current;
+        for (var walker = app.MainSurface.walkLayers(); walker.step();) {
+            arr.push(sexify(walker.current));
+        }
+        return arr;
+    }
+    Fayde.debugLayers = debugLayers;
+
+    function sexify(updater) {
+        var node = updater.getAttachedValue("$node");
+        var xobj = node.XObject;
+
+        var ctor = new Function("return function " + xobj.constructor.name + "() { }")();
+        var obj = new ctor();
+
+        obj.assets = updater.assets;
+        obj.children = [];
+
+        for (var walker = updater.tree.walk(); walker.step();) {
+            obj.children.push(sexify(walker.current));
+        }
+
+        return obj;
+    }
+    Fayde.sexify = sexify;
 })(Fayde || (Fayde = {}));
 //# sourceMappingURL=Fayde.js.map

@@ -663,6 +663,7 @@ declare module Fayde {
         public InvokeLoaded(): void;
         public AttachVisualChild(uie: UIElement, error: BError): boolean;
         public DetachVisualChild(uie: UIElement, error: BError): boolean;
+        public ApplyTemplate(): boolean;
         public ApplyTemplateWithError(error: BError): boolean;
         public DoApplyTemplateWithError(error: BError): boolean;
         public FinishApplyTemplateWithError(uie: UIElement, error: BError): boolean;
@@ -5641,4 +5642,8 @@ declare module Fayde.Xaml {
         constructor(property?: string);
         public Transmute(ctx: ITransmuteContext): Expression;
     }
+}
+declare module Fayde {
+    function debugLayers(): any[];
+    function sexify(updater: minerva.core.Updater): any;
 }
