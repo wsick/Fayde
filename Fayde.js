@@ -29657,6 +29657,8 @@ var Fayde;
 
         obj.assets = updater.assets;
         obj.children = [];
+        obj.id = xobj._ID;
+        obj.node = node;
 
         for (var walker = updater.tree.walk(); walker.step();) {
             obj.children.push(sexify(walker.current));

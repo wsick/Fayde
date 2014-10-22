@@ -17,16 +17,8 @@ module Fayde {
 
         obj.assets = updater.assets;
         obj.children = [];
-        /*
-        var obj = {
-            type: xobj.constructor.name,
-            assets: updater.assets,
-            node: node,
-            xobject: xobj,
-            updater: updater,
-            children: []
-        };
-        */
+        obj.id = xobj._ID;
+        obj.node = node;
 
         for (var walker = updater.tree.walk(); walker.step();) {
             obj.children.push(sexify(walker.current));
