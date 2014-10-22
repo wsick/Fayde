@@ -18105,10 +18105,14 @@ var Fayde;
                 this.$$root = uie;
             }
             this.attachLayer(uie.XamlNode.LayoutUpdater, root);
+            uie.XamlNode.SetIsLoaded(true);
+            uie.XamlNode.SetIsAttached(true);
         };
 
         Surface.prototype.Detach = function (uie) {
             this.detachLayer(uie.XamlNode.LayoutUpdater);
+            uie.XamlNode.SetIsLoaded(false);
+            uie.XamlNode.SetIsAttached(false);
         };
 
         Surface.prototype.Focus = function (node, recurse) {

@@ -35,10 +35,14 @@ module Fayde {
                 this.$$root = uie;
             }
             this.attachLayer(uie.XamlNode.LayoutUpdater, root);
+            uie.XamlNode.SetIsLoaded(true);
+            uie.XamlNode.SetIsAttached(true);
         }
 
         Detach (uie: UIElement) {
             this.detachLayer(uie.XamlNode.LayoutUpdater);
+            uie.XamlNode.SetIsLoaded(false);
+            uie.XamlNode.SetIsAttached(false);
         }
 
         Focus (node: Controls.ControlNode, recurse?: boolean): boolean {
