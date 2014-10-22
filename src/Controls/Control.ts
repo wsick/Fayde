@@ -95,6 +95,27 @@ module Fayde.Controls {
         CreateNode(): ControlNode { return new ControlNode(this); }
         CreateLayoutUpdater() { return new minerva.controls.control.ControlUpdater(); }
 
+        constructor() {
+            super();
+            UIReaction<boolean>(Control.IsEnabledProperty, (upd, nv, ov, control?: Control) => {
+                var args = {
+                    Property: Control.IsEnabledProperty,
+                    OldValue: ov,
+                    NewValue: nv
+                };
+                control.OnIsEnabledChanged(args);
+                if (nv !== true)
+                    control.XamlNode.IsMouseOver = false;
+                control.UpdateVisualState();
+                control.IsEnabledChanged.RaiseAsync(control, args);
+            }, false, true, this);
+            //TODO: Do these make sense? These properties are usually bound to child visuals which will invalidate
+            UIReaction<minerva.Thickness>(Control.PaddingProperty, (upd, nv, ov) => upd.invalidateMeasure(), false, true, this);
+            UIReaction<minerva.Thickness>(Control.BorderThicknessProperty, (upd, nv, ov) => upd.invalidateMeasure(), false, true, this);
+            UIReaction<HorizontalAlignment>(Control.HorizontalContentAlignmentProperty, (upd, nv, ov) => upd.invalidateArrange(), false, true, this);
+            UIReaction<VerticalAlignment>(Control.VerticalContentAlignmentProperty, (upd, nv, ov) => upd.invalidateArrange(), false, true, this);
+        }
+
         static BackgroundProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
         static BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Control);
         static BorderThicknessProperty = DependencyProperty.RegisterCore("BorderThickness", () => Thickness, Control);
@@ -198,26 +219,6 @@ module Fayde.Controls {
     Fayde.RegisterType(Control, "Fayde.Controls", Fayde.XMLNS);
 
     Control.IsEnabledProperty.Store = Providers.IsEnabledStore.Instance;
-
-    module reactions {
-        UIReaction<boolean>(Control.IsEnabledProperty, (upd, nv, ov, control?: Control) => {
-            var args = {
-                Property: Control.IsEnabledProperty,
-                OldValue: ov,
-                NewValue: nv
-            };
-            control.OnIsEnabledChanged(args);
-            if (nv !== true)
-                control.XamlNode.IsMouseOver = false;
-            control.UpdateVisualState();
-            control.IsEnabledChanged.RaiseAsync(control, args);
-        }, false);
-        //TODO: Do these make sense? These properties are usually bound to child visuals which will invalidate
-        UIReaction<minerva.Thickness>(Control.PaddingProperty, (upd, nv, ov) => upd.invalidateMeasure(), false);
-        UIReaction<minerva.Thickness>(Control.BorderThicknessProperty, (upd, nv, ov) => upd.invalidateMeasure(), false);
-        UIReaction<HorizontalAlignment>(Control.HorizontalContentAlignmentProperty, (upd, nv, ov) => upd.invalidateArrange(), false);
-        UIReaction<VerticalAlignment>(Control.VerticalContentAlignmentProperty, (upd, nv, ov) => upd.invalidateArrange(), false);
-    }
 
     var ControlInheritedProperties = [
         Control.FontFamilyProperty,

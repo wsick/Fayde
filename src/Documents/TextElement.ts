@@ -23,12 +23,34 @@ module Fayde.Documents {
     }
     Fayde.RegisterType(TextElementNode, "Fayde.Documents");
 
+    function invalidateFont (upd: minerva.text.TextUpdater, ov, nv, te?: TextElement) {
+        Incite(te, {
+            type: 'font',
+            full: upd.invalidateFont()
+        });
+    }
+
     export class TextElement extends DependencyObject implements Providers.IIsPropertyInheritable {
         XamlNode: TextElementNode;
         TextUpdater = new minerva.text.TextUpdater();
 
         CreateNode (): TextElementNode {
             return new TextElementNode(this, null);
+        }
+
+        constructor () {
+            super();
+            TextReaction<Media.Brush>(TextElement.ForegroundProperty, (upd, ov, nv, te?: TextElement) => {
+                Incite(te, {
+                    type: 'font',
+                    full: upd.invalidateFont()
+                });
+            }, true, true, this);
+            TextReaction<string>(TextElement.FontFamilyProperty, invalidateFont, false, true, this);
+            TextReaction<number>(TextElement.FontSizeProperty, invalidateFont, false, true, this);
+            TextReaction<string>(TextElement.FontStretchProperty, invalidateFont, false, true, this);
+            TextReaction<string>(TextElement.FontStyleProperty, invalidateFont, false, true, this);
+            TextReaction<FontWeight>(TextElement.FontWeightProperty, invalidateFont, false, true, this);
         }
 
         static FontFamilyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextElement);
@@ -83,25 +105,4 @@ module Fayde.Documents {
         TextElement.ForegroundProperty,
         TextElement.LanguageProperty
     ];
-
-    module reactions {
-        function invalidateFont (upd: minerva.text.TextUpdater, ov, nv, te?: TextElement) {
-            Incite(te, {
-                type: 'font',
-                full: upd.invalidateFont()
-            });
-        }
-
-        TextReaction<Media.Brush>(TextElement.ForegroundProperty, (up, ov, nv, te?: TextElement) => {
-            Incite(te, {
-                type: 'font',
-                full: false
-            });
-        });
-        TextReaction<string>(TextElement.FontFamilyProperty, invalidateFont, false);
-        TextReaction<number>(TextElement.FontSizeProperty, invalidateFont, false);
-        TextReaction<string>(TextElement.FontStretchProperty, invalidateFont, false);
-        TextReaction<string>(TextElement.FontStyleProperty, invalidateFont, false);
-        TextReaction<FontWeight>(TextElement.FontWeightProperty, invalidateFont, false);
-    }
 }

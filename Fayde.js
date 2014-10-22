@@ -1724,7 +1724,7 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    function UIReaction(propd, callback, listen, sync) {
+    function UIReaction(propd, callback, listen, sync, instance) {
         var changed;
         if (sync === false) {
             changed = (listen === false) ? reaction(callback) : lReaction(callback);
@@ -1736,7 +1736,10 @@ var Fayde;
             else
                 changed = (listen === false) ? sReaction(callback, name, sync) : slReaction(callback, name, sync);
         }
-        propd.ChangedCallback = changed;
+        if (instance)
+            propd.Store.ListenToChanged(instance, propd, changed, instance);
+        else
+            propd.ChangedCallback = changed;
     }
     Fayde.UIReaction = UIReaction;
 
@@ -3413,8 +3416,33 @@ var Fayde;
         var Control = (function (_super) {
             __extends(Control, _super);
             function Control() {
-                _super.apply(this, arguments);
+                _super.call(this);
                 this.IsEnabledChanged = new MulticastEvent();
+                Fayde.UIReaction(Control.IsEnabledProperty, function (upd, nv, ov, control) {
+                    var args = {
+                        Property: Control.IsEnabledProperty,
+                        OldValue: ov,
+                        NewValue: nv
+                    };
+                    control.OnIsEnabledChanged(args);
+                    if (nv !== true)
+                        control.XamlNode.IsMouseOver = false;
+                    control.UpdateVisualState();
+                    control.IsEnabledChanged.RaiseAsync(control, args);
+                }, false, true, this);
+
+                Fayde.UIReaction(Control.PaddingProperty, function (upd, nv, ov) {
+                    return upd.invalidateMeasure();
+                }, false, true, this);
+                Fayde.UIReaction(Control.BorderThicknessProperty, function (upd, nv, ov) {
+                    return upd.invalidateMeasure();
+                }, false, true, this);
+                Fayde.UIReaction(Control.HorizontalContentAlignmentProperty, function (upd, nv, ov) {
+                    return upd.invalidateArrange();
+                }, false, true, this);
+                Fayde.UIReaction(Control.VerticalContentAlignmentProperty, function (upd, nv, ov) {
+                    return upd.invalidateArrange();
+                }, false, true, this);
             }
             Control.prototype.CreateNode = function () {
                 return new ControlNode(this);
@@ -3546,35 +3574,6 @@ var Fayde;
         Fayde.RegisterType(Control, "Fayde.Controls", Fayde.XMLNS);
 
         Control.IsEnabledProperty.Store = Fayde.Providers.IsEnabledStore.Instance;
-
-        var reactions;
-        (function (reactions) {
-            Fayde.UIReaction(Control.IsEnabledProperty, function (upd, nv, ov, control) {
-                var args = {
-                    Property: Control.IsEnabledProperty,
-                    OldValue: ov,
-                    NewValue: nv
-                };
-                control.OnIsEnabledChanged(args);
-                if (nv !== true)
-                    control.XamlNode.IsMouseOver = false;
-                control.UpdateVisualState();
-                control.IsEnabledChanged.RaiseAsync(control, args);
-            }, false);
-
-            Fayde.UIReaction(Control.PaddingProperty, function (upd, nv, ov) {
-                return upd.invalidateMeasure();
-            }, false);
-            Fayde.UIReaction(Control.BorderThicknessProperty, function (upd, nv, ov) {
-                return upd.invalidateMeasure();
-            }, false);
-            Fayde.UIReaction(Control.HorizontalContentAlignmentProperty, function (upd, nv, ov) {
-                return upd.invalidateArrange();
-            }, false);
-            Fayde.UIReaction(Control.VerticalContentAlignmentProperty, function (upd, nv, ov) {
-                return upd.invalidateArrange();
-            }, false);
-        })(reactions || (reactions = {}));
 
         var ControlInheritedProperties = [
             Control.FontFamilyProperty,
@@ -11917,6 +11916,28 @@ var Fayde;
                 Fayde.ReactTo(inlines, this, function (change) {
                     return _this.XamlNode.InlinesChanged(change.item, change.index, change.add);
                 });
+
+                Fayde.UIReaction(TextBlock.ForegroundProperty, function (upd, ov, nv) {
+                    return upd.invalidate();
+                }, true, true, this);
+                Fayde.UIReaction(TextBlock.PaddingProperty, function (upd, ov, nv) {
+                    return upd.invalidateTextMetrics();
+                }, false, true, this);
+                Fayde.UIReaction(TextBlock.LineStackingStrategyProperty, function (upd, ov, nv) {
+                    return upd.invalidateTextMetrics();
+                }, false, true, this);
+                Fayde.UIReaction(TextBlock.LineHeightProperty, function (upd, ov, nv) {
+                    return upd.invalidateTextMetrics();
+                }, false, true, this);
+                Fayde.UIReaction(TextBlock.TextAlignmentProperty, function (upd, ov, nv) {
+                    return upd.invalidateTextMetrics();
+                }, false, true, this);
+                Fayde.UIReaction(TextBlock.TextTrimmingProperty, function (upd, ov, nv) {
+                    return upd.invalidateTextMetrics();
+                }, false, true, this);
+                Fayde.UIReaction(TextBlock.TextWrappingProperty, function (upd, ov, nv) {
+                    return upd.invalidateTextMetrics();
+                }, false, true, this);
             }
             TextBlock.prototype.CreateNode = function () {
                 return new TextBlockNode(this);
@@ -11979,31 +12000,6 @@ var Fayde;
             TextBlock.FontWeightProperty,
             TextBlock.ForegroundProperty
         ];
-
-        var reactions;
-        (function (reactions) {
-            Fayde.UIReaction(TextBlock.ForegroundProperty, function (upd, ov, nv) {
-                return upd.invalidate();
-            });
-            Fayde.UIReaction(TextBlock.PaddingProperty, function (upd, ov, nv) {
-                return upd.invalidateTextMetrics();
-            }, false);
-            Fayde.UIReaction(TextBlock.LineStackingStrategyProperty, function (upd, ov, nv) {
-                return upd.invalidateTextMetrics();
-            }, false);
-            Fayde.UIReaction(TextBlock.LineHeightProperty, function (upd, ov, nv) {
-                return upd.invalidateTextMetrics();
-            }, false);
-            Fayde.UIReaction(TextBlock.TextAlignmentProperty, function (upd, ov, nv) {
-                return upd.invalidateTextMetrics();
-            }, false);
-            Fayde.UIReaction(TextBlock.TextTrimmingProperty, function (upd, ov, nv) {
-                return upd.invalidateTextMetrics();
-            }, false);
-            Fayde.UIReaction(TextBlock.TextWrappingProperty, function (upd, ov, nv) {
-                return upd.invalidateTextMetrics();
-            }, false);
-        })(reactions || (reactions = {}));
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -16707,7 +16703,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Documents) {
-        function TextReaction(propd, callback, listen, sync) {
+        function TextReaction(propd, callback, listen, sync, instance) {
             var changed;
             if (sync === false) {
                 changed = (listen === false) ? reaction(callback) : lReaction(callback);
@@ -16719,7 +16715,10 @@ var Fayde;
                 else
                     changed = (listen === false) ? sReaction(callback, name, sync) : slReaction(callback, name, sync);
             }
-            propd.ChangedCallback = changed;
+            if (instance)
+                propd.Store.ListenToChanged(instance, propd, changed, instance);
+            else
+                propd.ChangedCallback = changed;
         }
         Documents.TextReaction = TextReaction;
 
@@ -16795,11 +16794,29 @@ var Fayde;
         Documents.TextElementNode = TextElementNode;
         Fayde.RegisterType(TextElementNode, "Fayde.Documents");
 
+        function invalidateFont(upd, ov, nv, te) {
+            Fayde.Incite(te, {
+                type: 'font',
+                full: upd.invalidateFont()
+            });
+        }
+
         var TextElement = (function (_super) {
             __extends(TextElement, _super);
             function TextElement() {
-                _super.apply(this, arguments);
+                _super.call(this);
                 this.TextUpdater = new minerva.text.TextUpdater();
+                Documents.TextReaction(TextElement.ForegroundProperty, function (upd, ov, nv, te) {
+                    Fayde.Incite(te, {
+                        type: 'font',
+                        full: upd.invalidateFont()
+                    });
+                }, true, true, this);
+                Documents.TextReaction(TextElement.FontFamilyProperty, invalidateFont, false, true, this);
+                Documents.TextReaction(TextElement.FontSizeProperty, invalidateFont, false, true, this);
+                Documents.TextReaction(TextElement.FontStretchProperty, invalidateFont, false, true, this);
+                Documents.TextReaction(TextElement.FontStyleProperty, invalidateFont, false, true, this);
+                Documents.TextReaction(TextElement.FontWeightProperty, invalidateFont, false, true, this);
             }
             TextElement.prototype.CreateNode = function () {
                 return new TextElementNode(this, null);
@@ -16849,28 +16866,6 @@ var Fayde;
             TextElement.ForegroundProperty,
             TextElement.LanguageProperty
         ];
-
-        var reactions;
-        (function (reactions) {
-            function invalidateFont(upd, ov, nv, te) {
-                Fayde.Incite(te, {
-                    type: 'font',
-                    full: upd.invalidateFont()
-                });
-            }
-
-            Documents.TextReaction(TextElement.ForegroundProperty, function (up, ov, nv, te) {
-                Fayde.Incite(te, {
-                    type: 'font',
-                    full: false
-                });
-            });
-            Documents.TextReaction(TextElement.FontFamilyProperty, invalidateFont, false);
-            Documents.TextReaction(TextElement.FontSizeProperty, invalidateFont, false);
-            Documents.TextReaction(TextElement.FontStretchProperty, invalidateFont, false);
-            Documents.TextReaction(TextElement.FontStyleProperty, invalidateFont, false);
-            Documents.TextReaction(TextElement.FontWeightProperty, invalidateFont, false);
-        })(reactions || (reactions = {}));
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));

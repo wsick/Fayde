@@ -131,6 +131,14 @@ module Fayde.Controls {
             var inlines = TextBlock.InlinesProperty.Initialize(this);
             inlines.AttachTo(this);
             ReactTo(inlines, this, (change?) => this.XamlNode.InlinesChanged(change.item, change.index, change.add));
+
+            UIReaction<Media.Brush>(TextBlock.ForegroundProperty, (upd, ov, nv) => upd.invalidate(), true, true, this);
+            UIReaction<Thickness>(TextBlock.PaddingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false, true, this);
+            UIReaction<minerva.LineStackingStrategy>(TextBlock.LineStackingStrategyProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false, true, this);
+            UIReaction<number>(TextBlock.LineHeightProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false, true, this);
+            UIReaction<minerva.TextAlignment>(TextBlock.TextAlignmentProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false, true, this);
+            UIReaction<minerva.TextTrimming>(TextBlock.TextTrimmingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false, true, this);
+            UIReaction<minerva.TextWrapping>(TextBlock.TextWrappingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false, true, this);
         }
 
         IsInheritable (propd: DependencyProperty): boolean {
@@ -151,14 +159,4 @@ module Fayde.Controls {
         TextBlock.FontWeightProperty,
         TextBlock.ForegroundProperty
     ];
-
-    module reactions {
-        UIReaction<Media.Brush>(TextBlock.ForegroundProperty, (upd, ov, nv) => upd.invalidate());
-        UIReaction<Thickness>(TextBlock.PaddingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
-        UIReaction<minerva.LineStackingStrategy>(TextBlock.LineStackingStrategyProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
-        UIReaction<number>(TextBlock.LineHeightProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
-        UIReaction<minerva.TextAlignment>(TextBlock.TextAlignmentProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
-        UIReaction<minerva.TextTrimming>(TextBlock.TextTrimmingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
-        UIReaction<minerva.TextWrapping>(TextBlock.TextWrappingProperty, (upd: TextBlockUpdater, ov, nv) => upd.invalidateTextMetrics(), false);
-    }
 }

@@ -3,7 +3,7 @@ module Fayde.Documents {
         (updater: minerva.text.TextUpdater, ov: T, nv: T, te?: TextElement): void;
     }
 
-    export function TextReaction<TValue>(propd: DependencyProperty, callback?: ITextReactionCallback<TValue>, listen?: boolean, sync?: any) {
+    export function TextReaction<TValue>(propd: DependencyProperty, callback?: ITextReactionCallback<TValue>, listen?: boolean, sync?: any, instance?: any) {
         var changed: Function;
         if (sync === false) {
             changed = (listen === false) ? reaction<TValue>(callback) : lReaction<TValue>(callback);
@@ -15,7 +15,10 @@ module Fayde.Documents {
             else
                 changed = (listen === false) ? sReaction<TValue>(callback, name, sync) : slReaction<TValue>(callback, name, sync);
         }
-        propd.ChangedCallback = <any>changed;
+        if (instance)
+            propd.Store.ListenToChanged(instance, propd, <any>changed, instance);
+        else
+            propd.ChangedCallback = <any>changed;
     }
 
     function reaction<T>(callback: ITextReactionCallback<T>) {

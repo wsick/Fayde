@@ -339,8 +339,8 @@ declare module Fayde {
     interface IUIReactionCallback<T> {
         (updater: minerva.core.Updater, ov: T, nv: T, uie?: UIElement): void;
     }
-    function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: (src: TValue, dest: TValue) => void): any;
-    function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: boolean): any;
+    function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: (src: TValue, dest: TValue) => void, instance?: any): any;
+    function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: boolean, instance?: any): any;
 }
 declare module Fayde {
     function UIReactionAttached<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>): void;
@@ -839,6 +839,7 @@ declare module Fayde.Controls {
         public XamlNode: ControlNode;
         public CreateNode(): ControlNode;
         public CreateLayoutUpdater(): minerva.controls.control.ControlUpdater;
+        constructor();
         static BackgroundProperty: DependencyProperty;
         static BorderBrushProperty: DependencyProperty;
         static BorderThicknessProperty: DependencyProperty;
@@ -3189,7 +3190,7 @@ declare module Fayde.Documents {
     interface ITextReactionCallback<T> {
         (updater: minerva.text.TextUpdater, ov: T, nv: T, te?: TextElement): void;
     }
-    function TextReaction<TValue>(propd: DependencyProperty, callback?: ITextReactionCallback<TValue>, listen?: boolean, sync?: any): void;
+    function TextReaction<TValue>(propd: DependencyProperty, callback?: ITextReactionCallback<TValue>, listen?: boolean, sync?: any, instance?: any): void;
 }
 declare module Fayde.Documents {
     class TextElementNode extends DONode {
@@ -3202,6 +3203,7 @@ declare module Fayde.Documents {
         public XamlNode: TextElementNode;
         public TextUpdater: minerva.text.TextUpdater;
         public CreateNode(): TextElementNode;
+        constructor();
         static FontFamilyProperty: DependencyProperty;
         static FontSizeProperty: DependencyProperty;
         static FontStretchProperty: DependencyProperty;

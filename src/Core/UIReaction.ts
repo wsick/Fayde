@@ -3,11 +3,11 @@ module Fayde {
         (updater: minerva.core.Updater, ov: T, nv: T, uie?: UIElement): void;
     }
 
-    export function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: (src: TValue, dest: TValue) => void);
+    export function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: (src: TValue, dest: TValue) => void, instance?: any);
 
-    export function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: boolean);
+    export function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: boolean, instance?: any);
 
-    export function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: any) {
+    export function UIReaction<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>, listen?: boolean, sync?: any, instance?: any) {
         var changed: Function;
         if (sync === false) {
             changed = (listen === false) ? reaction<TValue>(callback) : lReaction<TValue>(callback);
@@ -19,7 +19,10 @@ module Fayde {
             else
                 changed = (listen === false) ? sReaction<TValue>(callback, name, sync) : slReaction<TValue>(callback, name, sync);
         }
-        propd.ChangedCallback = <any>changed;
+        if (instance)
+            propd.Store.ListenToChanged(instance, propd, <any>changed, instance);
+        else
+            propd.ChangedCallback = <any>changed;
     }
 
     function reaction<T>(callback: IUIReactionCallback<T>) {
