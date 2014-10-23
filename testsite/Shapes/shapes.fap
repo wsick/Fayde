@@ -41,7 +41,7 @@
                 <SolidColorBrush x:Name="ButtonColor" Color="#FF333333" />
             </Path.Fill>
         </Path>
-        <Rectangle Grid.Row="1" Grid.Column="1" Width="100" Height="100" Opacity="0.5" Fill="Black">
+        <Rectangle Grid.Row="1" Grid.Column="1" Width="100" Height="100" Opacity="0" Fill="Black">
 
         </Rectangle>
     </Grid>

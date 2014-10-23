@@ -5648,4 +5648,10 @@ declare module Fayde.Xaml {
 declare module Fayde {
     function debugLayers(): any[];
     function sexify(updater: minerva.core.Updater): any;
+    function debugLayersRaw(): string;
+    function getById(id: number): {
+        obj: any;
+        node: any;
+        updater: minerva.core.Updater;
+    };
 }

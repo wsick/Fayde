@@ -29666,5 +29666,61 @@ var Fayde;
         return obj;
     }
     Fayde.sexify = sexify;
+
+    function debugLayersRaw() {
+        var app = Fayde.Application.Current;
+        var output = "";
+        for (var walker = app.MainSurface.walkLayers(); walker.step();) {
+            output += stringify(walker.current);
+        }
+        return output;
+    }
+    Fayde.debugLayersRaw = debugLayersRaw;
+
+    function stringify(updater, level) {
+        if (typeof level === "undefined") { level = 0; }
+        var node = updater.getAttachedValue("$node");
+        var xobj = node.XObject;
+
+        var output = "";
+
+        for (var i = 0; i < level; i++) {
+            output += "\t";
+        }
+
+        output += xobj.constructor.name;
+        output += "[" + xobj._ID + "]";
+
+        var ns = node.NameScope;
+        var nsr = !ns ? "^" : (ns.IsRoot ? "+" : "-");
+        output += " [" + nsr + node.Name + "]";
+
+        output += "\n";
+
+        for (var walker = updater.tree.walk(); walker.step();) {
+            output += stringify(walker.current, level + 1);
+        }
+
+        return output;
+    }
+
+    function getById(id) {
+        var app = Fayde.Application.Current;
+        for (var walker = app.MainSurface.walkLayers(); walker.step();) {
+            for (var subwalker = walker.current.walkDeep(); subwalker.step();) {
+                var upd = subwalker.current;
+                var node = upd.getAttachedValue("$node");
+                var xobj = node.XObject;
+                if (xobj._ID === id) {
+                    return {
+                        obj: xobj,
+                        node: node,
+                        updater: upd
+                    };
+                }
+            }
+        }
+    }
+    Fayde.getById = getById;
 })(Fayde || (Fayde = {}));
 //# sourceMappingURL=Fayde.js.map
