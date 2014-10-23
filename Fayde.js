@@ -29050,7 +29050,7 @@ var Fayde;
             }, false);
             Fayde.UIReaction(Polygon.PointsProperty, function (upd, ov, nv) {
                 upd.assets.points = nv._ht;
-                upd.invalidate();
+                upd.invalidatePath();
             }, true, false);
         })(reactions || (reactions = {}));
     })(Fayde.Shapes || (Fayde.Shapes = {}));
@@ -29096,7 +29096,7 @@ var Fayde;
             }, false);
             Fayde.UIReaction(Shapes.Polygon.PointsProperty, function (upd, ov, nv) {
                 upd.assets.points = nv._ht;
-                upd.invalidate();
+                upd.invalidatePath();
             }, true, false);
         })(reactions || (reactions = {}));
     })(Fayde.Shapes || (Fayde.Shapes = {}));

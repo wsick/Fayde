@@ -31,7 +31,7 @@ module Fayde.Shapes {
         UIReaction<FillRule>(Polygon.FillRuleProperty, (upd: PolygonUpdater, ov, nv) => upd.invalidateFillRule(), false);
         UIReaction<PointCollection>(Polygon.PointsProperty, (upd: PolygonUpdater, ov, nv) => {
             upd.assets.points = nv._ht;
-            upd.invalidate();
+            upd.invalidatePath();
         }, true, false);
     }
 }
