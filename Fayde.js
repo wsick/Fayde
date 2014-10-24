@@ -9016,17 +9016,6 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         (function (Internal) {
-            (function (TextBoxModelChangedType) {
-                TextBoxModelChangedType[TextBoxModelChangedType["Nothing"] = 0] = "Nothing";
-                TextBoxModelChangedType[TextBoxModelChangedType["TextAlignment"] = 1] = "TextAlignment";
-                TextBoxModelChangedType[TextBoxModelChangedType["TextWrapping"] = 2] = "TextWrapping";
-                TextBoxModelChangedType[TextBoxModelChangedType["Selection"] = 3] = "Selection";
-                TextBoxModelChangedType[TextBoxModelChangedType["Brush"] = 4] = "Brush";
-                TextBoxModelChangedType[TextBoxModelChangedType["Font"] = 5] = "Font";
-                TextBoxModelChangedType[TextBoxModelChangedType["Text"] = 6] = "Text";
-            })(Internal.TextBoxModelChangedType || (Internal.TextBoxModelChangedType = {}));
-            var TextBoxModelChangedType = Internal.TextBoxModelChangedType;
-
             (function (TextBoxEmitChangedType) {
                 TextBoxEmitChangedType[TextBoxEmitChangedType["NOTHING"] = 0] = "NOTHING";
                 TextBoxEmitChangedType[TextBoxEmitChangedType["SELECTION"] = 1 << 0] = "SELECTION";

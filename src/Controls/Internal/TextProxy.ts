@@ -1,14 +1,4 @@
 module Fayde.Controls.Internal {
-    export enum TextBoxModelChangedType {
-        Nothing = 0,
-        TextAlignment = 1,
-        TextWrapping = 2,
-        Selection = 3,
-        Brush = 4,
-        Font = 5,
-        Text = 6,
-    }
-
     export enum TextBoxEmitChangedType {
         NOTHING = 0,
         SELECTION = 1 << 0,
