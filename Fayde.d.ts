@@ -1758,6 +1758,48 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls.Internal {
+    interface ICursorAdvancer {
+        CursorDown(cursor: number, isPage: boolean): number;
+        CursorUp(cursor: number, isPage: boolean): number;
+        CursorNextWord(cursor: number): number;
+        CursorPrevWord(cursor: number): number;
+        CursorNextChar(cursor: number): number;
+        CursorPrevChar(cursor: number): number;
+        CursorLineBegin(cursor: number): number;
+        CursorLineEnd(cursor: number): number;
+        CursorBegin(cursor: number): number;
+        CursorEnd(cursor: number): number;
+    }
+    class TextBoxCursorAdvancer implements ICursorAdvancer {
+        private $textOwner;
+        constructor($textOwner: Text.ITextOwner);
+        public CursorDown(cursor: number, isPage: boolean): number;
+        public CursorUp(cursor: number, isPage: boolean): number;
+        public CursorNextWord(cursor: number): number;
+        public CursorPrevWord(cursor: number): number;
+        public CursorNextChar(cursor: number): number;
+        public CursorPrevChar(cursor: number): number;
+        public CursorLineBegin(cursor: number): number;
+        public CursorLineEnd(cursor: number): number;
+        public CursorBegin(cursor: number): number;
+        public CursorEnd(cursor: number): number;
+    }
+    class PasswordBoxCursorAdvancer implements ICursorAdvancer {
+        private $textOwner;
+        constructor($textOwner: Text.ITextOwner);
+        public CursorDown(cursor: number, isPage: boolean): number;
+        public CursorUp(cursor: number, isPage: boolean): number;
+        public CursorNextWord(cursor: number): number;
+        public CursorPrevWord(cursor: number): number;
+        public CursorNextChar(cursor: number): number;
+        public CursorPrevChar(cursor: number): number;
+        public CursorLineBegin(cursor: number): number;
+        public CursorLineEnd(cursor: number): number;
+        public CursorBegin(cursor: number): number;
+        public CursorEnd(cursor: number): number;
+    }
+}
+declare module Fayde.Controls.Internal {
     interface IItemContainersOwner {
         PrepareContainerForItem(container: UIElement, item: any): any;
         ClearContainerForItem(container: UIElement, item: any): any;
@@ -1840,6 +1882,58 @@ declare module Fayde.Controls.Internal {
         public OnValueChanged(oldValue: number, newValue: number): void;
         public CoerceMaximum(): void;
         public CoerceValue(): void;
+    }
+}
+declare module Fayde.Controls.Internal {
+    class TextBoxContentProxy {
+        private $$element;
+        public setElement(fe: FrameworkElement, view: TextBoxView): void;
+        public setHorizontalScrollBar(sbvis: ScrollBarVisibility): void;
+        public setVerticalScrollBar(sbvis: ScrollBarVisibility): void;
+    }
+}
+declare module Fayde.Controls.Internal {
+    enum TextBoxEmitChangedType {
+        NOTHING = 0,
+        SELECTION,
+        TEXT,
+    }
+    class TextProxy implements Text.ITextOwner {
+        public selAnchor: number;
+        public selCursor: number;
+        public selText: string;
+        public text: string;
+        public maxLength: number;
+        public acceptsReturn: boolean;
+        private $$batch;
+        private $$emit;
+        private $$syncing;
+        private $$eventsMask;
+        private $$undo;
+        private $$redo;
+        public SyncSelectionStart: (value: number) => void;
+        public SyncSelectionLength: (value: number) => void;
+        public SyncText: (value: string) => void;
+        constructor(eventsMask: TextBoxEmitChangedType);
+        public setAnchorCursor(anchor: number, cursor: number): boolean;
+        public enterText(newText: string): boolean;
+        public removeText(start: number, length: number): boolean;
+        public canUndo : boolean;
+        public canRedo : boolean;
+        public undo(): void;
+        public redo(): void;
+        public begin(): void;
+        public end(): void;
+        public beginSelect(cursor: number): void;
+        public adjustSelection(cursor: number): void;
+        public selectAll(): void;
+        public clearSelection(start: number): void;
+        public select(start: number, length: number): boolean;
+        public setSelectionStart(value: number): void;
+        public setSelectionLength(value: number): void;
+        public setText(value: string): void;
+        private $syncEmit(syncText?);
+        private $syncText();
     }
 }
 declare module Fayde.Controls {
@@ -2042,105 +2136,32 @@ declare module Fayde.Input {
     }
 }
 declare module Fayde.Controls {
-    enum TextBoxModelChangedType {
-        Nothing = 0,
-        TextAlignment = 1,
-        TextWrapping = 2,
-        Selection = 3,
-        Brush = 4,
-        Font = 5,
-        Text = 6,
-    }
-    enum TextBoxEmitChangedType {
-        NOTHING = 0,
-        SELECTION,
-        TEXT,
-    }
-    interface ITextModelArgs {
-        Changed: TextBoxModelChangedType;
-        NewValue: any;
-    }
-    interface ITextModelListener {
-        OnTextModelChanged(args: ITextModelArgs): any;
-    }
-    class TextBoxBase extends Control implements Text.IBufferOwner {
-        private _Undo;
-        private _Redo;
-        public _Buffer: string;
-        private _Emit;
-        private _NeedIMReset;
+    class TextBoxBase extends Control {
+        static SelectionForegroundProperty: DependencyProperty;
+        static SelectionBackgroundProperty: DependencyProperty;
+        static SelectionLengthProperty: DependencyProperty;
+        static SelectionStartProperty: DependencyProperty;
+        public SelectionForeground: Media.Brush;
+        public SelectionBackground: Media.Brush;
+        public SelectionLength: number;
+        public SelectionStart: number;
         private _Selecting;
         private _Captured;
-        private _SettingValue;
-        private _SelectionCursor;
-        private _SelectionAnchor;
-        private _SelectedText;
-        private _EventsMask;
-        private _TextProperty;
-        private _Font;
-        private _CursorOffset;
-        private _Batch;
+        public IsReadOnly: boolean;
+        public $ContentProxy: Internal.TextBoxContentProxy;
+        public $Proxy: Internal.TextProxy;
+        public $Advancer: Internal.ICursorAdvancer;
         public $View: Internal.TextBoxView;
-        public $ContentElement: FrameworkElement;
-        public $IsReadOnly: boolean;
-        public $IsFocused: boolean;
-        public $AcceptsReturn: boolean;
-        public $MaxLength: number;
-        public $HasOffset: boolean;
-        constructor(eventsMask: TextBoxEmitChangedType, textPropd: DependencyProperty);
+        constructor(eventsMask: Internal.TextBoxEmitChangedType);
+        private _SyncFont();
+        public CreateView(): Internal.TextBoxView;
         public Cursor : CursorType;
-        public SelectionCursor : number;
-        public HasSelectedText : boolean;
-        public CaretBrush: Media.Brush;
-        public TextAlignment: TextAlignment;
-        public TextWrapping: TextWrapping;
-        public SelectionStart: number;
-        public SelectionLength: number;
-        public DisplayText : string;
-        public SelectionBackground: Media.Brush;
-        public SelectionForeground: Media.Brush;
-        public Background: Media.Brush;
-        public Foreground: Media.Brush;
-        public Font : Font;
-        public Direction : FlowDirection;
-        public TextDecorations : TextDecorations;
         public OnApplyTemplate(): void;
-        private _ModelListener;
-        public Listen(listener: ITextModelListener): void;
-        public Unlisten(listener: ITextModelListener): void;
-        public _ModelChanged(type: TextBoxModelChangedType, newValue: any): void;
-        private _UpdateFont();
-        public _SelectedTextChanged(newValue: string): void;
-        public _SelectionStartChanged(newValue: number): void;
-        public _SelectionLengthChanged(newValue: number): void;
-        public _TextChanged(newValue: string): void;
-        private _BatchPush();
-        private _BatchPop();
-        private _SyncAndEmit(syncText?);
-        private _SyncText();
-        public _EmitTextChanged(): void;
-        public SelectAll(): void;
-        public ClearSelection(start: number): void;
-        public Select(start: number, length: number): boolean;
-        private _SyncSelectedText();
-        public _EmitSelectionChanged(): void;
-        public _ResetIMContext(): void;
-        public CanUndo(): boolean;
-        public Undo(): void;
-        public CanRedo(): boolean;
-        public Redo(): void;
         public OnLostFocus(e: RoutedEventArgs): void;
         public OnGotFocus(e: RoutedEventArgs): void;
         public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
         public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
         public OnMouseMove(e: Input.MouseEventArgs): void;
-        public CursorDown(cursor: number, isPage: boolean): number;
-        public CursorUp(cursor: number, isPage: boolean): number;
-        public CursorNextWord(cursor: number): number;
-        public CursorPrevWord(cursor: number): number;
-        public CursorLineBegin(cursor: number): number;
-        public CursorLineEnd(cursor: number): number;
-        public _EmitCursorPositionChanged(height: number, x: number, y: number): void;
         public OnKeyDown(args: Input.KeyEventArgs): void;
         public PostOnKeyDown(args: Input.KeyEventArgs): void;
         private _KeyDownBackSpace(modifiers);
@@ -2153,7 +2174,6 @@ declare module Fayde.Controls {
         private _KeyDownRight(modifiers);
         private _KeyDownDown(modifiers);
         private _KeyDownUp(modifiers);
-        private _KeyDownChar(c);
     }
 }
 declare module Fayde.Controls {
@@ -2163,30 +2183,14 @@ declare module Fayde.Controls {
         static MaxLengthProperty: DependencyProperty;
         static PasswordCharProperty: DependencyProperty;
         static PasswordProperty: DependencyProperty;
-        static SelectionForegroundProperty: DependencyProperty;
-        static SelectionBackgroundProperty: DependencyProperty;
-        static SelectionLengthProperty: DependencyProperty;
-        static SelectionStartProperty: DependencyProperty;
         public BaselineOffset: number;
         public CaretBrush: Media.Brush;
         public MaxLength: any;
         public number: any;
         public PasswordChar: string;
         public Password: string;
-        public SelectionForeground: Media.Brush;
-        public SelectionBackground: Media.Brush;
-        public SelectionLength: number;
-        public SelectionStart: number;
-        public PasswordChangedEvent: RoutedEvent<RoutedEventArgs>;
         constructor();
         public DisplayText : string;
-        public CursorDown(cursor: number, isPage: boolean): number;
-        public CursorUp(cursor: number, isPage: boolean): number;
-        public CursorNextWord(cursor: number): number;
-        public CursorPrevWord(cursor: number): number;
-        public CursorLineBegin(cursor: number): number;
-        public CursorLineEnd(cursor: number): number;
-        public _EmitTextChanged(): void;
     }
 }
 declare module Fayde.Controls.Primitives {
@@ -2432,11 +2436,7 @@ declare module Fayde.Controls {
         static CaretBrushProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
         static IsReadOnlyProperty: DependencyProperty;
-        static SelectionForegroundProperty: DependencyProperty;
-        static SelectionBackgroundProperty: DependencyProperty;
         static BaselineOffsetProperty: DependencyProperty;
-        static SelectionLengthProperty: DependencyProperty;
-        static SelectionStartProperty: DependencyProperty;
         static TextProperty: DependencyProperty;
         static TextAlignmentProperty: DependencyProperty;
         static TextWrappingProperty: DependencyProperty;
@@ -2447,34 +2447,14 @@ declare module Fayde.Controls {
         public MaxLength: number;
         public IsReadOnly: boolean;
         public BaselineOffset: number;
-        public SelectionLength: number;
-        public SelectionStart: number;
         public Text: string;
         public TextAlignment: TextAlignment;
         public TextWrapping: TextWrapping;
         public HorizontalScrollBarVisibility: ScrollBarVisibility;
         public VerticalScrollBarVisibility: ScrollBarVisibility;
-        public SelectionForeground: Media.Brush;
-        public SelectionBackground: Media.Brush;
-        public SelectionChanged: RoutedEvent<RoutedEventArgs>;
-        public TextChanged: RoutedEvent<RoutedEventArgs>;
         constructor();
         public OnApplyTemplate(): void;
         public DisplayText : string;
-        public CursorDown(cursor: number, isPage: boolean): number;
-        public CursorUp(cursor: number, isPage: boolean): number;
-        public CursorNextWord(cursor: number): number;
-        public CursorPrevWord(cursor: number): number;
-        public CursorLineBegin(cursor: number): number;
-        public CursorLineEnd(cursor: number): number;
-        public _EmitTextChanged(): void;
-        public _EmitSelectionChanged(): void;
-        private _IsReadOnlyChanged(args);
-        public FontChanged(args: IDependencyPropertyChangedEventArgs): void;
-        private _TextAlignmentChanged(args);
-        private _TextWrappingChanged(args);
-        private _HorizontalScrollBarVisibilityChanged(args);
-        private _VerticalScrollBarVisibilityChanged(args);
         public OnMouseEnter(e: Input.MouseEventArgs): void;
         public OnMouseLeave(e: Input.MouseEventArgs): void;
         public OnGotFocus(e: RoutedEventArgs): void;
@@ -2483,40 +2463,26 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls.Internal {
-    class TextBoxView extends FrameworkElement implements ITextModelListener {
-        public CreateLayoutUpdater(): minerva.core.Updater;
-        private _Cursor;
-        private _Layout;
-        private _SelectionChanged;
-        private _HadSelectedText;
-        private _CursorVisible;
-        private _EnableCursor;
-        private _BlinkTimeout;
-        private _TextBox;
-        private _Dirty;
-        public SetTextBox(textBox: TextBoxBase): void;
-        public SetEnableCursor(value: boolean): void;
-        public _Blink(): boolean;
-        public _ConnectBlinkTimeout(multiplier: any): void;
-        public _DisconnectBlinkTimeout(): void;
-        public _GetCursorBlinkTimeout(): number;
-        public _ResetCursorBlink(delay: boolean): void;
-        private _DelayCursorBlink();
-        private _BeginCursorBlink();
-        private _EndCursorBlink();
-        private _InvalidateCursor();
-        private _ShowCursor();
-        private _HideCursor();
-        private _UpdateCursor(invalidate);
-        private _UpdateText();
-        public Layout(constraint: minerva.Size): void;
-        public GetBaselineOffset(): number;
-        public GetCursorFromXY(x: number, y: number): number;
-        public OnLostFocus(e: any): void;
-        public OnGotFocus(e: any): void;
-        public OnMouseLeftButtonDown(e: any): void;
-        public OnMouseLeftButtonUp(e: any): void;
-        public OnTextModelChanged(args: ITextModelArgs): void;
+    class TextBoxViewNode extends FENode {
+        public LayoutUpdater: minerva.controls.textboxview.TextBoxViewUpdater;
+    }
+    class TextBoxView extends FrameworkElement {
+        public XamlNode: TextBoxViewNode;
+        public CreateLayoutUpdater(): minerva.controls.textboxview.TextBoxViewUpdater;
+        private _AutoRun;
+        constructor();
+        private _InlineChanged(obj?);
+        public setFontProperty(propd: DependencyProperty, value: any): void;
+        public setFontAttr(attrName: string, value: any): void;
+        public setCaretBrush(value: Media.Brush): void;
+        public setIsFocused(isFocused: boolean): void;
+        public setIsReadOnly(isReadOnly: boolean): void;
+        public setTextAlignment(textAlignment: TextAlignment): void;
+        public setTextWrapping(textWrapping: TextWrapping): void;
+        public setSelectionStart(selectionStart: number): void;
+        public setSelectionLength(selectionLength: number): void;
+        public setText(text: string): void;
+        public GetCursorFromPoint(point: Point): number;
     }
 }
 declare module Fayde.Controls {
@@ -5430,7 +5396,7 @@ declare class IndexedPropertyInfo implements IPropertyInfo {
 }
 declare module Fayde {
     function Incite(obj: any, val?: any): void;
-    function ReactTo(obj: any, scope: any, changed: (val?: any) => void): void;
+    function ReactTo(obj: any, scope: any, changed: (val?: any) => any): void;
     function UnreactTo(obj: any, scope: any): void;
 }
 declare module StringEx {
@@ -5571,11 +5537,11 @@ declare module Fayde.Text {
     interface ITextBoxUndoAction {
         SelectionAnchor: number;
         SelectionCursor: number;
-        Undo(bufferholder: IBufferOwner): any;
-        Redo(bufferholder: IBufferOwner): number;
+        Undo(bufferholder: ITextOwner): any;
+        Redo(bufferholder: ITextOwner): number;
     }
-    interface IBufferOwner {
-        _Buffer: string;
+    interface ITextOwner {
+        text: string;
     }
     class TextBoxUndoActionDelete implements ITextBoxUndoAction {
         public SelectionAnchor: number;
@@ -5583,8 +5549,8 @@ declare module Fayde.Text {
         public Start: number;
         public Text: string;
         constructor(selectionAnchor: number, selectionCursor: number, buffer: string, start: number, length: number);
-        public Undo(bo: IBufferOwner): void;
-        public Redo(bo: IBufferOwner): number;
+        public Undo(bo: ITextOwner): void;
+        public Redo(bo: ITextOwner): number;
     }
     class TextBoxUndoActionInsert implements ITextBoxUndoAction {
         public SelectionAnchor: number;
@@ -5593,8 +5559,8 @@ declare module Fayde.Text {
         public Text: string;
         public IsGrowable: boolean;
         constructor(selectionAnchor: number, selectionCursor: number, start: number, inserted: string, isAtomic?: boolean);
-        public Undo(bo: IBufferOwner): void;
-        public Redo(bo: IBufferOwner): number;
+        public Undo(bo: ITextOwner): void;
+        public Redo(bo: ITextOwner): number;
         public Insert(start: number, text: string): boolean;
     }
     class TextBoxUndoActionReplace implements ITextBoxUndoAction {
@@ -5605,8 +5571,8 @@ declare module Fayde.Text {
         public Deleted: string;
         public Inserted: string;
         constructor(selectionAnchor: number, selectionCursor: number, buffer: string, start: number, length: number, inserted: string);
-        public Undo(bo: IBufferOwner): void;
-        public Redo(bo: IBufferOwner): number;
+        public Undo(bo: ITextOwner): void;
+        public Redo(bo: ITextOwner): number;
     }
     class TextBuffer {
         static Cut(text: string, start: number, len: number): string;

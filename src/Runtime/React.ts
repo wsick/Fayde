@@ -4,7 +4,7 @@ module Fayde {
         $$reactions: IReaction[];
     }
     interface IReaction {
-        (val?: any): void;
+        (val?: any);
     }
 
     export function Incite (obj: any, val?: any) {
@@ -13,13 +13,13 @@ module Fayde {
         var reactions = (<IReactable>obj).$$reactions;
         if (!reactions)
             return;
-        var reaction_sources = (<IReactable>obj).$$reaction_sources;
+        var rs = (<IReactable>obj).$$reaction_sources;
         for (var i = 0; i < reactions.length; i++) {
-            reactions[i].call(reaction_sources[i], val);
+            reactions[i].call(rs[i], val);
         }
     }
 
-    export function ReactTo (obj: any, scope: any, changed: (val?: any) => void) {
+    export function ReactTo (obj: any, scope: any, changed: (val?: any) => any) {
         if (!obj)
             return;
         var rs = obj.$$reaction_sources = obj.$$reaction_sources || [];

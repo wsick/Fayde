@@ -1,299 +1,143 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 
 module Fayde.Controls.Internal {
-    var CURSOR_BLINK_DIVIDER = 3;
-    var CURSOR_BLINK_OFF_MULTIPLIER = 2;
-    var CURSOR_BLINK_DELAY_MULTIPLIER = 3;
-    var CURSOR_BLINK_ON_MULTIPLIER = 4;
-    var CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
+    import TextBoxViewUpdater = minerva.controls.textboxview.TextBoxViewUpdater;
 
-    export class TextBoxView extends FrameworkElement implements ITextModelListener {
-        CreateLayoutUpdater() { return new minerva.core.Updater(); }
-        //TODO: Implement textbox view updater
-        //CreateLayoutUpdater() { return new minerva.controls.textbox.TextBoxUpdater(); }
+    export class TextBoxViewNode extends FENode {
+        LayoutUpdater: TextBoxViewUpdater;
+    }
 
-        private _Cursor = new minerva.Rect();
-        //private _Layout: Text.TextLayout = new Text.TextLayout();
-        private _Layout: any;
-        private _SelectionChanged: boolean = false;
-        private _HadSelectedText: boolean = false;
-        private _CursorVisible: boolean = false;
-        private _EnableCursor: boolean = true;
-        private _BlinkTimeout: number = 0;
-        private _TextBox: TextBoxBase = null;
-        private _Dirty: boolean = false;
+    export class TextBoxView extends FrameworkElement {
+        XamlNode: TextBoxViewNode;
 
-        SetTextBox(textBox: TextBoxBase) {
-            if (this._TextBox === textBox)
-                return;
+        CreateLayoutUpdater () {
+            return new TextBoxViewUpdater();
+        }
 
-            if (this._TextBox)
-                this._TextBox.Unlisten(this);
+        private _AutoRun = new Documents.Run();
 
-            this._TextBox = textBox;
+        constructor () {
+            super();
+            ReactTo(this._AutoRun, this, this._InlineChanged);
+        }
 
-            if (textBox) {
-                textBox.Listen(this);
-
-                //this._Layout.TextAttributes = [new Text.TextLayoutAttributes(textBox)];
-
-                this._Layout.TextAlignment = textBox.TextAlignment;
-                this._Layout.TextWrapping = textBox.TextWrapping;
-                this._HadSelectedText = textBox.HasSelectedText;
-                this._SelectionChanged = true;
-                this._UpdateText();
-
-            } else {
-                this._Layout.TextAttributes = null;
-                this._Layout.Text = null;
+        private _InlineChanged (obj?: any) {
+            var updater = this.XamlNode.LayoutUpdater;
+            switch (obj.type) {
+                case 'font':
+                    updater.invalidateFont(obj.full);
+                    break;
+                case 'text':
+                    updater.invalidateTextMetrics();
+                    break;
             }
+        }
 
+        setFontProperty (propd: DependencyProperty, value: any) {
+            this._AutoRun.SetValue(propd, value);
+        }
+
+        setFontAttr (attrName: string, value: any) {
+            var runUpdater = this._AutoRun;
+            var tu = runUpdater.TextUpdater;
+            tu.assets[attrName] = value;
+        }
+
+        setCaretBrush (value: Media.Brush) {
+            var updater = this.XamlNode.LayoutUpdater;
+            updater.assets.caretBrush = value;
+            updater.invalidateCaret();
+        }
+
+        setIsFocused (isFocused: boolean) {
+            var updater = <TextBoxViewUpdater>this.XamlNode.LayoutUpdater;
+            if (updater.assets.isFocused === isFocused)
+                return;
+            updater.assets.isFocused = isFocused;
+            updater.resetCaretBlinker(false);
+        }
+
+        setIsReadOnly (isReadOnly: boolean) {
+            var updater = this.XamlNode.LayoutUpdater;
+            if (updater.assets.isReadOnly === isReadOnly)
+                return;
+            updater.assets.isReadOnly = isReadOnly;
+            updater.resetCaretBlinker(false);
+        }
+
+        setTextAlignment (textAlignment: TextAlignment) {
             var lu = this.XamlNode.LayoutUpdater;
-            lu.updateBounds(true);
+            if (lu.assets.textAlignment === <number>textAlignment)
+                return;
+            lu.assets.textAlignment = <number>textAlignment;
             lu.invalidateMeasure();
+            lu.updateBounds(true);
             lu.invalidate();
-            this._Dirty = true;
-        }
-        SetEnableCursor(value: boolean) {
-            if (this._EnableCursor === value)
-                return;
-            this._EnableCursor = value;
-            if (value)
-                this._ResetCursorBlink(false);
-            else
-                this._EndCursorBlink();
         }
 
-        _Blink() {
-            var multiplier;
-            if (this._CursorVisible) {
-                multiplier = CURSOR_BLINK_OFF_MULTIPLIER;
-                this._HideCursor();
-            } else {
-                multiplier = CURSOR_BLINK_ON_MULTIPLIER;
-                this._ShowCursor();
-            }
-            this._ConnectBlinkTimeout(multiplier);
-            return false;
-        }
-        _ConnectBlinkTimeout(multiplier) {
-            if (!this.XamlNode.IsAttached)
-                return;
-            var timeout = this._GetCursorBlinkTimeout() * multiplier / CURSOR_BLINK_DIVIDER;
-            this._BlinkTimeout = setTimeout(() => this._Blink(), timeout);
-        }
-        _DisconnectBlinkTimeout() {
-            if (this._BlinkTimeout !== 0) {
-                if (!this.XamlNode.IsAttached)
-                    return;
-                clearTimeout(this._BlinkTimeout);
-                this._BlinkTimeout = 0;
-            }
-        }
-        _GetCursorBlinkTimeout() { return CURSOR_BLINK_TIMEOUT_DEFAULT; }
-        _ResetCursorBlink(delay: boolean) {
-            if (this._TextBox.$IsFocused && !this._TextBox.HasSelectedText) {
-                if (this._EnableCursor) {
-                    if (delay)
-                        this._DelayCursorBlink();
-                    else
-                        this._BeginCursorBlink();
-                } else {
-                    this._UpdateCursor(false);
-                }
-            } else {
-                this._EndCursorBlink();
-            }
-        }
-        private _DelayCursorBlink() {
-            this._DisconnectBlinkTimeout();
-            this._ConnectBlinkTimeout(CURSOR_BLINK_DELAY_MULTIPLIER);
-            this._UpdateCursor(true);
-            this._ShowCursor();
-        }
-        private _BeginCursorBlink() {
-            if (this._BlinkTimeout === 0) {
-                this._ConnectBlinkTimeout(CURSOR_BLINK_ON_MULTIPLIER);
-                this._UpdateCursor(true);
-                this._ShowCursor();
-            }
-        }
-        private _EndCursorBlink() {
-            this._DisconnectBlinkTimeout();
-            if (this._CursorVisible)
-                this._HideCursor();
-        }
-        private _InvalidateCursor() {
-            //TODO: Invalidate cursor
-            //var lu = this.XamlNode.LayoutUpdater;
-            //lu.invalidate(rect.transform(this._Cursor, lu.AbsoluteXform));
-        }
-        private _ShowCursor() {
-            this._CursorVisible = true;
-            this._InvalidateCursor();
-        }
-        private _HideCursor() {
-            this._CursorVisible = false;
-            this._InvalidateCursor();
-        }
-        private _UpdateCursor(invalidate: boolean) {
-            var cur = this._TextBox.SelectionCursor;
-            var current = this._Cursor;
-
-            if (invalidate && this._CursorVisible)
-                this._InvalidateCursor();
-
-            this._Cursor = this._Layout.GetSelectionCursor(null, cur);
-            //TODO: ...
-            // var irect = rect.copyTo(this._Cursor);
-            // rect.transform(irect, this._Xformer.AbsoluteXform);
-            // this._TextBox._ImCtx.SetCursorLocation(irect);
-
-            if (!minerva.Rect.isEqual(this._Cursor, current))
-                this._TextBox._EmitCursorPositionChanged(this._Cursor.height, this._Cursor.x, this._Cursor.y);
-
-            if (invalidate && this._CursorVisible)
-                this._InvalidateCursor();
-        }
-        private _UpdateText() {
-            var text = this._TextBox.DisplayText;
-            this._Layout.Text = text ? text : "", -1;
-        }
-
-        /*
-        MeasureOverride(availableSize: minerva.Size) {
-            this.Layout(availableSize);
-            var desired = size.copyTo(this._Layout.ActualExtents);
-            if (!isFinite(availableSize.width))
-                desired.Width = Math.max(desired.Width, 11);
-            size.min(desired, availableSize);
-            return desired;
-        }
-        ArrangeOverride(finalSize: minerva.Size) {
-            this.Layout(finalSize);
-            var arranged = size.copyTo(this._Layout.ActualExtents);
-            size.max(arranged, finalSize);
-            return arranged;
-        }
-        */
-        Layout(constraint: minerva.Size) {
-            this._Layout.MaxWidth = constraint.width;
-            this._Layout.Layout();
-            this._Dirty = false;
-        }
-
-        GetBaselineOffset(): number {
-            //TODO: GetTransformToUIElementWithError
-            return this._Layout.GetBaselineOffset();
-        }
-        //GetLineFromY(y: number): Text.TextLayoutLine { return this._Layout.GetLineFromY(null, y); }
-        //GetLineFromIndex(index: number): Text.TextLayoutLine { return this._Layout.GetLineFromIndex(index); }
-        GetCursorFromXY(x: number, y: number): number { return this._Layout.GetCursorFromXY(null, x, y); }
-
-        OnLostFocus(e) { this._EndCursorBlink(); }
-        OnGotFocus(e) { this._ResetCursorBlink(false); }
-        OnMouseLeftButtonDown(e) { this._TextBox.OnMouseLeftButtonDown(e); }
-        OnMouseLeftButtonUp(e) { this._TextBox.OnMouseLeftButtonUp(e); }
-
-        OnTextModelChanged(args: ITextModelArgs) {
+        setTextWrapping (textWrapping: TextWrapping) {
             var lu = this.XamlNode.LayoutUpdater;
-            switch (args.Changed) {
-                case TextBoxModelChangedType.TextAlignment:
-                    if (this._Layout.SetTextAlignment(args.NewValue))
-                        this._Dirty = true;
-                    break;
-                case TextBoxModelChangedType.TextWrapping:
-                    if (this._Layout.SetTextWrapping(args.NewValue))
-                        this._Dirty = true;
-                    break;
-                case TextBoxModelChangedType.Selection:
-                    if (this._HadSelectedText || this._TextBox.HasSelectedText) {
-                        this._HadSelectedText = this._TextBox.HasSelectedText;
-                        this._SelectionChanged = true;
-                        this._ResetCursorBlink(false);
-                    } else {
-                        this._ResetCursorBlink(true);
-                        return;
-                    }
-                    break;
-                case TextBoxModelChangedType.Brush:
-                    break;
-                case TextBoxModelChangedType.Font:
-                    this._Layout.ResetState();
-                    this._Dirty = true;
-                    break;
-                case TextBoxModelChangedType.Text:
-                    this._UpdateText();
-                    this._Dirty = true;
-                    break;
-                default:
-                    return;
-            }
-            if (this._Dirty) {
-                lu.invalidateMeasure();
-                lu.updateBounds(true);
-            }
+            if (lu.assets.textWrapping === <number>textWrapping)
+                return;
+            lu.assets.textWrapping = <number>textWrapping;
+            lu.invalidateMeasure();
+            lu.updateBounds(true);
             lu.invalidate();
         }
 
-        //TODO: Implement render and actual size
+        setSelectionStart (selectionStart: number) {
+            var lu = this.XamlNode.LayoutUpdater;
+            if (lu.assets.selectionStart === selectionStart)
+                return;
+            lu.assets.selectionStart = selectionStart;
+            //TODO: Invalidate only?
+        }
+
+        setSelectionLength (selectionLength: number) {
+            var lu = this.XamlNode.LayoutUpdater;
+            if (lu.assets.selectionLength === selectionLength)
+                return;
+            var switching = (lu.assets.selectionLength === 0) !== (selectionLength === 0);
+            lu.assets.selectionLength = selectionLength;
+            lu.resetCaretBlinker(switching);
+            if (!switching)
+                return;
+            lu.invalidateCaretRegion();
+            //TODO: Perhaps we can be more clever (instead of measure, can we just invalidate render?)
+            lu.invalidateMeasure();
+            lu.updateBounds(true);
+            lu.invalidate();
+        }
+
+        setText (text: string) {
+            this._AutoRun.Text = text || "";
+        }
+
         /*
-        ComputeActualExtents(): size {
-            this.Layout(size.createInfinite());
-            return this._Layout.ActualExtents;
-        }
-        PreRender() {
-            this._UpdateCursor(false);
+         private _UpdateCursor (invalidate: boolean) {
+         var cur = this._TextBox.SelectionCursor;
+         var current = this._Cursor;
 
-            if (this._SelectionChanged) {
-                this._Layout.Select(this._TextBox.SelectionStart, this._TextBox.SelectionLength);
-                this._SelectionChanged = false;
-            }
-        }
-        Render(ctx: RenderContextEx, region: rect, renderSize: size) {
-            this._Layout.AvailableWidth = renderSize.Width;
+         if (invalidate && this._CursorVisible)
+         this._InvalidateCursor();
 
-            if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
-                //TODO: Invert
-            }
-            this._Layout.Render(ctx);
-            if (this._CursorVisible) {
-                var rect = this._Cursor;
-                ctx.beginPath();
-                ctx.moveTo(rect.X + 0.5, rect.Y);
-                ctx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
-                ctx.lineWidth = 1.0;
-                var caretBrush = this._TextBox.CaretBrush;
-                if (caretBrush) {
-                    caretBrush.SetupBrush(ctx, rect);
-                    ctx.strokeStyle = caretBrush.ToHtml5Object();
-                } else {
-                    ctx.strokeStyle = "#000000";
-                }
-                ctx.stroke();
-            }
+         this._Cursor = this._Layout.GetSelectionCursor(null, cur);
+         //TODO: ...
+         // var irect = rect.copyTo(this._Cursor);
+         // rect.transform(irect, this._Xformer.AbsoluteXform);
+         // this._TextBox._ImCtx.SetCursorLocation(irect);
+
+         if (!minerva.Rect.isEqual(this._Cursor, current))
+         this._TextBox._EmitCursorPositionChanged(this._Cursor.height, this._Cursor.x, this._Cursor.y);
+
+         if (invalidate && this._CursorVisible)
+         this._InvalidateCursor();
+         }
+         */
+
+        GetCursorFromPoint (point: Point): number {
+            return this.XamlNode.LayoutUpdater.getCursorFromPoint(point);
         }
-        */
     }
     Fayde.RegisterType(TextBoxView, "Fayde.Controls");
-
-    //TODO: Implement textboxview updater
-    /*
-    export class TextBoxViewLayoutUpdater extends LayoutUpdater {
-        ComputeActualSize() {
-            if (this.LayoutSlot !== undefined)
-                return super.ComputeActualSize();
-            return (<TextBoxView>this.Node.XObject).ComputeActualExtents();
-        }
-        
-        Render(ctx: RenderContextEx, region: rect) {
-            var tbv = <TextBoxView>this.Node.XObject;
-            tbv.PreRender();
-            ctx.save();
-            this.RenderLayoutClip(ctx);
-            tbv.Render(ctx, region, this.RenderSize);
-            ctx.restore();
-        }
-    }
-    */
 }
