@@ -36,11 +36,11 @@ module Fayde.Controls.Internal {
         SyncSelectionLength: (value: number) => void;
         SyncText: (value: string) => void;
 
-        constructor(eventsMask: TextBoxEmitChangedType) {
+        constructor (eventsMask: TextBoxEmitChangedType) {
             this.$$eventsMask = eventsMask;
         }
 
-        setAnchorCursor(anchor: number, cursor: number): boolean {
+        setAnchorCursor (anchor: number, cursor: number): boolean {
             if (this.selAnchor === anchor && this.selCursor === cursor)
                 return false;
             this.SyncSelectionStart(Math.min(anchor, cursor));
@@ -51,7 +51,7 @@ module Fayde.Controls.Internal {
             return true;
         }
 
-        enterText(newText: string): boolean {
+        enterText (newText: string): boolean {
             var anchor = this.selAnchor;
             var cursor = this.selCursor;
             var length = Math.abs(cursor - anchor);
@@ -90,7 +90,7 @@ module Fayde.Controls.Internal {
             return this.setAnchorCursor(anchor, cursor);
         }
 
-        removeText(start: number, length: number): boolean {
+        removeText (start: number, length: number): boolean {
             if (length <= 0)
                 return false;
 
@@ -103,15 +103,15 @@ module Fayde.Controls.Internal {
             return this.setAnchorCursor(start, start);
         }
 
-        get canUndo(): boolean {
+        get canUndo (): boolean {
             return this.$$undo.length > 0;
         }
 
-        get canRedo(): boolean {
+        get canRedo (): boolean {
             return this.$$redo.length > 0;
         }
 
-        undo() {
+        undo () {
             if (this.$$undo.length < 1)
                 return;
 
@@ -135,7 +135,7 @@ module Fayde.Controls.Internal {
             this.$syncEmit();
         }
 
-        redo() {
+        redo () {
             if (this.$$redo.length < 1)
                 return;
 
@@ -157,28 +157,52 @@ module Fayde.Controls.Internal {
             this.$syncEmit();
         }
 
-        begin() {
+        begin () {
             this.$$emit = TextBoxEmitChangedType.NOTHING;
             this.$$batch++;
         }
 
-        end() {
+        end () {
             this.$$batch--;
             this.$syncEmit();
         }
 
-        selectAll() {
+        beginSelect (cursor: number) {
+            this.$$batch++;
+            this.$$emit = TextBoxEmitChangedType.NOTHING;
+            this.SyncSelectionStart(cursor);
+            this.SyncSelectionLength(0);
+            this.$$batch--;
+
+            this.$syncEmit();
+        }
+
+        adjustSelection (cursor: number) {
+            var anchor = this.selAnchor;
+
+            this.$$batch++;
+            this.$$emit = TextBoxEmitChangedType.NOTHING;
+            this.SyncSelectionStart(Math.min(anchor, cursor));
+            this.SyncSelectionLength(Math.abs(cursor - anchor));
+            this.selAnchor = anchor;
+            this.selCursor = cursor;
+            this.$$batch--;
+
+            this.$syncEmit();
+        }
+
+        selectAll () {
             this.select(0, this.text.length);
         }
 
-        clearSelection(start: number) {
+        clearSelection (start: number) {
             this.$$batch++;
             this.SyncSelectionStart(start);
             this.SyncSelectionLength(0);
             this.$$batch--;
         }
 
-        select(start: number, length: number): boolean {
+        select (start: number, length: number): boolean {
             start = Math.min(Math.max(0, start), this.text.length);
             length = Math.min(Math.max(0, length), this.text.length - start);
 
@@ -191,7 +215,7 @@ module Fayde.Controls.Internal {
             return true;
         }
 
-        setSelectionStart(value: number) {
+        setSelectionStart (value: number) {
             var length = Math.abs(this.selCursor - this.selAnchor);
             var start = value;
             if (start > this.text.length) {
@@ -213,12 +237,9 @@ module Fayde.Controls.Internal {
 
             this.$$emit |= TextBoxEmitChangedType.SELECTION;
             this.$syncEmit();
-
-            if (changed)
-                Incite(this, {type: TextBoxModelChangedType.Selection, value: value});
         }
 
-        setSelectionLength(value: number) {
+        setSelectionLength (value: number) {
             var start = Math.min(this.selAnchor, this.selCursor);
             var length = value;
             if (start + length > this.text.length) {
@@ -233,12 +254,9 @@ module Fayde.Controls.Internal {
             this.selAnchor = start;
             this.$$emit |= TextBoxEmitChangedType.SELECTION;
             this.$syncEmit();
-
-            if (changed)
-                Incite(this, { type: TextBoxModelChangedType.Selection, value: value });
         }
 
-        setText(value: string) {
+        setText (value: string) {
             var text = value || "";
             if (!this.$$syncing) {
                 var action: Text.ITextBoxUndoAction;
@@ -258,10 +276,9 @@ module Fayde.Controls.Internal {
 
                 this.$syncEmit(false);
             }
-            Incite(this, { type: TextBoxModelChangedType.Text, value: value });
         }
 
-        private $syncEmit(syncText?: boolean) {
+        private $syncEmit (syncText?: boolean) {
             syncText = syncText !== false;
 
             if (this.$$batch !== 0 || this.$$emit === TextBoxEmitChangedType.NOTHING)
@@ -270,9 +287,7 @@ module Fayde.Controls.Internal {
             if (syncText && (this.$$emit & TextBoxEmitChangedType.TEXT))
                 this.$syncText();
 
-            if (this.$$emit & TextBoxEmitChangedType.SELECTION)
-                this.$syncSelectedText();
-
+            /*
             this.$$emit &= this.$$eventsMask;
             if (this.$$emit & TextBoxEmitChangedType.TEXT) {
                 Incite(this, { type: 'text' });
@@ -280,54 +295,15 @@ module Fayde.Controls.Internal {
             if (this.$$emit & TextBoxEmitChangedType.SELECTION) {
                 Incite(this, { type: 'selection' });
             }
+            */
 
             this.$$emit = TextBoxEmitChangedType.NOTHING;
         }
 
-        private $syncText() {
+        private $syncText () {
             this.$$syncing = true;
             this.SyncText(this.text);
             this.$$syncing = false;
-        }
-
-        private $syncSelectedText() {
-            var text = "";
-            if (this.selCursor !== this.selAnchor) {
-                var start = Math.min(this.selAnchor, this.selCursor);
-                var len = Math.abs(this.selCursor - this.selAnchor);
-                text = !this.text ? '' : this.text.substr(start, len);
-            }
-            this.selText = text;
-        }
-
-        private $setSelectedText(value: string) {
-            if (this.$$syncing)
-                return;
-
-            var text = value || "";
-            if (!text)
-                return;
-
-            var length = Math.abs(this.selCursor - this.selAnchor);
-            var start = Math.min(this.selAnchor, this.selCursor);
-
-            var action: Text.ITextBoxUndoAction;
-            if (length > 0) {
-                action = new Text.TextBoxUndoActionReplace(this.selAnchor, this.selCursor, this.text, start, length, text);
-                this.text = Text.TextBuffer.Replace(this.text, start, length, text);
-            } else if (text.length > 0) {
-                action = new Text.TextBoxUndoActionInsert(this.selAnchor, this.selCursor, start, text);
-                this.text = Text.TextBuffer.Insert(this.text, start, text);
-            }
-            if (action) {
-                this.$$emit |= TextBoxEmitChangedType.TEXT;
-                this.$$undo.push(action);
-                this.$$redo = [];
-
-                this.clearSelection(start + text.length);
-
-                this.$syncEmit();
-            }
         }
     }
 }

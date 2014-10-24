@@ -27,6 +27,8 @@ module Fayde.Controls {
         constructor () {
             super(TextBoxEmitChangedType.TEXT, PasswordBox.PasswordProperty);
             this.DefaultStyleKey = (<any>this).constructor;
+
+            ReactTo(this.$Proxy, this, (obj?) => Incite(this, obj));
         }
 
         get DisplayText (): string {

@@ -1,20 +1,115 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 
 module Fayde.Controls.Internal {
+    import TextBoxViewUpdater = minerva.controls.textboxview.TextBoxViewUpdater;
+
+    export class TextBoxViewNode extends FENode {
+        LayoutUpdater: TextBoxViewUpdater;
+    }
+
     export class TextBoxView extends FrameworkElement implements ITextModelListener {
-        CreateLayoutUpdater() {
-            return new minerva.core.Updater();
+        XamlNode: TextBoxViewNode;
+
+        CreateLayoutUpdater () {
+            return new TextBoxViewUpdater();
         }
 
-        private _Cursor = new minerva.Rect();
-        private _Layout: any;
-        private _SelectionChanged: boolean = false;
-        private _HadSelectedText: boolean = false;
-        private _CursorVisible: boolean = false;
-        private _TextBox: TextBoxBase = null;
-        private _Dirty: boolean = false;
+        private _AutoRun = new Documents.Run();
 
-        setTextBox(tb: TextBoxBase) {
+        constructor () {
+            super();
+            ReactTo(this._AutoRun, this, this._InlineChanged);
+        }
+
+        private _InlineChanged (obj?: any) {
+            var updater = this.XamlNode.LayoutUpdater;
+            switch (obj.type) {
+                case 'font':
+                    updater.invalidateFont(obj.full);
+                    break;
+                case 'text':
+                    updater.invalidateTextMetrics();
+                    break;
+            }
+        }
+
+        setFontProperty (propd: DependencyProperty, value: any) {
+            this._AutoRun.SetValue(propd, value);
+        }
+
+        setCaretBrush (value: Media.Brush) {
+            var updater = this.XamlNode.LayoutUpdater;
+            updater.assets.caretBrush = value;
+            updater.invalidateCaret();
+        }
+
+        setIsFocused (isFocused: boolean) {
+            var updater = <TextBoxViewUpdater>this.XamlNode.LayoutUpdater;
+            if (updater.assets.isFocused === isFocused)
+                return;
+            updater.assets.isFocused = isFocused;
+            updater.resetCaretBlinker(false);
+        }
+
+        setIsReadOnly (isReadOnly: boolean) {
+            var updater = this.XamlNode.LayoutUpdater;
+            if (updater.assets.isReadOnly === isReadOnly)
+                return;
+            updater.assets.isReadOnly = isReadOnly;
+            updater.resetCaretBlinker(false);
+        }
+
+        setTextAlignment (textAlignment: TextAlignment) {
+            var lu = this.XamlNode.LayoutUpdater;
+            if (lu.assets.textAlignment === textAlignment)
+                return;
+            lu.assets.textAlignment = textAlignment;
+            lu.invalidateMeasure();
+            lu.updateBounds(true);
+            lu.invalidate();
+        }
+
+        setTextWrapping (textWrapping: TextWrapping) {
+            var lu = this.XamlNode.LayoutUpdater;
+            if (lu.assets.textWrapping === textWrapping)
+                return;
+            lu.assets.textWrapping = textWrapping;
+            lu.invalidateMeasure();
+            lu.updateBounds(true);
+            lu.invalidate();
+        }
+
+        setSelectionStart (selectionStart: number) {
+            var lu = this.XamlNode.LayoutUpdater;
+            if (lu.assets.selectionStart === selectionStart)
+                return;
+            lu.assets.selectionStart = selectionStart;
+            //TODO: Invalidate only?
+        }
+
+        setSelectionLength (selectionLength: number) {
+            var lu = this.XamlNode.LayoutUpdater;
+            if (lu.assets.selectionLength === selectionLength)
+                return;
+            var switching = (lu.assets.selectionLength === 0) !== (selectionLength === 0);
+            lu.assets.selectionLength = selectionLength;
+            lu.resetCaretBlinker(switching);
+            if (!switching)
+                return;
+            lu.invalidateCaretRegion();
+            //TODO: Perhaps we can be more clever (instead of measure, can we just invalidate render?)
+            lu.invalidateMeasure();
+            lu.updateBounds(true);
+            lu.invalidate();
+        }
+
+        setText (text: string) {
+            this._AutoRun.Text = text || "";
+        }
+
+        private _TextBox: TextBoxBase = null;
+
+        setTextBox (tb: TextBoxBase) {
             if (this._TextBox)
                 UnreactTo(this._TextBox, this);
             this._TextBox = tb;
@@ -22,43 +117,34 @@ module Fayde.Controls.Internal {
                 ReactTo(tb, this, this.$TextBoxChanged);
         }
 
-        private $TextBoxChanged(obj: any) {
+        private $TextBoxChanged (obj: any) {
+            var updater = this.XamlNode.LayoutUpdater;
+            switch (obj.type) {
+                case TextBoxModelChangedType.Selection:
+                    if (true /* caret region invalidated */) {
+                        //TODO: How do we handle caret region?
+                        updater.resetCaretBlinker(false);
+                    } else {
+                        updater.resetCaretBlinker(true);
+                        return;
+                    }
+                    break;
+                case TextBoxModelChangedType.Font:
+                    this._Layout.ResetState();
+                    this._Dirty = true;
+                    break;
+                default:
+                    return;
+            }
+            if (this._Dirty) {
+                lu.invalidateMeasure();
+                lu.updateBounds(true);
+            }
+            lu.invalidate();
             //TODO: React to model changing
         }
 
-        SetTextBox(textBox: TextBoxBase) {
-            if (this._TextBox === textBox)
-                return;
-
-            if (this._TextBox)
-                this._TextBox.Unlisten(this);
-
-            this._TextBox = textBox;
-
-            if (textBox) {
-                textBox.Listen(this);
-
-                //this._Layout.TextAttributes = [new Text.TextLayoutAttributes(textBox)];
-
-                this._Layout.TextAlignment = textBox.TextAlignment;
-                this._Layout.TextWrapping = textBox.TextWrapping;
-                this._HadSelectedText = textBox.HasSelectedText;
-                this._SelectionChanged = true;
-                this._UpdateText();
-
-            } else {
-                this._Layout.TextAttributes = null;
-                this._Layout.Text = null;
-            }
-
-            var lu = this.XamlNode.LayoutUpdater;
-            lu.updateBounds(true);
-            lu.invalidateMeasure();
-            lu.invalidate();
-            this._Dirty = true;
-        }
-
-        private _UpdateCursor(invalidate: boolean) {
+        private _UpdateCursor (invalidate: boolean) {
             var cur = this._TextBox.SelectionCursor;
             var current = this._Cursor;
 
@@ -78,77 +164,16 @@ module Fayde.Controls.Internal {
                 this._InvalidateCursor();
         }
 
-        private _UpdateText() {
-            var text = this._TextBox.DisplayText;
-            this._Layout.Text = text ? text : "", -1;
+        GetCursorFromPoint (point: Point): number {
+            this.XamlNode.LayoutUpdater.tree.getCursorFromPoint(point);
         }
 
-        GetBaselineOffset(): number {
-            //TODO: GetTransformToUIElementWithError
-            return this._Layout.GetBaselineOffset();
-        }
-
-        //GetLineFromY(y: number): Text.TextLayoutLine { return this._Layout.GetLineFromY(null, y); }
-        //GetLineFromIndex(index: number): Text.TextLayoutLine { return this._Layout.GetLineFromIndex(index); }
-        GetCursorFromXY(x: number, y: number): number {
-            return this._Layout.GetCursorFromXY(null, x, y);
-        }
-
-        OnLostFocus(e) {
-            this._EndCursorBlink();
-        }
-
-        OnGotFocus(e) {
-            this._ResetCursorBlink(false);
-        }
-
-        OnMouseLeftButtonDown(e) {
+        OnMouseLeftButtonDown (e) {
             this._TextBox.OnMouseLeftButtonDown(e);
         }
 
-        OnMouseLeftButtonUp(e) {
+        OnMouseLeftButtonUp (e) {
             this._TextBox.OnMouseLeftButtonUp(e);
-        }
-
-        OnTextModelChanged(args: ITextModelArgs) {
-            var lu = this.XamlNode.LayoutUpdater;
-            switch (args.Changed) {
-                case TextBoxModelChangedType.TextAlignment:
-                    if (this._Layout.SetTextAlignment(args.NewValue))
-                        this._Dirty = true;
-                    break;
-                case TextBoxModelChangedType.TextWrapping:
-                    if (this._Layout.SetTextWrapping(args.NewValue))
-                        this._Dirty = true;
-                    break;
-                case TextBoxModelChangedType.Selection:
-                    if (this._HadSelectedText || this._TextBox.HasSelectedText) {
-                        this._HadSelectedText = this._TextBox.HasSelectedText;
-                        this._SelectionChanged = true;
-                        this._ResetCursorBlink(false);
-                    } else {
-                        this._ResetCursorBlink(true);
-                        return;
-                    }
-                    break;
-                case TextBoxModelChangedType.Brush:
-                    break;
-                case TextBoxModelChangedType.Font:
-                    this._Layout.ResetState();
-                    this._Dirty = true;
-                    break;
-                case TextBoxModelChangedType.Text:
-                    this._UpdateText();
-                    this._Dirty = true;
-                    break;
-                default:
-                    return;
-            }
-            if (this._Dirty) {
-                lu.invalidateMeasure();
-                lu.updateBounds(true);
-            }
-            lu.invalidate();
         }
     }
     Fayde.RegisterType(TextBoxView, "Fayde.Controls");

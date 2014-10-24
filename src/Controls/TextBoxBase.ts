@@ -2,22 +2,10 @@
 /// <reference path="../Input/KeyEventArgs.ts" />
 
 module Fayde.Controls {
-
-    export interface ITextModelArgs {
-        Changed: TextBoxModelChangedType;
-        NewValue: any;
-    }
-
-    export interface ITextModelListener {
-        OnTextModelChanged(args: ITextModelArgs);
-    }
-
     var Key = Input.Key;
     export class TextBoxBase extends Control {
         private _Selecting: boolean = false;
         private _Captured: boolean = false;
-
-        private _TextProperty: DependencyProperty;
 
         IsReadOnly = false;
 
@@ -25,112 +13,65 @@ module Fayde.Controls {
         $Proxy: Internal.TextProxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
-        $IsFocused: boolean = false;
 
-        constructor(eventsMask: TextBoxEmitChangedType, textPropd: DependencyProperty) {
+        constructor (eventsMask: Internal.TextBoxEmitChangedType) {
             super();
             this.$View = this.CreateView();
             this.$View.setTextBox(this);
             this.$Proxy = new Internal.TextProxy(eventsMask);
-            this._TextProperty = textPropd;
         }
 
-        CreateView(): Internal.TextBoxView {
+        CreateView (): Internal.TextBoxView {
             return new Internal.TextBoxView();
         }
 
-        get Cursor(): CursorType {
+        get Cursor (): CursorType {
             var cursor = this.GetValue(FrameworkElement.CursorProperty);
             if (cursor === CursorType.Default)
                 return CursorType.IBeam;
             return cursor;
         }
 
-        OnApplyTemplate() {
+        OnApplyTemplate () {
             super.OnApplyTemplate();
             this.$ContentProxy.setElement(<FrameworkElement>this.GetTemplateChild("ContentElement", FrameworkElement), this.$View);
         }
 
-        private _UpdateFont() {
-            this._Font.Family = this.FontFamily;
-            this._Font.Size = this.FontSize;
-            this._Font.Stretch = this.FontStretch;
-            this._Font.Style = this.FontStyle;
-            this._Font.Weight = this.FontWeight;
+        OnLostFocus (e: RoutedEventArgs) {
+            this.$View.setIsFocused(false);
         }
 
-        OnLostFocus(e: RoutedEventArgs) {
-            this.$IsFocused = false;
-            if (this.$View)
-                this.$View.OnLostFocus(e);
+        OnGotFocus (e: RoutedEventArgs) {
+            this.$View.setIsFocused(true);
         }
 
-        OnGotFocus(e: RoutedEventArgs) {
-            this.$IsFocused = true;
-            if (this.$View)
-                this.$View.OnGotFocus(e);
-        }
-
-        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
+        OnMouseLeftButtonDown (e: Input.MouseButtonEventArgs) {
             e.Handled = true;
             this.Focus();
+            this._Captured = this.CaptureMouse();
+            this._Selecting = true;
 
-            if (this.$View) {
-                var p = e.GetPosition(this.$View);
-                var cursor = this.$View.GetCursorFromXY(p.x, p.y);
-
-                this._Captured = this.CaptureMouse();
-                this._Selecting = true;
-
-                this._BatchPush();
-                this._Emit = TextBoxEmitChangedType.NOTHING;
-                this.SelectionStart = cursor;
-                this.SelectionLength = 0;
-                this._BatchPop();
-
-                this._SyncAndEmit();
-            }
+            var cursor = this.$View.GetCursorFromPoint(e.GetPosition(this.$View));
+            this.$Proxy.beginSelect(cursor);
         }
 
-        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {
-            if (this._Captured) {
+        OnMouseLeftButtonUp (e: Input.MouseButtonEventArgs) {
+            if (this._Captured)
                 this.ReleaseMouseCapture();
-            }
-
             e.Handled = true;
             this._Selecting = false;
             this._Captured = false;
         }
 
-        OnMouseMove(e: Input.MouseEventArgs) {
-            var anchor = this._SelectionAnchor;
-            var cursor = this._SelectionCursor;
-
-            if (this._Selecting) {
-                var p = e.GetPosition(this.$View);
-                e.Handled = true;
-
-                cursor = this.$View.GetCursorFromXY(p.x, p.y);
-                //TextDebug("TextBox.MouseMove-CursorPos: " + p.toString());
-
-                this._BatchPush();
-                this._Emit = TextBoxEmitChangedType.NOTHING;
-                this.SelectionStart = Math.min(anchor, cursor);
-                this.SelectionLength = Math.abs(cursor - anchor);
-                this._SelectionAnchor = anchor;
-                this._SelectionCursor = cursor;
-                this._BatchPop();
-
-                this._SyncAndEmit();
-
-                //TODO: 
-                //if (!this._Secret && (clipboard = this.GetClipboard(this, Primary))) {
-                //  clipboard.SetText(this.SelectedText);
-                //}
-            }
+        OnMouseMove (e: Input.MouseEventArgs) {
+            if (!this._Selecting)
+                return;
+            e.Handled = true;
+            var cursor = this.$View.GetCursorFromPoint(e.GetPosition(this.$View));
+            this.$Proxy.adjustSelection(cursor);
         }
 
-        OnKeyDown(args: Input.KeyEventArgs) {
+        OnKeyDown (args: Input.KeyEventArgs) {
             switch (args.Key) {
                 case Key.Shift: //shift
                 case Key.Ctrl: //ctrl
@@ -241,7 +182,7 @@ module Fayde.Controls {
                 this.PostOnKeyDown(args);
         }
 
-        PostOnKeyDown(args: Input.KeyEventArgs) {
+        PostOnKeyDown (args: Input.KeyEventArgs) {
             if (args.Handled)
                 return;
 
@@ -258,7 +199,7 @@ module Fayde.Controls {
             proxy.end();
         }
 
-        private _KeyDownBackSpace(modifiers: Input.IModifiersOn): boolean {
+        private _KeyDownBackSpace (modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Shift || modifiers.Alt)
                 return false;
 
@@ -282,7 +223,7 @@ module Fayde.Controls {
             return proxy.removeText(start, length);
         }
 
-        private _KeyDownDelete(modifiers: Input.IModifiersOn): boolean {
+        private _KeyDownDelete (modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Shift || modifiers.Alt)
                 return false;
 
@@ -307,7 +248,7 @@ module Fayde.Controls {
             return proxy.removeText(start, length);
         }
 
-        private _KeyDownPageDown(modifiers: Input.IModifiersOn): boolean {
+        private _KeyDownPageDown (modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -323,7 +264,7 @@ module Fayde.Controls {
             return proxy.setAnchorCursor(anchor, cursor);
         }
 
-        private _KeyDownPageUp(modifiers: Input.IModifiersOn): boolean {
+        private _KeyDownPageUp (modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -339,7 +280,7 @@ module Fayde.Controls {
             return proxy.setAnchorCursor(anchor, cursor);
         }
 
-        private _KeyDownHome(modifiers: Input.IModifiersOn): boolean {
+        private _KeyDownHome (modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -359,7 +300,7 @@ module Fayde.Controls {
             return proxy.setAnchorCursor(anchor, cursor);
         }
 
-        private _KeyDownEnd(modifiers: Input.IModifiersOn): boolean {
+        private _KeyDownEnd (modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -379,7 +320,7 @@ module Fayde.Controls {
             return proxy.setAnchorCursor(anchor, cursor);
         }
 
-        private _KeyDownLeft(modifiers: Input.IModifiersOn): boolean {
+        private _KeyDownLeft (modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -401,7 +342,7 @@ module Fayde.Controls {
             return proxy.setAnchorCursor(anchor, cursor);
         }
 
-        private _KeyDownRight(modifiers: Input.IModifiersOn): boolean {
+        private _KeyDownRight (modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -423,7 +364,7 @@ module Fayde.Controls {
             return proxy.setAnchorCursor(anchor, cursor);
         }
 
-        private _KeyDownDown(modifiers: Input.IModifiersOn): boolean {
+        private _KeyDownDown (modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -435,7 +376,7 @@ module Fayde.Controls {
             return proxy.setAnchorCursor(anchor, cursor);
         }
 
-        private _KeyDownUp(modifiers: Input.IModifiersOn): boolean {
+        private _KeyDownUp (modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
