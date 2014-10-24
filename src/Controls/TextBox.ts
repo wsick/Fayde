@@ -2,10 +2,10 @@
 
 module Fayde.Controls {
     export class TextBox extends TextBoxBase {
-        static AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false, (d, args) => (<TextBox>d).$AcceptsReturn = (args.NewValue === true));
+        static AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false);
         static CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBox);
-        static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);
-        static IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", () => Boolean, TextBox, undefined, (d, args) => (<TextBox>d)._IsReadOnlyChanged(args));
+        static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, undefined, undefined, undefined, positiveIntValidator);
+        static IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", () => Boolean, TextBox, false);
         static SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBox);
         static SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBox);
         static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBox);
@@ -38,137 +38,73 @@ module Fayde.Controls {
         constructor() {
             super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);
             this.DefaultStyleKey = (<any>this).constructor;
+
+            var proxy = this.$Proxy;
+            proxy.SyncSelectionStart = (value) => this.SetCurrentValue(TextBox.SelectionStartProperty, value);
+            proxy.SyncSelectionLength = (value) => this.SetCurrentValue(TextBox.SelectionLengthProperty, value);
+            proxy.SyncText = (value) => this.SetCurrentValue(TextBox.TextProperty, value);
+            this.$Advancer = new Internal.TextBoxCursorAdvancer(this.$Proxy);
         }
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
-
-            var ce = this.$ContentElement;
-            if (!ce)
-                return;
-
-            var ceType = (<any>ce).constructor;
-            var propd = DependencyProperty.GetDependencyProperty(ceType, "VerticalScrollBarVisibility", true);
-            if (propd)
-                ce.SetValueInternal(propd, this.VerticalScrollBarVisibility);
-
-            propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility", true);
-            if (propd) {
-                var vis = (this.TextWrapping === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
-                ce.SetValueInternal(propd, vis);
-            }
+            var vis = (args.NewValue === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
+            this.$ContentProxy.setHorizontalScrollBar(vis);
+            this.$ContentProxy.setVerticalScrollBar(this.VerticalScrollBarVisibility);
         }
 
-        get DisplayText(): string { return this.Text; }
-
-        CursorDown(cursor: number, isPage: boolean): number {
-            //TODO:
-            return cursor;
-        }
-        CursorUp(cursor: number, isPage: boolean): number {
-            //TODO:
-            return cursor;
-        }
-        CursorNextWord(cursor: number): number {
-            //TODO:
-            return cursor;
-        }
-        CursorPrevWord(cursor: number): number {
-            //TODO:
-            return cursor;
-        }
-        CursorLineBegin(cursor: number): number {
-            var buffer = this._Buffer;
-            var len = buffer.length;
-            var r = buffer.lastIndexOf("\r", cursor);
-            var n = buffer.lastIndexOf("\n", cursor);
-            return Math.max(r, n, 0);
-        }
-        CursorLineEnd(cursor: number): number {
-            var buffer = this._Buffer;
-            var len = buffer.length;
-            var r = buffer.indexOf("\r", cursor);
-            if (r < 0) r = len;
-            var n = buffer.indexOf("\n", cursor);
-            if (n < 0) n = len;
-            return Math.min(r, n);
+        get DisplayText(): string {
+            return this.Text;
         }
 
         _EmitTextChanged() {
             //this.TextChanged.RaiseAsync(this, new TextChangedEventArgs());
             this.TextChanged.RaiseAsync(this, new RoutedEventArgs());
         }
+
         _EmitSelectionChanged() {
             //TextDebug("TextBox.SelectionChanged [" + this.SelectionStart + " -- " + this.SelectionLength + "]");
             this.SelectionChanged.RaiseAsync(this, new RoutedEventArgs());
         }
 
-        private _IsReadOnlyChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.$IsReadOnly = args.NewValue === true;
-            if (this.$IsFocused) {
-                if (this.$IsReadOnly) {
-                    this._ResetIMContext();
-                    //TODO: this._IMCtx.FocusOut();
-                } else {
-                    //TODO: this._IMCtx.FocusIn();
-                }
-            }
-            if (this.$View)
-                this.$View.SetEnableCursor(!this.$IsReadOnly);
+        FontChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._ModelChanged(TextBoxModelChangedType.Font, args.NewValue);
         }
-        FontChanged(args: IDependencyPropertyChangedEventArgs) { this._ModelChanged(TextBoxModelChangedType.Font, args.NewValue); }
+
         private _TextAlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
             this._ModelChanged(TextBoxModelChangedType.TextAlignment, args.NewValue);
         }
+
         private _TextWrappingChanged(args: IDependencyPropertyChangedEventArgs) {
-            var ce = this.$ContentElement;
-            if (ce) {
-                var ceType = (<any>ce).constructor;
-                var propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility", true);
-                if (propd) {
-                    var vis = (args.NewValue === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
-                    ce.SetValueInternal(propd, vis);
-                }
-            }
+            var vis = (args.NewValue === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
+            this.$ContentProxy.setHorizontalScrollBar(vis);
             this._ModelChanged(TextBoxModelChangedType.TextWrapping, args.NewValue);
         }
+
         private _HorizontalScrollBarVisibilityChanged(args: IDependencyPropertyChangedEventArgs) {
-            var ce = this.$ContentElement;
-            if (!ce)
-                return;
-
-            var ceType = (<any>ce).constructor;
-            var propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility");
-            if (!propd)
-                return;
-
-            var vis = (this.TextWrapping === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : args.NewValue;
-            ce.SetValueInternal(propd, vis);
+            var vis = (args.NewValue === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
+            this.$ContentProxy.setHorizontalScrollBar(vis);
         }
-        private _VerticalScrollBarVisibilityChanged(args: IDependencyPropertyChangedEventArgs) {
-            var ce = this.$ContentElement;
-            if (!ce)
-                return;
 
-            var ceType = (<any>ce).constructor;
-            var propd = DependencyProperty.GetDependencyProperty(ceType, "VerticalScrollBarVisibility");
-            if (!propd)
-                return;
-            ce.SetValueInternal(propd, args.NewValue);
+        private _VerticalScrollBarVisibilityChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.$ContentProxy.setVerticalScrollBar(args.NewValue);
         }
 
         OnMouseEnter(e: Input.MouseEventArgs) {
             super.OnMouseEnter(e);
             this.UpdateVisualState();
         }
+
         OnMouseLeave(e: Input.MouseEventArgs) {
             super.OnMouseLeave(e);
             this.UpdateVisualState();
         }
+
         OnGotFocus(e: RoutedEventArgs) {
             super.OnGotFocus(e);
             this.UpdateVisualState();
         }
+
         OnLostFocus(e: RoutedEventArgs) {
             super.OnLostFocus(e);
             this.UpdateVisualState();
@@ -199,6 +135,15 @@ module Fayde.Controls {
         { Name: "ContentElement", Type: FrameworkElement });
 
     module reactions {
+        DPReaction<boolean>(TextBox.AcceptsReturnProperty, (tb: TextBox, ov, nv) => {
+            tb.$Proxy.acceptsReturn = nv === true;
+        }, false);
+        DPReaction<number>(TextBox.MaxLengthProperty, (tb: TextBox, ov, nv) => {
+            tb.$Proxy.maxLength = nv;
+        }, false);
+        DPReaction<boolean>(TextBox.IsReadOnlyProperty, (tb: TextBox, ov, nv) => {
+            tb.$View.setIsReadOnly(nv === true);
+        });
         UIReaction<Media.Brush>(TextBox.SelectionBackgroundProperty, (upd, ov, nv, tb?: TextBox) => {
             tb._ModelChanged(TextBoxModelChangedType.Brush, nv);
             upd.invalidate();
