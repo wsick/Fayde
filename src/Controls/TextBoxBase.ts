@@ -26,8 +26,8 @@ module Fayde.Controls {
         constructor (eventsMask: Internal.TextBoxEmitChangedType) {
             super();
             var view = this.$View = this.CreateView();
-            view.MouseLeftButtonDown.Subscribe(this._MouseLeftButtonDown, this);
-            view.MouseLeftButtonUp.Subscribe(this._MouseLeftButtonUp, this);
+            view.MouseLeftButtonDown.Subscribe((s, e) => this.OnMouseLeftButtonDown(e), this);
+            view.MouseLeftButtonUp.Subscribe((s, e)=>this.OnMouseLeftButtonUp(e), this);
             this.$Proxy = new Internal.TextProxy(eventsMask);
 
             this._SyncFont();
@@ -63,14 +63,16 @@ module Fayde.Controls {
         }
 
         OnLostFocus (e: RoutedEventArgs) {
+            super.OnLostFocus(e);
             this.$View.setIsFocused(false);
         }
 
         OnGotFocus (e: RoutedEventArgs) {
+            super.OnGotFocus(e);
             this.$View.setIsFocused(true);
         }
 
-        private _MouseLeftButtonDown (sender, e: Input.MouseButtonEventArgs) {
+        OnMouseLeftButtonDown (e: Input.MouseButtonEventArgs) {
             e.Handled = true;
             this.Focus();
             this._Captured = this.CaptureMouse();
@@ -80,7 +82,7 @@ module Fayde.Controls {
             this.$Proxy.beginSelect(cursor);
         }
 
-        private _MouseLeftButtonUp (sender, e: Input.MouseButtonEventArgs) {
+        OnMouseLeftButtonUp (e: Input.MouseButtonEventArgs) {
             if (this._Captured)
                 this.ReleaseMouseCapture();
             e.Handled = true;

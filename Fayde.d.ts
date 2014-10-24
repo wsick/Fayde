@@ -2159,8 +2159,8 @@ declare module Fayde.Controls {
         public OnApplyTemplate(): void;
         public OnLostFocus(e: RoutedEventArgs): void;
         public OnGotFocus(e: RoutedEventArgs): void;
-        private _MouseLeftButtonDown(sender, e);
-        private _MouseLeftButtonUp(sender, e);
+        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
+        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
         public OnMouseMove(e: Input.MouseEventArgs): void;
         public OnKeyDown(args: Input.KeyEventArgs): void;
         public PostOnKeyDown(args: Input.KeyEventArgs): void;

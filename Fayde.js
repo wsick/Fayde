@@ -10156,14 +10156,19 @@ var Fayde;
         var TextBoxBase = (function (_super) {
             __extends(TextBoxBase, _super);
             function TextBoxBase(eventsMask) {
+                var _this = this;
                 _super.call(this);
                 this._Selecting = false;
                 this._Captured = false;
                 this.IsReadOnly = false;
                 this.$ContentProxy = new Controls.Internal.TextBoxContentProxy();
                 var view = this.$View = this.CreateView();
-                view.MouseLeftButtonDown.Subscribe(this._MouseLeftButtonDown, this);
-                view.MouseLeftButtonUp.Subscribe(this._MouseLeftButtonUp, this);
+                view.MouseLeftButtonDown.Subscribe(function (s, e) {
+                    return _this.OnMouseLeftButtonDown(e);
+                }, this);
+                view.MouseLeftButtonUp.Subscribe(function (s, e) {
+                    return _this.OnMouseLeftButtonUp(e);
+                }, this);
                 this.$Proxy = new Controls.Internal.TextProxy(eventsMask);
 
                 this._SyncFont();
@@ -10207,14 +10212,16 @@ var Fayde;
             };
 
             TextBoxBase.prototype.OnLostFocus = function (e) {
+                _super.prototype.OnLostFocus.call(this, e);
                 this.$View.setIsFocused(false);
             };
 
             TextBoxBase.prototype.OnGotFocus = function (e) {
+                _super.prototype.OnGotFocus.call(this, e);
                 this.$View.setIsFocused(true);
             };
 
-            TextBoxBase.prototype._MouseLeftButtonDown = function (sender, e) {
+            TextBoxBase.prototype.OnMouseLeftButtonDown = function (e) {
                 e.Handled = true;
                 this.Focus();
                 this._Captured = this.CaptureMouse();
@@ -10224,7 +10231,7 @@ var Fayde;
                 this.$Proxy.beginSelect(cursor);
             };
 
-            TextBoxBase.prototype._MouseLeftButtonUp = function (sender, e) {
+            TextBoxBase.prototype.OnMouseLeftButtonUp = function (e) {
                 if (this._Captured)
                     this.ReleaseMouseCapture();
                 e.Handled = true;
