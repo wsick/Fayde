@@ -10173,8 +10173,9 @@ var Fayde;
                 this._Captured = false;
                 this.IsReadOnly = false;
                 this.$ContentProxy = new Controls.Internal.TextBoxContentProxy();
-                this.$View = this.CreateView();
-                this.$View.setTextBox(this);
+                var view = this.$View = this.CreateView();
+                view.MouseLeftButtonDown.Subscribe(this._MouseLeftButtonDown, this);
+                view.MouseLeftButtonUp.Subscribe(this._MouseLeftButtonUp, this);
                 this.$Proxy = new Controls.Internal.TextProxy(eventsMask);
 
                 this._SyncFont();
@@ -10225,7 +10226,7 @@ var Fayde;
                 this.$View.setIsFocused(true);
             };
 
-            TextBoxBase.prototype.OnMouseLeftButtonDown = function (e) {
+            TextBoxBase.prototype._MouseLeftButtonDown = function (sender, e) {
                 e.Handled = true;
                 this.Focus();
                 this._Captured = this.CaptureMouse();
@@ -10235,7 +10236,7 @@ var Fayde;
                 this.$Proxy.beginSelect(cursor);
             };
 
-            TextBoxBase.prototype.OnMouseLeftButtonUp = function (e) {
+            TextBoxBase.prototype._MouseLeftButtonUp = function (sender, e) {
                 if (this._Captured)
                     this.ReleaseMouseCapture();
                 e.Handled = true;
@@ -12050,7 +12051,6 @@ var Fayde;
                 function TextBoxView() {
                     _super.call(this);
                     this._AutoRun = new Fayde.Documents.Run();
-                    this._TextBox = null;
                     Fayde.ReactTo(this._AutoRun, this, this._InlineChanged);
                 }
                 TextBoxView.prototype.CreateLayoutUpdater = function () {
@@ -12148,20 +12148,8 @@ var Fayde;
                     this._AutoRun.Text = text || "";
                 };
 
-                TextBoxView.prototype.setTextBox = function (tb) {
-                    this._TextBox = tb;
-                };
-
                 TextBoxView.prototype.GetCursorFromPoint = function (point) {
                     return this.XamlNode.LayoutUpdater.getCursorFromPoint(point);
-                };
-
-                TextBoxView.prototype.OnMouseLeftButtonDown = function (e) {
-                    this._TextBox.OnMouseLeftButtonDown(e);
-                };
-
-                TextBoxView.prototype.OnMouseLeftButtonUp = function (e) {
-                    this._TextBox.OnMouseLeftButtonUp(e);
                 };
                 return TextBoxView;
             })(Fayde.FrameworkElement);

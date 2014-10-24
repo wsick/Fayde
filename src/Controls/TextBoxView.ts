@@ -113,44 +113,30 @@ module Fayde.Controls.Internal {
             this._AutoRun.Text = text || "";
         }
 
-        private _TextBox: TextBoxBase = null;
-
-        setTextBox (tb: TextBoxBase) {
-            this._TextBox = tb;
-        }
-
         /*
-        private _UpdateCursor (invalidate: boolean) {
-            var cur = this._TextBox.SelectionCursor;
-            var current = this._Cursor;
+         private _UpdateCursor (invalidate: boolean) {
+         var cur = this._TextBox.SelectionCursor;
+         var current = this._Cursor;
 
-            if (invalidate && this._CursorVisible)
-                this._InvalidateCursor();
+         if (invalidate && this._CursorVisible)
+         this._InvalidateCursor();
 
-            this._Cursor = this._Layout.GetSelectionCursor(null, cur);
-            //TODO: ...
-            // var irect = rect.copyTo(this._Cursor);
-            // rect.transform(irect, this._Xformer.AbsoluteXform);
-            // this._TextBox._ImCtx.SetCursorLocation(irect);
+         this._Cursor = this._Layout.GetSelectionCursor(null, cur);
+         //TODO: ...
+         // var irect = rect.copyTo(this._Cursor);
+         // rect.transform(irect, this._Xformer.AbsoluteXform);
+         // this._TextBox._ImCtx.SetCursorLocation(irect);
 
-            if (!minerva.Rect.isEqual(this._Cursor, current))
-                this._TextBox._EmitCursorPositionChanged(this._Cursor.height, this._Cursor.x, this._Cursor.y);
+         if (!minerva.Rect.isEqual(this._Cursor, current))
+         this._TextBox._EmitCursorPositionChanged(this._Cursor.height, this._Cursor.x, this._Cursor.y);
 
-            if (invalidate && this._CursorVisible)
-                this._InvalidateCursor();
-        }
-        */
+         if (invalidate && this._CursorVisible)
+         this._InvalidateCursor();
+         }
+         */
 
         GetCursorFromPoint (point: Point): number {
             return this.XamlNode.LayoutUpdater.getCursorFromPoint(point);
-        }
-
-        OnMouseLeftButtonDown (e) {
-            this._TextBox.OnMouseLeftButtonDown(e);
-        }
-
-        OnMouseLeftButtonUp (e) {
-            this._TextBox.OnMouseLeftButtonUp(e);
         }
     }
     Fayde.RegisterType(TextBoxView, "Fayde.Controls");

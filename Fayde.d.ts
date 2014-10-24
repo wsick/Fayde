@@ -2168,8 +2168,8 @@ declare module Fayde.Controls {
         public OnApplyTemplate(): void;
         public OnLostFocus(e: RoutedEventArgs): void;
         public OnGotFocus(e: RoutedEventArgs): void;
-        public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
+        private _MouseLeftButtonDown(sender, e);
+        private _MouseLeftButtonUp(sender, e);
         public OnMouseMove(e: Input.MouseEventArgs): void;
         public OnKeyDown(args: Input.KeyEventArgs): void;
         public PostOnKeyDown(args: Input.KeyEventArgs): void;
@@ -2491,11 +2491,7 @@ declare module Fayde.Controls.Internal {
         public setSelectionStart(selectionStart: number): void;
         public setSelectionLength(selectionLength: number): void;
         public setText(text: string): void;
-        private _TextBox;
-        public setTextBox(tb: TextBoxBase): void;
         public GetCursorFromPoint(point: Point): number;
-        public OnMouseLeftButtonDown(e: any): void;
-        public OnMouseLeftButtonUp(e: any): void;
     }
 }
 declare module Fayde.Controls {
