@@ -7,7 +7,7 @@ module Fayde.Controls.Internal {
         LayoutUpdater: TextBoxViewUpdater;
     }
 
-    export class TextBoxView extends FrameworkElement implements ITextModelListener {
+    export class TextBoxView extends FrameworkElement {
         XamlNode: TextBoxViewNode;
 
         CreateLayoutUpdater () {
@@ -37,6 +37,12 @@ module Fayde.Controls.Internal {
             this._AutoRun.SetValue(propd, value);
         }
 
+        setFontAttr (attrName: string, value: any) {
+            var runUpdater = this._AutoRun;
+            var tu = runUpdater.TextUpdater;
+            tu.assets[attrName] = value;
+        }
+
         setCaretBrush (value: Media.Brush) {
             var updater = this.XamlNode.LayoutUpdater;
             updater.assets.caretBrush = value;
@@ -61,9 +67,9 @@ module Fayde.Controls.Internal {
 
         setTextAlignment (textAlignment: TextAlignment) {
             var lu = this.XamlNode.LayoutUpdater;
-            if (lu.assets.textAlignment === textAlignment)
+            if (lu.assets.textAlignment === <number>textAlignment)
                 return;
-            lu.assets.textAlignment = textAlignment;
+            lu.assets.textAlignment = <number>textAlignment;
             lu.invalidateMeasure();
             lu.updateBounds(true);
             lu.invalidate();
@@ -71,9 +77,9 @@ module Fayde.Controls.Internal {
 
         setTextWrapping (textWrapping: TextWrapping) {
             var lu = this.XamlNode.LayoutUpdater;
-            if (lu.assets.textWrapping === textWrapping)
+            if (lu.assets.textWrapping === <number>textWrapping)
                 return;
-            lu.assets.textWrapping = textWrapping;
+            lu.assets.textWrapping = <number>textWrapping;
             lu.invalidateMeasure();
             lu.updateBounds(true);
             lu.invalidate();
@@ -110,40 +116,10 @@ module Fayde.Controls.Internal {
         private _TextBox: TextBoxBase = null;
 
         setTextBox (tb: TextBoxBase) {
-            if (this._TextBox)
-                UnreactTo(this._TextBox, this);
             this._TextBox = tb;
-            if (tb)
-                ReactTo(tb, this, this.$TextBoxChanged);
         }
 
-        private $TextBoxChanged (obj: any) {
-            var updater = this.XamlNode.LayoutUpdater;
-            switch (obj.type) {
-                case TextBoxModelChangedType.Selection:
-                    if (true /* caret region invalidated */) {
-                        //TODO: How do we handle caret region?
-                        updater.resetCaretBlinker(false);
-                    } else {
-                        updater.resetCaretBlinker(true);
-                        return;
-                    }
-                    break;
-                case TextBoxModelChangedType.Font:
-                    this._Layout.ResetState();
-                    this._Dirty = true;
-                    break;
-                default:
-                    return;
-            }
-            if (this._Dirty) {
-                lu.invalidateMeasure();
-                lu.updateBounds(true);
-            }
-            lu.invalidate();
-            //TODO: React to model changing
-        }
-
+        /*
         private _UpdateCursor (invalidate: boolean) {
             var cur = this._TextBox.SelectionCursor;
             var current = this._Cursor;
@@ -163,9 +139,10 @@ module Fayde.Controls.Internal {
             if (invalidate && this._CursorVisible)
                 this._InvalidateCursor();
         }
+        */
 
         GetCursorFromPoint (point: Point): number {
-            this.XamlNode.LayoutUpdater.tree.getCursorFromPoint(point);
+            return this.XamlNode.LayoutUpdater.getCursorFromPoint(point);
         }
 
         OnMouseLeftButtonDown (e) {

@@ -8561,6 +8561,131 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         (function (Internal) {
+            var TextBoxCursorAdvancer = (function () {
+                function TextBoxCursorAdvancer($textOwner) {
+                    this.$textOwner = $textOwner;
+                }
+                TextBoxCursorAdvancer.prototype.CursorDown = function (cursor, isPage) {
+                    return cursor;
+                };
+
+                TextBoxCursorAdvancer.prototype.CursorUp = function (cursor, isPage) {
+                    return cursor;
+                };
+
+                TextBoxCursorAdvancer.prototype.CursorNextWord = function (cursor) {
+                    return cursor;
+                };
+
+                TextBoxCursorAdvancer.prototype.CursorPrevWord = function (cursor) {
+                    return cursor;
+                };
+
+                TextBoxCursorAdvancer.prototype.CursorNextChar = function (cursor) {
+                    var text = this.$textOwner.text;
+                    if (text && text.charAt(cursor) === '\r' && text.charAt(cursor + 1) === '\n')
+                        return cursor + 2;
+                    return Math.min(text.length - 1, cursor + 1);
+                };
+
+                TextBoxCursorAdvancer.prototype.CursorPrevChar = function (cursor) {
+                    var text = this.$textOwner.text;
+                    if (cursor >= 2 && text && text.charAt(cursor - 2) === '\r' && text.charAt(cursor - 1) === '\n')
+                        return cursor - 2;
+                    return Math.max(0, cursor - 1);
+                };
+
+                TextBoxCursorAdvancer.prototype.CursorLineBegin = function (cursor) {
+                    var text = this.$textOwner.text;
+                    var r = text.lastIndexOf("\r", cursor);
+                    var n = text.lastIndexOf("\n", cursor);
+                    return Math.max(r, n, 0);
+                };
+
+                TextBoxCursorAdvancer.prototype.CursorLineEnd = function (cursor) {
+                    var text = this.$textOwner.text;
+                    var len = text.length;
+                    var r = text.indexOf("\r", cursor);
+                    if (r < 0)
+                        r = len;
+                    var n = text.indexOf("\n", cursor);
+                    if (n < 0)
+                        n = len;
+                    return Math.min(r, n);
+                };
+
+                TextBoxCursorAdvancer.prototype.CursorBegin = function (cursor) {
+                    return this.$textOwner.text.length;
+                };
+
+                TextBoxCursorAdvancer.prototype.CursorEnd = function (cursor) {
+                    return 0;
+                };
+                return TextBoxCursorAdvancer;
+            })();
+            Internal.TextBoxCursorAdvancer = TextBoxCursorAdvancer;
+
+            var PasswordBoxCursorAdvancer = (function () {
+                function PasswordBoxCursorAdvancer($textOwner) {
+                    this.$textOwner = $textOwner;
+                }
+                PasswordBoxCursorAdvancer.prototype.CursorDown = function (cursor, isPage) {
+                    return this.CursorEnd(cursor);
+                };
+
+                PasswordBoxCursorAdvancer.prototype.CursorUp = function (cursor, isPage) {
+                    return this.CursorBegin(cursor);
+                };
+
+                PasswordBoxCursorAdvancer.prototype.CursorNextWord = function (cursor) {
+                    return this.CursorEnd(cursor);
+                };
+
+                PasswordBoxCursorAdvancer.prototype.CursorPrevWord = function (cursor) {
+                    return this.CursorBegin(cursor);
+                };
+
+                PasswordBoxCursorAdvancer.prototype.CursorNextChar = function (cursor) {
+                    var text = this.$textOwner.text;
+                    if (text && text.charAt(cursor) === '\r' && text.charAt(cursor + 1) === '\n')
+                        return cursor + 2;
+                    return Math.min(text.length - 1, cursor + 1);
+                };
+
+                PasswordBoxCursorAdvancer.prototype.CursorPrevChar = function (cursor) {
+                    var text = this.$textOwner.text;
+                    if (cursor >= 2 && text && text.charAt(cursor - 2) === '\r' && text.charAt(cursor - 1) === '\n')
+                        return cursor - 2;
+                    return Math.max(0, cursor - 1);
+                };
+
+                PasswordBoxCursorAdvancer.prototype.CursorLineBegin = function (cursor) {
+                    return this.CursorBegin(cursor);
+                };
+
+                PasswordBoxCursorAdvancer.prototype.CursorLineEnd = function (cursor) {
+                    return this.CursorEnd(cursor);
+                };
+
+                PasswordBoxCursorAdvancer.prototype.CursorBegin = function (cursor) {
+                    return this.$textOwner.text.length;
+                };
+
+                PasswordBoxCursorAdvancer.prototype.CursorEnd = function (cursor) {
+                    return 0;
+                };
+                return PasswordBoxCursorAdvancer;
+            })();
+            Internal.PasswordBoxCursorAdvancer = PasswordBoxCursorAdvancer;
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Internal) {
             var ItemContainersManager = (function () {
                 function ItemContainersManager(Owner) {
                     this.Owner = Owner;
@@ -8827,6 +8952,370 @@ var Fayde;
                 return RangeCoercer;
             })();
             Internal.RangeCoercer = RangeCoercer;
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Internal) {
+            var TextBoxContentProxy = (function () {
+                function TextBoxContentProxy() {
+                    this.$$element = null;
+                }
+                TextBoxContentProxy.prototype.setElement = function (fe, view) {
+                    this.$$element = fe;
+                    if (!fe)
+                        return;
+
+                    if (fe instanceof Controls.ContentPresenter) {
+                        fe.SetValue(Controls.ContentPresenter.ContentProperty, view);
+                    } else if (fe instanceof Controls.ContentControl) {
+                        fe.SetValue(Controls.ContentControl.ContentProperty, view);
+                    } else if (fe instanceof Controls.Border) {
+                        fe.SetValue(Controls.Border.ChildProperty, view);
+                    } else if (fe instanceof Controls.Panel) {
+                        fe.Children.Add(view);
+                    } else {
+                        console.warn("TextBox does not have a valid content element.");
+                    }
+                };
+
+                TextBoxContentProxy.prototype.setHorizontalScrollBar = function (sbvis) {
+                    var ce = this.$$element;
+                    if (!ce)
+                        return;
+                    var ceType = ce.constructor;
+                    var propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility", true);
+                    if (!propd)
+                        return;
+                    ce.SetValueInternal(propd, sbvis);
+                };
+
+                TextBoxContentProxy.prototype.setVerticalScrollBar = function (sbvis) {
+                    var ce = this.$$element;
+                    if (!ce)
+                        return;
+                    var ceType = ce.constructor;
+                    var propd = DependencyProperty.GetDependencyProperty(ceType, "VerticalScrollBarVisibility", true);
+                    if (!propd)
+                        return;
+                    ce.SetValueInternal(propd, sbvis);
+                };
+                return TextBoxContentProxy;
+            })();
+            Internal.TextBoxContentProxy = TextBoxContentProxy;
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Internal) {
+            (function (TextBoxModelChangedType) {
+                TextBoxModelChangedType[TextBoxModelChangedType["Nothing"] = 0] = "Nothing";
+                TextBoxModelChangedType[TextBoxModelChangedType["TextAlignment"] = 1] = "TextAlignment";
+                TextBoxModelChangedType[TextBoxModelChangedType["TextWrapping"] = 2] = "TextWrapping";
+                TextBoxModelChangedType[TextBoxModelChangedType["Selection"] = 3] = "Selection";
+                TextBoxModelChangedType[TextBoxModelChangedType["Brush"] = 4] = "Brush";
+                TextBoxModelChangedType[TextBoxModelChangedType["Font"] = 5] = "Font";
+                TextBoxModelChangedType[TextBoxModelChangedType["Text"] = 6] = "Text";
+            })(Internal.TextBoxModelChangedType || (Internal.TextBoxModelChangedType = {}));
+            var TextBoxModelChangedType = Internal.TextBoxModelChangedType;
+
+            (function (TextBoxEmitChangedType) {
+                TextBoxEmitChangedType[TextBoxEmitChangedType["NOTHING"] = 0] = "NOTHING";
+                TextBoxEmitChangedType[TextBoxEmitChangedType["SELECTION"] = 1 << 0] = "SELECTION";
+                TextBoxEmitChangedType[TextBoxEmitChangedType["TEXT"] = 1 << 1] = "TEXT";
+            })(Internal.TextBoxEmitChangedType || (Internal.TextBoxEmitChangedType = {}));
+            var TextBoxEmitChangedType = Internal.TextBoxEmitChangedType;
+
+            var MAX_UNDO_COUNT = 10;
+            var TextProxy = (function () {
+                function TextProxy(eventsMask) {
+                    this.selAnchor = 0;
+                    this.selCursor = 0;
+                    this.selText = "";
+                    this.text = "";
+                    this.maxLength = 0;
+                    this.acceptsReturn = false;
+                    this.$$batch = 0;
+                    this.$$emit = 0 /* NOTHING */;
+                    this.$$syncing = false;
+                    this.$$undo = [];
+                    this.$$redo = [];
+                    this.$$eventsMask = eventsMask;
+                }
+                TextProxy.prototype.setAnchorCursor = function (anchor, cursor) {
+                    if (this.selAnchor === anchor && this.selCursor === cursor)
+                        return false;
+                    this.SyncSelectionStart(Math.min(anchor, cursor));
+                    this.SyncSelectionLength(Math.abs(cursor - anchor));
+                    this.selAnchor = anchor;
+                    this.selCursor = cursor;
+                    this.$$emit |= TextBoxEmitChangedType.SELECTION;
+                    return true;
+                };
+
+                TextProxy.prototype.enterText = function (newText) {
+                    var anchor = this.selAnchor;
+                    var cursor = this.selCursor;
+                    var length = Math.abs(cursor - anchor);
+                    var start = Math.min(anchor, cursor);
+
+                    if ((this.maxLength > 0 && this.text.length >= this.maxLength) || (newText === '\r') && !this.acceptsReturn)
+                        return false;
+
+                    if (length > 0) {
+                        this.$$undo.push(new Fayde.Text.TextBoxUndoActionReplace(anchor, cursor, this.text, start, length, newText));
+                        this.$$redo = [];
+
+                        this.text = Fayde.Text.TextBuffer.Replace(this.text, start, length, newText);
+                    } else {
+                        var ins = null;
+                        var action = this.$$undo[this.$$undo.length - 1];
+                        if (action instanceof Fayde.Text.TextBoxUndoActionInsert) {
+                            ins = action;
+                            if (!ins.Insert(start, newText))
+                                ins = null;
+                        }
+
+                        if (!ins) {
+                            ins = new Fayde.Text.TextBoxUndoActionInsert(anchor, cursor, start, newText);
+                            this.$$undo.push(ins);
+                        }
+                        this.$$redo = [];
+
+                        this.text = Fayde.Text.TextBuffer.Insert(this.text, start, newText);
+                    }
+
+                    this.$$emit |= TextBoxEmitChangedType.TEXT;
+                    cursor = start + 1;
+                    anchor = cursor;
+
+                    return this.setAnchorCursor(anchor, cursor);
+                };
+
+                TextProxy.prototype.removeText = function (start, length) {
+                    if (length <= 0)
+                        return false;
+
+                    this.$$undo.push(new Fayde.Text.TextBoxUndoActionDelete(this.selAnchor, this.selCursor, this.text, start, length));
+                    this.$$redo = [];
+
+                    this.text = Fayde.Text.TextBuffer.Cut(this.text, start, length);
+                    this.$$emit |= TextBoxEmitChangedType.TEXT;
+
+                    return this.setAnchorCursor(start, start);
+                };
+
+                Object.defineProperty(TextProxy.prototype, "canUndo", {
+                    get: function () {
+                        return this.$$undo.length > 0;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
+                Object.defineProperty(TextProxy.prototype, "canRedo", {
+                    get: function () {
+                        return this.$$redo.length > 0;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
+                TextProxy.prototype.undo = function () {
+                    if (this.$$undo.length < 1)
+                        return;
+
+                    var action = this.$$undo.pop();
+                    if (this.$$redo.push(action) > MAX_UNDO_COUNT)
+                        this.$$redo.shift();
+
+                    action.Undo(this);
+
+                    var anchor = action.SelectionAnchor;
+                    var cursor = action.SelectionCursor;
+
+                    this.$$batch++;
+                    this.SyncSelectionStart(Math.min(anchor, cursor));
+                    this.SyncSelectionLength(Math.abs(cursor - anchor));
+                    this.$$emit = TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION;
+                    this.selAnchor = anchor;
+                    this.selCursor = cursor;
+                    this.$$batch--;
+
+                    this.$syncEmit();
+                };
+
+                TextProxy.prototype.redo = function () {
+                    if (this.$$redo.length < 1)
+                        return;
+
+                    var action = this.$$redo.pop();
+                    if (this.$$undo.push(action) > MAX_UNDO_COUNT)
+                        this.$$undo.shift();
+
+                    var anchor = action.Redo(this);
+                    var cursor = anchor;
+
+                    this.$$batch++;
+                    this.SyncSelectionStart(Math.min(anchor, cursor));
+                    this.SyncSelectionLength(Math.abs(cursor - anchor));
+                    this.$$emit = TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION;
+                    this.selAnchor = anchor;
+                    this.selCursor = cursor;
+                    this.$$batch--;
+
+                    this.$syncEmit();
+                };
+
+                TextProxy.prototype.begin = function () {
+                    this.$$emit = 0 /* NOTHING */;
+                    this.$$batch++;
+                };
+
+                TextProxy.prototype.end = function () {
+                    this.$$batch--;
+                    this.$syncEmit();
+                };
+
+                TextProxy.prototype.beginSelect = function (cursor) {
+                    this.$$batch++;
+                    this.$$emit = 0 /* NOTHING */;
+                    this.SyncSelectionStart(cursor);
+                    this.SyncSelectionLength(0);
+                    this.$$batch--;
+
+                    this.$syncEmit();
+                };
+
+                TextProxy.prototype.adjustSelection = function (cursor) {
+                    var anchor = this.selAnchor;
+
+                    this.$$batch++;
+                    this.$$emit = 0 /* NOTHING */;
+                    this.SyncSelectionStart(Math.min(anchor, cursor));
+                    this.SyncSelectionLength(Math.abs(cursor - anchor));
+                    this.selAnchor = anchor;
+                    this.selCursor = cursor;
+                    this.$$batch--;
+
+                    this.$syncEmit();
+                };
+
+                TextProxy.prototype.selectAll = function () {
+                    this.select(0, this.text.length);
+                };
+
+                TextProxy.prototype.clearSelection = function (start) {
+                    this.$$batch++;
+                    this.SyncSelectionStart(start);
+                    this.SyncSelectionLength(0);
+                    this.$$batch--;
+                };
+
+                TextProxy.prototype.select = function (start, length) {
+                    start = Math.min(Math.max(0, start), this.text.length);
+                    length = Math.min(Math.max(0, length), this.text.length - start);
+
+                    this.$$batch++;
+                    this.SyncSelectionStart(start);
+                    this.SyncSelectionLength(length);
+                    this.$$batch--;
+
+                    this.$syncEmit();
+                    return true;
+                };
+
+                TextProxy.prototype.setSelectionStart = function (value) {
+                    var length = Math.abs(this.selCursor - this.selAnchor);
+                    var start = value;
+                    if (start > this.text.length) {
+                        this.SyncSelectionStart(this.text.length);
+                        return;
+                    }
+
+                    if (start + length > this.text.length) {
+                        this.$$batch++;
+                        length = this.text.length - start;
+                        this.SyncSelectionLength(length);
+                        this.$$batch--;
+                    }
+
+                    var changed = (this.selAnchor !== start);
+
+                    this.selCursor = start + length;
+                    this.selAnchor = start;
+
+                    this.$$emit |= TextBoxEmitChangedType.SELECTION;
+                    this.$syncEmit();
+                };
+
+                TextProxy.prototype.setSelectionLength = function (value) {
+                    var start = Math.min(this.selAnchor, this.selCursor);
+                    var length = value;
+                    if (start + length > this.text.length) {
+                        length = this.text.length - start;
+                        this.SyncSelectionLength(length);
+                        return;
+                    }
+
+                    var changed = (this.selCursor !== (start + length));
+
+                    this.selCursor = start + length;
+                    this.selAnchor = start;
+                    this.$$emit |= TextBoxEmitChangedType.SELECTION;
+                    this.$syncEmit();
+                };
+
+                TextProxy.prototype.setText = function (value) {
+                    var text = value || "";
+                    if (!this.$$syncing) {
+                        var action;
+                        if (this.text.length > 0) {
+                            action = new Fayde.Text.TextBoxUndoActionReplace(this.selAnchor, this.selCursor, this.text, 0, this.text.length, text);
+                            this.text = Fayde.Text.TextBuffer.Replace(this.text, 0, this.text.length, text);
+                        } else {
+                            action = new Fayde.Text.TextBoxUndoActionInsert(this.selAnchor, this.selCursor, 0, text);
+                            this.text = text + this.text;
+                        }
+
+                        this.$$undo.push(action);
+                        this.$$redo = [];
+
+                        this.$$emit |= TextBoxEmitChangedType.TEXT;
+                        this.clearSelection(0);
+
+                        this.$syncEmit(false);
+                    }
+                };
+
+                TextProxy.prototype.$syncEmit = function (syncText) {
+                    syncText = syncText !== false;
+
+                    if (this.$$batch !== 0 || this.$$emit === 0 /* NOTHING */)
+                        return;
+
+                    if (syncText && (this.$$emit & TextBoxEmitChangedType.TEXT))
+                        this.$syncText();
+
+                    this.$$emit = 0 /* NOTHING */;
+                };
+
+                TextProxy.prototype.$syncText = function () {
+                    this.$$syncing = true;
+                    this.SyncText(this.text);
+                    this.$$syncing = false;
+                };
+                return TextProxy;
+            })();
+            Internal.TextProxy = TextProxy;
         })(Controls.Internal || (Controls.Internal = {}));
         var Internal = Controls.Internal;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -9675,52 +10164,43 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        (function (TextBoxModelChangedType) {
-            TextBoxModelChangedType[TextBoxModelChangedType["Nothing"] = 0] = "Nothing";
-            TextBoxModelChangedType[TextBoxModelChangedType["TextAlignment"] = 1] = "TextAlignment";
-            TextBoxModelChangedType[TextBoxModelChangedType["TextWrapping"] = 2] = "TextWrapping";
-            TextBoxModelChangedType[TextBoxModelChangedType["Selection"] = 3] = "Selection";
-            TextBoxModelChangedType[TextBoxModelChangedType["Brush"] = 4] = "Brush";
-            TextBoxModelChangedType[TextBoxModelChangedType["Font"] = 5] = "Font";
-            TextBoxModelChangedType[TextBoxModelChangedType["Text"] = 6] = "Text";
-        })(Controls.TextBoxModelChangedType || (Controls.TextBoxModelChangedType = {}));
-        var TextBoxModelChangedType = Controls.TextBoxModelChangedType;
-
-        (function (TextBoxEmitChangedType) {
-            TextBoxEmitChangedType[TextBoxEmitChangedType["NOTHING"] = 0] = "NOTHING";
-            TextBoxEmitChangedType[TextBoxEmitChangedType["SELECTION"] = 1 << 0] = "SELECTION";
-            TextBoxEmitChangedType[TextBoxEmitChangedType["TEXT"] = 1 << 1] = "TEXT";
-        })(Controls.TextBoxEmitChangedType || (Controls.TextBoxEmitChangedType = {}));
-        var TextBoxEmitChangedType = Controls.TextBoxEmitChangedType;
-
         var Key = Fayde.Input.Key;
-        var MAX_UNDO_COUNT = 10;
         var TextBoxBase = (function (_super) {
             __extends(TextBoxBase, _super);
-            function TextBoxBase(eventsMask, textPropd) {
+            function TextBoxBase(eventsMask) {
                 _super.call(this);
-                this._Undo = [];
-                this._Redo = [];
-                this._Buffer = "";
-                this._Emit = 0 /* NOTHING */;
-                this._NeedIMReset = false;
                 this._Selecting = false;
                 this._Captured = false;
-                this._SettingValue = true;
-                this._SelectionCursor = 0;
-                this._SelectionAnchor = 0;
-                this._Font = new Font();
-                this._CursorOffset = 0;
-                this._Batch = 0;
-                this.$IsReadOnly = false;
-                this.$IsFocused = false;
-                this.$AcceptsReturn = false;
-                this.$MaxLength = 0;
-                this.$HasOffset = false;
-                this._ModelListener = null;
-                this._EventsMask = eventsMask;
-                this._TextProperty = textPropd;
+                this.IsReadOnly = false;
+                this.$ContentProxy = new Controls.Internal.TextBoxContentProxy();
+                this.$View = this.CreateView();
+                this.$View.setTextBox(this);
+                this.$Proxy = new Controls.Internal.TextProxy(eventsMask);
+
+                this._SyncFont();
             }
+            TextBoxBase.prototype._SyncFont = function () {
+                var _this = this;
+                var view = this.$View;
+                var propds = [
+                    Controls.Control.ForegroundProperty,
+                    Controls.Control.FontFamilyProperty,
+                    Controls.Control.FontSizeProperty,
+                    Controls.Control.FontStretchProperty,
+                    Controls.Control.FontStyleProperty,
+                    Controls.Control.FontWeightProperty
+                ];
+                propds.forEach(function (propd) {
+                    return propd.Store.ListenToChanged(_this, propd, function (dobj, args) {
+                        return view.setFontProperty(propd, args.NewValue);
+                    }, _this);
+                });
+            };
+
+            TextBoxBase.prototype.CreateView = function () {
+                return new Controls.Internal.TextBoxView();
+            };
+
             Object.defineProperty(TextBoxBase.prototype, "Cursor", {
                 get: function () {
                     var cursor = this.GetValue(Fayde.FrameworkElement.CursorProperty);
@@ -9732,458 +10212,43 @@ var Fayde;
                 configurable: true
             });
 
-            Object.defineProperty(TextBoxBase.prototype, "SelectionCursor", {
-                get: function () {
-                    return this._SelectionCursor;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "HasSelectedText", {
-                get: function () {
-                    return this._SelectionCursor !== this._SelectionAnchor;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(TextBoxBase.prototype, "DisplayText", {
-                get: function () {
-                    return undefined;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(TextBoxBase.prototype, "Font", {
-                get: function () {
-                    return this._Font;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "Direction", {
-                get: function () {
-                    return this.FlowDirection;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(TextBoxBase.prototype, "TextDecorations", {
-                get: function () {
-                    return 0 /* None */;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
             TextBoxBase.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
-
-                var ce = this.$ContentElement = this.GetTemplateChild("ContentElement", Fayde.FrameworkElement);
-                if (!ce)
-                    return;
-
-                var view = this.$View;
-                if (view)
-                    view.SetTextBox(null);
-
-                view = this.$View = new Controls.Internal.TextBoxView();
-                view.SetEnableCursor(!this.$IsReadOnly);
-                view.SetTextBox(this);
-
-                if (ce instanceof Controls.ContentPresenter) {
-                    ce.SetValue(Controls.ContentPresenter.ContentProperty, view);
-                } else if (ce instanceof Controls.ContentControl) {
-                    ce.SetValue(Controls.ContentControl.ContentProperty, view);
-                } else if (ce instanceof Controls.Border) {
-                    ce.SetValue(Controls.Border.ChildProperty, view);
-                } else if (ce instanceof Controls.Panel) {
-                    ce.Children.Add(view);
-                } else {
-                    Warn("TextBox does not have a valid content element.");
-                    view.SetTextBox(null);
-                    this.$View = view = null;
-                }
-            };
-
-            TextBoxBase.prototype.Listen = function (listener) {
-                this._ModelListener = listener;
-            };
-            TextBoxBase.prototype.Unlisten = function (listener) {
-                if (this._ModelListener === listener)
-                    this._ModelListener = null;
-            };
-            TextBoxBase.prototype._ModelChanged = function (type, newValue) {
-                this._UpdateFont();
-
-                var listener = this._ModelListener;
-                if (!listener)
-                    return;
-                listener.OnTextModelChanged({
-                    Changed: type,
-                    NewValue: newValue
-                });
-            };
-
-            TextBoxBase.prototype._UpdateFont = function () {
-                this._Font.Family = this.FontFamily;
-                this._Font.Size = this.FontSize;
-                this._Font.Stretch = this.FontStretch;
-                this._Font.Style = this.FontStyle;
-                this._Font.Weight = this.FontWeight;
-            };
-
-            TextBoxBase.prototype._SelectedTextChanged = function (newValue) {
-                if (!this._SettingValue)
-                    return;
-
-                var text = newValue || "";
-                if (!text)
-                    return;
-
-                var length = Math.abs(this._SelectionCursor - this._SelectionAnchor);
-                var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
-
-                var action;
-                if (length > 0) {
-                    action = new Fayde.Text.TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length, text);
-                    this._Buffer = Fayde.Text.TextBuffer.Replace(this._Buffer, start, length, text);
-                } else if (text.length > 0) {
-                    action = new Fayde.Text.TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, start, text);
-                    this._Buffer = Fayde.Text.TextBuffer.Insert(this._Buffer, start, text);
-                }
-                if (action) {
-                    this._Emit |= TextBoxEmitChangedType.TEXT;
-                    this._Undo.push(action);
-                    this._Redo = [];
-
-                    this.ClearSelection(start + text.length);
-                    this._ResetIMContext();
-
-                    this._SyncAndEmit();
-                }
-            };
-            TextBoxBase.prototype._SelectionStartChanged = function (newValue) {
-                var changed = 0 /* Nothing */;
-
-                var length = Math.abs(this._SelectionCursor - this._SelectionAnchor);
-                var start = newValue;
-                if (start > this._Buffer.length) {
-                    this.SelectionStart = this._Buffer.length;
-                    return;
-                }
-
-                if (start + length > this._Buffer.length) {
-                    this._BatchPush();
-                    length = this._Buffer.length - start;
-                    this.SelectionLength = length;
-                    this._BatchPop();
-                }
-
-                if (this._SelectionAnchor != start) {
-                    changed = 3 /* Selection */;
-                    this.$HasOffset = false;
-                }
-
-                this._SelectionCursor = start + length;
-                this._SelectionAnchor = start;
-
-                this._Emit |= TextBoxEmitChangedType.SELECTION;
-                this._SyncAndEmit();
-
-                if (changed !== 0 /* Nothing */)
-                    this._ModelChanged(changed, newValue);
-            };
-            TextBoxBase.prototype._SelectionLengthChanged = function (newValue) {
-                var changed = 0 /* Nothing */;
-
-                var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
-                var length = newValue;
-                if (start + length > this._Buffer.length) {
-                    length = this._Buffer.length - start;
-                    this.SelectionLength = length;
-                    return;
-                }
-                if (this._SelectionCursor != (start + length)) {
-                    changed = 3 /* Selection */;
-                    this.$HasOffset = false;
-                }
-
-                this._SelectionCursor = start + length;
-                this._SelectionAnchor = start;
-                this._Emit |= TextBoxEmitChangedType.SELECTION;
-                this._SyncAndEmit();
-
-                if (changed !== 0 /* Nothing */)
-                    this._ModelChanged(changed, newValue);
-            };
-            TextBoxBase.prototype._TextChanged = function (newValue) {
-                var text = newValue || "";
-                if (this._SettingValue) {
-                    var action;
-                    if (this._Buffer.length > 0) {
-                        action = new Fayde.Text.TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, 0, this._Buffer.length, text);
-                        this._Buffer = Fayde.Text.TextBuffer.Replace(this._Buffer, 0, this._Buffer.length, text);
-                    } else {
-                        action = new Fayde.Text.TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, 0, text);
-                        this._Buffer = text + this._Buffer;
-                    }
-
-                    this._Undo.push(action);
-                    this._Redo = [];
-
-                    this._Emit |= TextBoxEmitChangedType.TEXT;
-                    this.ClearSelection(0);
-                    this._ResetIMContext();
-
-                    this._SyncAndEmit(false);
-                }
-                this._ModelChanged(6 /* Text */, newValue);
-            };
-
-            TextBoxBase.prototype._BatchPush = function () {
-                this._Batch++;
-            };
-            TextBoxBase.prototype._BatchPop = function () {
-                if (this._Batch < 1) {
-                    Warn("TextBoxBase._Batch underflow");
-                    return;
-                }
-                this._Batch--;
-            };
-            TextBoxBase.prototype._SyncAndEmit = function (syncText) {
-                if (syncText === undefined)
-                    syncText = true;
-
-                if (this._Batch != 0 || this._Emit === 0 /* NOTHING */)
-                    return;
-
-                if (syncText && (this._Emit & TextBoxEmitChangedType.TEXT))
-                    this._SyncText();
-
-                if (this._Emit & TextBoxEmitChangedType.SELECTION)
-                    this._SyncSelectedText();
-
-                if (this.XamlNode.IsLoaded) {
-                    this._Emit &= this._EventsMask;
-                    if (this._Emit & TextBoxEmitChangedType.TEXT)
-                        this._EmitTextChanged();
-                    if (this._Emit & TextBoxEmitChangedType.SELECTION)
-                        this._EmitSelectionChanged();
-                }
-
-                this._Emit = 0 /* NOTHING */;
-            };
-
-            TextBoxBase.prototype._SyncText = function () {
-                this._SettingValue = false;
-                this.SetCurrentValue(this._TextProperty, this._Buffer);
-                this._SettingValue = true;
-            };
-            TextBoxBase.prototype._EmitTextChanged = function () {
-            };
-
-            TextBoxBase.prototype.SelectAll = function () {
-                this.Select(0, this._Buffer.length);
-            };
-            TextBoxBase.prototype.ClearSelection = function (start) {
-                this._BatchPush();
-                this.SelectionStart = start;
-                this.SelectionLength = 0;
-                this._BatchPop();
-            };
-            TextBoxBase.prototype.Select = function (start, length) {
-                if (start < 0)
-                    throw new ArgumentException("start < 0");
-                if (length < 0)
-                    throw new ArgumentException("length < 0");
-
-                if (start > this._Buffer.length)
-                    start = this._Buffer.length;
-
-                if (length > (this._Buffer.length - start))
-                    length = this._Buffer.length - start;
-
-                this._BatchPush();
-                this.SelectionStart = start;
-                this.SelectionLength = length;
-                this._BatchPop();
-
-                this._ResetIMContext();
-
-                this._SyncAndEmit();
-
-                return true;
-            };
-            TextBoxBase.prototype._SyncSelectedText = function () {
-                if (this._SelectionCursor !== this._SelectionAnchor) {
-                    var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
-                    var len = Math.abs(this._SelectionCursor - this._SelectionAnchor);
-                    var text = !this._Buffer ? '' : this._Buffer.substr(start, len);
-
-                    this._SettingValue = false;
-                    this._SelectedText = text;
-                    this._SelectedTextChanged(text);
-                    this._SettingValue = true;
-                } else {
-                    this._SettingValue = false;
-                    this._SelectedText = "";
-                    this._SelectedTextChanged("");
-                    this._SettingValue = true;
-                }
-            };
-            TextBoxBase.prototype._EmitSelectionChanged = function () {
-            };
-
-            TextBoxBase.prototype._ResetIMContext = function () {
-                if (this._NeedIMReset) {
-                    this._NeedIMReset = false;
-                }
-            };
-
-            TextBoxBase.prototype.CanUndo = function () {
-                return this._Undo.length > 0;
-            };
-            TextBoxBase.prototype.Undo = function () {
-                if (this._Undo.length < 1)
-                    return;
-
-                var action = this._Undo.pop();
-                if (this._Redo.push(action) > MAX_UNDO_COUNT)
-                    this._Redo.shift();
-
-                action.Undo(this);
-
-                var anchor = action.SelectionAnchor;
-                var cursor = action.SelectionCursor;
-
-                this._BatchPush();
-                this.SelectionStart = Math.min(anchor, cursor);
-                this.SelectionLength = Math.abs(cursor - anchor);
-                this._Emit = TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION;
-                this._SelectionAnchor = anchor;
-                this._SelectionCursor = cursor;
-                this._BatchPop();
-
-                this._SyncAndEmit();
-            };
-            TextBoxBase.prototype.CanRedo = function () {
-                return this._Redo.length > 0;
-            };
-            TextBoxBase.prototype.Redo = function () {
-                if (this._Redo.length < 1)
-                    return;
-
-                var action = this._Redo.pop();
-                if (this._Undo.push(action) > MAX_UNDO_COUNT)
-                    this._Undo.shift();
-
-                var anchor = action.Redo(this);
-                var cursor = anchor;
-
-                this._BatchPush();
-                this.SelectionStart = Math.min(anchor, cursor);
-                this.SelectionLength = Math.abs(cursor - anchor);
-                this._Emit = TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION;
-                this._SelectionAnchor = anchor;
-                this._SelectionCursor = cursor;
-                this._BatchPop();
-
-                this._SyncAndEmit();
+                this.$ContentProxy.setElement(this.GetTemplateChild("ContentElement", Fayde.FrameworkElement), this.$View);
             };
 
             TextBoxBase.prototype.OnLostFocus = function (e) {
-                this.$IsFocused = false;
-                if (this.$View)
-                    this.$View.OnLostFocus(e);
-
-                if (!this.$IsReadOnly) {
-                    this._NeedIMReset = true;
-                }
+                this.$View.setIsFocused(false);
             };
+
             TextBoxBase.prototype.OnGotFocus = function (e) {
-                this.$IsFocused = true;
-                if (this.$View)
-                    this.$View.OnGotFocus(e);
-                if (!this.$IsReadOnly) {
-                    this._NeedIMReset = true;
-                }
+                this.$View.setIsFocused(true);
             };
 
             TextBoxBase.prototype.OnMouseLeftButtonDown = function (e) {
                 e.Handled = true;
                 this.Focus();
+                this._Captured = this.CaptureMouse();
+                this._Selecting = true;
 
-                if (this.$View) {
-                    var p = e.GetPosition(this.$View);
-                    var cursor = this.$View.GetCursorFromXY(p.x, p.y);
-
-                    this._ResetIMContext();
-
-                    this._Captured = this.CaptureMouse();
-
-                    this._Selecting = true;
-
-                    this._BatchPush();
-                    this._Emit = 0 /* NOTHING */;
-                    this.SelectionStart = cursor;
-                    this.SelectionLength = 0;
-                    this._BatchPop();
-
-                    this._SyncAndEmit();
-                }
+                var cursor = this.$View.GetCursorFromPoint(e.GetPosition(this.$View));
+                this.$Proxy.beginSelect(cursor);
             };
-            TextBoxBase.prototype.OnMouseLeftButtonUp = function (e) {
-                if (this._Captured) {
-                    this.ReleaseMouseCapture();
-                }
 
+            TextBoxBase.prototype.OnMouseLeftButtonUp = function (e) {
+                if (this._Captured)
+                    this.ReleaseMouseCapture();
                 e.Handled = true;
                 this._Selecting = false;
                 this._Captured = false;
             };
+
             TextBoxBase.prototype.OnMouseMove = function (e) {
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
-
-                if (this._Selecting) {
-                    var p = e.GetPosition(this.$View);
-                    e.Handled = true;
-
-                    cursor = this.$View.GetCursorFromXY(p.x, p.y);
-
-                    this._BatchPush();
-                    this._Emit = 0 /* NOTHING */;
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._BatchPop();
-
-                    this._SyncAndEmit();
-                }
-            };
-
-            TextBoxBase.prototype.CursorDown = function (cursor, isPage) {
-                return cursor;
-            };
-            TextBoxBase.prototype.CursorUp = function (cursor, isPage) {
-                return cursor;
-            };
-            TextBoxBase.prototype.CursorNextWord = function (cursor) {
-                return cursor;
-            };
-            TextBoxBase.prototype.CursorPrevWord = function (cursor) {
-                return cursor;
-            };
-            TextBoxBase.prototype.CursorLineBegin = function (cursor) {
-                return cursor;
-            };
-            TextBoxBase.prototype.CursorLineEnd = function (cursor) {
-                return cursor;
-            };
-            TextBoxBase.prototype._EmitCursorPositionChanged = function (height, x, y) {
+                if (!this._Selecting)
+                    return;
+                e.Handled = true;
+                var cursor = this.$View.GetCursorFromPoint(e.GetPosition(this.$View));
+                this.$Proxy.adjustSelection(cursor);
             };
 
             TextBoxBase.prototype.OnKeyDown = function (args) {
@@ -10194,19 +10259,19 @@ var Fayde;
                         return;
                 }
 
+                var isReadOnly = this.IsReadOnly;
                 var handled = false;
-                this._Emit = 0 /* NOTHING */;
-
-                this._BatchPush();
+                var proxy = this.$Proxy;
+                proxy.begin();
 
                 switch (args.Key) {
                     case 1 /* Back */:
-                        if (this.$IsReadOnly)
+                        if (isReadOnly)
                             break;
                         handled = this._KeyDownBackSpace(args.Modifiers);
                         break;
                     case 19 /* Delete */:
-                        if (this.$IsReadOnly)
+                        if (isReadOnly)
                             break;
                         if (args.Modifiers.Shift) {
                             handled = true;
@@ -10250,29 +10315,27 @@ var Fayde;
                             switch (args.Key) {
                                 case 30 /* A */:
                                     handled = true;
-                                    this.SelectAll();
+                                    proxy.selectAll();
                                     break;
                                 case 32 /* C */:
                                     handled = true;
                                     break;
                                 case 53 /* X */:
-                                    if (this.$IsReadOnly)
+                                    if (isReadOnly)
                                         break;
 
-                                    this._SelectedText = "";
-                                    this._SelectedTextChanged("");
                                     handled = true;
                                     break;
                                 case 54 /* Y */:
-                                    if (!this.$IsReadOnly) {
+                                    if (!isReadOnly) {
                                         handled = true;
-                                        this.Redo();
+                                        proxy.redo();
                                     }
                                     break;
                                 case 55 /* Z */:
-                                    if (!this.$IsReadOnly) {
+                                    if (!isReadOnly) {
                                         handled = true;
-                                        this.Undo();
+                                        proxy.undo();
                                     }
                                     break;
                             }
@@ -10282,39 +10345,37 @@ var Fayde;
 
                 if (handled) {
                     args.Handled = handled;
-                    this._ResetIMContext();
                 }
-                this._BatchPop();
-                this._SyncAndEmit();
+                proxy.end();
 
-                if (!args.Handled)
+                if (!args.Handled && !isReadOnly)
                     this.PostOnKeyDown(args);
             };
+
             TextBoxBase.prototype.PostOnKeyDown = function (args) {
                 if (args.Handled)
                     return;
 
-                if (this.$IsReadOnly || args.Modifiers.Alt || args.Modifiers.Ctrl)
+                if (args.Modifiers.Alt || args.Modifiers.Ctrl)
                     return;
 
-                this._Emit = 0 /* NOTHING */;
-                this._BatchPush();
-
+                var proxy = this.$Proxy;
+                proxy.begin();
                 if (args.Key === 3 /* Enter */) {
-                    this._KeyDownChar('\r');
+                    proxy.enterText('\r\n');
                 } else if (args.Char != null && !args.Modifiers.Ctrl && !args.Modifiers.Alt) {
-                    this._KeyDownChar(args.Char);
+                    proxy.enterText(args.Char);
                 }
-                this._BatchPop();
-                this._SyncAndEmit();
+                proxy.end();
             };
 
             TextBoxBase.prototype._KeyDownBackSpace = function (modifiers) {
                 if (modifiers.Shift || modifiers.Alt)
                     return false;
 
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
+                var proxy = this.$Proxy;
+                var anchor = proxy.selAnchor;
+                var cursor = proxy.selCursor;
                 var start = 0;
                 var length = 0;
 
@@ -10322,362 +10383,221 @@ var Fayde;
                     length = Math.abs(cursor - anchor);
                     start = Math.min(anchor, cursor);
                 } else if (modifiers.Ctrl) {
-                    start = this.CursorPrevWord(cursor);
+                    start = this.$Advancer.CursorPrevWord(cursor);
                     length = cursor - start;
                 } else if (cursor > 0) {
-                    if (cursor >= 2 && this._Buffer && this._Buffer.charAt(cursor - 2) === '\r' && this._Buffer.charAt(cursor - 1) === '\n') {
-                        start = cursor - 2;
-                        length = 2;
-                    } else {
-                        start = cursor - 1;
-                        length = 1;
-                    }
+                    start = this.$Advancer.CursorPrevChar(cursor);
+                    length = cursor - start;
                 }
 
-                if (length > 0) {
-                    this._Undo.push(new Fayde.Text.TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length));
-                    this._Redo = [];
-
-                    this._Buffer = Fayde.Text.TextBuffer.Cut(this._Buffer, start, length);
-                    this._Emit |= TextBoxEmitChangedType.TEXT;
-                    anchor = start;
-                    cursor = start;
-                }
-
-                if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._Emit |= TextBoxEmitChangedType.SELECTION;
-                }
-
-                return true;
+                return proxy.removeText(start, length);
             };
+
             TextBoxBase.prototype._KeyDownDelete = function (modifiers) {
                 if (modifiers.Shift || modifiers.Alt)
                     return false;
 
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
+                var proxy = this.$Proxy;
+                var anchor = proxy.selAnchor;
+                var cursor = proxy.selCursor;
                 var start = 0;
                 var length = 0;
-                var handled = false;
 
                 if (cursor !== anchor) {
                     length = Math.abs(cursor - anchor);
                     start = Math.min(anchor, cursor);
                 } else if (modifiers.Ctrl) {
-                    length = this.CursorNextWord(cursor) - cursor;
+                    length = this.$Advancer.CursorNextWord(cursor) - cursor;
                     start = cursor;
-                } else if (this._Buffer && cursor < this._Buffer.length) {
-                    if (this._Buffer.charAt(cursor) === '\r' && this._Buffer.charAt(cursor + 1) === '\n')
-                        length = 2;
-                    else
-                        length = 1;
+                } else {
+                    length = this.$Advancer.CursorNextChar(cursor) - cursor;
                     start = cursor;
                 }
 
-                if (length > 0) {
-                    this._Undo.push(new Fayde.Text.TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length));
-                    this._Redo = [];
-
-                    this._Buffer = Fayde.Text.TextBuffer.Cut(this._Buffer, start, length);
-                    this._Emit |= TextBoxEmitChangedType.TEXT;
-                    handled = true;
-                }
-
-                if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._Emit |= TextBoxEmitChangedType.SELECTION;
-                    handled = true;
-                }
-
-                return handled;
+                return proxy.removeText(start, length);
             };
+
             TextBoxBase.prototype._KeyDownPageDown = function (modifiers) {
                 if (modifiers.Alt)
                     return false;
 
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
+                var proxy = this.$Proxy;
+                var anchor = proxy.selAnchor;
+                var cursor = proxy.selCursor;
 
-                cursor = this.CursorDown(cursor, true);
-                var have = this.$HasOffset;
+                cursor = this.$Advancer.CursorDown(cursor, true);
 
-                if (!modifiers.Shift) {
+                if (!modifiers.Shift)
                     anchor = cursor;
-                }
 
-                if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._Emit |= TextBoxEmitChangedType.SELECTION;
-                    this.$HasOffset = have;
-                }
-
-                return true;
+                return proxy.setAnchorCursor(anchor, cursor);
             };
+
             TextBoxBase.prototype._KeyDownPageUp = function (modifiers) {
                 if (modifiers.Alt)
                     return false;
 
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
+                var proxy = this.$Proxy;
+                var anchor = proxy.selAnchor;
+                var cursor = proxy.selCursor;
 
-                cursor = this.CursorUp(cursor, true);
-                var have = this.$HasOffset;
+                cursor = this.$Advancer.CursorUp(cursor, true);
 
-                if (!modifiers.Shift) {
+                if (!modifiers.Shift)
                     anchor = cursor;
-                }
 
-                if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._Emit |= TextBoxEmitChangedType.SELECTION;
-                    this.$HasOffset = have;
-                }
-
-                return true;
+                return proxy.setAnchorCursor(anchor, cursor);
             };
+
             TextBoxBase.prototype._KeyDownHome = function (modifiers) {
                 if (modifiers.Alt)
                     return false;
 
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
-                var handled = false;
+                var proxy = this.$Proxy;
+                var anchor = proxy.selAnchor;
+                var cursor = proxy.selCursor;
 
                 if (modifiers.Ctrl) {
-                    cursor = 0;
+                    cursor = this.$Advancer.CursorBegin(cursor);
                 } else {
-                    cursor = this.CursorLineBegin(cursor);
+                    cursor = this.$Advancer.CursorLineBegin(cursor);
                 }
 
-                if (!modifiers.Shift) {
+                if (!modifiers.Shift)
                     anchor = cursor;
-                }
 
-                if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._Emit |= TextBoxEmitChangedType.SELECTION;
-                    this.$HasOffset = false;
-                    handled = true;
-                }
-
-                return handled;
+                return proxy.setAnchorCursor(anchor, cursor);
             };
+
             TextBoxBase.prototype._KeyDownEnd = function (modifiers) {
                 if (modifiers.Alt)
                     return false;
 
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
-                var handled = false;
+                var proxy = this.$Proxy;
+                var anchor = proxy.selAnchor;
+                var cursor = proxy.selCursor;
 
                 if (modifiers.Ctrl) {
-                    cursor = this._Buffer.length;
+                    cursor = this.$Advancer.CursorEnd(cursor);
                 } else {
-                    cursor = this.CursorLineEnd(cursor);
+                    cursor = this.$Advancer.CursorLineEnd(cursor);
                 }
 
-                if (!modifiers.Shift) {
+                if (!modifiers.Shift)
                     anchor = cursor;
-                }
 
-                if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._Emit |= TextBoxEmitChangedType.SELECTION;
-                    this.$HasOffset = false;
-                    handled = true;
-                }
-
-                return handled;
+                return proxy.setAnchorCursor(anchor, cursor);
             };
+
             TextBoxBase.prototype._KeyDownLeft = function (modifiers) {
                 if (modifiers.Alt)
                     return false;
 
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
-                var handled = false;
+                var proxy = this.$Proxy;
+                var anchor = proxy.selAnchor;
+                var cursor = proxy.selCursor;
 
                 if (modifiers.Ctrl) {
-                    cursor = this.CursorPrevWord(cursor);
+                    cursor = this.$Advancer.CursorPrevWord(cursor);
                 } else if (!modifiers.Shift && anchor !== cursor) {
                     cursor = Math.min(anchor, cursor);
                 } else {
-                    if (cursor >= 2 && this._Buffer && this._Buffer.charAt(cursor - 2) === '\r' && this._Buffer.charAt(cursor - 1) === '\n')
-                        cursor -= 2;
-                    else if (cursor > 0)
-                        cursor--;
+                    cursor = this.$Advancer.CursorPrevChar(cursor);
                 }
 
                 if (!modifiers.Shift)
                     anchor = cursor;
 
-                if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._Emit |= TextBoxEmitChangedType.SELECTION;
-                    handled = true;
-                }
-
-                return handled;
+                return proxy.setAnchorCursor(anchor, cursor);
             };
+
             TextBoxBase.prototype._KeyDownRight = function (modifiers) {
                 if (modifiers.Alt)
                     return false;
 
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
-                var handled = false;
+                var proxy = this.$Proxy;
+                var anchor = proxy.selAnchor;
+                var cursor = proxy.selCursor;
 
                 if (modifiers.Ctrl) {
-                    cursor = this.CursorNextWord(cursor);
+                    cursor = this.$Advancer.CursorNextWord(cursor);
                 } else if (!modifiers.Shift && anchor !== cursor) {
                     cursor = Math.max(anchor, cursor);
                 } else {
-                    if (this._Buffer && this._Buffer.charAt(cursor) === '\r' && this._Buffer.charAt(cursor + 1) === '\n')
-                        cursor += 2;
-                    else if (cursor < this._Buffer.length)
-                        cursor++;
+                    cursor = this.$Advancer.CursorNextChar(cursor);
                 }
 
                 if (!modifiers.Shift)
                     anchor = cursor;
 
-                if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._Emit |= TextBoxEmitChangedType.SELECTION;
-                    handled = true;
-                }
-
-                return handled;
+                return proxy.setAnchorCursor(anchor, cursor);
             };
+
             TextBoxBase.prototype._KeyDownDown = function (modifiers) {
                 if (modifiers.Alt)
                     return false;
 
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
-                var handled = false;
-
-                cursor = this.CursorDown(cursor, false);
-                var have = this.$HasOffset;
-
-                if (!modifiers.Shift) {
+                var proxy = this.$Proxy;
+                var cursor = this.$Advancer.CursorDown(proxy.selCursor, false);
+                var anchor = proxy.selAnchor;
+                if (!modifiers.Shift)
                     anchor = cursor;
-                }
-
-                if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._Emit |= TextBoxEmitChangedType.SELECTION;
-                    this.$HasOffset = have;
-                    handled = true;
-                }
-
-                return handled;
+                return proxy.setAnchorCursor(anchor, cursor);
             };
+
             TextBoxBase.prototype._KeyDownUp = function (modifiers) {
                 if (modifiers.Alt)
                     return false;
 
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
-                var handled = false;
-
-                cursor = this.CursorUp(cursor, false);
-                var have = this.$HasOffset;
-
-                if (!modifiers.Shift) {
+                var proxy = this.$Proxy;
+                var cursor = this.$Advancer.CursorUp(proxy.selCursor, false);
+                var anchor = proxy.selAnchor;
+                if (!modifiers.Shift)
                     anchor = cursor;
-                }
-
-                if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._Emit |= TextBoxEmitChangedType.SELECTION;
-                    this.$HasOffset = have;
-                    handled = true;
-                }
-
-                return handled;
+                return proxy.setAnchorCursor(anchor, cursor);
             };
-            TextBoxBase.prototype._KeyDownChar = function (c) {
-                var anchor = this._SelectionAnchor;
-                var cursor = this._SelectionCursor;
-                var length = Math.abs(cursor - anchor);
-                var start = Math.min(anchor, cursor);
-
-                if ((this.$MaxLength > 0 && this._Buffer.length >= this.$MaxLength) || (c === '\r') && !this.$AcceptsReturn)
-                    return false;
-
-                if (length > 0) {
-                    this._Undo.push(new Fayde.Text.TextBoxUndoActionReplace(anchor, cursor, this._Buffer, start, length, c));
-                    this._Redo = [];
-
-                    this._Buffer = Fayde.Text.TextBuffer.Replace(this._Buffer, start, length, c);
-                } else {
-                    var ins = null;
-                    var action = this._Undo[this._Undo.length - 1];
-                    if (action instanceof Fayde.Text.TextBoxUndoActionInsert) {
-                        ins = action;
-                        if (!ins.Insert(start, c))
-                            ins = null;
-                    }
-
-                    if (!ins) {
-                        ins = new Fayde.Text.TextBoxUndoActionInsert(anchor, cursor, start, c);
-                        this._Undo.push(ins);
-                    }
-                    this._Redo = [];
-
-                    this._Buffer = Fayde.Text.TextBuffer.Insert(this._Buffer, start, c);
-                }
-
-                this._Emit |= TextBoxEmitChangedType.TEXT;
-                cursor = start + 1;
-                anchor = cursor;
-
-                if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-                    this.SelectionStart = Math.min(anchor, cursor);
-                    this.SelectionLength = Math.abs(cursor - anchor);
-                    this._SelectionAnchor = anchor;
-                    this._SelectionCursor = cursor;
-                    this._Emit |= TextBoxEmitChangedType.SELECTION;
-                }
-
-                return true;
-            };
+            TextBoxBase.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () {
+                return Fayde.Media.Brush;
+            }, TextBoxBase);
+            TextBoxBase.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () {
+                return Fayde.Media.Brush;
+            }, TextBoxBase);
+            TextBoxBase.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () {
+                return Number;
+            }, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
+            TextBoxBase.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () {
+                return Number;
+            }, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
             return TextBoxBase;
         })(Controls.Control);
         Controls.TextBoxBase = TextBoxBase;
         Fayde.RegisterType(TextBoxBase, "Fayde.Controls");
+
+        var reactions;
+        (function (reactions) {
+            Fayde.DPReaction(TextBoxBase.SelectionStartProperty, function (tbb, ov, nv) {
+                tbb.$Proxy.setSelectionStart(nv);
+                tbb.$View.setSelectionStart(nv);
+            }, false);
+            Fayde.DPReaction(TextBoxBase.SelectionLengthProperty, function (tbb, ov, nv) {
+                tbb.$Proxy.setSelectionLength(nv);
+                tbb.$View.setSelectionLength(nv);
+            }, false);
+            Fayde.DPReaction(TextBoxBase.SelectionBackgroundProperty, function (tbb, ov, nv) {
+                tbb.$View.setFontAttr("selectionBackground", nv);
+                tbb.XamlNode.LayoutUpdater.invalidate();
+            });
+            Fayde.DPReaction(TextBoxBase.SelectionForegroundProperty, function (tbb, ov, nv) {
+                tbb.$View.setFontAttr("selectionForeground", nv);
+                tbb.XamlNode.LayoutUpdater.invalidate();
+            });
+        })(reactions || (reactions = {}));
+
+        function positiveIntValidator(dobj, propd, value) {
+            if (typeof value !== 'number')
+                return false;
+            return value >= 0;
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -10687,14 +10607,26 @@ var Fayde;
         var PasswordBox = (function (_super) {
             __extends(PasswordBox, _super);
             function PasswordBox() {
-                _super.call(this, Controls.TextBoxEmitChangedType.TEXT, PasswordBox.PasswordProperty);
-                this.PasswordChangedEvent = new Fayde.RoutedEvent();
+                var _this = this;
+                _super.call(this, Controls.Internal.TextBoxEmitChangedType.TEXT);
                 this.DefaultStyleKey = this.constructor;
+
+                var proxy = this.$Proxy;
+                proxy.SyncSelectionStart = function (value) {
+                    return _this.SetCurrentValue(PasswordBox.SelectionStartProperty, value);
+                };
+                proxy.SyncSelectionLength = function (value) {
+                    return _this.SetCurrentValue(PasswordBox.SelectionLengthProperty, value);
+                };
+                proxy.SyncText = function (value) {
+                    return _this.SetCurrentValue(PasswordBox.PasswordProperty, value);
+                };
+                this.$Advancer = new Controls.Internal.PasswordBoxCursorAdvancer(this.$Proxy);
             }
             Object.defineProperty(PasswordBox.prototype, "DisplayText", {
                 get: function () {
                     var result = "";
-                    var count = this._Buffer.length;
+                    var count = this.$Proxy.text.length;
                     var pattern = this.PasswordChar;
                     while (count > 0) {
                         if (count & 1)
@@ -10706,34 +10638,6 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
-
-            PasswordBox.prototype.CursorDown = function (cursor, isPage) {
-                return this._Buffer.length;
-            };
-
-            PasswordBox.prototype.CursorUp = function (cursor, isPage) {
-                return 0;
-            };
-
-            PasswordBox.prototype.CursorNextWord = function (cursor) {
-                return this._Buffer.length;
-            };
-
-            PasswordBox.prototype.CursorPrevWord = function (cursor) {
-                return 0;
-            };
-
-            PasswordBox.prototype.CursorLineBegin = function (cursor) {
-                return 0;
-            };
-
-            PasswordBox.prototype.CursorLineEnd = function (cursor) {
-                return this._Buffer.length;
-            };
-
-            PasswordBox.prototype._EmitTextChanged = function () {
-                this.PasswordChangedEvent.RaiseAsync(this, new Fayde.RoutedEventArgs());
-            };
             PasswordBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () {
                 return Number;
             }, PasswordBox);
@@ -10742,35 +10646,13 @@ var Fayde;
             }, PasswordBox);
             PasswordBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () {
                 return Number;
-            }, PasswordBox, 0, function (d, args) {
-                return d.$MaxLength = args.NewValue;
-            }, undefined, undefined, positiveIntValidator);
+            }, PasswordBox, 0, undefined, undefined, undefined, positiveIntValidator);
             PasswordBox.PasswordCharProperty = DependencyProperty.Register("PasswordChar", function () {
                 return String;
-            }, PasswordBox, String.fromCharCode(9679), function (d, args) {
-                return d._ModelChanged(6 /* Text */, args.NewValue);
-            });
+            }, PasswordBox, String.fromCharCode(9679));
             PasswordBox.PasswordProperty = DependencyProperty.Register("Password", function () {
                 return String;
-            }, PasswordBox, undefined, function (d, args) {
-                return d._TextChanged(args.NewValue);
-            });
-            PasswordBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () {
-                return Fayde.Media.Brush;
             }, PasswordBox);
-            PasswordBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () {
-                return Fayde.Media.Brush;
-            }, PasswordBox);
-            PasswordBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () {
-                return Number;
-            }, PasswordBox, 0, function (d, args) {
-                return d._SelectionLengthChanged(args.NewValue);
-            }, undefined, true, positiveIntValidator);
-            PasswordBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () {
-                return Number;
-            }, PasswordBox, 0, function (d, args) {
-                return d._SelectionStartChanged(args.NewValue);
-            }, undefined, true, positiveIntValidator);
             return PasswordBox;
         })(Controls.TextBoxBase);
         Controls.PasswordBox = PasswordBox;
@@ -10785,14 +10667,16 @@ var Fayde;
 
         var reactions;
         (function (reactions) {
-            Fayde.UIReaction(PasswordBox.SelectionBackgroundProperty, function (upd, ov, nv, pb) {
-                pb._ModelChanged(4 /* Brush */, nv);
-                upd.invalidate();
-            });
-            Fayde.UIReaction(PasswordBox.SelectionForegroundProperty, function (upd, ov, nv, pb) {
-                pb._ModelChanged(4 /* Brush */, nv);
-                upd.invalidate();
-            });
+            Fayde.DPReaction(PasswordBox.MaxLengthProperty, function (pb, ov, nv) {
+                pb.$Proxy.maxLength = nv;
+            }, false);
+            Fayde.DPReaction(PasswordBox.PasswordCharProperty, function (pb, ov, nv) {
+                pb.$View.setText(pb.DisplayText);
+            }, false);
+            Fayde.DPReaction(PasswordBox.PasswordProperty, function (pb, ov, nv) {
+                pb.$Proxy.setText(nv);
+                pb.$View.setText(pb.DisplayText);
+            }, false);
         })(reactions || (reactions = {}));
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -12009,28 +11893,27 @@ var Fayde;
         var TextBox = (function (_super) {
             __extends(TextBox, _super);
             function TextBox() {
-                _super.call(this, Controls.TextBoxEmitChangedType.TEXT | Controls.TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);
-                this.SelectionChanged = new Fayde.RoutedEvent();
-                this.TextChanged = new Fayde.RoutedEvent();
+                var _this = this;
+                _super.call(this, Controls.Internal.TextBoxEmitChangedType.TEXT | Controls.Internal.TextBoxEmitChangedType.SELECTION);
                 this.DefaultStyleKey = this.constructor;
+
+                var proxy = this.$Proxy;
+                proxy.SyncSelectionStart = function (value) {
+                    return _this.SetCurrentValue(TextBox.SelectionStartProperty, value);
+                };
+                proxy.SyncSelectionLength = function (value) {
+                    return _this.SetCurrentValue(TextBox.SelectionLengthProperty, value);
+                };
+                proxy.SyncText = function (value) {
+                    return _this.SetCurrentValue(TextBox.TextProperty, value);
+                };
+                this.$Advancer = new Controls.Internal.TextBoxCursorAdvancer(this.$Proxy);
             }
             TextBox.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
-
-                var ce = this.$ContentElement;
-                if (!ce)
-                    return;
-
-                var ceType = ce.constructor;
-                var propd = DependencyProperty.GetDependencyProperty(ceType, "VerticalScrollBarVisibility", true);
-                if (propd)
-                    ce.SetValueInternal(propd, this.VerticalScrollBarVisibility);
-
-                propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility", true);
-                if (propd) {
-                    var vis = (this.TextWrapping === 1 /* Wrap */) ? 0 /* Disabled */ : this.HorizontalScrollBarVisibility;
-                    ce.SetValueInternal(propd, vis);
-                }
+                var vis = (this.TextWrapping === 1 /* Wrap */) ? 0 /* Disabled */ : this.HorizontalScrollBarVisibility;
+                this.$ContentProxy.setHorizontalScrollBar(vis);
+                this.$ContentProxy.setVerticalScrollBar(this.VerticalScrollBarVisibility);
             };
 
             Object.defineProperty(TextBox.prototype, "DisplayText", {
@@ -12041,110 +11924,21 @@ var Fayde;
                 configurable: true
             });
 
-            TextBox.prototype.CursorDown = function (cursor, isPage) {
-                return cursor;
-            };
-            TextBox.prototype.CursorUp = function (cursor, isPage) {
-                return cursor;
-            };
-            TextBox.prototype.CursorNextWord = function (cursor) {
-                return cursor;
-            };
-            TextBox.prototype.CursorPrevWord = function (cursor) {
-                return cursor;
-            };
-            TextBox.prototype.CursorLineBegin = function (cursor) {
-                var buffer = this._Buffer;
-                var len = buffer.length;
-                var r = buffer.lastIndexOf("\r", cursor);
-                var n = buffer.lastIndexOf("\n", cursor);
-                return Math.max(r, n, 0);
-            };
-            TextBox.prototype.CursorLineEnd = function (cursor) {
-                var buffer = this._Buffer;
-                var len = buffer.length;
-                var r = buffer.indexOf("\r", cursor);
-                if (r < 0)
-                    r = len;
-                var n = buffer.indexOf("\n", cursor);
-                if (n < 0)
-                    n = len;
-                return Math.min(r, n);
-            };
-
-            TextBox.prototype._EmitTextChanged = function () {
-                this.TextChanged.RaiseAsync(this, new Fayde.RoutedEventArgs());
-            };
-            TextBox.prototype._EmitSelectionChanged = function () {
-                this.SelectionChanged.RaiseAsync(this, new Fayde.RoutedEventArgs());
-            };
-
-            TextBox.prototype._IsReadOnlyChanged = function (args) {
-                this.$IsReadOnly = args.NewValue === true;
-                if (this.$IsFocused) {
-                    if (this.$IsReadOnly) {
-                        this._ResetIMContext();
-                    } else {
-                    }
-                }
-                if (this.$View)
-                    this.$View.SetEnableCursor(!this.$IsReadOnly);
-            };
-            TextBox.prototype.FontChanged = function (args) {
-                this._ModelChanged(5 /* Font */, args.NewValue);
-            };
-            TextBox.prototype._TextAlignmentChanged = function (args) {
-                this._ModelChanged(1 /* TextAlignment */, args.NewValue);
-            };
-            TextBox.prototype._TextWrappingChanged = function (args) {
-                var ce = this.$ContentElement;
-                if (ce) {
-                    var ceType = ce.constructor;
-                    var propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility", true);
-                    if (propd) {
-                        var vis = (args.NewValue === 1 /* Wrap */) ? 0 /* Disabled */ : this.HorizontalScrollBarVisibility;
-                        ce.SetValueInternal(propd, vis);
-                    }
-                }
-                this._ModelChanged(2 /* TextWrapping */, args.NewValue);
-            };
-            TextBox.prototype._HorizontalScrollBarVisibilityChanged = function (args) {
-                var ce = this.$ContentElement;
-                if (!ce)
-                    return;
-
-                var ceType = ce.constructor;
-                var propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility");
-                if (!propd)
-                    return;
-
-                var vis = (this.TextWrapping === 1 /* Wrap */) ? 0 /* Disabled */ : args.NewValue;
-                ce.SetValueInternal(propd, vis);
-            };
-            TextBox.prototype._VerticalScrollBarVisibilityChanged = function (args) {
-                var ce = this.$ContentElement;
-                if (!ce)
-                    return;
-
-                var ceType = ce.constructor;
-                var propd = DependencyProperty.GetDependencyProperty(ceType, "VerticalScrollBarVisibility");
-                if (!propd)
-                    return;
-                ce.SetValueInternal(propd, args.NewValue);
-            };
-
             TextBox.prototype.OnMouseEnter = function (e) {
                 _super.prototype.OnMouseEnter.call(this, e);
                 this.UpdateVisualState();
             };
+
             TextBox.prototype.OnMouseLeave = function (e) {
                 _super.prototype.OnMouseLeave.call(this, e);
                 this.UpdateVisualState();
             };
+
             TextBox.prototype.OnGotFocus = function (e) {
                 _super.prototype.OnGotFocus.call(this, e);
                 this.UpdateVisualState();
             };
+
             TextBox.prototype.OnLostFocus = function (e) {
                 _super.prototype.OnLostFocus.call(this, e);
                 this.UpdateVisualState();
@@ -12161,66 +11955,34 @@ var Fayde;
             };
             TextBox.AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", function () {
                 return Boolean;
-            }, TextBox, false, function (d, args) {
-                return d.$AcceptsReturn = (args.NewValue === true);
-            });
+            }, TextBox, false);
             TextBox.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () {
                 return Fayde.Media.Brush;
             }, TextBox);
             TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () {
                 return Number;
-            }, TextBox, 0, function (d, args) {
-                return d.$MaxLength = args.NewValue;
-            }, undefined, undefined, positiveIntValidator);
+            }, TextBox, 0, undefined, undefined, undefined, positiveIntValidator);
             TextBox.IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", function () {
                 return Boolean;
-            }, TextBox, undefined, function (d, args) {
-                return d._IsReadOnlyChanged(args);
-            });
-            TextBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () {
-                return Fayde.Media.Brush;
-            }, TextBox);
-            TextBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () {
-                return Fayde.Media.Brush;
-            }, TextBox);
+            }, TextBox, false);
             TextBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () {
                 return Number;
             }, TextBox);
-            TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () {
-                return Number;
-            }, TextBox, 0, function (d, args) {
-                return d._SelectionLengthChanged(args.NewValue);
-            }, undefined, true, positiveIntValidator);
-            TextBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () {
-                return Number;
-            }, TextBox, 0, function (d, args) {
-                return d._SelectionStartChanged(args.NewValue);
-            }, undefined, true, positiveIntValidator);
             TextBox.TextProperty = DependencyProperty.Register("Text", function () {
                 return String;
-            }, TextBox, undefined, function (d, args) {
-                return d._TextChanged(args.NewValue);
-            });
+            }, TextBox);
             TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () {
                 return new Enum(Fayde.TextAlignment);
-            }, TextBox, 0 /* Left */, function (d, args) {
-                return d._TextAlignmentChanged(args);
-            });
+            }, TextBox, 0 /* Left */);
             TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () {
                 return new Enum(Controls.TextWrapping);
-            }, TextBox, 0 /* NoWrap */, function (d, args) {
-                return d._TextWrappingChanged(args);
-            });
+            }, TextBox, 0 /* NoWrap */);
             TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", function () {
                 return new Enum(Controls.ScrollBarVisibility);
-            }, TextBox, 2 /* Hidden */, function (d, args) {
-                return d._HorizontalScrollBarVisibilityChanged(args);
-            });
+            }, TextBox, 2 /* Hidden */);
             TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", function () {
                 return new Enum(Controls.ScrollBarVisibility);
-            }, TextBox, 2 /* Hidden */, function (d, args) {
-                return d._VerticalScrollBarVisibilityChanged(args);
-            });
+            }, TextBox, 2 /* Hidden */);
             return TextBox;
         })(Controls.TextBoxBase);
         Controls.TextBox = TextBox;
@@ -12230,14 +11992,34 @@ var Fayde;
 
         var reactions;
         (function (reactions) {
-            Fayde.UIReaction(TextBox.SelectionBackgroundProperty, function (upd, ov, nv, tb) {
-                tb._ModelChanged(4 /* Brush */, nv);
-                upd.invalidate();
-            });
-            Fayde.UIReaction(TextBox.SelectionForegroundProperty, function (upd, ov, nv, tb) {
-                tb._ModelChanged(4 /* Brush */, nv);
-                upd.invalidate();
-            });
+            Fayde.DPReaction(TextBox.AcceptsReturnProperty, function (tb, ov, nv) {
+                tb.$Proxy.acceptsReturn = nv === true;
+            }, false);
+            Fayde.DPReaction(TextBox.MaxLengthProperty, function (tb, ov, nv) {
+                tb.$Proxy.maxLength = nv;
+            }, false);
+            Fayde.DPReaction(TextBox.IsReadOnlyProperty, function (tb, ov, nv) {
+                tb.$View.setIsReadOnly(nv === true);
+            }, false);
+            Fayde.DPReaction(TextBox.TextAlignmentProperty, function (tb, ov, nv) {
+                return tb.$View.setTextAlignment(nv);
+            }, false);
+            Fayde.DPReaction(TextBox.TextWrappingProperty, function (tb, ov, nv) {
+                var vis = (nv === 1 /* Wrap */) ? 0 /* Disabled */ : tb.HorizontalScrollBarVisibility;
+                tb.$ContentProxy.setHorizontalScrollBar(vis);
+                tb.$View.setTextWrapping(nv);
+            }, false);
+            Fayde.DPReaction(TextBox.HorizontalScrollBarVisibilityProperty, function (tb, ov, nv) {
+                var vis = (tb.TextWrapping === 1 /* Wrap */) ? 0 /* Disabled */ : tb.HorizontalScrollBarVisibility;
+                tb.$ContentProxy.setHorizontalScrollBar(vis);
+            }, false);
+            Fayde.DPReaction(TextBox.VerticalScrollBarVisibilityProperty, function (tb, ov, nv) {
+                tb.$ContentProxy.setVerticalScrollBar(nv);
+            }, false);
+            Fayde.DPReaction(TextBox.TextProperty, function (tb, ov, nv) {
+                tb.$Proxy.setText(nv);
+                tb.$View.setText(tb.DisplayText);
+            }, false);
         })(reactions || (reactions = {}));
 
         function positiveIntValidator(dobj, propd, value) {
@@ -12252,227 +12034,134 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         (function (Internal) {
-            var CURSOR_BLINK_DIVIDER = 3;
-            var CURSOR_BLINK_OFF_MULTIPLIER = 2;
-            var CURSOR_BLINK_DELAY_MULTIPLIER = 3;
-            var CURSOR_BLINK_ON_MULTIPLIER = 4;
-            var CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
+            var TextBoxViewUpdater = minerva.controls.textboxview.TextBoxViewUpdater;
+
+            var TextBoxViewNode = (function (_super) {
+                __extends(TextBoxViewNode, _super);
+                function TextBoxViewNode() {
+                    _super.apply(this, arguments);
+                }
+                return TextBoxViewNode;
+            })(Fayde.FENode);
+            Internal.TextBoxViewNode = TextBoxViewNode;
 
             var TextBoxView = (function (_super) {
                 __extends(TextBoxView, _super);
                 function TextBoxView() {
-                    _super.apply(this, arguments);
-                    this._Cursor = new minerva.Rect();
-                    this._SelectionChanged = false;
-                    this._HadSelectedText = false;
-                    this._CursorVisible = false;
-                    this._EnableCursor = true;
-                    this._BlinkTimeout = 0;
+                    _super.call(this);
+                    this._AutoRun = new Fayde.Documents.Run();
                     this._TextBox = null;
-                    this._Dirty = false;
+                    Fayde.ReactTo(this._AutoRun, this, this._InlineChanged);
                 }
                 TextBoxView.prototype.CreateLayoutUpdater = function () {
-                    return new minerva.core.Updater();
+                    return new TextBoxViewUpdater();
                 };
 
-                TextBoxView.prototype.SetTextBox = function (textBox) {
-                    if (this._TextBox === textBox)
-                        return;
-
-                    if (this._TextBox)
-                        this._TextBox.Unlisten(this);
-
-                    this._TextBox = textBox;
-
-                    if (textBox) {
-                        textBox.Listen(this);
-
-                        this._Layout.TextAlignment = textBox.TextAlignment;
-                        this._Layout.TextWrapping = textBox.TextWrapping;
-                        this._HadSelectedText = textBox.HasSelectedText;
-                        this._SelectionChanged = true;
-                        this._UpdateText();
-                    } else {
-                        this._Layout.TextAttributes = null;
-                        this._Layout.Text = null;
+                TextBoxView.prototype._InlineChanged = function (obj) {
+                    var updater = this.XamlNode.LayoutUpdater;
+                    switch (obj.type) {
+                        case 'font':
+                            updater.invalidateFont(obj.full);
+                            break;
+                        case 'text':
+                            updater.invalidateTextMetrics();
+                            break;
                     }
+                };
 
+                TextBoxView.prototype.setFontProperty = function (propd, value) {
+                    this._AutoRun.SetValue(propd, value);
+                };
+
+                TextBoxView.prototype.setFontAttr = function (attrName, value) {
+                    var runUpdater = this._AutoRun;
+                    var tu = runUpdater.TextUpdater;
+                    tu.assets[attrName] = value;
+                };
+
+                TextBoxView.prototype.setCaretBrush = function (value) {
+                    var updater = this.XamlNode.LayoutUpdater;
+                    updater.assets.caretBrush = value;
+                    updater.invalidateCaret();
+                };
+
+                TextBoxView.prototype.setIsFocused = function (isFocused) {
+                    var updater = this.XamlNode.LayoutUpdater;
+                    if (updater.assets.isFocused === isFocused)
+                        return;
+                    updater.assets.isFocused = isFocused;
+                    updater.resetCaretBlinker(false);
+                };
+
+                TextBoxView.prototype.setIsReadOnly = function (isReadOnly) {
+                    var updater = this.XamlNode.LayoutUpdater;
+                    if (updater.assets.isReadOnly === isReadOnly)
+                        return;
+                    updater.assets.isReadOnly = isReadOnly;
+                    updater.resetCaretBlinker(false);
+                };
+
+                TextBoxView.prototype.setTextAlignment = function (textAlignment) {
                     var lu = this.XamlNode.LayoutUpdater;
-                    lu.updateBounds(true);
+                    if (lu.assets.textAlignment === textAlignment)
+                        return;
+                    lu.assets.textAlignment = textAlignment;
                     lu.invalidateMeasure();
+                    lu.updateBounds(true);
                     lu.invalidate();
-                    this._Dirty = true;
                 };
-                TextBoxView.prototype.SetEnableCursor = function (value) {
-                    if (this._EnableCursor === value)
+
+                TextBoxView.prototype.setTextWrapping = function (textWrapping) {
+                    var lu = this.XamlNode.LayoutUpdater;
+                    if (lu.assets.textWrapping === textWrapping)
                         return;
-                    this._EnableCursor = value;
-                    if (value)
-                        this._ResetCursorBlink(false);
-                    else
-                        this._EndCursorBlink();
+                    lu.assets.textWrapping = textWrapping;
+                    lu.invalidateMeasure();
+                    lu.updateBounds(true);
+                    lu.invalidate();
                 };
 
-                TextBoxView.prototype._Blink = function () {
-                    var multiplier;
-                    if (this._CursorVisible) {
-                        multiplier = CURSOR_BLINK_OFF_MULTIPLIER;
-                        this._HideCursor();
-                    } else {
-                        multiplier = CURSOR_BLINK_ON_MULTIPLIER;
-                        this._ShowCursor();
-                    }
-                    this._ConnectBlinkTimeout(multiplier);
-                    return false;
-                };
-                TextBoxView.prototype._ConnectBlinkTimeout = function (multiplier) {
-                    var _this = this;
-                    if (!this.XamlNode.IsAttached)
+                TextBoxView.prototype.setSelectionStart = function (selectionStart) {
+                    var lu = this.XamlNode.LayoutUpdater;
+                    if (lu.assets.selectionStart === selectionStart)
                         return;
-                    var timeout = this._GetCursorBlinkTimeout() * multiplier / CURSOR_BLINK_DIVIDER;
-                    this._BlinkTimeout = setTimeout(function () {
-                        return _this._Blink();
-                    }, timeout);
-                };
-                TextBoxView.prototype._DisconnectBlinkTimeout = function () {
-                    if (this._BlinkTimeout !== 0) {
-                        if (!this.XamlNode.IsAttached)
-                            return;
-                        clearTimeout(this._BlinkTimeout);
-                        this._BlinkTimeout = 0;
-                    }
-                };
-                TextBoxView.prototype._GetCursorBlinkTimeout = function () {
-                    return CURSOR_BLINK_TIMEOUT_DEFAULT;
-                };
-                TextBoxView.prototype._ResetCursorBlink = function (delay) {
-                    if (this._TextBox.$IsFocused && !this._TextBox.HasSelectedText) {
-                        if (this._EnableCursor) {
-                            if (delay)
-                                this._DelayCursorBlink();
-                            else
-                                this._BeginCursorBlink();
-                        } else {
-                            this._UpdateCursor(false);
-                        }
-                    } else {
-                        this._EndCursorBlink();
-                    }
-                };
-                TextBoxView.prototype._DelayCursorBlink = function () {
-                    this._DisconnectBlinkTimeout();
-                    this._ConnectBlinkTimeout(CURSOR_BLINK_DELAY_MULTIPLIER);
-                    this._UpdateCursor(true);
-                    this._ShowCursor();
-                };
-                TextBoxView.prototype._BeginCursorBlink = function () {
-                    if (this._BlinkTimeout === 0) {
-                        this._ConnectBlinkTimeout(CURSOR_BLINK_ON_MULTIPLIER);
-                        this._UpdateCursor(true);
-                        this._ShowCursor();
-                    }
-                };
-                TextBoxView.prototype._EndCursorBlink = function () {
-                    this._DisconnectBlinkTimeout();
-                    if (this._CursorVisible)
-                        this._HideCursor();
-                };
-                TextBoxView.prototype._InvalidateCursor = function () {
-                };
-                TextBoxView.prototype._ShowCursor = function () {
-                    this._CursorVisible = true;
-                    this._InvalidateCursor();
-                };
-                TextBoxView.prototype._HideCursor = function () {
-                    this._CursorVisible = false;
-                    this._InvalidateCursor();
-                };
-                TextBoxView.prototype._UpdateCursor = function (invalidate) {
-                    var cur = this._TextBox.SelectionCursor;
-                    var current = this._Cursor;
-
-                    if (invalidate && this._CursorVisible)
-                        this._InvalidateCursor();
-
-                    this._Cursor = this._Layout.GetSelectionCursor(null, cur);
-
-                    if (!minerva.Rect.isEqual(this._Cursor, current))
-                        this._TextBox._EmitCursorPositionChanged(this._Cursor.height, this._Cursor.x, this._Cursor.y);
-
-                    if (invalidate && this._CursorVisible)
-                        this._InvalidateCursor();
-                };
-                TextBoxView.prototype._UpdateText = function () {
-                    var text = this._TextBox.DisplayText;
-                    this._Layout.Text = text ? text : "", -1;
+                    lu.assets.selectionStart = selectionStart;
                 };
 
-                TextBoxView.prototype.Layout = function (constraint) {
-                    this._Layout.MaxWidth = constraint.width;
-                    this._Layout.Layout();
-                    this._Dirty = false;
+                TextBoxView.prototype.setSelectionLength = function (selectionLength) {
+                    var lu = this.XamlNode.LayoutUpdater;
+                    if (lu.assets.selectionLength === selectionLength)
+                        return;
+                    var switching = (lu.assets.selectionLength === 0) !== (selectionLength === 0);
+                    lu.assets.selectionLength = selectionLength;
+                    lu.resetCaretBlinker(switching);
+                    if (!switching)
+                        return;
+                    lu.invalidateCaretRegion();
+
+                    lu.invalidateMeasure();
+                    lu.updateBounds(true);
+                    lu.invalidate();
                 };
 
-                TextBoxView.prototype.GetBaselineOffset = function () {
-                    return this._Layout.GetBaselineOffset();
+                TextBoxView.prototype.setText = function (text) {
+                    this._AutoRun.Text = text || "";
                 };
 
-                TextBoxView.prototype.GetCursorFromXY = function (x, y) {
-                    return this._Layout.GetCursorFromXY(null, x, y);
+                TextBoxView.prototype.setTextBox = function (tb) {
+                    this._TextBox = tb;
                 };
 
-                TextBoxView.prototype.OnLostFocus = function (e) {
-                    this._EndCursorBlink();
+                TextBoxView.prototype.GetCursorFromPoint = function (point) {
+                    return this.XamlNode.LayoutUpdater.getCursorFromPoint(point);
                 };
-                TextBoxView.prototype.OnGotFocus = function (e) {
-                    this._ResetCursorBlink(false);
-                };
+
                 TextBoxView.prototype.OnMouseLeftButtonDown = function (e) {
                     this._TextBox.OnMouseLeftButtonDown(e);
                 };
+
                 TextBoxView.prototype.OnMouseLeftButtonUp = function (e) {
                     this._TextBox.OnMouseLeftButtonUp(e);
-                };
-
-                TextBoxView.prototype.OnTextModelChanged = function (args) {
-                    var lu = this.XamlNode.LayoutUpdater;
-                    switch (args.Changed) {
-                        case 1 /* TextAlignment */:
-                            if (this._Layout.SetTextAlignment(args.NewValue))
-                                this._Dirty = true;
-                            break;
-                        case 2 /* TextWrapping */:
-                            if (this._Layout.SetTextWrapping(args.NewValue))
-                                this._Dirty = true;
-                            break;
-                        case 3 /* Selection */:
-                            if (this._HadSelectedText || this._TextBox.HasSelectedText) {
-                                this._HadSelectedText = this._TextBox.HasSelectedText;
-                                this._SelectionChanged = true;
-                                this._ResetCursorBlink(false);
-                            } else {
-                                this._ResetCursorBlink(true);
-                                return;
-                            }
-                            break;
-                        case 4 /* Brush */:
-                            break;
-                        case 5 /* Font */:
-                            this._Layout.ResetState();
-                            this._Dirty = true;
-                            break;
-                        case 6 /* Text */:
-                            this._UpdateText();
-                            this._Dirty = true;
-                            break;
-                        default:
-                            return;
-                    }
-                    if (this._Dirty) {
-                        lu.invalidateMeasure();
-                        lu.updateBounds(true);
-                    }
-                    lu.invalidate();
                 };
                 return TextBoxView;
             })(Fayde.FrameworkElement);
@@ -29150,10 +28839,11 @@ var Fayde;
                 this.Text = buffer.substr(start, length);
             }
             TextBoxUndoActionDelete.prototype.Undo = function (bo) {
-                bo._Buffer = TextBuffer.Insert(bo._Buffer, this.Start, this.Text);
+                bo.text = TextBuffer.Insert(bo.text, this.Start, this.Text);
             };
+
             TextBoxUndoActionDelete.prototype.Redo = function (bo) {
-                bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Text.length);
+                bo.text = TextBuffer.Cut(bo.text, this.Start, this.Text.length);
                 return this.Start;
             };
             return TextBoxUndoActionDelete;
@@ -29169,10 +28859,11 @@ var Fayde;
                 this.IsGrowable = isAtomic !== true;
             }
             TextBoxUndoActionInsert.prototype.Undo = function (bo) {
-                bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Text.length);
+                bo.text = TextBuffer.Cut(bo.text, this.Start, this.Text.length);
             };
+
             TextBoxUndoActionInsert.prototype.Redo = function (bo) {
-                bo._Buffer = TextBuffer.Insert(bo._Buffer, this.Start, this.Text);
+                bo.text = TextBuffer.Insert(bo.text, this.Start, this.Text);
                 return this.Start + this.Text.length;
             };
 
@@ -29196,12 +28887,13 @@ var Fayde;
                 this.Inserted = inserted;
             }
             TextBoxUndoActionReplace.prototype.Undo = function (bo) {
-                bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Inserted.length);
-                bo._Buffer = Text.TextBuffer.Insert(bo._Buffer, this.Start, this.Deleted);
+                bo.text = TextBuffer.Cut(bo.text, this.Start, this.Inserted.length);
+                bo.text = Text.TextBuffer.Insert(bo.text, this.Start, this.Deleted);
             };
+
             TextBoxUndoActionReplace.prototype.Redo = function (bo) {
-                bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Length);
-                bo._Buffer = TextBuffer.Insert(bo._Buffer, this.Start, this.Inserted);
+                bo.text = TextBuffer.Cut(bo.text, this.Start, this.Length);
+                bo.text = TextBuffer.Insert(bo.text, this.Start, this.Inserted);
                 return this.Start + this.Inserted.length;
             };
             return TextBoxUndoActionReplace;
@@ -29216,11 +28908,13 @@ var Fayde;
                     return "";
                 return text.slice(0, start) + text.slice(start + len);
             };
+
             TextBuffer.Insert = function (text, index, str) {
                 if (!text)
                     return str;
                 return [text.slice(0, index), str, text.slice(index)].join('');
             };
+
             TextBuffer.Replace = function (text, start, len, str) {
                 if (!text)
                     return str;
@@ -29666,5 +29360,61 @@ var Fayde;
         return obj;
     }
     Fayde.sexify = sexify;
+
+    function debugLayersRaw() {
+        var app = Fayde.Application.Current;
+        var output = "";
+        for (var walker = app.MainSurface.walkLayers(); walker.step();) {
+            output += stringify(walker.current);
+        }
+        return output;
+    }
+    Fayde.debugLayersRaw = debugLayersRaw;
+
+    function stringify(updater, level) {
+        if (typeof level === "undefined") { level = 0; }
+        var node = updater.getAttachedValue("$node");
+        var xobj = node.XObject;
+
+        var output = "";
+
+        for (var i = 0; i < level; i++) {
+            output += "\t";
+        }
+
+        output += xobj.constructor.name;
+        output += "[" + xobj._ID + "]";
+
+        var ns = node.NameScope;
+        var nsr = !ns ? "^" : (ns.IsRoot ? "+" : "-");
+        output += " [" + nsr + node.Name + "]";
+
+        output += "\n";
+
+        for (var walker = updater.tree.walk(); walker.step();) {
+            output += stringify(walker.current, level + 1);
+        }
+
+        return output;
+    }
+
+    function getById(id) {
+        var app = Fayde.Application.Current;
+        for (var walker = app.MainSurface.walkLayers(); walker.step();) {
+            for (var subwalker = walker.current.walkDeep(); subwalker.step();) {
+                var upd = subwalker.current;
+                var node = upd.getAttachedValue("$node");
+                var xobj = node.XObject;
+                if (xobj._ID === id) {
+                    return {
+                        obj: xobj,
+                        node: node,
+                        updater: upd
+                    };
+                }
+            }
+        }
+    }
+    Fayde.getById = getById;
 })(Fayde || (Fayde = {}));
 //# sourceMappingURL=Fayde.js.map

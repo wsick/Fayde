@@ -4,6 +4,15 @@
 module Fayde.Controls {
     var Key = Input.Key;
     export class TextBoxBase extends Control {
+        static SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBoxBase);
+        static SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBoxBase);
+        static SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
+        static SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
+        SelectionForeground: Media.Brush;
+        SelectionBackground: Media.Brush;
+        SelectionLength: number;
+        SelectionStart: number;
+
         private _Selecting: boolean = false;
         private _Captured: boolean = false;
 
@@ -19,6 +28,21 @@ module Fayde.Controls {
             this.$View = this.CreateView();
             this.$View.setTextBox(this);
             this.$Proxy = new Internal.TextProxy(eventsMask);
+
+            this._SyncFont();
+        }
+
+        private _SyncFont () {
+            var view = this.$View;
+            var propds = [
+                Control.ForegroundProperty,
+                Control.FontFamilyProperty,
+                Control.FontSizeProperty,
+                Control.FontStretchProperty,
+                Control.FontStyleProperty,
+                Control.FontWeightProperty
+            ];
+            propds.forEach(propd => propd.Store.ListenToChanged(this, propd, (dobj, args) => view.setFontProperty(propd, args.NewValue), this));
         }
 
         CreateView (): Internal.TextBoxView {
@@ -389,4 +413,29 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(TextBoxBase, "Fayde.Controls");
+
+    module reactions {
+        DPReaction<number>(TextBoxBase.SelectionStartProperty, (tbb: TextBoxBase, ov, nv) => {
+            tbb.$Proxy.setSelectionStart(nv);
+            tbb.$View.setSelectionStart(nv);
+        }, false);
+        DPReaction<number>(TextBoxBase.SelectionLengthProperty, (tbb: TextBoxBase, ov, nv) => {
+            tbb.$Proxy.setSelectionLength(nv);
+            tbb.$View.setSelectionLength(nv);
+        }, false);
+        DPReaction<Media.Brush>(TextBoxBase.SelectionBackgroundProperty, (tbb: TextBoxBase, ov, nv) => {
+            tbb.$View.setFontAttr("selectionBackground", nv);
+            tbb.XamlNode.LayoutUpdater.invalidate();
+        });
+        DPReaction<Media.Brush>(TextBoxBase.SelectionForegroundProperty, (tbb: TextBoxBase, ov, nv) => {
+            tbb.$View.setFontAttr("selectionForeground", nv);
+            tbb.XamlNode.LayoutUpdater.invalidate();
+        });
+    }
+
+    function positiveIntValidator (dobj: DependencyObject, propd: DependencyProperty, value: any): boolean {
+        if (typeof value !== 'number')
+            return false;
+        return value >= 0;
+    }
 }

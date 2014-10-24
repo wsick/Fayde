@@ -6,12 +6,8 @@ module Fayde.Controls {
         static CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBox);
         static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, undefined, undefined, undefined, positiveIntValidator);
         static IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", () => Boolean, TextBox, false);
-        static SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBox);
-        static SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBox);
         static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBox);
-        static SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBox, 0, undefined, undefined, true, positiveIntValidator);
-        static SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBox, 0, undefined, undefined, true, positiveIntValidator);
-        static TextProperty = DependencyProperty.Register("Text", () => String, TextBox, undefined, (d, args) => (<TextBox>d)._TextChanged(args.NewValue));
+        static TextProperty = DependencyProperty.Register("Text", () => String, TextBox);
         static TextAlignmentProperty = DependencyProperty.Register("TextAlignment", () => new Enum(TextAlignment), TextBox, TextAlignment.Left);
         static TextWrappingProperty = DependencyProperty.Register("TextWrapping", () => new Enum(TextWrapping), TextBox, TextWrapping.NoWrap);
         static HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", () => new Enum(ScrollBarVisibility), TextBox, ScrollBarVisibility.Hidden);
@@ -21,21 +17,14 @@ module Fayde.Controls {
         MaxLength: number;
         IsReadOnly: boolean;
         BaselineOffset: number;
-        SelectionLength: number;
-        SelectionStart: number;
         Text: string;
         TextAlignment: TextAlignment;
         TextWrapping: TextWrapping;
         HorizontalScrollBarVisibility: ScrollBarVisibility;
         VerticalScrollBarVisibility: ScrollBarVisibility;
-        SelectionForeground: Media.Brush;
-        SelectionBackground: Media.Brush;
-
-        //SelectionChanged = new RoutedEvent<RoutedEventArgs>();
-        //TextChanged = new RoutedEvent<TextChangedEventArgs>();
 
         constructor () {
-            super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);
+            super(Internal.TextBoxEmitChangedType.TEXT | Internal.TextBoxEmitChangedType.SELECTION);
             this.DefaultStyleKey = (<any>this).constructor;
 
             var proxy = this.$Proxy;
@@ -43,12 +32,11 @@ module Fayde.Controls {
             proxy.SyncSelectionLength = (value) => this.SetCurrentValue(TextBox.SelectionLengthProperty, value);
             proxy.SyncText = (value) => this.SetCurrentValue(TextBox.TextProperty, value);
             this.$Advancer = new Internal.TextBoxCursorAdvancer(this.$Proxy);
-            this._SyncFont();
         }
 
         OnApplyTemplate () {
             super.OnApplyTemplate();
-            var vis = (args.NewValue === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
+            var vis = (this.TextWrapping === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
             this.$ContentProxy.setHorizontalScrollBar(vis);
             this.$ContentProxy.setVerticalScrollBar(this.VerticalScrollBarVisibility);
         }
@@ -86,19 +74,6 @@ module Fayde.Controls {
                 return gotoFunc("MouseOver");
             return gotoFunc("Normal");
         }
-
-        private _SyncFont () {
-            var view = this.$View;
-            var propds = [
-                Control.ForegroundProperty,
-                Control.FontFamilyProperty,
-                Control.FontSizeProperty,
-                Control.FontStretchProperty,
-                Control.FontStyleProperty,
-                Control.FontWeightProperty
-            ];
-            propds.forEach(propd => propd.Store.ListenToChanged(this, propd, (dobj, args) => view.setFontProperty(propd, args.NewValue), this));
-        }
     }
     Fayde.RegisterType(TextBox, "Fayde.Controls", Fayde.XMLNS);
     TemplateVisualStates(TextBox,
@@ -124,30 +99,14 @@ module Fayde.Controls {
         DPReaction<boolean>(TextBox.IsReadOnlyProperty, (tb: TextBox, ov, nv) => {
             tb.$View.setIsReadOnly(nv === true);
         }, false);
-        DPReaction<number>(TextBox.SelectionStartProperty, (tb: TextBox, ov, nv) => {
-            tb.$Proxy.setSelectionStart(nv);
-            tb.$View.setSelectionStart(nv);
-        }, false);
-        DPReaction<number>(TextBox.SelectionLengthProperty, (tb: TextBox, ov, nv) => {
-            tb.$Proxy.setSelectionLength(nv);
-            tb.$View.setSelectionLength(nv);
-        }, false);
-        UIReaction<Media.Brush>(TextBox.SelectionBackgroundProperty, (upd, ov, nv, tb?: TextBox) => {
-            tb._ModelChanged(TextBoxModelChangedType.Brush, nv);
-            upd.invalidate();
-        });
-        UIReaction<Media.Brush>(TextBox.SelectionForegroundProperty, (upd, ov, nv, tb?: TextBox) => {
-            tb._ModelChanged(TextBoxModelChangedType.Brush, nv);
-            upd.invalidate();
-        });
         DPReaction<TextAlignment>(TextBox.TextAlignmentProperty, (tb: TextBox, ov, nv) => tb.$View.setTextAlignment(nv), false);
         DPReaction<TextWrapping>(TextBox.TextWrappingProperty, (tb: TextBox, ov, nv) => {
-            var vis = (args.NewValue === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : tb.HorizontalScrollBarVisibility;
+            var vis = (nv === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : tb.HorizontalScrollBarVisibility;
             tb.$ContentProxy.setHorizontalScrollBar(vis);
             tb.$View.setTextWrapping(nv);
         }, false);
         DPReaction<ScrollBarVisibility>(TextBox.HorizontalScrollBarVisibilityProperty, (tb: TextBox, ov, nv) => {
-            var vis = (args.NewValue === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : tb.HorizontalScrollBarVisibility;
+            var vis = (tb.TextWrapping === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : tb.HorizontalScrollBarVisibility;
             tb.$ContentProxy.setHorizontalScrollBar(vis);
         }, false);
         DPReaction<ScrollBarVisibility>(TextBox.VerticalScrollBarVisibilityProperty, (tb: TextBox, ov, nv) => {
