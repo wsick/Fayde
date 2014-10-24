@@ -13,8 +13,9 @@ module Fayde {
         var reactions = (<IReactable>obj).$$reactions;
         if (!reactions)
             return;
+        var rs = (<IReactable>obj).$$reaction_sources;
         for (var i = 0; i < reactions.length; i++) {
-            reactions[i](val);
+            reactions[i].call(rs[i], val);
         }
     }
 

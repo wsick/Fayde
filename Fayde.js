@@ -28242,8 +28242,9 @@ var Fayde;
         var reactions = obj.$$reactions;
         if (!reactions)
             return;
+        var rs = obj.$$reaction_sources;
         for (var i = 0; i < reactions.length; i++) {
-            reactions[i](val);
+            reactions[i].call(rs[i], val);
         }
     }
     Fayde.Incite = Incite;
