@@ -5,11 +5,11 @@ module Fayde.Controls {
     export class ScrollContentPresenter extends ContentPresenter implements Primitives.IScrollInfo {
         CreateLayoutUpdater() {
             var updater = new minerva.controls.scrollcontentpresenter.ScrollContentPresenterUpdater();
-            updater.assets.scrollData = this._ScrollData;
+            updater.assets.scrollData = this._ScrollData = new Primitives.ScrollData();
             return updater;
         }
 
-        private _ScrollData: Primitives.ScrollData = new Primitives.ScrollData();
+        private _ScrollData: Primitives.ScrollData;
         private _IsClipPropertySet: boolean = false;
         private _ClippingRectangle: Media.RectangleGeometry = null;
 

@@ -6194,13 +6194,12 @@ var Fayde;
             __extends(ScrollContentPresenter, _super);
             function ScrollContentPresenter() {
                 _super.apply(this, arguments);
-                this._ScrollData = new Controls.Primitives.ScrollData();
                 this._IsClipPropertySet = false;
                 this._ClippingRectangle = null;
             }
             ScrollContentPresenter.prototype.CreateLayoutUpdater = function () {
                 var updater = new minerva.controls.scrollcontentpresenter.ScrollContentPresenterUpdater();
-                updater.assets.scrollData = this._ScrollData;
+                updater.assets.scrollData = this._ScrollData = new Controls.Primitives.ScrollData();
                 return updater;
             };
 
