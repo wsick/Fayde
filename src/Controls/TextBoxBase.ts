@@ -27,7 +27,7 @@ module Fayde.Controls {
             super();
             var view = this.$View = this.CreateView();
             view.MouseLeftButtonDown.Subscribe((s, e) => this.OnMouseLeftButtonDown(e), this);
-            view.MouseLeftButtonUp.Subscribe((s, e)=>this.OnMouseLeftButtonUp(e), this);
+            view.MouseLeftButtonUp.Subscribe((s, e) => this.OnMouseLeftButtonUp(e), this);
             this.$Proxy = new Internal.TextProxy(eventsMask);
 
             this._SyncFont();

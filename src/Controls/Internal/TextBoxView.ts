@@ -91,7 +91,7 @@ module Fayde.Controls.Internal {
             if (lu.assets.selectionStart === selectionStart)
                 return;
             lu.assets.selectionStart = selectionStart;
-            //TODO: Invalidate only?
+            lu.invalidateCaretRegion();
         }
 
         setSelectionLength (selectionLength: number) {

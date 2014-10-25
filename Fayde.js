@@ -9107,6 +9107,7 @@ var Fayde;
                     if (lu.assets.selectionStart === selectionStart)
                         return;
                     lu.assets.selectionStart = selectionStart;
+                    lu.invalidateCaretRegion();
                 };
 
                 TextBoxView.prototype.setSelectionLength = function (selectionLength) {
