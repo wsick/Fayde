@@ -1,4 +1,4 @@
-/// <reference path="../Core/FrameworkElement.ts" />
+/// <reference path="../../Core/FrameworkElement.ts" />
 
 module Fayde.Controls.Internal {
     import TextBoxViewUpdater = minerva.controls.textboxview.TextBoxViewUpdater;
@@ -18,6 +18,7 @@ module Fayde.Controls.Internal {
 
         constructor () {
             super();
+            this.XamlNode.LayoutUpdater.tree.onTextAttached(this._AutoRun.TextUpdater);
             ReactTo(this._AutoRun, this, this._InlineChanged);
         }
 

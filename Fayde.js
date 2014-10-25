@@ -9015,6 +9015,136 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         (function (Internal) {
+            var TextBoxViewUpdater = minerva.controls.textboxview.TextBoxViewUpdater;
+
+            var TextBoxViewNode = (function (_super) {
+                __extends(TextBoxViewNode, _super);
+                function TextBoxViewNode() {
+                    _super.apply(this, arguments);
+                }
+                return TextBoxViewNode;
+            })(Fayde.FENode);
+            Internal.TextBoxViewNode = TextBoxViewNode;
+
+            var TextBoxView = (function (_super) {
+                __extends(TextBoxView, _super);
+                function TextBoxView() {
+                    _super.call(this);
+                    this._AutoRun = new Fayde.Documents.Run();
+                    this.XamlNode.LayoutUpdater.tree.onTextAttached(this._AutoRun.TextUpdater);
+                    Fayde.ReactTo(this._AutoRun, this, this._InlineChanged);
+                }
+                TextBoxView.prototype.CreateLayoutUpdater = function () {
+                    return new TextBoxViewUpdater();
+                };
+
+                TextBoxView.prototype._InlineChanged = function (obj) {
+                    var updater = this.XamlNode.LayoutUpdater;
+                    switch (obj.type) {
+                        case 'font':
+                            updater.invalidateFont(obj.full);
+                            break;
+                        case 'text':
+                            updater.invalidateTextMetrics();
+                            break;
+                    }
+                };
+
+                TextBoxView.prototype.setFontProperty = function (propd, value) {
+                    this._AutoRun.SetValue(propd, value);
+                };
+
+                TextBoxView.prototype.setFontAttr = function (attrName, value) {
+                    var runUpdater = this._AutoRun;
+                    var tu = runUpdater.TextUpdater;
+                    tu.assets[attrName] = value;
+                };
+
+                TextBoxView.prototype.setCaretBrush = function (value) {
+                    var updater = this.XamlNode.LayoutUpdater;
+                    updater.assets.caretBrush = value;
+                    updater.invalidateCaret();
+                };
+
+                TextBoxView.prototype.setIsFocused = function (isFocused) {
+                    var updater = this.XamlNode.LayoutUpdater;
+                    if (updater.assets.isFocused === isFocused)
+                        return;
+                    updater.assets.isFocused = isFocused;
+                    updater.resetCaretBlinker(false);
+                };
+
+                TextBoxView.prototype.setIsReadOnly = function (isReadOnly) {
+                    var updater = this.XamlNode.LayoutUpdater;
+                    if (updater.assets.isReadOnly === isReadOnly)
+                        return;
+                    updater.assets.isReadOnly = isReadOnly;
+                    updater.resetCaretBlinker(false);
+                };
+
+                TextBoxView.prototype.setTextAlignment = function (textAlignment) {
+                    var lu = this.XamlNode.LayoutUpdater;
+                    if (lu.assets.textAlignment === textAlignment)
+                        return;
+                    lu.assets.textAlignment = textAlignment;
+                    lu.invalidateMeasure();
+                    lu.updateBounds(true);
+                    lu.invalidate();
+                };
+
+                TextBoxView.prototype.setTextWrapping = function (textWrapping) {
+                    var lu = this.XamlNode.LayoutUpdater;
+                    if (lu.assets.textWrapping === textWrapping)
+                        return;
+                    lu.assets.textWrapping = textWrapping;
+                    lu.invalidateMeasure();
+                    lu.updateBounds(true);
+                    lu.invalidate();
+                };
+
+                TextBoxView.prototype.setSelectionStart = function (selectionStart) {
+                    var lu = this.XamlNode.LayoutUpdater;
+                    if (lu.assets.selectionStart === selectionStart)
+                        return;
+                    lu.assets.selectionStart = selectionStart;
+                };
+
+                TextBoxView.prototype.setSelectionLength = function (selectionLength) {
+                    var lu = this.XamlNode.LayoutUpdater;
+                    if (lu.assets.selectionLength === selectionLength)
+                        return;
+                    var switching = (lu.assets.selectionLength === 0) !== (selectionLength === 0);
+                    lu.assets.selectionLength = selectionLength;
+                    lu.resetCaretBlinker(switching);
+                    if (!switching)
+                        return;
+                    lu.invalidateCaretRegion();
+
+                    lu.invalidateMeasure();
+                    lu.updateBounds(true);
+                    lu.invalidate();
+                };
+
+                TextBoxView.prototype.setText = function (text) {
+                    this._AutoRun.Text = text || "";
+                };
+
+                TextBoxView.prototype.GetCursorFromPoint = function (point) {
+                    return this.XamlNode.LayoutUpdater.getCursorFromPoint(point);
+                };
+                return TextBoxView;
+            })(Fayde.FrameworkElement);
+            Internal.TextBoxView = TextBoxView;
+            Fayde.RegisterType(TextBoxView, "Fayde.Controls");
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Internal) {
             (function (TextBoxEmitChangedType) {
                 TextBoxEmitChangedType[TextBoxEmitChangedType["NOTHING"] = 0] = "NOTHING";
                 TextBoxEmitChangedType[TextBoxEmitChangedType["SELECTION"] = 1 << 0] = "SELECTION";
@@ -12023,135 +12153,6 @@ var Fayde;
                 return false;
             return value >= 0;
         }
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        (function (Internal) {
-            var TextBoxViewUpdater = minerva.controls.textboxview.TextBoxViewUpdater;
-
-            var TextBoxViewNode = (function (_super) {
-                __extends(TextBoxViewNode, _super);
-                function TextBoxViewNode() {
-                    _super.apply(this, arguments);
-                }
-                return TextBoxViewNode;
-            })(Fayde.FENode);
-            Internal.TextBoxViewNode = TextBoxViewNode;
-
-            var TextBoxView = (function (_super) {
-                __extends(TextBoxView, _super);
-                function TextBoxView() {
-                    _super.call(this);
-                    this._AutoRun = new Fayde.Documents.Run();
-                    Fayde.ReactTo(this._AutoRun, this, this._InlineChanged);
-                }
-                TextBoxView.prototype.CreateLayoutUpdater = function () {
-                    return new TextBoxViewUpdater();
-                };
-
-                TextBoxView.prototype._InlineChanged = function (obj) {
-                    var updater = this.XamlNode.LayoutUpdater;
-                    switch (obj.type) {
-                        case 'font':
-                            updater.invalidateFont(obj.full);
-                            break;
-                        case 'text':
-                            updater.invalidateTextMetrics();
-                            break;
-                    }
-                };
-
-                TextBoxView.prototype.setFontProperty = function (propd, value) {
-                    this._AutoRun.SetValue(propd, value);
-                };
-
-                TextBoxView.prototype.setFontAttr = function (attrName, value) {
-                    var runUpdater = this._AutoRun;
-                    var tu = runUpdater.TextUpdater;
-                    tu.assets[attrName] = value;
-                };
-
-                TextBoxView.prototype.setCaretBrush = function (value) {
-                    var updater = this.XamlNode.LayoutUpdater;
-                    updater.assets.caretBrush = value;
-                    updater.invalidateCaret();
-                };
-
-                TextBoxView.prototype.setIsFocused = function (isFocused) {
-                    var updater = this.XamlNode.LayoutUpdater;
-                    if (updater.assets.isFocused === isFocused)
-                        return;
-                    updater.assets.isFocused = isFocused;
-                    updater.resetCaretBlinker(false);
-                };
-
-                TextBoxView.prototype.setIsReadOnly = function (isReadOnly) {
-                    var updater = this.XamlNode.LayoutUpdater;
-                    if (updater.assets.isReadOnly === isReadOnly)
-                        return;
-                    updater.assets.isReadOnly = isReadOnly;
-                    updater.resetCaretBlinker(false);
-                };
-
-                TextBoxView.prototype.setTextAlignment = function (textAlignment) {
-                    var lu = this.XamlNode.LayoutUpdater;
-                    if (lu.assets.textAlignment === textAlignment)
-                        return;
-                    lu.assets.textAlignment = textAlignment;
-                    lu.invalidateMeasure();
-                    lu.updateBounds(true);
-                    lu.invalidate();
-                };
-
-                TextBoxView.prototype.setTextWrapping = function (textWrapping) {
-                    var lu = this.XamlNode.LayoutUpdater;
-                    if (lu.assets.textWrapping === textWrapping)
-                        return;
-                    lu.assets.textWrapping = textWrapping;
-                    lu.invalidateMeasure();
-                    lu.updateBounds(true);
-                    lu.invalidate();
-                };
-
-                TextBoxView.prototype.setSelectionStart = function (selectionStart) {
-                    var lu = this.XamlNode.LayoutUpdater;
-                    if (lu.assets.selectionStart === selectionStart)
-                        return;
-                    lu.assets.selectionStart = selectionStart;
-                };
-
-                TextBoxView.prototype.setSelectionLength = function (selectionLength) {
-                    var lu = this.XamlNode.LayoutUpdater;
-                    if (lu.assets.selectionLength === selectionLength)
-                        return;
-                    var switching = (lu.assets.selectionLength === 0) !== (selectionLength === 0);
-                    lu.assets.selectionLength = selectionLength;
-                    lu.resetCaretBlinker(switching);
-                    if (!switching)
-                        return;
-                    lu.invalidateCaretRegion();
-
-                    lu.invalidateMeasure();
-                    lu.updateBounds(true);
-                    lu.invalidate();
-                };
-
-                TextBoxView.prototype.setText = function (text) {
-                    this._AutoRun.Text = text || "";
-                };
-
-                TextBoxView.prototype.GetCursorFromPoint = function (point) {
-                    return this.XamlNode.LayoutUpdater.getCursorFromPoint(point);
-                };
-                return TextBoxView;
-            })(Fayde.FrameworkElement);
-            Internal.TextBoxView = TextBoxView;
-            Fayde.RegisterType(TextBoxView, "Fayde.Controls");
-        })(Controls.Internal || (Controls.Internal = {}));
-        var Internal = Controls.Internal;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

@@ -1893,6 +1893,29 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls.Internal {
+    class TextBoxViewNode extends FENode {
+        public LayoutUpdater: minerva.controls.textboxview.TextBoxViewUpdater;
+    }
+    class TextBoxView extends FrameworkElement {
+        public XamlNode: TextBoxViewNode;
+        public CreateLayoutUpdater(): minerva.controls.textboxview.TextBoxViewUpdater;
+        private _AutoRun;
+        constructor();
+        private _InlineChanged(obj?);
+        public setFontProperty(propd: DependencyProperty, value: any): void;
+        public setFontAttr(attrName: string, value: any): void;
+        public setCaretBrush(value: Media.Brush): void;
+        public setIsFocused(isFocused: boolean): void;
+        public setIsReadOnly(isReadOnly: boolean): void;
+        public setTextAlignment(textAlignment: TextAlignment): void;
+        public setTextWrapping(textWrapping: TextWrapping): void;
+        public setSelectionStart(selectionStart: number): void;
+        public setSelectionLength(selectionLength: number): void;
+        public setText(text: string): void;
+        public GetCursorFromPoint(point: Point): number;
+    }
+}
+declare module Fayde.Controls.Internal {
     enum TextBoxEmitChangedType {
         NOTHING = 0,
         SELECTION,
@@ -2460,29 +2483,6 @@ declare module Fayde.Controls {
         public OnGotFocus(e: RoutedEventArgs): void;
         public OnLostFocus(e: RoutedEventArgs): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
-    }
-}
-declare module Fayde.Controls.Internal {
-    class TextBoxViewNode extends FENode {
-        public LayoutUpdater: minerva.controls.textboxview.TextBoxViewUpdater;
-    }
-    class TextBoxView extends FrameworkElement {
-        public XamlNode: TextBoxViewNode;
-        public CreateLayoutUpdater(): minerva.controls.textboxview.TextBoxViewUpdater;
-        private _AutoRun;
-        constructor();
-        private _InlineChanged(obj?);
-        public setFontProperty(propd: DependencyProperty, value: any): void;
-        public setFontAttr(attrName: string, value: any): void;
-        public setCaretBrush(value: Media.Brush): void;
-        public setIsFocused(isFocused: boolean): void;
-        public setIsReadOnly(isReadOnly: boolean): void;
-        public setTextAlignment(textAlignment: TextAlignment): void;
-        public setTextWrapping(textWrapping: TextWrapping): void;
-        public setSelectionStart(selectionStart: number): void;
-        public setSelectionLength(selectionLength: number): void;
-        public setText(text: string): void;
-        public GetCursorFromPoint(point: Point): number;
     }
 }
 declare module Fayde.Controls {
