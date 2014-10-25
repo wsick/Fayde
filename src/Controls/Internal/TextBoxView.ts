@@ -91,7 +91,7 @@ module Fayde.Controls.Internal {
             if (lu.assets.selectionStart === selectionStart)
                 return;
             lu.assets.selectionStart = selectionStart;
-            lu.invalidateCaretRegion();
+            lu.invalidateSelectionStart();
         }
 
         setSelectionLength (selectionLength: number) {
@@ -100,14 +100,7 @@ module Fayde.Controls.Internal {
                 return;
             var switching = (lu.assets.selectionLength === 0) !== (selectionLength === 0);
             lu.assets.selectionLength = selectionLength;
-            lu.resetCaretBlinker(switching);
-            if (!switching)
-                return;
-            lu.invalidateCaretRegion();
-            //TODO: Perhaps we can be more clever (instead of measure, can we just invalidate render?)
-            lu.invalidateMeasure();
-            lu.updateBounds(true);
-            lu.invalidate();
+            lu.invalidateSelectionLength(switching);
         }
 
         setText (text: string) {

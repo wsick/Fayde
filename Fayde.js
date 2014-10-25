@@ -9107,7 +9107,7 @@ var Fayde;
                     if (lu.assets.selectionStart === selectionStart)
                         return;
                     lu.assets.selectionStart = selectionStart;
-                    lu.invalidateCaretRegion();
+                    lu.invalidateSelectionStart();
                 };
 
                 TextBoxView.prototype.setSelectionLength = function (selectionLength) {
@@ -9116,14 +9116,7 @@ var Fayde;
                         return;
                     var switching = (lu.assets.selectionLength === 0) !== (selectionLength === 0);
                     lu.assets.selectionLength = selectionLength;
-                    lu.resetCaretBlinker(switching);
-                    if (!switching)
-                        return;
-                    lu.invalidateCaretRegion();
-
-                    lu.invalidateMeasure();
-                    lu.updateBounds(true);
-                    lu.invalidate();
+                    lu.invalidateSelectionLength(switching);
                 };
 
                 TextBoxView.prototype.setText = function (text) {
