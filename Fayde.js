@@ -7143,10 +7143,10 @@ var Fayde;
             ScrollViewer.prototype.InvalidateScrollInfo = function () {
                 var scrollInfo = this.ScrollInfo;
                 if (scrollInfo) {
-                    this.SetValueInternal(ScrollViewer.ExtentWidthProperty, scrollInfo.ExtentWidth);
-                    this.SetValueInternal(ScrollViewer.ExtentHeightProperty, scrollInfo.ExtentHeight);
-                    this.SetValueInternal(ScrollViewer.ViewportWidthProperty, scrollInfo.ViewportWidth);
-                    this.SetValueInternal(ScrollViewer.ViewportHeightProperty, scrollInfo.ViewportHeight);
+                    this.SetCurrentValue(ScrollViewer.ExtentWidthProperty, scrollInfo.ExtentWidth);
+                    this.SetCurrentValue(ScrollViewer.ExtentHeightProperty, scrollInfo.ExtentHeight);
+                    this.SetCurrentValue(ScrollViewer.ViewportWidthProperty, scrollInfo.ViewportWidth);
+                    this.SetCurrentValue(ScrollViewer.ViewportHeightProperty, scrollInfo.ViewportHeight);
                     this._UpdateScrollBar(0 /* Horizontal */, scrollInfo.HorizontalOffset);
                     this._UpdateScrollBar(1 /* Vertical */, scrollInfo.VerticalOffset);
                     this._UpdateScrollBarVisibility();
@@ -7156,13 +7156,13 @@ var Fayde;
 
                 var w = Math.max(0, this.ExtentWidth - this.ViewportWidth);
                 if (w !== this.ScrollableWidth) {
-                    this.SetValueInternal(ScrollViewer.ScrollableWidthProperty, w);
+                    this.SetCurrentValue(ScrollViewer.ScrollableWidthProperty, w);
                     lu.invalidateMeasure();
                 }
 
                 var h = Math.max(0, this.ExtentHeight - this.ViewportHeight);
                 if (h !== this.ScrollableHeight) {
-                    this.SetValueInternal(ScrollViewer.ScrollableHeightProperty, h);
+                    this.SetCurrentValue(ScrollViewer.ScrollableHeightProperty, h);
                     lu.invalidateMeasure();
                 }
             };
@@ -7186,7 +7186,7 @@ var Fayde;
                 }
 
                 if (horizontalVisibility !== this.ComputedHorizontalScrollBarVisibility) {
-                    this.SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, horizontalVisibility);
+                    this.SetCurrentValue(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, horizontalVisibility);
                     lu.invalidateMeasure();
                 }
 
@@ -7206,7 +7206,7 @@ var Fayde;
                 }
 
                 if (verticalVisibility !== this.ComputedVerticalScrollBarVisibility) {
-                    this.SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, verticalVisibility);
+                    this.SetCurrentValue(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, verticalVisibility);
                     lu.invalidateMeasure();
                 }
             };
@@ -7214,12 +7214,12 @@ var Fayde;
                 try  {
                     var scrollInfo = this.ScrollInfo;
                     if (orientation === 0 /* Horizontal */) {
-                        this.SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
+                        this.SetCurrentValue(ScrollViewer.HorizontalOffsetProperty, value);
                         if (this.$HorizontalScrollBar) {
                             this.$HorizontalScrollBar.Value = value;
                         }
                     } else {
-                        this.SetValueInternal(ScrollViewer.VerticalOffsetProperty, value);
+                        this.SetCurrentValue(ScrollViewer.VerticalOffsetProperty, value);
                         if (this.$VerticalScrollBar) {
                             this.$VerticalScrollBar.Value = value;
                         }
@@ -10854,7 +10854,6 @@ var Fayde;
                 function ScrollData() {
                     this.canHorizontallyScroll = false;
                     this.canVerticallyScroll = false;
-                    this.scrollOwner = null;
                     this.offsetX = 0;
                     this.offsetY = 0;
                     this.cachedOffsetX = 0;
@@ -10865,7 +10864,12 @@ var Fayde;
                     this.extentHeight = 0;
                     this.maxDesiredWidth = 0;
                     this.maxDesiredHeight = 0;
+                    this.scrollOwner = null;
                 }
+                ScrollData.prototype.invalidate = function () {
+                    if (this.scrollOwner)
+                        this.scrollOwner.InvalidateScrollInfo();
+                };
                 return ScrollData;
             })();
             Primitives.ScrollData = ScrollData;

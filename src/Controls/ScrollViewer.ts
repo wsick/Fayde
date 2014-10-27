@@ -26,28 +26,28 @@ module Fayde.Controls {
             }
         }
 
-        static HorizontalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", () => new Enum(ScrollBarVisibility), ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
+        static HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", () => new Enum(ScrollBarVisibility), ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
         static GetHorizontalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility { return d.GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty); }
         static SetHorizontalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility) { d.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value); }
         get HorizontalScrollBarVisibility(): ScrollBarVisibility { return this.GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty); }
         set HorizontalScrollBarVisibility(value: ScrollBarVisibility) { this.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value); }
 
-        static VerticalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", () => new Enum(ScrollBarVisibility), ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
+        static VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", () => new Enum(ScrollBarVisibility), ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
         static GetVerticalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility { return d.GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty); }
         static SetVerticalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility) { d.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value); }
         get VerticalScrollBarVisibility(): ScrollBarVisibility { return this.GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty); }
         set VerticalScrollBarVisibility(value: ScrollBarVisibility) { this.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value); }
 
-        static ComputedHorizontalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", () => new Enum(Visibility), ScrollViewer);
-        static ComputedVerticalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ComputedVerticalScrollBarVisibility", () => new Enum(Visibility), ScrollViewer);
-        static HorizontalOffsetProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("HorizontalOffset", () => Number, ScrollViewer);
-        static VerticalOffsetProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("VerticalOffset", () => Number, ScrollViewer);
-        static ScrollableWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ScrollableWidth", () => Number, ScrollViewer);
-        static ScrollableHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ScrollableHeight", () => Number, ScrollViewer);
-        static ViewportWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ViewportWidth", () => Number, ScrollViewer);
-        static ViewportHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ViewportHeight", () => Number, ScrollViewer);
-        static ExtentWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ExtentWidth", () => Number, ScrollViewer);
-        static ExtentHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ExtentHeight", () => Number, ScrollViewer);
+        static ComputedHorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", () => new Enum(Visibility), ScrollViewer);
+        static ComputedVerticalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedVerticalScrollBarVisibility", () => new Enum(Visibility), ScrollViewer);
+        static HorizontalOffsetProperty = DependencyProperty.RegisterReadOnlyCore("HorizontalOffset", () => Number, ScrollViewer);
+        static VerticalOffsetProperty = DependencyProperty.RegisterReadOnlyCore("VerticalOffset", () => Number, ScrollViewer);
+        static ScrollableWidthProperty = DependencyProperty.RegisterReadOnlyCore("ScrollableWidth", () => Number, ScrollViewer);
+        static ScrollableHeightProperty = DependencyProperty.RegisterReadOnlyCore("ScrollableHeight", () => Number, ScrollViewer);
+        static ViewportWidthProperty = DependencyProperty.RegisterReadOnlyCore("ViewportWidth", () => Number, ScrollViewer);
+        static ViewportHeightProperty = DependencyProperty.RegisterReadOnlyCore("ViewportHeight", () => Number, ScrollViewer);
+        static ExtentWidthProperty = DependencyProperty.RegisterReadOnlyCore("ExtentWidth", () => Number, ScrollViewer);
+        static ExtentHeightProperty = DependencyProperty.RegisterReadOnlyCore("ExtentHeight", () => Number, ScrollViewer);
 
         ComputedHorizontalScrollBarVisibility: Visibility;
         ComputedVerticalScrollBarVisibility: Visibility;
@@ -85,10 +85,10 @@ module Fayde.Controls {
         InvalidateScrollInfo() {
             var scrollInfo = this.ScrollInfo;
             if (scrollInfo) {
-                this.SetValueInternal(ScrollViewer.ExtentWidthProperty, scrollInfo.ExtentWidth);
-                this.SetValueInternal(ScrollViewer.ExtentHeightProperty, scrollInfo.ExtentHeight);
-                this.SetValueInternal(ScrollViewer.ViewportWidthProperty, scrollInfo.ViewportWidth);
-                this.SetValueInternal(ScrollViewer.ViewportHeightProperty, scrollInfo.ViewportHeight);
+                this.SetCurrentValue(ScrollViewer.ExtentWidthProperty, scrollInfo.ExtentWidth);
+                this.SetCurrentValue(ScrollViewer.ExtentHeightProperty, scrollInfo.ExtentHeight);
+                this.SetCurrentValue(ScrollViewer.ViewportWidthProperty, scrollInfo.ViewportWidth);
+                this.SetCurrentValue(ScrollViewer.ViewportHeightProperty, scrollInfo.ViewportHeight);
                 this._UpdateScrollBar(Orientation.Horizontal, scrollInfo.HorizontalOffset);
                 this._UpdateScrollBar(Orientation.Vertical, scrollInfo.VerticalOffset);
                 this._UpdateScrollBarVisibility();
@@ -98,13 +98,13 @@ module Fayde.Controls {
 
             var w = Math.max(0, this.ExtentWidth - this.ViewportWidth);
             if (w !== this.ScrollableWidth) {
-                this.SetValueInternal(ScrollViewer.ScrollableWidthProperty, w);
+                this.SetCurrentValue(ScrollViewer.ScrollableWidthProperty, w);
                 lu.invalidateMeasure();
             }
 
             var h = Math.max(0, this.ExtentHeight - this.ViewportHeight);
             if (h !== this.ScrollableHeight) {
-                this.SetValueInternal(ScrollViewer.ScrollableHeightProperty, h);
+                this.SetCurrentValue(ScrollViewer.ScrollableHeightProperty, h);
                 lu.invalidateMeasure();
             }
         }
@@ -128,7 +128,7 @@ module Fayde.Controls {
             }
 
             if (horizontalVisibility !== this.ComputedHorizontalScrollBarVisibility) {
-                this.SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, horizontalVisibility);
+                this.SetCurrentValue(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, horizontalVisibility);
                 lu.invalidateMeasure();
             }
 
@@ -148,7 +148,7 @@ module Fayde.Controls {
             }
 
             if (verticalVisibility !== this.ComputedVerticalScrollBarVisibility) {
-                this.SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, verticalVisibility);
+                this.SetCurrentValue(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, verticalVisibility);
                 lu.invalidateMeasure();
             }
         }
@@ -156,12 +156,12 @@ module Fayde.Controls {
             try {
                 var scrollInfo = this.ScrollInfo;
                 if (orientation === Orientation.Horizontal) {
-                    this.SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
+                    this.SetCurrentValue(ScrollViewer.HorizontalOffsetProperty, value);
                     if (this.$HorizontalScrollBar) {
                         this.$HorizontalScrollBar.Value = value;
                     }
                 } else {
-                    this.SetValueInternal(ScrollViewer.VerticalOffsetProperty, value);
+                    this.SetCurrentValue(ScrollViewer.VerticalOffsetProperty, value);
                     if (this.$VerticalScrollBar) {
                         this.$VerticalScrollBar.Value = value;
                     }

@@ -2238,7 +2238,6 @@ declare module Fayde.Controls.Primitives {
     class ScrollData implements minerva.controls.scrollcontentpresenter.IScrollData {
         public canHorizontallyScroll: boolean;
         public canVerticallyScroll: boolean;
-        public scrollOwner: ScrollViewer;
         public offsetX: number;
         public offsetY: number;
         public cachedOffsetX: number;
@@ -2249,6 +2248,8 @@ declare module Fayde.Controls.Primitives {
         public extentHeight: number;
         public maxDesiredWidth: number;
         public maxDesiredHeight: number;
+        public scrollOwner: ScrollViewer;
+        public invalidate(): void;
     }
 }
 declare module Fayde.Controls.Primitives {
