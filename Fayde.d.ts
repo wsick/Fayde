@@ -3204,6 +3204,7 @@ declare module Fayde.Documents {
     class Inline extends TextElement {
         static TextDecorationsProperty: DependencyProperty;
         public TextDecorations: TextDecorations;
+        constructor();
         public Equals(inline: Inline): boolean;
         public IsInheritable(propd: DependencyProperty): boolean;
     }

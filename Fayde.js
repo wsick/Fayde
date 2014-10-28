@@ -16602,7 +16602,13 @@ var Fayde;
         var Inline = (function (_super) {
             __extends(Inline, _super);
             function Inline() {
-                _super.apply(this, arguments);
+                _super.call(this);
+                Documents.TextReaction(Inline.TextDecorationsProperty, function (upd, ov, nv, te) {
+                    Fayde.Incite(te, {
+                        type: 'font',
+                        full: upd.invalidateFont()
+                    });
+                }, false, true, this);
             }
             Inline.prototype.Equals = function (inline) {
                 if (this.TextDecorations !== inline.TextDecorations)
@@ -16620,16 +16626,6 @@ var Fayde;
         })(Documents.TextElement);
         Documents.Inline = Inline;
         Fayde.RegisterType(Inline, "Fayde.Documents", Fayde.XMLNS);
-
-        var reactions;
-        (function (reactions) {
-            Documents.TextReaction(Inline.TextDecorationsProperty, function (upd, ov, nv, te) {
-                Fayde.Incite(te, {
-                    type: 'font',
-                    full: upd.invalidateFont()
-                });
-            }, false);
-        })(reactions || (reactions = {}));
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));

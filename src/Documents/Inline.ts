@@ -5,6 +5,16 @@ module Fayde.Documents {
         static TextDecorationsProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(Inline);
         TextDecorations: TextDecorations;
 
+        constructor () {
+            super();
+            TextReaction<TextDecorations>(Inline.TextDecorationsProperty, (upd, ov, nv, te?: TextElement) => {
+                Incite(te, {
+                    type: 'font',
+                    full: upd.invalidateFont()
+                });
+            }, false, true, this);
+        }
+
         Equals (inline: Inline): boolean {
             if (this.TextDecorations !== inline.TextDecorations)
                 return false;
@@ -18,13 +28,4 @@ module Fayde.Documents {
         }
     }
     Fayde.RegisterType(Inline, "Fayde.Documents", Fayde.XMLNS);
-
-    module reactions {
-        TextReaction<TextDecorations>(Inline.TextDecorationsProperty, (upd, ov, nv, te?: TextElement) => {
-            Incite(te, {
-                type: 'font',
-                full: upd.invalidateFont()
-            });
-        }, false);
-    }
 }
