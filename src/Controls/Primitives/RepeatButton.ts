@@ -145,12 +145,9 @@ module Fayde.Controls.Primitives {
                 return;
             }
 
-            var er = this._ElementRoot;
             var els = VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition, this);
-            for (var i = 0; i < els.length; i++) {
-                if (els[i] === er)
-                    this.OnClick();
-            }
+            if (els.indexOf(this._ElementRoot) > -1)
+                this.OnClick();
         }
     }
     Fayde.RegisterType(RepeatButton, "Fayde.Controls.Primitives", Fayde.XMLNS);

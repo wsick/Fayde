@@ -6640,10 +6640,8 @@ var Fayde;
 
                     var er = this._ElementRoot;
                     var els = Fayde.VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition, this);
-                    for (var i = 0; i < els.length; i++) {
-                        if (els[i] === er)
-                            this.OnClick();
-                    }
+                    if (els.indexOf(this._ElementRoot) > -1)
+                        this.OnClick();
                 };
                 RepeatButton.DelayProperty = DependencyProperty.Register("Delay", function () {
                     return Number;
