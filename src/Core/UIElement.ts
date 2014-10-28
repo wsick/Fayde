@@ -45,7 +45,7 @@ module Fayde {
             if (this.VisualParentNode === visualParentNode)
                 return;
             this.VisualParentNode = visualParentNode;
-            this.LayoutUpdater.setVisualParent(visualParentNode.LayoutUpdater);
+            this.LayoutUpdater.setVisualParent(visualParentNode ? visualParentNode.LayoutUpdater : null);
         }
 
         Focus(recurse?: boolean): boolean { return false; }

@@ -2305,7 +2305,7 @@ var Fayde;
             if (this.VisualParentNode === visualParentNode)
                 return;
             this.VisualParentNode = visualParentNode;
-            this.LayoutUpdater.setVisualParent(visualParentNode.LayoutUpdater);
+            this.LayoutUpdater.setVisualParent(visualParentNode ? visualParentNode.LayoutUpdater : null);
         };
 
         UINode.prototype.Focus = function (recurse) {
