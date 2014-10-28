@@ -23244,7 +23244,7 @@ var Fayde;
 
         var reactions;
         (function (reactions) {
-            Fayde.DPReaction(Brush.TransformProperty, function (upd, ov, nv, brush) {
+            Fayde.DPReaction(Brush.TransformProperty, function (brush, ov, nv) {
                 return brush.InvalidateBrush();
             });
         })(reactions || (reactions = {}));

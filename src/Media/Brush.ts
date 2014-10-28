@@ -64,6 +64,6 @@ module Fayde.Media {
     Fayde.RegisterType(Brush, "Fayde.Media", Fayde.XMLNS);
 
     module reactions {
-        DPReaction<Media.Transform>(Brush.TransformProperty, (upd, ov, nv, brush?: Brush) => brush.InvalidateBrush());
+        DPReaction<Media.Transform>(Brush.TransformProperty, (brush: Brush, ov, nv) => brush.InvalidateBrush());
     }
 }
