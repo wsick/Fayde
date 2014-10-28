@@ -2781,8 +2781,16 @@ var Fayde;
         function FENode(xobj) {
             var _this = this;
             _super.call(this, xobj);
-            this.LayoutUpdater.tree.setTemplateApplier(function () {
+            var lu = this.LayoutUpdater;
+            lu.tree.setTemplateApplier(function () {
                 return _this.ApplyTemplate();
+            });
+            lu.setSizeUpdater(function (size) {
+                xobj.SetCurrentValue(FrameworkElement.ActualWidthProperty, size.width);
+                xobj.SetCurrentValue(FrameworkElement.ActualHeightProperty, size.height);
+            });
+            lu.setSizeNotifier(function (oldSize, newSize) {
+                xobj.SizeChanged.Raise(xobj, new Fayde.SizeChangedEventArgs(oldSize, newSize));
             });
         }
         FENode.prototype.SetSubtreeNode = function (subtreeNode, error) {

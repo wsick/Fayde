@@ -11,7 +11,15 @@ module Fayde {
         XObject: FrameworkElement;
         constructor(xobj: FrameworkElement) {
             super(xobj);
-            this.LayoutUpdater.tree.setTemplateApplier(() => this.ApplyTemplate());
+            var lu = this.LayoutUpdater;
+            lu.tree.setTemplateApplier(() => this.ApplyTemplate());
+            lu.setSizeUpdater((size) => {
+                xobj.SetCurrentValue(FrameworkElement.ActualWidthProperty, size.width);
+                xobj.SetCurrentValue(FrameworkElement.ActualHeightProperty, size.height);
+            });
+            lu.setSizeNotifier((oldSize, newSize) => {
+                xobj.SizeChanged.Raise(xobj, new SizeChangedEventArgs(oldSize, newSize));
+            });
         }
         SubtreeNode: XamlNode;
         SetSubtreeNode(subtreeNode: XamlNode, error: BError): boolean {
