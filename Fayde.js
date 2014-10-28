@@ -6638,7 +6638,6 @@ var Fayde;
                         return;
                     }
 
-                    var er = this._ElementRoot;
                     var els = Fayde.VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition, this);
                     if (els.indexOf(this._ElementRoot) > -1)
                         this.OnClick();
@@ -12751,137 +12750,168 @@ var Fayde;
         var LineDelta = 14.7;
         var Wheelitude = 3;
 
+        var VirtualizingStackPanelUpdater = minerva.controls.virtualizingstackpanel.VirtualizingStackPanelUpdater;
+
         var VirtualizingStackPanel = (function (_super) {
             __extends(VirtualizingStackPanel, _super);
             function VirtualizingStackPanel() {
                 _super.apply(this, arguments);
-                this._CanHorizontallyScroll = false;
-                this._CanVerticallyScroll = false;
-                this._HorizontalOffset = 0;
-                this._VerticalOffset = 0;
-                this._ExtentWidth = 0;
-                this._ExtentHeight = 0;
-                this._ViewportWidth = 0;
-                this._ViewportHeight = 0;
             }
-            Object.defineProperty(VirtualizingStackPanel.prototype, "CanHorizontallyScroll", {
+            VirtualizingStackPanel.prototype.CreateLayoutUpdater = function () {
+                var updater = new VirtualizingStackPanelUpdater();
+                updater.assets.scrollData = this._ScrollData = new Controls.Primitives.ScrollData();
+                return updater;
+            };
+
+            Object.defineProperty(VirtualizingStackPanel.prototype, "ScrollOwner", {
                 get: function () {
-                    return this._CanHorizontallyScroll;
+                    return this._ScrollData.scrollOwner;
                 },
                 set: function (value) {
-                    this._CanHorizontallyScroll = value;
-                    this.XamlNode.LayoutUpdater.invalidateMeasure();
+                    this._ScrollData.scrollOwner = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(VirtualizingStackPanel.prototype, "CanHorizontallyScroll", {
+                get: function () {
+                    return this._ScrollData.canHorizontallyScroll;
+                    ;
+                },
+                set: function (value) {
+                    var sd = this._ScrollData;
+                    if (sd.canHorizontallyScroll !== value) {
+                        sd.canHorizontallyScroll = value;
+                        this.XamlNode.LayoutUpdater.invalidateMeasure();
+                    }
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(VirtualizingStackPanel.prototype, "CanVerticallyScroll", {
                 get: function () {
-                    return this._CanVerticallyScroll;
+                    return this._ScrollData.canVerticallyScroll;
                 },
                 set: function (value) {
-                    this._CanVerticallyScroll = value;
-                    this.XamlNode.LayoutUpdater.invalidateMeasure();
+                    var sd = this._ScrollData;
+                    if (sd.canVerticallyScroll !== value) {
+                        sd.canVerticallyScroll = value;
+                        this.XamlNode.LayoutUpdater.invalidateMeasure();
+                    }
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(VirtualizingStackPanel.prototype, "ExtentWidth", {
                 get: function () {
-                    return this._ExtentWidth;
+                    return this._ScrollData.extentWidth;
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(VirtualizingStackPanel.prototype, "ExtentHeight", {
                 get: function () {
-                    return this._ExtentHeight;
+                    return this._ScrollData.extentHeight;
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(VirtualizingStackPanel.prototype, "ViewportWidth", {
                 get: function () {
-                    return this._ViewportWidth;
+                    return this._ScrollData.viewportWidth;
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(VirtualizingStackPanel.prototype, "ViewportHeight", {
                 get: function () {
-                    return this._ViewportHeight;
+                    return this._ScrollData.viewportHeight;
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(VirtualizingStackPanel.prototype, "HorizontalOffset", {
                 get: function () {
-                    return this._HorizontalOffset;
+                    return this._ScrollData.offsetX;
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(VirtualizingStackPanel.prototype, "VerticalOffset", {
                 get: function () {
-                    return this._VerticalOffset;
+                    return this._ScrollData.offsetY;
                 },
                 enumerable: true,
                 configurable: true
             });
             VirtualizingStackPanel.prototype.LineUp = function () {
+                var sd = this._ScrollData;
                 if (this.Orientation === 0 /* Horizontal */)
-                    return this.SetVerticalOffset(this._VerticalOffset - LineDelta);
-                return this.SetVerticalOffset(this._VerticalOffset - 1);
+                    return this.SetVerticalOffset(sd.offsetY - LineDelta);
+                return this.SetVerticalOffset(sd.offsetY - 1);
             };
             VirtualizingStackPanel.prototype.LineDown = function () {
+                var sd = this._ScrollData;
                 if (this.Orientation === 0 /* Horizontal */)
-                    return this.SetVerticalOffset(this._VerticalOffset + LineDelta);
-                return this.SetVerticalOffset(this._VerticalOffset + 1);
+                    return this.SetVerticalOffset(sd.offsetY + LineDelta);
+                return this.SetVerticalOffset(sd.offsetY + 1);
             };
             VirtualizingStackPanel.prototype.LineLeft = function () {
+                var sd = this._ScrollData;
                 if (this.Orientation === 1 /* Vertical */)
-                    return this.SetHorizontalOffset(this._HorizontalOffset - LineDelta);
-                return this.SetHorizontalOffset(this._HorizontalOffset - 1);
+                    return this.SetHorizontalOffset(sd.offsetX - LineDelta);
+                return this.SetHorizontalOffset(sd.offsetX - 1);
             };
             VirtualizingStackPanel.prototype.LineRight = function () {
+                var sd = this._ScrollData;
                 if (this.Orientation === 1 /* Vertical */)
-                    return this.SetHorizontalOffset(this._HorizontalOffset + LineDelta);
-                return this.SetHorizontalOffset(this._HorizontalOffset + 1);
+                    return this.SetHorizontalOffset(sd.offsetX + LineDelta);
+                return this.SetHorizontalOffset(sd.offsetX + 1);
             };
             VirtualizingStackPanel.prototype.MouseWheelUp = function () {
+                var sd = this._ScrollData;
                 if (this.Orientation === 0 /* Horizontal */)
-                    return this.SetVerticalOffset(this._VerticalOffset - LineDelta * Wheelitude);
-                return this.SetVerticalOffset(this._VerticalOffset - Wheelitude);
+                    return this.SetVerticalOffset(sd.offsetY - LineDelta * Wheelitude);
+                return this.SetVerticalOffset(sd.offsetY - Wheelitude);
             };
             VirtualizingStackPanel.prototype.MouseWheelDown = function () {
+                var sd = this._ScrollData;
                 if (this.Orientation === 0 /* Horizontal */)
-                    return this.SetVerticalOffset(this._VerticalOffset + LineDelta * Wheelitude);
-                return this.SetVerticalOffset(this._VerticalOffset + Wheelitude);
+                    return this.SetVerticalOffset(sd.offsetY + LineDelta * Wheelitude);
+                return this.SetVerticalOffset(sd.offsetY + Wheelitude);
             };
             VirtualizingStackPanel.prototype.MouseWheelLeft = function () {
+                var sd = this._ScrollData;
                 if (this.Orientation === 1 /* Vertical */)
-                    return this.SetHorizontalOffset(this._HorizontalOffset - LineDelta * Wheelitude);
-                return this.SetHorizontalOffset(this._HorizontalOffset - Wheelitude);
+                    return this.SetHorizontalOffset(sd.offsetX - LineDelta * Wheelitude);
+                return this.SetHorizontalOffset(sd.offsetX - Wheelitude);
             };
             VirtualizingStackPanel.prototype.MouseWheelRight = function () {
+                var sd = this._ScrollData;
                 if (this.Orientation === 1 /* Vertical */)
-                    return this.SetHorizontalOffset(this._HorizontalOffset + LineDelta * Wheelitude);
-                return this.SetHorizontalOffset(this._HorizontalOffset + Wheelitude);
+                    return this.SetHorizontalOffset(sd.offsetX + LineDelta * Wheelitude);
+                return this.SetHorizontalOffset(sd.offsetX + Wheelitude);
             };
             VirtualizingStackPanel.prototype.PageUp = function () {
-                return this.SetVerticalOffset(this._VerticalOffset - this._ViewportHeight);
+                var sd = this._ScrollData;
+                return this.SetVerticalOffset(sd.offsetY - sd.viewportHeight);
             };
             VirtualizingStackPanel.prototype.PageDown = function () {
-                return this.SetVerticalOffset(this._VerticalOffset + this._ViewportHeight);
+                var sd = this._ScrollData;
+                return this.SetVerticalOffset(sd.offsetY + sd.viewportHeight);
             };
             VirtualizingStackPanel.prototype.PageLeft = function () {
-                return this.SetHorizontalOffset(this._HorizontalOffset - this._ViewportWidth);
+                var sd = this._ScrollData;
+                return this.SetHorizontalOffset(sd.offsetX - sd.viewportWidth);
             };
             VirtualizingStackPanel.prototype.PageRight = function () {
-                return this.SetHorizontalOffset(this._HorizontalOffset + this._ViewportWidth);
+                var sd = this._ScrollData;
+                return this.SetHorizontalOffset(sd.offsetX + sd.viewportWidth);
             };
+
             VirtualizingStackPanel.prototype.MakeVisible = function (uie, rectangle) {
                 var exposed = new minerva.Rect();
+                var sd = this._ScrollData;
 
                 var uin = uie.XamlNode;
                 var isVertical = this.Orientation === 1 /* Vertical */;
@@ -12892,19 +12922,19 @@ var Fayde;
                     var childRenderSize = childNode.LayoutUpdater.assets.renderSize;
                     if (uin === childNode) {
                         if (isVertical) {
-                            if (rectangle.x !== this._HorizontalOffset)
+                            if (rectangle.x !== sd.offsetX)
                                 this.SetHorizontalOffset(rectangle.x);
 
-                            exposed.width = Math.min(childRenderSize.width, this._ViewportWidth);
+                            exposed.width = Math.min(childRenderSize.width, sd.viewportWidth);
                             exposed.height = childRenderSize.height;
-                            exposed.x = this._HorizontalOffset;
+                            exposed.x = sd.offsetX;
                         } else {
-                            if (rectangle.y !== this._VerticalOffset)
+                            if (rectangle.y !== sd.offsetY)
                                 this.SetVerticalOffset(rectangle.y);
 
-                            exposed.height = Math.min(childRenderSize.height, this._ViewportHeight);
+                            exposed.height = Math.min(childRenderSize.height, sd.viewportHeight);
                             exposed.width = childRenderSize.width;
-                            exposed.y = this._VerticalOffset;
+                            exposed.y = sd.offsetY;
                         }
                         return exposed;
                     }
@@ -12917,15 +12947,17 @@ var Fayde;
 
                 throw new ArgumentException("Visual is not a child of this Panel");
             };
-            VirtualizingStackPanel.prototype.SetHorizontalOffset = function (offset) {
-                if (offset < 0 || this._ViewportWidth >= this._ExtentWidth)
-                    offset = 0;
-                else if ((offset + this._ViewportWidth) >= this._ExtentWidth)
-                    offset = this._ExtentWidth - this._ViewportWidth;
 
-                if (this._HorizontalOffset === offset)
+            VirtualizingStackPanel.prototype.SetHorizontalOffset = function (offset) {
+                var sd = this._ScrollData;
+                if (offset < 0 || sd.viewportWidth >= sd.extentWidth)
+                    offset = 0;
+                else if ((offset + sd.viewportWidth) >= sd.extentWidth)
+                    offset = sd.extentWidth - sd.viewportWidth;
+
+                if (sd.offsetX === offset)
                     return false;
-                this._HorizontalOffset = offset;
+                sd.offsetX = offset;
 
                 if (this.Orientation === 0 /* Horizontal */)
                     this.XamlNode.LayoutUpdater.invalidateMeasure();
@@ -12938,14 +12970,15 @@ var Fayde;
                 return true;
             };
             VirtualizingStackPanel.prototype.SetVerticalOffset = function (offset) {
-                if (offset < 0 || this._ViewportHeight >= this._ExtentHeight)
+                var sd = this._ScrollData;
+                if (offset < 0 || sd.viewportHeight >= sd.extentHeight)
                     offset = 0;
-                else if ((offset + this._ViewportHeight) >= this._ExtentHeight)
-                    offset = this._ExtentHeight - this._ViewportHeight;
+                else if ((offset + sd.viewportHeight) >= sd.extentHeight)
+                    offset = sd.extentHeight - sd.viewportHeight;
 
-                if (this._VerticalOffset === offset)
+                if (sd.offsetY === offset)
                     return false;
-                this._VerticalOffset = offset;
+                sd.offsetY = offset;
 
                 if (this.Orientation === 1 /* Vertical */)
                     this.XamlNode.LayoutUpdater.invalidateMeasure();
@@ -12970,6 +13003,7 @@ var Fayde;
                 if (scrollOwner)
                     scrollOwner.InvalidateScrollInfo();
             };
+
             VirtualizingStackPanel.prototype.OnItemsRemoved = function (index, oldItems) {
                 _super.prototype.OnItemsRemoved.call(this, index, oldItems);
 
@@ -12998,14 +13032,19 @@ var Fayde;
             };
             VirtualizingStackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () {
                 return new Enum(Fayde.Orientation);
-            }, VirtualizingStackPanel, 1 /* Vertical */, function (d, args) {
-                return d.XamlNode.LayoutUpdater.invalidateMeasure();
-            });
+            }, VirtualizingStackPanel, 1 /* Vertical */);
             return VirtualizingStackPanel;
         })(Controls.VirtualizingPanel);
         Controls.VirtualizingStackPanel = VirtualizingStackPanel;
         Fayde.RegisterType(VirtualizingStackPanel, "Fayde.Controls", Fayde.XMLNS);
         Fayde.RegisterTypeInterfaces(VirtualizingStackPanel, Controls.Primitives.IScrollInfo_);
+
+        var reactions;
+        (function (reactions) {
+            Fayde.UIReaction(VirtualizingStackPanel.OrientationProperty, function (upd, ov, nv) {
+                return upd.invalidateMeasure();
+            }, false);
+        })(reactions || (reactions = {}));
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

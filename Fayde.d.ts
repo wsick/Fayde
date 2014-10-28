@@ -2234,7 +2234,7 @@ declare module Fayde.Controls.Primitives {
     }
 }
 declare module Fayde.Controls.Primitives {
-    class ScrollData implements minerva.controls.scrollcontentpresenter.IScrollData {
+    class ScrollData implements minerva.IScrollData {
         public canHorizontallyScroll: boolean;
         public canVerticallyScroll: boolean;
         public offsetX: number;
@@ -2558,15 +2558,9 @@ declare module Fayde.Controls {
 }
 declare module Fayde.Controls {
     class VirtualizingStackPanel extends VirtualizingPanel implements Primitives.IScrollInfo {
-        private _CanHorizontallyScroll;
-        private _CanVerticallyScroll;
-        private _HorizontalOffset;
-        private _VerticalOffset;
-        private _ExtentWidth;
-        private _ExtentHeight;
-        private _ViewportWidth;
-        private _ViewportHeight;
-        public ScrollOwner: ScrollViewer;
+        public CreateLayoutUpdater(): minerva.controls.virtualizingstackpanel.VirtualizingStackPanelUpdater;
+        private _ScrollData;
+        public ScrollOwner : ScrollViewer;
         public CanHorizontallyScroll : boolean;
         public CanVerticallyScroll : boolean;
         public ExtentWidth : number;

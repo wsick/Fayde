@@ -1,5 +1,5 @@
 module Fayde.Controls.Primitives {
-    export class ScrollData implements minerva.controls.scrollcontentpresenter.IScrollData {
+    export class ScrollData implements minerva.IScrollData {
         canHorizontallyScroll: boolean = false;
         canVerticallyScroll: boolean = false;
         offsetX: number = 0;
@@ -14,6 +14,7 @@ module Fayde.Controls.Primitives {
         maxDesiredHeight: number = 0;
 
         scrollOwner: ScrollViewer = null;
+
         invalidate () {
             if (this.scrollOwner)
                 this.scrollOwner.InvalidateScrollInfo();
