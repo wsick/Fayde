@@ -152,24 +152,26 @@ module Fayde.Controls {
                 lu.invalidateMeasure();
             }
         }
-        private _UpdateScrollBar(orientation: Orientation, value: number) {
+
+        private _UpdateScrollBar (orientation: Orientation, value: number) {
+            var propd: DependencyProperty;
+            var sb: Primitives.ScrollBar;
+            if (orientation === Orientation.Horizontal) {
+                propd = ScrollViewer.HorizontalOffsetProperty;
+                sb = this.$HorizontalScrollBar;
+            } else {
+                propd = ScrollViewer.VerticalOffsetProperty;
+                sb = this.$VerticalScrollBar;
+            }
+
             try {
-                var scrollInfo = this.ScrollInfo;
-                if (orientation === Orientation.Horizontal) {
-                    this.SetCurrentValue(ScrollViewer.HorizontalOffsetProperty, value);
-                    if (this.$HorizontalScrollBar) {
-                        this.$HorizontalScrollBar.Value = value;
-                    }
-                } else {
-                    this.SetCurrentValue(ScrollViewer.VerticalOffsetProperty, value);
-                    if (this.$VerticalScrollBar) {
-                        this.$VerticalScrollBar.Value = value;
-                    }
-                }
+                this.SetCurrentValue(propd, value);
+                if (sb)
+                    sb.SetCurrentValue(Primitives.RangeBase.ValueProperty, value);
             } finally {
             }
         }
-        
+
         OnApplyTemplate() {
             super.OnApplyTemplate();
             this.$ScrollContentPresenter = <ScrollContentPresenter>this.GetTemplateChild("ScrollContentPresenter", ScrollContentPresenter);

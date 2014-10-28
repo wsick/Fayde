@@ -7210,20 +7210,22 @@ var Fayde;
                     lu.invalidateMeasure();
                 }
             };
+
             ScrollViewer.prototype._UpdateScrollBar = function (orientation, value) {
+                var propd;
+                var sb;
+                if (orientation === 0 /* Horizontal */) {
+                    propd = ScrollViewer.HorizontalOffsetProperty;
+                    sb = this.$HorizontalScrollBar;
+                } else {
+                    propd = ScrollViewer.VerticalOffsetProperty;
+                    sb = this.$VerticalScrollBar;
+                }
+
                 try  {
-                    var scrollInfo = this.ScrollInfo;
-                    if (orientation === 0 /* Horizontal */) {
-                        this.SetCurrentValue(ScrollViewer.HorizontalOffsetProperty, value);
-                        if (this.$HorizontalScrollBar) {
-                            this.$HorizontalScrollBar.Value = value;
-                        }
-                    } else {
-                        this.SetCurrentValue(ScrollViewer.VerticalOffsetProperty, value);
-                        if (this.$VerticalScrollBar) {
-                            this.$VerticalScrollBar.Value = value;
-                        }
-                    }
+                    this.SetCurrentValue(propd, value);
+                    if (sb)
+                        sb.SetCurrentValue(Controls.Primitives.RangeBase.ValueProperty, value);
                 } finally {
                 }
             };
