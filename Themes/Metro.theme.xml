@@ -1056,6 +1056,7 @@
                                             </VisualState>
                                         </VisualStateGroup>
                                     </VisualStateManager.VisualStateGroups>
+                                    <Rectangle x:Name="Background" Fill="Transparent" />
                                     <Path Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z " Height="6" Stretch="Uniform" Width="4">
                                         <Path.Fill>
                                             <SolidColorBrush Color="{StaticResource Gray2}"/>
@@ -1104,6 +1105,7 @@
                                             </VisualState>
                                         </VisualStateGroup>
                                     </VisualStateManager.VisualStateGroups>
+                                    <Rectangle x:Name="Background" Fill="Transparent" />
                                     <Path Data="F1 M 110.692,342.252L 110.692,352.682L 104.594,347.467L 110.692,342.252 Z " Height="6" Stretch="Uniform" Width="4">
                                         <Path.Fill>
                                             <SolidColorBrush Color="{StaticResource Gray2}"/>
@@ -1151,6 +1153,7 @@
                                             </VisualState>
                                         </VisualStateGroup>
                                     </VisualStateManager.VisualStateGroups>
+                                    <Rectangle x:Name="Background" Fill="Transparent" />
                                     <Path Data="F1 M 531.107,321.943L 541.537,321.943L 536.322,328.042L 531.107,321.943 Z " Height="4" Stretch="Uniform" Width="6">
                                         <Path.Fill>
                                             <SolidColorBrush x:Name="ButtonColor" Color="{StaticResource Gray3}"/>
@@ -1199,11 +1202,7 @@
                                             </VisualState>
                                         </VisualStateGroup>
                                     </VisualStateManager.VisualStateGroups>
-                                    <Rectangle x:Name="Background" Fill="{StaticResource ControlBackgroundBrush}" Opacity="0" RadiusY="2" RadiusX="2" StrokeThickness="1"/>
-                                    <Rectangle x:Name="BackgroundMouseOver" Fill="{StaticResource HighlightBrush}" Opacity="0" RadiusY="2" RadiusX="2" />
-                                    <Rectangle x:Name="BackgroundPressed" Fill="{StaticResource HighlightBrush}" Opacity="0" RadiusY="2" RadiusX="2" />
-                                    <Rectangle x:Name="BackgroundGradient" Fill="{StaticResource TransparentWhiteBrush}" Margin="1" Opacity="0" RadiusY="1" RadiusX="1" Stroke="{StaticResource ControlBackgroundBrush}" StrokeThickness="1"/>
-                                    <Rectangle x:Name="Highlight" IsHitTestVisible="false" Margin="1" Opacity="0" RadiusY="1" RadiusX="1" Stroke="{StaticResource HighlightBrush}" StrokeThickness="1"/>
+                                    <Rectangle x:Name="Background" Fill="Transparent" />
                                     <Path Data="F1 M 541.537,173.589L 531.107,173.589L 536.322,167.49L 541.537,173.589 Z " Height="4" Stretch="Uniform" Width="6">
                                         <Path.Fill>
                                             <SolidColorBrush Color="{StaticResource Gray2}"/>
