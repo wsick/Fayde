@@ -2783,7 +2783,11 @@ var Fayde;
             _super.call(this, xobj);
             var lu = this.LayoutUpdater;
             lu.tree.setTemplateApplier(function () {
-                return _this.ApplyTemplate();
+                var error = new BError();
+                var result = _this.ApplyTemplateWithError(error);
+                if (error.Message)
+                    error.ThrowException();
+                return result;
             });
             lu.setSizeUpdater(function (size) {
                 xobj.SetCurrentValue(FrameworkElement.ActualWidthProperty, size.width);
@@ -2862,13 +2866,6 @@ var Fayde;
             return true;
         };
 
-        FENode.prototype.ApplyTemplate = function () {
-            var error = new BError();
-            var result = this.ApplyTemplateWithError(error);
-            if (error.Message)
-                error.ThrowException();
-            return result;
-        };
         FENode.prototype.ApplyTemplateWithError = function (error) {
             if (this.SubtreeNode)
                 return false;

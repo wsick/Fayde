@@ -12,7 +12,13 @@ module Fayde {
         constructor(xobj: FrameworkElement) {
             super(xobj);
             var lu = this.LayoutUpdater;
-            lu.tree.setTemplateApplier(() => this.ApplyTemplate());
+            lu.tree.setTemplateApplier(() => {
+                var error = new BError();
+                var result = this.ApplyTemplateWithError(error);
+                if (error.Message)
+                    error.ThrowException();
+                return result;
+            });
             lu.setSizeUpdater((size) => {
                 xobj.SetCurrentValue(FrameworkElement.ActualWidthProperty, size.width);
                 xobj.SetCurrentValue(FrameworkElement.ActualHeightProperty, size.height);
@@ -94,13 +100,6 @@ module Fayde {
             return true;
         }
 
-        ApplyTemplate(): boolean {
-            var error = new BError();
-            var result = this.ApplyTemplateWithError(error);
-            if (error.Message)
-                error.ThrowException();
-            return result;
-        }
         ApplyTemplateWithError(error: BError): boolean {
             if (this.SubtreeNode)
                 return false;
