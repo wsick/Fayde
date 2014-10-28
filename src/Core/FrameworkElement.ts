@@ -19,12 +19,16 @@ module Fayde {
                     error.ThrowException();
                 return result;
             });
-            lu.setSizeUpdater((size) => {
-                xobj.SetCurrentValue(FrameworkElement.ActualWidthProperty, size.width);
-                xobj.SetCurrentValue(FrameworkElement.ActualHeightProperty, size.height);
-            });
-            lu.setSizeNotifier((oldSize, newSize) => {
-                xobj.SizeChanged.Raise(xobj, new SizeChangedEventArgs(oldSize, newSize));
+            lu.setSizeUpdater({
+                setActualWidth (value: number) {
+                    xobj.SetCurrentValue(FrameworkElement.ActualWidthProperty, value);
+                },
+                setActualHeight (value: number) {
+                    xobj.SetCurrentValue(FrameworkElement.ActualHeightProperty, value);
+                },
+                onSizeChanged (oldSize: minerva.Size, newSize: minerva.Size) {
+                    xobj.SizeChanged.Raise(xobj, new SizeChangedEventArgs(oldSize, newSize));
+                }
             });
         }
         SubtreeNode: XamlNode;

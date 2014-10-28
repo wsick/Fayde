@@ -2789,12 +2789,16 @@ var Fayde;
                     error.ThrowException();
                 return result;
             });
-            lu.setSizeUpdater(function (size) {
-                xobj.SetCurrentValue(FrameworkElement.ActualWidthProperty, size.width);
-                xobj.SetCurrentValue(FrameworkElement.ActualHeightProperty, size.height);
-            });
-            lu.setSizeNotifier(function (oldSize, newSize) {
-                xobj.SizeChanged.Raise(xobj, new Fayde.SizeChangedEventArgs(oldSize, newSize));
+            lu.setSizeUpdater({
+                setActualWidth: function (value) {
+                    xobj.SetCurrentValue(FrameworkElement.ActualWidthProperty, value);
+                },
+                setActualHeight: function (value) {
+                    xobj.SetCurrentValue(FrameworkElement.ActualHeightProperty, value);
+                },
+                onSizeChanged: function (oldSize, newSize) {
+                    xobj.SizeChanged.Raise(xobj, new Fayde.SizeChangedEventArgs(oldSize, newSize));
+                }
             });
         }
         FENode.prototype.SetSubtreeNode = function (subtreeNode, error) {
