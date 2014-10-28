@@ -1156,7 +1156,7 @@
                                     <Rectangle x:Name="Background" Fill="Transparent" />
                                     <Path Data="F1 M 531.107,321.943L 541.537,321.943L 536.322,328.042L 531.107,321.943 Z " Height="4" Stretch="Uniform" Width="6">
                                         <Path.Fill>
-                                            <SolidColorBrush x:Name="ButtonColor" Color="{StaticResource Gray3}"/>
+                                            <SolidColorBrush x:Name="ButtonColor" Color="{StaticResource Gray2}"/>
                                         </Path.Fill>
                                     </Path>
                                     <Path x:Name="HoverPath" Data="F1 M 531.107,321.943L 541.537,321.943L 536.322,328.042L 531.107,321.943 Z " Height="4" Stretch="Uniform" Width="6" UseLayoutRounding="False" Opacity="0" Margin="1,0,0,0">
