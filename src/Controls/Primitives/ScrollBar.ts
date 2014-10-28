@@ -6,10 +6,10 @@ module Fayde.Controls.Primitives {
     export class ScrollBar extends RangeBase {
         private _DragValue: number = 0;
 
-        Scroll: RoutedEvent<ScrollEventArgs> = new RoutedEvent<ScrollEventArgs>();
+        Scroll = new RoutedEvent<ScrollEventArgs>();
 
-        static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), ScrollBar, Orientation.Horizontal, (d, args) => (<ScrollBar>d)._OnOrientationChanged());
-        static ViewportSizeProperty: DependencyProperty = DependencyProperty.Register("ViewportSize", () => Number, ScrollBar, 0, (d, args) => (<ScrollBar>d)._UpdateTrackLayout());
+        static OrientationProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), ScrollBar, Orientation.Horizontal, (d, args) => (<ScrollBar>d)._OnOrientationChanged());
+        static ViewportSizeProperty = DependencyProperty.Register("ViewportSize", () => Number, ScrollBar, 0, (d, args) => (<ScrollBar>d)._UpdateTrackLayout());
         Orientation: Orientation;
         ViewportSize: number;
 
@@ -143,7 +143,7 @@ module Fayde.Controls.Primitives {
             var curValue = this.Value;
             var num = Math.max(curValue - this.SmallChange, this.Minimum);
             if (curValue !== num) {
-                this.Value = num;
+                this.SetCurrentValue(RangeBase.ValueProperty, num);
                 this._RaiseScroll(ScrollEventType.SmallDecrement);
             }
         }
@@ -151,7 +151,7 @@ module Fayde.Controls.Primitives {
             var curValue = this.Value;
             var num = Math.min(curValue + this.SmallChange, this.Maximum);
             if (curValue !== num) {
-                this.Value = num;
+                this.SetCurrentValue(RangeBase.ValueProperty, num);
                 this._RaiseScroll(ScrollEventType.SmallIncrement);
             }
         }
@@ -159,7 +159,7 @@ module Fayde.Controls.Primitives {
             var curValue = this.Value;
             var num = Math.max(curValue - this.LargeChange, this.Minimum);
             if (curValue !== num) {
-                this.Value = num;
+                this.SetCurrentValue(RangeBase.ValueProperty, num);
                 this._RaiseScroll(ScrollEventType.LargeDecrement);
             }
         }
@@ -167,7 +167,7 @@ module Fayde.Controls.Primitives {
             var curValue = this.Value;
             var num = Math.min(curValue + this.LargeChange, this.Maximum);
             if (curValue !== num) {
-                this.Value = num;
+                this.SetCurrentValue(RangeBase.ValueProperty, num);
                 this._RaiseScroll(ScrollEventType.LargeIncrement);
             }
         }

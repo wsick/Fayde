@@ -6,6 +6,7 @@
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <Button Content="Button Test" Margin="10" Padding="10" />
             <Button Margin="10" Padding="10" />
+            <RepeatButton Content="RepeatButton Test" Margin="10" Padding="10" />
         </StackPanel>
     </Grid>
 </Application>

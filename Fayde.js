@@ -6917,7 +6917,7 @@ var Fayde;
                     var curValue = this.Value;
                     var num = Math.max(curValue - this.SmallChange, this.Minimum);
                     if (curValue !== num) {
-                        this.Value = num;
+                        this.SetCurrentValue(Primitives.RangeBase.ValueProperty, num);
                         this._RaiseScroll(0 /* SmallDecrement */);
                     }
                 };
@@ -6925,7 +6925,7 @@ var Fayde;
                     var curValue = this.Value;
                     var num = Math.min(curValue + this.SmallChange, this.Maximum);
                     if (curValue !== num) {
-                        this.Value = num;
+                        this.SetCurrentValue(Primitives.RangeBase.ValueProperty, num);
                         this._RaiseScroll(1 /* SmallIncrement */);
                     }
                 };
@@ -6933,7 +6933,7 @@ var Fayde;
                     var curValue = this.Value;
                     var num = Math.max(curValue - this.LargeChange, this.Minimum);
                     if (curValue !== num) {
-                        this.Value = num;
+                        this.SetCurrentValue(Primitives.RangeBase.ValueProperty, num);
                         this._RaiseScroll(2 /* LargeDecrement */);
                     }
                 };
@@ -6941,7 +6941,7 @@ var Fayde;
                     var curValue = this.Value;
                     var num = Math.min(curValue + this.LargeChange, this.Maximum);
                     if (curValue !== num) {
-                        this.Value = num;
+                        this.SetCurrentValue(Primitives.RangeBase.ValueProperty, num);
                         this._RaiseScroll(3 /* LargeIncrement */);
                     }
                 };
@@ -14332,6 +14332,7 @@ var Fayde;
             if (parentNode)
                 return parentNode.XObject;
         };
+
         VisualTreeHelper.GetParentOfType = function (d, type) {
             if (!(d instanceof Fayde.FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
@@ -14342,6 +14343,7 @@ var Fayde;
             }
             return undefined;
         };
+
         VisualTreeHelper.GetRoot = function (d) {
             if (!(d instanceof Fayde.FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
@@ -14349,6 +14351,7 @@ var Fayde;
             if (rootNode)
                 return rootNode.XObject;
         };
+
         VisualTreeHelper.GetChild = function (d, childIndex) {
             if (!(d instanceof Fayde.FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
@@ -14367,6 +14370,7 @@ var Fayde;
 
             throw new IndexOutOfRangeException(childIndex);
         };
+
         VisualTreeHelper.GetChildrenCount = function (d) {
             if (!(d instanceof Fayde.FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
@@ -14385,8 +14389,11 @@ var Fayde;
 
             return 0;
         };
-        VisualTreeHelper.FindElementsInHostCoordinates = function (intersectingPoint, subtree) {
-            return [];
+
+        VisualTreeHelper.FindElementsInHostCoordinates = function (pos, uie) {
+            return minerva.findElementsInHostSpace(pos, uie.XamlNode.LayoutUpdater).map(function (upd) {
+                return upd.getAttachedValue("$node").XObject;
+            });
         };
 
         VisualTreeHelper.__Debug = function (ui, func) {
@@ -14413,6 +14420,7 @@ var Fayde;
                 func = VisualTreeHelper.__DebugUIElement;
             return VisualTreeHelper.__DebugTree(topNode, uin, 1, func);
         };
+
         VisualTreeHelper.__DebugTree = function (curNode, matchNode, tabIndex, func) {
             var str = "";
             if (curNode === matchNode) {
@@ -14456,6 +14464,7 @@ var Fayde;
 
             return str;
         };
+
         VisualTreeHelper.__DebugUIElement = function (uin, tabIndex) {
             if (!uin)
                 return "";
@@ -14482,6 +14491,7 @@ var Fayde;
                 str += "\n" + gridStr;
             return str;
         };
+
         VisualTreeHelper.__DebugGrid = function (uin, tabIndex) {
             var grid;
             if (uin.XObject instanceof Fayde.Controls.Grid)
@@ -14529,6 +14539,7 @@ var Fayde;
             }
             return str;
         };
+
         VisualTreeHelper.__DebugUIElementLayout = function (uin, tabIndex) {
             if (!uin)
                 return "";

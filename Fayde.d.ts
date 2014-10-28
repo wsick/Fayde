@@ -2894,7 +2894,7 @@ declare module Fayde {
         static GetRoot(d: DependencyObject): DependencyObject;
         static GetChild(d: DependencyObject, childIndex: number): DependencyObject;
         static GetChildrenCount(d: DependencyObject): number;
-        static FindElementsInHostCoordinates(intersectingPoint: Point, subtree: UIElement): UIElement[];
+        static FindElementsInHostCoordinates(pos: Point, uie: UIElement): UIElement[];
         static __Debug(ui: any, func?: (uin: UINode, tabIndex: number) => string): string;
         private static __DebugTree(curNode, matchNode, tabIndex, func);
         private static __DebugUIElement(uin, tabIndex);
