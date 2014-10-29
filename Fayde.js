@@ -9497,7 +9497,7 @@ var Fayde;
                     var icm = ic ? ic.ItemContainersManager : null;
                     if (!icm)
                         return;
-                    var old = icm.DisposeContainers(0, index);
+                    var old = icm.DisposeContainers(index, count);
                     var children = panel.Children;
                     for (var i = 0, len = old.length; i < len; i++) {
                         children.Remove(old[i]);
