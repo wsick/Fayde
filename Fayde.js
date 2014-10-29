@@ -12160,6 +12160,14 @@ var Fayde;
                     return gotoFunc("MouseOver");
                 return gotoFunc("Normal");
             };
+
+            TextBox.prototype.SelectAll = function () {
+                this.$Proxy.selectAll();
+            };
+
+            TextBox.prototype.Select = function (start, length) {
+                this.$Proxy.select(start, length);
+            };
             TextBox.AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", function () {
                 return Boolean;
             }, TextBox, false);

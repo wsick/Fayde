@@ -2492,6 +2492,8 @@ declare module Fayde.Controls {
         public OnGotFocus(e: RoutedEventArgs): void;
         public OnLostFocus(e: RoutedEventArgs): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
+        public SelectAll(): void;
+        public Select(start: number, length: number): void;
     }
 }
 declare module Fayde.Controls {
