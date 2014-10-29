@@ -1958,6 +1958,15 @@ declare module Fayde.Controls.Internal {
         private $syncText();
     }
 }
+declare module Fayde.Controls.Internal {
+    class VirtualizingPanelContainerOwner implements minerva.IVirtualizingContainerOwner {
+        private $$panel;
+        constructor($$panel: VirtualizingPanel);
+        public itemCount : number;
+        public createGenerator(index: number, count: number): minerva.IVirtualizingGenerator;
+        public remove(index: number, count: number): void;
+    }
+}
 declare module Fayde.Controls {
     interface IItemCollection {
         ItemsChanged: MulticastEvent<Collections.CollectionChangedEventArgs>;

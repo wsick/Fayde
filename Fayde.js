@@ -9444,6 +9444,70 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        (function (Internal) {
+            var NO_GENERATOR = {
+                current: undefined,
+                generate: function () {
+                    return false;
+                }
+            };
+
+            var VirtualizingPanelContainerOwner = (function () {
+                function VirtualizingPanelContainerOwner($$panel) {
+                    this.$$panel = $$panel;
+                }
+                Object.defineProperty(VirtualizingPanelContainerOwner.prototype, "itemCount", {
+                    get: function () {
+                        var panel = this.$$panel;
+                        var ic = panel ? panel.ItemsControl : null;
+                        return ic ? ic.Items.Count : 0;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
+                VirtualizingPanelContainerOwner.prototype.createGenerator = function (index, count) {
+                    var panel = this.$$panel;
+                    var ic = panel ? panel.ItemsControl : null;
+                    var icm = ic ? ic.ItemContainersManager : null;
+                    if (!icm)
+                        return NO_GENERATOR;
+                    var icgen = icm.CreateGenerator(index, count);
+                    return {
+                        current: undefined,
+                        generate: function () {
+                            this.current = undefined;
+                            if (!icgen.Generate())
+                                return false;
+                            this.current = icgen.Current.XamlNode.LayoutUpdater;
+                            return true;
+                        }
+                    };
+                };
+
+                VirtualizingPanelContainerOwner.prototype.remove = function (index, count) {
+                    var panel = this.$$panel;
+                    var ic = panel ? panel.ItemsControl : null;
+                    var icm = ic ? ic.ItemContainersManager : null;
+                    if (!icm)
+                        return;
+                    var old = icm.DisposeContainers(0, index);
+                    var children = panel.Children;
+                    for (var i = 0, len = old.length; i < len; i++) {
+                        children.Remove(old[i]);
+                    }
+                };
+                return VirtualizingPanelContainerOwner;
+            })();
+            Internal.VirtualizingPanelContainerOwner = VirtualizingPanelContainerOwner;
+        })(Controls.Internal || (Controls.Internal = {}));
+        var Internal = Controls.Internal;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
         var ItemCollection = (function (_super) {
             __extends(ItemCollection, _super);
             function ItemCollection() {
@@ -12760,6 +12824,7 @@ var Fayde;
             VirtualizingStackPanel.prototype.CreateLayoutUpdater = function () {
                 var updater = new VirtualizingStackPanelUpdater();
                 updater.assets.scrollData = this._ScrollData = new Controls.Primitives.ScrollData();
+                updater.tree.containerOwner = new Controls.Internal.VirtualizingPanelContainerOwner(this);
                 return updater;
             };
 
@@ -12773,6 +12838,8 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+
+
             Object.defineProperty(VirtualizingStackPanel.prototype, "CanHorizontallyScroll", {
                 get: function () {
                     return this._ScrollData.canHorizontallyScroll;
@@ -12788,6 +12855,8 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+
+
             Object.defineProperty(VirtualizingStackPanel.prototype, "CanVerticallyScroll", {
                 get: function () {
                     return this._ScrollData.canVerticallyScroll;
@@ -12802,6 +12871,8 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+
+
             Object.defineProperty(VirtualizingStackPanel.prototype, "ExtentWidth", {
                 get: function () {
                     return this._ScrollData.extentWidth;
@@ -12809,6 +12880,7 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+
             Object.defineProperty(VirtualizingStackPanel.prototype, "ExtentHeight", {
                 get: function () {
                     return this._ScrollData.extentHeight;
@@ -12816,6 +12888,7 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+
             Object.defineProperty(VirtualizingStackPanel.prototype, "ViewportWidth", {
                 get: function () {
                     return this._ScrollData.viewportWidth;
@@ -12823,6 +12896,7 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+
             Object.defineProperty(VirtualizingStackPanel.prototype, "ViewportHeight", {
                 get: function () {
                     return this._ScrollData.viewportHeight;
@@ -12830,6 +12904,7 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+
             Object.defineProperty(VirtualizingStackPanel.prototype, "HorizontalOffset", {
                 get: function () {
                     return this._ScrollData.offsetX;
@@ -12837,6 +12912,7 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+
             Object.defineProperty(VirtualizingStackPanel.prototype, "VerticalOffset", {
                 get: function () {
                     return this._ScrollData.offsetY;
@@ -12844,66 +12920,78 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+
             VirtualizingStackPanel.prototype.LineUp = function () {
                 var sd = this._ScrollData;
                 if (this.Orientation === 0 /* Horizontal */)
                     return this.SetVerticalOffset(sd.offsetY - LineDelta);
                 return this.SetVerticalOffset(sd.offsetY - 1);
             };
+
             VirtualizingStackPanel.prototype.LineDown = function () {
                 var sd = this._ScrollData;
                 if (this.Orientation === 0 /* Horizontal */)
                     return this.SetVerticalOffset(sd.offsetY + LineDelta);
                 return this.SetVerticalOffset(sd.offsetY + 1);
             };
+
             VirtualizingStackPanel.prototype.LineLeft = function () {
                 var sd = this._ScrollData;
                 if (this.Orientation === 1 /* Vertical */)
                     return this.SetHorizontalOffset(sd.offsetX - LineDelta);
                 return this.SetHorizontalOffset(sd.offsetX - 1);
             };
+
             VirtualizingStackPanel.prototype.LineRight = function () {
                 var sd = this._ScrollData;
                 if (this.Orientation === 1 /* Vertical */)
                     return this.SetHorizontalOffset(sd.offsetX + LineDelta);
                 return this.SetHorizontalOffset(sd.offsetX + 1);
             };
+
             VirtualizingStackPanel.prototype.MouseWheelUp = function () {
                 var sd = this._ScrollData;
                 if (this.Orientation === 0 /* Horizontal */)
                     return this.SetVerticalOffset(sd.offsetY - LineDelta * Wheelitude);
                 return this.SetVerticalOffset(sd.offsetY - Wheelitude);
             };
+
             VirtualizingStackPanel.prototype.MouseWheelDown = function () {
                 var sd = this._ScrollData;
                 if (this.Orientation === 0 /* Horizontal */)
                     return this.SetVerticalOffset(sd.offsetY + LineDelta * Wheelitude);
                 return this.SetVerticalOffset(sd.offsetY + Wheelitude);
             };
+
             VirtualizingStackPanel.prototype.MouseWheelLeft = function () {
                 var sd = this._ScrollData;
                 if (this.Orientation === 1 /* Vertical */)
                     return this.SetHorizontalOffset(sd.offsetX - LineDelta * Wheelitude);
                 return this.SetHorizontalOffset(sd.offsetX - Wheelitude);
             };
+
             VirtualizingStackPanel.prototype.MouseWheelRight = function () {
                 var sd = this._ScrollData;
                 if (this.Orientation === 1 /* Vertical */)
                     return this.SetHorizontalOffset(sd.offsetX + LineDelta * Wheelitude);
                 return this.SetHorizontalOffset(sd.offsetX + Wheelitude);
             };
+
             VirtualizingStackPanel.prototype.PageUp = function () {
                 var sd = this._ScrollData;
                 return this.SetVerticalOffset(sd.offsetY - sd.viewportHeight);
             };
+
             VirtualizingStackPanel.prototype.PageDown = function () {
                 var sd = this._ScrollData;
                 return this.SetVerticalOffset(sd.offsetY + sd.viewportHeight);
             };
+
             VirtualizingStackPanel.prototype.PageLeft = function () {
                 var sd = this._ScrollData;
                 return this.SetHorizontalOffset(sd.offsetX - sd.viewportWidth);
             };
+
             VirtualizingStackPanel.prototype.PageRight = function () {
                 var sd = this._ScrollData;
                 return this.SetHorizontalOffset(sd.offsetX + sd.viewportWidth);
@@ -12969,6 +13057,7 @@ var Fayde;
                     scrollOwner.InvalidateScrollInfo();
                 return true;
             };
+
             VirtualizingStackPanel.prototype.SetVerticalOffset = function (offset) {
                 var sd = this._ScrollData;
                 if (offset < 0 || sd.viewportHeight >= sd.extentHeight)
