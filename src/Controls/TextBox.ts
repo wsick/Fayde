@@ -74,20 +74,28 @@ module Fayde.Controls {
                 return gotoFunc("MouseOver");
             return gotoFunc("Normal");
         }
+
+        SelectAll () {
+            this.$Proxy.selectAll();
+        }
+
+        Select (start: number, length: number) {
+            this.$Proxy.select(start, length);
+        }
     }
     Fayde.RegisterType(TextBox, "Fayde.Controls", Fayde.XMLNS);
     TemplateVisualStates(TextBox,
-        { GroupName: "CommonStates", Name: "Normal" },
-        { GroupName: "CommonStates", Name: "MouseOver" },
-        { GroupName: "CommonStates", Name: "Disabled" },
-        { GroupName: "CommonStates", Name: "ReadOnly" },
-        { GroupName: "FocusStates", Name: "Unfocused" },
-        { GroupName: "FocusStates", Name: "Focused" },
-        { GroupName: "ValidationStates", Name: "Valid" },
-        { GroupName: "ValidationStates", Name: "InvalidUnfocused" },
-        { GroupName: "ValidationStates", Name: "InvalidFocused" });
+        {GroupName: "CommonStates", Name: "Normal"},
+        {GroupName: "CommonStates", Name: "MouseOver"},
+        {GroupName: "CommonStates", Name: "Disabled"},
+        {GroupName: "CommonStates", Name: "ReadOnly"},
+        {GroupName: "FocusStates", Name: "Unfocused"},
+        {GroupName: "FocusStates", Name: "Focused"},
+        {GroupName: "ValidationStates", Name: "Valid"},
+        {GroupName: "ValidationStates", Name: "InvalidUnfocused"},
+        {GroupName: "ValidationStates", Name: "InvalidFocused"});
     TemplateParts(TextBox,
-        { Name: "ContentElement", Type: FrameworkElement });
+        {Name: "ContentElement", Type: FrameworkElement});
 
     module reactions {
         DPReaction<boolean>(TextBox.AcceptsReturnProperty, (tb: TextBox, ov, nv) => {
