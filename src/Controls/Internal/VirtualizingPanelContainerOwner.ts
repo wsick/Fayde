@@ -7,35 +7,41 @@ module Fayde.Controls.Internal {
     };
 
     export class VirtualizingPanelContainerOwner implements minerva.IVirtualizingContainerOwner {
-        constructor(private $$panel: VirtualizingPanel) {
+        constructor (private $$panel: VirtualizingPanel) {
         }
 
-        get itemCount(): number {
+        get itemCount (): number {
             var panel = this.$$panel;
             var ic = panel ? panel.ItemsControl : null;
             return ic ? ic.Items.Count : 0;
         }
 
-        createGenerator(index: number, count: number): minerva.IVirtualizingGenerator {
+        createGenerator (index: number, count: number): minerva.IVirtualizingGenerator {
             var panel = this.$$panel;
             var ic = panel ? panel.ItemsControl : null;
             var icm = ic ? ic.ItemContainersManager : null;
             if (!icm)
                 return NO_GENERATOR;
             var icgen = icm.CreateGenerator(index, count);
+            var children = panel.Children;
             return {
                 current: undefined,
                 generate: function (): boolean {
                     this.current = undefined;
                     if (!icgen.Generate())
                         return false;
-                    this.current = icgen.Current.XamlNode.LayoutUpdater;
+                    var child = icgen.Current;
+                    if (icgen.IsCurrentNew) {
+                        children.Insert(icgen.GenerateIndex, child);
+                        ic.PrepareContainerForItem(child, icgen.CurrentItem);
+                    }
+                    this.current = child.XamlNode.LayoutUpdater;
                     return true;
                 }
             };
         }
 
-        remove(index: number, count: number) {
+        remove (index: number, count: number) {
             var panel = this.$$panel;
             var ic = panel ? panel.ItemsControl : null;
             var icm = ic ? ic.ItemContainersManager : null;

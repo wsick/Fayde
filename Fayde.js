@@ -9473,13 +9473,19 @@ var Fayde;
                     if (!icm)
                         return NO_GENERATOR;
                     var icgen = icm.CreateGenerator(index, count);
+                    var children = panel.Children;
                     return {
                         current: undefined,
                         generate: function () {
                             this.current = undefined;
                             if (!icgen.Generate())
                                 return false;
-                            this.current = icgen.Current.XamlNode.LayoutUpdater;
+                            var child = icgen.Current;
+                            if (icgen.IsCurrentNew) {
+                                children.Insert(icgen.GenerateIndex, child);
+                                ic.PrepareContainerForItem(child, icgen.CurrentItem);
+                            }
+                            this.current = child.XamlNode.LayoutUpdater;
                             return true;
                         }
                     };
