@@ -3,12 +3,12 @@ var version = require('./build/version'),
 
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-qunit');
+    grunt.loadNpmTasks('grunt-contrib-symlink');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-contrib-symlink');
-    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-open');
     grunt.loadNpmTasks('grunt-nuget');
 
@@ -20,7 +20,7 @@ module.exports = function (grunt) {
             test: ['./test/lib']
         },
         setup: {
-            minerva: {
+            fayde: {
                 cwd: '.'
             }
         },
