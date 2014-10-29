@@ -4198,16 +4198,21 @@ var Fayde;
                 var panelNode = this.XamlNode.ParentNode;
                 if (!panelNode.AttachVisualChild(value, error))
                     return false;
-                this.$$updaters.push(value.XamlNode.LayoutUpdater);
                 return _super.prototype.AddingToCollection.call(this, value, error);
             };
             PanelChildrenCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
                 var panelNode = this.XamlNode.ParentNode;
                 panelNode.DetachVisualChild(value, null);
-                var index = this.$$updaters.indexOf(value.XamlNode.LayoutUpdater);
-                if (index > -1)
-                    this.$$updaters.splice(index, 1);
                 _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
+            };
+            PanelChildrenCollection.prototype._RaiseItemAdded = function (value, index) {
+                this.$$updaters.splice(index, 0, value.XamlNode.LayoutUpdater);
+            };
+            PanelChildrenCollection.prototype._RaiseItemRemoved = function (value, index) {
+                this.$$updaters.splice(index, 1);
+            };
+            PanelChildrenCollection.prototype._RaiseItemReplaced = function (removed, added, index) {
+                this.$$updaters.splice(index, 1, added.XamlNode.LayoutUpdater);
             };
             return PanelChildrenCollection;
         })(Fayde.XamlObjectCollection);

@@ -8,16 +8,21 @@ module Fayde.Controls {
             var panelNode = <PanelNode>this.XamlNode.ParentNode;
             if (!panelNode.AttachVisualChild(value, error))
                 return false;
-            this.$$updaters.push(value.XamlNode.LayoutUpdater);
             return super.AddingToCollection(value, error);
         }
         RemovedFromCollection(value: UIElement, isValueSafe: boolean) {
             var panelNode = <PanelNode>this.XamlNode.ParentNode;
             panelNode.DetachVisualChild(value, null);
-            var index = this.$$updaters.indexOf(value.XamlNode.LayoutUpdater);
-            if (index > -1)
-                this.$$updaters.splice(index, 1);
             super.RemovedFromCollection(value, isValueSafe);
+        }
+        _RaiseItemAdded(value: UIElement, index: number) {
+            this.$$updaters.splice(index, 0, value.XamlNode.LayoutUpdater);
+        }
+        _RaiseItemRemoved(value: UIElement, index: number) {
+            this.$$updaters.splice(index, 1);
+        }
+        _RaiseItemReplaced(removed: UIElement, added: UIElement, index: number) {
+            this.$$updaters.splice(index, 1, added.XamlNode.LayoutUpdater);
         }
     }
     Fayde.RegisterType(PanelChildrenCollection, "Fayde.Controls");
