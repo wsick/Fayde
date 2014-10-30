@@ -31,7 +31,7 @@ module Fayde.Controls {
         Source: Uri;
         UriMapper: Navigation.UriMapper;
 
-        private _NavService: Navigation.NavigationService = new Navigation.NavigationService();
+        private _NavService = new Navigation.NavigationService();
 
         //Navigated = new MulticastEvent();
         //Navigating = new MulticastEvent();
@@ -68,7 +68,7 @@ module Fayde.Controls {
         }
 
         private _HandleDeepLink () {
-            this._LoadContent(new Uri(this._NavService.Href + "#" + this._NavService.Hash));
+            this._LoadContent(this._NavService.CurrentUri);
         }
 
         private _LoadContent (source: Uri) {

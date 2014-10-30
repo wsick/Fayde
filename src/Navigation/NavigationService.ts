@@ -4,9 +4,9 @@ module Fayde.Navigation {
     export class NavigationService {
         Href: string;
         Hash: string;
-        LocationChanged: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        LocationChanged = new MulticastEvent<EventArgs>();
 
-        constructor() {
+        constructor () {
             this.Href = window.location.href;
             this.Hash = window.location.hash;
             if (this.Href[this.Href.length - 1] === '#')
@@ -18,7 +18,11 @@ module Fayde.Navigation {
             window.onhashchange = () => this._HandleFragmentChange();
         }
 
-        private _HandleFragmentChange() {
+        get CurrentUri (): Uri {
+            return new Uri(this.Href + "#" + this.Hash);
+        }
+
+        private _HandleFragmentChange () {
             this.Hash = window.location.hash;
             if (this.Hash) {
                 this.Hash = this.Hash.substr(1);
