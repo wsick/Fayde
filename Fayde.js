@@ -8651,11 +8651,11 @@ var Fayde;
                 };
 
                 TextBoxCursorAdvancer.prototype.CursorBegin = function (cursor) {
-                    return this.$textOwner.text.length;
+                    return 0;
                 };
 
                 TextBoxCursorAdvancer.prototype.CursorEnd = function (cursor) {
-                    return 0;
+                    return this.$textOwner.text.length;
                 };
                 return TextBoxCursorAdvancer;
             })();

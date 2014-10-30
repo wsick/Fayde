@@ -68,11 +68,11 @@ module Fayde.Controls.Internal {
         }
 
         CursorBegin (cursor: number): number {
-            return this.$textOwner.text.length;
+            return 0;
         }
 
         CursorEnd (cursor: number): number {
-            return 0;
+            return this.$textOwner.text.length;
         }
     }
 
