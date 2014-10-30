@@ -667,6 +667,7 @@ declare module Fayde {
         public DoApplyTemplateWithError(error: BError): boolean;
         public FinishApplyTemplateWithError(uie: UIElement, error: BError): boolean;
         public UpdateLayout(): void;
+        static DetachFromVisualParent(xobj: UIElement): void;
     }
     class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
         public XamlNode: FENode;
@@ -901,25 +902,27 @@ declare module Fayde.Controls {
 }
 declare module Fayde.Controls {
     class ContentControlNode extends ControlNode {
+        private _DefaultPresenter;
         public XObject: ContentControl;
         constructor(xobj: ContentControl);
-        public OnContentChanged(o: any, n: any): void;
         public GetDefaultVisualTree(): UIElement;
+        public OnContentChanged(o: any, n: any): void;
         public OnTemplateChanged(oldTemplate: ControlTemplate, newTemplate: ControlTemplate): void;
+        private CleanOldContent(content);
     }
     class ContentControl extends Control {
         public XamlNode: ContentControlNode;
         public CreateNode(): ContentControlNode;
         static ContentProperty: DependencyProperty;
-        public Content: any;
-        private OnContentPropertyChanged(args);
-        public OnContentChanged(oldContent: any, newContent: any): void;
         static ContentTemplateProperty: DependencyProperty;
-        public ContentTemplate: DataTemplate;
-        public OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate): void;
         static ContentUriProperty: DependencyProperty;
+        public Content: any;
+        public ContentTemplate: DataTemplate;
         public ContentUri: Uri;
+        private OnContentPropertyChanged(args);
         private OnContentUriPropertyChanged(args);
+        public OnContentChanged(oldContent: any, newContent: any): void;
+        public OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate): void;
         public OnContentUriChanged(oldSourceUri: Uri, newSourceUri: Uri): void;
         private _OnLoadedUri(xd);
         private _OnErroredUri(err, src);
@@ -5215,6 +5218,7 @@ declare module Fayde.Navigation {
         public Hash: string;
         public LocationChanged: MulticastEvent<EventArgs>;
         constructor();
+        public CurrentUri : Uri;
         private _HandleFragmentChange();
     }
 }

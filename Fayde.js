@@ -2893,6 +2893,16 @@ var Fayde;
         FENode.prototype.UpdateLayout = function () {
             console.warn("FENode.UpdateLayout not implemented");
         };
+
+        FENode.DetachFromVisualParent = function (xobj) {
+            var vpNode = xobj.XamlNode.VisualParentNode;
+            if (vpNode instanceof FENode) {
+                var err = new BError();
+                vpNode.DetachVisualChild(xobj, err);
+                if (err.Message)
+                    err.ThrowException();
+            }
+        };
         return FENode;
     })(Fayde.UINode);
     Fayde.FENode = FENode;
@@ -3606,41 +3616,48 @@ var Fayde;
             __extends(ContentControlNode, _super);
             function ContentControlNode(xobj) {
                 _super.call(this, xobj);
+                this._DefaultPresenter = null;
             }
-            ContentControlNode.prototype.OnContentChanged = function (o, n) {
-                if (o instanceof Fayde.UIElement) {
-                    var err = new BError();
-                    this.DetachVisualChild(o, err);
-                    if (err.Message)
-                        err.ThrowException();
-                }
-            };
-
             ContentControlNode.prototype.GetDefaultVisualTree = function () {
                 var xobj = this.XObject;
                 var content = xobj.Content;
                 if (content instanceof Fayde.UIElement)
                     return content;
 
-                var presenter = new Controls.ContentPresenter();
-                presenter.TemplateOwner = this.XObject;
+                var presenter = this._DefaultPresenter;
+                if (!presenter) {
+                    presenter = this._DefaultPresenter = new Controls.ContentPresenter();
+                    presenter.TemplateOwner = this.XObject;
+                }
                 presenter.SetValue(Controls.ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(ContentControl.ContentProperty, Controls.ContentPresenter.ContentProperty));
                 presenter.SetValue(Controls.ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(ContentControl.ContentTemplateProperty, Controls.ContentPresenter.ContentTemplateProperty));
                 return presenter;
             };
 
+            ContentControlNode.prototype.OnContentChanged = function (o, n) {
+                if (o instanceof Fayde.UIElement || n instanceof Fayde.UIElement)
+                    this.CleanOldContent(o);
+            };
+
             ContentControlNode.prototype.OnTemplateChanged = function (oldTemplate, newTemplate) {
-                var content = this.XObject.Content;
-                if (oldTemplate && content instanceof Fayde.UIElement) {
-                    var vpNode = content.XamlNode.VisualParentNode;
-                    if (vpNode instanceof Fayde.FENode) {
-                        var err = new BError();
-                        vpNode.DetachVisualChild(content, err);
-                        if (err.Message)
-                            err.ThrowException();
+                if (oldTemplate)
+                    this.CleanOldContent(this.XObject.Content);
+                _super.prototype.OnTemplateChanged.call(this, oldTemplate, newTemplate);
+            };
+
+            ContentControlNode.prototype.CleanOldContent = function (content) {
+                if (content instanceof Fayde.UIElement) {
+                    Fayde.FENode.DetachFromVisualParent(content);
+                    this.LayoutUpdater.invalidateMeasure();
+                } else {
+                    var presenter = this._DefaultPresenter;
+                    if (presenter) {
+                        presenter.ClearValue(Controls.ContentPresenter.ContentProperty);
+                        presenter.ClearValue(Controls.ContentPresenter.ContentTemplateProperty);
+                        Fayde.FENode.DetachFromVisualParent(presenter);
+                        this.LayoutUpdater.invalidateMeasure();
                     }
                 }
-                _super.prototype.OnTemplateChanged.call(this, oldTemplate, newTemplate);
             };
             return ContentControlNode;
         })(Controls.ControlNode);
@@ -3659,11 +3676,6 @@ var Fayde;
             ContentControl.prototype.OnContentPropertyChanged = function (args) {
                 this.XamlNode.OnContentChanged(args.OldValue, args.NewValue);
                 this.OnContentChanged(args.OldValue, args.NewValue);
-            };
-            ContentControl.prototype.OnContentChanged = function (oldContent, newContent) {
-            };
-
-            ContentControl.prototype.OnContentTemplateChanged = function (oldContentTemplate, newContentTemplate) {
             };
 
             ContentControl.prototype.OnContentUriPropertyChanged = function (args) {
@@ -3684,12 +3696,20 @@ var Fayde;
                 }
                 this.OnContentUriChanged(oldUri, newUri);
             };
+
+            ContentControl.prototype.OnContentChanged = function (oldContent, newContent) {
+            };
+
+            ContentControl.prototype.OnContentTemplateChanged = function (oldContentTemplate, newContentTemplate) {
+            };
+
             ContentControl.prototype.OnContentUriChanged = function (oldSourceUri, newSourceUri) {
             };
 
             ContentControl.prototype._OnLoadedUri = function (xd) {
                 this.Content = Fayde.Xaml.Load(xd.Document);
             };
+
             ContentControl.prototype._OnErroredUri = function (err, src) {
                 console.warn("Error resolving XamlResource: '" + src.toString() + "'.");
             };
@@ -3698,13 +3718,11 @@ var Fayde;
             }, ContentControl, undefined, function (d, args) {
                 return d.OnContentPropertyChanged(args);
             });
-
             ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
                 return Fayde.DataTemplate;
             }, ContentControl, undefined, function (d, args) {
                 return d.OnContentTemplateChanged(args.OldValue, args.NewValue);
             });
-
             ContentControl.ContentUriProperty = DependencyProperty.Register("ContentUri", function () {
                 return Uri;
             }, ContentControl, undefined, function (d, args) {
@@ -8124,7 +8142,7 @@ var Fayde;
             };
 
             Frame.prototype._HandleDeepLink = function () {
-                this._LoadContent(new Uri(this._NavService.Href + "#" + this._NavService.Hash));
+                this._LoadContent(this._NavService.CurrentUri);
             };
 
             Frame.prototype._LoadContent = function (source) {
@@ -27372,6 +27390,8 @@ var Fayde;
                 this.LocationChanged = new MulticastEvent();
                 this.Href = window.location.href;
                 this.Hash = window.location.hash;
+                if (this.Href[this.Href.length - 1] === '#')
+                    this.Hash = "#";
                 if (this.Hash) {
                     this.Hash = this.Hash.substr(1);
                     this.Href = this.Href.substring(0, this.Href.indexOf('#'));
@@ -27380,6 +27400,14 @@ var Fayde;
                     return _this._HandleFragmentChange();
                 };
             }
+            Object.defineProperty(NavigationService.prototype, "CurrentUri", {
+                get: function () {
+                    return new Uri(this.Href + "#" + this.Hash);
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             NavigationService.prototype._HandleFragmentChange = function () {
                 this.Hash = window.location.hash;
                 if (this.Hash) {

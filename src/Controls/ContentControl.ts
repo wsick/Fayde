@@ -2,28 +2,25 @@
 
 module Fayde.Controls {
     export class ContentControlNode extends ControlNode {
+        private _DefaultPresenter: ContentPresenter = null;
+
         XObject: ContentControl;
-        constructor(xobj: ContentControl) {
+
+        constructor (xobj: ContentControl) {
             super(xobj);
         }
 
-        OnContentChanged(o: any, n: any) {
-            if (o instanceof UIElement) {
-                var err = new BError();
-                this.DetachVisualChild(o, err);
-                if (err.Message)
-                    err.ThrowException();
-            }
-        }
-
-        GetDefaultVisualTree(): UIElement {
+        GetDefaultVisualTree (): UIElement {
             var xobj = this.XObject;
             var content = xobj.Content;
             if (content instanceof UIElement)
                 return <UIElement>content;
 
-            var presenter = new ContentPresenter();
-            presenter.TemplateOwner = this.XObject;
+            var presenter = this._DefaultPresenter;
+            if (!presenter) {
+                presenter = this._DefaultPresenter = new ContentPresenter();
+                presenter.TemplateOwner = this.XObject;
+            }
             presenter.SetValue(ContentPresenter.ContentProperty,
                 new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
             presenter.SetValue(ContentPresenter.ContentTemplateProperty,
@@ -31,41 +28,54 @@ module Fayde.Controls {
             return presenter;
         }
 
-        OnTemplateChanged(oldTemplate: ControlTemplate, newTemplate: ControlTemplate) {
-            var content = <UIElement>this.XObject.Content;
-            if (oldTemplate && content instanceof UIElement) {
-                var vpNode = <FENode>content.XamlNode.VisualParentNode;
-                if (vpNode instanceof FENode) {
-                    var err = new BError();
-                    vpNode.DetachVisualChild(content, err);
-                    if (err.Message)
-                        err.ThrowException();
+        OnContentChanged (o: any, n: any) {
+            if (o instanceof UIElement || n instanceof UIElement)
+                this.CleanOldContent(o);
+        }
+
+        OnTemplateChanged (oldTemplate: ControlTemplate, newTemplate: ControlTemplate) {
+            if (oldTemplate)
+                this.CleanOldContent(this.XObject.Content);
+            super.OnTemplateChanged(oldTemplate, newTemplate);
+        }
+
+        private CleanOldContent (content: any) {
+            if (content instanceof UIElement) {
+                FENode.DetachFromVisualParent(content);
+                this.LayoutUpdater.invalidateMeasure();
+            } else {
+                var presenter = this._DefaultPresenter;
+                if (presenter) {
+                    presenter.ClearValue(ContentPresenter.ContentProperty);
+                    presenter.ClearValue(ContentPresenter.ContentTemplateProperty);
+                    FENode.DetachFromVisualParent(presenter);
+                    this.LayoutUpdater.invalidateMeasure();
                 }
             }
-            super.OnTemplateChanged(oldTemplate, newTemplate);
         }
     }
     Fayde.RegisterType(ContentControlNode, "Fayde.Controls");
 
     export class ContentControl extends Control {
         XamlNode: ContentControlNode;
-        CreateNode(): ContentControlNode { return new ContentControlNode(this); }
 
-        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d).OnContentPropertyChanged(args));
+        CreateNode (): ContentControlNode {
+            return new ContentControlNode(this);
+        }
+
+        static ContentProperty = DependencyProperty.Register("Content", () => Object, ContentControl, undefined, (d: ContentControl, args) => d.OnContentPropertyChanged(args));
+        static ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentControl, undefined, (d: ContentControl, args) => d.OnContentTemplateChanged(args.OldValue, args.NewValue));
+        static ContentUriProperty = DependencyProperty.Register("ContentUri", () => Uri, ContentControl, undefined, (d: ContentControl, args) => d.OnContentUriPropertyChanged(args));
         Content: any;
-        private OnContentPropertyChanged(args: DependencyPropertyChangedEventArgs) {
+        ContentTemplate: DataTemplate;
+        ContentUri: Uri;
+
+        private OnContentPropertyChanged (args: DependencyPropertyChangedEventArgs) {
             this.XamlNode.OnContentChanged(args.OldValue, args.NewValue);
             this.OnContentChanged(args.OldValue, args.NewValue);
         }
-        OnContentChanged(oldContent: any, newContent: any) { }
 
-        static ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d).OnContentTemplateChanged(args.OldValue, args.NewValue));
-        ContentTemplate: DataTemplate;
-        OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate) { }
-
-        static ContentUriProperty = DependencyProperty.Register("ContentUri", () => Uri, ContentControl, undefined, (d, args) => (<ContentControl>d).OnContentUriPropertyChanged(args));
-        ContentUri: Uri;
-        private OnContentUriPropertyChanged(args: DependencyPropertyChangedEventArgs) {
+        private OnContentUriPropertyChanged (args: DependencyPropertyChangedEventArgs) {
             var oldUri: Uri;
             if (args.OldValue instanceof Uri) {
                 this.Content = undefined;
@@ -80,12 +90,21 @@ module Fayde.Controls {
             }
             this.OnContentUriChanged(oldUri, newUri);
         }
-        OnContentUriChanged(oldSourceUri: Uri, newSourceUri: Uri) { }
 
-        private _OnLoadedUri(xd: Xaml.XamlDocument) {
+        OnContentChanged (oldContent: any, newContent: any) {
+        }
+
+        OnContentTemplateChanged (oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate) {
+        }
+
+        OnContentUriChanged (oldSourceUri: Uri, newSourceUri: Uri) {
+        }
+
+        private _OnLoadedUri (xd: Xaml.XamlDocument) {
             this.Content = Xaml.Load(xd.Document);
         }
-        private _OnErroredUri(err: any, src: Uri) {
+
+        private _OnErroredUri (err: any, src: Uri) {
             console.warn("Error resolving XamlResource: '" + src.toString() + "'.")
             //TODO: Set content to error message?
         }

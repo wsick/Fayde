@@ -125,6 +125,16 @@ module Fayde {
         UpdateLayout() {
             console.warn("FENode.UpdateLayout not implemented");
         }
+
+        static DetachFromVisualParent (xobj: UIElement) {
+            var vpNode = <FENode>xobj.XamlNode.VisualParentNode;
+            if (vpNode instanceof FENode) {
+                var err = new BError();
+                vpNode.DetachVisualChild(xobj, err);
+                if (err.Message)
+                    err.ThrowException();
+            }
+        }
     }
     Fayde.RegisterType(FENode, "Fayde");
 
