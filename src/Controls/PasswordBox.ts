@@ -2,14 +2,8 @@
 
 module Fayde.Controls {
     export class PasswordBox extends TextBoxBase {
-        static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, PasswordBox);
-        static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, PasswordBox, 0, undefined, undefined, undefined, positiveIntValidator);
         static PasswordCharProperty = DependencyProperty.Register("PasswordChar", () => String, PasswordBox, String.fromCharCode(9679));
         static PasswordProperty = DependencyProperty.Register("Password", () => String, PasswordBox);
-        BaselineOffset: number;
-        CaretBrush: Media.Brush;
-        MaxLength;
-        number;
         PasswordChar: string;
         Password: string;
 
@@ -47,16 +41,7 @@ module Fayde.Controls {
         { GroupName: "ValidationStates", Name: "InvalidUnfocused" },
         { GroupName: "ValidationStates", Name: "InvalidFocused" });
 
-    function positiveIntValidator (dobj: DependencyObject, propd: DependencyProperty, value: any): boolean {
-        if (typeof value !== 'number')
-            return false;
-        return value >= 0;
-    }
-
     module reactions {
-        DPReaction<number>(PasswordBox.MaxLengthProperty, (pb: PasswordBox, ov, nv) => {
-            pb.$Proxy.maxLength = nv;
-        }, false);
         DPReaction<string>(PasswordBox.PasswordCharProperty, (pb: PasswordBox, ov, nv) => {
             pb.$View.setText(pb.DisplayText);
         }, false);

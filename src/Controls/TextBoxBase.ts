@@ -9,10 +9,15 @@ module Fayde.Controls {
         static SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBoxBase);
         static SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
         static SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
+        static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBoxBase);
+        static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBoxBase, 0, undefined, undefined, undefined, positiveIntValidator);
+        CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
         SelectionLength: number;
         SelectionStart: number;
+        BaselineOffset: number;
+        MaxLength: number;
 
         private _Selecting: boolean = false;
         private _Captured: boolean = false;
@@ -438,6 +443,9 @@ module Fayde.Controls {
             tbb.$View.setFontAttr("selectionForeground", nv);
             tbb.XamlNode.LayoutUpdater.invalidate();
         });
+        DPReaction<number>(TextBoxBase.MaxLengthProperty, (tbb: TextBoxBase, ov, nv) => {
+            tbb.$Proxy.maxLength = nv;
+        }, false);
     }
 
     function positiveIntValidator (dobj: DependencyObject, propd: DependencyProperty, value: any): boolean {

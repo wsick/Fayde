@@ -3,19 +3,14 @@
 module Fayde.Controls {
     export class TextBox extends TextBoxBase {
         static AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false);
-        static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, undefined, undefined, undefined, positiveIntValidator);
         static IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", () => Boolean, TextBox, false);
-        static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBox);
         static TextProperty = DependencyProperty.Register("Text", () => String, TextBox);
         static TextAlignmentProperty = DependencyProperty.Register("TextAlignment", () => new Enum(TextAlignment), TextBox, TextAlignment.Left);
         static TextWrappingProperty = DependencyProperty.Register("TextWrapping", () => new Enum(TextWrapping), TextBox, TextWrapping.NoWrap);
         static HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", () => new Enum(ScrollBarVisibility), TextBox, ScrollBarVisibility.Hidden);
         static VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", () => new Enum(ScrollBarVisibility), TextBox, ScrollBarVisibility.Hidden);
         AcceptsReturn: boolean;
-        CaretBrush: Media.Brush;
-        MaxLength: number;
         IsReadOnly: boolean;
-        BaselineOffset: number;
         Text: string;
         TextAlignment: TextAlignment;
         TextWrapping: TextWrapping;
@@ -100,9 +95,6 @@ module Fayde.Controls {
         DPReaction<boolean>(TextBox.AcceptsReturnProperty, (tb: TextBox, ov, nv) => {
             tb.$Proxy.acceptsReturn = nv === true;
         }, false);
-        DPReaction<number>(TextBox.MaxLengthProperty, (tb: TextBox, ov, nv) => {
-            tb.$Proxy.maxLength = nv;
-        }, false);
         DPReaction<boolean>(TextBox.IsReadOnlyProperty, (tb: TextBox, ov, nv) => {
             tb.$View.setIsReadOnly(nv === true);
         }, false);
@@ -123,11 +115,5 @@ module Fayde.Controls {
             tb.$Proxy.setText(nv);
             tb.$View.setText(tb.DisplayText);
         }, false);
-    }
-
-    function positiveIntValidator (dobj: DependencyObject, propd: DependencyProperty, value: any): boolean {
-        if (typeof value !== 'number')
-            return false;
-        return value >= 0;
     }
 }

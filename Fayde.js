@@ -10798,6 +10798,12 @@ var Fayde;
             TextBoxBase.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () {
                 return Number;
             }, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
+            TextBoxBase.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () {
+                return Number;
+            }, TextBoxBase);
+            TextBoxBase.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () {
+                return Number;
+            }, TextBoxBase, 0, undefined, undefined, undefined, positiveIntValidator);
             return TextBoxBase;
         })(Controls.Control);
         Controls.TextBoxBase = TextBoxBase;
@@ -10824,6 +10830,9 @@ var Fayde;
                 tbb.$View.setFontAttr("selectionForeground", nv);
                 tbb.XamlNode.LayoutUpdater.invalidate();
             });
+            Fayde.DPReaction(TextBoxBase.MaxLengthProperty, function (tbb, ov, nv) {
+                tbb.$Proxy.maxLength = nv;
+            }, false);
         })(reactions || (reactions = {}));
 
         function positiveIntValidator(dobj, propd, value) {
@@ -10871,12 +10880,6 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
-            PasswordBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () {
-                return Number;
-            }, PasswordBox);
-            PasswordBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () {
-                return Number;
-            }, PasswordBox, 0, undefined, undefined, undefined, positiveIntValidator);
             PasswordBox.PasswordCharProperty = DependencyProperty.Register("PasswordChar", function () {
                 return String;
             }, PasswordBox, String.fromCharCode(9679));
@@ -10889,17 +10892,8 @@ var Fayde;
         Fayde.RegisterType(PasswordBox, "Fayde.Controls", Fayde.XMLNS);
         Controls.TemplateVisualStates(PasswordBox, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
 
-        function positiveIntValidator(dobj, propd, value) {
-            if (typeof value !== 'number')
-                return false;
-            return value >= 0;
-        }
-
         var reactions;
         (function (reactions) {
-            Fayde.DPReaction(PasswordBox.MaxLengthProperty, function (pb, ov, nv) {
-                pb.$Proxy.maxLength = nv;
-            }, false);
             Fayde.DPReaction(PasswordBox.PasswordCharProperty, function (pb, ov, nv) {
                 pb.$View.setText(pb.DisplayText);
             }, false);
@@ -12198,15 +12192,9 @@ var Fayde;
             TextBox.AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", function () {
                 return Boolean;
             }, TextBox, false);
-            TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () {
-                return Number;
-            }, TextBox, 0, undefined, undefined, undefined, positiveIntValidator);
             TextBox.IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", function () {
                 return Boolean;
             }, TextBox, false);
-            TextBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () {
-                return Number;
-            }, TextBox);
             TextBox.TextProperty = DependencyProperty.Register("Text", function () {
                 return String;
             }, TextBox);
@@ -12234,9 +12222,6 @@ var Fayde;
             Fayde.DPReaction(TextBox.AcceptsReturnProperty, function (tb, ov, nv) {
                 tb.$Proxy.acceptsReturn = nv === true;
             }, false);
-            Fayde.DPReaction(TextBox.MaxLengthProperty, function (tb, ov, nv) {
-                tb.$Proxy.maxLength = nv;
-            }, false);
             Fayde.DPReaction(TextBox.IsReadOnlyProperty, function (tb, ov, nv) {
                 tb.$View.setIsReadOnly(nv === true);
             }, false);
@@ -12260,12 +12245,6 @@ var Fayde;
                 tb.$View.setText(tb.DisplayText);
             }, false);
         })(reactions || (reactions = {}));
-
-        function positiveIntValidator(dobj, propd, value) {
-            if (typeof value !== 'number')
-                return false;
-            return value >= 0;
-        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

@@ -2177,10 +2177,15 @@ declare module Fayde.Controls {
         static SelectionBackgroundProperty: DependencyProperty;
         static SelectionLengthProperty: DependencyProperty;
         static SelectionStartProperty: DependencyProperty;
+        static BaselineOffsetProperty: DependencyProperty;
+        static MaxLengthProperty: DependencyProperty;
+        public CaretBrush: Media.Brush;
         public SelectionForeground: Media.Brush;
         public SelectionBackground: Media.Brush;
         public SelectionLength: number;
         public SelectionStart: number;
+        public BaselineOffset: number;
+        public MaxLength: number;
         private _Selecting;
         private _Captured;
         public IsReadOnly: boolean;
@@ -2214,14 +2219,8 @@ declare module Fayde.Controls {
 }
 declare module Fayde.Controls {
     class PasswordBox extends TextBoxBase {
-        static BaselineOffsetProperty: DependencyProperty;
-        static MaxLengthProperty: DependencyProperty;
         static PasswordCharProperty: DependencyProperty;
         static PasswordProperty: DependencyProperty;
-        public BaselineOffset: number;
-        public CaretBrush: Media.Brush;
-        public MaxLength: any;
-        public number: any;
         public PasswordChar: string;
         public Password: string;
         constructor();
@@ -2469,19 +2468,14 @@ declare module Fayde.Controls {
 declare module Fayde.Controls {
     class TextBox extends TextBoxBase {
         static AcceptsReturnProperty: DependencyProperty;
-        static MaxLengthProperty: DependencyProperty;
         static IsReadOnlyProperty: DependencyProperty;
-        static BaselineOffsetProperty: DependencyProperty;
         static TextProperty: DependencyProperty;
         static TextAlignmentProperty: DependencyProperty;
         static TextWrappingProperty: DependencyProperty;
         static HorizontalScrollBarVisibilityProperty: DependencyProperty;
         static VerticalScrollBarVisibilityProperty: DependencyProperty;
         public AcceptsReturn: boolean;
-        public CaretBrush: Media.Brush;
-        public MaxLength: number;
         public IsReadOnly: boolean;
-        public BaselineOffset: number;
         public Text: string;
         public TextAlignment: TextAlignment;
         public TextWrapping: TextWrapping;
