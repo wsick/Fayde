@@ -1,7 +1,7 @@
 ﻿<Page xmlns="http://schemas.wsick.com/fayde"
       xmlns:x="http://schemas.wsick.com/fayde/x"
-      Title="Fayde | Page 1">
+      Title="Fayde | Page 2">
     <Grid x:Name="LayoutRoot">
-        <TextBlock Text="Page 1"></TextBlock>
+        <TextBlock Text="Page 2"></TextBlock>
     </Grid>
 </Page>

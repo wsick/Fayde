@@ -9,6 +9,8 @@ module Fayde.Navigation {
         constructor() {
             this.Href = window.location.href;
             this.Hash = window.location.hash;
+            if (this.Href[this.Href.length - 1] === '#')
+                this.Hash = "#";
             if (this.Hash) {
                 this.Hash = this.Hash.substr(1);
                 this.Href = this.Href.substring(0, this.Href.indexOf('#'));
