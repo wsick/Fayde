@@ -6,7 +6,7 @@
         <Border Background="Green" HorizontalAlignment="Center" VerticalAlignment="Center">
             <ToolTipService.ToolTip>
                 <ToolTip>
-                    <Border Width="200" Height="200" Background="Gray" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
+                    <Border Width="200" Height="200" Background="Silver" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
                         <TextBlock Foreground="White" Text="Infinitely extensible tooltip!"/>
                     </Border>
                 </ToolTip>

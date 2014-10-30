@@ -84,6 +84,7 @@ module Fayde.Controls {
             pp.Closed.Subscribe(this.OnPopupClosed, this);
             this.IsTabStop = false;
 
+            pp.XamlNode.RegisterInitiator(this._TooltipParent);
             pp.Child = this;
 
             pp.IsHitTestVisible = false;

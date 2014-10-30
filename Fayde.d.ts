@@ -1267,6 +1267,7 @@ declare module Fayde.Controls.Primitives {
         public EnsureCatcher(): Canvas;
         public UpdateCatcher(): void;
         private _RaiseClickedOutside(sender, e);
+        public RegisterInitiator(initiator: UIElement): void;
     }
     class Popup extends FrameworkElement {
         public XamlNode: PopupNode;

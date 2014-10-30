@@ -6080,6 +6080,8 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         (function (Primitives) {
+            var PopupUpdater = minerva.controls.popup.PopupUpdater;
+
             var PopupNode = (function (_super) {
                 __extends(PopupNode, _super);
                 function PopupNode() {
@@ -6090,6 +6092,7 @@ var Fayde;
                 }
                 PopupNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
                     _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
+                    this.RegisterInitiator(this.VisualParentNode.XObject);
                     if (!newIsAttached && this.XObject.IsOpen)
                         this.XObject.IsOpen = false;
                 };
@@ -6118,7 +6121,7 @@ var Fayde;
                     var root = this._Overlay;
                     if (!root)
                         return;
-                    var surface = root.XamlNode.LayoutUpdater.tree.surface;
+                    var surface = this.LayoutUpdater.tree.initiatorSurface;
                     if (!surface)
                         return;
                     root.Width = surface.width;
@@ -6132,6 +6135,12 @@ var Fayde;
 
                 PopupNode.prototype._RaiseClickedOutside = function (sender, e) {
                     this.ClickedOutside.Raise(this, EventArgs.Empty);
+                };
+
+                PopupNode.prototype.RegisterInitiator = function (initiator) {
+                    if (!(initiator instanceof Fayde.UIElement))
+                        return;
+                    this.LayoutUpdater.setInitiator(initiator.XamlNode.LayoutUpdater);
                 };
                 return PopupNode;
             })(Fayde.FENode);
@@ -6148,9 +6157,8 @@ var Fayde;
                 Popup.prototype.CreateNode = function () {
                     return new PopupNode(this);
                 };
-
                 Popup.prototype.CreateLayoutUpdater = function () {
-                    return new minerva.controls.popup.PopupUpdater();
+                    return new PopupUpdater();
                 };
 
                 Popup.prototype.WatchOutsideClick = function (callback, closure) {
@@ -6191,11 +6199,9 @@ var Fayde;
                     if (ov) {
                         Fayde.Providers.InheritedStore.ClearInheritedOnRemove(popup, ov.XamlNode);
                         overlay.Children.Remove(ov);
-                        upd.tree.child = null;
                     }
                     upd.setChild(nv.XamlNode.LayoutUpdater);
                     if (nv) {
-                        upd.tree.child = nv.XamlNode.LayoutUpdater;
                         popup.XamlNode.EnsureCatcher();
                         overlay.Children.Add(nv);
                         Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(popup, nv.XamlNode);
@@ -12342,6 +12348,7 @@ var Fayde;
                 pp.Closed.Subscribe(this.OnPopupClosed, this);
                 this.IsTabStop = false;
 
+                pp.XamlNode.RegisterInitiator(this._TooltipParent);
                 pp.Child = this;
 
                 pp.IsHitTestVisible = false;

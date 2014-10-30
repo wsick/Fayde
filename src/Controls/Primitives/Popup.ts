@@ -1,14 +1,17 @@
 /// <reference path="../../Core/FrameworkElement.ts" />
 
 module Fayde.Controls.Primitives {
+    import PopupUpdater = minerva.controls.popup.PopupUpdater;
+
     export class PopupNode extends FENode {
-        LayoutUpdater: minerva.controls.popup.PopupUpdater;
+        LayoutUpdater: PopupUpdater;
         XObject: Popup;
 
         ClickedOutside = new MulticastEvent<EventArgs>();
 
         OnIsAttachedChanged (newIsAttached: boolean) {
             super.OnIsAttachedChanged(newIsAttached);
+            this.RegisterInitiator(this.VisualParentNode.XObject);
             if (!newIsAttached && this.XObject.IsOpen)
                 this.XObject.IsOpen = false;
         }
@@ -40,7 +43,7 @@ module Fayde.Controls.Primitives {
             var root = this._Overlay;
             if (!root)
                 return;
-            var surface = root.XamlNode.LayoutUpdater.tree.surface;
+            var surface = this.LayoutUpdater.tree.initiatorSurface;
             if (!surface)
                 return;
             root.Width = surface.width;
@@ -56,19 +59,18 @@ module Fayde.Controls.Primitives {
             this.ClickedOutside.Raise(this, EventArgs.Empty);
         }
 
+        RegisterInitiator (initiator: UIElement) {
+            if (!(initiator instanceof UIElement))
+                return;
+            this.LayoutUpdater.setInitiator(initiator.XamlNode.LayoutUpdater);
+        }
     }
     Fayde.RegisterType(PopupNode, "Fayde.Controls.Primitives");
 
     export class Popup extends FrameworkElement {
         XamlNode: PopupNode;
-
-        CreateNode (): PopupNode {
-            return new PopupNode(this);
-        }
-
-        CreateLayoutUpdater () {
-            return new minerva.controls.popup.PopupUpdater();
-        }
+        CreateNode (): PopupNode { return new PopupNode(this); }
+        CreateLayoutUpdater () { return new PopupUpdater(); }
 
         static ChildProperty = DependencyProperty.Register("Child", () => UIElement, Popup);
         static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, Popup, 0.0);
@@ -105,11 +107,9 @@ module Fayde.Controls.Primitives {
             if (ov) {
                 Providers.InheritedStore.ClearInheritedOnRemove(popup, ov.XamlNode);
                 overlay.Children.Remove(ov);
-                upd.tree.child = null;
             }
             upd.setChild(nv.XamlNode.LayoutUpdater);
             if (nv) {
-                upd.tree.child = nv.XamlNode.LayoutUpdater;
                 popup.XamlNode.EnsureCatcher();
                 overlay.Children.Add(nv);
                 Providers.InheritedStore.PropagateInheritedOnAdd(popup, nv.XamlNode);
