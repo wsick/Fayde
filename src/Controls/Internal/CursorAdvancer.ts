@@ -40,7 +40,7 @@ module Fayde.Controls.Internal {
             var text = this.$textOwner.text;
             if (text && text.charAt(cursor) === '\r' && text.charAt(cursor + 1) === '\n')
                 return cursor + 2;
-            return Math.min(text.length - 1, cursor + 1);
+            return Math.min(text.length, cursor + 1);
         }
 
         CursorPrevChar (cursor: number): number {

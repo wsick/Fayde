@@ -3,6 +3,13 @@
     xmlns:x="http://schemas.wsick.com/fayde/x"
     ThemeName="Metro">
     <Grid x:Name="LayoutRoot">
-        <TextBox Margin="5" Text="Enter Text here!" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBox Grid.Row="0" Margin="5" Text="Enter Text here!" />
+        <TextBox Grid.Row="1" Margin="5" Text="Enter Text here!" />
+        <TextBox Grid.Row="2" Margin="5" Text="Enter Text here!" />
     </Grid>
 </Application>
