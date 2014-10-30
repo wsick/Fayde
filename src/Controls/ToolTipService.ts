@@ -19,7 +19,7 @@ module Fayde.Controls {
             return;
 
         slave.RegisterTooltip(owner, tooltip);
-        slave.SetRootVisual();
+        slave.SetRootVisual(owner);
     }
     export class ToolTipService {
         static ToolTipProperty = DependencyProperty.RegisterAttached("ToolTip", () => DependencyObject, ToolTipService, undefined, toolTipChanged);
@@ -51,10 +51,14 @@ module Fayde.Controls {
         private _OpenInterval: number = null;
         private _CloseInterval: number = null;
 
-        SetRootVisual() {
-            if (this._RootVisual || !Application.Current)
+        SetRootVisual(owner: UIElement) {
+            if (this._RootVisual)
                 return;
-            var rv = this._RootVisual = <FrameworkElement>Application.Current.RootVisual;
+            var updater = owner.XamlNode.LayoutUpdater;
+            var surface = <Surface>updater.tree.surface;
+            if (!surface)
+                return;
+            var rv = this._RootVisual = <FrameworkElement>surface.App.RootVisual;
             if (!rv)
                 return;
             // keep caching mouse position because we can't query it from Silverlight 
@@ -165,7 +169,7 @@ module Fayde.Controls {
 
             console.assert(!this._CurrentTooltip);
 
-            this.SetRootVisual();
+            this.SetRootVisual(sender);
 
             var sinceLastOpen = new Date().getTime() - this._LastOpened;
             if (sinceLastOpen <= betweenShowDelay) {

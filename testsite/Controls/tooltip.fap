@@ -7,7 +7,7 @@
             <ToolTipService.ToolTip>
                 <ToolTip>
                     <Border Width="200" Height="200" Background="Gray" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
-                        <TextBlock Foreground="White" Text="Infinitely extensible tooltip!"></TextBlock>
+                        <TextBlock Foreground="White" Text="Infinitely extensible tooltip!"/>
                     </Border>
                 </ToolTip>
             </ToolTipService.ToolTip>

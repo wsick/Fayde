@@ -12524,7 +12524,7 @@ var Fayde;
                 return;
 
             slave.RegisterTooltip(owner, tooltip);
-            slave.SetRootVisual();
+            slave.SetRootVisual(owner);
         }
         var ToolTipService = (function () {
             function ToolTipService() {
@@ -12583,10 +12583,14 @@ var Fayde;
                 this._OpenInterval = null;
                 this._CloseInterval = null;
             }
-            ToolTipServiceSlave.prototype.SetRootVisual = function () {
-                if (this._RootVisual || !Fayde.Application.Current)
+            ToolTipServiceSlave.prototype.SetRootVisual = function (owner) {
+                if (this._RootVisual)
                     return;
-                var rv = this._RootVisual = Fayde.Application.Current.RootVisual;
+                var updater = owner.XamlNode.LayoutUpdater;
+                var surface = updater.tree.surface;
+                if (!surface)
+                    return;
+                var rv = this._RootVisual = surface.App.RootVisual;
                 if (!rv)
                     return;
 
@@ -12698,7 +12702,7 @@ var Fayde;
 
                 console.assert(!this._CurrentTooltip);
 
-                this.SetRootVisual();
+                this.SetRootVisual(sender);
 
                 var sinceLastOpen = new Date().getTime() - this._LastOpened;
                 if (sinceLastOpen <= betweenShowDelay) {
