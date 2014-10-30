@@ -18392,7 +18392,10 @@ var Fayde;
                 if (unshifted)
                     keyCode = unshifted;
 
-                return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], String.fromCharCode(e.which || e.keyCode));
+                var args = new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], String.fromCharCode(e.which || e.keyCode));
+                if (args.Char === "'")
+                    args.Key = 255 /* Unknown */;
+                return args;
             };
             NetscapeKeyInterop.prototype.CreateArgsDown = function (e) {
                 if (sknet[e.keyCode] === undefined)
