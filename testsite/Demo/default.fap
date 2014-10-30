@@ -5,7 +5,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Navigation/TestResourceDictionary.xml" />
+                <ResourceDictionary Source="Demo/TestResourceDictionary.xml" />
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="LogoIcon" TargetType="ContentControl">
                 <Setter Property="Height" Value="45" />
@@ -245,8 +245,8 @@
                     <Frame x:Name="ContentFrame">
                         <Frame.UriMapper>
                             <UriMapper>
-                                <UriMapping Uri="" MappedUri="Navigation/Views/Home.fayde" />
-                                <UriMapping Uri="/{pageName}" MappedUri="Navigation/Views/{pageName}.fayde" />
+                                <UriMapping Uri="" MappedUri="Demo/Views/Home.fayde" />
+                                <UriMapping Uri="/{pageName}" MappedUri="Demo/Views/{pageName}.fayde" />
                             </UriMapper>
                         </Frame.UriMapper>
                     </Frame>
