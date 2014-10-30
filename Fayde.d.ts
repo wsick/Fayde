@@ -2172,6 +2172,7 @@ declare module Fayde.Input {
 }
 declare module Fayde.Controls {
     class TextBoxBase extends Control {
+        static CaretBrushProperty: DependencyProperty;
         static SelectionForegroundProperty: DependencyProperty;
         static SelectionBackgroundProperty: DependencyProperty;
         static SelectionLengthProperty: DependencyProperty;
@@ -2214,7 +2215,6 @@ declare module Fayde.Controls {
 declare module Fayde.Controls {
     class PasswordBox extends TextBoxBase {
         static BaselineOffsetProperty: DependencyProperty;
-        static CaretBrushProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
         static PasswordCharProperty: DependencyProperty;
         static PasswordProperty: DependencyProperty;
@@ -2469,7 +2469,6 @@ declare module Fayde.Controls {
 declare module Fayde.Controls {
     class TextBox extends TextBoxBase {
         static AcceptsReturnProperty: DependencyProperty;
-        static CaretBrushProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
         static IsReadOnlyProperty: DependencyProperty;
         static BaselineOffsetProperty: DependencyProperty;

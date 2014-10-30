@@ -3,7 +3,6 @@
 module Fayde.Controls {
     export class TextBox extends TextBoxBase {
         static AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false);
-        static CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBox);
         static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, undefined, undefined, undefined, positiveIntValidator);
         static IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", () => Boolean, TextBox, false);
         static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBox);

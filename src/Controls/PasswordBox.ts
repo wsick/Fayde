@@ -3,7 +3,6 @@
 module Fayde.Controls {
     export class PasswordBox extends TextBoxBase {
         static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, PasswordBox);
-        static CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, PasswordBox);
         static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, PasswordBox, 0, undefined, undefined, undefined, positiveIntValidator);
         static PasswordCharProperty = DependencyProperty.Register("PasswordChar", () => String, PasswordBox, String.fromCharCode(9679));
         static PasswordProperty = DependencyProperty.Register("Password", () => String, PasswordBox);

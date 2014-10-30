@@ -10783,6 +10783,9 @@ var Fayde;
                     anchor = cursor;
                 return proxy.setAnchorCursor(anchor, cursor);
             };
+            TextBoxBase.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () {
+                return Fayde.Media.Brush;
+            }, TextBoxBase);
             TextBoxBase.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () {
                 return Fayde.Media.Brush;
             }, TextBoxBase);
@@ -10802,6 +10805,9 @@ var Fayde;
 
         var reactions;
         (function (reactions) {
+            Fayde.DPReaction(TextBoxBase.CaretBrushProperty, function (tbb, ov, nv) {
+                tbb.$View.setCaretBrush(nv);
+            });
             Fayde.DPReaction(TextBoxBase.SelectionStartProperty, function (tbb, ov, nv) {
                 tbb.$Proxy.setSelectionStart(nv);
                 tbb.$View.setSelectionStart(nv);
@@ -10867,9 +10873,6 @@ var Fayde;
             });
             PasswordBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () {
                 return Number;
-            }, PasswordBox);
-            PasswordBox.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () {
-                return Fayde.Media.Brush;
             }, PasswordBox);
             PasswordBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () {
                 return Number;
@@ -12195,9 +12198,6 @@ var Fayde;
             TextBox.AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", function () {
                 return Boolean;
             }, TextBox, false);
-            TextBox.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () {
-                return Fayde.Media.Brush;
-            }, TextBox);
             TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () {
                 return Number;
             }, TextBox, 0, undefined, undefined, undefined, positiveIntValidator);

@@ -4,6 +4,7 @@
 module Fayde.Controls {
     var Key = Input.Key;
     export class TextBoxBase extends Control {
+        static CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBoxBase);
         static SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBoxBase);
         static SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBoxBase);
         static SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
@@ -418,6 +419,9 @@ module Fayde.Controls {
     Fayde.RegisterType(TextBoxBase, "Fayde.Controls");
 
     module reactions {
+        DPReaction<Media.Brush>(TextBoxBase.CaretBrushProperty, (tbb: TextBoxBase, ov, nv) => {
+            tbb.$View.setCaretBrush(nv);
+        });
         DPReaction<number>(TextBoxBase.SelectionStartProperty, (tbb: TextBoxBase, ov, nv) => {
             tbb.$Proxy.setSelectionStart(nv);
             tbb.$View.setSelectionStart(nv);
