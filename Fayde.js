@@ -17963,14 +17963,24 @@ var Fayde;
                 this.$$root = uie;
             }
             this.attachLayer(uie.XamlNode.LayoutUpdater, root);
-            uie.XamlNode.SetIsLoaded(true);
-            uie.XamlNode.SetIsAttached(true);
+        };
+
+        Surface.prototype.attachLayer = function (layer, root) {
+            _super.prototype.attachLayer.call(this, layer, root);
+            var node = layer.getAttachedValue("$node");
+            node.SetIsLoaded(true);
+            node.SetIsAttached(true);
         };
 
         Surface.prototype.Detach = function (uie) {
             this.detachLayer(uie.XamlNode.LayoutUpdater);
-            uie.XamlNode.SetIsLoaded(false);
-            uie.XamlNode.SetIsAttached(false);
+        };
+
+        Surface.prototype.detachLayer = function (layer) {
+            var node = layer.getAttachedValue("$node");
+            node.SetIsLoaded(false);
+            node.SetIsAttached(false);
+            _super.prototype.detachLayer.call(this, layer);
         };
 
         Surface.prototype.Focus = function (node, recurse) {

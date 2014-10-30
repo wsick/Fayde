@@ -3446,7 +3446,9 @@ declare module Fayde {
         constructor(app: Application);
         public init(canvas: HTMLCanvasElement): void;
         public Attach(uie: UIElement, root?: boolean): void;
+        public attachLayer(layer: minerva.core.Updater, root?: boolean): void;
         public Detach(uie: UIElement): void;
+        public detachLayer(layer: minerva.core.Updater): void;
         public Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
         static HasFocus(uie: UIElement): boolean;
         static Focus(uie: Controls.Control, recurse?: boolean): boolean;

@@ -35,14 +35,24 @@ module Fayde {
                 this.$$root = uie;
             }
             this.attachLayer(uie.XamlNode.LayoutUpdater, root);
-            uie.XamlNode.SetIsLoaded(true);
-            uie.XamlNode.SetIsAttached(true);
+        }
+
+        attachLayer(layer: minerva.core.Updater, root?: boolean) {
+            super.attachLayer(layer, root);
+            var node = <UINode>layer.getAttachedValue("$node");
+            node.SetIsLoaded(true);
+            node.SetIsAttached(true);
         }
 
         Detach (uie: UIElement) {
             this.detachLayer(uie.XamlNode.LayoutUpdater);
-            uie.XamlNode.SetIsLoaded(false);
-            uie.XamlNode.SetIsAttached(false);
+        }
+
+        detachLayer(layer: minerva.core.Updater) {
+            var node = <UINode>layer.getAttachedValue("$node");
+            node.SetIsLoaded(false);
+            node.SetIsAttached(false);
+            super.detachLayer(layer);
         }
 
         Focus (node: Controls.ControlNode, recurse?: boolean): boolean {
