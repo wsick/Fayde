@@ -1,17 +1,23 @@
 ﻿<Application
-    xmlns="http://schemas.wsick.com/fayde"
-    xmlns:x="http://schemas.wsick.com/fayde/x"
-    ThemeName="Metro">
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        ThemeName="Metro">
     <Grid x:Name="LayoutRoot">
-        <Border Background="Green" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <ToolTipService.ToolTip>
-                <ToolTip>
-                    <Border Width="200" Height="200" Background="Silver" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
-                        <TextBlock Foreground="White" Text="Infinitely extensible tooltip!"/>
-                    </Border>
-                </ToolTip>
-            </ToolTipService.ToolTip>
-            <TextBlock Text="Mouse over me!"></TextBlock>
-        </Border>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Border Background="Green">
+                <ToolTipService.ToolTip>
+                    <ToolTip>
+                        <Border Width="200" Height="200" Background="Silver" BorderBrush="Black" BorderThickness="1"
+                                CornerRadius="5">
+                            <TextBlock Foreground="White" Text="Infinitely extensible tooltip!"/>
+                        </Border>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <TextBlock Text="Mouse over me!"></TextBlock>
+            </Border>
+            <Border Background="Orange" ToolTipService.ToolTip="I am a normal tooltip">
+                <TextBlock Text="Me too!"></TextBlock>
+            </Border>
+        </StackPanel>
     </Grid>
 </Application>
