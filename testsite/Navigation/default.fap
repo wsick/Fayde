@@ -10,16 +10,15 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
-            <HyperlinkButton NavigateUri="/" TargetName="ContentFrame">Home</HyperlinkButton>
+            <HyperlinkButton NavigateUri="" TargetName="ContentFrame">Home</HyperlinkButton>
             <HyperlinkButton NavigateUri="/page1" TargetName="ContentFrame">Page 1</HyperlinkButton>
             <HyperlinkButton NavigateUri="/page2" TargetName="ContentFrame">Page 2</HyperlinkButton>
         </StackPanel>
         <Frame x:Name="ContentFrame" Grid.Row="1">
             <Frame.UriMapper>
                 <UriMapper>
-                    <UriMapping Uri="" MappedUri="Navigation/Views/Home.fayde"/>
-                    <UriMapping Uri="/" MappedUri="Navigation/Views/Home.fayde"/>
-                    <UriMapping Uri="/{pageName}" MappedUri="Navigation/Views/{pageName}.fayde"/>
+                    <UriMapping Uri="" MappedUri="Navigation/Views/Home.fayde" />
+                    <UriMapping Uri="/{pageName}" MappedUri="Navigation/Views/{pageName}.fayde" />
                 </UriMapper>
             </Frame.UriMapper>
         </Frame>
