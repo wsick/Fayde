@@ -108,7 +108,7 @@ module Fayde.Controls.Primitives {
                 Providers.InheritedStore.ClearInheritedOnRemove(popup, ov.XamlNode);
                 overlay.Children.Remove(ov);
             }
-            upd.setChild(nv.XamlNode.LayoutUpdater);
+            upd.setChild(nv ? nv.XamlNode.LayoutUpdater : null);
             if (nv) {
                 popup.XamlNode.EnsureCatcher();
                 overlay.Children.Add(nv);
