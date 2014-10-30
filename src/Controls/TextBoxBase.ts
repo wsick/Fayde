@@ -23,6 +23,7 @@ module Fayde.Controls {
         private _Captured: boolean = false;
 
         IsReadOnly = false;
+        AcceptsReturn = false;
 
         $ContentProxy = new Internal.TextBoxContentProxy();
         $Proxy: Internal.TextProxy;
@@ -224,10 +225,12 @@ module Fayde.Controls {
 
             var proxy = this.$Proxy;
             proxy.begin();
-            if (args.Key === Key.Enter) {
-                proxy.enterText('\r\n');
+            if (args.Key === Key.Enter && this.AcceptsReturn === true) {
+                proxy.enterText('\n');
+                args.Handled = true;
             } else if (args.Char != null && !args.Modifiers.Ctrl && !args.Modifiers.Alt) {
                 proxy.enterText(args.Char);
+                args.Handled = true;
             }
             proxy.end();
         }

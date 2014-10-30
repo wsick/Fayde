@@ -10392,6 +10392,7 @@ var Fayde;
                 this._Selecting = false;
                 this._Captured = false;
                 this.IsReadOnly = false;
+                this.AcceptsReturn = false;
                 this.$ContentProxy = new Controls.Internal.TextBoxContentProxy();
                 var view = this.$View = this.CreateView();
                 view.MouseLeftButtonDown.Subscribe(function (s, e) {
@@ -10588,10 +10589,12 @@ var Fayde;
 
                 var proxy = this.$Proxy;
                 proxy.begin();
-                if (args.Key === 3 /* Enter */) {
-                    proxy.enterText('\r\n');
+                if (args.Key === 3 /* Enter */ && this.AcceptsReturn === true) {
+                    proxy.enterText('\n');
+                    args.Handled = true;
                 } else if (args.Char != null && !args.Modifiers.Ctrl && !args.Modifiers.Alt) {
                     proxy.enterText(args.Char);
+                    args.Handled = true;
                 }
                 proxy.end();
             };

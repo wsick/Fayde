@@ -2189,6 +2189,7 @@ declare module Fayde.Controls {
         private _Selecting;
         private _Captured;
         public IsReadOnly: boolean;
+        public AcceptsReturn: boolean;
         public $ContentProxy: Internal.TextBoxContentProxy;
         public $Proxy: Internal.TextProxy;
         public $Advancer: Internal.ICursorAdvancer;
