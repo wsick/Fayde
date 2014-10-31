@@ -10,6 +10,6 @@
         </Grid.RowDefinitions>
         <TextBox Grid.Row="0" Margin="5" Text="Enter Text here!" />
         <TextBox Grid.Row="1" Margin="5" Text="Enter Text here!" />
-        <TextBox Grid.Row="2" Margin="5" Text="Enter Text here!" />
+        <TextBox Grid.Row="2" Margin="5" Text="Enter Text here!" AcceptsReturn="True" TextWrapping="Wrap" />
     </Grid>
 </Application>
