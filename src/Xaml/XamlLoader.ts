@@ -240,6 +240,8 @@ module Fayde.Xaml {
                     ObjectStack: ctx.ObjectStack
                 };
                 var result = MarkupExpressionParser.Parse(value, parseCtx);
+                if (result === null)
+                    return null;
                 if (result !== undefined) {
                     if (!propd) {
                         if (result instanceof EventBinding)

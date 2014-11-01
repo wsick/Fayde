@@ -5573,6 +5573,8 @@ var Fayde;
                         ObjectStack: ctx.ObjectStack
                     };
                     var result = Xaml.MarkupExpressionParser.Parse(value, parseCtx);
+                    if (result === null)
+                        return null;
                     if (result !== undefined) {
                         if (!propd) {
                             if (result instanceof Fayde.EventBinding)
