@@ -22,7 +22,7 @@ module Fayde.Controls.Primitives {
         EnsureOverlay (): Canvas {
             if (!this._Overlay) {
                 this._Overlay = new Canvas();
-                this.LayoutUpdater.tree.visualChild = this._Overlay.XamlNode.LayoutUpdater;
+                this.LayoutUpdater.setLayer(this._Overlay.XamlNode.LayoutUpdater);
             }
             return this._Overlay;
         }
