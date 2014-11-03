@@ -10456,6 +10456,8 @@ var Fayde;
             };
 
             TextBoxBase.prototype.OnMouseLeftButtonDown = function (e) {
+                if (e.Handled)
+                    return;
                 e.Handled = true;
                 this.Focus();
                 this._Captured = this.CaptureMouse();
@@ -10466,6 +10468,8 @@ var Fayde;
             };
 
             TextBoxBase.prototype.OnMouseLeftButtonUp = function (e) {
+                if (e.Handled)
+                    return;
                 if (this._Captured)
                     this.ReleaseMouseCapture();
                 e.Handled = true;

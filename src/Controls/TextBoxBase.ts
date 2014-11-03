@@ -80,6 +80,8 @@ module Fayde.Controls {
         }
 
         OnMouseLeftButtonDown (e: Input.MouseButtonEventArgs) {
+            if (e.Handled)
+                return;
             e.Handled = true;
             this.Focus();
             this._Captured = this.CaptureMouse();
@@ -90,6 +92,8 @@ module Fayde.Controls {
         }
 
         OnMouseLeftButtonUp (e: Input.MouseButtonEventArgs) {
+            if (e.Handled)
+                return;
             if (this._Captured)
                 this.ReleaseMouseCapture();
             e.Handled = true;
