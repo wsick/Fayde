@@ -82,6 +82,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PanelMonitor.cs" />
     <Compile Include="Controls\ListBoxMonitor.cs" />
     <Compile Include="Controls\VirtualizingStackPanelMonitor.cs" />
     <Compile Include="MainPage.xaml.cs">
