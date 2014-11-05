@@ -79,4 +79,15 @@ module Fayde {
             }
         }
     }
+
+    export function debugLayersFlatten (): any[] {
+        var arr = [];
+        var app = Fayde.Application.Current;
+        for (var walker = app.MainSurface.walkLayers(); walker.step();) {
+            for (var subwalker = walker.current.walkDeep(); subwalker.step();) {
+                arr.push(subwalker.current);
+            }
+        }
+        return arr;
+    }
 }

@@ -5627,4 +5627,5 @@ declare module Fayde {
         node: any;
         updater: minerva.core.Updater;
     };
+    function debugLayersFlatten(): any[];
 }
