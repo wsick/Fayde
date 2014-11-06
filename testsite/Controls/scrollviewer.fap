@@ -1,7 +1,7 @@
 ﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    ThemeName="Default">
+    ThemeName="Metro">
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="200" />
@@ -38,15 +38,18 @@
         </Border>
         -->
 
-        <Border Grid.Row="0" Grid.Column="0" Background="Orange" Margin="5">
-        </Border>
+        <ScrollViewer Grid.Row="0" Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="5">
+            <Image Width="600" Height="480" Stretch="UniformToFill" Source="Images/testing.jpg" />
+        </ScrollViewer>
         <ScrollViewer Grid.Row="0" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="5">
             <Image Width="600" Height="480" Stretch="UniformToFill" Source="Images/testing.jpg" />
         </ScrollViewer>
-        <Border Grid.Row="1" Grid.Column="0" Background="Orange" Margin="5">
-        </Border>
-        <Border Grid.Row="1" Grid.Column="1" Background="Orange" Margin="5">
-        </Border>
+        <ScrollViewer Grid.Row="1" Grid.Column="0" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto" Margin="5">
+            <Image Width="600" Height="480" Stretch="UniformToFill" Source="Images/testing.jpg" />
+        </ScrollViewer>
+        <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled" Margin="5">
+            <Image Width="600" Height="480" Stretch="UniformToFill" Source="Images/testing.jpg" />
+        </ScrollViewer>
 
     </Grid>
 </Application>
