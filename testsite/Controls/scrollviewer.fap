@@ -1,10 +1,52 @@
 ﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    ThemeName="Metro">
+    ThemeName="Default">
     <Grid x:Name="LayoutRoot">
-        <ScrollViewer Width="300" Height="300">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="200" />
+            <RowDefinition Height="200" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="200" />
+        </Grid.ColumnDefinitions>
+
+        <!--
+        <ScrollViewer Grid.Row="0" Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="5">
             <Image Width="600" Height="480" Stretch="UniformToFill" Source="Images/testing.jpg" />
         </ScrollViewer>
+        <ScrollViewer Grid.Row="0" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="5">
+            <Image Width="600" Height="480" Stretch="UniformToFill" Source="Images/testing.jpg" />
+        </ScrollViewer>
+        <ScrollViewer Grid.Row="1" Grid.Column="0" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto" Margin="5">
+            <Image Width="600" Height="480" Stretch="UniformToFill" Source="Images/testing.jpg" />
+        </ScrollViewer>
+        <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled" Margin="5">
+            <Image Width="600" Height="480" Stretch="UniformToFill" Source="Images/testing.jpg" />
+        </ScrollViewer>
+        -->
+
+        <!--
+        <Border Grid.Row="0" Grid.Column="0" Background="Orange" Margin="5">
+        </Border>
+        <Border Grid.Row="0" Grid.Column="1" Background="Orange" Margin="5">
+        </Border>
+        <Border Grid.Row="1" Grid.Column="0" Background="Orange" Margin="5">
+        </Border>
+        <Border Grid.Row="1" Grid.Column="1" Background="Orange" Margin="5">
+        </Border>
+        -->
+
+        <Border Grid.Row="0" Grid.Column="0" Background="Orange" Margin="5">
+        </Border>
+        <ScrollViewer Grid.Row="0" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="5">
+            <Image Width="600" Height="480" Stretch="UniformToFill" Source="Images/testing.jpg" />
+        </ScrollViewer>
+        <Border Grid.Row="1" Grid.Column="0" Background="Orange" Margin="5">
+        </Border>
+        <Border Grid.Row="1" Grid.Column="1" Background="Orange" Margin="5">
+        </Border>
+
     </Grid>
 </Application>
