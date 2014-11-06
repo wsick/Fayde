@@ -18,7 +18,6 @@
   ],
   "dependencies": {
     "minerva": "git://github.com/bsick7/minerva",
-    "Fayde.Controls": "git://github.com/BSick7/Fayde.Controls#~0.9.9",
     "requirejs": "~2.1.15",
     "requirejs-text": "~2.0.12",
     "qunit": "~1.14.0"
