@@ -1,6 +1,3 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 export function load() {
     QUnit.module("Dependency Loading Tests");
 

@@ -1,6 +1,3 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 export function load() {
     QUnit.module("DataTemplate Tests");
 
@@ -45,7 +42,7 @@ export function load() {
         strictEqual(grid.Children.Count, 1);
         var cc = <Fayde.Controls.ContentControl>grid.Children.GetValueAt(0);
         ok(cc instanceof Fayde.Controls.ContentControl, "Grid should have a ContentControl.");
-        cc.Measure(new size());
+        cc.Measure(new minerva.Size());
 
         var cp = <Fayde.Controls.ContentPresenter>Fayde.VisualTreeHelper.GetChild(cc, 0);
         ok(cp instanceof Fayde.Controls.ContentPresenter, "ContentControl should have a ContentPresenter.");

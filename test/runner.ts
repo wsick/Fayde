@@ -1,6 +1,3 @@
-/// <reference path="qunit.d.ts" />
-
-declare var require;
 module runner {
     var testModules = [
         "tests/PrimitivesTests",

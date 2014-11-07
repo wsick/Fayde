@@ -1,6 +1,3 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 import DependencyObject = Fayde.DependencyObject;
 import FrameworkElement = Fayde.FrameworkElement;
 import ContentControl = Fayde.Controls.ContentControl;

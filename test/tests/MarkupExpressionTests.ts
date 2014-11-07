@@ -1,5 +1,3 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
 /// <amd-dependency path="../mocks/TestConverter" />
 
 export function load() {
@@ -46,7 +44,7 @@ export function load() {
         var border = <Fayde.Controls.Border>template.GetVisualTree(button);
 
         button.Padding = new Thickness(1, 2, 3, 4);
-        ok(Thickness.Equals(border.Margin, button.Padding), "After");
+        deepEqual(border.Margin, button.Padding, "After");
     });
 
     test("StaticResource", () => {
@@ -58,7 +56,7 @@ export function load() {
             + "</Grid>";
         var grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
         var border = <Fayde.Controls.Border>grid.Children.GetValueAt(0);
-        ok(Thickness.Equals(border.Margin, new Thickness(1, 2, 3, 4)), "Value");
+        deepEqual(border.Margin, new Thickness(1, 2, 3, 4), "Value");
     });
 
     test("Binding", () => {

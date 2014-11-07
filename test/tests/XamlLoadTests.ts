@@ -1,5 +1,3 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
 /// <amd-dependency path="../mocks/TestControl" />
 
 export function load() {
@@ -110,10 +108,10 @@ export function load() {
         var resources = root.Resources;
         ok(resources.Contains("SomeThickness"), "Resources should contain a resource with a key 'SomeThickness'");
         var thickness = <Thickness>resources.Get("SomeThickness");
-        strictEqual(thickness.Left, 1, "Thickness.Left must equal 1 and not \"1\".");
-        strictEqual(thickness.Top, 2, "Thickness.Top must equal 2 and not \"2\".");
-        strictEqual(thickness.Right, 3, "Thickness.Right must equal 3 and not \"3\".");
-        strictEqual(thickness.Bottom, 4, "Thickness.Bottom must equal 4 and not \"4\".");
+        strictEqual(thickness.left, 1, "Thickness.Left must equal 1 and not \"1\".");
+        strictEqual(thickness.top, 2, "Thickness.Top must equal 2 and not \"2\".");
+        strictEqual(thickness.right, 3, "Thickness.Right must equal 3 and not \"3\".");
+        strictEqual(thickness.bottom, 4, "Thickness.Bottom must equal 4 and not \"4\".");
     });
 
     test("Style", () => {
@@ -134,7 +132,7 @@ export function load() {
         strictEqual(setters.Count, 1, "There should be 1 setter in the Style.");
         var setter = setters.GetValueAt(0);
         strictEqual(setter.Property, Fayde.FrameworkElement.MarginProperty, "Setter Property should be Margin property.");
-        ok(Thickness.Equals(setter.ConvertedValue, new Thickness(1, 1, 1, 1)), "Setter Value should be a Thickness (1, 1, 1, 1).");
+        deepEqual(setter.ConvertedValue, new Thickness(1, 1, 1, 1), "Setter Value should be a Thickness (1, 1, 1, 1).")
 
 
         xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"

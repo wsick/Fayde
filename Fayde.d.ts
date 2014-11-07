@@ -5284,16 +5284,6 @@ declare class Length {
 declare class Thickness extends minerva.Thickness {
     public Clone(): Thickness;
 }
-declare module Vector {
-    function create(x: number, y: number): number[];
-    function reverse(v: number[]): number[];
-    function orthogonal(v: number[]): number[];
-    function normalize(v: number[]): number[];
-    function rotate(v: number[], theta: number): number[];
-    function angleBetween(u: number[], v: number[]): number;
-    function isClockwiseTo(v1: number[], v2: number[]): boolean;
-    function intersection(s1: number[], d1: number[], s2: number[], d2: number[]): number[];
-}
 declare class BError {
     static Argument: number;
     static InvalidOperation: number;

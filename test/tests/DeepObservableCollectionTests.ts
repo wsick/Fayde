@@ -1,6 +1,3 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 import TestObservable = require("../mocks/TestObservable");
 import DeepObservableCollection = Fayde.Collections.DeepObservableCollection;
 

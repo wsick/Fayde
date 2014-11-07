@@ -1,5 +1,5 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
+import GridLength = Fayde.Controls.GridLength;
+import GridUnitType = minerva.controls.grid.GridUnitType;
 
 export function load() {
     QUnit.module("Type Converter Tests");
@@ -58,54 +58,54 @@ export function load() {
 
     test("Thickness", () => {
         var t = <Thickness>Fayde.ConvertAnyToType(1, Thickness);
-        strictEqual(t.Left, 1, "Number (Left)");
-        strictEqual(t.Top, 1, "Number (Top)");
-        strictEqual(t.Right, 1, "Number (Right)");
-        strictEqual(t.Bottom, 1, "Number (Bottom)");
+        strictEqual(t.left, 1, "Number (Left)");
+        strictEqual(t.top, 1, "Number (Top)");
+        strictEqual(t.right, 1, "Number (Right)");
+        strictEqual(t.bottom, 1, "Number (Bottom)");
 
         t = <Thickness>Fayde.ConvertAnyToType("2", Thickness);
-        strictEqual(t.Left, 2, "Uniform (Left)");
-        strictEqual(t.Top, 2, "Uniform (Top)");
-        strictEqual(t.Right, 2, "Uniform (Right)");
-        strictEqual(t.Bottom, 2, "Uniform (Bottom)");
+        strictEqual(t.left, 2, "Uniform (Left)");
+        strictEqual(t.top, 2, "Uniform (Top)");
+        strictEqual(t.right, 2, "Uniform (Right)");
+        strictEqual(t.bottom, 2, "Uniform (Bottom)");
 
         t = <Thickness>Fayde.ConvertAnyToType("4,6", Thickness);
-        strictEqual(t.Left, 4, "Mid (Left)");
-        strictEqual(t.Top, 6, "Mid (Top)");
-        strictEqual(t.Right, 4, "Mid (Right)");
-        strictEqual(t.Bottom, 6, "Mid (Bottom)");
+        strictEqual(t.left, 4, "Mid (Left)");
+        strictEqual(t.top, 6, "Mid (Top)");
+        strictEqual(t.right, 4, "Mid (Right)");
+        strictEqual(t.bottom, 6, "Mid (Bottom)");
 
         t = <Thickness>Fayde.ConvertAnyToType("0, 2, 4, 6", Thickness);
-        strictEqual(t.Left, 0, "Full (Left)");
-        strictEqual(t.Top, 2, "Full (Top)");
-        strictEqual(t.Right, 4, "Full (Right)");
-        strictEqual(t.Bottom, 6, "Full (Bottom)");
+        strictEqual(t.left, 0, "Full (Left)");
+        strictEqual(t.top, 2, "Full (Top)");
+        strictEqual(t.right, 4, "Full (Right)");
+        strictEqual(t.bottom, 6, "Full (Bottom)");
     });
 
     test("CornerRadius", () => {
         var cr = <CornerRadius>Fayde.ConvertAnyToType(1, CornerRadius);
-        strictEqual(cr.TopLeft, 1, "Number (TopLeft)");
-        strictEqual(cr.TopRight, 1, "Number (Top)");
-        strictEqual(cr.BottomRight, 1, "Number (BottomRight)");
-        strictEqual(cr.BottomLeft, 1, "Number (BottomLeft)");
+        strictEqual(cr.topLeft, 1, "Number (TopLeft)");
+        strictEqual(cr.topRight, 1, "Number (Top)");
+        strictEqual(cr.bottomRight, 1, "Number (BottomRight)");
+        strictEqual(cr.bottomLeft, 1, "Number (BottomLeft)");
 
         cr = <CornerRadius>Fayde.ConvertAnyToType("2", CornerRadius);
-        strictEqual(cr.TopLeft, 2, "Uniform (TopLeft)");
-        strictEqual(cr.TopRight, 2, "Uniform (TopRight)");
-        strictEqual(cr.BottomRight, 2, "Uniform (BottomRight)");
-        strictEqual(cr.BottomLeft, 2, "Uniform (BottomLeft)");
+        strictEqual(cr.topLeft, 2, "Uniform (TopLeft)");
+        strictEqual(cr.topRight, 2, "Uniform (TopRight)");
+        strictEqual(cr.bottomRight, 2, "Uniform (BottomRight)");
+        strictEqual(cr.bottomLeft, 2, "Uniform (BottomLeft)");
 
         cr = <CornerRadius>Fayde.ConvertAnyToType("0, 2, 4, 6", CornerRadius);
-        strictEqual(cr.TopLeft, 0, "Full (TopLeft)");
-        strictEqual(cr.TopRight, 2, "Full (TopRight)");
-        strictEqual(cr.BottomRight, 4, "Full (BottomRight)");
-        strictEqual(cr.BottomLeft, 6, "Full (BottomLeft)");
+        strictEqual(cr.topLeft, 0, "Full (TopLeft)");
+        strictEqual(cr.topRight, 2, "Full (TopRight)");
+        strictEqual(cr.bottomRight, 4, "Full (BottomRight)");
+        strictEqual(cr.bottomLeft, 6, "Full (BottomLeft)");
     });
 
     test("Point", () => {
         var p = <Point>Fayde.ConvertAnyToType("1, 3", Point);
-        strictEqual(p.X, 1, "Point.X");
-        strictEqual(p.Y, 3, "Point.Y");
+        strictEqual(p.x, 1, "Point.X");
+        strictEqual(p.y, 3, "Point.Y");
     });
 
     test("Length", () => {
@@ -135,15 +135,12 @@ export function load() {
     });
 
     test("GridLength", () => {
-        var GridLength = Fayde.Controls.GridLength;
-        var GridUnitType = Fayde.Controls.GridUnitType;
-
-        var gl = <Fayde.Controls.GridLength>Fayde.ConvertAnyToType("Auto", GridLength);
+        var gl = <GridLength>Fayde.ConvertAnyToType("Auto", GridLength);
         strictEqual(gl.Type, GridUnitType.Auto, "Auto GridLength");
-        gl = <Fayde.Controls.GridLength>Fayde.ConvertAnyToType("3*", GridLength);
+        gl = <GridLength>Fayde.ConvertAnyToType("3*", GridLength);
         strictEqual(gl.Type, GridUnitType.Star, "Star GridLength Type");
         strictEqual(gl.Value, 3, "Star GridLength Value");
-        gl = <Fayde.Controls.GridLength>Fayde.ConvertAnyToType("25", GridLength);
+        gl = <GridLength>Fayde.ConvertAnyToType("25", GridLength);
         strictEqual(gl.Type, GridUnitType.Pixel, "Pixel GridLength Type");
         strictEqual(gl.Value, 25, "Pixel GridLength Value");
     });
@@ -196,11 +193,11 @@ export function load() {
         var coll = <Fayde.Shapes.PointCollection>Fayde.ConvertAnyToType(str, Fayde.Shapes.PointCollection);
 
         strictEqual(coll.Count, 5, "Count");
-        ok(Point.Equals(new Point(1, 1), coll.GetValueAt(0)), "P1");
-        ok(Point.Equals(new Point(2, 2), coll.GetValueAt(1)), "P2");
-        ok(Point.Equals(new Point(3, 3), coll.GetValueAt(2)), "P3");
-        ok(Point.Equals(new Point(4, 4), coll.GetValueAt(3)), "P4");
-        ok(Point.Equals(new Point(5, 5), coll.GetValueAt(4)), "P5");
+        ok(Point.isEqual(new Point(1, 1), coll.GetValueAt(0)), "P1");
+        ok(Point.isEqual(new Point(2, 2), coll.GetValueAt(1)), "P2");
+        ok(Point.isEqual(new Point(3, 3), coll.GetValueAt(2)), "P3");
+        ok(Point.isEqual(new Point(4, 4), coll.GetValueAt(3)), "P4");
+        ok(Point.isEqual(new Point(5, 5), coll.GetValueAt(4)), "P5");
     });
 
     test("Geometry", () => {
@@ -218,14 +215,14 @@ export function load() {
         strictEqual(cdc.Count, 3, "1.1");
 
         var cdw = cdc.GetValueAt(0).Width;
-        strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Auto, "1.2");
+        strictEqual(cdw.Type, GridUnitType.Auto, "1.2");
 
         cdw = cdc.GetValueAt(1).Width;
-        strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Star, "1.3");
+        strictEqual(cdw.Type, GridUnitType.Star, "1.3");
         strictEqual(cdw.Value, 1, "1.4");
 
         cdw = cdc.GetValueAt(2).Width;
-        strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Pixel, "1.5");
+        strictEqual(cdw.Type, GridUnitType.Pixel, "1.5");
         strictEqual(cdw.Value, 200, "1.6");
 
 
@@ -234,15 +231,15 @@ export function load() {
         strictEqual(cdc.Count, 3, "2.1");
 
         cdw = cdc.GetValueAt(0).Width;
-        strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Star, "2.2");
+        strictEqual(cdw.Type, GridUnitType.Star, "2.2");
         strictEqual(cdw.Value, 3, "2.3");
 
         cdw = cdc.GetValueAt(1).Width;
-        strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Pixel, "2.4");
+        strictEqual(cdw.Type, GridUnitType.Pixel, "2.4");
         strictEqual(cdw.Value, 100, "2.5");
 
         cdw = cdc.GetValueAt(2).Width;
-        strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Auto, "2.6");
+        strictEqual(cdw.Type, GridUnitType.Auto, "2.6");
 
 
         str = "*";
@@ -250,7 +247,7 @@ export function load() {
         strictEqual(cdc.Count, 1, "3.1");
 
         cdw = cdc.GetValueAt(0).Width;
-        strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Star, "3.2");
+        strictEqual(cdw.Type, GridUnitType.Star, "3.2");
         strictEqual(cdw.Value, 1, "3.3");
 
 
@@ -259,7 +256,7 @@ export function load() {
         strictEqual(cdc.Count, 1, "4.1");
 
         cdw = cdc.GetValueAt(0).Width;
-        strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Auto, "4.2");
+        strictEqual(cdw.Type, GridUnitType.Auto, "4.2");
 
 
         str = "150";
@@ -267,7 +264,7 @@ export function load() {
         strictEqual(cdc.Count, 1, "5.1");
 
         cdw = cdc.GetValueAt(0).Width;
-        strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Pixel, "5.2");
+        strictEqual(cdw.Type, GridUnitType.Pixel, "5.2");
         strictEqual(cdw.Value, 150, "5.3");
     });
 
@@ -277,14 +274,14 @@ export function load() {
         strictEqual(rdc.Count, 3, "1.1");
 
         var rdh = rdc.GetValueAt(0).Height;
-        strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Auto, "1.2");
+        strictEqual(rdh.Type, GridUnitType.Auto, "1.2");
 
         rdh = rdc.GetValueAt(1).Height;
-        strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Star, "1.3");
+        strictEqual(rdh.Type, GridUnitType.Star, "1.3");
         strictEqual(rdh.Value, 1, "1.4");
 
         rdh = rdc.GetValueAt(2).Height;
-        strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Pixel, "1.5");
+        strictEqual(rdh.Type, GridUnitType.Pixel, "1.5");
         strictEqual(rdh.Value, 200, "1.6");
 
 
@@ -293,15 +290,15 @@ export function load() {
         strictEqual(rdc.Count, 3, "2.1");
 
         rdh = rdc.GetValueAt(0).Height;
-        strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Star, "2.2");
+        strictEqual(rdh.Type, GridUnitType.Star, "2.2");
         strictEqual(rdh.Value, 3, "2.3");
 
         rdh = rdc.GetValueAt(1).Height;
-        strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Pixel, "2.4");
+        strictEqual(rdh.Type, GridUnitType.Pixel, "2.4");
         strictEqual(rdh.Value, 100, "2.5");
 
         rdh = rdc.GetValueAt(2).Height;
-        strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Auto, "2.6");
+        strictEqual(rdh.Type, GridUnitType.Auto, "2.6");
 
 
         str = "*";
@@ -309,7 +306,7 @@ export function load() {
         strictEqual(rdc.Count, 1, "3.1");
 
         rdh = rdc.GetValueAt(0).Height;
-        strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Star, "3.2");
+        strictEqual(rdh.Type, GridUnitType.Star, "3.2");
         strictEqual(rdh.Value, 1, "3.3");
 
 
@@ -318,7 +315,7 @@ export function load() {
         strictEqual(rdc.Count, 1, "4.1");
 
         rdh = rdc.GetValueAt(0).Height;
-        strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Auto, "4.2");
+        strictEqual(rdh.Type, GridUnitType.Auto, "4.2");
 
 
         str = "150";
@@ -326,7 +323,7 @@ export function load() {
         strictEqual(rdc.Count, 1, "5.1");
 
         rdh = rdc.GetValueAt(0).Height;
-        strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Pixel, "5.2");
+        strictEqual(rdh.Type, GridUnitType.Pixel, "5.2");
         strictEqual(rdh.Value, 150, "5.3");
     });
 }

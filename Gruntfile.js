@@ -98,7 +98,13 @@ module.exports = function (grunt) {
                 }
             },
             test: {
-                src: ['typings/*.d.ts', 'lib/minerva/minerva.d.ts', 'fayde.d.ts', '<%= dirs.test.root %>/**/*.ts', '!<%= dirs.test.root %>/lib/**/*.ts'],
+                src: [
+                    'typings/*.d.ts',
+                    'lib/minerva/minerva.d.ts',
+                    'fayde.d.ts',
+                    '<%= dirs.test.root %>/**/*.ts',
+                    '!<%= dirs.test.root %>/lib/**/*.ts'
+                ],
                 options: {
                     target: 'es5',
                     module: 'amd',
@@ -106,7 +112,13 @@ module.exports = function (grunt) {
                 }
             },
             testsite: {
-                src: ['typings/*.d.ts', 'lib/minerva/minerva.d.ts', 'fayde.d.ts', '<%= dirs.testsite.root %>/**/*.ts', '!<%= dirs.testsite.root %>/lib/**/*.ts'],
+                src: [
+                    'typings/*.d.ts',
+                    'lib/minerva/minerva.d.ts',
+                    'fayde.d.ts',
+                    '<%= dirs.testsite.root %>/**/*.ts',
+                    '!<%= dirs.testsite.root %>/lib/**/*.ts'
+                ],
                 options: {
                     basePath: dirs.testsite.root,
                     target: 'es5',

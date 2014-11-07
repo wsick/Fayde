@@ -1,7 +1,4 @@
-﻿/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
-import Format = Fayde.Localization.Format;
+﻿import Format = Fayde.Localization.Format;
 
 export function load() {
     QUnit.module("Format Tests");
