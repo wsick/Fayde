@@ -5377,7 +5377,6 @@ declare module Fayde {
         public GetModuleRequireUrl(): string;
         public GetThemeRequireUrl(themeName: string): string;
     }
-    function RegisterLibrary(name: string, moduleUrl?: string, themeUrlFunc?: (themeName: string) => string): Library;
 }
 declare module NumberEx {
     function AreClose(val1: number, val2: number): boolean;
