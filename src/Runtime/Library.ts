@@ -4,6 +4,11 @@ module Fayde {
         Resolving: Library[];
     }
 
+    interface ILibraryHash {
+        [id: string]: Library;
+    }
+    var libraries: ILibraryHash = <any>[];
+
     export class Library {
         private _Module: any = undefined;
         get Module(): any { return this._Module; }
@@ -146,21 +151,5 @@ module Fayde {
         GetThemeRequireUrl(themeName: string): string {
             return "lib/" + this.Name + "/Themes/" + themeName + ".theme.xml";
         }
-    }
-
-    interface ILibraryHash {
-        [id: string]: Library;
-    }
-    var libraries: ILibraryHash = <any>[];
-    export function RegisterLibrary(name: string, moduleUrl?: string, themeUrlFunc?: (themeName: string) => string): Library {
-        var library = libraries[name];
-        if (library)
-            throw new Exception("Library already registered: '" + name + "'.");
-        library = libraries[name] = new Library(name);
-        if (moduleUrl)
-            library.GetModuleRequireUrl = function (): string { return moduleUrl; };
-        if (themeUrlFunc)
-            library.GetThemeRequireUrl = themeUrlFunc;
-        return library;
     }
 }

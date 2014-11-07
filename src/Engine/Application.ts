@@ -148,7 +148,7 @@ module Fayde {
         Resolve(): IAsyncRequest<Application> {
             var d = defer<Application>();
 
-            var lib = Library.Get("lib:Fayde") || RegisterLibrary("Fayde", "Fayde");
+            var lib = Library.Get("lib:Fayde");
             lib.Resolve({ ThemeName: this.ThemeName || "Default", Resolving: [] })
                 .success(lib => { this._CoreLibrary = lib; d.resolve(this); })
                 .error(d.reject);

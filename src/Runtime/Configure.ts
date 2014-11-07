@@ -75,6 +75,7 @@ module Fayde {
 
         co.map['*'][lib.path] = libName;
 
-        Fayde.RegisterLibrary(lib.name, lib.path);
+        var library = Library.Get("lib:" + lib.name);
+        library.GetModuleRequireUrl = () => lib.path;
     }
 }

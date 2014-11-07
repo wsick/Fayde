@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.11.3';
+    Fayde.Version = '0.11.4';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -21374,7 +21374,7 @@ var Fayde;
             var _this = this;
             var d = defer();
 
-            var lib = Fayde.Library.Get("lib:Fayde") || Fayde.RegisterLibrary("Fayde", "Fayde");
+            var lib = Fayde.Library.Get("lib:Fayde");
             lib.Resolve({ ThemeName: this.ThemeName || "Default", Resolving: [] }).success(function (lib) {
                 _this._CoreLibrary = lib;
                 d.resolve(_this);
@@ -35854,7 +35854,10 @@ var Fayde;
 
         co.map['*'][lib.path] = libName;
 
-        Fayde.RegisterLibrary(lib.name, lib.path);
+        var library = Fayde.Library.Get("lib:" + lib.name);
+        library.GetModuleRequireUrl = function () {
+            return lib.path;
+        };
     }
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -35985,6 +35988,8 @@ function deferArray(arr, resolver) {
 }
 var Fayde;
 (function (Fayde) {
+    var libraries = [];
+
     var Library = (function () {
         function Library(Name) {
             this.Name = Name;
@@ -36150,22 +36155,6 @@ var Fayde;
         return Library;
     })();
     Fayde.Library = Library;
-
-    var libraries = [];
-    function RegisterLibrary(name, moduleUrl, themeUrlFunc) {
-        var library = libraries[name];
-        if (library)
-            throw new Exception("Library already registered: '" + name + "'.");
-        library = libraries[name] = new Library(name);
-        if (moduleUrl)
-            library.GetModuleRequireUrl = function () {
-                return moduleUrl;
-            };
-        if (themeUrlFunc)
-            library.GetThemeRequireUrl = themeUrlFunc;
-        return library;
-    }
-    Fayde.RegisterLibrary = RegisterLibrary;
 })(Fayde || (Fayde = {}));
 var NumberEx;
 (function (NumberEx) {
