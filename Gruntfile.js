@@ -1,5 +1,7 @@
 var version = require('./build/version'),
-    setup = require('./build/setup');
+    setup = require('./build/setup'),
+    path = require('path'),
+    connect_livereload = require('connect-livereload');
 
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
@@ -12,12 +14,33 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-open');
     grunt.loadNpmTasks('grunt-nuget');
 
+    var ports = {
+        server: 7001,
+        livereload: 14141
+    };
+    var meta = {
+        name: 'Fayde'
+    };
+
+    var dirs = {
+        test: {
+            root: 'test'
+        },
+        testsite: {
+            root: 'testsite',
+            build: 'testsite/.build'
+        }
+    };
+
     grunt.initConfig({
+        ports: ports,
+        meta: meta,
+        dirs: dirs,
         pkg: grunt.file.readJSON('./package.json'),
         clean: {
             bower: ['./lib'],
-            testsite: ['./testsite/lib'],
-            test: ['./test/lib']
+            test: ['<%= dirs.test.root %>/lib'],
+            testsite: ['<%= dirs.testsite.root %>/lib']
         },
         setup: {
             fayde: {
@@ -29,8 +52,7 @@ module.exports = function (grunt) {
                 overwrite: true
             },
             test: {
-                 files: [
-                    { src: './lib/fayde.controls', dest: './test/lib/fayde.controls' },
+                files: [
                     { src: './lib/minerva', dest: './test/lib/minerva' },
                     { src: './lib/qunit', dest: './test/lib/qunit' },
                     { src: './lib/requirejs', dest: './test/lib/requirejs' },
@@ -44,7 +66,6 @@ module.exports = function (grunt) {
             },
             testsite: {
                 files: [
-                    { src: './lib/fayde.controls', dest: './testsite/lib/fayde.controls' },
                     { src: './lib/minerva', dest: './testsite/lib/minerva' },
                     { src: './lib/qunit', dest: './testsite/lib/qunit' },
                     { src: './lib/requirejs', dest: './testsite/lib/requirejs' },
@@ -64,7 +85,7 @@ module.exports = function (grunt) {
         },
         typescript: {
             build: {
-                src: ['lib/minerva/minerva.d.ts', 'src/_Version.ts', 'src/**/*.ts'],
+                src: ['typings/*.d.ts', 'lib/minerva/minerva.d.ts', 'src/_Version.ts', 'src/**/*.ts'],
                 dest: 'Fayde.js',
                 options: {
                     target: 'es5',
@@ -73,7 +94,7 @@ module.exports = function (grunt) {
                 }
             },
             test: {
-                src: ['test/**/*.ts', './lib/minerva/minerva.d.ts', './fayde.d.ts'],
+                src: ['typings/*.d.ts', 'lib/minerva/minerva.d.ts', '<%= dirs.test.root %>/**/*.ts', '!<%= dirs.test.root %>/lib/**/*.ts'],
                 options: {
                     target: 'es5',
                     module: 'amd',
@@ -81,41 +102,51 @@ module.exports = function (grunt) {
                 }
             },
             testsite: {
-                src: ['testsite/**/*.ts', '!testsite/lib/**/*.ts', './lib/minerva/minerva.d.ts', './fayde.d.ts'],
+                src: ['typings/*.d.ts', 'lib/minerva/minerva.d.ts', '<%= dirs.testsite.root %>/**/*.ts', '!<%= dirs.testsite.root %>/lib/**/*.ts'],
+                dest: '<%= dirs.testsite.build %>',
                 options: {
+                    basePath: dirs.testsite.root,
                     target: 'es5',
-                    module: 'amd'
+                    module: 'amd',
+                    sourceMap: true
                 }
             }
         },
         qunit: {
-            all: ['test/**/*.html']
+            all: ['<%= dirs.test.root %>/**/*.html']
         },
         connect: {
             server: {
                 options: {
-                    port: 8001,
-                    base: './testsite/'
+                    port: ports.server,
+                    base: dirs.testsite.root,
+                    middleware: function (connect) {
+                        return [
+                            connect_livereload({ port: ports.livereload }),
+                            mount(connect, dirs.testsite.build),
+                            mount(connect, dirs.testsite.root)
+                        ];
+                    }
                 }
             }
         },
         watch: {
             src: {
-                files: ['./src/**/*.ts'],
+                files: ['src/**/*.ts'],
                 tasks: ['typescript:build']
             },
             testsitets: {
-                files: ['./testsite/**/*.ts', '!./testsite/lib/**/*.ts'],
+                files: ['testsite/**/*.ts'],
                 tasks: ['typescript:testsite']
             },
             testsitejs: {
-                files: ['/testsite/**/*.js'],
+                files: ['testsite/**/*.js'],
                 options: {
                     livereload: 35729
                 }
             },
             testsitefay: {
-                files: ['./testsite/**/*.fap', './testsite/**/*.fayde'],
+                files: ['testsite/**/*.fap', 'testsite/**/*.fayde'],
                 options: {
                     livereload: 35729
                 }
@@ -123,7 +154,7 @@ module.exports = function (grunt) {
         },
         open: {
             testsite: {
-                path: 'http://localhost:8001/index.html'
+                path: 'http://localhost:<%= ports.server %>/default.html'
             }
         },
         version: {
