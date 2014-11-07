@@ -3302,7 +3302,6 @@ declare module Fayde {
         static GetAsync(url: string): IAsyncRequest<Application>;
         public Resolve(): IAsyncRequest<Application>;
     }
-    function Run(loaded?: (app: Application) => void): void;
 }
 declare module Fayde {
     interface ITimerListener {
@@ -5304,6 +5303,9 @@ declare class BError {
     public Number: number;
     public Data: any;
     public ThrowException(): void;
+}
+declare module Fayde {
+    function Bootstrap(onLoaded?: (app: Application) => any): void;
 }
 declare module Fayde {
     function LoadConfigJson(onComplete: (config: any, err?: any) => void): void;

@@ -17078,6 +17078,7 @@ var Fayde;
                 return console.warn("Could not change theme. " + err.toString());
             });
         };
+
         Application.prototype._ApplyTheme = function () {
             for (var walker = this.MainSurface.walkLayers(); walker.step();) {
                 for (var subwalker = walker.current.walkDeep(); subwalker.step();) {
@@ -17105,20 +17106,24 @@ var Fayde;
         Application.prototype.$$SetRootVisual = function (value) {
             this._RootVisual = value;
         };
+
         Application.prototype.Attach = function (canvas) {
             this.MainSurface.init(canvas);
             this.MainSurface.Attach(this._RootVisual, true);
         };
+
         Application.prototype.Start = function () {
             this._ClockTimer.RegisterTimer(this);
             this._IsLoaded = true;
             this.Loaded.RaiseAsync(this, EventArgs.Empty);
         };
+
         Application.prototype.OnTicked = function (lastTime, nowTime) {
             this.ProcessStoryboards(lastTime, nowTime);
             this.Update();
             this.Render();
         };
+
         Application.prototype.StopEngine = function () {
             this._ClockTimer.UnregisterTimer(this);
         };
@@ -17130,6 +17135,7 @@ var Fayde;
                 sbs[i].Update(nowTime);
             }
         };
+
         Application.prototype.Update = function () {
             if (this._IsRunning)
                 return;
@@ -17137,6 +17143,7 @@ var Fayde;
             var updated = this.MainSurface.updateLayout();
             this._IsRunning = false;
         };
+
         Application.prototype.Render = function () {
             this.MainSurface.render();
         };
@@ -17147,6 +17154,7 @@ var Fayde;
             if (index === -1)
                 sbs.push(storyboard);
         };
+
         Application.prototype.UnregisterStoryboard = function (storyboard) {
             var sbs = this._Storyboards;
             var index = sbs.indexOf(storyboard);
@@ -17167,6 +17175,7 @@ var Fayde;
             }).error(d.reject);
             return d.request;
         };
+
         Application.prototype.Resolve = function () {
             var _this = this;
             var d = defer();
@@ -17191,55 +17200,6 @@ var Fayde;
     })(Fayde.DependencyObject);
     Fayde.Application = Application;
     Fayde.RegisterType(Application, "Fayde", Fayde.XMLNS);
-
-    var isReady = false;
-    function doOnReady(onReady) {
-        if (document.addEventListener) {
-            document.addEventListener("DOMContentLoaded", function () {
-                document.removeEventListener("DOMContentLoaded", arguments.callee, false);
-                onReady();
-            }, false);
-        } else if (document.attachEvent) {
-            document.attachEvent("onreadystatechange", function () {
-                if (document.readyState === "complete") {
-                    document.detachEvent("onreadystatechange", arguments.callee);
-                    onReady();
-                }
-            });
-        }
-
-        window.onload = function () {
-            return onReady();
-        };
-    }
-    doOnReady(Run);
-    function Run(loaded) {
-        if (isReady)
-            return loaded && loaded(Fayde.Application.Current);
-        isReady = true;
-        var url = document.body.getAttribute("faydeapp");
-        if (!url)
-            return;
-
-        var canvas = document.getElementsByTagName("canvas")[0];
-        if (!canvas)
-            document.body.appendChild(canvas = document.createElement("canvas"));
-
-        Application.GetAsync(url).success(function (app) {
-            (Application.Current = app).Resolve().success(function (app) {
-                app.Attach(canvas);
-                app.Start();
-                loaded && loaded(app);
-            }).error(function (error) {
-                alert("An error occurred loading the application.");
-                console.log("An error occurred loading the application. " + error);
-            });
-        }).error(function (error) {
-            alert("An error occurred retrieving the application.");
-            console.log("An error occurred retrieving the application. " + error);
-        });
-    }
-    Fayde.Run = Run;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -27943,9 +27903,72 @@ var BError = (function () {
 })();
 var Fayde;
 (function (Fayde) {
+    function Bootstrap(onLoaded) {
+        var url = document.body.getAttribute("fayde-app");
+        if (!url) {
+            console.warn("No application specified.");
+            return;
+        }
+
+        var canvas = document.getElementsByTagName("canvas")[0];
+        if (!canvas)
+            document.body.appendChild(canvas = document.createElement("canvas"));
+
+        new Bootstrapper(url, canvas, onLoaded).run();
+    }
+    Fayde.Bootstrap = Bootstrap;
+
+    var Bootstrapper = (function () {
+        function Bootstrapper(url, canvas, onLoaded) {
+            this.url = url;
+            this.canvas = canvas;
+            this.onLoaded = onLoaded;
+        }
+        Bootstrapper.prototype.run = function () {
+            var _this = this;
+            Fayde.LoadConfigJson(function (config, err) {
+                if (err)
+                    console.warn('Could not load fayde configuration file.', err);
+                _this.startApp();
+            });
+            return this;
+        };
+
+        Bootstrapper.prototype.startApp = function () {
+            var _this = this;
+            Fayde.Application.GetAsync(this.url).success(function (app) {
+                (Fayde.Application.Current = app).Resolve().success(function (app) {
+                    return _this.finishLoad(app);
+                }).error(function (error) {
+                    return _this.finishLoad(null, error);
+                });
+            }).error(function (error) {
+                return _this.finishLoad(null, error);
+            });
+        };
+
+        Bootstrapper.prototype.finishLoad = function (app, error) {
+            if (error) {
+                alert("An error occurred retrieving the application.");
+                console.log("An error occurred retrieving the application. " + error);
+                return;
+            }
+            app.Attach(this.canvas);
+            app.Start();
+            return this.onLoaded && this.onLoaded(app);
+        };
+        return Bootstrapper;
+    })();
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     var jsonFile = 'fayde.json';
 
     function LoadConfigJson(onComplete) {
+        var cscr = findFaydeConfigScripts();
+        if (cscr.length > 0) {
+        }
+
         require(['text!' + jsonFile], function (jsontext) {
             return configure(jsontext, onComplete);
         }, function (err) {
@@ -28017,6 +28040,16 @@ var Fayde;
         library.GetModuleRequireUrl = function () {
             return lib.path;
         };
+    }
+
+    function findFaydeConfigScripts() {
+        var arr = [];
+        for (var i = 0, scripts = document.scripts, len = scripts.length; i < len; i++) {
+            var script = scripts[i];
+            if (script.id === "fayde-config")
+                arr.push(script);
+        }
+        return arr;
     }
 })(Fayde || (Fayde = {}));
 var Fayde;

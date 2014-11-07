@@ -4,6 +4,11 @@ module Fayde {
     declare var require;
 
     export function LoadConfigJson (onComplete: (config: any, err?: any) => void) {
+        var cscr = findFaydeConfigScripts();
+        if (cscr.length > 0) {
+
+        }
+
         require(['text!' + jsonFile],
             (jsontext) => configure(jsontext, onComplete),
             (err) => onComplete(err));
@@ -77,5 +82,15 @@ module Fayde {
 
         var library = Library.Get("lib:" + lib.name);
         library.GetModuleRequireUrl = () => lib.path;
+    }
+
+    function findFaydeConfigScripts (): HTMLScriptElement[] {
+        var arr: HTMLScriptElement[] = [];
+        for (var i = 0, scripts = document.scripts, len = scripts.length; i < len; i++) {
+            var script = <HTMLScriptElement>scripts[i];
+            if (script.id === "fayde-config")
+                arr.push(script);
+        }
+        return arr;
     }
 }
