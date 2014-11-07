@@ -27965,10 +27965,6 @@ var Fayde;
     var jsonFile = 'fayde.json';
 
     function LoadConfigJson(onComplete) {
-        var cscr = findFaydeConfigScripts();
-        if (cscr.length > 0) {
-        }
-
         require(['text!' + jsonFile], function (jsontext) {
             return configure(jsontext, onComplete);
         }, function (err) {
@@ -28040,16 +28036,6 @@ var Fayde;
         library.GetModuleRequireUrl = function () {
             return lib.path;
         };
-    }
-
-    function findFaydeConfigScripts() {
-        var arr = [];
-        for (var i = 0, scripts = document.scripts, len = scripts.length; i < len; i++) {
-            var script = scripts[i];
-            if (script.id === "fayde-config")
-                arr.push(script);
-        }
-        return arr;
     }
 })(Fayde || (Fayde = {}));
 var Fayde;

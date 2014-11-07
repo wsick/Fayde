@@ -32,6 +32,10 @@ module.exports = function (grunt) {
         }
     };
 
+    function mount(connect, dir) {
+        return connect.static(path.resolve(dir));
+    }
+
     grunt.initConfig({
         ports: ports,
         meta: meta,
@@ -94,7 +98,7 @@ module.exports = function (grunt) {
                 }
             },
             test: {
-                src: ['typings/*.d.ts', 'lib/minerva/minerva.d.ts', '<%= dirs.test.root %>/**/*.ts', '!<%= dirs.test.root %>/lib/**/*.ts'],
+                src: ['typings/*.d.ts', 'lib/minerva/minerva.d.ts', 'fayde.d.ts', '<%= dirs.test.root %>/**/*.ts', '!<%= dirs.test.root %>/lib/**/*.ts'],
                 options: {
                     target: 'es5',
                     module: 'amd',
@@ -102,13 +106,11 @@ module.exports = function (grunt) {
                 }
             },
             testsite: {
-                src: ['typings/*.d.ts', 'lib/minerva/minerva.d.ts', '<%= dirs.testsite.root %>/**/*.ts', '!<%= dirs.testsite.root %>/lib/**/*.ts'],
-                dest: '<%= dirs.testsite.build %>',
+                src: ['typings/*.d.ts', 'lib/minerva/minerva.d.ts', 'fayde.d.ts', '<%= dirs.testsite.root %>/**/*.ts', '!<%= dirs.testsite.root %>/lib/**/*.ts'],
                 options: {
                     basePath: dirs.testsite.root,
                     target: 'es5',
-                    module: 'amd',
-                    sourceMap: true
+                    module: 'amd'
                 }
             }
         },
@@ -154,7 +156,7 @@ module.exports = function (grunt) {
         },
         open: {
             testsite: {
-                path: 'http://localhost:<%= ports.server %>/default.html'
+                path: 'http://localhost:<%= ports.server %>/index.html'
             }
         },
         version: {

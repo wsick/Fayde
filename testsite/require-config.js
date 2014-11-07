@@ -3,8 +3,8 @@ var require = {
     paths: {
         "text": "lib/requirejs-text/text"
     },
-    deps: ["text"],
-    callback: function (text) {
+    deps: ["text", "text!fayde.json"],
+    callback: function (text, config) {
         Fayde.Bootstrap();
     }
 };

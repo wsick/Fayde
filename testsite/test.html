@@ -5,7 +5,6 @@
     <title></title>
     <script src="lib/minerva/minerva.js"></script>
     <script src="lib/fayde/fayde.js"></script>
-    <script id="fayde-config" src="fayde.json" type="application/json"></script>
     <script src="require-config.js"></script>
     <script src="lib/requirejs/require.js"></script>
     <style>
@@ -36,7 +35,7 @@
                 return tokens[1];
         }
     }
-    document.body.setAttribute('faydeapp', getQueryParam('app'));
+    document.body.setAttribute('fayde-app', getQueryParam('app'));
 </script>
 </body>
 </html>
