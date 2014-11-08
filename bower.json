@@ -1,6 +1,6 @@
 {
   "name": "Fayde",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "homepage": "http://fayde.wsick.com",
   "authors": [
     "BSick7 <brad.sickles@gmail.com>"
@@ -19,7 +19,9 @@
   "dependencies": {
     "minerva": "~0.1.0",
     "requirejs": "~2.1.15",
-    "requirejs-text": "~2.0.12",
-    "qunit": "~1.14.0"
+    "requirejs-text": "~2.0.12"
+  },
+  "devDependencies": {
+    "qunit": "~1.15.0"
   }
 }
