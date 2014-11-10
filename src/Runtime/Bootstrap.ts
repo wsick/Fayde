@@ -39,7 +39,7 @@ module Fayde {
         finishLoad (app: Application, error?: any) {
             if (error) {
                 alert("An error occurred retrieving the application.");
-                console.log("An error occurred retrieving the application. " + error);
+                console.error("An error occurred retrieving the application.", error);
                 return;
             }
             app.Attach(this.canvas);
