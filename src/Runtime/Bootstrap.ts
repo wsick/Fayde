@@ -38,7 +38,6 @@ module Fayde {
 
         finishLoad (app: Application, error?: any) {
             if (error) {
-                alert("An error occurred retrieving the application.");
                 console.error("An error occurred retrieving the application.", error);
                 return;
             }

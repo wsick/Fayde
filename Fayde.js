@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.3';
+    Fayde.Version = '0.13.4';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -27865,7 +27865,6 @@ var Fayde;
 
         Bootstrapper.prototype.finishLoad = function (app, error) {
             if (error) {
-                alert("An error occurred retrieving the application.");
                 console.error("An error occurred retrieving the application.", error);
                 return;
             }
