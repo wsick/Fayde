@@ -13,7 +13,7 @@ module Fayde.Controls.Primitives {
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = ToggleButton;
         }
 
         OnApplyTemplate() {

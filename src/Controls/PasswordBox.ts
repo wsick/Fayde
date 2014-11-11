@@ -9,7 +9,7 @@ module Fayde.Controls {
 
         constructor () {
             super(Internal.TextBoxEmitChangedType.TEXT);
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = PasswordBox;
 
             var proxy = this.$Proxy;
             proxy.SyncSelectionStart = (value) => this.SetCurrentValue(PasswordBox.SelectionStartProperty, value);

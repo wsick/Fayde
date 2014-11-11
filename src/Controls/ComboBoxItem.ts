@@ -4,7 +4,7 @@ module Fayde.Controls {
     export class ComboBoxItem extends ListBoxItem {
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = ComboBoxItem;
         }
 
         OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {

@@ -19,7 +19,7 @@ module Fayde.Controls {
 
         constructor () {
             super(Internal.TextBoxEmitChangedType.TEXT | Internal.TextBoxEmitChangedType.SELECTION);
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = TextBox;
 
             var proxy = this.$Proxy;
             proxy.SyncSelectionStart = (value) => this.SetCurrentValue(TextBox.SelectionStartProperty, value);

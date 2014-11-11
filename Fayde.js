@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.5';
+    Fayde.Version = '0.13.6';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -4076,7 +4076,7 @@ var Fayde;
             __extends(Button, _super);
             function Button() {
                 _super.call(this);
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = Button;
             }
             Button.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
@@ -4401,7 +4401,7 @@ var Fayde;
                     this.Checked = new Fayde.RoutedEvent();
                     this.Indeterminate = new Fayde.RoutedEvent();
                     this.Unchecked = new Fayde.RoutedEvent();
-                    this.DefaultStyleKey = this.constructor;
+                    this.DefaultStyleKey = ToggleButton;
                 }
                 ToggleButton.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
@@ -4478,7 +4478,7 @@ var Fayde;
             __extends(CheckBox, _super);
             function CheckBox() {
                 _super.call(this);
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = CheckBox;
             }
             return CheckBox;
         })(Controls.Primitives.ToggleButton);
@@ -4612,7 +4612,7 @@ var Fayde;
                 this._IsDataBound = false;
                 this._SuspendItemsChanged = false;
                 this._DisplayMemberTemplate = null;
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = ItemsControl;
                 var coll = ItemsControl.ItemsProperty.Initialize(this);
                 coll.ItemsChanged.Subscribe(this._OnItemsUpdated, this);
 
@@ -6573,7 +6573,7 @@ var Fayde;
                     this._NewInterval = null;
                     this._ElementRoot = null;
                     this.ClickMode = 1 /* Press */;
-                    this.DefaultStyleKey = this.constructor;
+                    this.DefaultStyleKey = RepeatButton;
                 }
                 RepeatButton.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
@@ -6746,7 +6746,7 @@ var Fayde;
                     this.DragCompleted = new Fayde.RoutedEvent();
                     this.DragDelta = new Fayde.RoutedEvent();
                     this.DragStarted = new Fayde.RoutedEvent();
-                    this.DefaultStyleKey = this.constructor;
+                    this.DefaultStyleKey = Thumb;
                 }
                 Thumb.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
@@ -6868,7 +6868,7 @@ var Fayde;
                     _super.call(this);
                     this._DragValue = 0;
                     this.Scroll = new Fayde.RoutedEvent();
-                    this.DefaultStyleKey = this.constructor;
+                    this.DefaultStyleKey = ScrollBar;
                     this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
                 }
                 Object.defineProperty(ScrollBar.prototype, "IsDragging", {
@@ -7143,7 +7143,7 @@ var Fayde;
                 _super.call(this);
                 this.$TemplatedParentHandlesScrolling = false;
 
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = ScrollViewer;
             }
             ScrollViewer._ScrollBarVisibilityChanged = function (d, args) {
                 if (!d)
@@ -7593,7 +7593,7 @@ var Fayde;
                 this.$SelectionBoxItem = null;
                 this.$SelectionBoxItemTemplate = null;
                 this._FocusedIndex = -1;
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = ComboBox;
             }
             ComboBox.prototype._IsDropDownOpenChanged = function (args) {
                 var open = args.NewValue;
@@ -7958,7 +7958,7 @@ var Fayde;
             function ListBoxItem() {
                 _super.call(this);
                 this.ParentSelectorChanged = new MulticastEvent();
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = ListBoxItem;
             }
             Object.defineProperty(ListBoxItem.prototype, "ParentSelector", {
                 get: function () {
@@ -8042,7 +8042,7 @@ var Fayde;
             __extends(ComboBoxItem, _super);
             function ComboBoxItem() {
                 _super.call(this);
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = ComboBoxItem;
             }
             ComboBoxItem.prototype.OnMouseLeftButtonUp = function (e) {
                 _super.prototype.OnMouseLeftButtonUp.call(this, e);
@@ -8439,7 +8439,7 @@ var Fayde;
             __extends(HeaderedContentControl, _super);
             function HeaderedContentControl() {
                 _super.call(this);
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = HeaderedContentControl;
             }
             HeaderedContentControl.prototype.OnHeaderChanged = function (oldHeader, newHeader) {
             };
@@ -8470,7 +8470,7 @@ var Fayde;
             __extends(HyperlinkButton, _super);
             function HyperlinkButton() {
                 _super.call(this);
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = HyperlinkButton;
             }
             HyperlinkButton.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
@@ -10900,7 +10900,7 @@ var Fayde;
             function PasswordBox() {
                 var _this = this;
                 _super.call(this, Controls.Internal.TextBoxEmitChangedType.TEXT);
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = PasswordBox;
 
                 var proxy = this.$Proxy;
                 proxy.SyncSelectionStart = function (value) {
@@ -11400,7 +11400,7 @@ var Fayde;
             __extends(ProgressBar, _super);
             function ProgressBar() {
                 _super.call(this);
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = ProgressBar;
             }
             ProgressBar.prototype.OnIsIndeterminateChanged = function (args) {
                 this._UpdateIndicator();
@@ -11499,7 +11499,7 @@ var Fayde;
             __extends(RadioButton, _super);
             function RadioButton() {
                 _super.call(this);
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = RadioButton;
                 register("", this);
             }
             RadioButton.prototype.OnGroupNameChanged = function (args) {
@@ -11713,7 +11713,7 @@ var Fayde;
             function Slider() {
                 _super.call(this);
                 this._DragValue = 0;
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = Slider;
                 this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
             }
             Slider.prototype.OnApplyTemplate = function () {
@@ -12172,7 +12172,7 @@ var Fayde;
             function TextBox() {
                 var _this = this;
                 _super.call(this, Controls.Internal.TextBoxEmitChangedType.TEXT | Controls.Internal.TextBoxEmitChangedType.SELECTION);
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = TextBox;
 
                 var proxy = this.$Proxy;
                 proxy.SyncSelectionStart = function (value) {
@@ -12311,7 +12311,7 @@ var Fayde;
                 this.Opened = new Fayde.RoutedEvent();
                 this.Closed = new Fayde.RoutedEvent();
                 this._ParentPopup = null;
-                this.DefaultStyleKey = this.constructor;
+                this.DefaultStyleKey = ToolTip;
             }
             Object.defineProperty(ToolTip.prototype, "TooltipParent", {
                 get: function () {

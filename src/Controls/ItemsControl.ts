@@ -91,7 +91,7 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = ItemsControl;
             var coll = <ItemCollection>ItemsControl.ItemsProperty.Initialize(this);
             coll.ItemsChanged.Subscribe(this._OnItemsUpdated, this);
 

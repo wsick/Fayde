@@ -68,7 +68,7 @@ module Fayde.Controls {
         constructor() {
             super();
             //this.RequestBringIntoView.Subscribe(this._OnRequestBringIntoView, this);
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = ScrollViewer;
         }
 
         private _ScrollInfo: Primitives.IScrollInfo;

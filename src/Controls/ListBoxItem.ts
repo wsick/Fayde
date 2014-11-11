@@ -17,7 +17,7 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = ListBoxItem;
         }
 
         OnApplyTemplate() {

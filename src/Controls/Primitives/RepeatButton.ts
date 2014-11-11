@@ -17,7 +17,7 @@ module Fayde.Controls.Primitives {
         constructor() {
             super();
             this.ClickMode = ClickMode.Press;
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = RepeatButton;
         }
 
         OnApplyTemplate() {
