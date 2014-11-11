@@ -21,7 +21,7 @@ module Fayde.Media {
         setupBrush (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             if (this._CachedBrush && this._CachedBounds && minerva.Rect.isEqual(this._CachedBounds, bounds))
                 return;
-            this._CachedBounds = bounds;
+            this._CachedBounds = new minerva.Rect(bounds.x, bounds.y, bounds.width, bounds.height);
 
             var transform = this.Transform;
             if (transform) {

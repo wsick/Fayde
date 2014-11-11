@@ -5064,6 +5064,7 @@ declare module Fayde.Media {
         constructor(...args: any[]);
         public isTransparent(): boolean;
         static FromColor(color: Color): SolidColorBrush;
+        public setupBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
         public CreateBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any;
     }
 }

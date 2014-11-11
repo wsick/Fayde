@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.6';
+    Fayde.Version = '0.13.7';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -23377,7 +23377,7 @@ var Fayde;
             Brush.prototype.setupBrush = function (ctx, bounds) {
                 if (this._CachedBrush && this._CachedBounds && minerva.Rect.isEqual(this._CachedBounds, bounds))
                     return;
-                this._CachedBounds = bounds;
+                this._CachedBounds = new minerva.Rect(bounds.x, bounds.y, bounds.width, bounds.height);
 
                 var transform = this.Transform;
                 if (transform) {
@@ -24764,10 +24764,7 @@ var Fayde;
                 };
                 ImageBrush.prototype.GetTileExtents = function () {
                     var source = this.ImageSource;
-                    var r = new minerva.Rect();
-                    r.width = source.pixelWidth;
-                    r.height = source.pixelHeight;
-                    return r;
+                    return new minerva.Rect(0, 0, source.pixelWidth, source.pixelHeight);
                 };
                 ImageBrush.prototype.DrawTile = function (canvasCtx, bounds) {
                     var source = this.ImageSource;
@@ -26501,6 +26498,12 @@ var Fayde;
                 var scb = new SolidColorBrush();
                 scb.Color = color;
                 return scb;
+            };
+
+            SolidColorBrush.prototype.setupBrush = function (ctx, bounds) {
+                if (this._CachedBrush)
+                    return;
+                this._CachedBrush = this.CreateBrush(ctx, bounds);
             };
 
             SolidColorBrush.prototype.CreateBrush = function (ctx, bounds) {

@@ -21,10 +21,7 @@ module Fayde.Media.Imaging {
         }
         GetTileExtents(): minerva.Rect {
             var source = this.ImageSource;
-            var r = new minerva.Rect();
-            r.width = source.pixelWidth;
-            r.height = source.pixelHeight;
-            return r;
+            return new minerva.Rect(0, 0, source.pixelWidth, source.pixelHeight);
         }
         DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var source = this.ImageSource;

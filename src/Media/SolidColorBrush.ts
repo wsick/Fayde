@@ -22,6 +22,12 @@ module Fayde.Media {
             return scb;
         }
 
+        setupBrush (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+            if ((<any>this)._CachedBrush)
+                return;
+            (<any>this)._CachedBrush = this.CreateBrush(ctx, bounds);
+        }
+
         CreateBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any {
             var color = this.Color;
             if (!color)
