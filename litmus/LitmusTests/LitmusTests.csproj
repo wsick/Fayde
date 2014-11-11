@@ -151,6 +151,9 @@
     <Compile Include="Tests\TextBoxTest.xaml.cs">
       <DependentUpon>TextBoxTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tests\TooltipTest.xaml.cs">
+      <DependentUpon>TooltipTest.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -240,6 +243,10 @@
     <Page Include="Tests\TextBoxTest.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Tests\TooltipTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\Cosmopolitan\Brushes.xaml">
       <Generator>MSBuild:Compile</Generator>
