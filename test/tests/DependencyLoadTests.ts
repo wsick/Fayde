@@ -1,5 +1,5 @@
 export function load() {
-    QUnit.module("Dependency Loading Tests");
+    QUnit.module("Dependency Load Tests");
 
     asyncTest("XamlDocument Load", () => {
         Fayde.Xaml.XamlDocument.GetAsync("Theme.Silverlight.xml")

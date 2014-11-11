@@ -24,11 +24,13 @@ module.exports = function (grunt) {
 
     var dirs = {
         test: {
-            root: 'test'
+            root: 'test',
+            lib: 'test/lib'
         },
         testsite: {
             root: 'testsite',
-            build: 'testsite/.build'
+            build: 'testsite/.build',
+            lib: 'testsite/lib'
         }
     };
 
@@ -119,6 +121,7 @@ module.exports = function (grunt) {
                     '<%= dirs.testsite.root %>/**/*.ts',
                     '!<%= dirs.testsite.root %>/lib/**/*.ts'
                 ],
+                dest: dirs.testsite.build,
                 options: {
                     basePath: dirs.testsite.root,
                     target: 'es5',
@@ -127,7 +130,7 @@ module.exports = function (grunt) {
             }
         },
         qunit: {
-            all: ['<%= dirs.test.root %>/**/*.html']
+            all: ['<%= dirs.test.root %>/*.html']
         },
         connect: {
             server: {
@@ -195,9 +198,9 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('default', ['version:apply', 'typescript:build']);
-    grunt.registerTask('test', ['version:apply', 'typescript:build', 'typescript:test', 'qunit']);
-    grunt.registerTask('testsite', ['version:apply', 'typescript:build', 'typescript:testsite', 'connect', 'open', 'watch']);
+    grunt.registerTask('default', ['typescript:build']);
+    grunt.registerTask('test', ['typescript:build', 'typescript:test', 'qunit']);
+    grunt.registerTask('testsite', ['typescript:build', 'typescript:testsite', 'connect', 'open', 'watch']);
     setup(grunt);
     version(grunt);
     grunt.registerTask('package', ['nugetpack:dist']);
