@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="XAML Everywhere, no plugins">
+        <meta keywords="xaml, silverlight, browser, desktop, linux, windows, mac, chrome, ie, safari, opera, android, javascript">
+        <title>Fayde - XAML Everywhere</title>
+        <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700" rel="stylesheet" type="text/css">
+
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="styles/vs.css">
+        <link rel="stylesheet" href="styles/fayde.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <body data-spy="scroll" data-target=".navbar">
+        <div id="fb-root"></div>
+        <script>(function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.0";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));</script>
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div style="background-color: #314267;">
+                <div class="container" style="padding-left: 60px; padding-right: 60px;">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#">Fayde</a>
+                    </div>
+                    <div class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            <li><a href="#feature1">Silverlight Everywhere</a></li>
+                            <li><a href="#feature2">Rich Application</a></li>
+                            <li><a href="#feature3">No HTML/CSS</a></li>
+                            <li><a href="#feature4">XAML</a></li>
+                            <li><a href="#feature5">MVVM</a></li>
+                            <li><a href="#feature6">Migrate</a></li>
+                            <!--
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#">Action</a></li>
+                                    <li><a href="#">Another action</a></li>
+                                    <li><a href="#">Something else here</a></li>
+                                    <li class="divider"></li>
+                                    <li class="dropdown-header">Nav header</li>
+                                    <li><a href="#">Separated link</a></li>
+                                    <li><a href="#">One more separated link</a></li>
+                                </ul>
+                            </li>
+                            -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!--
+            <div style="width: 100%;">
+                <div class="container" style="padding-left: 60px; padding-right: 60px;">
+                    <div style="float: right; border-radius: 0 0 8px 8px; background-color: #314267;">
+                        <ul class="nav navbar-nav">
+                            <li style="display: inline; padding: 4px;"><img src="images/Email-icon.jpg" style="height: 25px; margin: 4px 0 4px 4px;"/></li>
+                            <li style="display: inline; padding: 4px;"><img src="images/facebook-icon.png" style="height: 25px; margin: 4px 0 4px 4px;"/></li>
+                            <li style="display: inline; padding: 4px;"><img src="images/twitter-icon.png" style="height: 25px; margin: 4px 0 4px 4px;"/></li>
+                            <li style="display: inline; padding: 4px;"><img src="images/uservoice.png" style="height: 25px; margin: 4px;"/></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            -->
+        </div>
+        <div class="container feature" id="feature1" style="position: relative;">
+            <div class="jumbotron">
+                <img src="images/apple-logo.png" style="position: absolute; top: 235px; left: 160px; width: 70px;">
+                <img src="images/android-logo.png" style="position: absolute; top: 230px; left: 230px; width: 80px;">
+                <img src="images/linux-logo.png" style="position: absolute; top: 230px; left: 300px; width: 100px;">
+                <img src="images/windows-logo.png" style="position: absolute; top: 235px; left: 390px; width: 70px;">
+
+                <img src="images/chrome-logo.png" style="position: absolute; top: 545px; right: 500px; width: 70px;">
+                <img src="images/firefox-logo.png" style="position: absolute; top: 545px; right: 410px; width: 70px;">
+                <img src="images/ie-logo.png" style="position: absolute; top: 545px; right: 320px; width: 70px;">
+                <img src="images/safari-logo.png" style="position: absolute; top: 537px; right: 222px; width: 70px;">
+                <img src="images/opera-logo.png" style="position: absolute; top: 545px; right: 140px; width: 70px;">
+                <div style="text-align: center;">
+                    <h1>Fayde</h1>
+                    <h3 class="tagline">Silverlight Everywhere, No Plugins</h3>
+                </div>
+                <div class="highlights">
+                    <div style="margin: 20px 60px; font-size: 18px;">
+                        <ul>
+                            <li style="padding-bottom: 20px;">Want to deliver a rich native application experience to the desktop, web, and mobile platforms with one technology?</li>
+                            <li style="padding-bottom: 20px;">Tired of dealing with HTML and CSS hacks, browser inconsistencies, and lack of features?</li>
+                            <li style="padding-bottom: 20px;">Enjoyed the intuitive and powerful <a target="_blank" style="color: white; text-decoration: underline;" href="http://msdn.microsoft.com/en-us/library/cc189036(VS.95).aspx">XAML</a> while building WPF or Silverlight applications?</li>
+                            <li style="padding-bottom: 20px;">Like building applications with a reactive UI using data bindings?</li>
+                            <li style="padding-bottom: 20px;">Need to migrate your Silverlight applications?</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="margin: 60px;">
+                    <p>
+                        Fayde is an open-source Javascript application framework that provides all these capabilities through its XAML layout/rendering engine. Unlike other frameworks, which focus exclusively on being an application framework, Fayde frees you from the confines of developing applications using HTML and CSS. It completely replaces it with XAML, an "eXtensible Application Markup Language".
+                    </p>
+                    <p>
+                        Fayde is Silverlight on all platforms. It is written entirely in Javascript, so it can be used on all platforms and browsers. To deploy it as a desktop application, just compile it using <a target="_blank" style="text-decoration: underline; color: #76858E;" href="https://github.com/rogerwang/node-webkit">node-webkit</a>.
+                    </p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="display: inline-block; padding: 20px; font-style: italic;">
+                        <a href="nfldraftdemo.html"><img src="images/nfldraftdemo2.png" style="height: 200px;"></a><br>
+                        Fantasy Football Draft Demo
+                    </div>
+                    <div style="display: inline-block; padding: 20px; font-style: italic;">
+                        <a href="tododemo.html"><img src="images/tododemo2.png" style="height: 200px;"></a><br>
+                        Todo Application Demo
+                    </div>
+                </div>
+                <div style="display: none;">
+                    <!-- Begin MailChimp Signup Form -->
+                    <link href="//cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css">
+                    <div id="mc_embed_signup">
+                        <form action="//wsick.us9.list-manage.com/subscribe/post?u=de8fea8afe5b5807188561bca&amp;id=cdc1dc89b1" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+                            <div id="mc_embed_signup_scroll">
+
+                                <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+                                <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                                <div style="position: absolute; left: -5000px;"><input type="text" name="b_de8fea8afe5b5807188561bca_cdc1dc89b1" tabindex="-1" value=""></div>
+                                <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+                            </div>
+                        </form>
+                    </div>
+                    <!--End mc_embed_signup-->
+                </div>
+            </div>
+        </div>
+        <div class="container feature" id="feature2">
+            <div class="jumbotron">
+                <div class="column">
+                    <h2>Rich Native Application Experience</h2>
+                    <p>
+                        Fayde is an open-source Javascript framework that eliminates the need to choose between building a desktop or web application.
+                        by replacing HTML and CSS with the Silverlight layout and rendering engine.
+                        The Fayde team has taken Silverlight and developed it as a Javascript only library.
+                        Because it is Javascript only, it can be run on all browsers and all platforms.
+                    </p>
+                    <a href="http://pchiusano.github.io/2014-07-02/css-is-unnecessary.html">Brett Victor on CSS</a>
+                    <a href="http://browserhacks.com/">Browser Hacks</a>
+                </div>
+                <div class="column">
+                    <div style="width: 80%; margin: auto; border: 1px solid #DDDDDD; background-color: white; border-radius: 4px; padding: 4px;">
+                        <img src="images/white_ui_final_3.jpg" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container feature" id="feature3">
+            <div class="jumbotron">
+                <div class="column">
+                    <img src="images/js-logo.png" style="width: 100px;">
+                    <img src="images/typescript-logo.png" style="width: 100px;">
+                    <img src="images/node-webkit-logo.png" style="width: 100px;">
+                </div>
+                <div class="column">
+                    <h2>Web, Desktop, and Mobile</h2>
+                    <p>
+                        Fayde is an application framework written entirely in <a target="_blank" style="text-decoration: underline; color: #76858E;" href="http://www.typescriptlang.org/">Typescript</a> and compiled to Javascript.
+
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="container feature" id="feature4">
+            <div class="jumbotron">
+                <h2>MVVM - Model View ViewModel</h2>
+                <a href="https://angularjs.org/">AngularJS</a>
+                <a href="http://emberjs.com/">Ember</a>
+                <a href="http://knockoutjs.com/">Knockout</a>
+            </div>
+        </div>
+        <div class="container feature" id="feature5">
+            <div class="jumbotron" style="text-align: right;">
+                <h2>XAML</h2>
+            </div>
+            <pre><code class="xml">
+                &lt;?xml version="1.0"?&gt;
+                &lt;response value="ok" xml:lang="en"&gt;
+                &lt;text&gt;Ok&lt;/text&gt;
+                &lt;comment html_allowed="true"/&gt;
+                &lt;ns1:description&gt;&lt;![CDATA[
+                CDATA is &lt;not&gt; magical.
+                ]]&gt;&lt;/ns1:description&gt;
+                &lt;a&gt;&lt;/a&gt; &lt;a/&gt;
+                &lt;/response&gt;
+            </code></pre>
+            <pre><code class="typescript">
+                Fayde.IEnumberable&lt;Player&gt; players = null;
+                public static myValue: string;
+                function $initHighlight(block: string, flags) {
+                try {
+                if (block.className.search(/\bno\-highlight\b/) != -1)
+                return processBlock(block.function, true, 0x0F) + ' class=""';
+                } catch (e) {
+                /* handle exception */
+                var e4x = 'Example';
+                }
+                for (var i = 0 / 2; i < classes.length; i++) { // "0 / 2" should not be parsed as regexp
+                if (checkCondition(classes[i]) === undefined)
+                return /\d+[\s/]/g;
+                }
+                console.log(Array.every(classes, Boolean));
+                }
+            </code></pre>
+        </div>
+        <div class="container feature" id="feature6">
+            <div class="jumbotron">
+                <h2>Migrate Silverlight Applications</h2>
+                <a href="https://github.com/BSick7/Fayde">Fayde on Github</a>
+            </div>
+        </div>
+        <div class="container feature" id="feature7">
+            Take your designs straight to the web
+            Designers can rapidly build real working prototypes
+            Develop the UI seperate from your backend
+        </div>
+
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <script src="scripts/highlight.pack.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+</html>

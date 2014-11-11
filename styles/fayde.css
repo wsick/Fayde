@@ -1,0 +1,117 @@
+body {
+    font-family: SegoeUI, 'Segoe UI', Arial, sans-serif;
+    font-size: 16px;
+    background-image: url('../images/background-grid.gif');
+    background-attachment: fixed;
+    position: relative;
+    padding-top: 50px;
+}
+.jumbotron h1 {
+    font-size: 80px;
+    margin-top: 0px;
+    color: #283776;
+    text-shadow: 0 2px 2px rgba(0,0,0,.2);
+}
+.jumbotron h2 {
+    color: #283776;
+    text-shadow: 0 2px 2px rgba(0,0,0,.2);
+    margin-top: 0;
+}
+.jumbotron h4 {
+    color: #283776;
+    text-shadow: 0 1px 1px rgba(0,0,0,.2);
+    margin-top: 0;
+}
+.tagline {
+    text-align: center;
+    font-style: italic;
+    margin-top: -6px;
+    color: #283776;
+    text-shadow: 0 2px 2px rgba(0,0,0,.2);
+}
+.navbar {
+    margin-bottom: 0;
+}
+.navbar-default {
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+}
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+    color: #ffb241;
+}
+.navbar-default .navbar-nav>li>a {
+    color: white;
+    text-shadow: black 0px 1px 1px;
+}
+.navbar-default .navbar-nav>.active>a,
+.navbar-default .navbar-nav>.active>a:hover,
+.navbar-default .navbar-nav>.active>a:focus {
+    color: #ffb241;
+    background-color: transparent;
+}
+.navbar-default .navbar-brand {
+    font-size: 28px;
+    color: white;
+    text-shadow: black 0px 1px 1px;
+}
+.navbar-default .navbar-nav>li>a:hover,
+.navbar-default .navbar-nav>li>a:focus {
+    color: #ffb241;
+}
+.jumbotron {
+    color: #76858E;
+    background-color: transparent;
+}
+.jumbotron p {
+    font-size: 16px;
+    text-shadow: 0 1px 1px rgba(255,255, 255,.5);
+}
+.highlights {
+    margin: 70px 0 0 0;
+    border: 1px solid #2d4476;
+    border-radius: 10px;
+    padding-top: 20px;
+    background-color: #3b7cb9;
+    color: white;
+    text-shadow: black 0px 1px 1px;
+}
+.container {
+    padding-left: 0;
+    padding-right: 0;
+}
+blockquote {
+    font-size: 13px;
+    background-color: #E4F0F1;
+    color: #283776;
+    padding: 10px 15px;
+    margin: 0 0 15px;
+    border: 1px solid #283776;
+    border-radius: 4px;
+}
+
+pre {
+    padding: 0;
+    background-color: white;
+    font-family: Monaco, monospace;
+}
+
+code {
+    margin: 0;
+}
+.feature {
+    padding-top: 50px;
+    margin-top: -50px;
+}
+.feature .jumbotron {
+    display: table;
+}
+.column {
+    display: table-cell;
+    width: 50%;
+    vertical-align: top;
+}
+
+#mc_embed_signup {
+}
