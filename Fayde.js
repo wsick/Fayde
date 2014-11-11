@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.4';
+    Fayde.Version = '0.13.5';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -1500,6 +1500,46 @@ var Fayde;
             });
         };
     }
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    function Incite(obj, val) {
+        if (!obj)
+            return;
+        var reactions = obj.$$reactions;
+        if (!reactions)
+            return;
+        var rs = obj.$$reaction_sources;
+        for (var i = 0; i < reactions.length; i++) {
+            reactions[i].call(rs[i], val);
+        }
+    }
+    Fayde.Incite = Incite;
+
+    function ReactTo(obj, scope, changed) {
+        if (!obj)
+            return;
+        var rs = obj.$$reaction_sources = obj.$$reaction_sources || [];
+        rs.push(scope);
+        var reactions = obj.$$reactions = obj.$$reactions || [];
+        reactions.push(changed);
+    }
+    Fayde.ReactTo = ReactTo;
+
+    function UnreactTo(obj, scope) {
+        if (!obj)
+            return;
+        var reactions = obj.$$reactions;
+        if (!reactions)
+            return;
+        var rs = obj.$$reaction_sources;
+        var index = rs.indexOf(scope);
+        if (index < 0)
+            return;
+        rs.splice(index, 1);
+        reactions.splice(index, 1);
+    }
+    Fayde.UnreactTo = UnreactTo;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -28365,46 +28405,6 @@ var IndexedPropertyInfo = (function () {
     };
     return IndexedPropertyInfo;
 })();
-var Fayde;
-(function (Fayde) {
-    function Incite(obj, val) {
-        if (!obj)
-            return;
-        var reactions = obj.$$reactions;
-        if (!reactions)
-            return;
-        var rs = obj.$$reaction_sources;
-        for (var i = 0; i < reactions.length; i++) {
-            reactions[i].call(rs[i], val);
-        }
-    }
-    Fayde.Incite = Incite;
-
-    function ReactTo(obj, scope, changed) {
-        if (!obj)
-            return;
-        var rs = obj.$$reaction_sources = obj.$$reaction_sources || [];
-        rs.push(scope);
-        var reactions = obj.$$reactions = obj.$$reactions || [];
-        reactions.push(changed);
-    }
-    Fayde.ReactTo = ReactTo;
-
-    function UnreactTo(obj, scope) {
-        if (!obj)
-            return;
-        var reactions = obj.$$reactions;
-        if (!reactions)
-            return;
-        var rs = obj.$$reaction_sources;
-        var index = rs.indexOf(scope);
-        if (index < 0)
-            return;
-        rs.splice(index, 1);
-        reactions.splice(index, 1);
-    }
-    Fayde.UnreactTo = UnreactTo;
-})(Fayde || (Fayde = {}));
 var StringEx;
 (function (StringEx) {
     function Format(format) {

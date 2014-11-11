@@ -304,6 +304,11 @@ declare module Fayde {
     function DPReaction<TValue>(propd: DependencyProperty, callback?: IDPReactionCallback<TValue>, listen?: boolean): void;
 }
 declare module Fayde {
+    function Incite(obj: any, val?: any): void;
+    function ReactTo(obj: any, scope: any, changed: (val?: any) => any): void;
+    function UnreactTo(obj: any, scope: any): void;
+}
+declare module Fayde {
     class DONode extends XamlNode {
         public XObject: DependencyObject;
         constructor(xobj: DependencyObject);
@@ -5391,11 +5396,6 @@ declare class IndexedPropertyInfo implements IPropertyInfo {
     public GetValue(ro: any, index: number): any;
     public SetValue(ro: any, index: number, value: any): void;
     static Find(typeOrObj: any): IndexedPropertyInfo;
-}
-declare module Fayde {
-    function Incite(obj: any, val?: any): void;
-    function ReactTo(obj: any, scope: any, changed: (val?: any) => any): void;
-    function UnreactTo(obj: any, scope: any): void;
 }
 declare module StringEx {
     function Format(format: string, ...items: any[]): string;

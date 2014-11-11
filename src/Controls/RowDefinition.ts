@@ -4,10 +4,10 @@
 module Fayde.Controls {
     export class RowDefinition extends DependencyObject implements minerva.controls.grid.IRowDefinition {
         //NOTE: Will not receive property changes from GridLength
-        static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => GridLength, RowDefinition, undefined, Incite);
-        static MaxHeightProperty: DependencyProperty = DependencyProperty.Register("MaxHeight", () => Number, RowDefinition, Number.POSITIVE_INFINITY, Incite);
-        static MinHeightProperty: DependencyProperty = DependencyProperty.Register("MinHeight", () => Number, RowDefinition, 0.0, Incite);
-        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("ActualHeight", () => Number, RowDefinition, 0.0);
+        static HeightProperty = DependencyProperty.Register("Height", () => GridLength, RowDefinition, undefined, Incite);
+        static MaxHeightProperty = DependencyProperty.Register("MaxHeight", () => Number, RowDefinition, Number.POSITIVE_INFINITY, Incite);
+        static MinHeightProperty = DependencyProperty.Register("MinHeight", () => Number, RowDefinition, 0.0, Incite);
+        static ActualHeightProperty = DependencyProperty.RegisterReadOnly("ActualHeight", () => Number, RowDefinition, 0.0);
         Height: GridLength;
         MaxHeight: number;
         MinHeight: number;
