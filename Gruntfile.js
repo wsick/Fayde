@@ -16,7 +16,7 @@ module.exports = function (grunt) {
 
     var ports = {
         server: 7001,
-        livereload: 14141
+        livereload: 34343
     };
     var meta = {
         name: 'Fayde'
@@ -156,13 +156,13 @@ module.exports = function (grunt) {
             testsitejs: {
                 files: ['testsite/**/*.js'],
                 options: {
-                    livereload: 35729
+                    livereload: ports.livereload
                 }
             },
             testsitefay: {
                 files: ['testsite/**/*.fap', 'testsite/**/*.fayde'],
                 options: {
-                    livereload: 35729
+                    livereload: ports.livereload
                 }
             }
         },
