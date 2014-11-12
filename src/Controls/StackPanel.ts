@@ -2,7 +2,7 @@
 
 module Fayde.Controls {
     export class StackPanel extends Panel {
-        CreateLayoutUpdater() {
+        CreateLayoutUpdater () {
             return new minerva.controls.stackpanel.StackPanelUpdater();
         }
 

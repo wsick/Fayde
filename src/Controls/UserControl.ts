@@ -12,6 +12,11 @@ module Fayde.Controls {
         InitializeComponent () {
             this.ApplyTemplate();
         }
+
+        constructor() {
+            super();
+            this.DefaultStyleKey = UserControl;
+        }
     }
     Fayde.RegisterType(UserControl, "Fayde.Controls", Fayde.XMLNS);
     Xaml.Content(UserControl, UserControl.ContentProperty);

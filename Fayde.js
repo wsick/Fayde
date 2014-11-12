@@ -8085,7 +8085,8 @@ var Fayde;
         var UserControl = (function (_super) {
             __extends(UserControl, _super);
             function UserControl() {
-                _super.apply(this, arguments);
+                _super.call(this);
+                this.DefaultStyleKey = UserControl;
             }
             UserControl.prototype.CreateLayoutUpdater = function () {
                 return new minerva.controls.usercontrol.UserControlUpdater();
@@ -8126,6 +8127,7 @@ var Fayde;
             __extends(Page, _super);
             function Page() {
                 _super.call(this);
+                this.DefaultStyleKey = Page;
             }
             Page.GetAsync = function (url) {
                 var d = defer();
@@ -11602,7 +11604,8 @@ var Fayde;
         var RichTextBox = (function (_super) {
             __extends(RichTextBox, _super);
             function RichTextBox() {
-                _super.apply(this, arguments);
+                _super.call(this);
+                this.DefaultStyleKey = RichTextBox;
             }
             return RichTextBox;
         })(Controls.Control);
@@ -12075,6 +12078,7 @@ var Fayde;
             function TextBlock() {
                 var _this = this;
                 _super.call(this);
+                this.DefaultStyleKey = TextBlock;
 
                 var inlines = TextBlock.InlinesProperty.Initialize(this);
                 inlines.AttachTo(this);

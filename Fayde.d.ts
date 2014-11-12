@@ -1624,6 +1624,7 @@ declare module Fayde.Controls {
         public Content: UIElement;
         public CreateLayoutUpdater(): minerva.controls.usercontrol.UserControlUpdater;
         public InitializeComponent(): void;
+        constructor();
     }
 }
 declare module Fayde.Controls {
@@ -2360,6 +2361,7 @@ declare module Fayde.Controls {
     class RichTextBox extends Control {
         public HorizontalScrollBarVisibility: ScrollBarVisibility;
         public TextWrapping: TextWrapping;
+        constructor();
     }
 }
 declare module Fayde.Controls {

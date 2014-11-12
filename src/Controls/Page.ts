@@ -7,6 +7,7 @@ module Fayde.Controls {
 
         constructor() {
             super();
+            this.DefaultStyleKey = Page;
         }
 
         static GetAsync(url: string): IAsyncRequest<Page> {

@@ -127,6 +127,7 @@ module Fayde.Controls {
 
         constructor () {
             super();
+            this.DefaultStyleKey = TextBlock;
 
             var inlines = TextBlock.InlinesProperty.Initialize(this);
             inlines.AttachTo(this);
