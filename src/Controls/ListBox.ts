@@ -8,6 +8,11 @@ module Fayde.Controls {
         static IsSelectionActiveProperty = Primitives.Selector.IsSelectionActiveProperty;
         ItemContainerStyle: Style;
 
+        constructor () {
+            super();
+            this.DefaultStyleKey = ListBox;
+        }
+
         ScrollIntoView(item: any) {
             var tsv = this.$TemplateScrollViewer;
             if (!tsv)

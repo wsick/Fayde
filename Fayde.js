@@ -9888,8 +9888,9 @@ var Fayde;
         var ListBox = (function (_super) {
             __extends(ListBox, _super);
             function ListBox() {
-                _super.apply(this, arguments);
+                _super.call(this);
                 this._FocusedIndex = 0;
+                this.DefaultStyleKey = ListBox;
             }
             ListBox.prototype.ScrollIntoView = function (item) {
                 var tsv = this.$TemplateScrollViewer;

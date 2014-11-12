@@ -2053,6 +2053,7 @@ declare module Fayde.Controls {
         static ItemContainerStyleProperty: DependencyProperty;
         static IsSelectionActiveProperty: DependencyProperty;
         public ItemContainerStyle: Style;
+        constructor();
         public ScrollIntoView(item: any): void;
         private _NavigateByPage(forward);
         private _ScrollInDirection(key);
