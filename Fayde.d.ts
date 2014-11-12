@@ -1260,7 +1260,6 @@ declare module Fayde.Controls {
         static ContentTemplateProperty: DependencyProperty;
         public Content: any;
         public ContentTemplate: DataTemplate;
-        constructor();
     }
 }
 declare module Fayde.Controls.Primitives {

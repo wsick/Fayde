@@ -124,11 +124,6 @@ module Fayde.Controls {
         static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenterNode>(<ContentPresenter>d).XamlNode)._ContentTemplateChanged());
         Content: any;
         ContentTemplate: DataTemplate;
-
-        constructor () {
-            super();
-            this.DefaultStyleKey = ContentPresenter;
-        }
     }
     Fayde.RegisterType(ContentPresenter, "Fayde.Controls", Fayde.XMLNS);
     Xaml.Content(ContentPresenter, ContentPresenter.ContentProperty);

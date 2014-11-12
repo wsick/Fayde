@@ -2317,6 +2317,7 @@ var Fayde;
             this.IsLoaded = false;
             var upd = this.LayoutUpdater = xobj.CreateLayoutUpdater();
             upd.setAttachedValue("$node", this);
+            upd.setAttachedValue("$id", this.XObject._ID);
         }
         UINode.prototype.GetVisualRoot = function () {
             var curNode = this;
@@ -6096,8 +6097,7 @@ var Fayde;
         var ContentPresenter = (function (_super) {
             __extends(ContentPresenter, _super);
             function ContentPresenter() {
-                _super.call(this);
-                this.DefaultStyleKey = ContentPresenter;
+                _super.apply(this, arguments);
             }
             ContentPresenter.prototype.CreateNode = function () {
                 return new ContentPresenterNode(this);

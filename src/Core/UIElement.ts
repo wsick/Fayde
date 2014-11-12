@@ -15,6 +15,7 @@ module Fayde {
             super(xobj);
             var upd = this.LayoutUpdater = xobj.CreateLayoutUpdater();
             upd.setAttachedValue("$node", this);
+            upd.setAttachedValue("$id", (<any>this.XObject)._ID);
         }
 
         VisualParentNode: UINode;
