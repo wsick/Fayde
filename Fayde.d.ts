@@ -757,6 +757,7 @@ declare module Fayde.Controls {
         public Child: UIElement;
         public CornerRadius: CornerRadius;
         public Padding: Thickness;
+        constructor();
     }
 }
 declare module Fayde.Providers {
@@ -926,6 +927,7 @@ declare module Fayde.Controls {
         public ContentUri: Uri;
         private OnContentPropertyChanged(args);
         private OnContentUriPropertyChanged(args);
+        constructor();
         public OnContentChanged(oldContent: any, newContent: any): void;
         public OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate): void;
         public OnContentUriChanged(oldSourceUri: Uri, newSourceUri: Uri): void;
@@ -1258,6 +1260,7 @@ declare module Fayde.Controls {
         static ContentTemplateProperty: DependencyProperty;
         public Content: any;
         public ContentTemplate: DataTemplate;
+        constructor();
     }
 }
 declare module Fayde.Controls.Primitives {

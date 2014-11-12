@@ -19,6 +19,11 @@ module Fayde.Controls {
         Child: UIElement;
         CornerRadius: CornerRadius;
         Padding: Thickness;
+
+        constructor () {
+            super();
+            this.DefaultStyleKey = Border;
+        }
     }
     Fayde.RegisterType(Border, "Fayde.Controls", Fayde.XMLNS);
     Xaml.Content(Border, Border.ChildProperty);

@@ -2441,17 +2441,16 @@
         <Setter Property="VerticalAlignment" Value="Top" />
     </Style>
     <Style TargetType="ContentControl">
-        <Setter Property="IsEnabled" Value="true" />
-        <Setter Property="Foreground" Value="#FF000000" />
-        <Setter Property="HorizontalContentAlignment" Value="Left" />
-        <Setter Property="VerticalContentAlignment" Value="Top" />
-        <Setter Property="Cursor" Value="Arrow" />
+        <Setter Property="Foreground" Value="#FF000000"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Top"/>
         <Setter Property="FontFamily" Value="{StaticResource ContentFontFamily}" />
         <Setter Property="FontSize" Value="{StaticResource ContentFontSize}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ContentControl">
-                    <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" />
+                    <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" Cursor="{TemplateBinding Cursor}"
+                            Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

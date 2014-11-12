@@ -91,6 +91,11 @@ module Fayde.Controls {
             this.OnContentUriChanged(oldUri, newUri);
         }
 
+        constructor () {
+            super();
+            this.DefaultStyleKey = ContentControl;
+        }
+
         OnContentChanged (oldContent: any, newContent: any) {
         }
 

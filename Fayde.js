@@ -3140,7 +3140,8 @@ var Fayde;
         var Border = (function (_super) {
             __extends(Border, _super);
             function Border() {
-                _super.apply(this, arguments);
+                _super.call(this);
+                this.DefaultStyleKey = Border;
             }
             Border.prototype.CreateLayoutUpdater = function () {
                 return new minerva.controls.border.BorderUpdater();
@@ -3707,7 +3708,8 @@ var Fayde;
         var ContentControl = (function (_super) {
             __extends(ContentControl, _super);
             function ContentControl() {
-                _super.apply(this, arguments);
+                _super.call(this);
+                this.DefaultStyleKey = ContentControl;
             }
             ContentControl.prototype.CreateNode = function () {
                 return new ContentControlNode(this);
@@ -6094,7 +6096,8 @@ var Fayde;
         var ContentPresenter = (function (_super) {
             __extends(ContentPresenter, _super);
             function ContentPresenter() {
-                _super.apply(this, arguments);
+                _super.call(this);
+                this.DefaultStyleKey = ContentPresenter;
             }
             ContentPresenter.prototype.CreateNode = function () {
                 return new ContentPresenterNode(this);
