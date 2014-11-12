@@ -12078,7 +12078,6 @@ var Fayde;
             function TextBlock() {
                 var _this = this;
                 _super.call(this);
-                this.DefaultStyleKey = TextBlock;
 
                 var inlines = TextBlock.InlinesProperty.Initialize(this);
                 inlines.AttachTo(this);
