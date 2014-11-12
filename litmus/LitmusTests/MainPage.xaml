@@ -33,7 +33,7 @@
         </Grid>-->
         <!--<tests:TextBoxTest />-->
         <!--<tests:UpDownTest />-->
-        <tests:ListBoxTest />
+        <!--<tests:ListBoxTest />-->
         <!--<tests:GridSplitterTest />-->
         <!--<tests:ListBoxSelectionTest />-->
         <!--<tests:BorderTest />-->
@@ -46,5 +46,6 @@
         </Grid>
         -->
         <!--<tests:ScrollViewerTest />-->
+        <tests:ContentControlTest />
     </Grid>
 </UserControl>
