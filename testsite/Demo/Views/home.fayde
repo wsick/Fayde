@@ -26,7 +26,6 @@
                         -->
 
                     </StackPanel>
-                    <Image Margin="0,0,0,-15" Source="Images/page01.JPG" Stretch="Fill" RenderTransformOrigin="0.5,0.5" ToolTipService.ToolTip="Lorem ipsum dolor" Grid.Column="1" HorizontalAlignment="Center" />
                 </Grid>
             </StackPanel>
         </ScrollViewer>
