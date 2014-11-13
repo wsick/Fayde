@@ -2681,9 +2681,6 @@ var Fayde;
         UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () {
             return Number;
         }, UIElement, 1.0);
-        UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () {
-            return Fayde.Media.Projection;
-        }, UIElement);
         UIElement.RenderTransformProperty = DependencyProperty.RegisterCore("RenderTransform", function () {
             return Fayde.Media.Transform;
         }, UIElement);
@@ -2713,7 +2710,6 @@ var Fayde;
         Fayde.UIReaction(UIElement.EffectProperty, minerva.core.reactTo.effect);
         Fayde.UIReaction(UIElement.IsHitTestVisibleProperty, minerva.core.reactTo.isHitTestVisible, false);
         Fayde.UIReaction(UIElement.OpacityProperty, minerva.core.reactTo.opacity, false);
-        Fayde.UIReaction(UIElement.ProjectionProperty, minerva.core.reactTo.projection);
         Fayde.UIReaction(UIElement.RenderTransformProperty, minerva.core.reactTo.renderTransform, true, function (src, dest) {
             return Fayde.Media.GeneralTransform.copyMatTo(src, dest);
         });

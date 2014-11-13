@@ -219,7 +219,6 @@ module Fayde {
         static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", () => Boolean, UIElement, true);
         static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", () => Media.Brush, UIElement);
         static OpacityProperty = DependencyProperty.RegisterCore("Opacity", () => Number, UIElement, 1.0);
-        static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement);
         static RenderTransformProperty = DependencyProperty.RegisterCore("RenderTransform", () => Media.Transform, UIElement);
         static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement);
         static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
@@ -337,7 +336,6 @@ module Fayde {
         UIReaction<minerva.IEffect>(UIElement.EffectProperty, minerva.core.reactTo.effect);
         UIReaction<boolean>(UIElement.IsHitTestVisibleProperty, minerva.core.reactTo.isHitTestVisible, false);
         UIReaction<number>(UIElement.OpacityProperty, minerva.core.reactTo.opacity, false);
-        UIReaction<Media.Projection>(UIElement.ProjectionProperty, minerva.core.reactTo.projection);
         UIReaction<Media.GeneralTransform>(UIElement.RenderTransformProperty, minerva.core.reactTo.renderTransform, true, (src, dest) => Media.GeneralTransform.copyMatTo(src, <number[]><any>dest));
         UIReaction<minerva.Point>(UIElement.RenderTransformOriginProperty, minerva.core.reactTo.renderTransformOrigin, false, minerva.Point.copyTo);
         UIReaction<minerva.Visibility>(UIElement.VisibilityProperty, (upd, ov, nv, uie?) => {

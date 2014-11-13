@@ -554,7 +554,6 @@ declare module Fayde {
         static IsHitTestVisibleProperty: DependencyProperty;
         static OpacityMaskProperty: DependencyProperty;
         static OpacityProperty: DependencyProperty;
-        static ProjectionProperty: DependencyProperty;
         static RenderTransformProperty: DependencyProperty;
         static RenderTransformOriginProperty: DependencyProperty;
         static TagProperty: DependencyProperty;
