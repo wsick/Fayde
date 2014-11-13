@@ -22,9 +22,17 @@ module Fayde {
     export function ReactTo (obj: any, scope: any, changed: (val?: any) => any) {
         if (!obj)
             return;
-        var rs = obj.$$reaction_sources = obj.$$reaction_sources || [];
+        var rs = obj.$$reaction_sources;
+        if (!rs) {
+            rs = [];
+            Object.defineProperty(obj, "$$reaction_sources", {value: rs, enumerable: false});
+        }
         rs.push(scope);
-        var reactions = obj.$$reactions = obj.$$reactions || [];
+        var reactions = obj.$$reactions;
+        if (!reactions) {
+            reactions = [];
+            Object.defineProperty(obj, "$$reactions", {value: reactions, enumerable: false});
+        }
         reactions.push(changed);
     }
 

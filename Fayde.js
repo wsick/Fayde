@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.9';
+    Fayde.Version = '0.13.10';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -1519,9 +1519,17 @@ var Fayde;
     function ReactTo(obj, scope, changed) {
         if (!obj)
             return;
-        var rs = obj.$$reaction_sources = obj.$$reaction_sources || [];
+        var rs = obj.$$reaction_sources;
+        if (!rs) {
+            rs = [];
+            Object.defineProperty(obj, "$$reaction_sources", { value: rs, enumerable: false });
+        }
         rs.push(scope);
-        var reactions = obj.$$reactions = obj.$$reactions || [];
+        var reactions = obj.$$reactions;
+        if (!reactions) {
+            reactions = [];
+            Object.defineProperty(obj, "$$reactions", { value: reactions, enumerable: false });
+        }
         reactions.push(changed);
     }
     Fayde.ReactTo = ReactTo;
