@@ -60,6 +60,13 @@ body {
 .navbar-default .navbar-nav>li>a:focus {
     color: #ffb241;
 }
+
+.navbar-default .navbar-nav>.open>a,
+.navbar-default .navbar-nav>.open>a:hover,
+.navbar-default .navbar-nav>.open>a:focus {
+    color: #ffb241;
+    background-color: transparent;
+}
 .jumbotron {
     color: #76858E;
     background-color: transparent;
@@ -112,6 +119,50 @@ code {
     width: 50%;
     vertical-align: top;
 }
-
+#navigation {
+    background-color: #314267;
+}
+#footer {
+    background-color: #314267;
+    color: white;
+    font-size: 12px;
+    text-shadow: black 0px 1px 1px;
+    text-align: center;
+    padding: 10px;
+}
+#footer a {
+    color: white;
+    text-decoration: underline;
+}
+#signup {
+    margin-top: 70px;
+}
 #mc_embed_signup {
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #AAAAAA;
+    border-radius: 4px;
+}
+#mc-embedded-subscribe {
+    color: white;
+}
+input#mc-embedded-subscribe:hover,
+input#mc_embedded_subscribe:focus {
+    color: #ffb241;
+}
+table.data {
+    background-color: white;
+    border-collapse: collapse;
+    border: 1px solid #AAAAAA;
+}
+table.data td,
+table.data th {
+    border: solid 1px #AAAAAA;
+    padding: 4px;
+}
+table.data th {
+    color: #777777;
+    background-color: #ededed;
 }

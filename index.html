@@ -4,9 +4,9 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="XAML Everywhere, no plugins">
-        <meta keywords="xaml, silverlight, browser, desktop, linux, windows, mac, chrome, ie, safari, opera, android, javascript">
-        <title>Fayde - XAML Everywhere</title>
+        <meta name="description" content="Silverlight Everywhere, no plugins">
+        <meta keywords="xaml, silverlight, browser, desktop, linux, windows, mac, chrome, ie, safari, opera, android, javascript, rich application">
+        <title>Fayde - Silverlight Everywhere</title>
         <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700" rel="stylesheet" type="text/css">
 
         <!-- Bootstrap -->
@@ -22,16 +22,8 @@
         <![endif]-->
     </head>
     <body data-spy="scroll" data-target=".navbar">
-        <div id="fb-root"></div>
-        <script>(function(d, s, id) {
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) return;
-            js = d.createElement(s); js.id = id;
-            js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.0";
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));</script>
         <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-            <div style="background-color: #314267;">
+            <div id="navigation">
                 <div class="container" style="padding-left: 60px; padding-right: 60px;">
                     <div class="navbar-header">
                         <a class="navbar-brand" href="#">Fayde</a>
@@ -39,12 +31,11 @@
                     <div class="navbar-collapse collapse">
                         <ul class="nav navbar-nav">
                             <li><a href="#feature1">Silverlight Everywhere</a></li>
-                            <li><a href="#feature2">Rich Application</a></li>
-                            <li><a href="#feature3">No HTML/CSS</a></li>
-                            <li><a href="#feature4">XAML</a></li>
-                            <li><a href="#feature5">MVVM</a></li>
+                            <li><a href="#feature2">Rich Applications</a></li>
+                            <li><a href="#feature3">Web, Desktop, and Mobile</a></li>
+                            <li><a href="#feature4">MVVM</a></li>
+                            <li><a href="#feature5">Quickstart</a></li>
                             <li><a href="#feature6">Migrate</a></li>
-                            <!--
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
@@ -57,25 +48,10 @@
                                     <li><a href="#">One more separated link</a></li>
                                 </ul>
                             </li>
-                            -->
                         </ul>
                     </div>
                 </div>
             </div>
-            <!--
-            <div style="width: 100%;">
-                <div class="container" style="padding-left: 60px; padding-right: 60px;">
-                    <div style="float: right; border-radius: 0 0 8px 8px; background-color: #314267;">
-                        <ul class="nav navbar-nav">
-                            <li style="display: inline; padding: 4px;"><img src="images/Email-icon.jpg" style="height: 25px; margin: 4px 0 4px 4px;"/></li>
-                            <li style="display: inline; padding: 4px;"><img src="images/facebook-icon.png" style="height: 25px; margin: 4px 0 4px 4px;"/></li>
-                            <li style="display: inline; padding: 4px;"><img src="images/twitter-icon.png" style="height: 25px; margin: 4px 0 4px 4px;"/></li>
-                            <li style="display: inline; padding: 4px;"><img src="images/uservoice.png" style="height: 25px; margin: 4px;"/></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            -->
         </div>
         <div class="container feature" id="feature1" style="position: relative;">
             <div class="jumbotron">
@@ -122,17 +98,28 @@
                         Todo Application Demo
                     </div>
                 </div>
-                <div style="display: none;">
+                <div id="signup">
                     <!-- Begin MailChimp Signup Form -->
                     <link href="//cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css">
                     <div id="mc_embed_signup">
-                        <form action="//wsick.us9.list-manage.com/subscribe/post?u=de8fea8afe5b5807188561bca&amp;id=cdc1dc89b1" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+                        <div style="text-align: center;">
+                            <h2 style="margin-top: 0; text-shadow: 0 1px 1px rgba(0,0,0,.2);">Get Connected</h2>
+                        </div>
+                        <p>Sign up below to stay in touch with the Fayde team and contribute to the direction of this product.</p>
+                        <form action="//wsick.us9.list-manage.com/subscribe/post?u=de8fea8afe5b5807188561bca&amp;id=cdc1dc89b1" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate style="padding: 0;">
                             <div id="mc_embed_signup_scroll">
-
-                                <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td width="70%">
+                                            <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required style="padding: 4px; margin: 0; border-radius: 4px 0 0 4px; width: 100%;">
+                                        </td>
+                                        <td width="30%">
+                                            <input type="submit" value="Subscribe" name="mc-embedded-subscribe" id="mc-embedded-subscribe" class="button" style="width: 100%; border-radius: 0 4px 4px 0; margin: 0; background-color: #314267;">
+                                        </td>
+                                    </tr>
+                                </table>
                                 <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
                                 <div style="position: absolute; left: -5000px;"><input type="text" name="b_de8fea8afe5b5807188561bca_cdc1dc89b1" tabindex="-1" value=""></div>
-                                <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
                             </div>
                         </form>
                     </div>
@@ -143,19 +130,36 @@
         <div class="container feature" id="feature2">
             <div class="jumbotron">
                 <div class="column">
-                    <h2>Rich Native Application Experience</h2>
+                    <h2>Rich Applications</h2>
                     <p>
-                        Fayde is an open-source Javascript framework that eliminates the need to choose between building a desktop or web application.
-                        by replacing HTML and CSS with the Silverlight layout and rendering engine.
-                        The Fayde team has taken Silverlight and developed it as a Javascript only library.
-                        Because it is Javascript only, it can be run on all browsers and all platforms.
+                        Until now, there have been two choices:
+                        <ol>
+                            <li style="margin-bottom: 20px;">
+                                <h4>Web Application</h4>
+                                <ul>
+                                    <li>Great for reaching all platforms, easy deployment, and developing your application once.</li>
+                                    <li>However, HTML and CSS are designed for documents and not applications, your interfaces and user experience are compromised, and time is wasted on browser hacks and compatibility.</li>
+                                </ul>
+                            </li>
+                            <li style="margin-bottom: 20px;">
+                                <h4>Desktop Application</h4>
+                                <ul>
+                                    <li>Full support for interface design and great developer environment.</li>
+                                    <li>However, it must be developed for each platform and is difficult to deploy.</li>
+                                </ul>
+                            </li>
+                        </ol>
+                        With Fayde you can unleash the capabilities of your application, development team, and design team.
+                        Build your applications with all the benefits of being web based but eliminate the problems of HTML and CSS.
+                        Fayde is fully extensible so not only do you get all the controls developed by the core team but you can also build your own.
+
                     </p>
-                    <a href="http://pchiusano.github.io/2014-07-02/css-is-unnecessary.html">Brett Victor on CSS</a>
-                    <a href="http://browserhacks.com/">Browser Hacks</a>
                 </div>
                 <div class="column">
-                    <div style="width: 80%; margin: auto; border: 1px solid #DDDDDD; background-color: white; border-radius: 4px; padding: 4px;">
-                        <img src="images/white_ui_final_3.jpg" style="width: 100%;">
+                    <div style="width: 80%; margin: auto; border: 1px solid #DDDDDD; background-color: white; border-radius: 4px; padding: 10px;">
+                        <a target="_blank" href="http://pchiusano.github.io/2014-07-02/css-is-unnecessary.html">
+                            <img src="images/brett_victor.png" style="width: 100%;">
+                        </a>
                     </div>
                 </div>
             </div>
@@ -228,6 +232,9 @@
             Take your designs straight to the web
             Designers can rapidly build real working prototypes
             Develop the UI seperate from your backend
+        </div>
+        <div id="footer">
+            Fayde is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
         </div>
 
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
