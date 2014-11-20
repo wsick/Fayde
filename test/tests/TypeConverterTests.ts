@@ -4,15 +4,6 @@ import GridUnitType = minerva.controls.grid.GridUnitType;
 export function load() {
     QUnit.module("Type Converter Tests");
 
-    test("Primitives", () => {
-        strictEqual(Fayde.ConvertAnyToType("1", Number), 1, "Integer conversion");
-        strictEqual(Fayde.ConvertAnyToType("1.2", Number), 1.2, "Decimal conversion");
-    });
-
-    test("Enums", () => {
-        strictEqual(Fayde.ConvertAnyToType("Top", <any>(new Enum(Fayde.VerticalAlignment))), Fayde.VerticalAlignment.Top, "String to Enum");
-    });
-
     test("Color", () => {
         strictEqual(<Color>Fayde.ConvertAnyToType(undefined, Color), undefined, "undefined");
         strictEqual(<Color>Fayde.ConvertAnyToType(null, Color), undefined, "null");
