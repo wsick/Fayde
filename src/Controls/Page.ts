@@ -10,7 +10,7 @@ module Fayde.Controls {
             this.DefaultStyleKey = Page;
         }
 
-        static GetAsync (initiator: FrameworkElement, url: string): nullstone.async.IAsyncRequest<Page> {
+        static GetAsync (initiator: DependencyObject, url: string): nullstone.async.IAsyncRequest<Page> {
             return nullstone.async.create((resolve, reject) => {
                 Markup.Resolve(url)
                     .then(xm => {

@@ -13,15 +13,14 @@ module Fayde.Documents {
 
         InheritedWalkProperty: string;
 
-        GetInheritedEnumerator (): IEnumerator<DONode> {
+        GetInheritedEnumerator (): nullstone.IEnumerator<DONode> {
             if (!this.InheritedWalkProperty)
-                return ArrayEx.EmptyEnumerator;
+                return nullstone.IEnumerator_.empty;
             var coll: XamlObjectCollection<DependencyObject> = this.XObject[this.InheritedWalkProperty];
             if (coll)
                 return coll.GetNodeEnumerator<DONode>();
         }
     }
-    Fayde.RegisterType(TextElementNode, "Fayde.Documents");
 
     function invalidateFont (upd: minerva.text.TextUpdater, ov, nv, te?: TextElement) {
         Incite(te, {
@@ -89,7 +88,7 @@ module Fayde.Documents {
                 return false;
             if (this.FontStretch !== te.FontStretch)
                 return false;
-            if (!Nullstone.Equals(this.Foreground, te.Foreground))
+            if (!nullstone.equals(this.Foreground, te.Foreground))
                 return false;
             return true;
         }

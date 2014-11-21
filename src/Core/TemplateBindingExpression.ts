@@ -19,7 +19,7 @@ module Fayde {
             if (source)
                 value = source.GetValue(this.SourceProperty);
             //NOTE: Do we need to handle string conversion?
-            value = Fayde.ConvertAnyToType(value, <Function>this.TargetProperty.GetTargetType());
+            value = nullstone.convertAnyToType(value, <Function>this.TargetProperty.GetTargetType());
             return value;
         }
         OnAttached(dobj: DependencyObject) {
@@ -81,5 +81,4 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(TemplateBindingExpression, "Fayde", Fayde.XMLNS);
 }

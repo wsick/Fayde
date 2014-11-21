@@ -8,7 +8,7 @@ module Fayde {
     export class Application extends DependencyObject implements IResourcable, ITimerListener {
         static Current: Application;
         MainSurface: Surface;
-        Loaded = new MulticastEvent<EventArgs>();
+        Loaded = new nullstone.Event();
         Address: Uri = null;
         private _IsRunning: boolean = false;
         private _IsLoaded = false;
@@ -42,7 +42,7 @@ module Fayde {
         Resized = new RoutedEvent<SizeChangedEventArgs>();
 
         OnResized (oldSize: minerva.Size, newSize: minerva.Size) {
-            this.Resized.Raise(this, new SizeChangedEventArgs(oldSize, newSize));
+            this.Resized.raise(this, new SizeChangedEventArgs(oldSize, newSize));
         }
 
         constructor () {
@@ -72,7 +72,7 @@ module Fayde {
         Start () {
             this._ClockTimer.RegisterTimer(this);
             this._IsLoaded = true;
-            this.Loaded.RaiseAsync(this, EventArgs.Empty);
+            this.Loaded.raiseAsync(this, null);
         }
 
         OnTicked (lastTime: number, nowTime: number) {
@@ -119,23 +119,22 @@ module Fayde {
                 sbs.splice(index, 1);
         }
 
-        static GetAsync (url: string): IAsyncRequest<Application> {
-            var d = defer<Application>();
-            Xaml.XamlDocument.GetAsync(url)
-                .success(xd => {
-                    TimelineProfile.Parse(true, "App");
-                    var app = <Application>Xaml.Load(xd.Document);
-                    TimelineProfile.Parse(false, "App");
-                    if (!(app instanceof Application))
-                        d.reject("Xaml must be an Application.");
-                    else
-                        d.resolve(app);
-                })
-                .error(d.reject);
-            return d.request;
+        static GetAsync (url: string): nullstone.async.IAsyncRequest<Application> {
+            return nullstone.async.create((resolve, reject) => {
+                Markup.Resolve(url)
+                    .then(appm => {
+                        TimelineProfile.Parse(true, "App");
+                        var app = Markup.Load<Application>(null, appm);
+                        TimelineProfile.Parse(false, "App");
+                        if (!(app instanceof Application))
+                            reject("Markup must be an Application.");
+                        else
+                            resolve(app);
+                    }, reject);
+            });
         }
 
-        Resolve (): IAsyncRequest<Application> {
+        Resolve (): nullstone.async.IAsyncRequest<Application> {
             var d = defer<Application>();
 
             var lib = Library.Get("lib:Fayde");

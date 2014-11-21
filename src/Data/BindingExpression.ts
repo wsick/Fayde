@@ -6,5 +6,4 @@ module Fayde.Data {
             super(binding, target, propd);
         }
     }
-    Fayde.RegisterType(BindingExpression, "Fayde.Data");
 }

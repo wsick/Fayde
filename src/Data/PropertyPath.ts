@@ -17,6 +17,10 @@ module Fayde.Data {
         type: Function;
     }
 
+    export interface IOutValue {
+        Value: any;
+    }
+
     var lookupNamespaces: any[];
     function lookupType(name: string) {
         if (!lookupNamespaces) {
@@ -271,7 +275,7 @@ module Fayde.Data {
                     data.parenOpen = false;
                 } else if (c === '\'') {//Ticks only legal in expanded path
                     if (!propertyPath.ExpandedPath)
-                        Warn("The ' character is not legal in property paths.");
+                        console.warn("The ' character is not legal in property paths.");
                     else
                         data.tickOpen = !data.tickOpen;
                 } else if (c === '.') {
@@ -295,7 +299,7 @@ module Fayde.Data {
         }
     }
     Fayde.RegisterType(PropertyPath, "Fayde.Data", Fayde.XMLNS);
-    Fayde.RegisterTypeConverter(PropertyPath, (val: any): any => {
+    nullstone.registerTypeConverter(PropertyPath, (val: any): any => {
         if (!val)
             return new PropertyPath();
         if (val instanceof PropertyPath)

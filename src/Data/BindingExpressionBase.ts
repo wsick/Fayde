@@ -44,7 +44,7 @@ module Fayde.Data {
 
             this._IsDataContextBound = !binding.ElementName && !binding.Source && !binding.RelativeSource;
 
-            var bindsToView = propd === DependencyObject.DataContextProperty || propd.GetTargetType() === <any>IEnumerable_ || propd.GetTargetType() === <any>Data.ICollectionView_;
+            var bindsToView = propd === DependencyObject.DataContextProperty || propd.GetTargetType() === <any>nullstone.IEnumerable_ || propd.GetTargetType() === <any>Data.ICollectionView_;
             var walker = this.PropertyPathWalker = new PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this._IsDataContextBound);
             if (binding.Mode !== BindingMode.OneTime)
                 walker.Listen(this);
@@ -81,7 +81,7 @@ module Fayde.Data {
             this.PropertyPathWalker.Update(source);
 
             if (this._TwoWayLostFocusElement)
-                this._TwoWayLostFocusElement.LostFocus.Subscribe(this._TargetLostFocus, this);
+                this._TwoWayLostFocusElement.LostFocus.on(this._TargetLostFocus, this);
 
             if (this.ParentBinding.Mode === BindingMode.TwoWay && this.Property.IsCustom) {
                 this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
@@ -135,7 +135,7 @@ module Fayde.Data {
             super.OnDetached(element);
 
             if (this._TwoWayLostFocusElement)
-                this._TwoWayLostFocusElement.LostFocus.Unsubscribe(this._TargetLostFocus, this);
+                this._TwoWayLostFocusElement.LostFocus.off(this._TargetLostFocus, this);
 
             /*
             if (this.Target && this.CurrentError != null) {
@@ -171,7 +171,7 @@ module Fayde.Data {
                 console.warn("[BINDING] UpdateSource: " + err.toString());
             }
         }
-        private _TargetLostFocus(sender: any, e: EventArgs) {
+        private _TargetLostFocus(sender: any, e: nullstone.IEventArgs) {
             if (this.ParentBinding.UpdateSourceTrigger === UpdateSourceTrigger.Explicit)
                 return;
             this._UpdateSourceObject();
@@ -323,7 +323,7 @@ module Fayde.Data {
                 console.warn("[BINDING]" + err.toString());
                 value = binding.FallbackValue;
             }
-            return Fayde.ConvertAnyToType(value, <Function>targetType);
+            return nullstone.convertAnyToType(value, <Function>targetType);
         }
 
         private _MaybeEmitError(message: string, exception: Exception) {
@@ -363,14 +363,13 @@ module Fayde.Data {
         }
         private _AttachToNotifyError(element) {
             ///<param name="element" type="INotifyDataErrorInfo"></param>
-            NotImplemented("BindingExpressionBase._AttachToNotifyError");
+            console.warn("BindingExpressionBase._AttachToNotifyError");
         }
         private _NotifyErrorsChanged(o, e) {
             ///<param name="e" type="DataErrorsChangedEventArgs"></param>
-            NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
+            console.warn("BindingExpressionBase._NotifyErrorsChanged");
         }
     }
-    Fayde.RegisterType(BindingExpressionBase, "Fayde.Data");
 
     function findAncestor(target: DependencyObject, relSource: RelativeSource): DependencyObject {
         var ancestorType = relSource.AncestorType;

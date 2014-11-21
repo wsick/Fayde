@@ -182,33 +182,26 @@ module Fayde {
                 tabs += "\t";
             }
 
-            var enumerator: IEnumerator<Controls.RowDefinition>;
             var str = "";
             if (rcount > 0) {
                 str += tabs;
                 str += "  Rows (" + rcount + "):\n";
-                enumerator = rds.getEnumerator();
                 var rowdef: Controls.RowDefinition;
-                var i = 0;
-                while (enumerator.moveNext()) {
-                    rowdef = enumerator.current;
+                for (var en = rds.getEnumerator(), i = 0; en.moveNext(); i++) {
+                    rowdef = en.current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + rowdef.ActualHeight + "\n";
-                    i++;
                 }
             }
-            var enumerator2: IEnumerator<Controls.ColumnDefinition>;
+            var enumerator2: nullstone.IEnumerator<Controls.ColumnDefinition>;
             if (ccount > 0) {
                 str += tabs;
                 str += "  Columns (" + ccount + "):\n";
-                enumerator2 = cds.getEnumerator();
                 var coldef: Controls.ColumnDefinition;
-                var i = 0;
-                while (enumerator2.moveNext()) {
-                    coldef = enumerator2.current;
+                for (var en2 = cds.getEnumerator(), i = 0; en2.moveNext(); i++) {
+                    coldef = en2.current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + coldef.ActualWidth + "\n";
-                    i++;
                 }
             }
             return str;

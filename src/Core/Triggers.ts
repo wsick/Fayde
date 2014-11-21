@@ -43,14 +43,14 @@ module Fayde {
             var evt = this._ParseEventName(target);
             if (evt) {
                 this._IsAttached = true;
-                evt.Subscribe(this._FireActions, this);
+                evt.on(this._FireActions, this);
                 return;
             }
-            Warn("Could not attach to RoutedEvent: " + this.RoutedEvent);
+            console.warn("Could not attach to RoutedEvent: " + this.RoutedEvent);
         }
         Detach(target: XamlObject) {
             var evt = this._ParseEventName(target);
-            if (evt) evt.Unsubscribe(this._FireActions, this);
+            if (evt) evt.off(this._FireActions, this);
             this._IsAttached = false;
         }
 
