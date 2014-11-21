@@ -166,3 +166,10 @@ table.data th {
     color: #777777;
     background-color: #ededed;
 }
+p a {
+    text-decoration: underline;
+    color: #76858E;
+}
+ol li {
+    margin-top: 40px;
+}

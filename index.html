@@ -31,7 +31,7 @@
                     <div class="navbar-collapse collapse">
                         <ul class="nav navbar-nav">
                             <li><a href="#feature1">Silverlight Everywhere</a></li>
-                            <li><a href="#feature2">Rich Applications</a></li>
+                            <li><a href="#feature2">Getting Started</a></li>
                             <li><a href="#feature3">Web, Desktop, and Mobile</a></li>
                             <li><a href="#feature4">MVVM</a></li>
                             <li><a href="#feature5">Quickstart</a></li>
@@ -85,7 +85,7 @@
                         Fayde is an open-source Javascript application framework that provides all these capabilities through its XAML layout/rendering engine. Unlike other frameworks, which focus exclusively on being an application framework, Fayde frees you from the confines of developing applications using HTML and CSS. It completely replaces it with XAML, an "eXtensible Application Markup Language".
                     </p>
                     <p>
-                        Fayde is Silverlight on all platforms. It is written entirely in Javascript, so it can be used on all platforms and browsers. To deploy it as a desktop application, just compile it using <a target="_blank" style="text-decoration: underline; color: #76858E;" href="https://github.com/rogerwang/node-webkit">node-webkit</a>.
+                        Fayde is Silverlight on all platforms. It is written entirely in Javascript, so it can be used on all platforms and browsers. To deploy it as a desktop application, just compile it using <a target="_blank" href="https://github.com/rogerwang/node-webkit">node-webkit</a>.
                     </p>
                 </div>
                 <div style="text-align: center;">
@@ -130,6 +130,59 @@
         <div class="container feature" id="feature2">
             <div class="jumbotron">
                 <div class="column">
+                    <h2>Getting Started</h2>
+                    <p>
+                        The easiest way to start developing with Fayde is to use the <a target="_blank" href="http://yeoman.io/">Yeoman</a> generator the Fayde team has developed.
+                        This will allow you to setup and run a new Fayde application with just a couple commands.
+                    </p>
+                    <ol>
+                        <li>
+                            <h4>Installing Dependencies</h4>
+                            <p>
+                                If you already have npm, Grunt, and Yeoman installed you can move on to Step 2.
+                                If not, please follow the directions below.
+                            </p>
+                            <p><a target="_blank" href="https://www.joyent.com/blog/installing-node-and-npm/">Node and npm</a></p>
+                            <p><a target="_blank" href="http://gruntjs.com/installing-grunt">Grunt</a></p>
+                            <p><a target="_blank" href="http://yeoman.io/codelab/setup.html">Yeoman</a></p>
+                        </li>
+                        <li>
+                            <h4>Yo Fayde</h4>
+                            <p>From your command prompt, navigate to the directory where you would like to create your application.</p>
+                            <p>
+                                Then run "yo fayde" in order to create your application.
+                                You will be asked a couple questions and in most cases you can just hit ENTER to keep the defaults.
+                            </p>
+                        </li>
+                        <li>
+                            <h4>Grunt Serve</h4>
+                            <p>
+                                Fayde projects are setup as <a target="_blank" href="http://www.typescriptlang.org/">Typescript</a> projects.
+                                Running "grunt" from the command line will compile the Typescript into Javascript.
+                                To view your application type "grunt serve" from the command line. This will open up your default browser and load the Fayde application.
+                            </p>
+                        </li>
+                        <li>
+                            <h4>Develop Your Application</h4>
+                            <p>
+
+                            </p>
+                        </li>
+                    </ol>
+                </div>
+                <div class="column" style="text-align: center;">
+                    <a target="_blank" href="http://yeoman.io/">
+                        <img src="images/yeoman-fayde.png" style="width: 500px;">
+                    </a>
+                    <img src="images/yo-fayde.png" style="width: 500px; margin-top: 120px;">
+                    <img src="images/fayde-project.png" style="width: 350px;">
+                    <img src="images/livereload.png" style="width: 400px;">
+                </div>
+            </div>
+        </div>
+        <div class="container feature" id="feature3">
+            <div class="jumbotron">
+                <div class="column">
                     <h2>Rich Applications</h2>
                     <p>
                         Until now, there have been two choices:
@@ -164,7 +217,7 @@
                 </div>
             </div>
         </div>
-        <div class="container feature" id="feature3">
+        <div class="container feature" id="feature4">
             <div class="jumbotron">
                 <div class="column">
                     <img src="images/js-logo.png" style="width: 100px;">
@@ -180,7 +233,7 @@
                 </div>
             </div>
         </div>
-        <div class="container feature" id="feature4">
+        <div class="container feature" id="feature5">
             <div class="jumbotron">
                 <h2>MVVM - Model View ViewModel</h2>
                 <a href="https://angularjs.org/">AngularJS</a>
@@ -188,7 +241,7 @@
                 <a href="http://knockoutjs.com/">Knockout</a>
             </div>
         </div>
-        <div class="container feature" id="feature5">
+        <div class="container feature" id="feature6">
             <div class="jumbotron" style="text-align: right;">
                 <h2>XAML</h2>
             </div>
@@ -222,13 +275,13 @@
                 }
             </code></pre>
         </div>
-        <div class="container feature" id="feature6">
+        <div class="container feature" id="feature7">
             <div class="jumbotron">
                 <h2>Migrate Silverlight Applications</h2>
                 <a href="https://github.com/BSick7/Fayde">Fayde on Github</a>
             </div>
         </div>
-        <div class="container feature" id="feature7">
+        <div class="container feature" id="feature8">
             Take your designs straight to the web
             Designers can rapidly build real working prototypes
             Develop the UI seperate from your backend
