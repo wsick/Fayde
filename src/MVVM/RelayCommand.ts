@@ -11,11 +11,11 @@ module Fayde.MVVM {
 
         Execute(parameter: any) { }
         CanExecute(parameter: any): boolean { return true; }
-        CanExecuteChanged = new MulticastEvent<EventArgs>();
+        CanExecuteChanged = new nullstone.Event();
         ForceCanExecuteChanged() {
-            this.CanExecuteChanged.Raise(this, EventArgs.Empty);
+            this.CanExecuteChanged.raise(this, null);
         }
     }
     Fayde.RegisterType(RelayCommand, "Fayde.MVVM", Fayde.XMLNS);
-    Fayde.RegisterTypeInterfaces(RelayCommand, Input.ICommand_);
+    nullstone.addTypeInterfaces(RelayCommand, Input.ICommand_);
 }

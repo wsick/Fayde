@@ -148,7 +148,7 @@ class TimeSpan {
 }
 Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
 
-Fayde.RegisterTypeConverter(TimeSpan, (val: any): TimeSpan => {
+nullstone.registerTypeConverter(TimeSpan, (val: any): TimeSpan => {
     if (val instanceof TimeSpan)
         return <TimeSpan>val;
     if (typeof val === "number")

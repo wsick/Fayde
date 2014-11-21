@@ -135,6 +135,11 @@ module Fayde {
         }
 
         Resolve (): nullstone.async.IAsyncRequest<Application> {
+            return nullstone.async.create((resolve, reject) => {
+                resolve({});
+            });
+
+            /*
             var d = defer<Application>();
 
             var lib = Library.Get("lib:Fayde");
@@ -146,6 +151,7 @@ module Fayde {
                 .error(d.reject);
 
             return d.request;
+            */
         }
     }
     Fayde.RegisterType(Application, "Fayde", Fayde.XMLNS);
