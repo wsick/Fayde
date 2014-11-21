@@ -1,5 +1,3 @@
-/// <reference path="../../Runtime/TypeManagement.ts"/>
-
 module Fayde.Media.Animation {
     export class RepeatBehavior {
         private _Duration: Duration = null;

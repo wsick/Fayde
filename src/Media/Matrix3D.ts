@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Media {
     export interface IMatrix3DChangedListener {
         Callback: (newMatrix3D: Matrix3D) => void;

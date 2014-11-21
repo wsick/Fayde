@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class Point extends minerva.Point {
     Clone (): Point {
         return new Point(this.x, this.y);
@@ -13,7 +11,7 @@ class Point extends minerva.Point {
 }
 Fayde.RegisterType(Point, "window", Fayde.XMLNSX);
 
-Fayde.RegisterTypeConverter(Point, (val: any): Point => {
+nullstone.registerTypeConverter(Point, (val: any): Point => {
     if (!val)
         return new Point();
     if (val instanceof Point)

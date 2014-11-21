@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 enum DurationType {
     Automatic = 0,
     Forever = 1,

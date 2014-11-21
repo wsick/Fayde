@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Data {
     interface IParseData {
         index: number;

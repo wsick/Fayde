@@ -1,7 +1,7 @@
 /// <reference path="Expression.ts" />
 
 module Fayde {
-    export interface IEventBindingArgs<T extends EventArgs> {
+    export interface IEventBindingArgs<T extends nullstone.IEventArgs> {
         sender: any;
         args: T;
         parameter: any;
@@ -16,7 +16,7 @@ module Fayde {
         private _CommandParameterWalker: Data.PropertyPathWalker = null;
 
         private _Target: XamlObject = null;
-        private _Event: MulticastEvent<EventArgs> = null;
+        private _Event: nullstone.Event<nullstone.IEventArgs> = null;
         private _EventName: string = null;
         
         constructor(eventBinding: EventBinding) {
@@ -32,7 +32,7 @@ module Fayde {
                 this._CommandParameterWalker = new Data.PropertyPathWalker(cpb.Path.ParsePath, cpb.BindsDirectlyToSource, false, !cpb.ElementName && !cpb.Source && !cpb.RelativeSource);
         }
 
-        Init(event: MulticastEvent<EventArgs>, eventName: string) {
+        Init(event: nullstone.Event<nullstone.IEventArgs>, eventName: string) {
             this._Event = event;
             this._EventName = eventName;
         }
@@ -44,18 +44,18 @@ module Fayde {
             this.IsAttached = true;
             this._Target = target;
             if (this._Event)
-                this._Event.Subscribe(this._Callback, this);
+                this._Event.on(this._Callback, this);
         }
         OnDetached(target: XamlObject) {
             if (!this.IsAttached)
                 return;
             if (this._Event)
-                this._Event.Unsubscribe(this._Callback, this);
+                this._Event.off(this._Callback, this);
             this.IsAttached = false;
         }
         OnDataContextChanged(newDataContext: any) { }
 
-        private _Callback(sender: any, e: EventArgs) {
+        private _Callback(sender: any, e: nullstone.IEventArgs) {
             var target = this._Target;
 
             var csource = findSource(target, this._EventBinding.CommandBinding);
@@ -89,12 +89,12 @@ module Fayde {
             if (typeof etarget === "function") {
                 (<Function>etarget).call(context, cargs);
             } else {
-                var ecmd = Fayde.Input.ICommand_.As(etarget);
+                var ecmd = Fayde.Input.ICommand_.as(etarget);
                 if (!ecmd) {
                     console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
                     return;
                 }
-                var ecmd = <Fayde.Input.ICommand>etarget;
+                ecmd = <Fayde.Input.ICommand>etarget;
                 if (ecmd.CanExecute.call(context, cargs))
                     ecmd.Execute.call(context, cargs);
             }

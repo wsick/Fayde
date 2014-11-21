@@ -22,15 +22,15 @@ module Fayde.Controls {
         Source: Media.Imaging.ImageSource;
         Stretch: Media.Stretch;
 
-        ImageOpened = new MulticastEvent<EventArgs>();
-        ImageFailed = new MulticastEvent<EventArgs>();
+        ImageOpened = new nullstone.Event();
+        ImageFailed = new nullstone.Event();
 
         OnImageErrored (source: Media.Imaging.BitmapSource, e: Event) {
-            this.ImageFailed.Raise(this, EventArgs.Empty);
+            this.ImageFailed.raise(this, null);
         }
 
         OnImageLoaded (source: Media.Imaging.BitmapSource, e: Event) {
-            this.ImageOpened.Raise(this, EventArgs.Empty);
+            this.ImageOpened.raise(this, null);
             var lu = this.XamlNode.LayoutUpdater;
             lu.invalidateMeasure();
         }

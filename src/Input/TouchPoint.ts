@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Input {
     export class TouchPoint {
         Position: Point;

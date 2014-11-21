@@ -1,7 +1,5 @@
-/// <reference path="../Runtime/MulticastEvent.ts" />
-
 module Fayde {
-    export class RoutedEvent<T extends RoutedEventArgs> extends MulticastEvent<T> {
+    export class RoutedEvent<T extends RoutedEventArgs> extends nullstone.Event<T> {
     }
     Fayde.RegisterType(RoutedEvent, "Fayde", Fayde.XMLNS);
 }

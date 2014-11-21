@@ -119,14 +119,14 @@ module Fayde.Controls {
                 return;
 
             var content = this.Content;
-            var info = Primitives.IScrollInfo_.As(content);
+            var info = Primitives.IScrollInfo_.as(content);
             if (!info && content instanceof ItemsPresenter) {
                 var ip = <ItemsPresenter>content;
                 var err = new BError();
                 ip.XamlNode.ApplyTemplateWithError(err);
                 if (err.Message)
                     err.ThrowException();
-                info = Primitives.IScrollInfo_.As(ip.Panel);
+                info = Primitives.IScrollInfo_.as(ip.Panel);
             }
 
             if (!info)
@@ -141,7 +141,7 @@ module Fayde.Controls {
 
     }
     Fayde.RegisterType(ScrollContentPresenter, "Fayde.Controls", Fayde.XMLNS);
-    Fayde.RegisterTypeInterfaces(ScrollContentPresenter, Primitives.IScrollInfo_);
+    nullstone.addTypeInterfaces(ScrollContentPresenter, Primitives.IScrollInfo_);
 
     function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {
         var flag = NumberEx.IsLessThanClose(topChild, topView) && NumberEx.IsLessThanClose(bottomChild, bottomView);

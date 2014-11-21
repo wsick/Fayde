@@ -32,5 +32,5 @@ module Fayde.Documents {
         }
     }
     Fayde.RegisterType(Section, "Fayde.Documents", Fayde.XMLNS);
-    Xaml.Content(Section, Section.BlocksProperty);
+    Markup.Content(Section, Section.BlocksProperty);
 }

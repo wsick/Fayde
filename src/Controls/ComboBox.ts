@@ -6,8 +6,8 @@
 
 module Fayde.Controls {
     export class ComboBox extends Primitives.Selector {
-        DropDownOpened = new MulticastEvent<EventArgs>();
-        DropDownClosed = new MulticastEvent<EventArgs>();
+        DropDownOpened = new nullstone.Event();
+        DropDownClosed = new nullstone.Event();
 
         static IsDropDownOpenProperty = DependencyProperty.Register("IsDropDownOpen", () => Boolean, ComboBox, false, (d, args) => (<ComboBox>d)._IsDropDownOpenChanged(args));
         static ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", () => Style, ComboBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
@@ -47,12 +47,12 @@ module Fayde.Controls {
                         (<ComboBoxItem>focusedItem).Focus();
                 }
 
-                this.LayoutUpdated.Subscribe(this._UpdatePopupSizeAndPosition, this);
-                this.DropDownOpened.Raise(this, EventArgs.Empty);
+                this.LayoutUpdated.on(this._UpdatePopupSizeAndPosition, this);
+                this.DropDownOpened.raise(this, null);
             } else {
                 this.Focus();
-                this.LayoutUpdated.Unsubscribe(this._UpdatePopupSizeAndPosition, this);
-                this.DropDownClosed.Raise(this, EventArgs.Empty);
+                this.LayoutUpdated.off(this._UpdatePopupSizeAndPosition, this);
+                this.DropDownClosed.raise(this, null);
             }
 
             var selectedItem = this.SelectedItem;
@@ -86,14 +86,14 @@ module Fayde.Controls {
 
                 var child = this.$Popup.Child;
                 if (child != null) {
-                    child.KeyDown.Subscribe(this._OnChildKeyDown, this);
-                    (<FrameworkElement>child).SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
+                    child.KeyDown.on(this._OnChildKeyDown, this);
+                    (<FrameworkElement>child).SizeChanged.on(this._UpdatePopupSizeAndPosition, this);
                 }
             }
 
             if (this.$DropDownToggle != null) {
-                this.$DropDownToggle.Checked.Subscribe(this._OnToggleChecked, this);
-                this.$DropDownToggle.Unchecked.Subscribe(this._OnToggleUnchecked, this);
+                this.$DropDownToggle.Checked.on(this._OnToggleChecked, this);
+                this.$DropDownToggle.Unchecked.on(this._OnToggleUnchecked, this);
             }
 
             this.UpdateVisualState(false);
@@ -286,7 +286,7 @@ module Fayde.Controls {
             this.$ContentPresenter.Content = this.$SelectionBoxItem;
             this.$ContentPresenter.ContentTemplate = this.$SelectionBoxItemTemplate;
         }
-        private _UpdatePopupSizeAndPosition(sender, e: EventArgs) {
+        private _UpdatePopupSizeAndPosition(sender, e: nullstone.IEventArgs) {
             var popup = this.$Popup;
             if (!popup)
                 return;

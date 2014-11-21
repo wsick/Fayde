@@ -32,5 +32,5 @@ module Fayde.Documents {
         }
     }
     Fayde.RegisterType(Paragraph, "Fayde.Documents", Fayde.XMLNS);
-    Xaml.Content(Paragraph, Paragraph.InlinesProperty);
+    Markup.Content(Paragraph, Paragraph.InlinesProperty);
 }

@@ -22,5 +22,5 @@ module Fayde.Navigation {
         }
     }
     Fayde.RegisterType(UriMapper, "Fayde.Navigation", Fayde.XMLNS);
-    Xaml.Content(UriMapper, UriMapper.UriMappingsProperty);
+    Markup.Content(UriMapper, UriMapper.UriMappingsProperty);
 }

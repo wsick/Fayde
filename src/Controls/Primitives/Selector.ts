@@ -25,7 +25,7 @@ module Fayde.Controls.Primitives {
         private _SelectedValueWalker: Data.PropertyPathWalker = null;
 
         private get SynchronizeWithCurrentItem(): boolean {
-            if (!Data.ICollectionView_.Is(this.ItemsSource))
+            if (!Data.ICollectionView_.is(this.ItemsSource))
                 return false;
             return this.IsSynchronizedWithCurrentItem !== false;
         }
@@ -47,7 +47,7 @@ module Fayde.Controls.Primitives {
 
             if (args.NewValue != null)
                 return this.SelectedItem = null;
-            var icv = Data.ICollectionView_.As(this.ItemsSource);
+            var icv = Data.ICollectionView_.as(this.ItemsSource);
             if (icv)
                 this.SelectedItem = icv.CurrentItem;
         }
@@ -118,7 +118,7 @@ module Fayde.Controls.Primitives {
                     break;
                 case Collections.CollectionChangedAction.Reset:
                     var o: any;
-                    var icv = Data.ICollectionView_.As(this.ItemsSource);
+                    var icv = Data.ICollectionView_.as(this.ItemsSource);
                     if (icv && this.SynchronizeWithCurrentItem)
                         o = icv.CurrentItem;
                     else
@@ -146,13 +146,13 @@ module Fayde.Controls.Primitives {
         OnItemsSourceChanged(args: IDependencyPropertyChangedEventArgs) {
             super.OnItemsSourceChanged(args);
 
-            var view = Data.ICollectionView_.As(args.OldValue);
+            var view = Data.ICollectionView_.as(args.OldValue);
             if (view)
-                view.CurrentChanged.Unsubscribe(this._OnCurrentItemChanged, this);
+                view.CurrentChanged.off(this._OnCurrentItemChanged, this);
             
-            view = Data.ICollectionView_.As(args.NewValue);
+            view = Data.ICollectionView_.as(args.NewValue);
             if (view) {
-                view.CurrentChanged.Subscribe(this._OnCurrentItemChanged, this);
+                view.CurrentChanged.on(this._OnCurrentItemChanged, this);
                 if (this.SynchronizeWithCurrentItem)
                     this._Selection.SelectOnly(view.CurrentItem);
                 else
@@ -198,7 +198,7 @@ module Fayde.Controls.Primitives {
             for (var i = 0; i < count; i++) {
                 var item = items.GetValueAt(i);
                 var val = this._GetValueFromItem(item);
-                if (Nullstone.Equals(selectedValue, val)) {
+                if (nullstone.equals(selectedValue, val)) {
                     if (!this.SelectedItems.Contains(item))
                         this._Selection.Select(item);
                     return;
@@ -211,10 +211,10 @@ module Fayde.Controls.Primitives {
             this._Selection.SelectAll(this.Items.ToArray());
         }
 
-        private _OnCurrentItemChanged(sender, e: EventArgs) {
+        private _OnCurrentItemChanged(sender, e: nullstone.IEventArgs) {
             if (!this._Selection.IsUpdating && this.SynchronizeWithCurrentItem) {
                 var icv = <Data.ICollectionView>this.ItemsSource;
-                if (!Nullstone.Equals(icv.CurrentItem, this.SelectedItem))
+                if (!nullstone.equals(icv.CurrentItem, this.SelectedItem))
                     this._Selection.SelectOnly(icv.CurrentItem);
             }
         }
@@ -254,7 +254,7 @@ module Fayde.Controls.Primitives {
 
             var args = new SelectionChangedEventArgs(oldVals, newVals);
             this.OnSelectionChanged(args);
-            this.SelectionChanged.Raise(this, args);
+            this.SelectionChanged.raise(this, args);
         }
         OnSelectionChanged(args: SelectionChangedEventArgs) { }
 

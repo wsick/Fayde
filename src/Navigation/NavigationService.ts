@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Navigation {
     export class NavigationService {
         Href: string;

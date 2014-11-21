@@ -7,7 +7,7 @@ module Fayde.Media.VSM {
         Storyboard: Animation.Storyboard;
     }
     Fayde.RegisterType(VisualState, "Fayde.Media.VSM", Fayde.XMLNS);
-    Xaml.Content(VisualState, VisualState.StoryboardProperty);
+    Markup.Content(VisualState, VisualState.StoryboardProperty);
 
     export class VisualStateCollection extends XamlObjectCollection<VisualState> {
     }

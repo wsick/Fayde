@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 var FontStyle = {
     Normal: "normal",
     Italic: "italic",

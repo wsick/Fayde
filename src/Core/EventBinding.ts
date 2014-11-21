@@ -1,10 +1,8 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde {
     export interface IEventFilter {
-        Filter(sender: any, e: EventArgs, parameter: any): boolean;
+        Filter(sender: any, e: nullstone.IEventArgs, parameter: any): boolean;
     }
-    export var IEventFilter_ = Fayde.RegisterInterface<IEventFilter>("IEventFilter");
+    export var IEventFilter_ = new nullstone.Interface<IEventFilter>("IEventFilter");
 
     export class EventBinding implements Xaml.IMarkup {
         CommandBinding: Data.Binding = null;

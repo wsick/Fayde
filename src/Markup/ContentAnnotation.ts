@@ -1,24 +1,22 @@
-/// <reference path="../Runtime/Annotations.ts" />
-
-module Fayde.Xaml {
+module Fayde.Markup {
     export interface IContentAnnotation {
         (type: Function, prop: DependencyProperty);
         Get(type: Function): DependencyProperty;
     }
     export var Content = <IContentAnnotation>(function () {
         function ca(type: Function, prop: DependencyProperty) {
-            Annotation(type, "Content", prop, true);
+            nullstone.Annotation(type, "Content", prop, true);
         }
         (<any>ca).Get = function (type: Function): DependencyProperty {
             var cur = type;
             while (cur) {
-                var anns = GetAnnotations(cur, "Content");
+                var anns = nullstone.GetAnnotations(cur, "Content");
                 if (anns) {
                     var cp = anns[0];
                     if (cp)
                         return cp;
                 }
-                cur = GetTypeParent(cur);
+                cur = nullstone.getTypeParent(cur);
             }
             return undefined;
         };
@@ -31,21 +29,21 @@ module Fayde.Xaml {
     }
     export var TextContent = <ITextContentAnnotation>(function () {
         function tca(type: Function, prop: DependencyProperty) {
-            Annotation(type, "TextContent", prop, true);
+            nullstone.Annotation(type, "TextContent", prop, true);
         }
         (<any>tca).Get = function (type: Function): DependencyProperty {
             var cur = type;
             while (cur) {
-                var anns = GetAnnotations(cur, "TextContent");
+                var anns = nullstone.GetAnnotations(cur, "TextContent");
                 if (anns) {
                     var cp = anns[0];
                     if (cp)
                         return cp;
                 }
-                cur = GetTypeParent(cur);
+                cur = nullstone.getTypeParent(cur);
             }
             return undefined;
-        }
+        };
         return tca;
     })();
 }

@@ -129,5 +129,5 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(TransformGroup, "Fayde.Media", Fayde.XMLNS);
-    Xaml.Content(TransformGroup, TransformGroup.ChildrenProperty);
+    Markup.Content(TransformGroup, TransformGroup.ChildrenProperty);
 }

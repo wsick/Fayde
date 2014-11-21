@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/EventArgs.ts" />
-
 module Fayde.Collections {
     export enum CollectionChangedAction {
         Add = 1,
@@ -7,9 +5,9 @@ module Fayde.Collections {
         Replace = 3,
         Reset = 4,
     }
-    Fayde.RegisterEnum(CollectionChangedAction, "NotifyCollectionChangedAction");
+    Fayde.RegisterEnum(CollectionChangedAction, "NotifyCollectionChangedAction", Fayde.XMLNS);
 
-    export class CollectionChangedEventArgs extends EventArgs {
+    export class CollectionChangedEventArgs implements nullstone.IEventArgs {
         Action: CollectionChangedAction;
         OldStartingIndex: number;
         NewStartingIndex: number;

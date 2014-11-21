@@ -17,7 +17,7 @@ module Fayde.Controls.Primitives {
         OnMinimumChanged(oldMin: number, newMin: number) { }
         OnMaximumChanged(oldMax: number, newMax: number) { }
         OnValueChanged(oldVal: number, newVal: number) {
-            this.ValueChanged.Raise(this, new RoutedPropertyChangedEventArgs(oldVal, newVal));
+            this.ValueChanged.raise(this, new RoutedPropertyChangedEventArgs(oldVal, newVal));
         }
         ValueChanged = new RoutedPropertyChangedEvent<number>();
 

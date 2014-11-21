@@ -1,7 +1,5 @@
-/// <reference path="../Runtime/EventArgs.ts" />
-
 module Fayde {
-    export class RoutedEventArgs extends EventArgs {
+    export class RoutedEventArgs implements nullstone.IEventArgs {
         Handled: boolean = false;
         Source: any = null;
         OriginalSource: any = null;

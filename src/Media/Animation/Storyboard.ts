@@ -134,7 +134,7 @@ module Fayde.Media.Animation {
         }
     }
     Fayde.RegisterType(Storyboard, "Fayde.Media.Animation", Fayde.XMLNS);
-    Xaml.Content(Storyboard, Storyboard.ChildrenProperty);
+    Markup.Content(Storyboard, Storyboard.ChildrenProperty);
 
     function getLogMessage(action: string, storyboard: Storyboard, full: boolean, clockData?: IClockData): string {
         var anims = [];

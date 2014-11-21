@@ -49,7 +49,7 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(PathFigure, "Fayde.Media", Fayde.XMLNS);
-    Xaml.Content(PathFigure, PathFigure.SegmentsProperty);
+    Markup.Content(PathFigure, PathFigure.SegmentsProperty);
 
     export class PathFigureCollection extends XamlObjectCollection<PathFigure> {
         AddingToCollection(value: PathFigure, error: BError): boolean {

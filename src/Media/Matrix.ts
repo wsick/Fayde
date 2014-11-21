@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Media {
     export class Matrix {
         _Raw: number[];

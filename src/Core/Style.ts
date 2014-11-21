@@ -66,12 +66,12 @@ module Fayde {
                         error.Number = BError.InvalidOperation;
                         error.Message = "TargetType cannot be null";
                         return false;
-                    } else if (!Nullstone.DoesInheritFrom(parentType, targetType)) {
+                    } else if (!nullstone.doesInheritFrom(parentType, targetType)) {
                         error.Number = BError.XamlParse; 
                         error.Message = "Style.TargetType (" + (<any>targetType).name + ") is not a subclass of (" + (<any>parentType).name + ")";
                         return false;
                     }
-                } else if (!targetType || !Nullstone.DoesInheritFrom(parentType, targetType)) {
+                } else if (!targetType || !nullstone.doesInheritFrom(parentType, targetType)) {
                     error.Number = BError.InvalidOperation;
                     error.Message = "Style.TargetType (" + (targetType ? (<any>targetType).name : "<Not Specified>") + ") is not a subclass of (" + (<any>parentType).name + ")";
                     return false;
@@ -86,5 +86,5 @@ module Fayde {
         }
     }
     Fayde.RegisterType(Style, "Fayde", Fayde.XMLNS);
-    Xaml.Content(Style, Style.SettersProperty);
+    Markup.Content(Style, Style.SettersProperty);
 }

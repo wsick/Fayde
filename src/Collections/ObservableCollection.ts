@@ -1,16 +1,15 @@
-/// <reference path="../Runtime/Enumerable.ts" />
 /// <reference path="INotifyCollectionChanged.ts" />
 /// <reference path="../Core/INotifyPropertyChanged.ts" />
 
 module Fayde.Collections {
-    export class ObservableCollection<T> implements IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {
+    export class ObservableCollection<T> implements nullstone.IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {
         private _ht: T[] = [];
 
-        getEnumerator(): IEnumerator<T> {
-            return ArrayEx.GetEnumerator(this._ht);
+        getEnumerator(): nullstone.IEnumerator<T> {
+            return nullstone.IEnumerator_.fromArray(this._ht);
         }
-        CollectionChanged = new MulticastEvent<CollectionChangedEventArgs>();
-        PropertyChanged = new MulticastEvent<PropertyChangedEventArgs>();
+        CollectionChanged = new nullstone.Event<CollectionChangedEventArgs>();
+        PropertyChanged = new nullstone.Event<PropertyChangedEventArgs>();
 
         get Count(): number { return this._ht.length; }
 
@@ -28,11 +27,11 @@ module Fayde.Collections {
                 throw new IndexOutOfRangeException(index);
             var oldValue = ht[index];
             ht[index] = value;
-            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Replace(value, oldValue, index));
+            this.CollectionChanged.raise(this, CollectionChangedEventArgs.Replace(value, oldValue, index));
         }
         Add(value: T) {
             var index = this._ht.push(value) - 1;
-            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Add(value, index));
+            this.CollectionChanged.raise(this, CollectionChangedEventArgs.Add(value, index));
             this._RaisePropertyChanged("Count");
         }
         AddRange(values: T[]) {
@@ -41,7 +40,7 @@ module Fayde.Collections {
             for (var i = 0; i < len; i++) {
                 this._ht.push(values[i]);
             }
-            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.AddRange(values, index));
+            this.CollectionChanged.raise(this, CollectionChangedEventArgs.AddRange(values, index));
             this._RaisePropertyChanged("Count");
         }
         Insert(value: T, index: number) {
@@ -52,7 +51,7 @@ module Fayde.Collections {
                 ht.push(value);
             else
                 ht.splice(index, 0, value);
-            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Add(value, index));
+            this.CollectionChanged.raise(this, CollectionChangedEventArgs.Add(value, index));
             this._RaisePropertyChanged("Count");
         }
         IndexOf(value: T): number {
@@ -66,24 +65,24 @@ module Fayde.Collections {
             if (index < 0)
                 return;
             this._ht.splice(index, 1);
-            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Remove(value, index));
+            this.CollectionChanged.raise(this, CollectionChangedEventArgs.Remove(value, index));
             this._RaisePropertyChanged("Count");
         }
         RemoveAt(index: number) {
             if (index < 0 || index >= this._ht.length)
                 throw new IndexOutOfRangeException(index);
             var item = this._ht.splice(index, 1)[0];
-            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Remove(item, index));
+            this.CollectionChanged.raise(this, CollectionChangedEventArgs.Remove(item, index));
             this._RaisePropertyChanged("Count");
         }
         Clear() {
             var old = this._ht;
             this._ht = [];
-            this.CollectionChanged.Raise(this, CollectionChangedEventArgs.Reset(old));
+            this.CollectionChanged.raise(this, CollectionChangedEventArgs.Reset(old));
             this._RaisePropertyChanged("Count");
         }
         private _RaisePropertyChanged(propertyName: string) {
-            this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged.raise(this, new PropertyChangedEventArgs(propertyName));
         }
     }
     Fayde.RegisterType(ObservableCollection, "Fayde.Collections", Fayde.XMLNS);

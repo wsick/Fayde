@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde {
     export interface IIsAttachedMonitor {
         Callback: (newIsAttached: boolean) => void;
@@ -211,11 +209,10 @@ module Fayde {
         }
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
 
-        GetInheritedEnumerator(): IEnumerator<DONode> { return undefined; }
+        GetInheritedEnumerator(): nullstone.IEnumerator<DONode> { return undefined; }
 
         static SetShareable(xn: XamlNode) {
             xn.IsShareable = true;
         }
     }
-    Fayde.RegisterType(XamlNode, "Fayde");
 }

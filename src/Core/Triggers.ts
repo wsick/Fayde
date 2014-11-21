@@ -78,7 +78,7 @@ module Fayde {
         }
     }
     Fayde.RegisterType(EventTrigger, "Fayde", Fayde.XMLNS);
-    Xaml.Content(EventTrigger, EventTrigger.ActionsProperty);
+    Markup.Content(EventTrigger, EventTrigger.ActionsProperty);
 
     export class TriggerCollection extends XamlObjectCollection<TriggerBase> {
         XamlNode: XamlNode;

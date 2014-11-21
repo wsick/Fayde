@@ -25,7 +25,6 @@ module Fayde.Controls {
             this.$$updaters.splice(index, 1, added.XamlNode.LayoutUpdater);
         }
     }
-    Fayde.RegisterType(PanelChildrenCollection, "Fayde.Controls");
 
     export class PanelNode extends FENode {
         LayoutUpdater: minerva.controls.panel.PanelUpdater;
@@ -44,7 +43,6 @@ module Fayde.Controls {
             return true;
         }
     }
-    Fayde.RegisterType(PanelNode, "Fayde.Controls");
 
     export class Panel extends FrameworkElement {
         XamlNode: PanelNode;
@@ -68,7 +66,7 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(Panel, "Fayde.Controls", Fayde.XMLNS);
-    Xaml.Content(Panel, Panel.ChildrenProperty);
+    Markup.Content(Panel, Panel.ChildrenProperty);
 
     module reactions {
         UIReaction<minerva.IBrush>(Panel.BackgroundProperty, (upd, ov, nv) => {

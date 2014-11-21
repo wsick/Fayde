@@ -16,11 +16,11 @@ module Fayde.Controls {
             super(xobj);
         }
 
-        GetInheritedEnumerator (): IEnumerator<DONode> {
+        GetInheritedEnumerator (): nullstone.IEnumerator<DONode> {
             var xobj = this.XObject;
             var inlines = xobj.Inlines;
             if (inlines)
-                return <IEnumerator<DONode>>inlines.GetNodeEnumerator();
+                return <nullstone.IEnumerator<DONode>>inlines.GetNodeEnumerator();
         }
 
         TextChanged (args: IDependencyPropertyChangedEventArgs) {
@@ -81,7 +81,6 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(TextBlockNode, "Fayde.Controls");
 
     export class TextBlock extends FrameworkElement {
         XamlNode: TextBlockNode;
@@ -148,8 +147,8 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(TextBlock, "Fayde.Controls", Fayde.XMLNS);
-    Xaml.Content(TextBlock, TextBlock.InlinesProperty);
-    Xaml.TextContent(TextBlock, TextBlock.TextProperty);
+    Markup.Content(TextBlock, TextBlock.InlinesProperty);
+    Markup.TextContent(TextBlock, TextBlock.TextProperty);
 
     var TextBlockInheritedProps = [
         TextBlock.FontFamilyProperty,

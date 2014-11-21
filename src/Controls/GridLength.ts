@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-
 module Fayde.Controls {
     import GridUnitType = minerva.controls.grid.GridUnitType;
     Fayde.RegisterEnum(GridUnitType, "GridUnitType", Fayde.XMLNS);
@@ -20,7 +18,7 @@ module Fayde.Controls {
     }
     Fayde.RegisterType(GridLength, "Fayde.Controls", Fayde.XMLNS);
 
-    Fayde.RegisterTypeConverter(GridLength, (val: any): GridLength => {
+    nullstone.registerTypeConverter(GridLength, (val: any): GridLength => {
         if (val instanceof GridLength)
             return <GridLength>val;
         if (!val || val.toLowerCase() === "auto")

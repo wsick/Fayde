@@ -1,4 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="Geometry.ts" />
 
 

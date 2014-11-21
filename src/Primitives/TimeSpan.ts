@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class TimeSpan {
     static _TicksPerMillisecond = 1;
     static _TicksPerSecond = 1000;

@@ -41,5 +41,5 @@ module Fayde.Documents {
         }
     }
     Fayde.RegisterType(Span, "Fayde.Documents", Fayde.XMLNS);
-    Xaml.Content(Span, Span.InlinesProperty);
+    Markup.Content(Span, Span.InlinesProperty);
 }

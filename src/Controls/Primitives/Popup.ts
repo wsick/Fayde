@@ -7,7 +7,7 @@ module Fayde.Controls.Primitives {
         LayoutUpdater: PopupUpdater;
         XObject: Popup;
 
-        ClickedOutside = new MulticastEvent<EventArgs>();
+        ClickedOutside = new nullstone.Event<nullstone.IEventArgs>();
 
         OnIsAttachedChanged (newIsAttached: boolean) {
             super.OnIsAttachedChanged(newIsAttached);
@@ -29,11 +29,11 @@ module Fayde.Controls.Primitives {
 
         EnsureCatcher (): Canvas {
             var catcher = this._Catcher;
-            if (this.ClickedOutside.HasListeners && !catcher) {
+            if (this.ClickedOutside.has && !catcher) {
                 catcher = this._Catcher = new Canvas();
                 catcher.Background = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
-                catcher.LayoutUpdated.Subscribe(this.UpdateCatcher, this);
-                catcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
+                catcher.LayoutUpdated.on(this.UpdateCatcher, this);
+                catcher.MouseLeftButtonDown.on(this._RaiseClickedOutside, this);
                 this.EnsureOverlay().Children.Insert(0, catcher);
             }
             return catcher;
@@ -56,7 +56,7 @@ module Fayde.Controls.Primitives {
         }
 
         private _RaiseClickedOutside (sender, e) {
-            this.ClickedOutside.Raise(this, EventArgs.Empty);
+            this.ClickedOutside.raise(this, null);
         }
 
         RegisterInitiator (initiator: UIElement) {
@@ -65,7 +65,6 @@ module Fayde.Controls.Primitives {
             this.LayoutUpdater.setInitiator(initiator.XamlNode.LayoutUpdater);
         }
     }
-    Fayde.RegisterType(PopupNode, "Fayde.Controls.Primitives");
 
     export class Popup extends FrameworkElement {
         XamlNode: PopupNode;
@@ -81,24 +80,24 @@ module Fayde.Controls.Primitives {
         VerticalOffset: number;
         IsOpen: boolean;
 
-        Opened = new MulticastEvent<EventArgs>();
-        Closed = new MulticastEvent<EventArgs>();
+        Opened = new nullstone.Event<nullstone.IEventArgs>();
+        Closed = new nullstone.Event<nullstone.IEventArgs>();
 
         WatchOutsideClick (callback: () => void, closure: any) {
-            this.XamlNode.ClickedOutside.Subscribe(callback, closure);
+            this.XamlNode.ClickedOutside.on(callback, closure);
             this.XamlNode.EnsureCatcher();
         }
     }
     Fayde.RegisterType(Popup, "Fayde.Controls.Primitives", Fayde.XMLNS);
-    Xaml.Content(Popup, Popup.ChildProperty);
+    Markup.Content(Popup, Popup.ChildProperty);
 
     module reactions {
         UIReaction<boolean>(Popup.IsOpenProperty, (upd, ov, nv, popup?: Popup) => {
             if (nv === true) {
-                popup.Opened.RaiseAsync(popup, EventArgs.Empty);
+                popup.Opened.raiseAsync(popup, null);
                 popup.XamlNode.UpdateCatcher();
             } else {
-                popup.Closed.RaiseAsync(popup, EventArgs.Empty);
+                popup.Closed.raiseAsync(popup, null);
             }
             minerva.controls.popup.reactTo.isOpen(upd, ov, nv);
         }, false);

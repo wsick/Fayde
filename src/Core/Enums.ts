@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde {
     export enum Orientation {
         Horizontal = 0,
@@ -12,7 +10,7 @@ module Fayde {
         Collapsed = 1,
     }
     Fayde.RegisterEnum(Visibility, "Visibility", Fayde.XMLNS);
-    Fayde.RegisterEnumConverter(Visibility, function (val: any): any {
+    nullstone.registerEnumConverter(Visibility, function (val: any): any {
         if (val === "true" || val === true || val === Visibility.Visible || val === "Visible")
             return Visibility.Visible;
         return Visibility.Collapsed;

@@ -45,5 +45,5 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(PathGeometry, "Fayde.Media", Fayde.XMLNS);
-    Xaml.Content(PathGeometry, PathGeometry.FiguresProperty);
+    Markup.Content(PathGeometry, PathGeometry.FiguresProperty);
 }

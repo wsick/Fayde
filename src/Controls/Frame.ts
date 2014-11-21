@@ -1,10 +1,8 @@
 /// <reference path="ContentControl.ts" />
-/// <reference path="../Xaml/XamlDocument.ts" />
-/// <reference path="../Xaml/XamlLoader.ts" />
 /// <reference path="Page.ts" />
 
 module Fayde.Controls {
-    function createErrorDoc (error: any): Xaml.XamlDocument {
+    function createErrorDoc (error: any): nullstone.markup.xaml.XamlMarkup {
         var safe = (error || '').toString()
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
@@ -14,11 +12,11 @@ module Fayde.Controls {
         var xaml = '<Page xmlns="' + Fayde.XMLNS + '" xmlns:x="' + Fayde.XMLNSX + '" Title="Error">';
         xaml += '<TextBlock Text="' + safe + '" />';
         xaml += '</Page>';
-        return new Xaml.XamlDocument(xaml);
+        return Markup.CreateXaml(xaml);
     }
 
-    function getErrorPage (error: string): Page {
-        return <Page>Xaml.Load(createErrorDoc(error).Document);
+    function getErrorPage (initiator: FrameworkElement, error: string): Page {
+        return Markup.Load<Page>(initiator, createErrorDoc(error));
     }
 
     export class Frame extends ContentControl {
@@ -41,7 +39,7 @@ module Fayde.Controls {
 
         constructor () {
             super();
-            this.Loaded.Subscribe(this._FrameLoaded, this);
+            this.Loaded.on(this._FrameLoaded, this);
         }
 
         Navigate (uri: Uri) {
@@ -75,19 +73,19 @@ module Fayde.Controls {
             this.SetValueInternal(Frame.CurrentSourceProperty, source);
             this.StopLoading();
 
-            var fragment = source.Fragment;
+            var fragment = source.fragment;
             TimelineProfile.Navigate(true, fragment);
 
-            var targetUri = new Uri(fragment, UriKind.Relative);
+            var targetUri = new Uri(fragment, nullstone.UriKind.Relative);
             if (this.UriMapper)
                 targetUri = this.UriMapper.MapUri(targetUri);
             var target = targetUri.toString();
             if (!target)
                 throw new InvalidOperationException("Cannot resolve empty url.");
 
-            Page.GetAsync(target)
-                .success(page => this._HandleSuccess(page))
-                .error(error => this._HandleError(error));
+            Page.GetAsync(this, target)
+                .then(page => this._HandleSuccess(page),
+                    err => this._HandleError(err));
         }
 
         private _HandleSuccess (page: Page) {
@@ -97,7 +95,7 @@ module Fayde.Controls {
         }
 
         private _HandleError (error: any) {
-            this._SetPage(getErrorPage(error));
+            this._SetPage(getErrorPage(this, error));
             TimelineProfile.Navigate(false);
         }
 

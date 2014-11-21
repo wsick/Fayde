@@ -1,7 +1,8 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 interface IOutIsValid {
     IsValid: boolean;
+}
+
+interface IType {
 }
 
 class DependencyProperty {
@@ -26,7 +27,7 @@ class DependencyProperty {
     private _Coercer: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any = null;
     private _Validator: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any, original: any) => boolean = null;
 
-    static Register(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
+    static Register (name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -37,7 +38,8 @@ class DependencyProperty {
         propd.FinishRegister();
         return propd;
     }
-    static RegisterReadOnly(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
+
+    static RegisterReadOnly (name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -49,7 +51,8 @@ class DependencyProperty {
         propd.FinishRegister();
         return propd;
     }
-    static RegisterAttached(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
+
+    static RegisterAttached (name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -61,8 +64,8 @@ class DependencyProperty {
         propd.FinishRegister();
         return propd;
     }
-    
-    static RegisterCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
+
+    static RegisterCore (name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -74,7 +77,8 @@ class DependencyProperty {
         propd.FinishRegister();
         return propd;
     }
-    static RegisterReadOnlyCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
+
+    static RegisterReadOnlyCore (name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -87,7 +91,8 @@ class DependencyProperty {
         propd.FinishRegister();
         return propd;
     }
-    static RegisterAttachedCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void ) {
+
+    static RegisterAttachedCore (name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -112,8 +117,8 @@ class DependencyProperty {
         propd.FinishRegister();
         return propd;
     }
-    
-    static RegisterInheritable(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
+
+    static RegisterInheritable (name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -127,7 +132,7 @@ class DependencyProperty {
         return propd;
     }
 
-    static RegisterFull(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: boolean, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => boolean, isCustom?: boolean, isReadOnly?: boolean, isAttached?: boolean): DependencyProperty {
+    static RegisterFull (name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: boolean, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => boolean, isCustom?: boolean, isReadOnly?: boolean, isAttached?: boolean): DependencyProperty {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -145,7 +150,7 @@ class DependencyProperty {
         return propd;
     }
 
-    private FinishRegister() {
+    private FinishRegister () {
         var name = this.Name;
         var ownerType = this.OwnerType;
         if (!ownerType || typeof ownerType !== "function")
@@ -169,17 +174,24 @@ class DependencyProperty {
             return;
 
         var propd = this;
-        var getter = function () { return (<Fayde.DependencyObject>this).GetValue(propd); };
-        var setter = function (value) { (<Fayde.DependencyObject>this).SetValue(propd, value); };
+        var getter = function () {
+            return (<Fayde.DependencyObject>this).GetValue(propd);
+        };
+        var setter = function (value) {
+            (<Fayde.DependencyObject>this).SetValue(propd, value);
+        };
         if (this.IsReadOnly)
-            setter = function (value) { throw new Exception("Property [" + propd.Name + "] is readonly."); };
+            setter = function (value) {
+                throw new Exception("Property [" + propd.Name + "] is readonly.");
+            };
         Object.defineProperty(ownerType.prototype, this.Name, {
             get: getter,
             set: setter,
             configurable: true
         });
     }
-    ExtendTo(type: any): DependencyProperty {
+
+    ExtendTo (type: any): DependencyProperty {
         var registeredDPs = type._RegisteredDPs;
         if (!registeredDPs) {
             var registeredDPs: any = {};
@@ -192,8 +204,12 @@ class DependencyProperty {
         registeredDPs[this.Name] = this;
 
         var propd = this;
-        var getter = function () { return (<Fayde.DependencyObject>this).GetValue(propd); };
-        var setter = function (value) { (<Fayde.DependencyObject>this).SetValue(propd, value); };
+        var getter = function () {
+            return (<Fayde.DependencyObject>this).GetValue(propd);
+        };
+        var setter = function (value) {
+            (<Fayde.DependencyObject>this).SetValue(propd, value);
+        };
         Object.defineProperty(type.prototype, this.Name, {
             get: getter,
             set: setter,
@@ -202,21 +218,21 @@ class DependencyProperty {
         return this;
     }
 
-    ValidateSetValue(dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid) {
+    ValidateSetValue (dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid) {
         var coerced = value;
         if (this._Coercer)
             coerced = this._Coercer(dobj, this, coerced);
         /* TODO: Handle Type Problems
-        if (!this._IsValueValid(dobj, coerced))
-            return coerced;
-        */
+         if (!this._IsValueValid(dobj, coerced))
+         return coerced;
+         */
         isValidOut.IsValid = true;
         if (this._Validator)
             isValidOut.IsValid = !!this._Validator(dobj, this, coerced, value);
         return coerced;
     }
 
-    static GetDependencyProperty(ownerType: any, name: string, noError?: boolean): DependencyProperty {
+    static GetDependencyProperty (ownerType: any, name: string, noError?: boolean): DependencyProperty {
         if (!ownerType)
             return undefined;
         var reg: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
@@ -224,17 +240,18 @@ class DependencyProperty {
         if (reg)
             propd = reg[name];
         if (!propd)
-            propd = DependencyProperty.GetDependencyProperty(Fayde.GetTypeParent(ownerType), name, true);
+            propd = DependencyProperty.GetDependencyProperty(nullstone.getTypeParent(ownerType), name, true);
         if (!propd && !noError)
             throw new Exception("Cannot locate dependency property [" + (<any>ownerType).name + "].[" + name + "]");
         return propd;
     }
 }
-Fayde.RegisterType(DependencyProperty, "Fayde");
+Fayde.RegisterType(DependencyProperty, "Fayde", Fayde.XMLNS);
 
 class ImmutableDependencyProperty<T> extends DependencyProperty {
     IsImmutable: boolean = true;
-    Initialize(dobj: Fayde.DependencyObject): T {
+
+    Initialize (dobj: Fayde.DependencyObject): T {
         var storage = Fayde.Providers.GetStorage(dobj, this);
         storage.Precedence = Fayde.Providers.PropertyPrecedence.LocalValue;
         var type = <any>this.GetTargetType();

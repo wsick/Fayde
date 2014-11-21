@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde {
     export class Expression {
         IsUpdating: boolean;
@@ -15,5 +13,4 @@ module Fayde {
         }
         OnDataContextChanged(newDataContext: any) { }
     }
-    Fayde.RegisterType(Expression, "Fayde");
 }

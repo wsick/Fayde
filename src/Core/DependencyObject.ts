@@ -42,8 +42,7 @@ module Fayde {
             super.OnDataContextChanged(oldDataContext, newDataContext);
         }
     }
-    Fayde.RegisterType(DONode, "Fayde");
-    
+
     export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
         private _Expressions: Expression[] = [];
         _PropertyStorage: Providers.IPropertyStorage[] = [];

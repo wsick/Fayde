@@ -1,6 +1,9 @@
+interface ICloneable {
+    Clone(): any;
+}
 
 module Fayde {
-    export function Clone(value: any): any {
+    export function Clone (value: any): any {
         if (value === undefined)
             return undefined;
         if (value === null)
@@ -14,7 +17,7 @@ module Fayde {
         return extend(new value.constructor(), value);
     }
 
-    function extend(obj: any, ...args: any[]): any {
+    function extend (obj: any, ...args: any[]): any {
         var s: any;
         for (var i = 0, len = args.length; i < len; i++) {
             if (s = args[i]) {

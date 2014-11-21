@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class Exception {
     Message: string;
     constructor(message: string) {

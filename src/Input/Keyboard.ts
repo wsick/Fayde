@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-
 module Fayde.Input {
     // http://msdn.microsoft.com/en-us/library/system.windows.input.keyboardnavigationmode.aspx
     export enum KeyboardNavigationMode {

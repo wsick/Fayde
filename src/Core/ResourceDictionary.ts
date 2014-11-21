@@ -31,7 +31,7 @@ module Fayde {
                     var cycleFound = false;
                     if (rd === subtreeRoot)
                         cycleFound = true;
-                    else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
+                    else if (rd.Source && nullstone.equals(rd.Source, subtreeRoot.Source))
                         cycleFound = true;
 
                     if (cycleFound) {
@@ -54,7 +54,7 @@ module Fayde {
     }
     Fayde.RegisterType(ResourceDictionaryCollection, "Fayde", Fayde.XMLNS);
 
-    export class ResourceDictionary extends XamlObject implements IEnumerable<any> {
+    export class ResourceDictionary extends XamlObject implements nullstone.IEnumerable<any> {
         private _Keys: any[] = [];
         private _Values: any[] = [];
 
@@ -126,11 +126,23 @@ module Fayde {
                 (<XamlObject>oldvalue).XamlNode.Detach();
         }
 
-        getEnumerator(reverse?: boolean): IEnumerator<any> {
-            return Fayde.ArrayEx.GetEnumerator(this._Values, reverse);
+        getEnumerator(reverse?: boolean): nullstone.IEnumerator<any> {
+            return nullstone.IEnumerator_.fromArray(this._Values, reverse);
         }
-        GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U> {
-            return Fayde.ArrayEx.GetNodeEnumerator<any, U>(this._Values, reverse);
+        GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): nullstone.IEnumerator<U> {
+            var prev = this.getEnumerator(reverse);
+            return {
+                current: undefined,
+                moveNext: function (): boolean {
+                    if (prev.moveNext()) {
+                        this.current = undefined;
+                        return false;
+                    }
+                    var xobj = prev.current;
+                    this.current = xobj.XamlNode;
+                    return true;
+                }
+            };
         }
     }
     Fayde.RegisterType(ResourceDictionary, "Fayde", Fayde.XMLNS);

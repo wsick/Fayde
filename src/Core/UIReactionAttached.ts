@@ -1,6 +1,6 @@
 module Fayde {
     export function UIReactionAttached<TValue>(propd: DependencyProperty, callback?: IUIReactionCallback<TValue>) {
-        propd.ChangedCallback = reaction<TValue>(GetTypeName(propd.OwnerType) + '.' + propd.Name, callback);
+        propd.ChangedCallback = reaction<TValue>(nullstone.getTypeName(propd.OwnerType) + '.' + propd.Name, callback);
     }
 
     function reaction<T>(name: string, callback?: IUIReactionCallback<T>) {

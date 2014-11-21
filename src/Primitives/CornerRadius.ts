@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class CornerRadius extends minerva.CornerRadius implements ICloneable {
     Clone (): CornerRadius {
         return new CornerRadius(this.topLeft, this.topRight, this.bottomRight, this.bottomLeft);

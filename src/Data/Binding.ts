@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Data {
     export interface IValueConverter {
         Convert(value: any, targetType: IType, parameter: any, culture: any): any;

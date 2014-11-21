@@ -2,6 +2,9 @@
 /// <reference path="ScrollViewer.ts" />
 
 module Fayde.Controls {
+    interface IOutValue {
+        Value: any;
+    }
     export class ListBox extends Primitives.Selector {
         private _FocusedIndex: number = 0;
         static ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", () => Style, ListBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));

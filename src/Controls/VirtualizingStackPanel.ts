@@ -276,7 +276,7 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(VirtualizingStackPanel, "Fayde.Controls", Fayde.XMLNS);
-    Fayde.RegisterTypeInterfaces(VirtualizingStackPanel, Primitives.IScrollInfo_);
+    nullstone.addTypeInterfaces(VirtualizingStackPanel, Primitives.IScrollInfo_);
 
     module reactions {
         UIReaction<minerva.Orientation>(VirtualizingStackPanel.OrientationProperty, (upd, ov, nv) => upd.invalidateMeasure(), false);

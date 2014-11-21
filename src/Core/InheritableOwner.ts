@@ -1,4 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="UIReaction.ts" />
 /// <reference path="Providers/InheritedStore.ts" />
 /// <reference path="../Primitives/Font.ts" />
@@ -31,7 +30,7 @@ module Fayde {
         InheritableOwner.UseLayoutRoundingProperty,
         InheritableOwner.TextDecorationsProperty
     ];
-    Fayde.RegisterType(InheritableOwner, "Fayde");
+    Fayde.RegisterType(InheritableOwner, "Fayde", Fayde.XMLNS);
 
     module reactions {
         UIReaction<boolean>(InheritableOwner.UseLayoutRoundingProperty, minerva.core.reactTo.useLayoutRounding, false);

@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Xaml {
     export class TemplateBinding implements IMarkup {
         Property: string;

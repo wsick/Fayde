@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde {
     export class LayoutInformation {
         static GetLayoutClip(uie: UIElement): Media.Geometry {

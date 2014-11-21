@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Data {
     export class RelativeSource {
         Mode: RelativeSourceMode = RelativeSourceMode.TemplatedParent;

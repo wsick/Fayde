@@ -40,7 +40,7 @@ module Fayde.Controls {
         return rd;
     }
 
-    Fayde.RegisterTypeConverter(RowDefinition, ConvertRowDefinition);
+    nullstone.registerTypeConverter(RowDefinition, ConvertRowDefinition);
 
     export class RowDefinitionCollection extends XamlObjectCollection<RowDefinition> {
         _RaiseItemAdded (value: RowDefinition, index: number) {
@@ -78,5 +78,5 @@ module Fayde.Controls {
         return undefined;
     }
 
-    Fayde.RegisterTypeConverter(RowDefinitionCollection, ConvertRowDefinitionCollection);
+    nullstone.registerTypeConverter(RowDefinitionCollection, ConvertRowDefinitionCollection);
 }

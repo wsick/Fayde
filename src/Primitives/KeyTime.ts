@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class KeyTime implements ICloneable {
     private _IsPaced: boolean = false;
     private _IsUniform: boolean = false;

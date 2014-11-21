@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class Length {
 }
 Fayde.RegisterType(Length, "window", Fayde.XMLNSX);

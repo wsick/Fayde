@@ -133,5 +133,5 @@ module Fayde.Controls.Internal {
             return this.XamlNode.LayoutUpdater.getCursorFromPoint(point);
         }
     }
-    Fayde.RegisterType(TextBoxView, "Fayde.Controls");
+    Fayde.RegisterType(TextBoxView, "Fayde.Controls", Fayde.XMLNSINTERNAL);
 }

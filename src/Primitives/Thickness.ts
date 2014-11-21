@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class Thickness extends minerva.Thickness {
     Clone (): Thickness {
         return new Thickness(this.left, this.top, this.right, this.bottom);

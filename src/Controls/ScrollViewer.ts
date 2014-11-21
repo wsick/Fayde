@@ -177,11 +177,11 @@ module Fayde.Controls {
             this.$ScrollContentPresenter = <ScrollContentPresenter>this.GetTemplateChild("ScrollContentPresenter", ScrollContentPresenter);
             this.$HorizontalScrollBar = <Primitives.ScrollBar>this.GetTemplateChild("HorizontalScrollBar", Primitives.ScrollBar);
             if (this.$HorizontalScrollBar) {
-                this.$HorizontalScrollBar.Scroll.Subscribe((sender, e: Primitives.ScrollEventArgs) => this._HandleScroll(Orientation.Horizontal, e), this);
+                this.$HorizontalScrollBar.Scroll.on((sender, e: Primitives.ScrollEventArgs) => this._HandleScroll(Orientation.Horizontal, e), this);
             }
             this.$VerticalScrollBar = <Primitives.ScrollBar>this.GetTemplateChild("VerticalScrollBar", Primitives.ScrollBar);
             if (this.$VerticalScrollBar) {
-                this.$VerticalScrollBar.Scroll.Subscribe((sender, e: Primitives.ScrollEventArgs) => this._HandleScroll(Orientation.Vertical, e), this);
+                this.$VerticalScrollBar.Scroll.on((sender, e: Primitives.ScrollEventArgs) => this._HandleScroll(Orientation.Vertical, e), this);
             }
             this._UpdateScrollBarVisibility();
         }

@@ -40,7 +40,7 @@ module Fayde.Controls {
         return cd;
     }
 
-    Fayde.RegisterTypeConverter(ColumnDefinition, ConvertColumnDefinition);
+    nullstone.registerTypeConverter(ColumnDefinition, ConvertColumnDefinition);
 
     export class ColumnDefinitionCollection extends XamlObjectCollection<ColumnDefinition> {
         _RaiseItemAdded (value: ColumnDefinition, index: number) {
@@ -78,5 +78,5 @@ module Fayde.Controls {
         return undefined;
     }
 
-    Fayde.RegisterTypeConverter(ColumnDefinitionCollection, ConvertColumnDefinitionCollection);
+    nullstone.registerTypeConverter(ColumnDefinitionCollection, ConvertColumnDefinitionCollection);
 }

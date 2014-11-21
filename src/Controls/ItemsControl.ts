@@ -6,7 +6,7 @@ module Fayde.Controls {
         constructor(xobj: ItemsControl) {
             super(xobj);
         }
-        
+
         ItemsPresenter: ItemsPresenter = null;
         GetDefaultVisualTree(): UIElement {
             var presenter = this.ItemsPresenter;
@@ -15,7 +15,6 @@ module Fayde.Controls {
             return presenter;
         }
     }
-    Fayde.RegisterType(ItemsControlNode, "Fayde.Controls");
 
     export class ItemsControl extends Control {
         XamlNode: ItemsControlNode;
@@ -25,31 +24,30 @@ module Fayde.Controls {
 
         static DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", () => String, ItemsControl, null, (d, args) => (<ItemsControl>d).OnDisplayMemberPathChanged(args));
         static ItemsPanelProperty = DependencyProperty.Register("ItemsPanel", () => ItemsPanelTemplate, ItemsControl);
-        static ItemsSourceProperty = DependencyProperty.RegisterFull("ItemsSource", () => IEnumerable_, ItemsControl, null, (d, args) => (<ItemsControl>d).OnItemsSourceChanged(args));
+        static ItemsSourceProperty = DependencyProperty.RegisterFull("ItemsSource", () => nullstone.IEnumerable_, ItemsControl, null, (d, args) => (<ItemsControl>d).OnItemsSourceChanged(args));
         static ItemsProperty = DependencyProperty.RegisterImmutable<ItemCollection>("Items", () => ItemCollection, ItemsControl);
         static ItemTemplateProperty = DependencyProperty.Register("ItemTemplate", () => DataTemplate, ItemsControl, undefined, (d, args) => (<ItemsControl>d).OnItemTemplateChanged(args));
-        
+
         static IsItemsHostProperty = DependencyProperty.RegisterAttached("IsItemsHost", () => Boolean, ItemsControl, false);
         static GetIsItemsHost(d: DependencyObject): boolean { return d.GetValue(ItemsControl.IsItemsHostProperty) === true; }
         static SetIsItemsHost(d: DependencyObject, value: boolean) { d.SetValue(ItemsControl.IsItemsHostProperty, value === true); }
 
         DisplayMemberPath: string;
         ItemsPanel: ItemsPanelTemplate;
-        ItemsSource: IEnumerable<any>;
+        ItemsSource: nullstone.IEnumerable<any>;
         Items: ItemCollection;
         ItemTemplate: DataTemplate;
 
         OnDisplayMemberPathChanged(e: IDependencyPropertyChangedEventArgs) {
-            var enumerator = this.ItemContainersManager.GetEnumerator();
-            while (enumerator.moveNext()) {
-                this.UpdateContainerTemplate(enumerator.current, enumerator.CurrentItem);
+            for (var en = this.ItemContainersManager.GetEnumerator(); en.moveNext();) {
+                this.UpdateContainerTemplate(en.current, en.CurrentItem);
             }
         }
         OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs) {
             //Unsubscribe from old
-            var nc = Collections.INotifyCollectionChanged_.As(e.OldValue);
+            var nc = Collections.INotifyCollectionChanged_.as(e.OldValue);
             if (nc)
-                nc.CollectionChanged.Unsubscribe(this._OnItemsSourceUpdated, this);
+                nc.CollectionChanged.off(this._OnItemsSourceUpdated, this);
             var items = this.Items;
 
             //Reset old
@@ -75,14 +73,14 @@ module Fayde.Controls {
                 this.OnItemsChanged(Collections.CollectionChangedEventArgs.AddRange(arr, 0));
 
             //Subscribe to new
-            var nc = Collections.INotifyCollectionChanged_.As(e.NewValue);
+            var nc = Collections.INotifyCollectionChanged_.as(e.NewValue);
             if (nc)
-                nc.CollectionChanged.Subscribe(this._OnItemsSourceUpdated, this);
+                nc.CollectionChanged.on(this._OnItemsSourceUpdated, this);
         }
-        OnItemTemplateChanged(e: IDependencyPropertyChangedEventArgs) {
-            var enumerator = this.ItemContainersManager.GetEnumerator();
-            while (enumerator.moveNext()) {
-                this.UpdateContainerTemplate(enumerator.current, enumerator.CurrentItem);
+
+        OnItemTemplateChanged (e: IDependencyPropertyChangedEventArgs) {
+            for (var en = this.ItemContainersManager.GetEnumerator(); en.moveNext();) {
+                this.UpdateContainerTemplate(en.current, en.CurrentItem);
             }
         }
 
@@ -93,7 +91,7 @@ module Fayde.Controls {
             super();
             this.DefaultStyleKey = ItemsControl;
             var coll = <ItemCollection>ItemsControl.ItemsProperty.Initialize(this);
-            coll.ItemsChanged.Subscribe(this._OnItemsUpdated, this);
+            coll.ItemsChanged.on(this._OnItemsUpdated, this);
 
             this._ItemContainersManager = new Internal.ItemContainersManager(this);
         }
@@ -116,7 +114,7 @@ module Fayde.Controls {
         }
         GetContainerForItem(): UIElement { return new ContentPresenter(); }
         IsItemItsOwnContainer(item: any): boolean { return item instanceof UIElement; }
-        
+
         private _IsDataBound = false;
         private _SuspendItemsChanged = false;
         private _OnItemsUpdated(sender: any, e: Collections.CollectionChangedEventArgs) {
@@ -205,19 +203,19 @@ module Fayde.Controls {
         private _GetDisplayMemberTemplate(): DataTemplate {
             if (!this._DisplayMemberTemplate) {
                 var dmp = this.DisplayMemberPath || "";
-                var xd = new Xaml.XamlDocument("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
-                this._DisplayMemberTemplate = <DataTemplate>Xaml.Load(xd.Document);
+                var xm = Fayde.Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
+                this._DisplayMemberTemplate = Markup.Load<DataTemplate>(this, xm);
             }
             return this._DisplayMemberTemplate;
         }
     }
     Fayde.RegisterType(ItemsControl, "Fayde.Controls", Fayde.XMLNS);
-    Xaml.Content(ItemsControl, ItemsControl.ItemsProperty);
+    Markup.Content(ItemsControl, ItemsControl.ItemsProperty);
 
     function toArray(value: any): any[] {
         if (value instanceof Array)
             return <any[]>value;
-        var enu = IEnumerable_.As(value);
+        var enu = nullstone.IEnumerable_.as(value);
         if (enu) {
             var arr = [];
             for (var en = enu.getEnumerator(); en.moveNext();) {

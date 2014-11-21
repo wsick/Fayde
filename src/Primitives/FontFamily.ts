@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class FontFamily implements ICloneable {
     constructor(public FamilyNames: string) { }
     toString(): string {

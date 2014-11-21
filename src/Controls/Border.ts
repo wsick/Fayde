@@ -1,5 +1,5 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// <reference path="../Xaml/ContentAnnotation.ts" />
+/// <reference path="../Markup/ContentAnnotation.ts" />
 
 module Fayde.Controls {
     export class Border extends FrameworkElement {
@@ -26,7 +26,7 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(Border, "Fayde.Controls", Fayde.XMLNS);
-    Xaml.Content(Border, Border.ChildProperty);
+    Markup.Content(Border, Border.ChildProperty);
 
     UIReaction<minerva.IBrush>(Border.BackgroundProperty, (upd, ov, nv) => {
         upd.invalidate();

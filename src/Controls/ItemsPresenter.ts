@@ -1,18 +1,17 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// <reference path="../Xaml/XamlDocument.ts" />
-/// <reference path="../Xaml/XamlLoader.ts" />
+/// <reference path="../Markup/Creator.ts" />
 
 module Fayde.Controls {
-    var spxd = new Xaml.XamlDocument("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>");
+    var spxd = Markup.CreateXaml("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>");
     var spft: ItemsPanelTemplate;
 
-    var vspxd = new Xaml.XamlDocument("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>");
+    var vspxd = Markup.CreateXaml("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>");
     var vspft: ItemsPanelTemplate;
 
     function getFallbackTemplate(ic: ItemsControl): ItemsPanelTemplate {
         if (ic instanceof ListBox)
-            return vspft = vspft || <ItemsPanelTemplate>Xaml.Load(vspxd.Document);
-        return spft = spft || <ItemsPanelTemplate>Xaml.Load(spxd.Document);
+            return vspft = vspft || Markup.Load<ItemsPanelTemplate>(ic, vspxd);
+        return spft = spft || Markup.Load<ItemsPanelTemplate>(ic, spxd);
     }
 
     export class ItemsPresenterNode extends FENode {
@@ -47,7 +46,6 @@ module Fayde.Controls {
             return true;
         }
     }
-    Fayde.RegisterType(ItemsPresenterNode, "Fayde.Controls");
 
     export class ItemsPresenter extends FrameworkElement {
         TemplateOwner: ItemsControl;

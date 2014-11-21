@@ -61,29 +61,29 @@ module Fayde {
             var e = new Fayde.RoutedEventArgs();
             var x = this.XObject;
             x.OnLostFocus(e);
-            x.LostFocus.Raise(x, e);
+            x.LostFocus.raise(x, e);
         }
         private _EmitGotFocus() {
             var e = new Fayde.RoutedEventArgs();
             var x = this.XObject;
             x.OnGotFocus(e);
-            x.GotFocus.Raise(x, e);
+            x.GotFocus.raise(x, e);
         }
         _EmitKeyDown(args: Fayde.Input.KeyEventArgs) {
             var x = this.XObject;
             x.OnKeyDown(args);
-            x.KeyDown.Raise(x, args);
+            x.KeyDown.raise(x, args);
         }
         _EmitKeyUp(args: Fayde.Input.KeyEventArgs) {
             var x = this.XObject;
             x.OnKeyUp(args);
-            x.KeyUp.Raise(x, args);
+            x.KeyUp.raise(x, args);
         }
         _EmitLostMouseCapture(pos: Point) {
             var x = this.XObject;
             var e = new Input.MouseEventArgs(pos);
             x.OnLostMouseCapture(e);
-            x.LostMouseCapture.Raise(x, e);
+            x.LostMouseCapture.raise(x, e);
         }
         _EmitMouseEvent(type: Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs): boolean {
             var x = this.XObject;
@@ -91,38 +91,38 @@ module Fayde {
                 case Input.MouseInputType.MouseUp:
                     if (isLeftButton) {
                         x.OnMouseLeftButtonUp(<Input.MouseButtonEventArgs>args);
-                        x.MouseLeftButtonUp.Raise(x, args);
+                        x.MouseLeftButtonUp.raise(x, args);
                     } else if (isRightButton) {
                         x.OnMouseRightButtonUp(<Input.MouseButtonEventArgs>args);
-                        x.MouseRightButtonUp.Raise(x, args);
+                        x.MouseRightButtonUp.raise(x, args);
                     }
                     break;
                 case Input.MouseInputType.MouseDown:
                     if (isLeftButton) {
                         x.OnMouseLeftButtonDown(<Input.MouseButtonEventArgs>args);
-                        x.MouseLeftButtonDown.Raise(x, args);
+                        x.MouseLeftButtonDown.raise(x, args);
                     } else if (isRightButton) {
                         x.OnMouseRightButtonDown(<Input.MouseButtonEventArgs>args);
-                        x.MouseRightButtonDown.Raise(x, args);
+                        x.MouseRightButtonDown.raise(x, args);
                     }
                     break;
                 case Input.MouseInputType.MouseLeave:
                     this.IsMouseOver = false;
                     x.OnMouseLeave(args);
-                    x.MouseLeave.Raise(x, args);
+                    x.MouseLeave.raise(x, args);
                     break;
                 case Input.MouseInputType.MouseEnter:
                     this.IsMouseOver = true;
                     x.OnMouseEnter(args);
-                    x.MouseEnter.Raise(x, args);
+                    x.MouseEnter.raise(x, args);
                     break;
                 case Input.MouseInputType.MouseMove:
                     x.OnMouseMove(args);
-                    x.MouseMove.Raise(x, args);
+                    x.MouseMove.raise(x, args);
                     break;
                 case Input.MouseInputType.MouseWheel:
                     x.OnMouseWheel(<Input.MouseWheelEventArgs>args);
-                    x.MouseWheel.Raise(x, <Input.MouseWheelEventArgs>args);
+                    x.MouseWheel.raise(x, <Input.MouseWheelEventArgs>args);
                     break;
                 default:
                     return false;
@@ -134,23 +134,23 @@ module Fayde {
             switch (type) {
                 case Input.TouchInputType.TouchDown:
                     x.OnTouchDown(args);
-                    x.TouchDown.Raise(x, args);
+                    x.TouchDown.raise(x, args);
                     break;
                 case Input.TouchInputType.TouchUp:
                     x.OnTouchUp(args);
-                    x.TouchUp.Raise(x, args);
+                    x.TouchUp.raise(x, args);
                     break;
                 case Input.TouchInputType.TouchMove:
                     x.OnTouchMove(args);
-                    x.TouchMove.Raise(x, args);
+                    x.TouchMove.raise(x, args);
                     break;
                 case Input.TouchInputType.TouchEnter:
                     x.OnTouchEnter(args);
-                    x.TouchEnter.Raise(x, args);
+                    x.TouchEnter.raise(x, args);
                     break;
                 case Input.TouchInputType.TouchLeave:
                     x.OnTouchLeave(args);
-                    x.TouchLeave.Raise(x, args);
+                    x.TouchLeave.raise(x, args);
                     break;
                 default:
                     return false;
@@ -160,12 +160,12 @@ module Fayde {
         _EmitGotTouchCapture(e: Input.TouchEventArgs) {
             var x = this.XObject;
             x.OnGotTouchCapture(e);
-            x.GotTouchCapture.Raise(this, e);
+            x.GotTouchCapture.raise(this, e);
         }
         _EmitLostTouchCapture(e: Input.TouchEventArgs) {
             var x = this.XObject;
             x.OnLostTouchCapture(e);
-            x.LostTouchCapture.Raise(this, e);
+            x.LostTouchCapture.raise(this, e);
         }
 
         CanCaptureMouse(): boolean { return true; }
@@ -197,7 +197,6 @@ module Fayde {
             return mt;
         }
     }
-    Fayde.RegisterType(UINode, "Fayde");
 
     export class UIElement extends DependencyObject implements Providers.IIsPropertyInheritable {
         XamlNode: UINode;

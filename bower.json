@@ -18,6 +18,7 @@
   ],
   "dependencies": {
     "minerva": "~0.1.0",
+    "nullstone": "git://github.com/bsick7/nullstone",
     "requirejs": "~2.1.15",
     "requirejs-text": "~2.0.12"
   },

@@ -1,4 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="../Input/ICommand.ts" />
 
 module Fayde.MVVM {

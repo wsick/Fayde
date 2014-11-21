@@ -19,7 +19,7 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(UserControl, "Fayde.Controls", Fayde.XMLNS);
-    Xaml.Content(UserControl, UserControl.ContentProperty);
+    Markup.Content(UserControl, UserControl.ContentProperty);
 
     module reactions {
         UIReaction<UIElement>(UserControl.ContentProperty, (updater, ov, nv, uc?: UserControl) => {

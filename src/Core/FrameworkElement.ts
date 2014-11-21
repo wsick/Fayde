@@ -27,7 +27,7 @@ module Fayde {
                     xobj.SetCurrentValue(FrameworkElement.ActualHeightProperty, value);
                 },
                 onSizeChanged (oldSize: minerva.Size, newSize: minerva.Size) {
-                    xobj.SizeChanged.Raise(xobj, new SizeChangedEventArgs(oldSize, newSize));
+                    xobj.SizeChanged.raise(xobj, new SizeChangedEventArgs(oldSize, newSize));
                 }
             });
         }
@@ -43,11 +43,11 @@ module Fayde {
             return true;
         }
 
-        GetInheritedEnumerator(): IEnumerator<DONode> {
+        GetInheritedEnumerator(): nullstone.IEnumerator<DONode> {
             return this.GetVisualTreeEnumerator();
         }
 
-        GetVisualTreeEnumerator(): IEnumerator<FENode> {
+        GetVisualTreeEnumerator(): nullstone.IEnumerator<FENode> {
             var walker = this.LayoutUpdater.tree.walk();
             return {
                 current: undefined,
@@ -71,7 +71,7 @@ module Fayde {
             var res = xobj.Resources;
             if (!newIsLoaded) {
                 Providers.ImplicitStyleBroker.Clear(xobj, Providers.StyleMask.VisualTree);
-                xobj.Unloaded.Raise(xobj, new RoutedEventArgs());
+                xobj.Unloaded.raise(xobj, new RoutedEventArgs());
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
             } else {
                 Providers.ImplicitStyleBroker.Set(xobj, Providers.StyleMask.All);
@@ -81,7 +81,7 @@ module Fayde {
             }
             if (newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
-                xobj.Loaded.Raise(xobj, new RoutedEventArgs());
+                xobj.Loaded.raise(xobj, new RoutedEventArgs());
                 this.InvokeLoaded();
                 //LOOKS USELESS: 
                 //Providers.DataContextStore.EmitDataContextChanged(xobj);
@@ -111,7 +111,7 @@ module Fayde {
             var xobj = this.XObject;
             if (result)
                 xobj.OnApplyTemplate();
-            xobj.TemplateApplied.Raise(xobj, EventArgs.Empty);
+            xobj.TemplateApplied.raise(xobj, null);
             return result;
         }
         DoApplyTemplateWithError(error: BError): boolean { return false; }
@@ -136,7 +136,6 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(FENode, "Fayde");
 
     export class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
         XamlNode: FENode;
@@ -193,10 +192,10 @@ module Fayde {
         SizeChanged = new RoutedEvent<RoutedEventArgs>();
         Loaded = new RoutedEvent<RoutedEventArgs>();
         Unloaded = new RoutedEvent<RoutedEventArgs>();
-        LayoutUpdated = new MulticastEvent<EventArgs>();
+        LayoutUpdated = new nullstone.Event<nullstone.IEventArgs>();
 
         OnApplyTemplate() { }
-        TemplateApplied = new MulticastEvent<EventArgs>();
+        TemplateApplied = new nullstone.Event<nullstone.IEventArgs>();
 
         UpdateLayout() { this.XamlNode.UpdateLayout(); }
     }

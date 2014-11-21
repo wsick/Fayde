@@ -1,5 +1,4 @@
 /// <reference path="BitmapSource.ts"/>
-/// <reference path="../../Primitives/Uri.ts"/>
 
 module Fayde.Media.Imaging {
     export class BitmapImage extends BitmapSource {
@@ -16,18 +15,18 @@ module Fayde.Media.Imaging {
 
         private _UriSourceChanged(args: IDependencyPropertyChangedEventArgs) {
             var uri: Uri = args.NewValue;
-            if (Uri.IsNullOrEmpty(uri))
+            if (Uri.isNullOrEmpty(uri))
                 this.ResetImage();
             else
                 this.UriSourceChanged(args.OldValue, uri);
         }
         _OnErrored(e: Event) {
             super._OnErrored(e);
-            this.ImageFailed.Raise(this, EventArgs.Empty);
+            this.ImageFailed.raise(this, null);
         }
         _OnLoad(e: Event) {
             super._OnLoad(e);
-            this.ImageOpened.Raise(this, EventArgs.Empty);
+            this.ImageOpened.raise(this, null);
         }
     }
     Fayde.RegisterType(BitmapImage, "Fayde.Media.Imaging", Fayde.XMLNS);

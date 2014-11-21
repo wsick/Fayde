@@ -65,7 +65,7 @@ module Fayde.Controls {
                 return;
             this.PerformPlacement(horizontalOffset, verticalOffset);
         }
-        private OnLayoutUpdated(sender: any, e: EventArgs) {
+        private OnLayoutUpdated(sender: any, e: nullstone.IEventArgs) {
             if (this._ParentPopup)
                 this.PerformPlacement(this.HorizontalOffset, this.VerticalOffset);
         }
@@ -80,8 +80,8 @@ module Fayde.Controls {
             var pp = this._ParentPopup = new Primitives.Popup();
             pp.DataContext = !this.TooltipParent ? null : this.TooltipParent.DataContext;
 
-            pp.Opened.Subscribe(this.OnPopupOpened, this);
-            pp.Closed.Subscribe(this.OnPopupClosed, this);
+            pp.Opened.on(this.OnPopupOpened, this);
+            pp.Closed.on(this.OnPopupClosed, this);
             this.IsTabStop = false;
 
             pp.XamlNode.RegisterInitiator(this._TooltipParent);
@@ -90,17 +90,17 @@ module Fayde.Controls {
             pp.IsHitTestVisible = false;
             this.IsHitTestVisible = false;
         }
-        private OnPopupOpened(sender: any, e: EventArgs) {
+        private OnPopupOpened(sender: any, e: nullstone.IEventArgs) {
             var args = new RoutedEventArgs();
             args.OriginalSource = this;
-            this.Opened.Raise(this, args);
-            this.LayoutUpdated.Subscribe(this.OnLayoutUpdated, this);
+            this.Opened.raise(this, args);
+            this.LayoutUpdated.on(this.OnLayoutUpdated, this);
         }
-        private OnPopupClosed(sender: any, e: EventArgs) {
+        private OnPopupClosed(sender: any, e: nullstone.IEventArgs) {
             var args = new RoutedEventArgs();
             args.OriginalSource = this;
-            this.Closed.Raise(this, args);
-            this.LayoutUpdated.Unsubscribe(this.OnLayoutUpdated, this);
+            this.Closed.raise(this, args);
+            this.LayoutUpdated.off(this.OnLayoutUpdated, this);
         }
         private PerformPlacement(horizontalOffset: number, verticalOffset: number) {
             if (!this.IsOpen)

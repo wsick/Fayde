@@ -33,8 +33,8 @@ module Fayde.Controls {
         constructor (eventsMask: Internal.TextBoxEmitChangedType) {
             super();
             var view = this.$View = this.CreateView();
-            view.MouseLeftButtonDown.Subscribe((s, e) => this.OnMouseLeftButtonDown(e), this);
-            view.MouseLeftButtonUp.Subscribe((s, e) => this.OnMouseLeftButtonUp(e), this);
+            view.MouseLeftButtonDown.on((s, e) => this.OnMouseLeftButtonDown(e), this);
+            view.MouseLeftButtonUp.on((s, e) => this.OnMouseLeftButtonUp(e), this);
             this.$Proxy = new Internal.TextProxy(eventsMask);
 
             this._SyncFont();
@@ -428,7 +428,7 @@ module Fayde.Controls {
             return proxy.setAnchorCursor(anchor, cursor);
         }
     }
-    Fayde.RegisterType(TextBoxBase, "Fayde.Controls");
+    Fayde.RegisterType(TextBoxBase, "Fayde.Controls", Fayde.XMLNSINTERNAL);
 
     module reactions {
         DPReaction<Media.Brush>(TextBoxBase.CaretBrushProperty, (tbb: TextBoxBase, ov, nv) => {

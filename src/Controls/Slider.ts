@@ -17,7 +17,7 @@ module Fayde.Controls {
         constructor() {
             super();
             this.DefaultStyleKey = Slider;
-            this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
+            this.SizeChanged.on(this._HandleSizeChanged, this);
         }
 
         private $HorizontalTemplate: FrameworkElement;
@@ -42,25 +42,25 @@ module Fayde.Controls {
             this.$VerticalThumb = <Primitives.Thumb>this.GetTemplateChild("VerticalThumb", Primitives.Thumb);
 
             if (this.$HorizontalThumb != null) {
-                this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
-                this.$HorizontalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
+                this.$HorizontalThumb.DragStarted.on(this._OnThumbDragStarted, this);
+                this.$HorizontalThumb.DragDelta.on(this._OnThumbDragDelta, this);
             }
             if (this.$HorizontalLargeDecrease != null) {
-                this.$HorizontalLargeDecrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
+                this.$HorizontalLargeDecrease.Click.on(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
             }
             if (this.$HorizontalLargeIncrease != null) {
-                this.$HorizontalLargeIncrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
+                this.$HorizontalLargeIncrease.Click.on(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
             }
 
             if (this.$VerticalThumb != null) {
-                this.$VerticalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
-                this.$VerticalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
+                this.$VerticalThumb.DragStarted.on(this._OnThumbDragStarted, this);
+                this.$VerticalThumb.DragDelta.on(this._OnThumbDragDelta, this);
             }
             if (this.$VerticalLargeDecrease != null) {
-                this.$VerticalLargeDecrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
+                this.$VerticalLargeDecrease.Click.on(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
             }
             if (this.$VerticalLargeIncrease != null) {
-                this.$VerticalLargeIncrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
+                this.$VerticalLargeIncrease.Click.on(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
             }
 
             this._OnOrientationChanged();

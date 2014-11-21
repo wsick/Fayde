@@ -60,6 +60,7 @@ module.exports = function (grunt) {
             test: {
                 files: [
                     { src: './lib/minerva', dest: './test/lib/minerva' },
+                    { src: './lib/nullstone', dest: './test/lib/nullstone' },
                     { src: './lib/qunit', dest: './test/lib/qunit' },
                     { src: './lib/requirejs', dest: './test/lib/requirejs' },
                     { src: './lib/requirejs-text', dest: './test/lib/requirejs-text' },
@@ -73,6 +74,7 @@ module.exports = function (grunt) {
             testsite: {
                 files: [
                     { src: './lib/minerva', dest: './testsite/lib/minerva' },
+                    { src: './lib/nullstone', dest: './testsite/lib/nullstone' },
                     { src: './lib/qunit', dest: './testsite/lib/qunit' },
                     { src: './lib/requirejs', dest: './testsite/lib/requirejs' },
                     { src: './lib/requirejs-text', dest: './testsite/lib/requirejs-text' },
@@ -83,6 +85,11 @@ module.exports = function (grunt) {
                     { src: './src', dest: './testsite/lib/fayde/src' }
                 ]
             },
+            localnullstone: {
+                files: [
+                    { src: '../nullstone', dest: './lib/nullstone' }
+                ]
+            },
             localminerva: {
                 files: [
                     { src: '../minerva', dest: './lib/minerva' }
@@ -91,7 +98,14 @@ module.exports = function (grunt) {
         },
         typescript: {
             build: {
-                src: ['typings/*.d.ts', 'lib/minerva/minerva.d.ts', 'src/_Version.ts', 'src/**/*.ts'],
+                src: [
+                    'typings/*.d.ts',
+                    'lib/nullstone/dist/nullstone.d.ts',
+                    'lib/minerva/minerva.d.ts',
+                    'src/_Version.ts',
+                    'src/_Types.ts',
+                    'src/**/*.ts'
+                ],
                 dest: 'Fayde.js',
                 options: {
                     target: 'es5',
@@ -102,6 +116,7 @@ module.exports = function (grunt) {
             test: {
                 src: [
                     'typings/*.d.ts',
+                    'lib/nullstone/dist/nullstone.d.ts',
                     'lib/minerva/minerva.d.ts',
                     'fayde.d.ts',
                     '<%= dirs.test.root %>/**/*.ts',
@@ -116,6 +131,7 @@ module.exports = function (grunt) {
             testsite: {
                 src: [
                     'typings/*.d.ts',
+                    'lib/nullstone/dist/nullstone.d.ts',
                     'lib/minerva/minerva.d.ts',
                     'fayde.d.ts',
                     '<%= dirs.testsite.root %>/**/*.ts',
@@ -206,6 +222,7 @@ module.exports = function (grunt) {
     grunt.registerTask('package', ['nugetpack:dist']);
     grunt.registerTask('publish', ['nugetpack:dist', 'nugetpush:dist']);
     grunt.registerTask('lib:reset', ['clean', 'setup', 'symlink:test', 'symlink:testsite']);
+    grunt.registerTask('link:nullstone', ['symlink:localnullstone']);
     grunt.registerTask('link:minerva', ['symlink:localminerva']);
     grunt.registerTask('dist:upbuild', ['version:bump', 'version:apply', 'typescript:build']);
     grunt.registerTask('dist:upminor', ['version:bump:minor', 'version:apply', 'typescript:build']);

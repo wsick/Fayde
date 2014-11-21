@@ -98,7 +98,7 @@ module Fayde.Media.VSM {
         }
     }
     Fayde.RegisterType(VisualStateGroup, "Fayde.Media.VSM", Fayde.XMLNS);
-    Xaml.Content(VisualStateGroup, VisualStateGroup.StatesProperty);
+    Markup.Content(VisualStateGroup, VisualStateGroup.StatesProperty);
 
     export class VisualStateGroupCollection extends XamlObjectCollection<VisualStateGroup> {
     }

@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde {
     export class XamlObject implements Providers.IIsPropertyInheritable {
         private static _LastID: number = 0;

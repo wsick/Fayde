@@ -24,7 +24,7 @@ module Fayde.Controls.Primitives {
         constructor() {
             super();
             this.DefaultStyleKey = ScrollBar;
-            this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
+            this.SizeChanged.on(this._HandleSizeChanged, this);
         }
 
         private $HorizontalTemplate: FrameworkElement;
@@ -57,38 +57,38 @@ module Fayde.Controls.Primitives {
             this.$VerticalThumb = <Thumb>this.GetTemplateChild("VerticalThumb", Thumb);
 
             if (this.$HorizontalThumb) {
-                this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
-                this.$HorizontalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
-                this.$HorizontalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
+                this.$HorizontalThumb.DragStarted.on(this._OnThumbDragStarted, this);
+                this.$HorizontalThumb.DragDelta.on(this._OnThumbDragDelta, this);
+                this.$HorizontalThumb.DragCompleted.on(this._OnThumbDragCompleted, this);
             }
             if (this.$HorizontalLargeIncrease) {
-                this.$HorizontalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
+                this.$HorizontalLargeIncrease.Click.on(this._LargeIncrement, this);
             }
             if (this.$HorizontalLargeDecrease) {
-                this.$HorizontalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
+                this.$HorizontalLargeDecrease.Click.on(this._LargeDecrement, this);
             }
             if (this.$HorizontalSmallIncrease) {
-                this.$HorizontalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
+                this.$HorizontalSmallIncrease.Click.on(this._SmallIncrement, this);
             }
             if (this.$HorizontalSmallDecrease) {
-                this.$HorizontalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
+                this.$HorizontalSmallDecrease.Click.on(this._SmallDecrement, this);
             }
             if (this.$VerticalThumb) {
-                this.$VerticalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
-                this.$VerticalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
-                this.$VerticalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
+                this.$VerticalThumb.DragStarted.on(this._OnThumbDragStarted, this);
+                this.$VerticalThumb.DragDelta.on(this._OnThumbDragDelta, this);
+                this.$VerticalThumb.DragCompleted.on(this._OnThumbDragCompleted, this);
             }
             if (this.$VerticalLargeIncrease) {
-                this.$VerticalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
+                this.$VerticalLargeIncrease.Click.on(this._LargeIncrement, this);
             }
             if (this.$VerticalLargeDecrease) {
-                this.$VerticalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
+                this.$VerticalLargeDecrease.Click.on(this._LargeDecrement, this);
             }
             if (this.$VerticalSmallIncrease) {
-                this.$VerticalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
+                this.$VerticalSmallIncrease.Click.on(this._SmallIncrement, this);
             }
             if (this.$VerticalSmallDecrease) {
-                this.$VerticalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
+                this.$VerticalSmallDecrease.Click.on(this._SmallDecrement, this);
             }
 
             this._OnOrientationChanged();
@@ -172,7 +172,7 @@ module Fayde.Controls.Primitives {
             }
         }
 
-        private _HandleSizeChanged(sender, e: EventArgs) {
+        private _HandleSizeChanged(sender, e: nullstone.IEventArgs) {
             this._UpdateTrackLayout();
         }
         private _OnOrientationChanged() {
@@ -269,7 +269,7 @@ module Fayde.Controls.Primitives {
         private _RaiseScroll(type: Primitives.ScrollEventType) {
             var args = new ScrollEventArgs(type, this.Value);
             args.OriginalSource = this;
-            this.Scroll.Raise(this, args);
+            this.Scroll.raise(this, args);
         }
     }
     Fayde.RegisterType(ScrollBar, "Fayde.Controls.Primitives", Fayde.XMLNS);

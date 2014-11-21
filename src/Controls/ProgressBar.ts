@@ -35,13 +35,13 @@ module Fayde.Controls {
 
             var track = this._Track;
             if (track)
-                track.SizeChanged.Unsubscribe(this._OnTrackSizeChanged, this);
+                track.SizeChanged.off(this._OnTrackSizeChanged, this);
 
             track = this._Track = <FrameworkElement>this.GetTemplateChild("ProgressBarTrack", FrameworkElement);
             this._Indicator = <FrameworkElement>this.GetTemplateChild("ProgressBarIndicator", FrameworkElement);
 
             if (track)
-                track.SizeChanged.Subscribe(this._OnTrackSizeChanged, this);
+                track.SizeChanged.on(this._OnTrackSizeChanged, this);
 
             this.UpdateVisualState(false);
         }

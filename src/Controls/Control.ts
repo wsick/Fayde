@@ -88,7 +88,6 @@ module Fayde.Controls {
 
         CanCaptureMouse(): boolean { return this.XObject.IsEnabled; }
     }
-    Fayde.RegisterType(ControlNode, "Fayde.Controls");
 
     export class Control extends FrameworkElement implements Providers.IIsPropertyInheritable {
         XamlNode: ControlNode;
@@ -107,7 +106,7 @@ module Fayde.Controls {
                 if (nv !== true)
                     control.XamlNode.IsMouseOver = false;
                 control.UpdateVisualState();
-                control.IsEnabledChanged.RaiseAsync(control, args);
+                control.IsEnabledChanged.raiseAsync(control, args);
             }, false, true, this);
             //TODO: Do these make sense? These properties are usually bound to child visuals which will invalidate
             UIReaction<minerva.Thickness>(Control.PaddingProperty, (upd, nv, ov) => upd.invalidateMeasure(), false, true, this);
@@ -184,7 +183,7 @@ module Fayde.Controls {
             return undefined;
         }
 
-        IsEnabledChanged = new MulticastEvent<DependencyPropertyChangedEventArgs>();
+        IsEnabledChanged = new nullstone.Event<DependencyPropertyChangedEventArgs>();
         OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) { }
 
         OnGotFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = true; }
@@ -233,11 +232,11 @@ module Fayde.Controls {
         Name: string;
         GroupName: string;
     }
-    export var TemplateVisualStates = CreateTypedAnnotation<ITemplateVisualStateDefinition>("TemplateVisualState");
+    export var TemplateVisualStates = nullstone.CreateTypedAnnotation<ITemplateVisualStateDefinition>("TemplateVisualState");
 
     export interface ITemplatePartDefinition {
         Name: string;
         Type: Function;
     }
-    export var TemplateParts = CreateTypedAnnotation<ITemplatePartDefinition>("TemplatePart");
+    export var TemplateParts = nullstone.CreateTypedAnnotation<ITemplatePartDefinition>("TemplatePart");
 }

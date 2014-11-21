@@ -56,7 +56,7 @@ module Fayde {
 
             var propTargetType = <Function>propd.GetTargetType();
             try {
-                this.ConvertedValue = Fayde.ConvertAnyToType(val, propTargetType);
+                this.ConvertedValue = nullstone.convertAnyToType(val, propTargetType);
             } catch (err) {
                 throw new XamlParseException(err.message);
             }

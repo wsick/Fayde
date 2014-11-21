@@ -42,5 +42,5 @@ module Fayde.Media {
         }
     }
     Fayde.RegisterType(GradientBrush, "Fayde.Media", Fayde.XMLNS);
-    Xaml.Content(GradientBrush, GradientBrush.GradientStopsProperty);
+    Markup.Content(GradientBrush, GradientBrush.GradientStopsProperty);
 }

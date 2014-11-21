@@ -93,13 +93,13 @@ module Fayde.Controls.Primitives {
         }
 
         private _RaiseDragStarted() {
-            this.DragStarted.Raise(this, new DragStartedEventArgs(this._Origin.x, this._Origin.y));
+            this.DragStarted.raise(this, new DragStartedEventArgs(this._Origin.x, this._Origin.y));
         }
         private _RaiseDragDelta(x: number, y: number) {
-            this.DragDelta.Raise(this, new DragDeltaEventArgs(x, y));
+            this.DragDelta.raise(this, new DragDeltaEventArgs(x, y));
         }
         private _RaiseDragCompleted(canceled: boolean) {
-            this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.x - this._Origin.x, this._PreviousPosition.y - this._Origin.y, canceled));
+            this.DragCompleted.raise(this, new DragCompletedEventArgs(this._PreviousPosition.x - this._Origin.x, this._PreviousPosition.y - this._Origin.y, canceled));
         }
         
         GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {

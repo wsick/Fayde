@@ -1,16 +1,15 @@
 /// <reference path="XamlObject.ts" />
-/// <reference path="../Runtime/Enumerable.ts" />
 
 module Fayde {
-    export class XamlObjectCollection<T extends XamlObject> extends XamlObject implements IEnumerable<T> {
+    export class XamlObjectCollection<T extends XamlObject> extends XamlObject implements nullstone.IEnumerable<T> {
         _ht: Array<T> = [];
-        
+
         AttachTo(xobj: XamlObject) {
             var error = new BError();
             if (!this.XamlNode.AttachTo(xobj.XamlNode, error))
                 error.ThrowException();
         }
-        
+
         get Count() { return this._ht.length; }
 
         GetRange(startIndex: number, endIndex: number): T[] {
@@ -103,11 +102,23 @@ module Fayde {
                 value.XamlNode.Detach();
         }
 
-        getEnumerator(reverse?: boolean): IEnumerator<T> {
-            return Fayde.ArrayEx.GetEnumerator(this._ht, reverse);
+        getEnumerator(reverse?: boolean): nullstone.IEnumerator<T> {
+            return nullstone.IEnumerator_.fromArray(this._ht, reverse);
         }
-        GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U> {
-            return Fayde.ArrayEx.GetNodeEnumerator<T, U>(this._ht, reverse);
+        GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): nullstone.IEnumerator<U> {
+            var prev = this.getEnumerator(reverse);
+            return {
+                current: undefined,
+                moveNext: function (): boolean {
+                    if (prev.moveNext()) {
+                        this.current = undefined;
+                        return false;
+                    }
+                    var xobj = prev.current;
+                    this.current = xobj.XamlNode;
+                    return true;
+                }
+            };
         }
 
         _RaiseItemAdded(value: T, index: number) { }
@@ -116,10 +127,9 @@ module Fayde {
         //_RaiseClearing(arr: T[]) { }
         _RaiseCleared(old: T[]) { }
 
-        CloneCore(source: XamlObjectCollection<T>) {
-            var enumerator = ArrayEx.GetEnumerator(source._ht);
-            while (enumerator.moveNext()) {
-                this.Add(Fayde.Clone(enumerator.current));
+        CloneCore (source: XamlObjectCollection<T>) {
+            for (var en = source.getEnumerator(); en.moveNext();) {
+                this.Add(Fayde.Clone(en.current));
             }
         }
 
@@ -127,5 +137,4 @@ module Fayde {
             return this._ht.slice(0);
         }
     }
-    Fayde.RegisterType(XamlObjectCollection, "Fayde");
 }

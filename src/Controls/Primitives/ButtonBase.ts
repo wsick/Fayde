@@ -142,7 +142,7 @@ module Fayde.Controls.Primitives {
                     cmd.Execute(par);
             }
 
-            this.Click.Raise(this, new RoutedEventArgs());
+            this.Click.raise(this, new RoutedEventArgs());
         }
 
         private _DoWithSuspend(action: () => void) {
@@ -185,13 +185,13 @@ module Fayde.Controls.Primitives {
         }
 
         private OnCommandChanged(args: IDependencyPropertyChangedEventArgs) {
-            var cmd = Input.ICommand_.As(args.OldValue);
+            var cmd = Input.ICommand_.as(args.OldValue);
             if (cmd)
-                cmd.CanExecuteChanged.Unsubscribe(this.OnCommandCanExecuteChanged, this);
+                cmd.CanExecuteChanged.off(this.OnCommandCanExecuteChanged, this);
 
-            cmd = Input.ICommand_.As(args.NewValue);
+            cmd = Input.ICommand_.as(args.NewValue);
             if (cmd) {
-                cmd.CanExecuteChanged.Subscribe(this.OnCommandCanExecuteChanged, this);
+                cmd.CanExecuteChanged.on(this.OnCommandCanExecuteChanged, this);
                 this.IsEnabled = cmd.CanExecute(this.CommandParameter);
             }
         }

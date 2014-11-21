@@ -1,12 +1,12 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// <reference path="../Xaml/XamlDocument.ts" />
+/// <reference path="../Markup/Creator.ts" />
 /// <reference path="../Xaml/XamlLoader.ts" />
 
 module Fayde.Controls {
-    var fxd = new Xaml.XamlDocument("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
+    var fmd = Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
     var fallbackTemplate: DataTemplate;
-    function getFallbackTemplate(): DataTemplate {
-        return fallbackTemplate = fallbackTemplate || <DataTemplate>Xaml.Load(fxd.Document);
+    function getFallbackTemplate (initiator: FrameworkElement): DataTemplate {
+        return fallbackTemplate = fallbackTemplate || Markup.Load<DataTemplate>(initiator, fmd);
     }
 
     export class ContentPresenterNode extends FENode {
@@ -111,10 +111,9 @@ module Fayde.Controls {
                 }
             }
             
-            return getFallbackTemplate();
+            return getFallbackTemplate(this.XObject);
         }
     }
-    Fayde.RegisterType(ContentPresenterNode, "Fayde.Controls");
 
     export class ContentPresenter extends FrameworkElement {
         XamlNode: ContentPresenterNode;
@@ -126,5 +125,5 @@ module Fayde.Controls {
         ContentTemplate: DataTemplate;
     }
     Fayde.RegisterType(ContentPresenter, "Fayde.Controls", Fayde.XMLNS);
-    Xaml.Content(ContentPresenter, ContentPresenter.ContentProperty);
+    Markup.Content(ContentPresenter, ContentPresenter.ContentProperty);
 }

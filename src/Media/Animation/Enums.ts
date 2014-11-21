@@ -1,5 +1,3 @@
-/// <reference path="../../Runtime/TypeManagement.ts" />
-
 module Fayde.Media.Animation {
     export enum EasingMode {
         EaseOut = 0,

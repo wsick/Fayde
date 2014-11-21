@@ -79,5 +79,5 @@ module Fayde.Media.Animation {
         RemoveKeyFrame(kf: KeyFrame) { this.KeyFrames.Remove(kf); }
     }
     Fayde.RegisterType(AnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
-    Xaml.Content(AnimationUsingKeyFrames, AnimationUsingKeyFrames.KeyFramesProperty);
+    Markup.Content(AnimationUsingKeyFrames, AnimationUsingKeyFrames.KeyFramesProperty);
 }

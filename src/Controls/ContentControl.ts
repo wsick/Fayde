@@ -54,7 +54,6 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(ContentControlNode, "Fayde.Controls");
 
     export class ContentControl extends Control {
         XamlNode: ContentControlNode;
@@ -84,9 +83,8 @@ module Fayde.Controls {
             var newUri: Uri;
             if (args.NewValue instanceof Uri) {
                 newUri = <Uri>args.NewValue;
-                Xaml.XamlDocument.GetAsync(newUri)
-                    .success(xd => this._OnLoadedUri(xd))
-                    .error(err => this._OnErroredUri(err, newUri));
+                Markup.Resolve(newUri)
+                    .then(m => this._OnLoadedUri(m), err => this._OnErroredUri(err, newUri))
             }
             this.OnContentUriChanged(oldUri, newUri);
         }
@@ -105,8 +103,8 @@ module Fayde.Controls {
         OnContentUriChanged (oldSourceUri: Uri, newSourceUri: Uri) {
         }
 
-        private _OnLoadedUri (xd: Xaml.XamlDocument) {
-            this.Content = Xaml.Load(xd.Document);
+        private _OnLoadedUri (xm: nullstone.markup.Markup<any>) {
+            this.Content = Markup.Load(this, xm);
         }
 
         private _OnErroredUri (err: any, src: Uri) {
@@ -115,5 +113,5 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(ContentControl, "Fayde.Controls", Fayde.XMLNS);
-    Xaml.Content(ContentControl, ContentControl.ContentProperty);
+    Markup.Content(ContentControl, ContentControl.ContentProperty);
 }
