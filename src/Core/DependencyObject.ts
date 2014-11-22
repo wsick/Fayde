@@ -71,14 +71,9 @@ module Fayde {
         }
         SetValueInternal(propd: DependencyProperty, value: any) {
             var expression: Expression;
-            if (value instanceof Expression)
+            if (value instanceof Expression) {
                 expression = value;
-            if (expression instanceof Data.BindingExpressionBase) {
-                var binding = (<Data.BindingExpressionBase>expression).ParentBinding;
-                var path = binding.Path.Path;
-                if ((!path || path === ".") && binding.Mode === Data.BindingMode.TwoWay)
-                    throw new ArgumentException("TwoWay bindings require a non-empty Path.");
-                binding.Seal();
+                expression.Seal(this, propd);
             }
 
             var existing = this._Expressions[propd._ID];
@@ -195,7 +190,7 @@ module Fayde {
             if (!binding)
                 throw new ArgumentException("binding");
 
-            var e = new Data.BindingExpression(binding, this, propd);
+            var e = new Data.BindingExpression(binding);
             this.SetValueInternal(propd, e);
             return e;
         }

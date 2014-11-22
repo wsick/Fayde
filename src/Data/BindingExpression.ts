@@ -2,8 +2,8 @@
 
 module Fayde.Data {
     export class BindingExpression extends BindingExpressionBase {
-        constructor(binding: Data.Binding, target: DependencyObject, propd: DependencyProperty) {
-            super(binding, target, propd);
+        constructor(binding: Data.Binding) {
+            super(binding);
         }
     }
 }

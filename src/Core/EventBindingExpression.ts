@@ -10,7 +10,7 @@ module Fayde {
     export class EventBindingExpression extends Expression {
         IsUpdating: boolean = false;
         IsAttached: boolean = false;
-        
+
         private _EventBinding: EventBinding;
         private _CommandWalker: Data.PropertyPathWalker = null;
         private _CommandParameterWalker: Data.PropertyPathWalker = null;
@@ -18,8 +18,8 @@ module Fayde {
         private _Target: XamlObject = null;
         private _Event: nullstone.Event<nullstone.IEventArgs> = null;
         private _EventName: string = null;
-        
-        constructor(eventBinding: EventBinding) {
+
+        constructor (eventBinding: EventBinding) {
             super();
             this._EventBinding = eventBinding;
 
@@ -32,13 +32,18 @@ module Fayde {
                 this._CommandParameterWalker = new Data.PropertyPathWalker(cpb.Path.ParsePath, cpb.BindsDirectlyToSource, false, !cpb.ElementName && !cpb.Source && !cpb.RelativeSource);
         }
 
-        Init(event: nullstone.Event<nullstone.IEventArgs>, eventName: string) {
+        Seal (owner: DependencyObject, prop: any) {
+        }
+
+        Init (event: nullstone.Event<nullstone.IEventArgs>, eventName: string) {
             this._Event = event;
             this._EventName = eventName;
         }
 
-        GetValue(propd: DependencyProperty): any { }
-        OnAttached(target: XamlObject) {
+        GetValue (propd: DependencyProperty): any {
+        }
+
+        OnAttached (target: XamlObject) {
             if (this.IsAttached)
                 return;
             this.IsAttached = true;
@@ -46,16 +51,19 @@ module Fayde {
             if (this._Event)
                 this._Event.on(this._Callback, this);
         }
-        OnDetached(target: XamlObject) {
+
+        OnDetached (target: XamlObject) {
             if (!this.IsAttached)
                 return;
             if (this._Event)
                 this._Event.off(this._Callback, this);
             this.IsAttached = false;
         }
-        OnDataContextChanged(newDataContext: any) { }
 
-        private _Callback(sender: any, e: nullstone.IEventArgs) {
+        OnDataContextChanged (newDataContext: any) {
+        }
+
+        private _Callback (sender: any, e: nullstone.IEventArgs) {
             var target = this._Target;
 
             var csource = findSource(target, this._EventBinding.CommandBinding);
@@ -101,7 +109,7 @@ module Fayde {
         }
     }
 
-    function findSource(target: XamlObject, binding: Data.Binding): any {
+    function findSource (target: XamlObject, binding: Data.Binding): any {
         if (binding) {
             if (binding.Source)
                 return binding.Source;
@@ -124,7 +132,8 @@ module Fayde {
         }
         return target.XamlNode.DataContext;
     }
-    function findSourceByElementName(target: XamlObject, name: string): XamlObject {
+
+    function findSourceByElementName (target: XamlObject, name: string): XamlObject {
         var xobj: XamlObject = target;
         if (!xobj)
             return undefined;
@@ -134,7 +143,8 @@ module Fayde {
         //TODO: Crawl out of ListBoxItem?
         return undefined;
     }
-    function findAncestor(target: XamlObject, relSource: Data.RelativeSource): XamlObject {
+
+    function findAncestor (target: XamlObject, relSource: Data.RelativeSource): XamlObject {
         if (!(target instanceof DependencyObject))
             return;
         var ancestorType = relSource.AncestorType;
@@ -152,7 +162,8 @@ module Fayde {
                 return parent;
         }
     }
-    function findItemsControlAncestor(target: XamlObject, relSource: Data.RelativeSource): XamlObject {
+
+    function findItemsControlAncestor (target: XamlObject, relSource: Data.RelativeSource): XamlObject {
         if (!(target instanceof DependencyObject))
             return;
         var ancestorLevel = relSource.AncestorLevel;

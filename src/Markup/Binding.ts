@@ -5,9 +5,9 @@ module Fayde.Data {
     }
     export var IValueConverter_ = new nullstone.Interface<IValueConverter>("IValueConverter");
 
-    export class Binding implements Xaml.IMarkup {
+    export class Binding implements nullstone.markup.IMarkupExtension {
         private _IsSealed: boolean = false;
-        
+
         private _StringFormat: string = undefined;
         private _FallbackValue: any = undefined;
         private _TargetNullValue: any = undefined;
@@ -27,121 +27,174 @@ module Fayde.Data {
         private _ValidatesOnDataErrors: boolean = false;
         private _ValidatesOnNotifyDataErrors: boolean = true;
 
-        constructor(path?: string) {
+        constructor (path?: string) {
             if (!path) path = "";
             this._Path = new PropertyPath(path);
         }
 
-        get BindsDirectlyToSource(): boolean { return this._BindsDirectlyToSource; }
-        set BindsDirectlyToSource(value: boolean) {
+        get BindsDirectlyToSource (): boolean {
+            return this._BindsDirectlyToSource;
+        }
+
+        set BindsDirectlyToSource (value: boolean) {
             this.CheckSealed();
             this._BindsDirectlyToSource = value;
         }
 
-        get Converter(): IValueConverter { return this._Converter; }
-        set Converter(value: IValueConverter) {
+        get Converter (): IValueConverter {
+            return this._Converter;
+        }
+
+        set Converter (value: IValueConverter) {
             this.CheckSealed();
             this._Converter = value;
         }
 
-        get ConverterParameter(): any { return this._ConverterParameter; }
-        set ConverterParameter(value: any) {
+        get ConverterParameter (): any {
+            return this._ConverterParameter;
+        }
+
+        set ConverterParameter (value: any) {
             this.CheckSealed();
             this._ConverterParameter = value;
         }
-        
-        get ConverterCulture(): any { return this._ConverterCulture; }
-        set ConverterCulture(value: any) {
+
+        get ConverterCulture (): any {
+            return this._ConverterCulture;
+        }
+
+        set ConverterCulture (value: any) {
             this.CheckSealed();
             this._ConverterCulture = value;
         }
-        
-        get ElementName(): string { return this._ElementName; }
-        set ElementName(value: string) {
+
+        get ElementName (): string {
+            return this._ElementName;
+        }
+
+        set ElementName (value: string) {
             this.CheckSealed();
             this._ElementName = value;
         }
-        
-        get Mode(): BindingMode { return this._Mode; }
-        set Mode(value: BindingMode) {
+
+        get Mode (): BindingMode {
+            return this._Mode;
+        }
+
+        set Mode (value: BindingMode) {
             this.CheckSealed();
             this._Mode = value;
         }
-        
-        get NotifyOnValidationError(): boolean { return this._NotifyOnValidationError; }
-        set NotifyOnValidationError(value: boolean) {
+
+        get NotifyOnValidationError (): boolean {
+            return this._NotifyOnValidationError;
+        }
+
+        set NotifyOnValidationError (value: boolean) {
             this.CheckSealed();
             this._NotifyOnValidationError = value;
         }
-        
-        get RelativeSource(): RelativeSource { return this._RelativeSource; }
-        set RelativeSource(value: RelativeSource) {
+
+        get RelativeSource (): RelativeSource {
+            return this._RelativeSource;
+        }
+
+        set RelativeSource (value: RelativeSource) {
             this.CheckSealed();
             this._RelativeSource = value;
         }
-        
-        get Path(): PropertyPath { return this._Path; }
-        set Path(value: PropertyPath) {
+
+        get Path (): PropertyPath {
+            return this._Path;
+        }
+
+        set Path (value: PropertyPath) {
             this.CheckSealed();
             this._Path = value;
         }
-        
-        get Source(): any { return this._Source; }
-        set Source(value: any) {
+
+        get Source (): any {
+            return this._Source;
+        }
+
+        set Source (value: any) {
             this.CheckSealed();
             this._Source = value;
         }
-        
-        get UpdateSourceTrigger(): UpdateSourceTrigger { return this._UpdateSourceTrigger; }
-        set UpdateSourceTrigger(value: UpdateSourceTrigger) {
+
+        get UpdateSourceTrigger (): UpdateSourceTrigger {
+            return this._UpdateSourceTrigger;
+        }
+
+        set UpdateSourceTrigger (value: UpdateSourceTrigger) {
             this.CheckSealed();
             this._UpdateSourceTrigger = value;
         }
-        
-        get ValidatesOnExceptions(): boolean { return this._ValidatesOnExceptions; }
-        set ValidatesOnExceptions(value: boolean) {
+
+        get ValidatesOnExceptions (): boolean {
+            return this._ValidatesOnExceptions;
+        }
+
+        set ValidatesOnExceptions (value: boolean) {
             this.CheckSealed();
             this._ValidatesOnExceptions = value;
         }
-        
-        get ValidatesOnDataErrors(): boolean { return this._ValidatesOnDataErrors; }
-        set ValidatesOnDataErrors(value: boolean) {
+
+        get ValidatesOnDataErrors (): boolean {
+            return this._ValidatesOnDataErrors;
+        }
+
+        set ValidatesOnDataErrors (value: boolean) {
             this.CheckSealed();
             this._ValidatesOnDataErrors = value;
         }
-        
-        get ValidatesOnNotifyDataErrors(): boolean { return this._ValidatesOnNotifyDataErrors; }
-        set ValidatesOnNotifyDataErrors(value: boolean) {
+
+        get ValidatesOnNotifyDataErrors (): boolean {
+            return this._ValidatesOnNotifyDataErrors;
+        }
+
+        set ValidatesOnNotifyDataErrors (value: boolean) {
             this.CheckSealed();
             this._ValidatesOnNotifyDataErrors = value;
         }
 
-        get StringFormat(): string { return this._StringFormat; }
-        set StringFormat(value: string) {
+        get StringFormat (): string {
+            return this._StringFormat;
+        }
+
+        set StringFormat (value: string) {
             this.CheckSealed();
             this._StringFormat = value;
         }
 
-        get FallbackValue(): any { return this._FallbackValue; }
-        set FallbackValue(value: any) {
+        get FallbackValue (): any {
+            return this._FallbackValue;
+        }
+
+        set FallbackValue (value: any) {
             this.CheckSealed();
             this._FallbackValue = value;
         }
 
-        get TargetNullValue():any { return this._TargetNullValue; }
-        set TargetNullValue(value: any) {
+        get TargetNullValue (): any {
+            return this._TargetNullValue;
+        }
+
+        set TargetNullValue (value: any) {
             this.CheckSealed();
             this._TargetNullValue = value;
         }
 
-        private CheckSealed() {
+        private CheckSealed () {
             if (this._IsSealed)
                 throw new InvalidOperationException("The Binding cannot be changed after it has been used.");
         }
 
-        Seal() { this._IsSealed = true; }
+        Seal () {
+            this._IsSealed = true;
+        }
 
-        Clone(): Binding {
+        Clone (): Binding {
             var b = new Binding(this._Path ? this._Path.Path : "");
             b._StringFormat = this._StringFormat;
             b._FallbackValue = this._FallbackValue;
@@ -162,9 +215,13 @@ module Fayde.Data {
             b._ValidatesOnNotifyDataErrors = this._ValidatesOnNotifyDataErrors;
             return b;
         }
-        
-        Transmute(ctx: Xaml.ITransmuteContext): Expression {
-            return new Data.BindingExpression(this, ctx.Owner, ctx.Property);
+
+        init (val: string) {
+            this.Path = new Data.PropertyPath(val);
+        }
+
+        transmute (os: any[]): any {
+            return new Data.BindingExpression(this);
         }
     }
     Fayde.RegisterType(Binding, "Fayde.Data", Fayde.XMLNS);
