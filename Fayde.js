@@ -19764,29 +19764,32 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    Fayde.IEventFilter_ = new nullstone.Interface("IEventFilter");
+    (function (Markup) {
+        Markup.IEventFilter_ = new nullstone.Interface("IEventFilter");
 
-    var EventBinding = (function () {
-        function EventBinding() {
-            this.CommandBinding = null;
-            this.CommandParameterBinding = null;
-            this.Filter = null;
-        }
-        EventBinding.prototype.init = function (val) {
-        };
+        var EventBinding = (function () {
+            function EventBinding() {
+                this.CommandBinding = null;
+                this.CommandParameterBinding = null;
+                this.Filter = null;
+            }
+            EventBinding.prototype.init = function (val) {
+            };
 
-        EventBinding.prototype.transmute = function (os) {
-            this.$$coerce();
-            Object.freeze(this);
-            return new Fayde.EventBindingExpression(this);
-        };
+            EventBinding.prototype.transmute = function (os) {
+                this.$$coerce();
+                Object.freeze(this);
+                return new Fayde.EventBindingExpression(this);
+            };
 
-        EventBinding.prototype.$$coerce = function () {
-        };
-        return EventBinding;
-    })();
-    Fayde.EventBinding = EventBinding;
-    Fayde.CoreLibrary.add(EventBinding);
+            EventBinding.prototype.$$coerce = function () {
+            };
+            return EventBinding;
+        })();
+        Markup.EventBinding = EventBinding;
+        Fayde.CoreLibrary.add(EventBinding);
+    })(Fayde.Markup || (Fayde.Markup = {}));
+    var Markup = Fayde.Markup;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -19818,36 +19821,39 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    var StaticResource = (function () {
-        function StaticResource() {
-        }
-        StaticResource.prototype.init = function (val) {
-            this.ResourceKey = val;
-        };
-
-        StaticResource.prototype.transmute = function (os) {
-            var key = this.ResourceKey;
-            var rd;
-            for (var i = os.length - 1; i >= 0; i--) {
-                var cur = os[i];
-                if (cur instanceof Fayde.FrameworkElement) {
-                    rd = cur.ReadLocalValue(Fayde.FrameworkElement.ResourcesProperty);
-                } else if (cur instanceof Fayde.Application) {
-                    rd = cur.Resources;
-                } else if (cur instanceof Fayde.ResourceDictionary) {
-                    rd = cur;
-                }
-                var o = rd ? rd.Get(key) : undefined;
-                if (o !== undefined)
-                    return o;
+    (function (Markup) {
+        var StaticResource = (function () {
+            function StaticResource() {
             }
+            StaticResource.prototype.init = function (val) {
+                this.ResourceKey = val;
+            };
 
-            throw new Error("Could not resolve StaticResource: '" + key + "'.");
-        };
-        return StaticResource;
-    })();
-    Fayde.StaticResource = StaticResource;
-    Fayde.CoreLibrary.add(StaticResource);
+            StaticResource.prototype.transmute = function (os) {
+                var key = this.ResourceKey;
+                var rd;
+                for (var i = os.length - 1; i >= 0; i--) {
+                    var cur = os[i];
+                    if (cur instanceof Fayde.FrameworkElement) {
+                        rd = cur.ReadLocalValue(Fayde.FrameworkElement.ResourcesProperty);
+                    } else if (cur instanceof Fayde.Application) {
+                        rd = cur.Resources;
+                    } else if (cur instanceof Fayde.ResourceDictionary) {
+                        rd = cur;
+                    }
+                    var o = rd ? rd.Get(key) : undefined;
+                    if (o !== undefined)
+                        return o;
+                }
+
+                throw new Error("Could not resolve StaticResource: '" + key + "'.");
+            };
+            return StaticResource;
+        })();
+        Markup.StaticResource = StaticResource;
+        Fayde.CoreLibrary.add(StaticResource);
+    })(Fayde.Markup || (Fayde.Markup = {}));
+    var Markup = Fayde.Markup;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {

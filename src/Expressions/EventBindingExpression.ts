@@ -11,7 +11,7 @@ module Fayde {
         IsUpdating: boolean = false;
         IsAttached: boolean = false;
 
-        private _EventBinding: EventBinding;
+        private _EventBinding: Markup.EventBinding;
         private _CommandWalker: Data.PropertyPathWalker = null;
         private _CommandParameterWalker: Data.PropertyPathWalker = null;
 
@@ -19,7 +19,7 @@ module Fayde {
         private _Event: nullstone.Event<nullstone.IEventArgs> = null;
         private _EventName: string = null;
 
-        constructor (eventBinding: EventBinding) {
+        constructor (eventBinding: Markup.EventBinding) {
             super();
             this._EventBinding = eventBinding;
 

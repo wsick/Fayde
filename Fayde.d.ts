@@ -3355,7 +3355,7 @@ declare module Fayde {
         private _Target;
         private _Event;
         private _EventName;
-        constructor(eventBinding: EventBinding);
+        constructor(eventBinding: Markup.EventBinding);
         public Seal(owner: DependencyObject, prop: any): void;
         public Init(event: nullstone.Event<nullstone.IEventArgs>, eventName: string): void;
         public GetValue(propd: DependencyProperty): any;
@@ -3819,7 +3819,7 @@ declare module Fayde.MVVM {
     class ViewModelBase extends ObservableObject {
     }
 }
-declare module Fayde {
+declare module Fayde.Markup {
     interface IEventFilter {
         Filter(sender: any, e: nullstone.IEventArgs, parameter: any): boolean;
     }
@@ -3840,7 +3840,7 @@ declare module Fayde.Markup {
     function Resolve(uri: string): any;
     function Resolve(uri: Uri): any;
 }
-declare module Fayde {
+declare module Fayde.Markup {
     class StaticResource implements nullstone.markup.IMarkupExtension {
         public ResourceKey: string;
         public init(val: string): void;

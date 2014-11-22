@@ -1,4 +1,4 @@
-module Fayde {
+module Fayde.Markup {
     export class StaticResource implements nullstone.markup.IMarkupExtension {
         ResourceKey: string;
 

@@ -1,4 +1,4 @@
-module Fayde {
+module Fayde.Markup {
     export interface IEventFilter {
         Filter(sender: any, e: nullstone.IEventArgs, parameter: any): boolean;
     }
