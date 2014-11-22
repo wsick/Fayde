@@ -45,8 +45,7 @@ module Fayde.Markup {
                     return obj;
                 },
                 resolvePrimitive: (type, text) => {
-                    //TODO: Finish
-                    return new (type)(text);
+                    return nullstone.convertAnyToType(text, type);
                 },
                 elementSkip: (root: any, obj: any) => {
                     if (obj instanceof FrameworkTemplate)
@@ -71,8 +70,10 @@ module Fayde.Markup {
                         xo.XamlNode.DocNameScope = namescope;
                         xo.TemplateOwner = bindingSource;
                     }
+                    //TODO: Validate duplicate content
                 },
                 contentText: (text) => {
+                    //TODO: Validate duplicate content
                 },
                 name: (name) => {
                     if (xo) {
@@ -81,6 +82,7 @@ module Fayde.Markup {
                     }
                 },
                 key: (key) => {
+                    //TODO: Prepare assignment in resources
                 },
                 propertyStart: (ownerType, propName) => {
                 },
