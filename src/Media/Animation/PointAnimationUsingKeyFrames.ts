@@ -17,5 +17,5 @@ module Fayde.Media.Animation {
             return pa;
         }
     }
-    Fayde.RegisterType(PointAnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.RegisterType(PointAnimationUsingKeyFrames, Fayde.XMLNS);
 }

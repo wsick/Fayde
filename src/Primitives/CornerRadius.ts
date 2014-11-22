@@ -3,7 +3,7 @@ class CornerRadius extends minerva.CornerRadius implements ICloneable {
         return new CornerRadius(this.topLeft, this.topRight, this.bottomRight, this.bottomLeft);
     }
 }
-Fayde.RegisterType(CornerRadius, "window", Fayde.XMLNSX);
+Fayde.RegisterType(CornerRadius, Fayde.XMLNSX);
 
 nullstone.registerTypeConverter(CornerRadius, (val: any): CornerRadius => {
     if (!val)

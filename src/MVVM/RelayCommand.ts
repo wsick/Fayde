@@ -16,6 +16,6 @@ module Fayde.MVVM {
             this.CanExecuteChanged.raise(this, null);
         }
     }
-    Fayde.RegisterType(RelayCommand, "Fayde.MVVM", Fayde.XMLNS);
+    Fayde.RegisterType(RelayCommand, Fayde.XMLNS);
     nullstone.addTypeInterfaces(RelayCommand, Input.ICommand_);
 }

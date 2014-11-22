@@ -133,7 +133,7 @@ module Fayde.Media.Animation {
             return new Duration(new TimeSpan(fullTicks));
         }
     }
-    Fayde.RegisterType(Storyboard, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.RegisterType(Storyboard, Fayde.XMLNS);
     Markup.Content(Storyboard, Storyboard.ChildrenProperty);
 
     function getLogMessage(action: string, storyboard: Storyboard, full: boolean, clockData?: IClockData): string {

@@ -25,7 +25,7 @@ module Fayde.Shapes {
             this.Points = new PointCollection();
         }
     }
-    Fayde.RegisterType(Polygon, "Fayde.Shapes", Fayde.XMLNS);
+    Fayde.RegisterType(Polygon, Fayde.XMLNS);
 
     module reactions {
         UIReaction<FillRule>(Polygon.FillRuleProperty, (upd: PolygonUpdater, ov, nv) => upd.invalidateFillRule(), false);

@@ -65,5 +65,5 @@ module Fayde.Media.Effects {
             raw.shadowOffsetY = offsetY;
         }
     }
-    Fayde.RegisterType(DropShadowEffect, "Fayde.Media.Effects", Fayde.XMLNS);
+    Fayde.RegisterType(DropShadowEffect, Fayde.XMLNS);
 }

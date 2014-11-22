@@ -221,4 +221,4 @@ class DateTime {
         return this.Ticks;
     }
 }
-Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
+Fayde.RegisterType(DateTime, Fayde.XMLNS);

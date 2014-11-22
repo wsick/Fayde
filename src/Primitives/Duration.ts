@@ -33,7 +33,7 @@ class Duration implements ICloneable {
     static Automatic: Duration = (function () { var d = new Duration(); (<any>d)._Type = DurationType.Automatic; return d; })();
     static Forever: Duration = (function () { var d = new Duration(); (<any>d)._Type = DurationType.Forever; return d; })();
 }
-Fayde.RegisterType(Duration, "window", Fayde.XMLNSX);
+Fayde.RegisterType(Duration, Fayde.XMLNSX);
 nullstone.registerTypeConverter(Duration, (val: any): Duration => {
     if (!val || val.toString().toLowerCase() === "automatic")
         return Duration.Automatic;

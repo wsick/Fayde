@@ -8,5 +8,5 @@ module Fayde.Media.Imaging {
         unlock() { }
         get image(): HTMLImageElement { return undefined; }
     }
-    Fayde.RegisterType(ImageSource, "Fayde.Media.Imaging", Fayde.XMLNS);
+    Fayde.RegisterType(ImageSource, Fayde.XMLNS);
 }

@@ -3,5 +3,5 @@
 module Fayde.MVVM {
     export class ViewModelBase extends ObservableObject {
     }
-    Fayde.RegisterType(ViewModelBase, "Fayde.MVVM", Fayde.XMLNS);
+    Fayde.RegisterType(ViewModelBase, Fayde.XMLNS);
 }

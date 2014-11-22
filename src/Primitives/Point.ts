@@ -9,7 +9,7 @@ class Point extends minerva.Point {
         return new Point(x, y);
     }
 }
-Fayde.RegisterType(Point, "window", Fayde.XMLNSX);
+Fayde.RegisterType(Point, Fayde.XMLNSX);
 
 nullstone.registerTypeConverter(Point, (val: any): Point => {
     if (!val)

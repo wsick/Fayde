@@ -15,7 +15,7 @@ module Fayde.Shapes {
         static DataProperty = DependencyProperty.RegisterFull("Data", () => Media.Geometry, Path, undefined, undefined, Path._DataCoercer, undefined, undefined, false);
         Data: Media.Geometry;
     }
-    Fayde.RegisterType(Path, "Fayde.Shapes", Fayde.XMLNS);
+    Fayde.RegisterType(Path, Fayde.XMLNS);
 
     module reactions {
         UIReaction<Media.Geometry>(Path.DataProperty, (upd: PathUpdater, ov, nv) => upd.invalidateNaturalBounds());

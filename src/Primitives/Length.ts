@@ -1,6 +1,6 @@
 class Length {
 }
-Fayde.RegisterType(Length, "window", Fayde.XMLNSX);
+Fayde.RegisterType(Length, Fayde.XMLNSX);
 nullstone.registerTypeConverter(Length, (val: any): number => {
     if (!val || val.toString().toLowerCase() === "auto")
         return Number.NaN;

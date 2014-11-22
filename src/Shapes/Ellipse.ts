@@ -13,5 +13,5 @@ module Fayde.Shapes {
             this.Stretch = Media.Stretch.Fill;
         }
     }
-    Fayde.RegisterType(Ellipse, "Fayde.Shapes", Fayde.XMLNS);
+    Fayde.RegisterType(Ellipse, Fayde.XMLNS);
 }

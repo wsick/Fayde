@@ -23,5 +23,5 @@ module Fayde.Media.Animation {
             return super.Resolve(target, propd);
         }
     }
-    Fayde.RegisterType(ObjectAnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.RegisterType(ObjectAnimationUsingKeyFrames, Fayde.XMLNS);
 }

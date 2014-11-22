@@ -24,5 +24,5 @@ module Fayde.MVVM {
             this.PropertyChanged.raise(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-    Fayde.RegisterType(ObservableObject, "Fayde.MVVM", Fayde.XMLNS);
+    Fayde.RegisterType(ObservableObject, Fayde.XMLNS);
 }

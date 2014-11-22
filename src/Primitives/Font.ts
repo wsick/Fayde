@@ -129,4 +129,4 @@ class Font {
         return result;
     }
 }
-Fayde.RegisterType(Font, "window", Fayde.XMLNSX);
+Fayde.RegisterType(Font, Fayde.XMLNSX);

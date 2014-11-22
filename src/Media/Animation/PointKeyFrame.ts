@@ -5,7 +5,7 @@ module Fayde.Media.Animation {
         static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Point, PointKeyFrame);
         Value: Point;
     }
-    Fayde.RegisterType(PointKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.RegisterType(PointKeyFrame, Fayde.XMLNS);
     
     export class DiscretePointKeyFrame extends PointKeyFrame {
         InterpolateValue(baseValue: Point, keyFrameProgress: number): Point {
@@ -14,7 +14,7 @@ module Fayde.Media.Animation {
             return baseValue;
         }
     }
-    Fayde.RegisterType(DiscretePointKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.RegisterType(DiscretePointKeyFrame, Fayde.XMLNS);
     
     export class EasingPointKeyFrame extends PointKeyFrame {
         static EasingFunctionProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, EasingPointKeyFrame);
@@ -34,14 +34,14 @@ module Fayde.Media.Animation {
             return Point.LERP(start, end, keyFrameProgress);
         }
     }
-    Fayde.RegisterType(EasingPointKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.RegisterType(EasingPointKeyFrame, Fayde.XMLNS);
     
     export class LinearPointKeyFrame extends PointKeyFrame {
         InterpolateValue(baseValue: Point, keyFrameProgress: number): Point {
             return Point.LERP(baseValue, this.Value, keyFrameProgress);
         }
     }
-    Fayde.RegisterType(LinearPointKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.RegisterType(LinearPointKeyFrame, Fayde.XMLNS);
     
     export class SplinePointKeyFrame extends PointKeyFrame {
         static KeySplineProperty: DependencyProperty = DependencyProperty.Register("KeySpline", () => KeySpline, SplinePointKeyFrame);
@@ -70,5 +70,5 @@ module Fayde.Media.Animation {
             return Point.LERP(start, end, splineProgress);
         }
     }
-    Fayde.RegisterType(SplinePointKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.RegisterType(SplinePointKeyFrame, Fayde.XMLNS);
 }
