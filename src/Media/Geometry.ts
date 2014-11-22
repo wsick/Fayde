@@ -77,7 +77,7 @@ module Fayde.Media {
             return path.Serialize();
         }
     }
-    Fayde.RegisterType(Geometry, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Geometry);
 
     module reactions {
         DPReaction<Transform>(Geometry.TransformProperty, (geom: Geometry, ov, nv) => geom.InvalidateGeometry());
@@ -98,5 +98,5 @@ module Fayde.Media {
             Incite(this);
         }
     }
-    Fayde.RegisterType(GeometryCollection, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(GeometryCollection);
 }

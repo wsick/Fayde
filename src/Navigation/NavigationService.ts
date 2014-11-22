@@ -28,5 +28,5 @@ module Fayde.Navigation {
             this.LocationChanged.raise(this, null);
         }
     }
-    Fayde.RegisterType(NavigationService, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(NavigationService);
 }

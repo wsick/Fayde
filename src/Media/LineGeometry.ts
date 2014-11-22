@@ -17,5 +17,5 @@ module Fayde.Media {
             return p;
         }
     }
-    Fayde.RegisterType(LineGeometry, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(LineGeometry);
 }

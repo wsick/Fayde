@@ -209,7 +209,7 @@ module Fayde.Controls {
             return this._DisplayMemberTemplate;
         }
     }
-    Fayde.RegisterType(ItemsControl, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ItemsControl);
     Markup.Content(ItemsControl, ItemsControl.ItemsProperty);
 
     function toArray(value: any): any[] {

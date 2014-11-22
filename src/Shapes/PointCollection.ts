@@ -73,7 +73,7 @@ module Fayde.Shapes {
 
         getEnumerator(reverse?: boolean): nullstone.IEnumerator<Point> { return nullstone.IEnumerator_.fromArray(this._ht, reverse); }
     }
-    Fayde.RegisterType(PointCollection, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(PointCollection);
 
     nullstone.registerTypeConverter(PointCollection, (val: string): PointCollection => {
         var pc = new PointCollection();

@@ -80,5 +80,5 @@ module Fayde.Media.Imaging {
             }
         }
     }
-    Fayde.RegisterType(BitmapSource, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(BitmapSource);
 }

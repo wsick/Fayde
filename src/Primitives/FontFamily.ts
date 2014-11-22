@@ -7,7 +7,7 @@ class FontFamily implements ICloneable {
         return new FontFamily(this.FamilyNames);
     }
 }
-Fayde.RegisterType(FontFamily, Fayde.XMLNS);
+Fayde.CoreLibrary.add(FontFamily);
 nullstone.registerTypeConverter(FontFamily, (val: any): any => {
     if (!val) return new FontFamily(Font.DEFAULT_FAMILY);
     return new FontFamily(val.toString());

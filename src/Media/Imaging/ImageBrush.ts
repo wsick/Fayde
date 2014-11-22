@@ -44,5 +44,5 @@ module Fayde.Media.Imaging {
             this.InvalidateBrush();
         }
     }
-    Fayde.RegisterType(ImageBrush, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ImageBrush);
 }

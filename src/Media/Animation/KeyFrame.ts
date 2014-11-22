@@ -142,7 +142,7 @@ module Fayde.Media.Animation {
             return arr;
         }
     }
-    Fayde.RegisterType(KeyFrame, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(KeyFrame);
 
     export class KeyFrameCollection extends XamlObjectCollection<KeyFrame> {
         private _Resolved: boolean = false;
@@ -223,5 +223,5 @@ module Fayde.Media.Animation {
             return coll._SortedList;
         }
     }
-    Fayde.RegisterType(KeyFrameCollection, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(KeyFrameCollection);
 }

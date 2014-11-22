@@ -15,5 +15,5 @@ module Fayde.Controls {
         OnHeaderChanged(oldHeader: any, newHeader: any) { }
         OnHeaderTemplateChanged(oldHeaderTemplate: DataTemplate, newHeaderTemplate: DataTemplate) { }
     }
-    Fayde.RegisterType(HeaderedContentControl, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(HeaderedContentControl);
 }

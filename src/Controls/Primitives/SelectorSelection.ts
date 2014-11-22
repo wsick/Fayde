@@ -279,7 +279,7 @@ module Fayde.Controls.Primitives {
             return true;
         }
     }
-    Fayde.RegisterType(SelectorSelection, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(SelectorSelection);
 
     function except<T>(arr1: T[], arr2: T[]): T[] {
         var r = [];

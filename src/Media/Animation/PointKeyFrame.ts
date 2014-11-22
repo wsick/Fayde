@@ -5,7 +5,7 @@ module Fayde.Media.Animation {
         static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Point, PointKeyFrame);
         Value: Point;
     }
-    Fayde.RegisterType(PointKeyFrame, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(PointKeyFrame);
     
     export class DiscretePointKeyFrame extends PointKeyFrame {
         InterpolateValue(baseValue: Point, keyFrameProgress: number): Point {
@@ -14,7 +14,7 @@ module Fayde.Media.Animation {
             return baseValue;
         }
     }
-    Fayde.RegisterType(DiscretePointKeyFrame, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DiscretePointKeyFrame);
     
     export class EasingPointKeyFrame extends PointKeyFrame {
         static EasingFunctionProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, EasingPointKeyFrame);
@@ -34,14 +34,14 @@ module Fayde.Media.Animation {
             return Point.LERP(start, end, keyFrameProgress);
         }
     }
-    Fayde.RegisterType(EasingPointKeyFrame, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(EasingPointKeyFrame);
     
     export class LinearPointKeyFrame extends PointKeyFrame {
         InterpolateValue(baseValue: Point, keyFrameProgress: number): Point {
             return Point.LERP(baseValue, this.Value, keyFrameProgress);
         }
     }
-    Fayde.RegisterType(LinearPointKeyFrame, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(LinearPointKeyFrame);
     
     export class SplinePointKeyFrame extends PointKeyFrame {
         static KeySplineProperty: DependencyProperty = DependencyProperty.Register("KeySpline", () => KeySpline, SplinePointKeyFrame);
@@ -70,5 +70,5 @@ module Fayde.Media.Animation {
             return Point.LERP(start, end, splineProgress);
         }
     }
-    Fayde.RegisterType(SplinePointKeyFrame, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(SplinePointKeyFrame);
 }

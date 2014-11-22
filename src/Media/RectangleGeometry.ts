@@ -22,5 +22,5 @@ module Fayde.Media {
             return p;
         }
     }
-    Fayde.RegisterType(RectangleGeometry, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RectangleGeometry);
 }

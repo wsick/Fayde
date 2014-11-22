@@ -62,7 +62,7 @@ module Fayde.Media {
             return undefined;
         }
     }
-    Fayde.RegisterType(Transform, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Transform);
 
     export class MatrixTransform extends Transform {
         static MatrixProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform);
@@ -81,7 +81,7 @@ module Fayde.Media {
             return xform;
         }
     }
-    Fayde.RegisterType(MatrixTransform, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(MatrixTransform);
 
     module reactions {
         DPReaction<Matrix>(MatrixTransform.MatrixProperty, (mt: MatrixTransform, ov, nv) => mt.InvalidateValue());

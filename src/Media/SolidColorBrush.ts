@@ -35,7 +35,7 @@ module Fayde.Media {
             return color.toString();
         }
     }
-    Fayde.RegisterType(SolidColorBrush, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(SolidColorBrush);
 
     function brushConverter(val: any): Brush {
         if (!val)

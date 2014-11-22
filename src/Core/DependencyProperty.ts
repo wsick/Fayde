@@ -246,7 +246,7 @@ class DependencyProperty {
         return propd;
     }
 }
-Fayde.RegisterType(DependencyProperty, Fayde.XMLNS);
+Fayde.CoreLibrary.add(DependencyProperty);
 
 class ImmutableDependencyProperty<T> extends DependencyProperty {
     IsImmutable: boolean = true;

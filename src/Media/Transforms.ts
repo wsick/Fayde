@@ -25,7 +25,7 @@ module Fayde.Media {
             return m;
         }
     }
-    Fayde.RegisterType(RotateTransform, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RotateTransform);
 
     export class ScaleTransform extends Transform {
         static CenterXProperty = DependencyProperty.Register("CenterX", () => Number, ScaleTransform, 0, (d: ScaleTransform, args) => d.InvalidateValue());
@@ -50,7 +50,7 @@ module Fayde.Media {
             return m;
         }
     }
-    Fayde.RegisterType(ScaleTransform, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ScaleTransform);
 
     export class SkewTransform extends Transform {
         static AngleXProperty = DependencyProperty.Register("AngleX", () => Number, SkewTransform, 0, (d: SkewTransform, args) => d.InvalidateValue());
@@ -77,7 +77,7 @@ module Fayde.Media {
             return m;
         }
     }
-    Fayde.RegisterType(SkewTransform, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(SkewTransform);
 
     export class TranslateTransform extends Transform {
         static XProperty = DependencyProperty.Register("X", () => Number, TranslateTransform, 0, (d: TranslateTransform, args) => d.InvalidateValue());
@@ -89,7 +89,7 @@ module Fayde.Media {
             return mat3.createTranslate(this.X, this.Y);
         }
     }
-    Fayde.RegisterType(TranslateTransform, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TranslateTransform);
 
     export class TransformCollection extends XamlObjectCollection<Transform> {
         AddingToCollection (value: Transform, error: BError): boolean {
@@ -107,7 +107,7 @@ module Fayde.Media {
             Incite(this);
         }
     }
-    Fayde.RegisterType(TransformCollection, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TransformCollection);
 
     export class TransformGroup extends Transform {
         static ChildrenProperty = DependencyProperty.RegisterImmutable<TransformCollection>("Children", () => TransformCollection, TransformGroup);
@@ -128,6 +128,6 @@ module Fayde.Media {
             return cur;
         }
     }
-    Fayde.RegisterType(TransformGroup, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TransformGroup);
     Markup.Content(TransformGroup, TransformGroup.ChildrenProperty);
 }

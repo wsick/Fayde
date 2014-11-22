@@ -21,5 +21,5 @@ module Fayde {
         private $$coerce () {
         }
     }
-    Fayde.RegisterType(EventBinding, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(EventBinding);
 }

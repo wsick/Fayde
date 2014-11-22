@@ -67,5 +67,5 @@ module Fayde.Media.Animation {
             return pa;
         }
     }
-    Fayde.RegisterType(PointAnimation, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(PointAnimation);
 }

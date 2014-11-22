@@ -17,5 +17,5 @@ module Fayde.Media.Animation {
             return ca;
         }
     }
-    Fayde.RegisterType(ColorAnimationUsingKeyFrames, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ColorAnimationUsingKeyFrames);
 }

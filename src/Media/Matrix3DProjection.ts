@@ -7,5 +7,5 @@ module Fayde.Media {
 
         CreateProjectionMatrix(): Matrix3D { return this.ProjectionMatrix; }
     }
-    Fayde.RegisterType(Matrix3DProjection, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Matrix3DProjection);
 }

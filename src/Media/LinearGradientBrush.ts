@@ -76,5 +76,5 @@ module Fayde.Media {
             return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";
         }
     }
-    Fayde.RegisterType(LinearGradientBrush, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(LinearGradientBrush);
 }

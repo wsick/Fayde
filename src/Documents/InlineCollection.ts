@@ -16,5 +16,5 @@ module Fayde.Documents {
             });
         }
     }
-    Fayde.RegisterType(InlineCollection, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(InlineCollection);
 }

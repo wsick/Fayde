@@ -14,5 +14,5 @@ module Fayde.Controls {
             this.DefaultStyleKey = RichTextBox;
         }
     }
-    Fayde.RegisterType(RichTextBox, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RichTextBox);
 }

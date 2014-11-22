@@ -10,6 +10,6 @@ module Fayde.Media.Animation {
             if (sb) sb.Begin();
         }
     }
-    Fayde.RegisterType(BeginStoryboard, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(BeginStoryboard);
     Markup.Content(BeginStoryboard, BeginStoryboard.StoryboardProperty);
 }

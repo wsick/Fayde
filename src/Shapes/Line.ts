@@ -16,7 +16,7 @@ module Fayde.Shapes {
         X2: number;
         Y2: number;
     }
-    Fayde.RegisterType(Line, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Line);
 
     module reactions {
         UIReaction<number>(Line.X1Property, (upd: LineUpdater, ov, nv) => upd.invalidatePath(), false);

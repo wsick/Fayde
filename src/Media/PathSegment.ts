@@ -7,7 +7,7 @@ module Fayde.Media {
             //Abstract method
         }
     }
-    Fayde.RegisterType(PathSegment, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(PathSegment);
 
     export class PathSegmentCollection extends XamlObjectCollection<PathSegment> {
         AddingToCollection(value: PathSegment, error: BError): boolean {
@@ -23,5 +23,5 @@ module Fayde.Media {
             Incite(this);
         }
     }
-    Fayde.RegisterType(PathSegmentCollection, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(PathSegmentCollection);
 }

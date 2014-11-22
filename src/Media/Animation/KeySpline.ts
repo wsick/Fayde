@@ -38,5 +38,5 @@ module Fayde.Media.Animation {
             this._QuadraticsArray = Curves.ConvertCubicsToQuadratics(carr, KeySpline.TOTAL_COUNT);
         }
     }
-    Fayde.RegisterType(KeySpline, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(KeySpline);
 }

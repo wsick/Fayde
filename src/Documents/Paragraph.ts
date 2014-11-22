@@ -31,6 +31,6 @@ module Fayde.Documents {
             });
         }
     }
-    Fayde.RegisterType(Paragraph, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Paragraph);
     Markup.Content(Paragraph, Paragraph.InlinesProperty);
 }

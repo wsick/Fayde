@@ -206,7 +206,7 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(DependencyObject, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DependencyObject);
 
     DependencyObject.DataContextProperty.Store = Fayde.Providers.DataContextStore.Instance;
 }

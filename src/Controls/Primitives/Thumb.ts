@@ -112,7 +112,7 @@ module Fayde.Controls.Primitives {
             return gotoFunc("Normal");
         }
     }
-    Fayde.RegisterType(Thumb, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Thumb);
     TemplateVisualStates(Thumb, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

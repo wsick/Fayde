@@ -16,7 +16,7 @@ module Fayde.Media.Effects {
             return false;
         }
     }
-    Fayde.RegisterType(Effect, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Effect);
 
     module reactions {
         DPReaction<GeneralTransform>(Effect.EffectMappingProperty, (dobj, ov, nv) => Incite(dobj));

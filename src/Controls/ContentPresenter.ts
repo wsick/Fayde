@@ -121,6 +121,6 @@ module Fayde.Controls {
         Content: any;
         ContentTemplate: DataTemplate;
     }
-    Fayde.RegisterType(ContentPresenter, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ContentPresenter);
     Markup.Content(ContentPresenter, ContentPresenter.ContentProperty);
 }

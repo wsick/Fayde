@@ -39,7 +39,7 @@ module Fayde.Shapes {
             FrameworkElement.HeightProperty.Store.ListenToChanged(this, FrameworkElement.HeightProperty, onSizeChanged, this);
         }
     }
-    Fayde.RegisterType(Shape, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Shape);
 
     function onSizeChanged (shape: Shape, args: IDependencyPropertyChangedEventArgs) {
         var updater = <ShapeUpdater>shape.XamlNode.LayoutUpdater;

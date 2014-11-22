@@ -68,7 +68,7 @@ module Fayde.Controls.Primitives {
             }
         }
     }
-    Fayde.RegisterType(ToggleButton, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ToggleButton);
     TemplateVisualStates(ToggleButton, { GroupName: "CommonStates", Name: "Pressed" },
         { GroupName: "CommonStates", Name: "MouseOver" },
         { GroupName: "CommonStates", Name: "Normal" },

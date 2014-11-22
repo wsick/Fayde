@@ -24,7 +24,7 @@ module Fayde.Media {
             }
         }
     }
-    Fayde.RegisterType(GeneralTransform, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(GeneralTransform);
 
     export class InternalTransform extends GeneralTransform {
         private _Raw: number[];
@@ -69,5 +69,5 @@ module Fayde.Media {
             return projection
         }
     }
-    Fayde.RegisterType(InternalTransform, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(InternalTransform);
 }

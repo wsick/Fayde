@@ -177,9 +177,9 @@ module Fayde.Media.Animation {
             return undefined;
         }
     }
-    Fayde.RegisterType(Timeline, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Timeline);
 
     export class TimelineCollection extends XamlObjectCollection<Timeline> {
     }
-    Fayde.RegisterType(TimelineCollection, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TimelineCollection);
 }

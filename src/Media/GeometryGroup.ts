@@ -44,5 +44,5 @@ module Fayde.Media {
                 ctx.restore();
         }
     }
-    Fayde.RegisterType(GeometryGroup, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(GeometryGroup);
 }

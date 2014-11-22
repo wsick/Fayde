@@ -23,5 +23,5 @@ module Fayde.Controls.Primitives {
             Object.defineProperty(this, "Value", { value: value, writable: false });
         }
     }
-    Fayde.RegisterType(ScrollEventArgs, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ScrollEventArgs);
 }

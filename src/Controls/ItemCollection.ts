@@ -142,5 +142,5 @@ module Fayde.Controls {
                 throw new InvalidOperationException("The collection is readonly.");
         }
     }
-    Fayde.RegisterType(ItemCollection, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ItemCollection);
 }

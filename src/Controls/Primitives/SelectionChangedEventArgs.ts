@@ -10,5 +10,5 @@ module Fayde.Controls.Primitives {
             Object.defineProperty(this, "NewValues", { value: newValues.slice(0), writable: false });
         }
     }
-    Fayde.RegisterType(SelectionChangedEventArgs, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(SelectionChangedEventArgs);
 }

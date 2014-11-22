@@ -89,7 +89,7 @@ module Fayde.Controls {
             indicator.Width = fullWidth * progress;
         }
     }
-    Fayde.RegisterType(ProgressBar, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ProgressBar);
     TemplateVisualStates(ProgressBar,
         { GroupName: "CommonStates", Name: "Indeterminate" },
         { GroupName: "CommonStates", Name: "Determinate" });

@@ -22,5 +22,5 @@ module Fayde {
             return rect;
         }
     }
-    Fayde.RegisterType(LayoutInformation, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(LayoutInformation);
 }

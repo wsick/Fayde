@@ -14,6 +14,9 @@ var Fayde;
 
     Fayde.TypeManager = new nullstone.TypeManager(Fayde.XMLNS, Fayde.XMLNSX);
 
+    Fayde.CoreLibrary = Fayde.TypeManager.resolveLibrary(Fayde.XMLNS);
+    Fayde.CoreLibrary.$$module = Fayde;
+
     function RegisterType(type, uri, name) {
         name = name || nullstone.getTypeName(type);
         Fayde.TypeManager.add(uri, name, type);
@@ -110,7 +113,7 @@ var Fayde;
         return PropertyChangedEventArgs;
     })();
     Fayde.PropertyChangedEventArgs = PropertyChangedEventArgs;
-    Fayde.RegisterType(PropertyChangedEventArgs, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(PropertyChangedEventArgs);
 
     Fayde.INotifyPropertyChanged_ = new nullstone.Interface("INotifyPropertyChanged");
     Fayde.INotifyPropertyChanged_.is = function (o) {
@@ -214,7 +217,7 @@ var Fayde;
             return ObservableCollection;
         })();
         Collections.ObservableCollection = ObservableCollection;
-        Fayde.RegisterType(ObservableCollection, "Fayde.Collections", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ObservableCollection);
     })(Fayde.Collections || (Fayde.Collections = {}));
     var Collections = Fayde.Collections;
 })(Fayde || (Fayde = {}));
@@ -626,7 +629,7 @@ var Fayde;
         return XamlObject;
     })();
     Fayde.XamlObject = XamlObject;
-    Fayde.RegisterType(XamlObject, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(XamlObject);
 })(Fayde || (Fayde = {}));
 var DependencyProperty = (function () {
     function DependencyProperty() {
@@ -860,7 +863,7 @@ var DependencyProperty = (function () {
     DependencyProperty._LastID = 0;
     return DependencyProperty;
 })();
-Fayde.RegisterType(DependencyProperty, "Fayde", Fayde.XMLNS);
+Fayde.CoreLibrary.add(DependencyProperty);
 
 var ImmutableDependencyProperty = (function (_super) {
     __extends(ImmutableDependencyProperty, _super);
@@ -1450,7 +1453,7 @@ var Fayde;
         return DependencyObject;
     })(Fayde.XamlObject);
     Fayde.DependencyObject = DependencyObject;
-    Fayde.RegisterType(DependencyObject, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DependencyObject);
 
     DependencyObject.DataContextProperty.Store = Fayde.Providers.DataContextStore.Instance;
 })(Fayde || (Fayde = {}));
@@ -1939,7 +1942,7 @@ var Font = (function () {
     Font.DEFAULT_SIZE = 14;
     return Font;
 })();
-Fayde.RegisterType(Font, "window", Fayde.XMLNSX);
+Fayde.RegisterType(Font, Fayde.XMLNSX);
 var Fayde;
 (function (Fayde) {
     var InheritableOwner = (function () {
@@ -1991,7 +1994,7 @@ var Fayde;
         InheritableOwner.UseLayoutRoundingProperty,
         InheritableOwner.TextDecorationsProperty
     ];
-    Fayde.RegisterType(InheritableOwner, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(InheritableOwner);
 
     var reactions;
     (function (reactions) {
@@ -2393,7 +2396,7 @@ var Fayde;
         return UIElement;
     })(Fayde.DependencyObject);
     Fayde.UIElement = UIElement;
-    Fayde.RegisterType(UIElement, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(UIElement);
 
     var reactions;
     (function (reactions) {
@@ -2717,7 +2720,7 @@ var Fayde;
         return FrameworkElement;
     })(Fayde.UIElement);
     Fayde.FrameworkElement = FrameworkElement;
-    Fayde.RegisterType(FrameworkElement, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(FrameworkElement);
 
     FrameworkElement.ActualWidthProperty.Store = Fayde.Providers.ActualSizeStore.Instance;
     FrameworkElement.ActualHeightProperty.Store = Fayde.Providers.ActualSizeStore.Instance;
@@ -2814,7 +2817,7 @@ var Fayde;
             return Border;
         })(Fayde.FrameworkElement);
         Controls.Border = Border;
-        Fayde.RegisterType(Border, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Border);
         Fayde.Markup.Content(Border, Border.ChildProperty);
 
         Fayde.UIReaction(Border.BackgroundProperty, function (upd, ov, nv) {
@@ -2973,7 +2976,7 @@ var Fayde;
             return Keyboard;
         })();
         Input.Keyboard = Keyboard;
-        Fayde.RegisterType(Keyboard, "Fayde.Input", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Keyboard);
     })(Fayde.Input || (Fayde.Input = {}));
     var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));
@@ -3226,7 +3229,7 @@ var Fayde;
             return Control;
         })(Fayde.FrameworkElement);
         Controls.Control = Control;
-        Fayde.RegisterType(Control, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Control);
 
         Control.IsEnabledProperty.Store = Fayde.Providers.IsEnabledStore.Instance;
 
@@ -3367,7 +3370,7 @@ var Fayde;
             return ContentControl;
         })(Controls.Control);
         Controls.ContentControl = ContentControl;
-        Fayde.RegisterType(ContentControl, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ContentControl);
         Fayde.Markup.Content(ContentControl, ContentControl.ContentProperty);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -3659,7 +3662,7 @@ var Fayde;
                 return ButtonBase;
             })(Controls.ContentControl);
             Primitives.ButtonBase = ButtonBase;
-            Fayde.RegisterType(ButtonBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ButtonBase);
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -3686,7 +3689,7 @@ var Fayde;
             return Button;
         })(Controls.Primitives.ButtonBase);
         Controls.Button = Button;
-        Fayde.RegisterType(Button, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Button);
         Controls.TemplateVisualStates(Button, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -3934,7 +3937,7 @@ var Fayde;
             return Panel;
         })(Fayde.FrameworkElement);
         Controls.Panel = Panel;
-        Fayde.RegisterType(Panel, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Panel);
         Fayde.Markup.Content(Panel, Panel.ChildrenProperty);
 
         var reactions;
@@ -3984,7 +3987,7 @@ var Fayde;
             return Canvas;
         })(Controls.Panel);
         Controls.Canvas = Canvas;
-        Fayde.RegisterType(Canvas, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Canvas);
 
         var reactions;
         (function (reactions) {
@@ -4068,7 +4071,7 @@ var Fayde;
                 return ToggleButton;
             })(Primitives.ButtonBase);
             Primitives.ToggleButton = ToggleButton;
-            Fayde.RegisterType(ToggleButton, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ToggleButton);
             Controls.TemplateVisualStates(ToggleButton, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "CheckStates", Name: "Checked" }, { GroupName: "CheckStates", Name: "Unchecked" }, { GroupName: "CheckStates", Name: "Indeterminate" });
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
@@ -4087,7 +4090,7 @@ var Fayde;
             return CheckBox;
         })(Controls.Primitives.ToggleButton);
         Controls.CheckBox = CheckBox;
-        Fayde.RegisterType(CheckBox, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(CheckBox);
         Controls.TemplateVisualStates(CheckBox, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "CheckStates", Name: "Checked" }, { GroupName: "CheckStates", Name: "Unchecked" }, { GroupName: "CheckStates", Name: "Indeterminate" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" }, { GroupName: "ValidationStates", Name: "Valid" });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -4118,7 +4121,7 @@ var Fayde;
             return ColumnDefinition;
         })(Fayde.DependencyObject);
         Controls.ColumnDefinition = ColumnDefinition;
-        Fayde.RegisterType(ColumnDefinition, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ColumnDefinition);
 
         var GridUnitType = minerva.controls.grid.GridUnitType;
         function ConvertColumnDefinition(o) {
@@ -4166,7 +4169,7 @@ var Fayde;
             return ColumnDefinitionCollection;
         })(Fayde.XamlObjectCollection);
         Controls.ColumnDefinitionCollection = ColumnDefinitionCollection;
-        Fayde.RegisterType(ColumnDefinitionCollection, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ColumnDefinitionCollection);
 
         function ConvertColumnDefinitionCollection(o) {
             if (!o || o instanceof ColumnDefinitionCollection)
@@ -4432,7 +4435,7 @@ var Fayde;
             return ItemsControl;
         })(Controls.Control);
         Controls.ItemsControl = ItemsControl;
-        Fayde.RegisterType(ItemsControl, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ItemsControl);
         Fayde.Markup.Content(ItemsControl, ItemsControl.ItemsProperty);
 
         function toArray(value) {
@@ -4759,7 +4762,7 @@ var Fayde;
                 return Selector;
             })(Controls.ItemsControl);
             Primitives.Selector = Selector;
-            Fayde.RegisterType(Selector, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(Selector);
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -4919,7 +4922,7 @@ var Fayde;
             return ContentPresenter;
         })(Fayde.FrameworkElement);
         Controls.ContentPresenter = ContentPresenter;
-        Fayde.RegisterType(ContentPresenter, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ContentPresenter);
         Fayde.Markup.Content(ContentPresenter, ContentPresenter.ContentProperty);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -5027,7 +5030,7 @@ var Fayde;
                 return Popup;
             })(Fayde.FrameworkElement);
             Primitives.Popup = Popup;
-            Fayde.RegisterType(Popup, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(Popup);
             Fayde.Markup.Content(Popup, Popup.ChildProperty);
 
             var reactions;
@@ -5277,7 +5280,7 @@ var Fayde;
             return ScrollContentPresenter;
         })(Controls.ContentPresenter);
         Controls.ScrollContentPresenter = ScrollContentPresenter;
-        Fayde.RegisterType(ScrollContentPresenter, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ScrollContentPresenter);
         nullstone.addTypeInterfaces(ScrollContentPresenter, Controls.Primitives.IScrollInfo_);
 
         function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {
@@ -5342,7 +5345,7 @@ var Fayde;
                 return RangeBase;
             })(Controls.Control);
             Primitives.RangeBase = RangeBase;
-            Fayde.RegisterType(RangeBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(RangeBase);
 
             function numberValidator(d, propd, value) {
                 if (typeof value !== "number")
@@ -5531,7 +5534,7 @@ var Fayde;
                 return RepeatButton;
             })(Primitives.ButtonBase);
             Primitives.RepeatButton = RepeatButton;
-            Fayde.RegisterType(RepeatButton, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(RepeatButton);
             Controls.TemplateVisualStates(RepeatButton, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" });
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
@@ -5656,7 +5659,7 @@ var Fayde;
                 return Thumb;
             })(Controls.Control);
             Primitives.Thumb = Thumb;
-            Fayde.RegisterType(Thumb, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(Thumb);
             Controls.TemplateVisualStates(Thumb, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" });
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
@@ -5931,7 +5934,7 @@ var Fayde;
                 return ScrollBar;
             })(Primitives.RangeBase);
             Primitives.ScrollBar = ScrollBar;
-            Fayde.RegisterType(ScrollBar, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ScrollBar);
             Controls.TemplateVisualStates(ScrollBar, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" });
             Controls.TemplateParts(ScrollBar, { Name: "VerticalRoot", Type: Fayde.FrameworkElement }, { Name: "VerticalLargeIncrease", Type: Primitives.RepeatButton }, { Name: "VerticalLargeDecrease", Type: Primitives.RepeatButton }, { Name: "VerticalSmallIncrease", Type: Primitives.RepeatButton }, { Name: "VerticalSmallDecrease", Type: Primitives.RepeatButton }, { Name: "VerticalThumb", Type: Primitives.Thumb }, { Name: "HorizontalRoot", Type: Fayde.FrameworkElement }, { Name: "HorizontalLargeIncrease", Type: Primitives.RepeatButton }, { Name: "HorizontalLargeDecrease", Type: Primitives.RepeatButton }, { Name: "HorizontalSmallIncrease", Type: Primitives.RepeatButton }, { Name: "HorizontalSmallDecrease", Type: Primitives.RepeatButton }, { Name: "HorizontalThumb", Type: Primitives.Thumb });
         })(Controls.Primitives || (Controls.Primitives = {}));
@@ -6380,7 +6383,7 @@ var Fayde;
             return ScrollViewer;
         })(Controls.ContentControl);
         Controls.ScrollViewer = ScrollViewer;
-        Fayde.RegisterType(ScrollViewer, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ScrollViewer);
         Controls.TemplateParts(ScrollViewer, { Name: "ScrollContentPresenter", Type: Controls.ScrollContentPresenter }, { Name: "HorizontalScrollBar", Type: Controls.Primitives.ScrollBar }, { Name: "VerticalScrollBar", Type: Controls.Primitives.ScrollBar });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -6749,7 +6752,7 @@ var Fayde;
             return ComboBox;
         })(Controls.Primitives.Selector);
         Controls.ComboBox = ComboBox;
-        Fayde.RegisterType(ComboBox, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ComboBox);
         Controls.TemplateParts(ComboBox, { Name: "ContentPresenter", Type: Controls.ContentPresenter }, { Name: "Popup", Type: Controls.Primitives.Popup }, { Name: "ContentPresenterBorder", Type: Fayde.FrameworkElement }, { Name: "DropDownToggle", Type: Controls.Primitives.ToggleButton }, { Name: "ScrollViewer", Type: Controls.ScrollViewer });
         Controls.TemplateVisualStates(ComboBox, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "FocusStates", Name: "FocusedDropDown" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -6835,7 +6838,7 @@ var Fayde;
             return ListBoxItem;
         })(Controls.ContentControl);
         Controls.ListBoxItem = ListBoxItem;
-        Fayde.RegisterType(ListBoxItem, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ListBoxItem);
         Controls.TemplateVisualStates(ListBoxItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "SelectionStates", Name: "Unselected" }, { GroupName: "SelectionStates", Name: "Selected" }, { GroupName: "SelectionStates", Name: "SelectedUnfocused" });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -6857,7 +6860,7 @@ var Fayde;
             return ComboBoxItem;
         })(Controls.ListBoxItem);
         Controls.ComboBoxItem = ComboBoxItem;
-        Fayde.RegisterType(ComboBoxItem, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ComboBoxItem);
         Controls.TemplateVisualStates(ComboBoxItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "SelectionStates", Name: "Unselected" }, { GroupName: "SelectionStates", Name: "Selected" }, { GroupName: "SelectionStates", Name: "SelectedUnfocused" });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -6895,7 +6898,7 @@ var Fayde;
             return ControlTemplate;
         })(Fayde.Xaml.FrameworkTemplate);
         Controls.ControlTemplate = ControlTemplate;
-        Fayde.RegisterType(ControlTemplate, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ControlTemplate);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -6921,7 +6924,7 @@ var Fayde;
             return UserControl;
         })(Controls.Control);
         Controls.UserControl = UserControl;
-        Fayde.RegisterType(UserControl, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(UserControl);
         Fayde.Markup.Content(UserControl, UserControl.ContentProperty);
 
         var reactions;
@@ -6968,7 +6971,7 @@ var Fayde;
             return Page;
         })(Controls.UserControl);
         Controls.Page = Page;
-        Fayde.RegisterType(Page, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Page);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -7079,7 +7082,7 @@ var Fayde;
             return Frame;
         })(Controls.ContentControl);
         Controls.Frame = Frame;
-        Fayde.RegisterType(Frame, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Frame);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -7204,7 +7207,7 @@ var Fayde;
             return Grid;
         })(Controls.Panel);
         Controls.Grid = Grid;
-        Fayde.RegisterType(Grid, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Grid);
 
         var reactions;
         (function (reactions) {
@@ -7237,7 +7240,7 @@ var Fayde;
             return GridLength;
         })();
         Controls.GridLength = GridLength;
-        Fayde.RegisterType(GridLength, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(GridLength);
 
         nullstone.registerTypeConverter(GridLength, function (val) {
             if (val instanceof GridLength)
@@ -7284,7 +7287,7 @@ var Fayde;
             return HeaderedContentControl;
         })(Controls.ContentControl);
         Controls.HeaderedContentControl = HeaderedContentControl;
-        Fayde.RegisterType(HeaderedContentControl, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(HeaderedContentControl);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -7334,7 +7337,7 @@ var Fayde;
             return HyperlinkButton;
         })(Controls.Primitives.ButtonBase);
         Controls.HyperlinkButton = HyperlinkButton;
-        Fayde.RegisterType(HyperlinkButton, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(HyperlinkButton);
         Controls.TemplateVisualStates(HyperlinkButton, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -7439,7 +7442,7 @@ var Fayde;
             return Image;
         })(Fayde.FrameworkElement);
         Controls.Image = Image;
-        Fayde.RegisterType(Image, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Image);
 
         Fayde.UIReaction(Image.SourceProperty, function (upd, ov, nv, image) {
             if (ov instanceof Fayde.Media.Imaging.BitmapSource)
@@ -8033,7 +8036,7 @@ var Fayde;
                 return TextBoxView;
             })(Fayde.FrameworkElement);
             Internal.TextBoxView = TextBoxView;
-            Fayde.RegisterType(TextBoxView, "Fayde.Controls", Fayde.XMLNSINTERNAL);
+            Fayde.RegisterType(TextBoxView, Fayde.XMLNSINTERNAL);
         })(Controls.Internal || (Controls.Internal = {}));
         var Internal = Controls.Internal;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -8550,7 +8553,7 @@ var Fayde;
             return ItemCollection;
         })(Fayde.XamlObjectCollection);
         Controls.ItemCollection = ItemCollection;
-        Fayde.RegisterType(ItemCollection, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ItemCollection);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -8571,7 +8574,7 @@ var Fayde;
             return ItemsPanelTemplate;
         })(Fayde.Xaml.FrameworkTemplate);
         Controls.ItemsPanelTemplate = ItemsPanelTemplate;
-        Fayde.RegisterType(ItemsPanelTemplate, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ItemsPanelTemplate);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -8699,7 +8702,7 @@ var Fayde;
             return ItemsPresenter;
         })(Fayde.FrameworkElement);
         Controls.ItemsPresenter = ItemsPresenter;
-        Fayde.RegisterType(ItemsPresenter, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ItemsPresenter);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -9008,7 +9011,7 @@ var Fayde;
             return ListBox;
         })(Controls.Primitives.Selector);
         Controls.ListBox = ListBox;
-        Fayde.RegisterType(ListBox, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ListBox);
         Controls.TemplateVisualStates(ListBox, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
         Controls.TemplateParts(ListBox, { Name: "ScrollViewer", Type: Controls.ScrollViewer });
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -9025,7 +9028,7 @@ var Fayde;
             return MediaElement;
         })(Fayde.FrameworkElement);
         Controls.MediaElement = MediaElement;
-        Fayde.RegisterType(MediaElement, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(MediaElement);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -9040,7 +9043,7 @@ var Fayde;
         return RoutedEventArgs;
     })();
     Fayde.RoutedEventArgs = RoutedEventArgs;
-    Fayde.RegisterType(RoutedEventArgs, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RoutedEventArgs);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -9225,7 +9228,7 @@ var Fayde;
             return KeyboardEventArgs;
         })(Fayde.RoutedEventArgs);
         Input.KeyboardEventArgs = KeyboardEventArgs;
-        Fayde.RegisterType(KeyboardEventArgs, "Fayde.Input", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(KeyboardEventArgs);
 
         var KeyEventArgs = (function (_super) {
             __extends(KeyEventArgs, _super);
@@ -9241,7 +9244,7 @@ var Fayde;
             return KeyEventArgs;
         })(KeyboardEventArgs);
         Input.KeyEventArgs = KeyEventArgs;
-        Fayde.RegisterType(KeyEventArgs, "Fayde.Input", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(KeyEventArgs);
     })(Fayde.Input || (Fayde.Input = {}));
     var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));
@@ -9679,7 +9682,7 @@ var Fayde;
             return TextBoxBase;
         })(Controls.Control);
         Controls.TextBoxBase = TextBoxBase;
-        Fayde.RegisterType(TextBoxBase, "Fayde.Controls", Fayde.XMLNSINTERNAL);
+        Fayde.RegisterType(TextBoxBase, Fayde.XMLNSINTERNAL);
 
         var reactions;
         (function (reactions) {
@@ -9761,7 +9764,7 @@ var Fayde;
             return PasswordBox;
         })(Controls.TextBoxBase);
         Controls.PasswordBox = PasswordBox;
-        Fayde.RegisterType(PasswordBox, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PasswordBox);
         Controls.TemplateVisualStates(PasswordBox, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
 
         var reactions;
@@ -9792,7 +9795,7 @@ var Fayde;
                 return DragCompletedEventArgs;
             })(Fayde.RoutedEventArgs);
             Primitives.DragCompletedEventArgs = DragCompletedEventArgs;
-            Fayde.RegisterType(DragCompletedEventArgs, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(DragCompletedEventArgs);
 
             var DragDeltaEventArgs = (function (_super) {
                 __extends(DragDeltaEventArgs, _super);
@@ -9804,7 +9807,7 @@ var Fayde;
                 return DragDeltaEventArgs;
             })(Fayde.RoutedEventArgs);
             Primitives.DragDeltaEventArgs = DragDeltaEventArgs;
-            Fayde.RegisterType(DragDeltaEventArgs, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(DragDeltaEventArgs);
 
             var DragStartedEventArgs = (function (_super) {
                 __extends(DragStartedEventArgs, _super);
@@ -9816,7 +9819,7 @@ var Fayde;
                 return DragStartedEventArgs;
             })(Fayde.RoutedEventArgs);
             Primitives.DragStartedEventArgs = DragStartedEventArgs;
-            Fayde.RegisterType(DragStartedEventArgs, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(DragStartedEventArgs);
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -9882,7 +9885,7 @@ var Fayde;
                 return ScrollEventArgs;
             })(Fayde.RoutedEventArgs);
             Primitives.ScrollEventArgs = ScrollEventArgs;
-            Fayde.RegisterType(ScrollEventArgs, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ScrollEventArgs);
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -9902,7 +9905,7 @@ var Fayde;
                 return SelectionChangedEventArgs;
             })(Fayde.RoutedEventArgs);
             Primitives.SelectionChangedEventArgs = SelectionChangedEventArgs;
-            Fayde.RegisterType(SelectionChangedEventArgs, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(SelectionChangedEventArgs);
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -10199,7 +10202,7 @@ var Fayde;
                 return SelectorSelection;
             })();
             Primitives.SelectorSelection = SelectorSelection;
-            Fayde.RegisterType(SelectorSelection, "Fayde.Controls.Primitives", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(SelectorSelection);
 
             function except(arr1, arr2) {
                 var r = [];
@@ -10309,7 +10312,7 @@ var Fayde;
             return ProgressBar;
         })(Controls.Primitives.RangeBase);
         Controls.ProgressBar = ProgressBar;
-        Fayde.RegisterType(ProgressBar, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ProgressBar);
         Controls.TemplateVisualStates(ProgressBar, { GroupName: "CommonStates", Name: "Indeterminate" }, { GroupName: "CommonStates", Name: "Determinate" });
         Controls.TemplateParts(ProgressBar, { Name: "ProgressBarIndicator", Type: Fayde.FrameworkElement }, { Name: "ProgressBarTrack", Type: Fayde.FrameworkElement });
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -10380,7 +10383,7 @@ var Fayde;
             return RadioButton;
         })(Controls.Primitives.ToggleButton);
         Controls.RadioButton = RadioButton;
-        Fayde.RegisterType(RadioButton, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(RadioButton);
         Controls.TemplateVisualStates(RadioButton, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Pressed" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "CheckStates", Name: "Unchecked" }, { GroupName: "CheckStates", Name: "Checked" }, { GroupName: "CheckStates", Name: "Indeterminate" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" }, { GroupName: "ValidationStates", Name: "Valid" });
 
         var groupNameToElements = [];
@@ -10416,7 +10419,7 @@ var Fayde;
             return _RichTextBoxView;
         })();
         Controls._RichTextBoxView = _RichTextBoxView;
-        Fayde.RegisterType(_RichTextBoxView, "Fayde.Controls", Fayde.XMLNSINTERNAL);
+        Fayde.RegisterType(_RichTextBoxView, Fayde.XMLNSINTERNAL);
 
         var RichTextBox = (function (_super) {
             __extends(RichTextBox, _super);
@@ -10427,7 +10430,7 @@ var Fayde;
             return RichTextBox;
         })(Controls.Control);
         Controls.RichTextBox = RichTextBox;
-        Fayde.RegisterType(RichTextBox, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(RichTextBox);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -10457,7 +10460,7 @@ var Fayde;
             return RowDefinition;
         })(Fayde.DependencyObject);
         Controls.RowDefinition = RowDefinition;
-        Fayde.RegisterType(RowDefinition, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(RowDefinition);
 
         var GridUnitType = minerva.controls.grid.GridUnitType;
         function ConvertRowDefinition(o) {
@@ -10505,7 +10508,7 @@ var Fayde;
             return RowDefinitionCollection;
         })(Fayde.XamlObjectCollection);
         Controls.RowDefinitionCollection = RowDefinitionCollection;
-        Fayde.RegisterType(RowDefinitionCollection, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(RowDefinitionCollection);
 
         function ConvertRowDefinitionCollection(o) {
             if (!o || o instanceof RowDefinitionCollection)
@@ -10772,7 +10775,7 @@ var Fayde;
             return Slider;
         })(Controls.Primitives.RangeBase);
         Controls.Slider = Slider;
-        Fayde.RegisterType(Slider, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Slider);
         Controls.TemplateVisualStates(Slider, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" });
         Controls.TemplateParts(Slider, { Name: "HorizontalTemplate", Type: Fayde.FrameworkElement }, { Name: "HorizontalThumb", Type: Controls.Primitives.Thumb }, { Name: "HorizontalTrackLargeChangeIncreaseRepeatButton", Type: Controls.Primitives.RepeatButton }, { Name: "HorizontalTrackLargeChangeDecreaseRepeatButton", Type: Controls.Primitives.RepeatButton }, { Name: "VerticalTemplate", Type: Fayde.FrameworkElement }, { Name: "VerticalThumb", Type: Controls.Primitives.Thumb }, { Name: "VerticalTrackLargeChangeIncreaseRepeatButton", Type: Controls.Primitives.RepeatButton }, { Name: "VerticalTrackLargeChangeDecreaseRepeatButton", Type: Controls.Primitives.RepeatButton });
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -10796,7 +10799,7 @@ var Fayde;
             return StackPanel;
         })(Controls.Panel);
         Controls.StackPanel = StackPanel;
-        Fayde.RegisterType(StackPanel, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(StackPanel);
 
         var reactions;
         (function (reactions) {
@@ -10972,7 +10975,7 @@ var Fayde;
             return TextBlock;
         })(Fayde.FrameworkElement);
         Controls.TextBlock = TextBlock;
-        Fayde.RegisterType(TextBlock, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(TextBlock);
         Fayde.Markup.Content(TextBlock, TextBlock.InlinesProperty);
         Fayde.Markup.TextContent(TextBlock, TextBlock.TextProperty);
 
@@ -11085,7 +11088,7 @@ var Fayde;
             return TextBox;
         })(Controls.TextBoxBase);
         Controls.TextBox = TextBox;
-        Fayde.RegisterType(TextBox, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(TextBox);
         Controls.TemplateVisualStates(TextBox, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "CommonStates", Name: "ReadOnly" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
         Controls.TemplateParts(TextBox, { Name: "ContentElement", Type: Fayde.FrameworkElement });
 
@@ -11324,7 +11327,7 @@ var Fayde;
             return ToolTip;
         })(Controls.ContentControl);
         Controls.ToolTip = ToolTip;
-        Fayde.RegisterType(ToolTip, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ToolTip);
         Controls.TemplateVisualStates(ToolTip, { GroupName: "OpenStates", Name: "Closed" }, { GroupName: "OpenStates", Name: "Open" });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
@@ -11345,7 +11348,7 @@ var Point = (function (_super) {
     };
     return Point;
 })(minerva.Point);
-Fayde.RegisterType(Point, "window", Fayde.XMLNSX);
+Fayde.RegisterType(Point, Fayde.XMLNSX);
 
 nullstone.registerTypeConverter(Point, function (val) {
     if (!val)
@@ -11429,7 +11432,7 @@ var Fayde;
             return ToolTipService;
         })();
         Controls.ToolTipService = ToolTipService;
-        Fayde.RegisterType(ToolTipService, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ToolTipService);
 
         var ToolTipServiceSlave = (function () {
             function ToolTipServiceSlave() {
@@ -11703,7 +11706,7 @@ var Fayde;
             return VirtualizingPanel;
         })(Controls.Panel);
         Controls.VirtualizingPanel = VirtualizingPanel;
-        Fayde.RegisterType(VirtualizingPanel, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(VirtualizingPanel);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -12024,7 +12027,7 @@ var Fayde;
             return VirtualizingStackPanel;
         })(Controls.VirtualizingPanel);
         Controls.VirtualizingStackPanel = VirtualizingStackPanel;
-        Fayde.RegisterType(VirtualizingStackPanel, "Fayde.Controls", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(VirtualizingStackPanel);
         nullstone.addTypeInterfaces(VirtualizingStackPanel, Controls.Primitives.IScrollInfo_);
 
         var reactions;
@@ -12083,7 +12086,7 @@ var Fayde;
         return DataTemplate;
     })(Fayde.Xaml.FrameworkTemplate);
     Fayde.DataTemplate = DataTemplate;
-    Fayde.RegisterType(DataTemplate, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DataTemplate);
 })(Fayde || (Fayde = {}));
 var DependencyPropertyChangedEventArgs = (function () {
     function DependencyPropertyChangedEventArgs() {
@@ -12140,7 +12143,7 @@ var Fayde;
         return HierarchicalDataTemplate;
     })(Fayde.DataTemplate);
     Fayde.HierarchicalDataTemplate = HierarchicalDataTemplate;
-    Fayde.RegisterType(HierarchicalDataTemplate, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(HierarchicalDataTemplate);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -12163,7 +12166,7 @@ var Fayde;
         return LayoutInformation;
     })();
     Fayde.LayoutInformation = LayoutInformation;
-    Fayde.RegisterType(LayoutInformation, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(LayoutInformation);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -12486,7 +12489,7 @@ var Fayde;
         return ResourceDictionaryCollection;
     })(Fayde.XamlObjectCollection);
     Fayde.ResourceDictionaryCollection = ResourceDictionaryCollection;
-    Fayde.RegisterType(ResourceDictionaryCollection, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ResourceDictionaryCollection);
 
     var ResourceDictionary = (function (_super) {
         __extends(ResourceDictionary, _super);
@@ -12592,7 +12595,7 @@ var Fayde;
         return ResourceDictionary;
     })(Fayde.XamlObject);
     Fayde.ResourceDictionary = ResourceDictionary;
-    Fayde.RegisterType(ResourceDictionary, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ResourceDictionary);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -12604,7 +12607,7 @@ var Fayde;
         return RoutedEvent;
     })(nullstone.Event);
     Fayde.RoutedEvent = RoutedEvent;
-    Fayde.RegisterType(RoutedEvent, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RoutedEvent);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -12616,7 +12619,7 @@ var Fayde;
         return RoutedPropertyChangedEvent;
     })(Fayde.RoutedEvent);
     Fayde.RoutedPropertyChangedEvent = RoutedPropertyChangedEvent;
-    Fayde.RegisterType(RoutedPropertyChangedEvent, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RoutedPropertyChangedEvent);
 
     var RoutedPropertyChangedEventArgs = (function (_super) {
         __extends(RoutedPropertyChangedEventArgs, _super);
@@ -12628,7 +12631,7 @@ var Fayde;
         return RoutedPropertyChangedEventArgs;
     })(Fayde.RoutedEventArgs);
     Fayde.RoutedPropertyChangedEventArgs = RoutedPropertyChangedEventArgs;
-    Fayde.RegisterType(RoutedPropertyChangedEventArgs, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RoutedPropertyChangedEventArgs);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -12640,7 +12643,7 @@ var Fayde;
         return RoutedPropertyChangingEvent;
     })(Fayde.RoutedEvent);
     Fayde.RoutedPropertyChangingEvent = RoutedPropertyChangingEvent;
-    Fayde.RegisterType(RoutedPropertyChangingEvent, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RoutedPropertyChangingEvent);
 
     var RoutedPropertyChangingEventArgs = (function (_super) {
         __extends(RoutedPropertyChangingEventArgs, _super);
@@ -12677,7 +12680,7 @@ var Fayde;
         return RoutedPropertyChangingEventArgs;
     })(Fayde.RoutedEventArgs);
     Fayde.RoutedPropertyChangingEventArgs = RoutedPropertyChangingEventArgs;
-    Fayde.RegisterType(RoutedPropertyChangingEventArgs, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RoutedPropertyChangingEventArgs);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -12723,7 +12726,7 @@ var Fayde;
         return SetterCollection;
     })(Fayde.XamlObjectCollection);
     Fayde.SetterCollection = SetterCollection;
-    Fayde.RegisterType(SetterCollection, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(SetterCollection);
 
     var Setter = (function (_super) {
         __extends(Setter, _super);
@@ -12758,7 +12761,7 @@ var Fayde;
         return Setter;
     })(Fayde.DependencyObject);
     Fayde.Setter = Setter;
-    Fayde.RegisterType(Setter, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Setter);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -12776,7 +12779,7 @@ var Fayde;
         return SizeChangedEventArgs;
     })(Fayde.RoutedEventArgs);
     Fayde.SizeChangedEventArgs = SizeChangedEventArgs;
-    Fayde.RegisterType(SizeChangedEventArgs, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(SizeChangedEventArgs);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -12863,7 +12866,7 @@ var Fayde;
         return Style;
     })(Fayde.DependencyObject);
     Fayde.Style = Style;
-    Fayde.RegisterType(Style, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Style);
     Fayde.Markup.Content(Style, Style.SettersProperty);
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -12881,7 +12884,7 @@ var Fayde;
         return TemplateBinding;
     })();
     Fayde.TemplateBinding = TemplateBinding;
-    Fayde.RegisterType(TemplateBinding, Fayde.XMLNS, "TemplateBinding");
+    Fayde.RegisterType(TemplateBinding, "TemplateBinding");
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -12895,7 +12898,7 @@ var Fayde;
         return TriggerAction;
     })(Fayde.DependencyObject);
     Fayde.TriggerAction = TriggerAction;
-    Fayde.RegisterType(TriggerAction, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TriggerAction);
 
     var TriggerActionCollection = (function (_super) {
         __extends(TriggerActionCollection, _super);
@@ -12911,7 +12914,7 @@ var Fayde;
         return TriggerActionCollection;
     })(Fayde.XamlObjectCollection);
     Fayde.TriggerActionCollection = TriggerActionCollection;
-    Fayde.RegisterType(TriggerActionCollection, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TriggerActionCollection);
 
     var TriggerBase = (function (_super) {
         __extends(TriggerBase, _super);
@@ -12925,7 +12928,7 @@ var Fayde;
         return TriggerBase;
     })(Fayde.DependencyObject);
     Fayde.TriggerBase = TriggerBase;
-    Fayde.RegisterType(TriggerBase, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TriggerBase);
 
     var EventTrigger = (function (_super) {
         __extends(EventTrigger, _super);
@@ -12982,7 +12985,7 @@ var Fayde;
         return EventTrigger;
     })(TriggerBase);
     Fayde.EventTrigger = EventTrigger;
-    Fayde.RegisterType(EventTrigger, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(EventTrigger);
     Fayde.Markup.Content(EventTrigger, EventTrigger.ActionsProperty);
 
     var TriggerCollection = (function (_super) {
@@ -13031,7 +13034,7 @@ var Fayde;
         return TriggerCollection;
     })(Fayde.XamlObjectCollection);
     Fayde.TriggerCollection = TriggerCollection;
-    Fayde.RegisterType(TriggerCollection, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TriggerCollection);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -13575,7 +13578,7 @@ var Fayde;
             return Binding;
         })();
         Data.Binding = Binding;
-        Fayde.RegisterType(Binding, Fayde.XMLNS, "Binding");
+        Fayde.CoreLibrary.add(Binding);
     })(Fayde.Data || (Fayde.Data = {}));
     var Data = Fayde.Data;
 })(Fayde || (Fayde = {}));
@@ -13948,7 +13951,7 @@ var Fayde;
             return PropertyPath;
         })();
         Data.PropertyPath = PropertyPath;
-        Fayde.RegisterType(PropertyPath, "Fayde.Data", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PropertyPath);
         nullstone.registerTypeConverter(PropertyPath, function (val) {
             if (!val)
                 return new PropertyPath();
@@ -14550,7 +14553,7 @@ var Fayde;
             return RelativeSource;
         })();
         Data.RelativeSource = RelativeSource;
-        Fayde.RegisterType(RelativeSource, Fayde.XMLNS, "RelativeSource");
+        Fayde.CoreLibrary.add(RelativeSource);
 
         function findAncestor(target, relSource) {
             if (!(target instanceof Fayde.DependencyObject))
@@ -14738,7 +14741,7 @@ var Fayde;
             return TextElement;
         })(Fayde.DependencyObject);
         Documents.TextElement = TextElement;
-        Fayde.RegisterType(TextElement, "Fayde.Documents", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(TextElement);
 
         var TextElementInheritedProps = [
             TextElement.FontFamilyProperty,
@@ -14763,7 +14766,7 @@ var Fayde;
             return Block;
         })(Documents.TextElement);
         Documents.Block = Block;
-        Fayde.RegisterType(Block, "Fayde.Documents", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Block);
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));
@@ -14793,7 +14796,7 @@ var Fayde;
             return BlockCollection;
         })(Fayde.XamlObjectCollection);
         Documents.BlockCollection = BlockCollection;
-        Fayde.RegisterType(BlockCollection, "Fayde.Documents", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(BlockCollection);
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));
@@ -14826,7 +14829,7 @@ var Fayde;
             return Inline;
         })(Documents.TextElement);
         Documents.Inline = Inline;
-        Fayde.RegisterType(Inline, "Fayde.Documents", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Inline);
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));
@@ -14856,7 +14859,7 @@ var Fayde;
             return InlineCollection;
         })(Fayde.XamlObjectCollection);
         Documents.InlineCollection = InlineCollection;
-        Fayde.RegisterType(InlineCollection, "Fayde.Documents", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(InlineCollection);
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));
@@ -14871,7 +14874,7 @@ var Fayde;
             return LineBreak;
         })(Documents.Inline);
         Documents.LineBreak = LineBreak;
-        Fayde.RegisterType(LineBreak, "Fayde.Documents", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(LineBreak);
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));
@@ -14916,7 +14919,7 @@ var Fayde;
             return Paragraph;
         })(Documents.Block);
         Documents.Paragraph = Paragraph;
-        Fayde.RegisterType(Paragraph, "Fayde.Documents", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Paragraph);
         Fayde.Markup.Content(Paragraph, Paragraph.InlinesProperty);
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
@@ -14945,7 +14948,7 @@ var Fayde;
             return Run;
         })(Documents.Inline);
         Documents.Run = Run;
-        Fayde.RegisterType(Run, "Fayde.Documents", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Run);
 
         var reactions;
         (function (reactions) {
@@ -15000,7 +15003,7 @@ var Fayde;
             return Section;
         })(Documents.TextElement);
         Documents.Section = Section;
-        Fayde.RegisterType(Section, "Fayde.Documents", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Section);
         Fayde.Markup.Content(Section, Section.BlocksProperty);
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
@@ -15055,7 +15058,7 @@ var Fayde;
             return Span;
         })(Documents.Inline);
         Documents.Span = Span;
-        Fayde.RegisterType(Span, "Fayde.Documents", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Span);
         Fayde.Markup.Content(Span, Span.InlinesProperty);
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
@@ -15071,7 +15074,7 @@ var Fayde;
             return Underline;
         })(Documents.Span);
         Documents.Underline = Underline;
-        Fayde.RegisterType(Underline, "Fayde.Documents", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Underline);
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));
@@ -15219,7 +15222,7 @@ var Fayde;
         return Application;
     })(Fayde.DependencyObject);
     Fayde.Application = Application;
-    Fayde.RegisterType(Application, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Application);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -15285,7 +15288,7 @@ var Exception = (function () {
     };
     return Exception;
 })();
-Fayde.RegisterType(Exception, "window", Fayde.XMLNSX);
+Fayde.RegisterType(Exception, Fayde.XMLNSX);
 
 var ArgumentException = (function (_super) {
     __extends(ArgumentException, _super);
@@ -15294,7 +15297,7 @@ var ArgumentException = (function (_super) {
     }
     return ArgumentException;
 })(Exception);
-Fayde.RegisterType(ArgumentException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(ArgumentException, Fayde.XMLNSX);
 
 var ArgumentNullException = (function (_super) {
     __extends(ArgumentNullException, _super);
@@ -15303,7 +15306,7 @@ var ArgumentNullException = (function (_super) {
     }
     return ArgumentNullException;
 })(Exception);
-Fayde.RegisterType(ArgumentNullException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(ArgumentNullException, Fayde.XMLNSX);
 
 var InvalidOperationException = (function (_super) {
     __extends(InvalidOperationException, _super);
@@ -15312,7 +15315,7 @@ var InvalidOperationException = (function (_super) {
     }
     return InvalidOperationException;
 })(Exception);
-Fayde.RegisterType(InvalidOperationException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(InvalidOperationException, Fayde.XMLNSX);
 
 var XamlParseException = (function (_super) {
     __extends(XamlParseException, _super);
@@ -15321,7 +15324,7 @@ var XamlParseException = (function (_super) {
     }
     return XamlParseException;
 })(Exception);
-Fayde.RegisterType(XamlParseException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(XamlParseException, Fayde.XMLNSX);
 
 var XamlMarkupParseException = (function (_super) {
     __extends(XamlMarkupParseException, _super);
@@ -15330,7 +15333,7 @@ var XamlMarkupParseException = (function (_super) {
     }
     return XamlMarkupParseException;
 })(Exception);
-Fayde.RegisterType(XamlMarkupParseException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(XamlMarkupParseException, Fayde.XMLNSX);
 
 var NotSupportedException = (function (_super) {
     __extends(NotSupportedException, _super);
@@ -15339,7 +15342,7 @@ var NotSupportedException = (function (_super) {
     }
     return NotSupportedException;
 })(Exception);
-Fayde.RegisterType(NotSupportedException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(NotSupportedException, Fayde.XMLNSX);
 
 var IndexOutOfRangeException = (function (_super) {
     __extends(IndexOutOfRangeException, _super);
@@ -15348,7 +15351,7 @@ var IndexOutOfRangeException = (function (_super) {
     }
     return IndexOutOfRangeException;
 })(Exception);
-Fayde.RegisterType(IndexOutOfRangeException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(IndexOutOfRangeException, Fayde.XMLNSX);
 
 var ArgumentOutOfRangeException = (function (_super) {
     __extends(ArgumentOutOfRangeException, _super);
@@ -15357,7 +15360,7 @@ var ArgumentOutOfRangeException = (function (_super) {
     }
     return ArgumentOutOfRangeException;
 })(Exception);
-Fayde.RegisterType(ArgumentOutOfRangeException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(ArgumentOutOfRangeException, Fayde.XMLNSX);
 
 var AttachException = (function (_super) {
     __extends(AttachException, _super);
@@ -15367,7 +15370,7 @@ var AttachException = (function (_super) {
     }
     return AttachException;
 })(Exception);
-Fayde.RegisterType(AttachException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(AttachException, Fayde.XMLNSX);
 
 var InvalidJsonException = (function (_super) {
     __extends(InvalidJsonException, _super);
@@ -15378,7 +15381,7 @@ var InvalidJsonException = (function (_super) {
     }
     return InvalidJsonException;
 })(Exception);
-Fayde.RegisterType(InvalidJsonException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(InvalidJsonException, Fayde.XMLNSX);
 
 var TargetInvocationException = (function (_super) {
     __extends(TargetInvocationException, _super);
@@ -15388,7 +15391,7 @@ var TargetInvocationException = (function (_super) {
     }
     return TargetInvocationException;
 })(Exception);
-Fayde.RegisterType(TargetInvocationException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(TargetInvocationException, Fayde.XMLNSX);
 
 var UnknownTypeException = (function (_super) {
     __extends(UnknownTypeException, _super);
@@ -15398,7 +15401,7 @@ var UnknownTypeException = (function (_super) {
     }
     return UnknownTypeException;
 })(Exception);
-Fayde.RegisterType(UnknownTypeException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(UnknownTypeException, Fayde.XMLNSX);
 
 var FormatException = (function (_super) {
     __extends(FormatException, _super);
@@ -15407,7 +15410,7 @@ var FormatException = (function (_super) {
     }
     return FormatException;
 })(Exception);
-Fayde.RegisterType(FormatException, "window", Fayde.XMLNSX);
+Fayde.RegisterType(FormatException, Fayde.XMLNSX);
 var Fayde;
 (function (Fayde) {
     (function (Engine) {
@@ -16093,7 +16096,7 @@ var Fayde;
         return Theme;
     })();
     Fayde.Theme = Theme;
-    Fayde.RegisterType(Theme, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Theme);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -16237,17 +16240,7 @@ var Fayde;
                 } else if (this.ParentBinding.ElementName != null) {
                     return this._FindSourceByElementName();
                 } else if (this.ParentBinding.RelativeSource) {
-                    var rs = this.ParentBinding.RelativeSource;
-                    switch (rs.Mode) {
-                        case 2 /* Self */:
-                            return this.Target;
-                        case 1 /* TemplatedParent */:
-                            return this.Target.TemplateOwner;
-                        case 3 /* FindAncestor */:
-                            return findAncestor(this.Target, rs);
-                        case 4 /* ItemsControlParent */:
-                            return findItemsControlAncestor(this.Target, rs);
-                    }
+                    return this.ParentBinding.RelativeSource.Find(this.Target);
                 }
                 return this._DataContext;
             };
@@ -16466,34 +16459,6 @@ var Fayde;
             return BindingExpressionBase;
         })(Fayde.Expression);
         Data.BindingExpressionBase = BindingExpressionBase;
-
-        function findAncestor(target, relSource) {
-            var ancestorType = relSource.AncestorType;
-            if (typeof ancestorType !== "function") {
-                console.warn("RelativeSourceMode.FindAncestor with no AncestorType specified.");
-                return;
-            }
-            var ancestorLevel = relSource.AncestorLevel;
-            if (isNaN(ancestorLevel)) {
-                console.warn("RelativeSourceMode.FindAncestor with no AncestorLevel specified.");
-                return;
-            }
-            for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
-                if (parent instanceof ancestorType && --ancestorLevel < 1)
-                    return parent;
-            }
-        }
-
-        function findItemsControlAncestor(target, relSource) {
-            if (!(target instanceof Fayde.DependencyObject))
-                return;
-            var ancestorLevel = relSource.AncestorLevel;
-            ancestorLevel = ancestorLevel || 1;
-            for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
-                if (!!parent.IsItemsControl && --ancestorLevel < 1)
-                    return parent;
-            }
-        }
     })(Fayde.Data || (Fayde.Data = {}));
     var Data = Fayde.Data;
 })(Fayde || (Fayde = {}));
@@ -17112,7 +17077,7 @@ var Fayde;
             return KeyboardNavigation;
         })();
         Input.KeyboardNavigation = KeyboardNavigation;
-        Fayde.RegisterType(KeyboardNavigation, "Fayde.Input", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(KeyboardNavigation);
     })(Fayde.Input || (Fayde.Input = {}));
     var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));
@@ -17138,7 +17103,7 @@ var Fayde;
             return MouseEventArgs;
         })(Fayde.RoutedEventArgs);
         Input.MouseEventArgs = MouseEventArgs;
-        Fayde.RegisterType(MouseEventArgs, "Fayde.Input", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(MouseEventArgs);
 
         var MouseButtonEventArgs = (function (_super) {
             __extends(MouseButtonEventArgs, _super);
@@ -17148,7 +17113,7 @@ var Fayde;
             return MouseButtonEventArgs;
         })(MouseEventArgs);
         Input.MouseButtonEventArgs = MouseButtonEventArgs;
-        Fayde.RegisterType(MouseButtonEventArgs, "Fayde.Input", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(MouseButtonEventArgs);
 
         var MouseWheelEventArgs = (function (_super) {
             __extends(MouseWheelEventArgs, _super);
@@ -17159,7 +17124,7 @@ var Fayde;
             return MouseWheelEventArgs;
         })(MouseEventArgs);
         Input.MouseWheelEventArgs = MouseWheelEventArgs;
-        Fayde.RegisterType(MouseWheelEventArgs, "Fayde.Input", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(MouseWheelEventArgs);
     })(Fayde.Input || (Fayde.Input = {}));
     var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));
@@ -17357,7 +17322,7 @@ var Fayde;
             return TouchEventArgs;
         })(Fayde.RoutedEventArgs);
         Input.TouchEventArgs = TouchEventArgs;
-        Fayde.RegisterType(TouchEventArgs, "Fayde.Input", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(TouchEventArgs);
     })(Fayde.Input || (Fayde.Input = {}));
     var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));
@@ -17874,7 +17839,7 @@ var Fayde;
             return TouchPoint;
         })();
         Input.TouchPoint = TouchPoint;
-        Fayde.RegisterType(TouchPoint, "Fayde.Input", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(TouchPoint);
     })(Fayde.Input || (Fayde.Input = {}));
     var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));
@@ -18097,7 +18062,7 @@ var TimeSpan = (function () {
     TimeSpan._TicksPerDay = TimeSpan._TicksPerHour * 24;
     return TimeSpan;
 })();
-Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
+Fayde.RegisterType(TimeSpan, Fayde.XMLNSX);
 
 nullstone.registerTypeConverter(TimeSpan, function (val) {
     if (val instanceof TimeSpan)
@@ -18451,7 +18416,7 @@ var DateTime = (function () {
     DateTime._MaxDateTicks = 8640000000000000;
     return DateTime;
 })();
-Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
+Fayde.CoreLibrary.add(DateTime);
 var Fayde;
 (function (Fayde) {
     (function (Localization) {
@@ -19750,7 +19715,7 @@ var Fayde;
             return ObservableObject;
         })();
         MVVM.ObservableObject = ObservableObject;
-        Fayde.RegisterType(ObservableObject, "Fayde.MVVM", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ObservableObject);
     })(Fayde.MVVM || (Fayde.MVVM = {}));
     var MVVM = Fayde.MVVM;
 })(Fayde || (Fayde = {}));
@@ -19777,7 +19742,7 @@ var Fayde;
             return RelayCommand;
         })();
         MVVM.RelayCommand = RelayCommand;
-        Fayde.RegisterType(RelayCommand, "Fayde.MVVM", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(RelayCommand);
         nullstone.addTypeInterfaces(RelayCommand, Fayde.Input.ICommand_);
     })(Fayde.MVVM || (Fayde.MVVM = {}));
     var MVVM = Fayde.MVVM;
@@ -19793,7 +19758,7 @@ var Fayde;
             return ViewModelBase;
         })(MVVM.ObservableObject);
         MVVM.ViewModelBase = ViewModelBase;
-        Fayde.RegisterType(ViewModelBase, "Fayde.MVVM", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ViewModelBase);
     })(Fayde.MVVM || (Fayde.MVVM = {}));
     var MVVM = Fayde.MVVM;
 })(Fayde || (Fayde = {}));
@@ -19821,7 +19786,7 @@ var Fayde;
         return EventBinding;
     })();
     Fayde.EventBinding = EventBinding;
-    Fayde.RegisterType(EventBinding, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(EventBinding);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -19882,7 +19847,7 @@ var Fayde;
         return StaticResource;
     })();
     Fayde.StaticResource = StaticResource;
-    Fayde.RegisterType(StaticResource, Fayde.XMLNS, "StaticResource");
+    Fayde.CoreLibrary.add(StaticResource);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -19974,7 +19939,7 @@ var Fayde;
                 return RepeatBehavior;
             })();
             Animation.RepeatBehavior = RepeatBehavior;
-            Fayde.RegisterType(RepeatBehavior, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(RepeatBehavior);
 
             nullstone.registerTypeConverter(RepeatBehavior, function (val) {
                 if (!val || val.toLowerCase() === "forever")
@@ -20179,7 +20144,7 @@ var Fayde;
                 return Timeline;
             })(Fayde.DependencyObject);
             Animation.Timeline = Timeline;
-            Fayde.RegisterType(Timeline, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(Timeline);
 
             var TimelineCollection = (function (_super) {
                 __extends(TimelineCollection, _super);
@@ -20189,7 +20154,7 @@ var Fayde;
                 return TimelineCollection;
             })(Fayde.XamlObjectCollection);
             Animation.TimelineCollection = TimelineCollection;
-            Fayde.RegisterType(TimelineCollection, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(TimelineCollection);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -20272,7 +20237,7 @@ var Fayde;
                 return AnimationBase;
             })(Animation.Timeline);
             Animation.AnimationBase = AnimationBase;
-            Fayde.RegisterType(AnimationBase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(AnimationBase);
 
             function getLogMessage(action, anim, oldValue, newValue) {
                 var msg = "ANIMATION:" + action + ":" + anim._ID + "[" + anim.constructor.name + "]";
@@ -20479,7 +20444,7 @@ var Fayde;
                 return AnimationUsingKeyFrames;
             })(Animation.AnimationBase);
             Animation.AnimationUsingKeyFrames = AnimationUsingKeyFrames;
-            Fayde.RegisterType(AnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(AnimationUsingKeyFrames);
             Fayde.Markup.Content(AnimationUsingKeyFrames, AnimationUsingKeyFrames.KeyFramesProperty);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
@@ -20506,7 +20471,7 @@ var Fayde;
                 return BeginStoryboard;
             })(Fayde.TriggerAction);
             Animation.BeginStoryboard = BeginStoryboard;
-            Fayde.RegisterType(BeginStoryboard, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(BeginStoryboard);
             Fayde.Markup.Content(BeginStoryboard, BeginStoryboard.StoryboardProperty);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
@@ -20595,7 +20560,7 @@ var Fayde;
                 return ColorAnimation;
             })(Animation.AnimationBase);
             Animation.ColorAnimation = ColorAnimation;
-            Fayde.RegisterType(ColorAnimation, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ColorAnimation);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -20627,7 +20592,7 @@ var Fayde;
                 return ColorAnimationUsingKeyFrames;
             })(Animation.AnimationUsingKeyFrames);
             Animation.ColorAnimationUsingKeyFrames = ColorAnimationUsingKeyFrames;
-            Fayde.RegisterType(ColorAnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ColorAnimationUsingKeyFrames);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -20756,7 +20721,7 @@ var Fayde;
                 return KeyFrame;
             })(Fayde.DependencyObject);
             Animation.KeyFrame = KeyFrame;
-            Fayde.RegisterType(KeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(KeyFrame);
 
             var KeyFrameCollection = (function (_super) {
                 __extends(KeyFrameCollection, _super);
@@ -20840,7 +20805,7 @@ var Fayde;
                 return KeyFrameCollection;
             })(Fayde.XamlObjectCollection);
             Animation.KeyFrameCollection = KeyFrameCollection;
-            Fayde.RegisterType(KeyFrameCollection, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(KeyFrameCollection);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -20861,7 +20826,7 @@ var Fayde;
                 return ColorKeyFrame;
             })(Animation.KeyFrame);
             Animation.ColorKeyFrame = ColorKeyFrame;
-            Fayde.RegisterType(ColorKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ColorKeyFrame);
 
             var DiscreteColorKeyFrame = (function (_super) {
                 __extends(DiscreteColorKeyFrame, _super);
@@ -20876,7 +20841,7 @@ var Fayde;
                 return DiscreteColorKeyFrame;
             })(ColorKeyFrame);
             Animation.DiscreteColorKeyFrame = DiscreteColorKeyFrame;
-            Fayde.RegisterType(DiscreteColorKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(DiscreteColorKeyFrame);
 
             var EasingColorKeyFrame = (function (_super) {
                 __extends(EasingColorKeyFrame, _super);
@@ -20902,7 +20867,7 @@ var Fayde;
                 return EasingColorKeyFrame;
             })(ColorKeyFrame);
             Animation.EasingColorKeyFrame = EasingColorKeyFrame;
-            Fayde.RegisterType(EasingColorKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(EasingColorKeyFrame);
 
             var LinearColorKeyFrame = (function (_super) {
                 __extends(LinearColorKeyFrame, _super);
@@ -20915,7 +20880,7 @@ var Fayde;
                 return LinearColorKeyFrame;
             })(ColorKeyFrame);
             Animation.LinearColorKeyFrame = LinearColorKeyFrame;
-            Fayde.RegisterType(LinearColorKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(LinearColorKeyFrame);
 
             var SplineColorKeyFrame = (function (_super) {
                 __extends(SplineColorKeyFrame, _super);
@@ -20941,7 +20906,7 @@ var Fayde;
                 return SplineColorKeyFrame;
             })(ColorKeyFrame);
             Animation.SplineColorKeyFrame = SplineColorKeyFrame;
-            Fayde.RegisterType(SplineColorKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(SplineColorKeyFrame);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -21132,7 +21097,7 @@ var Fayde;
                 return DoubleAnimation;
             })(Animation.AnimationBase);
             Animation.DoubleAnimation = DoubleAnimation;
-            Fayde.RegisterType(DoubleAnimation, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(DoubleAnimation);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -21164,7 +21129,7 @@ var Fayde;
                 return DoubleAnimationUsingKeyFrames;
             })(Animation.AnimationUsingKeyFrames);
             Animation.DoubleAnimationUsingKeyFrames = DoubleAnimationUsingKeyFrames;
-            Fayde.RegisterType(DoubleAnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(DoubleAnimationUsingKeyFrames);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -21185,7 +21150,7 @@ var Fayde;
                 return DoubleKeyFrame;
             })(Animation.KeyFrame);
             Animation.DoubleKeyFrame = DoubleKeyFrame;
-            Fayde.RegisterType(DoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(DoubleKeyFrame);
 
             var DiscreteDoubleKeyFrame = (function (_super) {
                 __extends(DiscreteDoubleKeyFrame, _super);
@@ -21200,7 +21165,7 @@ var Fayde;
                 return DiscreteDoubleKeyFrame;
             })(DoubleKeyFrame);
             Animation.DiscreteDoubleKeyFrame = DiscreteDoubleKeyFrame;
-            Fayde.RegisterType(DiscreteDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(DiscreteDoubleKeyFrame);
 
             var EasingDoubleKeyFrame = (function (_super) {
                 __extends(EasingDoubleKeyFrame, _super);
@@ -21231,7 +21196,7 @@ var Fayde;
                 return EasingDoubleKeyFrame;
             })(DoubleKeyFrame);
             Animation.EasingDoubleKeyFrame = EasingDoubleKeyFrame;
-            Fayde.RegisterType(EasingDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(EasingDoubleKeyFrame);
 
             var LinearDoubleKeyFrame = (function (_super) {
                 __extends(LinearDoubleKeyFrame, _super);
@@ -21250,7 +21215,7 @@ var Fayde;
                 return LinearDoubleKeyFrame;
             })(DoubleKeyFrame);
             Animation.LinearDoubleKeyFrame = LinearDoubleKeyFrame;
-            Fayde.RegisterType(LinearDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(LinearDoubleKeyFrame);
 
             var SplineDoubleKeyFrame = (function (_super) {
                 __extends(SplineDoubleKeyFrame, _super);
@@ -21281,7 +21246,7 @@ var Fayde;
                 return SplineDoubleKeyFrame;
             })(DoubleKeyFrame);
             Animation.SplineDoubleKeyFrame = SplineDoubleKeyFrame;
-            Fayde.RegisterType(SplineDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(SplineDoubleKeyFrame);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -21342,7 +21307,7 @@ var Fayde;
                 return BackEase;
             })(Animation.EasingFunctionBase);
             Animation.BackEase = BackEase;
-            Fayde.RegisterType(BackEase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(BackEase);
 
             var BounceEase = (function (_super) {
                 __extends(BounceEase, _super);
@@ -21382,7 +21347,7 @@ var Fayde;
                 return BounceEase;
             })(Animation.EasingFunctionBase);
             Animation.BounceEase = BounceEase;
-            Fayde.RegisterType(BounceEase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(BounceEase);
 
             var CircleEase = (function (_super) {
                 __extends(CircleEase, _super);
@@ -21395,7 +21360,7 @@ var Fayde;
                 return CircleEase;
             })(Animation.EasingFunctionBase);
             Animation.CircleEase = CircleEase;
-            Fayde.RegisterType(CircleEase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(CircleEase);
 
             var CubicEase = (function (_super) {
                 __extends(CubicEase, _super);
@@ -21408,7 +21373,7 @@ var Fayde;
                 return CubicEase;
             })(Animation.EasingFunctionBase);
             Animation.CubicEase = CubicEase;
-            Fayde.RegisterType(CubicEase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(CubicEase);
 
             var ElasticEase = (function (_super) {
                 __extends(ElasticEase, _super);
@@ -21430,7 +21395,7 @@ var Fayde;
                 return ElasticEase;
             })(Animation.EasingFunctionBase);
             Animation.ElasticEase = ElasticEase;
-            Fayde.RegisterType(ElasticEase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ElasticEase);
 
             var ExponentialEase = (function (_super) {
                 __extends(ExponentialEase, _super);
@@ -21447,7 +21412,7 @@ var Fayde;
                 return ExponentialEase;
             })(Animation.EasingFunctionBase);
             Animation.ExponentialEase = ExponentialEase;
-            Fayde.RegisterType(ExponentialEase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ExponentialEase);
 
             var PowerEase = (function (_super) {
                 __extends(PowerEase, _super);
@@ -21463,7 +21428,7 @@ var Fayde;
                 return PowerEase;
             })(Animation.EasingFunctionBase);
             Animation.PowerEase = PowerEase;
-            Fayde.RegisterType(PowerEase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(PowerEase);
 
             var QuadraticEase = (function (_super) {
                 __extends(QuadraticEase, _super);
@@ -21476,7 +21441,7 @@ var Fayde;
                 return QuadraticEase;
             })(Animation.EasingFunctionBase);
             Animation.QuadraticEase = QuadraticEase;
-            Fayde.RegisterType(QuadraticEase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(QuadraticEase);
 
             var QuarticEase = (function (_super) {
                 __extends(QuarticEase, _super);
@@ -21489,7 +21454,7 @@ var Fayde;
                 return QuarticEase;
             })(Animation.EasingFunctionBase);
             Animation.QuarticEase = QuarticEase;
-            Fayde.RegisterType(QuarticEase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(QuarticEase);
 
             var QuinticEase = (function (_super) {
                 __extends(QuinticEase, _super);
@@ -21502,7 +21467,7 @@ var Fayde;
                 return QuinticEase;
             })(Animation.EasingFunctionBase);
             Animation.QuinticEase = QuinticEase;
-            Fayde.RegisterType(QuinticEase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(QuinticEase);
 
             var SineEase = (function (_super) {
                 __extends(SineEase, _super);
@@ -21515,7 +21480,7 @@ var Fayde;
                 return SineEase;
             })(Animation.EasingFunctionBase);
             Animation.SineEase = SineEase;
-            Fayde.RegisterType(SineEase, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(SineEase);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -21573,7 +21538,7 @@ var Fayde;
                 return KeySpline;
             })(Fayde.DependencyObject);
             Animation.KeySpline = KeySpline;
-            Fayde.RegisterType(KeySpline, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(KeySpline);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -21611,7 +21576,7 @@ var Fayde;
                 return ObjectAnimationUsingKeyFrames;
             })(Animation.AnimationUsingKeyFrames);
             Animation.ObjectAnimationUsingKeyFrames = ObjectAnimationUsingKeyFrames;
-            Fayde.RegisterType(ObjectAnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ObjectAnimationUsingKeyFrames);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -21633,7 +21598,7 @@ var Fayde;
                 return ObjectKeyFrame;
             })(Animation.KeyFrame);
             Animation.ObjectKeyFrame = ObjectKeyFrame;
-            Fayde.RegisterType(ObjectKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ObjectKeyFrame);
 
             var DiscreteObjectKeyFrame = (function (_super) {
                 __extends(DiscreteObjectKeyFrame, _super);
@@ -21648,7 +21613,7 @@ var Fayde;
                 return DiscreteObjectKeyFrame;
             })(ObjectKeyFrame);
             Animation.DiscreteObjectKeyFrame = DiscreteObjectKeyFrame;
-            Fayde.RegisterType(DiscreteObjectKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(DiscreteObjectKeyFrame);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -21736,7 +21701,7 @@ var Fayde;
                 return PointAnimation;
             })(Animation.AnimationBase);
             Animation.PointAnimation = PointAnimation;
-            Fayde.RegisterType(PointAnimation, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(PointAnimation);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -21768,7 +21733,7 @@ var Fayde;
                 return PointAnimationUsingKeyFrames;
             })(Animation.AnimationUsingKeyFrames);
             Animation.PointAnimationUsingKeyFrames = PointAnimationUsingKeyFrames;
-            Fayde.RegisterType(PointAnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(PointAnimationUsingKeyFrames);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -21789,7 +21754,7 @@ var Fayde;
                 return PointKeyFrame;
             })(Animation.KeyFrame);
             Animation.PointKeyFrame = PointKeyFrame;
-            Fayde.RegisterType(PointKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(PointKeyFrame);
 
             var DiscretePointKeyFrame = (function (_super) {
                 __extends(DiscretePointKeyFrame, _super);
@@ -21804,7 +21769,7 @@ var Fayde;
                 return DiscretePointKeyFrame;
             })(PointKeyFrame);
             Animation.DiscretePointKeyFrame = DiscretePointKeyFrame;
-            Fayde.RegisterType(DiscretePointKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(DiscretePointKeyFrame);
 
             var EasingPointKeyFrame = (function (_super) {
                 __extends(EasingPointKeyFrame, _super);
@@ -21830,7 +21795,7 @@ var Fayde;
                 return EasingPointKeyFrame;
             })(PointKeyFrame);
             Animation.EasingPointKeyFrame = EasingPointKeyFrame;
-            Fayde.RegisterType(EasingPointKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(EasingPointKeyFrame);
 
             var LinearPointKeyFrame = (function (_super) {
                 __extends(LinearPointKeyFrame, _super);
@@ -21843,7 +21808,7 @@ var Fayde;
                 return LinearPointKeyFrame;
             })(PointKeyFrame);
             Animation.LinearPointKeyFrame = LinearPointKeyFrame;
-            Fayde.RegisterType(LinearPointKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(LinearPointKeyFrame);
 
             var SplinePointKeyFrame = (function (_super) {
                 __extends(SplinePointKeyFrame, _super);
@@ -21878,7 +21843,7 @@ var Fayde;
                 return SplinePointKeyFrame;
             })(PointKeyFrame);
             Animation.SplinePointKeyFrame = SplinePointKeyFrame;
-            Fayde.RegisterType(SplinePointKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(SplinePointKeyFrame);
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -22029,7 +21994,7 @@ var Fayde;
                 return Storyboard;
             })(Animation.Timeline);
             Animation.Storyboard = Storyboard;
-            Fayde.RegisterType(Storyboard, "Fayde.Media.Animation", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(Storyboard);
             Fayde.Markup.Content(Storyboard, Storyboard.ChildrenProperty);
 
             function getLogMessage(action, storyboard, full, clockData) {
@@ -22126,7 +22091,7 @@ var Fayde;
             return Brush;
         })(Fayde.DependencyObject);
         Media.Brush = Brush;
-        Fayde.RegisterType(Brush, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Brush);
 
         var reactions;
         (function (reactions) {
@@ -22167,7 +22132,7 @@ var Fayde;
             return GeneralTransform;
         })(Fayde.DependencyObject);
         Media.GeneralTransform = GeneralTransform;
-        Fayde.RegisterType(GeneralTransform, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(GeneralTransform);
 
         var InternalTransform = (function (_super) {
             __extends(InternalTransform, _super);
@@ -22220,7 +22185,7 @@ var Fayde;
             return InternalTransform;
         })(GeneralTransform);
         Media.InternalTransform = InternalTransform;
-        Fayde.RegisterType(InternalTransform, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(InternalTransform);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -22248,7 +22213,7 @@ var Fayde;
                 return Effect;
             })(Fayde.DependencyObject);
             Effects.Effect = Effect;
-            Fayde.RegisterType(Effect, "Fayde.Media.Effects", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(Effect);
 
             var reactions;
             (function (reactions) {
@@ -22276,7 +22241,7 @@ var Fayde;
                 return BlurEffect;
             })(Effects.Effect);
             Effects.BlurEffect = BlurEffect;
-            Fayde.RegisterType(BlurEffect, "Fayde.Media.Effects", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(BlurEffect);
         })(Media.Effects || (Media.Effects = {}));
         var Effects = Media.Effects;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -22507,7 +22472,7 @@ var Color = (function () {
     };
     return Color;
 })();
-Fayde.RegisterType(Color, "window", Fayde.XMLNS);
+Fayde.CoreLibrary.add(Color);
 
 nullstone.registerTypeConverter(Color, function (val) {
     if (!val)
@@ -22597,7 +22562,7 @@ var Fayde;
                 return DropShadowEffect;
             })(Effects.Effect);
             Effects.DropShadowEffect = DropShadowEffect;
-            Fayde.RegisterType(DropShadowEffect, "Fayde.Media.Effects", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(DropShadowEffect);
         })(Media.Effects || (Media.Effects = {}));
         var Effects = Media.Effects;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -22682,7 +22647,7 @@ var Fayde;
             return Geometry;
         })(Fayde.DependencyObject);
         Media.Geometry = Geometry;
-        Fayde.RegisterType(Geometry, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Geometry);
 
         var reactions;
         (function (reactions) {
@@ -22715,7 +22680,7 @@ var Fayde;
             return GeometryCollection;
         })(Fayde.XamlObjectCollection);
         Media.GeometryCollection = GeometryCollection;
-        Fayde.RegisterType(GeometryCollection, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(GeometryCollection);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -22756,7 +22721,7 @@ var Fayde;
             return EllipseGeometry;
         })(Media.Geometry);
         Media.EllipseGeometry = EllipseGeometry;
-        Fayde.RegisterType(EllipseGeometry, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(EllipseGeometry);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -22856,7 +22821,7 @@ var Fayde;
             return GeometryGroup;
         })(Media.Geometry);
         Media.GeometryGroup = GeometryGroup;
-        Fayde.RegisterType(GeometryGroup, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(GeometryGroup);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -22916,7 +22881,7 @@ var Fayde;
             return GradientBrush;
         })(Media.Brush);
         Media.GradientBrush = GradientBrush;
-        Fayde.RegisterType(GradientBrush, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(GradientBrush);
         Fayde.Markup.Content(GradientBrush, GradientBrush.GradientStopsProperty);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
@@ -23058,7 +23023,7 @@ var Fayde;
             return GradientStop;
         })(Fayde.DependencyObject);
         Media.GradientStop = GradientStop;
-        Fayde.RegisterType(GradientStop, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(GradientStop);
 
         var GradientStopCollection = (function (_super) {
             __extends(GradientStopCollection, _super);
@@ -23085,7 +23050,7 @@ var Fayde;
             return GradientStopCollection;
         })(Fayde.XamlObjectCollection);
         Media.GradientStopCollection = GradientStopCollection;
-        Fayde.RegisterType(GradientStopCollection, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(GradientStopCollection);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -23114,7 +23079,7 @@ var Fayde;
                 return ImageSource;
             })(Fayde.DependencyObject);
             Imaging.ImageSource = ImageSource;
-            Fayde.RegisterType(ImageSource, "Fayde.Media.Imaging", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ImageSource);
         })(Media.Imaging || (Media.Imaging = {}));
         var Imaging = Media.Imaging;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -23219,7 +23184,7 @@ var Fayde;
                 return BitmapSource;
             })(Imaging.ImageSource);
             Imaging.BitmapSource = BitmapSource;
-            Fayde.RegisterType(BitmapSource, "Fayde.Media.Imaging", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(BitmapSource);
         })(Media.Imaging || (Media.Imaging = {}));
         var Imaging = Media.Imaging;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -23261,7 +23226,7 @@ var Fayde;
                 return BitmapImage;
             })(Imaging.BitmapSource);
             Imaging.BitmapImage = BitmapImage;
-            Fayde.RegisterType(BitmapImage, "Fayde.Media.Imaging", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(BitmapImage);
 
             nullstone.registerTypeConverter(Imaging.ImageSource, function (val) {
                 var bi = new BitmapImage();
@@ -23376,7 +23341,7 @@ var Fayde;
             return TileBrush;
         })(Media.Brush);
         Media.TileBrush = TileBrush;
-        Fayde.RegisterType(TileBrush, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(TileBrush);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -23440,7 +23405,7 @@ var Fayde;
                 return ImageBrush;
             })(Media.TileBrush);
             Imaging.ImageBrush = ImageBrush;
-            Fayde.RegisterType(ImageBrush, "Fayde.Media.Imaging", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(ImageBrush);
         })(Media.Imaging || (Media.Imaging = {}));
         var Imaging = Media.Imaging;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -23476,7 +23441,7 @@ var Fayde;
             return LineGeometry;
         })(Media.Geometry);
         Media.LineGeometry = LineGeometry;
-        Fayde.RegisterType(LineGeometry, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(LineGeometry);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -23569,7 +23534,7 @@ var Fayde;
             return LinearGradientBrush;
         })(Media.GradientBrush);
         Media.LinearGradientBrush = LinearGradientBrush;
-        Fayde.RegisterType(LinearGradientBrush, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(LinearGradientBrush);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -23694,7 +23659,7 @@ var Fayde;
             return Matrix;
         })();
         Media.Matrix = Matrix;
-        Fayde.RegisterType(Matrix, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Matrix);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -23948,7 +23913,7 @@ var Fayde;
             return Matrix3D;
         })();
         Media.Matrix3D = Matrix3D;
-        Fayde.RegisterType(Matrix3D, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Matrix3D);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -24013,7 +23978,7 @@ var Fayde;
             return Projection;
         })(Fayde.DependencyObject);
         Media.Projection = Projection;
-        Fayde.RegisterType(Projection, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Projection);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -24036,7 +24001,7 @@ var Fayde;
             return Matrix3DProjection;
         })(Media.Projection);
         Media.Matrix3DProjection = Matrix3DProjection;
-        Fayde.RegisterType(Matrix3DProjection, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Matrix3DProjection);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -24517,7 +24482,7 @@ var Fayde;
             return PathFigure;
         })(Fayde.DependencyObject);
         Media.PathFigure = PathFigure;
-        Fayde.RegisterType(PathFigure, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PathFigure);
         Fayde.Markup.Content(PathFigure, PathFigure.SegmentsProperty);
 
         var PathFigureCollection = (function (_super) {
@@ -24543,7 +24508,7 @@ var Fayde;
             return PathFigureCollection;
         })(Fayde.XamlObjectCollection);
         Media.PathFigureCollection = PathFigureCollection;
-        Fayde.RegisterType(PathFigureCollection, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PathFigureCollection);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -24605,7 +24570,7 @@ var Fayde;
             return PathGeometry;
         })(Media.Geometry);
         Media.PathGeometry = PathGeometry;
-        Fayde.RegisterType(PathGeometry, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PathGeometry);
         Fayde.Markup.Content(PathGeometry, PathGeometry.FiguresProperty);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
@@ -24623,7 +24588,7 @@ var Fayde;
             return PathSegment;
         })(Fayde.DependencyObject);
         Media.PathSegment = PathSegment;
-        Fayde.RegisterType(PathSegment, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PathSegment);
 
         var PathSegmentCollection = (function (_super) {
             __extends(PathSegmentCollection, _super);
@@ -24648,7 +24613,7 @@ var Fayde;
             return PathSegmentCollection;
         })(Fayde.XamlObjectCollection);
         Media.PathSegmentCollection = PathSegmentCollection;
-        Fayde.RegisterType(PathSegmentCollection, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PathSegmentCollection);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -24689,7 +24654,7 @@ var Fayde;
             return ArcSegment;
         })(Media.PathSegment);
         Media.ArcSegment = ArcSegment;
-        Fayde.RegisterType(ArcSegment, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ArcSegment);
 
         var BezierSegment = (function (_super) {
             __extends(BezierSegment, _super);
@@ -24722,7 +24687,7 @@ var Fayde;
             return BezierSegment;
         })(Media.PathSegment);
         Media.BezierSegment = BezierSegment;
-        Fayde.RegisterType(BezierSegment, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(BezierSegment);
 
         var LineSegment = (function (_super) {
             __extends(LineSegment, _super);
@@ -24741,7 +24706,7 @@ var Fayde;
             return LineSegment;
         })(Media.PathSegment);
         Media.LineSegment = LineSegment;
-        Fayde.RegisterType(LineSegment, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(LineSegment);
 
         var PolyBezierSegment = (function (_super) {
             __extends(PolyBezierSegment, _super);
@@ -24773,7 +24738,7 @@ var Fayde;
             return PolyBezierSegment;
         })(Media.PathSegment);
         Media.PolyBezierSegment = PolyBezierSegment;
-        Fayde.RegisterType(PolyBezierSegment, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PolyBezierSegment);
         Fayde.Markup.Content(PolyBezierSegment, PolyBezierSegment.PointsProperty);
 
         var PolyLineSegment = (function (_super) {
@@ -24797,7 +24762,7 @@ var Fayde;
             return PolyLineSegment;
         })(Media.PathSegment);
         Media.PolyLineSegment = PolyLineSegment;
-        Fayde.RegisterType(PolyLineSegment, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PolyLineSegment);
         Fayde.Markup.Content(PolyLineSegment, PolyLineSegment.PointsProperty);
 
         var PolyQuadraticBezierSegment = (function (_super) {
@@ -24845,7 +24810,7 @@ var Fayde;
             return PolyQuadraticBezierSegment;
         })(Media.PathSegment);
         Media.PolyQuadraticBezierSegment = PolyQuadraticBezierSegment;
-        Fayde.RegisterType(PolyQuadraticBezierSegment, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PolyQuadraticBezierSegment);
         Fayde.Markup.Content(PolyQuadraticBezierSegment, PolyQuadraticBezierSegment.PointsProperty);
 
         var QuadraticBezierSegment = (function (_super) {
@@ -24873,7 +24838,7 @@ var Fayde;
             return QuadraticBezierSegment;
         })(Media.PathSegment);
         Media.QuadraticBezierSegment = QuadraticBezierSegment;
-        Fayde.RegisterType(QuadraticBezierSegment, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(QuadraticBezierSegment);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -25033,7 +24998,7 @@ var Fayde;
             return PlaneProjection;
         })(Media.Projection);
         Media.PlaneProjection = PlaneProjection;
-        Fayde.RegisterType(PlaneProjection, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PlaneProjection);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -25071,7 +25036,7 @@ var Fayde;
             return RadialGradientBrush;
         })(Media.GradientBrush);
         Media.RadialGradientBrush = RadialGradientBrush;
-        Fayde.RegisterType(RadialGradientBrush, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(RadialGradientBrush);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -25113,7 +25078,7 @@ var Fayde;
             return RectangleGeometry;
         })(Media.Geometry);
         Media.RectangleGeometry = RectangleGeometry;
-        Fayde.RegisterType(RectangleGeometry, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(RectangleGeometry);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -25162,7 +25127,7 @@ var Fayde;
             return SolidColorBrush;
         })(Media.Brush);
         Media.SolidColorBrush = SolidColorBrush;
-        Fayde.RegisterType(SolidColorBrush, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(SolidColorBrush);
 
         function brushConverter(val) {
             if (!val)
@@ -25197,7 +25162,7 @@ var Fayde;
             return TextOptions;
         })();
         Media.TextOptions = TextOptions;
-        Fayde.RegisterType(TextOptions, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(TextOptions);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -25272,7 +25237,7 @@ var Fayde;
             return Transform;
         })(Media.GeneralTransform);
         Media.Transform = Transform;
-        Fayde.RegisterType(Transform, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Transform);
 
         var MatrixTransform = (function (_super) {
             __extends(MatrixTransform, _super);
@@ -25297,7 +25262,7 @@ var Fayde;
             return MatrixTransform;
         })(Transform);
         Media.MatrixTransform = MatrixTransform;
-        Fayde.RegisterType(MatrixTransform, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(MatrixTransform);
 
         var reactions;
         (function (reactions) {
@@ -25347,7 +25312,7 @@ var Fayde;
             return RotateTransform;
         })(Media.Transform);
         Media.RotateTransform = RotateTransform;
-        Fayde.RegisterType(RotateTransform, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(RotateTransform);
 
         var ScaleTransform = (function (_super) {
             __extends(ScaleTransform, _super);
@@ -25388,7 +25353,7 @@ var Fayde;
             return ScaleTransform;
         })(Media.Transform);
         Media.ScaleTransform = ScaleTransform;
-        Fayde.RegisterType(ScaleTransform, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(ScaleTransform);
 
         var SkewTransform = (function (_super) {
             __extends(SkewTransform, _super);
@@ -25431,7 +25396,7 @@ var Fayde;
             return SkewTransform;
         })(Media.Transform);
         Media.SkewTransform = SkewTransform;
-        Fayde.RegisterType(SkewTransform, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(SkewTransform);
 
         var TranslateTransform = (function (_super) {
             __extends(TranslateTransform, _super);
@@ -25454,7 +25419,7 @@ var Fayde;
             return TranslateTransform;
         })(Media.Transform);
         Media.TranslateTransform = TranslateTransform;
-        Fayde.RegisterType(TranslateTransform, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(TranslateTransform);
 
         var TransformCollection = (function (_super) {
             __extends(TransformCollection, _super);
@@ -25481,7 +25446,7 @@ var Fayde;
             return TransformCollection;
         })(Fayde.XamlObjectCollection);
         Media.TransformCollection = TransformCollection;
-        Fayde.RegisterType(TransformCollection, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(TransformCollection);
 
         var TransformGroup = (function (_super) {
             __extends(TransformGroup, _super);
@@ -25507,7 +25472,7 @@ var Fayde;
             return TransformGroup;
         })(Media.Transform);
         Media.TransformGroup = TransformGroup;
-        Fayde.RegisterType(TransformGroup, "Fayde.Media", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(TransformGroup);
         Fayde.Markup.Content(TransformGroup, TransformGroup.ChildrenProperty);
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
@@ -25527,7 +25492,7 @@ var Fayde;
                 return VisualState;
             })(Fayde.DependencyObject);
             VSM.VisualState = VisualState;
-            Fayde.RegisterType(VisualState, "Fayde.Media.VSM", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(VisualState);
             Fayde.Markup.Content(VisualState, VisualState.StoryboardProperty);
 
             var VisualStateCollection = (function (_super) {
@@ -25538,7 +25503,7 @@ var Fayde;
                 return VisualStateCollection;
             })(Fayde.XamlObjectCollection);
             VSM.VisualStateCollection = VisualStateCollection;
-            Fayde.RegisterType(VisualStateCollection, "Fayde.Media.VSM", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(VisualStateCollection);
         })(Media.VSM || (Media.VSM = {}));
         var VSM = Media.VSM;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -25646,7 +25611,7 @@ var Fayde;
                 return VisualStateGroup;
             })(Fayde.DependencyObject);
             VSM.VisualStateGroup = VisualStateGroup;
-            Fayde.RegisterType(VisualStateGroup, "Fayde.Media.VSM", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(VisualStateGroup);
             Fayde.Markup.Content(VisualStateGroup, VisualStateGroup.StatesProperty);
 
             var VisualStateGroupCollection = (function (_super) {
@@ -25657,7 +25622,7 @@ var Fayde;
                 return VisualStateGroupCollection;
             })(Fayde.XamlObjectCollection);
             VSM.VisualStateGroupCollection = VisualStateGroupCollection;
-            Fayde.RegisterType(VisualStateGroupCollection, "Fayde.Media.VSM", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(VisualStateGroupCollection);
         })(Media.VSM || (Media.VSM = {}));
         var VSM = Media.VSM;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -25873,7 +25838,7 @@ var Fayde;
                 return VisualStateManager;
             })(Fayde.DependencyObject);
             VSM.VisualStateManager = VisualStateManager;
-            Fayde.RegisterType(VisualStateManager, "Fayde.Media.VSM", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(VisualStateManager);
 
             var Storyboard = Media.Animation.Storyboard;
 
@@ -26029,7 +25994,7 @@ var Fayde;
                 return VisualTransition;
             })(Fayde.DependencyObject);
             VSM.VisualTransition = VisualTransition;
-            Fayde.RegisterType(VisualTransition, "Fayde.Media.VSM", Fayde.XMLNS);
+            Fayde.CoreLibrary.add(VisualTransition);
         })(Media.VSM || (Media.VSM = {}));
         var VSM = Media.VSM;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -26072,7 +26037,7 @@ var Fayde;
             return NavigationService;
         })();
         Navigation.NavigationService = NavigationService;
-        Fayde.RegisterType(NavigationService, "Fayde.Navigation", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(NavigationService);
     })(Fayde.Navigation || (Fayde.Navigation = {}));
     var Navigation = Fayde.Navigation;
 })(Fayde || (Fayde = {}));
@@ -26101,7 +26066,7 @@ var Fayde;
             return UriMapper;
         })(Fayde.DependencyObject);
         Navigation.UriMapper = UriMapper;
-        Fayde.RegisterType(UriMapper, "Fayde.Navigation", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(UriMapper);
         Fayde.Markup.Content(UriMapper, UriMapper.UriMappingsProperty);
     })(Fayde.Navigation || (Fayde.Navigation = {}));
     var Navigation = Fayde.Navigation;
@@ -26130,7 +26095,7 @@ var Fayde;
             return UriMapping;
         })(Fayde.DependencyObject);
         Navigation.UriMapping = UriMapping;
-        Fayde.RegisterType(UriMapping, "Fayde.Navigation", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(UriMapping);
 
         function createUriMatcher(matchTemplate, outputTemplate, actual) {
             var i = 0;
@@ -26215,7 +26180,7 @@ var CornerRadius = (function (_super) {
     };
     return CornerRadius;
 })(minerva.CornerRadius);
-Fayde.RegisterType(CornerRadius, "window", Fayde.XMLNSX);
+Fayde.RegisterType(CornerRadius, Fayde.XMLNSX);
 
 nullstone.registerTypeConverter(CornerRadius, function (val) {
     if (!val)
@@ -26312,7 +26277,7 @@ var Duration = (function () {
     })();
     return Duration;
 })();
-Fayde.RegisterType(Duration, "window", Fayde.XMLNSX);
+Fayde.RegisterType(Duration, Fayde.XMLNSX);
 nullstone.registerTypeConverter(Duration, function (val) {
     if (!val || val.toString().toLowerCase() === "automatic")
         return Duration.Automatic;
@@ -26333,7 +26298,7 @@ var FontFamily = (function () {
     };
     return FontFamily;
 })();
-Fayde.RegisterType(FontFamily, "window", Fayde.XMLNS);
+Fayde.CoreLibrary.add(FontFamily);
 nullstone.registerTypeConverter(FontFamily, function (val) {
     if (!val)
         return new FontFamily(Font.DEFAULT_FAMILY);
@@ -26411,7 +26376,7 @@ var KeyTime = (function () {
     });
     return KeyTime;
 })();
-Fayde.RegisterType(KeyTime, "window", Fayde.XMLNSX);
+Fayde.RegisterType(KeyTime, Fayde.XMLNSX);
 nullstone.registerTypeConverter(KeyTime, function (val) {
     if (!val || val.toString().toLowerCase() === "uniform")
         return KeyTime.CreateUniform();
@@ -26423,7 +26388,7 @@ var Length = (function () {
     }
     return Length;
 })();
-Fayde.RegisterType(Length, "window", Fayde.XMLNSX);
+Fayde.RegisterType(Length, Fayde.XMLNSX);
 nullstone.registerTypeConverter(Length, function (val) {
     if (!val || val.toString().toLowerCase() === "auto")
         return Number.NaN;
@@ -26441,7 +26406,7 @@ var Thickness = (function (_super) {
     };
     return Thickness;
 })(minerva.Thickness);
-Fayde.RegisterType(Thickness, "window", Fayde.XMLNSX);
+Fayde.RegisterType(Thickness, Fayde.XMLNSX);
 
 nullstone.registerTypeConverter(Thickness, function (val) {
     if (!val)
@@ -26782,7 +26747,7 @@ var Fayde;
             return DoubleCollection;
         })(Fayde.XamlObjectCollection);
         Shapes.DoubleCollection = DoubleCollection;
-        Fayde.RegisterType(DoubleCollection, "Fayde.Shapes", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(DoubleCollection);
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));
@@ -26839,7 +26804,7 @@ var Fayde;
             return Shape;
         })(Fayde.FrameworkElement);
         Shapes.Shape = Shape;
-        Fayde.RegisterType(Shape, "Fayde.Shapes", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Shape);
 
         function onSizeChanged(shape, args) {
             var updater = shape.XamlNode.LayoutUpdater;
@@ -26902,7 +26867,7 @@ var Fayde;
             return Ellipse;
         })(Shapes.Shape);
         Shapes.Ellipse = Ellipse;
-        Fayde.RegisterType(Ellipse, "Fayde.Shapes", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Ellipse);
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));
@@ -26934,7 +26899,7 @@ var Fayde;
             return Line;
         })(Shapes.Shape);
         Shapes.Line = Line;
-        Fayde.RegisterType(Line, "Fayde.Shapes", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Line);
 
         var reactions;
         (function (reactions) {
@@ -26979,7 +26944,7 @@ var Fayde;
             return Path;
         })(Shapes.Shape);
         Shapes.Path = Path;
-        Fayde.RegisterType(Path, "Fayde.Shapes", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Path);
 
         var reactions;
         (function (reactions) {
@@ -27080,7 +27045,7 @@ var Fayde;
             return PointCollection;
         })();
         Shapes.PointCollection = PointCollection;
-        Fayde.RegisterType(PointCollection, "Fayde.Shapes", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(PointCollection);
 
         nullstone.registerTypeConverter(PointCollection, function (val) {
             var pc = new PointCollection();
@@ -27121,7 +27086,7 @@ var Fayde;
             return Polygon;
         })(Shapes.Shape);
         Shapes.Polygon = Polygon;
-        Fayde.RegisterType(Polygon, "Fayde.Shapes", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Polygon);
 
         var reactions;
         (function (reactions) {
@@ -27167,7 +27132,7 @@ var Fayde;
             return Polyline;
         })(Shapes.Shape);
         Shapes.Polyline = Polyline;
-        Fayde.RegisterType(Polyline, "Fayde.Shapes", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Polyline);
 
         var reactions;
         (function (reactions) {
@@ -27206,7 +27171,7 @@ var Fayde;
             return Rectangle;
         })(Shapes.Shape);
         Shapes.Rectangle = Rectangle;
-        Fayde.RegisterType(Rectangle, "Fayde.Shapes", Fayde.XMLNS);
+        Fayde.CoreLibrary.add(Rectangle);
 
         var reactions;
         (function (reactions) {

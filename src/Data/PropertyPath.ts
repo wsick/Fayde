@@ -298,7 +298,7 @@ module Fayde.Data {
             return new PropertyPath(this._Path, this._ExpandedPath);
         }
     }
-    Fayde.RegisterType(PropertyPath, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(PropertyPath);
     nullstone.registerTypeConverter(PropertyPath, (val: any): any => {
         if (!val)
             return new PropertyPath();

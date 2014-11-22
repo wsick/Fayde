@@ -30,7 +30,7 @@ module Fayde.Controls.Primitives {
                 (val) => this.SetCurrentValue(RangeBase.ValueProperty, val));
         }
     }
-    Fayde.RegisterType(RangeBase, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RangeBase);
 
     function numberValidator(d: DependencyObject, propd: DependencyProperty, value: any): boolean {
         if (typeof value !== "number")

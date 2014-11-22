@@ -3,5 +3,5 @@
 module Fayde.Shapes {
     export class DoubleCollection extends XamlObjectCollection<XamlObject> {
     }
-    Fayde.RegisterType(DoubleCollection, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DoubleCollection);
 }

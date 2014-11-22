@@ -4,5 +4,5 @@ module Fayde {
         Source: any = null;
         OriginalSource: any = null;
     }
-    Fayde.RegisterType(RoutedEventArgs, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RoutedEventArgs);
 }

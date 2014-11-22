@@ -25,7 +25,7 @@ module Fayde.Controls {
             this.DefaultStyleKey = Border;
         }
     }
-    Fayde.RegisterType(Border, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Border);
     Markup.Content(Border, Border.ChildProperty);
 
     UIReaction<minerva.IBrush>(Border.BackgroundProperty, (upd, ov, nv) => {

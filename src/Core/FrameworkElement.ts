@@ -199,7 +199,7 @@ module Fayde {
 
         UpdateLayout() { this.XamlNode.UpdateLayout(); }
     }
-    Fayde.RegisterType(FrameworkElement, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(FrameworkElement);
 
     FrameworkElement.ActualWidthProperty.Store = Providers.ActualSizeStore.Instance;
     FrameworkElement.ActualHeightProperty.Store = Providers.ActualSizeStore.Instance;

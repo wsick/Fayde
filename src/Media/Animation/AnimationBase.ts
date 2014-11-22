@@ -66,7 +66,7 @@ module Fayde.Media.Animation {
             return true;
         }
     }
-    Fayde.RegisterType(AnimationBase, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(AnimationBase);
 
     function getLogMessage(action: string, anim: AnimationBase, oldValue: any, newValue: any) {
         var msg = "ANIMATION:" + action + ":" + (<any>anim)._ID + "[" + (<any>anim).constructor.name + "]";

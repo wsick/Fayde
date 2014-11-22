@@ -196,7 +196,7 @@ module Fayde.Media.VSM {
             return defaultTransition;
         }
     }
-    Fayde.RegisterType(VisualStateManager, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(VisualStateManager);
 
     import Timeline = Animation.Timeline;
     import Storyboard = Animation.Storyboard;

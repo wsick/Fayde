@@ -13,5 +13,5 @@ module Fayde.Controls {
             return uie;
         }
     }
-    Fayde.RegisterType(ControlTemplate, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ControlTemplate);
 }

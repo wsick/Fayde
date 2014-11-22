@@ -103,5 +103,5 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(ItemsPresenter, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ItemsPresenter);
 }

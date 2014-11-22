@@ -65,7 +65,7 @@ module Fayde.Controls {
             this.XamlNode.SetSubtreeNode(coll.XamlNode, error);
         }
     }
-    Fayde.RegisterType(Panel, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Panel);
     Markup.Content(Panel, Panel.ChildrenProperty);
 
     module reactions {

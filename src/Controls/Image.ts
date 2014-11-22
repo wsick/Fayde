@@ -41,7 +41,7 @@ module Fayde.Controls {
             lu.invalidate();
         }
     }
-    Fayde.RegisterType(Image, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Image);
 
     UIReaction<Media.Imaging.ImageSource>(Image.SourceProperty, (upd: ImageUpdater, ov, nv, image?: Image) => {
         if (ov instanceof Media.Imaging.BitmapSource)

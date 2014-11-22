@@ -78,6 +78,6 @@ module Fayde.Media.Animation {
         AddKeyFrame(kf: KeyFrame) { this.KeyFrames.Add(kf); }
         RemoveKeyFrame(kf: KeyFrame) { this.KeyFrames.Remove(kf); }
     }
-    Fayde.RegisterType(AnimationUsingKeyFrames, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(AnimationUsingKeyFrames);
     Markup.Content(AnimationUsingKeyFrames, AnimationUsingKeyFrames.KeyFramesProperty);
 }

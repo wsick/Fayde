@@ -29,7 +29,7 @@ module Fayde.Media.Imaging {
             this.ImageOpened.raise(this, null);
         }
     }
-    Fayde.RegisterType(BitmapImage, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(BitmapImage);
 
     nullstone.registerTypeConverter(ImageSource, (val: any): ImageSource => {
         var bi = new BitmapImage();

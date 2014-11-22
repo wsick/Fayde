@@ -21,6 +21,6 @@ module Fayde.Navigation {
             return uri;
         }
     }
-    Fayde.RegisterType(UriMapper, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(UriMapper);
     Markup.Content(UriMapper, UriMapper.UriMappingsProperty);
 }

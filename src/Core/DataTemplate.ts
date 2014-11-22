@@ -13,5 +13,5 @@ module Fayde {
             return uie;
         }
     }
-    Fayde.RegisterType(DataTemplate, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DataTemplate);
 }

@@ -69,7 +69,7 @@ module Fayde.Controls {
             this.UpdateVisualState();
         }
     }
-    Fayde.RegisterType(ListBoxItem, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ListBoxItem);
     TemplateVisualStates(ListBoxItem, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

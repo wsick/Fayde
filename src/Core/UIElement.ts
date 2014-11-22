@@ -328,7 +328,7 @@ module Fayde {
                 newTriggers.AttachTarget(this);
         }
     }
-    Fayde.RegisterType(UIElement, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(UIElement);
 
     module reactions {
         UIReaction<minerva.IGeometry>(UIElement.ClipProperty, minerva.core.reactTo.clip);

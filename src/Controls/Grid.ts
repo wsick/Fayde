@@ -71,7 +71,7 @@ module Fayde.Controls {
             ReactTo(rowdefs, this, (obj?) => this.XamlNode.RowDefinitionsChanged(obj.item, obj.index, obj.add));
         }
     }
-    Fayde.RegisterType(Grid, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Grid);
 
     module reactions {
         UIReaction<boolean>(Grid.ShowGridLinesProperty, minerva.controls.grid.reactTo.showGridLines, false);

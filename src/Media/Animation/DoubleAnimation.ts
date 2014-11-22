@@ -67,5 +67,5 @@ module Fayde.Media.Animation {
             return da;
         }
     }
-    Fayde.RegisterType(DoubleAnimation, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DoubleAnimation);
 }

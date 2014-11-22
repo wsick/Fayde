@@ -153,5 +153,5 @@ module Fayde {
              */
         }
     }
-    Fayde.RegisterType(Application, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Application);
 }

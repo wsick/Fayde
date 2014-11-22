@@ -4,7 +4,7 @@
 module Fayde {
     export class RoutedPropertyChangingEvent<T> extends RoutedEvent<RoutedPropertyChangingEventArgs<T>> {
     }
-    Fayde.RegisterType(RoutedPropertyChangingEvent, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RoutedPropertyChangingEvent);
 
     export class RoutedPropertyChangingEventArgs<T> extends RoutedEventArgs {
         Property: DependencyProperty;
@@ -29,5 +29,5 @@ module Fayde {
             this._IsCancelable = isCancelable;
         }
     }
-    Fayde.RegisterType(RoutedPropertyChangingEventArgs, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RoutedPropertyChangingEventArgs);
 }

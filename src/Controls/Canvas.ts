@@ -11,7 +11,7 @@ module Fayde.Controls {
         static GetLeft(d: DependencyObject): number { return d.GetValue(Canvas.LeftProperty); }
         static SetLeft(d: DependencyObject, value: number) { d.SetValue(Canvas.LeftProperty, value); }
     }
-    Fayde.RegisterType(Canvas, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Canvas);
 
     module reactions {
         UIReactionAttached<number>(Canvas.TopProperty, minerva.controls.canvas.reactTo.top);

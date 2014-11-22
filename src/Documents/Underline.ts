@@ -3,5 +3,5 @@
 module Fayde.Documents {
     export class Underline extends Span {
     }
-    Fayde.RegisterType(Underline, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Underline);
 }

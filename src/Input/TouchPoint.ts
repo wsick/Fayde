@@ -13,5 +13,5 @@ module Fayde.Input {
             Object.defineProperty(this, "Force", { value: force, writable: false });
         }
     }
-    Fayde.RegisterType(TouchPoint, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TouchPoint);
 }

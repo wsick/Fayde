@@ -23,7 +23,7 @@ module Fayde.Shapes {
             this.Stretch = Fayde.Media.Stretch.Fill;
         }
     }
-    Fayde.RegisterType(Rectangle, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Rectangle);
 
     module reactions {
         UIReaction<number>(Rectangle.RadiusXProperty, (upd, ov, nv) => upd.invalidate(), false);

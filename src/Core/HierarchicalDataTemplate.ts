@@ -31,5 +31,5 @@ module Fayde {
             Object.defineProperty(this, "IsItemContainerStyleSet", { value: false, writable: true });
         }
     }
-    Fayde.RegisterType(HierarchicalDataTemplate, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(HierarchicalDataTemplate);
 }

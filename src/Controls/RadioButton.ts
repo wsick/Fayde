@@ -62,7 +62,7 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(RadioButton, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RadioButton);
     TemplateVisualStates(RadioButton, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

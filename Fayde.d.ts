@@ -13,6 +13,7 @@ declare module Fayde {
     interface Uri extends nullstone.Uri {
     }
     var TypeManager: nullstone.TypeManager;
+    var CoreLibrary: nullstone.ILibrary;
     function RegisterType(type: Function, uri: string, name?: string): void;
     function RegisterEnum(enu: any, uri: string, name: string): void;
 }

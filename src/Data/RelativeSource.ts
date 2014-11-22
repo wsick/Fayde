@@ -44,7 +44,7 @@ module Fayde.Data {
             }
         }
     }
-    Fayde.RegisterType(RelativeSource, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RelativeSource);
 
     function findAncestor (target: XamlObject, relSource: Data.RelativeSource): XamlObject {
         if (!(target instanceof DependencyObject))

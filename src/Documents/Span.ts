@@ -40,6 +40,6 @@ module Fayde.Documents {
             });
         }
     }
-    Fayde.RegisterType(Span, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Span);
     Markup.Content(Span, Span.InlinesProperty);
 }

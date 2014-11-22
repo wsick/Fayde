@@ -18,7 +18,7 @@ module Fayde.Controls {
             this.DefaultStyleKey = UserControl;
         }
     }
-    Fayde.RegisterType(UserControl, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(UserControl);
     Markup.Content(UserControl, UserControl.ContentProperty);
 
     module reactions {

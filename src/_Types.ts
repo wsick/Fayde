@@ -14,6 +14,9 @@ module Fayde {
 
     export var TypeManager = new nullstone.TypeManager(XMLNS, XMLNSX);
 
+    export var CoreLibrary = TypeManager.resolveLibrary(XMLNS);
+    (<any>CoreLibrary).$$module = Fayde;
+
     export function RegisterType (type: Function, uri: string, name?: string) {
         name = name || nullstone.getTypeName(type);
         TypeManager.add(uri, name, type)

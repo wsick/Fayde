@@ -9,7 +9,7 @@ module Fayde.Controls {
         static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), StackPanel, Orientation.Vertical);
         Orientation: Orientation;
     }
-    Fayde.RegisterType(StackPanel, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(StackPanel);
 
     module reactions {
         UIReaction<minerva.Orientation>(StackPanel.OrientationProperty, (upd, ov, nv) => {

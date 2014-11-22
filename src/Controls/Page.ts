@@ -25,5 +25,5 @@ module Fayde.Controls {
             });
         }
     }
-    Fayde.RegisterType(Page, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Page);
 }

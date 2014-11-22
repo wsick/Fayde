@@ -270,5 +270,5 @@ module Fayde.Controls.Primitives {
         NotifyListItemGotFocus(lbi: ListBoxItem) { }
         NotifyListItemLostFocus(lbi: ListBoxItem) { }
     }
-    Fayde.RegisterType(Selector, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Selector);
 }

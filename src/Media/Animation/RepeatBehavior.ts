@@ -31,7 +31,7 @@ module Fayde.Media.Animation {
 
         static Forever: RepeatBehavior = (function () { var rb = new RepeatBehavior(); rb.IsForever = true; return rb; })();
     }
-    Fayde.RegisterType(RepeatBehavior, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RepeatBehavior);
 
     nullstone.registerTypeConverter(RepeatBehavior, (val: string): RepeatBehavior => {
         if (!val || val.toLowerCase() === "forever")

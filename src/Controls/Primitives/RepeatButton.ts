@@ -150,7 +150,7 @@ module Fayde.Controls.Primitives {
                 this.OnClick();
         }
     }
-    Fayde.RegisterType(RepeatButton, Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RepeatButton);
     TemplateVisualStates(RepeatButton, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },
