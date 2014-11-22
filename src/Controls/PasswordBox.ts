@@ -30,7 +30,7 @@ module Fayde.Controls {
         }
 
     }
-    Fayde.RegisterType(PasswordBox, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(PasswordBox, Fayde.XMLNS);
     TemplateVisualStates(PasswordBox,
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

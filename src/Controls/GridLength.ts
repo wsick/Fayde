@@ -16,7 +16,7 @@ module Fayde.Controls {
             return new Controls.GridLength(this.Value, this.Type);
         }
     }
-    Fayde.RegisterType(GridLength, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(GridLength, Fayde.XMLNS);
 
     nullstone.registerTypeConverter(GridLength, (val: any): GridLength => {
         if (val instanceof GridLength)

@@ -191,7 +191,7 @@ module Fayde.Controls {
                 gotoFunc("Closed");
         }
     }
-    Fayde.RegisterType(ToolTip, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(ToolTip, Fayde.XMLNS);
     TemplateVisualStates(ToolTip,
         { GroupName: "OpenStates", Name: "Closed" },
         { GroupName: "OpenStates", Name: "Open" });

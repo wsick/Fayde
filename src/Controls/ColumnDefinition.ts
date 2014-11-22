@@ -17,7 +17,7 @@ module Fayde.Controls {
             this.SetCurrentValue(ColumnDefinition.ActualWidthProperty, value);
         }
     }
-    Fayde.RegisterType(ColumnDefinition, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(ColumnDefinition, Fayde.XMLNS);
 
     import GridUnitType = minerva.controls.grid.GridUnitType;
     function ConvertColumnDefinition (o: any): ColumnDefinition {
@@ -59,7 +59,7 @@ module Fayde.Controls {
             });
         }
     }
-    Fayde.RegisterType(ColumnDefinitionCollection, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(ColumnDefinitionCollection, Fayde.XMLNS);
 
     function ConvertColumnDefinitionCollection (o: any): ColumnDefinitionCollection {
         if (!o || o instanceof ColumnDefinitionCollection)

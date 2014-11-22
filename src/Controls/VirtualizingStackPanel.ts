@@ -275,7 +275,7 @@ module Fayde.Controls {
                 scrollOwner.InvalidateScrollInfo();
         }
     }
-    Fayde.RegisterType(VirtualizingStackPanel, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(VirtualizingStackPanel, Fayde.XMLNS);
     nullstone.addTypeInterfaces(VirtualizingStackPanel, Primitives.IScrollInfo_);
 
     module reactions {

@@ -428,7 +428,7 @@ module Fayde.Controls {
             return proxy.setAnchorCursor(anchor, cursor);
         }
     }
-    Fayde.RegisterType(TextBoxBase, "Fayde.Controls", Fayde.XMLNSINTERNAL);
+    Fayde.RegisterType(TextBoxBase, Fayde.XMLNSINTERNAL);
 
     module reactions {
         DPReaction<Media.Brush>(TextBoxBase.CaretBrushProperty, (tbb: TextBoxBase, ov, nv) => {

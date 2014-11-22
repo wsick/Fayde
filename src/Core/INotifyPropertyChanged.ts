@@ -5,7 +5,7 @@ module Fayde {
             Object.defineProperty(this, "PropertyName", { value: propertyName, writable: false });
         }
     }
-    Fayde.RegisterType(PropertyChangedEventArgs, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(PropertyChangedEventArgs, Fayde.XMLNS);
 
     export interface INotifyPropertyChanged {
         PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;

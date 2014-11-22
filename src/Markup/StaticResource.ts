@@ -28,5 +28,5 @@ module Fayde {
             throw new Error("Could not resolve StaticResource: '" + key + "'.")
         }
     }
-    Fayde.RegisterType(StaticResource, Fayde.XMLNS, "StaticResource");
+    Fayde.RegisterType(StaticResource, Fayde.XMLNS);
 }

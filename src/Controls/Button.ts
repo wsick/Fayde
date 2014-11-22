@@ -17,7 +17,7 @@ module Fayde.Controls {
             this.IsTabStop = e.NewValue;
         }
     }
-    Fayde.RegisterType(Button, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(Button, Fayde.XMLNS);
     TemplateVisualStates(Button, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

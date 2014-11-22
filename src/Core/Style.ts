@@ -85,6 +85,6 @@ module Fayde {
             return true;
         }
     }
-    Fayde.RegisterType(Style, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(Style, Fayde.XMLNS);
     Markup.Content(Style, Style.SettersProperty);
 }

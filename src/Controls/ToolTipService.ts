@@ -38,7 +38,7 @@ module Fayde.Controls {
             return slave.MousePosition;
         }
     }
-    Fayde.RegisterType(ToolTipService, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(ToolTipService, Fayde.XMLNS);
 
 
     class ToolTipServiceSlave {

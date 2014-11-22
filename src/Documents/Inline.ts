@@ -27,5 +27,5 @@ module Fayde.Documents {
             return super.IsInheritable(propd);
         }
     }
-    Fayde.RegisterType(Inline, "Fayde.Documents", Fayde.XMLNS);
+    Fayde.RegisterType(Inline, Fayde.XMLNS);
 }

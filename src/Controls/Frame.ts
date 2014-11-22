@@ -114,5 +114,5 @@ module Fayde.Controls {
             //TODO: Show default content uri in Content when in design mode
         }
     }
-    Fayde.RegisterType(Frame, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(Frame, Fayde.XMLNS);
 }

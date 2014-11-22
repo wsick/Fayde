@@ -10,5 +10,5 @@ module Fayde {
             return new TemplateBindingExpression(this.SourceProperty);
         }
     }
-    Fayde.RegisterType(TemplateBinding, Fayde.XMLNS, "TemplateBinding");
+    Fayde.RegisterType(TemplateBinding, "TemplateBinding");
 }

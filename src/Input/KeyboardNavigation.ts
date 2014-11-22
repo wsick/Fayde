@@ -26,5 +26,5 @@ module Fayde.Input {
         static GetTabNavigation(d: DependencyObject): KeyboardNavigationMode { return d.GetValue(KeyboardNavigation.TabNavigationProperty); }
         static SetTabNavigation(d: DependencyObject, value: KeyboardNavigationMode) { d.SetValue(KeyboardNavigation.TabNavigationProperty, value); }
     }
-    Fayde.RegisterType(KeyboardNavigation, "Fayde.Input", Fayde.XMLNS);
+    Fayde.RegisterType(KeyboardNavigation, Fayde.XMLNS);
 }

@@ -215,7 +215,7 @@ module Fayde.Controls {
             return false;
         }
     }
-    Fayde.RegisterType(Control, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(Control, Fayde.XMLNS);
 
     Control.IsEnabledProperty.Store = Providers.IsEnabledStore.Instance;
 

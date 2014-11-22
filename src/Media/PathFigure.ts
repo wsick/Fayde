@@ -48,7 +48,7 @@ module Fayde.Media {
             minerva.path.Path.Merge(rp, this._Path);
         }
     }
-    Fayde.RegisterType(PathFigure, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(PathFigure, Fayde.XMLNS);
     Markup.Content(PathFigure, PathFigure.SegmentsProperty);
 
     export class PathFigureCollection extends XamlObjectCollection<PathFigure> {
@@ -65,5 +65,5 @@ module Fayde.Media {
             Incite(this);
         }
     }
-    Fayde.RegisterType(PathFigureCollection, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(PathFigureCollection, Fayde.XMLNS);
 }

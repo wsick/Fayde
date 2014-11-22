@@ -3,7 +3,7 @@
 module Fayde.Controls {
     export class _RichTextBoxView {
     }
-    Fayde.RegisterType(_RichTextBoxView, "Fayde.Controls", Fayde.XMLNSINTERNAL);
+    Fayde.RegisterType(_RichTextBoxView, Fayde.XMLNSINTERNAL);
 
     export class RichTextBox extends Control {
         HorizontalScrollBarVisibility: ScrollBarVisibility;
@@ -14,5 +14,5 @@ module Fayde.Controls {
             this.DefaultStyleKey = RichTextBox;
         }
     }
-    Fayde.RegisterType(RichTextBox, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(RichTextBox, Fayde.XMLNS);
 }

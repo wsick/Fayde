@@ -5,7 +5,7 @@ module Fayde {
     export class TriggerAction extends DependencyObject {
         Fire() { }
     }
-    Fayde.RegisterType(TriggerAction, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(TriggerAction, Fayde.XMLNS);
     
     export class TriggerActionCollection extends XamlObjectCollection<TriggerAction> {
         Fire() {
@@ -15,14 +15,14 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(TriggerActionCollection, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(TriggerActionCollection, Fayde.XMLNS);
 
     
     export class TriggerBase extends DependencyObject {
         Attach(target: XamlObject) { }
         Detach(target: XamlObject) { }
     }
-    Fayde.RegisterType(TriggerBase, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(TriggerBase, Fayde.XMLNS);
     
     export class EventTrigger extends TriggerBase {
         static ActionsProperty = DependencyProperty.RegisterImmutable<TriggerActionCollection>("Actions", () => TriggerActionCollection, EventTrigger);
@@ -77,7 +77,7 @@ module Fayde {
             return undefined;
         }
     }
-    Fayde.RegisterType(EventTrigger, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(EventTrigger, Fayde.XMLNS);
     Markup.Content(EventTrigger, EventTrigger.ActionsProperty);
 
     export class TriggerCollection extends XamlObjectCollection<TriggerBase> {
@@ -115,5 +115,5 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(TriggerCollection, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(TriggerCollection, Fayde.XMLNS);
 }

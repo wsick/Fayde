@@ -53,5 +53,5 @@ module Fayde.Input {
             return (Keyboard.Modifiers & ModifierKeys.Shift) === ModifierKeys.Shift;
         }
     }
-    Fayde.RegisterType(Keyboard, "Fayde.Input", Fayde.XMLNS);
+    Fayde.RegisterType(Keyboard, Fayde.XMLNS);
 }

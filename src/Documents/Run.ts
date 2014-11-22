@@ -15,7 +15,7 @@ module Fayde.Documents {
             return super.IsInheritable(propd);
         }
     }
-    Fayde.RegisterType(Run, "Fayde.Documents", Fayde.XMLNS);
+    Fayde.RegisterType(Run, Fayde.XMLNS);
 
     module reactions {
         TextReaction<string>(Run.TextProperty, (upd, ov, nv, run?: Run) => {

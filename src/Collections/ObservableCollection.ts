@@ -85,5 +85,5 @@ module Fayde.Collections {
             this.PropertyChanged.raise(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-    Fayde.RegisterType(ObservableCollection, "Fayde.Collections", Fayde.XMLNS);
+    Fayde.RegisterType(ObservableCollection, Fayde.XMLNS);
 }

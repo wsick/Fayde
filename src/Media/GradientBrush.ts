@@ -41,6 +41,6 @@ module Fayde.Media {
             return mat3.createScale(bounds.width, bounds.height);
         }
     }
-    Fayde.RegisterType(GradientBrush, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(GradientBrush, Fayde.XMLNS);
     Markup.Content(GradientBrush, GradientBrush.GradientStopsProperty);
 }

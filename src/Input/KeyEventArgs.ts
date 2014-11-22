@@ -175,7 +175,7 @@ module Fayde.Input {
 
     export class KeyboardEventArgs extends RoutedEventArgs {
     }
-    Fayde.RegisterType(KeyboardEventArgs, "Fayde.Input", Fayde.XMLNS);
+    Fayde.RegisterType(KeyboardEventArgs, Fayde.XMLNS);
 
     ///Modifers = { Shift: <boolean>, Ctrl: <boolean>, Alt: <boolean> }
     export class KeyEventArgs extends KeyboardEventArgs {
@@ -193,5 +193,5 @@ module Fayde.Input {
             this.Char = c;
         }
     }
-    Fayde.RegisterType(KeyEventArgs, "Fayde.Input", Fayde.XMLNS);
+    Fayde.RegisterType(KeyEventArgs, Fayde.XMLNS);
 }

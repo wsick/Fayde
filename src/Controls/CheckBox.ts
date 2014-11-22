@@ -7,7 +7,7 @@ module Fayde.Controls {
             this.DefaultStyleKey = CheckBox;
         }
     }
-    Fayde.RegisterType(CheckBox, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(CheckBox, Fayde.XMLNS);
     TemplateVisualStates(CheckBox, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

@@ -6,5 +6,5 @@ module Fayde.Media {
         static GetTextHintingMode(d: DependencyObject): TextHintingMode { return d.GetValue(TextOptions.TextHintingModeProperty); }
         static SetTextHintingMode(d: DependencyObject, value: TextHintingMode) { d.SetValue(TextOptions.TextHintingModeProperty, value); }
     }
-    Fayde.RegisterType(TextOptions, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(TextOptions, Fayde.XMLNS);
 }

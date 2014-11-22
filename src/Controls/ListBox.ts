@@ -306,7 +306,7 @@ module Fayde.Controls {
             this._FocusedIndex = -1;
         }
     }
-    Fayde.RegisterType(ListBox, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(ListBox, Fayde.XMLNS);
     TemplateVisualStates(ListBox,
         { GroupName: "ValidationStates", Name: "Valid" },
         { GroupName: "ValidationStates", Name: "InvalidUnfocused" },

@@ -3,5 +3,5 @@
 module Fayde.Documents {
     export class Block extends TextElement {
     }
-    Fayde.RegisterType(Block, "Fayde.Documents", Fayde.XMLNS);
+    Fayde.RegisterType(Block, Fayde.XMLNS);
 }

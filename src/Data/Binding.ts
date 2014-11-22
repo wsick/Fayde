@@ -80,5 +80,5 @@ module Fayde.Data {
             return new Binding(this);
         }
     }
-    Fayde.RegisterType(Binding, Fayde.XMLNS, "Binding");
+    Fayde.RegisterType(Binding, Fayde.XMLNS);
 }

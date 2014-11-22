@@ -44,6 +44,6 @@ module Fayde.Media {
             this.InvalidateGeometry();
         }
     }
-    Fayde.RegisterType(PathGeometry, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(PathGeometry, Fayde.XMLNS);
     Markup.Content(PathGeometry, PathGeometry.FiguresProperty);
 }

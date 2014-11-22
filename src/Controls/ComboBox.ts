@@ -357,7 +357,7 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(ComboBox, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(ComboBox, Fayde.XMLNS);
     TemplateParts(ComboBox, 
         { Name: "ContentPresenter", Type: ContentPresenter },
         { Name: "Popup", Type: Primitives.Popup },

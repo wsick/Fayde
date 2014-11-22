@@ -272,7 +272,7 @@ module Fayde.Controls.Primitives {
             this.Scroll.raise(this, args);
         }
     }
-    Fayde.RegisterType(ScrollBar, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    Fayde.RegisterType(ScrollBar, Fayde.XMLNS);
     TemplateVisualStates(ScrollBar, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

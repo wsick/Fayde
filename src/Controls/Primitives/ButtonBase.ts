@@ -204,5 +204,5 @@ module Fayde.Controls.Primitives {
                 this.IsEnabled = cmd.CanExecute(args.NewValue);
         }
     }
-    Fayde.RegisterType(ButtonBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    Fayde.RegisterType(ButtonBase, Fayde.XMLNS);
 }

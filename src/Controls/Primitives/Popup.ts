@@ -88,7 +88,7 @@ module Fayde.Controls.Primitives {
             this.XamlNode.EnsureCatcher();
         }
     }
-    Fayde.RegisterType(Popup, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    Fayde.RegisterType(Popup, Fayde.XMLNS);
     Markup.Content(Popup, Popup.ChildProperty);
 
     module reactions {

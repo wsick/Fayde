@@ -33,5 +33,5 @@ module Fayde {
 
         IsInheritable(propd: DependencyProperty): boolean { return false; }
     }
-    Fayde.RegisterType(XamlObject, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(XamlObject, Fayde.XMLNS);
 }

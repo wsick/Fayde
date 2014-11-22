@@ -67,5 +67,5 @@ module Fayde {
             return undefined;
         }
     }
-    Fayde.RegisterType(Theme, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(Theme, Fayde.XMLNS);
 }

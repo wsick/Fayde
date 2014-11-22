@@ -16,5 +16,5 @@ module Fayde.Media {
             return undefined;
         }
     }
-    Fayde.RegisterType(RadialGradientBrush, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(RadialGradientBrush, Fayde.XMLNS);
 }

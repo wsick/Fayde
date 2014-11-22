@@ -21,5 +21,5 @@ module Fayde.Media {
             return p;
         }
     }
-    Fayde.RegisterType(EllipseGeometry, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(EllipseGeometry, Fayde.XMLNS);
 }

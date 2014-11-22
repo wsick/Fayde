@@ -93,7 +93,7 @@ module Fayde.Documents {
             return true;
         }
     }
-    Fayde.RegisterType(TextElement, "Fayde.Documents", Fayde.XMLNS);
+    Fayde.RegisterType(TextElement, Fayde.XMLNS);
 
     var TextElementInheritedProps = [
         TextElement.FontFamilyProperty,

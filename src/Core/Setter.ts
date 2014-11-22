@@ -40,7 +40,7 @@ module Fayde {
             return true;
         }
     }
-    Fayde.RegisterType(SetterCollection, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(SetterCollection, Fayde.XMLNS);
 
     export class Setter extends DependencyObject {
         private _IsSealed: boolean = false;
@@ -69,5 +69,5 @@ module Fayde {
             return (a === b) ? 0 : ((a._ID > b._ID) ? 1 : -1);
         }
     }
-    Fayde.RegisterType(Setter, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(Setter, Fayde.XMLNS);
 }

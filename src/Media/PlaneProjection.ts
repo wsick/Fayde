@@ -117,5 +117,5 @@ module Fayde.Media {
             return r;
         }
     }
-    Fayde.RegisterType(PlaneProjection, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(PlaneProjection, Fayde.XMLNS);
 }

@@ -372,7 +372,7 @@ module Fayde.Controls {
             return scrollInfo.SetVerticalOffset(newValue);
         }
     }
-    Fayde.RegisterType(ScrollViewer, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(ScrollViewer, Fayde.XMLNS);
     TemplateParts(ScrollViewer,
         { Name: "ScrollContentPresenter", Type: ScrollContentPresenter },
         { Name: "HorizontalScrollBar", Type: Primitives.ScrollBar },

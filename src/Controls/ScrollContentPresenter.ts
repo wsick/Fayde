@@ -140,7 +140,7 @@ module Fayde.Controls {
         }
 
     }
-    Fayde.RegisterType(ScrollContentPresenter, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(ScrollContentPresenter, Fayde.XMLNS);
     nullstone.addTypeInterfaces(ScrollContentPresenter, Primitives.IScrollInfo_);
 
     function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {

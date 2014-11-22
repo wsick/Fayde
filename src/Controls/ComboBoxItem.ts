@@ -13,7 +13,7 @@ module Fayde.Controls {
                 (<ComboBox>this.ParentSelector).IsDropDownOpen = false;
         }
     }
-    Fayde.RegisterType(ComboBoxItem, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(ComboBoxItem, Fayde.XMLNS);
     TemplateVisualStates(ComboBoxItem, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

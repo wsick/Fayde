@@ -146,7 +146,7 @@ module Fayde.Controls {
             return super.IsInheritable(propd);
         }
     }
-    Fayde.RegisterType(TextBlock, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(TextBlock, Fayde.XMLNS);
     Markup.Content(TextBlock, TextBlock.InlinesProperty);
     Markup.TextContent(TextBlock, TextBlock.TextProperty);
 

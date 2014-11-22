@@ -110,6 +110,6 @@ module Fayde.Controls {
             //TODO: Set content to error message?
         }
     }
-    Fayde.RegisterType(ContentControl, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(ContentControl, Fayde.XMLNS);
     Markup.Content(ContentControl, ContentControl.ContentProperty);
 }

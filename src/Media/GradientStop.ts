@@ -12,7 +12,7 @@ module Fayde.Media {
             return this.Color.toString() + " @ " + this.Offset.toString();
         }
     }
-    Fayde.RegisterType(GradientStop, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(GradientStop, Fayde.XMLNS);
 
     export class GradientStopCollection extends XamlObjectCollection<GradientStop> {
         AddingToCollection (value: GradientStop, error: BError): boolean {
@@ -30,5 +30,5 @@ module Fayde.Media {
             Incite(this);
         }
     }
-    Fayde.RegisterType(GradientStopCollection, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(GradientStopCollection, Fayde.XMLNS);
 }

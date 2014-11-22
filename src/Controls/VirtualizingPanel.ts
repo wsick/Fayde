@@ -33,5 +33,5 @@ module Fayde.Controls {
             this.XamlNode.LayoutUpdater.invalidateMeasure();
         }
     }
-    Fayde.RegisterType(VirtualizingPanel, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(VirtualizingPanel, Fayde.XMLNS);
 }

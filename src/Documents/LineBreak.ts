@@ -3,5 +3,5 @@
 module Fayde.Documents {
     export class LineBreak extends Inline {
     }
-    Fayde.RegisterType(LineBreak, "Fayde.Documents", Fayde.XMLNS);
+    Fayde.RegisterType(LineBreak, Fayde.XMLNS);
 }

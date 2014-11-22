@@ -237,7 +237,7 @@ module Fayde.Controls {
             this.SetValueInternal(Slider.IsFocusedProperty, false);
         }
     }
-    Fayde.RegisterType(Slider, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(Slider, Fayde.XMLNS);
     TemplateVisualStates(Slider, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

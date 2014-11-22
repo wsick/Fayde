@@ -30,7 +30,7 @@ module Fayde {
         InheritableOwner.UseLayoutRoundingProperty,
         InheritableOwner.TextDecorationsProperty
     ];
-    Fayde.RegisterType(InheritableOwner, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(InheritableOwner, Fayde.XMLNS);
 
     module reactions {
         UIReaction<boolean>(InheritableOwner.UseLayoutRoundingProperty, minerva.core.reactTo.useLayoutRounding, false);

@@ -3,5 +3,5 @@
 module Fayde.Controls {
     export class MediaElement extends FrameworkElement {
     }
-    Fayde.RegisterType(MediaElement, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(MediaElement, Fayde.XMLNS);
 }

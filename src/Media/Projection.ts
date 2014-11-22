@@ -45,5 +45,5 @@ module Fayde.Media {
             Incite(this);
         }
     }
-    Fayde.RegisterType(Projection, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(Projection, Fayde.XMLNS);
 }

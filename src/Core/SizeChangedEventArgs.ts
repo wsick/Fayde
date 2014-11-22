@@ -15,5 +15,5 @@ module Fayde {
             minerva.Size.copyTo(newSize, this.NewSize);
         }
     }
-    Fayde.RegisterType(SizeChangedEventArgs, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(SizeChangedEventArgs, Fayde.XMLNS);
 }

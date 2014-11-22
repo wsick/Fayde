@@ -86,5 +86,5 @@ module Fayde.Media {
         GetTileExtents(): minerva.Rect { return undefined; }
         DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
     }
-    Fayde.RegisterType(TileBrush, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(TileBrush, Fayde.XMLNS);
 }

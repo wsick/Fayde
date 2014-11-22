@@ -54,5 +54,5 @@ module Fayde.Media {
 
         toString(): string { return mat3.str(this._Raw); }
     }
-    Fayde.RegisterType(Matrix, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(Matrix, Fayde.XMLNS);
 }

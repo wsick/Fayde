@@ -77,7 +77,7 @@ module Fayde.Media {
             return path.Serialize();
         }
     }
-    Fayde.RegisterType(Geometry, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(Geometry, Fayde.XMLNS);
 
     module reactions {
         DPReaction<Transform>(Geometry.TransformProperty, (geom: Geometry, ov, nv) => geom.InvalidateGeometry());
@@ -98,5 +98,5 @@ module Fayde.Media {
             Incite(this);
         }
     }
-    Fayde.RegisterType(GeometryCollection, "Fayde.Media", Fayde.XMLNS);
+    Fayde.RegisterType(GeometryCollection, Fayde.XMLNS);
 }

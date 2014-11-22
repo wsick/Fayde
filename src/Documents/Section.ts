@@ -31,6 +31,6 @@ module Fayde.Documents {
             });
         }
     }
-    Fayde.RegisterType(Section, "Fayde.Documents", Fayde.XMLNS);
+    Fayde.RegisterType(Section, Fayde.XMLNS);
     Markup.Content(Section, Section.BlocksProperty);
 }

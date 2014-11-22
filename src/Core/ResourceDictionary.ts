@@ -52,7 +52,7 @@ module Fayde {
             return true;
         }
     }
-    Fayde.RegisterType(ResourceDictionaryCollection, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(ResourceDictionaryCollection, Fayde.XMLNS);
 
     export class ResourceDictionary extends XamlObject implements nullstone.IEnumerable<any> {
         private _Keys: any[] = [];
@@ -145,5 +145,5 @@ module Fayde {
             };
         }
     }
-    Fayde.RegisterType(ResourceDictionary, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(ResourceDictionary, Fayde.XMLNS);
 }

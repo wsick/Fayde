@@ -77,7 +77,7 @@ module Fayde.Controls {
             this.$Proxy.select(start, length);
         }
     }
-    Fayde.RegisterType(TextBox, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.RegisterType(TextBox, Fayde.XMLNS);
     TemplateVisualStates(TextBox,
         {GroupName: "CommonStates", Name: "Normal"},
         {GroupName: "CommonStates", Name: "MouseOver"},
