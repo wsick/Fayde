@@ -119,17 +119,7 @@ module Fayde.Data {
             } else if (this.ParentBinding.ElementName != null) {
                 return this._FindSourceByElementName();
             } else if (this.ParentBinding.RelativeSource) {
-                var rs = this.ParentBinding.RelativeSource;
-                switch (rs.Mode) {
-                    case RelativeSourceMode.Self:
-                        return this.Target;
-                    case RelativeSourceMode.TemplatedParent:
-                        return this.Target.TemplateOwner;
-                    case RelativeSourceMode.FindAncestor:
-                        return findAncestor(this.Target, rs);
-                    case RelativeSourceMode.ItemsControlParent:
-                        return findItemsControlAncestor(this.Target, rs);
-                }
+                return this.ParentBinding.RelativeSource.Find(this.Target);
             }
             return this._DataContext;
         }
@@ -404,34 +394,6 @@ module Fayde.Data {
         private _NotifyErrorsChanged (o, e) {
             ///<param name="e" type="DataErrorsChangedEventArgs"></param>
             console.warn("BindingExpressionBase._NotifyErrorsChanged");
-        }
-    }
-
-    function findAncestor (target: DependencyObject, relSource: RelativeSource): DependencyObject {
-        var ancestorType = relSource.AncestorType;
-        if (typeof ancestorType !== "function") {
-            console.warn("RelativeSourceMode.FindAncestor with no AncestorType specified.");
-            return;
-        }
-        var ancestorLevel = relSource.AncestorLevel;
-        if (isNaN(ancestorLevel)) {
-            console.warn("RelativeSourceMode.FindAncestor with no AncestorLevel specified.");
-            return;
-        }
-        for (var parent = VisualTreeHelper.GetParent(target); parent != null; parent = VisualTreeHelper.GetParent(parent)) {
-            if (parent instanceof ancestorType && --ancestorLevel < 1)
-                return parent;
-        }
-    }
-
-    function findItemsControlAncestor (target: XamlObject, relSource: Data.RelativeSource): XamlObject {
-        if (!(target instanceof DependencyObject))
-            return;
-        var ancestorLevel = relSource.AncestorLevel;
-        ancestorLevel = ancestorLevel || 1; //NOTE: Will coerce 0 to 1 also
-        for (var parent = VisualTreeHelper.GetParent(<DependencyObject>target); parent != null; parent = VisualTreeHelper.GetParent(parent)) {
-            if (!!(<UIElement>parent).IsItemsControl && --ancestorLevel < 1)
-                return parent;
         }
     }
 }
