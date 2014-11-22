@@ -1,7 +1,7 @@
 /// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Shapes {
-    export class PointCollection implements IEnumerable<Point> {
+    export class PointCollection implements nullstone.IEnumerable<Point> {
         private _ht: Point[] = [];
 
         get Count() { return this._ht.length; }
@@ -64,18 +64,18 @@ module Fayde.Shapes {
         IndexOf(value: Point): number {
             var count = this._ht.length;
             for (var i = 0; i < count; i++) {
-                if (Nullstone.Equals(value, this._ht[i]))
+                if (nullstone.equals(value, this._ht[i]))
                     return i;
             }
             return -1;
         }
         Contains(value: Point): boolean { return this.IndexOf(value) > -1; }
 
-        getEnumerator(reverse?: boolean): IEnumerator<Point> { return ArrayEx.GetEnumerator(this._ht, reverse); }
+        getEnumerator(reverse?: boolean): nullstone.IEnumerator<Point> { return nullstone.IEnumerator_.fromArray(this._ht, reverse); }
     }
     Fayde.RegisterType(PointCollection, "Fayde.Shapes", Fayde.XMLNS);
 
-    Fayde.RegisterTypeConverter(PointCollection, (val: string): PointCollection => {
+    nullstone.registerTypeConverter(PointCollection, (val: string): PointCollection => {
         var pc = new PointCollection();
         pc.AddRange(Fayde.Media.ParseShapePoints(val));
         return pc;

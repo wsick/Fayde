@@ -75,7 +75,7 @@ module Fayde {
 
         co.map['*'][lib.path] = libName;
 
-        var library = Library.Get("lib:" + lib.name);
-        library.GetModuleRequireUrl = () => lib.path;
+        var library = Fayde.TypeManager.resolveLibrary("lib://" + lib.name);
+        library.sourcePath = lib.path;
     }
 }

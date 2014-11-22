@@ -227,7 +227,7 @@ class Color implements ICloneable {
 }
 Fayde.RegisterType(Color, "window", Fayde.XMLNS);
 
-Fayde.RegisterTypeConverter(Color, (val: any): Color => {
+nullstone.registerTypeConverter(Color, (val: any): Color => {
     if (!val)
         return undefined;
     if (val instanceof Color)

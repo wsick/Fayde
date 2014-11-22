@@ -34,11 +34,11 @@ class Duration implements ICloneable {
     static Forever: Duration = (function () { var d = new Duration(); (<any>d)._Type = DurationType.Forever; return d; })();
 }
 Fayde.RegisterType(Duration, "window", Fayde.XMLNSX);
-Fayde.RegisterTypeConverter(Duration, (val: any): Duration => {
+nullstone.registerTypeConverter(Duration, (val: any): Duration => {
     if (!val || val.toString().toLowerCase() === "automatic")
         return Duration.Automatic;
     if (val.toString().toLowerCase() === "forever")
         return Duration.Forever;
-    var ts = Fayde.ConvertAnyToType(val, TimeSpan);
+    var ts = nullstone.convertAnyToType(val, TimeSpan);
     return new Duration(ts);
 });

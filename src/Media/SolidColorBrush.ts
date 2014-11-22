@@ -43,10 +43,10 @@ module Fayde.Media {
         if (val instanceof Brush)
             return val;
         var scb = new SolidColorBrush();
-        scb.Color = Fayde.ConvertAnyToType(val, Color);
+        scb.Color = nullstone.convertAnyToType(val, Color);
         return scb;
     }
 
-    Fayde.RegisterTypeConverter(Brush, brushConverter);
-    Fayde.RegisterTypeConverter(SolidColorBrush, brushConverter);
+    nullstone.registerTypeConverter(Brush, brushConverter);
+    nullstone.registerTypeConverter(SolidColorBrush, brushConverter);
 }

@@ -2,7 +2,7 @@ module Fayde.Navigation {
     export class NavigationService {
         Href: string;
         Hash: string;
-        LocationChanged = new MulticastEvent<EventArgs>();
+        LocationChanged = new nullstone.Event();
 
         constructor () {
             this.Href = window.location.href;
@@ -25,7 +25,7 @@ module Fayde.Navigation {
             if (this.Hash) {
                 this.Hash = this.Hash.substr(1);
             }
-            this.LocationChanged.Raise(this, EventArgs.Empty);
+            this.LocationChanged.raise(this, null);
         }
     }
     Fayde.RegisterType(NavigationService, "Fayde.Navigation", Fayde.XMLNS);

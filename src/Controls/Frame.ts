@@ -60,7 +60,7 @@ module Fayde.Controls {
 
         private _FrameLoaded (sender, e: RoutedEventArgs) {
             if (this.IsDeepLinked) {
-                this._NavService.LocationChanged.Subscribe(this._HandleDeepLink, this);
+                this._NavService.LocationChanged.on(this._HandleDeepLink, this);
                 this._HandleDeepLink();
             }
         }

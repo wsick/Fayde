@@ -15,7 +15,6 @@ module Fayde {
         private _Storyboards: ITimeline[] = [];
         private _ClockTimer: ClockTimer = new ClockTimer();
         private _RootVisual: UIElement = null;
-        private _CoreLibrary: Library = null;
 
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, Application);
         static ThemeNameProperty = DependencyProperty.Register("ThemeName", () => String, Application, "Default", (d: Application, args) => d.OnThemeNameChanged(args));
@@ -25,9 +24,9 @@ module Fayde {
         private OnThemeNameChanged (args: DependencyPropertyChangedEventArgs) {
             if (!this._IsLoaded)
                 return;
-            Library.ChangeTheme(args.NewValue)
-                .success(res => this._ApplyTheme())
-                .error(err => console.warn("Could not change theme. " + err.toString()));
+            Theme.Change(args.NewValue)
+                .then(() => this._ApplyTheme(),
+                    err => console.error("Could not load theme.", err));
         }
 
         private _ApplyTheme () {
@@ -140,18 +139,18 @@ module Fayde {
             });
 
             /*
-            var d = defer<Application>();
+             var d = defer<Application>();
 
-            var lib = Library.Get("lib:Fayde");
-            lib.Resolve({ThemeName: this.ThemeName || "Default", Resolving: []})
-                .success(lib => {
-                    this._CoreLibrary = lib;
-                    d.resolve(this);
-                })
-                .error(d.reject);
+             var lib = Library.Get("lib:Fayde");
+             lib.Resolve({ThemeName: this.ThemeName || "Default", Resolving: []})
+             .success(lib => {
+             this._CoreLibrary = lib;
+             d.resolve(this);
+             })
+             .error(d.reject);
 
-            return d.request;
-            */
+             return d.request;
+             */
         }
     }
     Fayde.RegisterType(Application, "Fayde", Fayde.XMLNS);

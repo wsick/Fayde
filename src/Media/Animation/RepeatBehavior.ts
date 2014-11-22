@@ -33,14 +33,14 @@ module Fayde.Media.Animation {
     }
     Fayde.RegisterType(RepeatBehavior, "Fayde.Media.Animation", Fayde.XMLNS);
 
-    Fayde.RegisterTypeConverter(RepeatBehavior, (val: string): RepeatBehavior => {
+    nullstone.registerTypeConverter(RepeatBehavior, (val: string): RepeatBehavior => {
         if (!val || val.toLowerCase() === "forever")
             return RepeatBehavior.Forever;
         if (val[val.length - 1] === "x") {
             var d = parseInt(val.substr(0, val.length - 1));
             return RepeatBehavior.FromIterationCount(d);
         }
-        var duration = new Duration(Fayde.ConvertAnyToType(val, TimeSpan));
+        var duration = new Duration(nullstone.convertAnyToType(val, TimeSpan));
         return RepeatBehavior.FromRepeatDuration(duration);
     });
 }

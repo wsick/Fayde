@@ -452,5 +452,5 @@ module Fayde.Media {
         }
     }
 
-    Fayde.RegisterTypeConverter(Geometry, ParseGeometry);
+    nullstone.registerTypeConverter(Geometry, ParseGeometry);
 }

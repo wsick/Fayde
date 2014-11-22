@@ -8,7 +8,7 @@ module Fayde.Media.VSM {
 
         private _GeneratedDuration: Duration = null;
         get GeneratedDuration(): Duration { return this._GeneratedDuration; }
-        set GeneratedDuration(value: Duration) { this._GeneratedDuration = Fayde.ConvertAnyToType(value, Duration); }
+        set GeneratedDuration(value: Duration) { this._GeneratedDuration = nullstone.convertAnyToType(value, Duration); }
 
         DynamicStoryboardCompleted: boolean = true;
         ExplicitStoryboardCompleted: boolean = true;

@@ -2,6 +2,9 @@
 /// <reference path="../../Core/XamlObjectCollection.ts" />
 
 module Fayde.Media.Animation {
+    export interface IOutValue {
+        Value: any;
+    }
     export interface IKeyFrameListener {
         KeyFrameChanged(source: KeyFrame);
     }

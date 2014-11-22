@@ -28,12 +28,11 @@ module Fayde {
 
         startApp () {
             Application.GetAsync(this.url)
-                .success(app => {
+                .then(app => {
                     (Application.Current = app).Resolve()
-                        .success(app => this.finishLoad(app))
-                        .error(error => this.finishLoad(null, error));
-                })
-                .error(error => this.finishLoad(null, error));
+                        .then(app => this.finishLoad(app),
+                            err => this.finishLoad(null, err));
+                }, err => this.finishLoad(null, err));
         }
 
         finishLoad (app: Application, error?: any) {

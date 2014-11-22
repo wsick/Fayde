@@ -2,12 +2,11 @@
 /// <reference path="../../Core/XamlObjectCollection.ts" />
 
 module Fayde.Media.VSM {
-    export class VisualStateChangedEventArgs extends EventArgs {
+    export class VisualStateChangedEventArgs implements nullstone.IEventArgs {
         OldState: VisualState;
         NewState: VisualState;
         Control: Controls.Control;
         constructor(oldState: VisualState, newState: VisualState, control: Controls.Control) {
-            super();
             Object.defineProperty(this, "OldState", { value: oldState, writable: false });
             Object.defineProperty(this, "NewState", { value: newState, writable: false });
             Object.defineProperty(this, "Control", { value: control, writable: false });
@@ -25,8 +24,8 @@ module Fayde.Media.VSM {
         get CurrentStoryboards(): Animation.Storyboard[] {
             return this._CurrentStoryboards.slice(0);
         }
-        CurrentStateChanging: MulticastEvent<VisualStateChangedEventArgs> = new MulticastEvent<VisualStateChangedEventArgs>();
-        CurrentStateChanged: MulticastEvent<VisualStateChangedEventArgs> = new MulticastEvent<VisualStateChangedEventArgs>();
+        CurrentStateChanging = new nullstone.Event<VisualStateChangedEventArgs>();
+        CurrentStateChanged = new nullstone.Event<VisualStateChangedEventArgs>();
         CurrentState: VisualState = null;
 
         constructor() {
@@ -78,10 +77,9 @@ module Fayde.Media.VSM {
         }
         StopCurrentStoryboards(element: FrameworkElement) {
             var curStoryboards = this._CurrentStoryboards;
-            var enumerator = ArrayEx.GetEnumerator(curStoryboards);
             var storyboard: Animation.Storyboard;
-            while (enumerator.moveNext()) {
-                storyboard = enumerator.current;
+            for (var en = nullstone.IEnumerator_.fromArray(curStoryboards); en.moveNext();) {
+                storyboard = en.current;
                 if (!storyboard)
                     continue;
                 element.Resources.Set((<any>storyboard)._ID, undefined);
@@ -91,10 +89,10 @@ module Fayde.Media.VSM {
         }
 
         RaiseCurrentStateChanging(element: FrameworkElement, oldState: VisualState, newState: VisualState, control: Controls.Control) {
-            this.CurrentStateChanging.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
+            this.CurrentStateChanging.raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
         }
         RaiseCurrentStateChanged(element: FrameworkElement, oldState: VisualState, newState: VisualState, control: Controls.Control) {
-            this.CurrentStateChanged.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
+            this.CurrentStateChanged.raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
         }
     }
     Fayde.RegisterType(VisualStateGroup, "Fayde.Media.VSM", Fayde.XMLNS);

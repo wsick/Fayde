@@ -2,10 +2,10 @@
 
 module Fayde.Media.Imaging {
     export class BitmapImage extends BitmapSource {
-        static UriSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("UriSource", () => Uri, BitmapImage, undefined, (d, args) => (<BitmapImage>d)._UriSourceChanged(args), undefined, true);
+        static UriSourceProperty = DependencyProperty.RegisterFull("UriSource", () => Uri, BitmapImage, undefined, (d, args) => (<BitmapImage>d)._UriSourceChanged(args), undefined, true);
         UriSource: Uri;
-        ImageFailed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
-        ImageOpened: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        ImageFailed = new nullstone.Event();
+        ImageOpened = new nullstone.Event();
 
         constructor(uri?: Uri) {
             super();
@@ -31,9 +31,9 @@ module Fayde.Media.Imaging {
     }
     Fayde.RegisterType(BitmapImage, "Fayde.Media.Imaging", Fayde.XMLNS);
 
-    Fayde.RegisterTypeConverter(ImageSource, (val: any): ImageSource => {
+    nullstone.registerTypeConverter(ImageSource, (val: any): ImageSource => {
         var bi = new BitmapImage();
-        bi.UriSource = Fayde.ConvertAnyToType(val, Uri);
+        bi.UriSource = nullstone.convertAnyToType(val, Uri);
         return bi;
     });
 }

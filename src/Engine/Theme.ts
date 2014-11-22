@@ -28,6 +28,18 @@ module Fayde {
                 || new Theme(new Uri(url));
         }
 
+        static FindStyle (defaultStyleKey: any): Style {
+            //TODO: Implement
+            return null;
+        }
+
+        static Change (themeName: string): nullstone.async.IAsyncRequest<any> {
+            return nullstone.async.create((resolve, reject) => {
+                //TODO: Implement
+                resolve({});
+            });
+        }
+
         Resolve (): nullstone.async.IAsyncRequest<Theme> {
             var uri = this.Uri;
             if (!uri)

@@ -113,7 +113,7 @@ module Fayde.Media {
                 p = enumerator.current;
                 path.line(p.x, p.y);
             }
-            NotImplemented("PolyLineSegment._Append");
+            console.warn("PolyLineSegment._Append");
         }
     }
     Fayde.RegisterType(PolyLineSegment, "Fayde.Media", Fayde.XMLNS);

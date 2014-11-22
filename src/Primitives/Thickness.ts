@@ -5,7 +5,7 @@ class Thickness extends minerva.Thickness {
 }
 Fayde.RegisterType(Thickness, "window", Fayde.XMLNSX);
 
-Fayde.RegisterTypeConverter(Thickness, (val: any): Thickness => {
+nullstone.registerTypeConverter(Thickness, (val: any): Thickness => {
     if (!val)
         return new Thickness();
     if (typeof val === "number")

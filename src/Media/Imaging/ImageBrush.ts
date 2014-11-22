@@ -11,8 +11,8 @@ module Fayde.Media.Imaging {
         }
         static ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d: ImageBrush, args) => d._ImageSourceChanged(args), ImageBrush._SourceCoercer);
         ImageSource: ImageSource;
-        ImageFailed = new MulticastEvent<EventArgs>();
-        ImageOpened = new MulticastEvent<EventArgs>();
+        ImageFailed = new nullstone.Event();
+        ImageOpened = new nullstone.Event();
 
         setupBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var source = this.ImageSource;
@@ -38,8 +38,8 @@ module Fayde.Media.Imaging {
                 newSrc.Listen(this);
             this.InvalidateBrush();
         }
-        OnImageErrored(source: BitmapSource, e: Event) { this.ImageFailed.Raise(this, EventArgs.Empty); }
-        OnImageLoaded(source: BitmapSource, e: Event) { this.ImageOpened.Raise(this, EventArgs.Empty); }
+        OnImageErrored(source: BitmapSource, e: Event) { this.ImageFailed.raise(this, null); }
+        OnImageLoaded(source: BitmapSource, e: Event) { this.ImageOpened.raise(this, null); }
         ImageChanged(source: BitmapSource) {
             this.InvalidateBrush();
         }
