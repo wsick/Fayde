@@ -1,6 +1,5 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 /// <reference path="../Markup/Creator.ts" />
-/// <reference path="../Xaml/XamlLoader.ts" />
 
 module Fayde.Controls {
     var fmd = Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
@@ -27,12 +26,10 @@ module Fayde.Controls {
             // This really should check for a value or an expression
             if (xobj.TemplateOwner instanceof ContentControl) {
                 if (!xobj.HasValueOrExpression(ContentPresenter.ContentProperty)) {
-                    xobj.SetValue(ContentPresenter.ContentProperty,
-                        new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+                    xobj.SetValue(ContentPresenter.ContentProperty, new TemplateBindingExpression("Content"));
                 }
                 if (!xobj.HasValueOrExpression(ContentPresenter.ContentTemplateProperty)) {
-                    xobj.SetValue(ContentPresenter.ContentTemplateProperty,
-                        new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+                    xobj.SetValue(ContentPresenter.ContentTemplateProperty, new TemplateBindingExpression("ContentTemplate"));
                 }
             }
 

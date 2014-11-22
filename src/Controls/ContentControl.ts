@@ -21,10 +21,8 @@ module Fayde.Controls {
                 presenter = this._DefaultPresenter = new ContentPresenter();
                 presenter.TemplateOwner = this.XObject;
             }
-            presenter.SetValue(ContentPresenter.ContentProperty,
-                new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
-            presenter.SetValue(ContentPresenter.ContentTemplateProperty,
-                new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+            presenter.SetValue(ContentPresenter.ContentProperty, new TemplateBindingExpression("Content"));
+            presenter.SetValue(ContentPresenter.ContentTemplateProperty, new TemplateBindingExpression("ContentTemplate"));
             return presenter;
         }
 

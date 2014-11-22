@@ -13,8 +13,13 @@ module Fayde {
         }
 
         transmute (os: any[]): any {
+            this.$$coerce();
+            Object.freeze(this);
             return new EventBindingExpression(this);
         }
+
+        private $$coerce () {
+        }
     }
-    Fayde.RegisterType(EventBinding, "Fayde", Fayde.XMLNS);
+    Fayde.RegisterType(EventBinding, Fayde.XMLNS);
 }

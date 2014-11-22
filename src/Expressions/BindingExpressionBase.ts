@@ -1,4 +1,4 @@
-/// <reference path="../Core/Expression.ts" />
+/// <reference path="Expression.ts" />
 
 module Fayde.Data {
     export class BindingExpressionBase extends Expression implements IPropertyPathWalkerListener {
@@ -24,6 +24,8 @@ module Fayde.Data {
 
         constructor (binding: Data.Binding) {
             super();
+            if (!Object.isFrozen(binding))
+                Object.freeze(binding);
             Object.defineProperty(this, "ParentBinding", {
                 value: binding,
                 writable: false
