@@ -1154,6 +1154,7 @@ declare module Fayde.Controls.Primitives {
 }
 declare module Fayde.Markup {
     function CreateXaml(xaml: string): nullstone.markup.xaml.XamlMarkup;
+    function CreateXaml(el: Element): nullstone.markup.xaml.XamlMarkup;
 }
 declare module Fayde.Controls {
     class ContentPresenterNode extends FENode {
@@ -3834,6 +3835,10 @@ declare module Fayde.Markup {
     }
 }
 declare module Fayde.Markup {
+    class FrameworkTemplate extends XamlObject {
+        private $$markup;
+        public GetVisualTree(bindingSource: DependencyObject): UIElement;
+    }
     function Load<T extends XamlObject>(initiator: DependencyObject, xm: nullstone.markup.Markup<any>): T;
 }
 declare module Fayde.Markup {

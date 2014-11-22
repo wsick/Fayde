@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.10';
+    Fayde.Version = '0.13.9';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -4774,10 +4774,11 @@ var Fayde;
         var XamlMarkup = nullstone.markup.xaml.XamlMarkup;
         var lastId = 0;
 
-        function CreateXaml(xaml) {
+        function CreateXaml(obj) {
             lastId++;
             var xm = new XamlMarkup("http://gen/" + lastId.toString());
-            xm.setRoot(xm.loadRoot(xaml));
+            var root = (typeof obj === "string") ? xm.loadRoot(obj) : obj;
+            xm.setRoot(root);
             return xm;
         }
         Markup.CreateXaml = CreateXaml;
@@ -19794,10 +19795,108 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Markup) {
+        var FrameworkTemplate = (function (_super) {
+            __extends(FrameworkTemplate, _super);
+            function FrameworkTemplate() {
+                _super.apply(this, arguments);
+            }
+            FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
+                var uie = LoadImpl(bindingSource, this.$$markup, bindingSource);
+                if (!(uie instanceof Fayde.UIElement))
+                    throw new XamlParseException("Template root visual is not a UIElement.");
+                return uie;
+            };
+            return FrameworkTemplate;
+        })(Fayde.XamlObject);
+        Markup.FrameworkTemplate = FrameworkTemplate;
+
+        function setTemplateRoot(ft, root) {
+            if (root instanceof Element)
+                ft.$$markup = Markup.CreateXaml(root);
+        }
+
         function Load(initiator, xm) {
-            return null;
+            return LoadImpl(initiator, xm);
         }
         Markup.Load = Load;
+
+        function LoadImpl(initiator, xm, bindingSource) {
+            var namescope = new Fayde.NameScope(true);
+
+            var oresolve = {
+                isPrimitive: false,
+                type: undefined
+            };
+
+            var cur;
+            var xo;
+
+            var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX).on({
+                resolveType: function (uri, name) {
+                    Fayde.TypeManager.resolveType(uri, name, oresolve);
+                    return oresolve;
+                },
+                resolveObject: function (type) {
+                    var obj = new (type)();
+                    if (obj instanceof FrameworkTemplate)
+                        parser.skipNextElement();
+                    return obj;
+                },
+                resolvePrimitive: function (type, text) {
+                    return new (type)(text);
+                },
+                elementSkip: function (root, obj) {
+                    if (obj instanceof FrameworkTemplate)
+                        setTemplateRoot(obj, root);
+                },
+                object: function (obj) {
+                    cur = obj;
+                    if (cur instanceof Fayde.XamlObject) {
+                        xo = cur;
+                        xo.XamlNode.DocNameScope = namescope;
+                    }
+                },
+                objectEnd: function (obj, prev) {
+                    cur = prev;
+                    if (cur instanceof Fayde.XamlObject)
+                        xo = cur;
+                },
+                contentObject: function (obj) {
+                    cur = obj;
+                    if (cur instanceof Fayde.XamlObject) {
+                        xo = cur;
+                        xo.XamlNode.DocNameScope = namescope;
+                        xo.TemplateOwner = bindingSource;
+                    }
+                },
+                contentText: function (text) {
+                },
+                name: function (name) {
+                    if (xo) {
+                        namescope.RegisterName(name, xo.XamlNode);
+                        xo.XamlNode.Name = name;
+                    }
+                },
+                key: function (key) {
+                },
+                propertyStart: function (ownerType, propName) {
+                },
+                propertyEnd: function (ownerType, propName) {
+                },
+                resourcesStart: function (owner) {
+                },
+                resourcesEnd: function (owner) {
+                },
+                error: function (err) {
+                    return false;
+                },
+                end: function () {
+                }
+            });
+            parser.parse(xm.root);
+
+            return null;
+        }
     })(Fayde.Markup || (Fayde.Markup = {}));
     var Markup = Fayde.Markup;
 })(Fayde || (Fayde = {}));
