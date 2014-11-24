@@ -57,7 +57,7 @@ export function load() {
         equal(tb.Text, "", "TextBlock Text binding should be broken upon initialization since there is not selected item.");
 
         var si = { Test: "Hey" };
-        lb.ItemsSource = <Fayde.IEnumerable<any>><any>[si];
+        lb.ItemsSource = <nullstone.IEnumerable<any>><any>[si];
         Fayde.Data.IsCounterEnabled = true;
         Fayde.Data.DataContextCounter = 0;
         lb.SelectedItem = si;

@@ -632,7 +632,6 @@ declare module Fayde {
     }
     class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
         public XamlNode: FENode;
-        public Resources: ResourceDictionary;
         constructor();
         public CreateNode(): FENode;
         static ActualHeightProperty: DependencyProperty;
@@ -667,6 +666,7 @@ declare module Fayde {
         public Style: Style;
         public VerticalAlignment: VerticalAlignment;
         public Width: number;
+        public Resources: ResourceDictionary;
         public DefaultStyleKey: Function;
         public SizeChanged: RoutedEvent<RoutedEventArgs>;
         public Loaded: RoutedEvent<RoutedEventArgs>;
@@ -3839,6 +3839,8 @@ declare module Fayde.Markup {
         private $$markup;
         public GetVisualTree(bindingSource: DependencyObject): UIElement;
     }
+    function LoadXaml<T extends XamlObject>(initiator: DependencyObject, xaml: string): T;
+    function LoadXaml<T extends XamlObject>(initiator: DependencyObject, el: Element): T;
     function Load<T extends XamlObject>(initiator: DependencyObject, xm: nullstone.markup.Markup<any>): T;
 }
 declare module Fayde.Markup {

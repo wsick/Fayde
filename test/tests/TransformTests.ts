@@ -41,7 +41,7 @@ export function load() {
 
         var grid: Fayde.Controls.Grid;
         try {
-            grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+            grid = Fayde.Markup.LoadXaml<Fayde.Controls.Grid>(null, xaml);
             grid.XamlNode.SetIsAttached(true);
         } catch (err) {
             ok(false, err);

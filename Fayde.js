@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.9';
+    Fayde.Version = '0.13.10';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -19815,6 +19815,12 @@ var Fayde;
                 ft.$$markup = Markup.CreateXaml(root);
         }
 
+        function LoadXaml(initiator, xaml) {
+            var markup = Markup.CreateXaml(xaml);
+            return Load(initiator, markup);
+        }
+        Markup.LoadXaml = LoadXaml;
+
         function Load(initiator, xm) {
             return LoadImpl(initiator, xm);
         }
@@ -19830,6 +19836,8 @@ var Fayde;
 
             var cur;
             var xo;
+            var rd;
+            var last;
 
             var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX).on({
                 resolveType: function (uri, name) {
@@ -19837,15 +19845,21 @@ var Fayde;
                     return oresolve;
                 },
                 resolveObject: function (type) {
+                    if (type === Fayde.ResourceDictionary && cur === rd)
+                        return rd;
                     var obj = new (type)();
                     if (obj instanceof FrameworkTemplate)
-                        parser.skipNextElement();
+                        parser.skipBranch();
                     return obj;
                 },
                 resolvePrimitive: function (type, text) {
-                    return new (type)(text);
+                    return nullstone.convertAnyToType(text, type);
                 },
-                elementSkip: function (root, obj) {
+                resolveResources: function (ownerType, owner) {
+                    var rd = owner.Resources;
+                    return rd;
+                },
+                branchSkip: function (root, obj) {
                     if (obj instanceof FrameworkTemplate)
                         setTemplateRoot(obj, root);
                 },
@@ -19854,12 +19868,17 @@ var Fayde;
                     if (cur instanceof Fayde.XamlObject) {
                         xo = cur;
                         xo.XamlNode.DocNameScope = namescope;
+                    } else if (cur instanceof Fayde.ResourceDictionary) {
+                        rd = cur;
                     }
                 },
                 objectEnd: function (obj, prev) {
+                    last = obj;
                     cur = prev;
                     if (cur instanceof Fayde.XamlObject)
                         xo = cur;
+                    else if (cur instanceof Fayde.ResourceDictionary)
+                        rd = cur;
                 },
                 contentObject: function (obj) {
                     cur = obj;
@@ -19883,10 +19902,6 @@ var Fayde;
                 },
                 propertyEnd: function (ownerType, propName) {
                 },
-                resourcesStart: function (owner) {
-                },
-                resourcesEnd: function (owner) {
-                },
                 error: function (err) {
                     return false;
                 },
@@ -19895,7 +19910,7 @@ var Fayde;
             });
             parser.parse(xm.root);
 
-            return null;
+            return last;
         }
     })(Fayde.Markup || (Fayde.Markup = {}));
     var Markup = Fayde.Markup;

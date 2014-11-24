@@ -8,7 +8,7 @@ export function load() {
 
         var dt: Fayde.DataTemplate;
         try {
-            dt = <Fayde.DataTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+            dt = Fayde.Markup.LoadXaml<Fayde.DataTemplate>(null, xaml);
         } catch (err) {
             ok(false, "Loading a DataTemplate should not error. " + err.toString());
         }
@@ -30,7 +30,7 @@ export function load() {
             + "</Grid>";
         var grid: Fayde.Controls.Grid;
         try {
-            grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+            grid = Fayde.Markup.LoadXaml<Fayde.Controls.Grid>(null, xaml);
         } catch (err) {
             ok(false, "Loading a DataTemplate should not error. " + err.toString());
         }
@@ -62,7 +62,7 @@ export function load() {
             + "</Grid>";
         var grid: Fayde.Controls.Grid;
         try {
-            grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+            grid = Fayde.Markup.LoadXaml<Fayde.Controls.Grid>(null, xaml);
             ok(false, "Expected parse error in xaml load.");
         } catch (err) {
             ok(err instanceof XamlParseException, err);

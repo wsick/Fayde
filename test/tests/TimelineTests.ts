@@ -75,8 +75,8 @@ export function load() {
 
         var a1completed = false;
         var a2completed = false;
-        a1.Completed.Subscribe(() => a1completed = true, a1);
-        a2.Completed.Subscribe(() => a2completed = true, a2);
+        a1.Completed.on(() => a1completed = true, a1);
+        a2.Completed.on(() => a2completed = true, a2);
 
         Fayde.Application.Current = new Fayde.Application();
         storyboard.Begin();

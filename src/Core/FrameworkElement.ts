@@ -139,7 +139,6 @@ module Fayde {
 
     export class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
         XamlNode: FENode;
-        Resources: Fayde.ResourceDictionary;
         constructor() {
             super();
             var rd = FrameworkElement.ResourcesProperty.Initialize(this);
@@ -187,6 +186,7 @@ module Fayde {
         Style: Style;
         VerticalAlignment: VerticalAlignment;
         Width: number;
+        Resources: ResourceDictionary;
         DefaultStyleKey: Function;
 
         SizeChanged = new RoutedEvent<RoutedEventArgs>();

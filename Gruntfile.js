@@ -25,6 +25,7 @@ module.exports = function (grunt) {
     var dirs = {
         test: {
             root: 'test',
+            build: 'test/.build',
             lib: 'test/lib'
         },
         testsite: {
@@ -122,8 +123,10 @@ module.exports = function (grunt) {
                     '<%= dirs.test.root %>/**/*.ts',
                     '!<%= dirs.test.root %>/lib/**/*.ts'
                 ],
+                dest: dirs.test.build,
                 options: {
                     target: 'es5',
+                    basePath: dirs.test.root,
                     module: 'amd',
                     sourceMap: true
                 }
