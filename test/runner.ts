@@ -14,7 +14,6 @@ module runner {
         ".build/tests/ItemContainersManagerTests",
         ".build/tests/BindingTests",
         ".build/tests/UriMapperTests",
-        ".build/tests/DependencyLoadTests",
         ".build/tests/DeepObservableCollectionTests"
     ];
 
