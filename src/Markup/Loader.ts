@@ -15,6 +15,13 @@ module Fayde.Markup {
             (<any>ft).$$markup = CreateXaml(root);
     }
 
+    export function LoadXaml<T extends XamlObject>(initiator: DependencyObject, xaml: string): T;
+    export function LoadXaml<T extends XamlObject>(initiator: DependencyObject, el: Element): T;
+    export function LoadXaml<T extends XamlObject>(initiator: DependencyObject, xaml: any): T {
+        var markup = CreateXaml(xaml);
+        return Load<T>(initiator, markup);
+    }
+
     export function Load<T extends XamlObject>(initiator: DependencyObject, xm: nullstone.markup.Markup<any>): T {
         return LoadImpl<T>(initiator, xm);
     }
@@ -30,6 +37,8 @@ module Fayde.Markup {
         //TODO: Implement
         var cur: any;
         var xo: XamlObject;
+        var rd: ResourceDictionary;
+        var last: any;
 
         var parser = xm.createParser()
             .setNamespaces(Fayde.XMLNS, Fayde.XMLNSX)
@@ -39,15 +48,21 @@ module Fayde.Markup {
                     return oresolve;
                 },
                 resolveObject: (type) => {
+                    if (type === ResourceDictionary && cur === rd)
+                        return rd;
                     var obj = new (type)();
                     if (obj instanceof FrameworkTemplate)
-                        parser.skipNextElement();
+                        parser.skipBranch();
                     return obj;
                 },
                 resolvePrimitive: (type, text) => {
                     return nullstone.convertAnyToType(text, type);
                 },
-                elementSkip: (root: any, obj: any) => {
+                resolveResources: (ownerType, owner) => {
+                    var rd = owner.Resources;
+                    return rd;
+                },
+                branchSkip: (root: any, obj: any) => {
                     if (obj instanceof FrameworkTemplate)
                         setTemplateRoot(<FrameworkTemplate>obj, root);
                 },
@@ -56,12 +71,17 @@ module Fayde.Markup {
                     if (cur instanceof XamlObject) {
                         xo = <XamlObject>cur;
                         xo.XamlNode.DocNameScope = namescope;
+                    } else if (cur instanceof ResourceDictionary) {
+                        rd = <ResourceDictionary>cur;
                     }
                 },
                 objectEnd: (obj, prev) => {
+                    last = obj;
                     cur = prev;
                     if (cur instanceof XamlObject)
                         xo = <XamlObject>cur;
+                    else if (cur instanceof ResourceDictionary)
+                        rd = <ResourceDictionary>cur;
                 },
                 contentObject: (obj) => {
                     cur = obj;
@@ -88,16 +108,12 @@ module Fayde.Markup {
                 },
                 propertyEnd: (ownerType, propName) => {
                 },
-                resourcesStart: (owner) => {
-                },
-                resourcesEnd: (owner) => {
-                },
                 error: (err) => false,
                 end: () => {
                 }
             });
         parser.parse(xm.root);
         //TODO: Return result
-        return null;
+        return last;
     }
 }
