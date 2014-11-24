@@ -8,7 +8,7 @@ module Fayde.Input {
         Contained = 4,
         Local = 5,
     }
-    Fayde.RegisterEnum(KeyboardNavigationMode, "KeyboardNavigationMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(KeyboardNavigationMode, "KeyboardNavigationMode");
 
     export enum ModifierKeys {
         None = 0,

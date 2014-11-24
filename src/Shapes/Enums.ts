@@ -13,24 +13,24 @@ module Fayde.Shapes {
         Round = 2,
         Triangle = 3,
     }
-    Fayde.RegisterEnum(PenLineCap, "PenLineCap", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(PenLineCap, "PenLineCap");
 
     export enum PenLineJoin {
         Miter = 0,
         Bevel = 1,
         Round = 2,
     }
-    Fayde.RegisterEnum(PenLineJoin, "PenLineJoin", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(PenLineJoin, "PenLineJoin");
 
     export enum FillRule {
         EvenOdd = 0,
         NonZero = 1,
     }
-    Fayde.RegisterEnum(FillRule, "FillRule", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(FillRule, "FillRule");
 
     export enum SweepDirection {
         Counterclockwise = 0,
         Clockwise = 1,
     }
-    Fayde.RegisterEnum(SweepDirection, "SweepDirection", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(SweepDirection, "SweepDirection");
 }

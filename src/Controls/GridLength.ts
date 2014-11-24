@@ -1,6 +1,6 @@
 module Fayde.Controls {
     import GridUnitType = minerva.controls.grid.GridUnitType;
-    Fayde.RegisterEnum(GridUnitType, "GridUnitType", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(GridUnitType, "GridUnitType");
 
     export class GridLength implements minerva.controls.grid.IGridLength, ICloneable {
         Value: number;

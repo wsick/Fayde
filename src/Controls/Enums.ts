@@ -5,7 +5,7 @@ module Fayde.Controls {
         Wrap = 1,
         WrapWithOverflow = 2,
     }
-    Fayde.RegisterEnum(TextWrapping, "TextWrapping", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(TextWrapping, "TextWrapping");
 
     export enum ScrollBarVisibility {
         Disabled = 0,
@@ -13,19 +13,19 @@ module Fayde.Controls {
         Hidden = 2,
         Visible = 3,
     }
-    Fayde.RegisterEnum(ScrollBarVisibility, "ScrollBarVisibility", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(ScrollBarVisibility, "ScrollBarVisibility");
 
     export enum TextTrimming {
         None = 0,
     }
-    Fayde.RegisterEnum(TextTrimming, "TextTrimming", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(TextTrimming, "TextTrimming");
 
     export enum ClickMode {
         Release = 0,
         Press = 1,
         Hover = 2,
     }
-    Fayde.RegisterEnum(ClickMode, "ClickMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(ClickMode, "ClickMode");
 
     export enum PlacementMode {
         Bottom = 0,
@@ -34,14 +34,14 @@ module Fayde.Controls {
         Left = 3,
         Top = 4,
     }
-    Fayde.RegisterEnum(PlacementMode, "PlacementMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(PlacementMode, "PlacementMode");
 
     export enum SelectionMode {
         Single = 0,
         Multiple = 1,
         Extended = 2,
     }
-    Fayde.RegisterEnum(SelectionMode, "SelectionMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(SelectionMode, "SelectionMode");
 
     export enum MediaElementState {
         Closed = 0,
@@ -53,5 +53,5 @@ module Fayde.Controls {
         Paused = 6,
         Stopped = 7
     }
-    Fayde.RegisterEnum(MediaElementState, "MediaElementState", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(MediaElementState, "MediaElementState");
 }

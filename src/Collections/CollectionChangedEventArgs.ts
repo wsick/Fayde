@@ -5,7 +5,7 @@ module Fayde.Collections {
         Replace = 3,
         Reset = 4,
     }
-    Fayde.RegisterEnum(CollectionChangedAction, "NotifyCollectionChangedAction", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(CollectionChangedAction, "NotifyCollectionChangedAction");
 
     export class CollectionChangedEventArgs implements nullstone.IEventArgs {
         Action: CollectionChangedAction;

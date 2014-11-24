@@ -5,7 +5,7 @@ module Fayde.Controls {
         Standard = 0,
         Recycling = 1,
     }
-    Fayde.RegisterEnum(VirtualizationMode, "VirtualizationMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(VirtualizationMode, "VirtualizationMode");
 
     export class VirtualizingPanel extends Panel {
         static VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", () => new Enum(VirtualizationMode), VirtualizingPanel, VirtualizationMode.Recycling, VirtualizingPanel.OnVirtualizationModePropertyChanged);

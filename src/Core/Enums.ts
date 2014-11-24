@@ -3,13 +3,13 @@ module Fayde {
         Horizontal = 0,
         Vertical = 1,
     }
-    Fayde.RegisterEnum(Orientation, "Orientation", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(Orientation, "Orientation");
 
     export enum Visibility {
         Visible = 0,
         Collapsed = 1,
     }
-    Fayde.RegisterEnum(Visibility, "Visibility", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(Visibility, "Visibility");
     nullstone.registerEnumConverter(Visibility, function (val: any): any {
         if (val === "true" || val === true || val === Visibility.Visible || val === "Visible")
             return Visibility.Visible;
@@ -27,7 +27,7 @@ module Fayde {
         SizeWE
         //TODO: Add cursor types
     }
-    Fayde.RegisterEnum(CursorType, "CursorType", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(CursorType, "CursorType");
     export var CursorTypeMappings = {
         Default: "",
         Hand: "pointer",
@@ -46,7 +46,7 @@ module Fayde {
         Right = 2,
         Stretch = 3,
     }
-    Fayde.RegisterEnum(HorizontalAlignment, "HorizontalAlignment", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(HorizontalAlignment, "HorizontalAlignment");
 
     export enum VerticalAlignment {
         Top = 0,
@@ -54,13 +54,13 @@ module Fayde {
         Bottom = 2,
         Stretch = 3,
     }
-    Fayde.RegisterEnum(VerticalAlignment, "VerticalAlignment", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(VerticalAlignment, "VerticalAlignment");
 
     export enum FlowDirection {
         LeftToRight = 0,
         RightToLeft = 1,
     }
-    Fayde.RegisterEnum(FlowDirection, "FlowDirection", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(FlowDirection, "FlowDirection");
 
     export enum FontWeight {
         Thin = 100,
@@ -74,7 +74,7 @@ module Fayde {
         Black = 900,
         ExtraBlack = 950,
     }
-    Fayde.RegisterEnum(FontWeight, "FontWeight", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(FontWeight, "FontWeight");
 
     export enum TextAlignment {
         Left = 0,
@@ -82,18 +82,18 @@ module Fayde {
         Right = 2,
         Justify = 3,
     }
-    Fayde.RegisterEnum(TextAlignment, "TextAlignment", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(TextAlignment, "TextAlignment");
 
     //FLAGS
     export enum TextDecorations {
         None = 0,
         Underline = 1,
     }
-    Fayde.RegisterEnum(TextDecorations, "TextDecorations", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(TextDecorations, "TextDecorations");
 
     export enum LineStackingStrategy {
         MaxHeight = 0,
         BlockLineHeight = 1,
     }
-    Fayde.RegisterEnum(LineStackingStrategy, "LineStackingStrategy", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(LineStackingStrategy, "LineStackingStrategy");
 }

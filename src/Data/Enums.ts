@@ -5,7 +5,7 @@ module Fayde.Data {
         FindAncestor = 3,
         ItemsControlParent = 4,
     }
-    Fayde.RegisterEnum(RelativeSourceMode, "RelativeSourceMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(RelativeSourceMode, "RelativeSourceMode");
 
     export enum BindingMode {
         TwoWay = 0,
@@ -13,7 +13,7 @@ module Fayde.Data {
         OneTime = 2,
         OneWayToSource = 3,
     }
-    Fayde.RegisterEnum(BindingMode, "BindingMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(BindingMode, "BindingMode");
 
     export enum UpdateSourceTrigger {
         Default = 0,

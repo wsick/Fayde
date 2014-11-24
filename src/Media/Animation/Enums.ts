@@ -4,11 +4,11 @@ module Fayde.Media.Animation {
         EaseIn = 1,
         EaseInOut = 2,
     }
-    Fayde.RegisterEnum(EasingMode, "EasingMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(EasingMode, "EasingMode");
 
     export enum FillBehavior {
         HoldEnd = 0,
         Stop = 1,
     }
-    Fayde.RegisterEnum(FillBehavior, "FillBehavior", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(FillBehavior, "FillBehavior");
 }

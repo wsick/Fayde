@@ -38,7 +38,7 @@ var Fayde;
             CollectionChangedAction[CollectionChangedAction["Reset"] = 4] = "Reset";
         })(Collections.CollectionChangedAction || (Collections.CollectionChangedAction = {}));
         var CollectionChangedAction = Collections.CollectionChangedAction;
-        Fayde.RegisterEnum(CollectionChangedAction, "NotifyCollectionChangedAction", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(CollectionChangedAction, "NotifyCollectionChangedAction");
 
         var CollectionChangedEventArgs = (function () {
             function CollectionChangedEventArgs() {
@@ -1675,14 +1675,14 @@ var Fayde;
         Orientation[Orientation["Vertical"] = 1] = "Vertical";
     })(Fayde.Orientation || (Fayde.Orientation = {}));
     var Orientation = Fayde.Orientation;
-    Fayde.RegisterEnum(Orientation, "Orientation", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(Orientation, "Orientation");
 
     (function (Visibility) {
         Visibility[Visibility["Visible"] = 0] = "Visible";
         Visibility[Visibility["Collapsed"] = 1] = "Collapsed";
     })(Fayde.Visibility || (Fayde.Visibility = {}));
     var Visibility = Fayde.Visibility;
-    Fayde.RegisterEnum(Visibility, "Visibility", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(Visibility, "Visibility");
     nullstone.registerEnumConverter(Visibility, function (val) {
         if (val === "true" || val === true || val === 0 /* Visible */ || val === "Visible")
             return 0 /* Visible */;
@@ -1700,7 +1700,7 @@ var Fayde;
         CursorType[CursorType["SizeWE"] = 7] = "SizeWE";
     })(Fayde.CursorType || (Fayde.CursorType = {}));
     var CursorType = Fayde.CursorType;
-    Fayde.RegisterEnum(CursorType, "CursorType", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(CursorType, "CursorType");
     Fayde.CursorTypeMappings = {
         Default: "",
         Hand: "pointer",
@@ -1719,7 +1719,7 @@ var Fayde;
         HorizontalAlignment[HorizontalAlignment["Stretch"] = 3] = "Stretch";
     })(Fayde.HorizontalAlignment || (Fayde.HorizontalAlignment = {}));
     var HorizontalAlignment = Fayde.HorizontalAlignment;
-    Fayde.RegisterEnum(HorizontalAlignment, "HorizontalAlignment", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(HorizontalAlignment, "HorizontalAlignment");
 
     (function (VerticalAlignment) {
         VerticalAlignment[VerticalAlignment["Top"] = 0] = "Top";
@@ -1728,14 +1728,14 @@ var Fayde;
         VerticalAlignment[VerticalAlignment["Stretch"] = 3] = "Stretch";
     })(Fayde.VerticalAlignment || (Fayde.VerticalAlignment = {}));
     var VerticalAlignment = Fayde.VerticalAlignment;
-    Fayde.RegisterEnum(VerticalAlignment, "VerticalAlignment", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(VerticalAlignment, "VerticalAlignment");
 
     (function (FlowDirection) {
         FlowDirection[FlowDirection["LeftToRight"] = 0] = "LeftToRight";
         FlowDirection[FlowDirection["RightToLeft"] = 1] = "RightToLeft";
     })(Fayde.FlowDirection || (Fayde.FlowDirection = {}));
     var FlowDirection = Fayde.FlowDirection;
-    Fayde.RegisterEnum(FlowDirection, "FlowDirection", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(FlowDirection, "FlowDirection");
 
     (function (FontWeight) {
         FontWeight[FontWeight["Thin"] = 100] = "Thin";
@@ -1750,7 +1750,7 @@ var Fayde;
         FontWeight[FontWeight["ExtraBlack"] = 950] = "ExtraBlack";
     })(Fayde.FontWeight || (Fayde.FontWeight = {}));
     var FontWeight = Fayde.FontWeight;
-    Fayde.RegisterEnum(FontWeight, "FontWeight", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(FontWeight, "FontWeight");
 
     (function (TextAlignment) {
         TextAlignment[TextAlignment["Left"] = 0] = "Left";
@@ -1759,21 +1759,21 @@ var Fayde;
         TextAlignment[TextAlignment["Justify"] = 3] = "Justify";
     })(Fayde.TextAlignment || (Fayde.TextAlignment = {}));
     var TextAlignment = Fayde.TextAlignment;
-    Fayde.RegisterEnum(TextAlignment, "TextAlignment", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(TextAlignment, "TextAlignment");
 
     (function (TextDecorations) {
         TextDecorations[TextDecorations["None"] = 0] = "None";
         TextDecorations[TextDecorations["Underline"] = 1] = "Underline";
     })(Fayde.TextDecorations || (Fayde.TextDecorations = {}));
     var TextDecorations = Fayde.TextDecorations;
-    Fayde.RegisterEnum(TextDecorations, "TextDecorations", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(TextDecorations, "TextDecorations");
 
     (function (LineStackingStrategy) {
         LineStackingStrategy[LineStackingStrategy["MaxHeight"] = 0] = "MaxHeight";
         LineStackingStrategy[LineStackingStrategy["BlockLineHeight"] = 1] = "BlockLineHeight";
     })(Fayde.LineStackingStrategy || (Fayde.LineStackingStrategy = {}));
     var LineStackingStrategy = Fayde.LineStackingStrategy;
-    Fayde.RegisterEnum(LineStackingStrategy, "LineStackingStrategy", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(LineStackingStrategy, "LineStackingStrategy");
 })(Fayde || (Fayde = {}));
 var FontStyle = {
     Normal: "normal",
@@ -2933,7 +2933,7 @@ var Fayde;
             KeyboardNavigationMode[KeyboardNavigationMode["Local"] = 5] = "Local";
         })(Input.KeyboardNavigationMode || (Input.KeyboardNavigationMode = {}));
         var KeyboardNavigationMode = Input.KeyboardNavigationMode;
-        Fayde.RegisterEnum(KeyboardNavigationMode, "KeyboardNavigationMode", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(KeyboardNavigationMode, "KeyboardNavigationMode");
 
         (function (ModifierKeys) {
             ModifierKeys[ModifierKeys["None"] = 0] = "None";
@@ -3384,7 +3384,7 @@ var Fayde;
             TextWrapping[TextWrapping["WrapWithOverflow"] = 2] = "WrapWithOverflow";
         })(Controls.TextWrapping || (Controls.TextWrapping = {}));
         var TextWrapping = Controls.TextWrapping;
-        Fayde.RegisterEnum(TextWrapping, "TextWrapping", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(TextWrapping, "TextWrapping");
 
         (function (ScrollBarVisibility) {
             ScrollBarVisibility[ScrollBarVisibility["Disabled"] = 0] = "Disabled";
@@ -3393,13 +3393,13 @@ var Fayde;
             ScrollBarVisibility[ScrollBarVisibility["Visible"] = 3] = "Visible";
         })(Controls.ScrollBarVisibility || (Controls.ScrollBarVisibility = {}));
         var ScrollBarVisibility = Controls.ScrollBarVisibility;
-        Fayde.RegisterEnum(ScrollBarVisibility, "ScrollBarVisibility", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(ScrollBarVisibility, "ScrollBarVisibility");
 
         (function (TextTrimming) {
             TextTrimming[TextTrimming["None"] = 0] = "None";
         })(Controls.TextTrimming || (Controls.TextTrimming = {}));
         var TextTrimming = Controls.TextTrimming;
-        Fayde.RegisterEnum(TextTrimming, "TextTrimming", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(TextTrimming, "TextTrimming");
 
         (function (ClickMode) {
             ClickMode[ClickMode["Release"] = 0] = "Release";
@@ -3407,7 +3407,7 @@ var Fayde;
             ClickMode[ClickMode["Hover"] = 2] = "Hover";
         })(Controls.ClickMode || (Controls.ClickMode = {}));
         var ClickMode = Controls.ClickMode;
-        Fayde.RegisterEnum(ClickMode, "ClickMode", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(ClickMode, "ClickMode");
 
         (function (PlacementMode) {
             PlacementMode[PlacementMode["Bottom"] = 0] = "Bottom";
@@ -3417,7 +3417,7 @@ var Fayde;
             PlacementMode[PlacementMode["Top"] = 4] = "Top";
         })(Controls.PlacementMode || (Controls.PlacementMode = {}));
         var PlacementMode = Controls.PlacementMode;
-        Fayde.RegisterEnum(PlacementMode, "PlacementMode", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(PlacementMode, "PlacementMode");
 
         (function (SelectionMode) {
             SelectionMode[SelectionMode["Single"] = 0] = "Single";
@@ -3425,7 +3425,7 @@ var Fayde;
             SelectionMode[SelectionMode["Extended"] = 2] = "Extended";
         })(Controls.SelectionMode || (Controls.SelectionMode = {}));
         var SelectionMode = Controls.SelectionMode;
-        Fayde.RegisterEnum(SelectionMode, "SelectionMode", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(SelectionMode, "SelectionMode");
 
         (function (MediaElementState) {
             MediaElementState[MediaElementState["Closed"] = 0] = "Closed";
@@ -3437,7 +3437,7 @@ var Fayde;
             MediaElementState[MediaElementState["Stopped"] = 7] = "Stopped";
         })(Controls.MediaElementState || (Controls.MediaElementState = {}));
         var MediaElementState = Controls.MediaElementState;
-        Fayde.RegisterEnum(MediaElementState, "MediaElementState", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(MediaElementState, "MediaElementState");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -7384,7 +7384,7 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         var GridUnitType = minerva.controls.grid.GridUnitType;
-        Fayde.RegisterEnum(GridUnitType, "GridUnitType", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(GridUnitType, "GridUnitType");
 
         var GridLength = (function () {
             function GridLength(value, unitType) {
@@ -7510,7 +7510,7 @@ var Fayde;
             BrushMappingMode[BrushMappingMode["RelativeToBoundingBox"] = 1] = "RelativeToBoundingBox";
         })(Media.BrushMappingMode || (Media.BrushMappingMode = {}));
         var BrushMappingMode = Media.BrushMappingMode;
-        Fayde.RegisterEnum(BrushMappingMode, "BrushMappingMode", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(BrushMappingMode, "BrushMappingMode");
 
         (function (GradientSpreadMethod) {
             GradientSpreadMethod[GradientSpreadMethod["Pad"] = 0] = "Pad";
@@ -7518,7 +7518,7 @@ var Fayde;
             GradientSpreadMethod[GradientSpreadMethod["Repeat"] = 2] = "Repeat";
         })(Media.GradientSpreadMethod || (Media.GradientSpreadMethod = {}));
         var GradientSpreadMethod = Media.GradientSpreadMethod;
-        Fayde.RegisterEnum(GradientSpreadMethod, "GradientSpreadMethod", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(GradientSpreadMethod, "GradientSpreadMethod");
 
         (function (Stretch) {
             Stretch[Stretch["None"] = 0] = "None";
@@ -7527,7 +7527,7 @@ var Fayde;
             Stretch[Stretch["UniformToFill"] = 3] = "UniformToFill";
         })(Media.Stretch || (Media.Stretch = {}));
         var Stretch = Media.Stretch;
-        Fayde.RegisterEnum(Stretch, "Stretch", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(Stretch, "Stretch");
 
         (function (AlignmentX) {
             AlignmentX[AlignmentX["Left"] = 0] = "Left";
@@ -7535,7 +7535,7 @@ var Fayde;
             AlignmentX[AlignmentX["Right"] = 2] = "Right";
         })(Media.AlignmentX || (Media.AlignmentX = {}));
         var AlignmentX = Media.AlignmentX;
-        Fayde.RegisterEnum(AlignmentX, "AlignmentX", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(AlignmentX, "AlignmentX");
 
         (function (AlignmentY) {
             AlignmentY[AlignmentY["Top"] = 0] = "Top";
@@ -7543,14 +7543,14 @@ var Fayde;
             AlignmentY[AlignmentY["Bottom"] = 2] = "Bottom";
         })(Media.AlignmentY || (Media.AlignmentY = {}));
         var AlignmentY = Media.AlignmentY;
-        Fayde.RegisterEnum(AlignmentY, "AlignmentY", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(AlignmentY, "AlignmentY");
 
         (function (TextHintingMode) {
             TextHintingMode[TextHintingMode["Fixed"] = 0] = "Fixed";
             TextHintingMode[TextHintingMode["Animated"] = 1] = "Animated";
         })(Media.TextHintingMode || (Media.TextHintingMode = {}));
         var TextHintingMode = Media.TextHintingMode;
-        Fayde.RegisterEnum(TextHintingMode, "TextHintingMode", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(TextHintingMode, "TextHintingMode");
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -9378,7 +9378,7 @@ var Fayde;
             Key[Key["Unknown"] = 255] = "Unknown";
         })(Input.Key || (Input.Key = {}));
         var Key = Input.Key;
-        Fayde.RegisterEnum(Key, "Key", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(Key, "Key");
 
         var KeyboardEventArgs = (function (_super) {
             __extends(KeyboardEventArgs, _super);
@@ -10033,7 +10033,7 @@ var Fayde;
                 ScrollEventType[ScrollEventType["EndScroll"] = 8] = "EndScroll";
             })(Primitives.ScrollEventType || (Primitives.ScrollEventType = {}));
             var ScrollEventType = Primitives.ScrollEventType;
-            Fayde.RegisterEnum(ScrollEventType, "ScrollEventType", Fayde.XMLNS);
+            Fayde.CoreLibrary.addEnum(ScrollEventType, "ScrollEventType");
 
             var ScrollEventArgs = (function (_super) {
                 __extends(ScrollEventArgs, _super);
@@ -11815,7 +11815,7 @@ var Fayde;
             VirtualizationMode[VirtualizationMode["Recycling"] = 1] = "Recycling";
         })(Controls.VirtualizationMode || (Controls.VirtualizationMode = {}));
         var VirtualizationMode = Controls.VirtualizationMode;
-        Fayde.RegisterEnum(VirtualizationMode, "VirtualizationMode", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(VirtualizationMode, "VirtualizationMode");
 
         var VirtualizingPanel = (function (_super) {
             __extends(VirtualizingPanel, _super);
@@ -13768,7 +13768,7 @@ var Fayde;
             RelativeSourceMode[RelativeSourceMode["ItemsControlParent"] = 4] = "ItemsControlParent";
         })(Data.RelativeSourceMode || (Data.RelativeSourceMode = {}));
         var RelativeSourceMode = Data.RelativeSourceMode;
-        Fayde.RegisterEnum(RelativeSourceMode, "RelativeSourceMode", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(RelativeSourceMode, "RelativeSourceMode");
 
         (function (BindingMode) {
             BindingMode[BindingMode["TwoWay"] = 0] = "TwoWay";
@@ -13777,7 +13777,7 @@ var Fayde;
             BindingMode[BindingMode["OneWayToSource"] = 3] = "OneWayToSource";
         })(Data.BindingMode || (Data.BindingMode = {}));
         var BindingMode = Data.BindingMode;
-        Fayde.RegisterEnum(BindingMode, "BindingMode", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(BindingMode, "BindingMode");
 
         (function (UpdateSourceTrigger) {
             UpdateSourceTrigger[UpdateSourceTrigger["Default"] = 0] = "Default";
@@ -18271,7 +18271,7 @@ var DayOfWeek;
     DayOfWeek[DayOfWeek["Friday"] = 5] = "Friday";
     DayOfWeek[DayOfWeek["Saturday"] = 6] = "Saturday";
 })(DayOfWeek || (DayOfWeek = {}));
-Fayde.RegisterEnum(DayOfWeek, "DayOfWeek", Fayde.XMLNS);
+Fayde.CoreLibrary.addEnum(DayOfWeek, "DayOfWeek");
 
 var DateTimeKind;
 (function (DateTimeKind) {
@@ -18279,7 +18279,7 @@ var DateTimeKind;
     DateTimeKind[DateTimeKind["Unspecified"] = 1] = "Unspecified";
     DateTimeKind[DateTimeKind["Utc"] = 2] = "Utc";
 })(DateTimeKind || (DateTimeKind = {}));
-Fayde.RegisterEnum(DateTimeKind, "DateTimeKind", Fayde.XMLNS);
+Fayde.CoreLibrary.addEnum(DateTimeKind, "DateTimeKind");
 
 var DateTime = (function () {
     function DateTime() {
@@ -20011,14 +20011,14 @@ var Fayde;
                 EasingMode[EasingMode["EaseInOut"] = 2] = "EaseInOut";
             })(Animation.EasingMode || (Animation.EasingMode = {}));
             var EasingMode = Animation.EasingMode;
-            Fayde.RegisterEnum(EasingMode, "EasingMode", Fayde.XMLNS);
+            Fayde.CoreLibrary.addEnum(EasingMode, "EasingMode");
 
             (function (FillBehavior) {
                 FillBehavior[FillBehavior["HoldEnd"] = 0] = "HoldEnd";
                 FillBehavior[FillBehavior["Stop"] = 1] = "Stop";
             })(Animation.FillBehavior || (Animation.FillBehavior = {}));
             var FillBehavior = Animation.FillBehavior;
-            Fayde.RegisterEnum(FillBehavior, "FillBehavior", Fayde.XMLNS);
+            Fayde.CoreLibrary.addEnum(FillBehavior, "FillBehavior");
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -22896,7 +22896,7 @@ var Fayde;
             PenLineCap[PenLineCap["Triangle"] = 3] = "Triangle";
         })(Shapes.PenLineCap || (Shapes.PenLineCap = {}));
         var PenLineCap = Shapes.PenLineCap;
-        Fayde.RegisterEnum(PenLineCap, "PenLineCap", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(PenLineCap, "PenLineCap");
 
         (function (PenLineJoin) {
             PenLineJoin[PenLineJoin["Miter"] = 0] = "Miter";
@@ -22904,21 +22904,21 @@ var Fayde;
             PenLineJoin[PenLineJoin["Round"] = 2] = "Round";
         })(Shapes.PenLineJoin || (Shapes.PenLineJoin = {}));
         var PenLineJoin = Shapes.PenLineJoin;
-        Fayde.RegisterEnum(PenLineJoin, "PenLineJoin", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(PenLineJoin, "PenLineJoin");
 
         (function (FillRule) {
             FillRule[FillRule["EvenOdd"] = 0] = "EvenOdd";
             FillRule[FillRule["NonZero"] = 1] = "NonZero";
         })(Shapes.FillRule || (Shapes.FillRule = {}));
         var FillRule = Shapes.FillRule;
-        Fayde.RegisterEnum(FillRule, "FillRule", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(FillRule, "FillRule");
 
         (function (SweepDirection) {
             SweepDirection[SweepDirection["Counterclockwise"] = 0] = "Counterclockwise";
             SweepDirection[SweepDirection["Clockwise"] = 1] = "Clockwise";
         })(Shapes.SweepDirection || (Shapes.SweepDirection = {}));
         var SweepDirection = Shapes.SweepDirection;
-        Fayde.RegisterEnum(SweepDirection, "SweepDirection", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(SweepDirection, "SweepDirection");
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));
