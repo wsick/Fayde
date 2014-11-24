@@ -6868,21 +6868,128 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    (function (Xaml) {
+    (function (Markup) {
         var FrameworkTemplate = (function (_super) {
             __extends(FrameworkTemplate, _super);
             function FrameworkTemplate() {
-                _super.call(this);
-                this.ResourceChain = [];
+                _super.apply(this, arguments);
             }
             FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
-                return null;
+                var uie = LoadImpl(bindingSource, this.$$markup, bindingSource);
+                if (!(uie instanceof Fayde.UIElement))
+                    throw new XamlParseException("Template root visual is not a UIElement.");
+                return uie;
             };
             return FrameworkTemplate;
         })(Fayde.XamlObject);
-        Xaml.FrameworkTemplate = FrameworkTemplate;
-    })(Fayde.Xaml || (Fayde.Xaml = {}));
-    var Xaml = Fayde.Xaml;
+        Markup.FrameworkTemplate = FrameworkTemplate;
+
+        function setTemplateRoot(ft, root) {
+            if (root instanceof Element)
+                ft.$$markup = Markup.CreateXaml(root);
+        }
+
+        function LoadXaml(initiator, xaml) {
+            var markup = Markup.CreateXaml(xaml);
+            return Load(initiator, markup);
+        }
+        Markup.LoadXaml = LoadXaml;
+
+        function Load(initiator, xm) {
+            return LoadImpl(initiator, xm);
+        }
+        Markup.Load = Load;
+
+        function LoadImpl(initiator, xm, bindingSource) {
+            var namescope = new Fayde.NameScope(true);
+
+            var oresolve = {
+                isPrimitive: false,
+                type: undefined
+            };
+
+            var cur;
+            var xo;
+            var rd;
+            var last;
+
+            var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX).on({
+                resolveType: function (uri, name) {
+                    Fayde.TypeManager.resolveType(uri, name, oresolve);
+                    return oresolve;
+                },
+                resolveObject: function (type) {
+                    if (type === Fayde.ResourceDictionary && cur === rd)
+                        return rd;
+                    var obj = new (type)();
+                    if (obj instanceof FrameworkTemplate)
+                        parser.skipBranch();
+                    return obj;
+                },
+                resolvePrimitive: function (type, text) {
+                    return nullstone.convertAnyToType(text, type);
+                },
+                resolveResources: function (ownerType, owner) {
+                    var rd = owner.Resources;
+                    return rd;
+                },
+                branchSkip: function (root, obj) {
+                    if (obj instanceof FrameworkTemplate) {
+                        last = obj;
+                        setTemplateRoot(obj, root);
+                    }
+                },
+                object: function (obj) {
+                    cur = obj;
+                    if (cur instanceof Fayde.XamlObject) {
+                        xo = cur;
+                        xo.XamlNode.DocNameScope = namescope;
+                    } else if (cur instanceof Fayde.ResourceDictionary) {
+                        rd = cur;
+                    }
+                },
+                objectEnd: function (obj, prev) {
+                    last = obj;
+                    cur = prev;
+                    if (cur instanceof Fayde.XamlObject)
+                        xo = cur;
+                    else if (cur instanceof Fayde.ResourceDictionary)
+                        rd = cur;
+                },
+                contentObject: function (obj) {
+                    cur = obj;
+                    if (cur instanceof Fayde.XamlObject) {
+                        xo = cur;
+                        xo.XamlNode.DocNameScope = namescope;
+                        xo.TemplateOwner = bindingSource;
+                    }
+                },
+                contentText: function (text) {
+                },
+                name: function (name) {
+                    if (xo) {
+                        namescope.RegisterName(name, xo.XamlNode);
+                        xo.XamlNode.Name = name;
+                    }
+                },
+                key: function (key) {
+                },
+                propertyStart: function (ownerType, propName) {
+                },
+                propertyEnd: function (ownerType, propName) {
+                },
+                error: function (err) {
+                    return false;
+                },
+                end: function () {
+                }
+            });
+            parser.parse(xm.root);
+
+            return last;
+        }
+    })(Fayde.Markup || (Fayde.Markup = {}));
+    var Markup = Fayde.Markup;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -6890,14 +6997,10 @@ var Fayde;
         var ControlTemplate = (function (_super) {
             __extends(ControlTemplate, _super);
             function ControlTemplate() {
-                _super.call(this);
+                _super.apply(this, arguments);
             }
-            ControlTemplate.prototype.GetVisualTree = function (bindingSource) {
-                var uie = _super.prototype.GetVisualTree.call(this, bindingSource);
-                return uie;
-            };
             return ControlTemplate;
-        })(Fayde.Xaml.FrameworkTemplate);
+        })(Fayde.Markup.FrameworkTemplate);
         Controls.ControlTemplate = ControlTemplate;
         Fayde.CoreLibrary.add(ControlTemplate);
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -8564,7 +8667,7 @@ var Fayde;
         var ItemsPanelTemplate = (function (_super) {
             __extends(ItemsPanelTemplate, _super);
             function ItemsPanelTemplate() {
-                _super.call(this);
+                _super.apply(this, arguments);
             }
             ItemsPanelTemplate.prototype.GetVisualTree = function (bindingSource) {
                 var panel = _super.prototype.GetVisualTree.call(this, bindingSource);
@@ -8573,7 +8676,7 @@ var Fayde;
                 return panel;
             };
             return ItemsPanelTemplate;
-        })(Fayde.Xaml.FrameworkTemplate);
+        })(Fayde.Markup.FrameworkTemplate);
         Controls.ItemsPanelTemplate = ItemsPanelTemplate;
         Fayde.CoreLibrary.add(ItemsPanelTemplate);
     })(Fayde.Controls || (Fayde.Controls = {}));
@@ -12078,14 +12181,10 @@ var Fayde;
     var DataTemplate = (function (_super) {
         __extends(DataTemplate, _super);
         function DataTemplate() {
-            _super.call(this);
+            _super.apply(this, arguments);
         }
-        DataTemplate.prototype.GetVisualTree = function (bindingSource) {
-            var uie = _super.prototype.GetVisualTree.call(this, bindingSource);
-            return uie;
-        };
         return DataTemplate;
-    })(Fayde.Xaml.FrameworkTemplate);
+    })(Fayde.Markup.FrameworkTemplate);
     Fayde.DataTemplate = DataTemplate;
     Fayde.CoreLibrary.add(DataTemplate);
 })(Fayde || (Fayde = {}));
@@ -19789,129 +19888,6 @@ var Fayde;
         })();
         Markup.EventBinding = EventBinding;
         Fayde.CoreLibrary.add(EventBinding);
-    })(Fayde.Markup || (Fayde.Markup = {}));
-    var Markup = Fayde.Markup;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Markup) {
-        var FrameworkTemplate = (function (_super) {
-            __extends(FrameworkTemplate, _super);
-            function FrameworkTemplate() {
-                _super.apply(this, arguments);
-            }
-            FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
-                var uie = LoadImpl(bindingSource, this.$$markup, bindingSource);
-                if (!(uie instanceof Fayde.UIElement))
-                    throw new XamlParseException("Template root visual is not a UIElement.");
-                return uie;
-            };
-            return FrameworkTemplate;
-        })(Fayde.XamlObject);
-        Markup.FrameworkTemplate = FrameworkTemplate;
-
-        function setTemplateRoot(ft, root) {
-            if (root instanceof Element)
-                ft.$$markup = Markup.CreateXaml(root);
-        }
-
-        function LoadXaml(initiator, xaml) {
-            var markup = Markup.CreateXaml(xaml);
-            return Load(initiator, markup);
-        }
-        Markup.LoadXaml = LoadXaml;
-
-        function Load(initiator, xm) {
-            return LoadImpl(initiator, xm);
-        }
-        Markup.Load = Load;
-
-        function LoadImpl(initiator, xm, bindingSource) {
-            var namescope = new Fayde.NameScope(true);
-
-            var oresolve = {
-                isPrimitive: false,
-                type: undefined
-            };
-
-            var cur;
-            var xo;
-            var rd;
-            var last;
-
-            var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX).on({
-                resolveType: function (uri, name) {
-                    Fayde.TypeManager.resolveType(uri, name, oresolve);
-                    return oresolve;
-                },
-                resolveObject: function (type) {
-                    if (type === Fayde.ResourceDictionary && cur === rd)
-                        return rd;
-                    var obj = new (type)();
-                    if (obj instanceof FrameworkTemplate)
-                        parser.skipBranch();
-                    return obj;
-                },
-                resolvePrimitive: function (type, text) {
-                    return nullstone.convertAnyToType(text, type);
-                },
-                resolveResources: function (ownerType, owner) {
-                    var rd = owner.Resources;
-                    return rd;
-                },
-                branchSkip: function (root, obj) {
-                    if (obj instanceof FrameworkTemplate)
-                        setTemplateRoot(obj, root);
-                },
-                object: function (obj) {
-                    cur = obj;
-                    if (cur instanceof Fayde.XamlObject) {
-                        xo = cur;
-                        xo.XamlNode.DocNameScope = namescope;
-                    } else if (cur instanceof Fayde.ResourceDictionary) {
-                        rd = cur;
-                    }
-                },
-                objectEnd: function (obj, prev) {
-                    last = obj;
-                    cur = prev;
-                    if (cur instanceof Fayde.XamlObject)
-                        xo = cur;
-                    else if (cur instanceof Fayde.ResourceDictionary)
-                        rd = cur;
-                },
-                contentObject: function (obj) {
-                    cur = obj;
-                    if (cur instanceof Fayde.XamlObject) {
-                        xo = cur;
-                        xo.XamlNode.DocNameScope = namescope;
-                        xo.TemplateOwner = bindingSource;
-                    }
-                },
-                contentText: function (text) {
-                },
-                name: function (name) {
-                    if (xo) {
-                        namescope.RegisterName(name, xo.XamlNode);
-                        xo.XamlNode.Name = name;
-                    }
-                },
-                key: function (key) {
-                },
-                propertyStart: function (ownerType, propName) {
-                },
-                propertyEnd: function (ownerType, propName) {
-                },
-                error: function (err) {
-                    return false;
-                },
-                end: function () {
-                }
-            });
-            parser.parse(xm.root);
-
-            return last;
-        }
     })(Fayde.Markup || (Fayde.Markup = {}));
     var Markup = Fayde.Markup;
 })(Fayde || (Fayde = {}));

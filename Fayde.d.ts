@@ -1526,19 +1526,18 @@ declare module Fayde.Controls {
         public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
     }
 }
-declare module Fayde.Xaml {
+declare module Fayde.Markup {
     class FrameworkTemplate extends XamlObject {
-        private ResourceChain;
-        private TemplateElement;
-        constructor();
+        private $$markup;
         public GetVisualTree(bindingSource: DependencyObject): UIElement;
     }
+    function LoadXaml<T extends XamlObject>(initiator: DependencyObject, xaml: string): T;
+    function LoadXaml<T extends XamlObject>(initiator: DependencyObject, el: Element): T;
+    function Load<T extends XamlObject>(initiator: DependencyObject, xm: nullstone.markup.Markup<any>): T;
 }
 declare module Fayde.Controls {
-    class ControlTemplate extends Xaml.FrameworkTemplate {
+    class ControlTemplate extends Markup.FrameworkTemplate {
         public TargetType: Function;
-        constructor();
-        public GetVisualTree(bindingSource: DependencyObject): UIElement;
     }
 }
 declare module Fayde.Controls {
@@ -1947,8 +1946,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class ItemsPanelTemplate extends Xaml.FrameworkTemplate {
-        constructor();
+    class ItemsPanelTemplate extends Markup.FrameworkTemplate {
         public GetVisualTree(bindingSource: DependencyObject): Panel;
     }
 }
@@ -2540,10 +2538,8 @@ declare module Fayde {
     function Clone(value: any): any;
 }
 declare module Fayde {
-    class DataTemplate extends Xaml.FrameworkTemplate {
+    class DataTemplate extends Markup.FrameworkTemplate {
         public DataType: Function;
-        constructor();
-        public GetVisualTree(bindingSource?: DependencyObject): UIElement;
     }
 }
 interface IDependencyPropertyChangedEventArgs {
@@ -3833,15 +3829,6 @@ declare module Fayde.Markup {
         public transmute(os: any[]): any;
         private $$coerce();
     }
-}
-declare module Fayde.Markup {
-    class FrameworkTemplate extends XamlObject {
-        private $$markup;
-        public GetVisualTree(bindingSource: DependencyObject): UIElement;
-    }
-    function LoadXaml<T extends XamlObject>(initiator: DependencyObject, xaml: string): T;
-    function LoadXaml<T extends XamlObject>(initiator: DependencyObject, el: Element): T;
-    function Load<T extends XamlObject>(initiator: DependencyObject, xm: nullstone.markup.Markup<any>): T;
 }
 declare module Fayde.Markup {
     function Resolve(uri: string): any;

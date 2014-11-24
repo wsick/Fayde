@@ -1,11 +1,7 @@
-/// <reference path="../Xaml/XamlLoader.ts" />
+/// <reference path="../Markup/Loader" />
 
 module Fayde.Controls {
-    export class ItemsPanelTemplate extends Xaml.FrameworkTemplate {
-        constructor() {
-            super();
-        }
-
+    export class ItemsPanelTemplate extends Markup.FrameworkTemplate {
         GetVisualTree(bindingSource: DependencyObject): Panel {
             var panel = <Panel>super.GetVisualTree(bindingSource);
             if (!(panel instanceof Panel))

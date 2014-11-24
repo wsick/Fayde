@@ -1,17 +1,8 @@
-/// <reference path="../Xaml/XamlLoader.ts" />
+/// <reference path="../Markup/Loader" />
 
 module Fayde {
-    export class DataTemplate extends Xaml.FrameworkTemplate {
+    export class DataTemplate extends Markup.FrameworkTemplate {
         DataType: Function;
-
-        constructor() {
-            super();
-        }
-
-        GetVisualTree(bindingSource?: DependencyObject): UIElement {
-            var uie = <UIElement>super.GetVisualTree(bindingSource);
-            return uie;
-        }
     }
     Fayde.CoreLibrary.add(DataTemplate);
 }

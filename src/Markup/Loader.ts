@@ -63,8 +63,10 @@ module Fayde.Markup {
                     return rd;
                 },
                 branchSkip: (root: any, obj: any) => {
-                    if (obj instanceof FrameworkTemplate)
+                    if (obj instanceof FrameworkTemplate) {
+                        last = obj;
                         setTemplateRoot(<FrameworkTemplate>obj, root);
+                    }
                 },
                 object: (obj) => {
                     cur = obj;
