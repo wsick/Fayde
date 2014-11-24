@@ -6908,9 +6908,75 @@ var Fayde;
                 type: undefined
             };
 
-            var cur;
-            var xo;
-            var rd;
+            var cur = {
+                obj: null,
+                xo: null,
+                dobj: null,
+                rd: null,
+                coll: null,
+                arr: null,
+                set: function (obj) {
+                    this.obj = obj;
+                    this.rd = (obj instanceof Fayde.ResourceDictionary) ? obj : null;
+                    this.dobj = (obj instanceof Fayde.DependencyObject) ? obj : null;
+                    var xo = this.xo = (obj instanceof Fayde.XamlObject) ? obj : null;
+                    if (xo) {
+                        xo.XamlNode.DocNameScope = namescope;
+                        xo.TemplateOwner = bindingSource;
+                    }
+                    this.coll = nullstone.ICollection_.as(obj);
+                    this.arr = (typeof obj === "array") ? obj : null;
+                }
+            };
+            var props = {
+                arr: [],
+                carr: null,
+                start: function () {
+                    this.arr.push(this.carr = []);
+                },
+                end: function () {
+                    this.arr.pop();
+                    this.carr = this.arr[this.arr.length - 1];
+                },
+                verify: function (ownerType, name) {
+                    var fullName = (ownerType ? ownerType.name + "." : "") + name;
+                    if (this.carr.indexOf(fullName) > -1)
+                        throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
+                    this.carr.push(fullName);
+                },
+                setProp: function (ownerType, name, val) {
+                    if (!cur.obj)
+                        return;
+                    ownerType = ownerType || cur.obj.constructor;
+                    this.verify(ownerType, name);
+                    if (cur.dobj) {
+                        var propd = DependencyProperty.GetDependencyProperty(ownerType, name);
+                        cur.dobj.SetValue(propd, val);
+                    } else if (cur.obj.constructor === ownerType) {
+                        cur.obj[name] = val;
+                    }
+                },
+                setContent: function (val) {
+                    if (cur.dobj) {
+                        var ownerType = cur.dobj.constructor;
+                        this.verify(ownerType);
+                        var cprop = Markup.Content.Get(ownerType);
+                        cur.dobj.SetValue(cprop, val);
+                    } else if (cur.coll) {
+                        cur.coll.Add(val);
+                    } else if (cur.arr) {
+                        cur.arr.push(val);
+                    }
+                },
+                setContentText: function (text) {
+                    if (cur.dobj) {
+                        var ownerType = cur.dobj.constructor;
+                        this.verify(ownerType);
+                        var tcprop = Markup.TextContent.Get(ownerType);
+                        cur.dobj.SetValue(tcprop, text);
+                    }
+                }
+            };
             var last;
 
             var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX).on({
@@ -6919,8 +6985,6 @@ var Fayde;
                     return oresolve;
                 },
                 resolveObject: function (type) {
-                    if (type === Fayde.ResourceDictionary && cur === rd)
-                        return rd;
                     var obj = new (type)();
                     if (obj instanceof FrameworkTemplate)
                         parser.skipBranch();
@@ -6940,36 +7004,27 @@ var Fayde;
                     }
                 },
                 object: function (obj) {
-                    cur = obj;
-                    if (cur instanceof Fayde.XamlObject) {
-                        xo = cur;
-                        xo.XamlNode.DocNameScope = namescope;
-                    } else if (cur instanceof Fayde.ResourceDictionary) {
-                        rd = cur;
-                    }
+                    cur.set(obj);
+                    props.start();
                 },
                 objectEnd: function (obj, prev) {
                     last = obj;
-                    cur = prev;
-                    if (cur instanceof Fayde.XamlObject)
-                        xo = cur;
-                    else if (cur instanceof Fayde.ResourceDictionary)
-                        rd = cur;
+                    props.end();
+                    cur.set(prev);
                 },
                 contentObject: function (obj) {
-                    cur = obj;
-                    if (cur instanceof Fayde.XamlObject) {
-                        xo = cur;
-                        xo.XamlNode.DocNameScope = namescope;
-                        xo.TemplateOwner = bindingSource;
-                    }
+                    props.setContent(obj);
+                    cur.set(obj);
+                    props.start();
                 },
                 contentText: function (text) {
+                    props.setContentText(text);
                 },
                 name: function (name) {
-                    if (xo) {
-                        namescope.RegisterName(name, xo.XamlNode);
-                        xo.XamlNode.Name = name;
+                    if (cur.xo) {
+                        var xnode = cur.xo.XamlNode;
+                        namescope.RegisterName(name, xnode);
+                        xnode.Name = name;
                     }
                 },
                 key: function (key) {
@@ -6977,6 +7032,7 @@ var Fayde;
                 propertyStart: function (ownerType, propName) {
                 },
                 propertyEnd: function (ownerType, propName) {
+                    props.setProp(ownerType, propName, last);
                 },
                 error: function (err) {
                     return false;
