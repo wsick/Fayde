@@ -6944,6 +6944,12 @@ var Fayde;
                         throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
                     this.carr.push(fullName);
                 },
+                getContentProp: function (ownerType) {
+                    var cprop = this.carr.$$content = (this.carr.$$content || Markup.Content.Get(ownerType));
+                    if (!cprop)
+                        throw new XamlParseException("Cannot set content for object of type '" + ownerType.name + "'.");
+                    return cprop;
+                },
                 setProp: function (ownerType, name, val) {
                     if (!cur.obj)
                         return;
@@ -6960,8 +6966,7 @@ var Fayde;
                     if (cur.dobj) {
                         var ownerType = cur.dobj.constructor;
                         this.verify(ownerType);
-                        var cprop = Markup.Content.Get(ownerType);
-                        cur.dobj.SetValue(cprop, val);
+                        cur.dobj.SetValue(this.getContentProp(ownerType), val);
                     } else if (cur.coll) {
                         cur.coll.Add(val);
                     } else if (cur.arr) {
