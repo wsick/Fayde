@@ -6925,7 +6925,8 @@ var Fayde;
             var last;
             var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX).on({
                 resolveType: function (uri, name) {
-                    Fayde.TypeManager.resolveType(uri, name, oresolve);
+                    if (!Fayde.TypeManager.resolveType(uri, name, oresolve))
+                        throw new XamlParseException("Could not resolve type [" + uri + "][" + name + "].");
                     return oresolve;
                 },
                 resolveObject: function (type) {

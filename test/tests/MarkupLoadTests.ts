@@ -101,7 +101,7 @@ export function load () {
     test("FrameworkElement Resources", () => {
         var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
             + "<StackPanel.Resources>"
-            + "<x:Thickness x:Key=\"SomeThickness\">1,2,3,4</x:Thickness>"
+            + "<Thickness x:Key=\"SomeThickness\">1,2,3,4</Thickness>"
             + "</StackPanel.Resources>"
             + "</StackPanel>";
         var root = Fayde.Markup.LoadXaml<Fayde.Controls.StackPanel>(null, xaml);

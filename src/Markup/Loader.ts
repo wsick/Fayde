@@ -46,7 +46,8 @@ module Fayde.Markup {
             .setNamespaces(Fayde.XMLNS, Fayde.XMLNSX)
             .on({
                 resolveType: (uri, name) => {
-                    TypeManager.resolveType(uri, name, oresolve);
+                    if (!TypeManager.resolveType(uri, name, oresolve))
+                        throw new XamlParseException("Could not resolve type [" + uri + "][" + name + "].");
                     return oresolve;
                 },
                 resolveObject: (type) => {
