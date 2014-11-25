@@ -7016,6 +7016,9 @@ var Fayde;
             }
 
             parser.parse(xm.root);
+            if (last instanceof Fayde.XamlObject) {
+                last.XamlNode.NameScope = namescope;
+            }
             return last;
         }
     })(Fayde.Markup || (Fayde.Markup = {}));

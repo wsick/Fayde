@@ -138,6 +138,9 @@ module Fayde.Markup {
         }
 
         parser.parse(xm.root);
+        if (last instanceof XamlObject) {
+            last.XamlNode.NameScope = namescope;
+        }
         return last;
     }
 }
