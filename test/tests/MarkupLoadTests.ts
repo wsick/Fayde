@@ -297,16 +297,4 @@ export function load () {
         storyboard = states.GetValueAt(1).Storyboard;
         ok(storyboard == null || storyboard instanceof Fayde.Media.Animation.Storyboard);
     });
-
-    test("Events", () => {
-        var xaml = "<mocks:TestControl xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" xmlns:mocks=\".build/mocks\">"
-            + "<mocks:TestControl.Content>"
-            + "<Button Click=\"TestCallback\" />"
-            + "</mocks:TestControl.Content>"
-            + "</mocks:TestControl>";
-        var tc = Fayde.Markup.LoadXaml<TestControl>(null, xaml);
-        var button = <Fayde.Controls.Button>tc.Content;
-        button.Click.raise(button, new Fayde.RoutedEventArgs());
-        ok(tc.CallbackFired, "Raise");
-    });
 }
