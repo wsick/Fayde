@@ -12880,12 +12880,11 @@ var Fayde;
             _super.apply(this, arguments);
             this._IsSealed = false;
         }
-        SetterCollection.prototype._Seal = function (targetType) {
+        SetterCollection.prototype.Seal = function () {
             if (this._IsSealed)
                 return;
-            var enumerator = this.getEnumerator();
-            while (enumerator.moveNext()) {
-                enumerator.current._Seal(targetType);
+            for (var en = this.getEnumerator(); en.moveNext();) {
+                en.current.Seal();
             }
             this._IsSealed = true;
         };
@@ -12897,18 +12896,18 @@ var Fayde;
         };
 
         SetterCollection.prototype._ValidateSetter = function (setter, error) {
-            if (setter.Property === undefined) {
-                error.Message = "Cannot have a null PropertyProperty value";
+            if (!(setter.Property instanceof DependencyProperty)) {
+                error.Message = "Setter.Property must be a DependencyProperty.";
                 return false;
             }
             if (setter.Value === undefined) {
                 if (!setter._HasDeferredValueExpression(Setter.ValueProperty)) {
-                    error.Message = "Cannot have a null ValueProperty value";
+                    error.Message = "Setter must have a Value.";
                     return false;
                 }
             }
             if (this._IsSealed) {
-                error.Message = "Cannot add a setter to a sealed style";
+                error.Message = "Setter is sealed.";
                 return false;
             }
             return true;
@@ -12924,7 +12923,7 @@ var Fayde;
             _super.apply(this, arguments);
             this._IsSealed = false;
         }
-        Setter.prototype._Seal = function (targetType) {
+        Setter.prototype.Seal = function () {
             var propd = this.Property;
             var val = this.Value;
 
@@ -12946,6 +12945,9 @@ var Fayde;
             return DependencyProperty;
         }, Setter);
         Setter.ValueProperty = DependencyProperty.Register("Value", function () {
+            return Object;
+        }, Setter);
+        Setter.ConvertedValueProperty = DependencyProperty.RegisterReadOnly("ConvertedValue", function () {
             return Object;
         }, Setter);
         return Setter;
@@ -12984,7 +12986,7 @@ var Fayde;
         Style.prototype.Seal = function () {
             if (this._IsSealed)
                 return;
-            this.Setters._Seal(this.TargetType);
+            this.Setters.Seal();
             this._IsSealed = true;
 
             var base = this.BasedOn;

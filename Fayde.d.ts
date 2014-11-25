@@ -2677,7 +2677,7 @@ declare module Fayde {
     class SetterCollection extends XamlObjectCollection<Setter> {
         private _IsSealed;
         public XamlNode: XamlNode;
-        public _Seal(targetType: Function): void;
+        public Seal(): void;
         public AddingToCollection(value: Setter, error: BError): boolean;
         private _ValidateSetter(setter, error);
     }
@@ -2685,10 +2685,11 @@ declare module Fayde {
         private _IsSealed;
         static PropertyProperty: DependencyProperty;
         static ValueProperty: DependencyProperty;
+        static ConvertedValueProperty: DependencyProperty;
         public Property: DependencyProperty;
         public Value: any;
         public ConvertedValue: any;
-        public _Seal(targetType: Function): void;
+        public Seal(): void;
         static Compare(setter1: Setter, setter2: Setter): number;
     }
 }
