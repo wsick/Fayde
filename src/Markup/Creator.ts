@@ -10,6 +10,8 @@ module Fayde.Markup {
         var root = (typeof obj === "string")
             ? xm.loadRoot(obj)
             : obj;
+        if (!root.isDefaultNamespace(Fayde.XMLNS))
+            throw new XamlParseException("Invalid default namespace. [" + root.lookupNamespaceURI(null) + "]");
         xm.setRoot(root);
         return xm;
     }
