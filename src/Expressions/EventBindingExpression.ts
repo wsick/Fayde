@@ -35,8 +35,7 @@ module Fayde {
         Seal (owner: DependencyObject, prop: any) {
         }
 
-        Init (event: nullstone.Event<nullstone.IEventArgs>, eventName: string) {
-            this._Event = event;
+        Init (eventName: string) {
             this._EventName = eventName;
         }
 
@@ -48,6 +47,7 @@ module Fayde {
                 return;
             this.IsAttached = true;
             this._Target = target;
+            this._Event = target[this._EventName];
             if (this._Event)
                 this._Event.on(this._Callback, this);
         }
@@ -57,6 +57,7 @@ module Fayde {
                 return;
             if (this._Event)
                 this._Event.off(this._Callback, this);
+            this._Event = null;
             this.IsAttached = false;
         }
 

@@ -65,6 +65,18 @@ module Fayde.Markup.Internal {
             }
         }
 
+        function trySubscribeEvent (name: string, ebe: EventBindingExpression): boolean {
+            var event: nullstone.Event<any> = cur.dobj[name];
+            if (event instanceof nullstone.Event) {
+                if (!(ebe instanceof EventBindingExpression))
+                    throw new XamlParseException("Cannot subscribe to event '" + name + "' without {EventBinding}.");
+                ebe.Init(name);
+                ebe.OnAttached(cur.dobj);
+                return true;
+            }
+            return false;
+        }
+
         return {
             init (nstate: any) {
                 state = nstate;
@@ -78,12 +90,16 @@ module Fayde.Markup.Internal {
             end (ownerType: any, name: string, obj: any) {
                 var otype = ownerType || cur.type;
                 if (!cur.dobj) {
-                    if (!ownerType || cur.type === ownerType)
-                        cur.obj[name] = obj;
-                    throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
+                    if (ownerType && cur.type !== ownerType)
+                        throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
+                    cur.obj[name] = obj;
+                    return;
                 }
-                var propd = DependencyProperty.GetDependencyProperty(otype, name);
-                cur.dobj.SetValue(propd, convert(propd, obj));
+                var propd = DependencyProperty.GetDependencyProperty(otype, name, true);
+                if (propd)
+                    cur.dobj.SetValue(propd, convert(propd, obj));
+                else if (!trySubscribeEvent(name, obj))
+                    throw new XamlParseException("Cannot locate dependency property [" + otype.name + "].[" + name + "]");
             },
             getKey (): any {
                 return state.$$key;

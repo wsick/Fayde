@@ -16615,8 +16615,7 @@ var Fayde;
         EventBindingExpression.prototype.Seal = function (owner, prop) {
         };
 
-        EventBindingExpression.prototype.Init = function (event, eventName) {
-            this._Event = event;
+        EventBindingExpression.prototype.Init = function (eventName) {
             this._EventName = eventName;
         };
 
@@ -16628,6 +16627,7 @@ var Fayde;
                 return;
             this.IsAttached = true;
             this._Target = target;
+            this._Event = target[this._EventName];
             if (this._Event)
                 this._Event.on(this._Callback, this);
         };
@@ -16637,6 +16637,7 @@ var Fayde;
                 return;
             if (this._Event)
                 this._Event.off(this._Callback, this);
+            this._Event = null;
             this.IsAttached = false;
         };
 
@@ -19865,11 +19866,15 @@ var Fayde;
 
         var EventBinding = (function () {
             function EventBinding() {
+                this.CommandPath = null;
+                this.Command = null;
+                this.CommandParameter = null;
                 this.CommandBinding = null;
                 this.CommandParameterBinding = null;
                 this.Filter = null;
             }
             EventBinding.prototype.init = function (val) {
+                this.CommandPath = val;
             };
 
             EventBinding.prototype.transmute = function (os) {
@@ -19879,6 +19884,17 @@ var Fayde;
             };
 
             EventBinding.prototype.$$coerce = function () {
+                if (this.Command) {
+                    this.CommandBinding = this.Command.ParentBinding.Clone();
+                    this.Command = null;
+                }
+                if (this.CommandPath) {
+                    this.CommandBinding = new Fayde.Data.Binding(this.CommandPath);
+                }
+                if (this.CommandParameter) {
+                    this.CommandParameterBinding = this.CommandParameter.ParentBinding.Clone();
+                    this.CommandParameter = null;
+                }
             };
             return EventBinding;
         })();
@@ -20013,6 +20029,18 @@ var Fayde;
                     }
                 }
 
+                function trySubscribeEvent(name, ebe) {
+                    var event = cur.dobj[name];
+                    if (event instanceof nullstone.Event) {
+                        if (!(ebe instanceof Fayde.EventBindingExpression))
+                            throw new XamlParseException("Cannot subscribe to event '" + name + "' without {EventBinding}.");
+                        ebe.Init(name);
+                        ebe.OnAttached(cur.dobj);
+                        return true;
+                    }
+                    return false;
+                }
+
                 return {
                     init: function (nstate) {
                         state = nstate;
@@ -20026,12 +20054,16 @@ var Fayde;
                     end: function (ownerType, name, obj) {
                         var otype = ownerType || cur.type;
                         if (!cur.dobj) {
-                            if (!ownerType || cur.type === ownerType)
-                                cur.obj[name] = obj;
-                            throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
+                            if (ownerType && cur.type !== ownerType)
+                                throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
+                            cur.obj[name] = obj;
+                            return;
                         }
-                        var propd = DependencyProperty.GetDependencyProperty(otype, name);
-                        cur.dobj.SetValue(propd, convert(propd, obj));
+                        var propd = DependencyProperty.GetDependencyProperty(otype, name, true);
+                        if (propd)
+                            cur.dobj.SetValue(propd, convert(propd, obj));
+                        else if (!trySubscribeEvent(name, obj))
+                            throw new XamlParseException("Cannot locate dependency property [" + otype.name + "].[" + name + "]");
                     },
                     getKey: function () {
                         return state.$$key;

@@ -3356,7 +3356,7 @@ declare module Fayde {
         private _EventName;
         constructor(eventBinding: Markup.EventBinding);
         public Seal(owner: DependencyObject, prop: any): void;
-        public Init(event: nullstone.Event<nullstone.IEventArgs>, eventName: string): void;
+        public Init(eventName: string): void;
         public GetValue(propd: DependencyProperty): any;
         public OnAttached(target: XamlObject): void;
         public OnDetached(target: XamlObject): void;
@@ -3824,6 +3824,9 @@ declare module Fayde.Markup {
     }
     var IEventFilter_: nullstone.Interface<IEventFilter>;
     class EventBinding implements nullstone.markup.IMarkupExtension {
+        public CommandPath: string;
+        public Command: Data.BindingExpressionBase;
+        public CommandParameter: Data.BindingExpressionBase;
         public CommandBinding: Data.Binding;
         public CommandParameterBinding: Data.Binding;
         public Filter: IEventFilter;
