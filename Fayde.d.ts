@@ -1531,6 +1531,7 @@ declare module Fayde.Controls {
 declare module Fayde.Markup {
     class FrameworkTemplate extends DependencyObject {
         private $$markup;
+        public Validate(): string;
         public GetVisualTree(bindingSource: DependencyObject): UIElement;
     }
     function LoadXaml<T extends XamlObject>(initiator: DependencyObject, xaml: string): T;
@@ -1541,6 +1542,7 @@ declare module Fayde.Controls {
     class ControlTemplate extends Markup.FrameworkTemplate {
         static TargetTypeProperty: DependencyProperty;
         public TargetType: Function;
+        public Validate(): string;
     }
 }
 declare module Fayde.Controls {

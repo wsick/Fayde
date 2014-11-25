@@ -2,6 +2,10 @@ module Fayde.Markup {
     export class FrameworkTemplate extends DependencyObject {
         private $$markup: nullstone.markup.Markup<any>;
 
+        Validate (): string {
+            return "";
+        }
+
         GetVisualTree (bindingSource: DependencyObject): UIElement {
             var uie = LoadImpl<UIElement>(bindingSource, this.$$markup, bindingSource);
             if (!(uie instanceof UIElement))
@@ -62,6 +66,9 @@ module Fayde.Markup {
                 branchSkip: (root: any, obj: any) => {
                     if (obj instanceof FrameworkTemplate) {
                         last = obj;
+                        var err = obj.Validate();
+                        if (err)
+                            throw new XamlParseException(err);
                         setTemplateRoot(<FrameworkTemplate>obj, root);
                     }
                 },

@@ -6881,6 +6881,10 @@ var Fayde;
             function FrameworkTemplate() {
                 _super.apply(this, arguments);
             }
+            FrameworkTemplate.prototype.Validate = function () {
+                return "";
+            };
+
             FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
                 var uie = LoadImpl(bindingSource, this.$$markup, bindingSource);
                 if (!(uie instanceof Fayde.UIElement))
@@ -6940,6 +6944,9 @@ var Fayde;
                 branchSkip: function (root, obj) {
                     if (obj instanceof FrameworkTemplate) {
                         last = obj;
+                        var err = obj.Validate();
+                        if (err)
+                            throw new XamlParseException(err);
                         setTemplateRoot(obj, root);
                     }
                 },
@@ -7022,6 +7029,10 @@ var Fayde;
             function ControlTemplate() {
                 _super.apply(this, arguments);
             }
+            ControlTemplate.prototype.Validate = function () {
+                if (!this.TargetType)
+                    return "ControlTemplate must have a TargetType.";
+            };
             ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", function () {
                 return Fayde.IType_;
             }, ControlTemplate);
