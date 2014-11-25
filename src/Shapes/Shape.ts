@@ -12,7 +12,7 @@ module Fayde.Shapes {
         //http://msdn.microsoft.com/en-us/library/system.windows.shapes.shape.stretch(v=vs.95).aspx
         static StretchProperty = DependencyProperty.Register("Stretch", () => new Enum(Media.Stretch), Shape, Media.Stretch.None);
         static StrokeProperty = DependencyProperty.Register("Stroke", () => Media.Brush, Shape);
-        static StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", () => Number, Shape, 1.0);
+        static StrokeThicknessProperty = DependencyProperty.RegisterFull("StrokeThickness", () => Number, Shape, 1.0, undefined, strokeThicknessCoercer);
         static StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", () => DoubleCollection, Shape);
         static StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", () => new Enum(PenLineCap), Shape, PenLineCap.Flat);
         static StrokeDashOffsetProperty = DependencyProperty.Register("StrokeDashOffset", () => Number, Shape, 0.0);
@@ -44,6 +44,12 @@ module Fayde.Shapes {
     function onSizeChanged (shape: Shape, args: IDependencyPropertyChangedEventArgs) {
         var updater = <ShapeUpdater>shape.XamlNode.LayoutUpdater;
         updater.invalidateMeasure();
+    }
+
+    function strokeThicknessCoercer (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any): any {
+        if (value instanceof Thickness)
+            return (<Thickness>value).left;
+        return value;
     }
 
     module reactions {

@@ -26726,6 +26726,14 @@ var Thickness = (function (_super) {
     Thickness.prototype.Clone = function () {
         return new Thickness(this.left, this.top, this.right, this.bottom);
     };
+
+    Thickness.prototype.toString = function () {
+        var l = this.left || 0;
+        var t = this.top || 0;
+        var r = this.right || 0;
+        var b = this.bottom || 0;
+        return [l, t, r, b].join(',');
+    };
     return Thickness;
 })(minerva.Thickness);
 Fayde.CoreLibrary.addPrimitive(Thickness);
@@ -27099,9 +27107,9 @@ var Fayde;
             Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () {
                 return Fayde.Media.Brush;
             }, Shape);
-            Shape.StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", function () {
+            Shape.StrokeThicknessProperty = DependencyProperty.RegisterFull("StrokeThickness", function () {
                 return Number;
-            }, Shape, 1.0);
+            }, Shape, 1.0, undefined, strokeThicknessCoercer);
             Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () {
                 return Shapes.DoubleCollection;
             }, Shape);
@@ -27131,6 +27139,12 @@ var Fayde;
         function onSizeChanged(shape, args) {
             var updater = shape.XamlNode.LayoutUpdater;
             updater.invalidateMeasure();
+        }
+
+        function strokeThicknessCoercer(dobj, propd, value) {
+            if (value instanceof Thickness)
+                return value.left;
+            return value;
         }
 
         var reactions;

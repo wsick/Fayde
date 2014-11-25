@@ -5247,6 +5247,7 @@ declare class Length {
 }
 declare class Thickness extends minerva.Thickness {
     public Clone(): Thickness;
+    public toString(): string;
 }
 declare class BError {
     static Argument: number;

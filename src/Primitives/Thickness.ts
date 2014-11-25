@@ -2,6 +2,14 @@ class Thickness extends minerva.Thickness {
     Clone (): Thickness {
         return new Thickness(this.left, this.top, this.right, this.bottom);
     }
+
+    toString () {
+        var l = this.left || 0;
+        var t = this.top || 0;
+        var r = this.right || 0;
+        var b = this.bottom || 0;
+        return [l, t, r, b].join(',');
+    }
 }
 Fayde.CoreLibrary.addPrimitive(Thickness);
 
