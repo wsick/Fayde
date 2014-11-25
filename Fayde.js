@@ -20030,6 +20030,20 @@ var Fayde;
                     return nullstone.convertAnyToType(val, tt);
                 }
 
+                function getImplicitKey(obj) {
+                    if (obj instanceof Fayde.DataTemplate) {
+                        var dt = obj.DataType;
+                        if (!dt)
+                            throw new XamlParseException("A DataTemplate in a ResourceDictionary must have x:Key or DataType.");
+                        return dt;
+                    } else if (obj instanceof Fayde.Style) {
+                        var tt = obj.TargetType;
+                        if (!tt)
+                            throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
+                        return tt;
+                    }
+                }
+
                 return {
                     init: function (nstate) {
                         state = nstate;
@@ -20057,7 +20071,10 @@ var Fayde;
                         state.$$key = key;
                     },
                     setContent: function (obj, key) {
-                        if (key && cur.rd) {
+                        if (cur.rd) {
+                            key = key || getImplicitKey(obj);
+                            if (!key)
+                                throw new XamlParseException("Items in a ResourceDictionary must have a x:Key.");
                             cur.rd.Set(key, obj);
                         } else if (cur.coll) {
                             cur.coll.Add(obj);

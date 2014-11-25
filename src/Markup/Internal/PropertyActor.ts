@@ -51,6 +51,20 @@ module Fayde.Markup.Internal {
             return nullstone.convertAnyToType(val, tt);
         }
 
+        function getImplicitKey (obj: any): any {
+            if (obj instanceof DataTemplate) {
+                var dt = (<DataTemplate>obj).DataType;
+                if (!dt)
+                    throw new XamlParseException("A DataTemplate in a ResourceDictionary must have x:Key or DataType.");
+                return dt;
+            } else if (obj instanceof Style) {
+                var tt = (<Style>obj).TargetType;
+                if (!tt)
+                    throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
+                return tt;
+            }
+        }
+
         return {
             init (nstate: any) {
                 state = nstate;
@@ -78,7 +92,10 @@ module Fayde.Markup.Internal {
                 state.$$key = key;
             },
             setContent (obj: any, key?: any) {
-                if (key && cur.rd) {
+                if (cur.rd) {
+                    key = key || getImplicitKey(obj);
+                    if (!key)
+                        throw new XamlParseException("Items in a ResourceDictionary must have a x:Key.");
                     cur.rd.Set(key, obj);
                 } else if (cur.coll) {
                     cur.coll.Add(obj);
