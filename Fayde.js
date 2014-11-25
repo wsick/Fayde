@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.9';
+    Fayde.Version = '0.13.10';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -6975,13 +6975,17 @@ var Fayde;
                     this.verify(otype, name);
                     if (cur.dobj) {
                         var propd = DependencyProperty.GetDependencyProperty(otype, name);
+                        var tt = propd.GetTargetType();
+                        val = nullstone.convertAnyToType(val, tt);
                         cur.dobj.SetValue(propd, val);
                     } else if (!ownerType || cur.obj.constructor === ownerType) {
                         cur.obj[name] = val;
                     }
                 },
-                setContent: function (val) {
-                    if (cur.coll) {
+                setContent: function (val, key) {
+                    if (key && cur.rd) {
+                        cur.rd.Set(key, val);
+                    } else if (cur.coll) {
                         cur.coll.Add(val);
                     } else if (cur.arr) {
                         cur.arr.push(val);
@@ -7034,23 +7038,17 @@ var Fayde;
                         setTemplateRoot(obj, root);
                     }
                 },
-                object: function (obj) {
+                object: function (obj, isContent) {
                     cur.set(obj);
                     props.start();
                 },
-                objectEnd: function (obj, prev) {
+                objectEnd: function (obj, isContent, prev) {
                     last = obj;
                     var prevKey = props.carr.$$key;
                     props.end();
                     cur.set(prev);
-                    if (prevKey && cur.rd)
-                        cur.rd.Set(prevKey, obj);
-                },
-                contentObject: function (obj) {
-                    if (!cur.rd)
-                        props.setContent(obj);
-                    cur.set(obj);
-                    props.start();
+                    if (isContent)
+                        props.setContent(obj, prevKey);
                 },
                 contentText: function (text) {
                     props.setContentText(text);

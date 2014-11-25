@@ -100,13 +100,17 @@ module Fayde.Markup {
                 this.verify(otype, name);
                 if (cur.dobj) {
                     var propd = DependencyProperty.GetDependencyProperty(otype, name);
+                    var tt = <any>propd.GetTargetType();
+                    val = nullstone.convertAnyToType(val, tt);
                     cur.dobj.SetValue(propd, val);
                 } else if (!ownerType || cur.obj.constructor === ownerType) {
                     cur.obj[name] = val;
                 }
             },
-            setContent: function (val: any) {
-                if (cur.coll) {
+            setContent: function (val: any, key?: any) {
+                if (key && cur.rd) {
+                    cur.rd.Set(key, val);
+                } else if (cur.coll) {
                     cur.coll.Add(val);
                 } else if (cur.arr) {
                     cur.arr.push(val);
@@ -162,23 +166,17 @@ module Fayde.Markup {
                         setTemplateRoot(<FrameworkTemplate>obj, root);
                     }
                 },
-                object: (obj) => {
+                object: (obj, isContent) => {
                     cur.set(obj);
                     props.start();
                 },
-                objectEnd: (obj, prev) => {
+                objectEnd: (obj, isContent, prev) => {
                     last = obj;
                     var prevKey = props.carr.$$key;
                     props.end();
                     cur.set(prev);
-                    if (prevKey && cur.rd)
-                        cur.rd.Set(prevKey, obj);
-                },
-                contentObject: (obj) => {
-                    if (!cur.rd)
-                        props.setContent(obj);
-                    cur.set(obj);
-                    props.start();
+                    if (isContent)
+                        props.setContent(obj, prevKey);
                 },
                 contentText: (text) => {
                     props.setContentText(text);

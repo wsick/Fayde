@@ -6,35 +6,34 @@ module Fayde {
         private _IsSealed: boolean = false;
         XamlNode: XamlNode;
 
-        _Seal(targetType: Function) {
+        Seal () {
             if (this._IsSealed)
                 return;
-            var enumerator = this.getEnumerator();
-            while (enumerator.moveNext()) {
-                (<Setter>enumerator.current)._Seal(targetType);
+            for (var en = this.getEnumerator(); en.moveNext();) {
+                en.current.Seal();
             }
             this._IsSealed = true;
         }
-        
-        AddingToCollection(value: Setter, error: BError): boolean {
+
+        AddingToCollection (value: Setter, error: BError): boolean {
             if (!value || !this._ValidateSetter(<Setter>value, error))
                 return false;
             return super.AddingToCollection(value, error);
         }
 
-        private _ValidateSetter(setter: Setter, error: BError) {
-            if (setter.Property === undefined) {
-                error.Message = "Cannot have a null PropertyProperty value";
+        private _ValidateSetter (setter: Setter, error: BError) {
+            if (!(setter.Property instanceof DependencyProperty)) {
+                error.Message = "Setter.Property must be a DependencyProperty.";
                 return false;
             }
             if (setter.Value === undefined) {
                 if (!setter._HasDeferredValueExpression(Setter.ValueProperty)) {
-                    error.Message = "Cannot have a null ValueProperty value";
+                    error.Message = "Setter must have a Value.";
                     return false;
                 }
             }
             if (this._IsSealed) {
-                error.Message = "Cannot add a setter to a sealed style";
+                error.Message = "Setter is sealed.";
                 return false;
             }
             return true;
@@ -44,13 +43,14 @@ module Fayde {
 
     export class Setter extends DependencyObject {
         private _IsSealed: boolean = false;
-        static PropertyProperty: DependencyProperty = DependencyProperty.Register("Property", () => DependencyProperty, Setter);
-        static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Object, Setter);
+        static PropertyProperty = DependencyProperty.Register("Property", () => DependencyProperty, Setter);
+        static ValueProperty = DependencyProperty.Register("Value", () => Object, Setter);
+        static ConvertedValueProperty = DependencyProperty.RegisterReadOnly("ConvertedValue", () => Object, Setter);
         Property: DependencyProperty;
         Value: any;
         ConvertedValue: any;
 
-        _Seal(targetType: Function) {
+        Seal () {
             var propd = this.Property;
             var val = this.Value;
 
@@ -63,7 +63,7 @@ module Fayde {
             this._IsSealed = true;
         }
 
-        static Compare(setter1: Setter, setter2: Setter): number {
+        static Compare (setter1: Setter, setter2: Setter): number {
             var a = setter1.Property;
             var b = setter2.Property;
             return (a === b) ? 0 : ((a._ID > b._ID) ? 1 : -1);

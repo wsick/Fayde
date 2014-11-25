@@ -20,7 +20,7 @@ module Fayde {
         Seal() {
             if (this._IsSealed)
                 return;
-            this.Setters._Seal(this.TargetType);
+            this.Setters.Seal();
             this._IsSealed = true;
 
             var base = this.BasedOn;
