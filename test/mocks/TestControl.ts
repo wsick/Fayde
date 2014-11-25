@@ -4,4 +4,4 @@ class TestControl extends Fayde.Controls.ContentControl {
         this.CallbackFired = true;
     }
 }
-Fayde.RegisterType(TestControl, "window", "http://schemas.test.com/"); 
+export = TestControl;

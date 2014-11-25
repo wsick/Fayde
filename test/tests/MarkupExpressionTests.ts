@@ -1,4 +1,4 @@
-/// <amd-dependency path="../mocks/TestConverter" />
+import TestConverter = require('../mocks/TestConverter');
 
 export function load () {
     QUnit.module("Markup Expression Tests");
@@ -16,6 +16,7 @@ export function load () {
     });
 
     test("x:Static", () => {
+        (<any>window).TestConverter = TestConverter;
         var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Tag=\"{x:Static new TestConverter()}\"></Grid>";
         var grid = Fayde.Markup.LoadXaml<Fayde.Controls.Grid>(null, xaml);
         ok(grid.Tag instanceof TestConverter, "x:Static");
@@ -65,18 +66,18 @@ export function load () {
         var expr = grid.GetBindingExpression(Fayde.FrameworkElement.MarginProperty);
         ok(expr instanceof Fayde.Data.BindingExpression, "Type");
         var binding = expr.ParentBinding;
-        strictEqual(binding.Path.Path, "TestPath", "Implict Path");
+        strictEqual(binding.Path.Path, "TestPath", "Implicit Path");
 
         xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Margin=\"{Binding Path=TestPath}\" />";
         grid = Fayde.Markup.LoadXaml<Fayde.Controls.Grid>(null, xaml);
         expr = grid.GetBindingExpression(Fayde.FrameworkElement.MarginProperty);
         binding = expr.ParentBinding;
-        strictEqual(binding.Path.Path, "TestPath", "Explict Path");
+        strictEqual(binding.Path.Path, "TestPath", "Explicit Path");
 
-        xaml = "<ComboBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" xmlns:res=\"http://schemas.test.com\""
+        xaml = "<ComboBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" xmlns:mocks=\".build/mocks\""
         + " SelectedItem=\"{Binding TestPath, Mode=TwoWay, UpdateSourceTrigger=Explicit, Converter={StaticResource testConverter}}\">"
         + "<ComboBox.Resources>"
-        + "<res:TestConverter x:Key=\"testConverter\" />"
+        + "<mocks:TestConverter x:Key=\"testConverter\" />"
         + "</ComboBox.Resources>"
         + "</ComboBox>";
         var combobox = Fayde.Markup.LoadXaml<Fayde.Controls.ComboBox>(null, xaml);

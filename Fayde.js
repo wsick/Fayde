@@ -1343,7 +1343,7 @@ var Fayde;
             } else if (existing) {
                 if (existing instanceof Fayde.Data.BindingExpressionBase) {
                     var binding = existing.ParentBinding;
-                    if (binding.Mode === 0 /* TwoWay */) {
+                    if (binding.Mode === 1 /* TwoWay */) {
                         updateTwoWay = !existing.IsUpdating && !propd.IsCustom;
                     } else if (!existing.IsUpdating || binding.Mode === 2 /* OneTime */) {
                         this._RemoveExpression(propd);
@@ -13701,10 +13701,10 @@ var Fayde;
             Binding.prototype.$$coerce = function () {
                 this.StringFormat = this.StringFormat ? this.StringFormat.toString() : undefined;
                 this.BindsDirectlyToSource = convert(this.BindsDirectlyToSource, Boolean);
-                this.Mode = Data.BindingMode[this.Mode] || 1 /* OneWay */;
+                this.Mode = Fayde.Enum.fromAny(Data.BindingMode, this.Mode);
                 this.NotifyOnValidationError = convert(this.NotifyOnValidationError, Boolean);
                 this.Path = convert(this.Path, Data.PropertyPath);
-                this.UpdateSourceTrigger = Data.UpdateSourceTrigger[this.UpdateSourceTrigger] || 0 /* Default */;
+                this.UpdateSourceTrigger = Fayde.Enum.fromAny(Data.UpdateSourceTrigger, this.UpdateSourceTrigger);
                 this.ValidatesOnExceptions = convert(this.ValidatesOnExceptions, Boolean);
                 this.ValidatesOnDataErrors = convert(this.ValidatesOnDataErrors, Boolean);
                 this.ValidatesOnNotifyDataErrors = convert(this.ValidatesOnNotifyDataErrors, Boolean);
@@ -13744,17 +13744,17 @@ var Fayde;
 (function (Fayde) {
     (function (Data) {
         (function (RelativeSourceMode) {
-            RelativeSourceMode[RelativeSourceMode["TemplatedParent"] = 1] = "TemplatedParent";
-            RelativeSourceMode[RelativeSourceMode["Self"] = 2] = "Self";
-            RelativeSourceMode[RelativeSourceMode["FindAncestor"] = 3] = "FindAncestor";
-            RelativeSourceMode[RelativeSourceMode["ItemsControlParent"] = 4] = "ItemsControlParent";
+            RelativeSourceMode[RelativeSourceMode["TemplatedParent"] = 0] = "TemplatedParent";
+            RelativeSourceMode[RelativeSourceMode["Self"] = 1] = "Self";
+            RelativeSourceMode[RelativeSourceMode["FindAncestor"] = 2] = "FindAncestor";
+            RelativeSourceMode[RelativeSourceMode["ItemsControlParent"] = 3] = "ItemsControlParent";
         })(Data.RelativeSourceMode || (Data.RelativeSourceMode = {}));
         var RelativeSourceMode = Data.RelativeSourceMode;
         Fayde.CoreLibrary.addEnum(RelativeSourceMode, "RelativeSourceMode");
 
         (function (BindingMode) {
-            BindingMode[BindingMode["TwoWay"] = 0] = "TwoWay";
-            BindingMode[BindingMode["OneWay"] = 1] = "OneWay";
+            BindingMode[BindingMode["OneWay"] = 0] = "OneWay";
+            BindingMode[BindingMode["TwoWay"] = 1] = "TwoWay";
             BindingMode[BindingMode["OneTime"] = 2] = "OneTime";
             BindingMode[BindingMode["OneWayToSource"] = 3] = "OneWayToSource";
         })(Data.BindingMode || (Data.BindingMode = {}));
@@ -14666,7 +14666,7 @@ var Fayde;
             };
 
             RelativeSource.prototype.transmute = function (os) {
-                this.Mode = Data.RelativeSourceMode[this.Mode] || 1 /* TemplatedParent */;
+                this.Mode = Fayde.Enum.fromAny(Data.RelativeSourceMode, this.Mode);
                 this.AncestorLevel = parseInt(this.AncestorLevel) || 1;
                 Object.freeze(this);
                 return this;
@@ -14678,13 +14678,13 @@ var Fayde;
 
             RelativeSource.prototype.Find = function (target) {
                 switch (this.Mode) {
-                    case 2 /* Self */:
+                    case 1 /* Self */:
                         return target;
-                    case 1 /* TemplatedParent */:
+                    case 0 /* TemplatedParent */:
                         return target.TemplateOwner;
-                    case 3 /* FindAncestor */:
+                    case 2 /* FindAncestor */:
                         return findAncestor(target, this);
-                    case 4 /* ItemsControlParent */:
+                    case 3 /* ItemsControlParent */:
                         return findItemsControlAncestor(target, this);
                 }
             };
@@ -16292,10 +16292,10 @@ var Fayde;
 
                 var binding = this.ParentBinding;
                 var path = binding.Path.Path;
-                if ((!path || path === ".") && binding.Mode === 0 /* TwoWay */)
+                if ((!path || path === ".") && binding.Mode === 1 /* TwoWay */)
                     throw new ArgumentException("TwoWay bindings require a non-empty Path.");
 
-                if (binding.Mode === 0 /* TwoWay */ && (owner instanceof Fayde.Controls.TextBox || owner instanceof Fayde.Controls.PasswordBox))
+                if (binding.Mode === 1 /* TwoWay */ && (owner instanceof Fayde.Controls.TextBox || owner instanceof Fayde.Controls.PasswordBox))
                     this._TwoWayLostFocusElement = owner;
 
                 this._IsDataContextBound = !binding.ElementName && !binding.Source && !binding.RelativeSource;
@@ -16326,7 +16326,7 @@ var Fayde;
                 if (this._TwoWayLostFocusElement)
                     this._TwoWayLostFocusElement.LostFocus.on(this._TargetLostFocus, this);
 
-                if (this.ParentBinding.Mode === 0 /* TwoWay */ && this.Property.IsCustom) {
+                if (this.ParentBinding.Mode === 1 /* TwoWay */ && this.Property.IsCustom) {
                     this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
                 }
             };
@@ -16446,7 +16446,7 @@ var Fayde;
                 if (value === undefined)
                     value = this.Target.GetValue(this.Property);
                 var binding = this.ParentBinding;
-                if (binding.Mode !== 0 /* TwoWay */)
+                if (binding.Mode !== 1 /* TwoWay */)
                     return;
 
                 var dataError;

@@ -2847,14 +2847,14 @@ declare module Fayde.Data {
 }
 declare module Fayde.Data {
     enum RelativeSourceMode {
-        TemplatedParent = 1,
-        Self = 2,
-        FindAncestor = 3,
-        ItemsControlParent = 4,
+        TemplatedParent = 0,
+        Self = 1,
+        FindAncestor = 2,
+        ItemsControlParent = 3,
     }
     enum BindingMode {
-        TwoWay = 0,
-        OneWay = 1,
+        OneWay = 0,
+        TwoWay = 1,
         OneTime = 2,
         OneWayToSource = 3,
     }

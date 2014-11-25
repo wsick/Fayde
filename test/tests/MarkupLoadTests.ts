@@ -1,4 +1,4 @@
-/// <amd-dependency path="../mocks/TestControl" />
+import TestControl = require('../mocks/TestControl');
 
 export function load() {
     QUnit.module("Markup Load Tests");
@@ -297,11 +297,11 @@ export function load() {
     });
 
     test("Events", () => {
-        var xaml = "<test:TestControl xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" xmlns:test=\"http://schemas.test.com/\">"
-            + "<test:TestControl.Content>"
+        var xaml = "<mocks:TestControl xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" xmlns:mocks=\".build/mocks\">"
+            + "<mocks:TestControl.Content>"
             + "<Button Click=\"TestCallback\" />"
-            + "</test:TestControl.Content>"
-            + "</test:TestControl>";
+            + "</mocks:TestControl.Content>"
+            + "</mocks:TestControl>";
         var tc = Fayde.Markup.LoadXaml<TestControl>(null, xaml);
         var button = <Fayde.Controls.Button>tc.Content;
         button.Click.raise(button, new Fayde.RoutedEventArgs());

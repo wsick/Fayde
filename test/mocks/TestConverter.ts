@@ -6,5 +6,5 @@ class TestConverter implements Fayde.Data.IValueConverter {
         return value;
     }
 }
-Fayde.RegisterType(TestConverter, "window", "http://schemas.test.com");
 nullstone.addTypeInterfaces(TestConverter, Fayde.Data.IValueConverter_);
+export = TestConverter;
