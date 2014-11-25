@@ -17,10 +17,14 @@ module Fayde.Markup.Internal {
             $$cprop: undefined
         };
 
+        function getContentProp (): DependencyProperty {
+            return state.$$cprop = (state.$$cprop || Content.Get(cur.type));
+        }
+
         function prepareContent (): boolean {
             if (state.$$coll || state.$$arr)
                 return true;
-            var cprop = state.$$cprop = (state.$$cprop || Content.Get(cur.type));
+            var cprop = getContentProp();
             if (!cprop)
                 throw new XamlParseException("Cannot set content for object of type '" + cur.type.name + "'.");
             if (!cprop.IsImmutable)
@@ -82,6 +86,7 @@ module Fayde.Markup.Internal {
                     cur.arr.push(obj);
                 } else if (cur.dobj) {
                     if (!prepareContent()) {
+                        this.start(null, name);
                         cur.dobj.SetValue(state.$$cprop, obj);
                     } else if (state.$$coll) {
                         state.$$coll.Add(obj);
@@ -91,13 +96,21 @@ module Fayde.Markup.Internal {
                 }
             },
             setContentText (text: string) {
-                if (cur.dobj) {
-                    var tcprop = TextContent.Get(cur.type);
-                    if (!tcprop)
-                        return;
+                if (!cur.dobj)
+                    return;
+
+                var tcprop = TextContent.Get(cur.type);
+                if (tcprop) {
                     this.start(cur.type, tcprop.Name);
                     cur.dobj.SetValue(tcprop, text);
+                    return;
                 }
+
+                var cprop = getContentProp();
+                if (!cprop)
+                    return;
+                this.start(cur.type, cprop.Name);
+                cur.dobj.SetValue(cprop, convert(cprop, text));
             }
         };
     }

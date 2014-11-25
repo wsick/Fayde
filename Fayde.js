@@ -19996,10 +19996,14 @@ var Fayde;
                     $$cprop: undefined
                 };
 
+                function getContentProp() {
+                    return state.$$cprop = (state.$$cprop || Markup.Content.Get(cur.type));
+                }
+
                 function prepareContent() {
                     if (state.$$coll || state.$$arr)
                         return true;
-                    var cprop = state.$$cprop = (state.$$cprop || Markup.Content.Get(cur.type));
+                    var cprop = getContentProp();
                     if (!cprop)
                         throw new XamlParseException("Cannot set content for object of type '" + cur.type.name + "'.");
                     if (!cprop.IsImmutable)
@@ -20061,6 +20065,7 @@ var Fayde;
                             cur.arr.push(obj);
                         } else if (cur.dobj) {
                             if (!prepareContent()) {
+                                this.start(null, name);
                                 cur.dobj.SetValue(state.$$cprop, obj);
                             } else if (state.$$coll) {
                                 state.$$coll.Add(obj);
@@ -20070,13 +20075,21 @@ var Fayde;
                         }
                     },
                     setContentText: function (text) {
-                        if (cur.dobj) {
-                            var tcprop = Markup.TextContent.Get(cur.type);
-                            if (!tcprop)
-                                return;
+                        if (!cur.dobj)
+                            return;
+
+                        var tcprop = Markup.TextContent.Get(cur.type);
+                        if (tcprop) {
                             this.start(cur.type, tcprop.Name);
                             cur.dobj.SetValue(tcprop, text);
+                            return;
                         }
+
+                        var cprop = getContentProp();
+                        if (!cprop)
+                            return;
+                        this.start(cur.type, cprop.Name);
+                        cur.dobj.SetValue(cprop, convert(cprop, text));
                     }
                 };
             }
