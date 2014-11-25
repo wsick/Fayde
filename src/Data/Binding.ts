@@ -67,10 +67,10 @@ module Fayde.Data {
         private $$coerce () {
             this.StringFormat = this.StringFormat ? this.StringFormat.toString() : undefined;
             this.BindsDirectlyToSource = convert(this.BindsDirectlyToSource, Boolean);
-            this.Mode = <BindingMode><any>BindingMode[this.Mode] || BindingMode.OneWay;
+            this.Mode = Enum.fromAny(BindingMode, this.Mode);
             this.NotifyOnValidationError = convert(this.NotifyOnValidationError, Boolean);
             this.Path = convert(this.Path, Data.PropertyPath);
-            this.UpdateSourceTrigger = <UpdateSourceTrigger><any>UpdateSourceTrigger[this.UpdateSourceTrigger] || UpdateSourceTrigger.Default;
+            this.UpdateSourceTrigger = Enum.fromAny(UpdateSourceTrigger, this.UpdateSourceTrigger);
             this.ValidatesOnExceptions = convert(this.ValidatesOnExceptions, Boolean);
             this.ValidatesOnDataErrors = convert(this.ValidatesOnDataErrors, Boolean);
             this.ValidatesOnNotifyDataErrors = convert(this.ValidatesOnNotifyDataErrors, Boolean);
