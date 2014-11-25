@@ -5,19 +5,19 @@ module Fayde {
         private _IsSealed: boolean = false;
 
         static SettersProperty = DependencyProperty.RegisterImmutable<SetterCollection>("Setters", () => SetterCollection, Style);
-        static BasedOnProperty: DependencyProperty = DependencyProperty.Register("BasedOn", () => Style, Style);
-        static TargetTypeProperty: DependencyProperty = DependencyProperty.Register("TargetType", () => Function, Style);
+        static BasedOnProperty = DependencyProperty.Register("BasedOn", () => Style, Style);
+        static TargetTypeProperty = DependencyProperty.Register("TargetType", () => IType_, Style);
         Setters: SetterCollection;
         BasedOn: Style;
         TargetType: Function;
 
-        constructor() {
+        constructor () {
             super();
             var coll = Style.SettersProperty.Initialize(this);
             coll.AttachTo(this);
         }
 
-        Seal() {
+        Seal () {
             if (this._IsSealed)
                 return;
             this.Setters.Seal();
@@ -28,7 +28,7 @@ module Fayde {
                 base.Seal();
         }
 
-        Validate(instance: DependencyObject, error: BError): boolean {
+        Validate (instance: DependencyObject, error: BError): boolean {
             var targetType = this.TargetType;
             var parentType = <Function>(<any>instance).constructor;
 
@@ -67,7 +67,7 @@ module Fayde {
                         error.Message = "TargetType cannot be null";
                         return false;
                     } else if (!nullstone.doesInheritFrom(parentType, targetType)) {
-                        error.Number = BError.XamlParse; 
+                        error.Number = BError.XamlParse;
                         error.Message = "Style.TargetType (" + (<any>targetType).name + ") is not a subclass of (" + (<any>parentType).name + ")";
                         return false;
                     }

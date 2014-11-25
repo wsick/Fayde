@@ -2,7 +2,7 @@ module Fayde.Markup.Internal {
     export interface IPropertyActor {
         init(nstate: any);
         start(ownerType: any, name: string);
-        end(ownerType: any, name: string, obj: any);
+        end(ownerType: any, name: string, obj: any, resolvePrefixedType: (prefix: string, name: string) => any);
         getKey(): any;
         setKey(key: any);
         setContent(obj: any, key?: any);
@@ -33,6 +33,19 @@ module Fayde.Markup.Internal {
             return true;
         }
 
+        function extractType (obj: any, resolvePrefixedType: (prefix: string, name: string) => any): any {
+            if (typeof obj !== "string")
+                return obj;
+            var prefix = <string>null;
+            var name = <string>obj;
+            var ind = name.indexOf(':');
+            if (ind > -1) {
+                prefix = name.substr(0, ind);
+                name = name.substr(ind + 1);
+            }
+            return resolvePrefixedType(prefix, name);
+        }
+
         return {
             init (nstate: any) {
                 state = nstate;
@@ -43,7 +56,7 @@ module Fayde.Markup.Internal {
                     throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
                 state[fullName] = true;
             },
-            end (ownerType: any, name: string, obj: any) {
+            end (ownerType: any, name: string, obj: any, resolvePrefixedType: (prefix: string, name: string) => any) {
                 var otype = ownerType || cur.type;
                 if (!cur.dobj) {
                     if (!ownerType || cur.type === ownerType)
@@ -51,7 +64,12 @@ module Fayde.Markup.Internal {
                     throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
                 }
                 var propd = DependencyProperty.GetDependencyProperty(otype, name);
-                var val = nullstone.convertAnyToType(obj, <any>propd.GetTargetType());
+                var tt = <any>propd.GetTargetType();
+                var val = obj;
+                if (tt === IType_)
+                    val = extractType(obj, resolvePrefixedType);
+                else
+                    val = nullstone.convertAnyToType(obj, tt);
                 cur.dobj.SetValue(propd, val);
             },
             getKey (): any {

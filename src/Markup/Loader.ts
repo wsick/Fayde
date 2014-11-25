@@ -1,5 +1,5 @@
 module Fayde.Markup {
-    export class FrameworkTemplate extends XamlObject {
+    export class FrameworkTemplate extends DependencyObject {
         private $$markup: nullstone.markup.Markup<any>;
 
         GetVisualTree (bindingSource: DependencyObject): UIElement {
@@ -90,12 +90,19 @@ module Fayde.Markup {
                     pactor.start(ownerType, propName);
                 },
                 propertyEnd: (ownerType, propName) => {
-                    pactor.end(ownerType, propName, last);
+                    pactor.end(ownerType, propName, last, resolvePrefixedType);
                 },
                 error: (err) => false,
                 end: () => {
                 }
             });
+
+        function resolvePrefixedType (prefix: string, name: string) {
+            var uri = parser.resolvePrefix(prefix);
+            TypeManager.resolveType(uri, name, oresolve);
+            return oresolve.type;
+        }
+
         parser.parse(xm.root);
         //TODO: Return result
         return last;

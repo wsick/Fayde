@@ -17,6 +17,7 @@ declare module Fayde {
     var XLibrary: nullstone.ILibrary;
     function RegisterType(type: Function, uri: string, name?: string): void;
     function RegisterEnum(enu: any, uri: string, name: string): void;
+    var IType_: nullstone.Interface<{}>;
 }
 declare module Fayde.Collections {
     enum CollectionChangedAction {
@@ -1528,7 +1529,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Markup {
-    class FrameworkTemplate extends XamlObject {
+    class FrameworkTemplate extends DependencyObject {
         private $$markup;
         public GetVisualTree(bindingSource: DependencyObject): UIElement;
     }
@@ -1538,6 +1539,7 @@ declare module Fayde.Markup {
 }
 declare module Fayde.Controls {
     class ControlTemplate extends Markup.FrameworkTemplate {
+        static TargetTypeProperty: DependencyProperty;
         public TargetType: Function;
     }
 }
@@ -2540,6 +2542,7 @@ declare module Fayde {
 }
 declare module Fayde {
     class DataTemplate extends Markup.FrameworkTemplate {
+        static DataTypeProperty: DependencyProperty;
         public DataType: Function;
     }
 }
@@ -3857,7 +3860,7 @@ declare module Fayde.Markup.Internal {
     interface IPropertyActor {
         init(nstate: any): any;
         start(ownerType: any, name: string): any;
-        end(ownerType: any, name: string, obj: any): any;
+        end(ownerType: any, name: string, obj: any, resolvePrefixedType: (prefix: string, name: string) => any): any;
         getKey(): any;
         setKey(key: any): any;
         setContent(obj: any, key?: any): any;

@@ -27,4 +27,9 @@ module Fayde {
     export function RegisterEnum (enu: any, uri: string, name: string) {
         TypeManager.addEnum(uri, name, enu)
     }
+
+    export var IType_ = new nullstone.Interface("IType");
+    IType_.is = function (o): boolean {
+        return typeof o === "function";
+    };
 }

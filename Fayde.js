@@ -29,6 +29,11 @@ var Fayde;
         Fayde.TypeManager.addEnum(uri, name, enu);
     }
     Fayde.RegisterEnum = RegisterEnum;
+
+    Fayde.IType_ = new nullstone.Interface("IType");
+    Fayde.IType_.is = function (o) {
+        return typeof o === "function";
+    };
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -6883,7 +6888,7 @@ var Fayde;
                 return uie;
             };
             return FrameworkTemplate;
-        })(Fayde.XamlObject);
+        })(Fayde.DependencyObject);
         Markup.FrameworkTemplate = FrameworkTemplate;
 
         function setTemplateRoot(ft, root) {
@@ -6963,7 +6968,7 @@ var Fayde;
                     pactor.start(ownerType, propName);
                 },
                 propertyEnd: function (ownerType, propName) {
-                    pactor.end(ownerType, propName, last);
+                    pactor.end(ownerType, propName, last, resolvePrefixedType);
                 },
                 error: function (err) {
                     return false;
@@ -6971,6 +6976,13 @@ var Fayde;
                 end: function () {
                 }
             });
+
+            function resolvePrefixedType(prefix, name) {
+                var uri = parser.resolvePrefix(prefix);
+                Fayde.TypeManager.resolveType(uri, name, oresolve);
+                return oresolve.type;
+            }
+
             parser.parse(xm.root);
 
             return last;
@@ -6986,6 +6998,9 @@ var Fayde;
             function ControlTemplate() {
                 _super.apply(this, arguments);
             }
+            ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", function () {
+                return Fayde.IType_;
+            }, ControlTemplate);
             return ControlTemplate;
         })(Fayde.Markup.FrameworkTemplate);
         Controls.ControlTemplate = ControlTemplate;
@@ -12170,6 +12185,9 @@ var Fayde;
         function DataTemplate() {
             _super.apply(this, arguments);
         }
+        DataTemplate.DataTypeProperty = DependencyProperty.Register("DataType", function () {
+            return Fayde.IType_;
+        }, DataTemplate);
         return DataTemplate;
     })(Fayde.Markup.FrameworkTemplate);
     Fayde.DataTemplate = DataTemplate;
@@ -12950,7 +12968,7 @@ var Fayde;
             return Style;
         }, Style);
         Style.TargetTypeProperty = DependencyProperty.Register("TargetType", function () {
-            return Function;
+            return Fayde.IType_;
         }, Style);
         return Style;
     })(Fayde.DependencyObject);
@@ -19960,6 +19978,19 @@ var Fayde;
                     return true;
                 }
 
+                function extractType(obj, resolvePrefixedType) {
+                    if (typeof obj !== "string")
+                        return obj;
+                    var prefix = null;
+                    var name = obj;
+                    var ind = name.indexOf(':');
+                    if (ind > -1) {
+                        prefix = name.substr(0, ind);
+                        name = name.substr(ind + 1);
+                    }
+                    return resolvePrefixedType(prefix, name);
+                }
+
                 return {
                     init: function (nstate) {
                         state = nstate;
@@ -19970,7 +20001,7 @@ var Fayde;
                             throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
                         state[fullName] = true;
                     },
-                    end: function (ownerType, name, obj) {
+                    end: function (ownerType, name, obj, resolvePrefixedType) {
                         var otype = ownerType || cur.type;
                         if (!cur.dobj) {
                             if (!ownerType || cur.type === ownerType)
@@ -19978,7 +20009,12 @@ var Fayde;
                             throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
                         }
                         var propd = DependencyProperty.GetDependencyProperty(otype, name);
-                        var val = nullstone.convertAnyToType(obj, propd.GetTargetType());
+                        var tt = propd.GetTargetType();
+                        var val = obj;
+                        if (tt === Fayde.IType_)
+                            val = extractType(obj, resolvePrefixedType);
+                        else
+                            val = nullstone.convertAnyToType(obj, tt);
                         cur.dobj.SetValue(propd, val);
                     },
                     getKey: function () {
