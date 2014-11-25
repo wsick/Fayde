@@ -27,118 +27,17 @@ module Fayde.Markup {
     }
 
     function LoadImpl<T>(initiator: DependencyObject, xm: nullstone.markup.Markup<any>, bindingSource?: DependencyObject): T {
-        var namescope = new NameScope(true);
-
         var oresolve: nullstone.IOutType = {
             isPrimitive: false,
             type: undefined
         };
 
-        //TODO: Implement
-        var cur = {
-            obj: null,
-            xo: <XamlObject>null,
-            dobj: <DependencyObject>null,
-            rd: <ResourceDictionary>null,
-            coll: <nullstone.ICollection<any>>null,
-            arr: <any[]>null,
-            set: function (obj: any) {
-                this.obj = obj;
-                this.rd = (obj instanceof ResourceDictionary) ? obj : null;
-                this.dobj = (obj instanceof DependencyObject) ? obj : null;
-                var xo = this.xo = (obj instanceof XamlObject) ? obj : null;
-                if (xo) {
-                    xo.XamlNode.DocNameScope = namescope;
-                    xo.TemplateOwner = bindingSource;
-                }
-                this.coll = nullstone.ICollection_.as(obj);
-                this.arr = (typeof obj === "array") ? obj : null;
-            }
-        };
-        var props = {
-            arr: [],
-            carr: null,
-            key: null,
-            start: function () {
-                this.arr.push(this.carr = []);
-            },
-            end: function () {
-                this.arr.pop();
-                this.carr = this.arr[this.arr.length - 1];
-            },
-            verify: function (ownerType: any, name: string) {
-                var fullName = (ownerType ? ownerType.name + "." : "") + name;
-                if (this.carr.indexOf(fullName) > -1)
-                    throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
-                this.carr.push(fullName);
-            },
-            getContentProp: function (ownerType: any) {
-                var cprop = this.carr.$$content = (this.carr.$$content || Content.Get(ownerType));
-                if (!cprop)
-                    throw new XamlParseException("Cannot set content for object of type '" + ownerType.name + "'.");
-                return cprop;
-            },
-            getContentColl: function (propd: DependencyProperty): boolean {
-                if (this.carr.$$coll || this.carr.$$arr)
-                    return true;
-                if (!propd.IsImmutable)
-                    return false;
-                var co = cur.dobj.GetValue(propd);
-                if (!co)
-                    return false;
-                this.carr.$$coll = nullstone.ICollection_.as(co);
-                this.carr.$$arr = (typeof co === "array") ? co : null;
-                return true;
-            },
-            setKey: function (key) {
-                this.carr.$$key = key;
-            },
-            setProp: function (ownerType: any, name: string, val: any) {
-                if (!cur.obj)
-                    return;
-                var otype = ownerType || cur.obj.constructor;
-                this.verify(otype, name);
-                if (cur.dobj) {
-                    var propd = DependencyProperty.GetDependencyProperty(otype, name);
-                    var tt = <any>propd.GetTargetType();
-                    val = nullstone.convertAnyToType(val, tt);
-                    cur.dobj.SetValue(propd, val);
-                } else if (!ownerType || cur.obj.constructor === ownerType) {
-                    cur.obj[name] = val;
-                }
-            },
-            setContent: function (val: any, key?: any) {
-                if (key && cur.rd) {
-                    cur.rd.Set(key, val);
-                } else if (cur.coll) {
-                    cur.coll.Add(val);
-                } else if (cur.arr) {
-                    cur.arr.push(val);
-                } else if (cur.dobj) {
-                    var ownerType = cur.dobj.constructor;
-                    var cprop = this.getContentProp(ownerType);
-                    if (this.getContentColl(cprop)) {
-                        if (this.carr.$$coll)
-                            this.carr.$$coll.Add(val);
-                        else if (this.carr.$$arr)
-                            this.carr.$$arr.push(val);
-                    } else {
-                        this.verify(ownerType);
-                        cur.dobj.SetValue(cprop, val);
-                    }
-                }
-            },
-            setContentText: function (text: string) {
-                if (cur.dobj) {
-                    var ownerType = cur.dobj.constructor;
-                    this.verify(ownerType);
-                    var tcprop = TextContent.Get(ownerType);
-                    cur.dobj.SetValue(tcprop, text);
-                }
-            }
-        };
-        var last: any;
+        var namescope = new NameScope(true);
+        var active = Internal.createActiveObject(namescope, bindingSource);
+        var pactor = Internal.createPropertyActor(active);
+        var oactor = Internal.createObjectActor(pactor);
 
+        var last: any;
         var parser = xm.createParser()
             .setNamespaces(Fayde.XMLNS, Fayde.XMLNSX)
             .on({
@@ -167,34 +66,31 @@ module Fayde.Markup {
                     }
                 },
                 object: (obj, isContent) => {
-                    cur.set(obj);
-                    props.start();
+                    active.set(obj);
+                    oactor.start();
                 },
                 objectEnd: (obj, isContent, prev) => {
                     last = obj;
-                    var prevKey = props.carr.$$key;
-                    props.end();
-                    cur.set(prev);
+                    var key = pactor.getKey();
+                    oactor.end();
+                    active.set(prev);
                     if (isContent)
-                        props.setContent(obj, prevKey);
+                        pactor.setContent(obj, key);
                 },
                 contentText: (text) => {
-                    props.setContentText(text);
+                    pactor.setContentText(text);
                 },
                 name: (name) => {
-                    if (cur.xo) {
-                        var xnode = cur.xo.XamlNode;
-                        namescope.RegisterName(name, xnode);
-                        xnode.Name = name;
-                    }
+                    active.setName(name);
                 },
                 key: (key) => {
-                    props.setKey(key);
+                    pactor.setKey(key);
                 },
                 propertyStart: (ownerType, propName) => {
+                    pactor.start(ownerType, propName);
                 },
                 propertyEnd: (ownerType, propName) => {
-                    props.setProp(ownerType, propName, last);
+                    pactor.end(ownerType, propName, last);
                 },
                 error: (err) => false,
                 end: () => {

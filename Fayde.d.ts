@@ -3832,6 +3832,39 @@ declare module Fayde.Markup {
         private $$coerce();
     }
 }
+declare module Fayde.Markup.Internal {
+    interface IActiveObject {
+        obj: any;
+        xo: XamlObject;
+        dobj: DependencyObject;
+        rd: ResourceDictionary;
+        coll: nullstone.ICollection<any>;
+        arr: any[];
+        type: any;
+        set(obj: any): any;
+        setName(name: string): any;
+    }
+    function createActiveObject(namescope: NameScope, bindingSource: any): IActiveObject;
+}
+declare module Fayde.Markup.Internal {
+    interface IObjectActor {
+        start(): any;
+        end(): any;
+    }
+    function createObjectActor(pactor: IPropertyActor): IObjectActor;
+}
+declare module Fayde.Markup.Internal {
+    interface IPropertyActor {
+        init(nstate: any): any;
+        start(ownerType: any, name: string): any;
+        end(ownerType: any, name: string, obj: any): any;
+        getKey(): any;
+        setKey(key: any): any;
+        setContent(obj: any, key?: any): any;
+        setContentText(text: string): any;
+    }
+    function createPropertyActor(cur: IActiveObject): IPropertyActor;
+}
 declare module Fayde.Markup {
     function Resolve(uri: string): any;
     function Resolve(uri: Uri): any;

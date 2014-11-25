@@ -6903,117 +6903,17 @@ var Fayde;
         Markup.Load = Load;
 
         function LoadImpl(initiator, xm, bindingSource) {
-            var namescope = new Fayde.NameScope(true);
-
             var oresolve = {
                 isPrimitive: false,
                 type: undefined
             };
 
-            var cur = {
-                obj: null,
-                xo: null,
-                dobj: null,
-                rd: null,
-                coll: null,
-                arr: null,
-                set: function (obj) {
-                    this.obj = obj;
-                    this.rd = (obj instanceof Fayde.ResourceDictionary) ? obj : null;
-                    this.dobj = (obj instanceof Fayde.DependencyObject) ? obj : null;
-                    var xo = this.xo = (obj instanceof Fayde.XamlObject) ? obj : null;
-                    if (xo) {
-                        xo.XamlNode.DocNameScope = namescope;
-                        xo.TemplateOwner = bindingSource;
-                    }
-                    this.coll = nullstone.ICollection_.as(obj);
-                    this.arr = (typeof obj === "array") ? obj : null;
-                }
-            };
-            var props = {
-                arr: [],
-                carr: null,
-                key: null,
-                start: function () {
-                    this.arr.push(this.carr = []);
-                },
-                end: function () {
-                    this.arr.pop();
-                    this.carr = this.arr[this.arr.length - 1];
-                },
-                verify: function (ownerType, name) {
-                    var fullName = (ownerType ? ownerType.name + "." : "") + name;
-                    if (this.carr.indexOf(fullName) > -1)
-                        throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
-                    this.carr.push(fullName);
-                },
-                getContentProp: function (ownerType) {
-                    var cprop = this.carr.$$content = (this.carr.$$content || Markup.Content.Get(ownerType));
-                    if (!cprop)
-                        throw new XamlParseException("Cannot set content for object of type '" + ownerType.name + "'.");
-                    return cprop;
-                },
-                getContentColl: function (propd) {
-                    if (this.carr.$$coll || this.carr.$$arr)
-                        return true;
-                    if (!propd.IsImmutable)
-                        return false;
-                    var co = cur.dobj.GetValue(propd);
-                    if (!co)
-                        return false;
-                    this.carr.$$coll = nullstone.ICollection_.as(co);
-                    this.carr.$$arr = (typeof co === "array") ? co : null;
-                    return true;
-                },
-                setKey: function (key) {
-                    this.carr.$$key = key;
-                },
-                setProp: function (ownerType, name, val) {
-                    if (!cur.obj)
-                        return;
-                    var otype = ownerType || cur.obj.constructor;
-                    this.verify(otype, name);
-                    if (cur.dobj) {
-                        var propd = DependencyProperty.GetDependencyProperty(otype, name);
-                        var tt = propd.GetTargetType();
-                        val = nullstone.convertAnyToType(val, tt);
-                        cur.dobj.SetValue(propd, val);
-                    } else if (!ownerType || cur.obj.constructor === ownerType) {
-                        cur.obj[name] = val;
-                    }
-                },
-                setContent: function (val, key) {
-                    if (key && cur.rd) {
-                        cur.rd.Set(key, val);
-                    } else if (cur.coll) {
-                        cur.coll.Add(val);
-                    } else if (cur.arr) {
-                        cur.arr.push(val);
-                    } else if (cur.dobj) {
-                        var ownerType = cur.dobj.constructor;
-                        var cprop = this.getContentProp(ownerType);
-                        if (this.getContentColl(cprop)) {
-                            if (this.carr.$$coll)
-                                this.carr.$$coll.Add(val);
-                            else if (this.carr.$$arr)
-                                this.carr.$$arr.push(val);
-                        } else {
-                            this.verify(ownerType);
-                            cur.dobj.SetValue(cprop, val);
-                        }
-                    }
-                },
-                setContentText: function (text) {
-                    if (cur.dobj) {
-                        var ownerType = cur.dobj.constructor;
-                        this.verify(ownerType);
-                        var tcprop = Markup.TextContent.Get(ownerType);
-                        cur.dobj.SetValue(tcprop, text);
-                    }
-                }
-            };
-            var last;
+            var namescope = new Fayde.NameScope(true);
+            var active = Markup.Internal.createActiveObject(namescope, bindingSource);
+            var pactor = Markup.Internal.createPropertyActor(active);
+            var oactor = Markup.Internal.createObjectActor(pactor);
 
+            var last;
             var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX).on({
                 resolveType: function (uri, name) {
                     Fayde.TypeManager.resolveType(uri, name, oresolve);
@@ -7039,34 +6939,31 @@ var Fayde;
                     }
                 },
                 object: function (obj, isContent) {
-                    cur.set(obj);
-                    props.start();
+                    active.set(obj);
+                    oactor.start();
                 },
                 objectEnd: function (obj, isContent, prev) {
                     last = obj;
-                    var prevKey = props.carr.$$key;
-                    props.end();
-                    cur.set(prev);
+                    var key = pactor.getKey();
+                    oactor.end();
+                    active.set(prev);
                     if (isContent)
-                        props.setContent(obj, prevKey);
+                        pactor.setContent(obj, key);
                 },
                 contentText: function (text) {
-                    props.setContentText(text);
+                    pactor.setContentText(text);
                 },
                 name: function (name) {
-                    if (cur.xo) {
-                        var xnode = cur.xo.XamlNode;
-                        namescope.RegisterName(name, xnode);
-                        xnode.Name = name;
-                    }
+                    active.setName(name);
                 },
                 key: function (key) {
-                    props.setKey(key);
+                    pactor.setKey(key);
                 },
                 propertyStart: function (ownerType, propName) {
+                    pactor.start(ownerType, propName);
                 },
                 propertyEnd: function (ownerType, propName) {
-                    props.setProp(ownerType, propName, last);
+                    pactor.end(ownerType, propName, last);
                 },
                 error: function (err) {
                     return false;
@@ -19966,6 +19863,161 @@ var Fayde;
         })();
         Markup.EventBinding = EventBinding;
         Fayde.CoreLibrary.add(EventBinding);
+    })(Fayde.Markup || (Fayde.Markup = {}));
+    var Markup = Fayde.Markup;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Markup) {
+        (function (Internal) {
+            function createActiveObject(namescope, bindingSource) {
+                return {
+                    obj: null,
+                    xo: null,
+                    dobj: null,
+                    rd: null,
+                    coll: null,
+                    arr: null,
+                    type: null,
+                    set: function (obj) {
+                        this.obj = obj;
+                        this.type = obj ? obj.constructor : null;
+                        this.rd = (obj instanceof Fayde.ResourceDictionary) ? obj : null;
+                        this.dobj = (obj instanceof Fayde.DependencyObject) ? obj : null;
+                        var xo = this.xo = (obj instanceof Fayde.XamlObject) ? obj : null;
+                        if (xo) {
+                            xo.XamlNode.DocNameScope = namescope;
+                            xo.TemplateOwner = bindingSource;
+                        }
+                        this.coll = nullstone.ICollection_.as(obj);
+                        this.arr = (typeof obj === "array") ? obj : null;
+                    },
+                    setName: function (name) {
+                        if (this.xo) {
+                            var xnode = this.xo.XamlNode;
+                            namescope.RegisterName(name, xnode);
+                            xnode.Name = name;
+                        }
+                    }
+                };
+            }
+            Internal.createActiveObject = createActiveObject;
+        })(Markup.Internal || (Markup.Internal = {}));
+        var Internal = Markup.Internal;
+    })(Fayde.Markup || (Fayde.Markup = {}));
+    var Markup = Fayde.Markup;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Markup) {
+        (function (Internal) {
+            function createObjectActor(pactor) {
+                var arr = [];
+
+                return {
+                    start: function () {
+                        var nstate = {};
+                        pactor.init(nstate);
+                        arr.push(nstate);
+                    },
+                    end: function () {
+                        arr.pop();
+                        pactor.init(arr[arr.length - 1]);
+                    }
+                };
+            }
+            Internal.createObjectActor = createObjectActor;
+        })(Markup.Internal || (Markup.Internal = {}));
+        var Internal = Markup.Internal;
+    })(Fayde.Markup || (Fayde.Markup = {}));
+    var Markup = Fayde.Markup;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Markup) {
+        (function (Internal) {
+            function createPropertyActor(cur) {
+                var state = {
+                    $$key: undefined,
+                    $$coll: undefined,
+                    $$arr: undefined,
+                    $$cprop: undefined
+                };
+
+                function prepareContent() {
+                    if (state.$$coll || state.$$arr)
+                        return true;
+                    var cprop = state.$$cprop = (state.$$cprop || Markup.Content.Get(cur.type));
+                    if (!cprop)
+                        throw new XamlParseException("Cannot set content for object of type '" + cur.type.name + "'.");
+                    if (!cprop.IsImmutable)
+                        return false;
+                    var co = cur.dobj.GetValue(cprop);
+                    if (!co)
+                        return false;
+                    state.$$coll = nullstone.ICollection_.as(co);
+                    state.$$arr = (typeof co === "array") ? co : null;
+                    return true;
+                }
+
+                return {
+                    init: function (nstate) {
+                        state = nstate;
+                    },
+                    start: function (ownerType, name) {
+                        var fullName = (ownerType ? ownerType.name + "." : "") + name;
+                        if (state[fullName] === true)
+                            throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
+                        state[fullName] = true;
+                    },
+                    end: function (ownerType, name, obj) {
+                        var otype = ownerType || cur.type;
+                        if (!cur.dobj) {
+                            if (!ownerType || cur.type === ownerType)
+                                cur.obj[name] = obj;
+                            throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
+                        }
+                        var propd = DependencyProperty.GetDependencyProperty(otype, name);
+                        var val = nullstone.convertAnyToType(obj, propd.GetTargetType());
+                        cur.dobj.SetValue(propd, val);
+                    },
+                    getKey: function () {
+                        return state.$$key;
+                    },
+                    setKey: function (key) {
+                        state.$$key = key;
+                    },
+                    setContent: function (obj, key) {
+                        if (key && cur.rd) {
+                            cur.rd.Set(key, obj);
+                        } else if (cur.coll) {
+                            cur.coll.Add(obj);
+                        } else if (cur.arr) {
+                            cur.arr.push(obj);
+                        } else if (cur.dobj) {
+                            if (!prepareContent()) {
+                                cur.dobj.SetValue(state.$$cprop, obj);
+                            } else if (state.$$coll) {
+                                state.$$coll.Add(obj);
+                            } else if (state.$$arr) {
+                                state.$$arr.push(obj);
+                            }
+                        }
+                    },
+                    setContentText: function (text) {
+                        if (cur.dobj) {
+                            var tcprop = Markup.TextContent.Get(cur.type);
+                            if (!tcprop)
+                                return;
+                            this.start(cur.type, tcprop.Name);
+                            cur.dobj.SetValue(tcprop, text);
+                        }
+                    }
+                };
+            }
+            Internal.createPropertyActor = createPropertyActor;
+        })(Markup.Internal || (Markup.Internal = {}));
+        var Internal = Markup.Internal;
     })(Fayde.Markup || (Fayde.Markup = {}));
     var Markup = Fayde.Markup;
 })(Fayde || (Fayde = {}));
