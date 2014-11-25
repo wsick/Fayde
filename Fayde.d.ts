@@ -3860,13 +3860,13 @@ declare module Fayde.Markup.Internal {
     interface IPropertyActor {
         init(nstate: any): any;
         start(ownerType: any, name: string): any;
-        end(ownerType: any, name: string, obj: any, resolvePrefixedType: (prefix: string, name: string) => any): any;
+        end(ownerType: any, name: string, obj: any): any;
         getKey(): any;
         setKey(key: any): any;
         setContent(obj: any, key?: any): any;
         setContentText(text: string): any;
     }
-    function createPropertyActor(cur: IActiveObject): IPropertyActor;
+    function createPropertyActor(cur: IActiveObject, extractType: (text: string) => any, extractDP: (text: string) => any): IPropertyActor;
 }
 declare module Fayde.Markup {
     function Resolve(uri: string): any;

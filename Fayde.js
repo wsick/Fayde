@@ -6915,7 +6915,7 @@ var Fayde;
 
             var namescope = new Fayde.NameScope(true);
             var active = Markup.Internal.createActiveObject(namescope, bindingSource);
-            var pactor = Markup.Internal.createPropertyActor(active);
+            var pactor = Markup.Internal.createPropertyActor(active, extractType, extractDP);
             var oactor = Markup.Internal.createObjectActor(pactor);
 
             var last;
@@ -6968,7 +6968,7 @@ var Fayde;
                     pactor.start(ownerType, propName);
                 },
                 propertyEnd: function (ownerType, propName) {
-                    pactor.end(ownerType, propName, last, resolvePrefixedType);
+                    pactor.end(ownerType, propName, last);
                 },
                 error: function (err) {
                     return false;
@@ -6977,14 +6977,38 @@ var Fayde;
                 }
             });
 
-            function resolvePrefixedType(prefix, name) {
+            function extractType(text) {
+                var prefix = null;
+                var name = text;
+                var ind = name.indexOf(':');
+                if (ind > -1) {
+                    prefix = name.substr(0, ind);
+                    name = name.substr(ind + 1);
+                }
+
                 var uri = parser.resolvePrefix(prefix);
                 Fayde.TypeManager.resolveType(uri, name, oresolve);
                 return oresolve.type;
             }
 
-            parser.parse(xm.root);
+            function extractDP(text) {
+                var name = text;
+                var ind = name.indexOf('.');
+                var ownerType;
+                if (ind > -1) {
+                    ownerType = extractType(name.substr(0, ind));
+                    name = name.substr(ind + 1);
+                } else {
+                    for (var en = parser.walkUpObjects(); en.moveNext();) {
+                        if (!!(ownerType = en.current.TargetType))
+                            break;
+                    }
+                }
 
+                return (ownerType) ? DependencyProperty.GetDependencyProperty(ownerType, name) : null;
+            }
+
+            parser.parse(xm.root);
             return last;
         }
     })(Fayde.Markup || (Fayde.Markup = {}));
@@ -12843,11 +12867,7 @@ var Fayde;
             var val = this.Value;
 
             var propTargetType = propd.GetTargetType();
-            try  {
-                this.ConvertedValue = nullstone.convertAnyToType(val, propTargetType);
-            } catch (err) {
-                throw new XamlParseException(err.message);
-            }
+            this.SetCurrentValue(Setter.ConvertedValueProperty, nullstone.convertAnyToType(val, propTargetType));
             this._IsSealed = true;
         };
 
@@ -19954,7 +19974,7 @@ var Fayde;
 (function (Fayde) {
     (function (Markup) {
         (function (Internal) {
-            function createPropertyActor(cur) {
+            function createPropertyActor(cur, extractType, extractDP) {
                 var state = {
                     $$key: undefined,
                     $$coll: undefined,
@@ -19978,17 +19998,18 @@ var Fayde;
                     return true;
                 }
 
-                function extractType(obj, resolvePrefixedType) {
-                    if (typeof obj !== "string")
-                        return obj;
-                    var prefix = null;
-                    var name = obj;
-                    var ind = name.indexOf(':');
-                    if (ind > -1) {
-                        prefix = name.substr(0, ind);
-                        name = name.substr(ind + 1);
+                function convert(propd, obj) {
+                    var tt = propd.GetTargetType();
+                    var val = obj;
+                    if (typeof val === "string") {
+                        if (tt === Fayde.IType_)
+                            return extractType(val);
+                        else if (propd === Fayde.Setter.PropertyProperty)
+                            return extractDP(val);
+                    } else if (val instanceof Fayde.Expression) {
+                        return val;
                     }
-                    return resolvePrefixedType(prefix, name);
+                    return nullstone.convertAnyToType(val, tt);
                 }
 
                 return {
@@ -20001,7 +20022,7 @@ var Fayde;
                             throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
                         state[fullName] = true;
                     },
-                    end: function (ownerType, name, obj, resolvePrefixedType) {
+                    end: function (ownerType, name, obj) {
                         var otype = ownerType || cur.type;
                         if (!cur.dobj) {
                             if (!ownerType || cur.type === ownerType)
@@ -20009,13 +20030,7 @@ var Fayde;
                             throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
                         }
                         var propd = DependencyProperty.GetDependencyProperty(otype, name);
-                        var tt = propd.GetTargetType();
-                        var val = obj;
-                        if (tt === Fayde.IType_)
-                            val = extractType(obj, resolvePrefixedType);
-                        else
-                            val = nullstone.convertAnyToType(obj, tt);
-                        cur.dobj.SetValue(propd, val);
+                        cur.dobj.SetValue(propd, convert(propd, obj));
                     },
                     getKey: function () {
                         return state.$$key;

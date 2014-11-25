@@ -55,11 +55,7 @@ module Fayde {
             var val = this.Value;
 
             var propTargetType = <Function>propd.GetTargetType();
-            try {
-                this.ConvertedValue = nullstone.convertAnyToType(val, propTargetType);
-            } catch (err) {
-                throw new XamlParseException(err.message);
-            }
+            this.SetCurrentValue(Setter.ConvertedValueProperty, nullstone.convertAnyToType(val, propTargetType));
             this._IsSealed = true;
         }
 

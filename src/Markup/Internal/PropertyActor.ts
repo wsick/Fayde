@@ -2,14 +2,14 @@ module Fayde.Markup.Internal {
     export interface IPropertyActor {
         init(nstate: any);
         start(ownerType: any, name: string);
-        end(ownerType: any, name: string, obj: any, resolvePrefixedType: (prefix: string, name: string) => any);
+        end(ownerType: any, name: string, obj: any);
         getKey(): any;
         setKey(key: any);
         setContent(obj: any, key?: any);
         setContentText(text: string);
     }
 
-    export function createPropertyActor (cur: IActiveObject): IPropertyActor {
+    export function createPropertyActor (cur: IActiveObject, extractType: (text: string) => any, extractDP: (text: string) => any): IPropertyActor {
         var state = {
             $$key: undefined,
             $$coll: undefined,
@@ -33,17 +33,18 @@ module Fayde.Markup.Internal {
             return true;
         }
 
-        function extractType (obj: any, resolvePrefixedType: (prefix: string, name: string) => any): any {
-            if (typeof obj !== "string")
-                return obj;
-            var prefix = <string>null;
-            var name = <string>obj;
-            var ind = name.indexOf(':');
-            if (ind > -1) {
-                prefix = name.substr(0, ind);
-                name = name.substr(ind + 1);
+        function convert (propd: DependencyProperty, obj: any): any {
+            var tt = <any>propd.GetTargetType();
+            var val = obj;
+            if (typeof val === "string") {
+                if (tt === IType_) //NOTE: Handles implicit types that are normally written as {x:Type ...}
+                    return extractType(val);
+                else if (propd === Setter.PropertyProperty)
+                    return extractDP(val);
+            } else if (val instanceof Expression) {
+                return val;
             }
-            return resolvePrefixedType(prefix, name);
+            return nullstone.convertAnyToType(val, tt);
         }
 
         return {
@@ -56,7 +57,7 @@ module Fayde.Markup.Internal {
                     throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
                 state[fullName] = true;
             },
-            end (ownerType: any, name: string, obj: any, resolvePrefixedType: (prefix: string, name: string) => any) {
+            end (ownerType: any, name: string, obj: any) {
                 var otype = ownerType || cur.type;
                 if (!cur.dobj) {
                     if (!ownerType || cur.type === ownerType)
@@ -64,13 +65,7 @@ module Fayde.Markup.Internal {
                     throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
                 }
                 var propd = DependencyProperty.GetDependencyProperty(otype, name);
-                var tt = <any>propd.GetTargetType();
-                var val = obj;
-                if (tt === IType_)
-                    val = extractType(obj, resolvePrefixedType);
-                else
-                    val = nullstone.convertAnyToType(obj, tt);
-                cur.dobj.SetValue(propd, val);
+                cur.dobj.SetValue(propd, convert(propd, obj));
             },
             getKey (): any {
                 return state.$$key;

@@ -34,7 +34,7 @@ module Fayde.Markup {
 
         var namescope = new NameScope(true);
         var active = Internal.createActiveObject(namescope, bindingSource);
-        var pactor = Internal.createPropertyActor(active);
+        var pactor = Internal.createPropertyActor(active, extractType, extractDP);
         var oactor = Internal.createObjectActor(pactor);
 
         var last: any;
@@ -90,21 +90,47 @@ module Fayde.Markup {
                     pactor.start(ownerType, propName);
                 },
                 propertyEnd: (ownerType, propName) => {
-                    pactor.end(ownerType, propName, last, resolvePrefixedType);
+                    pactor.end(ownerType, propName, last);
                 },
                 error: (err) => false,
                 end: () => {
                 }
             });
 
-        function resolvePrefixedType (prefix: string, name: string) {
+        function extractType (text: string): any {
+            var prefix = <string>null;
+            var name = text;
+            var ind = name.indexOf(':');
+            if (ind > -1) {
+                prefix = name.substr(0, ind);
+                name = name.substr(ind + 1);
+            }
+
             var uri = parser.resolvePrefix(prefix);
             TypeManager.resolveType(uri, name, oresolve);
             return oresolve.type;
         }
 
+        function extractDP (text: string): any {
+            var name = text;
+            var ind = name.indexOf('.');
+            var ownerType: any;
+            if (ind > -1) {
+                ownerType = extractType(name.substr(0, ind));
+                name = name.substr(ind + 1);
+            } else {
+                for (var en = parser.walkUpObjects(); en.moveNext();) {
+                    if (!!(ownerType = en.current.TargetType))
+                        break;
+                }
+            }
+
+            return (ownerType)
+                ? DependencyProperty.GetDependencyProperty(ownerType, name)
+                : null;
+        }
+
         parser.parse(xm.root);
-        //TODO: Return result
         return last;
     }
 }
