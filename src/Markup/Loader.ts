@@ -58,6 +58,7 @@ module Fayde.Markup {
         var props = {
             arr: [],
             carr: null,
+            key: null,
             start: function () {
                 this.arr.push(this.carr = []);
             },
@@ -72,32 +73,55 @@ module Fayde.Markup {
                 this.carr.push(fullName);
             },
             getContentProp: function (ownerType: any) {
-                var cprop = this.carr.$$content = (this.carr.$$content || Content.Get(ownerType))
+                var cprop = this.carr.$$content = (this.carr.$$content || Content.Get(ownerType));
                 if (!cprop)
                     throw new XamlParseException("Cannot set content for object of type '" + ownerType.name + "'.");
                 return cprop;
             },
+            getContentColl: function (propd: DependencyProperty): boolean {
+                if (this.carr.$$coll || this.carr.$$arr)
+                    return true;
+                if (!propd.IsImmutable)
+                    return false;
+                var co = cur.dobj.GetValue(propd);
+                if (!co)
+                    return false;
+                this.carr.$$coll = nullstone.ICollection_.as(co);
+                this.carr.$$arr = (typeof co === "array") ? co : null;
+                return true;
+            },
+            setKey: function (key) {
+                this.carr.$$key = key;
+            },
             setProp: function (ownerType: any, name: string, val: any) {
                 if (!cur.obj)
                     return;
-                ownerType = ownerType || cur.obj.constructor;
-                this.verify(ownerType, name);
+                var otype = ownerType || cur.obj.constructor;
+                this.verify(otype, name);
                 if (cur.dobj) {
-                    var propd = DependencyProperty.GetDependencyProperty(ownerType, name);
+                    var propd = DependencyProperty.GetDependencyProperty(otype, name);
                     cur.dobj.SetValue(propd, val);
-                } else if (cur.obj.constructor === ownerType) {
+                } else if (!ownerType || cur.obj.constructor === ownerType) {
                     cur.obj[name] = val;
                 }
             },
             setContent: function (val: any) {
-                if (cur.dobj) {
-                    var ownerType = cur.dobj.constructor;
-                    this.verify(ownerType);
-                    cur.dobj.SetValue(this.getContentProp(ownerType), val);
-                } else if (cur.coll) {
+                if (cur.coll) {
                     cur.coll.Add(val);
                 } else if (cur.arr) {
                     cur.arr.push(val);
+                } else if (cur.dobj) {
+                    var ownerType = cur.dobj.constructor;
+                    var cprop = this.getContentProp(ownerType);
+                    if (this.getContentColl(cprop)) {
+                        if (this.carr.$$coll)
+                            this.carr.$$coll.Add(val);
+                        else if (this.carr.$$arr)
+                            this.carr.$$arr.push(val);
+                    } else {
+                        this.verify(ownerType);
+                        cur.dobj.SetValue(cprop, val);
+                    }
                 }
             },
             setContentText: function (text: string) {
@@ -128,7 +152,7 @@ module Fayde.Markup {
                 resolvePrimitive: (type, text) => {
                     return nullstone.convertAnyToType(text, type);
                 },
-                resolveResources: (ownerType, owner) => {
+                resolveResources: (owner, ownerType) => {
                     var rd = owner.Resources;
                     return rd;
                 },
@@ -144,11 +168,15 @@ module Fayde.Markup {
                 },
                 objectEnd: (obj, prev) => {
                     last = obj;
+                    var prevKey = props.carr.$$key;
                     props.end();
                     cur.set(prev);
+                    if (prevKey && cur.rd)
+                        cur.rd.Set(prevKey, obj);
                 },
                 contentObject: (obj) => {
-                    props.setContent(obj);
+                    if (!cur.rd)
+                        props.setContent(obj);
                     cur.set(obj);
                     props.start();
                 },
@@ -163,7 +191,7 @@ module Fayde.Markup {
                     }
                 },
                 key: (key) => {
-                    //TODO: Prepare assignment in resources
+                    props.setKey(key);
                 },
                 propertyStart: (ownerType, propName) => {
                 },

@@ -50,7 +50,7 @@ export function load () {
     test("StaticResource", () => {
         var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
             + "<Grid.Resources>"
-            + "<x:Thickness x:Key=\"TestThickness\">1,2,3,4</x:Thickness>"
+            + "<Thickness x:Key=\"TestThickness\">1,2,3,4</Thickness>"
             + "</Grid.Resources>"
             + "<Border Margin=\"{StaticResource TestThickness}\" />"
             + "</Grid>";

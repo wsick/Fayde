@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.10';
+    Fayde.Version = '0.13.9';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -16,6 +16,8 @@ var Fayde;
 
     Fayde.CoreLibrary = Fayde.TypeManager.resolveLibrary(Fayde.XMLNS);
     Fayde.CoreLibrary.$$module = Fayde;
+    Fayde.XLibrary = Fayde.TypeManager.resolveLibrary(Fayde.XMLNSX);
+    Fayde.XLibrary.$$module = Fayde;
 
     function RegisterType(type, uri, name) {
         name = name || nullstone.getTypeName(type);
@@ -1942,7 +1944,7 @@ var Font = (function () {
     Font.DEFAULT_SIZE = 14;
     return Font;
 })();
-Fayde.RegisterType(Font, Fayde.XMLNSX);
+Fayde.CoreLibrary.add(Font);
 var Fayde;
 (function (Fayde) {
     var InheritableOwner = (function () {
@@ -6931,6 +6933,7 @@ var Fayde;
             var props = {
                 arr: [],
                 carr: null,
+                key: null,
                 start: function () {
                     this.arr.push(this.carr = []);
                 },
@@ -6950,27 +6953,50 @@ var Fayde;
                         throw new XamlParseException("Cannot set content for object of type '" + ownerType.name + "'.");
                     return cprop;
                 },
+                getContentColl: function (propd) {
+                    if (this.carr.$$coll || this.carr.$$arr)
+                        return true;
+                    if (!propd.IsImmutable)
+                        return false;
+                    var co = cur.dobj.GetValue(propd);
+                    if (!co)
+                        return false;
+                    this.carr.$$coll = nullstone.ICollection_.as(co);
+                    this.carr.$$arr = (typeof co === "array") ? co : null;
+                    return true;
+                },
+                setKey: function (key) {
+                    this.carr.$$key = key;
+                },
                 setProp: function (ownerType, name, val) {
                     if (!cur.obj)
                         return;
-                    ownerType = ownerType || cur.obj.constructor;
-                    this.verify(ownerType, name);
+                    var otype = ownerType || cur.obj.constructor;
+                    this.verify(otype, name);
                     if (cur.dobj) {
-                        var propd = DependencyProperty.GetDependencyProperty(ownerType, name);
+                        var propd = DependencyProperty.GetDependencyProperty(otype, name);
                         cur.dobj.SetValue(propd, val);
-                    } else if (cur.obj.constructor === ownerType) {
+                    } else if (!ownerType || cur.obj.constructor === ownerType) {
                         cur.obj[name] = val;
                     }
                 },
                 setContent: function (val) {
-                    if (cur.dobj) {
-                        var ownerType = cur.dobj.constructor;
-                        this.verify(ownerType);
-                        cur.dobj.SetValue(this.getContentProp(ownerType), val);
-                    } else if (cur.coll) {
+                    if (cur.coll) {
                         cur.coll.Add(val);
                     } else if (cur.arr) {
                         cur.arr.push(val);
+                    } else if (cur.dobj) {
+                        var ownerType = cur.dobj.constructor;
+                        var cprop = this.getContentProp(ownerType);
+                        if (this.getContentColl(cprop)) {
+                            if (this.carr.$$coll)
+                                this.carr.$$coll.Add(val);
+                            else if (this.carr.$$arr)
+                                this.carr.$$arr.push(val);
+                        } else {
+                            this.verify(ownerType);
+                            cur.dobj.SetValue(cprop, val);
+                        }
                     }
                 },
                 setContentText: function (text) {
@@ -6998,7 +7024,7 @@ var Fayde;
                 resolvePrimitive: function (type, text) {
                     return nullstone.convertAnyToType(text, type);
                 },
-                resolveResources: function (ownerType, owner) {
+                resolveResources: function (owner, ownerType) {
                     var rd = owner.Resources;
                     return rd;
                 },
@@ -7014,11 +7040,15 @@ var Fayde;
                 },
                 objectEnd: function (obj, prev) {
                     last = obj;
+                    var prevKey = props.carr.$$key;
                     props.end();
                     cur.set(prev);
+                    if (prevKey && cur.rd)
+                        cur.rd.Set(prevKey, obj);
                 },
                 contentObject: function (obj) {
-                    props.setContent(obj);
+                    if (!cur.rd)
+                        props.setContent(obj);
                     cur.set(obj);
                     props.start();
                 },
@@ -7033,6 +7063,7 @@ var Fayde;
                     }
                 },
                 key: function (key) {
+                    props.setKey(key);
                 },
                 propertyStart: function (ownerType, propName) {
                 },
@@ -11513,7 +11544,7 @@ var Point = (function (_super) {
     };
     return Point;
 })(minerva.Point);
-Fayde.RegisterType(Point, Fayde.XMLNSX);
+Fayde.CoreLibrary.addPrimitive(Point);
 
 nullstone.registerTypeConverter(Point, function (val) {
     if (!val)
@@ -13045,7 +13076,7 @@ var Fayde;
         return TemplateBinding;
     })();
     Fayde.TemplateBinding = TemplateBinding;
-    Fayde.RegisterType(TemplateBinding, "TemplateBinding");
+    Fayde.CoreLibrary.add(TemplateBinding);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -15449,7 +15480,6 @@ var Exception = (function () {
     };
     return Exception;
 })();
-Fayde.RegisterType(Exception, Fayde.XMLNSX);
 
 var ArgumentException = (function (_super) {
     __extends(ArgumentException, _super);
@@ -15458,7 +15488,6 @@ var ArgumentException = (function (_super) {
     }
     return ArgumentException;
 })(Exception);
-Fayde.RegisterType(ArgumentException, Fayde.XMLNSX);
 
 var ArgumentNullException = (function (_super) {
     __extends(ArgumentNullException, _super);
@@ -15467,7 +15496,6 @@ var ArgumentNullException = (function (_super) {
     }
     return ArgumentNullException;
 })(Exception);
-Fayde.RegisterType(ArgumentNullException, Fayde.XMLNSX);
 
 var InvalidOperationException = (function (_super) {
     __extends(InvalidOperationException, _super);
@@ -15476,7 +15504,6 @@ var InvalidOperationException = (function (_super) {
     }
     return InvalidOperationException;
 })(Exception);
-Fayde.RegisterType(InvalidOperationException, Fayde.XMLNSX);
 
 var XamlParseException = (function (_super) {
     __extends(XamlParseException, _super);
@@ -15485,7 +15512,6 @@ var XamlParseException = (function (_super) {
     }
     return XamlParseException;
 })(Exception);
-Fayde.RegisterType(XamlParseException, Fayde.XMLNSX);
 
 var XamlMarkupParseException = (function (_super) {
     __extends(XamlMarkupParseException, _super);
@@ -15494,7 +15520,6 @@ var XamlMarkupParseException = (function (_super) {
     }
     return XamlMarkupParseException;
 })(Exception);
-Fayde.RegisterType(XamlMarkupParseException, Fayde.XMLNSX);
 
 var NotSupportedException = (function (_super) {
     __extends(NotSupportedException, _super);
@@ -15503,7 +15528,6 @@ var NotSupportedException = (function (_super) {
     }
     return NotSupportedException;
 })(Exception);
-Fayde.RegisterType(NotSupportedException, Fayde.XMLNSX);
 
 var IndexOutOfRangeException = (function (_super) {
     __extends(IndexOutOfRangeException, _super);
@@ -15512,7 +15536,6 @@ var IndexOutOfRangeException = (function (_super) {
     }
     return IndexOutOfRangeException;
 })(Exception);
-Fayde.RegisterType(IndexOutOfRangeException, Fayde.XMLNSX);
 
 var ArgumentOutOfRangeException = (function (_super) {
     __extends(ArgumentOutOfRangeException, _super);
@@ -15521,7 +15544,6 @@ var ArgumentOutOfRangeException = (function (_super) {
     }
     return ArgumentOutOfRangeException;
 })(Exception);
-Fayde.RegisterType(ArgumentOutOfRangeException, Fayde.XMLNSX);
 
 var AttachException = (function (_super) {
     __extends(AttachException, _super);
@@ -15531,7 +15553,6 @@ var AttachException = (function (_super) {
     }
     return AttachException;
 })(Exception);
-Fayde.RegisterType(AttachException, Fayde.XMLNSX);
 
 var InvalidJsonException = (function (_super) {
     __extends(InvalidJsonException, _super);
@@ -15542,7 +15563,6 @@ var InvalidJsonException = (function (_super) {
     }
     return InvalidJsonException;
 })(Exception);
-Fayde.RegisterType(InvalidJsonException, Fayde.XMLNSX);
 
 var TargetInvocationException = (function (_super) {
     __extends(TargetInvocationException, _super);
@@ -15552,7 +15572,6 @@ var TargetInvocationException = (function (_super) {
     }
     return TargetInvocationException;
 })(Exception);
-Fayde.RegisterType(TargetInvocationException, Fayde.XMLNSX);
 
 var UnknownTypeException = (function (_super) {
     __extends(UnknownTypeException, _super);
@@ -15562,7 +15581,6 @@ var UnknownTypeException = (function (_super) {
     }
     return UnknownTypeException;
 })(Exception);
-Fayde.RegisterType(UnknownTypeException, Fayde.XMLNSX);
 
 var FormatException = (function (_super) {
     __extends(FormatException, _super);
@@ -15571,7 +15589,6 @@ var FormatException = (function (_super) {
     }
     return FormatException;
 })(Exception);
-Fayde.RegisterType(FormatException, Fayde.XMLNSX);
 var Fayde;
 (function (Fayde) {
     (function (Engine) {
@@ -18223,7 +18240,7 @@ var TimeSpan = (function () {
     TimeSpan._TicksPerDay = TimeSpan._TicksPerHour * 24;
     return TimeSpan;
 })();
-Fayde.RegisterType(TimeSpan, Fayde.XMLNSX);
+Fayde.CoreLibrary.addPrimitive(TimeSpan);
 
 nullstone.registerTypeConverter(TimeSpan, function (val) {
     if (val instanceof TimeSpan)
@@ -18577,7 +18594,7 @@ var DateTime = (function () {
     DateTime._MaxDateTicks = 8640000000000000;
     return DateTime;
 })();
-Fayde.CoreLibrary.add(DateTime);
+Fayde.CoreLibrary.addPrimitive(DateTime);
 var Fayde;
 (function (Fayde) {
     (function (Localization) {
@@ -22629,7 +22646,7 @@ var Color = (function () {
     };
     return Color;
 })();
-Fayde.CoreLibrary.add(Color);
+Fayde.CoreLibrary.addPrimitive(Color);
 
 nullstone.registerTypeConverter(Color, function (val) {
     if (!val)
@@ -26337,7 +26354,7 @@ var CornerRadius = (function (_super) {
     };
     return CornerRadius;
 })(minerva.CornerRadius);
-Fayde.RegisterType(CornerRadius, Fayde.XMLNSX);
+Fayde.CoreLibrary.addPrimitive(CornerRadius);
 
 nullstone.registerTypeConverter(CornerRadius, function (val) {
     if (!val)
@@ -26434,7 +26451,7 @@ var Duration = (function () {
     })();
     return Duration;
 })();
-Fayde.RegisterType(Duration, Fayde.XMLNSX);
+Fayde.CoreLibrary.addPrimitive(Duration);
 nullstone.registerTypeConverter(Duration, function (val) {
     if (!val || val.toString().toLowerCase() === "automatic")
         return Duration.Automatic;
@@ -26455,7 +26472,7 @@ var FontFamily = (function () {
     };
     return FontFamily;
 })();
-Fayde.CoreLibrary.add(FontFamily);
+Fayde.CoreLibrary.addPrimitive(FontFamily);
 nullstone.registerTypeConverter(FontFamily, function (val) {
     if (!val)
         return new FontFamily(Font.DEFAULT_FAMILY);
@@ -26533,7 +26550,7 @@ var KeyTime = (function () {
     });
     return KeyTime;
 })();
-Fayde.RegisterType(KeyTime, Fayde.XMLNSX);
+Fayde.CoreLibrary.addPrimitive(KeyTime);
 nullstone.registerTypeConverter(KeyTime, function (val) {
     if (!val || val.toString().toLowerCase() === "uniform")
         return KeyTime.CreateUniform();
@@ -26545,7 +26562,7 @@ var Length = (function () {
     }
     return Length;
 })();
-Fayde.RegisterType(Length, Fayde.XMLNSX);
+Fayde.CoreLibrary.addPrimitive(Length);
 nullstone.registerTypeConverter(Length, function (val) {
     if (!val || val.toString().toLowerCase() === "auto")
         return Number.NaN;
@@ -26563,7 +26580,7 @@ var Thickness = (function (_super) {
     };
     return Thickness;
 })(minerva.Thickness);
-Fayde.RegisterType(Thickness, Fayde.XMLNSX);
+Fayde.CoreLibrary.addPrimitive(Thickness);
 
 nullstone.registerTypeConverter(Thickness, function (val) {
     if (!val)

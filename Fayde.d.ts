@@ -14,6 +14,7 @@ declare module Fayde {
     }
     var TypeManager: nullstone.TypeManager;
     var CoreLibrary: nullstone.ILibrary;
+    var XLibrary: nullstone.ILibrary;
     function RegisterType(type: Function, uri: string, name?: string): void;
     function RegisterEnum(enu: any, uri: string, name: string): void;
 }
