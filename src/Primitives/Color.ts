@@ -225,7 +225,7 @@ class Color implements ICloneable {
         YellowGreen: Color.FromHex("#FF9ACD32")
     }
 }
-Fayde.CoreLibrary.add(Color);
+Fayde.CoreLibrary.addPrimitive(Color);
 
 nullstone.registerTypeConverter(Color, (val: any): Color => {
     if (!val)

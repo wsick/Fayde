@@ -32,7 +32,7 @@ class KeyTime implements ICloneable {
     get HasPercent(): boolean { return this._Percent != null; }
     get Percent(): number { return this._Percent; }
 }
-Fayde.RegisterType(KeyTime, Fayde.XMLNSX);
+Fayde.CoreLibrary.addPrimitive(KeyTime);
 nullstone.registerTypeConverter(KeyTime, (val: any): KeyTime => {
     if (!val || val.toString().toLowerCase() === "uniform")
         return KeyTime.CreateUniform();

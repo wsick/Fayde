@@ -16,6 +16,8 @@ module Fayde {
 
     export var CoreLibrary = TypeManager.resolveLibrary(XMLNS);
     (<any>CoreLibrary).$$module = Fayde;
+    export var XLibrary = TypeManager.resolveLibrary(XMLNSX);
+    (<any>XLibrary).$$module = Fayde;
 
     export function RegisterType (type: Function, uri: string, name?: string) {
         name = name || nullstone.getTypeName(type);

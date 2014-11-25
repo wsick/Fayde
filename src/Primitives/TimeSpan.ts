@@ -146,7 +146,7 @@ class TimeSpan {
         return this.Ticks;
     }
 }
-Fayde.RegisterType(TimeSpan, Fayde.XMLNSX);
+Fayde.CoreLibrary.addPrimitive(TimeSpan);
 
 nullstone.registerTypeConverter(TimeSpan, (val: any): TimeSpan => {
     if (val instanceof TimeSpan)

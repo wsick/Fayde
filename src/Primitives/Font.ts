@@ -129,4 +129,4 @@ class Font {
         return result;
     }
 }
-Fayde.RegisterType(Font, Fayde.XMLNSX);
+Fayde.CoreLibrary.add(Font);

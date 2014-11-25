@@ -221,4 +221,4 @@ class DateTime {
         return this.Ticks;
     }
 }
-Fayde.CoreLibrary.add(DateTime);
+Fayde.CoreLibrary.addPrimitive(DateTime);
