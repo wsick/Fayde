@@ -1,6 +1,6 @@
 import TestControl = require('../mocks/TestControl');
 
-export function load() {
+export function load () {
     QUnit.module("Markup Load Tests");
 
     test("Valid XAML Document", () => {
@@ -136,12 +136,12 @@ export function load() {
 
 
         xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
-            + "<StackPanel.Resources>"
-            + "<Style x:Key=\"SomeStyle\">"
-            + "<Setter Property=\"Margin\" Value=\"1\" />"
-            + "</Style>"
-            + "</StackPanel.Resources>"
-            + "</StackPanel>";
+        + "<StackPanel.Resources>"
+        + "<Style x:Key=\"SomeStyle\">"
+        + "<Setter Property=\"Margin\" Value=\"1\" />"
+        + "</Style>"
+        + "</StackPanel.Resources>"
+        + "</StackPanel>";
         try {
             root = Fayde.Markup.LoadXaml<Fayde.Controls.StackPanel>(null, xaml);
             ok(false, "Loading a style without a TargetType should fail.");
@@ -206,7 +206,9 @@ export function load() {
         }
         strictEqual((<any>hdt).constructor, Fayde.HierarchicalDataTemplate, "Resulting object should be a HierarchicalDataTemplate.");
 
-        ok(hdt.ItemsSource instanceof Fayde.Data.Binding, "HierarchicalDataTemplate.ItemsSource should be set to a Binding.");
+        var isexpr = hdt.GetBindingExpression(Fayde.HierarchicalDataTemplate.ItemsSourceProperty);
+        ok(isexpr, "HierarchicalDataTemplate.ItemsSource should have a BindingExpression.");
+        strictEqual(isexpr.ParentBinding.Path.Path, "SomePath", "BindingExpression.ParentBinding should have `Path=SomePath`.");
 
         var visual = hdt.GetVisualTree(null);
         strictEqual((<any>visual).constructor, Fayde.Controls.Grid, "Root visual from created visual tree should be a Grid.");

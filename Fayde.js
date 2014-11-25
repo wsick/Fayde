@@ -12241,48 +12241,14 @@ var Fayde;
     var HierarchicalDataTemplate = (function (_super) {
         __extends(HierarchicalDataTemplate, _super);
         function HierarchicalDataTemplate() {
-            _super.call(this);
-            this._ItemsSource = null;
-            this._ItemTemplate = null;
-            this._ItemContainerStyle = null;
-            Object.defineProperty(this, "IsItemTemplateSet", { value: false, writable: false });
-            Object.defineProperty(this, "IsItemContainerStyleSet", { value: false, writable: false });
+            _super.apply(this, arguments);
         }
-        Object.defineProperty(HierarchicalDataTemplate.prototype, "ItemsSource", {
-            get: function () {
-                return this._ItemsSource;
-            },
-            set: function (value) {
-                if (value instanceof Fayde.Data.Binding)
-                    this._ItemsSource = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
-
-        Object.defineProperty(HierarchicalDataTemplate.prototype, "ItemTemplate", {
-            get: function () {
-                return this._ItemTemplate;
-            },
-            set: function (value) {
-                this._ItemTemplate = value;
-                Object.defineProperty(this, "IsItemTemplateSet", { value: false, writable: true });
-            },
-            enumerable: true,
-            configurable: true
-        });
-
-        Object.defineProperty(HierarchicalDataTemplate.prototype, "ItemContainerStyle", {
-            get: function () {
-                return this._ItemContainerStyle;
-            },
-            set: function (value) {
-                this._ItemContainerStyle = value;
-                Object.defineProperty(this, "IsItemContainerStyleSet", { value: false, writable: true });
-            },
-            enumerable: true,
-            configurable: true
-        });
+        HierarchicalDataTemplate.ItemsSourceProperty = DependencyProperty.Register("ItemsSource", function () {
+            return nullstone.IEnumerable_;
+        }, HierarchicalDataTemplate);
+        HierarchicalDataTemplate.ItemTemplateProperty = DependencyProperty.Register("ItemTemplate", function () {
+            return Fayde.DataTemplate;
+        }, HierarchicalDataTemplate);
         return HierarchicalDataTemplate;
     })(Fayde.DataTemplate);
     Fayde.HierarchicalDataTemplate = HierarchicalDataTemplate;

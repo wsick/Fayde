@@ -2560,15 +2560,10 @@ declare class DependencyPropertyChangedEventArgs implements nullstone.IEventArgs
 }
 declare module Fayde {
     class HierarchicalDataTemplate extends DataTemplate {
-        constructor();
-        private _ItemsSource;
-        public ItemsSource : Data.Binding;
-        public IsItemTemplateSet: boolean;
-        private _ItemTemplate;
-        public ItemTemplate : DataTemplate;
-        public IsItemContainerStyleSet: boolean;
-        private _ItemContainerStyle;
-        public ItemContainerStyle : Style;
+        static ItemsSourceProperty: DependencyProperty;
+        static ItemTemplateProperty: DependencyProperty;
+        public ItemsSource: nullstone.IEnumerable<any>;
+        public ItemTemplate: DataTemplate;
     }
 }
 declare module Fayde {
