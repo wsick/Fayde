@@ -2,56 +2,147 @@ module Fayde.Markup.Internal {
     export interface IPropertyActor {
         init(nstate: any);
         start(ownerType: any, name: string);
-        end(ownerType: any, name: string);
-        setContent(obj: any, key?: any);
-        setContentText(text: string);
+        startContent();
+        end();
         addObject(obj: any, key?: any);
+        setContentText(text: string);
     }
 
     export function createPropertyActor (cur: IActiveObject, extractType: (text: string) => any, extractDP: (text: string) => any): IPropertyActor {
         var state = {
-            $$coll: undefined,
-            $$arr: undefined,
-            $$cprop: undefined,
-            $$objs: undefined,
-            $$objkeys: undefined,
-            $$apropd: undefined,
-            $$aprop: undefined,
-            $$eprop: undefined
+            visited: undefined,
+
+            coll: undefined,
+            arr: undefined,
+            propd: undefined,
+            prop: undefined,
+            eprop: undefined,
+            incontent: undefined,
+            content: {
+                count: 0,
+                coll: undefined,
+                arr: undefined,
+                rd: undefined,
+                propd: undefined
+            }
         };
 
-        function getContentProp (): DependencyProperty {
-            return state.$$cprop = (state.$$cprop || Content.Get(cur.type));
+        function verify (ownerType: any, name: string) {
+            var otype = ownerType || cur.type;
+            state.visited = state.visited || [];
+            var tvisited = state.visited[otype];
+            if (!tvisited) {
+                tvisited = state.visited[otype] = [];
+            } else {
+                if (tvisited.indexOf(name) > -1)
+                    throw new XamlParseException("Cannot set [" + otype.name + "][" + name + "] more than once.");
+            }
+            tvisited.push(name);
+        }
+
+        function verifyContent () {
+            verify(cur.type, state.propd.Name);
+        }
+
+        function prepare (ownerType: any, name: string): boolean {
+            if (state.coll || state.arr || state.propd || state.prop || state.eprop)
+                return true;
+            if (cur.dobj) {
+                var otype = ownerType || cur.type;
+                state.propd = DependencyProperty.GetDependencyProperty(otype, name, true);
+                if (!state.propd) {
+                    var ev = cur.dobj[name];
+                    if (ev instanceof nullstone.Event)
+                        state.eprop = name;
+                    else
+                        throw new XamlParseException("Cannot locate dependency property [" + otype.name + "].[" + name + "]");
+                    return true;
+                }
+                if (state.propd.IsImmutable) {
+                    var co = cur.dobj.GetValue(state.propd);
+                    state.coll = nullstone.ICollection_.as(co);
+                    state.arr = (typeof co === "array") ? co : null;
+                } else {
+                    var tt = state.propd.GetTargetType();
+                    if (nullstone.ICollection_.is(tt.prototype))
+                        cur.dobj.SetValue(state.propd, state.coll = new tt());
+                    else if (tt === Array)
+                        cur.dobj.SetValue(state.propd, state.arr = []);
+                }
+                return true;
+            } else if (cur.obj) {
+                if (ownerType && cur.type !== ownerType)
+                    throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
+                state.prop = name;
+                return true;
+            }
+            return false;
         }
 
         function prepareContent (): boolean {
-            if (state.$$coll || state.$$arr)
+            var content = state.content = state.content || <any>{};
+            if (content.coll || content.arr || content.rd || content.propd)
                 return true;
-            var cprop = getContentProp();
-            if (!cprop)
+            var propd = content.propd = Content.Get(cur.type);
+            if (!propd) {
+                content.coll = nullstone.ICollection_.as(cur.obj);
+                content.arr = (typeof cur.obj === "array") ? cur.obj : null;
+                content.rd = cur.rd;
+                if (content.coll || content.arr || content.rd)
+                    return true;
                 throw new XamlParseException("Cannot set content for object of type '" + cur.type.name + "'.");
-            if (!cprop.IsImmutable)
-                return false;
-            var co = cur.dobj.GetValue(cprop);
+            }
+            if (!propd.IsImmutable)
+                return true;
+            var co = cur.dobj.GetValue(propd);
             if (!co)
                 return false;
-            state.$$coll = nullstone.ICollection_.as(co);
-            state.$$arr = (typeof co === "array") ? co : null;
+            content.coll = nullstone.ICollection_.as(co);
+            content.arr = (typeof co === "array") ? co : null;
             return true;
         }
 
-        function convert (propd: DependencyProperty, obj: any): any {
-            var tt = <any>propd.GetTargetType();
-            var val = obj;
-            if (typeof val === "string") {
-                if (tt === IType_) //NOTE: Handles implicit types that are normally written as {x:Type ...}
-                    return extractType(val);
-                else if (propd === Setter.PropertyProperty)
-                    return extractDP(val);
-            } else if (val instanceof Expression) {
-                return val;
+        function addContentObject (obj: any, key: any) {
+            if (cur.rd) {
+                key = key || getImplicitKey(obj);
+                if (!key)
+                    throw new XamlParseException("Items in a ResourceDictionary must have a x:Key.");
+                cur.rd.Set(key, obj);
+            } else if (cur.coll) {
+                cur.coll.Add(obj);
+            } else if (cur.arr) {
+                cur.arr.push(obj);
+            } else if (cur.dobj) {
+                if (state.content.coll) {
+                    state.content.coll.Add(obj);
+                } else if (state.content.arr) {
+                    state.content.arr.push(obj);
+                } else if (state.content.rd) {
+                    key = key || getImplicitKey(obj);
+                    if (!key)
+                        throw new XamlParseException("Items in a ResourceDictionary must have a x:Key.");
+                    state.content.rd.Set(obj, key);
+                } else {
+                    if (state.content.count > 0)
+                        throw new XamlParseException("Cannot set content more than once.");
+                    cur.dobj.SetValue(state.content.propd, obj);
+                }
             }
-            return nullstone.convertAnyToType(val, tt);
+            state.content.count++;
+        }
+
+        function addObject (obj: any, key: any) {
+            if (state.coll) {
+                state.coll.Add(obj);
+            } else if (state.arr) {
+                state.arr.push(obj);
+            } else if (state.propd) {
+                cur.dobj.SetValue(state.propd, convert(state.propd, obj));
+            } else if (state.prop) {
+                cur.dobj[state.prop] = obj;
+            } else if (state.eprop) {
+                subscribeEvent(state.eprop, obj);
+            }
         }
 
         function getImplicitKey (obj: any): any {
@@ -68,6 +159,20 @@ module Fayde.Markup.Internal {
             }
         }
 
+        function convert (propd: DependencyProperty, obj: any): any {
+            var tt = <any>propd.GetTargetType();
+            var val = obj;
+            if (typeof val === "string") {
+                if (tt === IType_) //NOTE: Handles implicit types that are normally written as {x:Type ...}
+                    return extractType(val);
+                else if (propd === Setter.PropertyProperty)
+                    return extractDP(val);
+            } else if (val instanceof Expression) {
+                return val;
+            }
+            return nullstone.convertAnyToType(val, tt);
+        }
+
         function subscribeEvent (name: string, ebe: EventBindingExpression) {
             if (!(ebe instanceof EventBindingExpression))
                 throw new XamlParseException("Cannot subscribe to event '" + name + "' without {EventBinding}.");
@@ -75,87 +180,31 @@ module Fayde.Markup.Internal {
             ebe.OnAttached(cur.dobj);
         }
 
-        function prepareProperty (ownerType: any, name: string) {
-            if (cur.dobj) {
-                var otype = ownerType || cur.type;
-                state.$$apropd = DependencyProperty.GetDependencyProperty(otype, name, true);
-                if (!state.$$apropd) {
-                    var ev = cur.dobj[name];
-                    if (ev instanceof nullstone.Event)
-                        state.$$eprop = name;
-                    else
-                        throw new XamlParseException("Cannot locate dependency property [" + otype.name + "].[" + name + "]");
-                }
-            } else if (cur.obj) {
-                if (ownerType && cur.type !== ownerType)
-                    throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
-                state.$$aprop = name;
-            }
-        }
-
-        function setProp (propd: DependencyProperty, objs: any[]) {
-            if (propd.IsImmutable) {
-                var co = cur.dobj.GetValue(propd);
-                if (nullstone.ICollection_.is(co)) {
-                    var coll = <nullstone.ICollection<any>>co;
-                    for (var i = 0; i < objs.length; i++) {
-                        coll.Add(objs[i]);
-                    }
-                } else if (typeof co === "array") {
-                    var arr = <any[]>co;
-                    for (var i = 0; i < objs.length; i++) {
-                        arr.push(objs[i]);
-                    }
-                }
-            } else {
-                cur.dobj.SetValue(propd, convert(propd, objs[0]));
-            }
-        }
-
         return {
             init (nstate: any) {
                 state = nstate;
             },
             start (ownerType: any, name: string) {
-                var fullName = (ownerType ? ownerType.name + "." : "") + name;
-                if (state[fullName] === true)
-                    throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
-                state[fullName] = true;
-                prepareProperty(ownerType, name);
+                verify(ownerType, name);
+                prepare(ownerType, name);
             },
-            end (ownerType: any, name: string) {
-                var objs = state.$$objs;
-                var single = objs[0];
-                if (single === undefined)
-                    return;
-
-                if (state.$$eprop) {
-                    subscribeEvent(state.$$eprop, single);
-                } else if (state.$$aprop) {
-                    cur.obj[state.$$aprop] = single;
-                } else if (state.$$apropd) {
-                    setProp(state.$$apropd, objs);
+            startContent () {
+                if (prepareContent()) {
+                    if (state.content.count === 0)
+                        verifyContent();
+                    state.incontent = true;
                 }
             },
-            setContent (obj: any, key?: any) {
-                if (cur.rd) {
-                    key = key || getImplicitKey(obj);
-                    if (!key)
-                        throw new XamlParseException("Items in a ResourceDictionary must have a x:Key.");
-                    cur.rd.Set(key, obj);
-                } else if (cur.coll) {
-                    cur.coll.Add(obj);
-                } else if (cur.arr) {
-                    cur.arr.push(obj);
-                } else if (cur.dobj) {
-                    if (!prepareContent()) {
-                        this.start(null, name);
-                        cur.dobj.SetValue(state.$$cprop, obj);
-                    } else if (state.$$coll) {
-                        state.$$coll.Add(obj);
-                    } else if (state.$$arr) {
-                        state.$$arr.push(obj);
-                    }
+            end () {
+                state.incontent = false;
+                state.coll = state.arr = state.propd = state.prop = undefined;
+            },
+            addObject (obj: any, key?: any) {
+                if (state.incontent) {
+                    addContentObject(obj, key);
+                    state.content.count++;
+                } else {
+                    addObject(obj, key);
                 }
             },
             setContentText (text: string) {
@@ -164,24 +213,16 @@ module Fayde.Markup.Internal {
 
                 var tcprop = TextContent.Get(cur.type);
                 if (tcprop) {
-                    this.start(cur.type, tcprop.Name);
+                    verify(cur.type, tcprop.Name);
                     cur.dobj.SetValue(tcprop, text);
                     return;
                 }
 
-                var cprop = getContentProp();
-                if (!cprop)
-                    return;
-                this.start(cur.type, cprop.Name);
-                cur.dobj.SetValue(cprop, convert(cprop, text));
-            },
-            addObject (obj: any, key?: any) {
-                if (!state.$$objs) {
-                    state.$$objs = [];
-                    state.$$objkeys = [];
+                var cprop = Content.Get(cur.type);
+                if (cprop) {
+                    verify(cur.type, cprop.Name);
+                    cur.dobj.SetValue(cprop, convert(cprop, text));
                 }
-                state.$$objs.push(obj);
-                state.$$objkeys.push(key);
             }
         };
     }
