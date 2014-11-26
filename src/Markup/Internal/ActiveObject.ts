@@ -9,11 +9,7 @@ module Fayde.Markup.Internal {
         type: any;
         set(obj: any);
         setName(name: string);
-        getKey(): any;
-        setKey(key: any);
     }
-
-    var KeyProperty = DependencyProperty.RegisterAttached("Key", () => Object, new Function());
 
     export function createActiveObject (namescope: NameScope, bindingSource: any): IActiveObject {
         return {
@@ -42,22 +38,6 @@ module Fayde.Markup.Internal {
                     var xnode = this.xo.XamlNode;
                     namescope.RegisterName(name, xnode);
                     xnode.Name = name;
-                }
-            },
-            getKey (): any {
-                if (this.dobj)
-                    return this.dobj.GetValue(KeyProperty);
-                if (this.obj) {
-                    var key = this.obj.$$key$$;
-                    this.obj.$$key$$ = undefined;
-                    return key;
-                }
-            },
-            setKey (key: any) {
-                if (this.dobj) {
-                    this.dobj.SetValue(KeyProperty, key);
-                } else if (this.obj) {
-                    this.obj.$$key$$ = key;
                 }
             }
         };

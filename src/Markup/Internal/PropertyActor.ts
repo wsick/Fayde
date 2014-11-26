@@ -6,6 +6,8 @@ module Fayde.Markup.Internal {
         end();
         addObject(obj: any, key?: any);
         setContentText(text: string);
+        getKey(): any;
+        setKey(key: any)
     }
 
     export function createPropertyActor (cur: IActiveObject, extractType: (text: string) => any, extractDP: (text: string) => any): IPropertyActor {
@@ -18,6 +20,7 @@ module Fayde.Markup.Internal {
             prop: undefined,
             eprop: undefined,
             incontent: undefined,
+            key: undefined,
             content: {
                 count: 0,
                 coll: undefined,
@@ -227,6 +230,12 @@ module Fayde.Markup.Internal {
                     verify(cur.type, cprop.Name);
                     cur.dobj.SetValue(cprop, convert(cprop, text));
                 }
+            },
+            getKey (): any {
+                return state.key;
+            },
+            setKey (key: any) {
+                state.key = key;
             }
         };
     }

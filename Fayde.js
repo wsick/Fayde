@@ -6959,7 +6959,7 @@ var Fayde;
                 },
                 objectEnd: function (obj, isContent, prev) {
                     last = obj;
-                    var key = active.getKey();
+                    var key = pactor.getKey();
                     oactor.end();
                     active.set(prev);
                     if (!active.obj)
@@ -6979,7 +6979,7 @@ var Fayde;
                     active.setName(name);
                 },
                 key: function (key) {
-                    active.setKey(key);
+                    pactor.setKey(key);
                 },
                 propertyStart: function (ownerType, propName) {
                     pactor.start(ownerType, propName);
@@ -16264,7 +16264,7 @@ var Fayde;
 
     var LibraryThemeRepo = (function () {
         function LibraryThemeRepo(uri) {
-            this.$$themes = [];
+            this.$$themes = {};
             Object.defineProperty(this, "Uri", { value: uri, writable: false });
         }
         Object.defineProperty(LibraryThemeRepo.prototype, "Active", {
@@ -16278,7 +16278,7 @@ var Fayde;
         LibraryThemeRepo.prototype.Get = function (name) {
             var theme = this.$$themes[name];
             if (!theme)
-                theme = new Fayde.Theme(name, this.Uri);
+                theme = this.$$themes[name] = new Fayde.Theme(name, this.Uri);
             return theme;
         };
 
@@ -20010,10 +20010,6 @@ var Fayde;
 (function (Fayde) {
     (function (Markup) {
         (function (Internal) {
-            var KeyProperty = DependencyProperty.RegisterAttached("Key", function () {
-                return Object;
-            }, new Function());
-
             function createActiveObject(namescope, bindingSource) {
                 return {
                     obj: null,
@@ -20041,22 +20037,6 @@ var Fayde;
                             var xnode = this.xo.XamlNode;
                             namescope.RegisterName(name, xnode);
                             xnode.Name = name;
-                        }
-                    },
-                    getKey: function () {
-                        if (this.dobj)
-                            return this.dobj.GetValue(KeyProperty);
-                        if (this.obj) {
-                            var key = this.obj.$$key$$;
-                            this.obj.$$key$$ = undefined;
-                            return key;
-                        }
-                    },
-                    setKey: function (key) {
-                        if (this.dobj) {
-                            this.dobj.SetValue(KeyProperty, key);
-                        } else if (this.obj) {
-                            this.obj.$$key$$ = key;
                         }
                     }
                 };
@@ -20105,6 +20085,7 @@ var Fayde;
                     prop: undefined,
                     eprop: undefined,
                     incontent: undefined,
+                    key: undefined,
                     content: {
                         count: 0,
                         coll: undefined,
@@ -20314,6 +20295,12 @@ var Fayde;
                             verify(cur.type, cprop.Name);
                             cur.dobj.SetValue(cprop, convert(cprop, text));
                         }
+                    },
+                    getKey: function () {
+                        return state.key;
+                    },
+                    setKey: function (key) {
+                        state.key = key;
                     }
                 };
             }

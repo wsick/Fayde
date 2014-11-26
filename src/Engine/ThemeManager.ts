@@ -42,7 +42,7 @@ module Fayde {
     }
 
     class LibraryThemeRepo {
-        private $$themes: Theme[] = [];
+        private $$themes = {};
         private $$active: Theme;
 
         Uri: Uri;
@@ -58,7 +58,7 @@ module Fayde {
         Get (name: string): Theme {
             var theme = this.$$themes[name];
             if (!theme)
-                theme = new Theme(name, this.Uri);
+                theme = this.$$themes[name] = new Theme(name, this.Uri);
             return theme;
         }
 
