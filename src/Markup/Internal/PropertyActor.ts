@@ -23,7 +23,8 @@ module Fayde.Markup.Internal {
                 coll: undefined,
                 arr: undefined,
                 rd: undefined,
-                propd: undefined
+                propd: undefined,
+                app: undefined
             }
         };
 
@@ -88,7 +89,8 @@ module Fayde.Markup.Internal {
                 content.coll = nullstone.ICollection_.as(cur.obj);
                 content.arr = (typeof cur.obj === "array") ? cur.obj : null;
                 content.rd = cur.rd;
-                if (content.coll || content.arr || content.rd)
+                content.app = (cur.obj instanceof Application) ? cur.obj : null;
+                if (content.coll || content.arr || content.rd || content.app)
                     return true;
                 throw new XamlParseException("Cannot set content for object of type '" + cur.type.name + "'.");
             }
@@ -122,6 +124,8 @@ module Fayde.Markup.Internal {
                     if (!key)
                         throw new XamlParseException("Items in a ResourceDictionary must have a x:Key.");
                     state.content.rd.Set(obj, key);
+                } else if (state.content.app) {
+                    state.content.app.$$SetRootVisual(obj);
                 } else {
                     if (state.content.count > 0)
                         throw new XamlParseException("Cannot set content more than once.");

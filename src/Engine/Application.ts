@@ -135,7 +135,8 @@ module Fayde {
 
         Resolve (): nullstone.async.IAsyncRequest<Application> {
             return nullstone.async.create((resolve, reject) => {
-                resolve({});
+                //TODO: Resolve theme
+                resolve(this);
             });
 
             /*

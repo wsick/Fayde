@@ -15329,8 +15329,9 @@ var Fayde;
         };
 
         Application.prototype.Resolve = function () {
+            var _this = this;
             return nullstone.async.create(function (resolve, reject) {
-                resolve({});
+                resolve(_this);
             });
         };
         Application.ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", function () {
@@ -20019,7 +20020,8 @@ var Fayde;
                         coll: undefined,
                         arr: undefined,
                         rd: undefined,
-                        propd: undefined
+                        propd: undefined,
+                        app: undefined
                     }
                 };
 
@@ -20084,7 +20086,8 @@ var Fayde;
                         content.coll = nullstone.ICollection_.as(cur.obj);
                         content.arr = (typeof cur.obj === "array") ? cur.obj : null;
                         content.rd = cur.rd;
-                        if (content.coll || content.arr || content.rd)
+                        content.app = (cur.obj instanceof Fayde.Application) ? cur.obj : null;
+                        if (content.coll || content.arr || content.rd || content.app)
                             return true;
                         throw new XamlParseException("Cannot set content for object of type '" + cur.type.name + "'.");
                     }
@@ -20118,6 +20121,8 @@ var Fayde;
                             if (!key)
                                 throw new XamlParseException("Items in a ResourceDictionary must have a x:Key.");
                             state.content.rd.Set(obj, key);
+                        } else if (state.content.app) {
+                            state.content.app.$$SetRootVisual(obj);
                         } else {
                             if (state.content.count > 0)
                                 throw new XamlParseException("Cannot set content more than once.");
