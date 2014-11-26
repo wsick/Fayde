@@ -6959,8 +6959,6 @@ var Fayde;
                 },
                 objectEnd: function (obj, isContent, prev) {
                     last = obj;
-                    if (last instanceof Fayde.Style && !last.TargetType)
-                        throw new XamlParseException("Style must have a TargetType.");
                     var key = pactor.getKey();
                     oactor.end();
                     active.set(prev);
