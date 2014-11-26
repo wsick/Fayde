@@ -19,7 +19,7 @@ class TestViewModel extends Fayde.MVVM.ViewModelBase {
         this.SelectedItem = this.AllItems[0];
         this.TestCommand = new Fayde.MVVM.RelayCommand(parameter => alert("TestCommand executed."));
     }
-    TestMethod(e: Fayde.IEventBindingArgs<EventArgs>) {
+    TestMethod(e: Fayde.IEventBindingArgs<nullstone.IEventArgs>) {
         if (!this || !(this instanceof TestViewModel))
             alert("ERROR: this is not scoped to TestViewModel.");
         if (e.sender)
