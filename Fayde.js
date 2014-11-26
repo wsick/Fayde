@@ -6959,11 +6959,13 @@ var Fayde;
                 },
                 objectEnd: function (obj, isContent, prev) {
                     last = obj;
-                    var key = pactor.getKey();
+                    var key = active.getKey();
                     oactor.end();
                     active.set(prev);
                     if (isContent)
                         pactor.setContent(obj, key);
+                    else
+                        pactor.addObject(obj, key);
                 },
                 contentText: function (text) {
                     pactor.setContentText(text);
@@ -6972,13 +6974,13 @@ var Fayde;
                     active.setName(name);
                 },
                 key: function (key) {
-                    pactor.setKey(key);
+                    active.setKey(key);
                 },
                 propertyStart: function (ownerType, propName) {
                     pactor.start(ownerType, propName);
                 },
                 propertyEnd: function (ownerType, propName) {
-                    pactor.end(ownerType, propName, last);
+                    pactor.end(ownerType, propName);
                 },
                 error: function (err) {
                     return false;
@@ -19912,6 +19914,10 @@ var Fayde;
 (function (Fayde) {
     (function (Markup) {
         (function (Internal) {
+            var KeyProperty = DependencyProperty.RegisterAttached("Key", function () {
+                return Object;
+            }, new Function());
+
             function createActiveObject(namescope, bindingSource) {
                 return {
                     obj: null,
@@ -19939,6 +19945,22 @@ var Fayde;
                             var xnode = this.xo.XamlNode;
                             namescope.RegisterName(name, xnode);
                             xnode.Name = name;
+                        }
+                    },
+                    getKey: function () {
+                        if (this.dobj)
+                            return this.dobj.GetValue(KeyProperty);
+                        if (this.obj) {
+                            var key = this.obj.$$key$$;
+                            this.obj.$$key$$ = undefined;
+                            return key;
+                        }
+                    },
+                    setKey: function (key) {
+                        if (this.dobj) {
+                            this.dobj.SetValue(KeyProperty, key);
+                        } else if (this.obj) {
+                            this.obj.$$key$$ = key;
                         }
                     }
                 };
@@ -19980,10 +20002,14 @@ var Fayde;
         (function (Internal) {
             function createPropertyActor(cur, extractType, extractDP) {
                 var state = {
-                    $$key: undefined,
                     $$coll: undefined,
                     $$arr: undefined,
-                    $$cprop: undefined
+                    $$cprop: undefined,
+                    $$objs: undefined,
+                    $$objkeys: undefined,
+                    $$apropd: undefined,
+                    $$aprop: undefined,
+                    $$eprop: undefined
                 };
 
                 function getContentProp() {
@@ -20034,16 +20060,48 @@ var Fayde;
                     }
                 }
 
-                function trySubscribeEvent(name, ebe) {
-                    var event = cur.dobj[name];
-                    if (event instanceof nullstone.Event) {
-                        if (!(ebe instanceof Fayde.EventBindingExpression))
-                            throw new XamlParseException("Cannot subscribe to event '" + name + "' without {EventBinding}.");
-                        ebe.Init(name);
-                        ebe.OnAttached(cur.dobj);
-                        return true;
+                function subscribeEvent(name, ebe) {
+                    if (!(ebe instanceof Fayde.EventBindingExpression))
+                        throw new XamlParseException("Cannot subscribe to event '" + name + "' without {EventBinding}.");
+                    ebe.Init(name);
+                    ebe.OnAttached(cur.dobj);
+                }
+
+                function prepareProperty(ownerType, name) {
+                    if (cur.dobj) {
+                        var otype = ownerType || cur.type;
+                        state.$$apropd = DependencyProperty.GetDependencyProperty(otype, name, true);
+                        if (!state.$$apropd) {
+                            var ev = cur.dobj[name];
+                            if (ev instanceof nullstone.Event)
+                                state.$$eprop = name;
+                            else
+                                throw new XamlParseException("Cannot locate dependency property [" + otype.name + "].[" + name + "]");
+                        }
+                    } else if (cur.obj) {
+                        if (ownerType && cur.type !== ownerType)
+                            throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
+                        state.$$aprop = name;
                     }
-                    return false;
+                }
+
+                function setProp(propd, objs) {
+                    if (propd.IsImmutable) {
+                        var co = cur.dobj.GetValue(propd);
+                        if (nullstone.ICollection_.is(co)) {
+                            var coll = co;
+                            for (var i = 0; i < objs.length; i++) {
+                                coll.Add(objs[i]);
+                            }
+                        } else if (typeof co === "array") {
+                            var arr = co;
+                            for (var i = 0; i < objs.length; i++) {
+                                arr.push(objs[i]);
+                            }
+                        }
+                    } else {
+                        cur.dobj.SetValue(propd, convert(propd, objs[0]));
+                    }
                 }
 
                 return {
@@ -20055,26 +20113,21 @@ var Fayde;
                         if (state[fullName] === true)
                             throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
                         state[fullName] = true;
+                        prepareProperty(ownerType, name);
                     },
-                    end: function (ownerType, name, obj) {
-                        var otype = ownerType || cur.type;
-                        if (!cur.dobj) {
-                            if (ownerType && cur.type !== ownerType)
-                                throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
-                            cur.obj[name] = obj;
+                    end: function (ownerType, name) {
+                        var objs = state.$$objs;
+                        var single = objs[0];
+                        if (single === undefined)
                             return;
+
+                        if (state.$$eprop) {
+                            subscribeEvent(state.$$eprop, single);
+                        } else if (state.$$aprop) {
+                            cur.obj[state.$$aprop] = single;
+                        } else if (state.$$apropd) {
+                            setProp(state.$$apropd, objs);
                         }
-                        var propd = DependencyProperty.GetDependencyProperty(otype, name, true);
-                        if (propd)
-                            cur.dobj.SetValue(propd, convert(propd, obj));
-                        else if (!trySubscribeEvent(name, obj))
-                            throw new XamlParseException("Cannot locate dependency property [" + otype.name + "].[" + name + "]");
-                    },
-                    getKey: function () {
-                        return state.$$key;
-                    },
-                    setKey: function (key) {
-                        state.$$key = key;
                     },
                     setContent: function (obj, key) {
                         if (cur.rd) {
@@ -20113,6 +20166,14 @@ var Fayde;
                             return;
                         this.start(cur.type, cprop.Name);
                         cur.dobj.SetValue(cprop, convert(cprop, text));
+                    },
+                    addObject: function (obj, key) {
+                        if (!state.$$objs) {
+                            state.$$objs = [];
+                            state.$$objkeys = [];
+                        }
+                        state.$$objs.push(obj);
+                        state.$$objkeys.push(key);
                     }
                 };
             }

@@ -79,11 +79,13 @@ module Fayde.Markup {
                 },
                 objectEnd: (obj, isContent, prev) => {
                     last = obj;
-                    var key = pactor.getKey();
+                    var key = active.getKey();
                     oactor.end();
                     active.set(prev);
                     if (isContent)
                         pactor.setContent(obj, key);
+                    else
+                        pactor.addObject(obj, key);
                 },
                 contentText: (text) => {
                     pactor.setContentText(text);
@@ -92,13 +94,13 @@ module Fayde.Markup {
                     active.setName(name);
                 },
                 key: (key) => {
-                    pactor.setKey(key);
+                    active.setKey(key);
                 },
                 propertyStart: (ownerType, propName) => {
                     pactor.start(ownerType, propName);
                 },
                 propertyEnd: (ownerType, propName) => {
-                    pactor.end(ownerType, propName, last);
+                    pactor.end(ownerType, propName);
                 },
                 error: (err) => false,
                 end: () => {

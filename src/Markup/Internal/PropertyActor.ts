@@ -2,19 +2,22 @@ module Fayde.Markup.Internal {
     export interface IPropertyActor {
         init(nstate: any);
         start(ownerType: any, name: string);
-        end(ownerType: any, name: string, obj: any);
-        getKey(): any;
-        setKey(key: any);
+        end(ownerType: any, name: string);
         setContent(obj: any, key?: any);
         setContentText(text: string);
+        addObject(obj: any, key?: any);
     }
 
     export function createPropertyActor (cur: IActiveObject, extractType: (text: string) => any, extractDP: (text: string) => any): IPropertyActor {
         var state = {
-            $$key: undefined,
             $$coll: undefined,
             $$arr: undefined,
-            $$cprop: undefined
+            $$cprop: undefined,
+            $$objs: undefined,
+            $$objkeys: undefined,
+            $$apropd: undefined,
+            $$aprop: undefined,
+            $$eprop: undefined
         };
 
         function getContentProp (): DependencyProperty {
@@ -65,16 +68,48 @@ module Fayde.Markup.Internal {
             }
         }
 
-        function trySubscribeEvent (name: string, ebe: EventBindingExpression): boolean {
-            var event: nullstone.Event<any> = cur.dobj[name];
-            if (event instanceof nullstone.Event) {
-                if (!(ebe instanceof EventBindingExpression))
-                    throw new XamlParseException("Cannot subscribe to event '" + name + "' without {EventBinding}.");
-                ebe.Init(name);
-                ebe.OnAttached(cur.dobj);
-                return true;
+        function subscribeEvent (name: string, ebe: EventBindingExpression) {
+            if (!(ebe instanceof EventBindingExpression))
+                throw new XamlParseException("Cannot subscribe to event '" + name + "' without {EventBinding}.");
+            ebe.Init(name);
+            ebe.OnAttached(cur.dobj);
+        }
+
+        function prepareProperty (ownerType: any, name: string) {
+            if (cur.dobj) {
+                var otype = ownerType || cur.type;
+                state.$$apropd = DependencyProperty.GetDependencyProperty(otype, name, true);
+                if (!state.$$apropd) {
+                    var ev = cur.dobj[name];
+                    if (ev instanceof nullstone.Event)
+                        state.$$eprop = name;
+                    else
+                        throw new XamlParseException("Cannot locate dependency property [" + otype.name + "].[" + name + "]");
+                }
+            } else if (cur.obj) {
+                if (ownerType && cur.type !== ownerType)
+                    throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
+                state.$$aprop = name;
             }
-            return false;
+        }
+
+        function setProp (propd: DependencyProperty, objs: any[]) {
+            if (propd.IsImmutable) {
+                var co = cur.dobj.GetValue(propd);
+                if (nullstone.ICollection_.is(co)) {
+                    var coll = <nullstone.ICollection<any>>co;
+                    for (var i = 0; i < objs.length; i++) {
+                        coll.Add(objs[i]);
+                    }
+                } else if (typeof co === "array") {
+                    var arr = <any[]>co;
+                    for (var i = 0; i < objs.length; i++) {
+                        arr.push(objs[i]);
+                    }
+                }
+            } else {
+                cur.dobj.SetValue(propd, convert(propd, objs[0]));
+            }
         }
 
         return {
@@ -86,26 +121,21 @@ module Fayde.Markup.Internal {
                 if (state[fullName] === true)
                     throw new XamlParseException("Cannot set '" + fullName + "' more than once.");
                 state[fullName] = true;
+                prepareProperty(ownerType, name);
             },
-            end (ownerType: any, name: string, obj: any) {
-                var otype = ownerType || cur.type;
-                if (!cur.dobj) {
-                    if (ownerType && cur.type !== ownerType)
-                        throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
-                    cur.obj[name] = obj;
+            end (ownerType: any, name: string) {
+                var objs = state.$$objs;
+                var single = objs[0];
+                if (single === undefined)
                     return;
+
+                if (state.$$eprop) {
+                    subscribeEvent(state.$$eprop, single);
+                } else if (state.$$aprop) {
+                    cur.obj[state.$$aprop] = single;
+                } else if (state.$$apropd) {
+                    setProp(state.$$apropd, objs);
                 }
-                var propd = DependencyProperty.GetDependencyProperty(otype, name, true);
-                if (propd)
-                    cur.dobj.SetValue(propd, convert(propd, obj));
-                else if (!trySubscribeEvent(name, obj))
-                    throw new XamlParseException("Cannot locate dependency property [" + otype.name + "].[" + name + "]");
-            },
-            getKey (): any {
-                return state.$$key;
-            },
-            setKey (key: any) {
-                state.$$key = key;
             },
             setContent (obj: any, key?: any) {
                 if (cur.rd) {
@@ -144,6 +174,14 @@ module Fayde.Markup.Internal {
                     return;
                 this.start(cur.type, cprop.Name);
                 cur.dobj.SetValue(cprop, convert(cprop, text));
+            },
+            addObject (obj: any, key?: any) {
+                if (!state.$$objs) {
+                    state.$$objs = [];
+                    state.$$objkeys = [];
+                }
+                state.$$objs.push(obj);
+                state.$$objkeys.push(key);
             }
         };
     }
