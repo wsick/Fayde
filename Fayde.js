@@ -3825,7 +3825,7 @@ var Fayde;
             return {
                 current: undefined,
                 moveNext: function () {
-                    if (prev.moveNext()) {
+                    if (!prev.moveNext()) {
                         this.current = undefined;
                         return false;
                     }
