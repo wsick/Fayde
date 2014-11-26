@@ -110,7 +110,7 @@ module Fayde {
             return {
                 current: undefined,
                 moveNext: function (): boolean {
-                    if (prev.moveNext()) {
+                    if (!prev.moveNext()) {
                         this.current = undefined;
                         return false;
                     }
