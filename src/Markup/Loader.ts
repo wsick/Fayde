@@ -128,8 +128,13 @@ module Fayde.Markup {
                 name = name.substr(ind + 1);
             } else {
                 for (var en = parser.walkUpObjects(); en.moveNext();) {
-                    if (!!(ownerType = en.current.TargetType))
+                    var style: Style = en.current;
+                    if (style instanceof Style) {
+                        ownerType = style.TargetType;
+                        if (!ownerType)
+                            throw new XamlParseException("Style must have a TargetType.");
                         break;
+                    }
                 }
             }
 

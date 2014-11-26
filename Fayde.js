@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.10';
+    Fayde.Version = '0.13.9';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -6959,6 +6959,8 @@ var Fayde;
                 },
                 objectEnd: function (obj, isContent, prev) {
                     last = obj;
+                    if (last instanceof Fayde.Style && !last.TargetType)
+                        throw new XamlParseException("Style must have a TargetType.");
                     var key = pactor.getKey();
                     oactor.end();
                     active.set(prev);
@@ -7010,8 +7012,13 @@ var Fayde;
                     name = name.substr(ind + 1);
                 } else {
                     for (var en = parser.walkUpObjects(); en.moveNext();) {
-                        if (!!(ownerType = en.current.TargetType))
+                        var style = en.current;
+                        if (style instanceof Fayde.Style) {
+                            ownerType = style.TargetType;
+                            if (!ownerType)
+                                throw new XamlParseException("Style must have a TargetType.");
                             break;
+                        }
                     }
                 }
 
