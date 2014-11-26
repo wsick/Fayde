@@ -12365,6 +12365,7 @@ var Fayde;
                 }
                 ImplicitStyleBroker.SetImpl(fe, mask, styles);
             };
+
             ImplicitStyleBroker.SetImpl = function (fe, mask, styles) {
                 if (!styles)
                     return;
@@ -12385,6 +12386,7 @@ var Fayde;
 
                 ImplicitStyleBroker.ApplyStyles(fe, mask, styles);
             };
+
             ImplicitStyleBroker.Clear = function (fe, mask) {
                 var holder = fe.XamlNode;
                 var oldStyles = holder._ImplicitStyles;
@@ -12402,6 +12404,7 @@ var Fayde;
 
                 ImplicitStyleBroker.ApplyStyles(fe, holder._StyleMask & ~mask, newStyles);
             };
+
             ImplicitStyleBroker.ApplyStyles = function (fe, mask, styles) {
                 var holder = fe.XamlNode;
 
@@ -12444,17 +12447,20 @@ var Fayde;
 
             return styles;
         }
+
         function getThemeStyle(fe) {
             if (fe instanceof Fayde.Controls.Control) {
                 var style = fe.GetDefaultStyle();
                 if (style)
                     return style;
             }
-            return Fayde.Theme.FindStyle(fe.DefaultStyleKey);
+            return Fayde.ThemeManager.FindStyle(fe.DefaultStyleKey);
         }
+
         function getAppResourcesStyle(app, fe) {
             return app.Resources.Get(fe.DefaultStyleKey);
         }
+
         function getVisualTreeStyle(fe) {
             var key = fe.DefaultStyleKey;
             var cur = fe;
@@ -15224,7 +15230,7 @@ var Fayde;
             var _this = this;
             if (!this._IsLoaded)
                 return;
-            Fayde.Theme.Change(args.NewValue).then(function () {
+            Fayde.ThemeManager.LoadAsync(args.NewValue).then(function () {
                 return _this._ApplyTheme();
             }, function (err) {
                 return console.error("Could not load theme.", err);
@@ -16140,56 +16146,29 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    var themes = [];
     var Theme = (function () {
-        function Theme(uri) {
+        function Theme(name, libUri) {
             this.Resources = null;
-            if (uri)
-                this.Uri = uri;
+            this.Name = name;
+            this.LibraryUri = libUri;
         }
-        Object.defineProperty(Theme.prototype, "Uri", {
-            get: function () {
-                return this._Uri;
-            },
-            set: function (value) {
-                if (this._Uri)
-                    return;
-                this._Uri = value;
-                themes[value.toString()] = this;
-            },
-            enumerable: true,
-            configurable: true
-        });
-
-
-        Theme.Get = function (url) {
-            return themes[url] || new Theme(new Fayde.Uri(url));
-        };
-
-        Theme.FindStyle = function (defaultStyleKey) {
-            return null;
-        };
-
-        Theme.Change = function (themeName) {
-            return nullstone.async.create(function (resolve, reject) {
-                resolve({});
-            });
-        };
-
-        Theme.prototype.Resolve = function () {
+        Theme.prototype.LoadAsync = function () {
             var _this = this;
-            var uri = this.Uri;
-            if (!uri)
-                return nullstone.async.resolve({});
-            var theme = this;
+            var reqUri = Fayde.ThemeConfig.GetRequestUri(this.LibraryUri, this.Name);
+            if (!reqUri)
+                return nullstone.async.resolve(this);
             return nullstone.async.create(function (resolve, reject) {
-                Fayde.Markup.Resolve(uri).then(function (md) {
+                Fayde.Markup.Resolve(reqUri).then(function (md) {
                     var rd = Fayde.Markup.Load(null, md);
                     if (!(rd instanceof Fayde.ResourceDictionary))
                         reject(new Error("Theme root must be a ResourceDictionary."));
                     Object.defineProperty(_this, "Resources", { value: rd, writable: false });
-                    resolve(theme);
-                }, reject);
+                    resolve(_this);
+                }, function () {
+                    if (Theme.WarnMissing)
+                        console.warn("Failed to load Theme. [" + _this.LibraryUri + "][" + _this.Name + "]");
+                    resolve(_this);
+                });
             });
         };
 
@@ -16202,10 +16181,121 @@ var Fayde;
                 return style;
             return undefined;
         };
+        Theme.WarnMissing = false;
         return Theme;
     })();
     Fayde.Theme = Theme;
     Fayde.CoreLibrary.add(Theme);
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (ThemeConfig) {
+        var configs = {};
+
+        var DEFAULT_TEMPLATE_URI = "lib/<libname>/themes/<themename>.Theme.xml";
+
+        function GetRequestUri(uri, name) {
+            if (Fayde.Uri.isNullOrEmpty(uri))
+                return null;
+            var config = configs[uri.toString()];
+            var templateUri = ((config) ? config.requestTemplateUri : null) || DEFAULT_TEMPLATE_URI;
+            return processTemplate(uri, name, templateUri);
+        }
+        ThemeConfig.GetRequestUri = GetRequestUri;
+
+        function OverrideRequestUri(uri, templateUri) {
+            configs[uri.toString()] = {
+                requestTemplateUri: templateUri
+            };
+        }
+        ThemeConfig.OverrideRequestUri = OverrideRequestUri;
+
+        function processTemplate(uri, name, template) {
+            var libName = uri.host;
+            var rv = template;
+            rv = rv.replace("<libname>", libName);
+            rv = rv.replace("<themename>", name);
+            return rv;
+        }
+
+        OverrideRequestUri(new Fayde.Uri(Fayde.XMLNS), "lib/Fayde/themes/<themename>.theme.xml");
+    })(Fayde.ThemeConfig || (Fayde.ThemeConfig = {}));
+    var ThemeConfig = Fayde.ThemeConfig;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var ThemeManagerImpl = (function () {
+        function ThemeManagerImpl() {
+            this.$$libthemerepos = [];
+            Fayde.TypeManager.libResolver.libraryCreated.on(this.$$onLibraryCreated, this);
+            this.$$libthemerepos.push(new LibraryThemeRepo(new Fayde.Uri(Fayde.XMLNS)));
+        }
+        ThemeManagerImpl.prototype.$$onLibraryCreated = function (sender, args) {
+            this.$$libthemerepos.push(new LibraryThemeRepo(args.library.uri));
+        };
+
+        ThemeManagerImpl.prototype.LoadAsync = function (themeName) {
+            return nullstone.async.many(this.$$libthemerepos.map(function (repo) {
+                return repo.ChangeActive(themeName);
+            }));
+        };
+
+        ThemeManagerImpl.prototype.FindStyle = function (defaultStyleKey) {
+            if (!defaultStyleKey)
+                return null;
+            var uri = defaultStyleKey.$$uri;
+            if (uri) {
+                var repo = this.$$findRepo(uri);
+                if (repo)
+                    return repo.Active.GetImplicitStyle(defaultStyleKey);
+            }
+            return null;
+        };
+
+        ThemeManagerImpl.prototype.$$findRepo = function (uri) {
+            for (var i = 0, repos = this.$$libthemerepos; i < repos.length; i++) {
+                var repo = repos[i];
+                if (repo.Uri.toString() === uri)
+                    return repo;
+            }
+        };
+        return ThemeManagerImpl;
+    })();
+
+    var LibraryThemeRepo = (function () {
+        function LibraryThemeRepo(uri) {
+            this.$$themes = [];
+            Object.defineProperty(this, "Uri", { value: uri, writable: false });
+        }
+        Object.defineProperty(LibraryThemeRepo.prototype, "Active", {
+            get: function () {
+                return this.$$active;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        LibraryThemeRepo.prototype.Get = function (name) {
+            var theme = this.$$themes[name];
+            if (!theme)
+                theme = new Fayde.Theme(name, this.Uri);
+            return theme;
+        };
+
+        LibraryThemeRepo.prototype.ChangeActive = function (name) {
+            var _this = this;
+            var theme = this.Get(name);
+            return nullstone.async.create(function (resolve, reject) {
+                theme.LoadAsync().then(function () {
+                    _this.$$active = theme;
+                    resolve(theme);
+                }, reject);
+            });
+        };
+        return LibraryThemeRepo;
+    })();
+
+    Fayde.ThemeManager = new ThemeManagerImpl();
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -26946,7 +27036,8 @@ var Fayde;
         Bootstrapper.prototype.startApp = function () {
             var _this = this;
             Fayde.Application.GetAsync(this.url).then(function (app) {
-                (Fayde.Application.Current = app).Resolve().then(function (app) {
+                Fayde.Application.Current = app;
+                Fayde.ThemeManager.LoadAsync(app.ThemeName).then(function () {
                     return _this.finishLoad(app);
                 }, function (err) {
                     return _this.finishLoad(null, err);
@@ -26988,61 +27079,88 @@ var Fayde;
         } catch (err) {
             return onComplete(null, err);
         }
-        if (json)
-            configureLibs(json.libs || {});
+        if (json) {
+            libs.configure(json.libs || {});
+            themes.configure(json.themes || {});
+            debug.configure(json.debug || {});
+        }
         onComplete(json);
     }
 
-    function configureLibs(json) {
-        var libs = [];
-        for (var libName in json) {
-            libs.push(getLibConfig(libName, json[libName]));
-        }
-
-        var configObject = {
-            paths: {},
-            deps: [],
-            shim: {},
-            map: {
-                "*": {}
+    var libs;
+    (function (_libs) {
+        function configure(json) {
+            var libs = [];
+            for (var libName in json) {
+                libs.push(getLibConfig(libName, json[libName]));
             }
-        };
-        for (var i = 0; i < libs.length; i++) {
-            setupLibraryConfig(libs[i], configObject);
+
+            var configObject = {
+                paths: {},
+                deps: [],
+                shim: {},
+                map: {
+                    "*": {}
+                }
+            };
+            for (var i = 0; i < libs.length; i++) {
+                setupLibraryConfig(libs[i], configObject);
+            }
+            requirejs.config(configObject);
         }
-        requirejs.config(configObject);
-    }
+        _libs.configure = configure;
 
-    function getLibConfig(libName, libJson) {
-        var path = libJson.path;
-        if (!path)
-            path = "lib/" + libName + "/" + libName;
+        function getLibConfig(libName, libJson) {
+            var path = libJson.path;
+            if (!path)
+                path = "lib/" + libName + "/" + libName;
 
-        return {
-            name: libName,
-            path: path,
-            deps: libJson.deps,
-            exports: libJson.exports
-        };
-    }
+            return {
+                name: libName,
+                path: path,
+                deps: libJson.deps,
+                exports: libJson.exports
+            };
+        }
 
-    function setupLibraryConfig(lib, co) {
-        var libName = lib.name;
+        function setupLibraryConfig(lib, co) {
+            var libName = lib.name;
 
-        co.paths[libName] = lib.path;
+            co.paths[libName] = lib.path;
 
-        var shim = co.shim[libName] = co.shim[libName] || {};
+            var shim = co.shim[libName] = co.shim[libName] || {};
 
-        if (lib.exports)
-            shim.exports = lib.exports;
-        if (lib.deps)
-            shim.deps = lib.deps;
+            if (lib.exports)
+                shim.exports = lib.exports;
+            if (lib.deps)
+                shim.deps = lib.deps;
 
-        co.map['*'][lib.path] = libName;
+            co.map['*'][lib.path] = libName;
 
-        var library = Fayde.TypeManager.resolveLibrary("lib://" + lib.name);
-        library.sourcePath = lib.path;
-    }
+            var library = Fayde.TypeManager.resolveLibrary("lib://" + lib.name);
+            library.sourcePath = lib.path;
+        }
+    })(libs || (libs = {}));
+
+    var themes;
+    (function (themes) {
+        function configure(json) {
+        }
+        themes.configure = configure;
+    })(themes || (themes = {}));
+
+    var debug;
+    (function (debug) {
+        function configure(json) {
+            if (toBoolean(json.warnMissingThemes))
+                Fayde.Theme.WarnMissing = true;
+        }
+        debug.configure = configure;
+
+        function toBoolean(val) {
+            return val === "true" || val === true;
+        }
+    })(debug || (debug = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {

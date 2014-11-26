@@ -29,8 +29,9 @@ module Fayde {
         startApp () {
             Application.GetAsync(this.url)
                 .then(app => {
-                    (Application.Current = app).Resolve()
-                        .then(app => this.finishLoad(app),
+                    Application.Current = app;
+                    ThemeManager.LoadAsync(app.ThemeName)
+                        .then(() => this.finishLoad(app),
                             err => this.finishLoad(null, err));
                 }, err => this.finishLoad(null, err));
         }

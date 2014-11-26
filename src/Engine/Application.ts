@@ -24,7 +24,7 @@ module Fayde {
         private OnThemeNameChanged (args: DependencyPropertyChangedEventArgs) {
             if (!this._IsLoaded)
                 return;
-            Theme.Change(args.NewValue)
+            ThemeManager.LoadAsync(args.NewValue)
                 .then(() => this._ApplyTheme(),
                     err => console.error("Could not load theme.", err));
         }

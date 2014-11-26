@@ -263,16 +263,16 @@
     <FontFamily x:Key="HeaderFontFamily">Segoe UI Light, Lucida Sans Unicode, Verdana</FontFamily>
     <FontFamily x:Key="ContentFontFamily">Segoe UI, Lucida Sans Unicode, Verdana</FontFamily>
 
-    <Double x:Key="ApplicationNameFontSize">50</Double>
-    <Double x:Key="HeaderFontSize">21.333</Double>
-    <Double x:Key="NavigationFontSize">28</Double>
+    <x:Double x:Key="ApplicationNameFontSize">50</x:Double>
+    <x:Double x:Key="HeaderFontSize">21.333</x:Double>
+    <x:Double x:Key="NavigationFontSize">28</x:Double>
 
-    <Double x:Key="ContentFontSize">14</Double>
-    <Double x:Key="HyperlinkFontSize">14</Double>
-    <Double x:Key="LabelFontSize">12</Double>
-    <Double x:Key="ControlTitleFontSize">16</Double>
-    <Double x:Key="ControlTitleBigFontSize">18</Double>
-    <Double x:Key="ControlContentFontSize">10</Double>
+    <x:Double x:Key="ContentFontSize">14</x:Double>
+    <x:Double x:Key="HyperlinkFontSize">14</x:Double>
+    <x:Double x:Key="LabelFontSize">12</x:Double>
+    <x:Double x:Key="ControlTitleFontSize">16</x:Double>
+    <x:Double x:Key="ControlTitleBigFontSize">18</x:Double>
+    <x:Double x:Key="ControlContentFontSize">10</x:Double>
     <!-- FONTS -->
 
     <!--SearchButtonStyle-->

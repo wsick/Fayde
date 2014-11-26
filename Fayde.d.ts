@@ -3265,16 +3265,27 @@ declare module Fayde {
 }
 declare module Fayde {
     class Theme {
-        constructor(uri?: Uri);
-        private _Uri;
-        public Uri : Uri;
+        public Name: string;
+        public LibraryUri: Uri;
         public Resources: ResourceDictionary;
-        static Get(url: string): Theme;
-        static FindStyle(defaultStyleKey: any): Style;
-        static Change(themeName: string): nullstone.async.IAsyncRequest<any>;
-        public Resolve(): nullstone.async.IAsyncRequest<Theme>;
+        static WarnMissing: boolean;
+        constructor(name: string, libUri: Uri);
+        public LoadAsync(): nullstone.async.IAsyncRequest<Theme>;
         public GetImplicitStyle(type: any): Style;
     }
+}
+declare module Fayde {
+    module ThemeConfig {
+        function GetRequestUri(uri: Uri, name: string): string;
+        function OverrideRequestUri(uri: Uri, templateUri: string): void;
+    }
+}
+declare module Fayde {
+    interface IThemeManager {
+        LoadAsync(themeName: string): nullstone.async.IAsyncRequest<any>;
+        FindStyle(defaultStyleKey: any): Style;
+    }
+    var ThemeManager: IThemeManager;
 }
 declare module Fayde {
     class Expression {
