@@ -17,3 +17,4 @@ test/runner.js
 test/runner.js.map
 testsite/lib/
 testsite/.build/
+stress/.build/

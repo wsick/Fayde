@@ -14,14 +14,14 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-open');
     grunt.loadNpmTasks('grunt-nuget');
 
-    var ports = {
-        server: 7001,
-        livereload: 34343
-    };
     var meta = {
         name: 'Fayde'
     };
-
+    var ports = {
+        testsite: 7001,
+        stress: 7002,
+        livereload: 34343
+    };
     var dirs = {
         test: {
             root: 'test',
@@ -32,6 +32,11 @@ module.exports = function (grunt) {
             root: 'testsite',
             build: 'testsite/.build',
             lib: 'testsite/lib'
+        },
+        stress: {
+            root: 'stress',
+            build: 'stress/.build',
+            lib: 'stress/lib'
         }
     };
 
@@ -46,8 +51,9 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('./package.json'),
         clean: {
             bower: ['./lib'],
-            test: ['<%= dirs.test.root %>/lib'],
-            testsite: ['<%= dirs.testsite.root %>/lib']
+            test: [dirs.test.lib],
+            testsite: [dirs.testsite.lib],
+            stress: [dirs.stress.lib]
         },
         setup: {
             fayde: {
@@ -60,40 +66,52 @@ module.exports = function (grunt) {
             },
             test: {
                 files: [
-                    { src: './lib/minerva', dest: './test/lib/minerva' },
-                    { src: './lib/nullstone', dest: './test/lib/nullstone' },
-                    { src: './lib/qunit', dest: './test/lib/qunit' },
-                    { src: './lib/requirejs', dest: './test/lib/requirejs' },
-                    { src: './lib/requirejs-text', dest: './test/lib/requirejs-text' },
-                    { src: './themes', dest: './test/lib/fayde/themes' },
-                    { src: './fayde.js', dest: './test/lib/fayde/fayde.js' },
-                    { src: './fayde.d.ts', dest: './test/lib/fayde/fayde.d.ts' },
-                    { src: './fayde.js.map', dest: './test/lib/fayde/fayde.js.map' },
-                    { src: './src', dest: './test/lib/fayde/src' }
+                    {src: './lib/minerva', dest: './test/lib/minerva'},
+                    {src: './lib/nullstone', dest: './test/lib/nullstone'},
+                    {src: './lib/qunit', dest: './test/lib/qunit'},
+                    {src: './lib/requirejs', dest: './test/lib/requirejs'},
+                    {src: './lib/requirejs-text', dest: './test/lib/requirejs-text'},
+                    {src: './themes', dest: './test/lib/fayde/themes'},
+                    {src: './fayde.js', dest: './test/lib/fayde/fayde.js'},
+                    {src: './fayde.d.ts', dest: './test/lib/fayde/fayde.d.ts'},
+                    {src: './fayde.js.map', dest: './test/lib/fayde/fayde.js.map'},
+                    {src: './src', dest: './test/lib/fayde/src'}
                 ]
             },
             testsite: {
                 files: [
-                    { src: './lib/minerva', dest: './testsite/lib/minerva' },
-                    { src: './lib/nullstone', dest: './testsite/lib/nullstone' },
-                    { src: './lib/qunit', dest: './testsite/lib/qunit' },
-                    { src: './lib/requirejs', dest: './testsite/lib/requirejs' },
-                    { src: './lib/requirejs-text', dest: './testsite/lib/requirejs-text' },
-                    { src: './themes', dest: './testsite/lib/fayde/themes' },
-                    { src: './fayde.js', dest: './testsite/lib/fayde/fayde.js' },
-                    { src: './fayde.d.ts', dest: './testsite/lib/fayde/fayde.d.ts' },
-                    { src: './fayde.js.map', dest: './testsite/lib/fayde/fayde.js.map' },
-                    { src: './src', dest: './testsite/lib/fayde/src' }
+                    {src: './lib/minerva', dest: './testsite/lib/minerva'},
+                    {src: './lib/nullstone', dest: './testsite/lib/nullstone'},
+                    {src: './lib/requirejs', dest: './testsite/lib/requirejs'},
+                    {src: './lib/requirejs-text', dest: './testsite/lib/requirejs-text'},
+                    {src: './themes', dest: './testsite/lib/fayde/themes'},
+                    {src: './fayde.js', dest: './testsite/lib/fayde/fayde.js'},
+                    {src: './fayde.d.ts', dest: './testsite/lib/fayde/fayde.d.ts'},
+                    {src: './fayde.js.map', dest: './testsite/lib/fayde/fayde.js.map'},
+                    {src: './src', dest: './testsite/lib/fayde/src'}
+                ]
+            },
+            stress: {
+                files: [
+                    {src: './lib/minerva', dest: './stress/lib/minerva'},
+                    {src: './lib/nullstone', dest: './stress/lib/nullstone'},
+                    {src: './lib/requirejs', dest: './stress/lib/requirejs'},
+                    {src: './lib/requirejs-text', dest: './stress/lib/requirejs-text'},
+                    {src: './themes', dest: './stress/lib/fayde/themes'},
+                    {src: './fayde.js', dest: './stress/lib/fayde/fayde.js'},
+                    {src: './fayde.d.ts', dest: './stress/lib/fayde/fayde.d.ts'},
+                    {src: './fayde.js.map', dest: './stress/lib/fayde/fayde.js.map'},
+                    {src: './src', dest: './stress/lib/fayde/src'}
                 ]
             },
             localnullstone: {
                 files: [
-                    { src: '../nullstone', dest: './lib/nullstone' }
+                    {src: '../nullstone', dest: './lib/nullstone'}
                 ]
             },
             localminerva: {
                 files: [
-                    { src: '../minerva', dest: './lib/minerva' }
+                    {src: '../minerva', dest: './lib/minerva'}
                 ]
             }
         },
@@ -146,21 +164,51 @@ module.exports = function (grunt) {
                     target: 'es5',
                     module: 'amd'
                 }
+            },
+            stress: {
+                src: [
+                    'typings/*.d.ts',
+                    '<%= dirs.stress.root %>/**/*.ts',
+                    '!<%= dirs.stress.lib %>/**/*.ts',
+                    '<%= dirs.stress.lib %>/nullstone/dist/nullstone.d.ts',
+                    '<%= dirs.stress.lib %>/minerva/minerva.d.ts',
+                    '<%= dirs.stress.lib %>/fayde/fayde.d.ts'
+                ],
+                dest: '<%= dirs.stress.build %>',
+                options: {
+                    target: 'es5',
+                    basePath: '<%= dirs.stress.root %>',
+                    module: 'amd',
+                    sourceMap: true
+                }
             }
         },
         qunit: {
             all: ['<%= dirs.test.root %>/*.html']
         },
         connect: {
-            server: {
+            testsite: {
                 options: {
                     port: ports.server,
                     base: dirs.testsite.root,
                     middleware: function (connect) {
                         return [
-                            connect_livereload({ port: ports.livereload }),
+                            connect_livereload({port: ports.livereload}),
                             mount(connect, dirs.testsite.build),
                             mount(connect, dirs.testsite.root)
+                        ];
+                    }
+                }
+            },
+            stress: {
+                options: {
+                    port: ports.stress,
+                    base: dirs.stress.root,
+                    middleware: function (connect) {
+                        return [
+                            connect_livereload({port: ports.livereload}),
+                            mount(connect, dirs.stress.build),
+                            mount(connect, dirs.stress.root)
                         ];
                     }
                 }
@@ -172,11 +220,11 @@ module.exports = function (grunt) {
                 tasks: ['typescript:build']
             },
             testsitets: {
-                files: ['testsite/**/*.ts'],
+                files: ['testsite/**/*.ts', '!testsite/lib/**/*.ts'],
                 tasks: ['typescript:testsite']
             },
             testsitejs: {
-                files: ['testsite/**/*.js'],
+                files: ['testsite/**/*.js', '!testsite/lib/**/*.js'],
                 options: {
                     livereload: ports.livereload
                 }
@@ -186,16 +234,28 @@ module.exports = function (grunt) {
                 options: {
                     livereload: ports.livereload
                 }
+            },
+            stressts: {
+                files: ['stress/**/*.ts', '!stress/lib/**/*.ts'],
+                tasks: ['typescript:stress']
+            },
+            stressjs: {
+                files: ['stress/**/*.js', '!stress/lib/**/*.js'],
+                options: {
+                    liverelaod: ports.livereload
+                }
             }
         },
         open: {
             testsite: {
-                path: 'http://localhost:<%= ports.server %>/index.html'
+                path: 'http://localhost:<%= ports.testsite %>/index.html'
+            },
+            stress: {
+                path: 'http://localhost:<%= ports.stress %>/index.html'
             }
         },
         version: {
-            bump: {
-            },
+            bump: {},
             apply: {
                 src: './build/_VersionTemplate._ts',
                 dest: './src/_Version.ts'
@@ -219,12 +279,13 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', ['typescript:build']);
     grunt.registerTask('test', ['typescript:build', 'typescript:test', 'qunit']);
-    grunt.registerTask('testsite', ['typescript:build', 'typescript:testsite', 'connect', 'open', 'watch']);
+    grunt.registerTask('testsite', ['typescript:build', 'typescript:testsite', 'connect:testsite', 'open:testsite', 'watch']);
+    grunt.registerTask('stress', ['typescript:build', 'typescript:stress', 'connect:stress', 'open:stress', 'watch']);
     setup(grunt);
     version(grunt);
     grunt.registerTask('package', ['nugetpack:dist']);
     grunt.registerTask('publish', ['nugetpack:dist', 'nugetpush:dist']);
-    grunt.registerTask('lib:reset', ['clean', 'setup', 'symlink:test', 'symlink:testsite']);
+    grunt.registerTask('lib:reset', ['clean', 'setup', 'symlink:test', 'symlink:testsite', 'symlink:stress']);
     grunt.registerTask('link:nullstone', ['symlink:localnullstone']);
     grunt.registerTask('link:minerva', ['symlink:localminerva']);
     grunt.registerTask('dist:upbuild', ['version:bump', 'version:apply', 'typescript:build']);
