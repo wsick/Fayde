@@ -31,11 +31,12 @@
                     <div class="navbar-collapse collapse">
                         <ul class="nav navbar-nav">
                             <li><a href="#feature1">Silverlight Everywhere</a></li>
-                            <li><a href="#feature2">Getting Started</a></li>
-                            <li><a href="#feature3">Web, Desktop, and Mobile</a></li>
-                            <li><a href="#feature4">MVVM</a></li>
-                            <li><a href="#feature5">Quickstart</a></li>
-                            <li><a href="#feature6">Migrate</a></li>
+                            <li><a href="#feature2">Get Started</a></li>
+                            <li><a href="#feature3">Feature Support</a></li>
+                            <li><a href="#feature4">Coming Soon</a></li>
+                            <li><a href="#feature5">Migrate</a></li>
+                            <li><a href="#feature6">Why Fayde?</a></li>
+                            <!--
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
@@ -48,6 +49,7 @@
                                     <li><a href="#">One more separated link</a></li>
                                 </ul>
                             </li>
+                            -->
                         </ul>
                     </div>
                 </div>
@@ -105,7 +107,7 @@
                         <div style="text-align: center;">
                             <h2 style="margin-top: 0; text-shadow: 0 1px 1px rgba(0,0,0,.2);">Get Connected</h2>
                         </div>
-                        <p>Sign up below to stay in touch with the Fayde team and contribute to the direction of this product.</p>
+                        <p>Sign up to stay in touch with the Fayde team and contribute to the direction of this product.</p>
                         <form action="//wsick.us9.list-manage.com/subscribe/post?u=de8fea8afe5b5807188561bca&amp;id=cdc1dc89b1" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate style="padding: 0;">
                             <div id="mc_embed_signup_scroll">
                                 <table style="width: 100%;">
@@ -129,111 +131,140 @@
         </div>
         <div class="container feature" id="feature2">
             <div class="jumbotron">
-                <div class="column">
-                    <h2>Getting Started</h2>
-                    <p>
-                        The easiest way to start developing with Fayde is to use the <a target="_blank" href="http://yeoman.io/">Yeoman</a> generator the Fayde team has developed.
-                        This will allow you to setup and run a new Fayde application with just a couple commands.
-                    </p>
-                    <ol>
-                        <li>
-                            <h4>Installing Dependencies</h4>
-                            <p>
-                                If you already have npm, Grunt, and Yeoman installed you can move on to Step 2.
-                                If not, please follow the directions below.
-                            </p>
-                            <p><a target="_blank" href="https://www.joyent.com/blog/installing-node-and-npm/">Node and npm</a></p>
-                            <p><a target="_blank" href="http://gruntjs.com/installing-grunt">Grunt</a></p>
-                            <p><a target="_blank" href="http://yeoman.io/codelab/setup.html">Yeoman</a></p>
-                        </li>
-                        <li>
-                            <h4>Yo Fayde</h4>
-                            <p>From your command prompt, navigate to the directory where you would like to create your application.</p>
-                            <p>
-                                Then run "yo fayde" in order to create your application.
-                                You will be asked a couple questions and in most cases you can just hit ENTER to keep the defaults.
-                            </p>
-                        </li>
-                        <li>
-                            <h4>Grunt Serve</h4>
-                            <p>
-                                Fayde projects are setup as <a target="_blank" href="http://www.typescriptlang.org/">Typescript</a> projects.
-                                Running "grunt" from the command line will compile the Typescript into Javascript.
-                                To view your application type "grunt serve" from the command line. This will open up your default browser and load the Fayde application.
-                            </p>
-                        </li>
-                        <li>
-                            <h4>Develop Your Application</h4>
-                            <p>
-
-                            </p>
-                        </li>
-                    </ol>
-                </div>
-                <div class="column" style="text-align: center;">
-                    <a target="_blank" href="http://yeoman.io/">
-                        <img src="images/yeoman-fayde.png" style="width: 500px;">
-                    </a>
-                    <img src="images/yo-fayde.png" style="width: 500px; margin-top: 120px;">
-                    <img src="images/fayde-project.png" style="width: 350px;">
-                    <img src="images/livereload.png" style="width: 400px;">
-                </div>
+                <a style="float: right;" target="_blank" href="http://yeoman.io/">
+                    <img src="images/yeoman-fayde.png" style="width: 500px;">
+                </a>
+                <h2>Get Started</h2>
+                <p>
+                    The easiest way to start developing with Fayde is to use the <a target="_blank" href="http://yeoman.io/">Yeoman</a> generator the Fayde team has developed.
+                    This will allow you to setup and run a new Fayde application with just a couple commands.
+                </p>
+                <ol class="steps">
+                    <li>
+                        <h4>Install Dependencies</h4>
+                        <p>
+                            If you already have npm, Grunt, and Yeoman installed you can move on to Step 2.
+                            If not, please follow the directions below.
+                        </p>
+                        <p><a target="_blank" href="https://www.joyent.com/blog/installing-node-and-npm/">Node and npm</a></p>
+                        <p><a target="_blank" href="http://gruntjs.com/installing-grunt">Grunt</a></p>
+                        <p><a target="_blank" href="http://yeoman.io/codelab/setup.html">Yeoman</a></p>
+                    </li>
+                    <li style="min-height: 240px;">
+                        <img src="images/yo-fayde.png" style="width: 530px; margin-top: -20px; margin-right: -15px; margin-bottom: 50px; float: right;">
+                        <h4>Yo Fayde</h4>
+                        <p>From your command prompt, navigate to the directory where you would like to create your application.</p>
+                        <p>
+                            Run "yo fayde" in order to create your application.
+                            Enter a name for your application and choose whether you would like to include two optional modules:
+                        </p>
+                        <p>- <a target="_blank" href="https://github.com/BSick7/exjs/wiki">exjs</a> is a Typescript library that allows you to use Linq style syntax when working with Arrays.</p>
+                        <p>- <a target="_blank" href="https://github.com/BSick7/Fayde.Controls">Fayde.Controls</a> is a controls library for Fayde with things like TreeView, Menu, and TabControl.</p>
+                    </li>
+                    <li style="min-height: 400px;">
+                        <img src="images/livereload.png" style="width: 560px; margin-right: -30px; margin-top: -30px; float: right;">
+                        <h4>Grunt Serve</h4>
+                        <p>
+                            Fayde projects are set up as <a target="_blank" href="http://www.typescriptlang.org/">Typescript</a> projects.
+                            Running "grunt" from the command line will compile the Typescript into Javascript.
+                            To run your application, type "grunt serve" from the command line. This will open up your default browser and load the Fayde application.
+                        </p>
+                    </li>
+                    <li>
+                        <img src="images/fayde-dev.png" style="width: 540px; margin-right: -20px; margin-top: -20px; float: right;">
+                        <h4>Develop Your Application</h4>
+                        <p>
+                            Start building your application and watch it change as you type your XAML.
+                            Live-reload is setup so the browser will reload and display your changes as soon as you save.
+                        </p>
+                        <p>
+                            More documentation and tutorials are coming soon.
+                            Source code from the demos above is available to help you begin developing your Fayde applications.
+                        </p>
+                    </li>
+                </ol>
             </div>
         </div>
         <div class="container feature" id="feature3">
             <div class="jumbotron">
                 <div class="column">
-                    <h2>Rich Applications</h2>
-                    <p>
-                        Until now, there have been two choices:
-                        <ol>
-                            <li style="margin-bottom: 20px;">
-                                <h4>Web Application</h4>
-                                <ul>
-                                    <li>Great for reaching all platforms, easy deployment, and developing your application once.</li>
-                                    <li>However, HTML and CSS are designed for documents and not applications, your interfaces and user experience are compromised, and time is wasted on browser hacks and compatibility.</li>
-                                </ul>
-                            </li>
-                            <li style="margin-bottom: 20px;">
-                                <h4>Desktop Application</h4>
-                                <ul>
-                                    <li>Full support for interface design and great developer environment.</li>
-                                    <li>However, it must be developed for each platform and is difficult to deploy.</li>
-                                </ul>
-                            </li>
-                        </ol>
-                        With Fayde you can unleash the capabilities of your application, development team, and design team.
-                        Build your applications with all the benefits of being web based but eliminate the problems of HTML and CSS.
-                        Fayde is fully extensible so not only do you get all the controls developed by the core team but you can also build your own.
-
-                    </p>
-                </div>
-                <div class="column">
-                    <div style="width: 80%; margin: auto; border: 1px solid #DDDDDD; background-color: white; border-radius: 4px; padding: 10px;">
-                        <a target="_blank" href="http://pchiusano.github.io/2014-07-02/css-is-unnecessary.html">
-                            <img src="images/brett_victor.png" style="width: 100%;">
-                        </a>
-                    </div>
+                    <h2>Feature Support</h2>
+                    <p>Fayde has been initially developed as a direct port of Silverlight and includes all major features:</p>
+                    <table class="data" style="width:100%">
+                        <tr style="height: 50px;">
+                            <td style="width: 25%;"><h4>Core Controls</h4></td>
+                            <td>
+                                Border, TextBox, TextBlock,  ProgressBar, Button, RepeatButton, ToggleButton,
+                                RadioButton, CheckBox, PasswordBox, Slider, ScrollViewer, ComboBox, ListBox, TreeView,
+                                TabControl, Image, and more
+                            </td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>Layout Panels</h4></td>
+                            <td>StackPanel, WrapPanel, Grid, and Canvas</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>Binding Support</h4></td>
+                            <td>Binding, Value Converters, RelativeSource, Mode, StringFormat</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>Styles and Templates</h4></td>
+                            <td>ResourceDictionary, Theme, Style, DataTemplate, ControlTemplate, HierarchicalDataTemplate, ItemsPanelTemplate</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>Animation Support</h4></td>
+                            <td>VisualStateManager, Storyboard, and all animations</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>Shapes and Transforms</h4></td>
+                            <td>Rectangle, Line, Ellipse, and Path using vector graphics</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>Page Based Navigation</h4></td>
+                            <td>Page, Frame, HyperlinkButton, UriMapper, and Browser History</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>Colors and Gradients</h4></td>
+                            <td>TileBrush, ImageBrush, SolidColorBrush, LinearGradientBrush</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <br>
+                    <p>In addition, Fayde has added support for:</p>
+                    <table class="data" style="width: 100%;">
+                        <tr style="height: 50px;">
+                            <td style="width: 25%;"><h4>GridItemsControl</h4></td>
+                            <td>A new control with similar features to a DataGrid but constructed in a much more modular, extensible, and stylable manner.</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>Panel</h4></td>
+                            <td>An abstract control in Silverlight, it can be used in Fayde to do layering.</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>Multi-Touch Support</h4></td>
+                            <td>Develop your applications for laptops, tablets, and phones.</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>EventBinding</h4></td>
+                            <td>Allows the binding of events such as keystrokes directly to commands.</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>ItemsControlParent</h4></td>
+                            <td>A new RelativeSource that allows binding to the ItemsControl from the ItemTemplate.</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>Custom Two-Way Binding</h4></td>
+                            <td>Support for using two-way bindings when building your own custom controls.</td>
+                        </tr>
+                        <tr style="height: 50px;">
+                            <td><h4>Routing</h4></td>
+                            <td>A more advanced way to do page-based navigation with MVVM.</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
         <div class="container feature" id="feature4">
-            <div class="jumbotron">
-                <div class="column">
-                    <img src="images/js-logo.png" style="width: 100px;">
-                    <img src="images/typescript-logo.png" style="width: 100px;">
-                    <img src="images/node-webkit-logo.png" style="width: 100px;">
-                </div>
-                <div class="column">
-                    <h2>Web, Desktop, and Mobile</h2>
-                    <p>
-                        Fayde is an application framework written entirely in <a target="_blank" style="text-decoration: underline; color: #76858E;" href="http://www.typescriptlang.org/">Typescript</a> and compiled to Javascript.
-
-                    </p>
-                </div>
-            </div>
-        </div>
-        <div class="container feature" id="feature5">
             <div class="jumbotron">
                 <h2>MVVM - Model View ViewModel</h2>
                 <a href="https://angularjs.org/">AngularJS</a>
@@ -241,7 +272,7 @@
                 <a href="http://knockoutjs.com/">Knockout</a>
             </div>
         </div>
-        <div class="container feature" id="feature6">
+        <div class="container feature" id="feature5">
             <div class="jumbotron" style="text-align: right;">
                 <h2>XAML</h2>
             </div>
@@ -275,16 +306,53 @@
                 }
             </code></pre>
         </div>
-        <div class="container feature" id="feature7">
+        <div class="container feature" id="feature6">
             <div class="jumbotron">
                 <h2>Migrate Silverlight Applications</h2>
                 <a href="https://github.com/BSick7/Fayde">Fayde on Github</a>
             </div>
         </div>
-        <div class="container feature" id="feature8">
+        <div class="container feature" id="feature7">
             Take your designs straight to the web
             Designers can rapidly build real working prototypes
             Develop the UI seperate from your backend
+        </div>
+        <div class="container feature" id="feature8">
+            <div class="jumbotron">
+                <div class="column">
+                    <h2>Why Fayde?</h2>
+                    <p>
+                        Until now, there have been two choices:
+                    <ol>
+                        <li style="margin-bottom: 20px;">
+                            <h4>Web Application</h4>
+                            <ul>
+                                <li>Great for reaching all platforms, easy deployment, and developing your application once.</li>
+                                <li>However, HTML and CSS are designed for documents and not applications, your interfaces and user experience are compromised, and time is wasted on browser hacks and compatibility.</li>
+                            </ul>
+                        </li>
+                        <li style="margin-bottom: 20px;">
+                            <h4>Desktop Application</h4>
+                            <ul>
+                                <li>Full support for interface design and great developer environment.</li>
+                                <li>However, it must be developed for each platform and is difficult to deploy.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    With Fayde you can unleash the capabilities of your application, development team, and design team.
+                    Build your applications with all the benefits of being web based but eliminate the problems of HTML and CSS.
+                    Fayde is fully extensible so not only do you get all the controls developed by the core team but you can also build your own.
+
+                    </p>
+                </div>
+                <div class="column">
+                    <div style="width: 80%; margin: auto; border: 1px solid #DDDDDD; background-color: white; border-radius: 4px; padding: 10px;">
+                        <a target="_blank" href="http://pchiusano.github.io/2014-07-02/css-is-unnecessary.html">
+                            <img src="images/brett_victor.png" style="width: 100%;">
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="footer">
             Fayde is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.

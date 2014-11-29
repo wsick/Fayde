@@ -153,23 +153,27 @@ input#mc_embedded_subscribe:focus {
     color: #ffb241;
 }
 table.data {
-    background-color: white;
+    background-color: rgba(255, 255, 255, .5);
     border-collapse: collapse;
     border: 1px solid #AAAAAA;
 }
 table.data td,
 table.data th {
-    border: solid 1px #AAAAAA;
+    border-bottom: solid 1px #AAAAAA;
     padding: 4px;
 }
 table.data th {
     color: #777777;
     background-color: #ededed;
 }
+table.data td h4 {
+    margin-bottom: 0;
+    margin-left: 10px;
+}
 p a {
     text-decoration: underline;
     color: #76858E;
 }
-ol li {
+ol.steps li {
     margin-top: 40px;
 }
