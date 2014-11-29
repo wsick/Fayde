@@ -70,7 +70,7 @@ function createTimingString (ms: number): string {
 
 function calcStdDev (all: number[], total: number): number {
     var avg = total / all.length;
-    return Math.sqrt(all.reduce(ms => Math.pow(ms - avg, 2), 0) / all.length);
+    return Math.sqrt(all.reduce((agg, ms) => agg + Math.pow(ms - avg, 2), 0) / all.length);
 }
 
 export = StressTest;
