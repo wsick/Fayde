@@ -6957,9 +6957,8 @@ var Fayde;
                     active.set(obj);
                     oactor.start();
                 },
-                objectEnd: function (obj, isContent, prev) {
+                objectEnd: function (obj, key, isContent, prev) {
                     last = obj;
-                    var key = pactor.getKey();
                     oactor.end();
                     active.set(prev);
                     if (!active.obj)
@@ -6977,9 +6976,6 @@ var Fayde;
                 },
                 name: function (name) {
                     active.setName(name);
-                },
-                key: function (key) {
-                    pactor.setKey(key);
                 },
                 propertyStart: function (ownerType, propName) {
                     pactor.start(ownerType, propName);
@@ -20085,7 +20081,6 @@ var Fayde;
                     prop: undefined,
                     eprop: undefined,
                     incontent: undefined,
-                    key: undefined,
                     content: {
                         count: 0,
                         coll: undefined,
@@ -20295,12 +20290,6 @@ var Fayde;
                             verify(cur.type, cprop.Name);
                             cur.dobj.SetValue(cprop, convert(cprop, text));
                         }
-                    },
-                    getKey: function () {
-                        return state.key;
-                    },
-                    setKey: function (key) {
-                        state.key = key;
                     }
                 };
             }

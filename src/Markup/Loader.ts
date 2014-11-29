@@ -77,9 +77,8 @@ module Fayde.Markup {
                     active.set(obj);
                     oactor.start();
                 },
-                objectEnd: (obj, isContent, prev) => {
+                objectEnd: (obj, key, isContent, prev) => {
                     last = obj;
-                    var key = pactor.getKey();
                     oactor.end();
                     active.set(prev);
                     if (!active.obj)
@@ -97,9 +96,6 @@ module Fayde.Markup {
                 },
                 name: (name) => {
                     active.setName(name);
-                },
-                key: (key) => {
-                    pactor.setKey(key);
                 },
                 propertyStart: (ownerType, propName) => {
                     pactor.start(ownerType, propName);
