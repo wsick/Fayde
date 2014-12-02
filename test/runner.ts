@@ -7,14 +7,18 @@ module runner {
         ".build/tests/XamlNodeTests",
         ".build/tests/ProviderTests",
         ".build/tests/DependencyPropertyTests",
-        ".build/tests/MarkupLoadTests",
         ".build/tests/DataTemplateTests",
         ".build/tests/TransformTests",
         ".build/tests/TimelineTests",
         ".build/tests/ItemContainersManagerTests",
         ".build/tests/BindingTests",
         ".build/tests/UriMapperTests",
-        ".build/tests/DeepObservableCollectionTests"
+        ".build/tests/DeepObservableCollectionTests",
+
+        ".build/tests/Markup/Basic",
+        ".build/tests/Markup/Controls",
+        ".build/tests/Markup/Framework",
+        ".build/tests/Markup/Media"
     ];
 
     Fayde.LoadConfigJson((config, err) => {
