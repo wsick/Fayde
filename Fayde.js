@@ -6888,7 +6888,7 @@ var Fayde;
             };
 
             FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
-                var uie = LoadImpl(bindingSource, this.$$markup, bindingSource);
+                var uie = LoadImpl(bindingSource, this.$$markup, this.$$resources, bindingSource);
                 if (!(uie instanceof Fayde.UIElement))
                     throw new XamlParseException("Template root visual is not a UIElement.");
                 return uie;
@@ -6902,6 +6902,10 @@ var Fayde;
                 ft.$$markup = Markup.CreateXaml(root);
         }
 
+        function setResources(ft, res) {
+            ft.$$resources = res;
+        }
+
         function LoadXaml(initiator, xaml) {
             var markup = Markup.CreateXaml(xaml);
             return Load(initiator, markup);
@@ -6913,7 +6917,7 @@ var Fayde;
         }
         Markup.Load = Load;
 
-        function LoadImpl(initiator, xm, bindingSource) {
+        function LoadImpl(initiator, xm, resources, bindingSource) {
             var oresolve = {
                 isPrimitive: false,
                 type: undefined
@@ -6923,6 +6927,7 @@ var Fayde;
             var active = Markup.Internal.createActiveObject(namescope, bindingSource);
             var pactor = Markup.Internal.createPropertyActor(active, extractType, extractDP);
             var oactor = Markup.Internal.createObjectActor(pactor);
+            var ractor = Markup.Internal.createResourcesActor(active);
 
             var last;
             var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX).on({
@@ -6935,6 +6940,8 @@ var Fayde;
                     var obj = new (type)();
                     if (obj instanceof FrameworkTemplate)
                         parser.skipBranch();
+                    else if (obj instanceof Markup.StaticResource)
+                        obj.setResources(resources);
                     return obj;
                 },
                 resolvePrimitive: function (type, text) {
@@ -6946,19 +6953,22 @@ var Fayde;
                 },
                 branchSkip: function (root, obj) {
                     if (obj instanceof FrameworkTemplate) {
-                        last = obj;
+                        var ft = last = obj;
                         var err = obj.Validate();
                         if (err)
                             throw new XamlParseException(err);
-                        setTemplateRoot(obj, root);
+                        setTemplateRoot(ft, root);
+                        setResources(ft, ractor.get());
                     }
                 },
                 object: function (obj, isContent) {
                     active.set(obj);
                     oactor.start();
+                    ractor.start();
                 },
                 objectEnd: function (obj, key, isContent, prev) {
                     last = obj;
+                    ractor.end();
                     oactor.end();
                     active.set(prev);
                     if (!active.obj)
@@ -20302,6 +20312,38 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Markup) {
+        (function (Internal) {
+            function createResourcesActor(cur) {
+                var stack = [];
+                return {
+                    start: function () {
+                        if (cur.rd)
+                            stack.push(cur.rd);
+                    },
+                    end: function () {
+                        if (cur.rd)
+                            stack.pop();
+                    },
+                    get: function () {
+                        var res = stack.slice(0);
+                        if (cur.dobj instanceof Fayde.FrameworkElement) {
+                            var crd = cur.dobj.ReadLocalValue(Fayde.FrameworkElement.ResourcesProperty);
+                            if (crd)
+                                res.push(crd);
+                        }
+                        return res;
+                    }
+                };
+            }
+            Internal.createResourcesActor = createResourcesActor;
+        })(Markup.Internal || (Markup.Internal = {}));
+        var Internal = Markup.Internal;
+    })(Fayde.Markup || (Fayde.Markup = {}));
+    var Markup = Fayde.Markup;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Markup) {
         var XamlMarkup = nullstone.markup.xaml.XamlMarkup;
 
         function Resolve(uri) {
@@ -20328,6 +20370,9 @@ var Fayde;
             };
 
             StaticResource.prototype.transmute = function (os) {
+                var res = this.$$resources;
+                this.$$resources = undefined;
+
                 var key = this.ResourceKey;
                 var rd;
                 for (var i = os.length - 1; i >= 0; i--) {
@@ -20344,7 +20389,17 @@ var Fayde;
                         return o;
                 }
 
+                for (var i = res ? (res.length - 1) : -1; i >= 0; i--) {
+                    var o = res[i].Get(key);
+                    if (o !== undefined)
+                        return o;
+                }
+
                 throw new Error("Could not resolve StaticResource: '" + key + "'.");
+            };
+
+            StaticResource.prototype.setResources = function (resources) {
+                this.$$resources = resources;
             };
             return StaticResource;
         })();

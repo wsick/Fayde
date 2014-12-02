@@ -1531,6 +1531,7 @@ declare module Fayde.Controls {
 declare module Fayde.Markup {
     class FrameworkTemplate extends DependencyObject {
         private $$markup;
+        private $$resources;
         public Validate(): string;
         public GetVisualTree(bindingSource: DependencyObject): UIElement;
     }
@@ -3878,6 +3879,14 @@ declare module Fayde.Markup.Internal {
     }
     function createPropertyActor(cur: IActiveObject, extractType: (text: string) => any, extractDP: (text: string) => any): IPropertyActor;
 }
+declare module Fayde.Markup.Internal {
+    interface IResourcesActor {
+        start(): any;
+        end(): any;
+        get(): ResourceDictionary[];
+    }
+    function createResourcesActor(cur: IActiveObject): IResourcesActor;
+}
 declare module Fayde.Markup {
     function Resolve(uri: string): any;
     function Resolve(uri: Uri): any;
@@ -3885,8 +3894,10 @@ declare module Fayde.Markup {
 declare module Fayde.Markup {
     class StaticResource implements nullstone.markup.IMarkupExtension {
         public ResourceKey: string;
+        private $$resources;
         public init(val: string): void;
         public transmute(os: any[]): any;
+        public setResources(resources: ResourceDictionary[]): void;
     }
 }
 declare module Fayde.Media.Animation {

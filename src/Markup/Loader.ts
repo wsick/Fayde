@@ -1,13 +1,14 @@
 module Fayde.Markup {
     export class FrameworkTemplate extends DependencyObject {
         private $$markup: nullstone.markup.Markup<any>;
+        private $$resources: ResourceDictionary[];
 
         Validate (): string {
             return "";
         }
 
         GetVisualTree (bindingSource: DependencyObject): UIElement {
-            var uie = LoadImpl<UIElement>(bindingSource, this.$$markup, bindingSource);
+            var uie = LoadImpl<UIElement>(bindingSource, this.$$markup, this.$$resources, bindingSource);
             if (!(uie instanceof UIElement))
                 throw new XamlParseException("Template root visual is not a UIElement.");
             return uie;
@@ -17,6 +18,10 @@ module Fayde.Markup {
     function setTemplateRoot (ft: FrameworkTemplate, root: any) {
         if (root instanceof Element)
             (<any>ft).$$markup = CreateXaml(root);
+    }
+
+    function setResources (ft: FrameworkTemplate, res: ResourceDictionary[]) {
+        (<any>ft).$$resources = res;
     }
 
     export function LoadXaml<T extends XamlObject>(initiator: DependencyObject, xaml: string): T;
@@ -30,7 +35,7 @@ module Fayde.Markup {
         return LoadImpl<T>(initiator, xm);
     }
 
-    function LoadImpl<T>(initiator: DependencyObject, xm: nullstone.markup.Markup<any>, bindingSource?: DependencyObject): T {
+    function LoadImpl<T>(initiator: DependencyObject, xm: nullstone.markup.Markup<any>, resources?: ResourceDictionary[], bindingSource?: DependencyObject): T {
         var oresolve: nullstone.IOutType = {
             isPrimitive: false,
             type: undefined
@@ -40,6 +45,7 @@ module Fayde.Markup {
         var active = Internal.createActiveObject(namescope, bindingSource);
         var pactor = Internal.createPropertyActor(active, extractType, extractDP);
         var oactor = Internal.createObjectActor(pactor);
+        var ractor = Internal.createResourcesActor(active);
 
         var last: any;
         var parser = xm.createParser()
@@ -55,6 +61,8 @@ module Fayde.Markup {
                     var obj = new (type)();
                     if (obj instanceof FrameworkTemplate)
                         parser.skipBranch();
+                    else if (obj instanceof StaticResource)
+                        (<StaticResource>obj).setResources(resources);
                     return obj;
                 },
                 resolvePrimitive: (type, text) => {
@@ -66,19 +74,22 @@ module Fayde.Markup {
                 },
                 branchSkip: (root: any, obj: any) => {
                     if (obj instanceof FrameworkTemplate) {
-                        last = obj;
+                        var ft: FrameworkTemplate = last = obj;
                         var err = obj.Validate();
                         if (err)
                             throw new XamlParseException(err);
-                        setTemplateRoot(<FrameworkTemplate>obj, root);
+                        setTemplateRoot(ft, root);
+                        setResources(ft, ractor.get());
                     }
                 },
                 object: (obj, isContent) => {
                     active.set(obj);
                     oactor.start();
+                    ractor.start();
                 },
                 objectEnd: (obj, key, isContent, prev) => {
                     last = obj;
+                    ractor.end();
                     oactor.end();
                     active.set(prev);
                     if (!active.obj)
