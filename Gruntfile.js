@@ -189,7 +189,7 @@ module.exports = function (grunt) {
         connect: {
             testsite: {
                 options: {
-                    port: ports.server,
+                    port: ports.testsite,
                     base: dirs.testsite.root,
                     middleware: function (connect) {
                         return [
