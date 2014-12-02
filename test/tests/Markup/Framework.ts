@@ -1,8 +1,10 @@
 export function load () {
     QUnit.module("Markup Load Tests");
 
+    var nsdecl = "xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\"";
+
     test("FrameworkElement Resources", () => {
-        var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        var xaml = "<StackPanel " + nsdecl + ">"
             + "<StackPanel.Resources>"
             + "<Thickness x:Key=\"SomeThickness\">1,2,3,4</Thickness>"
             + "</StackPanel.Resources>"
@@ -55,7 +57,7 @@ export function load () {
     });
 
     test("Setter+Template Binding", () => {
-        var xaml = "<CheckBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        var xaml = "<CheckBox " + nsdecl + ">"
             + "<CheckBox.Style>"
             + "<Style TargetType=\"CheckBox\">"
             + "<Setter Property=\"HorizontalContentAlignment\" Value=\"Right\" />"
@@ -76,7 +78,7 @@ export function load () {
         strictEqual(cp.HorizontalAlignment, Fayde.HorizontalAlignment.Right, "HorizontalAlignment");
 
 
-        xaml = "<CheckBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        xaml = "<CheckBox " + nsdecl + ">"
         + "<CheckBox.Style>"
         + "<Style TargetType=\"CheckBox\">"
         + "<Setter Property=\"BorderThickness\" Value=\"1\" />"
@@ -96,8 +98,28 @@ export function load () {
         strictEqual(r.StrokeThickness, 1, "StrokeThickness");
     });
 
+    test("StaticResource external context", () => {
+        var xaml = "\
+            <Grid " + nsdecl + ">\
+                <Grid.Resources>\
+                    <SolidColorBrush x:Key=\"SomeColor\" Color=\"Yellow\" />\
+                    <DataTemplate x:Key=\"SomeTemplate\">\
+                        <Grid Background=\"{StaticResource SomeColor}\">\
+                        </Grid>\
+                    </DataTemplate>\
+                </Grid.Resources>\
+            </Grid>";
+
+        var grid = Fayde.Markup.LoadXaml<Fayde.Controls.Grid>(null, xaml);
+        var dt = grid.Resources.Get("SomeTemplate");
+        var grid2 = <Fayde.Controls.Grid>dt.GetVisualTree(grid);
+        ok(grid2.Background instanceof Fayde.Media.SolidColorBrush);
+        var scb = <Fayde.Media.SolidColorBrush>grid2.Background;
+        deepEqual(scb.Color, Color.KnownColors.Yellow);
+    });
+
     test("HierarchicalDataTemplate", () => {
-        var xaml = "<HierarchicalDataTemplate xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" ItemsSource=\"{Binding SomePath}\">"
+        var xaml = "<HierarchicalDataTemplate " + nsdecl + " ItemsSource=\"{Binding SomePath}\">"
             + "<Grid></Grid>"
             + "</HierarchicalDataTemplate>";
 
