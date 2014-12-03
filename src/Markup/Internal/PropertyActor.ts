@@ -56,7 +56,7 @@ module Fayde.Markup.Internal {
                     if (ev instanceof nullstone.Event)
                         state.eprop = name;
                     else
-                        throw new XamlParseException("Cannot locate dependency property [" + otype.name + "].[" + name + "]");
+                        state.prop = name;
                     return true;
                 }
                 if (state.propd.IsImmutable) {

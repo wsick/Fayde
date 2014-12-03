@@ -3,7 +3,7 @@
 
 module Fayde.Media.VSM {
     export class VisualState extends DependencyObject {
-        static StoryboardProperty: DependencyProperty = DependencyProperty.Register("Storyboard", () => Animation.Storyboard, VisualState);
+        static StoryboardProperty = DependencyProperty.Register("Storyboard", () => Animation.Storyboard, VisualState);
         Storyboard: Animation.Storyboard;
     }
     Fayde.CoreLibrary.add(VisualState);

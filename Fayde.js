@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.10';
+    Fayde.Version = '0.13.9';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -20129,7 +20129,7 @@ var Fayde;
                             if (ev instanceof nullstone.Event)
                                 state.eprop = name;
                             else
-                                throw new XamlParseException("Cannot locate dependency property [" + otype.name + "].[" + name + "]");
+                                state.prop = name;
                             return true;
                         }
                         if (state.propd.IsImmutable) {
