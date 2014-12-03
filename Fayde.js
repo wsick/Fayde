@@ -12594,20 +12594,20 @@ var Fayde;
             _super.apply(this, arguments);
         }
         ResourceDictionaryCollection.prototype.Get = function (key) {
-            var enumerator = this.getEnumerator();
-            var cur;
-            while (enumerator.moveNext()) {
-                cur = enumerator.current.Get(key);
+            for (var en = this.getEnumerator(); en.moveNext();) {
+                var cur = en.current.Get(key);
                 if (cur !== undefined)
                     return cur;
             }
             return undefined;
         };
+
         ResourceDictionaryCollection.prototype.AddingToCollection = function (value, error) {
             if (!_super.prototype.AddingToCollection.call(this, value, error))
                 return false;
             return this._AssertNoCycles(value, value.XamlNode.ParentNode, error);
         };
+
         ResourceDictionaryCollection.prototype._AssertNoCycles = function (subtreeRoot, firstAncestorNode, error) {
             var curNode = firstAncestorNode;
             while (curNode) {
@@ -12628,9 +12628,8 @@ var Fayde;
                 curNode = curNode.ParentNode;
             }
 
-            var enumerator = subtreeRoot.MergedDictionaries.getEnumerator();
-            while (enumerator.moveNext()) {
-                if (!this._AssertNoCycles(enumerator.current, firstAncestorNode, error))
+            for (var en = subtreeRoot.MergedDictionaries.getEnumerator(); en.moveNext();) {
+                if (!this._AssertNoCycles(en.current, firstAncestorNode, error))
                     return false;
             }
 
@@ -12679,6 +12678,7 @@ var Fayde;
         ResourceDictionary.prototype.Contains = function (key) {
             return this._Keys.indexOf(key) > -1;
         };
+
         ResourceDictionary.prototype.Get = function (key) {
             var index = this._Keys.indexOf(key);
             if (index > -1)
@@ -12688,6 +12688,7 @@ var Fayde;
                 return md.Get(key);
             return undefined;
         };
+
         ResourceDictionary.prototype.Set = function (key, value) {
             if (key === undefined)
                 return false;
@@ -12714,6 +12715,7 @@ var Fayde;
             }
             return true;
         };
+
         ResourceDictionary.prototype.Remove = function (key) {
             var index = this._Keys.indexOf(key);
             if (index < 0)
@@ -12727,6 +12729,7 @@ var Fayde;
         ResourceDictionary.prototype.getEnumerator = function (reverse) {
             return nullstone.IEnumerator_.fromArray(this._Values, reverse);
         };
+
         ResourceDictionary.prototype.GetNodeEnumerator = function (reverse) {
             var prev = this.getEnumerator(reverse);
             return {
@@ -20197,7 +20200,7 @@ var Fayde;
 
                 function addContentObject(obj, key) {
                     if (cur.rd) {
-                        key = key || getImplicitKey(obj);
+                        key = key || getFallbackKey(obj);
                         if (!key)
                             throw new XamlParseException("Items in a ResourceDictionary must have a x:Key.");
                         cur.rd.Set(key, obj);
@@ -20211,7 +20214,7 @@ var Fayde;
                         } else if (state.content.arr) {
                             state.content.arr.push(obj);
                         } else if (state.content.rd) {
-                            key = key || getImplicitKey(obj);
+                            key = key || getFallbackKey(obj);
                             if (!key)
                                 throw new XamlParseException("Items in a ResourceDictionary must have a x:Key.");
                             state.content.rd.Set(obj, key);
@@ -20238,6 +20241,15 @@ var Fayde;
                     } else if (state.eprop) {
                         subscribeEvent(state.eprop, obj);
                     }
+                }
+
+                function getFallbackKey(obj) {
+                    if (obj instanceof Fayde.XamlObject) {
+                        var name = obj.XamlNode.Name;
+                        if (name)
+                            return name;
+                    }
+                    return getImplicitKey(obj);
                 }
 
                 function getImplicitKey(obj) {

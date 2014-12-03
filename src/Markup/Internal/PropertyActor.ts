@@ -106,7 +106,7 @@ module Fayde.Markup.Internal {
 
         function addContentObject (obj: any, key: any) {
             if (cur.rd) {
-                key = key || getImplicitKey(obj);
+                key = key || getFallbackKey(obj);
                 if (!key)
                     throw new XamlParseException("Items in a ResourceDictionary must have a x:Key.");
                 cur.rd.Set(key, obj);
@@ -120,7 +120,7 @@ module Fayde.Markup.Internal {
                 } else if (state.content.arr) {
                     state.content.arr.push(obj);
                 } else if (state.content.rd) {
-                    key = key || getImplicitKey(obj);
+                    key = key || getFallbackKey(obj);
                     if (!key)
                         throw new XamlParseException("Items in a ResourceDictionary must have a x:Key.");
                     state.content.rd.Set(obj, key);
@@ -147,6 +147,15 @@ module Fayde.Markup.Internal {
             } else if (state.eprop) {
                 subscribeEvent(state.eprop, obj);
             }
+        }
+
+        function getFallbackKey (obj: any): any {
+            if (obj instanceof XamlObject) {
+                var name = (<XamlObject>obj).XamlNode.Name;
+                if (name)
+                    return name;
+            }
+            return getImplicitKey(obj);
         }
 
         function getImplicitKey (obj: any): any {
