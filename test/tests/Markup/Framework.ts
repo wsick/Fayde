@@ -118,6 +118,21 @@ export function load () {
         deepEqual(scb.Color, Color.KnownColors.Yellow);
     });
 
+    test("Explicit Resources", () => {
+        var xaml = "\
+            <Grid " + nsdecl + ">\
+                <Grid.Resources>\
+                    <ResourceDictionary>\
+                        <SolidColorBrush x:Key=\"SomeColor\" Color=\"Yellow\" />\
+                    </ResourceDictionary>\
+                </Grid.Resources>\
+            </Grid>";
+
+        var grid = Fayde.Markup.LoadXaml<Fayde.Controls.Grid>(null, xaml);
+        var scb = grid.Resources.Get("SomeColor");
+        deepEqual(scb.Color, Color.KnownColors.Yellow);
+    });
+
     test("HierarchicalDataTemplate", () => {
         var xaml = "<HierarchicalDataTemplate " + nsdecl + " ItemsSource=\"{Binding SomePath}\">"
             + "<Grid></Grid>"
