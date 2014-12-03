@@ -143,7 +143,7 @@ module Fayde.Markup.Internal {
             } else if (state.propd) {
                 cur.dobj.SetValue(state.propd, convert(state.propd, obj));
             } else if (state.prop) {
-                cur.dobj[state.prop] = obj;
+                cur.obj[state.prop] = obj;
             } else if (state.eprop) {
                 subscribeEvent(state.eprop, obj);
             }
