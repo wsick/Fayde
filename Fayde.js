@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.13.10';
+    Fayde.Version = '0.13.9';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -14678,6 +14678,11 @@ var Fayde;
                 this.Mode = Data.RelativeSourceMode[val];
             };
 
+            RelativeSource.prototype.resolveTypeFields = function (resolver) {
+                if (typeof this.AncestorType === "string")
+                    this.AncestorType = resolver(this.AncestorType);
+            };
+
             RelativeSource.prototype.transmute = function (os) {
                 this.Mode = Fayde.Enum.fromAny(Data.RelativeSourceMode, this.Mode);
                 this.AncestorLevel = parseInt(this.AncestorLevel) || 1;
@@ -16221,7 +16226,7 @@ var Fayde;
             if (Fayde.Uri.isNullOrEmpty(uri))
                 return null;
             var config = configs[uri.toString()];
-            if (config.none)
+            if (config && config.none)
                 return null;
             var templateUri = ((config) ? config.requestTemplateUri : null) || DEFAULT_TEMPLATE_URI;
             return processTemplate(uri, name, templateUri);

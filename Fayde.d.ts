@@ -2963,6 +2963,7 @@ declare module Fayde.Data {
         constructor();
         constructor(rs: RelativeSource);
         public init(val: string): void;
+        public resolveTypeFields(resolver: (full: string) => any): void;
         public transmute(os: any[]): any;
         public Clone(): RelativeSource;
         public Find(target: XamlObject): XamlObject;

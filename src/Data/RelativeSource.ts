@@ -20,6 +20,11 @@ module Fayde.Data {
             this.Mode = RelativeSourceMode[val];
         }
 
+        resolveTypeFields (resolver: (full: string) => any) {
+            if (typeof this.AncestorType === "string")
+                this.AncestorType = resolver(<any>this.AncestorType);
+        }
+
         transmute (os: any[]): any {
             this.Mode = Enum.fromAny(RelativeSourceMode, this.Mode);
             this.AncestorLevel = parseInt(<any>this.AncestorLevel) || 1;
