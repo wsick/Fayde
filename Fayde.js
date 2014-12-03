@@ -6938,6 +6938,9 @@ var Fayde;
                     return oresolve;
                 },
                 resolveObject: function (type) {
+                    if (type === Fayde.ResourceDictionary && active.rd)
+                        return undefined;
+
                     var obj = new (type)();
                     if (obj instanceof FrameworkTemplate)
                         parser.skipBranch();
@@ -7038,6 +7041,7 @@ var Fayde;
             }
 
             parser.on(parse).parse(xm.root);
+
             if (last instanceof Fayde.XamlObject) {
                 last.XamlNode.NameScope = namescope;
             }

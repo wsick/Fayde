@@ -57,7 +57,9 @@ module Fayde.Markup {
                 return oresolve;
             },
             resolveObject: (type) => {
-                //TODO: Ignore <ResourceDictionary> inside <.Resources> tag
+                if (type === ResourceDictionary && active.rd)
+                    return undefined;
+
                 var obj = new (type)();
                 if (obj instanceof FrameworkTemplate)
                     parser.skipBranch();
