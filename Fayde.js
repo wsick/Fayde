@@ -16221,6 +16221,8 @@ var Fayde;
             if (Fayde.Uri.isNullOrEmpty(uri))
                 return null;
             var config = configs[uri.toString()];
+            if (config.none)
+                return null;
             var templateUri = ((config) ? config.requestTemplateUri : null) || DEFAULT_TEMPLATE_URI;
             return processTemplate(uri, name, templateUri);
         }
@@ -16232,6 +16234,28 @@ var Fayde;
             };
         }
         ThemeConfig.OverrideRequestUri = OverrideRequestUri;
+
+        function Set(libName, path) {
+            if (!libName) {
+                console.warn("Could not configure theme. No library specified.");
+                return;
+            }
+            var uri = new Fayde.Uri(libName);
+            if (uri.scheme !== "http")
+                uri = new Fayde.Uri("lib://" + libName);
+
+            if (path === undefined)
+                configs[uri.toString()] = null;
+            else if (path === null)
+                configs[uri.toString()] = {
+                    none: true
+                };
+            else
+                configs[uri.toString()] = {
+                    requestTemplateUri: path
+                };
+        }
+        ThemeConfig.Set = Set;
 
         function processTemplate(uri, name, template) {
             var libName = uri.host;
@@ -27216,6 +27240,11 @@ var Fayde;
     var themes;
     (function (themes) {
         function configure(json) {
+            for (var libName in json) {
+                var co = json[libName];
+                var path = co === "none" ? null : (co.path ? co.path : undefined);
+                Fayde.ThemeConfig.Set(libName, path);
+            }
         }
         themes.configure = configure;
     })(themes || (themes = {}));

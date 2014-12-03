@@ -86,7 +86,11 @@ module Fayde {
 
     module themes {
         export function configure (json) {
-            //TODO: Allow users to configure theme url from fayde.json
+            for (var libName in json) {
+                var co = json[libName];
+                var path = co === "none" ? null : (co.path ? co.path : undefined);
+                ThemeConfig.Set(libName, path);
+            }
         }
     }
 

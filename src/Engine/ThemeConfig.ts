@@ -8,6 +8,8 @@ module Fayde {
             if (Uri.isNullOrEmpty(uri))
                 return null;
             var config = configs[uri.toString()];
+            if (config.none)
+                return null;
             var templateUri = ((config) ? config.requestTemplateUri : null) || DEFAULT_TEMPLATE_URI;
             return processTemplate(uri, name, templateUri);
         }
@@ -16,6 +18,31 @@ module Fayde {
             configs[uri.toString()] = {
                 requestTemplateUri: templateUri
             };
+        }
+
+        export function Set (libName: string, path: string) {
+            //NOTE:
+            //  path === undefined  --> use default
+            //  path === null       --> don't load theme
+            //  other               --> use path as template
+            if (!libName) {
+                console.warn("Could not configure theme. No library specified.");
+                return;
+            }
+            var uri = new Uri(libName);
+            if (uri.scheme !== "http")
+                uri = new Uri("lib://" + libName);
+
+            if (path === undefined)
+                configs[uri.toString()] = null;
+            else if (path === null)
+                configs[uri.toString()] = {
+                    none: true
+                };
+            else
+                configs[uri.toString()] = {
+                    requestTemplateUri: path
+                };
         }
 
         function processTemplate (uri: Uri, name: string, template: string): string {

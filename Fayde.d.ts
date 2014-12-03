@@ -3280,6 +3280,7 @@ declare module Fayde {
     module ThemeConfig {
         function GetRequestUri(uri: Uri, name: string): string;
         function OverrideRequestUri(uri: Uri, templateUri: string): void;
+        function Set(libName: string, path: string): void;
     }
 }
 declare module Fayde {
