@@ -49,75 +49,75 @@ module Fayde.Markup {
 
         var last: any;
         var parser = xm.createParser()
-            .setNamespaces(Fayde.XMLNS, Fayde.XMLNSX)
-            .on({
-                resolveType: (uri, name) => {
-                    if (!TypeManager.resolveType(uri, name, oresolve))
-                        throw new XamlParseException("Could not resolve type [" + uri + "][" + name + "].");
-                    return oresolve;
-                },
-                resolveObject: (type) => {
-                    //TODO: Ignore <ResourceDictionary> inside <.Resources> tag
-                    var obj = new (type)();
-                    if (obj instanceof FrameworkTemplate)
-                        parser.skipBranch();
-                    else if (obj instanceof StaticResource)
-                        (<StaticResource>obj).setResources(resources);
-                    return obj;
-                },
-                resolvePrimitive: (type, text) => {
-                    return nullstone.convertAnyToType(text, type);
-                },
-                resolveResources: (owner, ownerType) => {
-                    var rd = owner.Resources;
-                    return rd;
-                },
-                branchSkip: (root: any, obj: any) => {
-                    if (obj instanceof FrameworkTemplate) {
-                        var ft: FrameworkTemplate = last = obj;
-                        var err = obj.Validate();
-                        if (err)
-                            throw new XamlParseException(err);
-                        setTemplateRoot(ft, root);
-                        setResources(ft, ractor.get());
-                    }
-                },
-                object: (obj, isContent) => {
-                    active.set(obj);
-                    oactor.start();
-                    ractor.start();
-                },
-                objectEnd: (obj, key, isContent, prev) => {
-                    last = obj;
-                    ractor.end();
-                    oactor.end();
-                    active.set(prev);
-                    if (!active.obj)
-                        return;
-                    if (isContent) {
-                        pactor.startContent();
-                        pactor.addObject(obj, key);
-                        pactor.end();
-                    } else {
-                        pactor.addObject(obj, key);
-                    }
-                },
-                contentText: (text) => {
-                    pactor.setContentText(text);
-                },
-                name: (name) => {
-                    active.setName(name);
-                },
-                propertyStart: (ownerType, propName) => {
-                    pactor.start(ownerType, propName);
-                },
-                propertyEnd: (ownerType, propName) => {
-                    pactor.end();
-                },
-                error: (err) => false,
-                end: () => {
+            .setNamespaces(Fayde.XMLNS, Fayde.XMLNSX);
+        var parse = {
+            resolveType: (uri, name) => {
+                if (!TypeManager.resolveType(uri, name, oresolve))
+                    throw new XamlParseException("Could not resolve type [" + uri + "][" + name + "].");
+                return oresolve;
+            },
+            resolveObject: (type) => {
+                //TODO: Ignore <ResourceDictionary> inside <.Resources> tag
+                var obj = new (type)();
+                if (obj instanceof FrameworkTemplate)
+                    parser.skipBranch();
+                else if (obj instanceof StaticResource)
+                    (<StaticResource>obj).setResources(resources);
+                return obj;
+            },
+            resolvePrimitive: (type, text) => {
+                return nullstone.convertAnyToType(text, type);
+            },
+            resolveResources: (owner, ownerType) => {
+                var rd = owner.Resources;
+                return rd;
+            },
+            branchSkip: (root: any, obj: any) => {
+                if (obj instanceof FrameworkTemplate) {
+                    var ft: FrameworkTemplate = last = obj;
+                    var err = obj.Validate();
+                    if (err)
+                        throw new XamlParseException(err);
+                    setTemplateRoot(ft, root);
+                    setResources(ft, ractor.get());
                 }
-            });
+            },
+            object: (obj, isContent) => {
+                active.set(obj);
+                oactor.start();
+                ractor.start();
+            },
+            objectEnd: (obj, key, isContent, prev) => {
+                last = obj;
+                ractor.end();
+                oactor.end();
+                active.set(prev);
+                if (!active.obj)
+                    return;
+                if (isContent) {
+                    pactor.startContent();
+                    pactor.addObject(obj, key);
+                    pactor.end();
+                } else {
+                    pactor.addObject(obj, key);
+                }
+            },
+            contentText: (text) => {
+                pactor.setContentText(text);
+            },
+            name: (name) => {
+                active.setName(name);
+            },
+            propertyStart: (ownerType, propName) => {
+                pactor.start(ownerType, propName);
+            },
+            propertyEnd: (ownerType, propName) => {
+                pactor.end();
+            },
+            error: (err) => false,
+            end: () => {
+            }
+        };
 
         function extractType (text: string): any {
             var prefix = <string>null;
@@ -157,7 +157,9 @@ module Fayde.Markup {
                 : null;
         }
 
-        parser.parse(xm.root);
+        parser.on(parse)
+            .parse(xm.root);
+
         if (last instanceof XamlObject) {
             last.XamlNode.NameScope = namescope;
         }

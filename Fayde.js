@@ -6930,7 +6930,8 @@ var Fayde;
             var ractor = Markup.Internal.createResourcesActor(active, resources);
 
             var last;
-            var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX).on({
+            var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX);
+            var parse = {
                 resolveType: function (uri, name) {
                     if (!Fayde.TypeManager.resolveType(uri, name, oresolve))
                         throw new XamlParseException("Could not resolve type [" + uri + "][" + name + "].");
@@ -6998,7 +6999,7 @@ var Fayde;
                 },
                 end: function () {
                 }
-            });
+            };
 
             function extractType(text) {
                 var prefix = null;
@@ -7036,7 +7037,7 @@ var Fayde;
                 return (ownerType) ? DependencyProperty.GetDependencyProperty(ownerType, name) : null;
             }
 
-            parser.parse(xm.root);
+            parser.on(parse).parse(xm.root);
             if (last instanceof Fayde.XamlObject) {
                 last.XamlNode.NameScope = namescope;
             }
