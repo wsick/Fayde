@@ -2,6 +2,7 @@ module Fayde.Markup {
     export class StaticResource implements nullstone.markup.IMarkupExtension {
         ResourceKey: string;
 
+        private $$app: Application;
         private $$resources: ResourceDictionary[];
 
         init (val: string) {
@@ -34,12 +35,21 @@ module Fayde.Markup {
                     return o;
             }
 
+            if (this.$$app) {
+                var rd = this.$$app.Resources;
+                if (rd) {
+                    var o = rd.Get(key);
+                    if (o !== undefined)
+                        return o;
+                }
+            }
             //TODO: Search in Application.Resources
 
             throw new Error("Could not resolve StaticResource: '" + key + "'.")
         }
 
-        setResources (resources: ResourceDictionary[]) {
+        setContext (app: Application, resources: ResourceDictionary[]) {
+            this.$$app = app;
             this.$$resources = resources;
         }
     }

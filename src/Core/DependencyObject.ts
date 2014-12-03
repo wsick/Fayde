@@ -14,6 +14,7 @@ module Fayde {
         }
 
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
+            super.OnParentChanged(oldParentNode, newParentNode);
             var propd = DependencyObject.DataContextProperty;
             var storage = <Providers.IDataContextStorage>Providers.GetStorage(this.XObject, propd);
             var newInherited = newParentNode ? newParentNode.DataContext : undefined;
@@ -134,7 +135,7 @@ module Fayde {
             if (propd.IsReadOnly && !propd.IsCustom)
                 throw new ArgumentException("This property is readonly.");
             this._RemoveExpression(propd);
-            
+
             var storage = Providers.GetStorage(this, propd);
             var anims = storage.Animations;
             if (anims && anims.length > 0)

@@ -102,7 +102,7 @@ module Fayde.Controls {
         }
 
         private _OnLoadedUri (xm: nullstone.markup.Markup<any>) {
-            this.Content = Markup.Load(this, xm);
+            this.Content = Markup.Load(this.App, xm);
         }
 
         private _OnErroredUri (err: any, src: Uri) {

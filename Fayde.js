@@ -462,6 +462,11 @@ var Fayde;
             this.OnIsAttachedChanged(value);
         };
         XamlNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
+            var xobj = this.XObject;
+            if (newIsAttached && this.ParentNode && !xobj.App) {
+                xobj.App = this.ParentNode.XObject.App;
+            }
+
             var childNodes = this._LogicalChildren;
             var len = childNodes.length;
             var childNode = null;
@@ -592,6 +597,7 @@ var Fayde;
     var XamlObject = (function () {
         function XamlObject() {
             this.TemplateOwner = null;
+            this.App = null;
             this._ID = XamlObject._LastID++;
             this.XamlNode = this.CreateNode();
         }
@@ -1257,6 +1263,7 @@ var Fayde;
             _super.call(this, xobj);
         }
         DONode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
+            _super.prototype.OnParentChanged.call(this, oldParentNode, newParentNode);
             var propd = DependencyObject.DataContextProperty;
             var storage = Fayde.Providers.GetStorage(this.XObject, propd);
             var newInherited = newParentNode ? newParentNode.DataContext : undefined;
@@ -3353,7 +3360,7 @@ var Fayde;
             };
 
             ContentControl.prototype._OnLoadedUri = function (xm) {
-                this.Content = Fayde.Markup.Load(this, xm);
+                this.Content = Fayde.Markup.Load(this.App, xm);
             };
 
             ContentControl.prototype._OnErroredUri = function (err, src) {
@@ -4410,7 +4417,7 @@ var Fayde;
                 if (!this._DisplayMemberTemplate) {
                     var dmp = this.DisplayMemberPath || "";
                     var xm = Fayde.Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
-                    this._DisplayMemberTemplate = Fayde.Markup.Load(this, xm);
+                    this._DisplayMemberTemplate = Fayde.Markup.Load(this.App, xm);
                 }
                 return this._DisplayMemberTemplate;
             };
@@ -4799,8 +4806,8 @@ var Fayde;
     (function (Controls) {
         var fmd = Fayde.Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
         var fallbackTemplate;
-        function getFallbackTemplate(initiator) {
-            return fallbackTemplate = fallbackTemplate || Fayde.Markup.Load(initiator, fmd);
+        function getFallbackTemplate(app) {
+            return fallbackTemplate = fallbackTemplate || Fayde.Markup.Load(app, fmd);
         }
 
         var ContentPresenterNode = (function (_super) {
@@ -4904,7 +4911,7 @@ var Fayde;
                     }
                 }
 
-                return getFallbackTemplate(this.XObject);
+                return getFallbackTemplate(this.XObject.App);
             };
             return ContentPresenterNode;
         })(Fayde.FENode);
@@ -6888,7 +6895,7 @@ var Fayde;
             };
 
             FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
-                var uie = LoadImpl(bindingSource, this.$$markup, this.$$resources, bindingSource);
+                var uie = LoadImpl(this.App, this.$$markup, this.$$resources, bindingSource);
                 if (!(uie instanceof Fayde.UIElement))
                     throw new XamlParseException("Template root visual is not a UIElement.");
                 return uie;
@@ -6906,25 +6913,25 @@ var Fayde;
             ft.$$resources = res;
         }
 
-        function LoadXaml(initiator, xaml) {
+        function LoadXaml(app, xaml) {
             var markup = Markup.CreateXaml(xaml);
-            return Load(initiator, markup);
+            return Load(app, markup);
         }
         Markup.LoadXaml = LoadXaml;
 
-        function Load(initiator, xm) {
-            return LoadImpl(initiator, xm);
+        function Load(app, xm) {
+            return LoadImpl(app, xm);
         }
         Markup.Load = Load;
 
-        function LoadImpl(initiator, xm, resources, bindingSource) {
+        function LoadImpl(app, xm, resources, bindingSource) {
             var oresolve = {
                 isPrimitive: false,
                 type: undefined
             };
 
             var namescope = new Fayde.NameScope(true);
-            var active = Markup.Internal.createActiveObject(namescope, bindingSource);
+            var active = Markup.Internal.createActiveObject(app, namescope, bindingSource);
             var pactor = Markup.Internal.createPropertyActor(active, extractType, extractDP);
             var oactor = Markup.Internal.createObjectActor(pactor);
             var ractor = Markup.Internal.createResourcesActor(active, resources);
@@ -6945,7 +6952,7 @@ var Fayde;
                     if (obj instanceof FrameworkTemplate)
                         parser.skipBranch();
                     else if (obj instanceof Markup.StaticResource)
-                        obj.setResources(resources);
+                        obj.setContext(app, resources);
                     return obj;
                 },
                 resolvePrimitive: function (type, text) {
@@ -7126,7 +7133,7 @@ var Fayde;
                 return nullstone.async.create(function (resolve, reject) {
                     Fayde.Markup.Resolve(url).then(function (xm) {
                         TimelineProfile.Parse(true, "Page");
-                        var page = Fayde.Markup.Load(initiator, xm);
+                        var page = Fayde.Markup.Load(initiator.App, xm);
                         TimelineProfile.Parse(false, "Page");
                         if (!(page instanceof Controls.Page))
                             reject("Markup must be a Page.");
@@ -7156,8 +7163,8 @@ var Fayde;
             return Fayde.Markup.CreateXaml(xaml);
         }
 
-        function getErrorPage(initiator, error) {
-            return Fayde.Markup.Load(initiator, createErrorDoc(error));
+        function getErrorPage(app, error) {
+            return Fayde.Markup.Load(app, createErrorDoc(error));
         }
 
         var Frame = (function (_super) {
@@ -7222,7 +7229,7 @@ var Fayde;
             };
 
             Frame.prototype._HandleError = function (error) {
-                this._SetPage(getErrorPage(this, error));
+                this._SetPage(getErrorPage(this.App, error));
                 TimelineProfile.Navigate(false);
             };
 
@@ -8761,8 +8768,8 @@ var Fayde;
 
         function getFallbackTemplate(ic) {
             if (ic instanceof Controls.ListBox)
-                return vspft = vspft || Fayde.Markup.Load(ic, vspxd);
-            return spft = spft || Fayde.Markup.Load(ic, spxd);
+                return vspft = vspft || Fayde.Markup.Load(ic.App, vspxd);
+            return spft = spft || Fayde.Markup.Load(ic.App, spxd);
         }
 
         var ItemsPresenterNode = (function (_super) {
@@ -20023,7 +20030,7 @@ var Fayde;
 (function (Fayde) {
     (function (Markup) {
         (function (Internal) {
-            function createActiveObject(namescope, bindingSource) {
+            function createActiveObject(app, namescope, bindingSource) {
                 return {
                     obj: null,
                     xo: null,
@@ -20041,6 +20048,10 @@ var Fayde;
                         if (xo) {
                             xo.XamlNode.DocNameScope = namescope;
                             xo.TemplateOwner = bindingSource;
+                            xo.App = app;
+                        }
+                        if (obj instanceof Fayde.Application) {
+                            app = obj;
                         }
                         this.coll = nullstone.ICollection_.as(obj);
                         this.arr = (typeof obj === "array") ? obj : null;
@@ -20402,10 +20413,20 @@ var Fayde;
                         return o;
                 }
 
+                if (this.$$app) {
+                    var rd = this.$$app.Resources;
+                    if (rd) {
+                        var o = rd.Get(key);
+                        if (o !== undefined)
+                            return o;
+                    }
+                }
+
                 throw new Error("Could not resolve StaticResource: '" + key + "'.");
             };
 
-            StaticResource.prototype.setResources = function (resources) {
+            StaticResource.prototype.setContext = function (app, resources) {
+                this.$$app = app;
                 this.$$resources = resources;
             };
             return StaticResource;

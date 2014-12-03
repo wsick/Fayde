@@ -144,6 +144,7 @@ declare module Fayde {
         private _ID;
         public XamlNode: XamlNode;
         public TemplateOwner: DependencyObject;
+        public App: Application;
         constructor();
         public CreateNode(): XamlNode;
         public Name : string;
@@ -1535,9 +1536,9 @@ declare module Fayde.Markup {
         public Validate(): string;
         public GetVisualTree(bindingSource: DependencyObject): UIElement;
     }
-    function LoadXaml<T extends XamlObject>(initiator: DependencyObject, xaml: string): T;
-    function LoadXaml<T extends XamlObject>(initiator: DependencyObject, el: Element): T;
-    function Load<T extends XamlObject>(initiator: DependencyObject, xm: nullstone.markup.Markup<any>): T;
+    function LoadXaml<T extends XamlObject>(app: Application, xaml: string): T;
+    function LoadXaml<T extends XamlObject>(app: Application, el: Element): T;
+    function Load<T extends XamlObject>(app: Application, xm: nullstone.markup.Markup<any>): T;
 }
 declare module Fayde.Controls {
     class ControlTemplate extends Markup.FrameworkTemplate {
@@ -3859,7 +3860,7 @@ declare module Fayde.Markup.Internal {
         set(obj: any): any;
         setName(name: string): any;
     }
-    function createActiveObject(namescope: NameScope, bindingSource: any): IActiveObject;
+    function createActiveObject(app: Application, namescope: NameScope, bindingSource: any): IActiveObject;
 }
 declare module Fayde.Markup.Internal {
     interface IObjectActor {
@@ -3894,10 +3895,11 @@ declare module Fayde.Markup {
 declare module Fayde.Markup {
     class StaticResource implements nullstone.markup.IMarkupExtension {
         public ResourceKey: string;
+        private $$app;
         private $$resources;
         public init(val: string): void;
         public transmute(os: any[]): any;
-        public setResources(resources: ResourceDictionary[]): void;
+        public setContext(app: Application, resources: ResourceDictionary[]): void;
     }
 }
 declare module Fayde.Media.Animation {

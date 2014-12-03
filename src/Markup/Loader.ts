@@ -8,7 +8,7 @@ module Fayde.Markup {
         }
 
         GetVisualTree (bindingSource: DependencyObject): UIElement {
-            var uie = LoadImpl<UIElement>(bindingSource, this.$$markup, this.$$resources, bindingSource);
+            var uie = LoadImpl<UIElement>(this.App, this.$$markup, this.$$resources, bindingSource);
             if (!(uie instanceof UIElement))
                 throw new XamlParseException("Template root visual is not a UIElement.");
             return uie;
@@ -24,25 +24,25 @@ module Fayde.Markup {
         (<any>ft).$$resources = res;
     }
 
-    export function LoadXaml<T extends XamlObject>(initiator: DependencyObject, xaml: string): T;
-    export function LoadXaml<T extends XamlObject>(initiator: DependencyObject, el: Element): T;
-    export function LoadXaml<T extends XamlObject>(initiator: DependencyObject, xaml: any): T {
+    export function LoadXaml<T extends XamlObject>(app: Application, xaml: string): T;
+    export function LoadXaml<T extends XamlObject>(app: Application, el: Element): T;
+    export function LoadXaml<T extends XamlObject>(app: Application, xaml: any): T {
         var markup = CreateXaml(xaml);
-        return Load<T>(initiator, markup);
+        return Load<T>(app, markup);
     }
 
-    export function Load<T extends XamlObject>(initiator: DependencyObject, xm: nullstone.markup.Markup<any>): T {
-        return LoadImpl<T>(initiator, xm);
+    export function Load<T extends XamlObject>(app: Application, xm: nullstone.markup.Markup<any>): T {
+        return LoadImpl<T>(app, xm);
     }
 
-    function LoadImpl<T>(initiator: DependencyObject, xm: nullstone.markup.Markup<any>, resources?: ResourceDictionary[], bindingSource?: DependencyObject): T {
+    function LoadImpl<T>(app: Application, xm: nullstone.markup.Markup<any>, resources?: ResourceDictionary[], bindingSource?: DependencyObject): T {
         var oresolve: nullstone.IOutType = {
             isPrimitive: false,
             type: undefined
         };
 
         var namescope = new NameScope(true);
-        var active = Internal.createActiveObject(namescope, bindingSource);
+        var active = Internal.createActiveObject(app, namescope, bindingSource);
         var pactor = Internal.createPropertyActor(active, extractType, extractDP);
         var oactor = Internal.createObjectActor(pactor);
         var ractor = Internal.createResourcesActor(active, resources);
@@ -64,7 +64,7 @@ module Fayde.Markup {
                 if (obj instanceof FrameworkTemplate)
                     parser.skipBranch();
                 else if (obj instanceof StaticResource)
-                    (<StaticResource>obj).setResources(resources);
+                    (<StaticResource>obj).setContext(app, resources);
                 return obj;
             },
             resolvePrimitive: (type, text) => {

@@ -4,8 +4,8 @@
 module Fayde.Controls {
     var fmd = Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
     var fallbackTemplate: DataTemplate;
-    function getFallbackTemplate (initiator: FrameworkElement): DataTemplate {
-        return fallbackTemplate = fallbackTemplate || Markup.Load<DataTemplate>(initiator, fmd);
+    function getFallbackTemplate (app: Application): DataTemplate {
+        return fallbackTemplate = fallbackTemplate || Markup.Load<DataTemplate>(app, fmd);
     }
 
     export class ContentPresenterNode extends FENode {
@@ -108,7 +108,7 @@ module Fayde.Controls {
                 }
             }
             
-            return getFallbackTemplate(this.XObject);
+            return getFallbackTemplate(this.XObject.App);
         }
     }
 

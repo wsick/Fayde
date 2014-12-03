@@ -15,7 +15,7 @@ module Fayde.Controls {
                 Markup.Resolve(url)
                     .then(xm => {
                         TimelineProfile.Parse(true, "Page");
-                        var page = Markup.Load<Page>(initiator, xm);
+                        var page = Markup.Load<Page>(initiator.App, xm);
                         TimelineProfile.Parse(false, "Page");
                         if (!(page instanceof Controls.Page))
                             reject("Markup must be a Page.");

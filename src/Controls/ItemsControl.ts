@@ -204,7 +204,7 @@ module Fayde.Controls {
             if (!this._DisplayMemberTemplate) {
                 var dmp = this.DisplayMemberPath || "";
                 var xm = Fayde.Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
-                this._DisplayMemberTemplate = Markup.Load<DataTemplate>(this, xm);
+                this._DisplayMemberTemplate = Markup.Load<DataTemplate>(this.App, xm);
             }
             return this._DisplayMemberTemplate;
         }

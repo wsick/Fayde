@@ -11,7 +11,7 @@ module Fayde.Markup.Internal {
         setName(name: string);
     }
 
-    export function createActiveObject (namescope: NameScope, bindingSource: any): IActiveObject {
+    export function createActiveObject (app: Application, namescope: NameScope, bindingSource: any): IActiveObject {
         return {
             obj: null,
             xo: null,
@@ -29,6 +29,10 @@ module Fayde.Markup.Internal {
                 if (xo) {
                     xo.XamlNode.DocNameScope = namescope;
                     xo.TemplateOwner = bindingSource;
+                    xo.App = app;
+                }
+                if (obj instanceof Application) {
+                    app = obj;
                 }
                 this.coll = nullstone.ICollection_.as(obj);
                 this.arr = (typeof obj === "array") ? obj : null;

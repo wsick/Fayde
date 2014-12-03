@@ -100,6 +100,11 @@ module Fayde {
             this.OnIsAttachedChanged(value);
         }
         OnIsAttachedChanged(newIsAttached: boolean) {
+            var xobj = this.XObject;
+            if (newIsAttached && this.ParentNode && !xobj.App) {
+                xobj.App = this.ParentNode.XObject.App;
+            }
+
             var childNodes = this._LogicalChildren;
             var len = childNodes.length;
             var childNode: XamlNode = null;

@@ -15,8 +15,8 @@ module Fayde.Controls {
         return Markup.CreateXaml(xaml);
     }
 
-    function getErrorPage (initiator: FrameworkElement, error: string): Page {
-        return Markup.Load<Page>(initiator, createErrorDoc(error));
+    function getErrorPage (app: Application, error: string): Page {
+        return Markup.Load<Page>(app, createErrorDoc(error));
     }
 
     export class Frame extends ContentControl {
@@ -97,7 +97,7 @@ module Fayde.Controls {
         }
 
         private _HandleError (error: any) {
-            this._SetPage(getErrorPage(this, error));
+            this._SetPage(getErrorPage(this.App, error));
             TimelineProfile.Navigate(false);
         }
 

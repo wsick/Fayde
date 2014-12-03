@@ -10,8 +10,8 @@ module Fayde.Controls {
 
     function getFallbackTemplate(ic: ItemsControl): ItemsPanelTemplate {
         if (ic instanceof ListBox)
-            return vspft = vspft || Markup.Load<ItemsPanelTemplate>(ic, vspxd);
-        return spft = spft || Markup.Load<ItemsPanelTemplate>(ic, spxd);
+            return vspft = vspft || Markup.Load<ItemsPanelTemplate>(ic.App, vspxd);
+        return spft = spft || Markup.Load<ItemsPanelTemplate>(ic.App, spxd);
     }
 
     export class ItemsPresenterNode extends FENode {
