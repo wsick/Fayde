@@ -8,7 +8,7 @@ module Fayde {
             if (Uri.isNullOrEmpty(uri))
                 return null;
             var config = configs[uri.toString()];
-            if (config.none)
+            if (config && config.none)
                 return null;
             var templateUri = ((config) ? config.requestTemplateUri : null) || DEFAULT_TEMPLATE_URI;
             return processTemplate(uri, name, templateUri);
