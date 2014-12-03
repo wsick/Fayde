@@ -5,7 +5,7 @@ module Fayde.Markup.Internal {
         get(): ResourceDictionary[];
     }
 
-    export function createResourcesActor (cur: IActiveObject): IResourcesActor {
+    export function createResourcesActor (cur: IActiveObject, resources: ResourceDictionary[]): IResourcesActor {
         var stack: ResourceDictionary[] = [];
         return {
             start () {
@@ -17,7 +17,7 @@ module Fayde.Markup.Internal {
                     stack.pop();
             },
             get (): ResourceDictionary[] {
-                var res = stack.slice(0);
+                var res = (resources) ? resources.concat(stack) : stack.slice(0);
                 if (cur.dobj instanceof FrameworkElement) {
                     var crd = cur.dobj.ReadLocalValue(FrameworkElement.ResourcesProperty);
                     if (crd)

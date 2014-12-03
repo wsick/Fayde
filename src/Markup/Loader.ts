@@ -45,7 +45,7 @@ module Fayde.Markup {
         var active = Internal.createActiveObject(namescope, bindingSource);
         var pactor = Internal.createPropertyActor(active, extractType, extractDP);
         var oactor = Internal.createObjectActor(pactor);
-        var ractor = Internal.createResourcesActor(active);
+        var ractor = Internal.createResourcesActor(active, resources);
 
         var last: any;
         var parser = xm.createParser()

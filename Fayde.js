@@ -6927,7 +6927,7 @@ var Fayde;
             var active = Markup.Internal.createActiveObject(namescope, bindingSource);
             var pactor = Markup.Internal.createPropertyActor(active, extractType, extractDP);
             var oactor = Markup.Internal.createObjectActor(pactor);
-            var ractor = Markup.Internal.createResourcesActor(active);
+            var ractor = Markup.Internal.createResourcesActor(active, resources);
 
             var last;
             var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX).on({
@@ -20313,7 +20313,7 @@ var Fayde;
 (function (Fayde) {
     (function (Markup) {
         (function (Internal) {
-            function createResourcesActor(cur) {
+            function createResourcesActor(cur, resources) {
                 var stack = [];
                 return {
                     start: function () {
@@ -20325,7 +20325,7 @@ var Fayde;
                             stack.pop();
                     },
                     get: function () {
-                        var res = stack.slice(0);
+                        var res = (resources) ? resources.concat(stack) : stack.slice(0);
                         if (cur.dobj instanceof Fayde.FrameworkElement) {
                             var crd = cur.dobj.ReadLocalValue(Fayde.FrameworkElement.ResourcesProperty);
                             if (crd)

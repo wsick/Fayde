@@ -3885,7 +3885,7 @@ declare module Fayde.Markup.Internal {
         end(): any;
         get(): ResourceDictionary[];
     }
-    function createResourcesActor(cur: IActiveObject): IResourcesActor;
+    function createResourcesActor(cur: IActiveObject, resources: ResourceDictionary[]): IResourcesActor;
 }
 declare module Fayde.Markup {
     function Resolve(uri: string): any;
