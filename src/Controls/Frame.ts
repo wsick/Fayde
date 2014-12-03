@@ -74,6 +74,8 @@ module Fayde.Controls {
             this.StopLoading();
 
             var fragment = source.fragment;
+            if (fragment[0] === "#")
+                fragment = fragment.substr(1);
             TimelineProfile.Navigate(true, fragment);
 
             var targetUri = new Uri(fragment, nullstone.UriKind.Relative);

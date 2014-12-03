@@ -7197,6 +7197,8 @@ var Fayde;
                 this.StopLoading();
 
                 var fragment = source.fragment;
+                if (fragment[0] === "#")
+                    fragment = fragment.substr(1);
                 TimelineProfile.Navigate(true, fragment);
 
                 var targetUri = new Fayde.Uri(fragment, 2 /* Relative */);
