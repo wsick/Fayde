@@ -1,8 +1,5 @@
 {
     "libs": {
-        "Fayde.Controls": {
-            "exports": "Fayde.Controls"
-        }
     },
     "debug": {
         "warnMissingThemes": false

@@ -12,7 +12,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-open');
-    grunt.loadNpmTasks('grunt-nuget');
 
     var meta = {
         name: 'Fayde'
@@ -72,9 +71,7 @@ module.exports = function (grunt) {
                     {src: './lib/requirejs', dest: './test/lib/requirejs'},
                     {src: './lib/requirejs-text', dest: './test/lib/requirejs-text'},
                     {src: './themes', dest: './test/lib/fayde/themes'},
-                    {src: './fayde.js', dest: './test/lib/fayde/fayde.js'},
-                    {src: './fayde.d.ts', dest: './test/lib/fayde/fayde.d.ts'},
-                    {src: './fayde.js.map', dest: './test/lib/fayde/fayde.js.map'},
+                    {src: './dist', dest: './test/lib/fayde/dist'},
                     {src: './src', dest: './test/lib/fayde/src'}
                 ]
             },
@@ -85,9 +82,7 @@ module.exports = function (grunt) {
                     {src: './lib/requirejs', dest: './testsite/lib/requirejs'},
                     {src: './lib/requirejs-text', dest: './testsite/lib/requirejs-text'},
                     {src: './themes', dest: './testsite/lib/fayde/themes'},
-                    {src: './fayde.js', dest: './testsite/lib/fayde/fayde.js'},
-                    {src: './fayde.d.ts', dest: './testsite/lib/fayde/fayde.d.ts'},
-                    {src: './fayde.js.map', dest: './testsite/lib/fayde/fayde.js.map'},
+                    {src: './dist', dest: './testsite/lib/fayde/dist'},
                     {src: './src', dest: './testsite/lib/fayde/src'}
                 ]
             },
@@ -98,9 +93,7 @@ module.exports = function (grunt) {
                     {src: './lib/requirejs', dest: './stress/lib/requirejs'},
                     {src: './lib/requirejs-text', dest: './stress/lib/requirejs-text'},
                     {src: './themes', dest: './stress/lib/fayde/themes'},
-                    {src: './fayde.js', dest: './stress/lib/fayde/fayde.js'},
-                    {src: './fayde.d.ts', dest: './stress/lib/fayde/fayde.d.ts'},
-                    {src: './fayde.js.map', dest: './stress/lib/fayde/fayde.js.map'},
+                    {src: './dist', dest: './stress/lib/fayde/dist'},
                     {src: './src', dest: './stress/lib/fayde/src'}
                 ]
             },
@@ -120,12 +113,12 @@ module.exports = function (grunt) {
                 src: [
                     'typings/*.d.ts',
                     'lib/nullstone/dist/nullstone.d.ts',
-                    'lib/minerva/minerva.d.ts',
+                    'lib/minerva/dist/minerva.d.ts',
                     'src/_Version.ts',
                     'src/_Types.ts',
                     'src/**/*.ts'
                 ],
-                dest: 'Fayde.js',
+                dest: 'dist/Fayde.js',
                 options: {
                     target: 'es5',
                     declaration: true,
@@ -136,8 +129,8 @@ module.exports = function (grunt) {
                 src: [
                     'typings/*.d.ts',
                     'lib/nullstone/dist/nullstone.d.ts',
-                    'lib/minerva/minerva.d.ts',
-                    'fayde.d.ts',
+                    'lib/minerva/dist/minerva.d.ts',
+                    'dist/fayde.d.ts',
                     '<%= dirs.test.root %>/**/*.ts',
                     '!<%= dirs.test.root %>/lib/**/*.ts'
                 ],
@@ -153,8 +146,8 @@ module.exports = function (grunt) {
                 src: [
                     'typings/*.d.ts',
                     'lib/nullstone/dist/nullstone.d.ts',
-                    'lib/minerva/minerva.d.ts',
-                    'fayde.d.ts',
+                    'lib/minerva/dist/minerva.d.ts',
+                    'dist/fayde.d.ts',
                     '<%= dirs.testsite.root %>/**/*.ts',
                     '!<%= dirs.testsite.root %>/lib/**/*.ts'
                 ],
@@ -170,9 +163,9 @@ module.exports = function (grunt) {
                     'typings/*.d.ts',
                     '<%= dirs.stress.root %>/**/*.ts',
                     '!<%= dirs.stress.lib %>/**/*.ts',
-                    '<%= dirs.stress.lib %>/nullstone/dist/nullstone.d.ts',
-                    '<%= dirs.stress.lib %>/minerva/minerva.d.ts',
-                    '<%= dirs.stress.lib %>/fayde/fayde.d.ts'
+                    'lib/nullstone/dist/nullstone.d.ts',
+                    'lib/minerva/dist/minerva.d.ts',
+                    'dist/fayde.d.ts'
                 ],
                 dest: '<%= dirs.stress.build %>',
                 options: {
@@ -260,20 +253,6 @@ module.exports = function (grunt) {
                 src: './build/_VersionTemplate._ts',
                 dest: './src/_Version.ts'
             }
-        },
-        nugetpack: {
-            dist: {
-                src: './nuget/Fayde.nuspec',
-                dest: './nuget/',
-                options: {
-                    version: '<%= pkg.version %>'
-                }
-            }
-        },
-        nugetpush: {
-            dist: {
-                src: './nuget/Fayde.<%= pkg.version %>.nupkg'
-            }
         }
     });
 
@@ -283,8 +262,6 @@ module.exports = function (grunt) {
     grunt.registerTask('stress', ['typescript:build', 'typescript:stress', 'connect:stress', 'open:stress', 'watch']);
     setup(grunt);
     version(grunt);
-    grunt.registerTask('package', ['nugetpack:dist']);
-    grunt.registerTask('publish', ['nugetpack:dist', 'nugetpush:dist']);
     grunt.registerTask('lib:reset', ['clean', 'setup', 'symlink:test', 'symlink:testsite', 'symlink:stress']);
     grunt.registerTask('link:nullstone', ['symlink:localnullstone']);
     grunt.registerTask('link:minerva', ['symlink:localminerva']);
