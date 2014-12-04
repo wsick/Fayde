@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.1';
+    Fayde.Version = '0.14.2';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -12283,6 +12283,9 @@ var Fayde;
         }, HierarchicalDataTemplate);
         HierarchicalDataTemplate.ItemTemplateProperty = DependencyProperty.Register("ItemTemplate", function () {
             return Fayde.DataTemplate;
+        }, HierarchicalDataTemplate);
+        HierarchicalDataTemplate.ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", function () {
+            return Fayde.Style;
         }, HierarchicalDataTemplate);
         return HierarchicalDataTemplate;
     })(Fayde.DataTemplate);

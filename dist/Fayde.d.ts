@@ -2564,8 +2564,10 @@ declare module Fayde {
     class HierarchicalDataTemplate extends DataTemplate {
         static ItemsSourceProperty: DependencyProperty;
         static ItemTemplateProperty: DependencyProperty;
+        static ItemContainerStyleProperty: DependencyProperty;
         public ItemsSource: nullstone.IEnumerable<any>;
         public ItemTemplate: DataTemplate;
+        public ItemContainerStyle: Style;
     }
 }
 declare module Fayde {
