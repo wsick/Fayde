@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.5';
+    Fayde.Version = '0.14.6';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -7172,6 +7172,7 @@ var Fayde;
             function Frame() {
                 _super.call(this);
                 this._NavService = new Fayde.Navigation.NavigationService();
+                this.DefaultStyleKey = Frame;
                 this.Loaded.on(this._FrameLoaded, this);
             }
             Frame.prototype.Navigate = function (uri) {

@@ -20,9 +20,9 @@ module Fayde.Controls {
     }
 
     export class Frame extends ContentControl {
-        static IsDeepLinkedProperty: DependencyProperty = DependencyProperty.Register("IsDeepLinked", () => Boolean, Frame, true);
-        static CurrentSourceProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("CurrentSource", () => Uri, Frame);
-        static SourceProperty: DependencyProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
+        static IsDeepLinkedProperty = DependencyProperty.Register("IsDeepLinked", () => Boolean, Frame, true);
+        static CurrentSourceProperty = DependencyProperty.RegisterReadOnly("CurrentSource", () => Uri, Frame);
+        static SourceProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
         static UriMapperProperty = DependencyProperty.Register("UriMapper", () => Navigation.UriMapper, Frame);
         IsDeepLinked: boolean;
         CurrentSource: Uri;
@@ -39,6 +39,7 @@ module Fayde.Controls {
 
         constructor () {
             super();
+            this.DefaultStyleKey = Frame;
             this.Loaded.on(this._FrameLoaded, this);
         }
 
