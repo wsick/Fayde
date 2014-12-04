@@ -53,13 +53,9 @@ module Fayde {
         }
 
         function getLibConfig (libName: string, libJson: any): ILibraryConfig {
-            var path = libJson.path;
-            if (!path)
-                path = "lib/" + libName + "/" + libName;
-
             return {
                 name: libName,
-                path: path,
+                path: libJson.path,
                 deps: libJson.deps,
                 exports: libJson.exports
             };
@@ -80,7 +76,8 @@ module Fayde {
             co.map['*'][lib.path] = libName;
 
             var library = Fayde.TypeManager.resolveLibrary("lib://" + lib.name);
-            library.sourcePath = lib.path;
+            if (!!lib.path)
+                library.sourcePath = lib.path;
         }
     }
 

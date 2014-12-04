@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.3';
+    Fayde.Version = '0.14.4';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -27212,13 +27212,9 @@ var Fayde;
         _libs.configure = configure;
 
         function getLibConfig(libName, libJson) {
-            var path = libJson.path;
-            if (!path)
-                path = "lib/" + libName + "/" + libName;
-
             return {
                 name: libName,
-                path: path,
+                path: libJson.path,
                 deps: libJson.deps,
                 exports: libJson.exports
             };
@@ -27239,7 +27235,8 @@ var Fayde;
             co.map['*'][lib.path] = libName;
 
             var library = Fayde.TypeManager.resolveLibrary("lib://" + lib.name);
-            library.sourcePath = lib.path;
+            if (!!lib.path)
+                library.sourcePath = lib.path;
         }
     })(libs || (libs = {}));
 
