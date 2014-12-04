@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.4';
+    Fayde.Version = '0.14.5';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -27196,18 +27196,9 @@ var Fayde;
                 libs.push(getLibConfig(libName, json[libName]));
             }
 
-            var configObject = {
-                paths: {},
-                deps: [],
-                shim: {},
-                map: {
-                    "*": {}
-                }
-            };
             for (var i = 0; i < libs.length; i++) {
-                setupLibraryConfig(libs[i], configObject);
+                setupLibraryConfig(libs[i]);
             }
-            requirejs.config(configObject);
         }
         _libs.configure = configure;
 
@@ -27220,23 +27211,14 @@ var Fayde;
             };
         }
 
-        function setupLibraryConfig(lib, co) {
-            var libName = lib.name;
-
-            co.paths[libName] = lib.path;
-
-            var shim = co.shim[libName] = co.shim[libName] || {};
-
-            if (lib.exports)
-                shim.exports = lib.exports;
-            if (lib.deps)
-                shim.deps = lib.deps;
-
-            co.map['*'][lib.path] = libName;
-
+        function setupLibraryConfig(lib) {
             var library = Fayde.TypeManager.resolveLibrary("lib://" + lib.name);
             if (!!lib.path)
                 library.sourcePath = lib.path;
+            if (!!lib.exports)
+                library.exports = lib.exports;
+            if (!!lib.deps)
+                library.deps = lib.deps;
         }
     })(libs || (libs = {}));
 
