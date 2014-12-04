@@ -210,7 +210,7 @@ module Fayde.Markup.Internal {
             },
             end () {
                 state.incontent = false;
-                state.coll = state.arr = state.propd = state.prop = undefined;
+                state.coll = state.arr = state.propd = state.prop = state.eprop = undefined;
             },
             addObject (obj: any, key?: any) {
                 if (state.incontent) {

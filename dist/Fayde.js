@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.1';
+    Fayde.Version = '0.14.2';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -20353,7 +20353,7 @@ var Fayde;
                     },
                     end: function () {
                         state.incontent = false;
-                        state.coll = state.arr = state.propd = state.prop = undefined;
+                        state.coll = state.arr = state.propd = state.prop = state.eprop = undefined;
                     },
                     addObject: function (obj, key) {
                         if (state.incontent) {
