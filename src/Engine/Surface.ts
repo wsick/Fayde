@@ -10,7 +10,7 @@ module Fayde {
 
         constructor (app: Application) {
             super();
-            Object.defineProperty(this, "App", { value: app, writable: false });
+            Object.defineProperty(this, "App", {value: app, writable: false});
             this.$$inputMgr = new Engine.InputManager(this);
         }
 
@@ -35,7 +35,7 @@ module Fayde {
             this.attachLayer(uie.XamlNode.LayoutUpdater, root);
         }
 
-        attachLayer(layer: minerva.core.Updater, root?: boolean) {
+        attachLayer (layer: minerva.core.Updater, root?: boolean) {
             super.attachLayer(layer, root);
             var node = <UINode>layer.getAttachedValue("$node");
             node.SetIsLoaded(true);
@@ -46,11 +46,29 @@ module Fayde {
             this.detachLayer(uie.XamlNode.LayoutUpdater);
         }
 
-        detachLayer(layer: minerva.core.Updater) {
+        detachLayer (layer: minerva.core.Updater) {
             var node = <UINode>layer.getAttachedValue("$node");
             node.SetIsLoaded(false);
             node.SetIsAttached(false);
             super.detachLayer(layer);
+        }
+
+        updateLayout (): boolean {
+            var updated = super.updateLayout();
+            if (updated)
+                this.$$onLayoutUpdated();
+            return updated;
+        }
+
+        private $$onLayoutUpdated () {
+            for (var walker = this.walkLayers(); walker.step();) {
+                for (var subwalker = walker.current.walkDeep(); subwalker.step();) {
+                    var upd = subwalker.current;
+                    var node = upd.getAttachedValue("$node");
+                    var xobj = node.XObject;
+                    xobj.LayoutUpdated.raise(xobj, null);
+                }
+            }
         }
 
         Focus (node: Controls.ControlNode, recurse?: boolean): boolean {
@@ -71,7 +89,7 @@ module Fayde {
             return false;
         }
 
-        static Focus(uie: Controls.Control, recurse?: boolean): boolean {
+        static Focus (uie: Controls.Control, recurse?: boolean): boolean {
             var uin = uie.XamlNode;
             var surface = <Surface>uin.LayoutUpdater.tree.surface;
             if (!surface)

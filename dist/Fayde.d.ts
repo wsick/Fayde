@@ -3257,6 +3257,8 @@ declare module Fayde {
         public attachLayer(layer: minerva.core.Updater, root?: boolean): void;
         public Detach(uie: UIElement): void;
         public detachLayer(layer: minerva.core.Updater): void;
+        public updateLayout(): boolean;
+        private $$onLayoutUpdated();
         public Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
         static HasFocus(uie: UIElement): boolean;
         static Focus(uie: Controls.Control, recurse?: boolean): boolean;

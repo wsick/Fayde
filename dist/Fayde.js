@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.0';
+    Fayde.Version = '0.14.1';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -16097,6 +16097,24 @@ var Fayde;
             node.SetIsLoaded(false);
             node.SetIsAttached(false);
             _super.prototype.detachLayer.call(this, layer);
+        };
+
+        Surface.prototype.updateLayout = function () {
+            var updated = _super.prototype.updateLayout.call(this);
+            if (updated)
+                this.$$onLayoutUpdated();
+            return updated;
+        };
+
+        Surface.prototype.$$onLayoutUpdated = function () {
+            for (var walker = this.walkLayers(); walker.step();) {
+                for (var subwalker = walker.current.walkDeep(); subwalker.step();) {
+                    var upd = subwalker.current;
+                    var node = upd.getAttachedValue("$node");
+                    var xobj = node.XObject;
+                    xobj.LayoutUpdated.raise(xobj, null);
+                }
+            }
         };
 
         Surface.prototype.Focus = function (node, recurse) {
