@@ -20,5 +20,5 @@ module Fayde.Data {
         PropertyChanged = 1,
         Explicit = 3,
     }
-    Fayde.RegisterEnum(UpdateSourceTrigger, "UpdateSourceTrigger",Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(UpdateSourceTrigger, "UpdateSourceTrigger");
 }

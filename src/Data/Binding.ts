@@ -44,7 +44,6 @@ module Fayde.Data {
                 this.ValidatesOnExceptions = binding.ValidatesOnExceptions;
                 this.ValidatesOnDataErrors = binding.ValidatesOnDataErrors;
                 this.ValidatesOnNotifyDataErrors = binding.ValidatesOnNotifyDataErrors;
-                Object.freeze(this);
             } else if (typeof obj === "string") {
                 this.Path = new Data.PropertyPath(<string>obj);
             } else if (obj instanceof Data.PropertyPath) {

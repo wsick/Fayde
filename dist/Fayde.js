@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.0';
+    Fayde.Version = '0.14.1';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -13692,7 +13692,6 @@ var Fayde;
                     this.ValidatesOnExceptions = binding.ValidatesOnExceptions;
                     this.ValidatesOnDataErrors = binding.ValidatesOnDataErrors;
                     this.ValidatesOnNotifyDataErrors = binding.ValidatesOnNotifyDataErrors;
-                    Object.freeze(this);
                 } else if (typeof obj === "string") {
                     this.Path = new Data.PropertyPath(obj);
                 } else if (obj instanceof Data.PropertyPath) {
@@ -13780,7 +13779,7 @@ var Fayde;
             UpdateSourceTrigger[UpdateSourceTrigger["Explicit"] = 3] = "Explicit";
         })(Data.UpdateSourceTrigger || (Data.UpdateSourceTrigger = {}));
         var UpdateSourceTrigger = Data.UpdateSourceTrigger;
-        Fayde.RegisterEnum(UpdateSourceTrigger, "UpdateSourceTrigger", Fayde.XMLNS);
+        Fayde.CoreLibrary.addEnum(UpdateSourceTrigger, "UpdateSourceTrigger");
     })(Fayde.Data || (Fayde.Data = {}));
     var Data = Fayde.Data;
 })(Fayde || (Fayde = {}));
@@ -14671,7 +14670,6 @@ var Fayde;
                     this.Mode = rs.Mode;
                     this.AncestorLevel = rs.AncestorLevel;
                     this.AncestorType = rs.AncestorType;
-                    Object.freeze(this);
                 }
             }
             RelativeSource.prototype.init = function (val) {

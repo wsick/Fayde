@@ -12,7 +12,6 @@ module Fayde.Data {
                 this.Mode = rs.Mode;
                 this.AncestorLevel = rs.AncestorLevel;
                 this.AncestorType = rs.AncestorType;
-                Object.freeze(this);
             }
         }
 
