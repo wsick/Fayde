@@ -1,7 +1,4 @@
 declare module Fayde {
-    var Version: string;
-}
-declare module Fayde {
     var XMLNS: string;
     var XMLNSX: string;
     var XMLNSINTERNAL: string;
@@ -3820,6 +3817,24 @@ declare module Fayde.Localization {
 }
 declare module Fayde.Localization {
 }
+declare module Fayde.Navigation {
+    class Route {
+        public View: Uri;
+        public HashParams: {
+            [key: string]: string;
+        };
+        public DataContext: any;
+        constructor(view: Uri, hashParams: {
+            [key: string]: string;
+        }, dataContext: any);
+    }
+}
+declare module Fayde.MVVM {
+    interface IViewModelProvider {
+        ResolveViewModel(route: Navigation.Route): any;
+    }
+    var IViewModelProvider_: nullstone.Interface<IViewModelProvider>;
+}
 declare module Fayde.MVVM {
     function NotifyProperties(type: any, propNames: string[]): void;
     class ObservableObject implements INotifyPropertyChanged {
@@ -5212,6 +5227,25 @@ declare module Fayde.Navigation {
         constructor();
         public CurrentUri : Uri;
         private _HandleFragmentChange();
+    }
+}
+declare module Fayde.Navigation {
+    class RouteMapper extends DependencyObject {
+        static RouteMappingsProperty: ImmutableDependencyProperty<XamlObjectCollection<RouteMapping>>;
+        static ViewModelProviderProperty: DependencyProperty;
+        public RouteMappings: XamlObjectCollection<RouteMapping>;
+        public ViewModelProvider: MVVM.IViewModelProvider;
+        constructor();
+        public MapUri(uri: Uri): Route;
+    }
+}
+declare module Fayde.Navigation {
+    class RouteMapping extends DependencyObject {
+        static ViewProperty: DependencyProperty;
+        static UriProperty: DependencyProperty;
+        public View: Uri;
+        public Uri: Uri;
+        public MapUri(uri: Uri): Route;
     }
 }
 declare module Fayde.Navigation {

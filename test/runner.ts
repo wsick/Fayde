@@ -15,6 +15,8 @@ module runner {
         ".build/tests/UriMapperTests",
         ".build/tests/DeepObservableCollectionTests",
 
+        ".build/tests/RouteMapperTests",
+
         ".build/tests/Markup/Basic",
         ".build/tests/Markup/Controls",
         ".build/tests/Markup/Framework",
