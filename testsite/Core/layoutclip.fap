@@ -1,0 +1,14 @@
+﻿<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        ThemeName="Metro">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Border BorderBrush="Orange" BorderThickness="2" CornerRadius="10" Width="300">
+            <TextBlock Text="The right side should be clipped"/>
+        </Border>
+    </Grid>
+</Application>
