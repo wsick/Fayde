@@ -58,6 +58,7 @@ module Fayde {
         private _Values: any[] = [];
 
         private _IsSourceLoaded: boolean = false;
+        private _SourceBacking: ResourceDictionary = null;
 
         private _MergedDictionaries: ResourceDictionaryCollection;
         get MergedDictionaries (): ResourceDictionaryCollection {
@@ -70,6 +71,7 @@ module Fayde {
         }
 
         Source: Uri;
+        App: Application;
 
         get Count (): number {
             return this._Values.length;
@@ -86,6 +88,9 @@ module Fayde {
         }
 
         Get (key: any): any {
+            if (!!this.Source) {
+                return this._GetFromSource(key);
+            }
             var index = this._Keys.indexOf(key);
             if (index > -1)
                 return this._Values[index];
@@ -150,6 +155,14 @@ module Fayde {
                     return true;
                 }
             };
+        }
+
+        private _GetFromSource (key: any): any {
+            if (!this._IsSourceLoaded) {
+                this._SourceBacking = Markup.Load<ResourceDictionary>(this.App, nullstone.markup.xaml.XamlMarkup.create(this.Source));
+                this._IsSourceLoaded = true;
+            }
+            return this._SourceBacking.Get(key);
         }
     }
     Fayde.CoreLibrary.add(ResourceDictionary);

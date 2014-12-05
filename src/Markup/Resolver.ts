@@ -8,9 +8,32 @@ module Fayde.Markup {
             XamlMarkup.create(uri)
                 .loadAsync()
                 .then(xm => {
-                    return xm.resolve(Fayde.TypeManager)
-                        .then(() => resolve(xm), reject);
+                    var co = collector.create();
+                    return nullstone.async.many([
+                        xm.resolve(Fayde.TypeManager, co.collect),
+                        co.resolve()
+                    ]).then(() => resolve(xm), reject);
                 }, reject);
         });
+    }
+
+    module collector {
+        export interface ICollector {
+            collect(ownerUri: string, ownerName: string, propName: string, val: any);
+            resolve(): nullstone.async.IAsyncRequest<any>;
+        }
+
+        export function create (): ICollector {
+            var rduris: string[] = [];
+            return {
+                collect (ownerUri: string, ownerName: string, propName: string, val: any) {
+                    if (ownerUri === Fayde.XMLNS && ownerName === "ResourceDictionary" && propName === "Source")
+                        rduris.push(val);
+                },
+                resolve (): nullstone.async.IAsyncRequest<any> {
+                    return nullstone.async.many(rduris.map(Resolve));
+                }
+            };
+        }
     }
 }

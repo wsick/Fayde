@@ -2636,9 +2636,11 @@ declare module Fayde {
         private _Keys;
         private _Values;
         private _IsSourceLoaded;
+        private _SourceBacking;
         private _MergedDictionaries;
         public MergedDictionaries : ResourceDictionaryCollection;
         public Source: Uri;
+        public App: Application;
         public Count : number;
         public AttachTo(xobj: XamlObject): void;
         public Contains(key: any): boolean;
@@ -2647,6 +2649,7 @@ declare module Fayde {
         public Remove(key: any): boolean;
         public getEnumerator(reverse?: boolean): nullstone.IEnumerator<any>;
         public GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): nullstone.IEnumerator<U>;
+        private _GetFromSource(key);
     }
 }
 declare module Fayde {

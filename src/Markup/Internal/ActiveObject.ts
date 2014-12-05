@@ -24,6 +24,9 @@ module Fayde.Markup.Internal {
                 this.obj = obj;
                 this.type = obj ? obj.constructor : null;
                 this.rd = (obj instanceof ResourceDictionary) ? obj : null;
+                if (this.rd) {
+                    this.rd.App = app;
+                }
                 this.dobj = (obj instanceof DependencyObject) ? obj : null;
                 var xo = this.xo = (obj instanceof XamlObject) ? obj : null;
                 if (xo) {

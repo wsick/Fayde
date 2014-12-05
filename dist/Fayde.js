@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.2';
+    Fayde.Version = '0.14.3';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -12651,6 +12651,7 @@ var Fayde;
             this._Keys = [];
             this._Values = [];
             this._IsSourceLoaded = false;
+            this._SourceBacking = null;
         }
         Object.defineProperty(ResourceDictionary.prototype, "MergedDictionaries", {
             get: function () {
@@ -12684,6 +12685,9 @@ var Fayde;
         };
 
         ResourceDictionary.prototype.Get = function (key) {
+            if (!!this.Source) {
+                return this._GetFromSource(key);
+            }
             var index = this._Keys.indexOf(key);
             if (index > -1)
                 return this._Values[index];
@@ -12748,6 +12752,14 @@ var Fayde;
                     return true;
                 }
             };
+        };
+
+        ResourceDictionary.prototype._GetFromSource = function (key) {
+            if (!this._IsSourceLoaded) {
+                this._SourceBacking = Fayde.Markup.Load(this.App, nullstone.markup.xaml.XamlMarkup.create(this.Source));
+                this._IsSourceLoaded = true;
+            }
+            return this._SourceBacking.Get(key);
         };
         return ResourceDictionary;
     })(Fayde.XamlObject);
@@ -20095,6 +20107,9 @@ var Fayde;
                         this.obj = obj;
                         this.type = obj ? obj.constructor : null;
                         this.rd = (obj instanceof Fayde.ResourceDictionary) ? obj : null;
+                        if (this.rd) {
+                            this.rd.App = app;
+                        }
                         this.dobj = (obj instanceof Fayde.DependencyObject) ? obj : null;
                         var xo = this.xo = (obj instanceof Fayde.XamlObject) ? obj : null;
                         if (xo) {
@@ -20428,13 +20443,34 @@ var Fayde;
         function Resolve(uri) {
             return nullstone.async.create(function (resolve, reject) {
                 XamlMarkup.create(uri).loadAsync().then(function (xm) {
-                    return xm.resolve(Fayde.TypeManager).then(function () {
+                    var co = collector.create();
+                    return nullstone.async.many([
+                        xm.resolve(Fayde.TypeManager, co.collect),
+                        co.resolve()
+                    ]).then(function () {
                         return resolve(xm);
                     }, reject);
                 }, reject);
             });
         }
         Markup.Resolve = Resolve;
+
+        var collector;
+        (function (collector) {
+            function create() {
+                var rduris = [];
+                return {
+                    collect: function (ownerUri, ownerName, propName, val) {
+                        if (ownerUri === Fayde.XMLNS && ownerName === "ResourceDictionary" && propName === "Source")
+                            rduris.push(val);
+                    },
+                    resolve: function () {
+                        return nullstone.async.many(rduris.map(Resolve));
+                    }
+                };
+            }
+            collector.create = create;
+        })(collector || (collector = {}));
     })(Fayde.Markup || (Fayde.Markup = {}));
     var Markup = Fayde.Markup;
 })(Fayde || (Fayde = {}));
