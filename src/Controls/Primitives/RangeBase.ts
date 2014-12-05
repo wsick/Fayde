@@ -17,7 +17,7 @@ module Fayde.Controls.Primitives {
         OnMinimumChanged(oldMin: number, newMin: number) { }
         OnMaximumChanged(oldMax: number, newMax: number) { }
         OnValueChanged(oldVal: number, newVal: number) {
-            this.ValueChanged.Raise(this, new RoutedPropertyChangedEventArgs(oldVal, newVal));
+            this.ValueChanged.raise(this, new RoutedPropertyChangedEventArgs(oldVal, newVal));
         }
         ValueChanged = new RoutedPropertyChangedEvent<number>();
 
@@ -30,7 +30,7 @@ module Fayde.Controls.Primitives {
                 (val) => this.SetCurrentValue(RangeBase.ValueProperty, val));
         }
     }
-    Fayde.RegisterType(RangeBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RangeBase);
 
     function numberValidator(d: DependencyObject, propd: DependencyProperty, value: any): boolean {
         if (typeof value !== "number")

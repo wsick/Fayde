@@ -2,28 +2,28 @@
 
 module Fayde.Controls {
     export class Page extends UserControl {
-        static TitleProperty: DependencyProperty = DependencyProperty.Register("Title", () => String, Page);
+        static TitleProperty = DependencyProperty.Register("Title", () => String, Page);
         Title: string;
 
-        constructor() {
+        constructor () {
             super();
+            this.DefaultStyleKey = Page;
         }
 
-        static GetAsync(url: string): IAsyncRequest<Page> {
-            var d = defer<Page>();
-            Xaml.XamlDocument.GetAsync(url)
-                .success(xd => {
-                    TimelineProfile.Parse(true, "Page");
-                    var page = <Page>Xaml.Load(xd.Document);
-                    TimelineProfile.Parse(false, "Page");
-                    if (!(page instanceof Controls.Page))
-                        d.reject("Xaml must be a Page.");
-                    else
-                        d.resolve(page);
-                })
-                .error(d.reject);
-            return d.request;
+        static GetAsync (initiator: DependencyObject, url: string): nullstone.async.IAsyncRequest<Page> {
+            return nullstone.async.create((resolve, reject) => {
+                Markup.Resolve(url)
+                    .then(xm => {
+                        TimelineProfile.Parse(true, "Page");
+                        var page = Markup.Load<Page>(initiator.App, xm);
+                        TimelineProfile.Parse(false, "Page");
+                        if (!(page instanceof Controls.Page))
+                            reject("Markup must be a Page.");
+                        else
+                            resolve(page);
+                    }, reject);
+            });
         }
     }
-    Fayde.RegisterType(Page, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Page);
 }

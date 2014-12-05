@@ -1,18 +1,35 @@
 /// <reference path="UIElement.ts" />
 /// <reference path="Providers/ImmutableStore.ts" />
 /// <reference path="Providers/ActualSizeStore.ts" />
-/// <reference path="LayoutUpdater.ts" />
 
 module Fayde {
     export class FENode extends UINode implements Providers.IStyleHolder, Providers.IImplicitStyleHolder {
         _LocalStyle: Style;
         _ImplicitStyles: Style[];
         _StyleMask: number;
-        _Surface: Surface;
 
         XObject: FrameworkElement;
         constructor(xobj: FrameworkElement) {
             super(xobj);
+            var lu = this.LayoutUpdater;
+            lu.tree.setTemplateApplier(() => {
+                var error = new BError();
+                var result = this.ApplyTemplateWithError(error);
+                if (error.Message)
+                    error.ThrowException();
+                return result;
+            });
+            lu.setSizeUpdater({
+                setActualWidth (value: number) {
+                    xobj.SetCurrentValue(FrameworkElement.ActualWidthProperty, value);
+                },
+                setActualHeight (value: number) {
+                    xobj.SetCurrentValue(FrameworkElement.ActualHeightProperty, value);
+                },
+                onSizeChanged (oldSize: minerva.Size, newSize: minerva.Size) {
+                    xobj.SizeChanged.raise(xobj, new SizeChangedEventArgs(oldSize, newSize));
+                }
+            });
         }
         SubtreeNode: XamlNode;
         SetSubtreeNode(subtreeNode: XamlNode, error: BError): boolean {
@@ -26,6 +43,23 @@ module Fayde {
             return true;
         }
 
+        GetInheritedEnumerator(): nullstone.IEnumerator<DONode> {
+            return this.GetVisualTreeEnumerator();
+        }
+
+        GetVisualTreeEnumerator(): nullstone.IEnumerator<FENode> {
+            var walker = this.LayoutUpdater.tree.walk();
+            return {
+                current: undefined,
+                moveNext: function() {
+                    if (!walker.step())
+                        return false;
+                    this.current = walker.current.getAttachedValue("$node");
+                    return true;
+                }
+            };
+        }
+
         SetIsLoaded(value: boolean) {
             if (this.IsLoaded === value)
                 return;
@@ -37,18 +71,17 @@ module Fayde {
             var res = xobj.Resources;
             if (!newIsLoaded) {
                 Providers.ImplicitStyleBroker.Clear(xobj, Providers.StyleMask.VisualTree);
-                xobj.Unloaded.Raise(xobj, new RoutedEventArgs());
+                xobj.Unloaded.raise(xobj, new RoutedEventArgs());
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
             } else {
                 Providers.ImplicitStyleBroker.Set(xobj, Providers.StyleMask.All);
             }
-            var enumerator = this.GetVisualTreeEnumerator();
-            while (enumerator.moveNext()) {
-                enumerator.current.SetIsLoaded(newIsLoaded);
+            for (var en = this.GetVisualTreeEnumerator(); en.moveNext();) {
+                en.current.SetIsLoaded(newIsLoaded);
             }
             if (newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
-                xobj.Loaded.Raise(xobj, new RoutedEventArgs());
+                xobj.Loaded.raise(xobj, new RoutedEventArgs());
                 this.InvokeLoaded();
                 //LOOKS USELESS: 
                 //Providers.DataContextStore.EmitDataContextChanged(xobj);
@@ -78,7 +111,7 @@ module Fayde {
             var xobj = this.XObject;
             if (result)
                 xobj.OnApplyTemplate();
-            xobj.TemplateApplied.Raise(xobj, EventArgs.Empty);
+            xobj.TemplateApplied.raise(xobj, null);
             return result;
         }
         DoApplyTemplateWithError(error: BError): boolean { return false; }
@@ -88,97 +121,49 @@ module Fayde {
             this.AttachVisualChild(uie, error);
             return error.Message == null;
         }
-        
-        _HasFocus(): boolean {
-            var curNode = this._Surface.FocusedNode
-            while (curNode) {
-                if (curNode === this)
-                    return true;
-                curNode = curNode.VisualParentNode;
-            }
-            return false;
-        }
-        GetFocusedElement(): UIElement {
-            var node = this._Surface.FocusedNode;
-            if (node)
-                return node.XObject;
-        }
 
         UpdateLayout() {
-            var lu = this.LayoutUpdater;
-            var error = new BError();
-            if (this.IsAttached) {
-                this._Surface._UpdateLayout(error);
-            } else {
-                var pass = {
-                    MeasureList: [],
-                    ArrangeList: [],
-                    SizeList: [],
-                    Count: 0,
-                    Updated: true
-                };
-                lu.UpdateLayer(pass, error);
-                if (pass.Updated)
-                    this.XObject.LayoutUpdated.Raise(this, EventArgs.Empty);
+            console.warn("FENode.UpdateLayout not implemented");
+        }
+
+        static DetachFromVisualParent (xobj: UIElement) {
+            var vpNode = <FENode>xobj.XamlNode.VisualParentNode;
+            if (vpNode instanceof FENode) {
+                var err = new BError();
+                vpNode.DetachVisualChild(xobj, err);
+                if (err.Message)
+                    err.ThrowException();
             }
-            if (error.Message)
-                error.ThrowException();
-        }
-
-        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator<FENode> {
-            if (this.SubtreeNode)
-                return ArrayEx.GetEnumerator([<FENode>this.SubtreeNode]);
-            return ArrayEx.EmptyEnumerator;
-        }
-
-        _SizeChanged(args: IDependencyPropertyChangedEventArgs) {
-            var lu = this.LayoutUpdater;
-            //TODO: var p = this._GetRenderTransformOrigin();
-            //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
-            lu.FullInvalidate(false);
-
-            var vpNode = this.VisualParentNode;
-            if (vpNode)
-                vpNode.LayoutUpdater.InvalidateMeasure();
-
-            lu.InvalidateMeasure();
-            lu.InvalidateArrange();
-            lu.UpdateBounds();
-        }
-        _FlowDirectionChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._SizeChanged(args);
         }
     }
-    Fayde.RegisterType(FENode, "Fayde");
 
     export class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
         XamlNode: FENode;
-        Resources: Fayde.ResourceDictionary;
         constructor() {
             super();
             var rd = FrameworkElement.ResourcesProperty.Initialize(this);
             rd.AttachTo(this);
         }
         CreateNode(): FENode { return new FENode(this); }
-        
+
         static ActualHeightProperty = DependencyProperty.RegisterReadOnly("ActualHeight", () => Number, FrameworkElement);
         static ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty = DependencyProperty.Register("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
         static FlowDirectionProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
-        static HeightProperty = DependencyProperty.Register("Height", () => Length, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
-        static HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
+        static HeightProperty = DependencyProperty.Register("Height", () => Length, FrameworkElement, NaN);
+        static HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch);
         static LanguageProperty = InheritableOwner.LanguageProperty.ExtendTo(FrameworkElement);
-        static MarginProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
-        static MaxHeightProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
-        static MaxWidthProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
-        static MinHeightProperty = DependencyProperty.Register("MinHeight", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
-        static MinWidthProperty = DependencyProperty.Register("MinWidth", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
-        static StyleProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._StyleChanged(args));
-        static VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
-        static WidthProperty = DependencyProperty.Register("Width", () => Length, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
+        static MarginProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement);
+        static MaxHeightProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY);
+        static MaxWidthProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY);
+        static MinHeightProperty = DependencyProperty.Register("MinHeight", () => Number, FrameworkElement, 0.0);
+        static MinWidthProperty = DependencyProperty.Register("MinWidth", () => Number, FrameworkElement, 0.0);
+        static StyleProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (dobj, args) => Providers.LocalStyleBroker.Set(<FrameworkElement>dobj, args.NewValue));
+        static VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch);
+        static WidthProperty = DependencyProperty.Register("Width", () => Length, FrameworkElement, NaN);
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, FrameworkElement);
         static DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, FrameworkElement);
-        
+
         IsInheritable(propd: DependencyProperty): boolean {
             if (propd === FrameworkElement.FlowDirectionProperty)
                 return true;
@@ -186,7 +171,7 @@ module Fayde {
                 return true;
             return super.IsInheritable(propd);
         }
-                
+
         ActualHeight: number;
         ActualWidth: number;
         FlowDirection: FlowDirection;
@@ -201,35 +186,33 @@ module Fayde {
         Style: Style;
         VerticalAlignment: VerticalAlignment;
         Width: number;
+        Resources: ResourceDictionary;
         DefaultStyleKey: Function;
 
         SizeChanged = new RoutedEvent<RoutedEventArgs>();
         Loaded = new RoutedEvent<RoutedEventArgs>();
         Unloaded = new RoutedEvent<RoutedEventArgs>();
-        LayoutUpdated = new MulticastEvent<EventArgs>();
+        LayoutUpdated = new nullstone.Event<nullstone.IEventArgs>();
 
         OnApplyTemplate() { }
-        TemplateApplied = new MulticastEvent<EventArgs>();
+        TemplateApplied = new nullstone.Event<nullstone.IEventArgs>();
 
         UpdateLayout() { this.XamlNode.UpdateLayout(); }
-        
-        private _StyleChanged(args: IDependencyPropertyChangedEventArgs) {
-            Providers.LocalStyleBroker.Set(this, <Style>args.NewValue);
-        }
-        private _AlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
-            var lu = this.XamlNode.LayoutUpdater;
-            lu.InvalidateArrange();
-            lu.FullInvalidate(true);
-        }
-        _WidthChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.XamlNode._SizeChanged(args);
-        }
-        _HeightChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.XamlNode._SizeChanged(args);
-        }
     }
-    Fayde.RegisterType(FrameworkElement, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(FrameworkElement);
 
     FrameworkElement.ActualWidthProperty.Store = Providers.ActualSizeStore.Instance;
     FrameworkElement.ActualHeightProperty.Store = Providers.ActualSizeStore.Instance;
+
+    module reactions {
+        UIReaction<number>(FrameworkElement.WidthProperty, minerva.core.reactTo.width, false);
+        UIReaction<number>(FrameworkElement.HeightProperty, minerva.core.reactTo.height, false);
+        UIReaction<number>(FrameworkElement.MaxWidthProperty, minerva.core.reactTo.maxWidth, false);
+        UIReaction<number>(FrameworkElement.MaxHeightProperty, minerva.core.reactTo.maxHeight, false);
+        UIReaction<number>(FrameworkElement.MinWidthProperty, minerva.core.reactTo.minWidth, false);
+        UIReaction<number>(FrameworkElement.MinHeightProperty, minerva.core.reactTo.minHeight, false);
+        UIReaction<Thickness>(FrameworkElement.MarginProperty, minerva.core.reactTo.margin, false, minerva.Thickness.copyTo);
+        UIReaction<minerva.HorizontalAlignment>(FrameworkElement.HorizontalAlignmentProperty, minerva.core.reactTo.horizontalAlignment, false);
+        UIReaction<minerva.VerticalAlignment>(FrameworkElement.VerticalAlignmentProperty, minerva.core.reactTo.verticalAlignment, false);
+    }
 }

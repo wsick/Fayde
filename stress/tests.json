@@ -1,0 +1,9 @@
+{
+  "tests": [
+    {
+      "name": "Load Xaml (Metro)",
+      "test": "tests/markup/Loader",
+      "runCount": 10
+    }
+  ]
+}

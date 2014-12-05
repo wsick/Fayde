@@ -3,6 +3,8 @@
 /// <reference path="DependencyProperty.ts" />
 /// <reference path="Providers/PropertyStore.ts" />
 /// <reference path="Providers/DataContextStore.ts" />
+/// <reference path="DPReaction.ts" />
+/// <reference path="../Runtime/React.ts" />
 
 module Fayde {
     export class DONode extends XamlNode {
@@ -12,6 +14,7 @@ module Fayde {
         }
 
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
+            super.OnParentChanged(oldParentNode, newParentNode);
             var propd = DependencyObject.DataContextProperty;
             var storage = <Providers.IDataContextStorage>Providers.GetStorage(this.XObject, propd);
             var newInherited = newParentNode ? newParentNode.DataContext : undefined;
@@ -40,8 +43,7 @@ module Fayde {
             super.OnDataContextChanged(oldDataContext, newDataContext);
         }
     }
-    Fayde.RegisterType(DONode, "Fayde");
-    
+
     export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
         private _Expressions: Expression[] = [];
         _PropertyStorage: Providers.IPropertyStorage[] = [];
@@ -70,14 +72,9 @@ module Fayde {
         }
         SetValueInternal(propd: DependencyProperty, value: any) {
             var expression: Expression;
-            if (value instanceof Expression)
+            if (value instanceof Expression) {
                 expression = value;
-            if (expression instanceof Data.BindingExpressionBase) {
-                var binding = (<Data.BindingExpressionBase>expression).ParentBinding;
-                var path = binding.Path.Path;
-                if ((!path || path === ".") && binding.Mode === Data.BindingMode.TwoWay)
-                    throw new ArgumentException("TwoWay bindings require a non-empty Path.");
-                binding.Seal();
+                expression.Seal(this, propd);
             }
 
             var existing = this._Expressions[propd._ID];
@@ -138,7 +135,7 @@ module Fayde {
             if (propd.IsReadOnly && !propd.IsCustom)
                 throw new ArgumentException("This property is readonly.");
             this._RemoveExpression(propd);
-            
+
             var storage = Providers.GetStorage(this, propd);
             var anims = storage.Animations;
             if (anims && anims.length > 0)
@@ -194,7 +191,7 @@ module Fayde {
             if (!binding)
                 throw new ArgumentException("binding");
 
-            var e = new Data.BindingExpression(binding, this, propd);
+            var e = new Data.BindingExpression(binding);
             this.SetValueInternal(propd, e);
             return e;
         }
@@ -210,7 +207,7 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(DependencyObject, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DependencyObject);
 
     DependencyObject.DataContextProperty.Store = Fayde.Providers.DataContextStore.Instance;
 }

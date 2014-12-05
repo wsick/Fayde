@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class Color implements ICloneable {
     private static __NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
     private static __AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
@@ -227,9 +225,9 @@ class Color implements ICloneable {
         YellowGreen: Color.FromHex("#FF9ACD32")
     }
 }
-Fayde.RegisterType(Color, "window", Fayde.XMLNS);
+Fayde.CoreLibrary.addPrimitive(Color);
 
-Fayde.RegisterTypeConverter(Color, (val: any): Color => {
+nullstone.registerTypeConverter(Color, (val: any): Color => {
     if (!val)
         return undefined;
     if (val instanceof Color)

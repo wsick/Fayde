@@ -5,22 +5,22 @@ module Fayde {
         private _IsSealed: boolean = false;
 
         static SettersProperty = DependencyProperty.RegisterImmutable<SetterCollection>("Setters", () => SetterCollection, Style);
-        static BasedOnProperty: DependencyProperty = DependencyProperty.Register("BasedOn", () => Style, Style);
-        static TargetTypeProperty: DependencyProperty = DependencyProperty.Register("TargetType", () => Function, Style);
+        static BasedOnProperty = DependencyProperty.Register("BasedOn", () => Style, Style);
+        static TargetTypeProperty = DependencyProperty.Register("TargetType", () => IType_, Style);
         Setters: SetterCollection;
         BasedOn: Style;
         TargetType: Function;
 
-        constructor() {
+        constructor () {
             super();
             var coll = Style.SettersProperty.Initialize(this);
             coll.AttachTo(this);
         }
 
-        Seal() {
+        Seal () {
             if (this._IsSealed)
                 return;
-            this.Setters._Seal(this.TargetType);
+            this.Setters.Seal();
             this._IsSealed = true;
 
             var base = this.BasedOn;
@@ -28,7 +28,7 @@ module Fayde {
                 base.Seal();
         }
 
-        Validate(instance: DependencyObject, error: BError): boolean {
+        Validate (instance: DependencyObject, error: BError): boolean {
             var targetType = this.TargetType;
             var parentType = <Function>(<any>instance).constructor;
 
@@ -66,12 +66,12 @@ module Fayde {
                         error.Number = BError.InvalidOperation;
                         error.Message = "TargetType cannot be null";
                         return false;
-                    } else if (!Nullstone.DoesInheritFrom(parentType, targetType)) {
-                        error.Number = BError.XamlParse; 
+                    } else if (!nullstone.doesInheritFrom(parentType, targetType)) {
+                        error.Number = BError.XamlParse;
                         error.Message = "Style.TargetType (" + (<any>targetType).name + ") is not a subclass of (" + (<any>parentType).name + ")";
                         return false;
                     }
-                } else if (!targetType || !Nullstone.DoesInheritFrom(parentType, targetType)) {
+                } else if (!targetType || !nullstone.doesInheritFrom(parentType, targetType)) {
                     error.Number = BError.InvalidOperation;
                     error.Message = "Style.TargetType (" + (targetType ? (<any>targetType).name : "<Not Specified>") + ") is not a subclass of (" + (<any>parentType).name + ")";
                     return false;
@@ -85,6 +85,6 @@ module Fayde {
             return true;
         }
     }
-    Fayde.RegisterType(Style, "Fayde", Fayde.XMLNS);
-    Xaml.Content(Style, Style.SettersProperty);
+    Fayde.CoreLibrary.add(Style);
+    Markup.Content(Style, Style.SettersProperty);
 }

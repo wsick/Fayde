@@ -5,7 +5,7 @@ module Fayde.Media.Animation {
         static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Number, DoubleKeyFrame);
         Value: number;
     }
-    Fayde.RegisterType(DoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DoubleKeyFrame);
 
     export class DiscreteDoubleKeyFrame extends DoubleKeyFrame {
         InterpolateValue(baseValue: number, keyFrameProgress: number): number {
@@ -14,7 +14,7 @@ module Fayde.Media.Animation {
             return baseValue;
         }
     }
-    Fayde.RegisterType(DiscreteDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DiscreteDoubleKeyFrame);
 
     export class EasingDoubleKeyFrame extends DoubleKeyFrame {
         static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, EasingDoubleKeyFrame);
@@ -39,7 +39,7 @@ module Fayde.Media.Animation {
             return start + (end - start) * keyFrameProgress;
         }
     }
-    Fayde.RegisterType(EasingDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(EasingDoubleKeyFrame);
 
     export class LinearDoubleKeyFrame extends DoubleKeyFrame {
         InterpolateValue(baseValue: number, keyFrameProgress: number): number {
@@ -52,7 +52,7 @@ module Fayde.Media.Animation {
             return start + (end - start) * keyFrameProgress;
         }
     }
-    Fayde.RegisterType(LinearDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(LinearDoubleKeyFrame);
     
     export class SplineDoubleKeyFrame extends DoubleKeyFrame {
         static KeySplineProperty: DependencyProperty = DependencyProperty.Register("KeySpline", () => KeySpline, SplineDoubleKeyFrame);
@@ -77,5 +77,5 @@ module Fayde.Media.Animation {
             return start + (end - start) * splineProgress;
         }
     }
-    Fayde.RegisterType(SplineDoubleKeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(SplineDoubleKeyFrame);
 }

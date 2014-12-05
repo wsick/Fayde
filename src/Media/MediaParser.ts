@@ -1,4 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="Geometry.ts" />
 
 
@@ -70,13 +69,13 @@ module Fayde.Media {
             var cbzp = new Point(); // points needed to create "smooth" beziers
             var qbzp = new Point(); // points needed to create "smooth" beziers
 
-            var path = new Path.RawPath();
+            var path = new minerva.path.Path();
             while (this.index < this.len) {
                 var c;
                 while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {
                     this.index++;
                 }
-                this.index++
+                this.index++;
                 var relative = false;
                 switch (c) {
                     case 'f':
@@ -88,7 +87,7 @@ module Fayde.Media {
                             fillRule = Shapes.FillRule.NonZero;
                         else
                             return null;
-                        this.index++
+                        this.index++;
                         c = this.str.charAt(this.index);
                         break;
                     case 'm':
@@ -98,24 +97,24 @@ module Fayde.Media {
                         if (cp1 == null)
                             break;
                         if (relative) {
-                            cp1.X += cp.X;
-                            cp1.Y += cp.Y;
+                            cp1.x += cp.x;
+                            cp1.y += cp.y;
                         }
-                        path.Move(cp1.X, cp1.Y);
-                        start.X = cp.X = cp1.X;
-                        start.Y = cp.Y = cp1.Y;
+                        path.move(cp1.x, cp1.y);
+                        start.x = cp.x = cp1.x;
+                        start.y = cp.y = cp1.y;
                         this.Advance();
                         while (this.MorePointsAvailable()) {
                             if ((cp1 = this.ParsePoint()) == null)
                                 break;
                             if (relative) {
-                                cp1.X += cp.X;
-                                cp1.Y += cp.Y;
+                                cp1.x += cp.x;
+                                cp1.y += cp.y;
                             }
-                            path.Line(cp1.X, cp1.Y);
+                            path.line(cp1.x, cp1.y);
                         }
-                        cp.X = cp1.X;
-                        cp.Y = cp1.Y;
+                        cp.x = cp1.x;
+                        cp.y = cp1.y;
                         cbz = qbz = false;
                         break;
                     case 'l':
@@ -126,14 +125,14 @@ module Fayde.Media {
                                 break;
 
                             if (relative) {
-                                cp1.X += cp.X;
-                                cp1.Y += cp.Y;
+                                cp1.x += cp.x;
+                                cp1.y += cp.y;
                             }
 
-                            path.Line(cp1.X, cp1.Y);
+                            path.line(cp1.x, cp1.y);
 
-                            cp.X = cp1.X;
-                            cp.Y = cp1.Y;
+                            cp.x = cp1.x;
+                            cp.y = cp1.y;
                             this.Advance();
                         }
                         cbz = qbz = false;
@@ -146,10 +145,10 @@ module Fayde.Media {
                             break;
 
                         if (relative)
-                            x += cp.X;
-                        cp = new Point(x, cp.Y);
+                            x += cp.x;
+                        cp = new Point(x, cp.y);
 
-                        path.Line(cp.X, cp.Y);
+                        path.line(cp.x, cp.y);
                         cbz = qbz = false;
                         break;
                     case 'v':
@@ -160,10 +159,10 @@ module Fayde.Media {
                             break;
 
                         if (relative)
-                            y += cp.Y;
-                        cp = new Point(cp.X, y);
+                            y += cp.y;
+                        cp = new Point(cp.x, y);
 
-                        path.Line(cp.X, cp.Y);
+                        path.line(cp.x, cp.y);
                         cbz = qbz = false;
                         break;
                     case 'c':
@@ -173,35 +172,35 @@ module Fayde.Media {
                             if ((cp1 = this.ParsePoint()) == null)
                                 break;
                             if (relative) {
-                                cp1.X += cp.X;
-                                cp1.Y += cp.Y;
+                                cp1.x += cp.x;
+                                cp1.y += cp.y;
                             }
                             this.Advance();
                             if ((cp2 = this.ParsePoint()) == null)
                                 break;
                             if (relative) {
-                                cp2.X += cp.X;
-                                cp2.Y += cp.Y;
+                                cp2.x += cp.x;
+                                cp2.y += cp.y;
                             }
                             this.Advance();
                             if ((cp3 = this.ParsePoint()) == null)
                                 break;
                             if (relative) {
-                                cp3.X += cp.X;
-                                cp3.Y += cp.Y;
+                                cp3.x += cp.x;
+                                cp3.y += cp.y;
                             }
                             this.Advance();
 
-                            path.CubicBezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                            path.cubicBezier(cp1.x, cp1.y, cp2.x, cp2.y, cp3.x, cp3.y);
 
-                            cp1.X = cp3.X;
-                            cp1.Y = cp3.Y;
+                            cp1.x = cp3.x;
+                            cp1.y = cp3.y;
                         }
-                        cp.X = cp3.X;
-                        cp.Y = cp3.Y;
+                        cp.x = cp3.x;
+                        cp.y = cp3.y;
                         cbz = true;
-                        cbzp.X = cp2.X;
-                        cbzp.Y = cp2.Y;
+                        cbzp.x = cp2.x;
+                        cbzp.y = cp2.y;
                         qbz = false;
                         break;
                     case 's':
@@ -211,31 +210,31 @@ module Fayde.Media {
                             if ((cp2 = this.ParsePoint()) == null)
                                 break;
                             if (relative) {
-                                cp2.X += cp.X;
-                                cp2.Y += cp.Y;
+                                cp2.x += cp.x;
+                                cp2.y += cp.y;
                             }
                             this.Advance();
                             if ((cp3 = this.ParsePoint()) == null)
                                 break;
                             if (relative) {
-                                cp3.X += cp.X;
-                                cp3.Y += cp.Y;
+                                cp3.x += cp.x;
+                                cp3.y += cp.y;
                             }
 
                             if (cbz) {
-                                cp1.X = 2 * cp.X - cbzp.X;
-                                cp1.Y = 2 * cp.Y - cbzp.Y;
+                                cp1.x = 2 * cp.x - cbzp.x;
+                                cp1.y = 2 * cp.y - cbzp.y;
                             } else
                                 cp1 = cp;
 
-                            path.CubicBezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                            path.cubicBezier(cp1.x, cp1.y, cp2.x, cp2.y, cp3.x, cp3.y);
 
                             cbz = true;
-                            cbzp.X = cp2.X;
-                            cbzp.Y = cp2.Y;
+                            cbzp.x = cp2.x;
+                            cbzp.y = cp2.y;
 
-                            cp.X = cp3.X;
-                            cp.Y = cp3.Y;
+                            cp.x = cp3.x;
+                            cp.y = cp3.y;
 
                             this.Advance();
                         }
@@ -248,26 +247,26 @@ module Fayde.Media {
                             if ((cp1 = this.ParsePoint()) == null)
                                 break;
                             if (relative) {
-                                cp1.X += cp.X;
-                                cp1.Y += cp.Y;
+                                cp1.x += cp.x;
+                                cp1.y += cp.y;
                             }
                             this.Advance();
                             if ((cp2 = this.ParsePoint()) == null)
                                 break;
                             if (relative) {
-                                cp2.X += cp.X;
-                                cp2.Y += cp.Y;
+                                cp2.x += cp.x;
+                                cp2.y += cp.y;
                             }
                             this.Advance();
 
-                            path.QuadraticBezier(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                            path.quadraticBezier(cp1.x, cp1.y, cp2.x, cp2.y);
 
-                            cp.X = cp2.X;
-                            cp.Y = cp2.Y;
+                            cp.x = cp2.x;
+                            cp.y = cp2.y;
                         }
                         qbz = true;
-                        qbzp.X = cp1.X;
-                        qbzp.Y = cp1.Y;
+                        qbzp.x = cp1.x;
+                        qbzp.y = cp1.y;
                         cbz = false;
                         break;
                     case 't':
@@ -277,24 +276,24 @@ module Fayde.Media {
                             if ((cp2 = this.ParsePoint()) == null)
                                 break;
                             if (relative) {
-                                cp2.X += cp.X;
-                                cp2.Y += cp.Y;
+                                cp2.x += cp.x;
+                                cp2.y += cp.y;
                             }
 
                             if (qbz) {
-                                cp1.X = 2 * cp.X - qbzp.X;
-                                cp1.Y = 2 * cp.Y - qbzp.Y;
+                                cp1.x = 2 * cp.x - qbzp.x;
+                                cp1.y = 2 * cp.y - qbzp.y;
                             } else
                                 cp1 = cp;
 
-                            path.QuadraticBezier(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                            path.quadraticBezier(cp1.x, cp1.y, cp2.x, cp2.y);
 
                             qbz = true;
-                            qbzp.X = cp1.X;
-                            qbzp.Y = cp1.Y;
+                            qbzp.x = cp1.x;
+                            qbzp.y = cp1.y;
 
-                            cp.X = cp2.X;
-                            cp.Y = cp2.Y;
+                            cp.x = cp2.x;
+                            cp.y = cp2.y;
 
                             this.Advance();
                         }
@@ -309,20 +308,20 @@ module Fayde.Media {
 
                             var angle = this.ParseDouble();
                             var is_large = this.ParseDouble() !== 0;
-                            var sweep = Shapes.SweepDirection.Counterclockwise;
-                            if (this.ParseDouble() !== 0) sweep = Shapes.SweepDirection.Clockwise;
+                            var sweep = minerva.SweepDirection.Counterclockwise;
+                            if (this.ParseDouble() !== 0) sweep = minerva.SweepDirection.Clockwise;
 
                             if ((cp2 = this.ParsePoint()) == null)
                                 break;
                             if (relative) {
-                                cp2.X += cp.X;
-                                cp2.Y += cp.Y;
+                                cp2.x += cp.x;
+                                cp2.y += cp.y;
                             }
 
-                            path.EllipticalArc(cp1.X, cp1.Y, angle, is_large, sweep, cp2.X, cp2.Y);
+                            path.ellipticalArc(cp1.x, cp1.y, angle, is_large, sweep, cp2.x, cp2.y);
 
-                            cp.X = cp2.X;
-                            cp.Y = cp2.Y;
+                            cp.x = cp2.x;
+                            cp.y = cp2.y;
 
                             this.Advance();
                         }
@@ -330,12 +329,12 @@ module Fayde.Media {
                         break;
                     case 'z':
                     case 'Z':
-                        //path.Line(start.X, start.Y);
-                        path.Close();
-                        //path.Move(start.X, start.Y);
+                        //path.Line(start.x, start.y);
+                        path.close();
+                        //path.Move(start.x, start.y);
 
-                        cp.X = start.X;
-                        cp.Y = start.Y;
+                        cp.x = start.x;
+                        cp.y = start.y;
                         cbz = qbz = false;
                         break;
                     default:
@@ -344,7 +343,7 @@ module Fayde.Media {
             }
             var pg = new PathGeometry();
             pg.OverridePath(path);
-            pg.FillRule = fillRule;
+            pg.FillRule = <Shapes.FillRule>fillRule;
             return pg;
         }
         ParseShapePoints(): Point[] {
@@ -453,5 +452,5 @@ module Fayde.Media {
         }
     }
 
-    Fayde.RegisterTypeConverter(Geometry, ParseGeometry);
+    nullstone.registerTypeConverter(Geometry, ParseGeometry);
 }

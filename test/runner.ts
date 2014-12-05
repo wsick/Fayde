@@ -1,25 +1,26 @@
-/// <reference path="qunit.d.ts" />
-
-declare var require;
 module runner {
     var testModules = [
-        "tests/PrimitivesTests",
-        "tests/FormatTests",
-        "tests/TypeConverterTests",
-        "tests/MarkupExpressionTests",
-        "tests/XamlNodeTests",
-        "tests/ProviderTests",
-        "tests/DependencyPropertyTests",
-        "tests/XamlLoadTests",
-        "tests/DataTemplateTests",
-        "tests/TransformTests",
-        "tests/TimelineTests",
-        "tests/ItemContainersManagerTests",
-        "tests/BindingTests",
-        "tests/UriMapperTests",
-        "tests/RouteMapperTests",
-        "tests/DependencyLoadTests",
-        "tests/DeepObservableCollectionTests"
+        ".build/tests/PrimitivesTests",
+        ".build/tests/FormatTests",
+        ".build/tests/TypeConverterTests",
+        ".build/tests/MarkupExpressionTests",
+        ".build/tests/XamlNodeTests",
+        ".build/tests/ProviderTests",
+        ".build/tests/DependencyPropertyTests",
+        ".build/tests/DataTemplateTests",
+        ".build/tests/TransformTests",
+        ".build/tests/TimelineTests",
+        ".build/tests/ItemContainersManagerTests",
+        ".build/tests/BindingTests",
+        ".build/tests/UriMapperTests",
+        ".build/tests/DeepObservableCollectionTests",
+
+        ".build/tests/RouteMapperTests",
+
+        ".build/tests/Markup/Basic",
+        ".build/tests/Markup/Controls",
+        ".build/tests/Markup/Framework",
+        ".build/tests/Markup/Media"
     ];
 
     Fayde.LoadConfigJson((config, err) => {

@@ -2,33 +2,25 @@
 /// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Controls {
-    export interface IRowDefinitionListener {
-        RowDefinitionChanged(rowDefinition: RowDefinition);
-    }
-
-    export class RowDefinition extends DependencyObject {
+    export class RowDefinition extends DependencyObject implements minerva.controls.grid.IRowDefinition {
         //NOTE: Will not receive property changes from GridLength
-        static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => GridLength, RowDefinition, undefined, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
-        static MaxHeightProperty: DependencyProperty = DependencyProperty.Register("MaxHeight", () => Number, RowDefinition, Number.POSITIVE_INFINITY, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
-        static MinHeightProperty: DependencyProperty = DependencyProperty.Register("MinHeight", () => Number, RowDefinition, 0.0, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
-        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("ActualHeight", () => Number, RowDefinition, 0.0);
+        static HeightProperty = DependencyProperty.Register("Height", () => GridLength, RowDefinition, undefined, Incite);
+        static MaxHeightProperty = DependencyProperty.Register("MaxHeight", () => Number, RowDefinition, Number.POSITIVE_INFINITY, Incite);
+        static MinHeightProperty = DependencyProperty.Register("MinHeight", () => Number, RowDefinition, 0.0, Incite);
+        static ActualHeightProperty = DependencyProperty.RegisterReadOnly("ActualHeight", () => Number, RowDefinition, 0.0);
         Height: GridLength;
         MaxHeight: number;
         MinHeight: number;
         ActualHeight: number;
 
-        private _Listener: IRowDefinitionListener;
-        Listen(listener: IRowDefinitionListener) { this._Listener = listener; }
-        Unlisten(listener: IRowDefinitionListener) { if (this._Listener === listener) this._Listener = null; }
-
-        private _HeightsChanged(args: IDependencyPropertyChangedEventArgs) {
-            var listener = this._Listener;
-            if (listener) listener.RowDefinitionChanged(this);
+        setActualHeight (value: number) {
+            this.SetCurrentValue(RowDefinition.ActualHeightProperty, value);
         }
     }
-    Fayde.RegisterType(RowDefinition, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RowDefinition);
 
-    function ConvertRowDefinition(o: any): RowDefinition {
+    import GridUnitType = minerva.controls.grid.GridUnitType;
+    function ConvertRowDefinition (o: any): RowDefinition {
         if (!o || o instanceof RowDefinition)
             return <RowDefinition>o;
         var s: string = o.toString();
@@ -47,39 +39,29 @@ module Fayde.Controls {
         rd.Height = new GridLength(v, s[s.length - 1] === "*" ? GridUnitType.Star : GridUnitType.Pixel);
         return rd;
     }
-    Fayde.RegisterTypeConverter(RowDefinition, ConvertRowDefinition);
 
-    export interface IRowDefinitionsListener {
-        RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection);
-    }
+    nullstone.registerTypeConverter(RowDefinition, ConvertRowDefinition);
 
-    export class RowDefinitionCollection extends XamlObjectCollection<RowDefinition> implements IRowDefinitionListener {
-        private _Listener: IRowDefinitionsListener;
-        Listen(listener: IRowDefinitionsListener) { this._Listener = listener; }
-        Unlisten(listener: IRowDefinitionsListener) { if (this._Listener === listener) this._Listener = null; }
-        RowDefinitionChanged(rowDefinition: RowDefinition) {
-            var listener = this._Listener;
-            if (listener) listener.RowDefinitionsChanged(this);
+    export class RowDefinitionCollection extends XamlObjectCollection<RowDefinition> {
+        _RaiseItemAdded (value: RowDefinition, index: number) {
+            Incite(this, {
+                item: value,
+                index: index,
+                add: true
+            });
         }
 
-        AddingToCollection(value: RowDefinition, error: BError): boolean {
-            if (!super.AddingToCollection(value, error))
-                return false;
-            value.Listen(this);
-            var listener = this._Listener;
-            if (listener) listener.RowDefinitionsChanged(this);
-            return true;
-        }
-        RemovedFromCollection(value: RowDefinition, isValueSafe: boolean) {
-            super.RemovedFromCollection(value, isValueSafe);
-            value.Unlisten(this);
-            var listener = this._Listener;
-            if (listener) listener.RowDefinitionsChanged(this);
+        _RaiseItemRemoved (value: RowDefinition, index: number) {
+            Incite(this, {
+                item: value,
+                index: index,
+                add: false
+            });
         }
     }
-    Fayde.RegisterType(RowDefinitionCollection, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RowDefinitionCollection);
 
-    function ConvertRowDefinitionCollection(o: any): RowDefinitionCollection {
+    function ConvertRowDefinitionCollection (o: any): RowDefinitionCollection {
         if (!o || o instanceof RowDefinitionCollection)
             return <RowDefinitionCollection>o;
         if (typeof o === "string") {
@@ -95,5 +77,6 @@ module Fayde.Controls {
         }
         return undefined;
     }
-    Fayde.RegisterTypeConverter(RowDefinitionCollection, ConvertRowDefinitionCollection);
+
+    nullstone.registerTypeConverter(RowDefinitionCollection, ConvertRowDefinitionCollection);
 }

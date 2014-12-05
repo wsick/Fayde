@@ -2,28 +2,23 @@
 /// <reference path="../GeneralTransform.ts" />
 
 module Fayde.Media.Effects {
-    export interface IEffectListener {
-        EffectChanged(effect: Media.Effects.Effect);
-    }
-
-    export class Effect extends DependencyObject {
-        private _Listener: Media.Effects.IEffectListener;
-
-        static EffectMappingProperty: DependencyProperty = DependencyProperty.Register("EffectMapping", () => GeneralTransform, Effect, undefined, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
+    export class Effect extends DependencyObject implements minerva.IEffect {
+        static EffectMappingProperty = DependencyProperty.Register("EffectMapping", () => GeneralTransform, Effect);
         EffectMapping: GeneralTransform;
 
-        Padding(): Thickness { return new Thickness(); }
-        GetPadding(thickness: Thickness): boolean { return false; }
-        PreRender(ctx: RenderContextEx) {
-            //Abstract Method
+        PreRender (ctx: minerva.core.render.RenderContext) {
         }
 
-        Listen(listener: Media.Effects.IEffectListener) { this._Listener = listener; }
-        Unlisten(listener: Media.Effects.IEffectListener) { if (this._Listener === listener) this._Listener = null; }
-        _EffectChanged(args: IDependencyPropertyChangedEventArgs) {
-            var listener = this._Listener;
-            if (listener) listener.EffectChanged(this);
+        PostRender (ctx: minerva.core.render.RenderContext) {
+        }
+
+        GetPadding (thickness: Thickness): boolean {
+            return false;
         }
     }
-    Fayde.RegisterType(Effect, "Fayde.Media.Effects", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Effect);
+
+    module reactions {
+        DPReaction<GeneralTransform>(Effect.EffectMappingProperty, (dobj, ov, nv) => Incite(dobj));
+    }
 }

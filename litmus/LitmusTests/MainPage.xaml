@@ -6,9 +6,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!--
                 <ResourceDictionary Source="Themes/Cosmopolitan/CoreStyles.xaml" />
-                -->
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -33,7 +31,7 @@
             <Border Grid.Column="2" Background="Red"></Border>
             <Border Grid.Column="3"  Background="OliveDrab"></Border>
         </Grid>-->
-        <tests:TextBoxTest />
+        <!--<tests:TextBoxTest />-->
         <!--<tests:UpDownTest />-->
         <!--<tests:ListBoxTest />-->
         <!--<tests:GridSplitterTest />-->
@@ -41,5 +39,13 @@
         <!--<tests:BorderTest />-->
         <!--<tests:nfldraft />-->
         <!--<tests:DoubleListBox />-->
+        <!--<tests:PathTest />-->
+        <!--
+        <Grid Width="100" Height="100">
+            <Rectangle Stretch="Uniform" Width="150" Height="50" Fill="Yellow" Stroke="Black" RadiusX="5" RadiusY="5" StrokeThickness="5"></Rectangle>
+        </Grid>
+        -->
+        <!--<tests:ScrollViewerTest />-->
+        <tests:ContentControlTest />
     </Grid>
 </UserControl>

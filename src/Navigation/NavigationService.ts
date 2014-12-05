@@ -1,14 +1,14 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Navigation {
     export class NavigationService {
         Href: string;
         Hash: string;
-        LocationChanged: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        LocationChanged = new nullstone.Event();
 
-        constructor() {
+        constructor () {
             this.Href = window.location.href;
             this.Hash = window.location.hash;
+            if (this.Href[this.Href.length - 1] === '#')
+                this.Hash = "#";
             if (this.Hash) {
                 this.Hash = this.Hash.substr(1);
                 this.Href = this.Href.substring(0, this.Href.indexOf('#'));
@@ -16,13 +16,17 @@ module Fayde.Navigation {
             window.onhashchange = () => this._HandleFragmentChange();
         }
 
-        private _HandleFragmentChange() {
+        get CurrentUri (): Uri {
+            return new Uri(this.Href + "#" + this.Hash);
+        }
+
+        private _HandleFragmentChange () {
             this.Hash = window.location.hash;
             if (this.Hash) {
                 this.Hash = this.Hash.substr(1);
             }
-            this.LocationChanged.Raise(this, EventArgs.Empty);
+            this.LocationChanged.raise(this, null);
         }
     }
-    Fayde.RegisterType(NavigationService, "Fayde.Navigation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(NavigationService);
 }

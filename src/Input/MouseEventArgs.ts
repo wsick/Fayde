@@ -14,18 +14,18 @@ module Fayde.Input {
             if (!(relativeTo instanceof UIElement))
                 throw new ArgumentException("Specified relative object must be a UIElement.");
             //TODO: If attached, should we run ProcessDirtyElements
-            relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
+            minerva.core.Updater.transformPoint(relativeTo.XamlNode.LayoutUpdater, p);
             return p;
         }
     }
-    Fayde.RegisterType(MouseEventArgs, "Fayde.Input", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(MouseEventArgs);
 
     export class MouseButtonEventArgs extends MouseEventArgs {
         constructor(absolutePos: Point) {
             super(absolutePos);
         }
     }
-    Fayde.RegisterType(MouseButtonEventArgs, "Fayde.Input", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(MouseButtonEventArgs);
 
     export class MouseWheelEventArgs extends MouseEventArgs {
         Delta: number;
@@ -34,5 +34,5 @@ module Fayde.Input {
             Object.defineProperty(this, "Delta", { value: delta, writable: false });
         }
     }
-    Fayde.RegisterType(MouseWheelEventArgs, "Fayde.Input", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(MouseWheelEventArgs);
 }

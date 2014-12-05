@@ -1,6 +1,3 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 import TestObservable = require("../mocks/TestObservable");
 import DeepObservableCollection = Fayde.Collections.DeepObservableCollection;
 
@@ -15,7 +12,7 @@ export function load() {
 
         var to1changed = false;
         var to2changed = false;
-        doc.ItemPropertyChanged.Subscribe(onItemPropertyChanged, {});
+        doc.ItemPropertyChanged.on(onItemPropertyChanged, {});
         function onItemPropertyChanged(sender, e: Fayde.Collections.ItemPropertyChangedEventArgs<TestObservable>) {
             to1changed = (e.Item === to1) ? true : to1changed;
             to2changed = (e.Item === to2) ? true : to2changed;
@@ -35,7 +32,7 @@ export function load() {
         
         var to1changed = false;
         var to2changed = false;
-        doc.ItemPropertyChanged.Subscribe(onItemPropertyChanged, {});
+        doc.ItemPropertyChanged.on(onItemPropertyChanged, {});
         function onItemPropertyChanged(sender, e: Fayde.Collections.ItemPropertyChangedEventArgs<TestObservable>) {
             to1changed = (e.Item === to1) ? true : to1changed;
             to2changed = (e.Item === to2) ? true : to2changed;

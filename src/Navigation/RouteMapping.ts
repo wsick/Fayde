@@ -7,12 +7,12 @@ module Fayde.Navigation {
         View: Uri;
         Uri: Uri;
 
-        MapUri(uri: Uri): Route {
+        MapUri (uri: Uri): Route {
             var matcher = createUriMatcher(this.Uri.toString(), uri.toString());
             var result: ITokenInfo[] = matcher.Match();
             if (!result)
                 return undefined;
-            
+
             //construct a route object that contains the view and parameters
             if (!this.View)
                 throw new InvalidOperationException("RouteMapping must have a view. (" + this.Uri.toString() + ")");
@@ -25,7 +25,7 @@ module Fayde.Navigation {
             return new Route(this.View, hashParams, null);
         }
     }
-    Fayde.RegisterType(RouteMapping, "Fayde.Navigation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RouteMapping);
 
     interface ITokenInfo {
         Identifier: string;
@@ -36,11 +36,11 @@ module Fayde.Navigation {
         Match(): ITokenInfo[];
     }
 
-    function createUriMatcher(matchTemplate: string, actual: string): IUriMatcher {
+    function createUriMatcher (matchTemplate: string, actual: string): IUriMatcher {
         var i = 0;
         var j = 0;
 
-        function collectTokenInfo(): ITokenInfo {
+        function collectTokenInfo (): ITokenInfo {
             var tokenInfo: ITokenInfo = {
                 Identifier: null,
                 Terminator: null,
@@ -59,7 +59,7 @@ module Fayde.Navigation {
             return tokenInfo;
         }
 
-        function findTokenValue(tokenInfo: ITokenInfo): ITokenInfo {
+        function findTokenValue (tokenInfo: ITokenInfo): ITokenInfo {
             if (tokenInfo.Terminator === '\0') {
                 tokenInfo.Value = actual.substr(j);
                 if (tokenInfo.Value)

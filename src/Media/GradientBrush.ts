@@ -2,10 +2,10 @@
 /// <reference path="Enums.ts" />
 
 module Fayde.Media {
-    export class GradientBrush extends Brush implements IGradientStopsListener {
+    export class GradientBrush extends Brush {
         static GradientStopsProperty = DependencyProperty.RegisterImmutable<GradientStopCollection>("GradientStops", () => GradientStopCollection, GradientBrush);
-        static MappingModeProperty = DependencyProperty.Register("MappingMode", () => new Enum(BrushMappingMode), GradientBrush, BrushMappingMode.RelativeToBoundingBox, (d, args) => (<Brush>d).InvalidateBrush());
-        static SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", () => new Enum(GradientSpreadMethod), GradientBrush, GradientSpreadMethod.Pad, (d, args) => (<Brush>d).InvalidateBrush());
+        static MappingModeProperty = DependencyProperty.Register("MappingMode", () => new Enum(BrushMappingMode), GradientBrush, BrushMappingMode.RelativeToBoundingBox, (d: GradientBrush, args) => d.InvalidateBrush());
+        static SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", () => new Enum(GradientSpreadMethod), GradientBrush, GradientSpreadMethod.Pad, (d: GradientBrush, args) => d.InvalidateBrush());
         GradientStops: GradientStopCollection;
         MappingMode: BrushMappingMode;
         SpreadMethod: GradientSpreadMethod;
@@ -14,10 +14,10 @@ module Fayde.Media {
             super();
             var coll = GradientBrush.GradientStopsProperty.Initialize(this);
             coll.AttachTo(this);
-            coll.Listen(this);
+            ReactTo(coll, this, () => this.InvalidateBrush());
         }
 
-        CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any {
+        CreateBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any {
             var spread = this.SpreadMethod;
             switch (spread) {
                 case GradientSpreadMethod.Pad:
@@ -29,20 +29,18 @@ module Fayde.Media {
                     return this._CreateReflect(ctx, bounds);
             }
         }
-        _CreatePad(ctx: CanvasRenderingContext2D, bounds: rect) { }
-        _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: rect) { }
-        _CreateReflect(ctx: CanvasRenderingContext2D, bounds: rect) { }
+        _CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
+        _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
+        _CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
 
-        _GetMappingModeTransform(bounds: rect): number[] {
+        _GetMappingModeTransform(bounds: minerva.Rect): number[] {
             if (!bounds)
                 return mat3.identity();
             if (this.MappingMode === BrushMappingMode.Absolute)
                 return mat3.identity();
-            return mat3.createScale(bounds.Width, bounds.Height);
+            return mat3.createScale(bounds.width, bounds.height);
         }
-
-        GradientStopsChanged(newGradientStops: GradientStopCollection) { this.InvalidateBrush(); }
     }
-    Fayde.RegisterType(GradientBrush, "Fayde.Media", Fayde.XMLNS);
-    Xaml.Content(GradientBrush, GradientBrush.GradientStopsProperty);
+    Fayde.CoreLibrary.add(GradientBrush);
+    Markup.Content(GradientBrush, GradientBrush.GradientStopsProperty);
 }

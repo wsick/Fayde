@@ -1,13 +1,13 @@
-
 module Fayde {
     export class VisualTreeHelper {
-        static GetParent(d: DependencyObject): DependencyObject {
+        static GetParent (d: DependencyObject): DependencyObject {
             if (!(d instanceof FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
             var parentNode = (<UIElement>d).XamlNode.VisualParentNode;
             if (parentNode)
                 return parentNode.XObject;
         }
+
         static GetParentOfType<T extends DependencyObject>(d: DependencyObject, type: any): T {
             if (!(d instanceof FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
@@ -18,17 +18,19 @@ module Fayde {
             }
             return undefined;
         }
-        static GetRoot(d: DependencyObject): DependencyObject {
+
+        static GetRoot (d: DependencyObject): DependencyObject {
             if (!(d instanceof FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
             var rootNode = (<UIElement>d).XamlNode.GetVisualRoot();
             if (rootNode)
                 return rootNode.XObject;
         }
-        static GetChild(d: DependencyObject, childIndex: number): DependencyObject {
+
+        static GetChild (d: DependencyObject, childIndex: number): DependencyObject {
             if (!(d instanceof FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
-            
+
             var feNode = <FENode>d.XamlNode;
             var subtreeNode = feNode.SubtreeNode;
             if (!subtreeNode)
@@ -43,10 +45,11 @@ module Fayde {
 
             throw new IndexOutOfRangeException(childIndex);
         }
-        static GetChildrenCount(d: DependencyObject): number {
+
+        static GetChildrenCount (d: DependencyObject): number {
             if (!(d instanceof FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
-            
+
             var feNode = <FENode>d.XamlNode;
             var subtreeNode = feNode.SubtreeNode;
             if (!subtreeNode)
@@ -61,21 +64,22 @@ module Fayde {
 
             return 0;
         }
-        static FindElementsInHostCoordinates(intersectingPoint: Point, subtree: UIElement): UIElement[] {
-            return subtree.XamlNode.LayoutUpdater.FindElementsInHostCoordinates(intersectingPoint)
-                .map(function (uin) { return uin.XObject; });
+
+        static FindElementsInHostCoordinates (pos: Point, uie: UIElement): UIElement[] {
+            return minerva.findElementsInHostSpace(pos, uie.XamlNode.LayoutUpdater)
+                .map(upd => upd.getAttachedValue("$node").XObject);
         }
 
-        static __Debug(ui: any, func?: (uin: UINode, tabIndex: number) => string): string {
+        static __Debug (ui: any, func?: (uin: UINode, tabIndex: number) => string): string {
             var uin: UINode;
             if (ui instanceof UIElement) {
                 uin = (<UIElement>ui).XamlNode;
             } else if (ui instanceof UINode) {
                 uin = <UINode>ui;
-            } else if (ui instanceof LayoutUpdater) {
-                uin = (<LayoutUpdater>ui).Node;
+            } else if (ui instanceof minerva.core.Updater) {
+                uin = (<minerva.core.Updater>ui).getAttachedValue("$node");
             }
-            
+
             //Find top level
             var topNode: UINode;
             if (!uin) {
@@ -91,7 +95,8 @@ module Fayde {
                 func = VisualTreeHelper.__DebugUIElement;
             return VisualTreeHelper.__DebugTree(topNode, uin, 1, func);
         }
-        private static __DebugTree(curNode: UINode, matchNode: UINode, tabIndex: number, func: (uin: UINode, tabIndex: number) => string) {
+
+        private static __DebugTree (curNode: UINode, matchNode: UINode, tabIndex: number, func: (uin: UINode, tabIndex: number) => string) {
             var str = "";
             if (curNode === matchNode) {
                 for (var i = 0; i < tabIndex; i++) {
@@ -116,13 +121,13 @@ module Fayde {
                 str += "+";
             else
                 str += "-";
-            str += name + "]";;
+            str += name + "]";
             if (func)
                 str += func(curNode, tabIndex);
             str += "\n";
 
-            var enumerator = curNode.GetVisualTreeEnumerator();
-            if (!enumerator) 
+            var enumerator = (<FENode>curNode).GetVisualTreeEnumerator();
+            if (!enumerator)
                 return str;
 
             var childNode: UINode;
@@ -133,7 +138,8 @@ module Fayde {
 
             return str;
         }
-        private static __DebugUIElement(uin: UINode, tabIndex: number): string {
+
+        private static __DebugUIElement (uin: UINode, tabIndex: number): string {
             if (!uin)
                 return "";
             var uie = uin.XObject;
@@ -146,12 +152,8 @@ module Fayde {
             var lu = uin.LayoutUpdater;
             if (lu) {
                 str += " ";
-                var p = lu.VisualOffset;
-                if (p)
-                    str += p.toString();
-                var s = size.fromRaw(lu.ActualWidth, lu.ActualHeight);
-                str += " ";
-                str += s.toString();
+                var ls = lu.assets.layoutSlot;
+                str += "(" + ls.x + "," + ls.y + ")(" + ls.width + "," + ls.height + ")";
             }
             str += ")";
 
@@ -163,7 +165,8 @@ module Fayde {
                 str += "\n" + gridStr;
             return str;
         }
-        private static __DebugGrid(uin: UINode, tabIndex: number): string {
+
+        private static __DebugGrid (uin: UINode, tabIndex: number): string {
             var grid: Controls.Grid;
             if (uin.XObject instanceof Controls.Grid)
                 grid = <Controls.Grid>uin.XObject;
@@ -179,48 +182,42 @@ module Fayde {
                 tabs += "\t";
             }
 
-            var enumerator: IEnumerator<Controls.RowDefinition>;
             var str = "";
             if (rcount > 0) {
                 str += tabs;
                 str += "  Rows (" + rcount + "):\n";
-                enumerator = rds.getEnumerator();
                 var rowdef: Controls.RowDefinition;
-                var i = 0;
-                while (enumerator.moveNext()) {
-                    rowdef = enumerator.current;
+                for (var en = rds.getEnumerator(), i = 0; en.moveNext(); i++) {
+                    rowdef = en.current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + rowdef.ActualHeight + "\n";
-                    i++;
                 }
             }
-            var enumerator2: IEnumerator<Controls.ColumnDefinition>;
+            var enumerator2: nullstone.IEnumerator<Controls.ColumnDefinition>;
             if (ccount > 0) {
                 str += tabs;
                 str += "  Columns (" + ccount + "):\n";
-                enumerator2 = cds.getEnumerator();
                 var coldef: Controls.ColumnDefinition;
-                var i = 0;
-                while (enumerator2.moveNext()) {
-                    coldef = enumerator2.current;
+                for (var en2 = cds.getEnumerator(), i = 0; en2.moveNext(); i++) {
+                    coldef = en2.current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + coldef.ActualWidth + "\n";
-                    i++;
                 }
             }
             return str;
         }
-        private static __DebugUIElementLayout(uin: UINode, tabIndex: number): string {
+
+        private static __DebugUIElementLayout (uin: UINode, tabIndex: number): string {
             if (!uin)
                 return "";
             return (<any>uin.LayoutUpdater)._DebugLayout();
         }
 
-        static __DebugLayout(ui: any): string {
+        static __DebugLayout (ui: any): string {
             return VisualTreeHelper.__Debug(ui, VisualTreeHelper.__DebugUIElementLayout);
         }
 
-        private static __GetById(id: number): UIElement {
+        private static __GetById (id: number): UIElement {
             //Find top level
             var rv = Application.Current.RootVisual;
             var topNode = (rv) ? rv.XamlNode : null;

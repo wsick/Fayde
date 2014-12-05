@@ -2,7 +2,19 @@
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
     ThemeName="Metro">
-    <Grid x:Name="LayoutRoot">
-        <TextBox Margin="5" Text="Enter Text here!" />
+    <Grid x:Name="LayoutRoot" Background="Green">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBox Grid.Row="0" Margin="5" Text="Enter Text here!" Background="Yellow" />
+        <TextBox Grid.Row="1" Margin="5" Text="Enter Text here!" Background="Orange" TextWrapping="Wrap" HorizontalAlignment="Left" Width="100" Height="50" VerticalScrollBarVisibility="Auto" />
+        <StackPanel Orientation="Horizontal" Grid.Row="2">
+            <TextBlock Margin="5" Text="{Binding ElementName=BigTextBox, Path=SelectionStart}" />
+            <TextBlock Margin="5" Text="{Binding ElementName=BigTextBox, Path=SelectionLength}" />
+        </StackPanel>
+        <TextBox x:Name="BigTextBox" Grid.Row="3" Margin="5" Text="Enter Text here!" AcceptsReturn="True" TextWrapping="Wrap" />
     </Grid>
 </Application>

@@ -1,10 +1,9 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 import TestViewModel = require("../mocks/TestViewModel");
 import TestViewModelProvider = require("../mocks/TestViewModelProvider");
+import Uri = nullstone.Uri;
+import UriKind = nullstone.UriKind;
 
-export function load() {
+export function load () {
     QUnit.module("Route Mapper");
 
     test("MapUri", () => {

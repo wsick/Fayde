@@ -1,32 +1,31 @@
 /// <reference path="TextElement.ts" />
 
 module Fayde.Documents {
-    export interface IInlinesChangedListener {
-        InlinesChanged(newInline: Inline, isAdd: boolean);
-    }
-
     export class Inline extends TextElement {
-        Autogen: boolean = false;
-    }
-    Fayde.RegisterType(Inline, "Fayde.Documents", Fayde.XMLNS);
+        static TextDecorationsProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(Inline);
+        TextDecorations: TextDecorations;
 
-    export class InlineCollection extends XamlObjectCollection<Inline> {
-        private _Listener: IInlinesChangedListener;
-        Listen(listener: IInlinesChangedListener) { this._Listener = listener; }
-        Unlisten(listener: IInlinesChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        constructor () {
+            super();
+            TextReaction<TextDecorations>(Inline.TextDecorationsProperty, (upd, ov, nv, te?: TextElement) => {
+                Incite(te, {
+                    type: 'font',
+                    full: upd.invalidateFont()
+                });
+            }, false, true, this);
+        }
 
-        AddingToCollection(value: Inline, error: BError): boolean {
-            if (!super.AddingToCollection(value, error))
+        Equals (inline: Inline): boolean {
+            if (this.TextDecorations !== inline.TextDecorations)
                 return false;
-            var listener = this._Listener;
-            if (listener) listener.InlinesChanged(value, true);
-            return true;
+            return super.Equals(inline);
         }
-        RemovedFromCollection(value: Inline, isValueSafe: boolean) {
-            super.RemovedFromCollection(value, isValueSafe);
-            var listener = this._Listener;
-            if (listener) listener.InlinesChanged(value, false);
+
+        IsInheritable (propd: DependencyProperty): boolean {
+            if (propd === Inline.TextDecorationsProperty)
+                return true;
+            return super.IsInheritable(propd);
         }
     }
-    Fayde.RegisterType(InlineCollection, "Fayde.Documents", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Inline);
 }

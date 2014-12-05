@@ -1,4 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="../Core/INotifyPropertyChanged.ts" />
 
 module Fayde.MVVM {
@@ -20,10 +19,10 @@ module Fayde.MVVM {
     }
 
     export class ObservableObject implements INotifyPropertyChanged {
-        PropertyChanged: MulticastEvent<PropertyChangedEventArgs> = new MulticastEvent<PropertyChangedEventArgs>();
+        PropertyChanged = new nullstone.Event<PropertyChangedEventArgs>();
         OnPropertyChanged(propertyName: string) {
-            this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged.raise(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-    Fayde.RegisterType(ObservableObject, "Fayde.MVVM", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ObservableObject);
 }

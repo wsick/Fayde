@@ -17,7 +17,7 @@ module Fayde.Controls.Primitives {
         constructor() {
             super();
             this.ClickMode = ClickMode.Press;
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = RepeatButton;
         }
 
         OnApplyTemplate() {
@@ -145,15 +145,12 @@ module Fayde.Controls.Primitives {
                 return;
             }
 
-            var er = this._ElementRoot;
             var els = VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition, this);
-            for (var i = 0; i < els.length; i++) {
-                if (els[i] === er)
-                    this.OnClick();
-            }
+            if (els.indexOf(this._ElementRoot) > -1)
+                this.OnClick();
         }
     }
-    Fayde.RegisterType(RepeatButton, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RepeatButton);
     TemplateVisualStates(RepeatButton, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

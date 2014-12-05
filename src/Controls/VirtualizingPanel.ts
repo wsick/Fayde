@@ -5,7 +5,7 @@ module Fayde.Controls {
         Standard = 0,
         Recycling = 1,
     }
-    Fayde.RegisterEnum(VirtualizationMode, "VirtualizationMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(VirtualizationMode, "VirtualizationMode");
 
     export class VirtualizingPanel extends Panel {
         static VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", () => new Enum(VirtualizationMode), VirtualizingPanel, VirtualizationMode.Recycling, VirtualizingPanel.OnVirtualizationModePropertyChanged);
@@ -27,11 +27,11 @@ module Fayde.Controls {
         }
 
         OnItemsAdded(index: number, newItems: any[]) { 
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            this.XamlNode.LayoutUpdater.invalidateMeasure();
         }
         OnItemsRemoved(index: number, oldItems: any[]) {
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            this.XamlNode.LayoutUpdater.invalidateMeasure();
         }
     }
-    Fayde.RegisterType(VirtualizingPanel, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(VirtualizingPanel);
 }

@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class TimeSpan {
     static _TicksPerMillisecond = 1;
     static _TicksPerSecond = 1000;
@@ -148,9 +146,9 @@ class TimeSpan {
         return this.Ticks;
     }
 }
-Fayde.RegisterType(TimeSpan, "window", Fayde.XMLNSX);
+Fayde.CoreLibrary.addPrimitive(TimeSpan);
 
-Fayde.RegisterTypeConverter(TimeSpan, (val: any): TimeSpan => {
+nullstone.registerTypeConverter(TimeSpan, (val: any): TimeSpan => {
     if (val instanceof TimeSpan)
         return <TimeSpan>val;
     if (typeof val === "number")

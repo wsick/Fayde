@@ -1,28 +1,27 @@
 /// <reference path="../Core/DependencyObject.ts" />
 
 module Fayde.Media {
-    export interface IBrushChangedListener {
-        Callback: (newBrush: Media.Brush) => void;
-        Detach();
-    }
+    export class Brush extends DependencyObject implements minerva.IBrush {
+        static TransformProperty = DependencyProperty.RegisterCore("Transform", () => Media.Transform, Brush);
+        Transform: Media.Transform;
 
-    export class Brush extends DependencyObject {
-        static TransformProperty: DependencyProperty = DependencyProperty.RegisterCore("Transform", () => Fayde.Media.Transform, Brush, undefined, (d, args) => (<Brush>d)._TransformChanged(args));
-        Transform: Fayde.Media.Transform;
-
-        private _CachedBounds: rect = null;
+        private _CachedBounds: minerva.Rect = null;
         private _CachedBrush: any = null;
-        private _Listeners: IBrushChangedListener[] = [];
 
-        constructor() {
+        constructor () {
             super();
             XamlNode.SetShareable(this.XamlNode);
         }
 
-        SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect) {
-            if (this._CachedBrush && this._CachedBounds && rect.isEqual(this._CachedBounds, bounds))
+        isTransparent (): boolean {
+            //TODO: Can we be clever with implementations?
+            return false;
+        }
+
+        setupBrush (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+            if (this._CachedBrush && this._CachedBounds && minerva.Rect.isEqual(this._CachedBounds, bounds))
                 return;
-            this._CachedBounds = bounds;
+            this._CachedBounds = new minerva.Rect(bounds.x, bounds.y, bounds.width, bounds.height);
 
             var transform = this.Transform;
             if (transform) {
@@ -30,59 +29,41 @@ module Fayde.Media {
                 var raw = transform.Value._Raw;
 
                 var tmpBrush = this.CreateBrush(ctx, bounds);
-                var fillExtents = rect.copyTo(bounds);
-                rect.growBy(fillExtents, raw[2], raw[5], 0, 0);
+                var fillExtents = new minerva.Rect();
+                minerva.Rect.copyTo(bounds, fillExtents);
+                minerva.Rect.grow(fillExtents, raw[2], raw[5], 0, 0);
 
                 var tmpCanvas = <HTMLCanvasElement>document.createElement("canvas");
-                tmpCanvas.width = Math.max(transformedBounds.Width, bounds.Width);
-                tmpCanvas.height = Math.max(transformedBounds.Height, bounds.Height);
+                tmpCanvas.width = Math.max(transformedBounds.width, bounds.width);
+                tmpCanvas.height = Math.max(transformedBounds.height, bounds.height);
                 var tmpCtx = tmpCanvas.getContext("2d");
                 tmpCtx.setTransform(raw[0], raw[1], raw[3], raw[4], raw[2], raw[5]);
                 tmpCtx.fillStyle = tmpBrush;
-                tmpCtx.fillRect(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height);
+                tmpCtx.fillRect(fillExtents.x, fillExtents.y, fillExtents.width, fillExtents.height);
 
                 this._CachedBrush = ctx.createPattern(tmpCanvas, "no-repeat");
             } else {
                 this._CachedBrush = this.CreateBrush(ctx, bounds);
             }
         }
-        CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any { return undefined; }
-        ToHtml5Object(): any { return this._CachedBrush; }
 
-        Listen(func: (newBrush: Media.Brush) => void ): IBrushChangedListener {
-            var listeners = this._Listeners;
-            var listener = {
-                Callback: func,
-                Detach: () => {
-                    var index = listeners.indexOf(listener);
-                    if (index > -1)
-                        listeners.splice(index, 1);
-                }
-            };
-            listeners.push(listener);
-            return listener;
+        toHtml5Object (): any {
+            return this._CachedBrush;
         }
 
-        InvalidateBrush() {
+        CreateBrush (ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any {
+            return undefined;
+        }
+
+        InvalidateBrush () {
             this._CachedBrush = null;
             this._CachedBounds = null;
-            var listeners = this._Listeners;
-            var len = listeners.length;
-            for (var i = 0; i < len; i++) {
-                listeners[i].Callback(this);
-            }
-        }
-        private _TransformListener: ITransformChangedListener;
-        private _TransformChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (this._TransformListener) {
-                this._TransformListener.Detach();
-                this._TransformListener = null;
-            }
-            var newt = <Transform>args.NewValue;
-            if (newt)
-                this._TransformListener = newt.Listen((source: Transform) => this.InvalidateBrush());
-            this.InvalidateBrush();
+            Incite(this);
         }
     }
-    Fayde.RegisterType(Brush, "Fayde.Media", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Brush);
+
+    module reactions {
+        DPReaction<Media.Transform>(Brush.TransformProperty, (brush: Brush, ov, nv) => brush.InvalidateBrush());
+    }
 }

@@ -9,7 +9,7 @@ module Fayde.Media.Animation {
             return (t * t * t) - (t * a * Math.sin(t * Math.PI));
         }
     }
-    Fayde.RegisterType(BackEase, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(BackEase);
 
     export class BounceEase extends EasingFunctionBase {
         static BouncesProperty:DependencyProperty = DependencyProperty.Register("Bounces", () => Number, BounceEase, 3);
@@ -41,21 +41,21 @@ module Fayde.Media.Animation {
             return -val;
         }
     }
-    Fayde.RegisterType(BounceEase, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(BounceEase);
 
     export class CircleEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return 1 - Math.sqrt(1 - (t * t));
         }
     }
-    Fayde.RegisterType(CircleEase, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(CircleEase);
 
     export class CubicEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return t * t * t;
         }
     }
-    Fayde.RegisterType(CubicEase, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(CubicEase);
 
     export class ElasticEase extends EasingFunctionBase {
         static OscillationsProperty: DependencyProperty = DependencyProperty.Register("Oscillations", () => Number, ElasticEase);
@@ -69,7 +69,7 @@ module Fayde.Media.Animation {
             return t * -Math.pow(2.0, this.Springiness * t) * Math.sin(((t - offset) * Math.PI * 2) / period);
         }
     }
-    Fayde.RegisterType(ElasticEase, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ElasticEase);
 
     export class ExponentialEase extends EasingFunctionBase {
         static ExponentProperty: DependencyProperty = DependencyProperty.Register("Exponent", () => Number, ExponentialEase);
@@ -79,7 +79,7 @@ module Fayde.Media.Animation {
             return (Math.exp(e * t) - 1) / (Math.exp(e) - 1);
         }
     }
-    Fayde.RegisterType(ExponentialEase, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ExponentialEase);
 
     export class PowerEase extends EasingFunctionBase {
         static PowerProperty: DependencyProperty = DependencyProperty.Register("Power", () => Number, PowerEase);
@@ -88,33 +88,33 @@ module Fayde.Media.Animation {
             return Math.pow(t, this.Power);
         }
     }
-    Fayde.RegisterType(PowerEase, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(PowerEase);
 
     export class QuadraticEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return t * t;
         }
     }
-    Fayde.RegisterType(QuadraticEase, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(QuadraticEase);
 
     export class QuarticEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return t * t * t * t;
         }
     }
-    Fayde.RegisterType(QuarticEase, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(QuarticEase);
 
     export class QuinticEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return t * t * t * t * t;
         }
     }
-    Fayde.RegisterType(QuinticEase, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(QuinticEase);
 
     export class SineEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return 1 - (Math.sin(1 - t) * (Math.PI / 2));
         }
     }
-    Fayde.RegisterType(SineEase, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(SineEase);
 }

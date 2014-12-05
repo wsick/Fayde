@@ -141,7 +141,7 @@ module Fayde.Data {
         _Source: any;
         private _Value: any;
         DependencyProperty: DependencyProperty;
-        PropertyInfo: IPropertyInfo;
+        PropertyInfo: any;
         private _NodeListener: IPropertyPathNodeListener;
         ValueType: IType;
 
@@ -161,13 +161,13 @@ module Fayde.Data {
         SetSource(value: any) {
             if (value == null || value !== this._Source) {
                 var oldSource = this._Source;
-                var npc = INotifyPropertyChanged_.As(oldSource);
+                var npc = INotifyPropertyChanged_.as(oldSource);
                 if (npc)
-                    npc.PropertyChanged.Unsubscribe(this.OnSourcePropertyChanged, this);
+                    npc.PropertyChanged.off(this.OnSourcePropertyChanged, this);
                 this._Source = value;
-                npc = INotifyPropertyChanged_.As(this._Source);
+                npc = INotifyPropertyChanged_.as(this._Source);
                 if (npc)
-                    npc.PropertyChanged.Subscribe(this.OnSourcePropertyChanged, this);
+                    npc.PropertyChanged.on(this.OnSourcePropertyChanged, this);
 
                 this.OnSourceChanged(oldSource, this._Source);
                 this.UpdateValue();
@@ -178,7 +178,7 @@ module Fayde.Data {
 
         UpdateValueAndIsBroken(newValue: any, isBroken: boolean) {
             var emitBrokenChanged = this._IsBroken !== isBroken;
-            var emitValueChanged = !Nullstone.Equals(this.Value, newValue);
+            var emitValueChanged = !nullstone.equals(this.Value, newValue);
 
             this._IsBroken = isBroken;
             this._Value = newValue;
@@ -199,7 +199,7 @@ module Fayde.Data {
     class StandardPropertyPathNode extends PropertyPathNode {
         private _STypeName: string;
         private _PropertyName: string;
-        PropertyInfo: PropertyInfo;
+        PropertyInfo: nullstone.IPropertyInfo;
         private _DPListener: Providers.IPropertyChangedListener;
 
         constructor(typeName: string, propertyName: string) {
@@ -212,7 +212,7 @@ module Fayde.Data {
             if (this.DependencyProperty)
                 (<DependencyObject>this.Source).SetValue(this.DependencyProperty, value);
             else if (this.PropertyInfo)
-                this.PropertyInfo.SetValue(this.Source, value);
+                this.PropertyInfo.setValue(this.Source, value);
         }
         UpdateValue() {
             if (this.DependencyProperty) {
@@ -222,7 +222,7 @@ module Fayde.Data {
                 //TODO: this.ValueType = PropertyInfo.PropertyType;
                 this.ValueType = null;
                 try {
-                    this.UpdateValueAndIsBroken(this.PropertyInfo.GetValue(this.Source), this._CheckIsBroken());
+                    this.UpdateValueAndIsBroken(this.PropertyInfo.getValue(this.Source), this._CheckIsBroken());
                 } catch (err) {
                     this.UpdateValueAndIsBroken(null, this._CheckIsBroken());
                 }
@@ -260,7 +260,7 @@ module Fayde.Data {
             }
 
             if (!this.DependencyProperty || !this.DependencyProperty.IsAttached) {
-                this.PropertyInfo = PropertyInfo.Find(this.Source, this._PropertyName);
+                this.PropertyInfo = nullstone.PropertyInfo.find(this.Source, this._PropertyName);
             }
         }
         OnPropertyChanged(sender, args: IDependencyPropertyChangedEventArgs) {
@@ -301,9 +301,9 @@ module Fayde.Data {
         ViewChanged(sender: any, e: IDependencyPropertyChangedEventArgs) {
             this.DisconnectViewHandlers(true);
             this.ConnectViewHandlers(null, e.NewValue);
-            this.ViewCurrentChanged(this, EventArgs.Empty);
+            this.ViewCurrentChanged(this, null);
         }
-        ViewCurrentChanged(sender: any, e: EventArgs) {
+        ViewCurrentChanged(sender: any, e: nullstone.IEventArgs) {
             this.UpdateValue();
             if (this.Next)
                 this.Next.SetSource(this.Value);
@@ -318,7 +318,7 @@ module Fayde.Data {
                 if (src instanceof CollectionViewSource)
                     src = view = src.View;
                 else
-                    view = ICollectionView_.As(src);
+                    view = ICollectionView_.as(src);
                 if (view && !this.BindToView)
                     src = view.CurrentItem;
             }
@@ -332,9 +332,9 @@ module Fayde.Data {
                 this._ViewPropertyListener = CollectionViewSource.ViewProperty.Store.ListenToChanged(source, CollectionViewSource.ViewProperty, this.ViewChanged, this);
                 view = source.View;
             }
-            this._View = ICollectionView_.As(view);
+            this._View = ICollectionView_.as(view);
             if (this._View)
-                this._View.CurrentChanged.Subscribe(this.ViewCurrentChanged, this);
+                this._View.CurrentChanged.on(this.ViewCurrentChanged, this);
         }
         DisconnectViewHandlers(onlyView?: boolean) {
             if (!onlyView)
@@ -344,7 +344,7 @@ module Fayde.Data {
                 this._ViewPropertyListener = null;
             }
             if (this._View) {
-                this._View.CurrentChanged.Unsubscribe(this.ViewCurrentChanged, this);
+                this._View.CurrentChanged.off(this.ViewCurrentChanged, this);
             }
         }
     }
@@ -352,7 +352,7 @@ module Fayde.Data {
         Index: number;
         _Source: any;
         _IsBroken: boolean;
-        PropertyInfo: IndexedPropertyInfo;
+        PropertyInfo: nullstone.IndexedPropertyInfo;
 
         constructor(index: any) {
             super();
@@ -372,9 +372,9 @@ module Fayde.Data {
             }
 
             try {
-                var newVal = this.PropertyInfo.GetValue(this.Source, this.Index);
+                var newVal = this.PropertyInfo.getValue(this.Source, this.Index);
                 this._IsBroken = false;
-                this.ValueType = this.PropertyInfo.PropertyType;
+                this.ValueType = this.PropertyInfo.propertyType;
                 this.UpdateValueAndIsBroken(newVal, this._IsBroken);
             } catch (err) {
                 this._IsBroken = true;
@@ -384,7 +384,7 @@ module Fayde.Data {
         }
         SetValue(value: any) {
             if (this.PropertyInfo)
-                this.PropertyInfo.SetValue(this.Source, this.Index, value);
+                this.PropertyInfo.setValue(this.Source, this.Index, value);
         }
 
         _CheckIsBroken(): boolean {
@@ -399,13 +399,13 @@ module Fayde.Data {
         OnSourceChanged(oldSource: any, newSource: any) {
             super.OnSourceChanged(oldSource, newSource);
 
-            var cc = Collections.INotifyCollectionChanged_.As(oldSource);
+            var cc = Collections.INotifyCollectionChanged_.as(oldSource);
             if (cc)
-                cc.CollectionChanged.Unsubscribe(this.CollectionChanged, this);
+                cc.CollectionChanged.off(this.CollectionChanged, this);
 
-            cc = Collections.INotifyCollectionChanged_.As(newSource);
+            cc = Collections.INotifyCollectionChanged_.as(newSource);
             if (cc)
-                cc.CollectionChanged.Subscribe(this.CollectionChanged, this);
+                cc.CollectionChanged.on(this.CollectionChanged, this);
 
             this._GetIndexer();
         }
@@ -413,7 +413,7 @@ module Fayde.Data {
         private _GetIndexer() {
             this.PropertyInfo = null;
             if (this._Source != null) {
-                this.PropertyInfo = IndexedPropertyInfo.Find(this._Source);
+                this.PropertyInfo = nullstone.IndexedPropertyInfo.find(this._Source);
             }
         }
 

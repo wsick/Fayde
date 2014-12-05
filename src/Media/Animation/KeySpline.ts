@@ -28,8 +28,8 @@ module Fayde.Media.Animation {
             var c2 = this.ControlPoint2 || new Point(1.0, 1.0);
             var src: ICubicCurve = {
                 c0: { x: 0.0, y: 0.0 },
-                c1: { x: c1.X, y: c1.Y },
-                c2: { x: c2.X, y: c2.Y },
+                c1: { x: c1.x, y: c1.y },
+                c2: { x: c2.x, y: c2.y },
                 c3: { x: 1.0, y: 1.0 }
             };
 
@@ -38,5 +38,5 @@ module Fayde.Media.Animation {
             this._QuadraticsArray = Curves.ConvertCubicsToQuadratics(carr, KeySpline.TOTAL_COUNT);
         }
     }
-    Fayde.RegisterType(KeySpline, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(KeySpline);
 }

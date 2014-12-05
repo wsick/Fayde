@@ -25,7 +25,7 @@ module Fayde.Media.Animation {
         SpeedRatio: number;
         FillBehavior: FillBehavior;
 
-        Completed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        Completed = new nullstone.Event();
 
         private _IsPaused: boolean = false;
         private _BeginPauseTime: number = 0;
@@ -75,7 +75,7 @@ module Fayde.Media.Animation {
                     this.Stop();
                     break;
             }
-            this.Completed.Raise(this, EventArgs.Empty);
+            this.Completed.raise(this, null);
         }
 
         Update(nowTime: number) {
@@ -177,9 +177,9 @@ module Fayde.Media.Animation {
             return undefined;
         }
     }
-    Fayde.RegisterType(Timeline, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Timeline);
 
     export class TimelineCollection extends XamlObjectCollection<Timeline> {
     }
-    Fayde.RegisterType(TimelineCollection, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TimelineCollection);
 }

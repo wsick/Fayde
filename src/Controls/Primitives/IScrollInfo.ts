@@ -1,5 +1,3 @@
-/// <reference path="../../Runtime/TypeManagement.ts" />
-
 module Fayde.Controls.Primitives {
     export interface IScrollInfo {
         ScrollOwner: ScrollViewer;
@@ -19,7 +17,7 @@ module Fayde.Controls.Primitives {
         PageLeft(): boolean;
         PageRight(): boolean;
 
-        MakeVisible(uie: UIElement, rectangle: rect): rect;
+        MakeVisible(uie: UIElement, rectangle: minerva.Rect): minerva.Rect;
 
         SetHorizontalOffset(offset: number): boolean;
         SetVerticalOffset(offset: number): boolean;
@@ -33,5 +31,5 @@ module Fayde.Controls.Primitives {
         ViewportHeight: number;
         ViewportWidth: number;
     }
-    export var IScrollInfo_ = Fayde.RegisterInterface<IScrollInfo>("IScrollInfo");
+    export var IScrollInfo_ = new nullstone.Interface<IScrollInfo>("IScrollInfo");
 }

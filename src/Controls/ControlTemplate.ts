@@ -1,17 +1,14 @@
-/// <reference path="../Xaml/XamlLoader.ts" />
+/// <reference path="../Markup/Loader" />
 
 module Fayde.Controls {
-    export class ControlTemplate extends Xaml.FrameworkTemplate {
+    export class ControlTemplate extends Markup.FrameworkTemplate {
+        static TargetTypeProperty = DependencyProperty.Register("TargetType", () => IType_, ControlTemplate);
         TargetType: Function;
 
-        constructor() {
-            super();
-        }
-
-        GetVisualTree(bindingSource: DependencyObject): UIElement {
-            var uie = <UIElement>super.GetVisualTree(bindingSource);
-            return uie;
+        Validate(): string {
+            if (!this.TargetType)
+                return "ControlTemplate must have a TargetType.";
         }
     }
-    Fayde.RegisterType(ControlTemplate, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ControlTemplate);
 }

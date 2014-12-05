@@ -1,173 +1,83 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Data {
-    export interface IValueConverter {
-        Convert(value: any, targetType: IType, parameter: any, culture: any): any;
-        ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any;
-    }
-    export var IValueConverter_ = Fayde.RegisterInterface<IValueConverter>("IValueConverter");
+    import convert = nullstone.convertAnyToType;
 
-    export class Binding implements Xaml.IMarkup {
-        private _IsSealed: boolean = false;
-        
-        private _StringFormat: string = undefined;
-        private _FallbackValue: any = undefined;
-        private _TargetNullValue: any = undefined;
+    export class Binding implements nullstone.markup.IMarkupExtension, ICloneable {
+        StringFormat: string;
+        FallbackValue: any;
+        TargetNullValue: any;
+        BindsDirectlyToSource: boolean;
+        Converter: IValueConverter;
+        ConverterParameter: any;
+        ConverterCulture: any;
+        ElementName: string;
+        Mode: BindingMode;
+        NotifyOnValidationError: boolean;
+        RelativeSource: RelativeSource;
+        Path: Data.PropertyPath;
+        Source: any;
+        UpdateSourceTrigger: UpdateSourceTrigger;
+        ValidatesOnExceptions: boolean;
+        ValidatesOnDataErrors: boolean;
+        ValidatesOnNotifyDataErrors: boolean;
 
-        private _BindsDirectlyToSource: boolean = false;
-        private _Converter: IValueConverter;
-        private _ConverterParameter: any;
-        private _ConverterCulture: any;
-        private _ElementName: string;
-        private _Mode: BindingMode = BindingMode.OneWay;
-        private _NotifyOnValidationError: boolean = false;
-        private _RelativeSource: RelativeSource;
-        private _Path: Data.PropertyPath;
-        private _Source: any;
-        private _UpdateSourceTrigger: UpdateSourceTrigger = UpdateSourceTrigger.Default;
-        private _ValidatesOnExceptions: boolean = false;
-        private _ValidatesOnDataErrors: boolean = false;
-        private _ValidatesOnNotifyDataErrors: boolean = true;
-
-        constructor(path?: string) {
-            if (!path) path = "";
-            this._Path = new PropertyPath(path);
-        }
-
-        get BindsDirectlyToSource(): boolean { return this._BindsDirectlyToSource; }
-        set BindsDirectlyToSource(value: boolean) {
-            this.CheckSealed();
-            this._BindsDirectlyToSource = value;
-        }
-
-        get Converter(): IValueConverter { return this._Converter; }
-        set Converter(value: IValueConverter) {
-            this.CheckSealed();
-            this._Converter = value;
-        }
-
-        get ConverterParameter(): any { return this._ConverterParameter; }
-        set ConverterParameter(value: any) {
-            this.CheckSealed();
-            this._ConverterParameter = value;
-        }
-        
-        get ConverterCulture(): any { return this._ConverterCulture; }
-        set ConverterCulture(value: any) {
-            this.CheckSealed();
-            this._ConverterCulture = value;
-        }
-        
-        get ElementName(): string { return this._ElementName; }
-        set ElementName(value: string) {
-            this.CheckSealed();
-            this._ElementName = value;
-        }
-        
-        get Mode(): BindingMode { return this._Mode; }
-        set Mode(value: BindingMode) {
-            this.CheckSealed();
-            this._Mode = value;
-        }
-        
-        get NotifyOnValidationError(): boolean { return this._NotifyOnValidationError; }
-        set NotifyOnValidationError(value: boolean) {
-            this.CheckSealed();
-            this._NotifyOnValidationError = value;
-        }
-        
-        get RelativeSource(): RelativeSource { return this._RelativeSource; }
-        set RelativeSource(value: RelativeSource) {
-            this.CheckSealed();
-            this._RelativeSource = value;
-        }
-        
-        get Path(): PropertyPath { return this._Path; }
-        set Path(value: PropertyPath) {
-            this.CheckSealed();
-            this._Path = value;
-        }
-        
-        get Source(): any { return this._Source; }
-        set Source(value: any) {
-            this.CheckSealed();
-            this._Source = value;
-        }
-        
-        get UpdateSourceTrigger(): UpdateSourceTrigger { return this._UpdateSourceTrigger; }
-        set UpdateSourceTrigger(value: UpdateSourceTrigger) {
-            this.CheckSealed();
-            this._UpdateSourceTrigger = value;
-        }
-        
-        get ValidatesOnExceptions(): boolean { return this._ValidatesOnExceptions; }
-        set ValidatesOnExceptions(value: boolean) {
-            this.CheckSealed();
-            this._ValidatesOnExceptions = value;
-        }
-        
-        get ValidatesOnDataErrors(): boolean { return this._ValidatesOnDataErrors; }
-        set ValidatesOnDataErrors(value: boolean) {
-            this.CheckSealed();
-            this._ValidatesOnDataErrors = value;
-        }
-        
-        get ValidatesOnNotifyDataErrors(): boolean { return this._ValidatesOnNotifyDataErrors; }
-        set ValidatesOnNotifyDataErrors(value: boolean) {
-            this.CheckSealed();
-            this._ValidatesOnNotifyDataErrors = value;
+        constructor ();
+        constructor (path: string);
+        constructor (path: Data.PropertyPath);
+        constructor (binding: Binding);
+        constructor (obj?: any) {
+            if (obj instanceof Binding) {
+                var binding = <Binding>obj;
+                this.StringFormat = binding.StringFormat;
+                this.FallbackValue = binding.FallbackValue;
+                this.TargetNullValue = binding.TargetNullValue;
+                this.BindsDirectlyToSource = binding.BindsDirectlyToSource;
+                this.Converter = binding.Converter;
+                this.ConverterParameter = binding.ConverterParameter;
+                this.ConverterCulture = binding.ConverterCulture;
+                this.ElementName = binding.ElementName;
+                this.Mode = binding.Mode;
+                this.NotifyOnValidationError = binding.NotifyOnValidationError;
+                this.RelativeSource = binding.RelativeSource ? binding.RelativeSource.Clone() : null;
+                this.Path = binding.Path;
+                this.Source = binding.Source;
+                this.UpdateSourceTrigger = binding.UpdateSourceTrigger;
+                this.ValidatesOnExceptions = binding.ValidatesOnExceptions;
+                this.ValidatesOnDataErrors = binding.ValidatesOnDataErrors;
+                this.ValidatesOnNotifyDataErrors = binding.ValidatesOnNotifyDataErrors;
+            } else if (typeof obj === "string") {
+                this.Path = new Data.PropertyPath(<string>obj);
+            } else if (obj instanceof Data.PropertyPath) {
+                this.Path = obj;
+            } else {
+                this.Path = new Data.PropertyPath("");
+            }
         }
 
-        get StringFormat(): string { return this._StringFormat; }
-        set StringFormat(value: string) {
-            this.CheckSealed();
-            this._StringFormat = value;
+        init (val: string) {
+            this.Path = new Data.PropertyPath(val);
         }
 
-        get FallbackValue(): any { return this._FallbackValue; }
-        set FallbackValue(value: any) {
-            this.CheckSealed();
-            this._FallbackValue = value;
+        transmute (os: any[]): any {
+            this.$$coerce();
+            Object.freeze(this);
+            return new Data.BindingExpression(this);
         }
 
-        get TargetNullValue():any { return this._TargetNullValue; }
-        set TargetNullValue(value: any) {
-            this.CheckSealed();
-            this._TargetNullValue = value;
+        private $$coerce () {
+            this.StringFormat = this.StringFormat ? this.StringFormat.toString() : undefined;
+            this.BindsDirectlyToSource = convert(this.BindsDirectlyToSource, Boolean);
+            this.Mode = Enum.fromAny(BindingMode, this.Mode);
+            this.NotifyOnValidationError = convert(this.NotifyOnValidationError, Boolean);
+            this.Path = convert(this.Path, Data.PropertyPath);
+            this.UpdateSourceTrigger = Enum.fromAny(UpdateSourceTrigger, this.UpdateSourceTrigger);
+            this.ValidatesOnExceptions = convert(this.ValidatesOnExceptions, Boolean);
+            this.ValidatesOnDataErrors = convert(this.ValidatesOnDataErrors, Boolean);
+            this.ValidatesOnNotifyDataErrors = convert(this.ValidatesOnNotifyDataErrors, Boolean);
         }
 
-        private CheckSealed() {
-            if (this._IsSealed)
-                throw new InvalidOperationException("The Binding cannot be changed after it has been used.");
-        }
-
-        Seal() { this._IsSealed = true; }
-
-        Clone(): Binding {
-            var b = new Binding(this._Path ? this._Path.Path : "");
-            b._StringFormat = this._StringFormat;
-            b._FallbackValue = this._FallbackValue;
-            b._TargetNullValue = this._TargetNullValue;
-            b._BindsDirectlyToSource = this._BindsDirectlyToSource;
-            b._Converter = this._Converter;
-            b._ConverterParameter = this._ConverterParameter;
-            b._ConverterCulture = this._ConverterCulture;
-            b._ElementName = this._ElementName;
-            b._Mode = this._Mode;
-            b._NotifyOnValidationError = this._NotifyOnValidationError;
-            if (this._RelativeSource)
-                b._RelativeSource = this._RelativeSource.Clone();
-            b._Source = this._Source;
-            b._UpdateSourceTrigger = this._UpdateSourceTrigger;
-            b._ValidatesOnExceptions = this._ValidatesOnExceptions;
-            b._ValidatesOnDataErrors = this._ValidatesOnDataErrors;
-            b._ValidatesOnNotifyDataErrors = this._ValidatesOnNotifyDataErrors;
-            return b;
-        }
-        
-        Transmute(ctx: Xaml.ITransmuteContext): Expression {
-            return new Data.BindingExpression(this, ctx.Owner, ctx.Property);
+        Clone () {
+            return new Binding(this);
         }
     }
-    Fayde.RegisterType(Binding, "Fayde.Data", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Binding);
 }

@@ -1,96 +1,53 @@
 /// <reference path="../../Core/FrameworkElement.ts" />
 
 module Fayde.Controls.Primitives {
+    import PopupUpdater = minerva.controls.popup.PopupUpdater;
+
     export class PopupNode extends FENode {
+        LayoutUpdater: PopupUpdater;
         XObject: Popup;
 
-        GetInheritedEnumerator (): IEnumerator<DONode> {
-            var popup = (<Popup>this.XObject);
-            if (!popup)
-                return ArrayEx.EmptyEnumerator;
-            var child = popup.Child;
-            if (!child)
-                return ArrayEx.EmptyEnumerator;
-            return ArrayEx.GetEnumerator([popup.Child.XamlNode]);
-        }
+        ClickedOutside = new nullstone.Event<nullstone.IEventArgs>();
 
         OnIsAttachedChanged (newIsAttached: boolean) {
             super.OnIsAttachedChanged(newIsAttached);
+            this.RegisterInitiator(this.VisualParentNode.XObject);
             if (!newIsAttached && this.XObject.IsOpen)
                 this.XObject.IsOpen = false;
         }
 
-        private _HorizontalOffset: number = 0;
-        private _VerticalOffset: number = 0;
-        private _IsVisible: boolean = false;
-        private _IsCatchingClick: boolean = false;
+        private _Overlay: Canvas = null;
         private _Catcher: Canvas = null;
-        private _VisualChild: FrameworkElement;
-        private _OverlayBrush: Media.Brush = null;
 
-        constructor (popup: Popup) {
-            super(popup);
-            this.SetOverlayBrush(Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0)));
-        }
-
-        SetOverlayBrush (brush: Media.Brush) {
-            this._OverlayBrush = brush;
-            if (this._Catcher)
-                this._Catcher.Background = brush;
-        }
-
-        _ChildChanged (oldChild: FrameworkElement, newChild: FrameworkElement) {
-            var popup = this.XObject;
-            this._Hide();
-            if (oldChild) {
-                Providers.InheritedStore.ClearInheritedOnRemove(popup, oldChild.XamlNode);
-                oldChild.XamlNode.LayoutUpdater.CarrierProjection = null;
-                oldChild.XamlNode.LayoutUpdater.CarrierXform = null;
+        EnsureOverlay (): Canvas {
+            if (!this._Overlay) {
+                this._Overlay = new Canvas();
+                this.LayoutUpdater.setLayer(this._Overlay.XamlNode.LayoutUpdater);
             }
-            this._PrepareVisualChild(newChild);
-            if (newChild) {
-                Providers.InheritedStore.PropagateInheritedOnAdd(popup, newChild.XamlNode);
-                newChild.XamlNode.LayoutUpdater.CarrierXform = mat3.identity();
-                if (popup.IsOpen)
-                    this._Show();
-            }
+            return this._Overlay;
         }
 
-        private _PrepareVisualChild (newChild: UIElement) {
-            if (!newChild)
-                return;
-
-            var root = <Canvas>this._VisualChild;
-            if (!root) {
-                root = new Canvas();
-                root.Children.Add(newChild);
-                this._VisualChild = root;
+        EnsureCatcher (): Canvas {
+            var catcher = this._Catcher;
+            if (this.ClickedOutside.has && !catcher) {
+                catcher = this._Catcher = new Canvas();
+                catcher.Background = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
+                catcher.LayoutUpdated.on(this.UpdateCatcher, this);
+                catcher.MouseLeftButtonDown.on(this._RaiseClickedOutside, this);
+                this.EnsureOverlay().Children.Insert(0, catcher);
             }
-
-            if (this._IsCatchingClick && !this._Catcher) {
-                var clickCatcher = new Canvas();
-                clickCatcher.Background = this._OverlayBrush;
-                clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
-                clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
-                root.Children.Insert(0, clickCatcher);
-                this._Catcher = clickCatcher;
-            }
+            return catcher;
         }
 
-        CatchClickedOutside () {
-            this._IsCatchingClick = true;
-            this._PrepareVisualChild(this.XObject.Child);
-        }
-
-        private _UpdateCatcher () {
-            var root = this._VisualChild;
+        UpdateCatcher () {
+            var root = this._Overlay;
             if (!root)
                 return;
-            var surface = this._Surface || Fayde.Application.Current.MainSurface;
-            var surfaceExtents = surface.Extents;
-            root.Width = surfaceExtents.Width;
-            root.Height = surfaceExtents.Height;
-
+            var surface = this.LayoutUpdater.tree.initiatorSurface;
+            if (!surface)
+                return;
+            root.Width = surface.width;
+            root.Height = surface.height;
             var catcher = this._Catcher;
             if (!catcher)
                 return;
@@ -99,139 +56,65 @@ module Fayde.Controls.Primitives {
         }
 
         private _RaiseClickedOutside (sender, e) {
-            this.XObject.ClickedOutside.Raise(this, EventArgs.Empty);
+            this.ClickedOutside.raise(this, null);
         }
 
-        OnHorizontalOffsetChanged (args: IDependencyPropertyChangedEventArgs) {
-            var child = this.XObject.Child;
-            if (!child)
+        RegisterInitiator (initiator: UIElement) {
+            if (!(initiator instanceof UIElement))
                 return;
-            var childLu = child.XamlNode.LayoutUpdater;
-            var tween = <number>args.NewValue - this._HorizontalOffset;
-            if (tween === 0)
-                return;
-            this._HorizontalOffset = args.NewValue;
-            if (childLu.CarrierProjection) {
-                var m = mat4.createTranslate(tween, 0.0, 0.0);
-                mat4.multiply(m, childLu.CarrierProjection, childLu.CarrierProjection);
-            } else if (childLu.CarrierXform) {
-                mat3.translate(childLu.CarrierXform, tween, 0.0);
-            }
-            this._VisualChild.InvalidateMeasure();
-        }
-
-        OnVerticalOffsetChanged (args: IDependencyPropertyChangedEventArgs) {
-            var child = this.XObject.Child;
-            if (!child)
-                return;
-            var childLu = child.XamlNode.LayoutUpdater;
-            var tween = <number>args.NewValue - this._VerticalOffset;
-            if (tween === 0)
-                return;
-            this._VerticalOffset = args.NewValue;
-            if (childLu.CarrierProjection) {
-                var m = mat4.createTranslate(0.0, tween, 0.0);
-                mat4.multiply(m, childLu.CarrierProjection, childLu.CarrierProjection);
-            } else if (childLu.CarrierXform) {
-                mat3.translate(childLu.CarrierXform, 0.0, tween);
-            }
-            this._VisualChild.InvalidateMeasure();
-        }
-
-        _Hide () {
-            var child = this._VisualChild;
-            if (!this._IsVisible || !child)
-                return;
-            this._IsVisible = false;
-            this.LayoutUpdater.ShouldSkipHitTest = true;
-            var surface = this._Surface || Fayde.Application.Current.MainSurface;
-            surface.DetachLayer(child);
-        }
-
-        _Show () {
-            this._UpdateCatcher();
-            var child = this._VisualChild;
-            if (this._IsVisible || !child)
-                return;
-            this._IsVisible = true;
-            this.LayoutUpdater.ShouldSkipHitTest = false;
-            var surface = this._Surface || Fayde.Application.Current.MainSurface;
-            surface.AttachLayer(child);
+            this.LayoutUpdater.setInitiator(initiator.XamlNode.LayoutUpdater);
         }
     }
-    Fayde.RegisterType(PopupNode, "Fayde.Controls.Primitives");
 
     export class Popup extends FrameworkElement {
         XamlNode: PopupNode;
+        CreateNode (): PopupNode { return new PopupNode(this); }
+        CreateLayoutUpdater () { return new PopupUpdater(); }
 
-        CreateNode (): PopupNode {
-            return new PopupNode(this);
-        }
-
-        CreateLayoutUpdater (node: PopupNode) {
-            return new PopupLayoutUpdater(node);
-        }
-
-        static ChildProperty = DependencyProperty.Register("Child", () => UIElement, Popup, undefined, (d, args) => (<Popup>d)._OnChildChanged(args));
-        static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d).XamlNode.OnHorizontalOffsetChanged(args));
-        static VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d).XamlNode.OnVerticalOffsetChanged(args));
-        static IsOpenProperty = DependencyProperty.Register("IsOpen", () => Boolean, Popup, false, (d, args) => (<Popup>d)._OnIsOpenChanged(args));
+        static ChildProperty = DependencyProperty.Register("Child", () => UIElement, Popup);
+        static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, Popup, 0.0);
+        static VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", () => Number, Popup, 0.0);
+        static IsOpenProperty = DependencyProperty.Register("IsOpen", () => Boolean, Popup, false);
         Child: UIElement;
         HorizontalOffset: number;
         VerticalOffset: number;
         IsOpen: boolean;
 
-        Opened = new MulticastEvent<EventArgs>();
-        Closed = new MulticastEvent<EventArgs>();
-        ClickedOutside = new MulticastEvent<EventArgs>();
+        Opened = new nullstone.Event<nullstone.IEventArgs>();
+        Closed = new nullstone.Event<nullstone.IEventArgs>();
 
-        private _OnChildChanged (args: IDependencyPropertyChangedEventArgs) {
-            var oldFE: FrameworkElement;
-            if (args.OldValue instanceof FrameworkElement) oldFE = <FrameworkElement>args.OldValue;
-            var newFE: FrameworkElement;
-            if (args.NewValue instanceof FrameworkElement) newFE = <FrameworkElement>args.NewValue;
-            this.XamlNode._ChildChanged(oldFE, newFE);
-        }
-
-        private _OnIsOpenChanged (args: IDependencyPropertyChangedEventArgs) {
-            if (args.NewValue) {
-                this.XamlNode._Show();
-                this.Opened.RaiseAsync(this, EventArgs.Empty);
-            } else {
-                this.XamlNode._Hide();
-                this.Closed.RaiseAsync(this, EventArgs.Empty);
-            }
+        WatchOutsideClick (callback: () => void, closure: any) {
+            this.XamlNode.ClickedOutside.on(callback, closure);
+            this.XamlNode.EnsureCatcher();
         }
     }
-    Fayde.RegisterType(Popup, "Fayde.Controls.Primitives", Fayde.XMLNS);
-    Xaml.Content(Popup, Popup.ChildProperty);
+    Fayde.CoreLibrary.add(Popup);
+    Markup.Content(Popup, Popup.ChildProperty);
 
-    export class PopupLayoutUpdater extends LayoutUpdater {
-        ComputeBounds () {
-        }
-
-        PostComputeTransform (hasProjection: boolean) {
-            var popup = <Popup>this.Node.XObject;
-            var child = popup.Child;
-            if (!child)
-                return;
-            var childLu = child.XamlNode.LayoutUpdater;
-            if (this.TotalRenderProjection) {
-                var projection = mat4.clone(this.AbsoluteProjection);
-                var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
-                mat4.multiply(m, projection, projection); //projection = projection * m
-
-                childLu.CarrierProjection = projection;
-                childLu.CarrierXform = null;
-                childLu.UpdateProjection();
+    module reactions {
+        UIReaction<boolean>(Popup.IsOpenProperty, (upd, ov, nv, popup?: Popup) => {
+            if (nv === true) {
+                popup.Opened.raiseAsync(popup, null);
+                popup.XamlNode.UpdateCatcher();
             } else {
-                var xform = mat3.clone(this.AbsoluteXform);
-                mat3.translate(xform, popup.HorizontalOffset, popup.VerticalOffset);
-
-                childLu.CarrierProjection = null;
-                childLu.CarrierXform = xform;
-                childLu.UpdateTransform();
+                popup.Closed.raiseAsync(popup, null);
             }
-        }
+            minerva.controls.popup.reactTo.isOpen(upd, ov, nv);
+        }, false);
+        UIReaction<UIElement>(Popup.ChildProperty, (upd, ov, nv, popup?: Popup) => {
+            var overlay = popup.XamlNode.EnsureOverlay();
+            if (ov) {
+                Providers.InheritedStore.ClearInheritedOnRemove(popup, ov.XamlNode);
+                overlay.Children.Remove(ov);
+            }
+            upd.setChild(nv ? nv.XamlNode.LayoutUpdater : null);
+            if (nv) {
+                popup.XamlNode.EnsureCatcher();
+                overlay.Children.Add(nv);
+                Providers.InheritedStore.PropagateInheritedOnAdd(popup, nv.XamlNode);
+            }
+        }, false, false);
+        UIReaction<number>(Popup.HorizontalOffsetProperty, minerva.controls.popup.reactTo.horizontalOffset, false);
+        UIReaction<number>(Popup.VerticalOffsetProperty, minerva.controls.popup.reactTo.verticalOffset, false);
     }
 }

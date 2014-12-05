@@ -2,26 +2,21 @@
 /// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Media {
-    export interface IGeometryListener {
-        GeometryChanged(newGeometry: Geometry);
-    }
+    export class Geometry extends DependencyObject implements minerva.IGeometry {
+        private _Path: minerva.path.Path = null;
+        private _LocalBounds = new minerva.Rect();
 
-    export class Geometry extends DependencyObject {
-        private _Path: Path.RawPath = null;
-        private _LocalBounds: rect = new rect();
-        private _Listener: IGeometryListener = null;
-
-        static TransformProperty: DependencyProperty = DependencyProperty.Register("Transform", () => Transform, Geometry, undefined, (d, args) => (<Geometry>d)._TransformChanged(args));
+        static TransformProperty = DependencyProperty.Register("Transform", () => Transform, Geometry);
         Transform: Transform;
 
-        constructor() {
+        constructor () {
             super();
-            this._LocalBounds.Width = Number.NEGATIVE_INFINITY;
-            this._LocalBounds.Height = Number.NEGATIVE_INFINITY;
+            this._LocalBounds.width = Number.NEGATIVE_INFINITY;
+            this._LocalBounds.height = Number.NEGATIVE_INFINITY;
         }
 
-        GetBounds(pars?: Path.IStrokeParameters): rect {
-            var compute = rect.isEmpty(this._LocalBounds);
+        GetBounds (pars?: minerva.path.IStrokeParameters): minerva.Rect {
+            var compute = minerva.Rect.isEmpty(this._LocalBounds);
 
             if (!this._Path) {
                 this._Path = this._Build();
@@ -29,90 +24,79 @@ module Fayde.Media {
             }
 
             if (compute)
-                rect.copyTo(this.ComputePathBounds(pars), this._LocalBounds);
-            var bounds = rect.copyTo(this._LocalBounds);
+                minerva.Rect.copyTo(this.ComputePathBounds(pars), this._LocalBounds);
 
-            var transform = this.Transform
+            var bounds = new minerva.Rect();
+            minerva.Rect.copyTo(this._LocalBounds, bounds);
+            var transform = this.Transform;
             if (transform != null)
                 bounds = transform.TransformBounds(bounds);
 
             return bounds;
         }
-        Draw(ctx: RenderContextEx) {
+
+        Draw (ctx: minerva.core.render.RenderContext) {
             if (!this._Path)
                 return;
 
+            var raw = ctx.raw;
             var transform = this.Transform;
             if (transform != null) {
-                ctx.save();
-                ctx.transformTransform(transform);
+                raw.save();
+                ctx.transformMatrix(transform.Value._Raw);
             }
-            this._Path.Draw(ctx);
+            this._Path.draw(raw);
             if (transform != null)
-                ctx.restore();
+                raw.restore();
         }
-        ComputePathBounds(pars: Path.IStrokeParameters): rect {
+
+        ComputePathBounds (pars: minerva.path.IStrokeParameters): minerva.Rect {
             if (!this._Path)
                 this._Path = this._Build();
             if (!this._Path)
-                return new rect();
-            return this._Path.CalculateBounds(pars);
+                return new minerva.Rect();
+            return this._Path.calcBounds(pars);
         }
-        _InvalidateGeometry() {
+
+        InvalidateGeometry () {
             this._Path = null;
-            rect.set(this._LocalBounds, 0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(this);
+            var lb = this._LocalBounds;
+            lb.x = lb.y = 0;
+            lb.width = lb.height = Number.NEGATIVE_INFINITY;
+            Incite(this);
         }
-        _Build(): Path.RawPath { return undefined; }
 
-        Listen(listener: IGeometryListener) { this._Listener = listener; }
-        Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
-
-        private _TransformListener: ITransformChangedListener;
-        private _TransformChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (this._TransformListener) {
-                this._TransformListener.Detach();
-                this._TransformListener = null;
-            }
-            var newt = <Transform>args.NewValue;
-            if (newt)
-                this._TransformListener = newt.Listen((source: Transform) => this._InvalidateGeometry());
-            this._InvalidateGeometry();
+        _Build (): minerva.path.Path {
+            return undefined;
         }
-        
-        Serialize(): string {
+
+        Serialize (): string {
             var path = this._Path;
             if (!path)
                 return;
             return path.Serialize();
         }
     }
-    Fayde.RegisterType(Geometry, "Fayde.Media", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Geometry);
 
-    export class GeometryCollection extends XamlObjectCollection<Geometry> implements IGeometryListener {
-        private _Listener: IGeometryListener;
-        Listen(listener: IGeometryListener) { this._Listener = listener; }
-        Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
+    module reactions {
+        DPReaction<Transform>(Geometry.TransformProperty, (geom: Geometry, ov, nv) => geom.InvalidateGeometry());
+    }
 
-        AddingToCollection(value: Geometry, error: BError): boolean {
+    export class GeometryCollection extends XamlObjectCollection<Geometry> {
+        AddingToCollection (value: Geometry, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
-            value.Listen(this);
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(value);
+            ReactTo(value, this, () => Incite(this));
+            Incite(this);
             return true;
         }
-        RemovedFromCollection(value: Geometry, isValueSafe: boolean) {
+
+        RemovedFromCollection (value: Geometry, isValueSafe: boolean) {
             super.RemovedFromCollection(value, isValueSafe);
-            value.Unlisten(this);
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(value);
-        }
-        GeometryChanged(newGeometry: Geometry) {
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(newGeometry);
+            UnreactTo(value, this);
+            Incite(this);
         }
     }
-    Fayde.RegisterType(GeometryCollection, "Fayde.Media", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(GeometryCollection);
 }

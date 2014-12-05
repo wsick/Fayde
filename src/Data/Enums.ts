@@ -1,26 +1,24 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Data {
     export enum RelativeSourceMode {
-        TemplatedParent = 1,
-        Self = 2,
-        FindAncestor = 3,
-        ItemsControlParent = 4,
+        TemplatedParent = 0,
+        Self = 1,
+        FindAncestor = 2,
+        ItemsControlParent = 3,
     }
-    Fayde.RegisterEnum(RelativeSourceMode, "RelativeSourceMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(RelativeSourceMode, "RelativeSourceMode");
 
     export enum BindingMode {
-        TwoWay = 0,
-        OneWay = 1,
+        OneWay = 0,
+        TwoWay = 1,
         OneTime = 2,
         OneWayToSource = 3,
     }
-    Fayde.RegisterEnum(BindingMode, "BindingMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(BindingMode, "BindingMode");
 
     export enum UpdateSourceTrigger {
         Default = 0,
         PropertyChanged = 1,
         Explicit = 3,
     }
-    Fayde.RegisterEnum(UpdateSourceTrigger, "UpdateSourceTrigger",Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(UpdateSourceTrigger, "UpdateSourceTrigger");
 }

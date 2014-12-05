@@ -2,6 +2,9 @@
 /// <reference path="../../Core/XamlObjectCollection.ts" />
 
 module Fayde.Media.Animation {
+    export interface IOutValue {
+        Value: any;
+    }
     export interface IKeyFrameListener {
         KeyFrameChanged(source: KeyFrame);
     }
@@ -139,7 +142,7 @@ module Fayde.Media.Animation {
             return arr;
         }
     }
-    Fayde.RegisterType(KeyFrame, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(KeyFrame);
 
     export class KeyFrameCollection extends XamlObjectCollection<KeyFrame> {
         private _Resolved: boolean = false;
@@ -220,5 +223,5 @@ module Fayde.Media.Animation {
             return coll._SortedList;
         }
     }
-    Fayde.RegisterType(KeyFrameCollection, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(KeyFrameCollection);
 }

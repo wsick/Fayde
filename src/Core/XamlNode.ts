@@ -1,13 +1,4 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde {
-    export enum VisualTreeDirection {
-        Logical = 0,
-        LogicalReverse = 1,
-        ZFoward = 2,
-        ZReverse = 3,
-    }
-
     export interface IIsAttachedMonitor {
         Callback: (newIsAttached: boolean) => void;
         Detach();
@@ -109,6 +100,11 @@ module Fayde {
             this.OnIsAttachedChanged(value);
         }
         OnIsAttachedChanged(newIsAttached: boolean) {
+            var xobj = this.XObject;
+            if (newIsAttached && this.ParentNode && !xobj.App) {
+                xobj.App = this.ParentNode.XObject.App;
+            }
+
             var childNodes = this._LogicalChildren;
             var len = childNodes.length;
             var childNode: XamlNode = null;
@@ -218,12 +214,10 @@ module Fayde {
         }
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
 
-        GetInheritedEnumerator(): IEnumerator<DONode> { return undefined; }
-        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator<FENode> { return undefined; }
+        GetInheritedEnumerator(): nullstone.IEnumerator<DONode> { return undefined; }
 
         static SetShareable(xn: XamlNode) {
             xn.IsShareable = true;
         }
     }
-    Fayde.RegisterType(XamlNode, "Fayde");
 }

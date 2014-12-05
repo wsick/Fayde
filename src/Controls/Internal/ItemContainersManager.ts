@@ -166,7 +166,7 @@ module Fayde.Controls.Internal {
         GenerateIndex: number;
         Generate(): boolean;
     }
-    export interface IContainerEnumerator extends IEnumerator<UIElement> {
+    export interface IContainerEnumerator extends nullstone.IEnumerator<UIElement> {
         CurrentItem: any;
         CurrentIndex: number;
     }

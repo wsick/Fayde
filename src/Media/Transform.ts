@@ -1,20 +1,15 @@
 /// <reference path="GeneralTransform.ts" />
 
 module Fayde.Media {
-    export interface ITransformChangedListener {
-        Callback: (source: Transform) => void;
-        Detach();
-    }
-
     export class Transform extends GeneralTransform {
         private _Value: Matrix;
 
-        constructor() {
+        constructor () {
             super();
             XamlNode.SetShareable(this.XamlNode);
         }
 
-        get Value(): Matrix {
+        get Value (): Matrix {
             var val = this._Value;
             if (!val) {
                 this._Value = val = new Matrix();
@@ -22,7 +17,8 @@ module Fayde.Media {
             }
             return val;
         }
-        get Inverse(): Transform {
+
+        get Inverse (): Transform {
             var inverse = this.Value.Inverse;
             if (!inverse)
                 return;
@@ -31,85 +27,63 @@ module Fayde.Media {
             return mt;
         }
 
-        Transform(p: Point): Point {
+        Transform (p: minerva.IPoint): Point {
             var val = this.Value;
             var v: number[];
             if (!val || !(v = val._Raw))
-                return new Point(p.X, p.Y);
-            v = mat3.transformVec2(v, vec2.createFrom(p.X, p.Y));
+                return new Point(p.x, p.y);
+            v = mat3.transformVec2(v, vec2.createFrom(p.x, p.y));
             return new Point(v[0], v[1]);
         }
-        TransformBounds(r: rect): rect {
+
+        TransformBounds (r: minerva.Rect): minerva.Rect {
             if (!r)
                 return undefined;
             var v = this.Value;
+            var copy = new minerva.Rect();
+            minerva.Rect.copyTo(r, copy);
             if (!v || !v._Raw)
-                return rect.copyTo(r);
-            return rect.transform(rect.copyTo(r), v._Raw);
+                return copy;
+            return minerva.Rect.transform(copy, v._Raw);
         }
-        TryTransform(inPoint: Point, outPoint: Point): boolean {
+
+        TryTransform (inPoint: minerva.IPoint, outPoint: minerva.IPoint): boolean {
             return false;
         }
 
-        private _Listeners: ITransformChangedListener[] = [];
-        Listen(func: (source: Transform) => void ): ITransformChangedListener {
-            var listeners = this._Listeners;
-            var listener = {
-                Callback: func,
-                Detach: () => {
-                    var index = listeners.indexOf(listener);
-                    if (index > -1)
-                        listeners.splice(index, 1);
-                }
-            };
-            listeners.push(listener);
-            return listener;
-        }
-
-        _InvalidateValue() {
+        InvalidateValue () {
             if (this._Value !== undefined)
                 this._Value = undefined;
-            var listeners = this._Listeners;
-            var len = listeners.length;
-            for (var i = 0; i < len; i++) {
-                listeners[i].Callback(this);
-            }
+            Incite(this);
         }
-        _BuildValue(): number[] {
+
+        _BuildValue (): number[] {
             //Abstract Method
             return undefined;
         }
     }
-    Fayde.RegisterType(Transform, "Fayde.Media", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Transform);
 
     export class MatrixTransform extends Transform {
-        static MatrixProperty: DependencyProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform, undefined, (d, args) => (<MatrixTransform>d)._MatrixChanged(args));
+        static MatrixProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform);
         Matrix: Matrix;
 
-        _BuildValue(): number[] {
+        _BuildValue (): number[] {
             var m = this.Matrix;
             if (m)
                 return m._Raw;
             return mat3.identity();
         }
 
-        Clone(): MatrixTransform {
+        Clone (): MatrixTransform {
             var xform = new MatrixTransform();
             xform.Matrix = this.Matrix.Clone();
             return xform;
         }
-
-        private _MatrixListener: IMatrixChangedListener = null;
-        _MatrixChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (this._MatrixListener) {
-                this._MatrixListener.Detach();
-                this._MatrixListener = null;
-            }
-            var newv: Matrix = args.NewValue;
-            if (newv)
-                this._MatrixListener = newv.Listen((newMatrix) => this._InvalidateValue());
-            this._InvalidateValue();
-        }
     }
-    Fayde.RegisterType(MatrixTransform, "Fayde.Media", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(MatrixTransform);
+
+    module reactions {
+        DPReaction<Matrix>(MatrixTransform.MatrixProperty, (mt: MatrixTransform, ov, nv) => mt.InvalidateValue());
+    }
 }

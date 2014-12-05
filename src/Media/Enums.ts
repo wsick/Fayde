@@ -3,14 +3,14 @@ module Fayde.Media {
         Absolute = 0,
         RelativeToBoundingBox = 1,
     }
-    Fayde.RegisterEnum(BrushMappingMode, "BrushMappingMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(BrushMappingMode, "BrushMappingMode");
 
     export enum GradientSpreadMethod {
         Pad = 0,
         Reflect = 1,
         Repeat = 2,
     }
-    Fayde.RegisterEnum(GradientSpreadMethod, "GradientSpreadMethod", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(GradientSpreadMethod, "GradientSpreadMethod");
 
     export enum Stretch {
         None = 0,
@@ -18,25 +18,25 @@ module Fayde.Media {
         Uniform = 2,
         UniformToFill = 3,
     }
-    Fayde.RegisterEnum(Stretch, "Stretch", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(Stretch, "Stretch");
 
     export enum AlignmentX {
         Left = 0,
         Center = 1,
         Right = 2,
     }
-    Fayde.RegisterEnum(AlignmentX, "AlignmentX", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(AlignmentX, "AlignmentX");
 
     export enum AlignmentY {
         Top = 0,
         Center = 1,
         Bottom = 2,
     }
-    Fayde.RegisterEnum(AlignmentY, "AlignmentY", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(AlignmentY, "AlignmentY");
 
     export enum TextHintingMode {
         Fixed = 0,
         Animated = 1,
     }
-    Fayde.RegisterEnum(TextHintingMode, "TextHintingMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(TextHintingMode, "TextHintingMode");
 }

@@ -1,14 +1,13 @@
-
 module Fayde.Text {
     export interface ITextBoxUndoAction {
         SelectionAnchor: number;
         SelectionCursor: number;
-        Undo(bufferholder: IBufferOwner);
-        Redo(bufferholder: IBufferOwner): number;
+        Undo(bufferholder: ITextOwner);
+        Redo(bufferholder: ITextOwner): number;
     }
 
-    export interface IBufferOwner {
-        _Buffer: string;
+    export interface ITextOwner {
+        text: string;
     }
 
     export class TextBoxUndoActionDelete implements ITextBoxUndoAction {
@@ -16,17 +15,20 @@ module Fayde.Text {
         SelectionCursor: number;
         Start: number;
         Text: string;
+
         constructor(selectionAnchor: number, selectionCursor: number, buffer: string, start: number, length: number) {
             this.SelectionAnchor = selectionAnchor;
             this.SelectionCursor = selectionCursor;
             this.Start = start;
             this.Text = buffer.substr(start, length);
         }
-        Undo(bo: IBufferOwner) {
-            bo._Buffer = TextBuffer.Insert(bo._Buffer, this.Start, this.Text);
+
+        Undo(bo: ITextOwner) {
+            bo.text = TextBuffer.Insert(bo.text, this.Start, this.Text);
         }
-        Redo(bo: IBufferOwner): number {
-            bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Text.length);
+
+        Redo(bo: ITextOwner): number {
+            bo.text = TextBuffer.Cut(bo.text, this.Start, this.Text.length);
             return this.Start;
         }
     }
@@ -37,6 +39,7 @@ module Fayde.Text {
         Start: number;
         Text: string;
         IsGrowable: boolean;
+
         constructor(selectionAnchor: number, selectionCursor: number, start: number, inserted: string, isAtomic?: boolean) {
             this.SelectionAnchor = selectionAnchor;
             this.SelectionCursor = selectionCursor;
@@ -44,11 +47,13 @@ module Fayde.Text {
             this.Text = inserted;
             this.IsGrowable = isAtomic !== true;
         }
-        Undo(bo: IBufferOwner) {
-            bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Text.length);
+
+        Undo(bo: ITextOwner) {
+            bo.text = TextBuffer.Cut(bo.text, this.Start, this.Text.length);
         }
-        Redo(bo: IBufferOwner): number {
-            bo._Buffer = TextBuffer.Insert(bo._Buffer, this.Start, this.Text);
+
+        Redo(bo: ITextOwner): number {
+            bo.text = TextBuffer.Insert(bo.text, this.Start, this.Text);
             return this.Start + this.Text.length;
         }
 
@@ -67,6 +72,7 @@ module Fayde.Text {
         Length: number;
         Deleted: string;
         Inserted: string;
+
         constructor(selectionAnchor: number, selectionCursor: number, buffer: string, start: number, length: number, inserted: string) {
             this.SelectionAnchor = selectionAnchor;
             this.SelectionCursor = selectionCursor;
@@ -75,13 +81,15 @@ module Fayde.Text {
             this.Deleted = buffer.substr(start, length);
             this.Inserted = inserted;
         }
-        Undo(bo: IBufferOwner) {
-            bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Inserted.length);
-            bo._Buffer = Text.TextBuffer.Insert(bo._Buffer, this.Start, this.Deleted);
+
+        Undo(bo: ITextOwner) {
+            bo.text = TextBuffer.Cut(bo.text, this.Start, this.Inserted.length);
+            bo.text = Text.TextBuffer.Insert(bo.text, this.Start, this.Deleted);
         }
-        Redo(bo: IBufferOwner): number {
-            bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Length);
-            bo._Buffer = TextBuffer.Insert(bo._Buffer, this.Start, this.Inserted);
+
+        Redo(bo: ITextOwner): number {
+            bo.text = TextBuffer.Cut(bo.text, this.Start, this.Length);
+            bo.text = TextBuffer.Insert(bo.text, this.Start, this.Inserted);
             return this.Start + this.Inserted.length;
         }
     }
@@ -92,11 +100,13 @@ module Fayde.Text {
                 return "";
             return text.slice(0, start) + text.slice(start + len);
         }
+
         static Insert(text: string, index: number, str: string): string {
             if (!text)
                 return str;
             return [text.slice(0, index), str, text.slice(index)].join('');
         }
+
         static Replace(text: string, start: number, len: number, str: string): string {
             if (!text)
                 return str;

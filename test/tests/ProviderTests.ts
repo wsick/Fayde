@@ -1,6 +1,3 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 export function load() {
     QUnit.module("Provider Tests");
 
@@ -65,11 +62,11 @@ export function load() {
         var Controls = Fayde.Controls;
         var root2 = new Controls.Control();
         var xaml = "<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid><Border x:Name=\"TheBorder\" /></Grid></ControlTemplate>";
-        root2.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+        root2.Template = Fayde.Markup.LoadXaml<Fayde.Controls.ControlTemplate>(null, xaml);
 
         var child2 = new Controls.Control();
         var xaml = "<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid /></ControlTemplate>";
-        child2.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+        child2.Template =  Fayde.Markup.LoadXaml<Fayde.Controls.ControlTemplate>(null, xaml);
         root2.ApplyTemplate();
 
         strictEqual(root2.FontSize, Font.DEFAULT_SIZE, "Root FontSize should be default.");
@@ -240,11 +237,11 @@ export function load() {
         var Controls = Fayde.Controls;
         var root = new Controls.Control();
         var xaml = "<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid><Border x:Name=\"TheBorder\" /></Grid></ControlTemplate>";
-        root.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+        root.Template = Fayde.Markup.LoadXaml<Fayde.Controls.ControlTemplate>(null, xaml);
 
         var child = new Controls.Control();
         xaml = "<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid /></ControlTemplate>";
-        child.Template = <Fayde.Controls.ControlTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+        child.Template = Fayde.Markup.LoadXaml<Fayde.Controls.ControlTemplate>(null, xaml);
 
         root.ApplyTemplate();
         var theBorder = <Fayde.Controls.Border>root.GetTemplateChild("TheBorder");

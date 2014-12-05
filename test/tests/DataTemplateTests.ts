@@ -1,6 +1,3 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 export function load() {
     QUnit.module("DataTemplate Tests");
 
@@ -11,7 +8,7 @@ export function load() {
 
         var dt: Fayde.DataTemplate;
         try {
-            dt = <Fayde.DataTemplate>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+            dt = Fayde.Markup.LoadXaml<Fayde.DataTemplate>(null, xaml);
         } catch (err) {
             ok(false, "Loading a DataTemplate should not error. " + err.toString());
         }
@@ -33,7 +30,7 @@ export function load() {
             + "</Grid>";
         var grid: Fayde.Controls.Grid;
         try {
-            grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+            grid = Fayde.Markup.LoadXaml<Fayde.Controls.Grid>(null, xaml);
         } catch (err) {
             ok(false, "Loading a DataTemplate should not error. " + err.toString());
         }
@@ -45,7 +42,7 @@ export function load() {
         strictEqual(grid.Children.Count, 1);
         var cc = <Fayde.Controls.ContentControl>grid.Children.GetValueAt(0);
         ok(cc instanceof Fayde.Controls.ContentControl, "Grid should have a ContentControl.");
-        cc.Measure(new size());
+        cc.Measure(new minerva.Size());
 
         var cp = <Fayde.Controls.ContentPresenter>Fayde.VisualTreeHelper.GetChild(cc, 0);
         ok(cp instanceof Fayde.Controls.ContentPresenter, "ContentControl should have a ContentPresenter.");
@@ -65,7 +62,7 @@ export function load() {
             + "</Grid>";
         var grid: Fayde.Controls.Grid;
         try {
-            grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(new Fayde.Xaml.XamlDocument(xaml).Document);
+            grid = Fayde.Markup.LoadXaml<Fayde.Controls.Grid>(null, xaml);
             ok(false, "Expected parse error in xaml load.");
         } catch (err) {
             ok(err instanceof XamlParseException, err);

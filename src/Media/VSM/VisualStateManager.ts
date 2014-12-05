@@ -1,6 +1,9 @@
 /// <reference path="../../Core/DependencyObject.ts" />
 
 module Fayde.Media.VSM {
+    export interface IOutValue {
+        Value: any;
+    }
     export interface IStateData {
         state: VisualState;
         group: VisualStateGroup;
@@ -76,7 +79,7 @@ module Fayde.Media.VSM {
                     transition.DynamicStoryboardCompleted = true;
                 };
                 var eventClosure = {};
-                dynamicTransition.Completed.Subscribe(dynamicCompleted, eventClosure);
+                dynamicTransition.Completed.on(dynamicCompleted, eventClosure);
 
                 if (transition.Storyboard != null && transition.ExplicitStoryboardCompleted === true) {
                     var transitionCompleted = function (sender, e) {
@@ -84,11 +87,11 @@ module Fayde.Media.VSM {
                             group.StartNewThenStopOld(element, [state.Storyboard]);
                             group.RaiseCurrentStateChanged(element, lastState, state, control);
                         }
-                        transition.Storyboard.Completed.Unsubscribe(transitionCompleted, eventClosure);
+                        transition.Storyboard.Completed.off(transitionCompleted, eventClosure);
                         transition.ExplicitStoryboardCompleted = true;
                     };
                     transition.ExplicitStoryboardCompleted = false;
-                    transition.Storyboard.Completed.Subscribe(transitionCompleted, eventClosure);
+                    transition.Storyboard.Completed.on(transitionCompleted, eventClosure);
                 }
                 group.StartNewThenStopOld(element, [transition.Storyboard, dynamicTransition]);
                 group.RaiseCurrentStateChanging(element, lastState, state, control);
@@ -193,7 +196,7 @@ module Fayde.Media.VSM {
             return defaultTransition;
         }
     }
-    Fayde.RegisterType(VisualStateManager, "Fayde.Media.VSM", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(VisualStateManager);
 
     import Timeline = Animation.Timeline;
     import Storyboard = Animation.Storyboard;

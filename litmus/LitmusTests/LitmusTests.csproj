@@ -82,6 +82,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PanelMonitor.cs" />
     <Compile Include="Controls\ListBoxMonitor.cs" />
     <Compile Include="Controls\VirtualizingStackPanelMonitor.cs" />
     <Compile Include="MainPage.xaml.cs">
@@ -90,11 +91,15 @@
     <Compile Include="MainViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScrollTestOverride.cs" />
+    <Compile Include="Controls\TestClass.cs" />
     <Compile Include="Tests\BorderTest.xaml.cs">
       <DependentUpon>BorderTest.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tests\BrushTest.xaml.cs">
       <DependentUpon>BrushTest.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Tests\ContentControlTest.xaml.cs">
+      <DependentUpon>ContentControlTest.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tests\ContentPresenterTest.xaml.cs">
       <DependentUpon>ContentPresenterTest.xaml</DependentUpon>
@@ -150,6 +155,9 @@
     <Compile Include="Tests\TextBoxTest.xaml.cs">
       <DependentUpon>TextBoxTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tests\TooltipTest.xaml.cs">
+      <DependentUpon>TooltipTest.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -167,6 +175,10 @@
     <Page Include="Tests\BrushTest.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Tests\ContentControlTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Tests\ContentPresenterTest.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -239,6 +251,10 @@
     <Page Include="Tests\TextBoxTest.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Tests\TooltipTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\Cosmopolitan\Brushes.xaml">
       <Generator>MSBuild:Compile</Generator>

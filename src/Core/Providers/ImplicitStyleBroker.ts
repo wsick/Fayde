@@ -1,4 +1,3 @@
-
 module Fayde.Providers {
     export enum StyleIndex {
         VisualTree = 0,
@@ -20,7 +19,7 @@ module Fayde.Providers {
     }
 
     export class ImplicitStyleBroker {
-        static Set(fe: FrameworkElement, mask: StyleMask, styles?: Style[]) {
+        static Set (fe: FrameworkElement, mask: StyleMask, styles?: Style[]) {
             if (!styles)
                 styles = getImplicitStyles(fe, mask);
             if (styles) {
@@ -39,7 +38,8 @@ module Fayde.Providers {
             }
             ImplicitStyleBroker.SetImpl(fe, mask, styles);
         }
-        private static SetImpl(fe: FrameworkElement, mask: StyleMask, styles: Style[]) {
+
+        private static SetImpl (fe: FrameworkElement, mask: StyleMask, styles: Style[]) {
             if (!styles)
                 return;
 
@@ -59,7 +59,8 @@ module Fayde.Providers {
 
             ImplicitStyleBroker.ApplyStyles(fe, mask, styles);
         }
-        static Clear(fe: FrameworkElement, mask: StyleMask) {
+
+        static Clear (fe: FrameworkElement, mask: StyleMask) {
             var holder = <IImplicitStyleHolder>fe.XamlNode;
             var oldStyles = holder._ImplicitStyles;
             if (!oldStyles)
@@ -76,7 +77,8 @@ module Fayde.Providers {
 
             ImplicitStyleBroker.ApplyStyles(fe, holder._StyleMask & ~mask, newStyles);
         }
-        private static ApplyStyles(fe: FrameworkElement, mask: StyleMask, styles: Style[]) {
+
+        private static ApplyStyles (fe: FrameworkElement, mask: StyleMask, styles: Style[]) {
             var holder = <IImplicitStyleHolder>fe.XamlNode;
 
             var oldStyles = holder._ImplicitStyles;
@@ -99,7 +101,7 @@ module Fayde.Providers {
         }
     }
 
-    function getImplicitStyles(fe: FrameworkElement, mask: StyleMask): Style[] {
+    function getImplicitStyles (fe: FrameworkElement, mask: StyleMask): Style[] {
         var styles = [];
         if ((mask & StyleMask.Theme) != 0) {
             styles[StyleIndex.Theme] = getThemeStyle(fe);
@@ -116,18 +118,21 @@ module Fayde.Providers {
 
         return styles;
     }
-    function getThemeStyle(fe: FrameworkElement): Style {
+
+    function getThemeStyle (fe: FrameworkElement): Style {
         if (fe instanceof Controls.Control) {
             var style = (<Controls.Control>fe).GetDefaultStyle();
             if (style)
                 return style;
         }
-        return Library.GetThemeStyle(fe.DefaultStyleKey);
+        return ThemeManager.FindStyle(fe.DefaultStyleKey);
     }
-    function getAppResourcesStyle(app: Application, fe: FrameworkElement): Style {
+
+    function getAppResourcesStyle (app: Application, fe: FrameworkElement): Style {
         return <Style>app.Resources.Get(fe.DefaultStyleKey);
     }
-    function getVisualTreeStyle(fe: FrameworkElement): Style {
+
+    function getVisualTreeStyle (fe: FrameworkElement): Style {
         var key = fe.DefaultStyleKey;
         var cur = fe;
         var isControl = cur instanceof Controls.Control;

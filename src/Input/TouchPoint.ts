@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Input {
     export class TouchPoint {
         Position: Point;
@@ -15,5 +13,5 @@ module Fayde.Input {
             Object.defineProperty(this, "Force", { value: force, writable: false });
         }
     }
-    Fayde.RegisterType(TouchPoint, "Fayde.Input", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TouchPoint);
 }

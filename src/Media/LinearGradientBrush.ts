@@ -2,16 +2,16 @@
 
 module Fayde.Media {
     export class LinearGradientBrush extends GradientBrush {
-        static StartPointProperty: DependencyProperty = DependencyProperty.RegisterCore("StartPoint", () => Point, LinearGradientBrush, undefined, (d, args) => (<Brush>d).InvalidateBrush());
-        static EndPointProperty: DependencyProperty = DependencyProperty.RegisterCore("EndPoint", () => Point, LinearGradientBrush, undefined, (d, args) => (<Brush>d).InvalidateBrush());
+        static StartPointProperty = DependencyProperty.RegisterCore("StartPoint", () => Point, LinearGradientBrush, undefined, (d: LinearGradientBrush, args) => d.InvalidateBrush());
+        static EndPointProperty = DependencyProperty.RegisterCore("EndPoint", () => Point, LinearGradientBrush, undefined, (d: LinearGradientBrush, args) => d.InvalidateBrush());
         StartPoint: Point;
         EndPoint: Point;
 
-        _CreatePad(ctx: CanvasRenderingContext2D, bounds: rect) {
+        _CreatePad (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;
-            var grd = ctx.createLinearGradient(start.X, start.Y, end.X, end.Y);
+            var grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
             var enumerator = this.GradientStops.getEnumerator();
             while (enumerator.moveNext()) {
                 var stop: GradientStop = enumerator.current;
@@ -19,13 +19,14 @@ module Fayde.Media {
             }
             return grd;
         }
-        _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: rect) {
+
+        _CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;
-            var dir = { x: end.X - start.X, y: end.Y - start.Y };
-            var first = { x: start.X, y: start.Y };
-            var last = { x: end.X, y: end.Y };
+            var dir = { x: end.x - start.x, y: end.y - start.y };
+            var first = { x: start.x, y: start.y };
+            var last = { x: end.x, y: end.y };
 
             GradientMetrics.Calculate(dir, first, last, bounds);
 
@@ -44,20 +45,21 @@ module Fayde.Media {
             }
             return grd;
         }
-        _CreateReflect(ctx: CanvasRenderingContext2D, bounds: rect) {
+
+        _CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;
         }
 
-        private _GetPointData(bounds: rect) {
+        private _GetPointData (bounds: minerva.Rect) {
             var transform = this._GetMappingModeTransform(bounds);
 
             var sp = this.StartPoint;
             var ep = this.EndPoint;
 
-            var s = mat3.transformVec2(transform, vec2.createFrom(sp.X, sp.Y));
-            var e = mat3.transformVec2(transform, vec2.createFrom(ep.X, ep.Y));
+            var s = mat3.transformVec2(transform, vec2.createFrom(sp.x, sp.y));
+            var e = mat3.transformVec2(transform, vec2.createFrom(ep.x, ep.y));
 
             return {
                 start: new Point(s[0], s[1]),
@@ -65,7 +67,7 @@ module Fayde.Media {
             };
         }
 
-        toString(): string {
+        toString (): string {
             var enumerator = this.GradientStops.getEnumerator();
             var ser = [];
             while (enumerator.moveNext()) {
@@ -74,5 +76,5 @@ module Fayde.Media {
             return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";
         }
     }
-    Fayde.RegisterType(LinearGradientBrush, "Fayde.Media", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(LinearGradientBrush);
 }

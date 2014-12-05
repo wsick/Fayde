@@ -4,7 +4,7 @@ module Fayde.Controls {
     export class ComboBoxItem extends ListBoxItem {
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = ComboBoxItem;
         }
 
         OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {
@@ -13,7 +13,7 @@ module Fayde.Controls {
                 (<ComboBox>this.ParentSelector).IsDropDownOpen = false;
         }
     }
-    Fayde.RegisterType(ComboBoxItem, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ComboBoxItem);
     TemplateVisualStates(ComboBoxItem, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

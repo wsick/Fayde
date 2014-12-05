@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class KeyTime implements ICloneable {
     private _IsPaced: boolean = false;
     private _IsUniform: boolean = false;
@@ -34,10 +32,10 @@ class KeyTime implements ICloneable {
     get HasPercent(): boolean { return this._Percent != null; }
     get Percent(): number { return this._Percent; }
 }
-Fayde.RegisterType(KeyTime, "window", Fayde.XMLNSX);
-Fayde.RegisterTypeConverter(KeyTime, (val: any): KeyTime => {
+Fayde.CoreLibrary.addPrimitive(KeyTime);
+nullstone.registerTypeConverter(KeyTime, (val: any): KeyTime => {
     if (!val || val.toString().toLowerCase() === "uniform")
         return KeyTime.CreateUniform();
-    var ts = Fayde.ConvertAnyToType(val, TimeSpan);
+    var ts = nullstone.convertAnyToType(val, TimeSpan);
     return KeyTime.CreateTimeSpan(ts);
 });

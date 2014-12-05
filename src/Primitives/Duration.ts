@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 enum DurationType {
     Automatic = 0,
     Forever = 1,
@@ -35,12 +33,12 @@ class Duration implements ICloneable {
     static Automatic: Duration = (function () { var d = new Duration(); (<any>d)._Type = DurationType.Automatic; return d; })();
     static Forever: Duration = (function () { var d = new Duration(); (<any>d)._Type = DurationType.Forever; return d; })();
 }
-Fayde.RegisterType(Duration, "window", Fayde.XMLNSX);
-Fayde.RegisterTypeConverter(Duration, (val: any): Duration => {
+Fayde.CoreLibrary.addPrimitive(Duration);
+nullstone.registerTypeConverter(Duration, (val: any): Duration => {
     if (!val || val.toString().toLowerCase() === "automatic")
         return Duration.Automatic;
     if (val.toString().toLowerCase() === "forever")
         return Duration.Forever;
-    var ts = Fayde.ConvertAnyToType(val, TimeSpan);
+    var ts = nullstone.convertAnyToType(val, TimeSpan);
     return new Duration(ts);
 });

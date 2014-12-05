@@ -2,13 +2,18 @@
 
 module Fayde {
     export class SizeChangedEventArgs extends RoutedEventArgs {
-        PreviousSize: size;
-        NewSize: size;
-        constructor(previousSize: size, newSize: size) {
+        PreviousSize: minerva.Size;
+        NewSize: minerva.Size;
+
+        constructor(previousSize: minerva.Size, newSize: minerva.Size) {
             super();
-            Object.defineProperty(this, "PreviousSize", { value: size.copyTo(previousSize), writable: false });
-            Object.defineProperty(this, "NewSize", { value: size.copyTo(newSize), writable: false });
+
+            Object.defineProperty(this, "PreviousSize", { value: new minerva.Size(), writable: false });
+            Object.defineProperty(this, "NewSize", { value: new minerva.Size(), writable: false });
+
+            minerva.Size.copyTo(previousSize, this.PreviousSize);
+            minerva.Size.copyTo(newSize, this.NewSize);
         }
     }
-    Fayde.RegisterType(SizeChangedEventArgs, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(SizeChangedEventArgs);
 }

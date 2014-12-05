@@ -1,27 +1,22 @@
 /// <reference path="Inline.ts" />
 
 module Fayde.Documents {
-    export class Span extends Inline implements IInlinesChangedListener {
-        CreateNode(): TextElementNode {
+    export class Span extends Inline {
+        CreateNode (): TextElementNode {
             return new TextElementNode(this, "Inlines");
         }
-        
+
         static InlinesProperty = DependencyProperty.RegisterImmutable<InlineCollection>("Inlines", () => InlineCollection, Span);
         Inlines: InlineCollection;
 
-        constructor() {
+        constructor () {
             super();
             var coll = Span.InlinesProperty.Initialize(this);
             coll.AttachTo(this);
-            coll.Listen(this);
-        }
-        
-        InlinesChanged(newInline: Inline, isAdd: boolean) {
-            if (isAdd)
-                Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
+            ReactTo(coll, this, (obj?) => this.InlinesChanged(obj.item, obj.add));
         }
 
-        _SerializeText(): string {
+        _SerializeText (): string {
             var str = "";
             var enumerator = this.Inlines.getEnumerator();
             while (enumerator.moveNext()) {
@@ -29,7 +24,22 @@ module Fayde.Documents {
             }
             return str;
         }
+
+        InlinesChanged (inline: Inline, isAdd: boolean) {
+            if (isAdd)
+                Providers.InheritedStore.PropagateInheritedOnAdd(this, inline.XamlNode);
+
+            if (isAdd)
+                ReactTo(inline, this, (obj?) => Incite(this, obj));
+            else
+                UnreactTo(inline, this);
+
+            Incite(this, {
+                type: 'text',
+                full: true
+            });
+        }
     }
-    Fayde.RegisterType(Span, "Fayde.Documents", Fayde.XMLNS);
-    Xaml.Content(Span, Span.InlinesProperty);
+    Fayde.CoreLibrary.add(Span);
+    Markup.Content(Span, Span.InlinesProperty);
 }

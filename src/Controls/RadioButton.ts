@@ -11,7 +11,7 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = RadioButton;
             register("", this);
         }
 
@@ -62,7 +62,7 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(RadioButton, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RadioButton);
     TemplateVisualStates(RadioButton, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

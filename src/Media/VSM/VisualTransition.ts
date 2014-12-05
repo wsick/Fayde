@@ -8,12 +8,12 @@ module Fayde.Media.VSM {
 
         private _GeneratedDuration: Duration = null;
         get GeneratedDuration(): Duration { return this._GeneratedDuration; }
-        set GeneratedDuration(value: Duration) { this._GeneratedDuration = Fayde.ConvertAnyToType(value, Duration); }
+        set GeneratedDuration(value: Duration) { this._GeneratedDuration = nullstone.convertAnyToType(value, Duration); }
 
         DynamicStoryboardCompleted: boolean = true;
         ExplicitStoryboardCompleted: boolean = true;
         GeneratedEasingFunction: Animation.EasingFunctionBase;
         get IsDefault(): boolean { return this.From == null && this.To == null; }
     }
-    Fayde.RegisterType(VisualTransition, "Fayde.Media.VSM", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(VisualTransition);
 }

@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-
 module Fayde.Input {
     // http://msdn.microsoft.com/en-us/library/system.windows.input.keyboardnavigationmode.aspx
     export enum KeyboardNavigationMode {
@@ -10,7 +8,7 @@ module Fayde.Input {
         Contained = 4,
         Local = 5,
     }
-    Fayde.RegisterEnum(KeyboardNavigationMode, "KeyboardNavigationMode", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(KeyboardNavigationMode, "KeyboardNavigationMode");
 
     export enum ModifierKeys {
         None = 0,
@@ -55,5 +53,5 @@ module Fayde.Input {
             return (Keyboard.Modifiers & ModifierKeys.Shift) === ModifierKeys.Shift;
         }
     }
-    Fayde.RegisterType(Keyboard, "Fayde.Input", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Keyboard);
 }

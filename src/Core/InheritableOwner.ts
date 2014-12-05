@@ -1,71 +1,20 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
+/// <reference path="UIReaction.ts" />
 /// <reference path="Providers/InheritedStore.ts" />
 /// <reference path="../Primitives/Font.ts" />
 
 module Fayde {
-    export interface IFontChangeable {
-        FontChanged(args:IDependencyPropertyChangedEventArgs);
-    }
-
     export class InheritableOwner {
-        static _UseLayoutRoundingPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            var uie = <UIElement>dobj;
-            var lu = uie.XamlNode.LayoutUpdater;
-            lu.InvalidateMeasure();
-            lu.InvalidateArrange();
-        }
-        static UseLayoutRoundingProperty: DependencyProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, InheritableOwner, true, InheritableOwner._UseLayoutRoundingPropertyChanged);
+        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, InheritableOwner, true);
+        static FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(minerva.FlowDirection), InheritableOwner, minerva.FlowDirection.LeftToRight);
 
-        static _FlowDirectionPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            var feNode = (<FrameworkElement>dobj).XamlNode;
-            if (feNode._FlowDirectionChanged)
-                feNode._FlowDirectionChanged(args);
-        }
-        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), InheritableOwner, FlowDirection.LeftToRight, InheritableOwner._FlowDirectionPropertyChanged);
-
-        static _FontFamilyPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            if ((<IFontChangeable><any>dobj).FontChanged)
-                (<IFontChangeable><any>dobj).FontChanged(args);
-        }
-        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, InheritableOwner, Font.DEFAULT_FAMILY, InheritableOwner._FontFamilyPropertyChanged);
-        static _FontSizePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            if ((<IFontChangeable><any>dobj).FontChanged)
-                (<IFontChangeable><any>dobj).FontChanged(args);
-        }
-        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, InheritableOwner, Font.DEFAULT_SIZE, InheritableOwner._FontSizePropertyChanged);
-        static _FontStretchPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            if ((<IFontChangeable><any>dobj).FontChanged)
-                (<IFontChangeable><any>dobj).FontChanged(args);
-        }
-        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, InheritableOwner, Font.DEFAULT_STRETCH, InheritableOwner._FontStretchPropertyChanged);
-        static _FontStylePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            if ((<IFontChangeable><any>dobj).FontChanged)
-                (<IFontChangeable><any>dobj).FontChanged(args);
-        }
-        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, InheritableOwner, Font.DEFAULT_STYLE, InheritableOwner._FontStylePropertyChanged);
-        static _FontWeightPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            if ((<IFontChangeable><any>dobj).FontChanged)
-                (<IFontChangeable><any>dobj).FontChanged(args);
-        }
-        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), InheritableOwner, Font.DEFAULT_WEIGHT, InheritableOwner._FontWeightPropertyChanged);
-
-        static _ForegroundPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            if ((<IFontChangeable><any>dobj).FontChanged)
-                (<IFontChangeable><any>dobj).FontChanged(args);
-        }
-        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, InheritableOwner, undefined, InheritableOwner._ForegroundPropertyChanged);
-        
-        static _TextDecorationsPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            if ((<IFontChangeable><any>dobj).FontChanged)
-                (<IFontChangeable><any>dobj).FontChanged(args);
-        }
-        static TextDecorationsProperty: DependencyProperty = DependencyProperty.RegisterInheritable("TextDecorations", () => new Enum(TextDecorations), InheritableOwner, TextDecorations.None, InheritableOwner._TextDecorationsPropertyChanged);
-        
-        static _LanguagePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            if ((<IFontChangeable><any>dobj).FontChanged)
-                (<IFontChangeable><any>dobj).FontChanged(args);
-        }
-        static LanguageProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Language", () => String, InheritableOwner, undefined, InheritableOwner._LanguagePropertyChanged);
+        static ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, InheritableOwner);
+        static FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, InheritableOwner, Font.DEFAULT_FAMILY);
+        static FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, InheritableOwner, Font.DEFAULT_SIZE);
+        static FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, InheritableOwner, Font.DEFAULT_STRETCH);
+        static FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, InheritableOwner, Font.DEFAULT_STYLE);
+        static FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), InheritableOwner, Font.DEFAULT_WEIGHT);
+        static TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", () => new Enum(TextDecorations), InheritableOwner, TextDecorations.None);
+        static LanguageProperty = DependencyProperty.RegisterInheritable("Language", () => String, InheritableOwner);
 
         static AllInheritedProperties: DependencyProperty[];
     }
@@ -81,5 +30,10 @@ module Fayde {
         InheritableOwner.UseLayoutRoundingProperty,
         InheritableOwner.TextDecorationsProperty
     ];
-    Fayde.RegisterType(InheritableOwner, "Fayde");
+    Fayde.CoreLibrary.add(InheritableOwner);
+
+    module reactions {
+        UIReaction<boolean>(InheritableOwner.UseLayoutRoundingProperty, minerva.core.reactTo.useLayoutRounding, false);
+        UIReaction<minerva.FlowDirection>(InheritableOwner.FlowDirectionProperty, minerva.core.reactTo.flowDirection, false);
+    }
 }

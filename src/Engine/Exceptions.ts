@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class Exception {
     Message: string;
     constructor(message: string) {
@@ -12,63 +10,54 @@ class Exception {
         return this.Message;
     }
 }
-Fayde.RegisterType(Exception, "window", Fayde.XMLNSX);
 
 class ArgumentException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(ArgumentException, "window", Fayde.XMLNSX);
 
 class ArgumentNullException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(ArgumentNullException, "window", Fayde.XMLNSX);
 
 class InvalidOperationException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(InvalidOperationException, "window", Fayde.XMLNSX);
 
 class XamlParseException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(XamlParseException, "window", Fayde.XMLNSX);
 
 class XamlMarkupParseException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(XamlMarkupParseException, "window", Fayde.XMLNSX);
 
 class NotSupportedException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(NotSupportedException, "window", Fayde.XMLNSX);
 
 class IndexOutOfRangeException extends Exception {
     constructor(index: number) {
         super(index.toString());
     }
 }
-Fayde.RegisterType(IndexOutOfRangeException, "window", Fayde.XMLNSX);
 
 class ArgumentOutOfRangeException extends Exception {
     constructor(msg: string) {
         super(msg);
     }
 }
-Fayde.RegisterType(ArgumentOutOfRangeException, "window", Fayde.XMLNSX);
 
 class AttachException extends Exception {
     Data: any;
@@ -77,7 +66,6 @@ class AttachException extends Exception {
         this.Data = data;
     }
 }
-Fayde.RegisterType(AttachException, "window", Fayde.XMLNSX);
 
 class InvalidJsonException extends Exception {
     JsonText: string;
@@ -88,7 +76,6 @@ class InvalidJsonException extends Exception {
         this.InnerException = innerException;
     }
 }
-Fayde.RegisterType(InvalidJsonException, "window", Fayde.XMLNSX);
 
 class TargetInvocationException extends Exception {
     InnerException: Exception;
@@ -97,7 +84,6 @@ class TargetInvocationException extends Exception {
         this.InnerException = innerException;
     }
 }
-Fayde.RegisterType(TargetInvocationException, "window", Fayde.XMLNSX);
 
 class UnknownTypeException extends Exception {
     FullTypeName: string;
@@ -106,11 +92,9 @@ class UnknownTypeException extends Exception {
         this.FullTypeName = fullTypeName;
     }
 }
-Fayde.RegisterType(UnknownTypeException, "window", Fayde.XMLNSX);
 
 class FormatException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Fayde.RegisterType(FormatException, "window", Fayde.XMLNSX);

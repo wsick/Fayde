@@ -1,5 +1,3 @@
-/// <reference path="TypeManagement.ts" />
-
 class BError {
     static Argument: number = 2;
     static InvalidOperation: number = 3;

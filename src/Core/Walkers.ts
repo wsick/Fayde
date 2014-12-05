@@ -1,5 +1,12 @@
 
 module Fayde {
+    export enum VisualTreeDirection {
+        Logical,
+        Reverse,
+        ZForward,
+        ZReverse
+    }
+
     export interface IWalker {
         Step(): any;
     }
@@ -71,7 +78,8 @@ module Fayde {
             }
         };
     }
-    
+
+    //TODO: Remove this after adjusting TabNavigationWalker
     export function DeepTreeWalker(topNode: UINode, direction?: VisualTreeDirection): IDeepTreeWalker {
         var last: UINode = undefined;
         var dir = VisualTreeDirection.Logical;
@@ -82,7 +90,7 @@ module Fayde {
         return {
             Step: function () {
                 if (last) {
-                    var enumerator = last.GetVisualTreeEnumerator(dir);
+                    var enumerator = (<FENode>last).GetVisualTreeEnumerator();
                     var insertIndex = 0;
                     while (enumerator.moveNext()) {
                         walkList.splice(insertIndex, 0, enumerator.current);

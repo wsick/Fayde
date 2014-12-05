@@ -1,36 +1,64 @@
 /// <reference path="../Core/DependencyObject.ts"/>
 /// <reference path="../Core/InheritableOwner.ts"/>
+/// <reference path="TextReaction.ts"/>
 
 module Fayde.Documents {
     export class TextElementNode extends DONode {
         XObject: TextElement;
-        constructor(xobj: TextElement, inheritedWalkProperty: string) {
+
+        constructor (xobj: TextElement, inheritedWalkProperty: string) {
             super(xobj);
             this.InheritedWalkProperty = inheritedWalkProperty;
         }
+
         InheritedWalkProperty: string;
-        GetInheritedEnumerator(): IEnumerator<DONode> {
+
+        GetInheritedEnumerator (): nullstone.IEnumerator<DONode> {
             if (!this.InheritedWalkProperty)
-                return ArrayEx.EmptyEnumerator;
+                return nullstone.IEnumerator_.empty;
             var coll: XamlObjectCollection<DependencyObject> = this.XObject[this.InheritedWalkProperty];
             if (coll)
                 return coll.GetNodeEnumerator<DONode>();
         }
     }
-    Fayde.RegisterType(TextElementNode, "Fayde.Documents");
-    
-    export class TextElement extends DependencyObject implements Text.ITextAttributesSource, IFontChangeable, Providers.IIsPropertyInheritable {
+
+    function invalidateFont (upd: minerva.text.TextUpdater, ov, nv, te?: TextElement) {
+        Incite(te, {
+            type: 'font',
+            full: upd.invalidateFont()
+        });
+    }
+
+    export class TextElement extends DependencyObject implements Providers.IIsPropertyInheritable {
         XamlNode: TextElementNode;
-        CreateNode(): TextElementNode { return new TextElementNode(this, null); }
-        
-        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextElement);
-        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty.ExtendTo(TextElement);
-        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty.ExtendTo(TextElement);
-        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty.ExtendTo(TextElement);
-        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty.ExtendTo(TextElement);
-        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty.ExtendTo(TextElement);
-        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(TextElement);
-        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty.ExtendTo(TextElement);
+        TextUpdater = new minerva.text.TextUpdater();
+
+        CreateNode (): TextElementNode {
+            return new TextElementNode(this, null);
+        }
+
+        constructor () {
+            super();
+            TextReaction<Media.Brush>(TextElement.ForegroundProperty, (upd, ov, nv, te?: TextElement) => {
+                Incite(te, {
+                    type: 'font',
+                    full: upd.invalidateFont()
+                });
+            }, true, true, this);
+            TextReaction<string>(TextElement.FontFamilyProperty, invalidateFont, false, true, this);
+            TextReaction<number>(TextElement.FontSizeProperty, invalidateFont, false, true, this);
+            TextReaction<string>(TextElement.FontStretchProperty, invalidateFont, false, true, this);
+            TextReaction<string>(TextElement.FontStyleProperty, invalidateFont, false, true, this);
+            TextReaction<FontWeight>(TextElement.FontWeightProperty, invalidateFont, false, true, this);
+        }
+
+        static FontFamilyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextElement);
+        static FontSizeProperty = InheritableOwner.FontSizeProperty.ExtendTo(TextElement);
+        static FontStretchProperty = InheritableOwner.FontStretchProperty.ExtendTo(TextElement);
+        static FontStyleProperty = InheritableOwner.FontStyleProperty.ExtendTo(TextElement);
+        static FontWeightProperty = InheritableOwner.FontWeightProperty.ExtendTo(TextElement);
+        static ForegroundProperty = InheritableOwner.ForegroundProperty.ExtendTo(TextElement);
+        static LanguageProperty = InheritableOwner.LanguageProperty.ExtendTo(TextElement);
         Foreground: Media.Brush;
         FontFamily: string;
         FontStretch: string;
@@ -38,40 +66,18 @@ module Fayde.Documents {
         FontWeight: FontWeight;
         FontSize: number;
         Language: string;
-        TextDecorations: TextDecorations;
 
-        IsInheritable(propd: DependencyProperty): boolean {
+        IsInheritable (propd: DependencyProperty): boolean {
             return TextElementInheritedProps.indexOf(propd) > -1;
         }
 
-        private _Font: Font = new Font();
-
-        constructor() {
-            super();
-            this._UpdateFont(true);
+        _SerializeText (): string {
+            return undefined;
         }
 
-        _SerializeText(): string { return undefined; }
-        private _UpdateFont(force?: boolean) {
-            var f = this._Font;
-            f.Family = this.FontFamily;
-            f.Stretch = this.FontStretch;
-            f.Style = this.FontStyle;
-            f.Weight = this.FontWeight;
-            f.Size = this.FontSize;
-            return f.IsChanged || force;
-        }
-        
-        get Background(): Media.Brush { return null; }
-        get SelectionBackground(): Media.Brush { return null; }
-        //DP: get Foreground(): Media.Brush { return this.Foreground; }
-        get SelectionForeground(): Media.Brush { return this.Foreground; }
-        get Font(): Font { return this._Font; }
-        get Direction(): FlowDirection { return FlowDirection.LeftToRight; }
-        get IsUnderlined(): boolean { return (this.TextDecorations & TextDecorations.Underline) > 0; }
         Start: number;
 
-        Equals(te: TextElement): boolean {
+        Equals (te: TextElement): boolean {
             if (this.FontFamily !== te.FontFamily)
                 return false;
             if (this.FontSize !== te.FontSize)
@@ -82,18 +88,12 @@ module Fayde.Documents {
                 return false;
             if (this.FontStretch !== te.FontStretch)
                 return false;
-            if (this.TextDecorations !== te.TextDecorations)
-                return false;
-            if (!Nullstone.Equals(this.Foreground, te.Foreground))
+            if (!nullstone.equals(this.Foreground, te.Foreground))
                 return false;
             return true;
         }
-
-        FontChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._UpdateFont(false);
-        }
     }
-    Fayde.RegisterType(TextElement, "Fayde.Documents", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TextElement);
 
     var TextElementInheritedProps = [
         TextElement.FontFamilyProperty,
@@ -102,7 +102,6 @@ module Fayde.Documents {
         TextElement.FontStyleProperty,
         TextElement.FontWeightProperty,
         TextElement.ForegroundProperty,
-        TextElement.TextDecorationsProperty,
         TextElement.LanguageProperty
-    ]
+    ];
 }

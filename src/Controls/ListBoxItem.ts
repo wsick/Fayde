@@ -8,16 +8,16 @@ module Fayde.Controls {
             if (this._ParentSelector === value)
                 return;
             this._ParentSelector = value;
-            this.ParentSelectorChanged.Raise(this, EventArgs.Empty);
+            this.ParentSelectorChanged.raise(this, null);
         }
-        ParentSelectorChanged: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        ParentSelectorChanged = new nullstone.Event();
 
         static IsSelectedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsSelected", () => Boolean, ListBoxItem, null, (d, args) => (<ListBoxItem>d).OnIsSelectedChanged(args));
         IsSelected: boolean;
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = ListBoxItem;
         }
 
         OnApplyTemplate() {
@@ -69,7 +69,7 @@ module Fayde.Controls {
             this.UpdateVisualState();
         }
     }
-    Fayde.RegisterType(ListBoxItem, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ListBoxItem);
     TemplateVisualStates(ListBoxItem, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

@@ -5,18 +5,18 @@ module Fayde.Controls.Primitives {
         private _PreviousPosition: Point = null;
         private _Origin: Point = null;
 
-        DragCompleted: RoutedEvent<DragCompletedEventArgs> = new RoutedEvent<DragCompletedEventArgs>();
-        DragDelta: RoutedEvent<DragDeltaEventArgs> = new RoutedEvent<DragDeltaEventArgs>();
-        DragStarted: RoutedEvent<DragStartedEventArgs> = new RoutedEvent<DragStartedEventArgs>();
+        DragCompleted = new RoutedEvent<DragCompletedEventArgs>();
+        DragDelta = new RoutedEvent<DragDeltaEventArgs>();
+        DragStarted = new RoutedEvent<DragStartedEventArgs>();
 
-        static IsDraggingProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsDragging", () => Boolean, Thumb, false, (d, args) => (<Thumb>d).OnDraggingChanged(args));
-        static IsFocusedProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsFocused", () => Boolean, Thumb);
+        static IsDraggingProperty = DependencyProperty.RegisterReadOnly("IsDragging", () => Boolean, Thumb, false, (d, args) => (<Thumb>d).OnDraggingChanged(args));
+        static IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", () => Boolean, Thumb);
         IsDragging: boolean;
         IsFocused: boolean;
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = Thumb;
         }
 
         OnApplyTemplate() {
@@ -30,11 +30,11 @@ module Fayde.Controls.Primitives {
         
         OnGotFocus(e: RoutedEventArgs) {
             super.OnGotFocus(e);
-            this._FocusChanged(this.XamlNode._HasFocus());
+            this._FocusChanged(Surface.HasFocus(this));
         }
         OnLostFocus(e: RoutedEventArgs) {
             super.OnLostFocus(e);
-            this._FocusChanged(this.XamlNode._HasFocus());
+            this._FocusChanged(Surface.HasFocus(this));
         }
         private _FocusChanged(hasFocus: boolean) {
             this.SetCurrentValue(Thumb.IsFocusedProperty, hasFocus);
@@ -79,8 +79,8 @@ module Fayde.Controls.Primitives {
                 return;
             var vpNode = this.XamlNode.VisualParentNode;
             var p = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
-            if (!Point.Equals(p, this._PreviousPosition)) {
-                this._RaiseDragDelta(p.X - this._PreviousPosition.X, p.Y - this._PreviousPosition.Y);
+            if (!minerva.Point.isEqual(p, this._PreviousPosition)) {
+                this._RaiseDragDelta(p.x - this._PreviousPosition.x, p.y - this._PreviousPosition.y);
                 this._PreviousPosition = p;
             }
         }
@@ -93,13 +93,13 @@ module Fayde.Controls.Primitives {
         }
 
         private _RaiseDragStarted() {
-            this.DragStarted.Raise(this, new DragStartedEventArgs(this._Origin.X, this._Origin.Y));
+            this.DragStarted.raise(this, new DragStartedEventArgs(this._Origin.x, this._Origin.y));
         }
         private _RaiseDragDelta(x: number, y: number) {
-            this.DragDelta.Raise(this, new DragDeltaEventArgs(x, y));
+            this.DragDelta.raise(this, new DragDeltaEventArgs(x, y));
         }
         private _RaiseDragCompleted(canceled: boolean) {
-            this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
+            this.DragCompleted.raise(this, new DragCompletedEventArgs(this._PreviousPosition.x - this._Origin.x, this._PreviousPosition.y - this._Origin.y, canceled));
         }
         
         GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {
@@ -112,7 +112,7 @@ module Fayde.Controls.Primitives {
             return gotoFunc("Normal");
         }
     }
-    Fayde.RegisterType(Thumb, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Thumb);
     TemplateVisualStates(Thumb, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

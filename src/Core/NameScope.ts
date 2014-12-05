@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde {
     export class NameScope {
         IsRoot: boolean = false;
@@ -32,5 +30,4 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(NameScope, "Fayde");
 }

@@ -1,6 +1,3 @@
-/// <reference path="../qunit.d.ts" />
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 //Test registering/unregistering names
 //Test find namescope
 //Test absorbing of namescopes

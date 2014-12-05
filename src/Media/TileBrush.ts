@@ -59,32 +59,32 @@ module Fayde.Media {
     }
 
     export class TileBrush extends Brush {
-        static AlignmentXProperty: DependencyProperty = DependencyProperty.RegisterCore("AlignmentX", () => new Enum(AlignmentX), TileBrush, AlignmentX.Center, (d, args) => (<Brush>d).InvalidateBrush());
-        static AlignmentYProperty: DependencyProperty = DependencyProperty.RegisterCore("AlignmentY", () => new Enum(AlignmentY), TileBrush, AlignmentY.Center, (d, args) => (<Brush>d).InvalidateBrush());
-        static StretchProperty: DependencyProperty = DependencyProperty.RegisterCore("Stretch", () => new Enum(Stretch), TileBrush, Stretch.Fill, (d, args) => (<Brush>d).InvalidateBrush());
+        static AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", () => new Enum(AlignmentX), TileBrush, AlignmentX.Center, (d: TileBrush, args) => d.InvalidateBrush());
+        static AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", () => new Enum(AlignmentY), TileBrush, AlignmentY.Center, (d: TileBrush, args) => d.InvalidateBrush());
+        static StretchProperty = DependencyProperty.RegisterCore("Stretch", () => new Enum(Stretch), TileBrush, Stretch.Fill, (d: TileBrush, args) => d.InvalidateBrush());
         AlignmentX: AlignmentX;
         AlignmentY: AlignmentY;
         Stretch: Stretch;
 
-        CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect) {
+        CreateBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var imgExtents = this.GetTileExtents();
 
             var tmpCanvas = <HTMLCanvasElement>document.createElement("canvas");
-            tmpCanvas.width = bounds.Width;
-            tmpCanvas.height = bounds.Height;
+            tmpCanvas.width = bounds.width;
+            tmpCanvas.height = bounds.height;
 
             var tmpCtx = tmpCanvas.getContext("2d");
 
-            var mat = computeImageMatrix(bounds.Width, bounds.Height,
-                imgExtents.Width, imgExtents.Height, this.Stretch, this.AlignmentX, this.AlignmentY);
+            var mat = computeImageMatrix(bounds.width, bounds.height,
+                imgExtents.width, imgExtents.height, this.Stretch, this.AlignmentX, this.AlignmentY);
             tmpCtx.setTransform(mat[0], mat[1], mat[3], mat[4], mat[2], mat[5]);
 
             this.DrawTile(tmpCtx, bounds);
 
             return ctx.createPattern(tmpCanvas, "no-repeat");
         }
-        GetTileExtents(): rect { return undefined; }
-        DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: rect) { }
+        GetTileExtents(): minerva.Rect { return undefined; }
+        DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
     }
-    Fayde.RegisterType(TileBrush, "Fayde.Media", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TileBrush);
 }

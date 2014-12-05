@@ -27,7 +27,7 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = ProgressBar;
         }
 
         OnApplyTemplate() {
@@ -35,13 +35,13 @@ module Fayde.Controls {
 
             var track = this._Track;
             if (track)
-                track.SizeChanged.Unsubscribe(this._OnTrackSizeChanged, this);
+                track.SizeChanged.off(this._OnTrackSizeChanged, this);
 
             track = this._Track = <FrameworkElement>this.GetTemplateChild("ProgressBarTrack", FrameworkElement);
             this._Indicator = <FrameworkElement>this.GetTemplateChild("ProgressBarIndicator", FrameworkElement);
 
             if (track)
-                track.SizeChanged.Subscribe(this._OnTrackSizeChanged, this);
+                track.SizeChanged.on(this._OnTrackSizeChanged, this);
 
             this.UpdateVisualState(false);
         }
@@ -70,7 +70,7 @@ module Fayde.Controls {
                 return;
 
             var margin = indicator.Margin;
-            var outerWidth = (margin) ? margin.Left + margin.Right : 0.0;
+            var outerWidth = (margin) ? margin.left + margin.right : 0.0;
             var padding: Thickness = null;
             if (parent instanceof Border)
                 padding = (<Border>parent).Padding;
@@ -78,8 +78,8 @@ module Fayde.Controls {
                 padding = (<Control>parent).Padding;
 
             if (padding) {
-                outerWidth += padding.Left;
-                outerWidth += padding.Right;
+                outerWidth += padding.left;
+                outerWidth += padding.right;
             }
 
             var progress = 1.0;
@@ -89,7 +89,7 @@ module Fayde.Controls {
             indicator.Width = fullWidth * progress;
         }
     }
-    Fayde.RegisterType(ProgressBar, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ProgressBar);
     TemplateVisualStates(ProgressBar,
         { GroupName: "CommonStates", Name: "Indeterminate" },
         { GroupName: "CommonStates", Name: "Determinate" });

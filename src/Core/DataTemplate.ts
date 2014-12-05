@@ -1,17 +1,9 @@
-/// <reference path="../Xaml/XamlLoader.ts" />
+/// <reference path="../Markup/Loader" />
 
 module Fayde {
-    export class DataTemplate extends Xaml.FrameworkTemplate {
+    export class DataTemplate extends Markup.FrameworkTemplate {
+        static DataTypeProperty = DependencyProperty.Register("DataType", () => IType_, DataTemplate);
         DataType: Function;
-
-        constructor() {
-            super();
-        }
-
-        GetVisualTree(bindingSource?: DependencyObject): UIElement {
-            var uie = <UIElement>super.GetVisualTree(bindingSource);
-            return uie;
-        }
     }
-    Fayde.RegisterType(DataTemplate, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DataTemplate);
 }

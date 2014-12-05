@@ -1,5 +1,3 @@
-/// <reference path="../../Runtime/Nullstone.ts" />
-
 module Fayde.Controls.Primitives {
     export class SelectorSelection {
         private _Owner: Selector;
@@ -13,7 +11,7 @@ module Fayde.Controls.Primitives {
 
         constructor(owner: Selector) {
             this._Owner = owner;
-            this._Owner.SelectedItems.CollectionChanged.Subscribe(this._HandleOwnerSelectionChanged, this);
+            this._Owner.SelectedItems.CollectionChanged.on(this._HandleOwnerSelectionChanged, this);
         }
 
         private _HandleOwnerSelectionChanged(sender, e: Collections.CollectionChangedEventArgs) {
@@ -273,7 +271,7 @@ module Fayde.Controls.Primitives {
             this.UpdateCollectionView(item);
         }
         UpdateCollectionView(item: any) {
-            var icv = Data.ICollectionView_.As(this._Owner.ItemsSource);
+            var icv = Data.ICollectionView_.as(this._Owner.ItemsSource);
             if (icv) {
                 icv.MoveCurrentTo(item);
                 return item === icv.CurrentItem;
@@ -281,7 +279,7 @@ module Fayde.Controls.Primitives {
             return true;
         }
     }
-    Fayde.RegisterType(SelectorSelection, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(SelectorSelection);
 
     function except<T>(arr1: T[], arr2: T[]): T[] {
         var r = [];

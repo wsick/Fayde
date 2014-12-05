@@ -13,14 +13,24 @@ module Fayde.Documents {
             super();
             var coll = Paragraph.InlinesProperty.Initialize(this);
             coll.AttachTo(this);
-            coll.Listen(this);
+            ReactTo(coll, this, (obj?) => this.InlinesChanged(obj.item, obj.add));
         }
-        
-        InlinesChanged(newInline: Inline, isAdd: boolean) {
+
+        InlinesChanged (inline: Inline, isAdd: boolean) {
             if (isAdd)
-                Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(this, inline.XamlNode);
+
+            if (isAdd)
+                ReactTo(inline, this, (obj?) => Incite(this, obj));
+            else
+                UnreactTo(inline, this);
+
+            Incite(this, {
+                type: 'text',
+                full: true
+            });
         }
     }
-    Fayde.RegisterType(Paragraph, "Fayde.Documents", Fayde.XMLNS);
-    Xaml.Content(Paragraph, Paragraph.InlinesProperty);
+    Fayde.CoreLibrary.add(Paragraph);
+    Markup.Content(Paragraph, Paragraph.InlinesProperty);
 }

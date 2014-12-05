@@ -12,7 +12,7 @@ module Fayde.Media.Animation {
                 } else {
                     var converted: any;
                     try {
-                        converted = Fayde.ConvertAnyToType(value, <Function>propd.GetTargetType());
+                        converted = nullstone.convertAnyToType(value, <Function>propd.GetTargetType());
                     } catch (err) {
                         console.warn("Error resolving ObjectAnimation Value.");
                         return false;
@@ -23,5 +23,5 @@ module Fayde.Media.Animation {
             return super.Resolve(target, propd);
         }
     }
-    Fayde.RegisterType(ObjectAnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ObjectAnimationUsingKeyFrames);
 }

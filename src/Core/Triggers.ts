@@ -5,7 +5,7 @@ module Fayde {
     export class TriggerAction extends DependencyObject {
         Fire() { }
     }
-    Fayde.RegisterType(TriggerAction, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TriggerAction);
     
     export class TriggerActionCollection extends XamlObjectCollection<TriggerAction> {
         Fire() {
@@ -15,14 +15,14 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(TriggerActionCollection, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TriggerActionCollection);
 
     
     export class TriggerBase extends DependencyObject {
         Attach(target: XamlObject) { }
         Detach(target: XamlObject) { }
     }
-    Fayde.RegisterType(TriggerBase, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TriggerBase);
     
     export class EventTrigger extends TriggerBase {
         static ActionsProperty = DependencyProperty.RegisterImmutable<TriggerActionCollection>("Actions", () => TriggerActionCollection, EventTrigger);
@@ -43,14 +43,14 @@ module Fayde {
             var evt = this._ParseEventName(target);
             if (evt) {
                 this._IsAttached = true;
-                evt.Subscribe(this._FireActions, this);
+                evt.on(this._FireActions, this);
                 return;
             }
-            Warn("Could not attach to RoutedEvent: " + this.RoutedEvent);
+            console.warn("Could not attach to RoutedEvent: " + this.RoutedEvent);
         }
         Detach(target: XamlObject) {
             var evt = this._ParseEventName(target);
-            if (evt) evt.Unsubscribe(this._FireActions, this);
+            if (evt) evt.off(this._FireActions, this);
             this._IsAttached = false;
         }
 
@@ -77,8 +77,8 @@ module Fayde {
             return undefined;
         }
     }
-    Fayde.RegisterType(EventTrigger, "Fayde", Fayde.XMLNS);
-    Xaml.Content(EventTrigger, EventTrigger.ActionsProperty);
+    Fayde.CoreLibrary.add(EventTrigger);
+    Markup.Content(EventTrigger, EventTrigger.ActionsProperty);
 
     export class TriggerCollection extends XamlObjectCollection<TriggerBase> {
         XamlNode: XamlNode;
@@ -115,5 +115,5 @@ module Fayde {
             }
         }
     }
-    Fayde.RegisterType(TriggerCollection, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(TriggerCollection);
 }

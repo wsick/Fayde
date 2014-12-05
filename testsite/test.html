@@ -3,7 +3,21 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
-    <script src="require-config.js"></script>
+    <script src="lib/nullstone/dist/nullstone.js"></script>
+    <script src="lib/minerva/dist/minerva.js"></script>
+    <script src="lib/fayde/dist/fayde.js"></script>
+    <script type="text/javascript">
+        var require = {
+            baseUrl: "./",
+            paths: {
+                "text": "lib/requirejs-text/text"
+            },
+            deps: ["text", "text!fayde.json"],
+            callback: function (text, config) {
+                Fayde.Bootstrap();
+            }
+        };
+    </script>
     <script src="lib/requirejs/require.js"></script>
     <style>
         * {
@@ -33,8 +47,7 @@
                 return tokens[1];
         }
     }
-    document.body.setAttribute('faydeapp', getQueryParam('app'));
+    document.body.setAttribute('fayde-app', getQueryParam('app'));
 </script>
-<script src="//localhost:35729/livereload.js"></script>
 </body>
 </html>

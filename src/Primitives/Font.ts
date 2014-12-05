@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 var FontStyle = {
     Normal: "normal",
     Italic: "italic",
@@ -131,4 +129,4 @@ class Font {
         return result;
     }
 }
-Fayde.RegisterType(Font, "window", Fayde.XMLNSX);
+Fayde.CoreLibrary.add(Font);

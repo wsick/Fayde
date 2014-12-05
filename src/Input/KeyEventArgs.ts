@@ -171,11 +171,11 @@ module Fayde.Input {
         //     A special value indicating the key is out of range of this enumeration.
         Unknown = 255,
     }
-    Fayde.RegisterEnum(Key, "Key", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(Key, "Key");
 
     export class KeyboardEventArgs extends RoutedEventArgs {
     }
-    Fayde.RegisterType(KeyboardEventArgs, "Fayde.Input", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(KeyboardEventArgs);
 
     ///Modifers = { Shift: <boolean>, Ctrl: <boolean>, Alt: <boolean> }
     export class KeyEventArgs extends KeyboardEventArgs {
@@ -193,5 +193,5 @@ module Fayde.Input {
             this.Char = c;
         }
     }
-    Fayde.RegisterType(KeyEventArgs, "Fayde.Input", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(KeyEventArgs);
 }

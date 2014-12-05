@@ -10,8 +10,19 @@
     <script>
         QUnit.config.autostart = false;
     </script>
-    <script src="require-config.js"></script>
-    <script src="lib/requirejs/require.js" data-main="runner.js"></script>
+    <script src="lib/nullstone/dist/nullstone.js"></script>
+    <script src="lib/minerva/dist/minerva.js"></script>
+    <script src="lib/fayde/dist/fayde.js"></script>
+    <script type="text/javascript">
+        var require = {
+            baseUrl: "./",
+            paths: {
+                "text": "lib/requirejs-text/text"
+            },
+            deps: ["text"]
+        };
+    </script>
+    <script src="lib/requirejs/require.js" data-main=".build/runner.js"></script>
 </head>
 <body>
 <div id="qunit"></div>

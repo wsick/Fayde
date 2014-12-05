@@ -222,7 +222,10 @@ module Fayde.Input {
             if (unshifted)
                 keyCode = unshifted;
 
-            return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], String.fromCharCode(e.which || e.keyCode));
+            var args = new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], String.fromCharCode(e.which || e.keyCode));
+            if (args.Char === "'")
+                args.Key = Key.Unknown;
+            return args;
         }
         CreateArgsDown(e): Fayde.Input.KeyEventArgs {
             //only do for special keys

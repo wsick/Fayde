@@ -111,7 +111,7 @@ module Fayde.Input.TouchInternal {
                 throw new ArgumentException("Specified relative object must be a UIElement.");
             //TODO: If attached, should we run ProcessDirtyElements
             var p = this.Position.Clone();
-            relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
+            minerva.core.Updater.transformPoint(relativeTo.XamlNode.LayoutUpdater, p);
             return this.CreateTouchPoint(p);
         }
         CreateTouchPoint(p: Point): TouchPoint {

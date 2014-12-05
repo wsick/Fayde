@@ -1,4 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="TimeSpan.ts" />
 
 enum DayOfWeek {
@@ -10,14 +9,14 @@ enum DayOfWeek {
     Friday,
     Saturday
 }
-Fayde.RegisterEnum(DayOfWeek, "DayOfWeek", Fayde.XMLNS);
+Fayde.CoreLibrary.addEnum(DayOfWeek, "DayOfWeek");
 
 enum DateTimeKind {
     Local,
     Unspecified,
     Utc
 }
-Fayde.RegisterEnum(DateTimeKind, "DateTimeKind", Fayde.XMLNS);
+Fayde.CoreLibrary.addEnum(DateTimeKind, "DateTimeKind");
 
 class DateTime {
     private static _MinDateTicks: number = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
@@ -222,4 +221,4 @@ class DateTime {
         return this.Ticks;
     }
 }
-Fayde.RegisterType(DateTime, "Fayde", Fayde.XMLNS);
+Fayde.CoreLibrary.addPrimitive(DateTime);

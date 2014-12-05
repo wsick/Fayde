@@ -1,10 +1,8 @@
 /// <reference path="ContentControl.ts" />
-/// <reference path="../Xaml/XamlDocument.ts" />
-/// <reference path="../Xaml/XamlLoader.ts" />
 /// <reference path="Page.ts" />
 
 module Fayde.Controls {
-    function createErrorDoc (error: any): Xaml.XamlDocument {
+    function createErrorDoc (error: any): nullstone.markup.xaml.XamlMarkup {
         var safe = (error || '').toString()
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
@@ -14,17 +12,17 @@ module Fayde.Controls {
         var xaml = '<Page xmlns="' + Fayde.XMLNS + '" xmlns:x="' + Fayde.XMLNSX + '" Title="Error">';
         xaml += '<TextBlock Text="' + safe + '" />';
         xaml += '</Page>';
-        return new Xaml.XamlDocument(xaml);
+        return Markup.CreateXaml(xaml);
     }
 
-    function getErrorPage (error: string): Page {
-        return <Page>Xaml.Load(createErrorDoc(error).Document);
+    function getErrorPage (app: Application, error: string): Page {
+        return Markup.Load<Page>(app, createErrorDoc(error));
     }
 
     export class Frame extends ContentControl {
-        static IsDeepLinkedProperty: DependencyProperty = DependencyProperty.Register("IsDeepLinked", () => Boolean, Frame, true);
-        static CurrentSourceProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("CurrentSource", () => Uri, Frame);
-        static SourceProperty: DependencyProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
+        static IsDeepLinkedProperty = DependencyProperty.Register("IsDeepLinked", () => Boolean, Frame, true);
+        static CurrentSourceProperty = DependencyProperty.RegisterReadOnly("CurrentSource", () => Uri, Frame);
+        static SourceProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
         static UriMapperProperty = DependencyProperty.Register("UriMapper", () => Navigation.UriMapper, Frame);
         static RouteMapperProperty = DependencyProperty.Register("RouteMapper", () => Navigation.RouteMapper, Frame);
         IsDeepLinked: boolean;
@@ -33,7 +31,7 @@ module Fayde.Controls {
         UriMapper: Navigation.UriMapper;
         RouteMapper: Navigation.RouteMapper;
 
-        private _NavService: Navigation.NavigationService = new Navigation.NavigationService();
+        private _NavService = new Navigation.NavigationService();
         private _CurrentRoute: Fayde.Navigation.Route = undefined;
 
         //Navigated = new MulticastEvent();
@@ -44,7 +42,8 @@ module Fayde.Controls {
 
         constructor () {
             super();
-            this.Loaded.Subscribe(this._FrameLoaded, this);
+            this.DefaultStyleKey = Frame;
+            this.Loaded.on(this._FrameLoaded, this);
         }
 
         Navigate (uri: Uri) {
@@ -65,24 +64,26 @@ module Fayde.Controls {
 
         private _FrameLoaded (sender, e: RoutedEventArgs) {
             if (this.IsDeepLinked) {
-                this._NavService.LocationChanged.Subscribe(this._HandleDeepLink, this);
+                this._NavService.LocationChanged.on(this._HandleDeepLink, this);
                 this._HandleDeepLink();
             }
         }
 
         private _HandleDeepLink () {
-            this._LoadContent(new Uri(this._NavService.Href + "#" + this._NavService.Hash));
+            this._LoadContent(this._NavService.CurrentUri);
         }
 
         private _LoadContent (source: Uri) {
             this.SetValueInternal(Frame.CurrentSourceProperty, source);
             this.StopLoading();
 
-            var fragment = source.Fragment;
+            var fragment = source.fragment;
+            if (fragment[0] === "#")
+                fragment = fragment.substr(1);
             TimelineProfile.Navigate(true, fragment);
 
-            var targetUri = new Uri(fragment, UriKind.Relative);
-            var target: string = null;
+            var targetUri = new Uri(fragment, nullstone.UriKind.Relative);
+            var target: string = undefined;
             if (this.RouteMapper) {
                 this._CurrentRoute = this.RouteMapper.MapUri(targetUri);
                 if (!this._CurrentRoute)
@@ -96,9 +97,9 @@ module Fayde.Controls {
                 target = mapped.toString();
             }
 
-            Page.GetAsync(target)
-                .success(page => this._HandleSuccess(page))
-                .error(error => this._HandleError(error));
+            Page.GetAsync(this, target)
+                .then(page => this._HandleSuccess(page),
+                    err => this._HandleError(err));
         }
 
         private _HandleSuccess (page: Page) {
@@ -108,11 +109,11 @@ module Fayde.Controls {
         }
 
         private _HandleError (error: any) {
-            this._SetPage(getErrorPage(error));
+            this._SetPage(getErrorPage(this.App, error));
             TimelineProfile.Navigate(false);
         }
 
-        private _SetPage(page: Page) {
+        private _SetPage (page: Page) {
             document.title = page.Title;
             this.Content = page;
             if (this._CurrentRoute)
@@ -129,5 +130,5 @@ module Fayde.Controls {
             //TODO: Show default content uri in Content when in design mode
         }
     }
-    Fayde.RegisterType(Frame, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Frame);
 }

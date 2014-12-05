@@ -3,102 +3,109 @@
 
 module Fayde.Controls {
     export class ScrollContentPresenter extends ContentPresenter implements Primitives.IScrollInfo {
-        private _ScrollData: Primitives.ScrollData = new Primitives.ScrollData();
+        CreateLayoutUpdater() {
+            var updater = new minerva.controls.scrollcontentpresenter.ScrollContentPresenterUpdater();
+            updater.assets.scrollData = this._ScrollData = new Primitives.ScrollData();
+            return updater;
+        }
+
+        private _ScrollData: Primitives.ScrollData;
         private _IsClipPropertySet: boolean = false;
         private _ClippingRectangle: Media.RectangleGeometry = null;
 
-        get ScrollOwner(): ScrollViewer { return this._ScrollData.ScrollOwner; }
-        set ScrollOwner(value: ScrollViewer) { this._ScrollData.ScrollOwner = value; }
-        get CanHorizontallyScroll(): boolean { return this._ScrollData.CanHorizontallyScroll;; }
+        get ScrollOwner(): ScrollViewer { return this._ScrollData.scrollOwner; }
+        set ScrollOwner(value: ScrollViewer) { this._ScrollData.scrollOwner = value; }
+        get CanHorizontallyScroll(): boolean { return this._ScrollData.canHorizontallyScroll;; }
         set CanHorizontallyScroll(value: boolean) {
             var sd = this._ScrollData;
-            if (sd.CanHorizontallyScroll !== value) {
-                sd.CanHorizontallyScroll = value;
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            if (sd.canHorizontallyScroll !== value) {
+                sd.canHorizontallyScroll = value;
+                this.XamlNode.LayoutUpdater.invalidateMeasure();
             }
         }
-        get CanVerticallyScroll(): boolean { return this._ScrollData.CanVerticallyScroll; }
+        get CanVerticallyScroll(): boolean { return this._ScrollData.canVerticallyScroll; }
         set CanVerticallyScroll(value: boolean) {
             var sd = this._ScrollData;
-            if (sd.CanVerticallyScroll !== value) {
-                sd.CanVerticallyScroll = value;
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            if (sd.canVerticallyScroll !== value) {
+                sd.canVerticallyScroll = value;
+                this.XamlNode.LayoutUpdater.invalidateMeasure();
             }
         }
-        get ExtentWidth(): number { return this._ScrollData.ExtentWidth; }
-        get ExtentHeight(): number { return this._ScrollData.ExtentHeight; }
-        get ViewportWidth(): number { return this._ScrollData.ViewportWidth; }
-        get ViewportHeight(): number { return this._ScrollData.ViewportHeight; }
-        get HorizontalOffset(): number { return this._ScrollData.OffsetX; }
-        get VerticalOffset(): number { return this._ScrollData.OffsetY; }
-        LineUp(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY - 16); }
-        LineDown(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY + 16); }
-        LineLeft(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX - 16); }
-        LineRight(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX + 16); }
-        MouseWheelUp(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY - 48); }
-        MouseWheelDown(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY + 48); }
-        MouseWheelLeft(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX - 48); }
-        MouseWheelRight(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX + 48); }
-        PageUp(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY - this._ScrollData.ViewportHeight); }
-        PageDown(): boolean { return this.SetVerticalOffset(this._ScrollData.OffsetY + this._ScrollData.ViewportHeight); }
-        PageLeft(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX - this._ScrollData.ViewportWidth); }
-        PageRight(): boolean { return this.SetHorizontalOffset(this._ScrollData.OffsetX + this._ScrollData.ViewportWidth); }
-        MakeVisible(uie: UIElement, rectangle: rect): rect {
-            if (rect.isEmpty(rectangle) || !uie || uie === this || !this.XamlNode.IsAncestorOf(uie.XamlNode))
-                return new rect();
-            
-            var generalTransform = uie.TransformToVisual(this);
-            var point = generalTransform.Transform(new Point(rectangle.X, rectangle.Y));
-            rectangle = rect.copyTo(rectangle);
-            rectangle.X = point.X;
-            rectangle.Y = point.Y;
-            return rectangle;
+        get ExtentWidth(): number { return this._ScrollData.extentWidth; }
+        get ExtentHeight(): number { return this._ScrollData.extentHeight; }
+        get ViewportWidth(): number { return this._ScrollData.viewportWidth; }
+        get ViewportHeight(): number { return this._ScrollData.viewportHeight; }
+        get HorizontalOffset(): number { return this._ScrollData.offsetX; }
+        get VerticalOffset(): number { return this._ScrollData.offsetY; }
+        LineUp(): boolean { return this.SetVerticalOffset(this._ScrollData.offsetY - 16); }
+        LineDown(): boolean { return this.SetVerticalOffset(this._ScrollData.offsetY + 16); }
+        LineLeft(): boolean { return this.SetHorizontalOffset(this._ScrollData.offsetX - 16); }
+        LineRight(): boolean { return this.SetHorizontalOffset(this._ScrollData.offsetX + 16); }
+        MouseWheelUp(): boolean { return this.SetVerticalOffset(this._ScrollData.offsetY - 48); }
+        MouseWheelDown(): boolean { return this.SetVerticalOffset(this._ScrollData.offsetY + 48); }
+        MouseWheelLeft(): boolean { return this.SetHorizontalOffset(this._ScrollData.offsetX - 48); }
+        MouseWheelRight(): boolean { return this.SetHorizontalOffset(this._ScrollData.offsetX + 48); }
+        PageUp(): boolean { return this.SetVerticalOffset(this._ScrollData.offsetY - this._ScrollData.viewportHeight); }
+        PageDown(): boolean { return this.SetVerticalOffset(this._ScrollData.offsetY + this._ScrollData.viewportHeight); }
+        PageLeft(): boolean { return this.SetHorizontalOffset(this._ScrollData.offsetX - this._ScrollData.viewportWidth); }
+        PageRight(): boolean { return this.SetHorizontalOffset(this._ScrollData.offsetX + this._ScrollData.viewportWidth); }
+        MakeVisible(uie: UIElement, viewport: minerva.Rect): minerva.Rect {
+            var vis = new minerva.Rect();
+            if (minerva.Rect.isEmpty(viewport) || !uie || uie === this || !this.XamlNode.IsAncestorOf(uie.XamlNode))
+                return vis;
 
-            var irect = new rect();
-            rect.set(irect, this.HorizontalOffset, this.VerticalOffset, this.ViewportWidth, this.ViewportHeight);
-            rectangle.X += irect.X;
-            rectangle.Y += irect.Y;
-            var num = computeScrollOffsetWithMinimalScroll(irect.X, irect.X + irect.Width, rectangle.X, rectangle.X + rectangle.Width);
-            var num1 = computeScrollOffsetWithMinimalScroll(irect.Y, irect.Y + irect.Height, rectangle.Y, rectangle.Y + rectangle.Height);
+            var generalTransform = uie.TransformToVisual(this);
+            var xpoint = generalTransform.Transform(viewport);
+            minerva.Size.copyTo(viewport, vis);
+            minerva.Point.copyTo(xpoint, vis);
+            return vis;
+
+            //TODO: Not sure why this was skipped
+            /*
+            var irect = new minerva.Rect();
+            minerva.Rect.set(irect, this.HorizontalOffset, this.VerticalOffset, this.ViewportWidth, this.ViewportHeight);
+            viewport.X += irect.X;
+            viewport.Y += irect.Y;
+            var num = computeScrollOffsetWithMinimalScroll(irect.X, irect.X + irect.Width, viewport.X, viewport.X + viewport.Width);
+            var num1 = computeScrollOffsetWithMinimalScroll(irect.Y, irect.Y + irect.Height, viewport.Y, viewport.Y + viewport.Height);
             this.SetHorizontalOffset(num);
             this.SetVerticalOffset(num1);
             irect.X = num;
             irect.Y = num1;
-            rect.intersection(rectangle, irect);
-            if (!rect.isEmpty(rectangle)) {
-                rectangle.X -= irect.X;
-                rectangle.Y -= irect.Y;
+            minerva.Rect.intersection(viewport, irect);
+            if (!minerva.Rect.isEmpty(viewport)) {
+                viewport.X -= irect.X;
+                viewport.Y -= irect.Y;
             }
-            return rectangle;
+            return viewport;
+            */
         }
         SetHorizontalOffset(offset: number): boolean {
             if (isNaN(offset))
                 throw new ArgumentException("Offset is not a number.");
-            if (!this.CanHorizontallyScroll)
-                return false;
-
             var sd = this._ScrollData;
-            offset = Math.max(0, Math.min(offset, sd.ExtentWidth - sd.ViewportWidth));
-            if (NumberEx.AreClose(this._ScrollData.OffsetX, offset))
+            if (!sd.canHorizontallyScroll)
+                return false;
+            offset = Math.max(0, Math.min(offset, sd.extentWidth - sd.viewportWidth));
+            if (NumberEx.AreClose(this._ScrollData.offsetX, offset))
                 return false;
 
-            this._ScrollData.CachedOffsetX = offset;
-            this.XamlNode.LayoutUpdater.InvalidateArrange();
+            sd.cachedOffsetX = offset;
+            this.XamlNode.LayoutUpdater.invalidateArrange();
             return true;
         }
         SetVerticalOffset(offset: number): boolean {
             if (isNaN(offset))
                 throw new ArgumentException("Offset is not a number.");
-            if (!this.CanVerticallyScroll)
-                return false;
-            
             var sd = this._ScrollData;
-            offset = Math.max(0, Math.min(offset, sd.ExtentHeight - sd.ViewportHeight));
-            if (NumberEx.AreClose(this._ScrollData.OffsetY, offset))
+            if (!sd.canVerticallyScroll)
+                return false;
+            offset = Math.max(0, Math.min(offset, sd.extentHeight - sd.viewportHeight));
+            if (NumberEx.AreClose(this._ScrollData.offsetY, offset))
                 return false;
 
-            this._ScrollData.CachedOffsetY = offset;
-            this.XamlNode.LayoutUpdater.InvalidateArrange();
+            sd.cachedOffsetY = offset;
+            this.XamlNode.LayoutUpdater.invalidateArrange();
             return true;
         }
 
@@ -112,14 +119,14 @@ module Fayde.Controls {
                 return;
 
             var content = this.Content;
-            var info = Primitives.IScrollInfo_.As(content);
+            var info = Primitives.IScrollInfo_.as(content);
             if (!info && content instanceof ItemsPresenter) {
                 var ip = <ItemsPresenter>content;
                 var err = new BError();
                 ip.XamlNode.ApplyTemplateWithError(err);
                 if (err.Message)
                     err.ThrowException();
-                info = Primitives.IScrollInfo_.As(ip.Panel);
+                info = Primitives.IScrollInfo_.as(ip.Panel);
             }
 
             if (!info)
@@ -131,157 +138,11 @@ module Fayde.Controls {
             sv.ScrollInfo = info;
             sv.InvalidateScrollInfo();
         }
-        private _UpdateClip(arrangeSize: size) {
-            if (!this._IsClipPropertySet) {
-                this._ClippingRectangle = new Media.RectangleGeometry();
-                this.Clip = this._ClippingRectangle;
-                this._IsClipPropertySet = true;
-            }
 
-            var content;
-            if (this.TemplateOwner instanceof Controls.ScrollViewer && (content = this.Content) && (content instanceof Controls.Internal.TextBoxView || content instanceof Controls._RichTextBoxView)) {
-                //ScrollViewer inside TextBox/RichTextBox
-                this._ClippingRectangle.Rect = this._CalculateTextBoxClipRect(arrangeSize);
-            } else {
-                this._ClippingRectangle.Rect = rect.fromSize(arrangeSize);
-            }
-        }
-        private _CalculateTextBoxClipRect(arrangeSize: size): rect {
-            var left = 0;
-            var right = 0;
-            var sd = this._ScrollData;
-            var width = sd.ExtentWidth;
-            var num = sd.ViewportWidth;
-            var x = sd.OffsetX;
-            var templatedParent: ScrollViewer;
-            if (this.TemplateOwner instanceof ScrollViewer)
-                templatedParent = <ScrollViewer>this.TemplateOwner;
-
-            var to = templatedParent.TemplateOwner;
-            var textWrapping = TextWrapping.NoWrap;
-            var horizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-            if (to instanceof TextBox) {
-                var textbox = <TextBox>to;
-                textWrapping = textbox.TextWrapping;
-                horizontalScrollBarVisibility = textbox.HorizontalScrollBarVisibility;
-            } else if (to instanceof RichTextBox) {
-                var richtextbox = <RichTextBox>to;
-                textWrapping = richtextbox.TextWrapping;
-                horizontalScrollBarVisibility = richtextbox.HorizontalScrollBarVisibility;
-            }
-
-            var padding = templatedParent.Padding;
-            if (textWrapping !== TextWrapping.Wrap) {
-                if (num > width || x === 0)
-                    left = padding.Left + 1;
-                if (num > width || horizontalScrollBarVisibility !== ScrollBarVisibility.Disabled && Math.abs(width - x + num) <= 1)
-                    right = padding.Right + 1;
-            } else {
-                left = padding.Left + 1;
-                right = padding.Right + 1;
-            }
-            left = Math.max(0, left);
-            right = Math.max(0, right);
-            var r = new rect();
-            rect.set(r, -left, 0, arrangeSize.Width + left + right, arrangeSize.Height);
-            return r;
-        }
-
-        MeasureOverride(availableSize: size): size {
-            var scrollOwner = this.ScrollOwner;
-
-            var cr = this.XamlNode.ContentRoot;
-            if (!scrollOwner || !cr)
-                return super.MeasureOverride(availableSize);
-
-            var ideal = size.createInfinite();
-            if (!this.CanHorizontallyScroll)
-                ideal.Width = availableSize.Width;
-            if (!this.CanVerticallyScroll)
-                ideal.Height = availableSize.Height;
-
-            cr.Measure(ideal);
-            var crds = cr.DesiredSize;
-            this._UpdateExtents(availableSize, crds.Width, crds.Height);
-
-            var desired = size.copyTo(availableSize);
-            var sd = this._ScrollData;
-            desired.Width = Math.min(desired.Width, sd.ExtentWidth);
-            desired.Height = Math.min(desired.Height, sd.ExtentHeight);
-            return desired;
-        }
-        ArrangeOverride(finalSize: size): size {
-            var scrollOwner = this.ScrollOwner;
-            var cr = this.XamlNode.ContentRoot;
-            if (!scrollOwner || !cr)
-                return super.ArrangeOverride(finalSize);
-
-            if (this._ClampOffsets())
-                scrollOwner.InvalidateScrollInfo();
-
-            var desired = cr.DesiredSize;
-            var start = new Point(-this.HorizontalOffset, -this.VerticalOffset);
-
-            var offerSize = size.copyTo(desired);
-            size.max(offerSize, finalSize);
-            var childRect = rect.fromSize(offerSize);
-            childRect.X = start.X;
-            childRect.Y = start.Y;
-            cr.Arrange(childRect);
-            this._UpdateClip(finalSize);
-            var sd = this._ScrollData;
-            this._UpdateExtents(finalSize, sd.ExtentWidth, sd.ExtentHeight);
-            return finalSize;
-        }
-
-        private _UpdateExtents(viewport: size, extentWidth: number, extentHeight: number) {
-            var sd = this._ScrollData;
-            var changed = sd.ViewportWidth !== viewport.Width
-                || sd.ViewportHeight !== viewport.Height
-                || sd.ExtentWidth !== extentWidth
-                || sd.ExtentHeight !== extentHeight;
-            sd.ViewportWidth = viewport.Width;
-            sd.ViewportHeight = viewport.Height;
-            sd.ExtentWidth = extentWidth;
-            sd.ExtentHeight = extentHeight;
-            if (this._ClampOffsets())
-                changed = true;
-            if (changed) this.ScrollOwner.InvalidateScrollInfo();
-        }
-        private _ClampOffsets(): boolean {
-            var changed = false;
-
-            var sd = this._ScrollData;
-            var clampX = this._ClampHorizontal(sd.CachedOffsetX);
-            if (!NumberEx.AreClose(clampX, this.HorizontalOffset)) {
-                sd.OffsetX = clampX;
-                changed = true;
-            }
-
-            var clampY = this._ClampVertical(sd.CachedOffsetY);
-            if (!NumberEx.AreClose(clampY, this.VerticalOffset)) {
-                sd.OffsetY = clampY;
-                changed = true;
-            }
-            return changed;
-        }
-
-        private _ClampHorizontal(x: number): number {
-            if (!this.CanHorizontallyScroll)
-                return 0;
-            var sd = this._ScrollData;
-            return Math.max(0, Math.min(x, sd.ExtentWidth - sd.ViewportWidth));
-        }
-        private _ClampVertical(y: number): number {
-            if (!this.CanVerticallyScroll)
-                return 0;
-            var sd = this._ScrollData;
-            return Math.max(0, Math.min(y, sd.ExtentHeight - sd.ViewportHeight));
-        }
     }
-    Fayde.RegisterType(ScrollContentPresenter, "Fayde.Controls", Fayde.XMLNS);
-    Fayde.RegisterTypeInterfaces(ScrollContentPresenter, Primitives.IScrollInfo_);
-    
+    Fayde.CoreLibrary.add(ScrollContentPresenter);
+    nullstone.addTypeInterfaces(ScrollContentPresenter, Primitives.IScrollInfo_);
+
     function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {
         var flag = NumberEx.IsLessThanClose(topChild, topView) && NumberEx.IsLessThanClose(bottomChild, bottomView);
         var flag1 = NumberEx.IsGreaterThanClose(topChild, topView) && NumberEx.IsGreaterThanClose(bottomChild, bottomView);

@@ -6,8 +6,8 @@
 
 module Fayde.Controls {
     export class ComboBox extends Primitives.Selector {
-        DropDownOpened = new MulticastEvent<EventArgs>();
-        DropDownClosed = new MulticastEvent<EventArgs>();
+        DropDownOpened = new nullstone.Event();
+        DropDownClosed = new nullstone.Event();
 
         static IsDropDownOpenProperty = DependencyProperty.Register("IsDropDownOpen", () => Boolean, ComboBox, false, (d, args) => (<ComboBox>d)._IsDropDownOpenChanged(args));
         static ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", () => Style, ComboBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
@@ -28,7 +28,7 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = ComboBox;
         }
 
         private _IsDropDownOpenChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -47,12 +47,12 @@ module Fayde.Controls {
                         (<ComboBoxItem>focusedItem).Focus();
                 }
 
-                this.LayoutUpdated.Subscribe(this._UpdatePopupSizeAndPosition, this);
-                this.DropDownOpened.Raise(this, EventArgs.Empty);
+                this.LayoutUpdated.on(this._UpdatePopupSizeAndPosition, this);
+                this.DropDownOpened.raise(this, null);
             } else {
                 this.Focus();
-                this.LayoutUpdated.Unsubscribe(this._UpdatePopupSizeAndPosition, this);
-                this.DropDownClosed.Raise(this, EventArgs.Empty);
+                this.LayoutUpdated.off(this._UpdatePopupSizeAndPosition, this);
+                this.DropDownClosed.raise(this, null);
             }
 
             var selectedItem = this.SelectedItem;
@@ -82,19 +82,18 @@ module Fayde.Controls {
 
             if (this.$Popup != null) {
                 this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
-                this.$Popup.XamlNode.CatchClickedOutside();
-                this.$Popup.ClickedOutside.Subscribe(this._PopupClickedOutside, this);
+                this.$Popup.WatchOutsideClick(this._PopupClickedOutside, this);
 
                 var child = this.$Popup.Child;
                 if (child != null) {
-                    child.KeyDown.Subscribe(this._OnChildKeyDown, this);
-                    (<FrameworkElement>child).SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
+                    child.KeyDown.on(this._OnChildKeyDown, this);
+                    (<FrameworkElement>child).SizeChanged.on(this._UpdatePopupSizeAndPosition, this);
                 }
             }
 
             if (this.$DropDownToggle != null) {
-                this.$DropDownToggle.Checked.Subscribe(this._OnToggleChecked, this);
-                this.$DropDownToggle.Unchecked.Subscribe(this._OnToggleUnchecked, this);
+                this.$DropDownToggle.Checked.on(this._OnToggleChecked, this);
+                this.$DropDownToggle.Unchecked.on(this._OnToggleUnchecked, this);
             }
 
             this.UpdateVisualState(false);
@@ -164,7 +163,7 @@ module Fayde.Controls {
             e.Handled = true;
 
             var key = e.Key;
-            if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
+            if (this.FlowDirection === FlowDirection.RightToLeft) {
                 if (key === Input.Key.Left)
                     key = Input.Key.Right;
                 else if (key === Input.Key.Right)
@@ -266,7 +265,7 @@ module Fayde.Controls {
             if (this.$DisplayedItem != null) {
                 this.$SelectionBoxItemTemplate = this.$DisplayedItem.ContentTemplate;
                 if (content instanceof Fayde.UIElement)
-                    this.$DisplayedItem.Content = null
+                    this.$DisplayedItem.Content = null;
                 else
                     this.$DisplayedItem = null;
             } else {
@@ -287,7 +286,7 @@ module Fayde.Controls {
             this.$ContentPresenter.Content = this.$SelectionBoxItem;
             this.$ContentPresenter.ContentTemplate = this.$SelectionBoxItemTemplate;
         }
-        private _UpdatePopupSizeAndPosition(sender, e: EventArgs) {
+        private _UpdatePopupSizeAndPosition(sender, e: nullstone.IEventArgs) {
             var popup = this.$Popup;
             if (!popup)
                 return;
@@ -309,53 +308,56 @@ module Fayde.Controls {
             }
 
             var offset = new Point(0, this.ActualHeight);
-            var bottomRight = new Point(offset.X + child.ActualWidth, offset.Y + child.ActualHeight);
+            var bottomRight = new Point(offset.x + child.ActualWidth, offset.y + child.ActualHeight);
 
             var topLeft = xform.Transform(offset);
             bottomRight = xform.Transform(bottomRight);
 
             var isRightToLeft = (this.FlowDirection === FlowDirection.RightToLeft);
             if (isRightToLeft) {
-                var left = bottomRight.X;
-                bottomRight.X = topLeft.X;
-                topLeft.X = left;
+                var left = bottomRight.x;
+                bottomRight.x = topLeft.x;
+                topLeft.x = left;
             }
 
             var finalOffset = new Point();
             var raw = root.ActualWidth;
-            if (bottomRight.X > raw) {
-                finalOffset.X = raw - bottomRight.X;
-            } else if (topLeft.X < 0) {
-                finalOffset.X = offset.X - topLeft.X;
+            if (bottomRight.x > raw) {
+                finalOffset.x = raw - bottomRight.x;
+            } else if (topLeft.x < 0) {
+                finalOffset.x = offset.x - topLeft.x;
             } else {
-                finalOffset.X = offset.X;
+                finalOffset.x = offset.x;
             }
 
             if (isRightToLeft)
-                finalOffset.X = -finalOffset.X;
+                finalOffset.x = -finalOffset.x;
 
             var rah = root.ActualHeight;
-            if (bottomRight.Y > rah) {
-                finalOffset.Y = -child.ActualHeight;
+            if (bottomRight.y > rah) {
+                finalOffset.y = -child.ActualHeight;
             } else {
-                finalOffset.Y = this.RenderSize.Height;
+                finalOffset.y = this.RenderSize.height;
             }
 
-            popup.HorizontalOffset = finalOffset.X;
-            popup.VerticalOffset = finalOffset.Y;
+            popup.HorizontalOffset = finalOffset.x;
+            popup.VerticalOffset = finalOffset.y;
 
             this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
         }
         private _UpdatePopupMaxHeight(height: number) {
             var child: FrameworkElement;
             if (this.$Popup && (child = <FrameworkElement>this.$Popup.Child) && child instanceof FrameworkElement) {
-                if (height === Number.POSITIVE_INFINITY)
-                    height = Application.Current.MainSurface.Extents.Height / 2.0;
+                if (height === Number.POSITIVE_INFINITY) {
+                    var surface = this.XamlNode.LayoutUpdater.tree.surface;
+                    if (surface)
+                        height = surface.height / 2.0;
+                }
                 child.MaxHeight = height;
             }
         }
     }
-    Fayde.RegisterType(ComboBox, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ComboBox);
     TemplateParts(ComboBox, 
         { Name: "ContentPresenter", Type: ContentPresenter },
         { Name: "Popup", Type: Primitives.Popup },

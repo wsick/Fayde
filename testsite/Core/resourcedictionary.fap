@@ -1,0 +1,11 @@
+﻿<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        ThemeName="Metro">
+    <Application.Resources>
+        <ResourceDictionary Source="Core/TestResourceDictionary.xml"/>
+    </Application.Resources>
+    <Border Background="{StaticResource TestColor}">
+        <TextBlock Text="The background should not be white."/>
+    </Border>
+</Application>

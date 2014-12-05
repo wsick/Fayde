@@ -1,11 +1,10 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde {
     export class XamlObject implements Providers.IIsPropertyInheritable {
         private static _LastID: number = 0;
         private _ID: number;
         XamlNode: Fayde.XamlNode;
         TemplateOwner: DependencyObject = null;
+        App: Application = null;
 
         constructor() {
             this._ID = XamlObject._LastID++;
@@ -35,5 +34,5 @@ module Fayde {
 
         IsInheritable(propd: DependencyProperty): boolean { return false; }
     }
-    Fayde.RegisterType(XamlObject, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(XamlObject);
 }

@@ -1,12 +1,11 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// <reference path="../Xaml/XamlDocument.ts" />
-/// <reference path="../Xaml/XamlLoader.ts" />
+/// <reference path="../Markup/Creator.ts" />
 
 module Fayde.Controls {
-    var fxd = new Xaml.XamlDocument("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
+    var fmd = Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
     var fallbackTemplate: DataTemplate;
-    function getFallbackTemplate(): DataTemplate {
-        return fallbackTemplate = fallbackTemplate || <DataTemplate>Xaml.Load(fxd.Document);
+    function getFallbackTemplate (app: Application): DataTemplate {
+        return fallbackTemplate = fallbackTemplate || Markup.Load<DataTemplate>(app, fmd);
     }
 
     export class ContentPresenterNode extends FENode {
@@ -27,12 +26,10 @@ module Fayde.Controls {
             // This really should check for a value or an expression
             if (xobj.TemplateOwner instanceof ContentControl) {
                 if (!xobj.HasValueOrExpression(ContentPresenter.ContentProperty)) {
-                    xobj.SetValue(ContentPresenter.ContentProperty,
-                        new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+                    xobj.SetValue(ContentPresenter.ContentProperty, new TemplateBindingExpression("Content"));
                 }
                 if (!xobj.HasValueOrExpression(ContentPresenter.ContentTemplateProperty)) {
-                    xobj.SetValue(ContentPresenter.ContentTemplateProperty,
-                        new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+                    xobj.SetValue(ContentPresenter.ContentTemplateProperty, new TemplateBindingExpression("ContentTemplate"));
                 }
             }
 
@@ -66,11 +63,11 @@ module Fayde.Controls {
                     this.ClearRoot();
                 this.XObject.DataContext = args.NewValue == null ? null : args.NewValue;
             }
-            this.LayoutUpdater.InvalidateMeasure();
+            this.LayoutUpdater.invalidateMeasure();
         }
         _ContentTemplateChanged() {
             this.ClearRoot();
-            this.LayoutUpdater.InvalidateMeasure();
+            this.LayoutUpdater.invalidateMeasure();
         }
 
         private _ShouldInvalidateImplicitTemplate(oldValue: any, newValue: any): boolean {
@@ -102,7 +99,8 @@ module Fayde.Controls {
                     }
                     node = node.ParentNode;
                 }
-                var app = this._Surface ? this._Surface.App : null;
+                var surface = <Surface>this.LayoutUpdater.tree.surface;
+                var app = surface ? surface.App : null;
                 if (app) {
                     dt = app.Resources.Get(type);
                     if (dt instanceof DataTemplate)
@@ -110,10 +108,9 @@ module Fayde.Controls {
                 }
             }
             
-            return getFallbackTemplate();
+            return getFallbackTemplate(this.XObject.App);
         }
     }
-    Fayde.RegisterType(ContentPresenterNode, "Fayde.Controls");
 
     export class ContentPresenter extends FrameworkElement {
         XamlNode: ContentPresenterNode;
@@ -124,6 +121,6 @@ module Fayde.Controls {
         Content: any;
         ContentTemplate: DataTemplate;
     }
-    Fayde.RegisterType(ContentPresenter, "Fayde.Controls", Fayde.XMLNS);
-    Xaml.Content(ContentPresenter, ContentPresenter.ContentProperty);
+    Fayde.CoreLibrary.add(ContentPresenter);
+    Markup.Content(ContentPresenter, ContentPresenter.ContentProperty);
 }

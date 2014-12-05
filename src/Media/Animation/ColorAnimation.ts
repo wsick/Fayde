@@ -67,5 +67,5 @@ module Fayde.Media.Animation {
             return ca;
         }
     }
-    Fayde.RegisterType(ColorAnimation, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ColorAnimation);
 }

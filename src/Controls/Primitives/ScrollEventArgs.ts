@@ -12,7 +12,7 @@ module Fayde.Controls.Primitives {
         Last = 7,
         EndScroll = 8,
     }
-    Fayde.RegisterEnum(ScrollEventType, "ScrollEventType", Fayde.XMLNS);
+    Fayde.CoreLibrary.addEnum(ScrollEventType, "ScrollEventType");
 
     export class ScrollEventArgs extends RoutedEventArgs {
         ScrollEventType: ScrollEventType;
@@ -23,5 +23,5 @@ module Fayde.Controls.Primitives {
             Object.defineProperty(this, "Value", { value: value, writable: false });
         }
     }
-    Fayde.RegisterType(ScrollEventArgs, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ScrollEventArgs);
 }

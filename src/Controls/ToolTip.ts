@@ -33,7 +33,7 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = ToolTip;
         }
 
         OnApplyTemplate() {
@@ -65,7 +65,7 @@ module Fayde.Controls {
                 return;
             this.PerformPlacement(horizontalOffset, verticalOffset);
         }
-        private OnLayoutUpdated(sender: any, e: EventArgs) {
+        private OnLayoutUpdated(sender: any, e: nullstone.IEventArgs) {
             if (this._ParentPopup)
                 this.PerformPlacement(this.HorizontalOffset, this.VerticalOffset);
         }
@@ -80,26 +80,27 @@ module Fayde.Controls {
             var pp = this._ParentPopup = new Primitives.Popup();
             pp.DataContext = !this.TooltipParent ? null : this.TooltipParent.DataContext;
 
-            pp.Opened.Subscribe(this.OnPopupOpened, this);
-            pp.Closed.Subscribe(this.OnPopupClosed, this);
+            pp.Opened.on(this.OnPopupOpened, this);
+            pp.Closed.on(this.OnPopupClosed, this);
             this.IsTabStop = false;
 
+            pp.XamlNode.RegisterInitiator(this._TooltipParent);
             pp.Child = this;
 
             pp.IsHitTestVisible = false;
             this.IsHitTestVisible = false;
         }
-        private OnPopupOpened(sender: any, e: EventArgs) {
+        private OnPopupOpened(sender: any, e: nullstone.IEventArgs) {
             var args = new RoutedEventArgs();
             args.OriginalSource = this;
-            this.Opened.Raise(this, args);
-            this.LayoutUpdated.Subscribe(this.OnLayoutUpdated, this);
+            this.Opened.raise(this, args);
+            this.LayoutUpdated.on(this.OnLayoutUpdated, this);
         }
-        private OnPopupClosed(sender: any, e: EventArgs) {
+        private OnPopupClosed(sender: any, e: nullstone.IEventArgs) {
             var args = new RoutedEventArgs();
             args.OriginalSource = this;
-            this.Closed.Raise(this, args);
-            this.LayoutUpdated.Unsubscribe(this.OnLayoutUpdated, this);
+            this.Closed.raise(this, args);
+            this.LayoutUpdated.off(this.OnLayoutUpdated, this);
         }
         private PerformPlacement(horizontalOffset: number, verticalOffset: number) {
             if (!this.IsOpen)
@@ -110,18 +111,17 @@ module Fayde.Controls {
 
             var mode = this.PlacementOverride != null ? this.PlacementOverride : this.Placement;
             var target = <FrameworkElement>(this.PlacementTargetOverride || this.PlacementTarget);
-            var targetBounds = new rect();
+            var targetBounds = new minerva.Rect();
 
             var point: Point = ToolTipService.MousePosition;
             if (mode !== PlacementMode.Mouse) {
                 point = new Point();
                 try {
                     if (target != null) {
-                        targetBounds = new rect();
-                        rect.set(targetBounds, 0, 0, target.ActualWidth, target.ActualHeight);
+                        targetBounds = new minerva.Rect(0, 0, target.ActualWidth, target.ActualHeight);
                         targetBounds = target.TransformToVisual(null).TransformBounds(targetBounds);
-                        point.X = targetBounds.X;
-                        point.Y = targetBounds.Y;
+                        point.x = targetBounds.x;
+                        point.y = targetBounds.y;
                     }
                 } catch (err) {
                     console.warn("Could not transform the tooltip point.");
@@ -134,19 +134,19 @@ module Fayde.Controls {
             //Move based on PlacementMode
             switch (mode) {
                 case PlacementMode.Top:
-                    point.Y = targetBounds.Y - this.ActualHeight;
+                    point.y = targetBounds.y - this.ActualHeight;
                     break;
                 case PlacementMode.Bottom:
-                    point.Y = targetBounds.Y + targetBounds.Height;
+                    point.y = targetBounds.y + targetBounds.height;
                     break;
                 case PlacementMode.Left:
-                    point.X = targetBounds.X - this.ActualWidth;
+                    point.x = targetBounds.x - this.ActualWidth;
                     break;
                 case PlacementMode.Right:
-                    point.X = targetBounds.X + targetBounds.Width;
+                    point.x = targetBounds.x + targetBounds.width;
                     break;
                 case PlacementMode.Mouse:
-                    point.Y += new TextBox().FontSize; // FIXME: Just a guess, it's about right.
+                    point.y += new TextBox().FontSize; // FIXME: Just a guess, it's about right.
                     break;
                 default:
                     throw new NotSupportedException("PlacementMode '" + mode + "' is not supported.");
@@ -154,34 +154,34 @@ module Fayde.Controls {
 
             //Constrain X
             var rootWidth = root.ActualWidth;
-            if ((point.X + this.ActualWidth) > rootWidth) {
+            if ((point.x + this.ActualWidth) > rootWidth) {
                 if (mode === PlacementMode.Right)
-                    point.X = targetBounds.X - this.ActualWidth;
+                    point.x = targetBounds.x - this.ActualWidth;
                 else
-                    point.X = rootWidth - this.ActualWidth;
-            } else if (point.X < 0) {
+                    point.x = rootWidth - this.ActualWidth;
+            } else if (point.x < 0) {
                 if (mode === PlacementMode.Left)
-                    point.X = targetBounds.X + targetBounds.Width;
+                    point.x = targetBounds.x + targetBounds.width;
                 else
-                    point.X = 0;
+                    point.x = 0;
             }
 
             //Constrain Y
             var rootHeight = root.ActualHeight;
-            if ((point.Y + this.ActualHeight) > rootHeight) {
+            if ((point.y + this.ActualHeight) > rootHeight) {
                 if (mode === PlacementMode.Bottom)
-                    point.Y = targetBounds.Y - this.ActualHeight;
+                    point.y = targetBounds.y - this.ActualHeight;
                 else
-                    point.Y = rootHeight - this.ActualHeight;
-            } else if (point.Y < 0) {
+                    point.y = rootHeight - this.ActualHeight;
+            } else if (point.y < 0) {
                 if (mode === PlacementMode.Top)
-                    point.Y = targetBounds.Y + targetBounds.Height;
+                    point.y = targetBounds.y + targetBounds.height;
                 else
-                    point.Y = 0;
+                    point.y = 0;
             }
 
-            this._ParentPopup.VerticalOffset = point.Y;
-            this._ParentPopup.HorizontalOffset = point.X;
+            this._ParentPopup.VerticalOffset = point.y;
+            this._ParentPopup.HorizontalOffset = point.x;
         }
 
         GoToStates(gotoFunc: (state: string) => boolean) {
@@ -191,7 +191,7 @@ module Fayde.Controls {
                 gotoFunc("Closed");
         }
     }
-    Fayde.RegisterType(ToolTip, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ToolTip);
     TemplateVisualStates(ToolTip,
         { GroupName: "OpenStates", Name: "Closed" },
         { GroupName: "OpenStates", Name: "Open" });

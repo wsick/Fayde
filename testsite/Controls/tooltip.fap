@@ -1,0 +1,29 @@
+﻿<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        ThemeName="Metro">
+    <Grid x:Name="LayoutRoot">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Border Background="Green">
+                <ToolTipService.ToolTip>
+                    <ToolTip Padding="0">
+                        <Border Background="White" BorderBrush="Black" BorderThickness="1" CornerRadius="5" Margin="5">
+                            <Grid Margin="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Image Source="Images/github.png" Width="32" Height="32" Margin="0,0,5,0" />
+                                <TextBlock Grid.Column="1" Foreground="Black" Text="Infinitely extensible tooltip!" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <TextBlock Text="Mouse over me!"></TextBlock>
+            </Border>
+            <Border Background="Orange" ToolTipService.ToolTip="I am a normal tooltip">
+                <TextBlock Text="Me too!"></TextBlock>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Application>

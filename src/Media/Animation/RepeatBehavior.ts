@@ -1,5 +1,3 @@
-/// <reference path="../../Runtime/TypeManagement.ts"/>
-
 module Fayde.Media.Animation {
     export class RepeatBehavior {
         private _Duration: Duration = null;
@@ -33,16 +31,16 @@ module Fayde.Media.Animation {
 
         static Forever: RepeatBehavior = (function () { var rb = new RepeatBehavior(); rb.IsForever = true; return rb; })();
     }
-    Fayde.RegisterType(RepeatBehavior, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(RepeatBehavior);
 
-    Fayde.RegisterTypeConverter(RepeatBehavior, (val: string): RepeatBehavior => {
+    nullstone.registerTypeConverter(RepeatBehavior, (val: string): RepeatBehavior => {
         if (!val || val.toLowerCase() === "forever")
             return RepeatBehavior.Forever;
         if (val[val.length - 1] === "x") {
             var d = parseInt(val.substr(0, val.length - 1));
             return RepeatBehavior.FromIterationCount(d);
         }
-        var duration = new Duration(Fayde.ConvertAnyToType(val, TimeSpan));
+        var duration = new Duration(nullstone.convertAnyToType(val, TimeSpan));
         return RepeatBehavior.FromRepeatDuration(duration);
     });
 }

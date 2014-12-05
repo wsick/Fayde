@@ -1,5 +1,3 @@
-/// <reference path="../lib/Fayde/Fayde.d.ts" />
-
 import RelayCommand = Fayde.MVVM.RelayCommand;
 
 class DoubleListBoxViewModel extends Fayde.MVVM.ViewModelBase {

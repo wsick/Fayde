@@ -17,5 +17,5 @@ module Fayde.Media.Animation {
             return da;
         }
     }
-    Fayde.RegisterType(DoubleAnimationUsingKeyFrames, "Fayde.Media.Animation", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(DoubleAnimationUsingKeyFrames);
 }

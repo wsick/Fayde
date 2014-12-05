@@ -2,8 +2,8 @@
 
 module Fayde.Documents {
     export class Run extends Inline implements Providers.IIsPropertyInheritable {
-        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(Run);
-        static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, Run);
+        static FlowDirectionProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(Run);
+        static TextProperty = DependencyProperty.Register("Text", () => String, Run);
         FlowDirection: FlowDirection;
         Text: string;
 
@@ -15,5 +15,14 @@ module Fayde.Documents {
             return super.IsInheritable(propd);
         }
     }
-    Fayde.RegisterType(Run, "Fayde.Documents", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Run);
+
+    module reactions {
+        TextReaction<string>(Run.TextProperty, (upd, ov, nv, run?: Run) => {
+            Incite(run, {
+                type: 'text',
+                full: true
+            });
+        }, false);
+    }
 }

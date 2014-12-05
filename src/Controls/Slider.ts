@@ -3,6 +3,7 @@
 /// <reference path="Primitives/Thumb.ts" />
 
 module Fayde.Controls {
+    import GridUnitType = minerva.controls.grid.GridUnitType;
     export class Slider extends Primitives.RangeBase {
         private _DragValue: number = 0;
 
@@ -15,8 +16,8 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
-            this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
+            this.DefaultStyleKey = Slider;
+            this.SizeChanged.on(this._HandleSizeChanged, this);
         }
 
         private $HorizontalTemplate: FrameworkElement;
@@ -41,25 +42,25 @@ module Fayde.Controls {
             this.$VerticalThumb = <Primitives.Thumb>this.GetTemplateChild("VerticalThumb", Primitives.Thumb);
 
             if (this.$HorizontalThumb != null) {
-                this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
-                this.$HorizontalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
+                this.$HorizontalThumb.DragStarted.on(this._OnThumbDragStarted, this);
+                this.$HorizontalThumb.DragDelta.on(this._OnThumbDragDelta, this);
             }
             if (this.$HorizontalLargeDecrease != null) {
-                this.$HorizontalLargeDecrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
+                this.$HorizontalLargeDecrease.Click.on(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
             }
             if (this.$HorizontalLargeIncrease != null) {
-                this.$HorizontalLargeIncrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
+                this.$HorizontalLargeIncrease.Click.on(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
             }
 
             if (this.$VerticalThumb != null) {
-                this.$VerticalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
-                this.$VerticalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
+                this.$VerticalThumb.DragStarted.on(this._OnThumbDragStarted, this);
+                this.$VerticalThumb.DragDelta.on(this._OnThumbDragDelta, this);
             }
             if (this.$VerticalLargeDecrease != null) {
-                this.$VerticalLargeDecrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
+                this.$VerticalLargeDecrease.Click.on(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
             }
             if (this.$VerticalLargeIncrease != null) {
-                this.$VerticalLargeIncrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
+                this.$VerticalLargeIncrease.Click.on(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
             }
 
             this._OnOrientationChanged();
@@ -236,7 +237,7 @@ module Fayde.Controls {
             this.SetValueInternal(Slider.IsFocusedProperty, false);
         }
     }
-    Fayde.RegisterType(Slider, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Slider);
     TemplateVisualStates(Slider, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

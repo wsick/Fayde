@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Windows;
@@ -17,6 +18,23 @@ namespace LitmusTests.Tests
         public ListBoxTest()
         {
             InitializeComponent();
+            LayoutUpdated += ListBoxTest_LayoutUpdated;
+        }
+
+        private void ListBoxTest_LayoutUpdated(object sender, EventArgs e)
+        {
+            Debug.WriteLine("Walking");
+            Walk(this);
+        }
+
+        private void Walk(DependencyObject cur, int tabLevel = 1)
+        {
+            for (var i = 0; i < VisualTreeHelper.GetChildrenCount(cur); i++)
+            {
+                var child = VisualTreeHelper.GetChild(cur, i);
+                Debug.WriteLine(string.Join("\t", Enumerable.Range(0, tabLevel).Select(j => "")) + child.GetType().Name);
+                Walk(child, tabLevel + 1);
+            }
         }
     }
 }

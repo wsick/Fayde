@@ -1,11 +1,9 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Collections {
     export interface INotifyCollectionChanged {
-        CollectionChanged: MulticastEvent<CollectionChangedEventArgs>;
+        CollectionChanged: nullstone.Event<CollectionChangedEventArgs>;
     }
-    export var INotifyCollectionChanged_ = Fayde.RegisterInterface<INotifyCollectionChanged>("INotifyCollectionChanged");
-    INotifyCollectionChanged_.Is = (o: any): boolean => {
-        return o && o.CollectionChanged instanceof MulticastEvent;
+    export var INotifyCollectionChanged_ = new nullstone.Interface<INotifyCollectionChanged>("INotifyCollectionChanged");
+    INotifyCollectionChanged_.is = (o: any): boolean => {
+        return o && o.CollectionChanged instanceof nullstone.Event;
     };
 }

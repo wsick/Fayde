@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 module Fayde.Media {
     export interface IMatrix3DChangedListener {
         Callback: (newMatrix3D: Matrix3D) => void;
@@ -101,5 +99,5 @@ module Fayde.Media {
 
         toString(): string { return mat4.str(this._Raw); }
     }
-    Fayde.RegisterType(Matrix3D, "Fayde.Media", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(Matrix3D);
 }

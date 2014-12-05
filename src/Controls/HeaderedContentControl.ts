@@ -9,11 +9,11 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = HeaderedContentControl;
         }
 
         OnHeaderChanged(oldHeader: any, newHeader: any) { }
         OnHeaderTemplateChanged(oldHeaderTemplate: DataTemplate, newHeaderTemplate: DataTemplate) { }
     }
-    Fayde.RegisterType(HeaderedContentControl, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(HeaderedContentControl);
 }

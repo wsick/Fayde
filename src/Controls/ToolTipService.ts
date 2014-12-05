@@ -19,7 +19,7 @@ module Fayde.Controls {
             return;
 
         slave.RegisterTooltip(owner, tooltip);
-        slave.SetRootVisual();
+        slave.SetRootVisual(owner);
     }
     export class ToolTipService {
         static ToolTipProperty = DependencyProperty.RegisterAttached("ToolTip", () => DependencyObject, ToolTipService, undefined, toolTipChanged);
@@ -38,7 +38,7 @@ module Fayde.Controls {
             return slave.MousePosition;
         }
     }
-    Fayde.RegisterType(ToolTipService, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ToolTipService);
 
 
     class ToolTipServiceSlave {
@@ -51,14 +51,18 @@ module Fayde.Controls {
         private _OpenInterval: number = null;
         private _CloseInterval: number = null;
 
-        SetRootVisual() {
-            if (this._RootVisual || !Application.Current)
+        SetRootVisual(owner: UIElement) {
+            if (this._RootVisual)
                 return;
-            var rv = this._RootVisual = <FrameworkElement>Application.Current.RootVisual;
+            var updater = owner.XamlNode.LayoutUpdater;
+            var surface = <Surface>updater.tree.surface;
+            if (!surface)
+                return;
+            var rv = this._RootVisual = <FrameworkElement>surface.App.RootVisual;
             if (!rv)
                 return;
             // keep caching mouse position because we can't query it from Silverlight 
-            rv.MouseMove.Subscribe(this.OnRootMouseMove, this);
+            rv.MouseMove.on(this.OnRootMouseMove, this);
         }
         private OnRootMouseMove(sender: any, e: Input.MouseEventArgs) {
             this.MousePosition = e.GetPosition(null);
@@ -68,10 +72,10 @@ module Fayde.Controls {
             console.assert(owner != null, "ToolTip must have an owner");
             console.assert(tooltip != null, "ToolTip can not be null");
 
-            owner.MouseEnter.Subscribe(this.OnOwnerMouseEnter, this);
-            owner.MouseLeave.Subscribe(this.OnOwnerMouseLeave, this);
-            owner.MouseLeftButtonDown.Subscribe(this.OnOwnerMouseLeftButtonDown, this);
-            owner.KeyDown.Subscribe(this.OnOwnerKeyDown, this);
+            owner.MouseEnter.on(this.OnOwnerMouseEnter, this);
+            owner.MouseLeave.on(this.OnOwnerMouseLeave, this);
+            owner.MouseLeftButtonDown.on(this.OnOwnerMouseLeftButtonDown, this);
+            owner.KeyDown.on(this.OnOwnerKeyDown, this);
             var converted = this.ConvertToToolTip(tooltip);
             owner.SetValue(AssignedToolTipProperty, converted);
             if (owner instanceof FrameworkElement)
@@ -84,10 +88,10 @@ module Fayde.Controls {
             if (!tooltip || !(tooltip instanceof ToolTip))
                 return;
 
-            owner.MouseEnter.Unsubscribe(this.OnOwnerMouseEnter, this);
-            owner.MouseLeave.Unsubscribe(this.OnOwnerMouseLeave, this);
-            owner.MouseLeftButtonDown.Unsubscribe(this.OnOwnerMouseLeftButtonDown, this);
-            owner.KeyDown.Unsubscribe(this.OnOwnerKeyDown, this);
+            owner.MouseEnter.off(this.OnOwnerMouseEnter, this);
+            owner.MouseLeave.off(this.OnOwnerMouseLeave, this);
+            owner.MouseLeftButtonDown.off(this.OnOwnerMouseLeftButtonDown, this);
+            owner.KeyDown.off(this.OnOwnerKeyDown, this);
 
             tooltip.TooltipParent = null;
             if (tooltip.IsOpen) {
@@ -165,7 +169,7 @@ module Fayde.Controls {
 
             console.assert(!this._CurrentTooltip);
 
-            this.SetRootVisual();
+            this.SetRootVisual(sender);
 
             var sinceLastOpen = new Date().getTime() - this._LastOpened;
             if (sinceLastOpen <= betweenShowDelay) {

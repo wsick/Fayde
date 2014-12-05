@@ -142,7 +142,7 @@ module Fayde.Controls.Primitives {
                     cmd.Execute(par);
             }
 
-            this.Click.Raise(this, new RoutedEventArgs());
+            this.Click.raise(this, new RoutedEventArgs());
         }
 
         private _DoWithSuspend(action: () => void) {
@@ -180,18 +180,18 @@ module Fayde.Controls.Primitives {
         }
         private _IsValidMousePosition(): boolean {
             var pos = this._MousePosition;
-            return pos.X >= 0.0 && pos.X <= this.ActualWidth
-                && pos.Y >= 0.0 && pos.Y <= this.ActualHeight;
+            return pos.x >= 0.0 && pos.x <= this.ActualWidth
+                && pos.y >= 0.0 && pos.y <= this.ActualHeight;
         }
 
         private OnCommandChanged(args: IDependencyPropertyChangedEventArgs) {
-            var cmd = Input.ICommand_.As(args.OldValue);
+            var cmd = Input.ICommand_.as(args.OldValue);
             if (cmd)
-                cmd.CanExecuteChanged.Unsubscribe(this.OnCommandCanExecuteChanged, this);
+                cmd.CanExecuteChanged.off(this.OnCommandCanExecuteChanged, this);
 
-            cmd = Input.ICommand_.As(args.NewValue);
+            cmd = Input.ICommand_.as(args.NewValue);
             if (cmd) {
-                cmd.CanExecuteChanged.Subscribe(this.OnCommandCanExecuteChanged, this);
+                cmd.CanExecuteChanged.on(this.OnCommandCanExecuteChanged, this);
                 this.IsEnabled = cmd.CanExecute(this.CommandParameter);
             }
         }
@@ -204,5 +204,5 @@ module Fayde.Controls.Primitives {
                 this.IsEnabled = cmd.CanExecute(args.NewValue);
         }
     }
-    Fayde.RegisterType(ButtonBase, "Fayde.Controls.Primitives", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(ButtonBase);
 }

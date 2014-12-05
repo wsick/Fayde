@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-
 class FontFamily implements ICloneable {
     constructor(public FamilyNames: string) { }
     toString(): string {
@@ -9,8 +7,8 @@ class FontFamily implements ICloneable {
         return new FontFamily(this.FamilyNames);
     }
 }
-Fayde.RegisterType(FontFamily, "window", Fayde.XMLNS);
-Fayde.RegisterTypeConverter(FontFamily, (val: any): any => {
+Fayde.CoreLibrary.addPrimitive(FontFamily);
+nullstone.registerTypeConverter(FontFamily, (val: any): any => {
     if (!val) return new FontFamily(Font.DEFAULT_FAMILY);
     return new FontFamily(val.toString());
 });

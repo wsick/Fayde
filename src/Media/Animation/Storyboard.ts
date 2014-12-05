@@ -133,8 +133,8 @@ module Fayde.Media.Animation {
             return new Duration(new TimeSpan(fullTicks));
         }
     }
-    Fayde.RegisterType(Storyboard, "Fayde.Media.Animation", Fayde.XMLNS);
-    Xaml.Content(Storyboard, Storyboard.ChildrenProperty);
+    Fayde.CoreLibrary.add(Storyboard);
+    Markup.Content(Storyboard, Storyboard.ChildrenProperty);
 
     function getLogMessage(action: string, storyboard: Storyboard, full: boolean, clockData?: IClockData): string {
         var anims = [];

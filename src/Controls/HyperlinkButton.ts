@@ -9,7 +9,7 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            this.DefaultStyleKey = (<any>this).constructor;
+            this.DefaultStyleKey = HyperlinkButton;
         }
 
         OnApplyTemplate() {
@@ -53,7 +53,7 @@ module Fayde.Controls {
             }
         }
     }
-    Fayde.RegisterType(HyperlinkButton, "Fayde.Controls", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(HyperlinkButton);
     TemplateVisualStates(HyperlinkButton, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

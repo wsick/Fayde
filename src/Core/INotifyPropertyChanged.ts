@@ -1,21 +1,17 @@
-/// <reference path="../Runtime/TypeManagement.ts" />
-/// <reference path="../Runtime/EventArgs.ts" />
-
 module Fayde {
-    export class PropertyChangedEventArgs extends EventArgs {
+    export class PropertyChangedEventArgs implements nullstone.IEventArgs {
         PropertyName: string;
         constructor(propertyName: string) {
-            super();
             Object.defineProperty(this, "PropertyName", { value: propertyName, writable: false });
         }
     }
-    Fayde.RegisterType(PropertyChangedEventArgs, "Fayde", Fayde.XMLNS);
+    Fayde.CoreLibrary.add(PropertyChangedEventArgs);
 
     export interface INotifyPropertyChanged {
-        PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
+        PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
     }
-    export var INotifyPropertyChanged_ = Fayde.RegisterInterface<INotifyPropertyChanged>("INotifyPropertyChanged");
-    INotifyPropertyChanged_.Is = (o: any): boolean => {
-        return o && o.PropertyChanged instanceof MulticastEvent;
+    export var INotifyPropertyChanged_ = new nullstone.Interface<INotifyPropertyChanged>("INotifyPropertyChanged");
+    INotifyPropertyChanged_.is = (o: any): boolean => {
+        return o && o.PropertyChanged instanceof nullstone.Event;
     };
 }
