@@ -1,5 +1,9 @@
 ﻿var Fayde;
 (function (Fayde) {
+    Fayde.Version = '0.14.4';
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     Fayde.XMLNS = "http://schemas.wsick.com/fayde";
     Fayde.XMLNSX = "http://schemas.wsick.com/fayde/x";
     Fayde.XMLNSINTERNAL = "http://schemas.wsick.com/fayde/internal";
