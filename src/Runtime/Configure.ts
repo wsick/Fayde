@@ -60,6 +60,7 @@ module Fayde {
                 library.exports = lib.exports;
             if (!!lib.deps)
                 library.deps = lib.deps;
+            (<any>library).$configModule();
         }
     }
 

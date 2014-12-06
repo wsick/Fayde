@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.4';
+    Fayde.Version = '0.14.5';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -27450,6 +27450,7 @@ var Fayde;
                 library.exports = lib.exports;
             if (!!lib.deps)
                 library.deps = lib.deps;
+            library.$configModule();
         }
     })(libs || (libs = {}));
 
