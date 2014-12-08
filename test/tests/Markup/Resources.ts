@@ -53,4 +53,17 @@ export function load () {
         var scb = <Fayde.Media.SolidColorBrush>grid2.Background;
         deepEqual(scb.Color, Color.KnownColors.Yellow);
     });
+
+    asyncTest("ResourceDictionary.Source", () => {
+        Fayde.Markup.Resolve("mocks/BaseTest.xml")
+            .then(xm => {
+                QUnit.start();
+                var rd = Fayde.Markup.Load<Fayde.ResourceDictionary>(null, xm);
+                deepEqual(rd.Get("AnotherColor"), Color.FromHex("#FF001100"));
+                deepEqual(rd.Get("TestColor"), Color.FromHex("#FF110000"));
+            }, err => {
+                QUnit.start();
+                ok(false, err);
+            });
+    });
 }
