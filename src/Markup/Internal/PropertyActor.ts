@@ -7,6 +7,7 @@ module Fayde.Markup.Internal {
         addObject(obj: any, key?: any);
         setContentText(text: string);
         setObject(ownerType: any, name: string, obj: any);
+        isNewResources (): boolean;
     }
 
     export function createPropertyActor (cur: IActiveObject, extractType: (text: string) => any, extractDP: (text: string) => any): IPropertyActor {
@@ -71,6 +72,9 @@ module Fayde.Markup.Internal {
                     else if (tt === Array)
                         cur.dobj.SetValue(state.propd, state.arr = []);
                 }
+                return true;
+            } else if (cur.rd && name === "MergedDictionaries") {
+                state.coll = cur.rd.MergedDictionaries;
                 return true;
             } else if (cur.obj) {
                 if (ownerType && cur.type !== ownerType)
@@ -268,6 +272,11 @@ module Fayde.Markup.Internal {
             setObject (ownerType: any, name: string, obj: any) {
                 verify(ownerType, name);
                 setAttrObject(ownerType, name, obj);
+            },
+            isNewResources (): boolean {
+                if (state.coll instanceof ResourceDictionaryCollection)
+                    return true;
+                return !cur.rd;
             }
         };
     }

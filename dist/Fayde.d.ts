@@ -3909,6 +3909,7 @@ declare module Fayde.Markup.Internal {
         addObject(obj: any, key?: any): any;
         setContentText(text: string): any;
         setObject(ownerType: any, name: string, obj: any): any;
+        isNewResources(): boolean;
     }
     function createPropertyActor(cur: IActiveObject, extractType: (text: string) => any, extractDP: (text: string) => any): IPropertyActor;
 }

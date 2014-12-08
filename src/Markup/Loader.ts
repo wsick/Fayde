@@ -57,7 +57,7 @@ module Fayde.Markup {
                 return oresolve;
             },
             resolveObject: (type) => {
-                if (type === ResourceDictionary && active.rd)
+                if (type === ResourceDictionary && !pactor.isNewResources())
                     return undefined;
 
                 var obj = new (type)();

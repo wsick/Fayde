@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.7';
+    Fayde.Version = '0.14.8';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -6945,7 +6945,7 @@ var Fayde;
                     return oresolve;
                 },
                 resolveObject: function (type) {
-                    if (type === Fayde.ResourceDictionary && active.rd)
+                    if (type === Fayde.ResourceDictionary && !pactor.isNewResources())
                         return undefined;
 
                     var obj = new (type)();
@@ -20276,6 +20276,9 @@ var Fayde;
                                 cur.dobj.SetValue(state.propd, state.arr = []);
                         }
                         return true;
+                    } else if (cur.rd && name === "MergedDictionaries") {
+                        state.coll = cur.rd.MergedDictionaries;
+                        return true;
                     } else if (cur.obj) {
                         if (ownerType && cur.type !== ownerType)
                             throw new XamlParseException("Cannot set Attached Property on object that is not a DependencyObject.");
@@ -20471,6 +20474,11 @@ var Fayde;
                     setObject: function (ownerType, name, obj) {
                         verify(ownerType, name);
                         setAttrObject(ownerType, name, obj);
+                    },
+                    isNewResources: function () {
+                        if (state.coll instanceof Fayde.ResourceDictionaryCollection)
+                            return true;
+                        return !cur.rd;
                     }
                 };
             }
