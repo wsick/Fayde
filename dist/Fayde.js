@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.8';
+    Fayde.Version = '0.14.9';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -28069,10 +28069,10 @@ var Fayde;
 
         var reactions;
         (function (reactions) {
-            Fayde.UIReaction(Shapes.Polygon.FillRuleProperty, function (upd, ov, nv) {
+            Fayde.UIReaction(Polyline.FillRuleProperty, function (upd, ov, nv) {
                 return upd.invalidateFillRule();
             }, false);
-            Fayde.UIReaction(Shapes.Polygon.PointsProperty, function (upd, ov, nv) {
+            Fayde.UIReaction(Polyline.PointsProperty, function (upd, ov, nv) {
                 upd.assets.points = nv._ht;
                 upd.invalidatePath();
             }, true, false);

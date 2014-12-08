@@ -28,8 +28,8 @@ module Fayde.Shapes {
     Fayde.CoreLibrary.add(Polyline);
 
     module reactions {
-        UIReaction<FillRule>(Polygon.FillRuleProperty, (upd: PolylineUpdater, ov, nv) => upd.invalidateFillRule(), false);
-        UIReaction<PointCollection>(Polygon.PointsProperty, (upd: PolylineUpdater, ov, nv) => {
+        UIReaction<FillRule>(Polyline.FillRuleProperty, (upd: PolylineUpdater, ov, nv) => upd.invalidateFillRule(), false);
+        UIReaction<PointCollection>(Polyline.PointsProperty, (upd: PolylineUpdater, ov, nv) => {
             upd.assets.points = nv._ht;
             upd.invalidatePath();
         }, true, false);
