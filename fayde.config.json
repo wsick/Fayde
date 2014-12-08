@@ -1,0 +1,10 @@
+{
+  "libs": {
+    "minerva": {
+      "typings": ["dist/minerva.d.ts"]
+    },
+    "nullstone": {
+      "typings": ["dist/nullstone.d.ts"]
+    }
+  }
+}

@@ -1,5 +1,6 @@
 var version = require('./build/version'),
     setup = require('./build/setup'),
+    config = require('./build/config'),
     path = require('path'),
     connect_livereload = require('connect-livereload');
 
@@ -43,6 +44,8 @@ module.exports = function (grunt) {
         return connect.static(path.resolve(dir));
     }
 
+    var libs = config(grunt.file.readJSON('fayde.config.json'), './lib').libs;
+
     grunt.initConfig({
         ports: ports,
         meta: meta,
@@ -65,37 +68,25 @@ module.exports = function (grunt) {
             },
             test: {
                 files: [
-                    {src: './lib/minerva', dest: './test/lib/minerva'},
-                    {src: './lib/nullstone', dest: './test/lib/nullstone'},
-                    {src: './lib/qunit', dest: './test/lib/qunit'},
-                    {src: './lib/requirejs', dest: './test/lib/requirejs'},
-                    {src: './lib/requirejs-text', dest: './test/lib/requirejs-text'},
-                    {src: './themes', dest: './test/lib/fayde/themes'},
-                    {src: './dist', dest: './test/lib/fayde/dist'},
-                    {src: './src', dest: './test/lib/fayde/src'}
-                ]
+                    {src: './themes', dest: dirs.test.lib + '/fayde/themes'},
+                    {src: './dist', dest: dirs.test.lib + '/fayde/dist'},
+                    {src: './src', dest: dirs.test.lib + '/fayde/src'},
+                    {src: './lib/qunit', dest: dirs.test.lib + '/qunit'}
+                ].concat(libs.linksTo(dirs.test.lib))
             },
             testsite: {
                 files: [
-                    {src: './lib/minerva', dest: './testsite/lib/minerva'},
-                    {src: './lib/nullstone', dest: './testsite/lib/nullstone'},
-                    {src: './lib/requirejs', dest: './testsite/lib/requirejs'},
-                    {src: './lib/requirejs-text', dest: './testsite/lib/requirejs-text'},
-                    {src: './themes', dest: './testsite/lib/fayde/themes'},
-                    {src: './dist', dest: './testsite/lib/fayde/dist'},
-                    {src: './src', dest: './testsite/lib/fayde/src'}
-                ]
+                    {src: './themes', dest: dirs.testsite.lib + '/fayde/themes'},
+                    {src: './dist', dest: dirs.testsite.lib + '/fayde/dist'},
+                    {src: './src', dest: dirs.testsite.lib + '/fayde/src'}
+                ].concat(libs.linksTo(dirs.testsite.lib))
             },
             stress: {
                 files: [
-                    {src: './lib/minerva', dest: './stress/lib/minerva'},
-                    {src: './lib/nullstone', dest: './stress/lib/nullstone'},
-                    {src: './lib/requirejs', dest: './stress/lib/requirejs'},
-                    {src: './lib/requirejs-text', dest: './stress/lib/requirejs-text'},
-                    {src: './themes', dest: './stress/lib/fayde/themes'},
-                    {src: './dist', dest: './stress/lib/fayde/dist'},
-                    {src: './src', dest: './stress/lib/fayde/src'}
-                ]
+                    {src: './themes', dest: dirs.stress.lib + '/fayde/themes'},
+                    {src: './dist', dest: dirs.stress.lib + '/fayde/dist'},
+                    {src: './src', dest: dirs.stress.lib + '/fayde/src'}
+                ].concat(libs.linksTo(dirs.stress.lib))
             },
             localnullstone: {
                 files: [
@@ -110,14 +101,12 @@ module.exports = function (grunt) {
         },
         typescript: {
             build: {
-                src: [
+                src: libs.typings().concat([
                     'typings/*.d.ts',
-                    'lib/nullstone/dist/nullstone.d.ts',
-                    'lib/minerva/dist/minerva.d.ts',
                     'src/_Version.ts',
                     'src/_Types.ts',
                     'src/**/*.ts'
-                ],
+                ]),
                 dest: 'dist/Fayde.js',
                 options: {
                     target: 'es5',
@@ -126,14 +115,12 @@ module.exports = function (grunt) {
                 }
             },
             test: {
-                src: [
+                src: libs.typings().concat([
                     'typings/*.d.ts',
-                    'lib/nullstone/dist/nullstone.d.ts',
-                    'lib/minerva/dist/minerva.d.ts',
                     'dist/fayde.d.ts',
                     '<%= dirs.test.root %>/**/*.ts',
                     '!<%= dirs.test.root %>/lib/**/*.ts'
-                ],
+                ]),
                 dest: dirs.test.build,
                 options: {
                     target: 'es5',
@@ -143,14 +130,12 @@ module.exports = function (grunt) {
                 }
             },
             testsite: {
-                src: [
+                src: libs.typings().concat([
                     'typings/*.d.ts',
-                    'lib/nullstone/dist/nullstone.d.ts',
-                    'lib/minerva/dist/minerva.d.ts',
                     'dist/fayde.d.ts',
                     '<%= dirs.testsite.root %>/**/*.ts',
                     '!<%= dirs.testsite.root %>/lib/**/*.ts'
-                ],
+                ]),
                 dest: dirs.testsite.build,
                 options: {
                     basePath: dirs.testsite.root,
@@ -159,14 +144,12 @@ module.exports = function (grunt) {
                 }
             },
             stress: {
-                src: [
+                src: libs.typings().concat([
                     'typings/*.d.ts',
+                    'dist/fayde.d.ts',
                     '<%= dirs.stress.root %>/**/*.ts',
-                    '!<%= dirs.stress.lib %>/**/*.ts',
-                    'lib/nullstone/dist/nullstone.d.ts',
-                    'lib/minerva/dist/minerva.d.ts',
-                    'dist/fayde.d.ts'
-                ],
+                    '!<%= dirs.stress.lib %>/**/*.ts'
+                ]),
                 dest: '<%= dirs.stress.build %>',
                 options: {
                     target: 'es5',
