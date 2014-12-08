@@ -64,7 +64,7 @@ module Fayde.Markup {
                 if (obj instanceof FrameworkTemplate)
                     parser.skipBranch();
                 else if (obj instanceof StaticResource)
-                    (<StaticResource>obj).setContext(app, resources);
+                    (<StaticResource>obj).setContext(active.getApp(), resources);
                 return obj;
             },
             resolvePrimitive: (type, text) => {
@@ -115,6 +115,11 @@ module Fayde.Markup {
             },
             propertyEnd: (ownerType, propName) => {
                 pactor.end();
+            },
+            attributeStart: (ownerType, attrName) => {
+            },
+            attributeEnd: (ownerType, attrName, obj) => {
+                pactor.setObject(ownerType, attrName, obj);
             },
             error: (err) => false,
             end: () => {

@@ -6,6 +6,7 @@ module Fayde.Markup.Internal {
         end();
         addObject(obj: any, key?: any);
         setContentText(text: string);
+        setObject(ownerType: any, name: string, obj: any);
     }
 
     export function createPropertyActor (cur: IActiveObject, extractType: (text: string) => any, extractDP: (text: string) => any): IPropertyActor {
@@ -149,6 +150,33 @@ module Fayde.Markup.Internal {
             }
         }
 
+        function setAttrObject (ownerType: any, name: string, obj: any): boolean {
+            if (cur.dobj) {
+                var otype = ownerType || cur.type;
+                var propd = DependencyProperty.GetDependencyProperty(otype, name, true);
+                if (!propd) {
+                    var ev = cur.dobj[name];
+                    if (ev instanceof nullstone.Event) {
+                        subscribeEvent(name, obj);
+                    } else {
+                        cur.dobj[name] = obj;
+                    }
+                    return true;
+                }
+                cur.dobj.SetValue(propd, convert(propd, obj));
+
+            } else if (cur.obj) {
+                var ev = cur.obj[name];
+                if (ev instanceof nullstone.Event) {
+                    subscribeEvent(name, obj);
+                } else {
+                    cur.obj[name] = obj;
+                }
+                return true;
+            }
+            return false;
+        }
+
         function getFallbackKey (obj: any): any {
             if (obj instanceof XamlObject) {
                 var name = (<XamlObject>obj).XamlNode.Name;
@@ -236,6 +264,10 @@ module Fayde.Markup.Internal {
                     verify(cur.type, cprop.Name);
                     cur.dobj.SetValue(cprop, convert(cprop, text));
                 }
+            },
+            setObject (ownerType: any, name: string, obj: any) {
+                verify(ownerType, name);
+                setAttrObject(ownerType, name, obj);
             }
         };
     }

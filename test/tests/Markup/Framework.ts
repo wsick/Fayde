@@ -153,4 +153,17 @@ export function load () {
         var visual = hdt.GetVisualTree(null);
         strictEqual((<any>visual).constructor, Fayde.Controls.Grid, "Root visual from created visual tree should be a Grid.");
     });
+
+    test("String to Collection conversion", () => {
+        var xaml = "<Polygon " + nsdecl + " Points=\"0,0 100,0 100,100 0,100\"></Polygon>";
+        var pg = Fayde.Markup.LoadXaml<Fayde.Shapes.Polygon>(null, xaml);
+        strictEqual(pg.Points.Count, 4);
+        var actual = nullstone.IEnumerable_.toArray(pg.Points);
+        deepEqual(actual, [
+            new Point(0, 0),
+            new Point(100, 0),
+            new Point(100, 100),
+            new Point(0, 100)
+        ]);
+    });
 }

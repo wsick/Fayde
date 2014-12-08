@@ -6952,7 +6952,7 @@ var Fayde;
                     if (obj instanceof FrameworkTemplate)
                         parser.skipBranch();
                     else if (obj instanceof Markup.StaticResource)
-                        obj.setContext(app, resources);
+                        obj.setContext(active.getApp(), resources);
                     return obj;
                 },
                 resolvePrimitive: function (type, text) {
@@ -7003,6 +7003,11 @@ var Fayde;
                 },
                 propertyEnd: function (ownerType, propName) {
                     pactor.end();
+                },
+                attributeStart: function (ownerType, attrName) {
+                },
+                attributeEnd: function (ownerType, attrName, obj) {
+                    pactor.setObject(ownerType, attrName, obj);
                 },
                 error: function (err) {
                     return false;
@@ -20168,6 +20173,9 @@ var Fayde;
                             namescope.RegisterName(name, xnode);
                             xnode.Name = name;
                         }
+                    },
+                    getApp: function () {
+                        return app;
                     }
                 };
             }
@@ -20346,6 +20354,32 @@ var Fayde;
                     }
                 }
 
+                function setAttrObject(ownerType, name, obj) {
+                    if (cur.dobj) {
+                        var otype = ownerType || cur.type;
+                        var propd = DependencyProperty.GetDependencyProperty(otype, name, true);
+                        if (!propd) {
+                            var ev = cur.dobj[name];
+                            if (ev instanceof nullstone.Event) {
+                                subscribeEvent(name, obj);
+                            } else {
+                                cur.dobj[name] = obj;
+                            }
+                            return true;
+                        }
+                        cur.dobj.SetValue(propd, convert(propd, obj));
+                    } else if (cur.obj) {
+                        var ev = cur.obj[name];
+                        if (ev instanceof nullstone.Event) {
+                            subscribeEvent(name, obj);
+                        } else {
+                            cur.obj[name] = obj;
+                        }
+                        return true;
+                    }
+                    return false;
+                }
+
                 function getFallbackKey(obj) {
                     if (obj instanceof Fayde.XamlObject) {
                         var name = obj.XamlNode.Name;
@@ -20433,6 +20467,10 @@ var Fayde;
                             verify(cur.type, cprop.Name);
                             cur.dobj.SetValue(cprop, convert(cprop, text));
                         }
+                    },
+                    setObject: function (ownerType, name, obj) {
+                        verify(ownerType, name);
+                        setAttrObject(ownerType, name, obj);
                     }
                 };
             }

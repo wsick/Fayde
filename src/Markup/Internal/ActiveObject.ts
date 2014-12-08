@@ -9,6 +9,7 @@ module Fayde.Markup.Internal {
         type: any;
         set(obj: any);
         setName(name: string);
+        getApp(): Application;
     }
 
     export function createActiveObject (app: Application, namescope: NameScope, bindingSource: any): IActiveObject {
@@ -46,6 +47,9 @@ module Fayde.Markup.Internal {
                     namescope.RegisterName(name, xnode);
                     xnode.Name = name;
                 }
+            },
+            getApp () {
+                return app;
             }
         };
     }

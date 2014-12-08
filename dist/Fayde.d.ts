@@ -3889,6 +3889,7 @@ declare module Fayde.Markup.Internal {
         type: any;
         set(obj: any): any;
         setName(name: string): any;
+        getApp(): Application;
     }
     function createActiveObject(app: Application, namescope: NameScope, bindingSource: any): IActiveObject;
 }
@@ -3907,6 +3908,7 @@ declare module Fayde.Markup.Internal {
         end(): any;
         addObject(obj: any, key?: any): any;
         setContentText(text: string): any;
+        setObject(ownerType: any, name: string, obj: any): any;
     }
     function createPropertyActor(cur: IActiveObject, extractType: (text: string) => any, extractDP: (text: string) => any): IPropertyActor;
 }
