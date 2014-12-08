@@ -2974,28 +2974,9 @@
 
     <!-- Implicit Styles -->
     <!-- When defining your own styles, set "based on" the same way to keep control theming -->
-    <Style TargetType="ContentPresenter">
-        <Setter Property="HorizontalAlignment" Value="Left"/>
-        <Setter Property="VerticalAlignment" Value="Top"/>
-    </Style>
     <Style TargetType="ContentControl">
-        <Setter Property="Foreground" Value="#FF000000"/>
-        <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="VerticalContentAlignment" Value="Top"/>
         <Setter Property="FontFamily" Value="{StaticResource ContentFontFamily}"/>
         <Setter Property="FontSize" Value="{StaticResource ContentFontSize}"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ContentControl">
-                    <ContentPresenter Content="{TemplateBinding Content}"
-                                      ContentTemplate="{TemplateBinding ContentTemplate}"
-                                      Cursor="{TemplateBinding Cursor}"
-                                      Margin="{TemplateBinding Padding}"
-                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
     </Style>
     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}"/>
     <Style TargetType="HyperlinkButton" BasedOn="{StaticResource DefaultHyperlinkButtonStyle}"/>

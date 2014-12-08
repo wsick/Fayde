@@ -1,5 +1,9 @@
 {
   "libs": {
+    "requirejs": {
+    },
+    "requirejs-text": {
+    },
     "minerva": {
       "typings": ["dist/minerva.d.ts"]
     },
