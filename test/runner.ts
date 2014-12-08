@@ -20,6 +20,7 @@ module runner {
         ".build/tests/Markup/Basic",
         ".build/tests/Markup/Controls",
         ".build/tests/Markup/Framework",
+        ".build/tests/Markup/Resources",
         ".build/tests/Markup/Media"
     ];
 
