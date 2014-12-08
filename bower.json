@@ -1,6 +1,6 @@
 {
   "name": "Fayde",
-  "version": "0.14.5",
+  "version": "0.14.6",
   "homepage": "http://fayde.wsick.com",
   "authors": [
     "BSick7 <brad.sickles@gmail.com>"
@@ -8,12 +8,13 @@
   "ignore": [
     "build",
     "litmus",
-    "nuget",
     "proto",
-    "src",
+    "stress",
     "test",
     "testsite",
     "Tools",
+    "bower.json",
+    "package.json",
     "Gruntfile.js"
   ],
   "dependencies": {
