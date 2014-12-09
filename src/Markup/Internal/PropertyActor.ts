@@ -167,8 +167,12 @@ module Fayde.Markup.Internal {
                     }
                     return true;
                 }
-                cur.dobj.SetValue(propd, convert(propd, obj));
-
+                if (propd.IsImmutable) {
+                    return merge(convert(propd, obj), cur.dobj.GetValue(propd));
+                } else {
+                    cur.dobj.SetValue(propd, convert(propd, obj));
+                    return true;
+                }
             } else if (cur.obj) {
                 var ev = cur.obj[name];
                 if (ev instanceof nullstone.Event) {
@@ -179,6 +183,37 @@ module Fayde.Markup.Internal {
                 return true;
             }
             return false;
+        }
+
+        function merge (src: any, target: any): boolean {
+            var sarr: any[];
+            var scoll = <nullstone.ICollection<any>>nullstone.ICollection_.as(src);
+            if (scoll) {
+                sarr = nullstone.IEnumerable_.toArray(scoll);
+                scoll.Clear();
+            } else if (typeof src === "array") {
+                sarr = src.slice(0);
+                src.length = 0;
+            } else {
+                return false;
+            }
+
+            var sen = nullstone.IEnumerator_.fromArray(sarr);
+            var tcoll = nullstone.ICollection_.as(target);
+            var tarr = typeof target === "array" ? target : null;
+            if (tcoll) {
+                while (sen.moveNext()) {
+                    tcoll.Add(sen.current);
+                }
+            } else if (tarr) {
+                while (sen.moveNext()) {
+                    tarr.push(sen.current);
+                }
+            } else {
+                return false;
+            }
+
+            return true;
         }
 
         function getFallbackKey (obj: any): any {

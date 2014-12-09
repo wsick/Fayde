@@ -56,7 +56,7 @@ declare module Fayde {
     var INotifyPropertyChanged_: nullstone.Interface<INotifyPropertyChanged>;
 }
 declare module Fayde.Collections {
-    class ObservableCollection<T> implements nullstone.IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {
+    class ObservableCollection<T> implements nullstone.IEnumerable<T>, nullstone.ICollection<T>, INotifyCollectionChanged, INotifyPropertyChanged {
         private _ht;
         public getEnumerator(): nullstone.IEnumerator<T>;
         public CollectionChanged: nullstone.Event<CollectionChangedEventArgs>;
@@ -67,7 +67,7 @@ declare module Fayde.Collections {
         public SetValueAt(index: number, value: T): void;
         public Add(value: T): void;
         public AddRange(values: T[]): void;
-        public Insert(value: T, index: number): void;
+        public Insert(index: number, value: T): void;
         public IndexOf(value: T): number;
         public Contains(value: T): boolean;
         public Remove(value: T): void;
@@ -960,7 +960,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde {
-    class XamlObjectCollection<T extends XamlObject> extends XamlObject implements nullstone.IEnumerable<T> {
+    class XamlObjectCollection<T extends XamlObject> extends XamlObject implements nullstone.ICollection<T> {
         public _ht: T[];
         public AttachTo(xobj: XamlObject): void;
         public Count : number;
@@ -1913,21 +1913,13 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls {
-    interface IItemCollection {
+    interface IItemCollection extends nullstone.ICollection<any> {
         ItemsChanged: nullstone.Event<Collections.CollectionChangedEventArgs>;
         ToArray(): any[];
-        Count: number;
-        GetValueAt(index: number): any;
         GetRange(startIndex: number, endIndex: number): any[];
-        SetValueAt(index: number, value: any): any;
         Contains(value: any): boolean;
         IndexOf(value: any): number;
-        Add(value: any): any;
         AddRange(values: any[]): any;
-        Insert(index: number, value: any): any;
-        Remove(value: any): any;
-        RemoveAt(index: number): any;
-        Clear(): any;
     }
     class ItemCollection extends XamlObjectCollection<any> implements IItemCollection {
         public ItemsChanged: nullstone.Event<Collections.CollectionChangedEventArgs>;
@@ -5454,7 +5446,7 @@ declare module Fayde.Shapes {
     }
 }
 declare module Fayde.Shapes {
-    class PointCollection implements nullstone.IEnumerable<Point> {
+    class PointCollection implements nullstone.ICollection<Point> {
         private _ht;
         public Count : number;
         static FromData(data: string): PointCollection;

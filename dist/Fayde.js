@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.9';
+    Fayde.Version = '0.14.10';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -158,6 +158,7 @@ var Fayde;
                     throw new IndexOutOfRangeException(index);
                 return ht[index];
             };
+
             ObservableCollection.prototype.SetValueAt = function (index, value) {
                 var ht = this._ht;
                 if (index < 0 || index >= ht.length)
@@ -166,11 +167,13 @@ var Fayde;
                 ht[index] = value;
                 this.CollectionChanged.raise(this, Collections.CollectionChangedEventArgs.Replace(value, oldValue, index));
             };
+
             ObservableCollection.prototype.Add = function (value) {
                 var index = this._ht.push(value) - 1;
                 this.CollectionChanged.raise(this, Collections.CollectionChangedEventArgs.Add(value, index));
                 this._RaisePropertyChanged("Count");
             };
+
             ObservableCollection.prototype.AddRange = function (values) {
                 var index = this._ht.length;
                 var len = values.length;
@@ -180,7 +183,8 @@ var Fayde;
                 this.CollectionChanged.raise(this, Collections.CollectionChangedEventArgs.AddRange(values, index));
                 this._RaisePropertyChanged("Count");
             };
-            ObservableCollection.prototype.Insert = function (value, index) {
+
+            ObservableCollection.prototype.Insert = function (index, value) {
                 var ht = this._ht;
                 if (index < 0 || index > ht.length)
                     throw new IndexOutOfRangeException(index);
@@ -191,12 +195,15 @@ var Fayde;
                 this.CollectionChanged.raise(this, Collections.CollectionChangedEventArgs.Add(value, index));
                 this._RaisePropertyChanged("Count");
             };
+
             ObservableCollection.prototype.IndexOf = function (value) {
                 return this._ht.indexOf(value);
             };
+
             ObservableCollection.prototype.Contains = function (value) {
                 return this._ht.indexOf(value) > -1;
             };
+
             ObservableCollection.prototype.Remove = function (value) {
                 var index = this._ht.indexOf(value);
                 if (index < 0)
@@ -205,6 +212,7 @@ var Fayde;
                 this.CollectionChanged.raise(this, Collections.CollectionChangedEventArgs.Remove(value, index));
                 this._RaisePropertyChanged("Count");
             };
+
             ObservableCollection.prototype.RemoveAt = function (index) {
                 if (index < 0 || index >= this._ht.length)
                     throw new IndexOutOfRangeException(index);
@@ -212,12 +220,14 @@ var Fayde;
                 this.CollectionChanged.raise(this, Collections.CollectionChangedEventArgs.Remove(item, index));
                 this._RaisePropertyChanged("Count");
             };
+
             ObservableCollection.prototype.Clear = function () {
                 var old = this._ht;
                 this._ht = [];
                 this.CollectionChanged.raise(this, Collections.CollectionChangedEventArgs.Reset(old));
                 this._RaisePropertyChanged("Count");
             };
+
             ObservableCollection.prototype._RaisePropertyChanged = function (propertyName) {
                 this.PropertyChanged.raise(this, new Fayde.PropertyChangedEventArgs(propertyName));
             };
@@ -225,6 +235,7 @@ var Fayde;
         })();
         Collections.ObservableCollection = ObservableCollection;
         Fayde.CoreLibrary.add(ObservableCollection);
+        nullstone.ICollection_.mark(ObservableCollection);
     })(Fayde.Collections || (Fayde.Collections = {}));
     var Collections = Fayde.Collections;
 })(Fayde || (Fayde = {}));
@@ -327,7 +338,7 @@ var Fayde;
                     var isIncluded = filter(enumerator.current);
                     var isCurrent = j < this.Count && this.GetValueAt(j) === enumerator.current;
                     if (isIncluded && !isCurrent)
-                        this.Insert(enumerator.current, j);
+                        this.Insert(j, enumerator.current);
                     else if (!isIncluded && isCurrent)
                         this.RemoveAt(j);
                     if (isIncluded)
@@ -3737,6 +3748,7 @@ var Fayde;
         XamlObjectCollection.prototype.GetValueAt = function (index) {
             return this._ht[index];
         };
+
         XamlObjectCollection.prototype.SetValueAt = function (index, value) {
             if (!this.CanAdd(value))
                 return false;
@@ -3756,10 +3768,12 @@ var Fayde;
             }
             return false;
         };
+
         XamlObjectCollection.prototype.Add = function (value) {
             var rv = this.Insert(this._ht.length, value);
             return rv ? this._ht.length - 1 : -1;
         };
+
         XamlObjectCollection.prototype.Insert = function (index, value) {
             if (!this.CanAdd(value))
                 return false;
@@ -3779,12 +3793,14 @@ var Fayde;
                 throw new Exception(error.Message);
             return false;
         };
+
         XamlObjectCollection.prototype.Remove = function (value) {
             var index = this.IndexOf(value);
             if (index === -1)
                 return false;
             return this.RemoveAt(index);
         };
+
         XamlObjectCollection.prototype.RemoveAt = function (index) {
             if (index < 0 || index >= this._ht.length)
                 return false;
@@ -3794,6 +3810,7 @@ var Fayde;
             this._RaiseItemRemoved(value, index);
             return true;
         };
+
         XamlObjectCollection.prototype.Clear = function () {
             var old = this._ht;
 
@@ -3805,20 +3822,25 @@ var Fayde;
             this._RaiseCleared(old);
             return true;
         };
+
         XamlObjectCollection.prototype.IndexOf = function (value) {
             return this._ht.indexOf(value);
         };
+
         XamlObjectCollection.prototype.Contains = function (value) {
             return this.IndexOf(value) > -1;
         };
+
         XamlObjectCollection.prototype.CanAdd = function (value) {
             return true;
         };
+
         XamlObjectCollection.prototype.AddingToCollection = function (value, error) {
             if (value instanceof Fayde.XamlObject)
                 return value.XamlNode.AttachTo(this.XamlNode, error);
             return true;
         };
+
         XamlObjectCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
             if (value instanceof Fayde.XamlObject)
                 value.XamlNode.Detach();
@@ -3827,6 +3849,7 @@ var Fayde;
         XamlObjectCollection.prototype.getEnumerator = function (reverse) {
             return nullstone.IEnumerator_.fromArray(this._ht, reverse);
         };
+
         XamlObjectCollection.prototype.GetNodeEnumerator = function (reverse) {
             var prev = this.getEnumerator(reverse);
             return {
@@ -3845,8 +3868,10 @@ var Fayde;
 
         XamlObjectCollection.prototype._RaiseItemAdded = function (value, index) {
         };
+
         XamlObjectCollection.prototype._RaiseItemRemoved = function (value, index) {
         };
+
         XamlObjectCollection.prototype._RaiseItemReplaced = function (removed, added, index) {
         };
 
@@ -3865,6 +3890,7 @@ var Fayde;
         return XamlObjectCollection;
     })(Fayde.XamlObject);
     Fayde.XamlObjectCollection = XamlObjectCollection;
+    nullstone.ICollection_.mark(XamlObjectCollection);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -8646,6 +8672,7 @@ var Fayde;
                 this.SetValueAtImpl(index, value);
                 return true;
             };
+
             ItemCollection.prototype.SetValueAtImpl = function (index, value) {
                 var ht = this._ht;
                 if (index < 0 || index >= ht.length)
@@ -8661,6 +8688,7 @@ var Fayde;
                     throw new ArgumentException("value");
                 return this.AddImpl(value);
             };
+
             ItemCollection.prototype.AddImpl = function (value) {
                 var index = this._ht.push(value) - 1;
                 this.ItemsChanged.raise(this, Fayde.Collections.CollectionChangedEventArgs.Add(value, index));
@@ -8677,6 +8705,7 @@ var Fayde;
                 }
                 this.AddRangeImpl(values);
             };
+
             ItemCollection.prototype.AddRangeImpl = function (values) {
                 var index = this._ht.length;
                 this._ht = this._ht.concat(values);
@@ -8690,6 +8719,7 @@ var Fayde;
                 this.InsertImpl(index, value);
                 return true;
             };
+
             ItemCollection.prototype.InsertImpl = function (index, value) {
                 var ht = this._ht;
                 if (index < 0 || index > ht.length)
@@ -8704,6 +8734,7 @@ var Fayde;
             ItemCollection.prototype.IndexOf = function (value) {
                 return this._ht.indexOf(value);
             };
+
             ItemCollection.prototype.Contains = function (value) {
                 return this._ht.indexOf(value) > -1;
             };
@@ -8713,6 +8744,7 @@ var Fayde;
                 this.RemoveImpl(value);
                 return true;
             };
+
             ItemCollection.prototype.RemoveImpl = function (value) {
                 var index = this._ht.indexOf(value);
                 if (index < 0)
@@ -8728,6 +8760,7 @@ var Fayde;
                 this.RemoveAtImpl(index);
                 return true;
             };
+
             ItemCollection.prototype.RemoveAtImpl = function (index) {
                 var item = this._ht.splice(index, 1)[0];
                 this.ItemsChanged.raise(this, Fayde.Collections.CollectionChangedEventArgs.Remove(item, index));
@@ -8738,6 +8771,7 @@ var Fayde;
                 this.ClearImpl();
                 return true;
             };
+
             ItemCollection.prototype.ClearImpl = function () {
                 var old = this._ht;
                 this._ht = [];
@@ -20370,7 +20404,12 @@ var Fayde;
                             }
                             return true;
                         }
-                        cur.dobj.SetValue(propd, convert(propd, obj));
+                        if (propd.IsImmutable) {
+                            return merge(convert(propd, obj), cur.dobj.GetValue(propd));
+                        } else {
+                            cur.dobj.SetValue(propd, convert(propd, obj));
+                            return true;
+                        }
                     } else if (cur.obj) {
                         var ev = cur.obj[name];
                         if (ev instanceof nullstone.Event) {
@@ -20381,6 +20420,37 @@ var Fayde;
                         return true;
                     }
                     return false;
+                }
+
+                function merge(src, target) {
+                    var sarr;
+                    var scoll = nullstone.ICollection_.as(src);
+                    if (scoll) {
+                        sarr = nullstone.IEnumerable_.toArray(scoll);
+                        scoll.Clear();
+                    } else if (typeof src === "array") {
+                        sarr = src.slice(0);
+                        src.length = 0;
+                    } else {
+                        return false;
+                    }
+
+                    var sen = nullstone.IEnumerator_.fromArray(sarr);
+                    var tcoll = nullstone.ICollection_.as(target);
+                    var tarr = typeof target === "array" ? target : null;
+                    if (tcoll) {
+                        while (sen.moveNext()) {
+                            tcoll.Add(sen.current);
+                        }
+                    } else if (tarr) {
+                        while (sen.moveNext()) {
+                            tarr.push(sen.current);
+                        }
+                    } else {
+                        return false;
+                    }
+
+                    return true;
                 }
 
                 function getFallbackKey(obj) {
@@ -27908,6 +27978,7 @@ var Fayde;
                 pc._ht = pc._ht.concat(Fayde.Media.ParseShapePoints(data));
                 return pc;
             };
+
             PointCollection.FromArray = function (data) {
                 var pc = new PointCollection();
                 pc._ht = pc._ht.concat(data);
@@ -27917,6 +27988,7 @@ var Fayde;
             PointCollection.prototype.GetValueAt = function (index) {
                 return this._ht[index];
             };
+
             PointCollection.prototype.SetValueAt = function (index, value) {
                 if (index < 0 || index >= this._ht.length)
                     return false;
@@ -27926,14 +27998,17 @@ var Fayde;
 
                 Fayde.Incite(this);
             };
+
             PointCollection.prototype.Add = function (value) {
                 this._ht.push(value);
                 Fayde.Incite(this);
             };
+
             PointCollection.prototype.AddRange = function (points) {
                 this._ht.push.apply(this._ht, points);
                 Fayde.Incite(this);
             };
+
             PointCollection.prototype.Insert = function (index, value) {
                 if (index < 0)
                     return;
@@ -27943,6 +28018,7 @@ var Fayde;
                 this._ht.splice(index, 0, value);
                 Fayde.Incite(this);
             };
+
             PointCollection.prototype.Remove = function (value) {
                 var index = this.IndexOf(value);
                 if (index === -1)
@@ -27950,16 +28026,19 @@ var Fayde;
                 this.RemoveAt(index);
                 Fayde.Incite(this);
             };
+
             PointCollection.prototype.RemoveAt = function (index) {
                 if (index < 0 || index >= this._ht.length)
                     return;
                 var value = this._ht.splice(index, 1)[0];
                 Fayde.Incite(this);
             };
+
             PointCollection.prototype.Clear = function () {
                 this._ht = [];
                 Fayde.Incite(this);
             };
+
             PointCollection.prototype.IndexOf = function (value) {
                 var count = this._ht.length;
                 for (var i = 0; i < count; i++) {
@@ -27968,6 +28047,7 @@ var Fayde;
                 }
                 return -1;
             };
+
             PointCollection.prototype.Contains = function (value) {
                 return this.IndexOf(value) > -1;
             };
@@ -27979,6 +28059,7 @@ var Fayde;
         })();
         Shapes.PointCollection = PointCollection;
         Fayde.CoreLibrary.add(PointCollection);
+        nullstone.ICollection_.mark(PointCollection);
 
         nullstone.registerTypeConverter(PointCollection, function (val) {
             var pc = new PointCollection();
