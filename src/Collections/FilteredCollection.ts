@@ -46,7 +46,7 @@
                 var isIncluded = filter(enumerator.current);
                 var isCurrent = j < this.Count && this.GetValueAt(j) === enumerator.current;
                 if (isIncluded && !isCurrent)
-                    this.Insert(enumerator.current, j);
+                    this.Insert(j, enumerator.current);
                 else if (!isIncluded && isCurrent)
                     this.RemoveAt(j);
                 if (isIncluded)

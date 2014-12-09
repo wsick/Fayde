@@ -41,7 +41,7 @@ export function load() {
         doc.Remove(to1);
         to1.Member1 = 10;
         ok(!to1changed, "Collection should not notify if item was removed from collection");
-        doc.Insert(to1, 0);
+        doc.Insert(0, to1);
         
         var to3 = new TestObservable();
         doc.SetValueAt(0, to3);

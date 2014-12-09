@@ -1,25 +1,28 @@
 /// <reference path="XamlObject.ts" />
 
 module Fayde {
-    export class XamlObjectCollection<T extends XamlObject> extends XamlObject implements nullstone.IEnumerable<T> {
+    export class XamlObjectCollection<T extends XamlObject> extends XamlObject implements nullstone.ICollection<T> {
         _ht: Array<T> = [];
 
-        AttachTo(xobj: XamlObject) {
+        AttachTo (xobj: XamlObject) {
             var error = new BError();
             if (!this.XamlNode.AttachTo(xobj.XamlNode, error))
                 error.ThrowException();
         }
 
-        get Count() { return this._ht.length; }
+        get Count () {
+            return this._ht.length;
+        }
 
-        GetRange(startIndex: number, endIndex: number): T[] {
+        GetRange (startIndex: number, endIndex: number): T[] {
             return this._ht.slice(startIndex, endIndex);
         }
 
-        GetValueAt(index: number): T {
+        GetValueAt (index: number): T {
             return this._ht[index];
         }
-        SetValueAt(index: number, value: T): boolean {
+
+        SetValueAt (index: number, value: T): boolean {
             if (!this.CanAdd(value))
                 return false;
 
@@ -38,11 +41,13 @@ module Fayde {
             }
             return false;
         }
-        Add(value: T): number {
+
+        Add (value: T): number {
             var rv = this.Insert(this._ht.length, value);
             return rv ? this._ht.length - 1 : -1;
         }
-        Insert(index: number, value: T): boolean {
+
+        Insert (index: number, value: T): boolean {
             if (!this.CanAdd(value))
                 return false;
             if (index < 0)
@@ -61,13 +66,15 @@ module Fayde {
                 throw new Exception(error.Message);
             return false;
         }
-        Remove(value: T): boolean {
+
+        Remove (value: T): boolean {
             var index = this.IndexOf(value);
             if (index === -1)
                 return false;
             return this.RemoveAt(index);
         }
-        RemoveAt(index: number): boolean {
+
+        RemoveAt (index: number): boolean {
             if (index < 0 || index >= this._ht.length)
                 return false;
             var value = this._ht[index];
@@ -76,7 +83,8 @@ module Fayde {
             this._RaiseItemRemoved(value, index);
             return true;
         }
-        Clear(): boolean {
+
+        Clear (): boolean {
             var old = this._ht;
             //LOOKS USELESS: this._RaiseClearing(old);
             this._ht = [];
@@ -87,24 +95,34 @@ module Fayde {
             this._RaiseCleared(old);
             return true;
         }
-        IndexOf(value: T): number {
+
+        IndexOf (value: T): number {
             return this._ht.indexOf(value);
         }
-        Contains(value: T): boolean { return this.IndexOf(value) > -1; }
-        CanAdd (value: T): boolean { return true; }
-        AddingToCollection(value: T, error: BError): boolean {
+
+        Contains (value: T): boolean {
+            return this.IndexOf(value) > -1;
+        }
+
+        CanAdd (value: T): boolean {
+            return true;
+        }
+
+        AddingToCollection (value: T, error: BError): boolean {
             if (value instanceof XamlObject)
                 return value.XamlNode.AttachTo(this.XamlNode, error);
             return true;
         }
-        RemovedFromCollection(value: T, isValueSafe: boolean) {
+
+        RemovedFromCollection (value: T, isValueSafe: boolean) {
             if (value instanceof XamlObject)
                 value.XamlNode.Detach();
         }
 
-        getEnumerator(reverse?: boolean): nullstone.IEnumerator<T> {
+        getEnumerator (reverse?: boolean): nullstone.IEnumerator<T> {
             return nullstone.IEnumerator_.fromArray(this._ht, reverse);
         }
+
         GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): nullstone.IEnumerator<U> {
             var prev = this.getEnumerator(reverse);
             return {
@@ -121,11 +139,18 @@ module Fayde {
             };
         }
 
-        _RaiseItemAdded(value: T, index: number) { }
-        _RaiseItemRemoved(value: T, index: number) { }
-        _RaiseItemReplaced(removed: T, added: T, index: number) { }
+        _RaiseItemAdded (value: T, index: number) {
+        }
+
+        _RaiseItemRemoved (value: T, index: number) {
+        }
+
+        _RaiseItemReplaced (removed: T, added: T, index: number) {
+        }
+
         //_RaiseClearing(arr: T[]) { }
-        _RaiseCleared(old: T[]) { }
+        _RaiseCleared (old: T[]) {
+        }
 
         CloneCore (source: XamlObjectCollection<T>) {
             for (var en = source.getEnumerator(); en.moveNext();) {
@@ -133,8 +158,9 @@ module Fayde {
             }
         }
 
-        ToArray(): T[] {
+        ToArray (): T[] {
             return this._ht.slice(0);
         }
     }
+    nullstone.ICollection_.mark(XamlObjectCollection);
 }
