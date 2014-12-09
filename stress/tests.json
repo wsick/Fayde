@@ -9,6 +9,11 @@
       "name": "Media Parser (Geometry)",
       "test": "tests/media/MediaParser",
       "runCount": 1000
+    },
+    {
+      "name": "Path2D Parser",
+      "test": "tests/media/Path2D",
+      "runCount": 1000
     }
   ]
 }
