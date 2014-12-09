@@ -1,8 +1,14 @@
+import Grid = Fayde.Controls.Grid;
+import GridLength = Fayde.Controls.GridLength;
+import GridUnitType = minerva.controls.grid.GridUnitType;
+
 export function load () {
     QUnit.module("Markup Load Tests");
 
+    var nsdecl = 'xmlns="' + Fayde.XMLNS + '" xmlns:x="' + Fayde.XMLNSX + '"';
+
     test("Border with Child", () => {
-        var xaml = "<Border xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\"><TextBlock Text=\"Hey!\" /></Border>";
+        var xaml = "<Border " + nsdecl + "><TextBlock Text=\"Hey!\" /></Border>";
         var root = Fayde.Markup.LoadXaml<Fayde.Controls.Border>(null, xaml);
         var child = <Fayde.Controls.TextBlock>root.Child;
         strictEqual((<any>child).constructor, Fayde.Controls.TextBlock, "Border Child should be a TextBlock.");
@@ -10,7 +16,7 @@ export function load () {
     });
 
     test("Panel with Children", () => {
-        var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\"><Border /><TextBlock /></StackPanel>";
+        var xaml = "<StackPanel " + nsdecl + "><Border /><TextBlock /></StackPanel>";
         var root = Fayde.Markup.LoadXaml<Fayde.Controls.StackPanel>(null, xaml);
         strictEqual(root.Children.Count, 2, "There should be 2 children in StackPanel.");
         var child1 = <Fayde.Controls.Border>root.Children.GetValueAt(0);
@@ -20,19 +26,19 @@ export function load () {
     });
 
     test("ContentControl", () => {
-        var xaml = "<CheckBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">Hey</CheckBox>";
+        var xaml = "<CheckBox " + nsdecl + ">Hey</CheckBox>";
         var checkbox = Fayde.Markup.LoadXaml<Fayde.Controls.CheckBox>(null, xaml);
         strictEqual(checkbox.Content, "Hey", "Text Content");
     });
 
     test("TextBlock Text", () => {
-        var xaml = "<TextBlock xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">Hey</TextBlock>";
+        var xaml = "<TextBlock " + nsdecl + ">Hey</TextBlock>";
         var tb = Fayde.Markup.LoadXaml<Fayde.Controls.TextBlock>(null, xaml);
         strictEqual(tb.Text, "Hey", "Text Content");
     });
 
     test("ControlTemplate", () => {
-        var xaml = "<ControlTemplate xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        var xaml = "<ControlTemplate " + nsdecl + ">"
             + "<Grid></Grid>"
             + "</ControlTemplate>";
 
@@ -44,7 +50,7 @@ export function load () {
             ok(err instanceof XamlParseException, "Loading a ControlTemplate should error if no TargetType is specified.");
         }
 
-        xaml = "<ControlTemplate xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" TargetType=\"Control\">"
+        xaml = "<ControlTemplate " + nsdecl + " TargetType=\"Control\">"
         + "<Grid></Grid>"
         + "</ControlTemplate>";
 
@@ -63,7 +69,7 @@ export function load () {
     });
 
     test("ItemsPanelTemplate", () => {
-        var xaml = "<ItemsPanelTemplate xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        var xaml = "<ItemsPanelTemplate " + nsdecl + ">"
             + "<Border />"
             + "</ItemsPanelTemplate>";
 
@@ -76,7 +82,7 @@ export function load () {
             ok(err instanceof XamlParseException, "Getting the visual tree for an ItemsPanelTemplate with a non-Panel root visual should error.");
         }
 
-        xaml = "<ItemsPanelTemplate xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        xaml = "<ItemsPanelTemplate " + nsdecl + ">"
         + "<Grid></Grid>"
         + "</ItemsPanelTemplate>";
 
@@ -89,5 +95,19 @@ export function load () {
 
         var visual = ipt.GetVisualTree(null);
         strictEqual((<any>visual).constructor, Fayde.Controls.Grid, "Root visual from created visual tree should be a Grid.");
+    });
+
+    test("Terse Grid Cols/Rows", () => {
+        var xaml = "<Grid " + nsdecl + " ColumnDefinitions=\"auto 200 *\" RowDefinitions=\"100 * auto\"></Grid>";
+        var grid = Fayde.Markup.LoadXaml<Grid>(null, xaml);
+        var cols = grid.ColumnDefinitions.ToArray();
+        strictEqual(cols.length, 3);
+        deepEqual(cols[0].Width, new GridLength(0, GridUnitType.Auto));
+        deepEqual(cols[1].Width, new GridLength(200, GridUnitType.Pixel));
+        deepEqual(cols[2].Width, new GridLength(1, GridUnitType.Star));
+        var rows = grid.RowDefinitions.ToArray();
+        deepEqual(rows[0].Height, new GridLength(100, GridUnitType.Pixel));
+        deepEqual(rows[1].Height, new GridLength(1, GridUnitType.Star));
+        deepEqual(rows[2].Height, new GridLength(0, GridUnitType.Auto));
     });
 }
