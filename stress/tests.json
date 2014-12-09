@@ -4,6 +4,11 @@
       "name": "Load Xaml (Metro)",
       "test": "tests/markup/Loader",
       "runCount": 10
+    },
+    {
+      "name": "Media Parser (Geometry)",
+      "test": "tests/media/MediaParser",
+      "runCount": 1000
     }
   ]
 }
