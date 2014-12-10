@@ -12,12 +12,12 @@ module Fayde.Media.Animation {
 
     export class Timeline extends DependencyObject implements ITimeline {
         static DEFAULT_REPEAT_BEHAVIOR: RepeatBehavior = RepeatBehavior.FromIterationCount(1);
-        static AutoReverseProperty: DependencyProperty = DependencyProperty.Register("AutoReverse", () => Boolean, Timeline, false);
-        static BeginTimeProperty: DependencyProperty = DependencyProperty.Register("BeginTime", () => TimeSpan, Timeline);
-        static DurationProperty: DependencyProperty = DependencyProperty.Register("Duration", () => Duration, Timeline);
-        static RepeatBehaviorProperty: DependencyProperty = DependencyProperty.Register("RepeatBehavior", () => RepeatBehavior, Timeline);
-        static SpeedRatioProperty: DependencyProperty = DependencyProperty.Register("SpeedRatio", () => Number, Timeline, 1.0);
-        static FillBehaviorProperty: DependencyProperty = DependencyProperty.Register("FillBehavior", () => new Enum(FillBehavior), Timeline, FillBehavior.HoldEnd);
+        static AutoReverseProperty = DependencyProperty.Register("AutoReverse", () => Boolean, Timeline, false);
+        static BeginTimeProperty = DependencyProperty.Register("BeginTime", () => TimeSpan, Timeline);
+        static DurationProperty = DependencyProperty.Register("Duration", () => Duration, Timeline);
+        static RepeatBehaviorProperty = DependencyProperty.Register("RepeatBehavior", () => RepeatBehavior, Timeline);
+        static SpeedRatioProperty = DependencyProperty.Register("SpeedRatio", () => Number, Timeline, 1.0);
+        static FillBehaviorProperty = DependencyProperty.Register("FillBehavior", () => new Enum(FillBehavior), Timeline, FillBehavior.HoldEnd);
         AutoReverse: boolean;
         BeginTime: TimeSpan;
         Duration: Duration; //Treat undefined as Automatic
