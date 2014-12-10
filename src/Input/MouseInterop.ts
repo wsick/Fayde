@@ -14,7 +14,7 @@ module Fayde.Input {
         IsLeftButton(button: number): boolean;
         IsRightButton(button: number): boolean;
     }
-    export function CreateMouseInterop(): IMouseInterop {
+    export function CreateMouseInterop (): IMouseInterop {
         if (navigator.appName === "Microsoft Internet Explorer")
             return new IEMouseInterop();
         if (navigator.appName === "Netscape") {
@@ -35,7 +35,7 @@ module Fayde.Input {
         private _CanvasOffset: IOffset = null;
         private _IsContextMenuDisabled: boolean = false;
 
-        RegisterEvents(input: Engine.InputManager, canvas: HTMLCanvasElement) {
+        RegisterEvents (input: Engine.InputManager, canvas: HTMLCanvasElement) {
             this._Input = input;
             this._CanvasOffset = this._CalcOffset(canvas);
 
@@ -51,7 +51,7 @@ module Fayde.Input {
             canvas.addEventListener("DOMMouseScroll", (e) => this._HandleWheel(window.event ? <any>window.event : e));
         }
 
-        private _CalcOffset(canvas: HTMLCanvasElement): IOffset {
+        private _CalcOffset (canvas: HTMLCanvasElement): IOffset {
             var left = 0;
             var top = 0;
             var cur: HTMLElement = canvas;
@@ -61,57 +61,63 @@ module Fayde.Input {
                     top += cur.offsetTop;
                 } while (cur = <HTMLElement>cur.offsetParent);
             }
-            return { left: left, top: top };
+            return {left: left, top: top};
         }
-        private _GetMousePosition(evt): Point {
+
+        private _GetMousePosition (evt): Point {
             return new Point(
                 evt.clientX + window.pageXOffset + this._CanvasOffset.left,
                 evt.clientY + window.pageYOffset + this._CanvasOffset.top);
         }
 
-        IsLeftButton(button: number): boolean {
+        IsLeftButton (button: number): boolean {
             return button === 1;
         }
-        IsRightButton(button: number): boolean {
+
+        IsRightButton (button: number): boolean {
             return button === 2;
         }
 
-        private _HandleContextMenu(evt) {
+        private _HandleContextMenu (evt) {
             if (!this._IsContextMenuDisabled)
                 return;
             this._IsContextMenuDisabled = false;
-            if (evt.stopPropagation)
-                evt.stopPropagation();
-            evt.preventDefault();
+            evt.stopPropagation && evt.stopPropagation();
+            evt.preventDefault && evt.preventDefault();
             evt.cancelBubble = true;
             return false;
         }
-        private _HandleButtonPress(evt) {
+
+        private _HandleButtonPress (evt) {
             Engine.Inspection.Kill();
             Input.Keyboard.RefreshModifiers(createModifiers(evt));
             var button = evt.which ? evt.which : evt.button;
             var pos = this._GetMousePosition(evt);
             if (this._Input.HandleMousePress(button, pos))
-                this._IsContextMenuDisabled = true;
+                this.DisableNextContextMenu();
         }
-        private _HandleButtonRelease(evt) {
+
+        private _HandleButtonRelease (evt) {
             Input.Keyboard.RefreshModifiers(createModifiers(evt));
             var button = evt.which ? evt.which : evt.button;
             var pos = this._GetMousePosition(evt);
             this._Input.HandleMouseRelease(button, pos);
         }
-        private _HandleOut(evt) {
+
+        private _HandleOut (evt) {
             Input.Keyboard.RefreshModifiers(createModifiers(evt));
             var pos = this._GetMousePosition(evt);
             this._Input.HandleMouseEvent(MouseInputType.MouseLeave, null, pos);
         }
-        private _HandleMove(evt) {
+
+        private _HandleMove (evt) {
             Input.Keyboard.RefreshModifiers(createModifiers(evt));
             var pos = this._GetMousePosition(evt);
             this._Input.HandleMouseEvent(MouseInputType.MouseMove, null, pos);
             this._Input.UpdateCursorFromInputList();
         }
-        private _HandleWheel(evt) {
+
+        private _HandleWheel (evt) {
             Input.Keyboard.RefreshModifiers(createModifiers(evt));
             var delta = 0;
             if (evt.wheelDelta)
@@ -125,7 +131,7 @@ module Fayde.Input {
             this._Input.UpdateCursorFromInputList();
         }
 
-        CreateEventArgs(type: MouseInputType, pos: Point, delta: number): Fayde.Input.MouseEventArgs {
+        CreateEventArgs (type: MouseInputType, pos: Point, delta: number): Fayde.Input.MouseEventArgs {
             switch (type) {
                 case MouseInputType.MouseUp:
                     return new Fayde.Input.MouseButtonEventArgs(pos);
@@ -141,16 +147,39 @@ module Fayde.Input {
                     return new Fayde.Input.MouseWheelEventArgs(pos, delta);
             }
         }
+
+        DisableNextContextMenu () {
+            this._IsContextMenuDisabled = true;
+        }
     }
 
     class IEMouseInterop extends MouseInterop {
+        StopIEContextMenu: boolean = false;
+
+        DisableNextContextMenu () {
+            super.DisableNextContextMenu();
+            this.StopIEContextMenu = true;
+        }
+
+        RegisterEvents (input: Engine.InputManager, canvas: HTMLCanvasElement) {
+            super.RegisterEvents(input, canvas);
+            canvas.oncontextmenu = (e) => this._HandleIEContextMenu(e);
+        }
+
+        private _HandleIEContextMenu (evt) {
+            if (this.StopIEContextMenu) {
+                this.StopIEContextMenu = false;
+                return false;
+            }
+            return true;
+        }
     }
     class NetscapeMouseInterop extends MouseInterop {
-        IsRightButton(button: number): boolean {
+        IsRightButton (button: number): boolean {
             return button === 3;
         }
     }
-    function createModifiers(e): IModifiersOn {
+    function createModifiers (e): IModifiersOn {
         return {
             Shift: e.shiftKey,
             Ctrl: e.ctrlKey,

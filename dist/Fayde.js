@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.13';
+    Fayde.Version = '0.14.14';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -17536,6 +17536,7 @@ var Fayde;
                 }
                 return { left: left, top: top };
             };
+
             MouseInterop.prototype._GetMousePosition = function (evt) {
                 return new Point(evt.clientX + window.pageXOffset + this._CanvasOffset.left, evt.clientY + window.pageYOffset + this._CanvasOffset.top);
             };
@@ -17543,6 +17544,7 @@ var Fayde;
             MouseInterop.prototype.IsLeftButton = function (button) {
                 return button === 1;
             };
+
             MouseInterop.prototype.IsRightButton = function (button) {
                 return button === 2;
             };
@@ -17551,37 +17553,41 @@ var Fayde;
                 if (!this._IsContextMenuDisabled)
                     return;
                 this._IsContextMenuDisabled = false;
-                if (evt.stopPropagation)
-                    evt.stopPropagation();
-                evt.preventDefault();
+                evt.stopPropagation && evt.stopPropagation();
+                evt.preventDefault && evt.preventDefault();
                 evt.cancelBubble = true;
                 return false;
             };
+
             MouseInterop.prototype._HandleButtonPress = function (evt) {
                 Fayde.Engine.Inspection.Kill();
                 Input.Keyboard.RefreshModifiers(createModifiers(evt));
                 var button = evt.which ? evt.which : evt.button;
                 var pos = this._GetMousePosition(evt);
                 if (this._Input.HandleMousePress(button, pos))
-                    this._IsContextMenuDisabled = true;
+                    this.DisableNextContextMenu();
             };
+
             MouseInterop.prototype._HandleButtonRelease = function (evt) {
                 Input.Keyboard.RefreshModifiers(createModifiers(evt));
                 var button = evt.which ? evt.which : evt.button;
                 var pos = this._GetMousePosition(evt);
                 this._Input.HandleMouseRelease(button, pos);
             };
+
             MouseInterop.prototype._HandleOut = function (evt) {
                 Input.Keyboard.RefreshModifiers(createModifiers(evt));
                 var pos = this._GetMousePosition(evt);
                 this._Input.HandleMouseEvent(3 /* MouseLeave */, null, pos);
             };
+
             MouseInterop.prototype._HandleMove = function (evt) {
                 Input.Keyboard.RefreshModifiers(createModifiers(evt));
                 var pos = this._GetMousePosition(evt);
                 this._Input.HandleMouseEvent(5 /* MouseMove */, null, pos);
                 this._Input.UpdateCursorFromInputList();
             };
+
             MouseInterop.prototype._HandleWheel = function (evt) {
                 Input.Keyboard.RefreshModifiers(createModifiers(evt));
                 var delta = 0;
@@ -17612,6 +17618,10 @@ var Fayde;
                         return new Fayde.Input.MouseWheelEventArgs(pos, delta);
                 }
             };
+
+            MouseInterop.prototype.DisableNextContextMenu = function () {
+                this._IsContextMenuDisabled = true;
+            };
             return MouseInterop;
         })();
 
@@ -17619,7 +17629,28 @@ var Fayde;
             __extends(IEMouseInterop, _super);
             function IEMouseInterop() {
                 _super.apply(this, arguments);
+                this.StopIEContextMenu = false;
             }
+            IEMouseInterop.prototype.DisableNextContextMenu = function () {
+                _super.prototype.DisableNextContextMenu.call(this);
+                this.StopIEContextMenu = true;
+            };
+
+            IEMouseInterop.prototype.RegisterEvents = function (input, canvas) {
+                var _this = this;
+                _super.prototype.RegisterEvents.call(this, input, canvas);
+                canvas.oncontextmenu = function (e) {
+                    return _this._HandleIEContextMenu(e);
+                };
+            };
+
+            IEMouseInterop.prototype._HandleIEContextMenu = function (evt) {
+                if (this.StopIEContextMenu) {
+                    this.StopIEContextMenu = false;
+                    return false;
+                }
+                return true;
+            };
             return IEMouseInterop;
         })(MouseInterop);
         var NetscapeMouseInterop = (function (_super) {
