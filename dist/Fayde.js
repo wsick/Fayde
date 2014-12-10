@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.11';
+    Fayde.Version = '0.14.12';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -5422,13 +5422,11 @@ var Fayde;
                     this._MousePosition = null;
                     this._IntervalID = null;
                     this._NewInterval = null;
-                    this._ElementRoot = null;
                     this.ClickMode = 1 /* Press */;
                     this.DefaultStyleKey = RepeatButton;
                 }
                 RepeatButton.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
-                    this._ElementRoot = this.GetTemplateChild("Root", Fayde.FrameworkElement);
                     this.UpdateVisualState(false);
                 };
 
@@ -5561,8 +5559,9 @@ var Fayde;
                     }
 
                     var els = Fayde.VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition, this);
-                    if (els.indexOf(this._ElementRoot) > -1)
+                    if (els.indexOf(this) > -1) {
                         this.OnClick();
+                    }
                 };
                 RepeatButton.DelayProperty = DependencyProperty.Register("Delay", function () {
                     return Number;

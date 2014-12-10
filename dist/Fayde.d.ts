@@ -1305,7 +1305,6 @@ declare module Fayde.Controls.Primitives {
         public _MousePosition: Point;
         private _IntervalID;
         private _NewInterval;
-        private _ElementRoot;
         constructor();
         public OnApplyTemplate(): void;
         public OnDelayChanged(args: IDependencyPropertyChangedEventArgs): void;

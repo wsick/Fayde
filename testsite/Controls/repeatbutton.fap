@@ -1,0 +1,15 @@
+<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        xmlns:controls="Controls"
+        ThemeName="Metro">
+    <Grid x:Name="LayoutRoot" >
+        <Grid.DataContext>
+            <controls:RepeatButtonViewModel />
+        </Grid.DataContext>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <RepeatButton x:Name="RepeatBtn" Content="Click me!" Click="{EventBinding RepeatBtn_Click}" Delay="500" Interval="100" />
+            <TextBlock Text="{Binding Counter}" />
+        </StackPanel>
+    </Grid>
+</Application>
