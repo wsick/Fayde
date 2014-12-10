@@ -42,10 +42,11 @@
 //      Find "Z" or "z"? - CloseCommand
 
 module Fayde.Media {
-    export function ParseGeometry(val: string): Geometry {
+    export function ParseGeometry (val: string): Geometry {
         return (new MediaParser(val)).ParseGeometryImpl();
     }
-    export function ParseShapePoints(val: string): Point[] {
+
+    export function ParseShapePoints (val: string): Point[] {
         return (new MediaParser(val)).ParseShapePoints();
     }
 
@@ -54,12 +55,12 @@ module Fayde.Media {
         private len: number;
         private index: number = 0;
 
-        constructor(str: string) {
+        constructor (str: string) {
             this.str = str;
             this.len = str.length;
         }
 
-        ParseGeometryImpl(): Geometry {
+        ParseGeometryImpl (): Geometry {
             var cp = new Point();
             var cp1: Point, cp2: Point, cp3: Point;
             var start = new Point();
@@ -346,7 +347,8 @@ module Fayde.Media {
             pg.FillRule = <Shapes.FillRule>fillRule;
             return pg;
         }
-        ParseShapePoints(): Point[] {
+
+        ParseShapePoints (): Point[] {
             var points: Point[] = [];
             var p: Point;
             while (this.MorePointsAvailable() && (p = this.ParsePoint()) != null) {
@@ -355,7 +357,7 @@ module Fayde.Media {
             return points;
         }
 
-        private ParsePoint(): Point {
+        private ParsePoint (): Point {
             var x = this.ParseDouble();
             if (x == null)
                 return null;
@@ -373,7 +375,8 @@ module Fayde.Media {
 
             return new Point(x, y);
         }
-        private ParseDouble(): number {
+
+        private ParseDouble (): number {
             this.Advance();
             var isNegative = false;
             if (this.Match('-')) {
@@ -409,7 +412,8 @@ module Fayde.Media {
             var f = parseFloat(temp);
             return isNegative ? -f : f;
         }
-        private Match(matchStr: string): boolean {
+
+        private Match (matchStr: string): boolean {
             var c1: string;
             var c2: string;
             for (var i = 0; i < matchStr.length && (this.index + i) < this.len; i++) {
@@ -420,7 +424,8 @@ module Fayde.Media {
             }
             return true;
         }
-        private Advance() {
+
+        private Advance () {
             var code: number;
             var c: string;
             while (this.index < this.len) {
@@ -438,7 +443,8 @@ module Fayde.Media {
                 this.index++;
             }
         }
-        private MorePointsAvailable(): boolean {
+
+        private MorePointsAvailable (): boolean {
             var c;
             while (this.index < this.len && ((c = this.str.charAt(this.index)) === ',' || c === ' ')) {
                 this.index++;
@@ -452,5 +458,11 @@ module Fayde.Media {
         }
     }
 
-    nullstone.registerTypeConverter(Geometry, ParseGeometry);
+    nullstone.registerTypeConverter(Geometry, (val: any): any => {
+        if (val instanceof Geometry)
+            return val;
+        if (typeof val === "string")
+            return ParseGeometry(val);
+        return val;
+    });
 }

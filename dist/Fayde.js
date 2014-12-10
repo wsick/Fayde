@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.10';
+    Fayde.Version = '0.13.9';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -24851,6 +24851,7 @@ var Fayde;
             return (new MediaParser(val)).ParseGeometryImpl();
         }
         Media.ParseGeometry = ParseGeometry;
+
         function ParseShapePoints(val) {
             return (new MediaParser(val)).ParseShapePoints();
         }
@@ -25148,6 +25149,7 @@ var Fayde;
                 pg.FillRule = fillRule;
                 return pg;
             };
+
             MediaParser.prototype.ParseShapePoints = function () {
                 var points = [];
                 var p;
@@ -25175,6 +25177,7 @@ var Fayde;
 
                 return new Point(x, y);
             };
+
             MediaParser.prototype.ParseDouble = function () {
                 this.Advance();
                 var isNegative = false;
@@ -25211,6 +25214,7 @@ var Fayde;
                 var f = parseFloat(temp);
                 return isNegative ? -f : f;
             };
+
             MediaParser.prototype.Match = function (matchStr) {
                 var c1;
                 var c2;
@@ -25222,6 +25226,7 @@ var Fayde;
                 }
                 return true;
             };
+
             MediaParser.prototype.Advance = function () {
                 var code;
                 var c;
@@ -25240,6 +25245,7 @@ var Fayde;
                     this.index++;
                 }
             };
+
             MediaParser.prototype.MorePointsAvailable = function () {
                 var c;
                 while (this.index < this.len && ((c = this.str.charAt(this.index)) === ',' || c === ' ')) {
@@ -25255,7 +25261,13 @@ var Fayde;
             return MediaParser;
         })();
 
-        nullstone.registerTypeConverter(Media.Geometry, ParseGeometry);
+        nullstone.registerTypeConverter(Media.Geometry, function (val) {
+            if (val instanceof Media.Geometry)
+                return val;
+            if (typeof val === "string")
+                return ParseGeometry(val);
+            return val;
+        });
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
