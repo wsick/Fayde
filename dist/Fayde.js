@@ -22733,6 +22733,7 @@ var Fayde;
                 Storyboard.GetTargetName = function (d) {
                     return d.GetValue(Storyboard.TargetNameProperty);
                 };
+
                 Storyboard.SetTargetName = function (d, value) {
                     return d.SetValue(Storyboard.TargetNameProperty, value);
                 };
@@ -22740,6 +22741,7 @@ var Fayde;
                 Storyboard.GetTargetProperty = function (d) {
                     return d.GetValue(Storyboard.TargetPropertyProperty);
                 };
+
                 Storyboard.SetTargetProperty = function (d, value) {
                     return d.SetValue(Storyboard.TargetPropertyProperty, value);
                 };
@@ -22781,18 +22783,21 @@ var Fayde;
                     }
                     Fayde.Application.Current.RegisterStoryboard(this);
                 };
+
                 Storyboard.prototype.Pause = function () {
                     _super.prototype.Pause.call(this);
                     for (var en = this.Children.getEnumerator(); en.moveNext();) {
                         en.current.Pause();
                     }
                 };
+
                 Storyboard.prototype.Resume = function () {
                     _super.prototype.Resume.call(this);
                     for (var en = this.Children.getEnumerator(); en.moveNext();) {
                         en.current.Resume();
                     }
                 };
+
                 Storyboard.prototype.Stop = function () {
                     if (Animation.Log)
                         console.log(getLogMessage("Storyboard.Stop", this, false));
