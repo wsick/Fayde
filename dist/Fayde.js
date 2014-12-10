@@ -20913,7 +20913,7 @@ var Fayde;
                     }
                     if (!this._HasBegun) {
                         if (!this.IsAfterBeginTime(nowTime))
-                            return;
+                            return null;
                         this._BeginTicks = nowTime;
                         this._HasBegun = true;
                     }
@@ -22783,16 +22783,14 @@ var Fayde;
                 };
                 Storyboard.prototype.Pause = function () {
                     _super.prototype.Pause.call(this);
-                    var enumerator = this.Children.getEnumerator();
-                    while (enumerator.moveNext()) {
-                        enumerator.current.Pause();
+                    for (var en = this.Children.getEnumerator(); en.moveNext();) {
+                        en.current.Pause();
                     }
                 };
                 Storyboard.prototype.Resume = function () {
                     _super.prototype.Resume.call(this);
-                    var enumerator = this.Children.getEnumerator();
-                    while (enumerator.moveNext()) {
-                        enumerator.current.Resume();
+                    for (var en = this.Children.getEnumerator(); en.moveNext();) {
+                        en.current.Resume();
                     }
                 };
                 Storyboard.prototype.Stop = function () {
@@ -22800,26 +22798,23 @@ var Fayde;
                         console.log(getLogMessage("Storyboard.Stop", this, false));
                     _super.prototype.Stop.call(this);
                     Fayde.Application.Current.UnregisterStoryboard(this);
-                    var enumerator = this.Children.getEnumerator();
-                    while (enumerator.moveNext()) {
-                        enumerator.current.Stop();
+                    for (var en = this.Children.getEnumerator(); en.moveNext();) {
+                        en.current.Stop();
                     }
                 };
 
                 Storyboard.prototype.UpdateInternal = function (clockData) {
                     if (Animation.Log)
                         console.log(getLogMessage("Storyboard.UpdateInternal", this, false, clockData));
-                    var enumerator = this.Children.getEnumerator();
-                    while (enumerator.moveNext()) {
-                        enumerator.current.Update(clockData.CurrentTime.Ticks);
+                    for (var en = this.Children.getEnumerator(); en.moveNext();) {
+                        en.current.Update(clockData.CurrentTime.Ticks);
                     }
                 };
 
                 Storyboard.prototype.GetNaturalDurationCore = function () {
                     var fullTicks = 0;
-                    var enumerator = this.Children.getEnumerator();
-                    while (enumerator.moveNext()) {
-                        var timeline = enumerator.current;
+                    for (var en = this.Children.getEnumerator(); en.moveNext();) {
+                        var timeline = en.current;
                         var dur = timeline.GetNaturalDuration();
                         if (dur.IsAutomatic)
                             continue;

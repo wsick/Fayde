@@ -9,16 +9,30 @@ module Fayde.Media.Animation {
     /// http://msdn.microsoft.com/en-us/library/cc189019(v=vs.95).aspx
     export class Storyboard extends Timeline {
         static TargetNameProperty: DependencyProperty = DependencyProperty.RegisterAttached("TargetName", () => String, Storyboard);
-        static GetTargetName(d: DependencyObject): string { return d.GetValue(Storyboard.TargetNameProperty); }
-        static SetTargetName(d: DependencyObject, value: string) { return d.SetValue(Storyboard.TargetNameProperty, value); }
+
+        static GetTargetName (d: DependencyObject): string {
+            return d.GetValue(Storyboard.TargetNameProperty);
+        }
+
+        static SetTargetName (d: DependencyObject, value: string) {
+            return d.SetValue(Storyboard.TargetNameProperty, value);
+        }
+
         TargetName: string;
-        
+
         static TargetPropertyProperty: DependencyProperty = DependencyProperty.RegisterAttached("TargetProperty", () => Data.PropertyPath, Storyboard);
-        static GetTargetProperty(d: DependencyObject): Data.PropertyPath { return d.GetValue(Storyboard.TargetPropertyProperty); }
-        static SetTargetProperty(d: DependencyObject, value: Data.PropertyPath) { return d.SetValue(Storyboard.TargetPropertyProperty, value); }
+
+        static GetTargetProperty (d: DependencyObject): Data.PropertyPath {
+            return d.GetValue(Storyboard.TargetPropertyProperty);
+        }
+
+        static SetTargetProperty (d: DependencyObject, value: Data.PropertyPath) {
+            return d.SetValue(Storyboard.TargetPropertyProperty, value);
+        }
+
         TargetProperty: Data.PropertyPath;
 
-        static ResolveTarget(timeline: Timeline): IStoryboadResolution {
+        static ResolveTarget (timeline: Timeline): IStoryboadResolution {
             var res: IStoryboadResolution = {
                 Target: undefined,
                 Property: undefined
@@ -40,18 +54,18 @@ module Fayde.Media.Animation {
         static ChildrenProperty = DependencyProperty.RegisterImmutable<TimelineCollection>("Children", () => TimelineCollection, Storyboard);
         Children: TimelineCollection;
 
-        constructor() {
+        constructor () {
             super();
 
             var coll = Storyboard.ChildrenProperty.Initialize(this);
             coll.AttachTo(this);
         }
 
-        static SetTarget(timeline: Timeline, target: DependencyObject) {
+        static SetTarget (timeline: Timeline, target: DependencyObject) {
             timeline.ManualTarget = target;
         }
 
-        Begin() {
+        Begin () {
             if (Animation.Log)
                 console.log(getLogMessage("Storyboard.Begin", this, true));
             this.Reset();
@@ -65,45 +79,43 @@ module Fayde.Media.Animation {
             }
             Application.Current.RegisterStoryboard(this);
         }
-        Pause() {
+
+        Pause () {
             super.Pause();
-            var enumerator = this.Children.getEnumerator();
-            while (enumerator.moveNext()) {
-                (<Timeline>enumerator.current).Pause();
+            for (var en = this.Children.getEnumerator(); en.moveNext();) {
+                en.current.Pause();
             }
         }
-        Resume() {
+
+        Resume () {
             super.Resume();
-            var enumerator = this.Children.getEnumerator();
-            while (enumerator.moveNext()) {
-                (<Timeline>enumerator.current).Resume();
+            for (var en = this.Children.getEnumerator(); en.moveNext();) {
+                en.current.Resume();
             }
         }
-        Stop() {
+
+        Stop () {
             if (Animation.Log)
                 console.log(getLogMessage("Storyboard.Stop", this, false));
             super.Stop();
             Application.Current.UnregisterStoryboard(this);
-            var enumerator = this.Children.getEnumerator();
-            while (enumerator.moveNext()) {
-                (<Timeline>enumerator.current).Stop();
+            for (var en = this.Children.getEnumerator(); en.moveNext();) {
+                en.current.Stop();
             }
         }
 
-        UpdateInternal(clockData: IClockData) {
+        UpdateInternal (clockData: IClockData) {
             if (Animation.Log)
                 console.log(getLogMessage("Storyboard.UpdateInternal", this, false, clockData));
-            var enumerator = this.Children.getEnumerator();
-            while (enumerator.moveNext()) {
-                (<Timeline>enumerator.current).Update(clockData.CurrentTime.Ticks);
+            for (var en = this.Children.getEnumerator(); en.moveNext();) {
+                en.current.Update(clockData.CurrentTime.Ticks);
             }
         }
 
-        GetNaturalDurationCore(): Duration {
+        GetNaturalDurationCore (): Duration {
             var fullTicks = 0;
-            var enumerator = this.Children.getEnumerator();
-            while (enumerator.moveNext()) {
-                var timeline = <Timeline>enumerator.current;
+            for (var en = this.Children.getEnumerator(); en.moveNext();) {
+                var timeline = en.current;
                 var dur = timeline.GetNaturalDuration();
                 if (dur.IsAutomatic)
                     continue;
@@ -136,7 +148,7 @@ module Fayde.Media.Animation {
     Fayde.CoreLibrary.add(Storyboard);
     Markup.Content(Storyboard, Storyboard.ChildrenProperty);
 
-    function getLogMessage(action: string, storyboard: Storyboard, full: boolean, clockData?: IClockData): string {
+    function getLogMessage (action: string, storyboard: Storyboard, full: boolean, clockData?: IClockData): string {
         var anims = [];
         var cur = "";
 

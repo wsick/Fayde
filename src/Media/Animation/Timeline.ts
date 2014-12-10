@@ -37,9 +37,12 @@ module Fayde.Media.Animation {
         private _HasCompleted: boolean = false;
 
         ManualTarget: DependencyObject = undefined;
-        get HasManualTarget(): boolean { return this.ManualTarget !== undefined; }
 
-        Reset() {
+        get HasManualTarget (): boolean {
+            return this.ManualTarget !== undefined;
+        }
+
+        Reset () {
             this._TicksPaused = 0;
             this._IsFirstUpdate = true;
             this._BeginTicks = undefined;
@@ -47,24 +50,26 @@ module Fayde.Media.Animation {
             this._HasCompleted = false;
         }
 
-        Pause() {
+        Pause () {
             if (this._IsPaused)
                 return;
             this._BeginPauseTime = new Date().getTime();
             this._IsPaused = true;
         }
-        Resume() {
+
+        Resume () {
             if (!this._IsPaused)
                 return;
             this._IsPaused = false;
             var nowTime = new Date().getTime();
             this._TicksPaused = nowTime - this._BeginPauseTime;
         }
-        Stop() {
+
+        Stop () {
             this.Reset();
         }
 
-        OnCompleted() {
+        OnCompleted () {
             this._HasCompleted = true;
             var fill = this.FillBehavior;
             switch (fill) {
@@ -78,7 +83,7 @@ module Fayde.Media.Animation {
             this.Completed.raise(this, null);
         }
 
-        Update(nowTime: number) {
+        Update (nowTime: number) {
             var clockData = this.CreateClockData(nowTime);
             if (!clockData || this._IsPaused || this._HasCompleted)
                 return;
@@ -86,11 +91,14 @@ module Fayde.Media.Animation {
             if (clockData.Completed)
                 this.OnCompleted();
         }
-        UpdateInternal(clockData: IClockData) { }
 
-        HoldEnd() { }
+        UpdateInternal (clockData: IClockData) {
+        }
 
-        private CreateClockData(nowTime: number): IClockData {
+        HoldEnd () {
+        }
+
+        private CreateClockData (nowTime: number): IClockData {
             if (this._IsFirstUpdate) {
                 this._InitialStep = nowTime;
                 this._HasBegun = false;
@@ -98,7 +106,7 @@ module Fayde.Media.Animation {
             }
             if (!this._HasBegun) {
                 if (!this.IsAfterBeginTime(nowTime))
-                    return;
+                    return null;
                 this._BeginTicks = nowTime;
                 this._HasBegun = true;
             }
@@ -150,7 +158,8 @@ module Fayde.Media.Animation {
                 Completed: completed
             };
         }
-        private IsAfterBeginTime(nowTime: number): boolean {
+
+        private IsAfterBeginTime (nowTime: number): boolean {
             var beginTime = this.BeginTime;
             if (beginTime == null)
                 return true;
@@ -162,18 +171,23 @@ module Fayde.Media.Animation {
                 return false;
             return true;
         }
-        GetNaturalDuration(): Duration {
+
+        GetNaturalDuration (): Duration {
             var d = this.Duration;
             if (!d || d.IsAutomatic)
                 return this.GetNaturalDurationCore();
             return d;
         }
-        GetNaturalDurationCore(): Duration { return Duration.Automatic; }
 
-        GenerateFrom(): AnimationBase {
+        GetNaturalDurationCore (): Duration {
+            return Duration.Automatic;
+        }
+
+        GenerateFrom (): AnimationBase {
             return undefined;
         }
-        GenerateTo(isEntering: boolean): AnimationBase {
+
+        GenerateTo (isEntering: boolean): AnimationBase {
             return undefined;
         }
     }
