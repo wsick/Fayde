@@ -1,0 +1,11 @@
+<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        ThemeName="Metro">
+    <Grid Background="#123456">
+        <Grid.Clip>
+            <RectangleGeometry Rect="0, 0, 200, 100"/>
+        </Grid.Clip>
+        <Image Stretch="Fill" Source="Images/testing.jpg" />
+    </Grid>
+</Application>

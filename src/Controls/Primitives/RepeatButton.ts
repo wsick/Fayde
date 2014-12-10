@@ -2,8 +2,8 @@
 
 module Fayde.Controls.Primitives {
     export class RepeatButton extends ButtonBase {
-        static DelayProperty: DependencyProperty = DependencyProperty.Register("Delay", () => Number, RepeatButton, 500, (d, args) => (<RepeatButton>d).OnDelayChanged(args));
-        static IntervalProperty: DependencyProperty = DependencyProperty.Register("Interval", () => Number, RepeatButton, 33, (d, args) => (<RepeatButton>d).OnIntervalChanged(args));
+        static DelayProperty = DependencyProperty.Register("Delay", () => Number, RepeatButton, 500, (d: RepeatButton, args) => d.OnDelayChanged(args));
+        static IntervalProperty = DependencyProperty.Register("Interval", () => Number, RepeatButton, 33, (d: RepeatButton, args) => d.OnIntervalChanged(args));
         Delay: number;
         Interval: number;
 
@@ -12,7 +12,6 @@ module Fayde.Controls.Primitives {
         _MousePosition: Point = null;
         private _IntervalID: number = null;
         private _NewInterval: number = null;
-        private _ElementRoot: FrameworkElement = null;
 
         constructor() {
             super();
@@ -22,7 +21,6 @@ module Fayde.Controls.Primitives {
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            this._ElementRoot = <FrameworkElement>this.GetTemplateChild("Root", FrameworkElement);
             this.UpdateVisualState(false);
         }
 
@@ -146,8 +144,9 @@ module Fayde.Controls.Primitives {
             }
 
             var els = VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition, this);
-            if (els.indexOf(this._ElementRoot) > -1)
+            if (els.indexOf(this) > -1) {
                 this.OnClick();
+            }
         }
     }
     Fayde.CoreLibrary.add(RepeatButton);

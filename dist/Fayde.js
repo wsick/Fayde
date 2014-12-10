@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.14.11';
+    Fayde.Version = '0.14.12';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -5422,13 +5422,11 @@ var Fayde;
                     this._MousePosition = null;
                     this._IntervalID = null;
                     this._NewInterval = null;
-                    this._ElementRoot = null;
                     this.ClickMode = 1 /* Press */;
                     this.DefaultStyleKey = RepeatButton;
                 }
                 RepeatButton.prototype.OnApplyTemplate = function () {
                     _super.prototype.OnApplyTemplate.call(this);
-                    this._ElementRoot = this.GetTemplateChild("Root", Fayde.FrameworkElement);
                     this.UpdateVisualState(false);
                 };
 
@@ -5561,8 +5559,9 @@ var Fayde;
                     }
 
                     var els = Fayde.VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition, this);
-                    if (els.indexOf(this._ElementRoot) > -1)
+                    if (els.indexOf(this) > -1) {
                         this.OnClick();
+                    }
                 };
                 RepeatButton.DelayProperty = DependencyProperty.Register("Delay", function () {
                     return Number;
@@ -24867,6 +24866,7 @@ var Fayde;
             return (new MediaParser(val)).ParseGeometryImpl();
         }
         Media.ParseGeometry = ParseGeometry;
+
         function ParseShapePoints(val) {
             return (new MediaParser(val)).ParseShapePoints();
         }
@@ -25164,6 +25164,7 @@ var Fayde;
                 pg.FillRule = fillRule;
                 return pg;
             };
+
             MediaParser.prototype.ParseShapePoints = function () {
                 var points = [];
                 var p;
@@ -25191,6 +25192,7 @@ var Fayde;
 
                 return new Point(x, y);
             };
+
             MediaParser.prototype.ParseDouble = function () {
                 this.Advance();
                 var isNegative = false;
@@ -25227,6 +25229,7 @@ var Fayde;
                 var f = parseFloat(temp);
                 return isNegative ? -f : f;
             };
+
             MediaParser.prototype.Match = function (matchStr) {
                 var c1;
                 var c2;
@@ -25238,6 +25241,7 @@ var Fayde;
                 }
                 return true;
             };
+
             MediaParser.prototype.Advance = function () {
                 var code;
                 var c;
@@ -25256,6 +25260,7 @@ var Fayde;
                     this.index++;
                 }
             };
+
             MediaParser.prototype.MorePointsAvailable = function () {
                 var c;
                 while (this.index < this.len && ((c = this.str.charAt(this.index)) === ',' || c === ' ')) {
@@ -25271,7 +25276,13 @@ var Fayde;
             return MediaParser;
         })();
 
-        nullstone.registerTypeConverter(Media.Geometry, ParseGeometry);
+        nullstone.registerTypeConverter(Media.Geometry, function (val) {
+            if (val instanceof Media.Geometry)
+                return val;
+            if (typeof val === "string")
+                return ParseGeometry(val);
+            return val;
+        });
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -25916,7 +25927,7 @@ var Fayde;
                 return p;
             };
             RectangleGeometry.RectProperty = DependencyProperty.RegisterCore("Rect", function () {
-                return minerva.Rect;
+                return Rect;
             }, RectangleGeometry, undefined, function (d, args) {
                 return d.InvalidateGeometry();
             });
@@ -27387,6 +27398,30 @@ nullstone.registerTypeConverter(Length, function (val) {
     if (typeof val === "number")
         return val;
     return parseFloat(val.toString());
+});
+var Rect = (function (_super) {
+    __extends(Rect, _super);
+    function Rect() {
+        _super.apply(this, arguments);
+    }
+    Rect.prototype.Clone = function () {
+        return new Rect(this.x, this.y, this.width, this.height);
+    };
+    return Rect;
+})(minerva.Rect);
+Fayde.CoreLibrary.addPrimitive(Rect);
+
+nullstone.registerTypeConverter(Rect, function (val) {
+    if (!val)
+        return new Rect();
+    if (val instanceof Rect)
+        return val;
+
+    var tokens = val.toString().split(",");
+    if (tokens.length === 4) {
+        return new Rect(parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2]), parseFloat(tokens[3]));
+    }
+    throw new Error("Cannot parse Rect value '" + val + "'");
 });
 var Thickness = (function (_super) {
     __extends(Thickness, _super);

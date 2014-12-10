@@ -2,7 +2,7 @@
 
 module Fayde.Media {
     export class RectangleGeometry extends Geometry {
-        static RectProperty = DependencyProperty.RegisterCore("Rect", () => minerva.Rect, RectangleGeometry, undefined, (d: RectangleGeometry, args) => d.InvalidateGeometry());
+        static RectProperty = DependencyProperty.RegisterCore("Rect", () => Rect, RectangleGeometry, undefined, (d: RectangleGeometry, args) => d.InvalidateGeometry());
         static RadiusXProperty = DependencyProperty.RegisterCore("RadiusX", () => Number, RectangleGeometry, 0, (d: RectangleGeometry, args) => d.InvalidateGeometry());
         static RadiusYProperty = DependencyProperty.RegisterCore("RadiusY", () => Number, RectangleGeometry, 0, (d: RectangleGeometry, args) => d.InvalidateGeometry());
         Rect: minerva.Rect;

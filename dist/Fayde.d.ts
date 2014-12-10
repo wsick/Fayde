@@ -1305,7 +1305,6 @@ declare module Fayde.Controls.Primitives {
         public _MousePosition: Point;
         private _IntervalID;
         private _NewInterval;
-        private _ElementRoot;
         constructor();
         public OnApplyTemplate(): void;
         public OnDelayChanged(args: IDependencyPropertyChangedEventArgs): void;
@@ -5311,6 +5310,9 @@ declare class KeyTime implements ICloneable {
     public Percent : number;
 }
 declare class Length {
+}
+declare class Rect extends minerva.Rect {
+    public Clone(): Rect;
 }
 declare class Thickness extends minerva.Thickness {
     public Clone(): Thickness;
