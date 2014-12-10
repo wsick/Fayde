@@ -2211,27 +2211,21 @@
                                 <VisualState x:Name="Determinate"/>
                                 <VisualState x:Name="Indeterminate">
                                     <Storyboard RepeatBehavior="Forever">
-                                        <ObjectAnimationUsingKeyFrames Duration="00:00:00"
-                                                                       Storyboard.TargetProperty="(UIElement.Visibility)"
-                                                                       Storyboard.TargetName="IndeterminateRoot">
+                                        <ObjectAnimationUsingKeyFrames Duration="00:00:00" Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="IndeterminateRoot">
                                             <DiscreteObjectKeyFrame KeyTime="00:00:00">
                                                 <DiscreteObjectKeyFrame.Value>
                                                     <Visibility>Visible</Visibility>
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
                                         </ObjectAnimationUsingKeyFrames>
-                                        <ObjectAnimationUsingKeyFrames Duration="00:00:00"
-                                                                       Storyboard.TargetProperty="(UIElement.Visibility)"
-                                                                       Storyboard.TargetName="DeterminateRoot">
+                                        <ObjectAnimationUsingKeyFrames Duration="00:00:00" Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="DeterminateRoot">
                                             <DiscreteObjectKeyFrame KeyTime="00:00:00">
                                                 <DiscreteObjectKeyFrame.Value>
                                                     <Visibility>Collapsed</Visibility>
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
                                         </ObjectAnimationUsingKeyFrames>
-                                        <DoubleAnimationUsingKeyFrames
-                                                Storyboard.TargetProperty="(Shape.Fill).(LinearGradientBrush.Transform).(TransformGroup.Children)[0].X"
-                                                Storyboard.TargetName="IndeterminateGradientFill">
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(LinearGradientBrush.Transform).(TransformGroup.Children)[0].X" Storyboard.TargetName="IndeterminateGradientFill">
                                             <SplineDoubleKeyFrame KeyTime="0" Value="0"/>
                                             <SplineDoubleKeyFrame KeyTime="00:00:.35" Value="20"/>
                                         </DoubleAnimationUsingKeyFrames>
@@ -2239,58 +2233,42 @@
                                 </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
-                        <Border x:Name="ProgressBarTrack" BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Background="{TemplateBinding Background}"/>
+                        <Border x:Name="ProgressBarTrack" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}"/>
                         <Grid x:Name="ProgressBarRootGrid">
                             <Grid x:Name="IndeterminateRoot" Visibility="Collapsed">
-                                <Rectangle x:Name="IndeterminateSolidFill" Margin="{TemplateBinding BorderThickness}"
-                                           Opacity="1" RenderTransformOrigin="0.5,0.5" StrokeThickness="0"
-                                           Fill="{StaticResource BrandingBrush}"/>
-                                <Rectangle x:Name="IndeterminateGradientFill" Margin="{TemplateBinding BorderThickness}"
-                                           Opacity="0.7" StrokeThickness="1">
+                                <Rectangle x:Name="IndeterminateSolidFill" Margin="{TemplateBinding BorderThickness}" Opacity="1" RenderTransformOrigin="0.5,0.5" StrokeThickness="0" Fill="{StaticResource BrandingBrush}"/>
+                                <Rectangle x:Name="IndeterminateGradientFill" Margin="{TemplateBinding BorderThickness}" Opacity="0.7" StrokeThickness="1">
                                     <Rectangle.Fill>
-                                        <LinearGradientBrush EndPoint="0,1" MappingMode="Absolute" SpreadMethod="Repeat"
-                                                             StartPoint="20,1">
+                                        <LinearGradientBrush EndPoint="0,1" MappingMode="Absolute" SpreadMethod="Repeat" StartPoint="20,1">
                                             <LinearGradientBrush.Transform>
                                                 <TransformGroup>
                                                     <TranslateTransform X="0"/>
                                                     <SkewTransform AngleX="-30"/>
                                                 </TransformGroup>
                                             </LinearGradientBrush.Transform>
-                                            <GradientStop Color="{StaticResource ProgressIndeterminateColor1}"
-                                                          Offset="0"/>
-                                            <GradientStop Color="{StaticResource ProgressIndeterminateColor2}"
-                                                          Offset="0.651"/>
-                                            <GradientStop Color="{StaticResource ProgressIndeterminateColor3}"
-                                                          Offset="0.093"/>
-                                            <GradientStop Color="{StaticResource ProgressIndeterminateColor4}"
-                                                          Offset="0.548"/>
+                                            <GradientStop Color="{StaticResource ProgressIndeterminateColor1}" Offset="0"/>
+                                            <GradientStop Color="{StaticResource ProgressIndeterminateColor2}" Offset="0.651"/>
+                                            <GradientStop Color="{StaticResource ProgressIndeterminateColor3}" Offset="0.093"/>
+                                            <GradientStop Color="{StaticResource ProgressIndeterminateColor4}" Offset="0.548"/>
                                         </LinearGradientBrush>
                                     </Rectangle.Fill>
                                 </Rectangle>
                             </Grid>
                             <Grid x:Name="DeterminateRoot" Margin="1">
-                                <Border x:Name="ProgressBarIndicator" Background="{StaticResource BrandingBrush}"
-                                        HorizontalAlignment="Left" Margin="-1">
+                                <Border x:Name="ProgressBarIndicator" Background="{StaticResource BrandingBrush}" HorizontalAlignment="Left" Margin="-1">
                                     <Rectangle x:Name="GradientFill" Opacity="0.7" Visibility="Collapsed">
                                         <Rectangle.Fill>
-                                            <LinearGradientBrush EndPoint="0,1" MappingMode="Absolute"
-                                                                 SpreadMethod="Repeat" StartPoint="20,1">
+                                            <LinearGradientBrush EndPoint="0,1" MappingMode="Absolute" SpreadMethod="Repeat" StartPoint="20,1">
                                                 <LinearGradientBrush.Transform>
                                                     <TransformGroup>
                                                         <TranslateTransform X="0"/>
                                                         <SkewTransform AngleX="-30"/>
                                                     </TransformGroup>
                                                 </LinearGradientBrush.Transform>
-                                                <GradientStop Color="{StaticResource ProgressIndeterminateColor1}"
-                                                              Offset="0"/>
-                                                <GradientStop Color="{StaticResource ProgressIndeterminateColor2}"
-                                                              Offset="0.651"/>
-                                                <GradientStop Color="{StaticResource ProgressIndeterminateColor3}"
-                                                              Offset="0.093"/>
-                                                <GradientStop Color="{StaticResource ProgressIndeterminateColor4}"
-                                                              Offset="0.548"/>
+                                                <GradientStop Color="{StaticResource ProgressIndeterminateColor1}" Offset="0"/>
+                                                <GradientStop Color="{StaticResource ProgressIndeterminateColor2}" Offset="0.651"/>
+                                                <GradientStop Color="{StaticResource ProgressIndeterminateColor3}" Offset="0.093"/>
+                                                <GradientStop Color="{StaticResource ProgressIndeterminateColor4}" Offset="0.548"/>
                                             </LinearGradientBrush>
                                         </Rectangle.Fill>
                                     </Rectangle>
