@@ -5312,6 +5312,9 @@ declare class KeyTime implements ICloneable {
 }
 declare class Length {
 }
+declare class Rect extends minerva.Rect {
+    public Clone(): Rect;
+}
 declare class Thickness extends minerva.Thickness {
     public Clone(): Thickness;
     public toString(): string;

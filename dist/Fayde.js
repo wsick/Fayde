@@ -25912,7 +25912,7 @@ var Fayde;
                 return p;
             };
             RectangleGeometry.RectProperty = DependencyProperty.RegisterCore("Rect", function () {
-                return minerva.Rect;
+                return Rect;
             }, RectangleGeometry, undefined, function (d, args) {
                 return d.InvalidateGeometry();
             });
@@ -27383,6 +27383,30 @@ nullstone.registerTypeConverter(Length, function (val) {
     if (typeof val === "number")
         return val;
     return parseFloat(val.toString());
+});
+var Rect = (function (_super) {
+    __extends(Rect, _super);
+    function Rect() {
+        _super.apply(this, arguments);
+    }
+    Rect.prototype.Clone = function () {
+        return new Rect(this.x, this.y, this.width, this.height);
+    };
+    return Rect;
+})(minerva.Rect);
+Fayde.CoreLibrary.addPrimitive(Rect);
+
+nullstone.registerTypeConverter(Rect, function (val) {
+    if (!val)
+        return new Rect();
+    if (val instanceof Rect)
+        return val;
+
+    var tokens = val.toString().split(",");
+    if (tokens.length === 4) {
+        return new Rect(parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2]), parseFloat(tokens[3]));
+    }
+    throw new Error("Cannot parse Rect value '" + val + "'");
 });
 var Thickness = (function (_super) {
     __extends(Thickness, _super);
