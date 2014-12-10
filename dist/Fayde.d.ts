@@ -4739,8 +4739,8 @@ declare module Fayde.Media {
 }
 declare module Fayde.Media.Imaging {
     class ImageSource extends DependencyObject implements minerva.controls.image.IImageSource {
-        public pixelWidth: number;
-        public pixelHeight: number;
+        public pixelWidth : number;
+        public pixelHeight : number;
         public lock(): void;
         public unlock(): void;
         public image : HTMLImageElement;

@@ -23901,13 +23901,29 @@ var Fayde;
                 __extends(ImageSource, _super);
                 function ImageSource() {
                     _super.apply(this, arguments);
-                    this.pixelWidth = 0;
-                    this.pixelHeight = 0;
                 }
+                Object.defineProperty(ImageSource.prototype, "pixelWidth", {
+                    get: function () {
+                        return 0;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
+                Object.defineProperty(ImageSource.prototype, "pixelHeight", {
+                    get: function () {
+                        return 0;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
                 ImageSource.prototype.lock = function () {
                 };
+
                 ImageSource.prototype.unlock = function () {
                 };
+
                 Object.defineProperty(ImageSource.prototype, "image", {
                     get: function () {
                         return undefined;
