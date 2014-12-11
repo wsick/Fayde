@@ -116,7 +116,8 @@ module Fayde.Media {
         constructor () {
             super();
             var coll = TransformGroup.ChildrenProperty.Initialize(this);
-            ReactTo(coll.AttachTo(this), this, () => this.InvalidateValue());
+            coll.AttachTo(this);
+            ReactTo(coll, this, () => this.InvalidateValue());
         }
 
         _BuildValue (): number[] {
