@@ -26370,7 +26370,7 @@ var Fayde;
                 });
             }
             TransformGroup.prototype._BuildValue = function () {
-                var enumerator = this.Children.getEnumerator(true);
+                var enumerator = this.Children.getEnumerator();
                 var cur = mat3.identity();
                 while (enumerator.moveNext()) {
                     mat3.multiply(enumerator.current.Value._Raw, cur, cur);
