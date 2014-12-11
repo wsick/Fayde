@@ -2,7 +2,7 @@ class KeyTime implements ICloneable {
     private _IsPaced: boolean = false;
     private _IsUniform: boolean = false;
     private _TimeSpan: TimeSpan = null;
-    private _Percent: number = 0;
+    private _Percent: number = null;
     IsValid: boolean = true;
 
     static CreateUniform(): KeyTime {
