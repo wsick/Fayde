@@ -96,8 +96,6 @@ module Fayde.Media {
                 listeners[i].Callback(this);
             }
         }
-
-        toString(): string { return mat4.str(this._Raw); }
     }
     Fayde.CoreLibrary.add(Matrix3D);
 }

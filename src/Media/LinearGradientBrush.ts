@@ -24,9 +24,9 @@ module Fayde.Media {
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;
-            var dir = { x: end.x - start.x, y: end.y - start.y };
-            var first = { x: start.x, y: start.y };
-            var last = { x: end.x, y: end.y };
+            var dir = {x: end.x - start.x, y: end.y - start.y};
+            var first = {x: start.x, y: start.y};
+            var last = {x: end.x, y: end.y};
 
             GradientMetrics.Calculate(dir, first, last, bounds);
 
@@ -58,8 +58,8 @@ module Fayde.Media {
             var sp = this.StartPoint;
             var ep = this.EndPoint;
 
-            var s = mat3.transformVec2(transform, vec2.createFrom(sp.x, sp.y));
-            var e = mat3.transformVec2(transform, vec2.createFrom(ep.x, ep.y));
+            var s = mat3.transformVec2(transform, vec2.create(sp.x, sp.y));
+            var e = mat3.transformVec2(transform, vec2.create(ep.x, ep.y));
 
             return {
                 start: new Point(s[0], s[1]),
@@ -68,10 +68,9 @@ module Fayde.Media {
         }
 
         toString (): string {
-            var enumerator = this.GradientStops.getEnumerator();
             var ser = [];
-            while (enumerator.moveNext()) {
-                ser.push(enumerator.current.toString());
+            for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
+                ser.push(en.current.toString());
             }
             return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";
         }

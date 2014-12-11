@@ -77,39 +77,34 @@ module Fayde.Media {
             var ow = this.ObjectWidth;
             var oh = this.ObjectHeight;
 
-            var m = mat4.identity();
-
-            mat4.translate(mat4.identity(), ow * -this.CenterOfRotationX, oh * -this.CenterOfRotationY, -this.CenterOfRotationZ);
-
-            mat4.scale(m, 1.0, -1.0, 1.0);
-
-            mat4.translate(m, localX, -localY, localZ);
-
-            if (radiansX !== 0) {
-                var rotX = mat4.createRotateX(radiansX);
-                mat4.multiply(m, rotX, m);
-            }
-
-            if (radiansY !== 0) {
-                var rotY = mat4.createRotateY(-radiansY);
-                mat4.multiply(m, rotY, m);
-            }
-
-            if (radiansZ !== 0) {
-                var rotZ = mat4.createRotateZ(radiansZ);
-                mat4.multiply(m, rotZ, m);
-            }
-
-            mat4.translate(m, ow * (this.CenterOfRotationX - 0.5) + globalX, -oh * (this.CenterOfRotationY - 0.5) - globalY, this.CenterOfRotationZ - CAMERA_DIST + globalZ);
-
-            var perspective = mat4.createPerspective(FIELD_OF_VIEW, ow / oh, NEAR_VAL, FAR_VAL);
-            mat4.multiply(m, perspective, m);
-
             var height = 2.0 * CAMERA_DIST * Math.tan(FIELD_OF_VIEW / 2.0);
             var scale = height / oh;
-            mat4.scale(m, scale, scale, 1.0);
 
+            var toCenter = mat4.createTranslate(
+                -ow * this.CenterOfRotationX,
+                -oh * this.CenterOfRotationY,
+                -this.CenterOfRotationZ);
+            var invertY = mat4.createScale(1.0, -1.0, 1.0);
+            var localOffset = mat4.createTranslate(localX, -localY, localZ);
+            var rotateX = mat4.createRotateX(radiansX);
+            var rotateY = mat4.createRotateX(radiansY);
+            var rotateZ = mat4.createRotateX(radiansZ);
+            var toCamera = mat4.createTranslate(
+                ow * (this.CenterOfRotationX - 0.5) + globalX,
+                -oh * (this.CenterOfRotationY - 0.5) - globalY,
+                this.CenterOfRotationZ - CAMERA_DIST + globalZ);
+            var perspective = mat4.createPerspective(FIELD_OF_VIEW, ow / oh, NEAR_VAL, FAR_VAL);
+            var zoom = mat4.createScale(scale, scale, 1.0);
             var viewport = mat4.createViewport(ow, oh);
+
+            var m = mat4.multiply(toCenter, invertY);
+            mat4.multiply(m, localOffset, m);
+            mat4.multiply(m, rotateX, m);
+            mat4.multiply(m, rotateY, m);
+            mat4.multiply(m, rotateZ, m);
+            mat4.multiply(m, toCamera, m);
+            mat4.multiply(m, perspective, m);
+            mat4.multiply(m, zoom, m);
             mat4.multiply(m, viewport, m);
 
             var r = new Matrix3D();

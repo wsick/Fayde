@@ -15,14 +15,6 @@ module Fayde.Media {
         TryTransform (inPoint: minerva.IPoint, outPoint: minerva.IPoint): boolean {
             return false;
         }
-
-        static copyMatTo (gt: GeneralTransform, mat: number[]) {
-            if (gt instanceof InternalTransform) {
-                mat3.set(mat4.toAffineMat3((<InternalTransform>gt).Value._Raw), mat);
-            } else {
-                mat3.set((<Transform>gt).Value._Raw, mat);
-            }
-        }
     }
     Fayde.CoreLibrary.add(GeneralTransform);
 
@@ -43,8 +35,8 @@ module Fayde.Media {
         }
 
         Transform (p: minerva.IPoint): Point {
-            var pi = vec4.createFrom(p.x, p.y, 0.0, 1.0);
-            var po = vec4.create();
+            var pi = vec4.create(p.x, p.y, 0.0, 1.0);
+            var po = vec4.create(0, 0, 0, 0);
             mat4.transformVec4(this._Raw, pi, po);
             if (po[3] !== 0.0) {
                 var w = 1.0 / po[3];

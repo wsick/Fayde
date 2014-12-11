@@ -49,10 +49,8 @@ module Fayde.Media {
         Clone(): Matrix {
             if (!this._Raw)
                 return new Matrix();
-            return new Matrix(mat3.clone(this._Raw));
+            return new Matrix(mat3.create(this._Raw));
         }
-
-        toString(): string { return mat3.str(this._Raw); }
     }
     Fayde.CoreLibrary.add(Matrix);
 }

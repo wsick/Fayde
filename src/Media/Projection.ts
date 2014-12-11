@@ -32,7 +32,7 @@ module Fayde.Media {
             if (!m3)
                 m3 = this._ProjectionMatrix = this.CreateProjectionMatrix();
             if (m3)
-                return mat4.clone(m3._Raw);
+                return mat4.create(m3._Raw);
             return mat4.identity();
         }
 

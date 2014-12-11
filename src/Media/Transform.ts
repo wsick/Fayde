@@ -21,7 +21,7 @@ module Fayde.Media {
         get Inverse (): Transform {
             var inverse = this.Value.Inverse;
             if (!inverse)
-                return;
+                return null;
             var mt = new MatrixTransform();
             mt.Matrix = inverse;
             return mt;
@@ -32,7 +32,7 @@ module Fayde.Media {
             var v: number[];
             if (!val || !(v = val._Raw))
                 return new Point(p.x, p.y);
-            v = mat3.transformVec2(v, vec2.createFrom(p.x, p.y));
+            v = mat3.transformVec2(v, vec2.create(p.x, p.y));
             return new Point(v[0], v[1]);
         }
 
@@ -60,6 +60,10 @@ module Fayde.Media {
         _BuildValue (): number[] {
             //Abstract Method
             return undefined;
+        }
+
+        static copyMatTo (t: Transform, mat: number[]) {
+            mat3.copyTo(t.Value._Raw, mat);
         }
     }
     Fayde.CoreLibrary.add(Transform);

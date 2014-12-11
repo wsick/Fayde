@@ -247,7 +247,7 @@ module Fayde {
         Cursor: CursorType;
         OpacityMask: Media.Brush;
         Opacity: number;
-        Projection: Media.Projection;
+        //Projection: Media.Projection;
         RenderTransform: Media.Transform;
         RenderTransformOrigin: Point;
         Tag: any;
@@ -335,7 +335,7 @@ module Fayde {
         UIReaction<minerva.IEffect>(UIElement.EffectProperty, minerva.core.reactTo.effect);
         UIReaction<boolean>(UIElement.IsHitTestVisibleProperty, minerva.core.reactTo.isHitTestVisible, false);
         UIReaction<number>(UIElement.OpacityProperty, minerva.core.reactTo.opacity, false);
-        UIReaction<Media.GeneralTransform>(UIElement.RenderTransformProperty, minerva.core.reactTo.renderTransform, true, (src, dest) => Media.GeneralTransform.copyMatTo(src, <number[]><any>dest));
+        UIReaction<Media.Transform>(UIElement.RenderTransformProperty, minerva.core.reactTo.renderTransform, true, (src, dest) => Media.Transform.copyMatTo(src, <number[]><any>dest));
         UIReaction<minerva.Point>(UIElement.RenderTransformOriginProperty, minerva.core.reactTo.renderTransformOrigin, false, minerva.Point.copyTo);
         UIReaction<minerva.Visibility>(UIElement.VisibilityProperty, (upd, ov, nv, uie?) => {
             minerva.core.reactTo.visibility(upd, ov, nv);

@@ -13,14 +13,14 @@ module Fayde.Media {
         _BuildValue (): number[] {
             var cx = this.CenterX;
             var cy = this.CenterY;
-            var angle = 360 - this.Angle; //Rotation matrix rotates counter-clockwise; Silverlight rotates clockwise
+            var angle = this.Angle; //Silverlight rotates clockwise
             var angleRad = Math.PI / 180 * angle;
             var m = mat3.createRotate(angleRad);
             if (cx === 0 && cy === 0)
                 return m;
 
-            //move center {x,y} to {0,0}, rotate, then slide {x,y} back to {x,y}
-            mat3.multiply(mat3.createTranslate(-cx, -cy), m, m); //m = m * translation
+            //move center {x,y} to {0,0}, rotate, then slide {0,0} back to {x,y}
+            mat3.multiply(mat3.createTranslate(-cx, -cy), m, m); //m = translation * m
             mat3.translate(m, cx, cy);
             return m;
         }
@@ -44,8 +44,8 @@ module Fayde.Media {
             if (cx === 0 && cy === 0)
                 return m;
 
-            //move center {x,y} to {0,0}, scale, then slide {x,y} back to {x,y}
-            mat3.multiply(mat3.createTranslate(-cx, -cy), m, m); //m = m * translation
+            //move center {x,y} to {0,0}, scale, then slide {0,0} back to {x,y}
+            mat3.multiply(mat3.createTranslate(-cx, -cy), m, m); //m = translation * m
             mat3.translate(m, cx, cy);
             return m;
         }
@@ -71,8 +71,8 @@ module Fayde.Media {
             if (cx === 0 && cy === 0)
                 return m;
 
-            //move center {x,y} to {0,0}, scale, then slide {x,y} back to {x,y}
-            mat3.multiply(mat3.createTranslate(-cx, -cy), m, m); //m = m * translation
+            //move center {x,y} to {0,0}, skew, then slide {0,0} back to {x,y}
+            mat3.multiply(mat3.createTranslate(-cx, -cy), m, m); //m = translation * m
             mat3.translate(m, cx, cy);
             return m;
         }
