@@ -20866,6 +20866,7 @@ var Fayde;
                     this._BeginPauseTime = new Date().getTime();
                     this._IsPaused = true;
                 };
+
                 Timeline.prototype.Resume = function () {
                     if (!this._IsPaused)
                         return;
@@ -20873,6 +20874,7 @@ var Fayde;
                     var nowTime = new Date().getTime();
                     this._TicksPaused = nowTime - this._BeginPauseTime;
                 };
+
                 Timeline.prototype.Stop = function () {
                     this.Reset();
                 };
@@ -20899,6 +20901,7 @@ var Fayde;
                     if (clockData.Completed)
                         this.OnCompleted();
                 };
+
                 Timeline.prototype.UpdateInternal = function (clockData) {
                 };
 
@@ -20963,6 +20966,7 @@ var Fayde;
                         Completed: completed
                     };
                 };
+
                 Timeline.prototype.IsAfterBeginTime = function (nowTime) {
                     var beginTime = this.BeginTime;
                     if (beginTime == null)
@@ -20975,12 +20979,14 @@ var Fayde;
                         return false;
                     return true;
                 };
+
                 Timeline.prototype.GetNaturalDuration = function () {
                     var d = this.Duration;
                     if (!d || d.IsAutomatic)
                         return this.GetNaturalDurationCore();
                     return d;
                 };
+
                 Timeline.prototype.GetNaturalDurationCore = function () {
                     return Duration.Automatic;
                 };
@@ -20988,6 +20994,7 @@ var Fayde;
                 Timeline.prototype.GenerateFrom = function () {
                     return undefined;
                 };
+
                 Timeline.prototype.GenerateTo = function (isEntering) {
                     return undefined;
                 };
@@ -22423,21 +22430,16 @@ var Fayde;
                     _super.apply(this, arguments);
                 }
                 ObjectAnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
-                    var enumerator = this.KeyFrames.getEnumerator();
-                    while (enumerator.moveNext()) {
-                        var keyFrame = enumerator.current;
+                    for (var en = this.KeyFrames.getEnumerator(); en.moveNext();) {
+                        var keyFrame = en.current;
                         var value = keyFrame.Value;
                         if (value == null) {
                             keyFrame.ConvertedValue = undefined;
                         } else {
-                            var converted;
-                            try  {
-                                converted = nullstone.convertAnyToType(value, propd.GetTargetType());
-                            } catch (err) {
-                                console.warn("Error resolving ObjectAnimation Value.");
+                            var cv = convertKeyFrame(propd, value);
+                            if (cv === BAD_CONVERSION)
                                 return false;
-                            }
-                            keyFrame.ConvertedValue = converted;
+                            keyFrame.ConvertedValue = cv;
                         }
                     }
                     return _super.prototype.Resolve.call(this, target, propd);
@@ -22446,6 +22448,17 @@ var Fayde;
             })(Animation.AnimationUsingKeyFrames);
             Animation.ObjectAnimationUsingKeyFrames = ObjectAnimationUsingKeyFrames;
             Fayde.CoreLibrary.add(ObjectAnimationUsingKeyFrames);
+
+            var BAD_CONVERSION = {};
+
+            function convertKeyFrame(propd, value) {
+                try  {
+                    return nullstone.convertAnyToType(value, propd.GetTargetType());
+                } catch (err) {
+                    console.warn("Error resolving ObjectAnimation Value.");
+                    return BAD_CONVERSION;
+                }
+            }
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
@@ -26351,7 +26364,8 @@ var Fayde;
                 var _this = this;
                 _super.call(this);
                 var coll = TransformGroup.ChildrenProperty.Initialize(this);
-                Fayde.ReactTo(coll.AttachTo(this), this, function () {
+                coll.AttachTo(this);
+                Fayde.ReactTo(coll, this, function () {
                     return _this.InvalidateValue();
                 });
             }
@@ -27343,7 +27357,7 @@ var KeyTime = (function () {
         this._IsPaced = false;
         this._IsUniform = false;
         this._TimeSpan = null;
-        this._Percent = 0;
+        this._Percent = null;
         this.IsValid = true;
     }
     KeyTime.CreateUniform = function () {
