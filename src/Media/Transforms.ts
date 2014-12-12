@@ -124,7 +124,7 @@ module Fayde.Media {
             var enumerator = this.Children.getEnumerator();
             var cur = mat3.identity();
             while (enumerator.moveNext()) {
-                mat3.multiply((<Transform>enumerator.current).Value._Raw, cur, cur); //cur = cur * child
+                mat3.multiply(cur, (<Transform>enumerator.current).Value._Raw, cur); //cur = cur * child
             }
             return cur;
         }

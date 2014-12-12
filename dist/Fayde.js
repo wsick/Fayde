@@ -2430,7 +2430,7 @@ var Fayde;
         Fayde.UIReaction(UIElement.IsHitTestVisibleProperty, minerva.core.reactTo.isHitTestVisible, false);
         Fayde.UIReaction(UIElement.OpacityProperty, minerva.core.reactTo.opacity, false);
         Fayde.UIReaction(UIElement.RenderTransformProperty, minerva.core.reactTo.renderTransform, true, function (src, dest) {
-            return Fayde.Media.GeneralTransform.copyMatTo(src, dest);
+            return Fayde.Media.Transform.copyMatTo(src, dest);
         });
         Fayde.UIReaction(UIElement.RenderTransformOriginProperty, minerva.core.reactTo.renderTransformOrigin, false, minerva.Point.copyTo);
         Fayde.UIReaction(UIElement.VisibilityProperty, function (upd, ov, nv, uie) {
@@ -22938,13 +22938,13 @@ var Fayde;
                     var tmpBrush = this.CreateBrush(ctx, bounds);
                     var fillExtents = new minerva.Rect();
                     minerva.Rect.copyTo(bounds, fillExtents);
-                    minerva.Rect.grow(fillExtents, raw[2], raw[5], 0, 0);
+                    minerva.Rect.grow(fillExtents, raw[4], raw[5], 0, 0);
 
                     var tmpCanvas = document.createElement("canvas");
                     tmpCanvas.width = Math.max(transformedBounds.width, bounds.width);
                     tmpCanvas.height = Math.max(transformedBounds.height, bounds.height);
                     var tmpCtx = tmpCanvas.getContext("2d");
-                    tmpCtx.setTransform(raw[0], raw[1], raw[3], raw[4], raw[2], raw[5]);
+                    tmpCtx.setTransform(raw[0], raw[1], raw[2], raw[3], raw[4], raw[5]);
                     tmpCtx.fillStyle = tmpBrush;
                     tmpCtx.fillRect(fillExtents.x, fillExtents.y, fillExtents.width, fillExtents.height);
 
@@ -23003,14 +23003,6 @@ var Fayde;
             GeneralTransform.prototype.TryTransform = function (inPoint, outPoint) {
                 return false;
             };
-
-            GeneralTransform.copyMatTo = function (gt, mat) {
-                if (gt instanceof InternalTransform) {
-                    mat3.set(mat4.toAffineMat3(gt.Value._Raw), mat);
-                } else {
-                    mat3.set(gt.Value._Raw, mat);
-                }
-            };
             return GeneralTransform;
         })(Fayde.DependencyObject);
         Media.GeneralTransform = GeneralTransform;
@@ -23039,8 +23031,8 @@ var Fayde;
             });
 
             InternalTransform.prototype.Transform = function (p) {
-                var pi = vec4.createFrom(p.x, p.y, 0.0, 1.0);
-                var po = vec4.create();
+                var pi = vec4.create(p.x, p.y, 0.0, 1.0);
+                var po = vec4.create(0, 0, 0, 0);
                 mat4.transformVec4(this._Raw, pi, po);
                 if (po[3] !== 0.0) {
                     var w = 1.0 / po[3];
@@ -24402,8 +24394,8 @@ var Fayde;
                 var sp = this.StartPoint;
                 var ep = this.EndPoint;
 
-                var s = mat3.transformVec2(transform, vec2.createFrom(sp.x, sp.y));
-                var e = mat3.transformVec2(transform, vec2.createFrom(ep.x, ep.y));
+                var s = mat3.transformVec2(transform, vec2.create(sp.x, sp.y));
+                var e = mat3.transformVec2(transform, vec2.create(ep.x, ep.y));
 
                 return {
                     start: new Point(s[0], s[1]),
@@ -24412,10 +24404,9 @@ var Fayde;
             };
 
             LinearGradientBrush.prototype.toString = function () {
-                var enumerator = this.GradientStops.getEnumerator();
                 var ser = [];
-                while (enumerator.moveNext()) {
-                    ser.push(enumerator.current.toString());
+                for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
+                    ser.push(en.current.toString());
                 }
                 return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";
             };
@@ -24548,11 +24539,7 @@ var Fayde;
             Matrix.prototype.Clone = function () {
                 if (!this._Raw)
                     return new Matrix();
-                return new Matrix(mat3.clone(this._Raw));
-            };
-
-            Matrix.prototype.toString = function () {
-                return mat3.str(this._Raw);
+                return new Matrix(mat3.create(this._Raw));
             };
             return Matrix;
         })();
@@ -24804,10 +24791,6 @@ var Fayde;
                     listeners[i].Callback(this);
                 }
             };
-
-            Matrix3D.prototype.toString = function () {
-                return mat4.str(this._Raw);
-            };
             return Matrix3D;
         })();
         Media.Matrix3D = Matrix3D;
@@ -24861,7 +24844,7 @@ var Fayde;
                 if (!m3)
                     m3 = this._ProjectionMatrix = this.CreateProjectionMatrix();
                 if (m3)
-                    return mat4.clone(m3._Raw);
+                    return mat4.create(m3._Raw);
                 return mat4.identity();
             };
 
@@ -25803,39 +25786,28 @@ var Fayde;
                 var ow = this.ObjectWidth;
                 var oh = this.ObjectHeight;
 
-                var m = mat4.identity();
-
-                mat4.translate(mat4.identity(), ow * -this.CenterOfRotationX, oh * -this.CenterOfRotationY, -this.CenterOfRotationZ);
-
-                mat4.scale(m, 1.0, -1.0, 1.0);
-
-                mat4.translate(m, localX, -localY, localZ);
-
-                if (radiansX !== 0) {
-                    var rotX = mat4.createRotateX(radiansX);
-                    mat4.multiply(m, rotX, m);
-                }
-
-                if (radiansY !== 0) {
-                    var rotY = mat4.createRotateY(-radiansY);
-                    mat4.multiply(m, rotY, m);
-                }
-
-                if (radiansZ !== 0) {
-                    var rotZ = mat4.createRotateZ(radiansZ);
-                    mat4.multiply(m, rotZ, m);
-                }
-
-                mat4.translate(m, ow * (this.CenterOfRotationX - 0.5) + globalX, -oh * (this.CenterOfRotationY - 0.5) - globalY, this.CenterOfRotationZ - CAMERA_DIST + globalZ);
-
-                var perspective = mat4.createPerspective(FIELD_OF_VIEW, ow / oh, NEAR_VAL, FAR_VAL);
-                mat4.multiply(m, perspective, m);
-
                 var height = 2.0 * CAMERA_DIST * Math.tan(FIELD_OF_VIEW / 2.0);
                 var scale = height / oh;
-                mat4.scale(m, scale, scale, 1.0);
 
+                var toCenter = mat4.createTranslate(-ow * this.CenterOfRotationX, -oh * this.CenterOfRotationY, -this.CenterOfRotationZ);
+                var invertY = mat4.createScale(1.0, -1.0, 1.0);
+                var localOffset = mat4.createTranslate(localX, -localY, localZ);
+                var rotateX = mat4.createRotateX(radiansX);
+                var rotateY = mat4.createRotateX(radiansY);
+                var rotateZ = mat4.createRotateX(radiansZ);
+                var toCamera = mat4.createTranslate(ow * (this.CenterOfRotationX - 0.5) + globalX, -oh * (this.CenterOfRotationY - 0.5) - globalY, this.CenterOfRotationZ - CAMERA_DIST + globalZ);
+                var perspective = mat4.createPerspective(FIELD_OF_VIEW, ow / oh, NEAR_VAL, FAR_VAL);
+                var zoom = mat4.createScale(scale, scale, 1.0);
                 var viewport = mat4.createViewport(ow, oh);
+
+                var m = mat4.multiply(toCenter, invertY);
+                mat4.multiply(m, localOffset, m);
+                mat4.multiply(m, rotateX, m);
+                mat4.multiply(m, rotateY, m);
+                mat4.multiply(m, rotateZ, m);
+                mat4.multiply(m, toCamera, m);
+                mat4.multiply(m, perspective, m);
+                mat4.multiply(m, zoom, m);
                 mat4.multiply(m, viewport, m);
 
                 var r = new Media.Matrix3D();
@@ -26102,7 +26074,7 @@ var Fayde;
                 get: function () {
                     var inverse = this.Value.Inverse;
                     if (!inverse)
-                        return;
+                        return null;
                     var mt = new MatrixTransform();
                     mt.Matrix = inverse;
                     return mt;
@@ -26116,7 +26088,7 @@ var Fayde;
                 var v;
                 if (!val || !(v = val._Raw))
                     return new Point(p.x, p.y);
-                v = mat3.transformVec2(v, vec2.createFrom(p.x, p.y));
+                v = mat3.transformVec2(v, vec2.create(p.x, p.y));
                 return new Point(v[0], v[1]);
             };
 
@@ -26143,6 +26115,10 @@ var Fayde;
 
             Transform.prototype._BuildValue = function () {
                 return undefined;
+            };
+
+            Transform.copyMatTo = function (t, mat) {
+                mat3.copyTo(t.Value._Raw, mat);
             };
             return Transform;
         })(Media.GeneralTransform);
@@ -26194,7 +26170,7 @@ var Fayde;
             RotateTransform.prototype._BuildValue = function () {
                 var cx = this.CenterX;
                 var cy = this.CenterY;
-                var angle = 360 - this.Angle;
+                var angle = this.Angle;
                 var angleRad = Math.PI / 180 * angle;
                 var m = mat3.createRotate(angleRad);
                 if (cx === 0 && cy === 0)
@@ -26373,7 +26349,7 @@ var Fayde;
                 var enumerator = this.Children.getEnumerator();
                 var cur = mat3.identity();
                 while (enumerator.moveNext()) {
-                    mat3.multiply(enumerator.current.Value._Raw, cur, cur);
+                    mat3.multiply(cur, enumerator.current.Value._Raw, cur);
                 }
                 return cur;
             };

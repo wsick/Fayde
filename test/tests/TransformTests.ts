@@ -1,5 +1,13 @@
-export function load() {
+export function load () {
     QUnit.module("Transform Tests");
+
+    function typedToArray (typed) {
+        var arr = [];
+        for (var i = 0; i < typed.length; i++) {
+            arr.push(typed[i]);
+        }
+        return arr;
+    }
 
     test("Change Notification", (assert) => {
         var collchanged = false;
@@ -50,5 +58,20 @@ export function load() {
         var tt = <Fayde.Media.TranslateTransform>xforms.Children.GetValueAt(1);
         ok(tt instanceof Fayde.Media.TranslateTransform);
         strictEqual(10, tt.X);
+    });
+
+    test("TransformGroup", () => {
+        var tg = new Fayde.Media.TransformGroup();
+
+        var tt = new Fayde.Media.TranslateTransform();
+        tt.X = 10;
+        tt.Y = 20;
+        tg.Children.Add(tt);
+
+        var rt = new Fayde.Media.RotateTransform();
+        rt.Angle = 45;
+        tg.Children.Add(rt);
+
+        ok(mat3.equal(tg.Value._Raw, mat3.create([Math.SQRT1_2, Math.SQRT1_2, -Math.SQRT1_2, Math.SQRT1_2, -Math.SQRT1_2 * 10, Math.SQRT1_2 * 30])));
     });
 }

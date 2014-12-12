@@ -530,7 +530,6 @@ declare module Fayde {
         public Cursor: CursorType;
         public OpacityMask: Media.Brush;
         public Opacity: number;
-        public Projection: Media.Projection;
         public RenderTransform: Media.Transform;
         public RenderTransformOrigin: Point;
         public Tag: any;
@@ -4415,7 +4414,6 @@ declare module Fayde.Media {
         public Transform(p: minerva.IPoint): Point;
         public TransformBounds(r: minerva.Rect): minerva.Rect;
         public TryTransform(inPoint: minerva.IPoint, outPoint: minerva.IPoint): boolean;
-        static copyMatTo(gt: GeneralTransform, mat: number[]): void;
     }
     class InternalTransform extends GeneralTransform {
         private _Raw;
@@ -4847,7 +4845,6 @@ declare module Fayde.Media {
         public Inverse : Matrix;
         private _OnChanged();
         public Clone(): Matrix;
-        public toString(): string;
     }
 }
 declare module Fayde.Media {
@@ -4879,7 +4876,6 @@ declare module Fayde.Media {
         private _Listeners;
         public Listen(func: (newMatrix: Matrix3D) => void): IMatrix3DChangedListener;
         private _OnChanged();
-        public toString(): string;
     }
 }
 declare module Fayde.Media {
@@ -5088,6 +5084,7 @@ declare module Fayde.Media {
         public TryTransform(inPoint: minerva.IPoint, outPoint: minerva.IPoint): boolean;
         public InvalidateValue(): void;
         public _BuildValue(): number[];
+        static copyMatTo(t: Transform, mat: number[]): void;
     }
     class MatrixTransform extends Transform {
         static MatrixProperty: DependencyProperty;
