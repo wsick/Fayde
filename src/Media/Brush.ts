@@ -31,13 +31,13 @@ module Fayde.Media {
                 var tmpBrush = this.CreateBrush(ctx, bounds);
                 var fillExtents = new minerva.Rect();
                 minerva.Rect.copyTo(bounds, fillExtents);
-                minerva.Rect.grow(fillExtents, raw[2], raw[5], 0, 0);
+                minerva.Rect.grow(fillExtents, raw[4], raw[5], 0, 0);
 
                 var tmpCanvas = <HTMLCanvasElement>document.createElement("canvas");
                 tmpCanvas.width = Math.max(transformedBounds.width, bounds.width);
                 tmpCanvas.height = Math.max(transformedBounds.height, bounds.height);
                 var tmpCtx = tmpCanvas.getContext("2d");
-                tmpCtx.setTransform(raw[0], raw[1], raw[3], raw[4], raw[2], raw[5]);
+                tmpCtx.setTransform(raw[0], raw[1], raw[2], raw[3], raw[4], raw[5]);
                 tmpCtx.fillStyle = tmpBrush;
                 tmpCtx.fillRect(fillExtents.x, fillExtents.y, fillExtents.width, fillExtents.height);
 
