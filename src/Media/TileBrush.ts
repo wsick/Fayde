@@ -77,7 +77,7 @@ module Fayde.Media {
 
             var mat = computeImageMatrix(bounds.width, bounds.height,
                 imgExtents.width, imgExtents.height, this.Stretch, this.AlignmentX, this.AlignmentY);
-            tmpCtx.setTransform(mat[0], mat[1], mat[3], mat[4], mat[2], mat[5]);
+            tmpCtx.setTransform(mat[0], mat[1], mat[2], mat[3], mat[4], mat[5]);
 
             this.DrawTile(tmpCtx, bounds);
 
