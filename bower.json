@@ -1,6 +1,6 @@
 {
   "name": "Fayde",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "homepage": "http://fayde.wsick.com",
   "authors": [
     "BSick7 <brad.sickles@gmail.com>"
@@ -18,7 +18,7 @@
     "Gruntfile.js"
   ],
   "dependencies": {
-    "minerva": "~0.3.0",
+    "minerva": "~0.3.1",
     "nullstone": "~0.3.1",
     "requirejs": "~2.1.15",
     "requirejs-text": "~2.0.12"
