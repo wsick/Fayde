@@ -5558,6 +5558,7 @@ declare module Fayde {
         obj: any;
         node: any;
         updater: minerva.core.Updater;
+        flags: string;
     };
     function debugLayersFlatten(): any[];
 }

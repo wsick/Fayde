@@ -16,6 +16,7 @@ module Fayde {
         var obj = new ctor();
 
         obj.assets = updater.assets;
+        obj.dirtyFlags = sexyflags(updater.assets.dirtyFlags);
         obj.children = [];
         obj.id = xobj._ID;
         obj.node = node;
@@ -25,6 +26,31 @@ module Fayde {
         }
 
         return obj;
+    }
+
+    function sexyflags (flags: minerva.DirtyFlags): string {
+        var all = Object.keys(minerva.DirtyFlags)
+            .map(i => parseInt(i))
+            .filter(key => !isNaN(key))
+            .filter(isPowerOf2)
+            .sort((a, b) => (a === b) ? 0 : (a < b ? -1 : 1))
+            .reverse();
+
+        var remaining = flags;
+        return all
+            .filter(cur => {
+                if ((remaining & cur) === 0)
+                    return false;
+                remaining &= ~cur;
+                return true;
+            })
+            .map(cur => (<any>minerva.DirtyFlags)[cur])
+            .join("|");
+    }
+
+    function isPowerOf2 (num: number): boolean {
+        var y = (<Function>(<any>Math).log2)(num);
+        return Math.abs(Math.round(y) - y) < 0.000001;
     }
 
     export function debugLayersRaw (): string {
@@ -73,7 +99,8 @@ module Fayde {
                     return {
                         obj: xobj,
                         node: node,
-                        updater: upd
+                        updater: upd,
+                        flags: sexyflags(upd.assets.dirtyFlags)
                     };
                 }
             }

@@ -288,7 +288,7 @@ var Fayde;
             function FilteredCollection(filter, source) {
                 _super.call(this);
                 this.Filter = filter;
-                this._SetSource(source || new Fayde.Collections.DeepObservableCollection());
+                this._SetSource(source || new Collections.DeepObservableCollection());
             }
             Object.defineProperty(FilteredCollection.prototype, "Source", {
                 get: function () {
@@ -28399,6 +28399,7 @@ var Fayde;
         var obj = new ctor();
 
         obj.assets = updater.assets;
+        obj.dirtyFlags = sexyflags(updater.assets.dirtyFlags);
         obj.children = [];
         obj.id = xobj._ID;
         obj.node = node;
@@ -28410,6 +28411,31 @@ var Fayde;
         return obj;
     }
     Fayde.sexify = sexify;
+
+    function sexyflags(flags) {
+        var all = Object.keys(minerva.DirtyFlags).map(function (i) {
+            return parseInt(i);
+        }).filter(function (key) {
+            return !isNaN(key);
+        }).filter(isPowerOf2).sort(function (a, b) {
+            return (a === b) ? 0 : (a < b ? -1 : 1);
+        }).reverse();
+
+        var remaining = flags;
+        return all.filter(function (cur) {
+            if ((remaining & cur) === 0)
+                return false;
+            remaining &= ~cur;
+            return true;
+        }).map(function (cur) {
+            return minerva.DirtyFlags[cur];
+        }).join("|");
+    }
+
+    function isPowerOf2(num) {
+        var y = Math.log2(num);
+        return Math.abs(Math.round(y) - y) < 0.000001;
+    }
 
     function debugLayersRaw() {
         var app = Fayde.Application.Current;
@@ -28459,7 +28485,8 @@ var Fayde;
                     return {
                         obj: xobj,
                         node: node,
-                        updater: upd
+                        updater: upd,
+                        flags: sexyflags(upd.assets.dirtyFlags)
                     };
                 }
             }
