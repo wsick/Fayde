@@ -1,0 +1,22 @@
+<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        xmlns:issuetests="IssueTests"
+        ThemeName="Metro">
+    <Grid>
+        <Grid.DataContext>
+            <issuetests:FilteredViewModel/>
+        </Grid.DataContext>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Toggle Even" Command="{Binding ToggleEvenCommand}"/>
+                <Button Content="Toggle Odd" Command="{Binding ToggleOddCommand}"/>
+            </StackPanel>
+            <Border BorderThickness="1" BorderBrush="Black" Width="100" Height="400">
+                <ItemsControl ItemsSource="{Binding Items}" DisplayMemberPath="Display">
+
+                </ItemsControl>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Application>

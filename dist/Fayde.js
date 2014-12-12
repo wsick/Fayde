@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.15.0';
+    Fayde.Version = '0.14.14';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -288,22 +288,18 @@ var Fayde;
             function FilteredCollection(filter, source) {
                 _super.call(this);
                 this.Filter = filter;
-                this.Source = source || new Fayde.Collections.DeepObservableCollection();
-                source.CollectionChanged.on(this._OnSourceCollectionChanged, this);
-                source.ItemPropertyChanged.on(this._OnSourceItemPropertyChanged, this);
+                this._SetSource(source || new Fayde.Collections.DeepObservableCollection());
             }
             Object.defineProperty(FilteredCollection.prototype, "Source", {
                 get: function () {
                     return this._Source;
                 },
                 set: function (value) {
-                    this._Source = value;
-                    this.Update();
+                    this._SetSource(value);
                 },
                 enumerable: true,
                 configurable: true
             });
-
 
             Object.defineProperty(FilteredCollection.prototype, "Filter", {
                 get: function () {
@@ -318,13 +314,27 @@ var Fayde;
             });
 
 
+            FilteredCollection.prototype._SetSource = function (source) {
+                if (this._Source) {
+                    this._Source.CollectionChanged.off(this._OnSourceCollectionChanged, this);
+                    this._Source.ItemPropertyChanged.off(this._OnSourceItemPropertyChanged, this);
+                }
+                this._Source = source;
+                if (source) {
+                    source.CollectionChanged.on(this._OnSourceCollectionChanged, this);
+                    source.ItemPropertyChanged.on(this._OnSourceItemPropertyChanged, this);
+                }
+                this.Update();
+            };
+
             FilteredCollection.prototype._OnSourceCollectionChanged = function (sender, e) {
                 this.Update();
             };
 
             FilteredCollection.prototype._OnSourceItemPropertyChanged = function (sender, e) {
                 this.Update();
-                if (this.Filter && this.Filter(e.Item))
+                var index = this.Source.IndexOf(e.Item);
+                if (this.Filter && this.Filter(e.Item, index))
                     this.ItemPropertyChanged.raise(this, e);
             };
 
@@ -335,7 +345,7 @@ var Fayde;
                     return true;
                 });
                 for (var i = 0, j = 0, enumerator = this._Source.getEnumerator(); enumerator.moveNext(); i++) {
-                    var isIncluded = filter(enumerator.current);
+                    var isIncluded = filter(enumerator.current, i);
                     var isCurrent = j < this.Count && this.GetValueAt(j) === enumerator.current;
                     if (isIncluded && !isCurrent)
                         this.Insert(j, enumerator.current);

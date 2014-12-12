@@ -85,12 +85,20 @@ declare module Fayde.Collections {
     }
 }
 declare module Fayde.Collections {
+    interface IFilterItemFunc<T> {
+        (item: T): boolean;
+    }
+    interface IFilterItemIndexFunc<T> {
+        (item: T, index: number): boolean;
+    }
     class FilteredCollection<T> extends DeepObservableCollection<T> {
         private _Source;
         public Source : DeepObservableCollection<T>;
         private _Filter;
-        public Filter : (item: any) => boolean;
-        constructor(filter?: (item: any) => boolean, source?: DeepObservableCollection<T>);
+        public Filter : IFilterItemIndexFunc<T>;
+        constructor(filter?: IFilterItemFunc<T>, source?: DeepObservableCollection<T>);
+        constructor(filter?: IFilterItemIndexFunc<T>, source?: DeepObservableCollection<T>);
+        private _SetSource(source);
         private _OnSourceCollectionChanged(sender, e);
         private _OnSourceItemPropertyChanged(sender, e);
         public Update(): void;
