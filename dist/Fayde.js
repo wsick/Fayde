@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.15.2';
+    Fayde.Version = '0.15.3';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -7219,6 +7219,18 @@ var Fayde;
                 this.DefaultStyleKey = Frame;
                 this.Loaded.on(this._FrameLoaded, this);
             }
+            Frame.prototype.OnIsLoadingChanged = function (oldIsLoading, newIsLoading) {
+                this.UpdateVisualState();
+            };
+
+            Frame.prototype.GoToStates = function (gotoFunc) {
+                this.GoToStateLoading(gotoFunc);
+            };
+
+            Frame.prototype.GoToStateLoading = function (gotoFunc) {
+                return gotoFunc(this.IsLoading ? "Loading" : "Idle");
+            };
+
             Frame.prototype.Navigate = function (uri) {
                 this._LoadContent(uri);
             };
@@ -7245,8 +7257,9 @@ var Fayde;
 
             Frame.prototype._LoadContent = function (source) {
                 var _this = this;
-                this.SetValueInternal(Frame.CurrentSourceProperty, source);
+                this.SetCurrentValue(Frame.CurrentSourceProperty, source);
                 this.StopLoading();
+                this.SetCurrentValue(Frame.IsLoadingProperty, true);
 
                 var fragment = source.fragment;
                 if (fragment[0] === "#")
@@ -7276,12 +7289,14 @@ var Fayde;
 
             Frame.prototype._HandleSuccess = function (page) {
                 this._SetPage(page);
+                this.SetCurrentValue(Frame.IsLoadingProperty, false);
                 TimelineProfile.Navigate(false);
                 TimelineProfile.IsNextLayoutPassProfiled = true;
             };
 
             Frame.prototype._HandleError = function (error) {
                 this._SetPage(getErrorPage(this.App, error));
+                this.SetCurrentValue(Frame.IsLoadingProperty, false);
                 TimelineProfile.Navigate(false);
             };
 
@@ -7315,10 +7330,16 @@ var Fayde;
             Frame.RouteMapperProperty = DependencyProperty.Register("RouteMapper", function () {
                 return Fayde.Navigation.RouteMapper;
             }, Frame);
+            Frame.IsLoadingProperty = DependencyProperty.RegisterReadOnly("IsLoading", function () {
+                return Boolean;
+            }, Frame, false, function (d, args) {
+                return d.OnIsLoadingChanged(args.OldValue, args.NewValue);
+            });
             return Frame;
         })(Controls.ContentControl);
         Controls.Frame = Frame;
         Fayde.CoreLibrary.add(Frame);
+        Controls.TemplateVisualStates(Frame, { GroupName: "LoadingStates", Name: "Idle" }, { GroupName: "LoadingStates", Name: "Loading" });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

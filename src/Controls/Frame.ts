@@ -25,14 +25,20 @@ module Fayde.Controls {
         static SourceProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
         static UriMapperProperty = DependencyProperty.Register("UriMapper", () => Navigation.UriMapper, Frame);
         static RouteMapperProperty = DependencyProperty.Register("RouteMapper", () => Navigation.RouteMapper, Frame);
+        static IsLoadingProperty = DependencyProperty.RegisterReadOnly("IsLoading", () => Boolean, Frame, false, (d: Frame, args) => d.OnIsLoadingChanged(args.OldValue, args.NewValue));
         IsDeepLinked: boolean;
         CurrentSource: Uri;
         Source: Uri;
         UriMapper: Navigation.UriMapper;
         RouteMapper: Navigation.RouteMapper;
+        IsLoading: boolean;
 
         private _NavService = new Navigation.NavigationService();
         private _CurrentRoute: Fayde.Navigation.Route = undefined;
+
+        OnIsLoadingChanged (oldIsLoading: boolean, newIsLoading: boolean) {
+            this.UpdateVisualState();
+        }
 
         //Navigated = new MulticastEvent();
         //Navigating = new MulticastEvent();
@@ -44,6 +50,14 @@ module Fayde.Controls {
             super();
             this.DefaultStyleKey = Frame;
             this.Loaded.on(this._FrameLoaded, this);
+        }
+
+        GoToStates (gotoFunc: (state: string) => boolean) {
+            this.GoToStateLoading(gotoFunc);
+        }
+
+        GoToStateLoading (gotoFunc: (state: string) => boolean): boolean {
+            return gotoFunc(this.IsLoading ? "Loading" : "Idle");
         }
 
         Navigate (uri: Uri) {
@@ -74,8 +88,9 @@ module Fayde.Controls {
         }
 
         private _LoadContent (source: Uri) {
-            this.SetValueInternal(Frame.CurrentSourceProperty, source);
+            this.SetCurrentValue(Frame.CurrentSourceProperty, source);
             this.StopLoading();
+            this.SetCurrentValue(Frame.IsLoadingProperty, true);
 
             var fragment = source.fragment;
             if (fragment[0] === "#")
@@ -104,12 +119,14 @@ module Fayde.Controls {
 
         private _HandleSuccess (page: Page) {
             this._SetPage(page);
+            this.SetCurrentValue(Frame.IsLoadingProperty, false);
             TimelineProfile.Navigate(false);
             TimelineProfile.IsNextLayoutPassProfiled = true;
         }
 
         private _HandleError (error: any) {
             this._SetPage(getErrorPage(this.App, error));
+            this.SetCurrentValue(Frame.IsLoadingProperty, false);
             TimelineProfile.Navigate(false);
         }
 
@@ -131,4 +148,7 @@ module Fayde.Controls {
         }
     }
     Fayde.CoreLibrary.add(Frame);
+    TemplateVisualStates(Frame,
+        {GroupName: "LoadingStates", Name: "Idle"},
+        {GroupName: "LoadingStates", Name: "Loading"});
 }
