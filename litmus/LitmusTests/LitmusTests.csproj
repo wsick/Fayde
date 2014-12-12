@@ -158,6 +158,9 @@
     <Compile Include="Tests\TooltipTest.xaml.cs">
       <DependentUpon>TooltipTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tests\TransformTest.xaml.cs">
+      <DependentUpon>TransformTest.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -253,6 +256,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Tests\TooltipTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\TransformTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
