@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.15.1';
+    Fayde.Version = '0.15.2';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -3921,6 +3921,9 @@ var Fayde;
                 var panelNode = this.XamlNode.ParentNode;
                 panelNode.DetachVisualChild(value, null);
                 _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
+            };
+            PanelChildrenCollection.prototype._RaiseCleared = function (values) {
+                this.$$updaters.length = 0;
             };
             PanelChildrenCollection.prototype._RaiseItemAdded = function (value, index) {
                 this.$$updaters.splice(index, 0, value.XamlNode.LayoutUpdater);

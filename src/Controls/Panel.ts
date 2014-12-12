@@ -15,6 +15,9 @@ module Fayde.Controls {
             panelNode.DetachVisualChild(value, null);
             super.RemovedFromCollection(value, isValueSafe);
         }
+        _RaiseCleared (values: UIElement[]) {
+            this.$$updaters.length = 0;
+        }
         _RaiseItemAdded(value: UIElement, index: number) {
             this.$$updaters.splice(index, 0, value.XamlNode.LayoutUpdater);
         }
