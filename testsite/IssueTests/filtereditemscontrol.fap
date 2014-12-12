@@ -14,7 +14,6 @@
             </StackPanel>
             <Border BorderThickness="1" BorderBrush="Black" Width="100" Height="400">
                 <ItemsControl ItemsSource="{Binding Items}" DisplayMemberPath="Display">
-
                 </ItemsControl>
             </Border>
         </StackPanel>

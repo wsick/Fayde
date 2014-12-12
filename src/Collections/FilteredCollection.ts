@@ -26,7 +26,7 @@
         constructor (filter?: IFilterItemIndexFunc<T>, source?: DeepObservableCollection<T>) {
             super();
             this.Filter = filter;
-            this._SetSource(source || new Fayde.Collections.DeepObservableCollection<T>());
+            this._SetSource(source || new DeepObservableCollection<T>());
         }
 
         private _SetSource (source: DeepObservableCollection<T>) {
