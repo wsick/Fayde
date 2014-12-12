@@ -28400,6 +28400,7 @@ var Fayde;
 
         obj.assets = updater.assets;
         obj.dirtyFlags = sexyflags(updater.assets.dirtyFlags);
+        obj.uiFlags = sexyuiflags(updater.assets.uiFlags);
         obj.children = [];
         obj.id = xobj._ID;
         obj.node = node;
@@ -28429,6 +28430,26 @@ var Fayde;
             return true;
         }).map(function (cur) {
             return minerva.DirtyFlags[cur];
+        }).join("|");
+    }
+
+    function sexyuiflags(flags) {
+        var all = Object.keys(minerva.UIFlags).map(function (i) {
+            return parseInt(i);
+        }).filter(function (key) {
+            return !isNaN(key);
+        }).filter(isPowerOf2).sort(function (a, b) {
+            return (a === b) ? 0 : (a < b ? -1 : 1);
+        }).reverse();
+
+        var remaining = flags;
+        return all.filter(function (cur) {
+            if ((remaining & cur) === 0)
+                return false;
+            remaining &= ~cur;
+            return true;
+        }).map(function (cur) {
+            return minerva.UIFlags[cur];
         }).join("|");
     }
 
@@ -28486,7 +28507,8 @@ var Fayde;
                         obj: xobj,
                         node: node,
                         updater: upd,
-                        flags: sexyflags(upd.assets.dirtyFlags)
+                        flags: sexyflags(upd.assets.dirtyFlags),
+                        uiflags: sexyuiflags(upd.assets.uiFlags)
                     };
                 }
             }

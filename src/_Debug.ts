@@ -17,6 +17,7 @@ module Fayde {
 
         obj.assets = updater.assets;
         obj.dirtyFlags = sexyflags(updater.assets.dirtyFlags);
+        obj.uiFlags = sexyuiflags(updater.assets.uiFlags);
         obj.children = [];
         obj.id = xobj._ID;
         obj.node = node;
@@ -45,6 +46,26 @@ module Fayde {
                 return true;
             })
             .map(cur => (<any>minerva.DirtyFlags)[cur])
+            .join("|");
+    }
+
+    function sexyuiflags (flags: minerva.UIFlags): string {
+        var all = Object.keys(minerva.UIFlags)
+            .map(i => parseInt(i))
+            .filter(key => !isNaN(key))
+            .filter(isPowerOf2)
+            .sort((a, b) => (a === b) ? 0 : (a < b ? -1 : 1))
+            .reverse();
+
+        var remaining = flags;
+        return all
+            .filter(cur => {
+                if ((remaining & cur) === 0)
+                    return false;
+                remaining &= ~cur;
+                return true;
+            })
+            .map(cur => (<any>minerva.UIFlags)[cur])
             .join("|");
     }
 
@@ -100,7 +121,8 @@ module Fayde {
                         obj: xobj,
                         node: node,
                         updater: upd,
-                        flags: sexyflags(upd.assets.dirtyFlags)
+                        flags: sexyflags(upd.assets.dirtyFlags),
+                        uiflags: sexyuiflags(upd.assets.uiFlags)
                     };
                 }
             }
