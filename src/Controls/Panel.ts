@@ -1,5 +1,6 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 /// <reference path="../Core/XamlObjectCollection.ts" />
+/// <reference path="../Core/Providers/ImmutableStore.ts" />
 
 module Fayde.Controls {
     class PanelChildrenCollection extends XamlObjectCollection<UIElement> {
