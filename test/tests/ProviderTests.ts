@@ -1,4 +1,9 @@
-export function load() {
+import DependencyObject = Fayde.DependencyObject;
+import FrameworkElement = Fayde.FrameworkElement;
+import ResourceDictionary = Fayde.ResourceDictionary;
+
+
+export function load () {
     QUnit.module("Provider Tests");
 
     var Mock1Property = DependencyProperty.Register("Mock1", () => String, Fayde.DependencyObject);
@@ -54,7 +59,6 @@ export function load() {
         strictEqual(val, true, "Inherited property should be reset to true after value at root is cleared.");
 
 
-
         if (Font.DEFAULT_SIZE === 50 || Font.DEFAULT_SIZE === 90 || Font.DEFAULT_SIZE === 120) {
             ok(false, "Further tests are invalid. Default font size cannot be equal to 50, 90, or 120.");
         }
@@ -66,7 +70,7 @@ export function load() {
 
         var child2 = new Controls.Control();
         var xaml = "<ControlTemplate xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\" TargetType=\"Control\"><Grid /></ControlTemplate>";
-        child2.Template =  Fayde.Markup.LoadXaml<Fayde.Controls.ControlTemplate>(null, xaml);
+        child2.Template = Fayde.Markup.LoadXaml<Fayde.Controls.ControlTemplate>(null, xaml);
         root2.ApplyTemplate();
 
         strictEqual(root2.FontSize, Font.DEFAULT_SIZE, "Root FontSize should be default.");
@@ -108,7 +112,6 @@ export function load() {
         strictEqual(child2.FontSize, 90, "Child FontSize should inherit 90 from Root.");
         theBorder.Child = null;
         strictEqual(child2.FontSize, Font.DEFAULT_SIZE, "Child FontSize should clear inherited 90 from Root immediately after detaching.");
-
 
 
         var tb1 = new Fayde.Controls.TextBlock();
@@ -220,7 +223,7 @@ export function load() {
 
         //Test inherited  with binding expression
         var root2 = new Fayde.Controls.Border();
-        var vm = { Child: {} };
+        var vm = {Child: {}};
         root2.DataContext = vm;
 
         var child2 = new Fayde.Controls.Border();
@@ -269,5 +272,11 @@ export function load() {
 
         theBorder.Child = null;
         ok(child.IsEnabled, "Child IsEnabled is no longer in the tree. IsEnabled should be local value true.");
+    });
+
+    test("Resources", () => {
+        var fe = new FrameworkElement();
+        strictEqual(fe.ReadLocalValue(FrameworkElement.ResourcesProperty), DependencyProperty.UnsetValue);
+        ok(fe.Resources instanceof ResourceDictionary);
     });
 }

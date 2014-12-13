@@ -597,14 +597,14 @@ declare module Fayde {
     }
 }
 declare module Fayde.Providers {
-    class ImmutableStore extends PropertyStore {
-        static Instance: ImmutableStore;
-        public GetValue(storage: IPropertyStorage): any;
+    class ResourcesStore extends PropertyStore {
+        static Instance: ResourcesStore;
+        public GetValue(storage: IPropertyStorage): ResourceDictionary;
         public GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
-        public SetLocalValue(storage: IPropertyStorage, newValue: any): void;
-        public ClearValue(storage: IPropertyStorage): void;
-        public ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender: any, args: IDependencyPropertyChangedEventArgs) => void, closure: any): IPropertyChangedListener;
-        public Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
+        public SetLocalValue(storage: IPropertyStorage, newValue: number): void;
+        public SetLocalStyleValue(storage: IPropertyStorage, newValue: any): void;
+        public SetImplicitStyle(storage: IPropertyStorage, newValue: any): void;
+        public ClearValue(storage: IPropertyStorage, notifyListeners?: boolean): void;
     }
 }
 declare module Fayde.Providers {
@@ -642,7 +642,6 @@ declare module Fayde {
     }
     class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
         public XamlNode: FENode;
-        constructor();
         public CreateNode(): FENode;
         static ActualHeightProperty: DependencyProperty;
         static ActualWidthProperty: DependencyProperty;
@@ -659,7 +658,7 @@ declare module Fayde {
         static StyleProperty: DependencyProperty;
         static VerticalAlignmentProperty: DependencyProperty;
         static WidthProperty: DependencyProperty;
-        static ResourcesProperty: ImmutableDependencyProperty<ResourceDictionary>;
+        static ResourcesProperty: DependencyProperty;
         static DefaultStyleKeyProperty: DependencyProperty;
         public IsInheritable(propd: DependencyProperty): boolean;
         public ActualHeight: number;
@@ -992,6 +991,17 @@ declare module Fayde {
         public _RaiseCleared(old: T[]): void;
         public CloneCore(source: XamlObjectCollection<T>): void;
         public ToArray(): T[];
+    }
+}
+declare module Fayde.Providers {
+    class ImmutableStore extends PropertyStore {
+        static Instance: ImmutableStore;
+        public GetValue(storage: IPropertyStorage): any;
+        public GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
+        public SetLocalValue(storage: IPropertyStorage, newValue: any): void;
+        public ClearValue(storage: IPropertyStorage): void;
+        public ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender: any, args: IDependencyPropertyChangedEventArgs) => void, closure: any): IPropertyChangedListener;
+        public Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
     }
 }
 declare module Fayde.Controls {

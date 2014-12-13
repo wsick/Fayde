@@ -19,6 +19,8 @@ module Fayde.Markup {
                 var cur = os[i];
                 if (cur instanceof FrameworkElement) {
                     rd = (<FrameworkElement>cur).ReadLocalValue(FrameworkElement.ResourcesProperty);
+                    if (rd === DependencyProperty.UnsetValue)
+                        rd = undefined;
                 } else if (cur instanceof Application) {
                     rd = (<Application>cur).Resources;
                 } else if (cur instanceof ResourceDictionary) {

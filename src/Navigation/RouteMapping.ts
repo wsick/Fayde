@@ -55,7 +55,7 @@ module Fayde.Navigation {
                 throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
             i += len; //advances i just past '}'
             tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
-            console.log("identifier: " + tokenInfo.Identifier + ", terminator: " + tokenInfo.Terminator);
+            //console.log("identifier: " + tokenInfo.Identifier + ", terminator: " + tokenInfo.Terminator);
             return tokenInfo;
         }
 
@@ -73,7 +73,7 @@ module Fayde.Navigation {
                 tokenInfo.Value += actual[j];
                 j++;
             }
-            console.log("value: " + tokenInfo.Value);
+            //console.log("value: " + tokenInfo.Value);
         }
 
         return {

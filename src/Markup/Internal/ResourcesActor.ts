@@ -20,7 +20,7 @@ module Fayde.Markup.Internal {
                 var res = (resources) ? resources.concat(stack) : stack.slice(0);
                 if (cur.dobj instanceof FrameworkElement) {
                     var crd = cur.dobj.ReadLocalValue(FrameworkElement.ResourcesProperty);
-                    if (crd)
+                    if (crd !== DependencyProperty.UnsetValue)
                         res.push(crd);
                 }
                 return res;

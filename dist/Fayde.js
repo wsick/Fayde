@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.15.3';
+    Fayde.Version = '0.15.4';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -2452,53 +2452,39 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Providers) {
-        var ImmutableStore = (function (_super) {
-            __extends(ImmutableStore, _super);
-            function ImmutableStore() {
+        var ResourcesStore = (function (_super) {
+            __extends(ResourcesStore, _super);
+            function ResourcesStore() {
                 _super.apply(this, arguments);
             }
-            ImmutableStore.prototype.GetValue = function (storage) {
-                return storage.Local;
+            ResourcesStore.prototype.GetValue = function (storage) {
+                if (storage.Local !== undefined)
+                    return storage.Local;
+                var rd = storage.Local = new Fayde.ResourceDictionary();
+                rd.AttachTo(storage.OwnerNode.XObject);
+                return rd;
             };
-            ImmutableStore.prototype.GetValuePrecedence = function (storage) {
+
+            ResourcesStore.prototype.GetValuePrecedence = function (storage) {
                 return 1 /* LocalValue */;
             };
-            ImmutableStore.prototype.SetLocalValue = function (storage, newValue) {
-                console.warn("Trying to set value for immutable property.");
+
+            ResourcesStore.prototype.SetLocalValue = function (storage, newValue) {
+                console.warn("Cannot set Resources.");
             };
-            ImmutableStore.prototype.ClearValue = function (storage) {
-                console.warn("Trying to clear value for immutable property.");
+
+            ResourcesStore.prototype.SetLocalStyleValue = function (storage, newValue) {
             };
-            ImmutableStore.prototype.ListenToChanged = function (target, propd, func, closure) {
-                return {
-                    Property: propd,
-                    OnPropertyChanged: function (sender, args) {
-                    },
-                    Detach: function () {
-                    }
-                };
+
+            ResourcesStore.prototype.SetImplicitStyle = function (storage, newValue) {
             };
-            ImmutableStore.prototype.Clone = function (dobj, sourceStorage) {
-                if (sourceStorage.Local instanceof Fayde.XamlObjectCollection) {
-                    var newStorage = Providers.GetStorage(dobj, sourceStorage.Property);
-                    var newColl = newStorage.Local;
-                    newColl.CloneCore(sourceStorage.Local);
-                    var anims = newStorage.Animations = sourceStorage.Animations;
-                    if (anims) {
-                        for (var i = 0; i < anims.length; i++) {
-                            anims[i].PropStorage = newStorage;
-                        }
-                    }
-                    return newStorage;
-                } else {
-                    console.warn("Cloning Immutable improperly");
-                    return _super.prototype.Clone.call(this, dobj, sourceStorage);
-                }
+
+            ResourcesStore.prototype.ClearValue = function (storage, notifyListeners) {
             };
-            return ImmutableStore;
+            return ResourcesStore;
         })(Providers.PropertyStore);
-        Providers.ImmutableStore = ImmutableStore;
-        ImmutableStore.Instance = new ImmutableStore();
+        Providers.ResourcesStore = ResourcesStore;
+        ResourcesStore.Instance = new ResourcesStore();
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));
@@ -2676,14 +2662,12 @@ var Fayde;
     var FrameworkElement = (function (_super) {
         __extends(FrameworkElement, _super);
         function FrameworkElement() {
-            _super.call(this);
+            _super.apply(this, arguments);
             this.SizeChanged = new Fayde.RoutedEvent();
             this.Loaded = new Fayde.RoutedEvent();
             this.Unloaded = new Fayde.RoutedEvent();
             this.LayoutUpdated = new nullstone.Event();
             this.TemplateApplied = new nullstone.Event();
-            var rd = FrameworkElement.ResourcesProperty.Initialize(this);
-            rd.AttachTo(this);
         }
         FrameworkElement.prototype.CreateNode = function () {
             return new FENode(this);
@@ -2746,7 +2730,7 @@ var Fayde;
         FrameworkElement.WidthProperty = DependencyProperty.Register("Width", function () {
             return Length;
         }, FrameworkElement, NaN);
-        FrameworkElement.ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", function () {
+        FrameworkElement.ResourcesProperty = DependencyProperty.Register("Resources", function () {
             return Fayde.ResourceDictionary;
         }, FrameworkElement);
         FrameworkElement.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () {
@@ -2759,6 +2743,7 @@ var Fayde;
 
     FrameworkElement.ActualWidthProperty.Store = Fayde.Providers.ActualSizeStore.Instance;
     FrameworkElement.ActualHeightProperty.Store = Fayde.Providers.ActualSizeStore.Instance;
+    FrameworkElement.ResourcesProperty.Store = Fayde.Providers.ResourcesStore.Instance;
 
     var reactions;
     (function (reactions) {
@@ -3901,6 +3886,59 @@ var Fayde;
     })(Fayde.XamlObject);
     Fayde.XamlObjectCollection = XamlObjectCollection;
     nullstone.ICollection_.mark(XamlObjectCollection);
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Providers) {
+        var ImmutableStore = (function (_super) {
+            __extends(ImmutableStore, _super);
+            function ImmutableStore() {
+                _super.apply(this, arguments);
+            }
+            ImmutableStore.prototype.GetValue = function (storage) {
+                return storage.Local;
+            };
+            ImmutableStore.prototype.GetValuePrecedence = function (storage) {
+                return 1 /* LocalValue */;
+            };
+            ImmutableStore.prototype.SetLocalValue = function (storage, newValue) {
+                console.warn("Trying to set value for immutable property.");
+            };
+            ImmutableStore.prototype.ClearValue = function (storage) {
+                console.warn("Trying to clear value for immutable property.");
+            };
+            ImmutableStore.prototype.ListenToChanged = function (target, propd, func, closure) {
+                return {
+                    Property: propd,
+                    OnPropertyChanged: function (sender, args) {
+                    },
+                    Detach: function () {
+                    }
+                };
+            };
+            ImmutableStore.prototype.Clone = function (dobj, sourceStorage) {
+                if (sourceStorage.Local instanceof Fayde.XamlObjectCollection) {
+                    var newStorage = Providers.GetStorage(dobj, sourceStorage.Property);
+                    var newColl = newStorage.Local;
+                    newColl.CloneCore(sourceStorage.Local);
+                    var anims = newStorage.Animations = sourceStorage.Animations;
+                    if (anims) {
+                        for (var i = 0; i < anims.length; i++) {
+                            anims[i].PropStorage = newStorage;
+                        }
+                    }
+                    return newStorage;
+                } else {
+                    console.warn("Cloning Immutable improperly");
+                    return _super.prototype.Clone.call(this, dobj, sourceStorage);
+                }
+            };
+            return ImmutableStore;
+        })(Providers.PropertyStore);
+        Providers.ImmutableStore = ImmutableStore;
+        ImmutableStore.Instance = new ImmutableStore();
+    })(Fayde.Providers || (Fayde.Providers = {}));
+    var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -20641,7 +20679,7 @@ var Fayde;
                         var res = (resources) ? resources.concat(stack) : stack.slice(0);
                         if (cur.dobj instanceof Fayde.FrameworkElement) {
                             var crd = cur.dobj.ReadLocalValue(Fayde.FrameworkElement.ResourcesProperty);
-                            if (crd)
+                            if (crd !== DependencyProperty.UnsetValue)
                                 res.push(crd);
                         }
                         return res;
@@ -20713,6 +20751,8 @@ var Fayde;
                     var cur = os[i];
                     if (cur instanceof Fayde.FrameworkElement) {
                         rd = cur.ReadLocalValue(Fayde.FrameworkElement.ResourcesProperty);
+                        if (rd === DependencyProperty.UnsetValue)
+                            rd = undefined;
                     } else if (cur instanceof Fayde.Application) {
                         rd = cur.Resources;
                     } else if (cur instanceof Fayde.ResourceDictionary) {
@@ -27051,7 +27091,7 @@ var Fayde;
                     throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
                 i += len;
                 tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
-                console.log("identifier: " + tokenInfo.Identifier + ", terminator: " + tokenInfo.Terminator);
+
                 return tokenInfo;
             }
 
@@ -27069,7 +27109,6 @@ var Fayde;
                     tokenInfo.Value += actual[j];
                     j++;
                 }
-                console.log("value: " + tokenInfo.Value);
             }
 
             return {

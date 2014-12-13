@@ -1,5 +1,5 @@
 /// <reference path="UIElement.ts" />
-/// <reference path="Providers/ImmutableStore.ts" />
+/// <reference path="Providers/ResourcesStore.ts" />
 /// <reference path="Providers/ActualSizeStore.ts" />
 
 module Fayde {
@@ -139,11 +139,6 @@ module Fayde {
 
     export class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
         XamlNode: FENode;
-        constructor() {
-            super();
-            var rd = FrameworkElement.ResourcesProperty.Initialize(this);
-            rd.AttachTo(this);
-        }
         CreateNode(): FENode { return new FENode(this); }
 
         static ActualHeightProperty = DependencyProperty.RegisterReadOnly("ActualHeight", () => Number, FrameworkElement);
@@ -161,7 +156,7 @@ module Fayde {
         static StyleProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (dobj, args) => Providers.LocalStyleBroker.Set(<FrameworkElement>dobj, args.NewValue));
         static VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch);
         static WidthProperty = DependencyProperty.Register("Width", () => Length, FrameworkElement, NaN);
-        static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, FrameworkElement);
+        static ResourcesProperty = DependencyProperty.Register("Resources", () => ResourceDictionary, FrameworkElement);
         static DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, FrameworkElement);
 
         IsInheritable(propd: DependencyProperty): boolean {
@@ -203,6 +198,7 @@ module Fayde {
 
     FrameworkElement.ActualWidthProperty.Store = Providers.ActualSizeStore.Instance;
     FrameworkElement.ActualHeightProperty.Store = Providers.ActualSizeStore.Instance;
+    FrameworkElement.ResourcesProperty.Store = Providers.ResourcesStore.Instance;
 
     module reactions {
         UIReaction<number>(FrameworkElement.WidthProperty, minerva.core.reactTo.width, false);
