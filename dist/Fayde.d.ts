@@ -1788,7 +1788,7 @@ declare module Fayde.Controls.Internal {
         private _Items;
         private _Containers;
         private _Cache;
-        public IsRecycling: boolean;
+        public IsRecycling : boolean;
         constructor(Owner: IItemContainersOwner);
         public IndexFromContainer(container: UIElement): number;
         public ContainerFromIndex(index: number): UIElement;
@@ -2511,7 +2511,6 @@ declare module Fayde.Controls {
         static VirtualizationModeProperty: DependencyProperty;
         static GetVirtualizationMode(d: DependencyObject): VirtualizationMode;
         static SetVirtualizationMode(d: DependencyObject, value: VirtualizationMode): void;
-        private static OnVirtualizationModePropertyChanged(dobj, args);
         static IsVirtualizingProperty: DependencyProperty;
         static GetIsVirtualizing(d: DependencyObject): boolean;
         static SetIsVirtualizing(d: DependencyObject, value: boolean): void;

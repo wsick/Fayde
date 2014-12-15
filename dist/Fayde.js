@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.15.4';
+    Fayde.Version = '0.15.5';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -7893,8 +7893,18 @@ var Fayde;
                     this._Items = [];
                     this._Containers = [];
                     this._Cache = [];
-                    this.IsRecycling = false;
                 }
+                Object.defineProperty(ItemContainersManager.prototype, "IsRecycling", {
+                    get: function () {
+                        var dobj = this.Owner;
+                        if (dobj instanceof Fayde.DependencyObject)
+                            return Controls.VirtualizingPanel.GetVirtualizationMode(dobj) === 1 /* Recycling */;
+                        return false;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
                 ItemContainersManager.prototype.IndexFromContainer = function (container) {
                     return this._Containers.indexOf(container);
                 };
@@ -7937,8 +7947,13 @@ var Fayde;
                     if (count == null)
                         count = containers.length;
 
-                    if (this.IsRecycling)
-                        this._Cache.push.apply(this._Cache, containers.slice(index, index + count));
+                    if (this.IsRecycling) {
+                        for (var i = 0, cache = this._Cache, recycling = containers.slice(index, index + count), len = recycling.length; i < len; i++) {
+                            var container = recycling[i];
+                            if (container)
+                                cache.push(container);
+                        }
+                    }
 
                     var disposed = [];
 
@@ -7990,6 +8005,7 @@ var Fayde;
                                 generator.IsCurrentNew = true;
                             } else if (cache.length > 0) {
                                 generator.Current = cache.pop();
+                                generator.IsCurrentNew = true;
                             } else {
                                 generator.Current = ic.GetContainerForItem();
                                 generator.IsCurrentNew = true;
@@ -11971,11 +11987,6 @@ var Fayde;
             VirtualizingPanel.SetVirtualizationMode = function (d, value) {
                 d.SetValue(VirtualizingPanel.VirtualizationModeProperty, value);
             };
-            VirtualizingPanel.OnVirtualizationModePropertyChanged = function (dobj, args) {
-                var ic = dobj;
-                if (ic instanceof Controls.ItemsControl)
-                    ic.ItemContainersManager.IsRecycling = args.NewValue === 1 /* Recycling */;
-            };
 
             VirtualizingPanel.GetIsVirtualizing = function (d) {
                 return d.GetValue(VirtualizingPanel.IsVirtualizingProperty);
@@ -12001,7 +12012,7 @@ var Fayde;
             };
             VirtualizingPanel.VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", function () {
                 return new Fayde.Enum(VirtualizationMode);
-            }, VirtualizingPanel, 1 /* Recycling */, VirtualizingPanel.OnVirtualizationModePropertyChanged);
+            }, VirtualizingPanel, 1 /* Recycling */);
 
             VirtualizingPanel.IsVirtualizingProperty = DependencyProperty.RegisterAttached("IsVirtualizing", function () {
                 return Boolean;

@@ -11,12 +11,12 @@ module Fayde.Controls.Internal {
     }
     export interface IItemContainersManager {
         IsRecycling: boolean;
-        
+
         IndexFromContainer(container: UIElement): number;
         ContainerFromIndex(index: number): UIElement;
         ItemFromContainer(container: UIElement): any;
         ContainerFromItem(item: any): UIElement;
-        
+
         OnItemsAdded(index: number, newItems: any[]);
         OnItemsRemoved(index: number, oldItems: any[]);
         DisposeContainers(index?: number, count?: number): UIElement[];
@@ -28,8 +28,13 @@ module Fayde.Controls.Internal {
         private _Items: any[] = [];
         private _Containers: UIElement[] = [];
         private _Cache: UIElement[] = [];
-        
-        IsRecycling = false;
+
+        get IsRecycling (): boolean {
+            var dobj = this.Owner;
+            if (dobj instanceof DependencyObject)
+                return VirtualizingPanel.GetVirtualizationMode(<DependencyObject><any>dobj) === VirtualizationMode.Recycling;
+            return false;
+        }
 
         constructor(public Owner: IItemContainersOwner) { }
 
@@ -69,8 +74,13 @@ module Fayde.Controls.Internal {
             if (index == null) index = 0;
             if (count == null) count = containers.length;
 
-            if (this.IsRecycling)
-                this._Cache.push.apply(this._Cache, containers.slice(index, index + count));
+            if (this.IsRecycling) {
+                for (var i = 0, cache = this._Cache, recycling = containers.slice(index, index + count), len = recycling.length; i < len; i++) {
+                    var container = recycling[i];
+                    if (container)
+                        cache.push(container);
+                }
+            }
 
             var disposed: UIElement[] = [];
 
@@ -120,6 +130,7 @@ module Fayde.Controls.Internal {
                         generator.IsCurrentNew = true;
                     } else if (cache.length > 0) {
                         generator.Current = cache.pop();
+                        generator.IsCurrentNew = true;
                     } else {
                         generator.Current = ic.GetContainerForItem();
                         generator.IsCurrentNew = true;
