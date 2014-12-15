@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.15.5';
+    Fayde.Version = '0.15.6';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -4344,6 +4344,7 @@ var Fayde;
                 if (nc)
                     nc.CollectionChanged.off(this._OnItemsSourceUpdated, this);
                 var items = this.Items;
+                var resetargs = Fayde.Collections.CollectionChangedEventArgs.Reset(items.ToArray());
 
                 try  {
                     this._SuspendItemsChanged = true;
@@ -4351,7 +4352,7 @@ var Fayde;
                 } finally {
                     this._SuspendItemsChanged = false;
                 }
-                this.OnItemsChanged(Fayde.Collections.CollectionChangedEventArgs.Reset(items.ToArray()));
+                this.OnItemsChanged(resetargs);
 
                 this._IsDataBound = !!e.NewValue;
                 var arr = toArray(e.NewValue);

@@ -49,6 +49,7 @@ module Fayde.Controls {
             if (nc)
                 nc.CollectionChanged.off(this._OnItemsSourceUpdated, this);
             var items = this.Items;
+            var resetargs = Collections.CollectionChangedEventArgs.Reset(items.ToArray());
 
             //Reset old
             try {
@@ -57,7 +58,7 @@ module Fayde.Controls {
             } finally {
                 this._SuspendItemsChanged = false;
             }
-            this.OnItemsChanged(Collections.CollectionChangedEventArgs.Reset(items.ToArray()));
+            this.OnItemsChanged(resetargs);
 
             //Notify new
             this._IsDataBound = !!e.NewValue;
