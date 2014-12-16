@@ -932,6 +932,7 @@ declare module Fayde.Controls.Primitives {
         public CommandParameter: any;
         public Click: RoutedEvent<RoutedEventArgs>;
         private _IsMouseCaptured;
+        private _TouchCaptures;
         private _IsMouseLeftButtonDown;
         private _IsSpaceKeyDown;
         public _MousePosition: Point;
@@ -946,13 +947,16 @@ declare module Fayde.Controls.Primitives {
         public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
         public OnGotFocus(e: RoutedEventArgs): void;
         public OnLostFocus(e: RoutedEventArgs): void;
+        public OnTouchMove(e: Input.TouchEventArgs): void;
+        public OnTouchDown(e: Input.TouchEventArgs): void;
+        public OnTouchUp(e: Input.TouchEventArgs): void;
         public OnClick(): void;
         private _DoWithSuspend(action);
         public UpdateVisualState(useTransitions?: boolean): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
         private _CaptureMouseInternal();
         private _ReleaseMouseCaptureInternal();
-        private _IsValidMousePosition();
+        private _IsValidPosition(pos);
         private OnCommandChanged(args);
         private OnCommandCanExecuteChanged(sender, e);
         private OnCommandParameterChanged(args);

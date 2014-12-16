@@ -14,8 +14,9 @@ module Fayde.Controls.Primitives {
         Command: Input.ICommand;
         CommandParameter: any;
         Click = new RoutedEvent<RoutedEventArgs>();
-            
+
         private _IsMouseCaptured: boolean = false;
+        private _TouchCaptures: number[];
         private _IsMouseLeftButtonDown: boolean = false;
         private _IsSpaceKeyDown: boolean = false;
         _MousePosition: Point = new Point();
@@ -70,7 +71,7 @@ module Fayde.Controls.Primitives {
             this._MousePosition = e.GetPosition(this);
 
             if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
-                this.SetCurrentValue(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
+                this.SetCurrentValue(ButtonBase.IsPressedProperty, this._IsValidPosition(this._MousePosition));
             }
         }
         OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
@@ -133,6 +134,38 @@ module Fayde.Controls.Primitives {
             });
         }
 
+        OnTouchMove(e: Input.TouchEventArgs) {
+            super.OnTouchMove(e);
+            if (!this.IsEnabled || e.Device.Captured !== this)
+                return;
+            var tp = e.GetTouchPoint(this);
+            this.SetCurrentValue(ButtonBase.IsPressedProperty, this._IsValidPosition(tp.Position));
+        }
+        OnTouchDown(e: Input.TouchEventArgs) {
+            super.OnTouchDown(e);
+            if (!this.IsEnabled)
+                return;
+            e.Handled = true;
+            this._DoWithSuspend(() => {
+                this.Focus();
+                if (e.Device.Capture(this))
+                    this.SetCurrentValue(ButtonBase.IsPressedProperty, true);
+            });
+
+            if (this.ClickMode === ClickMode.Press)
+                this.OnClick();
+        }
+        OnTouchUp(e: Input.TouchEventArgs) {
+            super.OnTouchUp(e);
+            if (!this.IsEnabled)
+                return;
+            e.Handled = true;
+            if (this.IsPressed && this.ClickMode === ClickMode.Release)
+                this.OnClick();
+            e.Device.ReleaseCapture(this);
+            this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
+        }
+
         OnClick() {
             var cmd = this.Command;
             var par = this.CommandParameter;
@@ -178,8 +211,7 @@ module Fayde.Controls.Primitives {
             this.ReleaseMouseCapture();
             this._IsMouseCaptured = false;
         }
-        private _IsValidMousePosition(): boolean {
-            var pos = this._MousePosition;
+        private _IsValidPosition(pos: Point): boolean {
             return pos.x >= 0.0 && pos.x <= this.ActualWidth
                 && pos.y >= 0.0 && pos.y <= this.ActualHeight;
         }

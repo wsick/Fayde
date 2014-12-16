@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.15.7';
+    Fayde.Version = '0.15.8';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -3524,7 +3524,7 @@ var Fayde;
                     this._MousePosition = e.GetPosition(this);
 
                     if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== 2 /* Hover */ && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
-                        this.SetCurrentValue(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
+                        this.SetCurrentValue(ButtonBase.IsPressedProperty, this._IsValidPosition(this._MousePosition));
                     }
                 };
                 ButtonBase.prototype.OnMouseLeftButtonDown = function (e) {
@@ -3589,6 +3589,39 @@ var Fayde;
                     });
                 };
 
+                ButtonBase.prototype.OnTouchMove = function (e) {
+                    _super.prototype.OnTouchMove.call(this, e);
+                    if (!this.IsEnabled || e.Device.Captured !== this)
+                        return;
+                    var tp = e.GetTouchPoint(this);
+                    this.SetCurrentValue(ButtonBase.IsPressedProperty, this._IsValidPosition(tp.Position));
+                };
+                ButtonBase.prototype.OnTouchDown = function (e) {
+                    var _this = this;
+                    _super.prototype.OnTouchDown.call(this, e);
+                    if (!this.IsEnabled)
+                        return;
+                    e.Handled = true;
+                    this._DoWithSuspend(function () {
+                        _this.Focus();
+                        if (e.Device.Capture(_this))
+                            _this.SetCurrentValue(ButtonBase.IsPressedProperty, true);
+                    });
+
+                    if (this.ClickMode === 1 /* Press */)
+                        this.OnClick();
+                };
+                ButtonBase.prototype.OnTouchUp = function (e) {
+                    _super.prototype.OnTouchUp.call(this, e);
+                    if (!this.IsEnabled)
+                        return;
+                    e.Handled = true;
+                    if (this.IsPressed && this.ClickMode === 0 /* Release */)
+                        this.OnClick();
+                    e.Device.ReleaseCapture(this);
+                    this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
+                };
+
                 ButtonBase.prototype.OnClick = function () {
                     var cmd = this.Command;
                     var par = this.CommandParameter;
@@ -3634,8 +3667,7 @@ var Fayde;
                     this.ReleaseMouseCapture();
                     this._IsMouseCaptured = false;
                 };
-                ButtonBase.prototype._IsValidMousePosition = function () {
-                    var pos = this._MousePosition;
+                ButtonBase.prototype._IsValidPosition = function (pos) {
                     return pos.x >= 0.0 && pos.x <= this.ActualWidth && pos.y >= 0.0 && pos.y <= this.ActualHeight;
                 };
 
@@ -17824,6 +17856,7 @@ var Fayde;
                 };
                 ActiveTouchBase.prototype._PerformReleaseCapture = function () {
                     var oldCaptured = this._Captured;
+                    this._Captured = null;
                     this._PendingReleaseCapture = false;
                     oldCaptured._EmitLostTouchCapture(new Input.TouchEventArgs(this.Device));
                     this._FinishReleaseCaptureFunc();
@@ -17910,7 +17943,7 @@ var Fayde;
                             return _this.Identifier;
                         } });
                     Object.defineProperty(d, "Captured", { get: function () {
-                            return _this._Captured;
+                            return _this._Captured ? _this._Captured.XObject : null;
                         } });
                     return d;
                 };
