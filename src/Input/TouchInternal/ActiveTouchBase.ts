@@ -21,7 +21,7 @@ module Fayde.Input.TouchInternal {
             this._FinishReleaseCaptureFunc = () => touchHandler.HandleTouches(Input.TouchInputType.NoOp, [this], false, true);
         }
 
-        Capture(uie: UIElement):boolean {
+        Capture(uie: UIElement): boolean {
             var uin = uie.XamlNode;
             if (this._Captured === uin || this._PendingCapture === uin)
                 return true;
@@ -51,6 +51,7 @@ module Fayde.Input.TouchInternal {
         }
         private _PerformReleaseCapture() {
             var oldCaptured = this._Captured;
+            this._Captured = null;
             this._PendingReleaseCapture = false;
             oldCaptured._EmitLostTouchCapture(new Input.TouchEventArgs(this.Device));
             this._FinishReleaseCaptureFunc();
@@ -127,7 +128,7 @@ module Fayde.Input.TouchInternal {
                 GetTouchPoint: (relativeTo: UIElement) => this.GetTouchPoint(relativeTo)
             };
             Object.defineProperty(d, "Identifier", { get: () => this.Identifier });
-            Object.defineProperty(d, "Captured", { get: () => this._Captured });
+            Object.defineProperty(d, "Captured", { get: () => this._Captured ? this._Captured.XObject : null });
             return d;
         }
     }
