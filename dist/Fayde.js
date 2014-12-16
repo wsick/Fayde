@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.15.6';
+    Fayde.Version = '0.15.7';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -27716,7 +27716,10 @@ var Fayde;
         }
 
         function setupLibraryConfig(lib) {
-            var library = Fayde.TypeManager.resolveLibrary("lib://" + lib.name);
+            var uri = new Fayde.Uri(lib.name);
+            if (uri.scheme !== "http")
+                uri = new Fayde.Uri("lib://" + lib.name);
+            var library = Fayde.TypeManager.resolveLibrary(uri.toString());
             if (!!lib.path)
                 library.sourcePath = lib.path;
             if (!!lib.exports)
