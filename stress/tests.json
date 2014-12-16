@@ -14,6 +14,11 @@
       "name": "Path2D Parser",
       "test": "tests/media/Path2D",
       "runCount": 1000
+    },
+    {
+      "name": "Measure ListBox",
+      "test": "tests/controls/ListBox",
+      "runCount": 10
     }
   ]
 }
