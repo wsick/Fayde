@@ -81,7 +81,6 @@ module Fayde.Controls {
             }
         }
 
-
         InvalidateScrollInfo() {
             var scrollInfo = this.ScrollInfo;
             if (scrollInfo) {
@@ -205,6 +204,45 @@ module Fayde.Controls {
                     scrollInfo.MouseWheelDown();
                 e.Handled = true;
             }
+        }
+
+        private _TouchOrigin: Point;
+        private _Delta = new Point();
+        private _TouchInitialOffset = new Point();
+        OnTouchDown(e: Input.TouchEventArgs) {
+            super.OnTouchDown(e);
+            var scrollInfo = this.ScrollInfo;
+            if (e.Handled || !this.IsEnabled || !scrollInfo)
+                return;
+            e.Handled = true;
+            this.Focus();
+            e.Device.Capture(this);
+
+            var offset = this._TouchInitialOffset;
+            offset.x = scrollInfo.HorizontalOffset;
+            offset.y = scrollInfo.VerticalOffset;
+
+            this._TouchOrigin = e.GetTouchPoint(this).Position;
+        }
+        OnTouchUp(e: Input.TouchEventArgs) {
+            super.OnTouchUp(e);
+            if (e.Handled || !this.IsEnabled)
+                return;
+            e.Handled = true;
+            e.Device.ReleaseCapture(this);
+        }
+        OnTouchMove(e: Input.TouchEventArgs) {
+            super.OnTouchMove(e);
+            if (e.Handled || e.Device.Captured !== this)
+                return;
+            var tp = e.GetTouchPoint(this);
+            var pos = tp.Position;
+            var delta = this._Delta;
+            var origin = this._TouchOrigin;
+            delta.x = pos.x - origin.x;
+            delta.y = pos.y - origin.y;
+            this.ScrollToHorizontalOffset(delta.x);
+            this.ScrollToVerticalOffset(delta.y);
         }
 
         OnKeyDown(e: Input.KeyEventArgs) {

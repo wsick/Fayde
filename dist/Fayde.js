@@ -5794,7 +5794,7 @@ var Fayde;
                 };
                 Thumb.prototype.OnTouchMove = function (e) {
                     _super.prototype.OnTouchMove.call(this, e);
-                    if (!this.IsDragging)
+                    if (!this.IsDragging || e.Device.Captured !== this)
                         return;
                     var vpNode = this.XamlNode.VisualParentNode;
                     var tp = e.Device.GetTouchPoint(vpNode ? vpNode.XObject : undefined);
@@ -6133,6 +6133,8 @@ var Fayde;
             function ScrollViewer() {
                 _super.call(this);
                 this.$TemplatedParentHandlesScrolling = false;
+                this._Delta = new Point();
+                this._TouchInitialOffset = new Point();
 
                 this.DefaultStyleKey = ScrollViewer;
             }
@@ -6336,6 +6338,42 @@ var Fayde;
                         scrollInfo.MouseWheelDown();
                     e.Handled = true;
                 }
+            };
+
+            ScrollViewer.prototype.OnTouchDown = function (e) {
+                _super.prototype.OnTouchDown.call(this, e);
+                var scrollInfo = this.ScrollInfo;
+                if (e.Handled || !this.IsEnabled || !scrollInfo)
+                    return;
+                e.Handled = true;
+                this.Focus();
+                e.Device.Capture(this);
+
+                var offset = this._TouchInitialOffset;
+                offset.x = scrollInfo.HorizontalOffset;
+                offset.y = scrollInfo.VerticalOffset;
+
+                this._TouchOrigin = e.GetTouchPoint(this).Position;
+            };
+            ScrollViewer.prototype.OnTouchUp = function (e) {
+                _super.prototype.OnTouchUp.call(this, e);
+                if (e.Handled || !this.IsEnabled)
+                    return;
+                e.Handled = true;
+                e.Device.ReleaseCapture(this);
+            };
+            ScrollViewer.prototype.OnTouchMove = function (e) {
+                _super.prototype.OnTouchMove.call(this, e);
+                if (e.Handled || e.Device.Captured !== this)
+                    return;
+                var tp = e.GetTouchPoint(this);
+                var pos = tp.Position;
+                var delta = this._Delta;
+                var origin = this._TouchOrigin;
+                delta.x = pos.x - origin.x;
+                delta.y = pos.y - origin.y;
+                this.ScrollToHorizontalOffset(delta.x);
+                this.ScrollToVerticalOffset(delta.y);
             };
 
             ScrollViewer.prototype.OnKeyDown = function (e) {

@@ -1466,6 +1466,12 @@ declare module Fayde.Controls {
         public OnApplyTemplate(): void;
         public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
         public OnMouseWheel(e: Input.MouseWheelEventArgs): void;
+        private _TouchOrigin;
+        private _Delta;
+        private _TouchInitialOffset;
+        public OnTouchDown(e: Input.TouchEventArgs): void;
+        public OnTouchUp(e: Input.TouchEventArgs): void;
+        public OnTouchMove(e: Input.TouchEventArgs): void;
         public OnKeyDown(e: Input.KeyEventArgs): void;
         public ScrollInDirection(key: Input.Key): void;
         public ScrollToHorizontalOffset(offset: number): void;
