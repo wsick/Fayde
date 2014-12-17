@@ -9703,6 +9703,40 @@ var Fayde;
                 this.$Proxy.adjustSelection(cursor);
             };
 
+            TextBoxBase.prototype.OnTouchDown = function (e) {
+                _super.prototype.OnTouchDown.call(this, e);
+                if (e.Handled)
+                    return;
+                e.Handled = true;
+                this.Focus();
+                e.Device.Capture(this);
+                this._Selecting = true;
+
+                var pos = e.Device.GetTouchPoint(this.$View).Position;
+                var cursor = this.$View.GetCursorFromPoint(pos);
+                this.$Proxy.beginSelect(cursor);
+            };
+
+            TextBoxBase.prototype.OnTouchUp = function (e) {
+                _super.prototype.OnTouchUp.call(this, e);
+                if (e.Handled)
+                    return;
+                if (e.Device.Captured === this)
+                    e.Device.ReleaseCapture(this);
+                e.Handled = true;
+                this._Selecting = false;
+            };
+
+            TextBoxBase.prototype.OnTouchMove = function (e) {
+                _super.prototype.OnTouchMove.call(this, e);
+                if (!this._Selecting)
+                    return;
+                e.Handled = true;
+                var pos = e.Device.GetTouchPoint(this.$View).Position;
+                var cursor = this.$View.GetCursorFromPoint(pos);
+                this.$Proxy.adjustSelection(cursor);
+            };
+
             TextBoxBase.prototype.OnKeyDown = function (args) {
                 switch (args.Key) {
                     case 4 /* Shift */:

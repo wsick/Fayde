@@ -2162,6 +2162,9 @@ declare module Fayde.Controls {
         public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
         public OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
         public OnMouseMove(e: Input.MouseEventArgs): void;
+        public OnTouchDown(e: Input.TouchEventArgs): void;
+        public OnTouchUp(e: Input.TouchEventArgs): void;
+        public OnTouchMove(e: Input.TouchEventArgs): void;
         public OnKeyDown(args: Input.KeyEventArgs): void;
         public PostOnKeyDown(args: Input.KeyEventArgs): void;
         private _KeyDownBackSpace(modifiers);

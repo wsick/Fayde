@@ -109,6 +109,40 @@ module Fayde.Controls {
             this.$Proxy.adjustSelection(cursor);
         }
 
+        OnTouchDown (e: Input.TouchEventArgs) {
+            super.OnTouchDown(e);
+            if (e.Handled)
+                return;
+            e.Handled = true;
+            this.Focus();
+            e.Device.Capture(this);
+            this._Selecting = true;
+
+            var pos = e.Device.GetTouchPoint(this.$View).Position;
+            var cursor = this.$View.GetCursorFromPoint(pos);
+            this.$Proxy.beginSelect(cursor);
+        }
+
+        OnTouchUp (e: Input.TouchEventArgs) {
+            super.OnTouchUp(e);
+            if (e.Handled)
+                return;
+            if (e.Device.Captured === this)
+                e.Device.ReleaseCapture(this);
+            e.Handled = true;
+            this._Selecting = false;
+        }
+
+        OnTouchMove (e: Input.TouchEventArgs) {
+            super.OnTouchMove(e);
+            if (!this._Selecting)
+                return;
+            e.Handled = true;
+            var pos = e.Device.GetTouchPoint(this.$View).Position;
+            var cursor = this.$View.GetCursorFromPoint(pos);
+            this.$Proxy.adjustSelection(cursor);
+        }
+
         OnKeyDown (args: Input.KeyEventArgs) {
             switch (args.Key) {
                 case Key.Shift: //shift
