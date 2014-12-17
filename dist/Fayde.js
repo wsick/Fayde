@@ -5748,6 +5748,63 @@ var Fayde;
                     }
                 };
 
+                Thumb.prototype.OnLostTouchCapture = function (e) {
+                    _super.prototype.OnLostTouchCapture.call(this, e);
+                    if (!this.IsDragging || !this.IsEnabled)
+                        return;
+                    this.SetCurrentValue(Thumb.IsDraggingProperty, false);
+                    this._RaiseDragCompleted(false);
+                };
+                Thumb.prototype.OnTouchEnter = function (e) {
+                    _super.prototype.OnTouchEnter.call(this, e);
+                    if (this.IsEnabled)
+                        this.UpdateVisualState();
+                };
+                Thumb.prototype.OnTouchLeave = function (e) {
+                    _super.prototype.OnTouchLeave.call(this, e);
+                    if (this.IsEnabled)
+                        this.UpdateVisualState();
+                };
+                Thumb.prototype.OnTouchDown = function (e) {
+                    _super.prototype.OnTouchDown.call(this, e);
+                    if (e.Handled || this.IsDragging || !this.IsEnabled)
+                        return;
+                    e.Handled = true;
+                    e.Device.Capture(this);
+                    this.SetCurrentValue(Thumb.IsDraggingProperty, true);
+
+                    var vpNode = this.XamlNode.VisualParentNode;
+                    var tp = e.GetTouchPoint(vpNode ? vpNode.XObject : undefined);
+                    this._Origin = this._PreviousPosition = tp.Position;
+                    var success = false;
+                    try  {
+                        this._RaiseDragStarted();
+                        success = true;
+                    } finally {
+                        if (!success)
+                            this.CancelDrag();
+                    }
+                };
+                Thumb.prototype.OnTouchUp = function (e) {
+                    _super.prototype.OnTouchUp.call(this, e);
+                    if (e.Handled || !this.IsDragging || !this.IsEnabled)
+                        return;
+                    e.Handled = true;
+                    e.Device.ReleaseCapture(this);
+                };
+                Thumb.prototype.OnTouchMove = function (e) {
+                    _super.prototype.OnTouchMove.call(this, e);
+                    if (!this.IsDragging)
+                        return;
+                    var vpNode = this.XamlNode.VisualParentNode;
+                    var tp = e.Device.GetTouchPoint(vpNode ? vpNode.XObject : undefined);
+                    var pos = tp.Position;
+                    if (!minerva.Point.isEqual(pos, this._PreviousPosition)) {
+                        this._RaiseDragDelta(pos.x - this._PreviousPosition.x, pos.y - this._PreviousPosition.y);
+                        this._PreviousPosition = pos;
+                    }
+                };
+
                 Thumb.prototype.CancelDrag = function () {
                     if (!this.IsDragging)
                         return;

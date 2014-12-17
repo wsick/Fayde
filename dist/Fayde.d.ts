@@ -1367,6 +1367,12 @@ declare module Fayde.Controls.Primitives {
         public OnMouseLeave(e: Input.MouseEventArgs): void;
         public OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
         public OnMouseMove(e: Input.MouseEventArgs): void;
+        public OnLostTouchCapture(e: Input.TouchEventArgs): void;
+        public OnTouchEnter(e: Input.TouchEventArgs): void;
+        public OnTouchLeave(e: Input.TouchEventArgs): void;
+        public OnTouchDown(e: Input.TouchEventArgs): void;
+        public OnTouchUp(e: Input.TouchEventArgs): void;
+        public OnTouchMove(e: Input.TouchEventArgs): void;
         public CancelDrag(): void;
         private _RaiseDragStarted();
         private _RaiseDragDelta(x, y);

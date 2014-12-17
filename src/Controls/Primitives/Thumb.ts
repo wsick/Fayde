@@ -27,7 +27,7 @@ module Fayde.Controls.Primitives {
         private OnDraggingChanged(args: IDependencyPropertyChangedEventArgs) {
             this.UpdateVisualState();
         }
-        
+
         OnGotFocus(e: RoutedEventArgs) {
             super.OnGotFocus(e);
             this._FocusChanged(Surface.HasFocus(this));
@@ -85,6 +85,63 @@ module Fayde.Controls.Primitives {
             }
         }
 
+        OnLostTouchCapture(e: Input.TouchEventArgs) {
+            super.OnLostTouchCapture(e);
+            if (!this.IsDragging || !this.IsEnabled)
+                return;
+            this.SetCurrentValue(Thumb.IsDraggingProperty, false);
+            this._RaiseDragCompleted(false);
+        }
+        OnTouchEnter(e: Input.TouchEventArgs) {
+            super.OnTouchEnter(e);
+            if (this.IsEnabled)
+                this.UpdateVisualState();
+        }
+        OnTouchLeave(e: Input.TouchEventArgs) {
+            super.OnTouchLeave(e);
+            if (this.IsEnabled)
+                this.UpdateVisualState();
+        }
+        OnTouchDown(e: Input.TouchEventArgs) {
+            super.OnTouchDown(e);
+            if (e.Handled || this.IsDragging || !this.IsEnabled)
+                return;
+            e.Handled = true;
+            e.Device.Capture(this);
+            this.SetCurrentValue(Thumb.IsDraggingProperty, true);
+
+            var vpNode = this.XamlNode.VisualParentNode;
+            var tp = e.GetTouchPoint(vpNode ? vpNode.XObject : undefined);
+            this._Origin = this._PreviousPosition = tp.Position;
+            var success = false;
+            try {
+                this._RaiseDragStarted();
+                success = true;
+            } finally {
+                if (!success)
+                    this.CancelDrag();
+            }
+        }
+        OnTouchUp(e: Input.TouchEventArgs) {
+            super.OnTouchUp(e);
+            if (e.Handled || !this.IsDragging || !this.IsEnabled)
+                return;
+            e.Handled = true;
+            e.Device.ReleaseCapture(this);
+        }
+        OnTouchMove(e: Input.TouchEventArgs) {
+            super.OnTouchMove(e);
+            if (!this.IsDragging)
+                return;
+            var vpNode = this.XamlNode.VisualParentNode;
+            var tp = e.Device.GetTouchPoint(vpNode ? vpNode.XObject : undefined);
+            var pos = tp.Position;
+            if (!minerva.Point.isEqual(pos, this._PreviousPosition)) {
+                this._RaiseDragDelta(pos.x - this._PreviousPosition.x, pos.y - this._PreviousPosition.y);
+                this._PreviousPosition = pos;
+            }
+        }
+
         CancelDrag() {
             if (!this.IsDragging)
                 return;
@@ -101,7 +158,7 @@ module Fayde.Controls.Primitives {
         private _RaiseDragCompleted(canceled: boolean) {
             this.DragCompleted.raise(this, new DragCompletedEventArgs(this._PreviousPosition.x - this._Origin.x, this._PreviousPosition.y - this._Origin.y, canceled));
         }
-        
+
         GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {
             if (!this.IsEnabled)
                 return gotoFunc("Disabled");
@@ -113,7 +170,7 @@ module Fayde.Controls.Primitives {
         }
     }
     Fayde.CoreLibrary.add(Thumb);
-    TemplateVisualStates(Thumb, 
+    TemplateVisualStates(Thumb,
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },
         { GroupName: "CommonStates", Name: "Pressed" },
