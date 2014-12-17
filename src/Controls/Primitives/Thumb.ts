@@ -131,7 +131,7 @@ module Fayde.Controls.Primitives {
         }
         OnTouchMove(e: Input.TouchEventArgs) {
             super.OnTouchMove(e);
-            if (!this.IsDragging)
+            if (!this.IsDragging || e.Device.Captured !== this)
                 return;
             var vpNode = this.XamlNode.VisualParentNode;
             var tp = e.Device.GetTouchPoint(vpNode ? vpNode.XObject : undefined);
