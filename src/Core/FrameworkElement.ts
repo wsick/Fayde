@@ -192,6 +192,11 @@ module Fayde {
         OnApplyTemplate() { }
         TemplateApplied = new nullstone.Event<nullstone.IEventArgs>();
 
+        OnBindingValidationError (args: Validation.ValidationErrorEventArgs) {
+            this.BindingValidationError.raise(this, args);
+        }
+        BindingValidationError = new nullstone.Event<Validation.ValidationErrorEventArgs>();
+
         UpdateLayout() { this.XamlNode.UpdateLayout(); }
     }
     Fayde.CoreLibrary.add(FrameworkElement);
