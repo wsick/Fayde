@@ -111,18 +111,25 @@ declare module Fayde.Collections {
     }
 }
 declare module Fayde.Collections {
-    class ReadOnlyObservableCollection<T> implements INotifyCollectionChanged, INotifyPropertyChanged {
+    class ReadOnlyObservableCollection<T> implements nullstone.ICollection<T>, INotifyCollectionChanged, INotifyPropertyChanged {
         public Count : number;
         private _Source;
         public CollectionChanged: nullstone.Event<CollectionChangedEventArgs>;
         public PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
         constructor(source: ObservableCollection<T>);
         public GetValueAt(index: number): T;
+        public getEnumerator(): nullstone.IEnumerator<T>;
         public ToArray(): T[];
         public IndexOf(value: T): number;
         public Contains(value: T): boolean;
         private _OnCollectionChanged(sender, args);
         private _OnPropertyChanged(sender, args);
+        public SetValueAt(index: number, value: T): void;
+        public Insert(index: number, value: T): void;
+        public Add(value: T): void;
+        public Remove(value: T): void;
+        public RemoveAt(index: number): void;
+        public Clear(): void;
     }
 }
 declare module Fayde {

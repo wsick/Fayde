@@ -50,6 +50,7 @@ module Fayde.Validation {
 
     export function AddError (element: FrameworkElement, error: ValidationError) {
         var errors = GetErrorsCore(element);
+        GetErrors(element); //ensure Validation.Errors gets created
         errors.Add(error);
         if (errors.Count === 1)
             SetHasError(element, true);
@@ -60,6 +61,7 @@ module Fayde.Validation {
 
     export function RemoveError (element: FrameworkElement, error: ValidationError) {
         var errors = GetErrorsCore(element);
+        GetErrors(element); //ensure Validation.Errors gets created
         if (errors.Remove(error)) {
             if (errors.Count === 0) {
                 SetHasError(element, false);

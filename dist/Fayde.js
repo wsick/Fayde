@@ -399,6 +399,10 @@ var Fayde;
                 return this._Source.GetValueAt(index);
             };
 
+            ReadOnlyObservableCollection.prototype.getEnumerator = function () {
+                return this._Source.getEnumerator();
+            };
+
             ReadOnlyObservableCollection.prototype.ToArray = function () {
                 return this._Source.ToArray();
             };
@@ -418,11 +422,35 @@ var Fayde;
             ReadOnlyObservableCollection.prototype._OnPropertyChanged = function (sender, args) {
                 this.PropertyChanged.raise(this, args);
             };
+
+            ReadOnlyObservableCollection.prototype.SetValueAt = function (index, value) {
+                throw new Error("Collection is read only.");
+            };
+
+            ReadOnlyObservableCollection.prototype.Insert = function (index, value) {
+                throw new Error("Collection is read only.");
+            };
+
+            ReadOnlyObservableCollection.prototype.Add = function (value) {
+                throw new Error("Collection is read only.");
+            };
+
+            ReadOnlyObservableCollection.prototype.Remove = function (value) {
+                throw new Error("Collection is read only.");
+            };
+
+            ReadOnlyObservableCollection.prototype.RemoveAt = function (index) {
+                throw new Error("Collection is read only.");
+            };
+
+            ReadOnlyObservableCollection.prototype.Clear = function () {
+                throw new Error("Collection is read only.");
+            };
             return ReadOnlyObservableCollection;
         })();
         Collections.ReadOnlyObservableCollection = ReadOnlyObservableCollection;
         Fayde.CoreLibrary.add(Collections.ObservableCollection);
-        nullstone.addTypeInterfaces(ReadOnlyObservableCollection, Collections.INotifyCollectionChanged_, Fayde.INotifyPropertyChanged_);
+        nullstone.addTypeInterfaces(ReadOnlyObservableCollection, nullstone.ICollection_, Collections.INotifyCollectionChanged_, Fayde.INotifyPropertyChanged_);
     })(Fayde.Collections || (Fayde.Collections = {}));
     var Collections = Fayde.Collections;
 })(Fayde || (Fayde = {}));
@@ -28966,6 +28994,7 @@ var Fayde;
 
         function AddError(element, error) {
             var errors = GetErrorsCore(element);
+            GetErrors(element);
             errors.Add(error);
             if (errors.Count === 1)
                 SetHasError(element, true);
@@ -28977,6 +29006,7 @@ var Fayde;
 
         function RemoveError(element, error) {
             var errors = GetErrorsCore(element);
+            GetErrors(element);
             if (errors.Remove(error)) {
                 if (errors.Count === 0) {
                     SetHasError(element, false);
