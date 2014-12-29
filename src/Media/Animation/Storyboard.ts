@@ -43,7 +43,7 @@ module Fayde.Media.Animation {
             } else {
                 var targetName = Storyboard.GetTargetName(timeline);
                 if (targetName)
-                    res.Target = <DependencyObject>timeline.FindName(targetName)
+                    res.Target = <DependencyObject>timeline.FindName(targetName, true)
             }
 
             res.Property = Storyboard.GetTargetProperty(timeline);

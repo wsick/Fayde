@@ -34,7 +34,8 @@ module Fayde {
         
         constructor() {
             super();
-            EventTrigger.ActionsProperty.Initialize(this);
+            var coll = EventTrigger.ActionsProperty.Initialize(this);
+            coll.AttachTo(this);
         }
 
         Attach(target: XamlObject) {

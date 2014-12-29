@@ -44,7 +44,9 @@ module Fayde.Media.Animation {
             this.Reset();
 
             var resolution = Storyboard.ResolveTarget(this);
-
+            if (!resolution.Target) {
+                console.warn("Could not resolve storyboard target.", Storyboard.GetTargetName(this));
+            }
             var refobj = { Value: resolution.Target };
             var targetProperty = resolution.Property.TryResolveDependencyProperty(refobj, promotedValues);
             resolution.Target = refobj.Value;

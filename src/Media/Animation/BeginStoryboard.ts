@@ -2,7 +2,7 @@
 
 module Fayde.Media.Animation {
     export class BeginStoryboard extends TriggerAction {
-        static StoryboardProperty: DependencyProperty = DependencyProperty.Register("Storyboard", () => Animation.Storyboard, BeginStoryboard);
+        static StoryboardProperty = DependencyProperty.RegisterCore("Storyboard", () => Animation.Storyboard, BeginStoryboard);
         Storyboard: Animation.Storyboard;
 
         Fire() {
