@@ -5,6 +5,10 @@ module Fayde.Validation {
     import ObservableCollection = Collections.ObservableCollection;
     import ReadOnlyObservableCollection = Collections.ReadOnlyObservableCollection;
 
+    class Validation extends DependencyObject {
+    }
+    Fayde.CoreLibrary.add(Validation, "Validation");
+
     export var HasErrorProperty = DependencyProperty.RegisterAttached("HasError", () => Boolean, Validation);
     export var ErrorsProperty = DependencyProperty.RegisterAttached("Errors", () => ReadOnlyObservableCollection, Validation);
     var ErrorsCoreProperty = DependencyProperty.RegisterAttached("ErrorsCore", () => ObservableCollection, Validation);
@@ -47,7 +51,7 @@ module Fayde.Validation {
     export function AddError (element: FrameworkElement, error: ValidationError) {
         var errors = GetErrorsCore(element);
         errors.Add(error);
-        if (errors.Count == 1)
+        if (errors.Count === 1)
             SetHasError(element, true);
 
         if (element instanceof Controls.Control)
@@ -57,7 +61,7 @@ module Fayde.Validation {
     export function RemoveError (element: FrameworkElement, error: ValidationError) {
         var errors = GetErrorsCore(element);
         if (errors.Remove(error)) {
-            if (errors.Count == 0) {
+            if (errors.Count === 0) {
                 SetHasError(element, false);
                 if (element instanceof Controls.Control)
                     (<Controls.Control>element).UpdateValidationState(true);

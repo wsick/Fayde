@@ -420,7 +420,7 @@ module Fayde.Data {
     }
 
     function getMentor (dobj: DependencyObject): FrameworkElement {
-        for (var cur = <XamlObject>this.Target; cur; cur = cur.Parent) {
+        for (var cur = <XamlObject>dobj; cur; cur = cur.Parent) {
             if (cur instanceof FrameworkElement)
                 return <FrameworkElement>cur;
         }
