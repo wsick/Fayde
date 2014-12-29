@@ -1,7 +1,7 @@
 module Fayde {
     export class Expression {
-        IsUpdating: boolean;
-        IsAttached: boolean;
+        IsUpdating: boolean = false;
+        IsAttached: boolean = false;
 
         Seal (owner: DependencyObject, prop: any) {
         }

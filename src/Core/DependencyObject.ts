@@ -48,7 +48,7 @@ module Fayde {
         private _Expressions: Expression[] = [];
         _PropertyStorage: Providers.IPropertyStorage[] = [];
 
-        static DataContextProperty: DependencyProperty = DependencyProperty.Register("DataContext", () => Object, DependencyObject);
+        static DataContextProperty = DependencyProperty.Register("DataContext", () => Object, DependencyObject);
         DataContext: any;
 
         constructor() {

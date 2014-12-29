@@ -106,7 +106,7 @@ module Fayde.Controls {
         }
 
         private _OnErroredUri (err: any, src: Uri) {
-            console.warn("Error resolving XamlResource: '" + src.toString() + "'.")
+            console.warn("Error resolving XamlResource: '" + src.toString() + "'.");
             //TODO: Set content to error message?
         }
     }
