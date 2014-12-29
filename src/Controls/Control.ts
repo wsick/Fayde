@@ -38,7 +38,7 @@ module Fayde.Controls {
                 this.AttachVisualChild(this.TemplateRoot, error);
             if (error.Message)
                 return false;
-                
+
             //TODO: Deployment Loaded Event (Async)
 
             return true;
@@ -65,7 +65,7 @@ module Fayde.Controls {
             }
             this.LayoutUpdater.invalidateMeasure();
         }
-        
+
         get IsEnabled(): boolean { return this.XObject.IsEnabled; }
         set IsEnabled(value: boolean) {
             Providers.IsEnabledStore.EmitInheritedChanged(this, value);
@@ -213,6 +213,21 @@ module Fayde.Controls {
         }
         GoToStateSelection(gotoFunc: (state: string) => boolean): boolean {
             return false;
+        }
+
+        UpdateValidationState (valid?: boolean) {
+            if (valid === undefined)
+                valid = Validation.GetErrors(this).Count > 0;
+            var gotoFunc = (state: string) => Media.VSM.VisualStateManager.GoToState(this, state, true);
+            this.GoToStateValidation(valid, gotoFunc);
+        }
+
+        GoToStateValidation (valid: boolean, gotoFunc: (state: string) => boolean) {
+            if (valid)
+                return gotoFunc("Valid");
+            else if (this.IsFocused)
+                return gotoFunc("InvalidFocused");
+            return gotoFunc("InvalidUnfocused");
         }
     }
     Fayde.CoreLibrary.add(Control);
