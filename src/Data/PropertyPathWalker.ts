@@ -1,4 +1,3 @@
-
 module Fayde.Data {
     export interface IPropertyPathWalkerListener {
         IsBrokenChanged();
@@ -32,7 +31,7 @@ module Fayde.Data {
         FinalNode: IPropertyPathNode;
         private _Listener: IPropertyPathWalkerListener;
 
-        get IsPathBroken(): boolean {
+        get IsPathBroken (): boolean {
             var path = this.Path;
             if (this.IsDataContextBound && (!path || path.length < 1))
                 return false;
@@ -46,7 +45,19 @@ module Fayde.Data {
             return false;
         }
 
-        constructor(path: string, bindDirectlyToSource?: boolean, bindsToView?: boolean, isDataContextBound?: boolean) {
+        get FinalPropertyName (): string {
+            var final = <StandardPropertyPathNode>this.FinalNode;
+            if (final instanceof StandardPropertyPathNode)
+                return final.PropertyInfo ? final.PropertyInfo.name : "";
+            var lastName = "";
+            for (var cur = this.Node; cur; cur = cur.Next) {
+                if (cur instanceof StandardPropertyPathNode)
+                    lastName = (<StandardPropertyPathNode>cur).PropertyInfo ? (<StandardPropertyPathNode>cur).PropertyInfo.name : "";
+            }
+            return lastName;
+        }
+
+        constructor (path: string, bindDirectlyToSource?: boolean, bindsToView?: boolean, isDataContextBound?: boolean) {
             bindDirectlyToSource = bindDirectlyToSource !== false;
             bindsToView = bindsToView === true;
             this.IsDataContextBound = isDataContextBound === true;
@@ -80,7 +91,7 @@ module Fayde.Data {
                             break;
                         case PropertyNodeType.Indexed:
                             node.Next = new IndexedPropertyPathNode(data.index);
-                            break
+                            break;
                         default:
                             break;
                     }
@@ -98,31 +109,38 @@ module Fayde.Data {
             this.FinalNode.Listen(this);
         }
 
-        GetValue(item: any) {
+        GetValue (item: any) {
             this.Update(item);
             var o = this.FinalNode.Value;
             return o;
         }
-        Update(source: any) {
+
+        Update (source: any) {
             this.Source = source;
             this.Node.SetSource(source);
         }
 
-        Listen(listener: IPropertyPathWalkerListener) { this._Listener = listener; }
-        Unlisten(listener: IPropertyPathWalkerListener) { if (this._Listener === listener) this._Listener = null; }
+        Listen (listener: IPropertyPathWalkerListener) {
+            this._Listener = listener;
+        }
 
-        IsBrokenChanged(node: IPropertyPathNode) {
+        Unlisten (listener: IPropertyPathWalkerListener) {
+            if (this._Listener === listener) this._Listener = null;
+        }
+
+        IsBrokenChanged (node: IPropertyPathNode) {
             this.ValueInternal = node.Value;
             var listener = this._Listener;
             if (listener) listener.IsBrokenChanged();
         }
-        ValueChanged(node: IPropertyPathNode) {
+
+        ValueChanged (node: IPropertyPathNode) {
             this.ValueInternal = node.Value;
             var listener = this._Listener;
             if (listener) listener.ValueChanged();
         }
 
-        GetContext(): any {
+        GetContext (): any {
             var context: IPropertyPathNode = null;
             var cur = this.Node;
             var final = this.FinalNode;
@@ -145,20 +163,41 @@ module Fayde.Data {
         private _NodeListener: IPropertyPathNodeListener;
         ValueType: IType;
 
-        get IsBroken(): boolean { return this._IsBroken; }
-        get Source(): any { return this._Source; }
-        get Value(): any { return this._Value; }
+        get IsBroken (): boolean {
+            return this._IsBroken;
+        }
 
-        Listen(listener: IPropertyPathNodeListener) { this._NodeListener = listener; }
-        Unlisten(listener: IPropertyPathNodeListener) { if (this._NodeListener === listener) this._NodeListener = null; }
+        get Source (): any {
+            return this._Source;
+        }
 
-        OnSourceChanged(oldSource, newSource) { }
-        OnSourcePropertyChanged(o, e) { }
+        get Value (): any {
+            return this._Value;
+        }
 
-        UpdateValue() { throw new Exception("No override for abstract method: PropertyPathNode.UpdateValue"); }
-        SetValue(value: any) { throw new Exception("No override for abstract method: PropertyPathNode.SetValue"); }
+        Listen (listener: IPropertyPathNodeListener) {
+            this._NodeListener = listener;
+        }
 
-        SetSource(value: any) {
+        Unlisten (listener: IPropertyPathNodeListener) {
+            if (this._NodeListener === listener) this._NodeListener = null;
+        }
+
+        OnSourceChanged (oldSource, newSource) {
+        }
+
+        OnSourcePropertyChanged (o, e) {
+        }
+
+        UpdateValue () {
+            throw new Exception("No override for abstract method: PropertyPathNode.UpdateValue");
+        }
+
+        SetValue (value: any) {
+            throw new Exception("No override for abstract method: PropertyPathNode.SetValue");
+        }
+
+        SetSource (value: any) {
             if (value == null || value !== this._Source) {
                 var oldSource = this._Source;
                 var npc = INotifyPropertyChanged_.as(oldSource);
@@ -176,7 +215,7 @@ module Fayde.Data {
             }
         }
 
-        UpdateValueAndIsBroken(newValue: any, isBroken: boolean) {
+        UpdateValueAndIsBroken (newValue: any, isBroken: boolean) {
             var emitBrokenChanged = this._IsBroken !== isBroken;
             var emitValueChanged = !nullstone.equals(this.Value, newValue);
 
@@ -191,7 +230,8 @@ module Fayde.Data {
                 if (listener) listener.IsBrokenChanged(this);
             }
         }
-        _CheckIsBroken(): boolean {
+
+        _CheckIsBroken (): boolean {
             return !this.Source || (!this.PropertyInfo && !this.DependencyProperty);
         }
     }
@@ -202,19 +242,20 @@ module Fayde.Data {
         PropertyInfo: nullstone.IPropertyInfo;
         private _DPListener: Providers.IPropertyChangedListener;
 
-        constructor(typeName: string, propertyName: string) {
+        constructor (typeName: string, propertyName: string) {
             super();
             this._STypeName = typeName;
             this._PropertyName = propertyName;
         }
 
-        SetValue(value: any) {
+        SetValue (value: any) {
             if (this.DependencyProperty)
                 (<DependencyObject>this.Source).SetValue(this.DependencyProperty, value);
             else if (this.PropertyInfo)
                 this.PropertyInfo.setValue(this.Source, value);
         }
-        UpdateValue() {
+
+        UpdateValue () {
             if (this.DependencyProperty) {
                 this.ValueType = this.DependencyProperty.GetTargetType();
                 this.UpdateValueAndIsBroken((<DependencyObject>this.Source).GetValue(this.DependencyProperty), this._CheckIsBroken());
@@ -232,7 +273,7 @@ module Fayde.Data {
             }
         }
 
-        OnSourceChanged(oldSource: any, newSource: any) {
+        OnSourceChanged (oldSource: any, newSource: any) {
             super.OnSourceChanged(oldSource, newSource);
 
             var oldDO: DependencyObject;
@@ -263,16 +304,18 @@ module Fayde.Data {
                 this.PropertyInfo = nullstone.PropertyInfo.find(this.Source, this._PropertyName);
             }
         }
-        OnPropertyChanged(sender, args: IDependencyPropertyChangedEventArgs) {
+
+        OnPropertyChanged (sender, args: IDependencyPropertyChangedEventArgs) {
             try {
                 this.UpdateValue();
                 if (this.Next)
                     this.Next.SetSource(this.Value);
             } catch (err) {
-            //Ignore
+                //Ignore
             }
         }
-        OnSourcePropertyChanged(sender, e) {
+
+        OnSourcePropertyChanged (sender, e) {
             if (e.PropertyName === this._PropertyName && this.PropertyInfo) {
                 this.UpdateValue();
                 var next = this.Next;
@@ -287,31 +330,35 @@ module Fayde.Data {
         private _ViewPropertyListener: Providers.IPropertyChangedListener;
         private _View: ICollectionView;
 
-        constructor(bindsDirectlyToSource: boolean, bindToView: boolean) {
+        constructor (bindsDirectlyToSource: boolean, bindToView: boolean) {
             super();
             this.BindsDirectlyToSource = bindsDirectlyToSource === true;
             this.BindToView = bindToView === true;
         }
 
-        OnSourceChanged(oldSource: any, newSource: any) {
+        OnSourceChanged (oldSource: any, newSource: any) {
             super.OnSourceChanged(oldSource, newSource);
             this.DisconnectViewHandlers();
             this.ConnectViewHandlers(newSource, newSource);
         }
-        ViewChanged(sender: any, e: IDependencyPropertyChangedEventArgs) {
+
+        ViewChanged (sender: any, e: IDependencyPropertyChangedEventArgs) {
             this.DisconnectViewHandlers(true);
             this.ConnectViewHandlers(null, e.NewValue);
             this.ViewCurrentChanged(this, null);
         }
-        ViewCurrentChanged(sender: any, e: nullstone.IEventArgs) {
+
+        ViewCurrentChanged (sender: any, e: nullstone.IEventArgs) {
             this.UpdateValue();
             if (this.Next)
                 this.Next.SetSource(this.Value);
         }
-        SetValue() {
+
+        SetValue () {
             throw new NotSupportedException("SetValue");
         }
-        UpdateValue() {
+
+        UpdateValue () {
             var src = this.Source;
             if (!this.BindsDirectlyToSource) {
                 var view: ICollectionView;
@@ -325,9 +372,12 @@ module Fayde.Data {
             this.ValueType = src == null ? null : src.constructor;
             this.UpdateValueAndIsBroken(src, this._CheckIsBroken());
         }
-        _CheckIsBroken(): boolean { return this.Source == null; }
 
-        ConnectViewHandlers(source: CollectionViewSource, view: ICollectionView) {
+        _CheckIsBroken (): boolean {
+            return this.Source == null;
+        }
+
+        ConnectViewHandlers (source: CollectionViewSource, view: ICollectionView) {
             if (source instanceof CollectionViewSource) {
                 this._ViewPropertyListener = CollectionViewSource.ViewProperty.Store.ListenToChanged(source, CollectionViewSource.ViewProperty, this.ViewChanged, this);
                 view = source.View;
@@ -336,7 +386,8 @@ module Fayde.Data {
             if (this._View)
                 this._View.CurrentChanged.on(this.ViewCurrentChanged, this);
         }
-        DisconnectViewHandlers(onlyView?: boolean) {
+
+        DisconnectViewHandlers (onlyView?: boolean) {
             if (!onlyView)
                 onlyView = false;
             if (this._ViewPropertyListener && !onlyView) {
@@ -354,16 +405,16 @@ module Fayde.Data {
         _IsBroken: boolean;
         PropertyInfo: nullstone.IndexedPropertyInfo;
 
-        constructor(index: any) {
+        constructor (index: any) {
             super();
             this._IsBroken = false;
             var val = parseInt(index, 10);
             if (!isNaN(val))
                 index = val;
-            Object.defineProperty(this, "Index", { value: index, writable: false });
+            Object.defineProperty(this, "Index", {value: index, writable: false});
         }
 
-        UpdateValue() {
+        UpdateValue () {
             if (this.PropertyInfo == null) {
                 this._IsBroken = true;
                 this.ValueType = null;
@@ -382,21 +433,23 @@ module Fayde.Data {
                 this.UpdateValueAndIsBroken(null, this._IsBroken);
             }
         }
-        SetValue(value: any) {
+
+        SetValue (value: any) {
             if (this.PropertyInfo)
                 this.PropertyInfo.setValue(this.Source, this.Index, value);
         }
 
-        _CheckIsBroken(): boolean {
+        _CheckIsBroken (): boolean {
             return this._IsBroken || super._CheckIsBroken();
         }
 
-        OnSourcePropertyChanged(o, e) {
+        OnSourcePropertyChanged (o, e) {
             this.UpdateValue();
             if (this.Next != null)
                 this.Next.SetSource(this.Value);
         }
-        OnSourceChanged(oldSource: any, newSource: any) {
+
+        OnSourceChanged (oldSource: any, newSource: any) {
             super.OnSourceChanged(oldSource, newSource);
 
             var cc = Collections.INotifyCollectionChanged_.as(oldSource);
@@ -410,14 +463,14 @@ module Fayde.Data {
             this._GetIndexer();
         }
 
-        private _GetIndexer() {
+        private _GetIndexer () {
             this.PropertyInfo = null;
             if (this._Source != null) {
                 this.PropertyInfo = nullstone.IndexedPropertyInfo.find(this._Source);
             }
         }
 
-        CollectionChanged(o, e) {
+        CollectionChanged (o, e) {
             this.UpdateValue();
             if (this.Next)
                 this.Next.SetSource(this.Value);
