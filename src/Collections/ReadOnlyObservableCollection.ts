@@ -1,5 +1,5 @@
 module Fayde.Collections {
-    export class ReadOnlyObservableCollection<T> implements INotifyCollectionChanged, INotifyPropertyChanged {
+    export class ReadOnlyObservableCollection<T> implements nullstone.ICollection<T>, INotifyCollectionChanged, INotifyPropertyChanged {
         get Count (): number {
             return this._Source.Count;
         }
@@ -17,6 +17,10 @@ module Fayde.Collections {
 
         GetValueAt (index: number) {
             return this._Source.GetValueAt(index);
+        }
+
+        getEnumerator (): nullstone.IEnumerator<T> {
+            return this._Source.getEnumerator();
         }
 
         ToArray (): T[] {
@@ -38,7 +42,31 @@ module Fayde.Collections {
         private _OnPropertyChanged (sender: any, args: PropertyChangedEventArgs) {
             this.PropertyChanged.raise(this, args);
         }
+
+        SetValueAt (index: number, value: T) {
+            throw new Error("Collection is read only.");
+        }
+
+        Insert (index: number, value: T) {
+            throw new Error("Collection is read only.");
+        }
+
+        Add (value: T) {
+            throw new Error("Collection is read only.");
+        }
+
+        Remove (value: T) {
+            throw new Error("Collection is read only.");
+        }
+
+        RemoveAt (index: number) {
+            throw new Error("Collection is read only.");
+        }
+
+        Clear () {
+            throw new Error("Collection is read only.");
+        }
     }
     Fayde.CoreLibrary.add(ObservableCollection);
-    nullstone.addTypeInterfaces(ReadOnlyObservableCollection, INotifyCollectionChanged_, INotifyPropertyChanged_);
+    nullstone.addTypeInterfaces(ReadOnlyObservableCollection, nullstone.ICollection_, INotifyCollectionChanged_, INotifyPropertyChanged_);
 }
