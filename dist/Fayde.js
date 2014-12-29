@@ -14192,6 +14192,13 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Data) {
+        Data.IDataErrorInfo_ = new nullstone.Interface("IDataErrorInfo");
+    })(Fayde.Data || (Fayde.Data = {}));
+    var Data = Fayde.Data;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Data) {
         Data.INotifyDataErrorInfo_ = new nullstone.Interface("INotifyDataErrorInfo");
     })(Fayde.Data || (Fayde.Data = {}));
     var Data = Fayde.Data;
@@ -17047,9 +17054,10 @@ var Fayde;
                 if (binding.Mode !== 1 /* TwoWay */)
                     return;
 
-                var dataError;
+                var dataError = null;
                 var exception;
                 var oldUpdating = this.IsUpdating;
+                var walker = this.PropertyPathWalker;
                 var node = this.PropertyPathWalker.FinalNode;
 
                 try  {
@@ -17070,6 +17078,9 @@ var Fayde;
                     }
                 } finally {
                     this.IsUpdating = oldUpdating;
+                    if (binding.ValidatesOnDataErrors && !exception) {
+                        dataError = getDataError(walker);
+                    }
                 }
                 this._MaybeEmitError(dataError, exception);
             };
@@ -17101,14 +17112,18 @@ var Fayde;
             };
 
             BindingExpressionBase.prototype.Refresh = function () {
-                var dataError;
+                var dataError = null;
                 var exception;
 
                 if (!this.IsAttached)
                     return;
 
-                var node = this.PropertyPathWalker.FinalNode;
-                this._AttachToNotifyError(node.GetSource());
+                var walker = this.PropertyPathWalker;
+                this._AttachToNotifyError(walker.FinalNode.GetSource());
+
+                var binding = this.ParentBinding;
+                if (!this.IsUpdating && binding.ValidatesOnDataErrors)
+                    dataError = getDataError(walker);
 
                 var oldUpdating = this.IsUpdating;
                 try  {
@@ -17116,7 +17131,7 @@ var Fayde;
                     this._Invalidate();
                     this.Target.SetValue(this.Property, this);
                 } catch (err) {
-                    if (this.ParentBinding.ValidatesOnExceptions) {
+                    if (binding.ValidatesOnExceptions) {
                         exception = err;
                         if (exception instanceof TargetInvocationException)
                             exception = exception.InnerException;
@@ -17248,6 +17263,12 @@ var Fayde;
                     return cur;
             }
             return null;
+        }
+
+        function getDataError(walker) {
+            var info = Data.IDataErrorInfo_.as(walker.FinalNode.GetSource());
+            var name = walker.FinalPropertyName;
+            return (info && name) ? info.getError(name) : null;
         }
     })(Fayde.Data || (Fayde.Data = {}));
     var Data = Fayde.Data;

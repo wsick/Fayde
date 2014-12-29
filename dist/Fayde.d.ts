@@ -2934,6 +2934,13 @@ declare module Fayde.Data {
     var ICollectionView_: nullstone.Interface<ICollectionView>;
 }
 declare module Fayde.Data {
+    interface IDataErrorInfo {
+        Error: string;
+        getError(propertyName: string): string;
+    }
+    var IDataErrorInfo_: nullstone.Interface<IDataErrorInfo>;
+}
+declare module Fayde.Data {
     interface INotifyDataErrorInfo {
         ErrorsChanged: nullstone.Event<DataErrorsChangedEventArgs>;
         GetErrors(propertyName: string): nullstone.IEnumerable<any>;

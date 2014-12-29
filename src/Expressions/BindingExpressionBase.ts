@@ -214,9 +214,10 @@ module Fayde.Data {
             if (binding.Mode !== BindingMode.TwoWay)
                 return;
 
-            var dataError;
+            var dataError: string = null;
             var exception: Exception;
             var oldUpdating = this.IsUpdating;
+            var walker = this.PropertyPathWalker;
             var node = this.PropertyPathWalker.FinalNode;
 
             try {
@@ -237,10 +238,9 @@ module Fayde.Data {
                 }
             } finally {
                 this.IsUpdating = oldUpdating;
-                //TODO: IDataErrorInfo
-                //if (binding.ValidatesOnDataErrors && !exception && node.Source.DoesImplement(IDataErrorInfo) && node.GetPropertyInfo() != null) {
-                //dataError = node.Source[node.GetPropertyInfo().Name];
-                //}
+                if (binding.ValidatesOnDataErrors && !exception) {
+                    dataError = getDataError(walker);
+                }
             }
             this._MaybeEmitError(dataError, exception);
         }
@@ -272,19 +272,18 @@ module Fayde.Data {
         }
 
         Refresh () {
-            var dataError: any;
+            var dataError: string = null;
             var exception: Exception;
 
             if (!this.IsAttached)
                 return;
 
-            var node = this.PropertyPathWalker.FinalNode;
-            this._AttachToNotifyError(node.GetSource());
+            var walker = this.PropertyPathWalker;
+            this._AttachToNotifyError(walker.FinalNode.GetSource());
 
-            //TODO: IDataErrorInfo
-            //source = Nullstone.As(node.Source, IDataErrorInfo);
-            //if (!this.Updating && this.Binding.ValidatesOnDataErrors && source && node.GetPropertyInfo())
-            //dataError = source[node.GetPropertyInfo().Name];
+            var binding = this.ParentBinding;
+            if (!this.IsUpdating && binding.ValidatesOnDataErrors)
+                dataError = getDataError(walker);
 
             var oldUpdating = this.IsUpdating;
             try {
@@ -292,7 +291,7 @@ module Fayde.Data {
                 this._Invalidate();
                 this.Target.SetValue(this.Property, this);
             } catch (err) {
-                if (this.ParentBinding.ValidatesOnExceptions) {
+                if (binding.ValidatesOnExceptions) {
                     exception = err;
                     if (exception instanceof TargetInvocationException)
                         exception = (<TargetInvocationException>exception).InnerException;
@@ -426,5 +425,11 @@ module Fayde.Data {
                 return <FrameworkElement>cur;
         }
         return null;
+    }
+
+    function getDataError (walker: PropertyPathWalker): string {
+        var info = IDataErrorInfo_.as(walker.FinalNode.GetSource());
+        var name = walker.FinalPropertyName;
+        return (info && name) ? info.getError(name) : null;
     }
 }
