@@ -110,6 +110,21 @@ declare module Fayde.Collections {
         constructor(item: T, propertyName: string);
     }
 }
+declare module Fayde.Collections {
+    class ReadOnlyObservableCollection<T> implements INotifyCollectionChanged, INotifyPropertyChanged {
+        public Count : number;
+        private _Source;
+        public CollectionChanged: nullstone.Event<CollectionChangedEventArgs>;
+        public PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
+        constructor(source: ObservableCollection<T>);
+        public GetValueAt(index: number): T;
+        public ToArray(): T[];
+        public IndexOf(value: T): number;
+        public Contains(value: T): boolean;
+        private _OnCollectionChanged(sender, args);
+        private _OnPropertyChanged(sender, args);
+    }
+}
 declare module Fayde {
     interface IIsAttachedMonitor {
         Callback: (newIsAttached: boolean) => void;
@@ -683,6 +698,8 @@ declare module Fayde {
         public LayoutUpdated: nullstone.Event<nullstone.IEventArgs>;
         public OnApplyTemplate(): void;
         public TemplateApplied: nullstone.Event<nullstone.IEventArgs>;
+        public OnBindingValidationError(args: Validation.ValidationErrorEventArgs): void;
+        public BindingValidationError: nullstone.Event<Validation.ValidationErrorEventArgs>;
         public UpdateLayout(): void;
     }
 }
@@ -836,6 +853,8 @@ declare module Fayde.Controls {
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
         public GoToStateFocus(gotoFunc: (state: string) => boolean): boolean;
         public GoToStateSelection(gotoFunc: (state: string) => boolean): boolean;
+        public UpdateValidationState(valid?: boolean): void;
+        public GoToStateValidation(valid: boolean, gotoFunc: (state: string) => boolean): boolean;
     }
     interface ITemplateVisualStateDefinition {
         Name: string;
@@ -2882,6 +2901,12 @@ declare module Fayde.Data {
     }
 }
 declare module Fayde.Data {
+    class DataErrorsChangedEventArgs implements nullstone.IEventArgs {
+        public PropertyName: string;
+        constructor(propertyName: string);
+    }
+}
+declare module Fayde.Data {
     enum RelativeSourceMode {
         TemplatedParent = 0,
         Self = 1,
@@ -2907,6 +2932,14 @@ declare module Fayde.Data {
         MoveCurrentTo(item: any): boolean;
     }
     var ICollectionView_: nullstone.Interface<ICollectionView>;
+}
+declare module Fayde.Data {
+    interface INotifyDataErrorInfo {
+        ErrorsChanged: nullstone.Event<DataErrorsChangedEventArgs>;
+        GetErrors(propertyName: string): nullstone.IEnumerable<any>;
+        HasErrors: boolean;
+    }
+    var INotifyDataErrorInfo_: nullstone.Interface<INotifyDataErrorInfo>;
 }
 declare module Fayde.Data {
     interface IValueConverter {
@@ -2963,6 +2996,7 @@ declare module Fayde.Data {
         Value: any;
         IsBroken: boolean;
         ValueType: IType;
+        GetSource(): any;
         SetSource(source: any): any;
         SetValue(value: any): any;
         Listen(listener: IPropertyPathNodeListener): any;
@@ -2984,6 +3018,7 @@ declare module Fayde.Data {
         public FinalNode: IPropertyPathNode;
         private _Listener;
         public IsPathBroken : boolean;
+        public FinalPropertyName : string;
         constructor(path: string, bindDirectlyToSource?: boolean, bindsToView?: boolean, isDataContextBound?: boolean);
         public GetValue(item: any): any;
         public Update(source: any): void;
@@ -3354,6 +3389,8 @@ declare module Fayde.Data {
         private _IsDataContextBound;
         private _DataContext;
         private _TwoWayLostFocusElement;
+        private _CurrentNotifyError;
+        private _CurrentError;
         public DataItem : any;
         private _Cached;
         private _CachedValue;
@@ -3381,7 +3418,7 @@ declare module Fayde.Data {
         private _ConvertToType(propd, value);
         private _MaybeEmitError(message, exception);
         private _AttachToNotifyError(element);
-        private _NotifyErrorsChanged(o, e);
+        private _NotifyErrorsChanged(sender, e);
     }
 }
 declare module Fayde.Data {
@@ -5581,6 +5618,37 @@ declare module Fayde.Text {
         static Cut(text: string, start: number, len: number): string;
         static Insert(text: string, index: number, str: string): string;
         static Replace(text: string, start: number, len: number, str: string): string;
+    }
+}
+declare module Fayde.Validation {
+    function Emit(fe: FrameworkElement, binding: Data.Binding, oldError: ValidationError, error: ValidationError): void;
+}
+declare module Fayde.Validation {
+    var HasErrorProperty: DependencyProperty;
+    var ErrorsProperty: DependencyProperty;
+    function GetErrors(dobj: DependencyObject): Collections.ReadOnlyObservableCollection<ValidationError>;
+    function GetHasError(dobj: DependencyObject): boolean;
+    function AddError(element: FrameworkElement, error: ValidationError): void;
+    function RemoveError(element: FrameworkElement, error: ValidationError): void;
+}
+declare module Fayde.Validation {
+    class ValidationError {
+        public ErrorContent: any;
+        public Exception: Exception;
+        constructor(content: any, exception: Exception);
+    }
+}
+declare module Fayde.Validation {
+    enum ValidationErrorEventAction {
+        Added = 0,
+        Removed = 1,
+    }
+}
+declare module Fayde.Validation {
+    class ValidationErrorEventArgs extends RoutedEventArgs {
+        public Action: ValidationErrorEventAction;
+        public Error: ValidationError;
+        constructor(action: ValidationErrorEventAction, error: ValidationError);
     }
 }
 declare module Fayde {

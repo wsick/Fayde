@@ -9,6 +9,7 @@ module Fayde.Data {
         Value: any;
         IsBroken: boolean;
         ValueType: IType;
+        GetSource(): any;
         SetSource(source: any);
         SetValue(value: any);
         Listen(listener: IPropertyPathNodeListener);
@@ -195,6 +196,10 @@ module Fayde.Data {
 
         SetValue (value: any) {
             throw new Exception("No override for abstract method: PropertyPathNode.SetValue");
+        }
+
+        GetSource (): any {
+            return this._Source;
         }
 
         SetSource (value: any) {

@@ -15,6 +15,9 @@ module Fayde.Data {
         private _DataContext: any;
         private _TwoWayLostFocusElement: UIElement = null;
 
+        private _CurrentNotifyError: Data.INotifyDataErrorInfo = null;
+        private _CurrentError: Validation.ValidationError = null;
+
         get DataItem (): any {
             return this.PropertyPathWalker.Source;
         }
@@ -147,12 +150,12 @@ module Fayde.Data {
             if (this._TwoWayLostFocusElement)
                 this._TwoWayLostFocusElement.LostFocus.off(this._TargetLostFocus, this);
 
-            /*
-             if (this.Target && this.CurrentError != null) {
-             //TODO: Validation.RemoveError(this.Target, this.CurrentError);
-             this.CurrentError = null;
-             }
-             */
+            if (this._CurrentError != null) {
+                var fe = getMentor(element);
+                if (fe)
+                    Validation.RemoveError(fe, this._CurrentError);
+                this._CurrentError = null;
+            }
 
             if (this._PropertyListener) {
                 this._PropertyListener.Detach();
@@ -275,12 +278,10 @@ module Fayde.Data {
             if (!this.IsAttached)
                 return;
 
-            //TODO: ERROR/VALIDATION
-            //var node = this.PropertyPathWalker.FinalNode;
-            //var source = node.Source;
-            //source = Nullstone.As(source, INotifyDataErrorInfo));
-            //this._AttachToNotifyError(source);
+            var node = this.PropertyPathWalker.FinalNode;
+            this._AttachToNotifyError(node.GetSource());
 
+            //TODO: IDataErrorInfo
             //source = Nullstone.As(node.Source, IDataErrorInfo);
             //if (!this.Updating && this.Binding.ValidatesOnDataErrors && source && node.GetPropertyInfo())
             //dataError = source[node.GetPropertyInfo().Name];
@@ -351,49 +352,79 @@ module Fayde.Data {
         }
 
         private _MaybeEmitError (message: string, exception: Exception) {
-            /*
-             var fe: FrameworkElement = this.TargetFE;
-             if (!fe && !(fe = this.Target.GetMentor()))
-             return;
+            var fe = getMentor(this.Target);
+            if (!fe)
+                return;
 
-             if (message === "")
-             message = null;
+            var error = (exception instanceof Exception || exception instanceof Error) ? exception : null;
+            if (message === "")
+                message = null;
 
-             var oldError = this.CurrentError;
-             if (message != null)
-             this.CurrentError = new ValidationError(message, null);
-             else if (exception)
-             this.CurrentError = new ValidationError(null, exception);
-             else
-             this.CurrentError = null;
+            var oldError = this._CurrentError;
+            if (message != null)
+                this._CurrentError = new Validation.ValidationError(message, null);
+            else if (error)
+                this._CurrentError = new Validation.ValidationError(null, error);
+            else
+                this._CurrentError = null;
 
-             if (oldError && this.CurrentError) {
-             Validation.AddError(fe, this.CurrentError);
-             Validation.RemoveError(fe, oldError);
-             if (this.Binding.NotifyOnValidationError) {
-             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
-             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.CurrentError));
-             }
-             } else if (oldError) {
-             Validation.RemoveError(fe, oldError);
-             if (this.Binding.NotifyOnValidationError)
-             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
-             } else if (this.CurrentError) {
-             Validation.AddError(fe, this.CurrentError);
-             if (this.Binding.NotifyOnValidationError)
-             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.CurrentError));
-             }
-             */
+            Validation.Emit(fe, this.ParentBinding, oldError, this._CurrentError);
         }
 
-        private _AttachToNotifyError (element) {
-            ///<param name="element" type="INotifyDataErrorInfo"></param>
-            console.warn("BindingExpressionBase._AttachToNotifyError");
+        private _AttachToNotifyError (element: Data.INotifyDataErrorInfo) {
+            if (!Data.INotifyDataErrorInfo_.is(element))
+                return;
+            if (element === this._CurrentNotifyError || !this.ParentBinding.ValidatesOnNotifyDataErrors)
+                return;
+
+            var property = this.PropertyPathWalker.FinalPropertyName;
+            if (this._CurrentNotifyError) {
+                this._CurrentNotifyError.ErrorsChanged.off(this._NotifyErrorsChanged, this);
+                this._MaybeEmitError(null, null);
+            }
+
+            this._CurrentNotifyError = element;
+
+            if (element) {
+                element.ErrorsChanged.on(this._NotifyErrorsChanged, this);
+                if (element.HasErrors) {
+                    for (var enu = element.GetErrors(property), en = enu.getEnumerator(); en.moveNext();) {
+                        this._MaybeEmitError(en.current, en.current);
+                    }
+                } else {
+                    this._MaybeEmitError(null, null);
+                }
+            }
         }
 
-        private _NotifyErrorsChanged (o, e) {
-            ///<param name="e" type="DataErrorsChangedEventArgs"></param>
-            console.warn("BindingExpressionBase._NotifyErrorsChanged");
+        private _NotifyErrorsChanged (sender: any, e: Data.DataErrorsChangedEventArgs) {
+            var property = this.PropertyPathWalker.FinalPropertyName;
+            if (e.PropertyName !== property)
+                return;
+            var errors = this._CurrentNotifyError ? this._CurrentNotifyError.GetErrors(property) : null;
+            if (!errors) {
+                this._MaybeEmitError(null, null);
+                return;
+            }
+
+            var arr = nullstone.IEnumerable_.toArray(errors);
+            if (arr.length <= 0) {
+                this._MaybeEmitError(null, null);
+                return;
+            }
+
+            for (var i = 0; i < arr.length; i++) {
+                var cur = arr[i];
+                this._MaybeEmitError(cur, cur);
+            }
         }
+    }
+
+    function getMentor (dobj: DependencyObject): FrameworkElement {
+        for (var cur = <XamlObject>this.Target; cur; cur = cur.Parent) {
+            if (cur instanceof FrameworkElement)
+                return <FrameworkElement>cur;
+        }
+        return null;
     }
 }
