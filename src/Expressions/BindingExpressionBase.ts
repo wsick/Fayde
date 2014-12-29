@@ -430,6 +430,6 @@ module Fayde.Data {
     function getDataError (walker: PropertyPathWalker): string {
         var info = IDataErrorInfo_.as(walker.FinalNode.GetSource());
         var name = walker.FinalPropertyName;
-        return (info && name) ? info.getError(name) : null;
+        return (info && name) ? info.GetError(name) : null;
     }
 }

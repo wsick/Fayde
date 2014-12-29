@@ -2936,7 +2936,7 @@ declare module Fayde.Data {
 declare module Fayde.Data {
     interface IDataErrorInfo {
         Error: string;
-        getError(propertyName: string): string;
+        GetError(propertyName: string): string;
     }
     var IDataErrorInfo_: nullstone.Interface<IDataErrorInfo>;
 }

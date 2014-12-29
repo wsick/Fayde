@@ -17268,7 +17268,7 @@ var Fayde;
         function getDataError(walker) {
             var info = Data.IDataErrorInfo_.as(walker.FinalNode.GetSource());
             var name = walker.FinalPropertyName;
-            return (info && name) ? info.getError(name) : null;
+            return (info && name) ? info.GetError(name) : null;
         }
     })(Fayde.Data || (Fayde.Data = {}));
     var Data = Fayde.Data;
