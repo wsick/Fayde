@@ -297,8 +297,18 @@ module Fayde.Data {
             if (!this.Source)
                 return;
 
+            var type = this.Source.constructor;
+            var typeName = this._STypeName;
+            if (typeName) {
+                if (typeName.indexOf(":") > -1)
+                    console.warn("Cannot resolve type name outside of default namespace.", typeName);
+                var oresolve = { type: undefined, isPrimitive: false };
+                if (CoreLibrary.resolveType(null, typeName, oresolve))
+                    type = oresolve.type;
+            }
+
             if (newDO) {
-                var propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this._PropertyName, true);
+                var propd = DependencyProperty.GetDependencyProperty(type, this._PropertyName, true);
                 if (propd) {
                     this.DependencyProperty = propd;
                     this._DPListener = listener = propd.Store.ListenToChanged(newDO, propd, this.OnPropertyChanged, this);
