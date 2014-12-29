@@ -13471,7 +13471,8 @@ var Fayde;
         function EventTrigger() {
             _super.call(this);
             this._IsAttached = false;
-            EventTrigger.ActionsProperty.Initialize(this);
+            var coll = EventTrigger.ActionsProperty.Initialize(this);
+            coll.AttachTo(this);
         }
         EventTrigger.prototype.Attach = function (target) {
             if (this._IsAttached)
@@ -14933,8 +14934,18 @@ var Fayde;
                 if (!this.Source)
                     return;
 
+                var type = this.Source.constructor;
+                var typeName = this._STypeName;
+                if (typeName) {
+                    if (typeName.indexOf(":") > -1)
+                        console.warn("Cannot resolve type name outside of default namespace.", typeName);
+                    var oresolve = { type: undefined, isPrimitive: false };
+                    if (Fayde.CoreLibrary.resolveType(null, typeName, oresolve))
+                        type = oresolve.type;
+                }
+
                 if (newDO) {
-                    var propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this._PropertyName, true);
+                    var propd = DependencyProperty.GetDependencyProperty(type, this._PropertyName, true);
                     if (propd) {
                         this.DependencyProperty = propd;
                         this._DPListener = listener = propd.Store.ListenToChanged(newDO, propd, this.OnPropertyChanged, this);
@@ -16822,6 +16833,8 @@ var Fayde;
 (function (Fayde) {
     var Expression = (function () {
         function Expression() {
+            this.IsUpdating = false;
+            this.IsAttached = false;
         }
         Expression.prototype.Seal = function (owner, prop) {
         };
@@ -17258,7 +17271,7 @@ var Fayde;
         Data.BindingExpressionBase = BindingExpressionBase;
 
         function getMentor(dobj) {
-            for (var cur = this.Target; cur; cur = cur.Parent) {
+            for (var cur = dobj; cur; cur = cur.Parent) {
                 if (cur instanceof Fayde.FrameworkElement)
                     return cur;
             }
@@ -21569,7 +21582,9 @@ var Fayde;
                     this.Reset();
 
                     var resolution = Animation.Storyboard.ResolveTarget(this);
-
+                    if (!resolution.Target) {
+                        console.warn("Could not resolve storyboard target.", Animation.Storyboard.GetTargetName(this));
+                    }
                     var refobj = { Value: resolution.Target };
                     var targetProperty = resolution.Property.TryResolveDependencyProperty(refobj, promotedValues);
                     resolution.Target = refobj.Value;
@@ -21821,7 +21836,7 @@ var Fayde;
                     if (sb)
                         sb.Begin();
                 };
-                BeginStoryboard.StoryboardProperty = DependencyProperty.Register("Storyboard", function () {
+                BeginStoryboard.StoryboardProperty = DependencyProperty.RegisterCore("Storyboard", function () {
                     return Animation.Storyboard;
                 }, BeginStoryboard);
                 return BeginStoryboard;
@@ -23250,7 +23265,7 @@ var Fayde;
                     } else {
                         var targetName = Storyboard.GetTargetName(timeline);
                         if (targetName)
-                            res.Target = timeline.FindName(targetName);
+                            res.Target = timeline.FindName(targetName, true);
                     }
 
                     res.Property = Storyboard.GetTargetProperty(timeline);
@@ -27358,9 +27373,13 @@ var Fayde;
                     enumerable: true,
                     configurable: true
                 });
+                VisualTransition.StoryboardProperty = DependencyProperty.Register("Storyboard", function () {
+                    return Media.Animation.Storyboard;
+                }, VisualTransition);
                 return VisualTransition;
             })(Fayde.DependencyObject);
             VSM.VisualTransition = VisualTransition;
+            Fayde.Markup.Content(VisualTransition, VisualTransition.StoryboardProperty);
             Fayde.CoreLibrary.add(VisualTransition);
         })(Media.VSM || (Media.VSM = {}));
         var VSM = Media.VSM;
@@ -28885,14 +28904,23 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    (function (Validation) {
+    (function (_Validation) {
         var ObservableCollection = Fayde.Collections.ObservableCollection;
         var ReadOnlyObservableCollection = Fayde.Collections.ReadOnlyObservableCollection;
 
-        Validation.HasErrorProperty = DependencyProperty.RegisterAttached("HasError", function () {
+        var Validation = (function (_super) {
+            __extends(Validation, _super);
+            function Validation() {
+                _super.apply(this, arguments);
+            }
+            return Validation;
+        })(Fayde.DependencyObject);
+        Fayde.CoreLibrary.add(Validation, "Validation");
+
+        _Validation.HasErrorProperty = DependencyProperty.RegisterAttached("HasError", function () {
             return Boolean;
         }, Validation);
-        Validation.ErrorsProperty = DependencyProperty.RegisterAttached("Errors", function () {
+        _Validation.ErrorsProperty = DependencyProperty.RegisterAttached("Errors", function () {
             return ReadOnlyObservableCollection;
         }, Validation);
         var ErrorsCoreProperty = DependencyProperty.RegisterAttached("ErrorsCore", function () {
@@ -28916,48 +28944,48 @@ var Fayde;
             if (!dobj)
                 throw new ArgumentNullException("element");
 
-            var result = dobj.GetValue(Validation.ErrorsProperty);
+            var result = dobj.GetValue(_Validation.ErrorsProperty);
             if (result == null) {
                 result = new ReadOnlyObservableCollection(GetErrorsCore(dobj));
-                dobj.SetValue(Validation.ErrorsProperty, result);
+                dobj.SetValue(_Validation.ErrorsProperty, result);
             }
             return result;
         }
-        Validation.GetErrors = GetErrors;
+        _Validation.GetErrors = GetErrors;
 
         function GetHasError(dobj) {
             if (dobj == null)
                 throw new ArgumentNullException("element");
-            return dobj.GetValue(Validation.HasErrorProperty) === true;
+            return dobj.GetValue(_Validation.HasErrorProperty) === true;
         }
-        Validation.GetHasError = GetHasError;
+        _Validation.GetHasError = GetHasError;
 
         function SetHasError(dobj, value) {
-            dobj.SetValue(Validation.HasErrorProperty, value === true);
+            dobj.SetValue(_Validation.HasErrorProperty, value === true);
         }
 
         function AddError(element, error) {
             var errors = GetErrorsCore(element);
             errors.Add(error);
-            if (errors.Count == 1)
+            if (errors.Count === 1)
                 SetHasError(element, true);
 
             if (element instanceof Fayde.Controls.Control)
                 element.UpdateValidationState(false);
         }
-        Validation.AddError = AddError;
+        _Validation.AddError = AddError;
 
         function RemoveError(element, error) {
             var errors = GetErrorsCore(element);
             if (errors.Remove(error)) {
-                if (errors.Count == 0) {
+                if (errors.Count === 0) {
                     SetHasError(element, false);
                     if (element instanceof Fayde.Controls.Control)
                         element.UpdateValidationState(true);
                 }
             }
         }
-        Validation.RemoveError = RemoveError;
+        _Validation.RemoveError = RemoveError;
     })(Fayde.Validation || (Fayde.Validation = {}));
     var Validation = Fayde.Validation;
 })(Fayde || (Fayde = {}));

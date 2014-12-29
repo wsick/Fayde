@@ -5292,6 +5292,7 @@ declare module Fayde.Media.VSM {
     class VisualTransition extends DependencyObject {
         public From: string;
         public To: string;
+        static StoryboardProperty: DependencyProperty;
         public Storyboard: Animation.Storyboard;
         private _GeneratedDuration;
         public GeneratedDuration : Duration;
