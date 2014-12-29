@@ -4,6 +4,8 @@ module Fayde.Media.VSM {
     export class VisualTransition extends DependencyObject {
         From: string = null;
         To: string = null;
+
+        static StoryboardProperty = DependencyProperty.Register("Storyboard", () => Animation.Storyboard, VisualTransition);
         Storyboard: Animation.Storyboard;
 
         private _GeneratedDuration: Duration = null;
@@ -15,5 +17,6 @@ module Fayde.Media.VSM {
         GeneratedEasingFunction: Animation.EasingFunctionBase;
         get IsDefault(): boolean { return this.From == null && this.To == null; }
     }
+    Markup.Content(VisualTransition, VisualTransition.StoryboardProperty);
     Fayde.CoreLibrary.add(VisualTransition);
 }
