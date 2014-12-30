@@ -5404,6 +5404,9 @@ declare class Length {
 declare class Rect extends minerva.Rect {
     public Clone(): Rect;
 }
+declare class Size extends minerva.Size {
+    public Clone(): Size;
+}
 declare class Thickness extends minerva.Thickness {
     public Clone(): Thickness;
     public toString(): string;

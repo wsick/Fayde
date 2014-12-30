@@ -3,11 +3,11 @@
 module Fayde.Media {
     //TODO: Should we be doing `Incite(this)` when properties change?
     export class ArcSegment extends PathSegment {
-        static IsLargeArcProperty = DependencyProperty.RegisterCore("IsLargeArc", () => Boolean, ArcSegment, false);
-        static PointProperty = DependencyProperty.Register("Point", () => Point, ArcSegment);
-        static RotationAngleProperty = DependencyProperty.Register("RotationAngle", () => Number, ArcSegment, 0.0);
-        static SizeProperty = DependencyProperty.Register("Size", () => minerva.Size, ArcSegment);
-        static SweepDirectionProperty = DependencyProperty.Register("SweepDirection", () => new Enum(Shapes.SweepDirection), ArcSegment, Shapes.SweepDirection.Counterclockwise);
+        static IsLargeArcProperty = DependencyProperty.RegisterCore("IsLargeArc", () => Boolean, ArcSegment, false, (d: ArcSegment, args) => Incite(d));
+        static PointProperty = DependencyProperty.Register("Point", () => Point, ArcSegment, undefined, (d: ArcSegment, args) => Incite(d));
+        static RotationAngleProperty = DependencyProperty.Register("RotationAngle", () => Number, ArcSegment, 0.0, (d: ArcSegment, args) => Incite(d));
+        static SizeProperty = DependencyProperty.Register("Size", () => minerva.Size, ArcSegment, undefined, (d: ArcSegment, args) => Incite(d));
+        static SweepDirectionProperty = DependencyProperty.Register("SweepDirection", () => new Enum(Shapes.SweepDirection), ArcSegment, Shapes.SweepDirection.Counterclockwise, (d: ArcSegment, args) => Incite(d));
         IsLargeArc: boolean;
         Point: Point;
         RotationAngle: number;

@@ -11938,6 +11938,8 @@ nullstone.registerTypeConverter(Point, function (val) {
         return new Point();
     if (val instanceof Point)
         return val;
+    if (val instanceof minerva.Point)
+        return new Point(val.x, val.y);
     var tokens = val.toString().split(",");
     if (tokens.length === 2) {
         var x = parseFloat(tokens[0]);
@@ -26055,19 +26057,29 @@ var Fayde;
             };
             ArcSegment.IsLargeArcProperty = DependencyProperty.RegisterCore("IsLargeArc", function () {
                 return Boolean;
-            }, ArcSegment, false);
+            }, ArcSegment, false, function (d, args) {
+                return Fayde.Incite(d);
+            });
             ArcSegment.PointProperty = DependencyProperty.Register("Point", function () {
                 return Point;
-            }, ArcSegment);
+            }, ArcSegment, undefined, function (d, args) {
+                return Fayde.Incite(d);
+            });
             ArcSegment.RotationAngleProperty = DependencyProperty.Register("RotationAngle", function () {
                 return Number;
-            }, ArcSegment, 0.0);
+            }, ArcSegment, 0.0, function (d, args) {
+                return Fayde.Incite(d);
+            });
             ArcSegment.SizeProperty = DependencyProperty.Register("Size", function () {
                 return minerva.Size;
-            }, ArcSegment);
+            }, ArcSegment, undefined, function (d, args) {
+                return Fayde.Incite(d);
+            });
             ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () {
                 return new Fayde.Enum(Fayde.Shapes.SweepDirection);
-            }, ArcSegment, 0 /* Counterclockwise */);
+            }, ArcSegment, 0 /* Counterclockwise */, function (d, args) {
+                return Fayde.Incite(d);
+            });
             return ArcSegment;
         })(Media.PathSegment);
         Media.ArcSegment = ArcSegment;
@@ -27970,6 +27982,33 @@ nullstone.registerTypeConverter(Rect, function (val) {
         return new Rect(parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2]), parseFloat(tokens[3]));
     }
     throw new Error("Cannot parse Rect value '" + val + "'");
+});
+var Size = (function (_super) {
+    __extends(Size, _super);
+    function Size() {
+        _super.apply(this, arguments);
+    }
+    Size.prototype.Clone = function () {
+        return new Size(this.width, this.height);
+    };
+    return Size;
+})(minerva.Size);
+Fayde.CoreLibrary.addPrimitive(Size);
+
+nullstone.registerTypeConverter(Size, function (val) {
+    if (!val)
+        return new Size();
+    if (val instanceof Size)
+        return val;
+    if (val instanceof minerva.Size)
+        return new Size(val.width, val.height);
+    var tokens = val.toString().split(",");
+    if (tokens.length === 2) {
+        var w = parseFloat(tokens[0]);
+        var h = parseFloat(tokens[1]);
+        return new Size(w, h);
+    }
+    throw new Exception("Cannot parse Size value '" + val + "'");
 });
 var Thickness = (function (_super) {
     __extends(Thickness, _super);
