@@ -46,6 +46,7 @@
         </Grid>
         -->
         <!--<tests:ScrollViewerTest />-->
-        <tests:ContentControlTest />
+        <!--<tests:ContentControlTest />-->
+        <tests:ArcSegmentTest />
     </Grid>
 </UserControl>

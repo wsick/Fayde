@@ -92,6 +92,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScrollTestOverride.cs" />
     <Compile Include="Controls\TestClass.cs" />
+    <Compile Include="Tests\ArcSegmentTest.xaml.cs">
+      <DependentUpon>ArcSegmentTest.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Tests\ArcViewModel.cs" />
     <Compile Include="Tests\BorderTest.xaml.cs">
       <DependentUpon>BorderTest.xaml</DependentUpon>
     </Compile>
@@ -168,6 +172,10 @@
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
     <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\ArcSegmentTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
