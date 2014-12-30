@@ -2871,6 +2871,7 @@ declare module Fayde {
     }
 }
 declare module Fayde.Data {
+    var WarnBrokenPath: boolean;
     class Binding implements nullstone.markup.IMarkupExtension, ICloneable {
         public StringFormat: string;
         public FallbackValue: any;

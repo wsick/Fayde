@@ -96,8 +96,11 @@ module Fayde.Data {
 
             if (this.PropertyPathWalker.IsPathBroken) {
                 var target = this.Target;
-                if (target && target.XamlNode.IsAttached && (!(target instanceof Fayde.FrameworkElement) || (<FrameworkElement>target).XamlNode.IsLoaded))
-                    console.warn("[BINDING] Path Broken --> Path='" + this.PropertyPathWalker.Path + "'");
+                if (Data.WarnBrokenPath && target && target.XamlNode.IsAttached) {
+                    var fe: FrameworkElement = target instanceof FrameworkElement ? <FrameworkElement>target : null;
+                    if (!fe || fe.XamlNode.IsLoaded)
+                        console.warn("[BINDING] Path Broken --> Path='" + this.PropertyPathWalker.Path + "'");
+                }
                 this._CachedValue = null;
             } else {
                 this._CachedValue = this.PropertyPathWalker.ValueInternal;

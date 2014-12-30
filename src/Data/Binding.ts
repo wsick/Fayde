@@ -1,6 +1,8 @@
 module Fayde.Data {
     import convert = nullstone.convertAnyToType;
 
+    export var WarnBrokenPath = false;
+
     export class Binding implements nullstone.markup.IMarkupExtension, ICloneable {
         StringFormat: string;
         FallbackValue: any;

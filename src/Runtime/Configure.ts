@@ -81,6 +81,8 @@ module Fayde {
         export function configure (json) {
             if (toBoolean(json.warnMissingThemes))
                 Theme.WarnMissing = true;
+            if (toBoolean(json.warnBrokenPath))
+                Data.WarnBrokenPath = true;
         }
 
         function toBoolean (val: any): boolean {

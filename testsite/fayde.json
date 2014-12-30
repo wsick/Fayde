@@ -2,6 +2,7 @@
     "libs": {
     },
     "debug": {
-        "warnMissingThemes": false
+        "warnMissingThemes": false,
+        "warnBrokenPath": false
     }
 }

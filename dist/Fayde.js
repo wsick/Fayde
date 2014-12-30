@@ -14088,6 +14088,8 @@ var Fayde;
     (function (Data) {
         var convert = nullstone.convertAnyToType;
 
+        Data.WarnBrokenPath = false;
+
         var Binding = (function () {
             function Binding(obj) {
                 if (obj instanceof Binding) {
@@ -16979,8 +16981,11 @@ var Fayde;
 
                 if (this.PropertyPathWalker.IsPathBroken) {
                     var target = this.Target;
-                    if (target && target.XamlNode.IsAttached && (!(target instanceof Fayde.FrameworkElement) || target.XamlNode.IsLoaded))
-                        console.warn("[BINDING] Path Broken --> Path='" + this.PropertyPathWalker.Path + "'");
+                    if (Data.WarnBrokenPath && target && target.XamlNode.IsAttached) {
+                        var fe = target instanceof Fayde.FrameworkElement ? target : null;
+                        if (!fe || fe.XamlNode.IsLoaded)
+                            console.warn("[BINDING] Path Broken --> Path='" + this.PropertyPathWalker.Path + "'");
+                    }
                     this._CachedValue = null;
                 } else {
                     this._CachedValue = this.PropertyPathWalker.ValueInternal;
@@ -28228,6 +28233,8 @@ var Fayde;
         function configure(json) {
             if (toBoolean(json.warnMissingThemes))
                 Fayde.Theme.WarnMissing = true;
+            if (toBoolean(json.warnBrokenPath))
+                Fayde.Data.WarnBrokenPath = true;
         }
         debug.configure = configure;
 
