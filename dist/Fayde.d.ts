@@ -70,7 +70,7 @@ declare module Fayde.Collections {
         public Insert(index: number, value: T): void;
         public IndexOf(value: T): number;
         public Contains(value: T): boolean;
-        public Remove(value: T): void;
+        public Remove(value: T): boolean;
         public RemoveAt(index: number): void;
         public Clear(): void;
         private _RaisePropertyChanged(propertyName);
@@ -127,7 +127,7 @@ declare module Fayde.Collections {
         public SetValueAt(index: number, value: T): void;
         public Insert(index: number, value: T): void;
         public Add(value: T): void;
-        public Remove(value: T): void;
+        public Remove(value: T): boolean;
         public RemoveAt(index: number): void;
         public Clear(): void;
     }
@@ -5548,7 +5548,7 @@ declare module Fayde.Shapes {
         public Add(value: Point): void;
         public AddRange(points: Point[]): void;
         public Insert(index: number, value: Point): void;
-        public Remove(value: Point): void;
+        public Remove(value: Point): boolean;
         public RemoveAt(index: number): void;
         public Clear(): void;
         public IndexOf(value: Point): number;

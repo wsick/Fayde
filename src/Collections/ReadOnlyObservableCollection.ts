@@ -55,7 +55,7 @@ module Fayde.Collections {
             throw new Error("Collection is read only.");
         }
 
-        Remove (value: T) {
+        Remove (value: T): boolean {
             throw new Error("Collection is read only.");
         }
 

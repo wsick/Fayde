@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "minerva": "~0.3.1",
-    "nullstone": "~0.3.2",
+    "nullstone": "~0.3.3",
     "requirejs": "~2.1.15",
     "requirejs-text": "~2.0.12"
   },

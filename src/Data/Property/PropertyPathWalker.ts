@@ -301,7 +301,7 @@ module Fayde.Data {
             var typeName = this._STypeName;
             if (typeName) {
                 if (typeName.indexOf(":") > -1)
-                    console.warn("Cannot resolve type name outside of default namespace.", typeName);
+                    console.warn("[Not supported] Cannot resolve type name outside of default namespace.", typeName);
                 var oresolve = { type: undefined, isPrimitive: false };
                 if (CoreLibrary.resolveType(null, typeName, oresolve))
                     type = oresolve.type;

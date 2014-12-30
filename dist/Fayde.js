@@ -207,10 +207,11 @@ var Fayde;
             ObservableCollection.prototype.Remove = function (value) {
                 var index = this._ht.indexOf(value);
                 if (index < 0)
-                    return;
+                    return false;
                 this._ht.splice(index, 1);
                 this.CollectionChanged.raise(this, Collections.CollectionChangedEventArgs.Remove(value, index));
                 this._RaisePropertyChanged("Count");
+                return true;
             };
 
             ObservableCollection.prototype.RemoveAt = function (index) {
@@ -14966,7 +14967,7 @@ var Fayde;
                 var typeName = this._STypeName;
                 if (typeName) {
                     if (typeName.indexOf(":") > -1)
-                        console.warn("Cannot resolve type name outside of default namespace.", typeName);
+                        console.warn("[Not supported] Cannot resolve type name outside of default namespace.", typeName);
                     var oresolve = { type: undefined, isPrimitive: false };
                     if (Fayde.CoreLibrary.resolveType(null, typeName, oresolve))
                         type = oresolve.type;
@@ -28623,9 +28624,10 @@ var Fayde;
             PointCollection.prototype.Remove = function (value) {
                 var index = this.IndexOf(value);
                 if (index === -1)
-                    return;
+                    return false;
                 this.RemoveAt(index);
                 Fayde.Incite(this);
+                return true;
             };
 
             PointCollection.prototype.RemoveAt = function (index) {

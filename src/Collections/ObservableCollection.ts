@@ -72,13 +72,14 @@ module Fayde.Collections {
             return this._ht.indexOf(value) > -1;
         }
 
-        Remove (value: T) {
+        Remove (value: T): boolean {
             var index = this._ht.indexOf(value);
             if (index < 0)
-                return;
+                return false;
             this._ht.splice(index, 1);
             this.CollectionChanged.raise(this, CollectionChangedEventArgs.Remove(value, index));
             this._RaisePropertyChanged("Count");
+            return true;
         }
 
         RemoveAt (index: number) {

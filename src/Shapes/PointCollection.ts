@@ -54,12 +54,13 @@ module Fayde.Shapes {
             Incite(this);
         }
 
-        Remove (value: Point) {
+        Remove (value: Point): boolean {
             var index = this.IndexOf(value);
             if (index === -1)
-                return;
+                return false;
             this.RemoveAt(index);
             Incite(this);
+            return true;
         }
 
         RemoveAt (index: number) {
