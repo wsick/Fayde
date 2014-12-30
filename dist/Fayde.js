@@ -1,6 +1,6 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.15.10';
+    Fayde.Version = '0.15.11';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -8296,6 +8296,8 @@ var Fayde;
                     this.PreCoercedMax = 1;
                     this.PreCoercedVal = 0;
                     this.CoerceDepth = 0;
+                    this.PreCoercedMax = this.RequestedMax = this.InitialMax = Range.Maximum;
+                    this.PreCoercedVal = this.RequestedVal = this.InitialVal = Range.Value;
                 }
                 Object.defineProperty(RangeCoercer.prototype, "Minimum", {
                     get: function () {
@@ -8331,7 +8333,7 @@ var Fayde;
                     if (this.CoerceDepth > 0)
                         return;
 
-                    this.OnMinimumChanged(oldMinimum, newMinimum);
+                    this.Range.OnMinimumChanged(oldMinimum, newMinimum);
                     var max = this.Maximum;
                     if (!NumberEx.AreClose(this.InitialMax, max))
                         this.Range.OnMaximumChanged(this.InitialMax, max);

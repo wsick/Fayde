@@ -26,7 +26,10 @@ module Fayde.Controls.Internal {
         get Maximum(): number { return this.Range.Maximum; }
         get Value(): number { return this.Range.Value; }
 
-        constructor(public Range: IRange, public OnCoerceMaximum: (val: any) => void, public OnCoerceValue: (val: any) => void) { }
+        constructor(public Range: IRange, public OnCoerceMaximum: (val: any) => void, public OnCoerceValue: (val: any) => void) {
+            this.PreCoercedMax = this.RequestedMax = this.InitialMax = Range.Maximum;
+            this.PreCoercedVal = this.RequestedVal = this.InitialVal = Range.Value;
+        }
 
         OnMinimumChanged(oldMinimum: number, newMinimum: number) {
             if (this.CoerceDepth === 0) {
@@ -40,7 +43,7 @@ module Fayde.Controls.Internal {
             if (this.CoerceDepth > 0)
                 return;
 
-            this.OnMinimumChanged(oldMinimum, newMinimum);
+            this.Range.OnMinimumChanged(oldMinimum, newMinimum);
             var max = this.Maximum;
             if (!NumberEx.AreClose(this.InitialMax, max))
                 this.Range.OnMaximumChanged(this.InitialMax, max);
