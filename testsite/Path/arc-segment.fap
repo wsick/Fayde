@@ -1,0 +1,55 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:path="Path"
+    ThemeName="Metro">
+    <Grid x:Name="LayoutRoot" Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.DataContext>
+            <path:ArcViewModel />
+        </Grid.DataContext>
+        <StackPanel>
+            <TextBlock Text="Start Point" Margin="0,20,0,0" />
+            <!--
+            <itoolkit:NumericUpDown Minimum="0" Increment="1" Maximum="500" Value="{Binding SPointX, Mode=TwoWay}"></itoolkit:NumericUpDown>
+            <itoolkit:NumericUpDown Minimum="0" Increment="1" Maximum="500" Value="{Binding SPointY, Mode=TwoWay}"></itoolkit:NumericUpDown>
+            -->
+            <TextBlock Text="Point" Margin="0,20,0,0" />
+            <!--
+            <itoolkit:NumericUpDown Minimum="0" Increment="1" Maximum="500" Value="{Binding PointX, Mode=TwoWay}"></itoolkit:NumericUpDown>
+            <itoolkit:NumericUpDown Minimum="0" Increment="1" Maximum="500" Value="{Binding PointY, Mode=TwoWay}"></itoolkit:NumericUpDown>
+            -->
+            <TextBlock Text="Size" Margin="0,20,0,0" />
+            <!--
+            <itoolkit:NumericUpDown Minimum="0" Increment="1" Maximum="500" Value="{Binding SizeX, Mode=TwoWay}"></itoolkit:NumericUpDown>
+            <itoolkit:NumericUpDown Minimum="0" Increment="1" Maximum="500" Value="{Binding SizeY, Mode=TwoWay}"></itoolkit:NumericUpDown>
+            -->
+            <TextBlock Text="IsLargeArc" Margin="0,20,0,0" />
+            <ToggleButton IsChecked="{Binding IsLargeArc, Mode=TwoWay}" Content="{Binding IsLargeArc}" />
+            <TextBlock Text="Sweep Direction" Margin="0,20,0,0" />
+            <ToggleButton IsChecked="{Binding IsClockwise, Mode=TwoWay}" Content="{Binding SweepDirection}" />
+            <TextBlock Text="Rotation Angle" Margin="0,20,0,0" />
+            <!--
+            <itoolkit:NumericUpDown Minimum="0" Maximum="360" Increment="1" Value="{Binding RotationAngle, Mode=TwoWay}"></itoolkit:NumericUpDown>
+            -->
+        </StackPanel>
+        <Path Stroke="Black" StrokeThickness="2" Grid.Column="1">
+            <Path.Data>
+                <PathGeometry>
+                    <PathFigure StartPoint="{Binding SPoint}">
+                        <ArcSegment x:Name="arc"
+                                    IsLargeArc="{Binding IsLargeArc}"
+                                    Size="{Binding Size}"
+                                    Point="{Binding Point}"
+                                    SweepDirection="{Binding SweepDirection}"
+                                    RotationAngle="{Binding RotationAngle}"
+                                />
+                    </PathFigure>
+                </PathGeometry>
+            </Path.Data>
+        </Path>
+    </Grid>
+</Application>
