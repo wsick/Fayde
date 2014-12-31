@@ -15558,7 +15558,7 @@ var Fayde;
                         dataError = getDataError(walker);
                     }
                 }
-                if (binding.ValidatesOnExceptions && exception)
+                if (binding.ValidatesOnExceptions)
                     this._MaybeEmitError(null, exception);
                 else if (binding.ValidatesOnDataErrors)
                     this._MaybeEmitError(dataError, exception);
@@ -15615,7 +15615,7 @@ var Fayde;
                 finally {
                     this.IsUpdating = oldUpdating;
                 }
-                if (binding.ValidatesOnExceptions && exception)
+                if (binding.ValidatesOnExceptions)
                     this._MaybeEmitError(null, exception);
                 else if (binding.ValidatesOnDataErrors)
                     this._MaybeEmitError(dataError, exception);
@@ -26486,6 +26486,10 @@ var Fayde;
             function ValidationError(content, exception) {
                 this.ErrorContent = content;
                 this.Exception = exception;
+                if (this.Exception instanceof Exception)
+                    this.ErrorContent = this.ErrorContent || exception.Message;
+                if (this.Exception instanceof Error)
+                    this.ErrorContent = this.ErrorContent || exception.message;
                 Object.freeze(this);
             }
             return ValidationError;

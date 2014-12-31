@@ -5673,6 +5673,7 @@ declare module Fayde.Validation {
         ErrorContent: any;
         Exception: Exception;
         constructor(content: any, exception: Exception);
+        constructor(content: any, exception: Error);
     }
 }
 declare module Fayde.Validation {

@@ -246,7 +246,7 @@ module Fayde.Data {
                 }
             }
 
-            if (binding.ValidatesOnExceptions && exception)
+            if (binding.ValidatesOnExceptions)
                 this._MaybeEmitError(null, exception);
             else if (binding.ValidatesOnDataErrors)
                 this._MaybeEmitError(dataError, exception);
@@ -309,7 +309,7 @@ module Fayde.Data {
                 this.IsUpdating = oldUpdating;
             }
 
-            if (binding.ValidatesOnExceptions && exception)
+            if (binding.ValidatesOnExceptions)
                 this._MaybeEmitError(null, exception);
             else if (binding.ValidatesOnDataErrors)
                 this._MaybeEmitError(dataError, exception);
