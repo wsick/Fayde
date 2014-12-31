@@ -5672,8 +5672,9 @@ declare module Fayde.Validation {
     class ValidationError {
         ErrorContent: any;
         Exception: Exception;
-        constructor(content: any, exception: Exception);
-        constructor(content: any, exception: Error);
+        PropertyName: string;
+        constructor(content: any, exception: Exception, propertyName: string);
+        constructor(content: any, exception: Error, propertyName: string);
     }
 }
 declare module Fayde.Validation {

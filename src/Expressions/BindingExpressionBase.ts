@@ -372,9 +372,9 @@ module Fayde.Data {
 
             var oldError = this._CurrentError;
             if (message != null)
-                this._CurrentError = new Validation.ValidationError(message, null);
+                this._CurrentError = new Validation.ValidationError(message, null, this.PropertyPathWalker.FinalPropertyName);
             else if (error)
-                this._CurrentError = new Validation.ValidationError(null, error);
+                this._CurrentError = new Validation.ValidationError(null, error, this.PropertyPathWalker.FinalPropertyName);
             else
                 this._CurrentError = null;
 
@@ -431,6 +431,7 @@ module Fayde.Data {
                 this._MaybeEmitError(cur, cur);
             }
         }
+
     }
 
     function getMentor (dobj: DependencyObject): FrameworkElement {

@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.1';
+    Fayde.Version = '0.16.2';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -15673,9 +15673,9 @@ var Fayde;
                     message = null;
                 var oldError = this._CurrentError;
                 if (message != null)
-                    this._CurrentError = new Fayde.Validation.ValidationError(message, null);
+                    this._CurrentError = new Fayde.Validation.ValidationError(message, null, this.PropertyPathWalker.FinalPropertyName);
                 else if (error)
-                    this._CurrentError = new Fayde.Validation.ValidationError(null, error);
+                    this._CurrentError = new Fayde.Validation.ValidationError(null, error, this.PropertyPathWalker.FinalPropertyName);
                 else
                     this._CurrentError = null;
                 Fayde.Validation.Emit(fe, this.ParentBinding, oldError, this._CurrentError);
@@ -26483,9 +26483,10 @@ var Fayde;
     var Validation;
     (function (Validation) {
         var ValidationError = (function () {
-            function ValidationError(content, exception) {
+            function ValidationError(content, exception, propertyName) {
                 this.ErrorContent = content;
                 this.Exception = exception;
+                this.PropertyName = propertyName;
                 if (this.Exception instanceof Exception)
                     this.ErrorContent = this.ErrorContent || exception.Message;
                 if (this.Exception instanceof Error)
