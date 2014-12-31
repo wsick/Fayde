@@ -23,6 +23,12 @@ module Fayde.Controls {
             return xobj.IsEnabled && xobj.IsTabStop && this.Focus();
         }
 
+        ApplyTemplateWithError(error: BError): boolean {
+            if (!super.ApplyTemplateWithError(error))
+                return false;
+            this.XObject.UpdateValidationState();
+            return true;
+        }
         DoApplyTemplateWithError(error: BError): boolean {
             var xobj = this.XObject;
             var t = xobj.Template;
@@ -186,8 +192,14 @@ module Fayde.Controls {
         IsEnabledChanged = new nullstone.Event<DependencyPropertyChangedEventArgs>();
         OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) { }
 
-        OnGotFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = true; }
-        OnLostFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = false; }
+        OnGotFocus(e: RoutedEventArgs) {
+            this.XamlNode.IsFocused = true;
+            this.UpdateValidationState();
+        }
+        OnLostFocus(e: RoutedEventArgs) {
+            this.XamlNode.IsFocused = false;
+            this.UpdateValidationState();
+        }
 
         UpdateVisualState(useTransitions?: boolean) {
             useTransitions = useTransitions !== false;
