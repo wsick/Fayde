@@ -7,20 +7,20 @@ module Fayde.Data {
         StringFormat: string;
         FallbackValue: any;
         TargetNullValue: any;
-        BindsDirectlyToSource: boolean;
+        BindsDirectlyToSource: boolean = false;
         Converter: IValueConverter;
         ConverterParameter: any;
         ConverterCulture: any;
         ElementName: string;
         Mode: BindingMode;
-        NotifyOnValidationError: boolean;
+        NotifyOnValidationError: boolean = false;
         RelativeSource: RelativeSource;
         Path: Data.PropertyPath;
         Source: any;
         UpdateSourceTrigger: UpdateSourceTrigger;
-        ValidatesOnExceptions: boolean;
-        ValidatesOnDataErrors: boolean;
-        ValidatesOnNotifyDataErrors: boolean;
+        ValidatesOnExceptions: boolean = false;
+        ValidatesOnDataErrors: boolean = false;
+        ValidatesOnNotifyDataErrors: boolean = true;
 
         constructor ();
         constructor (path: string);
@@ -67,14 +67,14 @@ module Fayde.Data {
 
         private $$coerce () {
             this.StringFormat = this.StringFormat ? this.StringFormat.toString() : undefined;
-            this.BindsDirectlyToSource = convert(this.BindsDirectlyToSource, Boolean);
+            this.BindsDirectlyToSource = convert(this.BindsDirectlyToSource, Boolean) || false;
             this.Mode = Enum.fromAny(BindingMode, this.Mode);
-            this.NotifyOnValidationError = convert(this.NotifyOnValidationError, Boolean);
+            this.NotifyOnValidationError = convert(this.NotifyOnValidationError, Boolean) || false;
             this.Path = convert(this.Path, Data.PropertyPath);
             this.UpdateSourceTrigger = Enum.fromAny(UpdateSourceTrigger, this.UpdateSourceTrigger);
-            this.ValidatesOnExceptions = convert(this.ValidatesOnExceptions, Boolean);
-            this.ValidatesOnDataErrors = convert(this.ValidatesOnDataErrors, Boolean);
-            this.ValidatesOnNotifyDataErrors = convert(this.ValidatesOnNotifyDataErrors, Boolean);
+            this.ValidatesOnExceptions = convert(this.ValidatesOnExceptions, Boolean) || false;
+            this.ValidatesOnDataErrors = convert(this.ValidatesOnDataErrors, Boolean) || false;
+            this.ValidatesOnNotifyDataErrors = convert(this.ValidatesOnNotifyDataErrors, Boolean) !== false; //default: true
         }
 
         Clone () {

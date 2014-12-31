@@ -12780,6 +12780,11 @@ var Fayde;
         Data.WarnBrokenPath = false;
         var Binding = (function () {
             function Binding(obj) {
+                this.BindsDirectlyToSource = false;
+                this.NotifyOnValidationError = false;
+                this.ValidatesOnExceptions = false;
+                this.ValidatesOnDataErrors = false;
+                this.ValidatesOnNotifyDataErrors = true;
                 if (obj instanceof Binding) {
                     var binding = obj;
                     this.StringFormat = binding.StringFormat;
@@ -12820,14 +12825,14 @@ var Fayde;
             };
             Binding.prototype.$$coerce = function () {
                 this.StringFormat = this.StringFormat ? this.StringFormat.toString() : undefined;
-                this.BindsDirectlyToSource = convert(this.BindsDirectlyToSource, Boolean);
+                this.BindsDirectlyToSource = convert(this.BindsDirectlyToSource, Boolean) || false;
                 this.Mode = Fayde.Enum.fromAny(Data.BindingMode, this.Mode);
-                this.NotifyOnValidationError = convert(this.NotifyOnValidationError, Boolean);
+                this.NotifyOnValidationError = convert(this.NotifyOnValidationError, Boolean) || false;
                 this.Path = convert(this.Path, Data.PropertyPath);
                 this.UpdateSourceTrigger = Fayde.Enum.fromAny(Data.UpdateSourceTrigger, this.UpdateSourceTrigger);
-                this.ValidatesOnExceptions = convert(this.ValidatesOnExceptions, Boolean);
-                this.ValidatesOnDataErrors = convert(this.ValidatesOnDataErrors, Boolean);
-                this.ValidatesOnNotifyDataErrors = convert(this.ValidatesOnNotifyDataErrors, Boolean);
+                this.ValidatesOnExceptions = convert(this.ValidatesOnExceptions, Boolean) || false;
+                this.ValidatesOnDataErrors = convert(this.ValidatesOnDataErrors, Boolean) || false;
+                this.ValidatesOnNotifyDataErrors = convert(this.ValidatesOnNotifyDataErrors, Boolean) !== false; //default: true
             };
             Binding.prototype.Clone = function () {
                 return new Binding(this);
@@ -15683,8 +15688,11 @@ var Fayde;
                 if (element) {
                     element.ErrorsChanged.on(this._NotifyErrorsChanged, this);
                     if (element.HasErrors) {
-                        for (var enu = element.GetErrors(property), en = enu.getEnumerator(); en.moveNext();) {
-                            this._MaybeEmitError(en.current, en.current);
+                        var enu = element.GetErrors(property);
+                        if (enu) {
+                            for (var en = enu.getEnumerator(); en.moveNext();) {
+                                this._MaybeEmitError(en.current, en.current);
+                            }
                         }
                     }
                     else {

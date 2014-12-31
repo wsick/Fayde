@@ -390,8 +390,11 @@ module Fayde.Data {
             if (element) {
                 element.ErrorsChanged.on(this._NotifyErrorsChanged, this);
                 if (element.HasErrors) {
-                    for (var enu = element.GetErrors(property), en = enu.getEnumerator(); en.moveNext();) {
-                        this._MaybeEmitError(en.current, en.current);
+                    var enu = element.GetErrors(property);
+                    if (enu) {
+                        for (var en = enu.getEnumerator(); en.moveNext();) {
+                            this._MaybeEmitError(en.current, en.current);
+                        }
                     }
                 } else {
                     this._MaybeEmitError(null, null);
