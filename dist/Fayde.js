@@ -3031,8 +3031,10 @@ var Fayde;
             };
             Control.prototype.UpdateValidationState = function (valid) {
                 var _this = this;
-                if (valid === undefined)
-                    valid = Fayde.Validation.GetErrors(this).Count > 0;
+                if (valid === undefined) {
+                    var errors = Fayde.Validation.GetErrors(this);
+                    valid = errors.Count < 1;
+                }
                 var gotoFunc = function (state) { return Fayde.Media.VSM.VisualStateManager.GoToState(_this, state, true); };
                 this.GoToStateValidation(valid, gotoFunc);
             };
@@ -14363,9 +14365,7 @@ var Fayde;
             this._ClockTimer.UnregisterTimer(this);
         };
         Application.prototype.ProcessStoryboards = function (lastTime, nowTime) {
-            var sbs = this._Storyboards;
-            var len = sbs.length;
-            for (var i = 0; i < len; i++) {
+            for (var i = 0, sbs = this._Storyboards; i < sbs.length; i++) {
                 sbs[i].Update(nowTime);
             }
         };

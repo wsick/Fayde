@@ -85,9 +85,7 @@ module Fayde {
         }
 
         private ProcessStoryboards (lastTime: number, nowTime: number) {
-            var sbs = this._Storyboards;
-            var len = sbs.length;
-            for (var i = 0; i < len; i++) {
+            for (var i = 0, sbs = this._Storyboards; i < sbs.length; i++) {
                 sbs[i].Update(nowTime);
             }
         }

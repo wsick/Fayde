@@ -228,8 +228,10 @@ module Fayde.Controls {
         }
 
         UpdateValidationState (valid?: boolean) {
-            if (valid === undefined)
-                valid = Validation.GetErrors(this).Count > 0;
+            if (valid === undefined) {
+                var errors = Validation.GetErrors(this);
+                valid = errors.Count < 1;
+            }
             var gotoFunc = (state: string) => Media.VSM.VisualStateManager.GoToState(this, state, true);
             this.GoToStateValidation(valid, gotoFunc);
         }

@@ -8,7 +8,7 @@
             <val:TestEntity />
         </Grid.DataContext>
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
-            <TextBlock Text="{Binding Id}" />
+            <TextBox Text="{Binding Id}" IsReadOnly="true" />
             <TextBox MinWidth="100" Text="{Binding Name, Mode=TwoWay, ValidatesOnDataErrors=true, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
     </Grid>
