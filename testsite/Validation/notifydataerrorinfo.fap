@@ -1,0 +1,15 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:val="Validation"
+    ThemeName="Metro">
+    <Grid>
+        <Grid.DataContext>
+            <val:NotifyTestEntity />
+        </Grid.DataContext>
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+            <TextBox Text="{Binding Id}" IsReadOnly="true" />
+            <TextBox MinWidth="100" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+    </Grid>
+</Application>

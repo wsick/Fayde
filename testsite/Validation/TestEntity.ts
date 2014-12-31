@@ -57,8 +57,8 @@ class TestEntity extends Fayde.MVVM.ObservableObject implements Fayde.Data.IData
     set Name (value: string) {
         if (this._Name === value)
             return;
-        (!value) ? this.AddError("Name", NAME_REQUIRED) : this.RemoveError("Name", NAME_REQUIRED);
         this._Name = value;
+        (!value) ? this.AddError("Name", NAME_REQUIRED) : this.RemoveError("Name", NAME_REQUIRED);
         this.OnPropertyChanged("Name");
     }
 }
