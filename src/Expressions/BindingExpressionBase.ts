@@ -245,7 +245,11 @@ module Fayde.Data {
                     dataError = getDataError(walker);
                 }
             }
-            this._MaybeEmitError(dataError, exception);
+
+            if (binding.ValidatesOnExceptions && exception)
+                this._MaybeEmitError(null, exception);
+            else if (binding.ValidatesOnDataErrors)
+                this._MaybeEmitError(dataError, exception);
         }
 
         OnDataContextChanged (newDataContext: any) {
@@ -304,7 +308,11 @@ module Fayde.Data {
             } finally {
                 this.IsUpdating = oldUpdating;
             }
-            this._MaybeEmitError(dataError, exception);
+
+            if (binding.ValidatesOnExceptions && exception)
+                this._MaybeEmitError(null, exception);
+            else if (binding.ValidatesOnDataErrors)
+                this._MaybeEmitError(dataError, exception);
         }
 
         private _ConvertFromTargetToSource (binding: Data.Binding, node: IPropertyPathNode, value: any): any {

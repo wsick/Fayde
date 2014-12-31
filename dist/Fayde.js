@@ -15558,7 +15558,10 @@ var Fayde;
                         dataError = getDataError(walker);
                     }
                 }
-                this._MaybeEmitError(dataError, exception);
+                if (binding.ValidatesOnExceptions && exception)
+                    this._MaybeEmitError(null, exception);
+                else if (binding.ValidatesOnDataErrors)
+                    this._MaybeEmitError(dataError, exception);
             };
             BindingExpressionBase.prototype.OnDataContextChanged = function (newDataContext) {
                 if (Fayde.Data.Debug && window.console)
@@ -15612,7 +15615,10 @@ var Fayde;
                 finally {
                     this.IsUpdating = oldUpdating;
                 }
-                this._MaybeEmitError(dataError, exception);
+                if (binding.ValidatesOnExceptions && exception)
+                    this._MaybeEmitError(null, exception);
+                else if (binding.ValidatesOnDataErrors)
+                    this._MaybeEmitError(dataError, exception);
             };
             BindingExpressionBase.prototype._ConvertFromTargetToSource = function (binding, node, value) {
                 if (binding.TargetNullValue && binding.TargetNullValue === value)
