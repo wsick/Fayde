@@ -443,57 +443,6 @@
         </Grid>
     </ControlTemplate>
 
-    <!--CommonValidationToolTipTemplate Style-->
-    <ControlTemplate x:Key="CommonValidationToolTipTemplate" TargetType="ToolTip">
-        <Grid x:Name="Root" Margin="5,0" Opacity="0" RenderTransformOrigin="0,0">
-            <VisualStateManager.VisualStateGroups>
-                <VisualStateGroup x:Name="OpenStates">
-                    <VisualStateGroup.Transitions>
-                        <VisualTransition GeneratedDuration="0"/>
-                        <VisualTransition GeneratedDuration="0:0:0.2" To="Open">
-                            <Storyboard>
-                                <DoubleAnimation Duration="0:0:0.2" Storyboard.TargetName="Translation"
-                                                 Storyboard.TargetProperty="X" To="0">
-                                    <DoubleAnimation.EasingFunction>
-                                        <BackEase Amplitude=".3" EasingMode="EaseOut"/>
-                                    </DoubleAnimation.EasingFunction>
-                                </DoubleAnimation>
-                                <DoubleAnimation Duration="0:0:0.2" Storyboard.TargetName="Root"
-                                                 Storyboard.TargetProperty="Opacity" To="1"/>
-                            </Storyboard>
-                        </VisualTransition>
-                    </VisualStateGroup.Transitions>
-                    <VisualState x:Name="Closed">
-                        <Storyboard>
-                            <DoubleAnimation Duration="0" Storyboard.TargetName="Root"
-                                             Storyboard.TargetProperty="Opacity" To="0"/>
-                        </Storyboard>
-                    </VisualState>
-                    <VisualState x:Name="Open">
-                        <Storyboard>
-                            <DoubleAnimation Duration="0" Storyboard.TargetName="Translation"
-                                             Storyboard.TargetProperty="X" To="0"/>
-                            <DoubleAnimation Duration="0" Storyboard.TargetName="Root"
-                                             Storyboard.TargetProperty="Opacity" To="1"/>
-                        </Storyboard>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateManager.VisualStateGroups>
-            <Grid.RenderTransform>
-                <TranslateTransform x:Name="Translation" X="-25"/>
-            </Grid.RenderTransform>
-            <Border Margin="4,4,-4,-4" Background="{StaticResource ValidationBrush1}" CornerRadius="5"/>
-            <Border Margin="3,3,-3,-3" Background="{StaticResource ValidationBrush2}" CornerRadius="4"/>
-            <Border Margin="2,2,-2,-2" Background="{StaticResource ValidationBrush3}" CornerRadius="3"/>
-            <Border Margin="1,1,-1,-1" Background="{StaticResource ValidationBrush4}" CornerRadius="2"/>
-            <Border Background="{StaticResource ValidationBrush5}" CornerRadius="2">
-                <TextBlock Margin="8,4,8,4" MaxWidth="250" UseLayoutRounding="false"
-                           Foreground="{StaticResource WhiteColorBrush}"
-                           Text="{Binding (Validation.Errors)[0].Exception.Message}" TextWrapping="Wrap"/>
-            </Border>
-        </Grid>
-    </ControlTemplate>
-
     <!--Button Style-->
     <Style TargetType="Button" x:Key="DefaultButtonStyle">
         <Setter Property="Background" Value="{StaticResource GrayBrush7}"/>
