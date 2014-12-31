@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.2';
+    Fayde.Version = '0.16.3';
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -26399,8 +26399,9 @@ var Fayde;
         Validation.Emit = Emit;
         function raiseBindingValidationError(fe, args) {
             args.OriginalSource = fe;
-            for (var cur = fe; cur instanceof Fayde.FrameworkElement && !args.Handled; cur = cur.Parent) {
-                cur.OnBindingValidationError(args);
+            for (var cur = fe; cur && !args.Handled; cur = Fayde.VisualTreeHelper.GetParent(cur)) {
+                if (cur instanceof Fayde.FrameworkElement)
+                    cur.OnBindingValidationError(args);
             }
         }
     })(Validation = Fayde.Validation || (Fayde.Validation = {}));

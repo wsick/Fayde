@@ -20,8 +20,9 @@ module Fayde.Validation {
 
     function raiseBindingValidationError (fe: FrameworkElement, args: Validation.ValidationErrorEventArgs) {
         args.OriginalSource = fe;
-        for (var cur = fe; cur instanceof FrameworkElement && !args.Handled; cur = <FrameworkElement>cur.Parent) {
-            cur.OnBindingValidationError(args);
+        for (var cur = <DependencyObject>fe; cur && !args.Handled; cur = VisualTreeHelper.GetParent(cur)) {
+            if (cur instanceof FrameworkElement)
+                (<FrameworkElement>cur).OnBindingValidationError(args);
         }
     }
 }
