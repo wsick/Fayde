@@ -1,7 +1,7 @@
 /// <reference path="GeneralTransform.ts" />
 
 module Fayde.Media {
-    export class Transform extends GeneralTransform {
+    export class Transform extends GeneralTransform implements minerva.ITransform {
         private _Value: Matrix;
 
         constructor () {
@@ -16,6 +16,10 @@ module Fayde.Media {
                 val._Raw = this._BuildValue();
             }
             return val;
+        }
+
+        getRaw (): number[] {
+            return this.Value._Raw;
         }
 
         get Inverse (): Transform {

@@ -9,6 +9,7 @@
   "scripts": {
     "test": "grunt test"
   },
+  "homepage": "https://github.com/BSick7/Fayde",
   "repository": {
     "type": "git",
     "url": "git://github.com/BSick7/Fayde"
@@ -36,6 +37,5 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-open": "^0.2.3",
     "grunt-typescript": "~0.3.0"
-  },
-  "homepage": "https://github.com/BSick7/Fayde"
+  }
 }

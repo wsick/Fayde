@@ -18,7 +18,7 @@ module Fayde.Media {
     }
     Fayde.CoreLibrary.add(GeneralTransform);
 
-    export class InternalTransform extends GeneralTransform {
+    export class InternalTransform extends GeneralTransform implements minerva.ITransform {
         private _Raw: number[];
 
         constructor (raw: number[]) {
@@ -32,6 +32,10 @@ module Fayde.Media {
 
         get Value (): Matrix3D {
             return Matrix3D.FromRaw(this._Raw);
+        }
+
+        getRaw (): number[] {
+            return this._Raw;
         }
 
         Transform (p: minerva.IPoint): Point {
