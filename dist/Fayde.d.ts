@@ -3914,6 +3914,17 @@ declare module Fayde.Localization {
 }
 declare module Fayde.Localization {
 }
+declare module Fayde.MVVM {
+    interface IValidationFunc {
+        (value: any, propertyName: string, entity: any): any[];
+    }
+    interface IAutoApplier<T> {
+        Notify(...properties: string[]): IAutoApplier<T>;
+        Validate(propertyName: string, ...validators: IValidationFunc[]): IAutoApplier<T>;
+        Finish(): T;
+    }
+    function Auto<T>(typeOrModel: any): IAutoApplier<T>;
+}
 declare module Fayde.Navigation {
     class Route {
         View: Uri;
@@ -3931,6 +3942,22 @@ declare module Fayde.MVVM {
         ResolveViewModel(route: Navigation.Route): any;
     }
     var IViewModelProvider_: nullstone.Interface<IViewModelProvider>;
+}
+declare module Fayde.MVVM {
+    interface INotifyEntity extends INotifyPropertyChanged, Data.INotifyDataErrorInfo {
+    }
+    class NotifyEntity implements INotifyEntity {
+        PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
+        OnPropertyChanged(propertyName: string): void;
+        private _Errors;
+        ErrorsChanged: nullstone.Event<Data.DataErrorsChangedEventArgs>;
+        HasErrors: boolean;
+        AddError(propertyName: string, errorMessage: string): void;
+        RemoveError(propertyName: string, errorMessage: string): void;
+        ClearErrors(propertyName: string): void;
+        GetErrors(propertyName: string): nullstone.IEnumerable<string>;
+        static applyTo<TIn, TOut extends INotifyEntity>(model: TIn): TOut;
+    }
 }
 declare module Fayde.MVVM {
     function NotifyProperties(type: any, propNames: string[]): void;
