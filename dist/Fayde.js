@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.4';
+    Fayde.Version = '0.16.5';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -25954,7 +25954,8 @@ var Fayde;
                 name: libName,
                 path: libJson.path,
                 deps: libJson.deps,
-                exports: libJson.exports
+                exports: libJson.exports,
+                useMin: libJson.useMin
             };
         }
         function setupLibraryConfig(lib) {
@@ -25968,6 +25969,7 @@ var Fayde;
                 library.exports = lib.exports;
             if (!!lib.deps)
                 library.deps = lib.deps;
+            library.useMin = (lib.useMin === true);
             library.$configModule();
         }
     })(libs || (libs = {}));

@@ -30,6 +30,7 @@ module Fayde {
             path: string;
             deps: string[];
             exports: string
+            useMin: boolean;
         }
 
         export function configure (json) {
@@ -48,7 +49,8 @@ module Fayde {
                 name: libName,
                 path: libJson.path,
                 deps: libJson.deps,
-                exports: libJson.exports
+                exports: libJson.exports,
+                useMin: libJson.useMin
             };
         }
 
@@ -63,6 +65,7 @@ module Fayde {
                 library.exports = lib.exports;
             if (!!lib.deps)
                 library.deps = lib.deps;
+            library.useMin = (lib.useMin === true);
             (<any>library).$configModule();
         }
     }
