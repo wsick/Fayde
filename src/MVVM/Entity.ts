@@ -61,7 +61,7 @@ module Fayde.MVVM {
         static ApplyTo<TIn, TOut extends IEntity>(model: TIn): TOut {
             var out = <TOut><any>model;
             var proto = Entity.prototype;
-            Object.defineProperties(this, {
+            Object.defineProperties(out, {
                 "_Errors": {value: {}},
                 "HasErrors": {
                     get: function () {
@@ -70,8 +70,9 @@ module Fayde.MVVM {
                 }
             });
 
+            out.PropertyChanged = new nullstone.Event<PropertyChangedEventArgs>();
             out.OnPropertyChanged = proto.OnPropertyChanged.bind(out);
-            out.ErrorsChanged = new nullstone.Event<PropertyChangedEventArgs>();
+            out.ErrorsChanged = new nullstone.Event<Data.DataErrorsChangedEventArgs>();
             out.AddError = proto.AddError.bind(out);
             out.RemoveError = proto.RemoveError.bind(out);
             out.ClearErrors = proto.ClearErrors.bind(out);

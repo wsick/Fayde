@@ -1,4 +1,5 @@
 import Entity = Fayde.MVVM.Entity;
+import IEntity = Fayde.MVVM.IEntity;
 import AutoModel = Fayde.MVVM.AutoModel;
 
 class Person extends Entity {
@@ -28,6 +29,12 @@ function toArray (errors: nullstone.IEnumerable<string>): string[] {
     return errors ? nullstone.IEnumerable_.toArray(errors) : null;
 }
 
+interface IUser {
+    UserName: string;
+}
+interface IUserEntity extends IUser, IEntity {
+}
+
 export function load () {
     QUnit.module("MVVM:AutoModel Tests");
 
@@ -45,5 +52,28 @@ export function load () {
         person.Age = 10;
         strictEqual(changed["Age"], 3);
         equal(person.GetErrors("Age"), null);
+    });
+
+    QUnit.test("Apply", (assert) => {
+        var user: IUser = {
+            UserName: "BSick7"
+        };
+        var entity = Entity.ApplyTo<IUser, IUserEntity>(user);
+        AutoModel(entity)
+            .Notify("UserName")
+            .Validate("UserName", required)
+            .Finish();
+
+        strictEqual(entity.UserName, "BSick7");
+
+        var changed = {};
+        entity.PropertyChanged.on((sender, args) => changed[args.PropertyName] = (changed[args.PropertyName] || 0) + 1, {});
+
+        entity.UserName = null;
+        strictEqual(changed["UserName"], 1);
+        deepEqual(toArray(entity.GetErrors("UserName")), ["UserName is required."]);
+        entity.UserName = "BSick7";
+        strictEqual(changed["UserName"], 2);
+        equal(entity.GetErrors("UserName"), null);
     });
 }

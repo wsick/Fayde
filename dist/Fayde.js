@@ -2,6 +2,21 @@ var Fayde;
 (function (Fayde) {
     Fayde.Version = '0.16.3';
 })(Fayde || (Fayde = {}));
+//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
+if (!Function.prototype.bind) {
+    Function.prototype.bind = function (oThis) {
+        if (typeof this !== 'function') {
+            throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+        }
+        var aArgs = Array.prototype.slice.call(arguments, 1), fToBind = this, fNOP = function () {
+        }, fBound = function () {
+            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+        fNOP.prototype = this.prototype;
+        fBound.prototype = new fNOP();
+        return fBound;
+    };
+}
 var Fayde;
 (function (Fayde) {
     Fayde.XMLNS = "http://schemas.wsick.com/fayde";
@@ -18934,7 +18949,9 @@ var Fayde;
             return re;
         }
         function applyProperty(obj, propertyName, validations) {
+            var initial = obj[propertyName];
             var backingName = "_$" + propertyName + "$_";
+            obj[backingName] = initial;
             if (validations && validations.length > 0) {
                 Object.defineProperty(obj, propertyName, {
                     get: function () {
@@ -19037,7 +19054,7 @@ var Fayde;
             Entity.ApplyTo = function (model) {
                 var out = model;
                 var proto = Entity.prototype;
-                Object.defineProperties(this, {
+                Object.defineProperties(out, {
                     "_Errors": { value: {} },
                     "HasErrors": {
                         get: function () {
@@ -19045,6 +19062,7 @@ var Fayde;
                         }
                     }
                 });
+                out.PropertyChanged = new nullstone.Event();
                 out.OnPropertyChanged = proto.OnPropertyChanged.bind(out);
                 out.ErrorsChanged = new nullstone.Event();
                 out.AddError = proto.AddError.bind(out);

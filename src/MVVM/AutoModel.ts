@@ -55,7 +55,9 @@ module Fayde.MVVM {
     }
 
     function applyProperty (obj: any, propertyName: string, validations: IValidationFunc[]) {
+        var initial = obj[propertyName];
         var backingName = "_$" + propertyName + "$_";
+        obj[backingName] = initial;
         if (validations && validations.length > 0) {
             Object.defineProperty(obj, propertyName, {
                 get: function () {
