@@ -1,8 +1,12 @@
 module Fayde.MVVM {
-    export interface INotifyEntity extends INotifyPropertyChanged, Data.INotifyDataErrorInfo {
+    export interface IEntity extends INotifyPropertyChanged, Data.INotifyDataErrorInfo {
+        OnPropertyChanged (propertyName: string);
+        AddError (propertyName: string, errorMessage: string);
+        RemoveError (propertyName: string, errorMessage: string);
+        ClearErrors (propertyName: string);
     }
 
-    export class NotifyEntity implements INotifyEntity {
+    export class Entity implements IEntity {
         PropertyChanged = new nullstone.Event<PropertyChangedEventArgs>();
 
         OnPropertyChanged (propertyName: string) {
@@ -54,11 +58,29 @@ module Fayde.MVVM {
             return nullstone.IEnumerable_.fromArray(errs);
         }
 
-        static applyTo<TIn, TOut extends INotifyEntity>(model: TIn): TOut {
-            // TODO: Apply
-            // Mark interface on model
-            return <TOut><any>model;
+        static ApplyTo<TIn, TOut extends IEntity>(model: TIn): TOut {
+            var out = <TOut><any>model;
+            var proto = Entity.prototype;
+            Object.defineProperties(this, {
+                "_Errors": {value: {}},
+                "HasErrors": {
+                    get: function () {
+                        return Object.keys(this._Errors).length > 0;
+                    }
+                }
+            });
+
+            out.OnPropertyChanged = proto.OnPropertyChanged.bind(out);
+            out.ErrorsChanged = new nullstone.Event<PropertyChangedEventArgs>();
+            out.AddError = proto.AddError.bind(out);
+            out.RemoveError = proto.RemoveError.bind(out);
+            out.ClearErrors = proto.ClearErrors.bind(out);
+            out.GetErrors = proto.GetErrors.bind(out);
+
+            Data.INotifyDataErrorInfo_.mark(out);
+
+            return out;
         }
     }
-    Data.INotifyDataErrorInfo_.mark(NotifyEntity);
+    Data.INotifyDataErrorInfo_.mark(Entity);
 }

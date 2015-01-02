@@ -3923,7 +3923,27 @@ declare module Fayde.MVVM {
         Validate(propertyName: string, ...validators: IValidationFunc[]): IAutoApplier<T>;
         Finish(): T;
     }
-    function Auto<T>(typeOrModel: any): IAutoApplier<T>;
+    function AutoModel<T>(typeOrModel: any): IAutoApplier<T>;
+}
+declare module Fayde.MVVM {
+    interface IEntity extends INotifyPropertyChanged, Data.INotifyDataErrorInfo {
+        OnPropertyChanged(propertyName: string): any;
+        AddError(propertyName: string, errorMessage: string): any;
+        RemoveError(propertyName: string, errorMessage: string): any;
+        ClearErrors(propertyName: string): any;
+    }
+    class Entity implements IEntity {
+        PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
+        OnPropertyChanged(propertyName: string): void;
+        private _Errors;
+        ErrorsChanged: nullstone.Event<Data.DataErrorsChangedEventArgs>;
+        HasErrors: boolean;
+        AddError(propertyName: string, errorMessage: string): void;
+        RemoveError(propertyName: string, errorMessage: string): void;
+        ClearErrors(propertyName: string): void;
+        GetErrors(propertyName: string): nullstone.IEnumerable<string>;
+        static ApplyTo<TIn, TOut extends IEntity>(model: TIn): TOut;
+    }
 }
 declare module Fayde.Navigation {
     class Route {
@@ -3942,22 +3962,6 @@ declare module Fayde.MVVM {
         ResolveViewModel(route: Navigation.Route): any;
     }
     var IViewModelProvider_: nullstone.Interface<IViewModelProvider>;
-}
-declare module Fayde.MVVM {
-    interface INotifyEntity extends INotifyPropertyChanged, Data.INotifyDataErrorInfo {
-    }
-    class NotifyEntity implements INotifyEntity {
-        PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
-        OnPropertyChanged(propertyName: string): void;
-        private _Errors;
-        ErrorsChanged: nullstone.Event<Data.DataErrorsChangedEventArgs>;
-        HasErrors: boolean;
-        AddError(propertyName: string, errorMessage: string): void;
-        RemoveError(propertyName: string, errorMessage: string): void;
-        ClearErrors(propertyName: string): void;
-        GetErrors(propertyName: string): nullstone.IEnumerable<string>;
-        static applyTo<TIn, TOut extends INotifyEntity>(model: TIn): TOut;
-    }
 }
 declare module Fayde.MVVM {
     function NotifyProperties(type: any, propNames: string[]): void;

@@ -18882,7 +18882,7 @@ var Fayde;
 (function (Fayde) {
     var MVVM;
     (function (MVVM) {
-        function Auto(typeOrModel) {
+        function AutoModel(typeOrModel) {
             var obj = getApplier(typeOrModel);
             var props = [];
             var validators = [];
@@ -18917,7 +18917,7 @@ var Fayde;
             };
             return applier;
         }
-        MVVM.Auto = Auto;
+        MVVM.AutoModel = AutoModel;
         function getApplier(typeOrModel) {
             if (typeof typeOrModel === "function")
                 return typeOrModel.prototype;
@@ -18959,7 +18959,7 @@ var Fayde;
                 });
             }
         }
-        function doValidate(entity, propertyName, value, validations) {
+        function doValidate(entity, value, propertyName, validations) {
             var errs = validate(entity, value, propertyName, validations);
             entity.ClearErrors && entity.ClearErrors(propertyName);
             if (!entity.AddError)
@@ -18978,6 +18978,86 @@ var Fayde;
             }
             return all;
         }
+    })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var MVVM;
+    (function (MVVM) {
+        var Entity = (function () {
+            function Entity() {
+                this.PropertyChanged = new nullstone.Event();
+                this._Errors = {};
+                this.ErrorsChanged = new nullstone.Event();
+            }
+            Entity.prototype.OnPropertyChanged = function (propertyName) {
+                this.PropertyChanged.raise(this, new Fayde.PropertyChangedEventArgs(propertyName));
+            };
+            Object.defineProperty(Entity.prototype, "HasErrors", {
+                get: function () {
+                    return Object.keys(this._Errors).length > 0;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Entity.prototype.AddError = function (propertyName, errorMessage) {
+                var errs = this._Errors[propertyName];
+                if (!errs) {
+                    this._Errors[propertyName] = [errorMessage];
+                }
+                else {
+                    errs.push(errorMessage);
+                }
+                this.ErrorsChanged.raise(this, new Fayde.Data.DataErrorsChangedEventArgs(propertyName));
+            };
+            Entity.prototype.RemoveError = function (propertyName, errorMessage) {
+                var errs = this._Errors[propertyName];
+                if (!errs)
+                    return;
+                var index = errs.indexOf(errorMessage);
+                if (index >= 0)
+                    errs.splice(index, 1);
+                if (errs.length < 1)
+                    delete this._Errors[propertyName];
+                this.ErrorsChanged.raise(this, new Fayde.Data.DataErrorsChangedEventArgs(propertyName));
+            };
+            Entity.prototype.ClearErrors = function (propertyName) {
+                var errs = this._Errors[propertyName];
+                if (!errs)
+                    return;
+                delete this._Errors[propertyName];
+                this.ErrorsChanged.raise(this, new Fayde.Data.DataErrorsChangedEventArgs(propertyName));
+            };
+            Entity.prototype.GetErrors = function (propertyName) {
+                var errs = this._Errors[propertyName];
+                if (!errs)
+                    return null;
+                return nullstone.IEnumerable_.fromArray(errs);
+            };
+            Entity.ApplyTo = function (model) {
+                var out = model;
+                var proto = Entity.prototype;
+                Object.defineProperties(this, {
+                    "_Errors": { value: {} },
+                    "HasErrors": {
+                        get: function () {
+                            return Object.keys(this._Errors).length > 0;
+                        }
+                    }
+                });
+                out.OnPropertyChanged = proto.OnPropertyChanged.bind(out);
+                out.ErrorsChanged = new nullstone.Event();
+                out.AddError = proto.AddError.bind(out);
+                out.RemoveError = proto.RemoveError.bind(out);
+                out.ClearErrors = proto.ClearErrors.bind(out);
+                out.GetErrors = proto.GetErrors.bind(out);
+                Fayde.Data.INotifyDataErrorInfo_.mark(out);
+                return out;
+            };
+            return Entity;
+        })();
+        MVVM.Entity = Entity;
+        Fayde.Data.INotifyDataErrorInfo_.mark(Entity);
     })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -19005,71 +19085,6 @@ var Fayde;
         MVVM.IViewModelProvider_.is = function (o) {
             return o && typeof o.ResolveViewModel === "function";
         };
-    })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var MVVM;
-    (function (MVVM) {
-        var NotifyEntity = (function () {
-            function NotifyEntity() {
-                this.PropertyChanged = new nullstone.Event();
-                this._Errors = {};
-                this.ErrorsChanged = new nullstone.Event();
-            }
-            NotifyEntity.prototype.OnPropertyChanged = function (propertyName) {
-                this.PropertyChanged.raise(this, new Fayde.PropertyChangedEventArgs(propertyName));
-            };
-            Object.defineProperty(NotifyEntity.prototype, "HasErrors", {
-                get: function () {
-                    return Object.keys(this._Errors).length > 0;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            NotifyEntity.prototype.AddError = function (propertyName, errorMessage) {
-                var errs = this._Errors[propertyName];
-                if (!errs) {
-                    this._Errors[propertyName] = [errorMessage];
-                }
-                else {
-                    errs.push(errorMessage);
-                }
-                this.ErrorsChanged.raise(this, new Fayde.Data.DataErrorsChangedEventArgs(propertyName));
-            };
-            NotifyEntity.prototype.RemoveError = function (propertyName, errorMessage) {
-                var errs = this._Errors[propertyName];
-                if (!errs)
-                    return;
-                var index = errs.indexOf(errorMessage);
-                if (index >= 0)
-                    errs.splice(index, 1);
-                if (errs.length < 1)
-                    delete this._Errors[propertyName];
-                this.ErrorsChanged.raise(this, new Fayde.Data.DataErrorsChangedEventArgs(propertyName));
-            };
-            NotifyEntity.prototype.ClearErrors = function (propertyName) {
-                var errs = this._Errors[propertyName];
-                if (!errs)
-                    return;
-                delete this._Errors[propertyName];
-                this.ErrorsChanged.raise(this, new Fayde.Data.DataErrorsChangedEventArgs(propertyName));
-            };
-            NotifyEntity.prototype.GetErrors = function (propertyName) {
-                var errs = this._Errors[propertyName];
-                if (!errs)
-                    return null;
-                return nullstone.IEnumerable_.fromArray(errs);
-            };
-            NotifyEntity.applyTo = function (model) {
-                return model;
-                // TODO: Apply
-                // Mark interface on model
-            };
-            return NotifyEntity;
-        })();
-        MVVM.NotifyEntity = NotifyEntity;
-        Fayde.Data.INotifyDataErrorInfo_.mark(NotifyEntity);
     })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
 })(Fayde || (Fayde = {}));
 /// <reference path="../Core/INotifyPropertyChanged.ts" />

@@ -21,7 +21,9 @@ module runner {
         ".build/tests/Markup/Controls",
         ".build/tests/Markup/Framework",
         ".build/tests/Markup/Resources",
-        ".build/tests/Markup/Media"
+        ".build/tests/Markup/Media",
+
+        ".build/tests/MVVM/AutoModel"
     ];
 
     Fayde.LoadConfigJson((config, err) => {

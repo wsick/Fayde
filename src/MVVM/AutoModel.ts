@@ -7,7 +7,7 @@ module Fayde.MVVM {
         Validate(propertyName: string, ...validators: IValidationFunc[]): IAutoApplier<T>;
         Finish(): T;
     }
-    export function Auto<T> (typeOrModel: any): IAutoApplier<T> {
+    export function AutoModel<T> (typeOrModel: any): IAutoApplier<T> {
         var obj = getApplier(typeOrModel);
 
         var props: string[] = [];
@@ -80,7 +80,7 @@ module Fayde.MVVM {
         }
     }
 
-    function doValidate (entity: any, propertyName: string, value: any, validations: IValidationFunc[]) {
+    function doValidate (entity: any, value: any, propertyName: string, validations: IValidationFunc[]) {
         var errs = validate(entity, value, propertyName, validations);
         entity.ClearErrors && entity.ClearErrors(propertyName);
         if (!entity.AddError)
