@@ -60,7 +60,7 @@ export function load () {
         };
         var entity = Entity.ApplyTo<IUser, IUserEntity>(user);
         AutoModel(entity)
-            .Notify("UserName")
+            .Notify(["UserName"])
             .Validate("UserName", required)
             .Finish();
 

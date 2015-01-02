@@ -4,6 +4,7 @@ module Fayde.MVVM {
     }
     export interface IAutoApplier<T> {
         Notify(...properties: string[]): IAutoApplier<T>;
+        Notify(properties: string[]): IAutoApplier<T>;
         Validate(propertyName: string, ...validators: IValidationFunc[]): IAutoApplier<T>;
         Finish(): T;
     }
@@ -15,7 +16,13 @@ module Fayde.MVVM {
 
         var applier = <IAutoApplier<T>>{
             Notify (...properties: string[]): IAutoApplier<T> {
-                props = props.concat(properties);
+                for (var i = 0; i < properties.length; i++) {
+                    var prop = properties[i];
+                    if (typeof prop === "string")
+                        props.push(prop);
+                    else if (Array.isArray(prop))
+                        props = props.concat(prop);
+                }
                 return applier;
             },
             Validate (propertyName: string, ...validations: IValidationFunc[]): IAutoApplier<T> {

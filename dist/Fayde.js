@@ -2,6 +2,11 @@ var Fayde;
 (function (Fayde) {
     Fayde.Version = '0.16.3';
 })(Fayde || (Fayde = {}));
+if (!Array.isArray) {
+    Array.isArray = function (arg) {
+        return Object.prototype.toString.call(arg) === '[object Array]';
+    };
+}
 //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -18907,7 +18912,13 @@ var Fayde;
                     for (var _i = 0; _i < arguments.length; _i++) {
                         properties[_i - 0] = arguments[_i];
                     }
-                    props = props.concat(properties);
+                    for (var i = 0; i < properties.length; i++) {
+                        var prop = properties[i];
+                        if (typeof prop === "string")
+                            props.push(prop);
+                        else if (Array.isArray(prop))
+                            props = props.concat(prop);
+                    }
                     return applier;
                 },
                 Validate: function (propertyName) {

@@ -3920,6 +3920,7 @@ declare module Fayde.MVVM {
     }
     interface IAutoApplier<T> {
         Notify(...properties: string[]): IAutoApplier<T>;
+        Notify(properties: string[]): IAutoApplier<T>;
         Validate(propertyName: string, ...validators: IValidationFunc[]): IAutoApplier<T>;
         Finish(): T;
     }
