@@ -1,4 +1,3 @@
-import DataErrorsChangedEventArgs = Fayde.Data.DataErrorsChangedEventArgs;
 import Entity = Fayde.MVVM.Entity;
 
 var NAME_REQUIRED = "Name is required.";
