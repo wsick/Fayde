@@ -1,8 +1,6 @@
-import Entity = Fayde.MVVM.Entity;
-
 var NAME_REQUIRED = "Name is required.";
 
-class NotifyTestEntity extends Entity {
+class NotifyTestEntity extends Fayde.MVVM.Entity {
     Id: number = -1;
     Name: string = "";
 }
