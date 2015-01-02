@@ -104,6 +104,7 @@ module.exports = function (grunt) {
                 src: libs.typings().concat([
                     'typings/*.d.ts',
                     'src/_Version.ts',
+                    'src/polyfill/**/*.ts',
                     'src/_Types.ts',
                     'src/**/*.ts'
                 ]),
