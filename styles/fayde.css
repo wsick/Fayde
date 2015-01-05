@@ -43,7 +43,7 @@ body {
 }
 .navbar-default .navbar-nav>li>a {
     color: white;
-    text-shadow: black 0px 1px 1px;
+    text-shadow: black 0 1px 1px;
 }
 .navbar-default .navbar-nav>.active>a,
 .navbar-default .navbar-nav>.active>a:hover,
@@ -54,7 +54,7 @@ body {
 .navbar-default .navbar-brand {
     font-size: 28px;
     color: white;
-    text-shadow: black 0px 1px 1px;
+    text-shadow: black 0 1px 1px;
 }
 .navbar-default .navbar-nav>li>a:hover,
 .navbar-default .navbar-nav>li>a:focus {
@@ -159,7 +159,7 @@ table.data {
 }
 table.data td,
 table.data th {
-    border-bottom: solid 1px #AAAAAA;
+    border-bottom: 1px solid #AAAAAA;
     padding: 4px;
 }
 table.data th {
