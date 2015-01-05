@@ -1,8 +1,7 @@
 {
-    "libs": {
-    },
-    "debug": {
-        "warnMissingThemes": false,
-        "warnBrokenPath": false
-    }
+  "libs": {},
+  "debug": {
+    "warnMissingThemes": false,
+    "warnBrokenPath": false
+  }
 }

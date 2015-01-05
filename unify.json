@@ -1,7 +1,9 @@
 {
   "name": "Fayde",
   "client": {
-    "file": "fayde.json",
+    "files": [
+      "testsite/fayde.json"
+    ],
     "exclude": [
       "self",
       "deps"
