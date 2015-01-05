@@ -1,0 +1,16 @@
+{
+  "name": "Fayde",
+  "client": {
+    "file": "fayde.json",
+    "exclude": [
+      "self",
+      "deps"
+    ]
+  },
+  "type": "lib",
+  "dist": "dist/Fayde.js",
+  "library": {
+    "type": "export",
+    "exports": "Fayde"
+  }
+}
