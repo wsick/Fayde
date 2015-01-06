@@ -2,6 +2,7 @@
   "name": "Fayde",
   "client": {
     "files": [
+      "test/fayde.json",
       "testsite/fayde.json"
     ],
     "exclude": [

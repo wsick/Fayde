@@ -1,7 +1,8 @@
 {
-    "libs": {
-        "Fayde.Controls": {
-            "exports": "Fayde.Controls"
-        }
+  "libs": {
+    "Fayde.Controls": {
+      "exports": "Fayde.Controls"
     }
+  },
+  "themes": {}
 }
