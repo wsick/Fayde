@@ -11,6 +11,7 @@
 
         <!-- Bootstrap -->
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
         <link rel="stylesheet" href="styles/vs.css">
         <link rel="stylesheet" href="styles/fayde.css">
 
@@ -51,9 +52,9 @@
                             -->
                         </ul>
                         <ul class="nav navbar-nav pull-right">
-                            <li><a href="https://twitter.com/fayde_project" target="_blank" style="padding: 13px 10px;" title="Twitter"><img src="images/twitter-white.ico"></a></li>
-                            <li><a href="https://fayde.uservoice.com/forums/170785-fayde-version-0-9" target="_blank" style="padding: 13px 10px;" title="Uservoice"><img src="images/uservoice-white.ico"></a></li>
-                            <li><a href="https://github.com/BSick7/Fayde" target="_blank" style="padding: 13px 10px;" title="Github"><img src="images/github-white.ico"></a></li>
+                            <li><a class="navbar-icon" id="twitter" href="https://twitter.com/fayde_project" target="_blank" title="Twitter"></a></li>
+                            <li><a class="navbar-icon" id="uservoice" href="https://fayde.uservoice.com/forums/170785-fayde-version-0-9" target="_blank" title="Uservoice"></a></li>
+                            <li><a class="navbar-icon" id="github" href="https://github.com/BSick7/Fayde" target="_blank" title="Github"></a></li>
                         </ul>
                     </div>
                 </div>
@@ -194,90 +195,223 @@
                 <div class="column">
                     <h2>Feature Support</h2>
                     <p>Fayde has been initially developed as a direct port of Silverlight and includes all major features:</p>
-                    <table class="data" style="width:100%">
-                        <tr style="height: 50px;">
-                            <td style="width: 25%;"><h4>Core Controls</h4></td>
-                            <td>
-                                Border, TextBox, TextBlock,  ProgressBar, Button, RepeatButton, ToggleButton,
-                                RadioButton, CheckBox, PasswordBox, Slider, ScrollViewer, ComboBox, ListBox, TreeView,
-                                TabControl, Image, and more
+                    <table class="boxes" style="width:100%">
+                        <tr>
+                            <td style="width: 25%;">
+                                <div class="box">
+                                    <i class="fa fa-check"></i><h4>Core Controls</h4>
+                                    <div class="detail">
+                                        Border, TextBox, TextBlock,  ProgressBar, Button, RepeatButton, ToggleButton,
+                                        RadioButton, CheckBox, PasswordBox, Slider, ScrollViewer, ComboBox, ListBox, TreeView,
+                                        TabControl, Image, and more
+                                    </div>
+                                </div>
+                                <div class="box">
+                                    <i class="fa fa-check"></i><h4>Binding Support</h4>
+                                    <div class="detail">
+                                        Binding, Value Converters, RelativeSource, Mode, StringFormat
+                                    </div>
+                                </div>
                             </td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>Layout Panels</h4></td>
-                            <td>StackPanel, WrapPanel, Grid, and Canvas</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>Binding Support</h4></td>
-                            <td>Binding, Value Converters, RelativeSource, Mode, StringFormat</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>Styles and Templates</h4></td>
-                            <td>ResourceDictionary, Theme, Style, DataTemplate, ControlTemplate, HierarchicalDataTemplate, ItemsPanelTemplate</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>Animation Support</h4></td>
-                            <td>VisualStateManager, Storyboard, and all animations</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>Shapes and Transforms</h4></td>
-                            <td>Rectangle, Line, Ellipse, and Path using vector graphics</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>Page Based Navigation</h4></td>
-                            <td>Page, Frame, HyperlinkButton, UriMapper, and Browser History</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>Colors and Gradients</h4></td>
-                            <td>TileBrush, ImageBrush, SolidColorBrush, LinearGradientBrush</td>
+                            <td style="width: 25%">
+                                <div class="box">
+                                    <i class="fa fa-check"></i><h4>Layout Panels</h4>
+                                    <div class="detail">
+                                        StackPanel, WrapPanel, Grid, and Canvas
+                                    </div>
+                                </div>
+                                <div class="box">
+                                    <i class="fa fa-check"></i><h4>Styles and Templates</h4>
+                                    <div class="detail">
+                                        ResourceDictionary, Theme, Style, DataTemplate, ControlTemplate, HierarchicalDataTemplate, ItemsPanelTemplate
+                                    </div>
+                                </div>
+                                <div class="box">
+                                    <i class="fa fa-check"></i><h4>Colors and Gradients</h4>
+                                    <div class="detail">
+                                        TileBrush, ImageBrush, SolidColorBrush, LinearGradientBrush
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="width: 25%;">
+                                <div class="box">
+                                    <i class="fa fa-check"></i><h4>Animation Support</h4>
+                                    <div class="detail">
+                                        VisualStateManager, Storyboard, and all animations
+                                    </div>
+                                </div>
+                                <div class="box">
+                                    <i class="fa fa-check"></i><h4>Page Based Navigation</h4>
+                                    <div class="detail">
+                                        Page, Frame, HyperlinkButton, UriMapper, and Browser History
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="width: 25%;">
+                                <div class="box">
+                                    <i class="fa fa-check"></i><h4>Validation Support</h4>
+                                    <div class="detail">
+                                        ValidationSummary, validation binding properties, input adorners and more
+                                    </div>
+                                </div>
+                                <div class="box">
+                                    <i class="fa fa-check"></i><h4>Shapes and Transforms</h4>
+                                    <div class="detail">
+                                        Rectangle, Line, Ellipse, and Path using vector graphics
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                     </table>
                     <br>
                     <br>
                     <p>In addition, Fayde has added support for:</p>
-                    <table class="data" style="width: 100%;">
-                        <tr style="height: 50px;">
-                            <td style="width: 25%;"><h4>GridItemsControl</h4></td>
-                            <td>A new control with similar features to a DataGrid but constructed in a much more modular, extensible, and stylable manner.</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>Panel</h4></td>
-                            <td>An abstract control in Silverlight, it can be used in Fayde to do layering.</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>Multi-Touch Support</h4></td>
-                            <td>Develop your applications for laptops, tablets, and phones.</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>EventBinding</h4></td>
-                            <td>Allows the binding of events such as keystrokes directly to commands.</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>ItemsControlParent</h4></td>
-                            <td>A new RelativeSource that allows binding to the ItemsControl from the ItemTemplate.</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>Custom Two-Way Binding</h4></td>
-                            <td>Support for using two-way bindings when building your own custom controls.</td>
-                        </tr>
-                        <tr style="height: 50px;">
-                            <td><h4>Routing</h4></td>
-                            <td>A more advanced way to do page-based navigation with MVVM.</td>
+                    <table class="boxes" style="width:100%">
+                        <tr>
+                            <td style="width: 25%;">
+                                <div class="box box2">
+                                    <h4>GridItemsControl</h4>
+                                    <div class="detail">
+                                        A new control with similar features to a DataGrid but constructed in a much more modular, extensible, and stylable manner.
+                                    </div>
+                                </div>
+                                <div class="box box2">
+                                    <h4>Panel</h4>
+                                    <div class="detail">
+                                        An abstract control in Silverlight, it can be used in Fayde to do layering.
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="width: 25%;">
+                                <div class="box box2">
+                                    <h4>EventBinding</h4>
+                                    <div class="detail">
+                                        Allows the binding of events such as keystrokes directly to commands.
+                                    </div>
+                                </div>
+                                <div class="box box2">
+                                    <h4>ItemsControlParent</h4>
+                                    <div class="detail">
+                                        A new RelativeSource that allows binding to the ItemsControl from the ItemTemplate.
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="width: 25%">
+                                <div class="box box2">
+                                    <h4>Custom Two-Way Binding</h4>
+                                    <div class="detail">
+                                        Support for using two-way bindings when building your own custom controls.
+                                    </div>
+                                </div>
+                                <div class="box box2">
+                                    <h4>Routing</h4>
+                                    <div class="detail">
+                                        A more advanced way to do page-based navigation with MVVM.
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="width: 25%">
+                                <div class="box box2">
+                                    <h4>Multi-Touch Support</h4>
+                                    <div class="detail">
+                                        Develop your applications for laptops, tablets, and phones.
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                     </table>
                 </div>
             </div>
         </div>
         <div class="container feature" id="feature4">
-            <div class="jumbotron">
-                <h2>Coming Soon</h2>
-                <p></p>
-                <!--
-                <h2>MVVM - Model View ViewModel</h2>
-                <a href="https://angularjs.org/">AngularJS</a>
-                <a href="http://emberjs.com/">Ember</a>
-                <a href="http://knockoutjs.com/">Knockout</a>
-                -->
+            <div class="jumbotron" style="width: 100%;">
+                <div class="column">
+                    <h2>Coming Soon</h2>
+                    <p>
+                        A lot is happening with Fayde. With all the possibilities that have been unlocked through Fayde,
+                        the developers are working to keep up with the dreams of what Fayde can become. This list is just the beginning...
+                    </p>
+                    <p>
+                        The Fayde team is always looking for contributors. Please contact us or just begin sending us pull requests.
+                    </p>
+                    <table class="boxes" style="width:100%">
+                        <tr>
+                            <td style="width: 25%;">
+                                <div class="box box3">
+                                    <h4>Unify</h4>
+                                    <div class="detail">
+                                        Setting up and managing javascript libraries through npm, bower, require, etc can be tedious and difficult.
+                                        Unify is a project aimed to simplify the addition and configuration of javascript libraries to your Fayde application.
+                                    </div>
+                                </div>
+                                <div class="box box3">
+                                    <h4>Touch Gestures</h4>
+                                    <div class="detail">
+
+                                    </div>
+                                </div>
+                                <div class="box box3">
+                                    <h4>Data Connectivity and Web Services</h4>
+                                    <div class="detail">
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="width: 25%;">
+                                <div class="box box3">
+                                    <h4>Debugger</h4>
+                                    <div class="detail">
+
+                                    </div>
+                                </div>
+                                <div class="box box3">
+                                    <h4>Fayde Xsd</h4>
+                                    <div class="detail">
+
+                                    </div>
+                                </div>
+                                <div class="box box3">
+                                    <h4>Dialogs and Prompts</h4>
+                                    <div class="detail">
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="width: 25%;">
+                                <div class="box box3">
+                                    <h4>GridItemsControl Enhancements</h4>
+                                    <div class="detail">
+                                        The GridItemsControl is a new control introduced in Fayde to handle tabular data instead of DataGrid.
+                                        Enhancements will be coming in order to support more complex data, styling, and templating scenarios.
+                                    </div>
+                                </div>
+                                <div class="box box3">
+                                    <h4>Additional Themes</h4>
+                                    <div class="detail">
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="width: 25%;">
+                                <div class="box box3">
+                                    <h4>Advanced Controls</h4>
+                                    <div class="detail">
+                                        PaginationControl, DatePicker, TimePicker, CalendarControl, and more
+                                    </div>
+                                </div>
+                                <div class="box box3">
+                                    <h4>Expressions</h4>
+                                    <div class="detail">
+
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <!--
+                    <h2>MVVM - Model View ViewModel</h2>
+                    <a href="https://angularjs.org/">AngularJS</a>
+                    <a href="http://emberjs.com/">Ember</a>
+                    <a href="http://knockoutjs.com/">Knockout</a>
+                    -->
+                </div>
             </div>
         </div>
         <div class="container feature" id="feature5">

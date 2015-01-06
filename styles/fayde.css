@@ -177,3 +177,67 @@ p a {
 ol.steps li {
     margin-top: 40px;
 }
+
+.navbar-icon {
+    width: 24px;
+    height: 24px;
+    display: block;
+    margin: 13px 10px;
+    padding: 13px 10px !important;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+#twitter {
+    background-image: url('../images/twitter-white.ico');
+}
+#twitter:hover {
+    background-image: url('../images/twitter-blue.ico');
+}
+#uservoice {
+    background-image: url('../images/uservoice-white.ico');
+}
+#uservoice:hover {
+    background-image: url('../images/uservoice-orange.ico');
+}
+#github {
+    background-image: url('../images/github-white.ico');
+}
+#github:hover {
+    background-image: url('../images/github-blue.ico');
+}
+
+.box {
+    border: 1px solid #AAAAAA;
+    background-color: white;
+    border-radius: 4px;
+    margin: 20px 10px;
+    vertical-align: top;
+}
+.box i {
+    color: white;
+    float: left;
+    padding: 10px;
+    text-shadow: black 0 1px 1px;
+}
+.box h4 {
+    background-color: #00850e;
+    color: white;
+    text-shadow: black 0 1px 1px;
+    padding: 10px 20px;
+    margin-bottom: 0;
+    border-radius: 4px 4px 0 0;
+}
+.box .detail {
+    padding: 10px 20px;
+}
+
+.box2 h4 {
+    background-color: #283776;
+}
+.box3 h4 {
+    background-color: #e49e38;
+}
+
+table.boxes td {
+    vertical-align: top;
+}
