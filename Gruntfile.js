@@ -70,7 +70,7 @@ module.exports = function (grunt) {
                     {
                         expand: true,
                         src: ['themes/', 'dist/', 'src/'],
-                        dest: '<%= dirs.test.lib %>/fayde'
+                        dest: '<%= dirs.test.lib %>/<%= meta.name %>'
                     },
                     {
                         expand: true,
@@ -86,7 +86,7 @@ module.exports = function (grunt) {
                     {
                         expand: true,
                         src: ['themes/', 'dist/', 'src/'],
-                        dest: '<%= dirs.testsite.lib %>/fayde'
+                        dest: '<%= dirs.testsite.lib %>/<%= meta.name %>'
                     },
                     {
                         expand: true,
@@ -102,7 +102,7 @@ module.exports = function (grunt) {
                     {
                         expand: true,
                         src: ['themes/', 'dist/', 'src/'],
-                        dest: '<%= dirs.stress.lib %>/fayde'
+                        dest: '<%= dirs.stress.lib %>/<%= meta.name %>'
                     },
                     {
                         expand: true,
@@ -176,7 +176,7 @@ module.exports = function (grunt) {
                 dest: '<%= dirs.stress.build %>',
                 options: {
                     target: 'es5',
-                    basePath: '<%= dirs.stress.root %>',
+                    basePath: dirs.stress.root,
                     module: 'amd',
                     sourceMap: true
                 }
