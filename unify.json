@@ -15,5 +15,6 @@
   "library": {
     "type": "export",
     "exports": "Fayde"
-  }
+  },
+  "typings": ["dist/Fayde.d.ts"]
 }
