@@ -40,13 +40,6 @@ module.exports = function (grunt) {
             lib: 'stress/lib'
         }
     };
-    var libs = ["requirejs", "requirejs-text", "minerva", "nullstone"];
-
-    function linksTo(blibs, dest) {
-        return blibs.map(function (libName) {
-            return {src: './lib/' + libName, dest: dest + '/' + libName};
-        });
-    }
 
     function mount(connect, dir) {
         return connect.static(path.resolve(dir));
@@ -77,22 +70,43 @@ module.exports = function (grunt) {
                     {src: './themes', dest: dirs.test.lib + '/fayde/themes'},
                     {src: './dist', dest: dirs.test.lib + '/fayde/dist'},
                     {src: './src', dest: dirs.test.lib + '/fayde/src'},
-                    {src: './lib/qunit', dest: dirs.test.lib + '/qunit'}
-                ].concat(linksTo(libs, dirs.test.lib))
+                    {src: './lib/qunit', dest: dirs.test.lib + '/qunit'},
+                    {
+                        expand: true,
+                        cwd: 'lib/',
+                        src: ['*'],
+                        dest: dirs.test.lib,
+                        filter: 'isDirectory'
+                    }
+                ]
             },
             testsite: {
                 files: [
                     {src: './themes', dest: dirs.testsite.lib + '/fayde/themes'},
                     {src: './dist', dest: dirs.testsite.lib + '/fayde/dist'},
-                    {src: './src', dest: dirs.testsite.lib + '/fayde/src'}
-                ].concat(linksTo(libs, dirs.testsite.lib))
+                    {src: './src', dest: dirs.testsite.lib + '/fayde/src'},
+                    {
+                        expand: true,
+                        cwd: 'lib/',
+                        src: ['*', '!qunit'],
+                        dest: dirs.testsite.lib,
+                        filter: 'isDirectory'
+                    }
+                ]
             },
             stress: {
                 files: [
                     {src: './themes', dest: dirs.stress.lib + '/fayde/themes'},
                     {src: './dist', dest: dirs.stress.lib + '/fayde/dist'},
-                    {src: './src', dest: dirs.stress.lib + '/fayde/src'}
-                ].concat(linksTo(libs, dirs.stress.lib))
+                    {src: './src', dest: dirs.stress.lib + '/fayde/src'},
+                    {
+                        expand: true,
+                        cwd: 'lib/',
+                        src: ['*', '!qunit'],
+                        dest: dirs.stress.lib,
+                        filter: 'isDirectory'
+                    }
+                ]
             },
             localnullstone: {
                 files: [
