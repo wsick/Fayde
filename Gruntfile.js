@@ -67,9 +67,11 @@ module.exports = function (grunt) {
             },
             test: {
                 files: [
-                    {src: './themes', dest: dirs.test.lib + '/fayde/themes'},
-                    {src: './dist', dest: dirs.test.lib + '/fayde/dist'},
-                    {src: './src', dest: dirs.test.lib + '/fayde/src'},
+                    {
+                        expand: true,
+                        src: ['themes/', 'dist/', 'src/'],
+                        dest: '<%= dirs.test.lib %>/fayde'
+                    },
                     {
                         expand: true,
                         cwd: 'lib/',
@@ -81,9 +83,11 @@ module.exports = function (grunt) {
             },
             testsite: {
                 files: [
-                    {src: './themes', dest: dirs.testsite.lib + '/fayde/themes'},
-                    {src: './dist', dest: dirs.testsite.lib + '/fayde/dist'},
-                    {src: './src', dest: dirs.testsite.lib + '/fayde/src'},
+                    {
+                        expand: true,
+                        src: ['themes/', 'dist/', 'src/'],
+                        dest: '<%= dirs.testsite.lib %>/fayde'
+                    },
                     {
                         expand: true,
                         cwd: 'lib/',
@@ -95,9 +99,11 @@ module.exports = function (grunt) {
             },
             stress: {
                 files: [
-                    {src: './themes', dest: dirs.stress.lib + '/fayde/themes'},
-                    {src: './dist', dest: dirs.stress.lib + '/fayde/dist'},
-                    {src: './src', dest: dirs.stress.lib + '/fayde/src'},
+                    {
+                        expand: true,
+                        src: ['themes/', 'dist/', 'src/'],
+                        dest: '<%= dirs.stress.lib %>/fayde'
+                    },
                     {
                         expand: true,
                         cwd: 'lib/',
