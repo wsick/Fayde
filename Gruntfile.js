@@ -70,7 +70,6 @@ module.exports = function (grunt) {
                     {src: './themes', dest: dirs.test.lib + '/fayde/themes'},
                     {src: './dist', dest: dirs.test.lib + '/fayde/dist'},
                     {src: './src', dest: dirs.test.lib + '/fayde/src'},
-                    {src: './lib/qunit', dest: dirs.test.lib + '/qunit'},
                     {
                         expand: true,
                         cwd: 'lib/',
