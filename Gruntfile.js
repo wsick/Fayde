@@ -1,8 +1,8 @@
 var version = require('./build/version'),
     setup = require('./build/setup'),
-    config = require('./build/config'),
     path = require('path'),
-    connect_livereload = require('connect-livereload');
+    connect_livereload = require('connect-livereload'),
+    gunify = require('grunt-fayde-unify');
 
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
@@ -13,6 +13,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-open');
+    var unify = gunify(grunt);
 
     var meta = {
         name: 'Fayde'
@@ -39,12 +40,17 @@ module.exports = function (grunt) {
             lib: 'stress/lib'
         }
     };
+    var libs = ["requirejs", "requirejs-text", "minerva", "nullstone"];
+
+    function linksTo(blibs, dest) {
+        return blibs.map(function (libName) {
+            return {src: './lib/' + libName, dest: dest + '/' + libName};
+        });
+    }
 
     function mount(connect, dir) {
         return connect.static(path.resolve(dir));
     }
-
-    var libs = config(grunt.file.readJSON('fayde.config.json'), './lib').libs;
 
     grunt.initConfig({
         ports: ports,
@@ -72,21 +78,21 @@ module.exports = function (grunt) {
                     {src: './dist', dest: dirs.test.lib + '/fayde/dist'},
                     {src: './src', dest: dirs.test.lib + '/fayde/src'},
                     {src: './lib/qunit', dest: dirs.test.lib + '/qunit'}
-                ].concat(libs.linksTo(dirs.test.lib))
+                ].concat(linksTo(libs, dirs.test.lib))
             },
             testsite: {
                 files: [
                     {src: './themes', dest: dirs.testsite.lib + '/fayde/themes'},
                     {src: './dist', dest: dirs.testsite.lib + '/fayde/dist'},
                     {src: './src', dest: dirs.testsite.lib + '/fayde/src'}
-                ].concat(libs.linksTo(dirs.testsite.lib))
+                ].concat(linksTo(libs, dirs.testsite.lib))
             },
             stress: {
                 files: [
                     {src: './themes', dest: dirs.stress.lib + '/fayde/themes'},
                     {src: './dist', dest: dirs.stress.lib + '/fayde/dist'},
                     {src: './src', dest: dirs.stress.lib + '/fayde/src'}
-                ].concat(libs.linksTo(dirs.stress.lib))
+                ].concat(linksTo(libs, dirs.stress.lib))
             },
             localnullstone: {
                 files: [
@@ -101,13 +107,13 @@ module.exports = function (grunt) {
         },
         typescript: {
             build: {
-                src: libs.typings().concat([
+                src: [
                     'typings/*.d.ts',
                     'src/_Version.ts',
                     'src/polyfill/**/*.ts',
                     'src/_Types.ts',
                     'src/**/*.ts'
-                ]),
+                ].concat(unify.typings({includeSelf: false})),
                 dest: 'dist/Fayde.js',
                 options: {
                     target: 'es5',
@@ -116,12 +122,11 @@ module.exports = function (grunt) {
                 }
             },
             test: {
-                src: libs.typings().concat([
+                src: [
                     'typings/*.d.ts',
-                    'dist/fayde.d.ts',
                     '<%= dirs.test.root %>/**/*.ts',
                     '!<%= dirs.test.root %>/lib/**/*.ts'
-                ]),
+                ].concat(unify.typings()),
                 dest: dirs.test.build,
                 options: {
                     target: 'es5',
@@ -131,12 +136,11 @@ module.exports = function (grunt) {
                 }
             },
             testsite: {
-                src: libs.typings().concat([
+                src: [
                     'typings/*.d.ts',
-                    'dist/fayde.d.ts',
                     '<%= dirs.testsite.root %>/**/*.ts',
                     '!<%= dirs.testsite.root %>/lib/**/*.ts'
-                ]),
+                ].concat(unify.typings()),
                 dest: dirs.testsite.build,
                 options: {
                     basePath: dirs.testsite.root,
@@ -145,12 +149,11 @@ module.exports = function (grunt) {
                 }
             },
             stress: {
-                src: libs.typings().concat([
+                src: [
                     'typings/*.d.ts',
-                    'dist/fayde.d.ts',
                     '<%= dirs.stress.root %>/**/*.ts',
                     '!<%= dirs.stress.lib %>/**/*.ts'
-                ]),
+                ].concat(unify.typings()),
                 dest: '<%= dirs.stress.build %>',
                 options: {
                     target: 'es5',
