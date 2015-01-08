@@ -1,0 +1,15 @@
+{
+  "libs": {
+    "exjs": {
+      "path": "lib/exjs/dist/ex.min",
+      "exports": "exjs"
+    }
+  },
+  "themes": {
+    "exjs": "none"
+  },
+  "debug": {
+    "warnMissingThemes": false,
+    "warnBrokenPath": false
+  }
+}

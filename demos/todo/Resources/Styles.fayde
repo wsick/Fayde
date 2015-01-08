@@ -1,0 +1,121 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:vsm="http://schemas.wsick.com/fayde">
+    <Style TargetType="ToggleButton" x:Key="CheckButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid>
+                        <vsm:VisualStateManager.VisualStateGroups>
+                            <vsm:VisualStateGroup x:Name="CommonStates">
+                                <vsm:VisualState x:Name="Normal" />
+                                <vsm:VisualState x:Name="MouseOver" />
+                                <vsm:VisualState x:Name="Pressed" />
+                                <vsm:VisualState x:Name="Disabled" />
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="CheckStates">
+                                <vsm:VisualState x:Name="Checked">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="OffImage" Storyboard.TargetProperty="Opacity" Duration="0" To="0" />
+                                        <DoubleAnimation Storyboard.TargetName="OnImage" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
+                                    </Storyboard>
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="Unchecked" />
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="FocusStates">
+                                <vsm:VisualState x:Name="Focused" />
+                                <vsm:VisualState x:Name="Unfocused" />
+                            </vsm:VisualStateGroup>
+                        </vsm:VisualStateManager.VisualStateGroups>
+                        <Image x:Name="OffImage" Source="img/check-off.png" Opacity="1" />
+                        <Image x:Name="OnImage" Source="img/check-on.png" Opacity="0" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ToggleButton" x:Key="ToggleAllButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid>
+                        <vsm:VisualStateManager.VisualStateGroups>
+                            <vsm:VisualStateGroup x:Name="CommonStates">
+                                <vsm:VisualState x:Name="Normal" />
+                                <vsm:VisualState x:Name="MouseOver" />
+                                <vsm:VisualState x:Name="Pressed" />
+                                <vsm:VisualState x:Name="Disabled" />
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="CheckStates">
+                                <vsm:VisualState x:Name="Checked">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="OffImage" Storyboard.TargetProperty="Opacity" Duration="0" To="0" />
+                                        <DoubleAnimation Storyboard.TargetName="OnImage" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
+                                    </Storyboard>
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="Unchecked" />
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="FocusStates">
+                                <vsm:VisualState x:Name="Focused" />
+                                <vsm:VisualState x:Name="Unfocused" />
+                            </vsm:VisualStateGroup>
+                        </vsm:VisualStateManager.VisualStateGroups>
+                        <Image x:Name="OffImage" Source="img/toggle-all.png" Opacity="1" />
+                        <Image x:Name="OnImage" Source="img/toggle-all-on.png" Opacity="0" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="TextBox" x:Key="RawTextBox">
+        <Setter Property="Cursor" Value="IBeam" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="#4D4D4D" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <ScrollViewer x:Name="ContentElement" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" BorderThickness="0" IsTabStop="False" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="RadioButton" x:Key="FilterRadioButton">
+        <Setter Property="Foreground" Value="#777777" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="5,0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid>
+                        <vsm:VisualStateManager.VisualStateGroups>
+                            <vsm:VisualStateGroup x:Name="CommonStates">
+                                <vsm:VisualState x:Name="Normal" />
+                                <vsm:VisualState x:Name="MouseOver" />
+                                <vsm:VisualState x:Name="Pressed" />
+                                <vsm:VisualState x:Name="Disabled" />
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="CheckStates">
+                                <vsm:VisualState x:Name="Checked">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="UncheckedTextBlock" Storyboard.TargetProperty="Opacity" Duration="0" To="0" />
+                                        <DoubleAnimation Storyboard.TargetName="CheckedTextBlock" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
+                                    </Storyboard>
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="Unchecked" />
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="FocusStates">
+                                <vsm:VisualState x:Name="Focused" />
+                                <vsm:VisualState x:Name="Unfocused" />
+                            </vsm:VisualStateGroup>
+                        </vsm:VisualStateManager.VisualStateGroups>
+                        <TextBlock x:Name="UncheckedTextBlock" Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" />
+                        <TextBlock x:Name="CheckedTextBlock" Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" FontWeight="Bold" Opacity="0" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

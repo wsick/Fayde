@@ -1,0 +1,84 @@
+<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        xmlns:vsm="http://schemas.wsick.com/fayde"
+        xmlns:vms="ViewModels"
+        ThemeName="Metro">
+    <Application.Resources>
+        <ResourceDictionary Source="Resources/Styles.fayde" />
+    </Application.Resources>
+    <Grid x:Name="LayoutRoot" Background="#EAEAEA">
+        <Grid.DataContext>
+            <vms:MainViewModel />
+        </Grid.DataContext>
+        <StackPanel HorizontalAlignment="Center" MinWidth="550">
+            <TextBlock Text="todos" HorizontalAlignment="Center" Foreground="#4C888888"
+                       FontSize="70" FontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif" />
+            <Grid Panel.ZIndex="1">
+                <Border Background="White" Margin="4,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="6" Color="#000000" Opacity="0.2" ShadowDepth="2" />
+                    </Border.Effect>
+                </Border>
+                <Border Background="White" Margin="0,0,0,4">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="6" Color="#000000" Opacity="0.2" ShadowDepth="2" />
+                    </Border.Effect>
+                    <Grid>
+                        <Border BorderBrush="#F5D6D6" BorderThickness="1,0,1,0" Width="4" Margin="40,0,0,0" HorizontalAlignment="Left" />
+                        <StackPanel>
+                            <Border Height="15" BorderBrush="#6C615C" BorderThickness="0,0,0,1" CornerRadius="1,1,0,0">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#CD846E64" Offset="0" />
+                                        <GradientStop Color="#CD65544C" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+                            <Border Background="#05000000">
+                                <Grid Margin="0,18">
+                                    <ToggleButton Style="{StaticResource ToggleAllButton}" Width="17" Height="16" HorizontalAlignment="Left" Margin="10,0,0,0" IsChecked="{Binding IsAllComplete, Mode=TwoWay}" />
+                                    <TextBox Style="{StaticResource RawTextBox}" FontSize="24" Foreground="#4D4D4D" Margin="60,0,20,0" Watermark="What needs to be done?"
+                                             Text="{Binding ActiveText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="{EventBinding AddTodo}" />
+                                </Grid>
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding Filter.Items}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="#BBBBBB" BorderThickness="0,1,0,0">
+                                            <Grid Margin="0,18">
+                                                <ToggleButton Style="{StaticResource CheckButton}" Width="17" Height="16" HorizontalAlignment="Left" Margin="10,0,0,0" IsChecked="{Binding IsComplete, Mode=TwoWay}" />
+                                                <TextBlock Text="{Binding Text}" Margin="60,0,20,0" Foreground="#4D4D4D" FontSize="24" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+            <Border Background="#EEEEEE" Margin="8,0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" Color="#000000" Opacity="0.2" ShadowDepth="2" />
+                </Border.Effect>
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding NumItemsLeft}" FontWeight="Bold" Foreground="#777777" />
+                        <TextBlock Text=" items left"  Foreground="#777777" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <RadioButton Content="All" IsChecked="{Binding Filter.IsAll, Mode=TwoWay}" GroupName="Filter" Style="{StaticResource FilterRadioButton}" />
+                        <RadioButton Content="Active" IsChecked="{Binding Filter.IsActive, Mode=TwoWay}" GroupName="Filter" Style="{StaticResource FilterRadioButton}" />
+                        <RadioButton Content="Completed" IsChecked="{Binding Filter.IsCompleted, Mode=TwoWay}" GroupName="Filter" Style="{StaticResource FilterRadioButton}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Application>
