@@ -1,0 +1,1 @@
+{"version":3,"file":"Team.js","sourceRoot":"","sources":["../../Models/Team.ts"],"names":["Team","Team.constructor","Team.FullName"],"mappings":";IAAA,IAAM,IAAI;QAAVA,SAAMA,IAAIA;QAUVC,CAACA;QAHGD,sBAAIA,0BAAQA;iBAAZA;gBACIE,MAAMA,CAACA,IAAIA,CAACA,QAAQA,GAAGA,GAAGA,GAAGA,IAAIA,CAACA,QAAQA,CAACA;YAC/CA,CAACA;;;WAAAF;QACLA,WAACA;IAADA,CAACA,AAVD,IAUC;IACa,AAAd,OAAS,IAAI,CAAC"}

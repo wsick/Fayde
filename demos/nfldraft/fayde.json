@@ -1,0 +1,18 @@
+{
+  "libs": {
+    "exjs": {
+      "path": "lib/exjs/dist/ex.min",
+      "exports": "exjs"
+    }
+  },
+  "themes": {
+    "exjs": "none",
+    "http://schemas.wsick.com/fayde": {
+      "path": "themes/fayde/<themename>.theme.xml"
+    }
+  },
+  "debug": {
+    "warnMissingThemes": false,
+    "warnBrokenPath": false
+  }
+}
