@@ -19,8 +19,8 @@
     "Gruntfile.js"
   ],
   "dependencies": {
-    "minerva": "~0.4.0",
-    "nullstone": "~0.3.4",
+    "minerva": "~0.4.5",
+    "nullstone": "~0.3.9",
     "requirejs": "~2.1.15",
     "requirejs-text": "~2.0.12"
   },
