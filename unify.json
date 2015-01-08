@@ -1,9 +1,15 @@
 {
   "name": "Fayde",
   "client": {
-    "files": [
-      "test/fayde.json",
-      "testsite/fayde.json"
+    "tests": [
+      {
+        "file": "test/fayde.json",
+        "lib": "test/lib"
+      },
+      {
+        "file": "testsite/fayde.json",
+        "lib": "testsite/lib"
+      }
     ],
     "exclude": [
       "self",
@@ -16,5 +22,7 @@
     "type": "export",
     "exports": "Fayde"
   },
-  "typings": ["dist/Fayde.d.ts"]
+  "typings": [
+    "dist/Fayde.d.ts"
+  ]
 }
