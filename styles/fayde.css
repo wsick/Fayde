@@ -220,7 +220,7 @@ ol.steps li {
     text-shadow: black 0 1px 1px;
 }
 .box h4 {
-    background-color: #00850e;
+    background-color: #007a0e;
     color: white;
     text-shadow: black 0 1px 1px;
     padding: 10px 20px;
@@ -232,10 +232,10 @@ ol.steps li {
 }
 
 .box2 h4 {
-    background-color: #283776;
+    background-color: #314267;
 }
 .box3 h4 {
-    background-color: #e49e38;
+    background-color: #dc7d1a;
 }
 
 table.boxes td {
