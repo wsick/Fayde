@@ -178,6 +178,10 @@ li a {
     text-decoration: underline;
     color: #76858E;
 }
+.demos a {
+    text-decoration: underline;
+    color: #76858E;
+}
 ol.steps li {
     margin-top: 40px;
 }
