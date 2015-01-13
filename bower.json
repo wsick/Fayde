@@ -1,7 +1,7 @@
 {
-  "name": "Fayde",
-  "version": "0.16.8",
-  "main": "dist/Fayde.js",
+  "name": "fayde",
+  "version": "0.16.9",
+  "main": "dist/fayde.js",
   "homepage": "http://fayde.wsick.com",
   "authors": [
     "BSick7 <brad.sickles@gmail.com>"

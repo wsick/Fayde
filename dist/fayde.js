@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.8';
+    Fayde.Version = '0.16.9';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -15273,7 +15273,7 @@ var Fayde;
             rv = rv.replace("<themename>", name);
             return rv;
         }
-        OverrideRequestUri(new Fayde.Uri(Fayde.XMLNS), "lib/Fayde/themes/<themename>.theme.xml");
+        OverrideRequestUri(new Fayde.Uri(Fayde.XMLNS), "lib/fayde/themes/<themename>.theme.xml");
     })(ThemeConfig = Fayde.ThemeConfig || (Fayde.ThemeConfig = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -26859,4 +26859,4 @@ var Fayde;
     }
     Fayde.debugLayersFlatten = debugLayersFlatten;
 })(Fayde || (Fayde = {}));
-//# sourceMappingURL=Fayde.js.map
+//# sourceMappingURL=fayde.js.map

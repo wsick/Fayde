@@ -53,6 +53,6 @@ module Fayde {
             return rv;
         }
 
-        OverrideRequestUri(new Uri(Fayde.XMLNS), "lib/Fayde/themes/<themename>.theme.xml");
+        OverrideRequestUri(new Uri(Fayde.XMLNS), "lib/fayde/themes/<themename>.theme.xml");
     }
 }

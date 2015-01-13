@@ -16,7 +16,7 @@ module.exports = function (grunt) {
     var unify = gunify(grunt);
 
     var meta = {
-        name: 'Fayde'
+        name: 'fayde'
     };
     var ports = {
         testsite: 7001,
@@ -133,7 +133,7 @@ module.exports = function (grunt) {
                     'src/_Types.ts',
                     'src/**/*.ts'
                 ].concat(unify.typings({includeSelf: false})),
-                dest: 'dist/Fayde.js',
+                dest: 'dist/<%= meta.name %>.js',
                 options: {
                     target: 'es5',
                     declaration: true,
