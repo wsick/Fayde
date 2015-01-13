@@ -196,7 +196,7 @@
             <div class="jumbotron">
                 <div class="column">
                     <h2>Feature Support</h2>
-                    <p>Fayde has been initially developed as a direct port of Silverlight and includes all major features:</p>
+                    <p>Fayde has been initially developed as a port of Silverlight and includes all major features:</p>
                     <table class="boxes" style="width:100%">
                         <tr>
                             <td style="width: 25%;">
@@ -334,7 +334,7 @@
                         the developers are working to keep up with the dreams of what Fayde can become. This list is just the beginning...
                     </p>
                     <p>
-                        The Fayde team is always looking for contributors. Please contact us, send us ideas, send us pull requests, or just let us know how your Fayde projects are going.
+                        The Fayde team is always looking for contributors. Please contact us with ideas, send us pull requests, or just let us know how your Fayde projects are going.
                         We would love to hear from you.
                     </p>
                     <table class="boxes" style="width:100%">
@@ -365,14 +365,14 @@
                                     <h4>Debugger</h4>
                                     <div class="detail">
                                         Debugging is a necessity.
-                                        Allowing the developer to debug both the javascript application code as well as the XAML markup and bindings is top priority.
+                                        Allowing the developer to debug both the Typescript application code as well as the XAML markup and Bindings is top priority.
                                     </div>
                                 </div>
                                 <div class="box box3">
                                     <h4>Data Connectivity and Web Services</h4>
                                     <div class="detail">
                                         Making it easy to fetch and work with data is key to building any web application.
-                                        This feature will take the pains out of composing your application data.
+                                        This set of features will take the pains out of composing your application data.
                                     </div>
                                 </div>
                             </td>
@@ -422,37 +422,44 @@
                 <div class="column">
                     <h2>Why Fayde?</h2>
                     <p>
-                        Every time development teams set out build a new software application, they are faced with an all too familiar problem. Web Application, Desktop Application, or both?
-                        If you are frustrated with having to make this choice or building multiple versions of your application in order to reach your entire audience, you are certainly not alone.
-
+                        For many years, software developers have been frustrated with platform choices for building applications.
+                        One of the most fundamental choices has been "Should I build a web application or a desktop application?".
                     </p>
-
-
-
-                    <p>Take your designs straight to the web</p>
-                    <p>Designers can rapidly build real working prototypes</p>
-                    <p>Develop the UI seperate from your backend</p>
                     <p>
-                        Until now, there have been two choices:
-                    <ol>
-                        <li style="margin-bottom: 20px;">
-                            <h4>Web Application</h4>
-                            <ul>
-                                <li>Great for reaching all platforms, easy deployment, and developing your application once.</li>
-                                <li>However, HTML and CSS are designed for documents and not applications, your interfaces and user experience are compromised, and time is wasted on browser hacks and compatibility.</li>
-                            </ul>
-                        </li>
-                        <li style="margin-bottom: 20px;">
-                            <h4>Desktop Application</h4>
-                            <ul>
-                                <li>Full support for interface design and great developer environment.</li>
-                                <li>However, it must be developed for each platform and is difficult to deploy.</li>
-                            </ul>
-                        </li>
-                    </ol>
-                    With Fayde you can unleash the capabilities of your application, development team, and design team.
-                    Build your applications with all the benefits of being web based but eliminate the problems of HTML and CSS.
-                    Fayde is fully extensible so not only do you get all the controls developed by the core team but you can also build your own.
+                        "If I choose to build a web application, then I can easily deploy everywhere.
+                        However, the language, tools, productivity, and overall developer experience is poor.
+                        In addition, HTML was created for building documents and not a platform for building applications.
+                        As a result, the interface design will suffer because HTML just can't do what it should."
+                    </p>
+                    <p>
+                        "If I choose to build a desktop application, I can use the languages and tools that will make me productive and capable of delivering a great application.
+                        The problem with a desktop application is that it can be difficult to deploy and in most cases I have to build many versions in order to reach my audience."
+                    </p>
+                    <p>
+                        For many, including the developers at Fayde, things started to change when Microsoft released Silverlight and WPF.
+                        Silverlight provided developers with much better languages and tools to deliver first class applications over the web.
+                        <ul>
+                            <li>Unlike HTML and CSS, the layout and styling was very precise and predictable and gave the developer great control over the user interface.</li>
+                            <li>It was designed in an extensible manner which allowed the developer great flexibility to extend the platform with their own controls.</li>
+                            <li>User interface designers could quickly prototype and build Silverlight user interfaces using <a target="_blank" href="http://msdn.microsoft.com/en-us/library/cc296376%28v=expression.40%29.aspx">Expression Blend</a> without the need of a developer.</li>
+                            <li>The developers could build and easily test the business logic of an application isolated from the user interface.</li>
+                            <li>Interface designers and developers could leverage the inherent software contract between the interface and the business logic created by Bindings and Commands.</li>
+                        </ul>
+                        Software development had become much more focused on the business ideas and less on technical limitations...
+                    </p>
+                    <p>
+                        And then came the death of browser plugins.
+                        As Silverlight and Flash/Flex phased out, many developers went back to using server-side rendering technologies such as ASP.NET or Rails.
+                        Others have attempted to create client-side frameworks (Angular, Ember, Knockout) with a lot of the same concepts that made Silverlight so popular.
+                        However, the problem with all of these approaches is that they are all bound by the limitations and frustrations of HTML and CSS.
+                        Unfortunately, the problems with HTML aren't going to be solved anytime soon.
+                        As long as the <a target="_blank" href="http://en.wikipedia.org/wiki/Browser_wars">browser wars</a> persist, innovation is restricted and the <a target="_blank" href="http://www.w3.org/">W3C</a> will continue to require years to release a single specification.
+                    </p>
+                    <p>
+                        Fayde is a software platform that restores productivity and control to the developer.
+                        Initially developed as a port of Silverlight, Fayde is looking to both restore and expand upon what Silverlight provided.
+                        As a completely open-source platform, the Fayde team is anxious to see what an extensible platform plus the power of the open-source community can create.
+                    </p>
                     <!--
                     <pre><code class="xml">
                         &lt;?xml version="1.0"?&gt;

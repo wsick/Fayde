@@ -174,6 +174,10 @@ p a {
     text-decoration: underline;
     color: #76858E;
 }
+li a {
+    text-decoration: underline;
+    color: #76858E;
+}
 ol.steps li {
     margin-top: 40px;
 }
@@ -207,9 +211,7 @@ ol.steps li {
 }
 
 .box {
-    border: 1px solid #AAAAAA;
     background-color: white;
-    border-radius: 4px;
     margin: 20px 10px;
     vertical-align: top;
 }
@@ -225,9 +227,13 @@ ol.steps li {
     text-shadow: black 0 1px 1px;
     padding: 10px 20px;
     margin-bottom: 0;
+    border: none;
     border-radius: 4px 4px 0 0;
 }
 .box .detail {
+    border: 1px solid #AAAAAA;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
     padding: 10px 20px;
 }
 
