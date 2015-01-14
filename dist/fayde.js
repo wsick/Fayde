@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.10';
+    Fayde.Version = '0.16.11';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -10459,6 +10459,7 @@ var Fayde;
                     var inlines = this.XObject.Inlines;
                     inlines.Clear();
                     inlines.Add(this._AutoRun);
+                    this.LayoutUpdater.invalidateTextMetrics();
                     this._SettingText = false;
                 }
             };

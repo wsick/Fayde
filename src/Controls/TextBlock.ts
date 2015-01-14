@@ -35,6 +35,7 @@ module Fayde.Controls {
                 var inlines = this.XObject.Inlines;
                 inlines.Clear();
                 inlines.Add(this._AutoRun);
+                this.LayoutUpdater.invalidateTextMetrics();
                 this._SettingText = false;
             }
         }
