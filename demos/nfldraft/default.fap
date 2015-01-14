@@ -1,8 +1,6 @@
 <Application
         xmlns="http://schemas.wsick.com/fayde"
         xmlns:x="http://schemas.wsick.com/fayde/x"
-        xmlns:controls="lib:Fayde.Controls"
-        xmlns:models="Models"
         xmlns:res="Resources"
         xmlns:viewmodels="ViewModels"
         ThemeName="Default">

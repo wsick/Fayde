@@ -1,1 +1,0 @@
-{"version":3,"file":"MainViewModel.js","sourceRoot":"","sources":["../../ViewModels/MainViewModel.ts"],"names":["MainViewModel","MainViewModel.constructor"],"mappings":";;;;;;;IAAA,IAAM,aAAa;QAASA,UAAtBA,aAAaA,UAAiCA;QAApDA,SAAMA,aAAaA;YAASC,8BAAwBA;QAEpDA,CAACA;QAADD,oBAACA;IAADA,CAACA,AAFD,EAA4B,KAAK,CAAC,IAAI,CAAC,aAAa,EAEnD;IACsB,AAAvB,OAAS,aAAa,CAAC"}
