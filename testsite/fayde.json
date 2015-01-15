@@ -3,6 +3,7 @@
   "themes": {},
   "debug": {
     "warnMissingThemes": false,
-    "warnBrokenPath": false
+    "warnBrokenPath": false,
+    "timeMarkup": false
   }
 }

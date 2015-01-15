@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.12';
+    Fayde.Version = '0.16.13';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -6408,6 +6408,7 @@ var Fayde;
 (function (Fayde) {
     var Markup;
     (function (Markup) {
+        Markup.Time = false;
         var FrameworkTemplate = (function (_super) {
             __extends(FrameworkTemplate, _super);
             function FrameworkTemplate() {
@@ -6442,6 +6443,8 @@ var Fayde;
         }
         Markup.Load = Load;
         function LoadImpl(app, xm, resources, bindingSource) {
+            if (Markup.Time)
+                console.time(xm.uri.toString());
             var oresolve = {
                 isPrimitive: false,
                 type: undefined
@@ -6565,6 +6568,8 @@ var Fayde;
             if (last instanceof Fayde.XamlObject) {
                 last.XamlNode.NameScope = namescope;
             }
+            if (Markup.Time)
+                console.timeEnd(xm.uri.toString());
             return last;
         }
     })(Markup = Fayde.Markup || (Fayde.Markup = {}));
@@ -25839,6 +25844,8 @@ var Fayde;
                 Fayde.Theme.WarnMissing = true;
             if (toBoolean(json.warnBrokenPath))
                 Fayde.Data.WarnBrokenPath = true;
+            if (toBoolean(json.timeMarkup))
+                Fayde.Markup.Time = true;
         }
         debug.configure = configure;
         function toBoolean(val) {

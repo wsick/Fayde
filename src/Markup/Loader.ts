@@ -1,4 +1,6 @@
 module Fayde.Markup {
+    export var Time = false;
+
     export class FrameworkTemplate extends DependencyObject {
         private $$markup: nullstone.markup.Markup<any>;
         private $$resources: ResourceDictionary[];
@@ -36,6 +38,9 @@ module Fayde.Markup {
     }
 
     function LoadImpl<T>(app: Application, xm: nullstone.markup.Markup<any>, resources?: ResourceDictionary[], bindingSource?: DependencyObject): T {
+        if (Time)
+            console.time(xm.uri.toString());
+
         var oresolve: nullstone.IOutType = {
             isPrimitive: false,
             type: undefined
@@ -170,6 +175,10 @@ module Fayde.Markup {
         if (last instanceof XamlObject) {
             last.XamlNode.NameScope = namescope;
         }
+
+        if (Time)
+            console.timeEnd(xm.uri.toString());
+
         return last;
     }
 }
