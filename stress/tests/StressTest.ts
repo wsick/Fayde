@@ -17,14 +17,14 @@ class StressTest implements ITestImpl {
         }
 
         console.profile();
-        var start = new Date().getTime();
+        var start = performance.now();
         for (var i = 0; i < runCount; i++) {
-            var s = new Date().getTime();
+            var s = performance.now();
             this.prepareIteration();
             this.runIteration();
-            all.push(new Date().getTime() - s);
+            all.push(performance.now() - s);
         }
-        var total = new Date().getTime() - start;
+        var total = performance.now() - start;
         console.profileEnd();
 
         var min = all.reduce((agg, ms) => Math.min(agg, ms), Number.POSITIVE_INFINITY);
