@@ -1,6 +1,6 @@
 ## Fayde
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/BSick7/Fayde?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/wsick/Fayde?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Inspired by Silverlight; XAML engine using Javascript and rendering to the HTML5 Canvas.
 
