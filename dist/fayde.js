@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.13';
+    Fayde.Version = '0.16.14';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -6409,6 +6409,7 @@ var Fayde;
     var Markup;
     (function (Markup) {
         Markup.Time = false;
+        Markup.TotalTime = 0;
         var FrameworkTemplate = (function (_super) {
             __extends(FrameworkTemplate, _super);
             function FrameworkTemplate() {
@@ -6443,8 +6444,11 @@ var Fayde;
         }
         Markup.Load = Load;
         function LoadImpl(app, xm, resources, bindingSource) {
-            if (Markup.Time)
+            var start;
+            if (Markup.Time) {
                 console.time(xm.uri.toString());
+                start = performance.now();
+            }
             var oresolve = {
                 isPrimitive: false,
                 type: undefined
@@ -6568,8 +6572,10 @@ var Fayde;
             if (last instanceof Fayde.XamlObject) {
                 last.XamlNode.NameScope = namescope;
             }
-            if (Markup.Time)
+            if (Markup.Time) {
                 console.timeEnd(xm.uri.toString());
+                Markup.TotalTime += performance.now() - start;
+            }
             return last;
         }
     })(Markup = Fayde.Markup || (Fayde.Markup = {}));

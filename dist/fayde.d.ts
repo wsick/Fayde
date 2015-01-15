@@ -1556,6 +1556,7 @@ declare module Fayde.Controls {
 }
 declare module Fayde.Markup {
     var Time: boolean;
+    var TotalTime: number;
     class FrameworkTemplate extends DependencyObject {
         private $$markup;
         private $$resources;
