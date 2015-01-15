@@ -431,60 +431,24 @@ declare module Fayde {
         BlockLineHeight = 1,
     }
 }
-declare var FontStyle: {
-    Normal: string;
-    Italic: string;
-    Oblique: string;
-};
-declare var FontStretch: {
-    UltraCondensed: string;
-    ExtraCondensed: string;
-    Condensed: string;
-    SemiCondensed: string;
-    Normal: string;
-    SemiExpanded: string;
-    Expanded: string;
-    ExtraExpanded: string;
-    UltraExpanded: string;
-};
-declare var FontWeight: {
-    Thin: number;
-    ExtraLight: number;
-    Light: number;
-    Normal: number;
-    Medium: number;
-    SemiBold: number;
-    Bold: number;
-    ExtraBold: number;
-    Black: number;
-    ExtraBlack: number;
-};
-declare class Font {
-    static DEFAULT_FAMILY: string;
-    static DEFAULT_STRETCH: string;
-    static DEFAULT_STYLE: string;
-    static DEFAULT_WEIGHT: number;
-    static DEFAULT_SIZE: number;
-    private _Family;
-    private _Stretch;
-    private _Style;
-    private _Weight;
-    private _Size;
-    private _CachedTranslation;
-    private _CachedHeight;
-    Family: string;
-    Stretch: string;
-    Style: string;
-    Weight: number;
-    Size: number;
-    IsChanged: boolean;
-    GetActualHeight(): number;
-    _Descender(): number;
-    _Ascender(): number;
-    private _PurgeCache();
-    ToHtml5Object(): string;
-    private _BuildTranslation();
-    private static _MeasureHeight(font);
+declare module Fayde {
+    var FontStyle: {
+        Normal: string;
+        Italic: string;
+        Oblique: string;
+    };
+    var FontStretch: {
+        UltraCondensed: string;
+        ExtraCondensed: string;
+        Condensed: string;
+        SemiCondensed: string;
+        Normal: string;
+        SemiExpanded: string;
+        Expanded: string;
+        ExtraExpanded: string;
+        UltraExpanded: string;
+    };
+    var Font: typeof minerva.Font;
 }
 declare module Fayde {
     class InheritableOwner {
