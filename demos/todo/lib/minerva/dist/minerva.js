@@ -1,6 +1,6 @@
 var minerva;
 (function (minerva) {
-    minerva.version = '0.4.5';
+    minerva.version = '0.4.7';
 })(minerva || (minerva = {}));
 var minerva;
 (function (minerva) {
@@ -195,12 +195,12 @@ var minerva;
 })(minerva || (minerva = {}));
 var minerva;
 (function (minerva) {
-    var FontStyle = {
+    minerva.FontStyle = {
         Normal: "normal",
         Italic: "italic",
         Oblique: "oblique"
     };
-    var FontStretch = {
+    minerva.FontStretch = {
         UltraCondensed: "ultra-condensed",
         ExtraCondensed: "extra-condensed",
         Condensed: "condensed",
@@ -242,7 +242,7 @@ var minerva;
 
         Font.prototype.getHeight = function () {
             if (this.$$cachedHeight == null)
-                this.$$cachedHeight = measureFontHeight(this);
+                this.$$cachedHeight = minerva.fontHeight.get(this);
             return this.$$cachedHeight;
         };
 
@@ -254,8 +254,8 @@ var minerva;
             return 0;
         };
         Font.DEFAULT_FAMILY = "Segoe UI, Lucida Grande, Verdana";
-        Font.DEFAULT_STRETCH = FontStretch.Normal;
-        Font.DEFAULT_STYLE = FontStyle.Normal;
+        Font.DEFAULT_STRETCH = minerva.FontStretch.Normal;
+        Font.DEFAULT_STYLE = minerva.FontStyle.Normal;
         Font.DEFAULT_WEIGHT = 400 /* Normal */;
         Font.DEFAULT_SIZE = 14;
         return Font;
@@ -271,21 +271,46 @@ var minerva;
         s += font.family.toString();
         return s;
     }
+})(minerva || (minerva = {}));
+var minerva;
+(function (minerva) {
+    (function (fontHeight) {
+        var heights = [];
 
-    var dummy;
+        fontHeight.cache = {
+            hits: 0,
+            misses: 0
+        };
 
-    function measureFontHeight(font) {
-        if (!dummy) {
-            dummy = document.createElement("div");
-            dummy.appendChild(document.createTextNode("M"));
-            document.body.appendChild(dummy);
+        function get(font) {
+            var serial = font.toHtml5Object();
+            var height = heights[serial];
+            if (height == null) {
+                heights[serial] = height = measure(serial);
+                fontHeight.cache.misses++;
+            } else {
+                fontHeight.cache.hits++;
+            }
+            return height;
         }
-        dummy.style.display = "";
-        dummy.style.font = font.toHtml5Object();
-        var result = dummy.offsetHeight;
-        dummy.style.display = "none";
-        return result;
-    }
+        fontHeight.get = get;
+
+        var dummy;
+
+        function measure(serial) {
+            if (!dummy) {
+                dummy = document.createElement("div");
+                dummy.appendChild(document.createTextNode("M"));
+                document.body.appendChild(dummy);
+            }
+            dummy.style.display = "";
+            dummy.style.font = serial;
+            var result = dummy.offsetHeight;
+            dummy.style.display = "none";
+            return result;
+        }
+    })(minerva.fontHeight || (minerva.fontHeight = {}));
+    var fontHeight = minerva.fontHeight;
 })(minerva || (minerva = {}));
 var minerva;
 (function (minerva) {

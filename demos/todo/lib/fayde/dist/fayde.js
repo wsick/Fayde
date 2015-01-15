@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.10';
+    Fayde.Version = '0.16.12';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -1794,167 +1794,14 @@ var Fayde;
     var LineStackingStrategy = Fayde.LineStackingStrategy;
     Fayde.CoreLibrary.addEnum(LineStackingStrategy, "LineStackingStrategy");
 })(Fayde || (Fayde = {}));
-var FontStyle = {
-    Normal: "normal",
-    Italic: "italic",
-    Oblique: "oblique"
-};
-var FontStretch = {
-    UltraCondensed: "ultra-condensed",
-    ExtraCondensed: "extra-condensed",
-    Condensed: "condensed",
-    SemiCondensed: "semi-condensed",
-    Normal: "normal",
-    SemiExpanded: "semi-expanded",
-    Expanded: "expanded",
-    ExtraExpanded: "extra-expanded",
-    UltraExpanded: "ultra-expanded"
-};
-var FontWeight = {
-    Thin: 100,
-    ExtraLight: 200,
-    Light: 300,
-    Normal: 400,
-    Medium: 500,
-    SemiBold: 600,
-    Bold: 700,
-    ExtraBold: 800,
-    Black: 900,
-    ExtraBlack: 950
-};
-var Font = (function () {
-    function Font() {
-        this._Family = Font.DEFAULT_FAMILY;
-        this._Stretch = Font.DEFAULT_STRETCH;
-        this._Style = Font.DEFAULT_STYLE;
-        this._Weight = Font.DEFAULT_WEIGHT;
-        this._Size = Font.DEFAULT_SIZE;
-    }
-    Object.defineProperty(Font.prototype, "Family", {
-        get: function () {
-            return this._Family;
-        },
-        set: function (value) {
-            if (this._Family == value)
-                return;
-            this._Family = value;
-            this._PurgeCache();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Font.prototype, "Stretch", {
-        get: function () {
-            return this._Stretch;
-        },
-        set: function (value) {
-            if (this._Stretch == value)
-                return;
-            this._Stretch = value;
-            this._PurgeCache();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Font.prototype, "Style", {
-        get: function () {
-            return this._Style;
-        },
-        set: function (value) {
-            if (this._Style == value)
-                return;
-            this._Style = value;
-            this._PurgeCache();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Font.prototype, "Weight", {
-        get: function () {
-            return this._Weight;
-        },
-        set: function (value) {
-            if (this._Weight == value)
-                return;
-            this._Weight = value;
-            this._PurgeCache();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Font.prototype, "Size", {
-        get: function () {
-            return this._Size;
-        },
-        set: function (value) {
-            if (this._Size == value)
-                return;
-            this._Size = value;
-            this._PurgeCache();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Font.prototype, "IsChanged", {
-        get: function () {
-            return this._CachedTranslation == null;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Font.prototype.GetActualHeight = function () {
-        return Font._MeasureHeight(this);
-    };
-    Font.prototype._Descender = function () {
-        return 0.0;
-    }; //most likely removable
-    Font.prototype._Ascender = function () {
-        return 0.0;
-    }; //most likely removable
-    Font.prototype._PurgeCache = function () {
-        this._CachedHeight = undefined;
-        this._CachedTranslation = undefined;
-    };
-    Font.prototype.ToHtml5Object = function () {
-        if (!this._CachedTranslation)
-            this._CachedTranslation = this._BuildTranslation();
-        return this._CachedTranslation;
-    };
-    Font.prototype._BuildTranslation = function () {
-        //Format: font-style font-variant font-weight font-size/line-height font-family
-        //Font Styles: normal, italic, oblique
-        //Font Variants: normal, small-caps
-        //Font Weights: normal, bold, bolder, lighter, 100, 200, 300, 400, 500, 600, 700, 800, 900
-        var s = "";
-        s += this.Style.toString() + " ";
-        s += "normal ";
-        s += this.Weight.toString() + " ";
-        s += this.Size + "px ";
-        s += this.Family.toString();
-        return s;
-    };
-    Font._MeasureHeight = function (font) {
-        if (font._CachedHeight)
-            return font._CachedHeight;
-        var body = document.getElementsByTagName("body")[0];
-        var dummy = document.createElement("div");
-        var dummyText = document.createTextNode("M");
-        dummy.appendChild(dummyText);
-        dummy.setAttribute("style", "font: " + font.ToHtml5Object() + ";");
-        body.appendChild(dummy);
-        var result = dummy.offsetHeight;
-        body.removeChild(dummy);
-        font._CachedHeight = result;
-        return result;
-    };
-    Font.DEFAULT_FAMILY = "Segoe UI, Lucida Sans Unicode, Verdana";
-    Font.DEFAULT_STRETCH = FontStretch.Normal;
-    Font.DEFAULT_STYLE = FontStyle.Normal;
-    Font.DEFAULT_WEIGHT = FontWeight.Normal;
-    Font.DEFAULT_SIZE = 14;
-    return Font;
-})();
-Fayde.CoreLibrary.add(Font);
+var Fayde;
+(function (Fayde) {
+    Fayde.FontStyle = minerva.FontStyle;
+    Fayde.FontStretch = minerva.FontStretch;
+    Fayde.CoreLibrary.addEnum(Fayde.FontStretch, "FontStretch");
+    Fayde.Font = minerva.Font;
+    Fayde.CoreLibrary.add(minerva.Font);
+})(Fayde || (Fayde = {}));
 /// <reference path="UIReaction.ts" />
 /// <reference path="Providers/InheritedStore.ts" />
 /// <reference path="../Primitives/Font.ts" />
@@ -1966,11 +1813,11 @@ var Fayde;
         InheritableOwner.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, InheritableOwner, true);
         InheritableOwner.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Fayde.Enum(minerva.FlowDirection); }, InheritableOwner, 0 /* LeftToRight */);
         InheritableOwner.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Fayde.Media.Brush; }, InheritableOwner);
-        InheritableOwner.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, InheritableOwner, Font.DEFAULT_FAMILY);
-        InheritableOwner.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, InheritableOwner, Font.DEFAULT_SIZE);
-        InheritableOwner.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, InheritableOwner, Font.DEFAULT_STRETCH);
-        InheritableOwner.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, InheritableOwner, Font.DEFAULT_STYLE);
-        InheritableOwner.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Fayde.Enum(Fayde.FontWeight); }, InheritableOwner, Font.DEFAULT_WEIGHT);
+        InheritableOwner.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, InheritableOwner, Fayde.Font.DEFAULT_FAMILY);
+        InheritableOwner.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, InheritableOwner, Fayde.Font.DEFAULT_SIZE);
+        InheritableOwner.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, InheritableOwner, Fayde.Font.DEFAULT_STRETCH);
+        InheritableOwner.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, InheritableOwner, Fayde.Font.DEFAULT_STYLE);
+        InheritableOwner.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Fayde.Enum(Fayde.FontWeight); }, InheritableOwner, Fayde.Font.DEFAULT_WEIGHT);
         InheritableOwner.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Fayde.Enum(Fayde.TextDecorations); }, InheritableOwner, 0 /* None */);
         InheritableOwner.LanguageProperty = DependencyProperty.RegisterInheritable("Language", function () { return String; }, InheritableOwner);
         return InheritableOwner;
@@ -10459,6 +10306,7 @@ var Fayde;
                     var inlines = this.XObject.Inlines;
                     inlines.Clear();
                     inlines.Add(this._AutoRun);
+                    this.LayoutUpdater.invalidateTextMetrics();
                     this._SettingText = false;
                 }
             };
@@ -25649,7 +25497,7 @@ var FontFamily = (function () {
 Fayde.CoreLibrary.addPrimitive(FontFamily);
 nullstone.registerTypeConverter(FontFamily, function (val) {
     if (!val)
-        return new FontFamily(Font.DEFAULT_FAMILY);
+        return new FontFamily(minerva.Font.DEFAULT_FAMILY);
     return new FontFamily(val.toString());
 });
 var KeyTime = (function () {
