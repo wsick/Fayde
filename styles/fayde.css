@@ -230,7 +230,6 @@ ol.steps li {
     padding: 10px;
     float: left;
     width: 250px;
-    min-height: 300px;
 }
 .box i {
     color: white;
@@ -253,6 +252,7 @@ ol.steps li {
     border-top: none;
     border-radius: 0 0 4px 4px;
     padding: 10px 20px;
+    min-height: 185px;
 }
 
 .box2 h4 {

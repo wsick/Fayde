@@ -210,9 +210,7 @@
                 <div class="column">
                     <h2>Feature Support</h2>
                     <p>Fayde has been initially developed as a port of Silverlight and includes all major features:</p>
-                    <table class="boxes" style="width:100%">
-                        <tr>
-                            <td style="width: 33%;">
+                    <div style="width:100%; overflow: hidden;">
                                 <div class="box">
                                     <i class="fa fa-check"></i><h4>Core Controls</h4>
                                     <div class="detail">
@@ -233,8 +231,6 @@
                                         Binding, Value Converters, RelativeSource, Mode, StringFormat
                                     </div>
                                 </div>
-                            </td>
-                            <td style="width: 33%">
                                 <div class="box">
                                     <i class="fa fa-check"></i><h4>Colors and Gradients</h4>
                                     <div class="detail">
@@ -253,8 +249,6 @@
                                         VisualStateManager, Storyboard, and all animations
                                     </div>
                                 </div>
-                            </td>
-                            <td style="width: 33%;">
                                 <div class="box">
                                     <i class="fa fa-check"></i><h4>Layout Panels</h4>
                                     <div class="detail">
@@ -273,64 +267,54 @@
                                         Rectangle, Line, Ellipse, and Path using vector graphics
                                     </div>
                                 </div>
-                            </td>
-                        </tr>
-                    </table>
+                    </div>
                     <br>
                     <br>
                     <p>In addition, Fayde has added support for:</p>
-                    <table class="boxes" style="width:100%">
-                        <tr>
-                            <td style="width: 33%;">
-                                <div class="box box2">
-                                    <h4>GridItemsControl</h4>
-                                    <div class="detail">
-                                        A new control with similar features to a DataGrid but constructed in a much more modular, extensible, and stylable manner.
-                                    </div>
-                                </div>
-                                <div class="box box2">
-                                    <h4>Panel</h4>
-                                    <div class="detail">
-                                        An abstract control in Silverlight, it can be used in Fayde to do layering.
-                                    </div>
-                                </div>
-                                <div class="box box2">
-                                    <h4>Routing</h4>
-                                    <div class="detail">
-                                        A more advanced way to do page-based navigation with MVVM.
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="width: 33%;">
-                                <div class="box box2">
-                                    <h4>EventBinding</h4>
-                                    <div class="detail">
-                                        Allows the binding of events such as keystrokes directly to commands.
-                                    </div>
-                                </div>
-                                <div class="box box2">
-                                    <h4>Multi-Touch Support</h4>
-                                    <div class="detail">
-                                        Develop your applications for laptops, tablets, and phones.
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="width: 33%">
-                                <div class="box box2">
-                                    <h4>Custom Two-Way Binding</h4>
-                                    <div class="detail">
-                                        Support for using two-way bindings when building your own custom controls.
-                                    </div>
-                                </div>
-                                <div class="box box2">
-                                    <h4>ItemsControlParent</h4>
-                                    <div class="detail">
-                                        A new RelativeSource that allows binding to the ItemsControl from the ItemTemplate.
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
+                    <div style="width:100%; overflow: hidden;">
+                        <div class="box box2">
+                            <h4>GridItemsControl</h4>
+                            <div class="detail">
+                                A new control with similar features to a DataGrid but constructed in a much more modular, extensible, and stylable manner.
+                            </div>
+                        </div>
+                        <div class="box box2">
+                            <h4>Panel</h4>
+                            <div class="detail">
+                                An abstract control in Silverlight, it can be used in Fayde to do layering.
+                            </div>
+                        </div>
+                        <div class="box box2">
+                            <h4>Routing</h4>
+                            <div class="detail">
+                                A more advanced way to do page-based navigation with MVVM.
+                            </div>
+                        </div>
+                        <div class="box box2">
+                            <h4>EventBinding</h4>
+                            <div class="detail">
+                                Allows the binding of events such as keystrokes directly to commands.
+                            </div>
+                        </div>
+                        <div class="box box2">
+                            <h4>Multi-Touch Support</h4>
+                            <div class="detail">
+                                Develop your applications for laptops, tablets, and phones.
+                            </div>
+                        </div>
+                        <div class="box box2">
+                            <h4>Custom Two-Way Binding</h4>
+                            <div class="detail">
+                                Support for using two-way bindings when building your own custom controls.
+                            </div>
+                        </div>
+                        <div class="box box2">
+                            <h4>ItemsControlParent</h4>
+                            <div class="detail">
+                                A new RelativeSource that allows binding to the ItemsControl from the ItemTemplate.
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -346,12 +330,52 @@
                         The Fayde team is always looking for contributors. Please contact us with ideas, send us pull requests, or just let us know how your Fayde projects are going.
                         We would love to hear from you.
                     </p>
-                    <div style="width:100%">
+                    <div style="width:100%; overflow: hidden;">
                         <div class="box box3">
                             <h4>Unify</h4>
                             <div class="detail">
                                 Setting up and managing javascript libraries through npm, bower, require, etc can be tedious and difficult.
                                 Unify is a project aimed to simplify the addition and configuration of javascript libraries to your Fayde application.
+                            </div>
+                        </div>
+                        <div class="box box3">
+                            <h4>GridItemsControl Enhancements</h4>
+                            <div class="detail">
+                                The GridItemsControl is a new control introduced in Fayde to handle tabular data instead of DataGrid.
+                                Enhancements will be coming in order to support more complex data, styling, and templating scenarios.
+                            </div>
+                        </div>
+                        <div class="box box3">
+                            <h4>Fayde Xsd</h4>
+                            <div class="detail">
+                                An XSD file will be provided for Fayde that will allow the developer to configure in the IDE of their choice.
+                                Once configured, it will provide Autocomplete or Intellisense capabilties when developing user interfaces.
+                            </div>
+                        </div>
+                        <div class="box box3">
+                            <h4>Data Connectivity and Web Services</h4>
+                            <div class="detail">
+                                Making it easy to fetch and work with data is key to building any web application.
+                                This set of features will take the pains out of composing your application data.
+                            </div>
+                        </div>
+                        <div class="box box3">
+                            <h4>Debugger</h4>
+                            <div class="detail">
+                                Debugging is a necessity.
+                                Allowing the developer to debug both the Typescript application code as well as the XAML markup and Bindings is top priority.
+                            </div>
+                        </div>
+                        <div class="box box3">
+                            <h4>Expressions</h4>
+                            <div class="detail">
+                                Expressions are simplified statements that allow the developer to much more easily define things like Bindings or Column and Row Definitions.
+                            </div>
+                        </div>
+                        <div class="box box3">
+                            <h4>Charting and Graphing</h4>
+                            <div class="detail">
+                                Create stunning data visualizations using styles and templates for each component of your visualization.
                             </div>
                         </div>
                         <div class="box box3">
@@ -370,46 +394,6 @@
                             <h4>Advanced Controls</h4>
                             <div class="detail">
                                 PaginationControl, DatePicker, TimePicker, CalendarControl, and more
-                            </div>
-                        </div>
-                        <div class="box box3">
-                            <h4>Debugger</h4>
-                            <div class="detail">
-                                Debugging is a necessity.
-                                Allowing the developer to debug both the Typescript application code as well as the XAML markup and Bindings is top priority.
-                            </div>
-                        </div>
-                        <div class="box box3">
-                            <h4>Data Connectivity and Web Services</h4>
-                            <div class="detail">
-                                Making it easy to fetch and work with data is key to building any web application.
-                                This set of features will take the pains out of composing your application data.
-                            </div>
-                        </div>
-                        <div class="box box3">
-                            <h4>Expressions</h4>
-                            <div class="detail">
-                                Expressions are simplified statements that allow the developer to much more easily define things like Bindings or Column and Row Definitions.
-                            </div>
-                        </div>
-                        <div class="box box3">
-                            <h4>GridItemsControl Enhancements</h4>
-                            <div class="detail">
-                                The GridItemsControl is a new control introduced in Fayde to handle tabular data instead of DataGrid.
-                                Enhancements will be coming in order to support more complex data, styling, and templating scenarios.
-                            </div>
-                        </div>
-                        <div class="box box3">
-                            <h4>Fayde Xsd</h4>
-                            <div class="detail">
-                                An XSD file will be provided for Fayde that will allow the developer to configure in the IDE of their choice.
-                                Once configured, it will provide Autocomplete or Intellisense capabilties when developing user interfaces.
-                            </div>
-                        </div>
-                        <div class="box box3">
-                            <h4>Charting and Graphing</h4>
-                            <div class="detail">
-                                Create stunning data visualizations using styles and templates for each component of your visualization.
                             </div>
                         </div>
                     </div>
