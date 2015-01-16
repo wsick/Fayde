@@ -14358,6 +14358,7 @@ var Fayde;
             this.MainSurface.Attach(this._RootVisual, true);
         };
         Application.prototype.Start = function () {
+            this.OnTicked(0, 0);
             this._ClockTimer.RegisterTimer(this);
             this._IsLoaded = true;
             this.Loaded.raiseAsync(this, null);

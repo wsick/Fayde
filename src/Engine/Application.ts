@@ -69,6 +69,7 @@ module Fayde {
         }
 
         Start () {
+            this.OnTicked(0, 0);
             this._ClockTimer.RegisterTimer(this);
             this._IsLoaded = true;
             this.Loaded.raiseAsync(this, null);
