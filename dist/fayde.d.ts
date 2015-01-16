@@ -1555,8 +1555,6 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Markup {
-    var Time: boolean;
-    var TotalTime: number;
     class FrameworkTemplate extends DependencyObject {
         private $$markup;
         private $$resources;
@@ -5489,6 +5487,32 @@ declare class TimelineProfile {
     static Navigate(isStart: boolean, name?: string): void;
     static LayoutPass(isStart: boolean): void;
     private static _FinishEvent(type, name?);
+}
+declare module Fayde.Timing {
+    interface IMarker {
+        isStart: boolean;
+        type: MarkerTypes;
+        context: any;
+        phase: Phases;
+    }
+    function SetIsEnabled(value: boolean): void;
+    function Start(type: MarkerTypes, context: any): void;
+    function End(): void;
+    function GetMarkers(): IMarker[];
+}
+declare module Fayde.Timing {
+    enum Phases {
+        Starting = 0,
+        ResolveConfig = 1,
+        ResolveApp = 2,
+        ResolveTheme = 3,
+        StartApp = 4,
+        Loaded = 5,
+    }
+    enum MarkerTypes {
+        LoadMarkup = 0,
+    }
+    var Phase: Phases;
 }
 declare module Fayde.Shapes {
     class DoubleCollection extends XamlObjectCollection<XamlObject> {

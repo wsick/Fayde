@@ -86,8 +86,7 @@ module Fayde {
                 Theme.WarnMissing = true;
             if (toBoolean(json.warnBrokenPath))
                 Data.WarnBrokenPath = true;
-            if (toBoolean(json.timeMarkup))
-                Markup.Time = true;
+            Timing.SetIsEnabled(toBoolean(json.timing));
         }
 
         function toBoolean (val: any): boolean {

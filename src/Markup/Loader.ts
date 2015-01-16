@@ -1,7 +1,4 @@
 module Fayde.Markup {
-    export var Time = false;
-    export var TotalTime = 0;
-
     export class FrameworkTemplate extends DependencyObject {
         private $$markup: nullstone.markup.Markup<any>;
         private $$resources: ResourceDictionary[];
@@ -39,11 +36,7 @@ module Fayde.Markup {
     }
 
     function LoadImpl<T>(app: Application, xm: nullstone.markup.Markup<any>, resources?: ResourceDictionary[], bindingSource?: DependencyObject): T {
-        var start;
-        if (Time) {
-            console.time(xm.uri.toString());
-            start = performance.now();
-        }
+        Timing.Start(Timing.MarkerTypes.LoadMarkup, xm.uri);
 
         var oresolve: nullstone.IOutType = {
             isPrimitive: false,
@@ -180,10 +173,7 @@ module Fayde.Markup {
             last.XamlNode.NameScope = namescope;
         }
 
-        if (Time) {
-            console.timeEnd(xm.uri.toString());
-            TotalTime += performance.now() - start;
-        }
+        Timing.End();
 
         return last;
     }

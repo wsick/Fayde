@@ -6408,8 +6408,6 @@ var Fayde;
 (function (Fayde) {
     var Markup;
     (function (Markup) {
-        Markup.Time = false;
-        Markup.TotalTime = 0;
         var FrameworkTemplate = (function (_super) {
             __extends(FrameworkTemplate, _super);
             function FrameworkTemplate() {
@@ -6444,11 +6442,7 @@ var Fayde;
         }
         Markup.Load = Load;
         function LoadImpl(app, xm, resources, bindingSource) {
-            var start;
-            if (Markup.Time) {
-                console.time(xm.uri.toString());
-                start = performance.now();
-            }
+            Fayde.Timing.Start(0 /* LoadMarkup */, xm.uri);
             var oresolve = {
                 isPrimitive: false,
                 type: undefined
@@ -6572,10 +6566,7 @@ var Fayde;
             if (last instanceof Fayde.XamlObject) {
                 last.XamlNode.NameScope = namescope;
             }
-            if (Markup.Time) {
-                console.timeEnd(xm.uri.toString());
-                Markup.TotalTime += performance.now() - start;
-            }
+            Fayde.Timing.End();
             return last;
         }
     })(Markup = Fayde.Markup || (Fayde.Markup = {}));
@@ -25737,42 +25728,43 @@ var Fayde;
         var canvas = document.getElementsByTagName("canvas")[0];
         if (!canvas)
             document.body.appendChild(canvas = document.createElement("canvas"));
-        new Bootstrapper(url, canvas, onLoaded).run();
+        bootstrap(url, canvas, onLoaded);
     }
     Fayde.Bootstrap = Bootstrap;
-    var Bootstrapper = (function () {
-        function Bootstrapper(url, canvas, onLoaded) {
-            this.url = url;
-            this.canvas = canvas;
-            this.onLoaded = onLoaded;
-        }
-        Bootstrapper.prototype.run = function () {
-            var _this = this;
+    function bootstrap(url, canvas, onLoaded) {
+        var app;
+        function run() {
+            Fayde.Timing.Phase = 1 /* ResolveConfig */;
             Fayde.LoadConfigJson(function (config, err) {
                 if (err)
                     console.warn('Could not load fayde configuration file.', err);
-                _this.startApp();
+                resolveApp();
             });
-            return this;
-        };
-        Bootstrapper.prototype.startApp = function () {
-            var _this = this;
-            Fayde.Application.GetAsync(this.url).then(function (app) {
-                Fayde.Application.Current = app;
-                Fayde.ThemeManager.LoadAsync(app.ThemeName).then(function () { return _this.finishLoad(app); }, function (err) { return _this.finishLoad(null, err); });
-            }, function (err) { return _this.finishLoad(null, err); });
-        };
-        Bootstrapper.prototype.finishLoad = function (app, error) {
-            if (error) {
-                console.error("An error occurred retrieving the application.", error);
-                return;
-            }
-            app.Attach(this.canvas);
+        }
+        function resolveApp() {
+            Fayde.Timing.Phase = 2 /* ResolveApp */;
+            Fayde.Application.GetAsync(url).then(resolveTheme, finishError);
+        }
+        function resolveTheme(res) {
+            Fayde.Timing.Phase = 3 /* ResolveTheme */;
+            app = Fayde.Application.Current = res;
+            Fayde.ThemeManager.LoadAsync(app.ThemeName).then(startApp, finishError);
+        }
+        function finishError(err) {
+            console.error("An error occurred retrieving the application.", err);
+        }
+        function startApp() {
+            Fayde.Timing.Phase = 4 /* StartApp */;
+            app.Attach(canvas);
             app.Start();
-            return this.onLoaded && this.onLoaded(app);
-        };
-        return Bootstrapper;
-    })();
+            loaded();
+        }
+        function loaded() {
+            Fayde.Timing.Phase = 5 /* Loaded */;
+            onLoaded && onLoaded(app);
+        }
+        run();
+    }
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -25850,8 +25842,7 @@ var Fayde;
                 Fayde.Theme.WarnMissing = true;
             if (toBoolean(json.warnBrokenPath))
                 Fayde.Data.WarnBrokenPath = true;
-            if (toBoolean(json.timeMarkup))
-                Fayde.Markup.Time = true;
+            Fayde.Timing.SetIsEnabled(toBoolean(json.timing));
         }
         debug.configure = configure;
         function toBoolean(val) {
@@ -25993,6 +25984,81 @@ var TimelineProfile = (function () {
     return TimelineProfile;
 })();
 TimelineProfile.TimelineStart = new Date().valueOf();
+var Fayde;
+(function (Fayde) {
+    var Timing;
+    (function (Timing) {
+        var markers = [];
+        var real = {
+            active: [],
+            start: function (type, context, phase) {
+                var marker = {
+                    isStart: true,
+                    type: type,
+                    context: context,
+                    phase: phase
+                };
+                markers.push(marker);
+                this.active.push(marker);
+            },
+            end: function (phase) {
+                var begin = this.active.shift();
+                var marker = {
+                    isStart: false,
+                    type: begin.type,
+                    context: begin.context,
+                    phase: phase
+                };
+                markers.push(marker);
+            }
+        };
+        var fake = {
+            start: function (type, context, phase) {
+            },
+            end: function (phase) {
+            }
+        };
+        var active = fake;
+        function SetIsEnabled(value) {
+            active = !value ? fake : real;
+            if (!value)
+                real.active.length = 0;
+        }
+        Timing.SetIsEnabled = SetIsEnabled;
+        function Start(type, context) {
+            return active.start(type, context, Timing.Phase);
+        }
+        Timing.Start = Start;
+        function End() {
+            return active.end(Timing.Phase);
+        }
+        Timing.End = End;
+        function GetMarkers() {
+            return markers.slice(0);
+        }
+        Timing.GetMarkers = GetMarkers;
+    })(Timing = Fayde.Timing || (Fayde.Timing = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Timing;
+    (function (Timing) {
+        (function (Phases) {
+            Phases[Phases["Starting"] = 0] = "Starting";
+            Phases[Phases["ResolveConfig"] = 1] = "ResolveConfig";
+            Phases[Phases["ResolveApp"] = 2] = "ResolveApp";
+            Phases[Phases["ResolveTheme"] = 3] = "ResolveTheme";
+            Phases[Phases["StartApp"] = 4] = "StartApp";
+            Phases[Phases["Loaded"] = 5] = "Loaded";
+        })(Timing.Phases || (Timing.Phases = {}));
+        var Phases = Timing.Phases;
+        (function (MarkerTypes) {
+            MarkerTypes[MarkerTypes["LoadMarkup"] = 0] = "LoadMarkup";
+        })(Timing.MarkerTypes || (Timing.MarkerTypes = {}));
+        var MarkerTypes = Timing.MarkerTypes;
+        Timing.Phase = 0 /* Starting */;
+    })(Timing = Fayde.Timing || (Fayde.Timing = {}));
+})(Fayde || (Fayde = {}));
 /// <reference path="../Core/XamlObjectCollection.ts" />
 var Fayde;
 (function (Fayde) {

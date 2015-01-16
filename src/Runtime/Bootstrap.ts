@@ -10,40 +10,50 @@ module Fayde {
         if (!canvas)
             document.body.appendChild(canvas = document.createElement("canvas"));
 
-        new Bootstrapper(url, canvas, onLoaded).run();
+        bootstrap(url, canvas, onLoaded);
     }
 
-    class Bootstrapper {
-        constructor (public url: string, public canvas: HTMLCanvasElement, public onLoaded: (app: Application) => any) {
-        }
+    function bootstrap (url: string, canvas: HTMLCanvasElement, onLoaded: (app: Application) => any) {
+        var app: Application;
 
-        run () {
+        function run () {
+            Timing.Phase = Timing.Phases.ResolveConfig;
             Fayde.LoadConfigJson((config, err) => {
                 if (err)
                     console.warn('Could not load fayde configuration file.', err);
-                this.startApp();
+                resolveApp();
             });
-            return this;
         }
 
-        startApp () {
-            Application.GetAsync(this.url)
-                .then(app => {
-                    Application.Current = app;
-                    ThemeManager.LoadAsync(app.ThemeName)
-                        .then(() => this.finishLoad(app),
-                            err => this.finishLoad(null, err));
-                }, err => this.finishLoad(null, err));
+        function resolveApp () {
+            Timing.Phase = Timing.Phases.ResolveApp;
+            Application.GetAsync(url)
+                .then(resolveTheme, finishError);
         }
 
-        finishLoad (app: Application, error?: any) {
-            if (error) {
-                console.error("An error occurred retrieving the application.", error);
-                return;
-            }
-            app.Attach(this.canvas);
+        function resolveTheme (res) {
+            Timing.Phase = Timing.Phases.ResolveTheme;
+            app = Application.Current = res;
+            ThemeManager.LoadAsync(app.ThemeName)
+                .then(startApp, finishError);
+        }
+
+        function finishError (err: any) {
+            console.error("An error occurred retrieving the application.", err);
+        }
+
+        function startApp () {
+            Timing.Phase = Timing.Phases.StartApp;
+            app.Attach(canvas);
             app.Start();
-            return this.onLoaded && this.onLoaded(app);
+            loaded();
         }
+
+        function loaded () {
+            Timing.Phase = Timing.Phases.Loaded;
+            onLoaded && onLoaded(app);
+        }
+
+        run();
     }
 }

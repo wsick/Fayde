@@ -4,6 +4,6 @@
   "debug": {
     "warnMissingThemes": false,
     "warnBrokenPath": false,
-    "timeMarkup": false
+    "timing": false
   }
 }
