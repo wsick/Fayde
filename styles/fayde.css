@@ -6,6 +6,10 @@ body {
     padding-top: 50px;
 
 }
+.container .jumbotron {
+    padding-left: 20px;
+    padding-right: 20px;
+}
 .jumbotron h1 {
     margin-top: 0px;
     color: #283776;
