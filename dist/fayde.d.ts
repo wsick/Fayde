@@ -1,6 +1,47 @@
 declare module Fayde {
     var Version: string;
 }
+declare module perf {
+    function GetTime(type: MarkerTypes, phase?: Phases): number;
+}
+declare module perf {
+    enum MarkerTypes {
+        LoadMarkup = 0,
+    }
+    interface IMarker {
+        type: MarkerTypes;
+        context: any;
+        phase: Phases;
+        begin: number;
+        duration: number;
+    }
+    function SetEnableMarkers(value: boolean): void;
+    function Mark(type: MarkerTypes, context: any): void;
+    function MarkEnd(): void;
+    function GetMarkers(): IMarker[];
+}
+declare module perf {
+    enum Phases {
+        Starting = 0,
+        ResolveConfig = 1,
+        ResolveApp = 2,
+        ResolveTheme = 3,
+        StartApp = 4,
+        Loaded = 5,
+    }
+    var Phase: any;
+    function StartPhase(value: Phases): void;
+    interface IPhaseTiming {
+        phase: Phases;
+        initial: number;
+        duration: number;
+    }
+    function GetPhaseTimings(): IPhaseTiming[];
+}
+declare module perf {
+    var timing: boolean;
+    var IsEnabled: boolean;
+}
 declare module Fayde {
     var XMLNS: string;
     var XMLNSX: string;
@@ -5487,32 +5528,6 @@ declare class TimelineProfile {
     static Navigate(isStart: boolean, name?: string): void;
     static LayoutPass(isStart: boolean): void;
     private static _FinishEvent(type, name?);
-}
-declare module Fayde.Timing {
-    interface IMarker {
-        isStart: boolean;
-        type: MarkerTypes;
-        context: any;
-        phase: Phases;
-    }
-    function SetIsEnabled(value: boolean): void;
-    function Start(type: MarkerTypes, context: any): void;
-    function End(): void;
-    function GetMarkers(): IMarker[];
-}
-declare module Fayde.Timing {
-    enum Phases {
-        Starting = 0,
-        ResolveConfig = 1,
-        ResolveApp = 2,
-        ResolveTheme = 3,
-        StartApp = 4,
-        Loaded = 5,
-    }
-    enum MarkerTypes {
-        LoadMarkup = 0,
-    }
-    var Phase: Phases;
 }
 declare module Fayde.Shapes {
     class DoubleCollection extends XamlObjectCollection<XamlObject> {

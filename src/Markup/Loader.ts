@@ -36,7 +36,7 @@ module Fayde.Markup {
     }
 
     function LoadImpl<T>(app: Application, xm: nullstone.markup.Markup<any>, resources?: ResourceDictionary[], bindingSource?: DependencyObject): T {
-        Timing.Start(Timing.MarkerTypes.LoadMarkup, xm.uri);
+        perf.Mark(perf.MarkerTypes.LoadMarkup, xm.uri);
 
         var oresolve: nullstone.IOutType = {
             isPrimitive: false,
@@ -173,7 +173,7 @@ module Fayde.Markup {
             last.XamlNode.NameScope = namescope;
         }
 
-        Timing.End();
+        perf.MarkEnd();
 
         return last;
     }

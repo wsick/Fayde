@@ -2,6 +2,133 @@ var Fayde;
 (function (Fayde) {
     Fayde.Version = '0.16.14';
 })(Fayde || (Fayde = {}));
+var perf;
+(function (perf) {
+    function GetTime(type, phase) {
+        return perf.GetMarkers().filter(function (m) { return m.type === type; }).filter(function (m) { return phase == null || m.phase === phase; }).reduce(function (agg, m) { return agg + (m.duration || 0); }, 0);
+    }
+    perf.GetTime = GetTime;
+})(perf || (perf = {}));
+var perf;
+(function (perf) {
+    (function (MarkerTypes) {
+        MarkerTypes[MarkerTypes["LoadMarkup"] = 0] = "LoadMarkup";
+    })(perf.MarkerTypes || (perf.MarkerTypes = {}));
+    var MarkerTypes = perf.MarkerTypes;
+    var markers = [];
+    var real = {
+        active: [],
+        start: function (type, context, phase) {
+            var marker = {
+                type: type,
+                context: context,
+                phase: phase,
+                begin: performance.now(),
+                duration: NaN
+            };
+            markers.push(marker);
+            this.active.push(marker);
+        },
+        end: function () {
+            var marker = this.active.shift();
+            marker.duration = performance.now() - marker.begin;
+        }
+    };
+    var fake = {
+        start: function (type, context, phase) {
+        },
+        end: function () {
+        }
+    };
+    var active = perf.IsEnabled ? real : fake;
+    function SetEnableMarkers(value) {
+        active = !value ? fake : real;
+        if (!value)
+            real.active.length = 0;
+    }
+    perf.SetEnableMarkers = SetEnableMarkers;
+    function Mark(type, context) {
+        return active.start(type, context, perf.Phase);
+    }
+    perf.Mark = Mark;
+    function MarkEnd() {
+        return active.end();
+    }
+    perf.MarkEnd = MarkEnd;
+    function GetMarkers() {
+        return markers.slice(0);
+    }
+    perf.GetMarkers = GetMarkers;
+})(perf || (perf = {}));
+var perf;
+(function (perf) {
+    (function (Phases) {
+        Phases[Phases["Starting"] = 0] = "Starting";
+        Phases[Phases["ResolveConfig"] = 1] = "ResolveConfig";
+        Phases[Phases["ResolveApp"] = 2] = "ResolveApp";
+        Phases[Phases["ResolveTheme"] = 3] = "ResolveTheme";
+        Phases[Phases["StartApp"] = 4] = "StartApp";
+        Phases[Phases["Loaded"] = 5] = "Loaded";
+    })(perf.Phases || (perf.Phases = {}));
+    var Phases = perf.Phases;
+    perf.Phase;
+    var phase = 0 /* Starting */;
+    Object.defineProperty(perf, "Phase", {
+        get: function () {
+            return phase;
+        }
+    });
+    function StartPhase(value) {
+        impl.startPhase(phase = value);
+    }
+    perf.StartPhase = StartPhase;
+    var impl;
+    (function (impl) {
+        impl.phaseTimings = [];
+        var activePhaseTiming;
+        function startPhase(phase) {
+            endActivePhase();
+            if (phase == null)
+                return;
+            activePhaseTiming = {
+                phase: phase,
+                initial: performance.now(),
+                duration: NaN
+            };
+            impl.phaseTimings.push(activePhaseTiming);
+        }
+        impl.startPhase = startPhase;
+        function endActivePhase() {
+            if (!activePhaseTiming)
+                return;
+            activePhaseTiming.duration = performance.now() - activePhaseTiming.initial;
+            activePhaseTiming = null;
+        }
+    })(impl || (impl = {}));
+    function GetPhaseTimings() {
+        return impl.phaseTimings.slice(0);
+    }
+    perf.GetPhaseTimings = GetPhaseTimings;
+})(perf || (perf = {}));
+var perf;
+(function (perf) {
+    perf.timing;
+    var isEnabled = perf.timing === true;
+    perf.IsEnabled;
+    Object.defineProperties(perf, {
+        "IsEnabled": {
+            get: function () {
+                return isEnabled;
+            },
+            set: function (value) {
+                if (isEnabled === value)
+                    return;
+                isEnabled = value;
+                perf.SetEnableMarkers(value);
+            }
+        }
+    });
+})(perf || (perf = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
         return Object.prototype.toString.call(arg) === '[object Array]';
@@ -6442,7 +6569,7 @@ var Fayde;
         }
         Markup.Load = Load;
         function LoadImpl(app, xm, resources, bindingSource) {
-            Fayde.Timing.Start(0 /* LoadMarkup */, xm.uri);
+            perf.Mark(0 /* LoadMarkup */, xm.uri);
             var oresolve = {
                 isPrimitive: false,
                 type: undefined
@@ -6566,7 +6693,7 @@ var Fayde;
             if (last instanceof Fayde.XamlObject) {
                 last.XamlNode.NameScope = namescope;
             }
-            Fayde.Timing.End();
+            perf.MarkEnd();
             return last;
         }
     })(Markup = Fayde.Markup || (Fayde.Markup = {}));
@@ -25734,7 +25861,7 @@ var Fayde;
     function bootstrap(url, canvas, onLoaded) {
         var app;
         function run() {
-            Fayde.Timing.Phase = 1 /* ResolveConfig */;
+            perf.StartPhase(1 /* ResolveConfig */);
             Fayde.LoadConfigJson(function (config, err) {
                 if (err)
                     console.warn('Could not load fayde configuration file.', err);
@@ -25742,11 +25869,11 @@ var Fayde;
             });
         }
         function resolveApp() {
-            Fayde.Timing.Phase = 2 /* ResolveApp */;
+            perf.StartPhase(2 /* ResolveApp */);
             Fayde.Application.GetAsync(url).then(resolveTheme, finishError);
         }
         function resolveTheme(res) {
-            Fayde.Timing.Phase = 3 /* ResolveTheme */;
+            perf.StartPhase(3 /* ResolveTheme */);
             app = Fayde.Application.Current = res;
             Fayde.ThemeManager.LoadAsync(app.ThemeName).then(startApp, finishError);
         }
@@ -25754,13 +25881,13 @@ var Fayde;
             console.error("An error occurred retrieving the application.", err);
         }
         function startApp() {
-            Fayde.Timing.Phase = 4 /* StartApp */;
+            perf.StartPhase(4 /* StartApp */);
             app.Attach(canvas);
             app.Start();
             loaded();
         }
         function loaded() {
-            Fayde.Timing.Phase = 5 /* Loaded */;
+            perf.StartPhase(5 /* Loaded */);
             onLoaded && onLoaded(app);
         }
         run();
@@ -25842,7 +25969,7 @@ var Fayde;
                 Fayde.Theme.WarnMissing = true;
             if (toBoolean(json.warnBrokenPath))
                 Fayde.Data.WarnBrokenPath = true;
-            Fayde.Timing.SetIsEnabled(toBoolean(json.timing));
+            perf.IsEnabled = toBoolean(json.timing);
         }
         debug.configure = configure;
         function toBoolean(val) {
@@ -25984,81 +26111,6 @@ var TimelineProfile = (function () {
     return TimelineProfile;
 })();
 TimelineProfile.TimelineStart = new Date().valueOf();
-var Fayde;
-(function (Fayde) {
-    var Timing;
-    (function (Timing) {
-        var markers = [];
-        var real = {
-            active: [],
-            start: function (type, context, phase) {
-                var marker = {
-                    isStart: true,
-                    type: type,
-                    context: context,
-                    phase: phase
-                };
-                markers.push(marker);
-                this.active.push(marker);
-            },
-            end: function (phase) {
-                var begin = this.active.shift();
-                var marker = {
-                    isStart: false,
-                    type: begin.type,
-                    context: begin.context,
-                    phase: phase
-                };
-                markers.push(marker);
-            }
-        };
-        var fake = {
-            start: function (type, context, phase) {
-            },
-            end: function (phase) {
-            }
-        };
-        var active = fake;
-        function SetIsEnabled(value) {
-            active = !value ? fake : real;
-            if (!value)
-                real.active.length = 0;
-        }
-        Timing.SetIsEnabled = SetIsEnabled;
-        function Start(type, context) {
-            return active.start(type, context, Timing.Phase);
-        }
-        Timing.Start = Start;
-        function End() {
-            return active.end(Timing.Phase);
-        }
-        Timing.End = End;
-        function GetMarkers() {
-            return markers.slice(0);
-        }
-        Timing.GetMarkers = GetMarkers;
-    })(Timing = Fayde.Timing || (Fayde.Timing = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Timing;
-    (function (Timing) {
-        (function (Phases) {
-            Phases[Phases["Starting"] = 0] = "Starting";
-            Phases[Phases["ResolveConfig"] = 1] = "ResolveConfig";
-            Phases[Phases["ResolveApp"] = 2] = "ResolveApp";
-            Phases[Phases["ResolveTheme"] = 3] = "ResolveTheme";
-            Phases[Phases["StartApp"] = 4] = "StartApp";
-            Phases[Phases["Loaded"] = 5] = "Loaded";
-        })(Timing.Phases || (Timing.Phases = {}));
-        var Phases = Timing.Phases;
-        (function (MarkerTypes) {
-            MarkerTypes[MarkerTypes["LoadMarkup"] = 0] = "LoadMarkup";
-        })(Timing.MarkerTypes || (Timing.MarkerTypes = {}));
-        var MarkerTypes = Timing.MarkerTypes;
-        Timing.Phase = 0 /* Starting */;
-    })(Timing = Fayde.Timing || (Fayde.Timing = {}));
-})(Fayde || (Fayde = {}));
 /// <reference path="../Core/XamlObjectCollection.ts" />
 var Fayde;
 (function (Fayde) {

@@ -1,9 +1,13 @@
-module Fayde.Timing {
+module perf {
+    export enum MarkerTypes {
+        LoadMarkup = 0,
+    }
     export interface IMarker {
-        isStart: boolean;
         type: MarkerTypes;
         context: any;
         phase: Phases;
+        begin: number;
+        duration: number;
     }
 
     var markers: IMarker[] = [];
@@ -11,45 +15,40 @@ module Fayde.Timing {
         active: <IMarker[]>[],
         start (type: MarkerTypes, context: any, phase: Phases) {
             var marker = <IMarker>{
-                isStart: true,
                 type: type,
                 context: context,
-                phase: phase
+                phase: phase,
+                begin: performance.now(),
+                duration: NaN
             };
             markers.push(marker);
             this.active.push(marker);
         },
-        end (phase: Phases) {
-            var begin = <IMarker>this.active.shift();
-            var marker = <IMarker>{
-                isStart: false,
-                type: begin.type,
-                context: begin.context,
-                phase: phase
-            };
-            markers.push(marker);
+        end () {
+            var marker = <IMarker>this.active.shift();
+            marker.duration = performance.now() - marker.begin;
         }
     };
     var fake = {
         start (type: MarkerTypes, context: any, phase: Phases) {
         },
-        end (phase: Phases) {
+        end () {
         }
     };
-    var active = fake;
+    var active = perf.IsEnabled ? real : fake;
 
-    export function SetIsEnabled (value: boolean) {
+    export function SetEnableMarkers (value: boolean) {
         active = !value ? fake : real;
         if (!value)
             real.active.length = 0;
     }
 
-    export function Start (type: MarkerTypes, context: any) {
-        return active.start(type, context, Timing.Phase);
+    export function Mark (type: MarkerTypes, context: any) {
+        return active.start(type, context, perf.Phase);
     }
 
-    export function End () {
-        return active.end(Timing.Phase);
+    export function MarkEnd () {
+        return active.end();
     }
 
     export function GetMarkers (): IMarker[] {

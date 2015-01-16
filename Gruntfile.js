@@ -129,6 +129,7 @@ module.exports = function (grunt) {
                 src: [
                     'typings/*.d.ts',
                     'src/_Version.ts',
+                    'src/perf/**/*.ts',
                     'src/polyfill/**/*.ts',
                     'src/_Types.ts',
                     'src/**/*.ts'
