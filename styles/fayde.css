@@ -227,9 +227,10 @@ ol.steps li {
 }
 
 .box {
-    background-color: white;
-    margin: 20px 10px;
-    vertical-align: top;
+    padding: 10px;
+    float: left;
+    width: 250px;
+    min-height: 300px;
 }
 .box i {
     color: white;
@@ -247,6 +248,7 @@ ol.steps li {
     border-radius: 4px 4px 0 0;
 }
 .box .detail {
+    background-color: white;
     border: 1px solid #AAAAAA;
     border-top: none;
     border-radius: 0 0 4px 4px;
@@ -260,9 +262,6 @@ ol.steps li {
     background-color: #dc7d1a;
 }
 
-table.boxes td {
-    vertical-align: top;
-}
 #yeoman {
     float: right;
     width: 50%;
