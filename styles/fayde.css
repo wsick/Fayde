@@ -1,6 +1,5 @@
 body {
     font-family: SegoeUI, 'Segoe UI', Arial, sans-serif;
-    font-size: 16px;
     background-image: url('../images/background-grid.gif');
     background-attachment: fixed;
     position: relative;
@@ -121,6 +120,19 @@ code {
 }
 #navigation {
     background-color: #314267;
+}
+#operating_systems {
+    float: left;
+    margin-left: 100px;
+    padding-top: 8px;
+}
+#browsers {
+    float: right;
+    margin-right: 80px;
+    margin-top: -50px;
+}
+#browsers img {
+    margin-left: 15px;
 }
 #footer {
     background-color: #314267;
