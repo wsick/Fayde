@@ -67,11 +67,14 @@ body {
     background-color: transparent;
 }
 .jumbotron {
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
     color: #76858E;
     background-color: transparent;
 }
 .jumbotron p {
-    font-size: 16px;
+    font-size: 1.1em;
     text-shadow: 0 1px 1px rgba(255,255, 255,.5);
 }
 .highlights {
@@ -151,6 +154,7 @@ code {
 }
 #mc_embed_signup {
     width: 50%;
+    min-width: 400px;
     margin: 0 auto;
     padding: 20px;
     background-color: white;
