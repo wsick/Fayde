@@ -26,8 +26,12 @@ module perf {
         duration: number;
     }
     module impl {
-        export var phaseTimings: IPhaseTiming[] = [];
-        var activePhaseTiming: IPhaseTiming;
+        var activePhaseTiming = <IPhaseTiming>{
+            phase: Phases.Starting,
+            initial: 0,
+            duration: NaN
+        };
+        export var phaseTimings: IPhaseTiming[] = [activePhaseTiming];
 
         export function startPhase (phase: Phases) {
             endActivePhase();

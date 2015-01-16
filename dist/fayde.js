@@ -84,8 +84,12 @@ var perf;
     perf.StartPhase = StartPhase;
     var impl;
     (function (impl) {
-        impl.phaseTimings = [];
-        var activePhaseTiming;
+        var activePhaseTiming = {
+            phase: 0 /* Starting */,
+            initial: 0,
+            duration: NaN
+        };
+        impl.phaseTimings = [activePhaseTiming];
         function startPhase(phase) {
             endActivePhase();
             if (phase == null)
