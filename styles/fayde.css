@@ -115,7 +115,7 @@ code {
 }
 .column {
     display: table-cell;
-    width: 50%;
+    width: 100%;
     vertical-align: top;
 }
 #navigation {
