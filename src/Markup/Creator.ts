@@ -2,11 +2,12 @@ module Fayde.Markup {
     import XamlMarkup = nullstone.markup.xaml.XamlMarkup;
     var lastId = 0;
 
-    export function CreateXaml (xaml: string): XamlMarkup;
-    export function CreateXaml (el: Element): XamlMarkup;
-    export function CreateXaml (obj: any): XamlMarkup {
+    export function CreateXaml (xaml: string, uri?: string): XamlMarkup;
+    export function CreateXaml (el: Element, uri?: string): XamlMarkup;
+    export function CreateXaml (obj: any, uri?: string): XamlMarkup {
         lastId++;
-        var xm = new XamlMarkup("http://gen/" + lastId.toString());
+        uri = uri || "http://gen/" + lastId.toString();
+        var xm = new XamlMarkup(uri);
         var root = (typeof obj === "string")
             ? xm.loadRoot(obj)
             : obj;

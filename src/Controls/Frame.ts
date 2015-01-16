@@ -12,7 +12,7 @@ module Fayde.Controls {
         var xaml = '<Page xmlns="' + Fayde.XMLNS + '" xmlns:x="' + Fayde.XMLNSX + '" Title="Error">';
         xaml += '<TextBlock Text="' + safe + '" />';
         xaml += '</Page>';
-        return Markup.CreateXaml(xaml);
+        return Markup.CreateXaml(xaml, Fayde.XMLNS + "/frame/error");
     }
 
     function getErrorPage (app: Application, error: string): Page {

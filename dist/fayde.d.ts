@@ -1217,8 +1217,8 @@ declare module Fayde.Controls.Primitives {
 }
 declare module Fayde.Markup {
     import XamlMarkup = nullstone.markup.xaml.XamlMarkup;
-    function CreateXaml(xaml: string): XamlMarkup;
-    function CreateXaml(el: Element): XamlMarkup;
+    function CreateXaml(xaml: string, uri?: string): XamlMarkup;
+    function CreateXaml(el: Element, uri?: string): XamlMarkup;
 }
 declare module Fayde.Controls {
     class ContentPresenterNode extends FENode {

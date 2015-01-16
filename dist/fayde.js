@@ -4233,8 +4233,7 @@ var Fayde;
             };
             ItemsControl.prototype._GetDisplayMemberTemplate = function () {
                 if (!this._DisplayMemberTemplate) {
-                    var dmp = this.DisplayMemberPath || "";
-                    var xm = Fayde.Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
+                    var xm = DisplayTemplate.create(this.DisplayMemberPath || "");
                     this._DisplayMemberTemplate = Fayde.Markup.Load(this.App, xm);
                 }
                 return this._DisplayMemberTemplate;
@@ -4263,6 +4262,13 @@ var Fayde;
             }
             return null;
         }
+        var DisplayTemplate;
+        (function (DisplayTemplate) {
+            function create(dmp) {
+                return Fayde.Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>", Fayde.XMLNS + "/itemscontrol/displaymember/" + dmp);
+            }
+            DisplayTemplate.create = create;
+        })(DisplayTemplate || (DisplayTemplate = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
 /// <reference path="../ItemsControl.ts" />
@@ -4543,9 +4549,10 @@ var Fayde;
     (function (Markup) {
         var XamlMarkup = nullstone.markup.xaml.XamlMarkup;
         var lastId = 0;
-        function CreateXaml(obj) {
+        function CreateXaml(obj, uri) {
             lastId++;
-            var xm = new XamlMarkup("http://gen/" + lastId.toString());
+            uri = uri || "http://gen/" + lastId.toString();
+            var xm = new XamlMarkup(uri);
             var root = (typeof obj === "string") ? xm.loadRoot(obj) : obj;
             if (!root.isDefaultNamespace(Fayde.XMLNS))
                 throw new XamlParseException("Invalid default namespace. [" + root.lookupNamespaceURI(null) + "]");
@@ -4561,7 +4568,7 @@ var Fayde;
 (function (Fayde) {
     var Controls;
     (function (Controls) {
-        var fmd = Fayde.Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
+        var fmd = Fayde.Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>", Fayde.XMLNS + "/contentpresenter/default");
         var fallbackTemplate;
         function getFallbackTemplate(app) {
             return fallbackTemplate = fallbackTemplate || Fayde.Markup.Load(app, fmd);
@@ -6824,7 +6831,7 @@ var Fayde;
             var xaml = '<Page xmlns="' + Fayde.XMLNS + '" xmlns:x="' + Fayde.XMLNSX + '" Title="Error">';
             xaml += '<TextBlock Text="' + safe + '" />';
             xaml += '</Page>';
-            return Fayde.Markup.CreateXaml(xaml);
+            return Fayde.Markup.CreateXaml(xaml, Fayde.XMLNS + "/frame/error");
         }
         function getErrorPage(app, error) {
             return Fayde.Markup.Load(app, createErrorDoc(error));
@@ -8328,9 +8335,9 @@ var Fayde;
 (function (Fayde) {
     var Controls;
     (function (Controls) {
-        var spxd = Fayde.Markup.CreateXaml("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>");
+        var spxd = Fayde.Markup.CreateXaml("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>", Fayde.XMLNS + "/itemspresenter/stackpanel/default");
         var spft;
-        var vspxd = Fayde.Markup.CreateXaml("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>");
+        var vspxd = Fayde.Markup.CreateXaml("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>", Fayde.XMLNS + "/itemspresenter/virtualizingstackpanel/default");
         var vspft;
         function getFallbackTemplate(ic) {
             if (ic instanceof Controls.ListBox)

@@ -2,7 +2,8 @@
 /// <reference path="../Markup/Creator.ts" />
 
 module Fayde.Controls {
-    var fmd = Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
+    var fmd = Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>"
+        , Fayde.XMLNS + "/contentpresenter/default");
     var fallbackTemplate: DataTemplate;
     function getFallbackTemplate (app: Application): DataTemplate {
         return fallbackTemplate = fallbackTemplate || Markup.Load<DataTemplate>(app, fmd);
@@ -107,7 +108,7 @@ module Fayde.Controls {
                         return dt;
                 }
             }
-            
+
             return getFallbackTemplate(this.XObject.App);
         }
     }
@@ -116,8 +117,8 @@ module Fayde.Controls {
         XamlNode: ContentPresenterNode;
         CreateNode(): ContentPresenterNode { return new ContentPresenterNode(this); }
 
-        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenterNode>(<ContentPresenter>d).XamlNode)._ContentChanged(args));
-        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenterNode>(<ContentPresenter>d).XamlNode)._ContentTemplateChanged());
+        static ContentProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d: ContentPresenter, args) => d.XamlNode._ContentChanged(args));
+        static ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d: ContentPresenter, args) => d.XamlNode._ContentTemplateChanged());
         Content: any;
         ContentTemplate: DataTemplate;
     }

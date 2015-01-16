@@ -2,10 +2,12 @@
 /// <reference path="../Markup/Creator.ts" />
 
 module Fayde.Controls {
-    var spxd = Markup.CreateXaml("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>");
+    var spxd = Markup.CreateXaml("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>"
+        , Fayde.XMLNS + "/itemspresenter/stackpanel/default");
     var spft: ItemsPanelTemplate;
 
-    var vspxd = Markup.CreateXaml("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>");
+    var vspxd = Markup.CreateXaml("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>"
+        , Fayde.XMLNS + "/itemspresenter/virtualizingstackpanel/default");
     var vspft: ItemsPanelTemplate;
 
     function getFallbackTemplate(ic: ItemsControl): ItemsPanelTemplate {

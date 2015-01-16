@@ -203,8 +203,7 @@ module Fayde.Controls {
         private _DisplayMemberTemplate: DataTemplate = null;
         private _GetDisplayMemberTemplate(): DataTemplate {
             if (!this._DisplayMemberTemplate) {
-                var dmp = this.DisplayMemberPath || "";
-                var xm = Fayde.Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>");
+                var xm = DisplayTemplate.create(this.DisplayMemberPath || "");
                 this._DisplayMemberTemplate = Markup.Load<DataTemplate>(this.App, xm);
             }
             return this._DisplayMemberTemplate;
@@ -225,5 +224,12 @@ module Fayde.Controls {
             return arr;
         }
         return null;
+    }
+
+    module DisplayTemplate {
+        export function create (dmp: string) {
+            return Fayde.Markup.CreateXaml("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + dmp + "}\" /></Grid></DataTemplate>"
+                , Fayde.XMLNS + "/itemscontrol/displaymember/" + dmp);
+        }
     }
 }
