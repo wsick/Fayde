@@ -4,11 +4,40 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var perf;
 (function (perf) {
-    function GetTime(type, phase) {
-        return perf.GetMarkers().filter(function (m) { return m.type === type; }).filter(function (m) { return phase == null || m.phase === phase; }).reduce(function (agg, m) { return agg + (m.duration || 0); }, 0);
-    }
-    perf.GetTime = GetTime;
+    perf.timing;
+    var isEnabled = perf.timing === true;
+    delete perf.timing;
+    perf.IsEnabled;
+    Object.defineProperties(perf, {
+        "IsEnabled": {
+            get: function () {
+                return isEnabled;
+            },
+            set: function (value) {
+                if (isEnabled === value)
+                    return;
+                isEnabled = value;
+                perf.SetEnableMarkers(value);
+            }
+        }
+    });
 })(perf || (perf = {}));
+/// <reference path="_" />
+var perf;
+(function (perf) {
+    var Timings;
+    (function (Timings) {
+        function Get(type, phase) {
+            return Timings.Markers.filter(function (m) { return m.type === type; }).filter(function (m) { return phase == null || m.phase === phase; });
+        }
+        Timings.Get = Get;
+        function Total(type, phase) {
+            return Get(type, phase).reduce(function (agg, m) { return agg + (m.duration || 0); }, 0);
+        }
+        Timings.Total = Total;
+    })(Timings = perf.Timings || (perf.Timings = {}));
+})(perf || (perf = {}));
+/// <reference path="_" />
 var perf;
 (function (perf) {
     (function (MarkerTypes) {
@@ -55,11 +84,17 @@ var perf;
         return active.end();
     }
     perf.MarkEnd = MarkEnd;
-    function GetMarkers() {
-        return markers.slice(0);
-    }
-    perf.GetMarkers = GetMarkers;
+    var Timings;
+    (function (Timings) {
+        Timings.Markers;
+    })(Timings = perf.Timings || (perf.Timings = {}));
+    Object.defineProperty(perf.Timings, "Markers", {
+        get: function () {
+            return markers.slice(0);
+        }
+    });
 })(perf || (perf = {}));
+/// <reference path="_" />
 var perf;
 (function (perf) {
     (function (Phases) {
@@ -109,27 +144,13 @@ var perf;
             activePhaseTiming = null;
         }
     })(impl || (impl = {}));
-    function GetPhaseTimings() {
-        return impl.phaseTimings.slice(0);
-    }
-    perf.GetPhaseTimings = GetPhaseTimings;
-})(perf || (perf = {}));
-var perf;
-(function (perf) {
-    perf.timing;
-    var isEnabled = perf.timing === true;
-    perf.IsEnabled;
-    Object.defineProperties(perf, {
-        "IsEnabled": {
-            get: function () {
-                return isEnabled;
-            },
-            set: function (value) {
-                if (isEnabled === value)
-                    return;
-                isEnabled = value;
-                perf.SetEnableMarkers(value);
-            }
+    var Timings;
+    (function (Timings) {
+        Timings.Phase;
+    })(Timings = perf.Timings || (perf.Timings = {}));
+    Object.defineProperty(perf.Timings, "Phase", {
+        get: function () {
+            return impl.phaseTimings.slice(0);
         }
     });
 })(perf || (perf = {}));
@@ -25974,7 +25995,6 @@ var Fayde;
                 Fayde.Theme.WarnMissing = true;
             if (toBoolean(json.warnBrokenPath))
                 Fayde.Data.WarnBrokenPath = true;
-            perf.IsEnabled = toBoolean(json.timing);
         }
         debug.configure = configure;
         function toBoolean(val) {

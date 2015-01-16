@@ -1,3 +1,5 @@
+/// <reference path="_" />
+
 module perf {
     export enum MarkerTypes {
         LoadMarkup = 0,
@@ -51,7 +53,12 @@ module perf {
         return active.end();
     }
 
-    export function GetMarkers (): IMarker[] {
-        return markers.slice(0);
+    export module Timings {
+        export var Markers: IMarker[];
     }
+    Object.defineProperty(perf.Timings, "Markers", {
+        get () {
+            return markers.slice(0);
+        }
+    });
 }

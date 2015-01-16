@@ -1,3 +1,5 @@
+/// <reference path="_" />
+
 module perf {
     export enum Phases {
         Starting = 0,
@@ -53,7 +55,12 @@ module perf {
         }
     }
 
-    export function GetPhaseTimings (): IPhaseTiming[] {
-        return impl.phaseTimings.slice(0);
+    export module Timings {
+        export var Phase: IPhaseTiming[];
     }
+    Object.defineProperty(perf.Timings, "Phase", {
+        get () {
+            return impl.phaseTimings.slice(0);
+        }
+    });
 }

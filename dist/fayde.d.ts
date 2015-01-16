@@ -2,7 +2,14 @@ declare module Fayde {
     var Version: string;
 }
 declare module perf {
-    function GetTime(type: MarkerTypes, phase?: Phases): number;
+    var timing: boolean;
+    var IsEnabled: boolean;
+}
+declare module perf {
+    module Timings {
+        function Get(type: MarkerTypes, phase?: Phases): IMarker[];
+        function Total(type: MarkerTypes, phase?: Phases): number;
+    }
 }
 declare module perf {
     enum MarkerTypes {
@@ -18,7 +25,9 @@ declare module perf {
     function SetEnableMarkers(value: boolean): void;
     function Mark(type: MarkerTypes, context: any): void;
     function MarkEnd(): void;
-    function GetMarkers(): IMarker[];
+    module Timings {
+        var Markers: IMarker[];
+    }
 }
 declare module perf {
     enum Phases {
@@ -36,11 +45,9 @@ declare module perf {
         initial: number;
         duration: number;
     }
-    function GetPhaseTimings(): IPhaseTiming[];
-}
-declare module perf {
-    var timing: boolean;
-    var IsEnabled: boolean;
+    module Timings {
+        var Phase: IPhaseTiming[];
+    }
 }
 declare module Fayde {
     var XMLNS: string;

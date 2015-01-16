@@ -2,6 +2,7 @@ module perf {
     export var timing: boolean;
 
     var isEnabled = perf.timing === true;
+    delete perf.timing;
     export var IsEnabled: boolean;
     Object.defineProperties(perf, {
         "IsEnabled": {
