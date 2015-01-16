@@ -1,7 +1,7 @@
 import DependencyObject = Fayde.DependencyObject;
 import FrameworkElement = Fayde.FrameworkElement;
 import ResourceDictionary = Fayde.ResourceDictionary;
-
+import Font = minerva.Font;
 
 export function load () {
     QUnit.module("Provider Tests");
