@@ -124,12 +124,12 @@ code {
 }
 #operating_systems {
     float: left;
-    margin-left: 100px;
+    margin-left: 70px;
     padding-top: 8px;
 }
 #browsers {
     float: right;
-    margin-right: 80px;
+    margin-right: 50px;
     margin-top: -50px;
 }
 #browsers img {
@@ -263,4 +263,29 @@ ol.steps li {
 
 table.boxes td {
     vertical-align: top;
+}
+#yeoman {
+    float: right;
+    width: 50%;
+    margin-top: -10px;
+    padding: 0 20px;
+}
+#yo-fayde {
+    float: right;
+    width: 50%;
+    margin-top: -20px;
+}
+#live-reload {
+    margin: 0 -10px;
+    float: right;
+    width: 50%;
+    margin-top: -30px;
+}
+#fayde-dev {
+    float: right;
+    width: 50%;
+    margin-top: -20px;
+}
+ol.steps li {
+    min-height: 300px;
 }
