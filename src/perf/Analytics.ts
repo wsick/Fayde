@@ -2,9 +2,9 @@
 
 module perf {
     export module Timings {
-        export function Get (type: MarkerTypes, phase?: Phases) {
+        export function Get (type?: MarkerTypes, phase?: Phases) {
             return Timings.Markers
-                .filter(m => m.type === type)
+                .filter(m => type == null || m.type === type)
                 .filter(m => phase == null || m.phase === phase);
         }
 

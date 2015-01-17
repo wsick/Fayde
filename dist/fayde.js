@@ -28,7 +28,7 @@ var perf;
     var Timings;
     (function (Timings) {
         function Get(type, phase) {
-            return Timings.Markers.filter(function (m) { return m.type === type; }).filter(function (m) { return phase == null || m.phase === phase; });
+            return Timings.Markers.filter(function (m) { return type == null || m.type === type; }).filter(function (m) { return phase == null || m.phase === phase; });
         }
         Timings.Get = Get;
         function Total(type, phase) {
@@ -41,7 +41,11 @@ var perf;
 var perf;
 (function (perf) {
     (function (MarkerTypes) {
-        MarkerTypes[MarkerTypes["LoadMarkup"] = 0] = "LoadMarkup";
+        MarkerTypes[MarkerTypes["MarkupLoad"] = 0] = "MarkupLoad";
+        MarkerTypes[MarkerTypes["MarkupCreateObject"] = 1] = "MarkupCreateObject";
+        MarkerTypes[MarkerTypes["StoryboardsProcess"] = 2] = "StoryboardsProcess";
+        MarkerTypes[MarkerTypes["UpdateLayout"] = 3] = "UpdateLayout";
+        MarkerTypes[MarkerTypes["Render"] = 4] = "Render";
     })(perf.MarkerTypes || (perf.MarkerTypes = {}));
     var MarkerTypes = perf.MarkerTypes;
     var markers = [];
@@ -59,7 +63,7 @@ var perf;
             this.active.push(marker);
         },
         end: function () {
-            var marker = this.active.shift();
+            var marker = this.active.pop();
             marker.duration = performance.now() - marker.begin;
         }
     };
@@ -103,7 +107,7 @@ var perf;
         Phases[Phases["ResolveApp"] = 2] = "ResolveApp";
         Phases[Phases["ResolveTheme"] = 3] = "ResolveTheme";
         Phases[Phases["StartApp"] = 4] = "StartApp";
-        Phases[Phases["Loaded"] = 5] = "Loaded";
+        Phases[Phases["Running"] = 5] = "Running";
     })(perf.Phases || (perf.Phases = {}));
     var Phases = perf.Phases;
     perf.Phase;
@@ -6601,7 +6605,7 @@ var Fayde;
         }
         Markup.Load = Load;
         function LoadImpl(app, xm, resources, bindingSource) {
-            perf.Mark(0 /* LoadMarkup */, xm.uri);
+            perf.Mark(0 /* MarkupLoad */, xm.uri);
             var oresolve = {
                 isPrimitive: false,
                 type: undefined
@@ -6622,11 +6626,13 @@ var Fayde;
                 resolveObject: function (type) {
                     if (type === Fayde.ResourceDictionary && !pactor.isNewResources())
                         return undefined;
+                    perf.Mark(1 /* MarkupCreateObject */, type);
                     var obj = new (type)();
                     if (obj instanceof FrameworkTemplate)
                         parser.skipBranch();
                     else if (obj instanceof Markup.StaticResource)
                         obj.setContext(active.getApp(), resources);
+                    perf.MarkEnd();
                     return obj;
                 },
                 resolvePrimitive: function (type, text) {
@@ -14386,7 +14392,8 @@ var Fayde;
             this.MainSurface.Attach(this._RootVisual, true);
         };
         Application.prototype.Start = function () {
-            this.OnTicked(0, 0);
+            this.Update();
+            this.Render();
             this._ClockTimer.RegisterTimer(this);
             this._IsLoaded = true;
             this.Loaded.raiseAsync(this, null);
@@ -14400,19 +14407,25 @@ var Fayde;
             this._ClockTimer.UnregisterTimer(this);
         };
         Application.prototype.ProcessStoryboards = function (lastTime, nowTime) {
+            perf.Mark(2 /* StoryboardsProcess */, this);
             for (var i = 0, sbs = this._Storyboards; i < sbs.length; i++) {
                 sbs[i].Update(nowTime);
             }
+            perf.MarkEnd();
         };
         Application.prototype.Update = function () {
             if (this._IsRunning)
                 return;
             this._IsRunning = true;
+            perf.Mark(3 /* UpdateLayout */, this);
             var updated = this.MainSurface.updateLayout();
+            perf.MarkEnd();
             this._IsRunning = false;
         };
         Application.prototype.Render = function () {
+            perf.Mark(4 /* Render */, this);
             this.MainSurface.render();
+            perf.MarkEnd();
         };
         Application.prototype.RegisterStoryboard = function (storyboard) {
             var sbs = this._Storyboards;
@@ -25920,8 +25933,8 @@ var Fayde;
             loaded();
         }
         function loaded() {
-            perf.StartPhase(5 /* Loaded */);
             onLoaded && onLoaded(app);
+            perf.StartPhase(5 /* Running */);
         }
         run();
     }

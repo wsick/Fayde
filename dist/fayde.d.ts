@@ -7,13 +7,17 @@ declare module perf {
 }
 declare module perf {
     module Timings {
-        function Get(type: MarkerTypes, phase?: Phases): IMarker[];
+        function Get(type?: MarkerTypes, phase?: Phases): IMarker[];
         function Total(type: MarkerTypes, phase?: Phases): number;
     }
 }
 declare module perf {
     enum MarkerTypes {
-        LoadMarkup = 0,
+        MarkupLoad = 0,
+        MarkupCreateObject = 1,
+        StoryboardsProcess = 2,
+        UpdateLayout = 3,
+        Render = 4,
     }
     interface IMarker {
         type: MarkerTypes;
@@ -36,7 +40,7 @@ declare module perf {
         ResolveApp = 2,
         ResolveTheme = 3,
         StartApp = 4,
-        Loaded = 5,
+        Running = 5,
     }
     var Phase: any;
     function StartPhase(value: Phases): void;

@@ -69,7 +69,8 @@ module Fayde {
         }
 
         Start () {
-            this.OnTicked(0, 0);
+            this.Update();
+            this.Render();
             this._ClockTimer.RegisterTimer(this);
             this._IsLoaded = true;
             this.Loaded.raiseAsync(this, null);
@@ -86,21 +87,27 @@ module Fayde {
         }
 
         private ProcessStoryboards (lastTime: number, nowTime: number) {
+            perf.Mark(perf.MarkerTypes.StoryboardsProcess, this);
             for (var i = 0, sbs = this._Storyboards; i < sbs.length; i++) {
                 sbs[i].Update(nowTime);
             }
+            perf.MarkEnd();
         }
 
         private Update () {
             if (this._IsRunning)
                 return;
             this._IsRunning = true;
+            perf.Mark(perf.MarkerTypes.UpdateLayout, this);
             var updated = this.MainSurface.updateLayout();
+            perf.MarkEnd();
             this._IsRunning = false;
         }
 
         private Render () {
+            perf.Mark(perf.MarkerTypes.Render, this);
             this.MainSurface.render();
+            perf.MarkEnd();
         }
 
         RegisterStoryboard (storyboard: ITimeline) {

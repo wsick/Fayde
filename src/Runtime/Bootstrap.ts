@@ -50,8 +50,8 @@ module Fayde {
         }
 
         function loaded () {
-            perf.StartPhase(perf.Phases.Loaded);
             onLoaded && onLoaded(app);
+            perf.StartPhase(perf.Phases.Running);
         }
 
         run();

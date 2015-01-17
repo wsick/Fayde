@@ -7,7 +7,7 @@ module perf {
         ResolveApp = 2,
         ResolveTheme = 3,
         StartApp = 4,
-        Loaded = 5
+        Running = 5
     }
 
     export var Phase;

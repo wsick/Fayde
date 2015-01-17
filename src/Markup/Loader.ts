@@ -36,7 +36,7 @@ module Fayde.Markup {
     }
 
     function LoadImpl<T>(app: Application, xm: nullstone.markup.Markup<any>, resources?: ResourceDictionary[], bindingSource?: DependencyObject): T {
-        perf.Mark(perf.MarkerTypes.LoadMarkup, xm.uri);
+        perf.Mark(perf.MarkerTypes.MarkupLoad, xm.uri);
 
         var oresolve: nullstone.IOutType = {
             isPrimitive: false,
@@ -61,12 +61,13 @@ module Fayde.Markup {
             resolveObject: (type) => {
                 if (type === ResourceDictionary && !pactor.isNewResources())
                     return undefined;
-
+                perf.Mark(perf.MarkerTypes.MarkupCreateObject, type);
                 var obj = new (type)();
                 if (obj instanceof FrameworkTemplate)
                     parser.skipBranch();
                 else if (obj instanceof StaticResource)
                     (<StaticResource>obj).setContext(active.getApp(), resources);
+                perf.MarkEnd();
                 return obj;
             },
             resolvePrimitive: (type, text) => {

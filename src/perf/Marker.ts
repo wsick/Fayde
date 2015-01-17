@@ -2,7 +2,11 @@
 
 module perf {
     export enum MarkerTypes {
-        LoadMarkup = 0,
+        MarkupLoad,
+        MarkupCreateObject,
+        StoryboardsProcess,
+        UpdateLayout,
+        Render,
     }
     export interface IMarker {
         type: MarkerTypes;
@@ -27,7 +31,7 @@ module perf {
             this.active.push(marker);
         },
         end () {
-            var marker = <IMarker>this.active.shift();
+            var marker = <IMarker>this.active.pop();
             marker.duration = performance.now() - marker.begin;
         }
     };
