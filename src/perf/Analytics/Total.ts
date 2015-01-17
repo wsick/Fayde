@@ -1,4 +1,4 @@
-/// <reference path="_" />
+/// <reference path="../_" />
 
 module perf {
     export module Timings {

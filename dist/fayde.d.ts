@@ -5,6 +5,14 @@ declare module perf {
     var timing: boolean;
     var IsEnabled: boolean;
 }
+interface Console {
+    table(data: any[]): any;
+}
+declare module perf {
+    module Timings {
+        function Table(): void;
+    }
+}
 declare module perf {
     module Timings {
         function Get(type?: MarkerTypes, phase?: Phases): IMarker[];

@@ -22,7 +22,50 @@ var perf;
         }
     });
 })(perf || (perf = {}));
-/// <reference path="_" />
+/// <reference path="../_" />
+var perf;
+(function (perf) {
+    var Timings;
+    (function (Timings) {
+        function Table() {
+            var records = enumValues(perf.MarkerTypes).map(function (mk) {
+                return enumValues(perf.Phases).map(function (pk) { return new TimingRecord(mk, pk); }).concat([new TimingRecord(mk, null)]);
+            });
+            //Totals Record
+            var totals = enumValues(perf.Phases).map(function (pk) { return new TimingRecord(null, pk); }).concat([new TimingRecord(null, null)]);
+            var data = records.concat([totals]).map(function (rec) {
+                var mk = rec[0].type;
+                var obj = { "(marker)": (mk != null ? perf.MarkerTypes[mk] : "Total") };
+                rec.filter(function (tr) { return !isNaN(tr.percentage); }).forEach(function (tr) { return tr.mapOnto(obj); });
+                return obj;
+            });
+            console.table(data);
+        }
+        Timings.Table = Table;
+        function enumValues(enumObject) {
+            return Object.keys(enumObject).map(function (mk) { return parseInt(mk); }).filter(function (mk) { return !isNaN(mk); });
+        }
+        var TimingRecord = (function () {
+            function TimingRecord(type, phase) {
+                this.type = type;
+                this.phase = phase;
+                this.total = Timings.Total(this.type, this.phase);
+                this.percentage = this.total / Timings.Total(null, this.phase) * 100;
+            }
+            TimingRecord.prototype.mapOnto = function (obj) {
+                var phaseName = perf.Phases[this.phase] || "[Total]";
+                obj[phaseName + '(ms)'] = round(this.total, 2);
+                obj[phaseName + '(%)'] = round(this.percentage, 2);
+            };
+            return TimingRecord;
+        })();
+        function round(num, digits) {
+            var factor = Math.pow(10, digits);
+            return Math.round(num * factor) / factor;
+        }
+    })(Timings = perf.Timings || (perf.Timings = {}));
+})(perf || (perf = {}));
+/// <reference path="../_" />
 var perf;
 (function (perf) {
     var Timings;
