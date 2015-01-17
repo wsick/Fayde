@@ -38,7 +38,7 @@ var perf;
                 var obj = { "(marker)": (mk != null ? perf.MarkerTypes[mk] : "Total") };
                 rec.filter(function (tr) { return !isNaN(tr.percentage); }).forEach(function (tr) { return tr.mapOnto(obj); });
                 return obj;
-            });
+            }).filter(function (datum) { return datum['[Total](ms)'] > 0; });
             console.table(data);
         }
         Timings.Table = Table;
@@ -117,6 +117,10 @@ var perf;
         }
     };
     var active = perf.IsEnabled ? real : fake;
+    function ClearMarkers() {
+        markers.length = 0;
+    }
+    perf.ClearMarkers = ClearMarkers;
     function SetEnableMarkers(value) {
         active = !value ? fake : real;
         if (!value)

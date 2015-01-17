@@ -27,7 +27,8 @@ module perf {
                     rec.filter(tr => !isNaN(tr.percentage))
                         .forEach(tr => tr.mapOnto(obj));
                     return obj;
-                });
+                })
+                .filter(datum => datum['[Total](ms)'] > 0);
 
             console.table(data);
         }

@@ -34,6 +34,7 @@ declare module perf {
         begin: number;
         duration: number;
     }
+    function ClearMarkers(): void;
     function SetEnableMarkers(value: boolean): void;
     function Mark(type: MarkerTypes, context: any): void;
     function MarkEnd(): void;

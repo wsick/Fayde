@@ -43,6 +43,10 @@ module perf {
     };
     var active = perf.IsEnabled ? real : fake;
 
+    export function ClearMarkers () {
+        markers.length = 0;
+    }
+
     export function SetEnableMarkers (value: boolean) {
         active = !value ? fake : real;
         if (!value)
