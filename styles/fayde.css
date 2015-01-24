@@ -7,8 +7,12 @@ body {
 
 }
 .container .jumbotron {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 0;
+    padding-right: 0;
+}
+.container {
+    padding-left: 60px;
+    padding-right: 60px;
 }
 .jumbotron h1 {
     margin-top: 0px;
@@ -72,8 +76,6 @@ body {
 }
 .jumbotron {
     min-width: 0;
-    padding-left: 0;
-    padding-right: 0;
     color: #76858E;
     background-color: transparent;
 }
@@ -89,10 +91,6 @@ body {
     background-color: #3b7cb9;
     color: white;
     text-shadow: black 0px 1px 1px;
-}
-.container {
-    padding-left: 10px;
-    padding-right: 10px;
 }
 blockquote {
     font-size: 13px;
@@ -237,7 +235,7 @@ ol.steps li {
 .box {
     padding: 10px;
     float: left;
-    width: 250px;
+    width: 255px;
 }
 .box i {
     color: white;
