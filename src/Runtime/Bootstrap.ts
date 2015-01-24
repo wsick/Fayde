@@ -17,7 +17,7 @@ module Fayde {
         var app: Application;
 
         function run () {
-            perf.StartPhase(perf.Phases.ResolveConfig);
+            perfex.phases.start('ResolveConfig');
             Fayde.LoadConfigJson((config, err) => {
                 if (err)
                     console.warn('Could not load fayde configuration file.', err);
@@ -26,13 +26,13 @@ module Fayde {
         }
 
         function resolveApp () {
-            perf.StartPhase(perf.Phases.ResolveApp);
+            perfex.phases.start('ResolveApp');
             Application.GetAsync(url)
                 .then(resolveTheme, finishError);
         }
 
         function resolveTheme (res) {
-            perf.StartPhase(perf.Phases.ResolveTheme);
+            perfex.phases.start('ResolveTheme');
             app = Application.Current = res;
             ThemeManager.LoadAsync(app.ThemeName)
                 .then(startApp, finishError);
@@ -43,7 +43,7 @@ module Fayde {
         }
 
         function startApp () {
-            perf.StartPhase(perf.Phases.StartApp);
+            perfex.phases.start('StartApp');
             app.Attach(canvas);
             app.Start();
             loaded();
@@ -51,7 +51,7 @@ module Fayde {
 
         function loaded () {
             onLoaded && onLoaded(app);
-            perf.StartPhase(perf.Phases.Running);
+            perfex.phases.start('Running');
         }
 
         run();

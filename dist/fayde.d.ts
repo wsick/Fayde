@@ -1,67 +1,6 @@
 declare module Fayde {
     var Version: string;
 }
-declare module perf {
-    var timing: boolean;
-    var IsEnabled: boolean;
-}
-interface Console {
-    table(data: any[]): any;
-}
-declare module perf {
-    module Timings {
-        function Table(): void;
-    }
-}
-declare module perf {
-    module Timings {
-        function Get(type?: MarkerTypes, phase?: Phases): IMarker[];
-        function Total(type: MarkerTypes, phase?: Phases): number;
-    }
-}
-declare module perf {
-    enum MarkerTypes {
-        MarkupLoad = 0,
-        MarkupCreateObject = 1,
-        StoryboardsProcess = 2,
-        UpdateLayout = 3,
-        Render = 4,
-    }
-    interface IMarker {
-        type: MarkerTypes;
-        context: any;
-        phase: Phases;
-        begin: number;
-        duration: number;
-    }
-    function ClearMarkers(): void;
-    function SetEnableMarkers(value: boolean): void;
-    function Mark(type: MarkerTypes, context: any): void;
-    function MarkEnd(): void;
-    module Timings {
-        var Markers: IMarker[];
-    }
-}
-declare module perf {
-    enum Phases {
-        Starting = 0,
-        ResolveConfig = 1,
-        ResolveApp = 2,
-        ResolveTheme = 3,
-        StartApp = 4,
-        Running = 5,
-    }
-    var Phase: any;
-    function StartPhase(value: Phases): void;
-    interface IPhaseTiming {
-        phase: Phases;
-        initial: number;
-        duration: number;
-    }
-    module Timings {
-        var Phase: IPhaseTiming[];
-    }
-}
 declare module Fayde {
     var XMLNS: string;
     var XMLNSX: string;

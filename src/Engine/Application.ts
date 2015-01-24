@@ -87,27 +87,27 @@ module Fayde {
         }
 
         private ProcessStoryboards (lastTime: number, nowTime: number) {
-            perf.Mark(perf.MarkerTypes.StoryboardsProcess, this);
+            perfex.timer.start('StoryboardsProcess', this);
             for (var i = 0, sbs = this._Storyboards; i < sbs.length; i++) {
                 sbs[i].Update(nowTime);
             }
-            perf.MarkEnd();
+            perfex.timer.stop();
         }
 
         private Update () {
             if (this._IsRunning)
                 return;
             this._IsRunning = true;
-            perf.Mark(perf.MarkerTypes.UpdateLayout, this);
+            perfex.timer.start('UpdateLayout', this);
             var updated = this.MainSurface.updateLayout();
-            perf.MarkEnd();
+            perfex.timer.stop();
             this._IsRunning = false;
         }
 
         private Render () {
-            perf.Mark(perf.MarkerTypes.Render, this);
+            perfex.timer.start('Render', this);
             this.MainSurface.render();
-            perf.MarkEnd();
+            perfex.timer.stop();
         }
 
         RegisterStoryboard (storyboard: ITimeline) {

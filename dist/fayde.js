@@ -2,209 +2,6 @@ var Fayde;
 (function (Fayde) {
     Fayde.Version = '0.16.15';
 })(Fayde || (Fayde = {}));
-var perf;
-(function (perf) {
-    perf.timing;
-    var isEnabled = perf.timing === true;
-    delete perf.timing;
-    perf.IsEnabled;
-    Object.defineProperties(perf, {
-        "IsEnabled": {
-            get: function () {
-                return isEnabled;
-            },
-            set: function (value) {
-                if (isEnabled === value)
-                    return;
-                isEnabled = value;
-                perf.SetEnableMarkers(value);
-            }
-        }
-    });
-})(perf || (perf = {}));
-/// <reference path="../_" />
-var perf;
-(function (perf) {
-    var Timings;
-    (function (Timings) {
-        function Table() {
-            var records = enumValues(perf.MarkerTypes).map(function (mk) {
-                return enumValues(perf.Phases).map(function (pk) { return new TimingRecord(mk, pk); }).concat([new TimingRecord(mk, null)]);
-            });
-            //Totals Record
-            var totals = enumValues(perf.Phases).map(function (pk) { return new TimingRecord(null, pk); }).concat([new TimingRecord(null, null)]);
-            var data = records.concat([totals]).map(function (rec) {
-                var mk = rec[0].type;
-                var obj = { "(marker)": (mk != null ? perf.MarkerTypes[mk] : "Total") };
-                rec.filter(function (tr) { return !isNaN(tr.percentage); }).forEach(function (tr) { return tr.mapOnto(obj); });
-                return obj;
-            }).filter(function (datum) { return datum['[Total](ms)'] > 0; });
-            console.table(data);
-        }
-        Timings.Table = Table;
-        function enumValues(enumObject) {
-            return Object.keys(enumObject).map(function (mk) { return parseInt(mk); }).filter(function (mk) { return !isNaN(mk); });
-        }
-        var TimingRecord = (function () {
-            function TimingRecord(type, phase) {
-                this.type = type;
-                this.phase = phase;
-                this.total = Timings.Total(this.type, this.phase);
-                this.percentage = this.total / Timings.Total(null, this.phase) * 100;
-            }
-            TimingRecord.prototype.mapOnto = function (obj) {
-                var phaseName = perf.Phases[this.phase] || "[Total]";
-                obj[phaseName + '(ms)'] = round(this.total, 2);
-                obj[phaseName + '(%)'] = round(this.percentage, 2);
-            };
-            return TimingRecord;
-        })();
-        function round(num, digits) {
-            var factor = Math.pow(10, digits);
-            return Math.round(num * factor) / factor;
-        }
-    })(Timings = perf.Timings || (perf.Timings = {}));
-})(perf || (perf = {}));
-/// <reference path="../_" />
-var perf;
-(function (perf) {
-    var Timings;
-    (function (Timings) {
-        function Get(type, phase) {
-            return Timings.Markers.filter(function (m) { return type == null || m.type === type; }).filter(function (m) { return phase == null || m.phase === phase; });
-        }
-        Timings.Get = Get;
-        function Total(type, phase) {
-            return Get(type, phase).reduce(function (agg, m) { return agg + (m.duration || 0); }, 0);
-        }
-        Timings.Total = Total;
-    })(Timings = perf.Timings || (perf.Timings = {}));
-})(perf || (perf = {}));
-/// <reference path="_" />
-var perf;
-(function (perf) {
-    (function (MarkerTypes) {
-        MarkerTypes[MarkerTypes["MarkupLoad"] = 0] = "MarkupLoad";
-        MarkerTypes[MarkerTypes["MarkupCreateObject"] = 1] = "MarkupCreateObject";
-        MarkerTypes[MarkerTypes["StoryboardsProcess"] = 2] = "StoryboardsProcess";
-        MarkerTypes[MarkerTypes["UpdateLayout"] = 3] = "UpdateLayout";
-        MarkerTypes[MarkerTypes["Render"] = 4] = "Render";
-    })(perf.MarkerTypes || (perf.MarkerTypes = {}));
-    var MarkerTypes = perf.MarkerTypes;
-    var markers = [];
-    var real = {
-        active: [],
-        start: function (type, context, phase) {
-            var marker = {
-                type: type,
-                context: context,
-                phase: phase,
-                begin: performance.now(),
-                duration: NaN
-            };
-            markers.push(marker);
-            this.active.push(marker);
-        },
-        end: function () {
-            var marker = this.active.pop();
-            marker.duration = performance.now() - marker.begin;
-        }
-    };
-    var fake = {
-        start: function (type, context, phase) {
-        },
-        end: function () {
-        }
-    };
-    var active = perf.IsEnabled ? real : fake;
-    function ClearMarkers() {
-        markers.length = 0;
-    }
-    perf.ClearMarkers = ClearMarkers;
-    function SetEnableMarkers(value) {
-        active = !value ? fake : real;
-        if (!value)
-            real.active.length = 0;
-    }
-    perf.SetEnableMarkers = SetEnableMarkers;
-    function Mark(type, context) {
-        return active.start(type, context, perf.Phase);
-    }
-    perf.Mark = Mark;
-    function MarkEnd() {
-        return active.end();
-    }
-    perf.MarkEnd = MarkEnd;
-    var Timings;
-    (function (Timings) {
-        Timings.Markers;
-    })(Timings = perf.Timings || (perf.Timings = {}));
-    Object.defineProperty(perf.Timings, "Markers", {
-        get: function () {
-            return markers.slice(0);
-        }
-    });
-})(perf || (perf = {}));
-/// <reference path="_" />
-var perf;
-(function (perf) {
-    (function (Phases) {
-        Phases[Phases["Starting"] = 0] = "Starting";
-        Phases[Phases["ResolveConfig"] = 1] = "ResolveConfig";
-        Phases[Phases["ResolveApp"] = 2] = "ResolveApp";
-        Phases[Phases["ResolveTheme"] = 3] = "ResolveTheme";
-        Phases[Phases["StartApp"] = 4] = "StartApp";
-        Phases[Phases["Running"] = 5] = "Running";
-    })(perf.Phases || (perf.Phases = {}));
-    var Phases = perf.Phases;
-    perf.Phase;
-    var phase = 0 /* Starting */;
-    Object.defineProperty(perf, "Phase", {
-        get: function () {
-            return phase;
-        }
-    });
-    function StartPhase(value) {
-        impl.startPhase(phase = value);
-    }
-    perf.StartPhase = StartPhase;
-    var impl;
-    (function (impl) {
-        var activePhaseTiming = {
-            phase: 0 /* Starting */,
-            initial: 0,
-            duration: NaN
-        };
-        impl.phaseTimings = [activePhaseTiming];
-        function startPhase(phase) {
-            endActivePhase();
-            if (phase == null)
-                return;
-            activePhaseTiming = {
-                phase: phase,
-                initial: performance.now(),
-                duration: NaN
-            };
-            impl.phaseTimings.push(activePhaseTiming);
-        }
-        impl.startPhase = startPhase;
-        function endActivePhase() {
-            if (!activePhaseTiming)
-                return;
-            activePhaseTiming.duration = performance.now() - activePhaseTiming.initial;
-            activePhaseTiming = null;
-        }
-    })(impl || (impl = {}));
-    var Timings;
-    (function (Timings) {
-        Timings.Phase;
-    })(Timings = perf.Timings || (perf.Timings = {}));
-    Object.defineProperty(perf.Timings, "Phase", {
-        get: function () {
-            return impl.phaseTimings.slice(0);
-        }
-    });
-})(perf || (perf = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
         return Object.prototype.toString.call(arg) === '[object Array]';
@@ -225,6 +22,30 @@ if (!Function.prototype.bind) {
         return fBound;
     };
 }
+(function (context) {
+    if (!context.perfex) {
+        context.perfex = {};
+    }
+    if (!context.perfex.timer) {
+        context.perfex.timer = {
+            all: [],
+            reset: function () {
+            },
+            start: function (tag) {
+            },
+            stop: function () {
+            }
+        };
+    }
+    if (!context.perfex.phases) {
+        context.perfex.phases = {
+            current: null,
+            all: [],
+            start: function (tag) {
+            }
+        };
+    }
+})(window);
 var Fayde;
 (function (Fayde) {
     Fayde.XMLNS = "http://schemas.wsick.com/fayde";
@@ -6652,7 +6473,7 @@ var Fayde;
         }
         Markup.Load = Load;
         function LoadImpl(app, xm, resources, bindingSource) {
-            perf.Mark(0 /* MarkupLoad */, xm.uri);
+            perfex.timer.start('MarkupLoad', xm.uri);
             var oresolve = {
                 isPrimitive: false,
                 type: undefined
@@ -6673,13 +6494,13 @@ var Fayde;
                 resolveObject: function (type) {
                     if (type === Fayde.ResourceDictionary && !pactor.isNewResources())
                         return undefined;
-                    perf.Mark(1 /* MarkupCreateObject */, type);
+                    perfex.timer.start('MarkupCreateObject', type);
                     var obj = new (type)();
                     if (obj instanceof FrameworkTemplate)
                         parser.skipBranch();
                     else if (obj instanceof Markup.StaticResource)
                         obj.setContext(active.getApp(), resources);
-                    perf.MarkEnd();
+                    perfex.timer.stop();
                     return obj;
                 },
                 resolvePrimitive: function (type, text) {
@@ -6778,7 +6599,7 @@ var Fayde;
             if (last instanceof Fayde.XamlObject) {
                 last.XamlNode.NameScope = namescope;
             }
-            perf.MarkEnd();
+            perfex.timer.stop();
             return last;
         }
     })(Markup = Fayde.Markup || (Fayde.Markup = {}));
@@ -14454,25 +14275,25 @@ var Fayde;
             this._ClockTimer.UnregisterTimer(this);
         };
         Application.prototype.ProcessStoryboards = function (lastTime, nowTime) {
-            perf.Mark(2 /* StoryboardsProcess */, this);
+            perfex.timer.start('StoryboardsProcess', this);
             for (var i = 0, sbs = this._Storyboards; i < sbs.length; i++) {
                 sbs[i].Update(nowTime);
             }
-            perf.MarkEnd();
+            perfex.timer.stop();
         };
         Application.prototype.Update = function () {
             if (this._IsRunning)
                 return;
             this._IsRunning = true;
-            perf.Mark(3 /* UpdateLayout */, this);
+            perfex.timer.start('UpdateLayout', this);
             var updated = this.MainSurface.updateLayout();
-            perf.MarkEnd();
+            perfex.timer.stop();
             this._IsRunning = false;
         };
         Application.prototype.Render = function () {
-            perf.Mark(4 /* Render */, this);
+            perfex.timer.start('Render', this);
             this.MainSurface.render();
-            perf.MarkEnd();
+            perfex.timer.stop();
         };
         Application.prototype.RegisterStoryboard = function (storyboard) {
             var sbs = this._Storyboards;
@@ -25954,7 +25775,7 @@ var Fayde;
     function bootstrap(url, canvas, onLoaded) {
         var app;
         function run() {
-            perf.StartPhase(1 /* ResolveConfig */);
+            perfex.phases.start('ResolveConfig');
             Fayde.LoadConfigJson(function (config, err) {
                 if (err)
                     console.warn('Could not load fayde configuration file.', err);
@@ -25962,11 +25783,11 @@ var Fayde;
             });
         }
         function resolveApp() {
-            perf.StartPhase(2 /* ResolveApp */);
+            perfex.phases.start('ResolveApp');
             Fayde.Application.GetAsync(url).then(resolveTheme, finishError);
         }
         function resolveTheme(res) {
-            perf.StartPhase(3 /* ResolveTheme */);
+            perfex.phases.start('ResolveTheme');
             app = Fayde.Application.Current = res;
             Fayde.ThemeManager.LoadAsync(app.ThemeName).then(startApp, finishError);
         }
@@ -25974,14 +25795,14 @@ var Fayde;
             console.error("An error occurred retrieving the application.", err);
         }
         function startApp() {
-            perf.StartPhase(4 /* StartApp */);
+            perfex.phases.start('StartApp');
             app.Attach(canvas);
             app.Start();
             loaded();
         }
         function loaded() {
             onLoaded && onLoaded(app);
-            perf.StartPhase(5 /* Running */);
+            perfex.phases.start('Running');
         }
         run();
     }
