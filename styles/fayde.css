@@ -15,7 +15,7 @@ li a {
     text-decoration: underline;
     color: #76858E;
 }
-.demos a {
+#demos a {
     text-decoration: underline;
     color: #76858E;
 }
@@ -206,6 +206,15 @@ li a {
 }
 
 
+#demos {
+    text-align: center;
+}
+#demos img {
+    height: 200px;
+    max-width: 100%;
+}
+
+
 #footer {
     background-color: #314267;
     color: white;
@@ -224,8 +233,8 @@ li a {
     margin-top: 70px;
 }
 #mc_embed_signup {
-    width: 50%;
-    min-width: 250px;
+    width: 100%;
+    max-width: 500px;
     margin: 0 auto;
     padding: 20px;
     background-color: white;
