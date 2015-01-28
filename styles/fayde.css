@@ -6,6 +6,11 @@ body {
     padding-top: 50px;
 
 }
+@media (min-width: 768px) {
+    .container {
+
+    }
+}
 .container .jumbotron {
     padding-left: 0;
     padding-right: 0;
@@ -232,39 +237,46 @@ ol.steps li {
     background-image: url('../images/github-blue.ico');
 }
 
-.box {
-    padding: 10px;
-    float: left;
-    width: 255px;
+.wrap_panel {
+    padding: 0px;
+    margin: 0px auto;
 }
+
+.box {
+    margin: 10px;
+    float: left;
+    width: 30%;
+    height: 180px;
+    background-color: white;
+    border: 1px solid #AAAAAA;
+    border-radius: 4px;
+}
+.box .header {
+    background-color: #007a0e;
+    border-radius: 4px 4px 0 0;
+    margin: -1px;
+}
+.box .detail {
+    padding: 10px 20px;
+}
+
 .box i {
     color: white;
     float: left;
-    padding: 10px;
+    padding: 12px;
     text-shadow: black 0 1px 1px;
 }
 .box h4 {
-    background-color: #007a0e;
     color: white;
     text-shadow: black 0 1px 1px;
     padding: 10px 20px;
     margin-bottom: 0;
-    border: none;
-    border-radius: 4px 4px 0 0;
-}
-.box .detail {
-    background-color: white;
-    border: 1px solid #AAAAAA;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    padding: 10px 20px;
-    min-height: 185px;
 }
 
-.box2 h4 {
+.box2 .header {
     background-color: #314267;
 }
-.box3 h4 {
+.box3 .header {
     background-color: #dc7d1a;
 }
 
