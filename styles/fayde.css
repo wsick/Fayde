@@ -175,7 +175,6 @@ li a {
 }
 #browsers img {
     width: 48px;
-    margin-left: 5px;
 }
 @media (min-width: 992px) {
     #operating_systems {
@@ -210,7 +209,7 @@ li a {
     text-align: center;
 }
 #demos img {
-    height: 200px;
+    max-height: 350px;
     max-width: 100%;
 }
 #demos div {
@@ -334,21 +333,13 @@ ol.steps li {
 
 
 ol.steps img {
-    width: 300px;
+    width: 100%;
+    max-width: 400px;
     margin-left: -20px;
-    margin-right: 20px;
     margin-bottom: 20px;
     box-shadow: 5px 5px 10px silver;
 }
-@media (min-width: 768px) {
-    ol.steps img {
-        width: 400px;
-    }
-}
 @media (min-width: 992px) {
-    ol.steps img {
-        width: 100%;
-    }
     ol.steps section {
         float: left;
         width: 45%;
