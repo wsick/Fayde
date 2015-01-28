@@ -6,11 +6,6 @@ body {
     padding-top: 50px;
 
 }
-@media (min-width: 768px) {
-    .container {
-
-    }
-}
 .container .jumbotron {
     padding-left: 0;
     padding-right: 0;
@@ -245,8 +240,7 @@ ol.steps li {
 .box {
     margin: 10px;
     float: left;
-    width: 30%;
-    height: 180px;
+    width: 100%;
     background-color: white;
     border: 1px solid #AAAAAA;
     border-radius: 4px;
@@ -304,4 +298,25 @@ ol.steps li {
 }
 ol.steps li {
     min-height: 300px;
+}
+
+@media (min-width: 500px) {
+    .box {
+    }
+}
+@media (min-width: 768px) {
+    .box {
+    }
+}
+@media (min-width: 992px) {
+    .box {
+        width: 45%;
+        height: 180px;
+    }
+}
+@media (min-width: 1200px) {
+    .box {
+        width: 30%;
+        height: 180px;
+    }
 }
