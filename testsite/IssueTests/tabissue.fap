@@ -1,0 +1,46 @@
+<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        xmlns:issuetests="IssueTests"
+        ThemeName="Metro">
+
+    <Grid>
+        <Grid.DataContext>
+            <issuetests:TabIssueViewModel/>
+        </Grid.DataContext>
+
+        <Grid Grid.Column="1"
+              Margin="0,0,10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Username"
+                       Margin="0,5"
+                       Grid.Row="0"
+                       VerticalAlignment="Top"/>
+
+            <TextBox Text="{Binding Path=UserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Grid.Row="1"
+                     IsTabStop="true"
+                     TabIndex="0"
+                     Width="200"
+                     Margin="0,5"/>
+
+            <TextBlock Text="Password"
+                       Grid.Row="2"
+                       VerticalAlignment="Top"
+                       Margin="0,5"/>
+
+            <PasswordBox Password="{Binding Path=PasswordText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         IsTabStop="true"
+                         Grid.Row="3"
+                         TabIndex="2"
+                         Width="200"
+                         Margin="0,5"/>
+        </Grid>
+    </Grid>
+</Application>
