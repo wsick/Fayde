@@ -1,3 +1,0 @@
-module Fayde {
-    export var Version = '%VERSION%';
-}
