@@ -4,6 +4,7 @@ node_js:
 before_install:
   - npm install -g grunt-cli
   - npm install -g bower
+  - npm install -g fayde-unify
 install:
   - npm install
   - bower install
