@@ -5,6 +5,7 @@ before_install:
   - npm install -g grunt-cli
   - npm install -g bower
   - npm install -g fayde-unify
+  - grunt symlink:test
 script: grunt test --verbose --force --debug
 install:
   - npm install
