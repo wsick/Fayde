@@ -17207,15 +17207,9 @@ var DateTime = (function () {
         var minute = 0;
         var second = 0;
         var millisecond = 0;
-        //TODO: Ticks should be local ticks unless DateTimeKind.Utc specified
-        //TODO: When converting local ticks to utc ticks, ensure that ticks >= MinTicks
         if (args.length === 1) {
             ticks = args[0];
-        }
-        else if (args.length === 2) {
-            ticks = args[0];
-            //WARNING: Will always accept UTC ticks
-            kind = args[1];
+            kind = 2 /* Utc */;
         }
         else if (args.length === 3) {
             year = args[0];
@@ -17333,7 +17327,7 @@ var DateTime = (function () {
         get: function () {
             var t = this._InternalDate.getTime();
             if (t <= DateTime._MinDateTicks)
-                return new DateTime(DateTime._MinDateTicks, this.Kind);
+                return new DateTime(DateTime._MinDateTicks);
             var d = new Date(t);
             if (this._Kind === 2 /* Utc */) {
                 d.setUTCHours(0);
@@ -17347,7 +17341,7 @@ var DateTime = (function () {
                 d.setSeconds(0);
                 d.setMilliseconds(0);
             }
-            return new DateTime(d.getTime(), this.Kind);
+            return new DateTime(d.getTime());
         },
         enumerable: true,
         configurable: true
@@ -17491,7 +17485,7 @@ var DateTime = (function () {
     };
     DateTime.prototype.ToUniversalTime = function () {
         if (this.Kind === 2 /* Utc */)
-            return new DateTime(this.Ticks, 2 /* Utc */);
+            return new DateTime(this.Ticks);
         var id = this._InternalDate;
         return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), 2 /* Utc */);
     };

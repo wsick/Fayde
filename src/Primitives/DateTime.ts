@@ -47,7 +47,6 @@ class DateTime {
 
     constructor();
     constructor(ticks: number);
-    constructor(ticks: number, kind: DateTimeKind);
     constructor(year: number, month: number, day: number);
     constructor(year: number, month: number, day: number, hour: number, minute: number, second: number);
     constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number);
@@ -63,15 +62,9 @@ class DateTime {
         var second = 0;
         var millisecond = 0;
 
-        //TODO: Ticks should be local ticks unless DateTimeKind.Utc specified
-        //TODO: When converting local ticks to utc ticks, ensure that ticks >= MinTicks
         if (args.length === 1) { //Ticks
             ticks = args[0];
-            //WARNING: Will always accept UTC ticks
-        } else if (args.length === 2) { //Ticks,DateTimeKind
-            ticks = args[0];
-            //WARNING: Will always accept UTC ticks
-            kind = args[1];
+            kind = DateTimeKind.Utc;
         } else if (args.length === 3) { //Year,Month,Day
             year = args[0];
             month = args[1];
@@ -130,7 +123,7 @@ class DateTime {
     get Date(): DateTime {
         var t = this._InternalDate.getTime();
         if (t <= DateTime._MinDateTicks)
-            return new DateTime(DateTime._MinDateTicks, this.Kind);
+            return new DateTime(DateTime._MinDateTicks);
         var d = new Date(t);
         if (this._Kind === DateTimeKind.Utc) {
             d.setUTCHours(0);
@@ -143,7 +136,7 @@ class DateTime {
             d.setSeconds(0);
             d.setMilliseconds(0);
         }
-        return new DateTime(d.getTime(), this.Kind);
+        return new DateTime(d.getTime());
     }
     get Day(): number {
         if (this._Kind === DateTimeKind.Utc)
@@ -249,7 +242,7 @@ class DateTime {
 
     ToUniversalTime(): DateTime {
         if (this.Kind === DateTimeKind.Utc)
-            return new DateTime(this.Ticks, DateTimeKind.Utc);
+            return new DateTime(this.Ticks);
         var id = this._InternalDate;
         return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), DateTimeKind.Utc);
     }

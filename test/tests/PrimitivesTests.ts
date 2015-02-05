@@ -10,10 +10,6 @@ export function load() {
         d = new DateTime(1000);
         strictEqual(d.Ticks, 1000, "ctor2 ticks");
 
-        d = new DateTime(1000, DateTimeKind.Local);
-        strictEqual(d.Ticks, 1000, "ctor3 ticks");
-        strictEqual(d.Kind, DateTimeKind.Local, "ctor3 kind");
-
         d = new DateTime(2000, 1, 2);
         strictEqual(d.Year, 2000, "ctor4 year");
         strictEqual(d.Month, 1, "ctor4 month");
@@ -46,9 +42,9 @@ export function load() {
         strictEqual(d.Millisecond, 500, "ctor7 millisecond");
         strictEqual(d.Kind, DateTimeKind.Utc, "ctor7 kind");
 
-        d = new DateTime(1397133466779);
+        d = new DateTime(2014, 7, 14, 6, 12, 0, 0, DateTimeKind.Local);
         var utc = d.ToUniversalTime();
-        strictEqual(utc.Hour, 12, "ToUniversalTime Hour");
+        strictEqual(utc.Hour, 10, "ToUniversalTime Hour");
 
         var d1 = DateTime.MinValue;
         var d2 = d1.Date;

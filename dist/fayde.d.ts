@@ -3738,7 +3738,6 @@ declare class DateTime {
     private _Kind;
     constructor();
     constructor(ticks: number);
-    constructor(ticks: number, kind: DateTimeKind);
     constructor(year: number, month: number, day: number);
     constructor(year: number, month: number, day: number, hour: number, minute: number, second: number);
     constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number);
