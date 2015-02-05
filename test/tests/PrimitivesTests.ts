@@ -43,8 +43,12 @@ export function load() {
         strictEqual(d.Kind, DateTimeKind.Utc, "ctor7 kind");
 
         d = new DateTime(2014, 7, 14, 6, 12, 0, 0, DateTimeKind.Local);
+        var localHourDiff = new Date(2014, 6, 14, 12).getTimezoneOffset() / 60;
         var utc = d.ToUniversalTime();
-        strictEqual(utc.Hour, 10, "ToUniversalTime Hour");
+        var expectedHour = 6 + localHourDiff;
+        if (expectedHour < 0) expectedHour += 24;
+        else if (expectedHour > 24) expectedHour -= 24;
+        strictEqual(utc.Hour, expectedHour, "ToUniversalTime Hour");
 
         var d1 = DateTime.MinValue;
         var d2 = d1.Date;
