@@ -17186,8 +17186,8 @@ var DayOfWeek;
 Fayde.CoreLibrary.addEnum(DayOfWeek, "DayOfWeek");
 var DateTimeKind;
 (function (DateTimeKind) {
-    DateTimeKind[DateTimeKind["Local"] = 0] = "Local";
-    DateTimeKind[DateTimeKind["Unspecified"] = 1] = "Unspecified";
+    DateTimeKind[DateTimeKind["Unspecified"] = 0] = "Unspecified";
+    DateTimeKind[DateTimeKind["Local"] = 1] = "Local";
     DateTimeKind[DateTimeKind["Utc"] = 2] = "Utc";
 })(DateTimeKind || (DateTimeKind = {}));
 Fayde.CoreLibrary.addEnum(DateTimeKind, "DateTimeKind");
@@ -17199,7 +17199,7 @@ var DateTime = (function () {
         }
         this._InternalDate = null;
         var ticks = null;
-        var kind = 1 /* Unspecified */;
+        var kind = 0 /* Unspecified */;
         var year = 0;
         var month = 0;
         var day = 0;
@@ -17207,6 +17207,7 @@ var DateTime = (function () {
         var minute = 0;
         var second = 0;
         var millisecond = 0;
+        //TODO: Ticks should be local ticks unless DateTimeKind.Utc specified
         if (args.length === 1) {
             ticks = args[0];
         }
@@ -17249,28 +17250,25 @@ var DateTime = (function () {
         else {
             ticks = 0;
         }
+        this._Kind = kind == null ? 0 /* Unspecified */ : kind;
         if (ticks != null) {
             this._InternalDate = new Date(ticks);
+            return;
+        }
+        var id = this._InternalDate = new Date();
+        if (kind === 2 /* Utc */) {
+            id.setUTCFullYear(year, month - 1, day);
+            id.setUTCHours(hour);
+            id.setUTCMinutes(minute);
+            id.setUTCSeconds(second);
+            id.setMilliseconds(millisecond);
         }
         else {
-            var id = this._InternalDate = new Date();
             id.setFullYear(year, month - 1, day);
             id.setHours(hour);
             id.setMinutes(minute);
             id.setSeconds(second);
             id.setMilliseconds(millisecond);
-        }
-        switch (kind) {
-            case 0:
-                this._Kind = 0 /* Local */;
-                break;
-            default:
-            case 1:
-                this._Kind = 1 /* Unspecified */;
-                break;
-            case 2:
-                this._Kind = 2 /* Utc */;
-                break;
         }
     }
     Object.defineProperty(DateTime, "MinValue", {
@@ -17335,10 +17333,18 @@ var DateTime = (function () {
             if (t <= DateTime._MinDateTicks)
                 return new DateTime(DateTime._MinDateTicks, this.Kind);
             var d = new Date(t);
-            d.setHours(0);
-            d.setMinutes(0);
-            d.setSeconds(0);
-            d.setMilliseconds(0);
+            if (this._Kind === 2 /* Utc */) {
+                d.setUTCHours(0);
+                d.setUTCMinutes(0);
+                d.setUTCSeconds(0);
+                d.setUTCMilliseconds(0);
+            }
+            else {
+                d.setHours(0);
+                d.setMinutes(0);
+                d.setSeconds(0);
+                d.setMilliseconds(0);
+            }
             return new DateTime(d.getTime(), this.Kind);
         },
         enumerable: true,
@@ -17346,6 +17352,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Day", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCDate();
             return this._InternalDate.getDate();
         },
         enumerable: true,
@@ -17353,6 +17361,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "DayOfWeek", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCDay();
             return this._InternalDate.getDay();
         },
         enumerable: true,
@@ -17370,6 +17380,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Hour", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCHours();
             return this._InternalDate.getHours();
         },
         enumerable: true,
@@ -17377,6 +17389,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Millisecond", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCMilliseconds();
             return this._InternalDate.getMilliseconds();
         },
         enumerable: true,
@@ -17384,6 +17398,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Minute", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCMinutes();
             return this._InternalDate.getMinutes();
         },
         enumerable: true,
@@ -17391,6 +17407,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Month", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCMonth() + 1;
             return this._InternalDate.getMonth() + 1;
         },
         enumerable: true,
@@ -17398,6 +17416,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Second", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCSeconds();
             return this._InternalDate.getSeconds();
         },
         enumerable: true,
@@ -17406,6 +17426,8 @@ var DateTime = (function () {
     Object.defineProperty(DateTime.prototype, "TimeOfDay", {
         get: function () {
             var id = this._InternalDate;
+            if (this._Kind === 2 /* Utc */)
+                return new TimeSpan(0, id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds());
             return new TimeSpan(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
         },
         enumerable: true,
@@ -17413,6 +17435,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Year", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCFullYear();
             return this._InternalDate.getFullYear();
         },
         enumerable: true,
@@ -17477,7 +17501,7 @@ var DateTime = (function () {
     DateTime.prototype.valueOf = function () {
         return this.Ticks;
     };
-    DateTime._MinDateTicks = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
+    DateTime._MinDateTicks = -8640000000000000;
     DateTime._MaxDateTicks = 8640000000000000;
     return DateTime;
 })();

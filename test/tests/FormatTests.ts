@@ -19,7 +19,7 @@ export function load() {
         strictEqual(Format(format, dt), expected, format);
     }
 
-    var dt = new DateTime(1397133466779);
+    var dt = new DateTime(2014, 4, 10, 8, 37, 46, 0, DateTimeKind.Local);
     test("DateTime: Short date", () => {
         fdt("{0:d}", dt, "4/10/2014");
     });

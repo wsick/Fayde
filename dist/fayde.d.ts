@@ -3721,8 +3721,8 @@ declare enum DayOfWeek {
     Saturday = 6,
 }
 declare enum DateTimeKind {
-    Local = 0,
-    Unspecified = 1,
+    Unspecified = 0,
+    Local = 1,
     Utc = 2,
 }
 declare class DateTime {
