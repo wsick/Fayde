@@ -17208,11 +17208,13 @@ var DateTime = (function () {
         var second = 0;
         var millisecond = 0;
         //TODO: Ticks should be local ticks unless DateTimeKind.Utc specified
+        //TODO: When converting local ticks to utc ticks, ensure that ticks >= MinTicks
         if (args.length === 1) {
             ticks = args[0];
         }
         else if (args.length === 2) {
             ticks = args[0];
+            //WARNING: Will always accept UTC ticks
             kind = args[1];
         }
         else if (args.length === 3) {
