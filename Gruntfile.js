@@ -1,6 +1,4 @@
-var version = require('./build/version'),
-    setup = require('./build/setup'),
-    path = require('path'),
+var path = require('path'),
     connect_livereload = require('connect-livereload'),
     gunify = require('grunt-fayde-unify');
 
@@ -13,6 +11,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-open');
+    grunt.loadNpmTasks("grunt-bower-install-simple");
+    grunt.loadNpmTasks("grunt-version-ts");
     var unify = gunify(grunt);
 
     var meta = {
@@ -55,6 +55,11 @@ module.exports = function (grunt) {
             test: [dirs.test.lib],
             testsite: [dirs.testsite.lib],
             stress: [dirs.stress.lib]
+        },
+        "bower-install-simple": {
+            fayde: {
+                directory: "lib"
+            }
         },
         setup: {
             fayde: {
@@ -242,7 +247,7 @@ module.exports = function (grunt) {
             stressjs: {
                 files: ['stress/**/*.js', '!stress/lib/**/*.js'],
                 options: {
-                    liverelaod: ports.livereload
+                    livereload: ports.livereload
                 }
             }
         },
@@ -254,11 +259,9 @@ module.exports = function (grunt) {
                 path: 'http://localhost:<%= ports.stress %>/index.html'
             }
         },
-        version: {
-            bump: {},
-            apply: {
-                src: './build/_VersionTemplate._ts',
-                dest: './src/_Version.ts'
+        "version-apply": {
+            options: {
+                label: 'Version'
             }
         }
     });
@@ -267,13 +270,11 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['typescript:build', 'typescript:test', 'qunit']);
     grunt.registerTask('testsite', ['typescript:build', 'typescript:testsite', 'connect:testsite', 'open:testsite', 'watch']);
     grunt.registerTask('stress', ['typescript:build', 'typescript:stress', 'connect:stress', 'open:stress', 'watch']);
-    setup(grunt);
-    version(grunt);
-    grunt.registerTask('lib:reset', ['clean', 'setup', 'symlink:test', 'symlink:testsite', 'symlink:stress']);
+    grunt.registerTask('lib:reset', ['clean', 'bower-install-simple', 'symlink:test', 'symlink:testsite', 'symlink:stress']);
     grunt.registerTask('link:nullstone', ['symlink:localnullstone']);
     grunt.registerTask('link:minerva', ['symlink:localminerva']);
-    grunt.registerTask('dist:upbuild', ['version:bump', 'version:apply', 'typescript:build']);
-    grunt.registerTask('dist:upminor', ['version:bump:minor', 'version:apply', 'typescript:build']);
-    grunt.registerTask('dist:upmajor', ['version:bump:major', 'version:apply', 'typescript:build']);
+    grunt.registerTask('dist:upbuild', ['bump-build', 'version-apply', 'typescript:build']);
+    grunt.registerTask('dist:upminor', ['bump-minor', 'version-apply', 'typescript:build']);
+    grunt.registerTask('dist:upmajor', ['bump-major', 'version-apply', 'typescript:build']);
 
 };

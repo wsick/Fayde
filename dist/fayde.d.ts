@@ -3721,8 +3721,8 @@ declare enum DayOfWeek {
     Saturday = 6,
 }
 declare enum DateTimeKind {
-    Local = 0,
-    Unspecified = 1,
+    Unspecified = 0,
+    Local = 1,
     Utc = 2,
 }
 declare class DateTime {
@@ -3738,7 +3738,6 @@ declare class DateTime {
     private _Kind;
     constructor();
     constructor(ticks: number);
-    constructor(ticks: number, kind: DateTimeKind);
     constructor(year: number, month: number, day: number);
     constructor(year: number, month: number, day: number, hour: number, minute: number, second: number);
     constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number);

@@ -19,7 +19,7 @@ export function load() {
         strictEqual(Format(format, dt), expected, format);
     }
 
-    var dt = new DateTime(1397133466779);
+    var dt = new DateTime(2014, 4, 10, 8, 37, 46, 0, DateTimeKind.Local);
     test("DateTime: Short date", () => {
         fdt("{0:d}", dt, "4/10/2014");
     });
@@ -42,9 +42,10 @@ export function load() {
         fdt("{0:m}", dt, "April 10");
         fdt("{0:M}", dt, "April 10");
     });
+    var dt2 = new DateTime(2014, 4, 10, 12, 37, 46, 0, DateTimeKind.Utc);
     test("DateTime: RFC123", () => {
-        fdt("{0:r}", dt, "Thu, 10 Apr 2014 12:37:46 GMT");
-        fdt("{0:R}", dt, "Thu, 10 Apr 2014 12:37:46 GMT");
+        fdt("{0:r}", dt2, "Thu, 10 Apr 2014 12:37:46 GMT");
+        fdt("{0:R}", dt2, "Thu, 10 Apr 2014 12:37:46 GMT");
     });
     test("DateTime: Sortable date/time", () => {
         fdt("{0:s}", dt, "2014-04-10T08:37:46");

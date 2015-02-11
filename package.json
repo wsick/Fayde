@@ -1,6 +1,6 @@
 {
   "name": "fayde",
-  "version": "0.16.15",
+  "version": "0.16.16",
   "description": "Cross-platform/cross-browser XAML framework",
   "main": "Gruntfile.js",
   "directories": {
@@ -29,6 +29,7 @@
   "devDependencies": {
     "connect-livereload": "^0.5.0",
     "grunt": "~0.4.4",
+    "grunt-bower-install-simple": "^1.1.0",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-connect": "^0.8.0",
     "grunt-contrib-qunit": "~0.4.0",
@@ -37,6 +38,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-fayde-unify": "^0.4.1",
     "grunt-open": "^0.2.3",
-    "grunt-typescript": "^0.4.6"
+    "grunt-typescript": "^0.4.6",
+    "grunt-version-ts": "^0.1.0"
   }
 }
