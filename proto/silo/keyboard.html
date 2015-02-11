@@ -13,9 +13,10 @@
     MMMMMMMMMMMMMMMMmmmmmmmMMMMMMMMMMm
 </div>
 <script type="text/javascript">
+    var focuser = document.getElementById('focuser');
+
     var m = document.getElementById('m');
     m.addEventListener('mouseup', function () {
-        var focuser = document.getElementById('focuser');
         focuser.focus();
     });
     /*
@@ -23,6 +24,15 @@
      $('#focuser').focus();
      });
      */
+
+    var canvas = document.createElement('canvas');
+    document.body.appendChild(canvas);
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = "green";
+    ctx.fillRect(0, 0, 400, 400);
+    canvas.addEventListener('mouseup', function () {
+        focuser.focus();
+    });
 </script>
 </body>
 </html>
