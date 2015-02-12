@@ -36,7 +36,7 @@ module Fayde.Markup {
     }
 
     function LoadImpl<T>(app: Application, xm: nullstone.markup.Markup<any>, resources?: ResourceDictionary[], bindingSource?: DependencyObject): T {
-        perfex.timer.start('MarkupLoad', xm.uri);
+        perfex.timer.start('MarkupLoad', xm.uri.toString());
 
         var oresolve: nullstone.IOutType = {
             isPrimitive: false,

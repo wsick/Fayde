@@ -6473,7 +6473,7 @@ var Fayde;
         }
         Markup.Load = Load;
         function LoadImpl(app, xm, resources, bindingSource) {
-            perfex.timer.start('MarkupLoad', xm.uri);
+            perfex.timer.start('MarkupLoad', xm.uri.toString());
             var oresolve = {
                 isPrimitive: false,
                 type: undefined
