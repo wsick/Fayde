@@ -61,11 +61,6 @@ module.exports = function (grunt) {
                 directory: "lib"
             }
         },
-        setup: {
-            fayde: {
-                cwd: '.'
-            }
-        },
         symlink: {
             options: {
                 overwrite: true
