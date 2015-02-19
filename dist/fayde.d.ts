@@ -3669,6 +3669,12 @@ declare module Fayde.Input {
         constructor(position: Point, force: number);
     }
 }
+declare module Fayde.Input {
+    class VirtualKeyboard {
+        static Init(): void;
+        static Launch(): void;
+    }
+}
 declare class TimeSpan {
     static _TicksPerMillisecond: number;
     static _TicksPerSecond: number;

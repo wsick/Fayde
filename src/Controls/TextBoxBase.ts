@@ -294,7 +294,8 @@ module Fayde.Controls {
                 length = cursor - start;
             }
 
-            return proxy.removeText(start, length);
+            proxy.removeText(start, length);
+            return true;
         }
 
         private _KeyDownDelete (modifiers: Input.IModifiersOn): boolean {

@@ -9122,7 +9122,8 @@ var Fayde;
                     start = this.$Advancer.CursorPrevChar(cursor);
                     length = cursor - start;
                 }
-                return proxy.removeText(start, length);
+                proxy.removeText(start, length);
+                return true;
             };
             TextBoxBase.prototype._KeyDownDelete = function (modifiers) {
                 if (modifiers.Shift || modifiers.Alt)
@@ -16922,6 +16923,34 @@ var Fayde;
         })();
         Input.TouchPoint = TouchPoint;
         Fayde.CoreLibrary.add(TouchPoint);
+    })(Input = Fayde.Input || (Fayde.Input = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Input;
+    (function (Input) {
+        var keyboardInput;
+        var VirtualKeyboard = (function () {
+            function VirtualKeyboard() {
+            }
+            VirtualKeyboard.Init = function () {
+                keyboardInput = document.createElement('input');
+                keyboardInput.type = "text";
+                var style = keyboardInput.style;
+                style.opacity = "0";
+                style.cssFloat = "left";
+                style.width = "0";
+                style.height = "0";
+                style.borderWidth = "0";
+                document.body.insertBefore(keyboardInput, document.body.firstElementChild);
+            };
+            VirtualKeyboard.Launch = function () {
+                console.log("Launch");
+                keyboardInput.focus();
+            };
+            return VirtualKeyboard;
+        })();
+        Input.VirtualKeyboard = VirtualKeyboard;
     })(Input = Fayde.Input || (Fayde.Input = {}));
 })(Fayde || (Fayde = {}));
 var TimeSpan = (function () {
