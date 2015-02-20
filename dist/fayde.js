@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.17';
+    Fayde.Version = '0.16.18';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -16098,7 +16098,7 @@ var Fayde;
                 return args;
             };
             IEKeyInterop.prototype.CreateArgsDown = function (e) {
-                if (e["char"] && e.keyCode !== 8)
+                if (e["char"] && e.keyCode !== 8 && e.keyCode !== 9)
                     return;
                 var modifiers = {
                     Shift: e.shiftKey,
