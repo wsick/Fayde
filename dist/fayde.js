@@ -24027,11 +24027,12 @@ var Fayde;
             __extends(PathSegmentCollection, _super);
             function PathSegmentCollection() {
                 _super.apply(this, arguments);
+                this._Modifying = false;
                 this._Source = null;
             }
             PathSegmentCollection.prototype.AddingToCollection = function (value, error) {
                 var _this = this;
-                if (this._Source != null) {
+                if (!this._Modifying && this._Source != null) {
                     console.warn("Cannot modify Path Segments Collection when bound to SegmentsSource.");
                     return false;
                 }
@@ -24057,8 +24058,14 @@ var Fayde;
                 this._Source = source;
                 var nen = nullstone.IEnumerable_.as(this._Source);
                 if (nen) {
-                    for (var en = nen.getEnumerator(); en.moveNext();) {
-                        this.Add(en.current);
+                    this._Modifying = true;
+                    try {
+                        for (var en = nen.getEnumerator(); en.moveNext();) {
+                            this.Add(en.current);
+                        }
+                    }
+                    finally {
+                        this._Modifying = false;
                     }
                 }
                 var nnc = Fayde.Collections.INotifyCollectionChanged_.as(this._Source);
@@ -24066,11 +24073,17 @@ var Fayde;
                     nnc.CollectionChanged.on(this._OnSegmentsCollectionChanged, this);
             };
             PathSegmentCollection.prototype._OnSegmentsCollectionChanged = function (sender, args) {
-                for (var i = 0, items = args.OldItems; i < items.length; i++) {
-                    this.RemoveAt(i);
+                this._Modifying = true;
+                try {
+                    for (var i = 0, items = args.OldItems, len = items ? items.length : 0; i < len; i++) {
+                        this.RemoveAt(i);
+                    }
+                    for (var i = 0, items = args.NewItems, len = items ? items.length : 0; i < len; i++) {
+                        this.Insert(args.NewStartingIndex + i, items[i]);
+                    }
                 }
-                for (var i = 0, items = args.NewItems; i < items.length; i++) {
-                    this.Insert(args.NewStartingIndex + i, items[i]);
+                finally {
+                    this._Modifying = false;
                 }
             };
             return PathSegmentCollection;

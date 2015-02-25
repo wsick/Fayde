@@ -5046,6 +5046,7 @@ declare module Fayde.Media {
         _Append(path: minerva.path.Path): void;
     }
     class PathSegmentCollection extends XamlObjectCollection<PathSegment> {
+        private _Modifying;
         AddingToCollection(value: PathSegment, error: BError): boolean;
         RemovedFromCollection(value: PathSegment, isValueSafe: boolean): void;
         private _Source;

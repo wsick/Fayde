@@ -1,0 +1,21 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:shapes="Shapes"
+    ThemeName="Metro">
+    <Grid ShowGridLines="True" RowDefinitions="Auto *">
+        <Grid.DataContext>
+            <shapes:PathBoundViewModel />
+        </Grid.DataContext>
+        <Button Content="Add Random Point" Click="{EventBinding AddSegment}" />
+        <Path Grid.Row="1" Stroke="Black" StrokeThickness="4">
+            <Path.Data>
+                <PathGeometry>
+                    <PathGeometry.Figures>
+                        <PathFigure StartPoint="100,100" SegmentsSource="{Binding Segments}" />
+                    </PathGeometry.Figures>
+                </PathGeometry>
+            </Path.Data>
+        </Path>
+    </Grid>
+</Application>
