@@ -1,7 +1,3 @@
-var Fayde;
-(function (Fayde) {
-    Fayde.Version = '0.16.15';
-})(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
         return Object.prototype.toString.call(arg) === '[object Array]';
@@ -23851,6 +23847,9 @@ var Fayde;
                 coll.AttachTo(this);
                 Fayde.ReactTo(coll, this, function () { return _this.InvalidatePathFigure(); });
             }
+            PathFigure.prototype._OnSegmentsSourceChanged = function (args) {
+                this.Segments.SetSource(args.NewValue);
+            };
             PathFigure.prototype._Build = function () {
                 var p = new minerva.path.Path();
                 var start = this.StartPoint;
@@ -23876,6 +23875,7 @@ var Fayde;
             PathFigure.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () { return Point; }, PathFigure, undefined, function (d, args) { return d.InvalidatePathFigure(); });
             PathFigure.IsFilledProperty = DependencyProperty.RegisterCore("IsFilled", function () { return Boolean; }, PathFigure, true, function (d, args) { return d.InvalidatePathFigure(); });
             PathFigure.SegmentsProperty = DependencyProperty.RegisterImmutable("Segments", function () { return Media.PathSegmentCollection; }, PathFigure);
+            PathFigure.SegmentsSourceProperty = DependencyProperty.Register("SegmentsSource", function () { return nullstone.IEnumerable_; }, PathFigure, undefined, function (d, args) { return d._OnSegmentsSourceChanged(args); });
             return PathFigure;
         })(Fayde.DependencyObject);
         Media.PathFigure = PathFigure;
@@ -23978,9 +23978,14 @@ var Fayde;
             __extends(PathSegmentCollection, _super);
             function PathSegmentCollection() {
                 _super.apply(this, arguments);
+                this._Source = null;
             }
             PathSegmentCollection.prototype.AddingToCollection = function (value, error) {
                 var _this = this;
+                if (this._Source != null) {
+                    console.warn("Cannot modify Path Segments Collection when bound to SegmentsSource.");
+                    return false;
+                }
                 if (!_super.prototype.AddingToCollection.call(this, value, error))
                     return false;
                 Fayde.ReactTo(value, this, function () { return Fayde.Incite(_this); });
@@ -23991,6 +23996,33 @@ var Fayde;
                 _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
                 Fayde.UnreactTo(value, this);
                 Fayde.Incite(this);
+            };
+            PathSegmentCollection.prototype.SetSource = function (source) {
+                var onc = Fayde.Collections.INotifyCollectionChanged_.as(this._Source);
+                if (onc)
+                    onc.CollectionChanged.off(this._OnSegmentsCollectionChanged, this);
+                var oen = nullstone.IEnumerable_.as(this._Source);
+                if (oen) {
+                    this.Clear();
+                }
+                this._Source = source;
+                var nen = nullstone.IEnumerable_.as(this._Source);
+                if (nen) {
+                    for (var en = nen.getEnumerator(); en.moveNext();) {
+                        this.Add(en.current);
+                    }
+                }
+                var nnc = Fayde.Collections.INotifyCollectionChanged_.as(this._Source);
+                if (nnc)
+                    nnc.CollectionChanged.on(this._OnSegmentsCollectionChanged, this);
+            };
+            PathSegmentCollection.prototype._OnSegmentsCollectionChanged = function (sender, args) {
+                for (var i = 0, items = args.OldItems; i < items.length; i++) {
+                    this.RemoveAt(i);
+                }
+                for (var i = 0, items = args.NewItems; i < items.length; i++) {
+                    this.Insert(args.NewStartingIndex + i, items[i]);
+                }
             };
             return PathSegmentCollection;
         })(Fayde.XamlObjectCollection);

@@ -7,10 +7,16 @@ module Fayde.Media {
         static StartPointProperty = DependencyProperty.RegisterCore("StartPoint", () => Point, PathFigure, undefined, (d: PathFigure, args) => d.InvalidatePathFigure());
         static IsFilledProperty = DependencyProperty.RegisterCore("IsFilled", () => Boolean, PathFigure, true, (d: PathFigure, args) => d.InvalidatePathFigure());
         static SegmentsProperty = DependencyProperty.RegisterImmutable<PathSegmentCollection>("Segments", () => PathSegmentCollection, PathFigure);
+        static SegmentsSourceProperty = DependencyProperty.Register("SegmentsSource", () => nullstone.IEnumerable_, PathFigure, undefined, (d: PathFigure, args) => d._OnSegmentsSourceChanged(args));
         IsClosed: boolean;
         Segments: PathSegmentCollection;
+        SegmentsSource: nullstone.IEnumerable<PathSegment>;
         StartPoint: Point;
         IsFilled: boolean;
+
+        private _OnSegmentsSourceChanged (args: IDependencyPropertyChangedEventArgs) {
+            this.Segments.SetSource(args.NewValue);
+        }
 
         private _Path: minerva.path.Path = null;
 

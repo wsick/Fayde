@@ -1,7 +1,4 @@
 declare module Fayde {
-    var Version: string;
-}
-declare module Fayde {
     var XMLNS: string;
     var XMLNSX: string;
     var XMLNSINTERNAL: string;
@@ -5007,10 +5004,13 @@ declare module Fayde.Media {
         static StartPointProperty: DependencyProperty;
         static IsFilledProperty: DependencyProperty;
         static SegmentsProperty: ImmutableDependencyProperty<PathSegmentCollection>;
+        static SegmentsSourceProperty: DependencyProperty;
         IsClosed: boolean;
         Segments: PathSegmentCollection;
+        SegmentsSource: nullstone.IEnumerable<PathSegment>;
         StartPoint: Point;
         IsFilled: boolean;
+        private _OnSegmentsSourceChanged(args);
         private _Path;
         constructor();
         private _Build();
@@ -5043,6 +5043,9 @@ declare module Fayde.Media {
     class PathSegmentCollection extends XamlObjectCollection<PathSegment> {
         AddingToCollection(value: PathSegment, error: BError): boolean;
         RemovedFromCollection(value: PathSegment, isValueSafe: boolean): void;
+        private _Source;
+        SetSource(source: nullstone.IEnumerable<PathSegment>): void;
+        private _OnSegmentsCollectionChanged(sender, args);
     }
 }
 declare module Fayde.Media {
