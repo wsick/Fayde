@@ -12,14 +12,14 @@ enum DayOfWeek {
 Fayde.CoreLibrary.addEnum(DayOfWeek, "DayOfWeek");
 
 enum DateTimeKind {
-    Local,
-    Unspecified,
-    Utc
+    Unspecified = 0,
+    Local = 1,
+    Utc = 2
 }
 Fayde.CoreLibrary.addEnum(DateTimeKind, "DateTimeKind");
 
 class DateTime {
-    private static _MinDateTicks: number = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
+    private static _MinDateTicks: number = -8640000000000000;
     private static _MaxDateTicks: number = 8640000000000000;
 
     static get MinValue() { return new DateTime(-8640000000000000); }
@@ -47,13 +47,12 @@ class DateTime {
 
     constructor();
     constructor(ticks: number);
-    constructor(ticks: number, kind: DateTimeKind);
     constructor(year: number, month: number, day: number);
     constructor(year: number, month: number, day: number, hour: number, minute: number, second: number);
     constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number);
     constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number, kind: DateTimeKind);
     constructor(...args: any[]) {
-        var ticks = null;
+        var ticks: number = null;
         var kind = DateTimeKind.Unspecified;
         var year = 0;
         var month = 0;
@@ -65,9 +64,7 @@ class DateTime {
 
         if (args.length === 1) { //Ticks
             ticks = args[0];
-        } else if (args.length === 2) { //Ticks,DateTimeKind
-            ticks = args[0];
-            kind = args[1];
+            kind = DateTimeKind.Utc;
         } else if (args.length === 3) { //Year,Month,Day
             year = args[0];
             month = args[1];
@@ -100,27 +97,24 @@ class DateTime {
             ticks = 0;
         }
 
+        this._Kind = kind == null ? DateTimeKind.Unspecified : kind;
         if (ticks != null) {
             this._InternalDate = new Date(ticks);
+            return;
+        }
+        var id = this._InternalDate = new Date();
+        if (kind === DateTimeKind.Utc) {
+            id.setUTCFullYear(year, month - 1, day);
+            id.setUTCHours(hour);
+            id.setUTCMinutes(minute);
+            id.setUTCSeconds(second);
+            id.setMilliseconds(millisecond);
         } else {
-            var id = this._InternalDate = new Date();
             id.setFullYear(year, month - 1, day);
             id.setHours(hour);
             id.setMinutes(minute);
             id.setSeconds(second);
             id.setMilliseconds(millisecond);
-        }
-        switch (kind) {
-            case 0:
-                this._Kind = DateTimeKind.Local;
-                break;
-            default:
-            case 1:
-                this._Kind = DateTimeKind.Unspecified;
-                break;
-            case 2:
-                this._Kind = DateTimeKind.Utc;
-                break;
         }
     }
 
@@ -129,32 +123,73 @@ class DateTime {
     get Date(): DateTime {
         var t = this._InternalDate.getTime();
         if (t <= DateTime._MinDateTicks)
-            return new DateTime(DateTime._MinDateTicks, this.Kind);
+            return new DateTime(DateTime._MinDateTicks);
         var d = new Date(t);
-        d.setHours(0);
-        d.setMinutes(0);
-        d.setSeconds(0);
-        d.setMilliseconds(0);
-        return new DateTime(d.getTime(), this.Kind);
+        if (this._Kind === DateTimeKind.Utc) {
+            d.setUTCHours(0);
+            d.setUTCMinutes(0);
+            d.setUTCSeconds(0);
+            d.setUTCMilliseconds(0);
+        } else {
+            d.setHours(0);
+            d.setMinutes(0);
+            d.setSeconds(0);
+            d.setMilliseconds(0);
+        }
+        return new DateTime(d.getTime());
     }
-    get Day(): number { return this._InternalDate.getDate(); }
-    get DayOfWeek(): DayOfWeek { return <DayOfWeek>this._InternalDate.getDay(); }
+    get Day(): number {
+        if (this._Kind === DateTimeKind.Utc)
+            return this._InternalDate.getUTCDate();
+        return this._InternalDate.getDate();
+    }
+    get DayOfWeek(): DayOfWeek {
+        if (this._Kind === DateTimeKind.Utc)
+            return <DayOfWeek>this._InternalDate.getUTCDay();
+        return <DayOfWeek>this._InternalDate.getDay();
+    }
     get DayOfYear(): number {
         var dt = this.Date;
         var base = new DateTime(dt.Year, 1, 1);
         var diff = new TimeSpan(dt.Ticks - base.Ticks);
         return Math.floor(diff.TotalDays);
     }
-    get Hour(): number { return this._InternalDate.getHours(); }
-    get Millisecond(): number { return this._InternalDate.getMilliseconds(); }
-    get Minute(): number { return this._InternalDate.getMinutes(); }
-    get Month(): number { return this._InternalDate.getMonth() + 1; }
-    get Second(): number { return this._InternalDate.getSeconds(); }
+    get Hour(): number {
+        if (this._Kind === DateTimeKind.Utc)
+            return this._InternalDate.getUTCHours();
+        return this._InternalDate.getHours();
+    }
+    get Millisecond(): number {
+        if (this._Kind === DateTimeKind.Utc)
+            return this._InternalDate.getUTCMilliseconds();
+        return this._InternalDate.getMilliseconds();
+    }
+    get Minute(): number {
+        if (this._Kind === DateTimeKind.Utc)
+            return this._InternalDate.getUTCMinutes();
+        return this._InternalDate.getMinutes();
+    }
+    get Month(): number {
+        if (this._Kind === DateTimeKind.Utc)
+            return this._InternalDate.getUTCMonth() + 1;
+        return this._InternalDate.getMonth() + 1;
+    }
+    get Second(): number {
+        if (this._Kind === DateTimeKind.Utc)
+            return this._InternalDate.getUTCSeconds();
+        return this._InternalDate.getSeconds();
+    }
     get TimeOfDay(): TimeSpan {
         var id = this._InternalDate;
+        if (this._Kind === DateTimeKind.Utc)
+            return new TimeSpan(0, id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds());
         return new TimeSpan(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
     }
-    get Year(): number { return this._InternalDate.getFullYear(); }
+    get Year(): number {
+        if (this._Kind === DateTimeKind.Utc)
+            return this._InternalDate.getUTCFullYear();
+        return this._InternalDate.getFullYear();
+    }
 
     Add(value: TimeSpan): DateTime {
         return new DateTime(this.Ticks + value.Ticks);
@@ -165,7 +200,7 @@ class DateTime {
             throw new ArgumentOutOfRangeException("Invalid number of years.");
         return this.AddMonths(value * 12);
     }
-    AddMonths(value: number) {
+    AddMonths(value: number): DateTime {
         var dte = new Date(this.Ticks);
         var ticks = dte.setMonth(dte.getMonth() + value);
         if (isNaN(ticks))
@@ -207,7 +242,7 @@ class DateTime {
 
     ToUniversalTime(): DateTime {
         if (this.Kind === DateTimeKind.Utc)
-            return new DateTime(this.Ticks, DateTimeKind.Utc);
+            return new DateTime(this.Ticks);
         var id = this._InternalDate;
         return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), DateTimeKind.Utc);
     }

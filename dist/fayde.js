@@ -6469,7 +6469,7 @@ var Fayde;
         }
         Markup.Load = Load;
         function LoadImpl(app, xm, resources, bindingSource) {
-            perfex.timer.start('MarkupLoad', xm.uri);
+            perfex.timer.start('MarkupLoad', xm.uri.toString());
             var oresolve = {
                 isPrimitive: false,
                 type: undefined
@@ -9118,7 +9118,8 @@ var Fayde;
                     start = this.$Advancer.CursorPrevChar(cursor);
                     length = cursor - start;
                 }
-                return proxy.removeText(start, length);
+                proxy.removeText(start, length);
+                return true;
             };
             TextBoxBase.prototype._KeyDownDelete = function (modifiers) {
                 if (modifiers.Shift || modifiers.Alt)
@@ -16093,7 +16094,7 @@ var Fayde;
                 return args;
             };
             IEKeyInterop.prototype.CreateArgsDown = function (e) {
-                if (e["char"] && e.keyCode !== 8)
+                if (e["char"] && e.keyCode !== 8 && e.keyCode !== 9)
                     return;
                 var modifiers = {
                     Shift: e.shiftKey,
@@ -16920,6 +16921,34 @@ var Fayde;
         Fayde.CoreLibrary.add(TouchPoint);
     })(Input = Fayde.Input || (Fayde.Input = {}));
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Input;
+    (function (Input) {
+        var keyboardInput;
+        var VirtualKeyboard = (function () {
+            function VirtualKeyboard() {
+            }
+            VirtualKeyboard.Init = function () {
+                keyboardInput = document.createElement('input');
+                keyboardInput.type = "text";
+                var style = keyboardInput.style;
+                style.opacity = "0";
+                style.cssFloat = "left";
+                style.width = "0";
+                style.height = "0";
+                style.borderWidth = "0";
+                document.body.insertBefore(keyboardInput, document.body.firstElementChild);
+            };
+            VirtualKeyboard.Launch = function () {
+                console.log("Launch");
+                keyboardInput.focus();
+            };
+            return VirtualKeyboard;
+        })();
+        Input.VirtualKeyboard = VirtualKeyboard;
+    })(Input = Fayde.Input || (Fayde.Input = {}));
+})(Fayde || (Fayde = {}));
 var TimeSpan = (function () {
     function TimeSpan() {
         var args = [];
@@ -17182,8 +17211,8 @@ var DayOfWeek;
 Fayde.CoreLibrary.addEnum(DayOfWeek, "DayOfWeek");
 var DateTimeKind;
 (function (DateTimeKind) {
-    DateTimeKind[DateTimeKind["Local"] = 0] = "Local";
-    DateTimeKind[DateTimeKind["Unspecified"] = 1] = "Unspecified";
+    DateTimeKind[DateTimeKind["Unspecified"] = 0] = "Unspecified";
+    DateTimeKind[DateTimeKind["Local"] = 1] = "Local";
     DateTimeKind[DateTimeKind["Utc"] = 2] = "Utc";
 })(DateTimeKind || (DateTimeKind = {}));
 Fayde.CoreLibrary.addEnum(DateTimeKind, "DateTimeKind");
@@ -17195,7 +17224,7 @@ var DateTime = (function () {
         }
         this._InternalDate = null;
         var ticks = null;
-        var kind = 1 /* Unspecified */;
+        var kind = 0 /* Unspecified */;
         var year = 0;
         var month = 0;
         var day = 0;
@@ -17205,10 +17234,7 @@ var DateTime = (function () {
         var millisecond = 0;
         if (args.length === 1) {
             ticks = args[0];
-        }
-        else if (args.length === 2) {
-            ticks = args[0];
-            kind = args[1];
+            kind = 2 /* Utc */;
         }
         else if (args.length === 3) {
             year = args[0];
@@ -17245,28 +17271,25 @@ var DateTime = (function () {
         else {
             ticks = 0;
         }
+        this._Kind = kind == null ? 0 /* Unspecified */ : kind;
         if (ticks != null) {
             this._InternalDate = new Date(ticks);
+            return;
+        }
+        var id = this._InternalDate = new Date();
+        if (kind === 2 /* Utc */) {
+            id.setUTCFullYear(year, month - 1, day);
+            id.setUTCHours(hour);
+            id.setUTCMinutes(minute);
+            id.setUTCSeconds(second);
+            id.setMilliseconds(millisecond);
         }
         else {
-            var id = this._InternalDate = new Date();
             id.setFullYear(year, month - 1, day);
             id.setHours(hour);
             id.setMinutes(minute);
             id.setSeconds(second);
             id.setMilliseconds(millisecond);
-        }
-        switch (kind) {
-            case 0:
-                this._Kind = 0 /* Local */;
-                break;
-            default:
-            case 1:
-                this._Kind = 1 /* Unspecified */;
-                break;
-            case 2:
-                this._Kind = 2 /* Utc */;
-                break;
         }
     }
     Object.defineProperty(DateTime, "MinValue", {
@@ -17329,19 +17352,29 @@ var DateTime = (function () {
         get: function () {
             var t = this._InternalDate.getTime();
             if (t <= DateTime._MinDateTicks)
-                return new DateTime(DateTime._MinDateTicks, this.Kind);
+                return new DateTime(DateTime._MinDateTicks);
             var d = new Date(t);
-            d.setHours(0);
-            d.setMinutes(0);
-            d.setSeconds(0);
-            d.setMilliseconds(0);
-            return new DateTime(d.getTime(), this.Kind);
+            if (this._Kind === 2 /* Utc */) {
+                d.setUTCHours(0);
+                d.setUTCMinutes(0);
+                d.setUTCSeconds(0);
+                d.setUTCMilliseconds(0);
+            }
+            else {
+                d.setHours(0);
+                d.setMinutes(0);
+                d.setSeconds(0);
+                d.setMilliseconds(0);
+            }
+            return new DateTime(d.getTime());
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DateTime.prototype, "Day", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCDate();
             return this._InternalDate.getDate();
         },
         enumerable: true,
@@ -17349,6 +17382,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "DayOfWeek", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCDay();
             return this._InternalDate.getDay();
         },
         enumerable: true,
@@ -17366,6 +17401,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Hour", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCHours();
             return this._InternalDate.getHours();
         },
         enumerable: true,
@@ -17373,6 +17410,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Millisecond", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCMilliseconds();
             return this._InternalDate.getMilliseconds();
         },
         enumerable: true,
@@ -17380,6 +17419,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Minute", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCMinutes();
             return this._InternalDate.getMinutes();
         },
         enumerable: true,
@@ -17387,6 +17428,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Month", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCMonth() + 1;
             return this._InternalDate.getMonth() + 1;
         },
         enumerable: true,
@@ -17394,6 +17437,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Second", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCSeconds();
             return this._InternalDate.getSeconds();
         },
         enumerable: true,
@@ -17402,6 +17447,8 @@ var DateTime = (function () {
     Object.defineProperty(DateTime.prototype, "TimeOfDay", {
         get: function () {
             var id = this._InternalDate;
+            if (this._Kind === 2 /* Utc */)
+                return new TimeSpan(0, id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds());
             return new TimeSpan(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
         },
         enumerable: true,
@@ -17409,6 +17456,8 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Year", {
         get: function () {
+            if (this._Kind === 2 /* Utc */)
+                return this._InternalDate.getUTCFullYear();
             return this._InternalDate.getFullYear();
         },
         enumerable: true,
@@ -17461,7 +17510,7 @@ var DateTime = (function () {
     };
     DateTime.prototype.ToUniversalTime = function () {
         if (this.Kind === 2 /* Utc */)
-            return new DateTime(this.Ticks, 2 /* Utc */);
+            return new DateTime(this.Ticks);
         var id = this._InternalDate;
         return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), 2 /* Utc */);
     };
@@ -17473,7 +17522,7 @@ var DateTime = (function () {
     DateTime.prototype.valueOf = function () {
         return this.Ticks;
     };
-    DateTime._MinDateTicks = -8640000000000000 + (TimeSpan._TicksPerHour * 4);
+    DateTime._MinDateTicks = -8640000000000000;
     DateTime._MaxDateTicks = 8640000000000000;
     return DateTime;
 })();

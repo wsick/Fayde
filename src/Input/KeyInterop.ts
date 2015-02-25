@@ -171,7 +171,7 @@ module Fayde.Input {
             return args;
         }
         CreateArgsDown(e): Fayde.Input.KeyEventArgs {
-            if (e["char"] && e.keyCode !== 8)
+            if (e["char"] && e.keyCode !== 8 && e.keyCode !== 9)
                 return;
             var modifiers = {
                 Shift: e.shiftKey,

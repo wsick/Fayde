@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="https://code.jquery.com/jquery-2.1.3.js"></script>
+</head>
+<body>
+<input id="focuser" type="text" style="opacity: 0; float: left;"/>
+
+<div id="m" style="background-color: yellow;">
+    MMMMMMMMMMMMMMMMMMMMMMMMm
+    MMMMMMMMMMMMMMMMmmmmmmmMMMMMMMMMMm
+</div>
+<script type="text/javascript">
+    var focuser = document.getElementById('focuser');
+
+    var m = document.getElementById('m');
+    m.addEventListener('mouseup', function () {
+        focuser.focus();
+    });
+    /*
+     $('#m').mouseup(function mouseup() {
+     $('#focuser').focus();
+     });
+     */
+
+    var canvas = document.createElement('canvas');
+    document.body.appendChild(canvas);
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = "green";
+    ctx.fillRect(0, 0, 400, 400);
+    canvas.addEventListener('mouseup', function () {
+        focuser.focus();
+    });
+</script>
+</body>
+</html>
