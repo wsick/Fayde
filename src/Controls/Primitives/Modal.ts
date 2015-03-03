@@ -93,7 +93,7 @@ module Fayde.Controls.Primitives {
             if (nv)
                 layer.Children.Add(nv);
         }, false, false);
-        DPReaction<Media.Brush>(Modal.MaskBrushProperty, (upd, ov, nv, modal?: Modal) => {
+        DPReaction<Media.Brush>(Modal.MaskBrushProperty, (modal: Modal, ov, nv) => {
             modal.XamlNode.UpdateMask();
         });
     }

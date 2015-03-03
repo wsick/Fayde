@@ -14,8 +14,8 @@
                     </Border>
                 </Modal.Child>
             </Modal>
-            <ToggleButton Content="Open Modal no background on right" />
-            <Modal MaskBrush="{x:Null}" IsOpen="{Binding ElementName=Modal2Toggle, Path=IsChecked, Mode=TwoWay}">
+            <ToggleButton x:Name="Modal2Toggle" Content="Open Modal no background on right" />
+            <Modal MaskBrush="Transparent" IsOpen="{Binding ElementName=Modal2Toggle, Path=IsChecked, Mode=TwoWay}">
                 <Modal.Child>
                     <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="Orange">
                         <TextBlock Text="I like the right side." />

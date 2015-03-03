@@ -9532,7 +9532,7 @@ var Fayde;
                     if (nv)
                         layer.Children.Add(nv);
                 }, false, false);
-                Fayde.DPReaction(Modal.MaskBrushProperty, function (upd, ov, nv, modal) {
+                Fayde.DPReaction(Modal.MaskBrushProperty, function (modal, ov, nv) {
                     modal.XamlNode.UpdateMask();
                 });
             })(reactions || (reactions = {}));
