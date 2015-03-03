@@ -2236,10 +2236,10 @@ declare module Fayde.MVVM {
     }
 }
 declare module Fayde.Controls.Primitives {
-    import ModalUpdater = minerva.controls.modal.ModalUpdater;
-    class ModalNode extends FENode {
-        LayoutUpdater: ModalUpdater;
-        XObject: Modal;
+    import OverlayUpdater = minerva.controls.overlay.OverlayUpdater;
+    class OverlayNode extends FENode {
+        LayoutUpdater: OverlayUpdater;
+        XObject: Overlay;
         private _Layer;
         private _Mask;
         EnsureLayer(): Panel;
@@ -2249,14 +2249,14 @@ declare module Fayde.Controls.Primitives {
         OnIsAttachedChanged(newIsAttached: boolean): void;
         RegisterInitiator(initiator: UIElement): void;
     }
-    class Modal extends FrameworkElement {
-        XamlNode: ModalNode;
-        CreateNode(): ModalNode;
-        CreateLayoutUpdater(): ModalUpdater;
-        static ChildProperty: DependencyProperty;
+    class Overlay extends FrameworkElement {
+        XamlNode: OverlayNode;
+        CreateNode(): OverlayNode;
+        CreateLayoutUpdater(): OverlayUpdater;
+        static VisualProperty: DependencyProperty;
         static IsOpenProperty: DependencyProperty;
         static MaskBrushProperty: DependencyProperty;
-        Child: UIElement;
+        Visual: UIElement;
         IsOpen: boolean;
         MaskBrush: Media.Brush;
         Opened: nullstone.Event<nullstone.IEventArgs>;

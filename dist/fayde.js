@@ -9440,23 +9440,23 @@ var Fayde;
     (function (Controls) {
         var Primitives;
         (function (Primitives) {
-            var ModalUpdater = minerva.controls.modal.ModalUpdater;
+            var OverlayUpdater = minerva.controls.overlay.OverlayUpdater;
             var DEFAULT_MASK_BRUSH = "#33000000";
-            var ModalNode = (function (_super) {
-                __extends(ModalNode, _super);
-                function ModalNode() {
+            var OverlayNode = (function (_super) {
+                __extends(OverlayNode, _super);
+                function OverlayNode() {
                     _super.apply(this, arguments);
                     this._Layer = null;
                     this._Mask = null;
                 }
-                ModalNode.prototype.EnsureLayer = function () {
+                OverlayNode.prototype.EnsureLayer = function () {
                     if (!this._Layer) {
                         this._Layer = new Controls.Panel();
                         this.LayoutUpdater.setLayer(this._Layer.XamlNode.LayoutUpdater);
                     }
                     return this._Layer;
                 };
-                ModalNode.prototype.EnsureMask = function () {
+                OverlayNode.prototype.EnsureMask = function () {
                     if (!this._Mask) {
                         this._Mask = new Controls.Border();
                         this._Mask.MouseLeftButtonDown.on(this._OnMaskMouseDown, this);
@@ -9464,10 +9464,10 @@ var Fayde;
                     }
                     return this._Mask;
                 };
-                ModalNode.prototype._OnMaskMouseDown = function (sender, args) {
-                    this.XObject.SetCurrentValue(Modal.IsOpenProperty, false);
+                OverlayNode.prototype._OnMaskMouseDown = function (sender, args) {
+                    this.XObject.SetCurrentValue(Overlay.IsOpenProperty, false);
                 };
-                ModalNode.prototype.UpdateMask = function () {
+                OverlayNode.prototype.UpdateMask = function () {
                     var mask = this._Mask;
                     if (mask) {
                         var mb = this.XObject.MaskBrush;
@@ -9476,7 +9476,7 @@ var Fayde;
                         this._Mask.Background = mb;
                     }
                 };
-                ModalNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
+                OverlayNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
                     _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
                     this.RegisterInitiator(this.VisualParentNode.XObject);
                     if (newIsAttached) {
@@ -9485,59 +9485,59 @@ var Fayde;
                     if (!newIsAttached && this.XObject.IsOpen)
                         this.XObject.IsOpen = false;
                 };
-                ModalNode.prototype.RegisterInitiator = function (initiator) {
+                OverlayNode.prototype.RegisterInitiator = function (initiator) {
                     if (!(initiator instanceof Fayde.UIElement))
                         return;
                     this.LayoutUpdater.setInitiator(initiator.XamlNode.LayoutUpdater);
                 };
-                return ModalNode;
+                return OverlayNode;
             })(Fayde.FENode);
-            Primitives.ModalNode = ModalNode;
-            var Modal = (function (_super) {
-                __extends(Modal, _super);
-                function Modal() {
+            Primitives.OverlayNode = OverlayNode;
+            var Overlay = (function (_super) {
+                __extends(Overlay, _super);
+                function Overlay() {
                     _super.apply(this, arguments);
                     this.Opened = new nullstone.Event();
                     this.Closed = new nullstone.Event();
                 }
-                Modal.prototype.CreateNode = function () {
-                    return new ModalNode(this);
+                Overlay.prototype.CreateNode = function () {
+                    return new OverlayNode(this);
                 };
-                Modal.prototype.CreateLayoutUpdater = function () {
-                    return new ModalUpdater();
+                Overlay.prototype.CreateLayoutUpdater = function () {
+                    return new OverlayUpdater();
                 };
-                Modal.ChildProperty = DependencyProperty.Register("Child", function () { return Fayde.UIElement; }, Modal);
-                Modal.IsOpenProperty = DependencyProperty.Register("IsOpen", function () { return Boolean; }, Modal);
-                Modal.MaskBrushProperty = DependencyProperty.Register("MaskBrush", function () { return Fayde.Media.Brush; }, Modal);
-                return Modal;
+                Overlay.VisualProperty = DependencyProperty.Register("Visual", function () { return Fayde.UIElement; }, Overlay);
+                Overlay.IsOpenProperty = DependencyProperty.Register("IsOpen", function () { return Boolean; }, Overlay);
+                Overlay.MaskBrushProperty = DependencyProperty.Register("MaskBrush", function () { return Fayde.Media.Brush; }, Overlay);
+                return Overlay;
             })(Fayde.FrameworkElement);
-            Primitives.Modal = Modal;
-            Fayde.CoreLibrary.add(Modal);
-            Fayde.Markup.Content(Modal, Modal.ChildProperty);
+            Primitives.Overlay = Overlay;
+            Fayde.CoreLibrary.add(Overlay);
+            Fayde.Markup.Content(Overlay, Overlay.VisualProperty);
             var reactions;
             (function (reactions) {
-                Fayde.UIReaction(Modal.IsOpenProperty, function (upd, ov, nv, modal) {
+                Fayde.UIReaction(Overlay.IsOpenProperty, function (upd, ov, nv, overlay) {
                     ov = ov || false;
                     nv = nv || false;
                     if (ov === nv)
                         return;
                     if (nv === true) {
-                        modal.Opened.raiseAsync(modal, null);
+                        overlay.Opened.raiseAsync(overlay, null);
                     }
                     else {
-                        modal.Closed.raiseAsync(modal, null);
+                        overlay.Closed.raiseAsync(overlay, null);
                     }
-                    minerva.controls.modal.reactTo.isOpen(upd, ov, nv);
+                    minerva.controls.overlay.reactTo.isOpen(upd, ov, nv);
                 }, false);
-                Fayde.UIReaction(Modal.ChildProperty, function (upd, ov, nv, modal) {
-                    var layer = modal.XamlNode.EnsureLayer();
+                Fayde.UIReaction(Overlay.VisualProperty, function (upd, ov, nv, overlay) {
+                    var layer = overlay.XamlNode.EnsureLayer();
                     if (ov)
                         layer.Children.Remove(ov);
                     if (nv)
                         layer.Children.Add(nv);
                 }, false, false);
-                Fayde.DPReaction(Modal.MaskBrushProperty, function (modal, ov, nv) {
-                    modal.XamlNode.UpdateMask();
+                Fayde.DPReaction(Overlay.MaskBrushProperty, function (overlay, ov, nv) {
+                    overlay.XamlNode.UpdateMask();
                 });
             })(reactions || (reactions = {}));
         })(Primitives = Controls.Primitives || (Controls.Primitives = {}));

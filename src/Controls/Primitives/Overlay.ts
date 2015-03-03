@@ -1,12 +1,12 @@
 /// <reference path="../../Core/FrameworkElement" />
 
 module Fayde.Controls.Primitives {
-    import ModalUpdater = minerva.controls.modal.ModalUpdater;
+    import OverlayUpdater = minerva.controls.overlay.OverlayUpdater;
     var DEFAULT_MASK_BRUSH = "#33000000";
 
-    export class ModalNode extends FENode {
-        LayoutUpdater: ModalUpdater;
-        XObject: Modal;
+    export class OverlayNode extends FENode {
+        LayoutUpdater: OverlayUpdater;
+        XObject: Overlay;
 
         private _Layer: Panel = null;
         private _Mask: Border = null;
@@ -29,7 +29,7 @@ module Fayde.Controls.Primitives {
         }
 
         private _OnMaskMouseDown (sender, args: Input.MouseButtonEventArgs) {
-            this.XObject.SetCurrentValue(Modal.IsOpenProperty, false);
+            this.XObject.SetCurrentValue(Overlay.IsOpenProperty, false);
         }
 
         UpdateMask () {
@@ -59,46 +59,46 @@ module Fayde.Controls.Primitives {
         }
     }
 
-    export class Modal extends FrameworkElement {
-        XamlNode: ModalNode;
-        CreateNode (): ModalNode { return new ModalNode(this); }
-        CreateLayoutUpdater (): ModalUpdater { return new ModalUpdater(); }
+    export class Overlay extends FrameworkElement {
+        XamlNode: OverlayNode;
+        CreateNode (): OverlayNode { return new OverlayNode(this); }
+        CreateLayoutUpdater (): OverlayUpdater { return new OverlayUpdater(); }
 
-        static ChildProperty = DependencyProperty.Register("Child", () => UIElement, Modal);
-        static IsOpenProperty = DependencyProperty.Register("IsOpen", () => Boolean, Modal);
-        static MaskBrushProperty = DependencyProperty.Register("MaskBrush", () => Media.Brush, Modal);
-        Child: UIElement;
+        static VisualProperty = DependencyProperty.Register("Visual", () => UIElement, Overlay);
+        static IsOpenProperty = DependencyProperty.Register("IsOpen", () => Boolean, Overlay);
+        static MaskBrushProperty = DependencyProperty.Register("MaskBrush", () => Media.Brush, Overlay);
+        Visual: UIElement;
         IsOpen: boolean;
         MaskBrush: Media.Brush;
 
         Opened = new nullstone.Event<nullstone.IEventArgs>();
         Closed = new nullstone.Event<nullstone.IEventArgs>();
     }
-    Fayde.CoreLibrary.add(Modal);
-    Markup.Content(Modal, Modal.ChildProperty);
+    Fayde.CoreLibrary.add(Overlay);
+    Markup.Content(Overlay, Overlay.VisualProperty);
 
     module reactions {
-        UIReaction<boolean>(Modal.IsOpenProperty, (upd, ov, nv, modal?: Modal) => {
+        UIReaction<boolean>(Overlay.IsOpenProperty, (upd, ov, nv, overlay?: Overlay) => {
             ov = ov || false;
             nv = nv || false;
             if (ov === nv)
                 return;
             if (nv === true) {
-                modal.Opened.raiseAsync(modal, null);
+                overlay.Opened.raiseAsync(overlay, null);
             } else {
-                modal.Closed.raiseAsync(modal, null);
+                overlay.Closed.raiseAsync(overlay, null);
             }
-            minerva.controls.modal.reactTo.isOpen(upd, ov, nv);
+            minerva.controls.overlay.reactTo.isOpen(upd, ov, nv);
         }, false);
-        UIReaction<UIElement>(Modal.ChildProperty, (upd, ov, nv, modal?: Modal) => {
-            var layer = modal.XamlNode.EnsureLayer();
+        UIReaction<UIElement>(Overlay.VisualProperty, (upd, ov, nv, overlay?: Overlay) => {
+            var layer = overlay.XamlNode.EnsureLayer();
             if (ov)
                 layer.Children.Remove(ov);
             if (nv)
                 layer.Children.Add(nv);
         }, false, false);
-        DPReaction<Media.Brush>(Modal.MaskBrushProperty, (modal: Modal, ov, nv) => {
-            modal.XamlNode.UpdateMask();
+        DPReaction<Media.Brush>(Overlay.MaskBrushProperty, (overlay: Overlay, ov, nv) => {
+            overlay.XamlNode.UpdateMask();
         });
     }
 }
