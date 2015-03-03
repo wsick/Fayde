@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.18';
+    Fayde.Version = '0.16.17';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -8645,6 +8645,41 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var ModalLauncher = (function (_super) {
+            __extends(ModalLauncher, _super);
+            //StartupLocation
+            function ModalLauncher() {
+                _super.call(this);
+                this.SetBinding(ModalLauncher.ViewModelProperty, new Fayde.Data.Binding("ModalDataContext"));
+                var binding = new Fayde.Data.Binding("IsRequestingChange");
+                binding.Mode = 1 /* TwoWay */;
+                this.SetBinding(ModalLauncher.IsModalVisibleProperty, binding);
+                this.SetBinding(ModalLauncher.ModalCompleteCommandProperty, new Fayde.Data.Binding("ChangedCommand"));
+            }
+            ModalLauncher.prototype._TryShowModal = function () {
+                if (!this.IsModalVisible)
+                    return;
+                if (!this.ViewUri)
+                    return;
+                if (this.ViewModel == null)
+                    return;
+                //this._ShowModalAsync(this.ViewUri, this.ViewModel)
+                //.then((result) => this._FinishModal(result))
+            };
+            ModalLauncher.ViewUriProperty = DependencyProperty.Register("ViewUri", function () { return Fayde.Uri; }, ModalLauncher, undefined, function (d, args) { return d._TryShowModal(); });
+            ModalLauncher.ViewModelProperty = DependencyProperty.Register("ViewModel", function () { return Object; }, ModalLauncher, undefined, function (d, args) { return d._TryShowModal(); });
+            ModalLauncher.IsModalVisibleProperty = DependencyProperty.Register("IsModalVisible", function () { return Boolean; }, ModalLauncher, undefined, function (d, args) { return d._TryShowModal(); });
+            ModalLauncher.ModalCompleteCommandProperty = DependencyProperty.Register("ModalCompleteCommand", function () { return Fayde.Input.ICommand_; }, ModalLauncher);
+            return ModalLauncher;
+        })(Fayde.DependencyObject);
+        Controls.ModalLauncher = ModalLauncher;
+        Fayde.CoreLibrary.add(ModalLauncher);
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     var RoutedEventArgs = (function () {
         function RoutedEventArgs() {
             this.Handled = false;
@@ -9395,6 +9430,112 @@ var Fayde;
             })(Fayde.RoutedEventArgs);
             Primitives.DragStartedEventArgs = DragStartedEventArgs;
             Fayde.CoreLibrary.add(DragStartedEventArgs);
+        })(Primitives = Controls.Primitives || (Controls.Primitives = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../../Core/FrameworkElement" />
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var Primitives;
+        (function (Primitives) {
+            var ModalUpdater = minerva.controls.modal.ModalUpdater;
+            var DEFAULT_MASK_BRUSH = "#33000000";
+            var ModalNode = (function (_super) {
+                __extends(ModalNode, _super);
+                function ModalNode() {
+                    _super.apply(this, arguments);
+                    this._Layer = null;
+                    this._Mask = null;
+                }
+                ModalNode.prototype.EnsureLayer = function () {
+                    if (!this._Layer) {
+                        this._Layer = new Controls.Panel();
+                        this.LayoutUpdater.setLayer(this._Layer.XamlNode.LayoutUpdater);
+                    }
+                    return this._Layer;
+                };
+                ModalNode.prototype.EnsureMask = function () {
+                    if (!this._Mask) {
+                        this._Mask = new Controls.Border();
+                        this._Mask.MouseLeftButtonDown.on(this._OnMaskMouseDown, this);
+                        this.UpdateMask();
+                    }
+                    return this._Mask;
+                };
+                ModalNode.prototype._OnMaskMouseDown = function (sender, args) {
+                    this.XObject.SetCurrentValue(Modal.IsOpenProperty, false);
+                };
+                ModalNode.prototype.UpdateMask = function () {
+                    var mask = this._Mask;
+                    if (mask) {
+                        var mb = this.XObject.MaskBrush;
+                        if (mb === undefined)
+                            mb = nullstone.convertAnyToType(DEFAULT_MASK_BRUSH, Fayde.Media.Brush);
+                        this._Mask.Background = mb;
+                    }
+                };
+                ModalNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
+                    _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
+                    this.RegisterInitiator(this.VisualParentNode.XObject);
+                    if (newIsAttached) {
+                        this.EnsureLayer().Children.Insert(0, this.EnsureMask());
+                    }
+                    if (!newIsAttached && this.XObject.IsOpen)
+                        this.XObject.IsOpen = false;
+                };
+                ModalNode.prototype.RegisterInitiator = function (initiator) {
+                    if (!(initiator instanceof Fayde.UIElement))
+                        return;
+                    this.LayoutUpdater.setInitiator(initiator.XamlNode.LayoutUpdater);
+                };
+                return ModalNode;
+            })(Fayde.FENode);
+            Primitives.ModalNode = ModalNode;
+            var Modal = (function (_super) {
+                __extends(Modal, _super);
+                function Modal() {
+                    _super.apply(this, arguments);
+                    this.Opened = new nullstone.Event();
+                    this.Closed = new nullstone.Event();
+                }
+                Modal.prototype.CreateNode = function () {
+                    return new ModalNode(this);
+                };
+                Modal.prototype.CreateLayoutUpdater = function () {
+                    return new ModalUpdater();
+                };
+                Modal.ChildProperty = DependencyProperty.Register("Child", function () { return Fayde.UIElement; }, Modal);
+                Modal.IsOpenProperty = DependencyProperty.Register("IsOpen", function () { return Boolean; }, Modal);
+                Modal.MaskBrushProperty = DependencyProperty.Register("MaskBrush", function () { return Fayde.Media.Brush; }, Modal);
+                return Modal;
+            })(Fayde.FrameworkElement);
+            Primitives.Modal = Modal;
+            Fayde.CoreLibrary.add(Modal);
+            Fayde.Markup.Content(Modal, Modal.ChildProperty);
+            var reactions;
+            (function (reactions) {
+                Fayde.UIReaction(Modal.IsOpenProperty, function (upd, ov, nv, modal) {
+                    if (nv === true) {
+                        modal.Opened.raiseAsync(modal, null);
+                    }
+                    else {
+                        modal.Closed.raiseAsync(modal, null);
+                    }
+                    minerva.controls.modal.reactTo.isOpen(upd, ov, nv);
+                }, false);
+                Fayde.UIReaction(Modal.ChildProperty, function (upd, ov, nv, modal) {
+                    var layer = modal.XamlNode.EnsureLayer();
+                    if (ov)
+                        layer.Children.Remove(ov);
+                    if (nv)
+                        layer.Children.Add(nv);
+                }, false, false);
+                Fayde.DPReaction(Modal.MaskBrushProperty, function (upd, ov, nv, modal) {
+                    modal.XamlNode.UpdateMask();
+                });
+            })(reactions || (reactions = {}));
         })(Primitives = Controls.Primitives || (Controls.Primitives = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
@@ -19093,6 +19234,66 @@ var Fayde;
         Fayde.CoreLibrary.add(ObservableObject);
     })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
 })(Fayde || (Fayde = {}));
+/// <reference path="ObservableObject.ts"/>
+var Fayde;
+(function (Fayde) {
+    var MVVM;
+    (function (MVVM) {
+        var ViewModelBase = (function (_super) {
+            __extends(ViewModelBase, _super);
+            function ViewModelBase() {
+                _super.apply(this, arguments);
+            }
+            return ViewModelBase;
+        })(MVVM.ObservableObject);
+        MVVM.ViewModelBase = ViewModelBase;
+        Fayde.CoreLibrary.add(ViewModelBase);
+    })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="ViewModelBase" />
+var Fayde;
+(function (Fayde) {
+    var MVVM;
+    (function (MVVM) {
+        var ModalViewModel = (function (_super) {
+            __extends(ModalViewModel, _super);
+            function ModalViewModel() {
+                var _this = this;
+                _super.call(this);
+                this.IsRequestingChange = false;
+                this.ModalDataContext = null;
+                this.RequestChangeCommand = new MVVM.RelayCommand(function (par) { return _this.RequestChange_Execute(par); }, function (par) { return _this.RequestChange_CanExecute(par); });
+                this.ChangedCommand = new MVVM.RelayCommand(function (par) { return _this.Changed_Execute(par); });
+            }
+            ModalViewModel.prototype.Changed_Execute = function (parameter) {
+                if (parameter.Result == true) {
+                    if (this.AcceptAction != null) {
+                        this.AcceptAction(parameter.Data || undefined);
+                    }
+                }
+                if (this.CompleteAction != null)
+                    this.CompleteAction(parameter);
+            };
+            ModalViewModel.prototype.RequestChange_Execute = function (parameter) {
+                if (this.ViewModelBuilder != null) {
+                    var vm = this.ViewModelBuilder(parameter);
+                    if (vm == null)
+                        return;
+                    this.ModalDataContext = vm;
+                }
+                this.IsRequestingChange = true;
+            };
+            ModalViewModel.prototype.RequestChange_CanExecute = function (parameter) {
+                if (this.CanChange != null)
+                    return this.CanChange(parameter);
+                return true;
+            };
+            return ModalViewModel;
+        })(MVVM.ViewModelBase);
+        MVVM.ModalViewModel = ModalViewModel;
+        MVVM.NotifyProperties(ModalViewModel, ["IsRequestingChange", "RequestChangeCommand", "ChangedCommand", "ModalDataContext"]);
+    })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
+})(Fayde || (Fayde = {}));
 /// <reference path="../Input/ICommand.ts" />
 var Fayde;
 (function (Fayde) {
@@ -19119,22 +19320,6 @@ var Fayde;
         MVVM.RelayCommand = RelayCommand;
         Fayde.CoreLibrary.add(RelayCommand);
         nullstone.addTypeInterfaces(RelayCommand, Fayde.Input.ICommand_);
-    })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="ObservableObject.ts"/>
-var Fayde;
-(function (Fayde) {
-    var MVVM;
-    (function (MVVM) {
-        var ViewModelBase = (function (_super) {
-            __extends(ViewModelBase, _super);
-            function ViewModelBase() {
-                _super.apply(this, arguments);
-            }
-            return ViewModelBase;
-        })(MVVM.ObservableObject);
-        MVVM.ViewModelBase = ViewModelBase;
-        Fayde.CoreLibrary.add(ViewModelBase);
     })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;

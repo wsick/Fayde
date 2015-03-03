@@ -1,3 +1,5 @@
+/// <reference path="../../Core/FrameworkElement" />
+
 module Fayde.Controls.Primitives {
     import ModalUpdater = minerva.controls.modal.ModalUpdater;
     var DEFAULT_MASK_BRUSH = "#33000000";
@@ -20,9 +22,14 @@ module Fayde.Controls.Primitives {
         EnsureMask () {
             if (!this._Mask) {
                 this._Mask = new Border();
+                this._Mask.MouseLeftButtonDown.on(this._OnMaskMouseDown, this);
                 this.UpdateMask();
             }
             return this._Mask;
+        }
+
+        private _OnMaskMouseDown (sender, args: Input.MouseButtonEventArgs) {
+            this.XObject.SetCurrentValue(Modal.IsOpenProperty, false);
         }
 
         UpdateMask () {

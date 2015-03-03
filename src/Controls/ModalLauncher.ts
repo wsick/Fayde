@@ -27,16 +27,8 @@ module Fayde.Controls {
             if (this.ViewModel == null)
                 return;
 
-            this._ShowModalAsync(this.ViewUri, this.ViewModel)
-                .then((result) => this._FinishModal(result))
-        }
-
-        private _ShowModalAsync () {
-
-        }
-
-        private _FinishModal (result: boolean) {
-
+            //this._ShowModalAsync(this.ViewUri, this.ViewModel)
+                //.then((result) => this._FinishModal(result))
         }
     }
     Fayde.CoreLibrary.add(ModalLauncher);

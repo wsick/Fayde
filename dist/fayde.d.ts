@@ -2032,6 +2032,20 @@ declare module Fayde.Controls {
     class MediaElement extends FrameworkElement {
     }
 }
+declare module Fayde.Controls {
+    class ModalLauncher extends DependencyObject {
+        static ViewUriProperty: DependencyProperty;
+        static ViewModelProperty: DependencyProperty;
+        static IsModalVisibleProperty: DependencyProperty;
+        static ModalCompleteCommandProperty: DependencyProperty;
+        ViewUri: Uri;
+        ViewModel: any;
+        IsModalVisible: boolean;
+        ModalCompleteCommand: Input.ICommand;
+        constructor();
+        private _TryShowModal();
+    }
+}
 declare module Fayde {
     class RoutedEventArgs implements nullstone.IEventArgs {
         Handled: boolean;
@@ -2213,6 +2227,40 @@ declare module Fayde.Controls.Primitives {
         HorizontalOffset: number;
         VerticalOffset: number;
         constructor(horizontal: number, vertical: number);
+    }
+}
+declare module Fayde.MVVM {
+    interface IModalCompleteParameters {
+        Result: boolean;
+        Data: any;
+    }
+}
+declare module Fayde.Controls.Primitives {
+    import ModalUpdater = minerva.controls.modal.ModalUpdater;
+    class ModalNode extends FENode {
+        LayoutUpdater: ModalUpdater;
+        XObject: Modal;
+        private _Layer;
+        private _Mask;
+        EnsureLayer(): Panel;
+        EnsureMask(): Border;
+        private _OnMaskMouseDown(sender, args);
+        UpdateMask(): void;
+        OnIsAttachedChanged(newIsAttached: boolean): void;
+        RegisterInitiator(initiator: UIElement): void;
+    }
+    class Modal extends FrameworkElement {
+        XamlNode: ModalNode;
+        CreateNode(): ModalNode;
+        CreateLayoutUpdater(): ModalUpdater;
+        static ChildProperty: DependencyProperty;
+        static IsOpenProperty: DependencyProperty;
+        static MaskBrushProperty: DependencyProperty;
+        Child: UIElement;
+        IsOpen: boolean;
+        MaskBrush: Media.Brush;
+        Opened: nullstone.Event<nullstone.IEventArgs>;
+        Closed: nullstone.Event<nullstone.IEventArgs>;
     }
 }
 declare module Fayde.Controls.Primitives {
@@ -3941,16 +3989,32 @@ declare module Fayde.MVVM {
     }
 }
 declare module Fayde.MVVM {
+    class ViewModelBase extends ObservableObject {
+    }
+}
+declare module Fayde.MVVM {
+    class ModalViewModel<TBuilder, TAccept> extends ViewModelBase {
+        IsRequestingChange: boolean;
+        RequestChangeCommand: RelayCommand;
+        ChangedCommand: RelayCommand;
+        ModalDataContext: any;
+        AcceptAction: (data: TAccept) => any;
+        CompleteAction: (pars: IModalCompleteParameters) => any;
+        ViewModelBuilder: (builder: TBuilder) => any;
+        CanChange: (builder: TBuilder) => boolean;
+        constructor();
+        private Changed_Execute(parameter);
+        private RequestChange_Execute(parameter);
+        private RequestChange_CanExecute(parameter);
+    }
+}
+declare module Fayde.MVVM {
     class RelayCommand implements Input.ICommand {
         constructor(execute?: (parameter: any) => void, canExecute?: (parameter: any) => boolean);
         Execute(parameter: any): void;
         CanExecute(parameter: any): boolean;
         CanExecuteChanged: nullstone.Event<{}>;
         ForceCanExecuteChanged(): void;
-    }
-}
-declare module Fayde.MVVM {
-    class ViewModelBase extends ObservableObject {
     }
 }
 declare module Fayde.Markup {

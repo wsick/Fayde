@@ -1,0 +1,27 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:modal="Modal"
+    ThemeName="Metro">
+    <Grid>
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+            <ToggleButton x:Name="Modal1Toggle" Content="Open Modal" />
+            <Modal IsOpen="{Binding ElementName=Modal1Toggle, Path=IsChecked, Mode=TwoWay}">
+                <Modal.Child>
+                    <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="Yellow"
+                            Width="300" Height="300">
+                        <TextBlock Text="Hi! I am a modal." />
+                    </Border>
+                </Modal.Child>
+            </Modal>
+            <ToggleButton Content="Open Modal no background on right" />
+            <Modal MaskBrush="{x:Null}" IsOpen="{Binding ElementName=Modal2Toggle, Path=IsChecked, Mode=TwoWay}">
+                <Modal.Child>
+                    <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="Orange">
+                        <TextBlock Text="I like the right side." />
+                    </Border>
+                </Modal.Child>
+            </Modal>
+        </StackPanel>
+    </Grid>
+</Application>

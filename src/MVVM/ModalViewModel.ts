@@ -1,8 +1,10 @@
+/// <reference path="ViewModelBase" />
+
 module Fayde.MVVM {
     export class ModalViewModel<TBuilder, TAccept> extends ViewModelBase {
         IsRequestingChange = false;
-        RequestChangeCommand: RelayCommand<TBuilder>;
-        ChangedCommand: RelayCommand<IModalCompleteParameters>;
+        RequestChangeCommand: RelayCommand;
+        ChangedCommand: RelayCommand;
         ModalDataContext: any = null;
 
         AcceptAction: (data: TAccept) => any;
@@ -12,8 +14,8 @@ module Fayde.MVVM {
 
         constructor () {
             super();
-            this.RequestChangeCommand = new RelayCommand<TBuilder>(par => this.RequestChange_Execute(par), par => this.RequestChange_CanExecute(par));
-            this.ChangedCommand = new RelayCommand<IModalCompleteParameters>(par => this.Changed_Execute(par));
+            this.RequestChangeCommand = new RelayCommand(par => this.RequestChange_Execute(par), par => this.RequestChange_CanExecute(par));
+            this.ChangedCommand = new RelayCommand(par => this.Changed_Execute(par));
         }
 
         private Changed_Execute (parameter: IModalCompleteParameters) {
