@@ -9517,6 +9517,10 @@ var Fayde;
             var reactions;
             (function (reactions) {
                 Fayde.UIReaction(Modal.IsOpenProperty, function (upd, ov, nv, modal) {
+                    ov = ov || false;
+                    nv = nv || false;
+                    if (ov === nv)
+                        return;
                     if (nv === true) {
                         modal.Opened.raiseAsync(modal, null);
                     }

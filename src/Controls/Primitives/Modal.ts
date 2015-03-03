@@ -79,6 +79,10 @@ module Fayde.Controls.Primitives {
 
     module reactions {
         UIReaction<boolean>(Modal.IsOpenProperty, (upd, ov, nv, modal?: Modal) => {
+            ov = ov || false;
+            nv = nv || false;
+            if (ov === nv)
+                return;
             if (nv === true) {
                 modal.Opened.raiseAsync(modal, null);
             } else {
