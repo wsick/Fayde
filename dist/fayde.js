@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.17';
+    Fayde.Version = '0.16.18';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -6625,6 +6625,29 @@ var Fayde;
         Fayde.CoreLibrary.add(ControlTemplate);
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
+/// <reference path="Control" />
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var Dialog = (function (_super) {
+            __extends(Dialog, _super);
+            function Dialog() {
+                _super.call(this);
+                this.DefaultStyleKey = Dialog;
+            }
+            Dialog.prototype.OnDialogResultChanged = function (args) {
+                var launcher = Controls.Primitives.OverlayLauncher.FindLauncher(this);
+                if (launcher)
+                    launcher.Close(args.NewValue);
+            };
+            Dialog.DialogResultProperty = DependencyProperty.Register("DialogResult", function () { return Boolean; }, Dialog, undefined, function (d, args) { return d.OnDialogResultChanged(args); });
+            return Dialog;
+        })(Controls.ContentControl);
+        Controls.Dialog = Dialog;
+        Fayde.CoreLibrary.add(Dialog);
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
 /// <reference path="Control.ts" />
 var Fayde;
 (function (Fayde) {
@@ -8645,41 +8668,6 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    var Controls;
-    (function (Controls) {
-        var ModalLauncher = (function (_super) {
-            __extends(ModalLauncher, _super);
-            //StartupLocation
-            function ModalLauncher() {
-                _super.call(this);
-                this.SetBinding(ModalLauncher.ViewModelProperty, new Fayde.Data.Binding("ModalDataContext"));
-                var binding = new Fayde.Data.Binding("IsRequestingChange");
-                binding.Mode = 1 /* TwoWay */;
-                this.SetBinding(ModalLauncher.IsModalVisibleProperty, binding);
-                this.SetBinding(ModalLauncher.ModalCompleteCommandProperty, new Fayde.Data.Binding("ChangedCommand"));
-            }
-            ModalLauncher.prototype._TryShowModal = function () {
-                if (!this.IsModalVisible)
-                    return;
-                if (!this.ViewUri)
-                    return;
-                if (this.ViewModel == null)
-                    return;
-                //this._ShowModalAsync(this.ViewUri, this.ViewModel)
-                //.then((result) => this._FinishModal(result))
-            };
-            ModalLauncher.ViewUriProperty = DependencyProperty.Register("ViewUri", function () { return Fayde.Uri; }, ModalLauncher, undefined, function (d, args) { return d._TryShowModal(); });
-            ModalLauncher.ViewModelProperty = DependencyProperty.Register("ViewModel", function () { return Object; }, ModalLauncher, undefined, function (d, args) { return d._TryShowModal(); });
-            ModalLauncher.IsModalVisibleProperty = DependencyProperty.Register("IsModalVisible", function () { return Boolean; }, ModalLauncher, undefined, function (d, args) { return d._TryShowModal(); });
-            ModalLauncher.ModalCompleteCommandProperty = DependencyProperty.Register("ModalCompleteCommand", function () { return Fayde.Input.ICommand_; }, ModalLauncher);
-            return ModalLauncher;
-        })(Fayde.DependencyObject);
-        Controls.ModalLauncher = ModalLauncher;
-        Fayde.CoreLibrary.add(ModalLauncher);
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
     var RoutedEventArgs = (function () {
         function RoutedEventArgs() {
             this.Handled = false;
@@ -9540,6 +9528,120 @@ var Fayde;
                     overlay.XamlNode.UpdateMask();
                 });
             })(reactions || (reactions = {}));
+        })(Primitives = Controls.Primitives || (Controls.Primitives = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var Primitives;
+        (function (Primitives) {
+            var OverlayClosedEventArgs = (function () {
+                function OverlayClosedEventArgs(result, data) {
+                    Object.defineProperties(this, {
+                        "Result": {
+                            value: result,
+                            writable: false
+                        },
+                        "Data": {
+                            value: data,
+                            writable: false
+                        }
+                    });
+                }
+                return OverlayClosedEventArgs;
+            })();
+            Primitives.OverlayClosedEventArgs = OverlayClosedEventArgs;
+        })(Primitives = Controls.Primitives || (Controls.Primitives = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../../Core/FrameworkElement" />
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var Primitives;
+        (function (Primitives) {
+            var OverlayLauncher = (function (_super) {
+                __extends(OverlayLauncher, _super);
+                function OverlayLauncher() {
+                    _super.call(this);
+                    this.Closed = new nullstone.Event();
+                    this._Overlay = null;
+                    this.InitBindings();
+                }
+                OverlayLauncher.prototype.InitBindings = function () {
+                    this.SetBinding(OverlayLauncher.ViewModelProperty, new Fayde.Data.Binding("OverlayDataContext"));
+                    var binding = new Fayde.Data.Binding("IsOpen");
+                    binding.Mode = 1 /* TwoWay */;
+                    this.SetBinding(OverlayLauncher.IsOverlayOpenProperty, binding);
+                    this.SetBinding(OverlayLauncher.ClosedCommandProperty, new Fayde.Data.Binding("ClosedCommand"));
+                };
+                OverlayLauncher.prototype._TryShowOverlay = function () {
+                    if (!this.IsOverlayOpen)
+                        return;
+                    if (!this.ViewUri)
+                        return;
+                    if (this.ViewModel == null)
+                        return;
+                    this._ShowOverlay();
+                };
+                OverlayLauncher.prototype._ShowOverlay = function () {
+                    var overlay = this._Overlay;
+                    if (!overlay) {
+                        overlay = this._Overlay = new Primitives.Overlay();
+                        var cc = new Controls.ContentControl();
+                        cc.ContentUri = this.ViewUri;
+                        cc.DataContext = this.ViewModel;
+                        cc.SetValue(LauncherOwnerProperty, this);
+                        overlay.Visual = cc;
+                        overlay.XamlNode.RegisterInitiator(this);
+                    }
+                    overlay.Closed.on(this._OnOverlayClosed, this);
+                    overlay.IsOpen = true;
+                };
+                OverlayLauncher.prototype._OnOverlayClosed = function (sender, e) {
+                    this.Close(this._GetDialogResult());
+                };
+                OverlayLauncher.prototype._GetDialogResult = function () {
+                    var overlay = this._Overlay;
+                    var cc = overlay ? overlay.Visual : null;
+                    var dialog = Fayde.VisualTreeHelper.GetChildrenCount(cc) > 0 ? Fayde.VisualTreeHelper.GetChild(cc, 0) : null;
+                    return (dialog instanceof Controls.Dialog) ? dialog.DialogResult : undefined;
+                };
+                OverlayLauncher.prototype.Close = function (result) {
+                    if (this.IsOverlayOpen !== true)
+                        return;
+                    var overlay = this._Overlay;
+                    overlay.Closed.off(this._OnOverlayClosed, this);
+                    this.SetCurrentValue(OverlayLauncher.IsOverlayOpenProperty, false);
+                    var parameter = {
+                        Result: result,
+                        Data: overlay.Visual.DataContext
+                    };
+                    var cmd = this.ClosedCommand;
+                    if (!cmd.CanExecute || cmd.CanExecute(parameter))
+                        cmd.Execute(parameter);
+                    this.Closed.raise(this, new Primitives.OverlayClosedEventArgs(parameter.Result, parameter.Data));
+                };
+                OverlayLauncher.FindLauncher = function (visual) {
+                    for (var en = Fayde.VisualTreeEnum.GetAncestors(visual).getEnumerator(); en.moveNext();) {
+                        var owner = en.current.GetValue(LauncherOwnerProperty);
+                        if (owner instanceof OverlayLauncher)
+                            return owner;
+                    }
+                    return undefined;
+                };
+                OverlayLauncher.ViewUriProperty = DependencyProperty.Register("ViewUri", function () { return Fayde.Uri; }, OverlayLauncher, undefined, function (d, args) { return d._TryShowOverlay(); });
+                OverlayLauncher.ViewModelProperty = DependencyProperty.Register("ViewModel", function () { return Object; }, OverlayLauncher, undefined, function (d, args) { return d._TryShowOverlay(); });
+                OverlayLauncher.IsOverlayOpenProperty = DependencyProperty.Register("IsOverlayOpen", function () { return Boolean; }, OverlayLauncher, undefined, function (d, args) { return d._TryShowOverlay(); });
+                OverlayLauncher.ClosedCommandProperty = DependencyProperty.Register("ClosedCommand", function () { return Fayde.Input.ICommand_; }, OverlayLauncher);
+                return OverlayLauncher;
+            })(Fayde.FrameworkElement);
+            Primitives.OverlayLauncher = OverlayLauncher;
+            Fayde.CoreLibrary.add(OverlayLauncher);
+            var LauncherOwnerProperty = DependencyProperty.RegisterAttached("LauncherOwner", function () { return OverlayLauncher; }, OverlayLauncher);
         })(Primitives = Controls.Primitives || (Controls.Primitives = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
@@ -12393,6 +12495,36 @@ var Fayde;
     })(Fayde.XamlObjectCollection);
     Fayde.TriggerCollection = TriggerCollection;
     Fayde.CoreLibrary.add(TriggerCollection);
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var VisualTreeEnum = (function () {
+        function VisualTreeEnum() {
+        }
+        VisualTreeEnum.GetAncestors = function (uie) {
+            return new AncestorsEnumerable(uie);
+        };
+        return VisualTreeEnum;
+    })();
+    Fayde.VisualTreeEnum = VisualTreeEnum;
+    var AncestorsEnumerable = (function () {
+        function AncestorsEnumerable(uie) {
+            this.uie = uie;
+        }
+        AncestorsEnumerable.prototype.getEnumerator = function () {
+            var curNode = this.uie ? this.uie.XamlNode : null;
+            var e = {
+                current: undefined,
+                moveNext: function () {
+                    curNode = curNode ? curNode.VisualParentNode : undefined;
+                    e.current = curNode ? curNode.XObject : undefined;
+                    return e.current !== undefined;
+                }
+            };
+            return e;
+        };
+        return AncestorsEnumerable;
+    })();
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -19093,6 +19225,104 @@ var Fayde;
         }
     })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
 })(Fayde || (Fayde = {}));
+/// <reference path="../Core/INotifyPropertyChanged.ts" />
+var Fayde;
+(function (Fayde) {
+    var MVVM;
+    (function (MVVM) {
+        function NotifyProperties(type, propNames) {
+            var len = propNames.length;
+            for (var i = 0; i < len; i++) {
+                (function () {
+                    var propName = propNames[i];
+                    var backingName = "$" + propName + "$";
+                    Object.defineProperty(type.prototype, propName, {
+                        get: function () {
+                            return this[backingName];
+                        },
+                        set: function (value) {
+                            this[backingName] = value;
+                            this.OnPropertyChanged(propName);
+                        }
+                    });
+                })();
+            }
+        }
+        MVVM.NotifyProperties = NotifyProperties;
+        var ObservableObject = (function () {
+            function ObservableObject() {
+                this.PropertyChanged = new nullstone.Event();
+            }
+            ObservableObject.prototype.OnPropertyChanged = function (propertyName) {
+                this.PropertyChanged.raise(this, new Fayde.PropertyChangedEventArgs(propertyName));
+            };
+            return ObservableObject;
+        })();
+        MVVM.ObservableObject = ObservableObject;
+        Fayde.CoreLibrary.add(ObservableObject);
+    })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="ObservableObject.ts"/>
+var Fayde;
+(function (Fayde) {
+    var MVVM;
+    (function (MVVM) {
+        var ViewModelBase = (function (_super) {
+            __extends(ViewModelBase, _super);
+            function ViewModelBase() {
+                _super.apply(this, arguments);
+            }
+            return ViewModelBase;
+        })(MVVM.ObservableObject);
+        MVVM.ViewModelBase = ViewModelBase;
+        Fayde.CoreLibrary.add(ViewModelBase);
+    })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="ViewModelBase" />
+var Fayde;
+(function (Fayde) {
+    var MVVM;
+    (function (MVVM) {
+        var DialogViewModel = (function (_super) {
+            __extends(DialogViewModel, _super);
+            function DialogViewModel(settings) {
+                var _this = this;
+                _super.call(this);
+                this.IsOpen = false;
+                this.OverlayDataContext = null;
+                this.RequestOpenCommand = new MVVM.RelayCommand(function (par) { return _this.RequestOpen_Execute(par); }, function (par) { return _this.RequestOpen_CanExecute(par); });
+                this.ClosedCommand = new MVVM.RelayCommand(function (par) { return _this.Closed_Execute(par); });
+                if (settings) {
+                    this.AcceptAction = settings.AcceptAction;
+                    this.CompleteAction = settings.CompleteAction;
+                    this.ViewModelBuilder = settings.ViewModelBuilder;
+                    this.CanOpen = settings.CanOpen;
+                }
+            }
+            DialogViewModel.prototype.Closed_Execute = function (parameter) {
+                if (parameter.Result === true) {
+                    this.AcceptAction && this.AcceptAction(parameter.Data || undefined);
+                }
+                this.CompleteAction && this.CompleteAction(parameter);
+            };
+            DialogViewModel.prototype.RequestOpen_Execute = function (parameter) {
+                if (this.ViewModelBuilder != null) {
+                    var vm = this.ViewModelBuilder(parameter);
+                    if (vm == null)
+                        return;
+                    this.OverlayDataContext = vm;
+                }
+                this.IsOpen = true;
+            };
+            DialogViewModel.prototype.RequestOpen_CanExecute = function (parameter) {
+                return !this.CanOpen || this.CanOpen(parameter);
+            };
+            return DialogViewModel;
+        })(MVVM.ViewModelBase);
+        MVVM.DialogViewModel = DialogViewModel;
+        MVVM.NotifyProperties(DialogViewModel, ["IsOpen", "OverlayDataContext", "RequestOpenCommand", "ClosedCommand"]);
+    })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
+})(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
     var MVVM;
@@ -19199,103 +19429,6 @@ var Fayde;
         MVVM.IViewModelProvider_.is = function (o) {
             return o && typeof o.ResolveViewModel === "function";
         };
-    })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="../Core/INotifyPropertyChanged.ts" />
-var Fayde;
-(function (Fayde) {
-    var MVVM;
-    (function (MVVM) {
-        function NotifyProperties(type, propNames) {
-            var len = propNames.length;
-            for (var i = 0; i < len; i++) {
-                (function () {
-                    var propName = propNames[i];
-                    var backingName = "$" + propName + "$";
-                    Object.defineProperty(type.prototype, propName, {
-                        get: function () {
-                            return this[backingName];
-                        },
-                        set: function (value) {
-                            this[backingName] = value;
-                            this.OnPropertyChanged(propName);
-                        }
-                    });
-                })();
-            }
-        }
-        MVVM.NotifyProperties = NotifyProperties;
-        var ObservableObject = (function () {
-            function ObservableObject() {
-                this.PropertyChanged = new nullstone.Event();
-            }
-            ObservableObject.prototype.OnPropertyChanged = function (propertyName) {
-                this.PropertyChanged.raise(this, new Fayde.PropertyChangedEventArgs(propertyName));
-            };
-            return ObservableObject;
-        })();
-        MVVM.ObservableObject = ObservableObject;
-        Fayde.CoreLibrary.add(ObservableObject);
-    })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="ObservableObject.ts"/>
-var Fayde;
-(function (Fayde) {
-    var MVVM;
-    (function (MVVM) {
-        var ViewModelBase = (function (_super) {
-            __extends(ViewModelBase, _super);
-            function ViewModelBase() {
-                _super.apply(this, arguments);
-            }
-            return ViewModelBase;
-        })(MVVM.ObservableObject);
-        MVVM.ViewModelBase = ViewModelBase;
-        Fayde.CoreLibrary.add(ViewModelBase);
-    })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="ViewModelBase" />
-var Fayde;
-(function (Fayde) {
-    var MVVM;
-    (function (MVVM) {
-        var ModalViewModel = (function (_super) {
-            __extends(ModalViewModel, _super);
-            function ModalViewModel() {
-                var _this = this;
-                _super.call(this);
-                this.IsRequestingChange = false;
-                this.ModalDataContext = null;
-                this.RequestChangeCommand = new MVVM.RelayCommand(function (par) { return _this.RequestChange_Execute(par); }, function (par) { return _this.RequestChange_CanExecute(par); });
-                this.ChangedCommand = new MVVM.RelayCommand(function (par) { return _this.Changed_Execute(par); });
-            }
-            ModalViewModel.prototype.Changed_Execute = function (parameter) {
-                if (parameter.Result == true) {
-                    if (this.AcceptAction != null) {
-                        this.AcceptAction(parameter.Data || undefined);
-                    }
-                }
-                if (this.CompleteAction != null)
-                    this.CompleteAction(parameter);
-            };
-            ModalViewModel.prototype.RequestChange_Execute = function (parameter) {
-                if (this.ViewModelBuilder != null) {
-                    var vm = this.ViewModelBuilder(parameter);
-                    if (vm == null)
-                        return;
-                    this.ModalDataContext = vm;
-                }
-                this.IsRequestingChange = true;
-            };
-            ModalViewModel.prototype.RequestChange_CanExecute = function (parameter) {
-                if (this.CanChange != null)
-                    return this.CanChange(parameter);
-                return true;
-            };
-            return ModalViewModel;
-        })(MVVM.ViewModelBase);
-        MVVM.ModalViewModel = ModalViewModel;
-        MVVM.NotifyProperties(ModalViewModel, ["IsRequestingChange", "RequestChangeCommand", "ChangedCommand", "ModalDataContext"]);
     })(MVVM = Fayde.MVVM || (Fayde.MVVM = {}));
 })(Fayde || (Fayde = {}));
 /// <reference path="../Input/ICommand.ts" />

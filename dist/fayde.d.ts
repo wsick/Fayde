@@ -1573,6 +1573,14 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
+    class Dialog extends ContentControl {
+        static DialogResultProperty: DependencyProperty;
+        DialogResult: boolean;
+        private OnDialogResultChanged(args);
+        constructor();
+    }
+}
+declare module Fayde.Controls {
     class UserControl extends Control {
         static ContentProperty: DependencyProperty;
         Content: UIElement;
@@ -2032,20 +2040,6 @@ declare module Fayde.Controls {
     class MediaElement extends FrameworkElement {
     }
 }
-declare module Fayde.Controls {
-    class ModalLauncher extends DependencyObject {
-        static ViewUriProperty: DependencyProperty;
-        static ViewModelProperty: DependencyProperty;
-        static IsModalVisibleProperty: DependencyProperty;
-        static ModalCompleteCommandProperty: DependencyProperty;
-        ViewUri: Uri;
-        ViewModel: any;
-        IsModalVisible: boolean;
-        ModalCompleteCommand: Input.ICommand;
-        constructor();
-        private _TryShowModal();
-    }
-}
 declare module Fayde {
     class RoutedEventArgs implements nullstone.IEventArgs {
         Handled: boolean;
@@ -2229,12 +2223,6 @@ declare module Fayde.Controls.Primitives {
         constructor(horizontal: number, vertical: number);
     }
 }
-declare module Fayde.MVVM {
-    interface IModalCompleteParameters {
-        Result: boolean;
-        Data: any;
-    }
-}
 declare module Fayde.Controls.Primitives {
     import OverlayUpdater = minerva.controls.overlay.OverlayUpdater;
     class OverlayNode extends FENode {
@@ -2261,6 +2249,35 @@ declare module Fayde.Controls.Primitives {
         MaskBrush: Media.Brush;
         Opened: nullstone.Event<nullstone.IEventArgs>;
         Closed: nullstone.Event<nullstone.IEventArgs>;
+    }
+}
+declare module Fayde.Controls.Primitives {
+    class OverlayClosedEventArgs implements nullstone.IEventArgs {
+        Result: boolean;
+        Data: any;
+        constructor(result: boolean, data: any);
+    }
+}
+declare module Fayde.Controls.Primitives {
+    class OverlayLauncher extends FrameworkElement {
+        static ViewUriProperty: DependencyProperty;
+        static ViewModelProperty: DependencyProperty;
+        static IsOverlayOpenProperty: DependencyProperty;
+        static ClosedCommandProperty: DependencyProperty;
+        ViewUri: Uri;
+        ViewModel: any;
+        IsOverlayOpen: boolean;
+        ClosedCommand: Input.ICommand;
+        Closed: nullstone.Event<OverlayClosedEventArgs>;
+        private _Overlay;
+        constructor();
+        InitBindings(): void;
+        private _TryShowOverlay();
+        private _ShowOverlay();
+        private _OnOverlayClosed(sender, e);
+        private _GetDialogResult();
+        Close(result?: boolean): void;
+        static FindLauncher(visual: UIElement): OverlayLauncher;
     }
 }
 declare module Fayde.Controls.Primitives {
@@ -2838,6 +2855,11 @@ declare module Fayde {
         RemovedFromCollection(value: TriggerBase, isValueSafe: boolean): void;
         AttachTarget(target: XamlObject): void;
         DetachTarget(target: XamlObject): void;
+    }
+}
+declare module Fayde {
+    class VisualTreeEnum {
+        static GetAncestors(uie: UIElement): nullstone.IEnumerable<UIElement>;
     }
 }
 declare module Fayde {
@@ -3944,6 +3966,39 @@ declare module Fayde.MVVM {
     function AutoModel<T>(typeOrModel: any): IAutoApplier<T>;
 }
 declare module Fayde.MVVM {
+    function NotifyProperties(type: any, propNames: string[]): void;
+    class ObservableObject implements INotifyPropertyChanged {
+        PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
+        OnPropertyChanged(propertyName: string): void;
+    }
+}
+declare module Fayde.MVVM {
+    class ViewModelBase extends ObservableObject {
+    }
+}
+declare module Fayde.MVVM {
+    interface IDialogViewModelSettings<TAccept, TBuilder> {
+        AcceptAction?: (data: TAccept) => any;
+        CompleteAction?: (pars: IOverlayCompleteParameters) => any;
+        ViewModelBuilder?: (builder: TBuilder) => any;
+        CanOpen?: (builder: TBuilder) => boolean;
+    }
+    class DialogViewModel<TBuilder, TAccept> extends ViewModelBase {
+        IsOpen: boolean;
+        OverlayDataContext: any;
+        RequestOpenCommand: RelayCommand;
+        ClosedCommand: RelayCommand;
+        AcceptAction: (data: TAccept) => any;
+        CompleteAction: (pars: IOverlayCompleteParameters) => any;
+        ViewModelBuilder: (builder: TBuilder) => any;
+        CanOpen: (builder: TBuilder) => boolean;
+        constructor(settings?: IDialogViewModelSettings<TAccept, TBuilder>);
+        private Closed_Execute(parameter);
+        private RequestOpen_Execute(parameter);
+        private RequestOpen_CanExecute(parameter);
+    }
+}
+declare module Fayde.MVVM {
     interface IEntity extends INotifyPropertyChanged, Data.INotifyDataErrorInfo {
         OnPropertyChanged(propertyName: string): any;
         AddError(propertyName: string, errorMessage: string): any;
@@ -3963,6 +4018,12 @@ declare module Fayde.MVVM {
         static ApplyTo<TIn, TOut extends IEntity>(model: TIn): TOut;
     }
 }
+declare module Fayde.MVVM {
+    interface IOverlayCompleteParameters {
+        Result: boolean;
+        Data: any;
+    }
+}
 declare module Fayde.Navigation {
     class Route {
         View: Uri;
@@ -3980,33 +4041,6 @@ declare module Fayde.MVVM {
         ResolveViewModel(route: Navigation.Route): any;
     }
     var IViewModelProvider_: nullstone.Interface<IViewModelProvider>;
-}
-declare module Fayde.MVVM {
-    function NotifyProperties(type: any, propNames: string[]): void;
-    class ObservableObject implements INotifyPropertyChanged {
-        PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
-        OnPropertyChanged(propertyName: string): void;
-    }
-}
-declare module Fayde.MVVM {
-    class ViewModelBase extends ObservableObject {
-    }
-}
-declare module Fayde.MVVM {
-    class ModalViewModel<TBuilder, TAccept> extends ViewModelBase {
-        IsRequestingChange: boolean;
-        RequestChangeCommand: RelayCommand;
-        ChangedCommand: RelayCommand;
-        ModalDataContext: any;
-        AcceptAction: (data: TAccept) => any;
-        CompleteAction: (pars: IModalCompleteParameters) => any;
-        ViewModelBuilder: (builder: TBuilder) => any;
-        CanChange: (builder: TBuilder) => boolean;
-        constructor();
-        private Changed_Execute(parameter);
-        private RequestChange_Execute(parameter);
-        private RequestChange_CanExecute(parameter);
-    }
 }
 declare module Fayde.MVVM {
     class RelayCommand implements Input.ICommand {

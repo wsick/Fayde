@@ -1,5 +1,5 @@
 module Fayde.MVVM {
-    export interface IModalCompleteParameters {
+    export interface IOverlayCompleteParameters {
         Result: boolean;
         Data: any;
     }
