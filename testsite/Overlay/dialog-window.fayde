@@ -1,0 +1,9 @@
+﻿<Dialog
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x">
+    <Grid RowDefinitions="* auto">
+        <Grid Grid.Row="1" Background="Gray">
+
+        </Grid>
+    </Grid>
+</Dialog>
