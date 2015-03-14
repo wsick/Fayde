@@ -9596,7 +9596,7 @@ var Fayde;
                         cc.DataContext = this.ViewModel;
                         cc.SetValue(LauncherOwnerProperty, this);
                         overlay.Visual = cc;
-                        overlay.XamlNode.RegisterInitiator(this);
+                        this.XamlNode.AttachVisualChild(overlay, new BError());
                     }
                     overlay.Closed.on(this._OnOverlayClosed, this);
                     overlay.IsOpen = true;
