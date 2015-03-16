@@ -9610,6 +9610,12 @@ var Fayde;
                     this.SetBinding(OverlayLauncher.IsOverlayOpenProperty, binding);
                     this.SetBinding(OverlayLauncher.ClosedCommandProperty, new Fayde.Data.Binding("ClosedCommand"));
                 };
+                OverlayLauncher.prototype._OnIsOverlayOpenChanged = function (args) {
+                    if (args.NewValue === true)
+                        this._TryShowOverlay();
+                    else
+                        this._FinishClose(this._GetDialogResult());
+                };
                 OverlayLauncher.prototype._TryShowOverlay = function () {
                     if (!this.IsOverlayOpen)
                         return;
@@ -9631,7 +9637,7 @@ var Fayde;
                         this.XamlNode.AttachVisualChild(overlay, new BError());
                     }
                     overlay.Closed.on(this._OnOverlayClosed, this);
-                    overlay.IsOpen = true;
+                    overlay.SetCurrentValue(Primitives.Overlay.IsOpenProperty, true);
                 };
                 OverlayLauncher.prototype._OnOverlayClosed = function (sender, e) {
                     this.Close(this._GetDialogResult());
@@ -9639,16 +9645,22 @@ var Fayde;
                 OverlayLauncher.prototype._GetDialogResult = function () {
                     var overlay = this._Overlay;
                     var cc = overlay ? overlay.Visual : null;
-                    var dialog = Fayde.VisualTreeHelper.GetChildrenCount(cc) > 0 ? Fayde.VisualTreeHelper.GetChild(cc, 0) : null;
-                    return (dialog instanceof Controls.Dialog) ? dialog.DialogResult : undefined;
+                    var dialog = (cc && Fayde.VisualTreeHelper.GetChildrenCount(cc) > 0) ? Fayde.VisualTreeHelper.GetChild(cc, 0) : null;
+                    return (dialog instanceof Controls.Dialog) ? dialog.DialogResult : null;
                 };
                 OverlayLauncher.prototype.Close = function (result) {
-                    if (this.IsOverlayOpen !== true)
-                        return;
                     var overlay = this._Overlay;
+                    if (!overlay || this.IsOverlayOpen !== true)
+                        return;
                     overlay.Closed.off(this._OnOverlayClosed, this);
-                    overlay.SetCurrentValue(Primitives.Overlay.IsOpenProperty, false);
                     this.SetCurrentValue(OverlayLauncher.IsOverlayOpenProperty, false);
+                    this._FinishClose(result);
+                };
+                OverlayLauncher.prototype._FinishClose = function (result) {
+                    var overlay = this._Overlay;
+                    if (!overlay)
+                        return;
+                    overlay.SetCurrentValue(Primitives.Overlay.IsOpenProperty, false);
                     var parameter = {
                         Result: result,
                         Data: overlay.Visual.DataContext
@@ -9668,7 +9680,7 @@ var Fayde;
                 };
                 OverlayLauncher.ViewUriProperty = DependencyProperty.Register("ViewUri", function () { return Fayde.Uri; }, OverlayLauncher, undefined, function (d, args) { return d._TryShowOverlay(); });
                 OverlayLauncher.ViewModelProperty = DependencyProperty.Register("ViewModel", function () { return Object; }, OverlayLauncher, undefined, function (d, args) { return d._TryShowOverlay(); });
-                OverlayLauncher.IsOverlayOpenProperty = DependencyProperty.Register("IsOverlayOpen", function () { return Boolean; }, OverlayLauncher, undefined, function (d, args) { return d._TryShowOverlay(); });
+                OverlayLauncher.IsOverlayOpenProperty = DependencyProperty.Register("IsOverlayOpen", function () { return Boolean; }, OverlayLauncher, undefined, function (d, args) { return d._OnIsOverlayOpenChanged(args); });
                 OverlayLauncher.ClosedCommandProperty = DependencyProperty.Register("ClosedCommand", function () { return Fayde.Input.ICommand_; }, OverlayLauncher);
                 return OverlayLauncher;
             })(Fayde.FrameworkElement);

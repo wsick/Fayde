@@ -2276,11 +2276,13 @@ declare module Fayde.Controls.Primitives {
         private _Overlay;
         constructor();
         InitBindings(): void;
+        private _OnIsOverlayOpenChanged(args);
         private _TryShowOverlay();
         private _ShowOverlay();
         private _OnOverlayClosed(sender, e);
         private _GetDialogResult();
         Close(result?: boolean): void;
+        private _FinishClose(result?);
         static FindLauncher(visual: UIElement): OverlayLauncher;
     }
 }
