@@ -2904,6 +2904,29 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <!--Dialog Style-->
+    <Style TargetType="Dialog" x:Key="DefaultDialogStyle">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="DarkGray" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Dialog">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}">
+                        <Border.Effect>
+                            <DropShadowEffect ShadowDepth="0" Opacity="0.2" />
+                        </Border.Effect>
+                        <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          Margin="{TemplateBinding Padding}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <!-- Implicit Styles -->
     <!-- When defining your own styles, set "based on" the same way to keep control theming -->
@@ -2930,4 +2953,5 @@
     <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}"/>
     <Style TargetType="ToolTip" BasedOn="{StaticResource DefaultToolTipStyle}"/>
     <Style TargetType="HeaderedContentControl" BasedOn="{StaticResource DefaultHeaderedContentControlStyle}"/>
+    <Style TargetType="Dialog" BasedOn="{StaticResource DefaultDialogStyle}"/>
 </ResourceDictionary>
