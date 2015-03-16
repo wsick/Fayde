@@ -1,0 +1,16 @@
+﻿<Dialog
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    MinWidth="300" MinHeight="300">
+    <Grid RowDefinitions="* auto">
+        <StackPanel Margin="4">
+            <TextBox Text="{Binding Color, Mode=TwoWay}" />
+        </StackPanel>
+        <Border Grid.Row="1" Background="Orange">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="OK" Dialog.ClickResult="True" Margin="4" Padding="4" />
+                <Button Content="Cancel" Dialog.ClickResult="False" Margin="4" Padding="4" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Dialog>

@@ -1,0 +1,26 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    ThemeName="Metro">
+    <Grid>
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+            <ToggleButton x:Name="Overlay1Toggle" Content="Open Overlay" />
+            <Overlay IsOpen="{Binding ElementName=Overlay1Toggle, Path=IsChecked, Mode=TwoWay}">
+                <Overlay.Visual>
+                    <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="Yellow"
+                            Width="300" Height="300">
+                        <TextBlock Text="Hi! I am an overlay." />
+                    </Border>
+                </Overlay.Visual>
+            </Overlay>
+            <ToggleButton x:Name="Overlay2Toggle" Content="Open Overlay no background on right" />
+            <Overlay MaskBrush="Transparent" IsOpen="{Binding ElementName=Overlay2Toggle, Path=IsChecked, Mode=TwoWay}">
+                <Overlay.Visual>
+                    <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="Orange">
+                        <TextBlock Text="I like the right side." />
+                    </Border>
+                </Overlay.Visual>
+            </Overlay>
+        </StackPanel>
+    </Grid>
+</Application>
