@@ -3,13 +3,13 @@ import DialogViewModel = Fayde.MVVM.DialogViewModel;
 
 class MainDialogViewModel extends Fayde.MVVM.ViewModelBase {
     Color: string = "#ffffff";
-    LaunchChooser: DialogViewModel<any, string>;
+    LaunchChooser: DialogViewModel<any, ChooserViewModel>;
 
     constructor () {
         super();
-        this.LaunchChooser = new DialogViewModel<any, string>({
+        this.LaunchChooser = new DialogViewModel({
             ViewModelBuilder: (builder: any) => new ChooserViewModel(this.Color),
-            AcceptAction: (data: string) => this.Color = data
+            AcceptAction: (data: ChooserViewModel) => this.Color = data.Color
         });
     }
 }

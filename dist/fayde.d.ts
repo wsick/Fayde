@@ -1575,8 +1575,12 @@ declare module Fayde.Controls {
 declare module Fayde.Controls {
     class Dialog extends ContentControl {
         static DialogResultProperty: DependencyProperty;
+        static ClickResultProperty: DependencyProperty;
         DialogResult: boolean;
+        private _IgnoreResult;
         private OnDialogResultChanged(args);
+        static GetClickResult(dobj: DependencyObject): boolean;
+        static SetClickResult(dobj: DependencyObject, value: boolean): void;
         constructor();
     }
 }

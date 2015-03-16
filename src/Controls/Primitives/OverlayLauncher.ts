@@ -69,6 +69,7 @@ module Fayde.Controls.Primitives {
                 return;
             var overlay = this._Overlay;
             overlay.Closed.off(this._OnOverlayClosed, this);
+            overlay.SetCurrentValue(Overlay.IsOpenProperty, false);
             this.SetCurrentValue(OverlayLauncher.IsOverlayOpenProperty, false);
             var parameter: MVVM.IOverlayCompleteParameters = {
                 Result: result,

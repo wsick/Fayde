@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.18';
+    Fayde.Version = '0.16.17';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -6625,23 +6625,55 @@ var Fayde;
         Fayde.CoreLibrary.add(ControlTemplate);
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
-/// <reference path="Control" />
+/// <reference path="ContentControl" />
 var Fayde;
 (function (Fayde) {
     var Controls;
     (function (Controls) {
+        function clickResultPropertyChanged(dobj, args) {
+            var btn = (dobj instanceof Controls.Primitives.ButtonBase) ? dobj : null;
+            if (!btn)
+                return;
+            if (args.OldValue !== undefined)
+                btn.Click.off(buttonClicked, btn);
+            if (args.NewValue !== undefined)
+                btn.Click.on(buttonClicked, btn);
+        }
+        function buttonClicked(sender, args) {
+            var dialog = Fayde.VisualTreeHelper.GetParentOfType(sender, Dialog);
+            if (dialog)
+                dialog.DialogResult = Dialog.GetClickResult(sender);
+        }
         var Dialog = (function (_super) {
             __extends(Dialog, _super);
             function Dialog() {
                 _super.call(this);
+                this._IgnoreResult = false;
                 this.DefaultStyleKey = Dialog;
             }
             Dialog.prototype.OnDialogResultChanged = function (args) {
+                if (this._IgnoreResult === true)
+                    return;
                 var launcher = Controls.Primitives.OverlayLauncher.FindLauncher(this);
-                if (launcher)
+                if (launcher) {
                     launcher.Close(args.NewValue);
+                    this._IgnoreResult = true;
+                    try {
+                        this.SetCurrentValue(Dialog.DialogResultProperty, undefined);
+                    }
+                    finally {
+                        this._IgnoreResult = false;
+                    }
+                }
+            };
+            Dialog.GetClickResult = function (dobj) {
+                return dobj.GetValue(Dialog.ClickResultProperty);
+            };
+            Dialog.SetClickResult = function (dobj, value) {
+                dobj.SetValue(Dialog.ClickResultProperty, value);
             };
             Dialog.DialogResultProperty = DependencyProperty.Register("DialogResult", function () { return Boolean; }, Dialog, undefined, function (d, args) { return d.OnDialogResultChanged(args); });
+            Dialog.ClickResultProperty = DependencyProperty.RegisterAttached("ClickResult", function () { return Boolean; }, Dialog, undefined, clickResultPropertyChanged);
             return Dialog;
         })(Controls.ContentControl);
         Controls.Dialog = Dialog;
@@ -9615,6 +9647,7 @@ var Fayde;
                         return;
                     var overlay = this._Overlay;
                     overlay.Closed.off(this._OnOverlayClosed, this);
+                    overlay.SetCurrentValue(Primitives.Overlay.IsOpenProperty, false);
                     this.SetCurrentValue(OverlayLauncher.IsOverlayOpenProperty, false);
                     var parameter = {
                         Result: result,
