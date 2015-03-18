@@ -183,7 +183,7 @@ module Fayde.Controls.Primitives {
                 Data: this.VisualViewModel
             };
             var cmd = this.ClosedCommand;
-            if (!cmd.CanExecute || cmd.CanExecute(parameter))
+            if (cmd && (!cmd.CanExecute || cmd.CanExecute(parameter)))
                 cmd.Execute(parameter);
             this.Closed.raise(this, new OverlayClosedEventArgs(parameter.Result, parameter.Data));
         }

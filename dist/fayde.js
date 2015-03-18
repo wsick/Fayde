@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.20';
+    Fayde.Version = '0.16.21';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -9611,7 +9611,7 @@ var Fayde;
                         Data: this.VisualViewModel
                     };
                     var cmd = this.ClosedCommand;
-                    if (!cmd.CanExecute || cmd.CanExecute(parameter))
+                    if (cmd && (!cmd.CanExecute || cmd.CanExecute(parameter)))
                         cmd.Execute(parameter);
                     this.Closed.raise(this, new Primitives.OverlayClosedEventArgs(parameter.Result, parameter.Data));
                 };
