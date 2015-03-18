@@ -2246,13 +2246,35 @@ declare module Fayde.Controls.Primitives {
         CreateNode(): OverlayNode;
         CreateLayoutUpdater(): OverlayUpdater;
         static VisualProperty: DependencyProperty;
+        static VisualUriProperty: DependencyProperty;
+        static VisualViewModelProperty: DependencyProperty;
         static IsOpenProperty: DependencyProperty;
         static MaskBrushProperty: DependencyProperty;
+        static ClosedCommandProperty: DependencyProperty;
         Visual: UIElement;
+        VisualUri: Uri;
+        VisualViewModel: any;
         IsOpen: boolean;
         MaskBrush: Media.Brush;
+        ClosedCommand: Input.ICommand;
         Opened: nullstone.Event<nullstone.IEventArgs>;
-        Closed: nullstone.Event<nullstone.IEventArgs>;
+        Closed: nullstone.Event<OverlayClosedEventArgs>;
+        constructor();
+        InitBindings(): void;
+        private _ContentControlForUri;
+        private _IgnoreClose;
+        private _OnVisualChanged(args);
+        private _OnVisualUriChanged(args);
+        private _OnVisualViewModelChanged(args);
+        private _SetVisualUri(uri);
+        private _ClearVisualUri();
+        private _OnIsOpenChanged(args);
+        private _DoOpen();
+        private _DoClose(result?);
+        Open(): void;
+        Close(result?: boolean): void;
+        private _GetDialogResult();
+        static FindOverlay(visual: UIElement): Overlay;
     }
 }
 declare module Fayde.Controls.Primitives {
@@ -2260,30 +2282,6 @@ declare module Fayde.Controls.Primitives {
         Result: boolean;
         Data: any;
         constructor(result: boolean, data: any);
-    }
-}
-declare module Fayde.Controls.Primitives {
-    class OverlayLauncher extends FrameworkElement {
-        static ViewUriProperty: DependencyProperty;
-        static ViewModelProperty: DependencyProperty;
-        static IsOverlayOpenProperty: DependencyProperty;
-        static ClosedCommandProperty: DependencyProperty;
-        ViewUri: Uri;
-        ViewModel: any;
-        IsOverlayOpen: boolean;
-        ClosedCommand: Input.ICommand;
-        Closed: nullstone.Event<OverlayClosedEventArgs>;
-        private _Overlay;
-        constructor();
-        InitBindings(): void;
-        private _OnIsOverlayOpenChanged(args);
-        private _TryShowOverlay();
-        private _ShowOverlay();
-        private _OnOverlayClosed(sender, e);
-        private _GetDialogResult();
-        Close(result?: boolean): void;
-        private _FinishClose(result?);
-        static FindLauncher(visual: UIElement): OverlayLauncher;
     }
 }
 declare module Fayde.Controls.Primitives {

@@ -27,9 +27,9 @@ module Fayde.Controls {
         private OnDialogResultChanged (args: IDependencyPropertyChangedEventArgs) {
             if (this._IgnoreResult === true)
                 return;
-            var launcher = Primitives.OverlayLauncher.FindLauncher(this);
-            if (launcher) {
-                launcher.Close(args.NewValue);
+            var overlay = Primitives.Overlay.FindOverlay(this);
+            if (overlay) {
+                overlay.Close(args.NewValue);
                 this._IgnoreResult = true;
                 try {
                     this.SetCurrentValue(Dialog.DialogResultProperty, undefined);

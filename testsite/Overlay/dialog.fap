@@ -10,8 +10,8 @@
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
             <TextBlock Text="{Binding Color}" />
             <Button Command="{Binding LaunchChooser.RequestOpenCommand}" Content="Choose..." />
-            <OverlayLauncher DataContext="{Binding LaunchChooser}"
-                             ViewUri="Overlay/dialog-window.fayde" />
+            <Overlay DataContext="{Binding LaunchChooser}"
+                     VisualUri="Overlay/dialog-window.fayde" />
         </StackPanel>
     </Grid>
 </Application>

@@ -6654,9 +6654,9 @@ var Fayde;
             Dialog.prototype.OnDialogResultChanged = function (args) {
                 if (this._IgnoreResult === true)
                     return;
-                var launcher = Controls.Primitives.OverlayLauncher.FindLauncher(this);
-                if (launcher) {
-                    launcher.Close(args.NewValue);
+                var overlay = Controls.Primitives.Overlay.FindOverlay(this);
+                if (overlay) {
+                    overlay.Close(args.NewValue);
                     this._IgnoreResult = true;
                     try {
                         this.SetCurrentValue(Dialog.DialogResultProperty, undefined);
@@ -9516,9 +9516,13 @@ var Fayde;
             var Overlay = (function (_super) {
                 __extends(Overlay, _super);
                 function Overlay() {
-                    _super.apply(this, arguments);
+                    _super.call(this);
                     this.Opened = new nullstone.Event();
                     this.Closed = new nullstone.Event();
+                    this._ContentControlForUri = null;
+                    this._IgnoreClose = false;
+                    this.DefaultStyleKey = Overlay;
+                    this.InitBindings();
                 }
                 Overlay.prototype.CreateNode = function () {
                     return new OverlayNode(this);
@@ -9526,9 +9530,127 @@ var Fayde;
                 Overlay.prototype.CreateLayoutUpdater = function () {
                     return new OverlayUpdater();
                 };
-                Overlay.VisualProperty = DependencyProperty.Register("Visual", function () { return Fayde.UIElement; }, Overlay);
-                Overlay.IsOpenProperty = DependencyProperty.Register("IsOpen", function () { return Boolean; }, Overlay);
+                Overlay.prototype.InitBindings = function () {
+                    this.SetBinding(Overlay.VisualViewModelProperty, new Fayde.Data.Binding("OverlayDataContext"));
+                    var binding = new Fayde.Data.Binding("IsOpen");
+                    binding.Mode = 1 /* TwoWay */;
+                    this.SetBinding(Overlay.IsOpenProperty, binding);
+                    this.SetBinding(Overlay.ClosedCommandProperty, new Fayde.Data.Binding("ClosedCommand"));
+                };
+                Overlay.prototype._OnVisualChanged = function (args) {
+                    if (this.VisualUri != null)
+                        throw new Error("Cannot set Visual if VisualUri is set.");
+                    var layer = this.XamlNode.EnsureLayer();
+                    if (args.OldValue)
+                        layer.Children.Remove(args.OldValue);
+                    if (args.NewValue)
+                        layer.Children.Add(args.NewValue);
+                };
+                Overlay.prototype._OnVisualUriChanged = function (args) {
+                    if (this.Visual != null)
+                        throw new Error("Cannot set VisualUri if Visual is set.");
+                    if (args.NewValue)
+                        this._SetVisualUri(args.NewValue);
+                    else
+                        this._ClearVisualUri();
+                };
+                Overlay.prototype._OnVisualViewModelChanged = function (args) {
+                    var cc;
+                    var visual;
+                    if (!!(cc = this._ContentControlForUri))
+                        cc.DataContext = args.NewValue;
+                    else if (!!(visual = this.Visual))
+                        visual.DataContext = args.NewValue;
+                };
+                Overlay.prototype._SetVisualUri = function (uri) {
+                    var cc = this._ContentControlForUri;
+                    if (!cc) {
+                        var layer = this.XamlNode.EnsureLayer();
+                        cc = this._ContentControlForUri = new Controls.ContentControl();
+                        cc.SetValue(OverlayOwnerProperty, this);
+                        layer.Children.Add(cc);
+                    }
+                    cc.ContentUri = uri;
+                    var vm = this.VisualViewModel;
+                    if (vm !== undefined)
+                        cc.DataContext = vm;
+                };
+                Overlay.prototype._ClearVisualUri = function () {
+                    var cc = this._ContentControlForUri;
+                    if (!cc)
+                        return;
+                    var layer = this.XamlNode.EnsureLayer();
+                    layer.Children.Remove(cc);
+                    cc.ContentUri = null;
+                    cc.DataContext = undefined;
+                };
+                Overlay.prototype._OnIsOpenChanged = function (args) {
+                    var ov = args.OldValue || false;
+                    var nv = args.NewValue || false;
+                    if (ov === nv)
+                        return;
+                    if (nv === true) {
+                        this._DoOpen();
+                    }
+                    else {
+                        this._DoClose();
+                    }
+                };
+                Overlay.prototype._DoOpen = function () {
+                    var upd = this.XamlNode.LayoutUpdater;
+                    minerva.controls.overlay.reactTo.isOpen(upd, false, true);
+                    this.Opened.raise(this, null);
+                };
+                Overlay.prototype._DoClose = function (result) {
+                    var upd = this.XamlNode.LayoutUpdater;
+                    minerva.controls.overlay.reactTo.isOpen(upd, true, false);
+                    if (result === undefined)
+                        result = this._GetDialogResult();
+                    var parameter = {
+                        Result: result,
+                        Data: this.VisualViewModel
+                    };
+                    var cmd = this.ClosedCommand;
+                    if (!cmd.CanExecute || cmd.CanExecute(parameter))
+                        cmd.Execute(parameter);
+                    this.Closed.raise(this, new Primitives.OverlayClosedEventArgs(parameter.Result, parameter.Data));
+                };
+                Overlay.prototype.Open = function () {
+                    this.IsOpen = true;
+                };
+                Overlay.prototype.Close = function (result) {
+                    if (this.IsOpen !== true)
+                        return;
+                    this._IgnoreClose = true;
+                    try {
+                        this.SetCurrentValue(Overlay.IsOpenProperty, false);
+                    }
+                    finally {
+                        this._IgnoreClose = false;
+                    }
+                    this._DoClose(result);
+                };
+                Overlay.prototype._GetDialogResult = function () {
+                    var visual = this.Visual || this._ContentControlForUri;
+                    if (!visual)
+                        return undefined;
+                    var dialog = Fayde.VisualTreeHelper.GetChildrenCount(visual) > 0 ? Fayde.VisualTreeHelper.GetChild(visual, 0) : null;
+                    return (dialog instanceof Controls.Dialog) ? dialog.DialogResult : null;
+                };
+                Overlay.FindOverlay = function (visual) {
+                    for (var en = Fayde.VisualTreeEnum.GetAncestors(visual).getEnumerator(); en.moveNext();) {
+                        var owner = en.current.GetValue(OverlayOwnerProperty);
+                        if (owner instanceof Overlay)
+                            return owner;
+                    }
+                    return undefined;
+                };
+                Overlay.VisualProperty = DependencyProperty.Register("Visual", function () { return Fayde.UIElement; }, Overlay, undefined, function (d, args) { return d._OnVisualChanged(args); });
+                Overlay.VisualUriProperty = DependencyProperty.Register("VisualUri", function () { return Fayde.Uri; }, Overlay, undefined, function (d, args) { return d._OnVisualUriChanged(args); });
+                Overlay.VisualViewModelProperty = DependencyProperty.Register("VisualViewModel", function () { return Object; }, Overlay, undefined, function (d, args) { return d._OnVisualViewModelChanged(args); });
+                Overlay.IsOpenProperty = DependencyProperty.Register("IsOpen", function () { return Boolean; }, Overlay, undefined, function (d, args) { return d._OnIsOpenChanged(args); });
                 Overlay.MaskBrushProperty = DependencyProperty.Register("MaskBrush", function () { return Fayde.Media.Brush; }, Overlay);
+                Overlay.ClosedCommandProperty = DependencyProperty.Register("ClosedCommand", function () { return Fayde.Input.ICommand_; }, Overlay);
                 return Overlay;
             })(Fayde.FrameworkElement);
             Primitives.Overlay = Overlay;
@@ -9536,30 +9658,11 @@ var Fayde;
             Fayde.Markup.Content(Overlay, Overlay.VisualProperty);
             var reactions;
             (function (reactions) {
-                Fayde.UIReaction(Overlay.IsOpenProperty, function (upd, ov, nv, overlay) {
-                    ov = ov || false;
-                    nv = nv || false;
-                    if (ov === nv)
-                        return;
-                    if (nv === true) {
-                        overlay.Opened.raiseAsync(overlay, null);
-                    }
-                    else {
-                        overlay.Closed.raiseAsync(overlay, null);
-                    }
-                    minerva.controls.overlay.reactTo.isOpen(upd, ov, nv);
-                }, false);
-                Fayde.UIReaction(Overlay.VisualProperty, function (upd, ov, nv, overlay) {
-                    var layer = overlay.XamlNode.EnsureLayer();
-                    if (ov)
-                        layer.Children.Remove(ov);
-                    if (nv)
-                        layer.Children.Add(nv);
-                }, false, false);
                 Fayde.DPReaction(Overlay.MaskBrushProperty, function (overlay, ov, nv) {
                     overlay.XamlNode.UpdateMask();
                 });
             })(reactions || (reactions = {}));
+            var OverlayOwnerProperty = DependencyProperty.RegisterAttached("OverlayOwner", function () { return Overlay; }, Overlay);
         })(Primitives = Controls.Primitives || (Controls.Primitives = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
@@ -9585,108 +9688,6 @@ var Fayde;
                 return OverlayClosedEventArgs;
             })();
             Primitives.OverlayClosedEventArgs = OverlayClosedEventArgs;
-        })(Primitives = Controls.Primitives || (Controls.Primitives = {}));
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="../../Core/FrameworkElement" />
-var Fayde;
-(function (Fayde) {
-    var Controls;
-    (function (Controls) {
-        var Primitives;
-        (function (Primitives) {
-            var OverlayLauncher = (function (_super) {
-                __extends(OverlayLauncher, _super);
-                function OverlayLauncher() {
-                    _super.call(this);
-                    this.Closed = new nullstone.Event();
-                    this._Overlay = null;
-                    this.InitBindings();
-                }
-                OverlayLauncher.prototype.InitBindings = function () {
-                    this.SetBinding(OverlayLauncher.ViewModelProperty, new Fayde.Data.Binding("OverlayDataContext"));
-                    var binding = new Fayde.Data.Binding("IsOpen");
-                    binding.Mode = 1 /* TwoWay */;
-                    this.SetBinding(OverlayLauncher.IsOverlayOpenProperty, binding);
-                    this.SetBinding(OverlayLauncher.ClosedCommandProperty, new Fayde.Data.Binding("ClosedCommand"));
-                };
-                OverlayLauncher.prototype._OnIsOverlayOpenChanged = function (args) {
-                    if (args.NewValue === true)
-                        this._TryShowOverlay();
-                    else
-                        this._FinishClose(this._GetDialogResult());
-                };
-                OverlayLauncher.prototype._TryShowOverlay = function () {
-                    if (!this.IsOverlayOpen)
-                        return;
-                    if (!this.ViewUri)
-                        return;
-                    if (this.ViewModel == null)
-                        return;
-                    this._ShowOverlay();
-                };
-                OverlayLauncher.prototype._ShowOverlay = function () {
-                    var overlay = this._Overlay;
-                    if (!overlay) {
-                        overlay = this._Overlay = new Primitives.Overlay();
-                        var cc = new Controls.ContentControl();
-                        cc.ContentUri = this.ViewUri;
-                        cc.DataContext = this.ViewModel;
-                        cc.SetValue(LauncherOwnerProperty, this);
-                        overlay.Visual = cc;
-                        this.XamlNode.AttachVisualChild(overlay, new BError());
-                    }
-                    overlay.Closed.on(this._OnOverlayClosed, this);
-                    overlay.SetCurrentValue(Primitives.Overlay.IsOpenProperty, true);
-                };
-                OverlayLauncher.prototype._OnOverlayClosed = function (sender, e) {
-                    this.Close(this._GetDialogResult());
-                };
-                OverlayLauncher.prototype._GetDialogResult = function () {
-                    var overlay = this._Overlay;
-                    var cc = overlay ? overlay.Visual : null;
-                    var dialog = (cc && Fayde.VisualTreeHelper.GetChildrenCount(cc) > 0) ? Fayde.VisualTreeHelper.GetChild(cc, 0) : null;
-                    return (dialog instanceof Controls.Dialog) ? dialog.DialogResult : null;
-                };
-                OverlayLauncher.prototype.Close = function (result) {
-                    var overlay = this._Overlay;
-                    if (!overlay || this.IsOverlayOpen !== true)
-                        return;
-                    overlay.Closed.off(this._OnOverlayClosed, this);
-                    this.SetCurrentValue(OverlayLauncher.IsOverlayOpenProperty, false);
-                    this._FinishClose(result);
-                };
-                OverlayLauncher.prototype._FinishClose = function (result) {
-                    var overlay = this._Overlay;
-                    if (!overlay)
-                        return;
-                    overlay.SetCurrentValue(Primitives.Overlay.IsOpenProperty, false);
-                    var parameter = {
-                        Result: result,
-                        Data: overlay.Visual.DataContext
-                    };
-                    var cmd = this.ClosedCommand;
-                    if (!cmd.CanExecute || cmd.CanExecute(parameter))
-                        cmd.Execute(parameter);
-                    this.Closed.raise(this, new Primitives.OverlayClosedEventArgs(parameter.Result, parameter.Data));
-                };
-                OverlayLauncher.FindLauncher = function (visual) {
-                    for (var en = Fayde.VisualTreeEnum.GetAncestors(visual).getEnumerator(); en.moveNext();) {
-                        var owner = en.current.GetValue(LauncherOwnerProperty);
-                        if (owner instanceof OverlayLauncher)
-                            return owner;
-                    }
-                    return undefined;
-                };
-                OverlayLauncher.ViewUriProperty = DependencyProperty.Register("ViewUri", function () { return Fayde.Uri; }, OverlayLauncher, undefined, function (d, args) { return d._TryShowOverlay(); });
-                OverlayLauncher.ViewModelProperty = DependencyProperty.Register("ViewModel", function () { return Object; }, OverlayLauncher, undefined, function (d, args) { return d._TryShowOverlay(); });
-                OverlayLauncher.IsOverlayOpenProperty = DependencyProperty.Register("IsOverlayOpen", function () { return Boolean; }, OverlayLauncher, undefined, function (d, args) { return d._OnIsOverlayOpenChanged(args); });
-                OverlayLauncher.ClosedCommandProperty = DependencyProperty.Register("ClosedCommand", function () { return Fayde.Input.ICommand_; }, OverlayLauncher);
-                return OverlayLauncher;
-            })(Fayde.FrameworkElement);
-            Primitives.OverlayLauncher = OverlayLauncher;
-            Fayde.CoreLibrary.add(OverlayLauncher);
-            var LauncherOwnerProperty = DependencyProperty.RegisterAttached("LauncherOwner", function () { return OverlayLauncher; }, OverlayLauncher);
         })(Primitives = Controls.Primitives || (Controls.Primitives = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
