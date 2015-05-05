@@ -38,7 +38,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-fayde-unify": "^0.4.1",
     "grunt-open": "^0.2.3",
-    "grunt-typescript": "^0.4.6",
+    "grunt-typescript": "^0.6.1",
     "grunt-version-ts": "^0.1.0"
   }
 }
