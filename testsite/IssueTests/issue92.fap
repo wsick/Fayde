@@ -1,0 +1,30 @@
+<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        xmlns:local="IssueTests"
+        ThemeName="Metro">
+    <Application.Resources>
+    </Application.Resources>
+    <Grid x:Name="LayoutRoot" Loaded="{EventBinding Loaded}">
+        <Grid.DataContext>
+            <local:Issue92ViewModel/>
+        </Grid.DataContext>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" x:Name="border0">
+            <TextBlock x:Name="tb0" Text="Welcome to Fayde!" />
+        </Border>
+
+        <Border Grid.Row="1" x:Name="border1">
+            <TextBlock x:Name="tb1" Text="Welcome to Fayde!" />
+        </Border>
+
+        <Border Grid.Row="2" x:Name="border2">
+            <TextBlock x:Name="tb2" Text="Welcome to Fayde!" />
+        </Border>
+    </Grid>
+</Application>
