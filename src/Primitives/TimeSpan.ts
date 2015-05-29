@@ -151,6 +151,8 @@ Fayde.CoreLibrary.addPrimitive(TimeSpan);
 nullstone.registerTypeConverter(TimeSpan, (val: any): TimeSpan => {
     if (val instanceof TimeSpan)
         return <TimeSpan>val;
+    if (val instanceof Duration)
+        return (<Duration>val).TimeSpan;
     if (typeof val === "number")
         return new TimeSpan(<number>val);
     val = val.toString();
