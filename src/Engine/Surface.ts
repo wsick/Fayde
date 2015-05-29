@@ -18,7 +18,7 @@ module Fayde {
             super.init(canvas);
 
             this.$$stretchCanvas();
-            document.body.onresize = (e) => this.$$handleResize(window.event ? <any>window.event : e);
+            (<any>document.body).onresize = (e) => this.$$handleResize(window.event ? <any>window.event : e);
             window.onresize = (e) => this.$$handleResize(window.event ? <any>window.event : e);
 
             this.$$inputMgr.Register(canvas);

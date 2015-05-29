@@ -73,7 +73,7 @@ module Fayde.Media {
             tmpCanvas.width = bounds.width;
             tmpCanvas.height = bounds.height;
 
-            var tmpCtx = tmpCanvas.getContext("2d");
+            var tmpCtx = <CanvasRenderingContext2D>tmpCanvas.getContext("2d");
 
             var mat = computeImageMatrix(bounds.width, bounds.height,
                 imgExtents.width, imgExtents.height, this.Stretch, this.AlignmentX, this.AlignmentY);

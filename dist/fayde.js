@@ -11,11 +11,15 @@ if (!Array.isArray) {
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
         if (typeof this !== 'function') {
+            // closest thing possible to the ECMAScript 5
+            // internal IsCallable function
             throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
         }
         var aArgs = Array.prototype.slice.call(arguments, 1), fToBind = this, fNOP = function () {
         }, fBound = function () {
-            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+            return fToBind.apply(this instanceof fNOP && oThis
+                ? this
+                : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
         };
         fNOP.prototype = this.prototype;
         fBound.prototype = new fNOP();
@@ -89,7 +93,7 @@ var Fayde;
             }
             CollectionChangedEventArgs.Reset = function (allValues) {
                 var args = new CollectionChangedEventArgs();
-                Object.defineProperty(args, "Action", { value: 4 /* Reset */, writable: false });
+                Object.defineProperty(args, "Action", { value: CollectionChangedAction.Reset, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: 0, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "OldItems", { value: allValues, writable: false });
@@ -98,7 +102,7 @@ var Fayde;
             };
             CollectionChangedEventArgs.Replace = function (newValue, oldValue, index) {
                 var args = new CollectionChangedEventArgs();
-                Object.defineProperty(args, "Action", { value: 3 /* Replace */, writable: false });
+                Object.defineProperty(args, "Action", { value: CollectionChangedAction.Replace, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
                 Object.defineProperty(args, "OldItems", { value: [oldValue], writable: false });
@@ -107,7 +111,7 @@ var Fayde;
             };
             CollectionChangedEventArgs.Add = function (newValue, index) {
                 var args = new CollectionChangedEventArgs();
-                Object.defineProperty(args, "Action", { value: 1 /* Add */, writable: false });
+                Object.defineProperty(args, "Action", { value: CollectionChangedAction.Add, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
                 Object.defineProperty(args, "OldItems", { value: null, writable: false });
@@ -116,7 +120,7 @@ var Fayde;
             };
             CollectionChangedEventArgs.AddRange = function (newValues, index) {
                 var args = new CollectionChangedEventArgs();
-                Object.defineProperty(args, "Action", { value: 1 /* Add */, writable: false });
+                Object.defineProperty(args, "Action", { value: CollectionChangedAction.Add, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
                 Object.defineProperty(args, "OldItems", { value: null, writable: false });
@@ -125,7 +129,7 @@ var Fayde;
             };
             CollectionChangedEventArgs.Remove = function (oldValue, index) {
                 var args = new CollectionChangedEventArgs();
-                Object.defineProperty(args, "Action", { value: 2 /* Remove */, writable: false });
+                Object.defineProperty(args, "Action", { value: CollectionChangedAction.Remove, writable: false });
                 Object.defineProperty(args, "OldStartingIndex", { value: index, writable: false });
                 Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
                 Object.defineProperty(args, "OldItems", { value: [oldValue], writable: false });
@@ -318,12 +322,8 @@ var Fayde;
                 this._SetSource(source || new Collections.DeepObservableCollection());
             }
             Object.defineProperty(FilteredCollection.prototype, "Source", {
-                get: function () {
-                    return this._Source;
-                },
-                set: function (value) {
-                    this._SetSource(value);
-                },
+                get: function () { return this._Source; },
+                set: function (value) { this._SetSource(value); },
                 enumerable: true,
                 configurable: true
             });
@@ -478,9 +478,7 @@ var Fayde;
             this.XObject = xobj;
         }
         Object.defineProperty(XamlNode.prototype, "DataContext", {
-            get: function () {
-                return this._DataContext;
-            },
+            get: function () { return this._DataContext; },
             set: function (value) {
                 var old = this._DataContext;
                 if (old === value)
@@ -501,9 +499,7 @@ var Fayde;
             }
         };
         Object.defineProperty(XamlNode.prototype, "IsEnabled", {
-            get: function () {
-                return this._IsEnabled;
-            },
+            get: function () { return this._IsEnabled; },
             set: function (value) {
                 value = value !== false;
                 var old = this._IsEnabled;
@@ -671,11 +667,8 @@ var Fayde;
                 this.OnParentChanged(old, null);
             }
         };
-        XamlNode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
-        };
-        XamlNode.prototype.GetInheritedEnumerator = function () {
-            return undefined;
-        };
+        XamlNode.prototype.OnParentChanged = function (oldParentNode, newParentNode) { };
+        XamlNode.prototype.GetInheritedEnumerator = function () { return undefined; };
         XamlNode.SetShareable = function (xn) {
             xn.IsShareable = true;
         };
@@ -696,9 +689,7 @@ var Fayde;
             return new Fayde.XamlNode(this);
         };
         Object.defineProperty(XamlObject.prototype, "Name", {
-            get: function () {
-                return this.XamlNode.Name;
-            },
+            get: function () { return this.XamlNode.Name; },
             enumerable: true,
             configurable: true
         });
@@ -721,11 +712,8 @@ var Fayde;
             xobj.CloneCore(this);
             return xobj;
         };
-        XamlObject.prototype.CloneCore = function (source) {
-        };
-        XamlObject.prototype.IsInheritable = function (propd) {
-            return false;
-        };
+        XamlObject.prototype.CloneCore = function (source) { };
+        XamlObject.prototype.IsInheritable = function (propd) { return false; };
         XamlObject._LastID = 0;
         return XamlObject;
     })();
@@ -960,7 +948,7 @@ var ImmutableDependencyProperty = (function (_super) {
     }
     ImmutableDependencyProperty.prototype.Initialize = function (dobj) {
         var storage = Fayde.Providers.GetStorage(dobj, this);
-        storage.Precedence = 1 /* LocalValue */;
+        storage.Precedence = Fayde.Providers.PropertyPrecedence.LocalValue;
         var type = this.GetTargetType();
         var obj = new type();
         Object.defineProperty(dobj, this.Name, {
@@ -1011,12 +999,12 @@ var Fayde;
             };
             PropertyStore.prototype.GetValuePrecedence = function (storage) {
                 if (storage.Local !== undefined)
-                    return 1 /* LocalValue */;
+                    return PropertyPrecedence.LocalValue;
                 if (storage.LocalStyleValue !== undefined)
-                    return 2 /* LocalStyle */;
+                    return PropertyPrecedence.LocalStyle;
                 if (storage.ImplicitStyleValue !== undefined)
-                    return 3 /* ImplicitStyle */;
-                return 6 /* DefaultValue */;
+                    return PropertyPrecedence.ImplicitStyle;
+                return PropertyPrecedence.DefaultValue;
             };
             PropertyStore.prototype.SetLocalValue = function (storage, newValue) {
                 if (newValue === undefined || newValue === DependencyProperty.UnsetValue) {
@@ -1032,7 +1020,7 @@ var Fayde;
                 newValue = propd.ValidateSetValue(storage.OwnerNode.XObject, newValue, isValidOut);
                 if (!isValidOut.IsValid)
                     return;
-                var precDiff = storage.Precedence - 1 /* LocalValue */;
+                var precDiff = storage.Precedence - PropertyPrecedence.LocalValue;
                 if (!propd.AlwaysChange && precDiff < 0) {
                     storage.Local = newValue;
                     return;
@@ -1043,10 +1031,10 @@ var Fayde;
                 else
                     oldValue = storage.Local;
                 storage.Local = newValue;
-                this.OnPropertyChanged(storage, 1 /* LocalValue */, oldValue, newValue);
+                this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldValue, newValue);
             };
             PropertyStore.prototype.SetLocalStyleValue = function (storage, newValue) {
-                var precDiff = storage.Precedence - 2 /* LocalStyle */;
+                var precDiff = storage.Precedence - PropertyPrecedence.LocalStyle;
                 if (precDiff < 0) {
                     storage.LocalStyleValue = newValue;
                     return;
@@ -1057,10 +1045,10 @@ var Fayde;
                 else
                     oldValue = storage.LocalStyleValue;
                 storage.LocalStyleValue = newValue;
-                this.OnPropertyChanged(storage, 2 /* LocalStyle */, oldValue, newValue);
+                this.OnPropertyChanged(storage, PropertyPrecedence.LocalStyle, oldValue, newValue);
             };
             PropertyStore.prototype.SetImplicitStyle = function (storage, newValue) {
-                var precDiff = storage.Precedence - 3 /* ImplicitStyle */;
+                var precDiff = storage.Precedence - PropertyPrecedence.ImplicitStyle;
                 if (precDiff < 0) {
                     storage.ImplicitStyleValue = newValue;
                     return;
@@ -1071,14 +1059,14 @@ var Fayde;
                 else
                     oldValue = storage.ImplicitStyleValue;
                 storage.ImplicitStyleValue = newValue;
-                this.OnPropertyChanged(storage, 3 /* ImplicitStyle */, oldValue, newValue);
+                this.OnPropertyChanged(storage, PropertyPrecedence.ImplicitStyle, oldValue, newValue);
             };
             PropertyStore.prototype.ClearValue = function (storage) {
                 var oldLocal = storage.Local;
                 if (oldLocal === undefined)
                     return;
                 storage.Local = undefined;
-                this.OnPropertyChanged(storage, 1 /* LocalValue */, oldLocal, undefined);
+                this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldLocal, undefined);
             };
             PropertyStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
                 var propd = storage.Property;
@@ -1127,9 +1115,7 @@ var Fayde;
                             listeners.splice(index, 1);
                     },
                     Property: propd,
-                    OnPropertyChanged: function (sender, args) {
-                        func.call(closure, sender, args);
-                    }
+                    OnPropertyChanged: function (sender, args) { func.call(closure, sender, args); }
                 };
                 listeners.push(listener);
                 return listener;
@@ -1138,7 +1124,7 @@ var Fayde;
                 return {
                     OwnerNode: dobj.XamlNode,
                     Property: propd,
-                    Precedence: 6 /* DefaultValue */,
+                    Precedence: PropertyPrecedence.DefaultValue,
                     Animations: undefined,
                     Local: undefined,
                     LocalStyleValue: undefined,
@@ -1185,23 +1171,23 @@ var Fayde;
             };
             DataContextStore.prototype.GetValuePrecedence = function (storage) {
                 var prec = _super.prototype.GetValuePrecedence.call(this, storage);
-                if (prec < 5 /* InheritedDataContext */)
+                if (prec < Providers.PropertyPrecedence.InheritedDataContext)
                     return prec;
                 if (storage.InheritedValue !== undefined)
-                    return 5 /* InheritedDataContext */;
-                return 6 /* DefaultValue */;
+                    return Providers.PropertyPrecedence.InheritedDataContext;
+                return Providers.PropertyPrecedence.DefaultValue;
             };
             DataContextStore.prototype.OnInheritedChanged = function (storage, newInherited) {
                 var oldInherited = storage.InheritedValue;
                 storage.InheritedValue = newInherited;
-                if (storage.Precedence >= 5 /* InheritedDataContext */ && oldInherited !== newInherited)
-                    this.OnPropertyChanged(storage, 5 /* InheritedDataContext */, oldInherited, newInherited);
+                if (storage.Precedence >= Providers.PropertyPrecedence.InheritedDataContext && oldInherited !== newInherited)
+                    this.OnPropertyChanged(storage, Providers.PropertyPrecedence.InheritedDataContext, oldInherited, newInherited);
             };
             DataContextStore.prototype.CreateStorage = function (dobj, propd) {
                 return {
                     OwnerNode: dobj.XamlNode,
                     Property: propd,
-                    Precedence: 6 /* DefaultValue */,
+                    Precedence: Providers.PropertyPrecedence.DefaultValue,
                     Animations: undefined,
                     Local: undefined,
                     LocalStyleValue: undefined,
@@ -1213,7 +1199,7 @@ var Fayde;
             DataContextStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
                 var args = _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
                 if (args) {
-                    if (effectivePrecedence > 1 /* LocalValue */ && this.TryUpdateDataContextExpression(storage, args.NewValue))
+                    if (effectivePrecedence > Providers.PropertyPrecedence.LocalValue && this.TryUpdateDataContextExpression(storage, args.NewValue))
                         return;
                     storage.OwnerNode.OnDataContextChanged(args.OldValue, args.NewValue);
                 }
@@ -1328,9 +1314,7 @@ var Fayde;
             propd.Store.OnInheritedChanged(storage, newInherited);
         };
         Object.defineProperty(DONode.prototype, "DataContext", {
-            get: function () {
-                return this.XObject.DataContext;
-            },
+            get: function () { return this.XObject.DataContext; },
             set: function (value) {
                 var propd = DependencyObject.DataContextProperty;
                 var storage = Fayde.Providers.GetStorage(this.XObject, propd);
@@ -1364,9 +1348,7 @@ var Fayde;
             this._Expressions = [];
             this._PropertyStorage = [];
         }
-        DependencyObject.prototype.CreateNode = function () {
-            return new DONode(this);
-        };
+        DependencyObject.prototype.CreateNode = function () { return new DONode(this); };
         DependencyObject.prototype.GetValue = function (propd) {
             if (!propd)
                 throw new ArgumentException("No property specified.");
@@ -1403,10 +1385,10 @@ var Fayde;
             else if (existing) {
                 if (existing instanceof Fayde.Data.BindingExpressionBase) {
                     var binding = existing.ParentBinding;
-                    if (binding.Mode === 1 /* TwoWay */) {
+                    if (binding.Mode === Fayde.Data.BindingMode.TwoWay) {
                         updateTwoWay = !existing.IsUpdating && !propd.IsCustom;
                     }
-                    else if (!existing.IsUpdating || binding.Mode === 2 /* OneTime */) {
+                    else if (!existing.IsUpdating || binding.Mode === Fayde.Data.BindingMode.OneTime) {
                         this._RemoveExpression(propd);
                     }
                 }
@@ -1621,15 +1603,15 @@ var Fayde;
             };
             InheritedStore.prototype.GetValuePrecedence = function (storage) {
                 var prec = _super.prototype.GetValuePrecedence.call(this, storage);
-                if (prec < 4 /* Inherited */)
+                if (prec < Providers.PropertyPrecedence.Inherited)
                     return prec;
                 if (storage.InheritedValue !== undefined)
-                    return 4 /* Inherited */;
-                return 6 /* DefaultValue */;
+                    return Providers.PropertyPrecedence.Inherited;
+                return Providers.PropertyPrecedence.DefaultValue;
             };
             InheritedStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
                 var args = _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
-                if (effectivePrecedence <= 4 /* Inherited */)
+                if (effectivePrecedence <= Providers.PropertyPrecedence.Inherited)
                     this.Propagate(storage.OwnerNode, storage.Property, newValue);
                 return args;
             };
@@ -1637,7 +1619,7 @@ var Fayde;
                 return {
                     OwnerNode: dobj.XamlNode,
                     Property: propd,
-                    Precedence: 6 /* DefaultValue */,
+                    Precedence: Providers.PropertyPrecedence.DefaultValue,
                     Animations: undefined,
                     Local: undefined,
                     LocalStyleValue: undefined,
@@ -1700,7 +1682,7 @@ var Fayde;
                 if (!dobj.IsInheritable(propd))
                     return false;
                 var storage = Providers.GetStorage(dobj, propd);
-                if (storage.Precedence < 4 /* Inherited */) {
+                if (storage.Precedence < Providers.PropertyPrecedence.Inherited) {
                     //Overriden locally, don't propagate
                     storage.InheritedValue = newValue;
                     return true;
@@ -1709,8 +1691,8 @@ var Fayde;
                 if (oldValue === undefined)
                     oldValue = propd.DefaultValue;
                 storage.InheritedValue = newValue;
-                storage.Precedence = 4 /* Inherited */;
-                this.OnPropertyChanged(storage, 4 /* Inherited */, oldValue, newValue);
+                storage.Precedence = Providers.PropertyPrecedence.Inherited;
+                this.OnPropertyChanged(storage, Providers.PropertyPrecedence.Inherited, oldValue, newValue);
                 return true;
             };
             return InheritedStore;
@@ -1734,9 +1716,9 @@ var Fayde;
     var Visibility = Fayde.Visibility;
     Fayde.CoreLibrary.addEnum(Visibility, "Visibility");
     nullstone.registerEnumConverter(Visibility, function (val) {
-        if (val === "true" || val === true || val === 0 /* Visible */ || val === "Visible")
-            return 0 /* Visible */;
-        return 1 /* Collapsed */;
+        if (val === "true" || val === true || val === Visibility.Visible || val === "Visible")
+            return Visibility.Visible;
+        return Visibility.Collapsed;
     });
     (function (CursorType) {
         CursorType[CursorType["Default"] = 0] = "Default";
@@ -1835,14 +1817,14 @@ var Fayde;
         function InheritableOwner() {
         }
         InheritableOwner.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, InheritableOwner, true);
-        InheritableOwner.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Fayde.Enum(minerva.FlowDirection); }, InheritableOwner, 0 /* LeftToRight */);
+        InheritableOwner.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Fayde.Enum(minerva.FlowDirection); }, InheritableOwner, minerva.FlowDirection.LeftToRight);
         InheritableOwner.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Fayde.Media.Brush; }, InheritableOwner);
         InheritableOwner.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, InheritableOwner, Fayde.Font.DEFAULT_FAMILY);
         InheritableOwner.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, InheritableOwner, Fayde.Font.DEFAULT_SIZE);
         InheritableOwner.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, InheritableOwner, Fayde.Font.DEFAULT_STRETCH);
         InheritableOwner.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, InheritableOwner, Fayde.Font.DEFAULT_STYLE);
         InheritableOwner.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Fayde.Enum(Fayde.FontWeight); }, InheritableOwner, Fayde.Font.DEFAULT_WEIGHT);
-        InheritableOwner.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Fayde.Enum(Fayde.TextDecorations); }, InheritableOwner, 0 /* None */);
+        InheritableOwner.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Fayde.Enum(Fayde.TextDecorations); }, InheritableOwner, Fayde.TextDecorations.None);
         InheritableOwner.LanguageProperty = DependencyProperty.RegisterInheritable("Language", function () { return String; }, InheritableOwner);
         return InheritableOwner;
     })();
@@ -1892,8 +1874,7 @@ var Fayde;
             }
             return curNode;
         };
-        UINode.prototype.SetIsLoaded = function (value) {
-        };
+        UINode.prototype.SetIsLoaded = function (value) { };
         UINode.prototype.OnVisualChildAttached = function (uie) {
             var un = uie.XamlNode;
             Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this.XObject, un);
@@ -1910,9 +1891,7 @@ var Fayde;
             this.VisualParentNode = visualParentNode;
             this.LayoutUpdater.setVisualParent(visualParentNode ? visualParentNode.LayoutUpdater : null);
         };
-        UINode.prototype.Focus = function (recurse) {
-            return false;
-        };
+        UINode.prototype.Focus = function (recurse) { return false; };
         UINode.prototype._EmitFocusChange = function (type) {
             if (type === "got")
                 this._EmitGotFocus();
@@ -1950,7 +1929,7 @@ var Fayde;
         UINode.prototype._EmitMouseEvent = function (type, isLeftButton, isRightButton, args) {
             var x = this.XObject;
             switch (type) {
-                case 1 /* MouseUp */:
+                case Fayde.Input.MouseInputType.MouseUp:
                     if (isLeftButton) {
                         x.OnMouseLeftButtonUp(args);
                         x.MouseLeftButtonUp.raise(x, args);
@@ -1960,7 +1939,7 @@ var Fayde;
                         x.MouseRightButtonUp.raise(x, args);
                     }
                     break;
-                case 2 /* MouseDown */:
+                case Fayde.Input.MouseInputType.MouseDown:
                     if (isLeftButton) {
                         x.OnMouseLeftButtonDown(args);
                         x.MouseLeftButtonDown.raise(x, args);
@@ -1970,21 +1949,21 @@ var Fayde;
                         x.MouseRightButtonDown.raise(x, args);
                     }
                     break;
-                case 3 /* MouseLeave */:
+                case Fayde.Input.MouseInputType.MouseLeave:
                     this.IsMouseOver = false;
                     x.OnMouseLeave(args);
                     x.MouseLeave.raise(x, args);
                     break;
-                case 4 /* MouseEnter */:
+                case Fayde.Input.MouseInputType.MouseEnter:
                     this.IsMouseOver = true;
                     x.OnMouseEnter(args);
                     x.MouseEnter.raise(x, args);
                     break;
-                case 5 /* MouseMove */:
+                case Fayde.Input.MouseInputType.MouseMove:
                     x.OnMouseMove(args);
                     x.MouseMove.raise(x, args);
                     break;
-                case 6 /* MouseWheel */:
+                case Fayde.Input.MouseInputType.MouseWheel:
                     x.OnMouseWheel(args);
                     x.MouseWheel.raise(x, args);
                     break;
@@ -1996,23 +1975,23 @@ var Fayde;
         UINode.prototype._EmitTouchEvent = function (type, args) {
             var x = this.XObject;
             switch (type) {
-                case 1 /* TouchDown */:
+                case Fayde.Input.TouchInputType.TouchDown:
                     x.OnTouchDown(args);
                     x.TouchDown.raise(x, args);
                     break;
-                case 2 /* TouchUp */:
+                case Fayde.Input.TouchInputType.TouchUp:
                     x.OnTouchUp(args);
                     x.TouchUp.raise(x, args);
                     break;
-                case 3 /* TouchMove */:
+                case Fayde.Input.TouchInputType.TouchMove:
                     x.OnTouchMove(args);
                     x.TouchMove.raise(x, args);
                     break;
-                case 4 /* TouchEnter */:
+                case Fayde.Input.TouchInputType.TouchEnter:
                     x.OnTouchEnter(args);
                     x.TouchEnter.raise(x, args);
                     break;
-                case 5 /* TouchLeave */:
+                case Fayde.Input.TouchInputType.TouchLeave:
                     x.OnTouchLeave(args);
                     x.TouchLeave.raise(x, args);
                     break;
@@ -2031,9 +2010,7 @@ var Fayde;
             x.OnLostTouchCapture(e);
             x.LostTouchCapture.raise(this, e);
         };
-        UINode.prototype.CanCaptureMouse = function () {
-            return true;
-        };
+        UINode.prototype.CanCaptureMouse = function () { return true; };
         UINode.prototype.CaptureMouse = function () {
             if (!this.IsAttached)
                 return false;
@@ -2087,16 +2064,10 @@ var Fayde;
             this.GotTouchCapture = new Fayde.RoutedEvent();
             this.LostTouchCapture = new Fayde.RoutedEvent();
         }
-        UIElement.prototype.CreateNode = function () {
-            return new UINode(this);
-        };
-        UIElement.prototype.CreateLayoutUpdater = function () {
-            return new minerva.core.Updater();
-        };
+        UIElement.prototype.CreateNode = function () { return new UINode(this); };
+        UIElement.prototype.CreateLayoutUpdater = function () { return new minerva.core.Updater(); };
         Object.defineProperty(UIElement.prototype, "IsItemsControl", {
-            get: function () {
-                return false;
-            },
+            get: function () { return false; },
             enumerable: true,
             configurable: true
         });
@@ -2114,9 +2085,7 @@ var Fayde;
             return propd === UIElement.UseLayoutRoundingProperty;
         };
         Object.defineProperty(UIElement.prototype, "IsMouseOver", {
-            get: function () {
-                return this.XamlNode.IsMouseOver;
-            },
+            get: function () { return this.XamlNode.IsMouseOver; },
             enumerable: true,
             configurable: true
         });
@@ -2136,15 +2105,9 @@ var Fayde;
             enumerable: true,
             configurable: true
         });
-        UIElement.prototype.Focus = function () {
-            return this.XamlNode.Focus();
-        };
-        UIElement.prototype.CaptureMouse = function () {
-            return this.XamlNode.CaptureMouse();
-        };
-        UIElement.prototype.ReleaseMouseCapture = function () {
-            this.XamlNode.ReleaseMouseCapture();
-        };
+        UIElement.prototype.Focus = function () { return this.XamlNode.Focus(); };
+        UIElement.prototype.CaptureMouse = function () { return this.XamlNode.CaptureMouse(); };
+        UIElement.prototype.ReleaseMouseCapture = function () { this.XamlNode.ReleaseMouseCapture(); };
         UIElement.prototype.IsAncestorOf = function (uie) {
             if (!uie)
                 return false;
@@ -2154,58 +2117,34 @@ var Fayde;
             var uin = (uie) ? uie.XamlNode : null;
             return this.XamlNode.TransformToVisual(uin);
         };
-        UIElement.prototype.InvalidateMeasure = function () {
-            this.XamlNode.LayoutUpdater.invalidateMeasure();
-        };
+        UIElement.prototype.InvalidateMeasure = function () { this.XamlNode.LayoutUpdater.invalidateMeasure(); };
         UIElement.prototype.Measure = function (availableSize) {
             this.XamlNode.LayoutUpdater.measure(availableSize);
         };
-        UIElement.prototype.InvalidateArrange = function () {
-            this.XamlNode.LayoutUpdater.invalidateArrange();
-        };
+        UIElement.prototype.InvalidateArrange = function () { this.XamlNode.LayoutUpdater.invalidateArrange(); };
         UIElement.prototype.Arrange = function (finalRect) {
             this.XamlNode.LayoutUpdater.arrange(finalRect);
         };
-        UIElement.prototype.OnGotFocus = function (e) {
-        };
-        UIElement.prototype.OnLostFocus = function (e) {
-        };
-        UIElement.prototype.OnLostMouseCapture = function (e) {
-        };
-        UIElement.prototype.OnKeyDown = function (e) {
-        };
-        UIElement.prototype.OnKeyUp = function (e) {
-        };
-        UIElement.prototype.OnMouseEnter = function (e) {
-        };
-        UIElement.prototype.OnMouseLeave = function (e) {
-        };
-        UIElement.prototype.OnMouseLeftButtonDown = function (e) {
-        };
-        UIElement.prototype.OnMouseLeftButtonUp = function (e) {
-        };
-        UIElement.prototype.OnMouseMove = function (e) {
-        };
-        UIElement.prototype.OnMouseRightButtonDown = function (e) {
-        };
-        UIElement.prototype.OnMouseRightButtonUp = function (e) {
-        };
-        UIElement.prototype.OnMouseWheel = function (e) {
-        };
-        UIElement.prototype.OnTouchDown = function (e) {
-        };
-        UIElement.prototype.OnTouchUp = function (e) {
-        };
-        UIElement.prototype.OnTouchEnter = function (e) {
-        };
-        UIElement.prototype.OnTouchLeave = function (e) {
-        };
-        UIElement.prototype.OnTouchMove = function (e) {
-        };
-        UIElement.prototype.OnGotTouchCapture = function (e) {
-        };
-        UIElement.prototype.OnLostTouchCapture = function (e) {
-        };
+        UIElement.prototype.OnGotFocus = function (e) { };
+        UIElement.prototype.OnLostFocus = function (e) { };
+        UIElement.prototype.OnLostMouseCapture = function (e) { };
+        UIElement.prototype.OnKeyDown = function (e) { };
+        UIElement.prototype.OnKeyUp = function (e) { };
+        UIElement.prototype.OnMouseEnter = function (e) { };
+        UIElement.prototype.OnMouseLeave = function (e) { };
+        UIElement.prototype.OnMouseLeftButtonDown = function (e) { };
+        UIElement.prototype.OnMouseLeftButtonUp = function (e) { };
+        UIElement.prototype.OnMouseMove = function (e) { };
+        UIElement.prototype.OnMouseRightButtonDown = function (e) { };
+        UIElement.prototype.OnMouseRightButtonUp = function (e) { };
+        UIElement.prototype.OnMouseWheel = function (e) { };
+        UIElement.prototype.OnTouchDown = function (e) { };
+        UIElement.prototype.OnTouchUp = function (e) { };
+        UIElement.prototype.OnTouchEnter = function (e) { };
+        UIElement.prototype.OnTouchLeave = function (e) { };
+        UIElement.prototype.OnTouchMove = function (e) { };
+        UIElement.prototype.OnGotTouchCapture = function (e) { };
+        UIElement.prototype.OnLostTouchCapture = function (e) { };
         UIElement.prototype._TriggersChanged = function (args) {
             var oldTriggers = args.OldValue;
             var newTriggers = args.NewValue;
@@ -2224,7 +2163,7 @@ var Fayde;
         UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
         UIElement.TriggersProperty = DependencyProperty.RegisterCore("Triggers", function () { return Fayde.TriggerCollection; }, UIElement, undefined, function (d, args) { return d._TriggersChanged(args); });
         UIElement.UseLayoutRoundingProperty = Fayde.InheritableOwner.UseLayoutRoundingProperty.ExtendTo(UIElement);
-        UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Fayde.Enum(Fayde.Visibility); }, UIElement, 0 /* Visible */);
+        UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Fayde.Enum(Fayde.Visibility); }, UIElement, Fayde.Visibility.Visible);
         return UIElement;
     })(Fayde.DependencyObject);
     Fayde.UIElement = UIElement;
@@ -2261,7 +2200,7 @@ var Fayde;
                 return rd;
             };
             ResourcesStore.prototype.GetValuePrecedence = function (storage) {
-                return 1 /* LocalValue */;
+                return Providers.PropertyPrecedence.LocalValue;
             };
             ResourcesStore.prototype.SetLocalValue = function (storage, newValue) {
                 console.warn("Cannot set Resources.");
@@ -2293,22 +2232,17 @@ var Fayde;
                     return storage.Local;
                 return 0.0;
             };
-            ActualSizeStore.prototype.GetValuePrecedence = function (storage) {
-                return 1 /* LocalValue */;
-            };
+            ActualSizeStore.prototype.GetValuePrecedence = function (storage) { return Providers.PropertyPrecedence.LocalValue; };
             ActualSizeStore.prototype.SetLocalValue = function (storage, newValue) {
                 var oldValue = storage.Local;
                 storage.Local = newValue;
                 if (oldValue === newValue)
                     return;
-                this.OnPropertyChanged(storage, 1 /* LocalValue */, oldValue, newValue);
+                this.OnPropertyChanged(storage, Providers.PropertyPrecedence.LocalValue, oldValue, newValue);
             };
-            ActualSizeStore.prototype.SetLocalStyleValue = function (storage, newValue) {
-            };
-            ActualSizeStore.prototype.SetImplicitStyle = function (storage, newValue) {
-            };
-            ActualSizeStore.prototype.ClearValue = function (storage, notifyListeners) {
-            };
+            ActualSizeStore.prototype.SetLocalStyleValue = function (storage, newValue) { };
+            ActualSizeStore.prototype.SetImplicitStyle = function (storage, newValue) { };
+            ActualSizeStore.prototype.ClearValue = function (storage, notifyListeners) { };
             return ActualSizeStore;
         })(Providers.PropertyStore);
         Providers.ActualSizeStore = ActualSizeStore;
@@ -2395,8 +2329,7 @@ var Fayde;
                 this.InvokeLoaded();
             }
         };
-        FENode.prototype.InvokeLoaded = function () {
-        };
+        FENode.prototype.InvokeLoaded = function () { };
         FENode.prototype.AttachVisualChild = function (uie, error) {
             this.OnVisualChildAttached(uie);
             if (!this.SetSubtreeNode(uie.XamlNode, error))
@@ -2421,9 +2354,7 @@ var Fayde;
             xobj.TemplateApplied.raise(xobj, null);
             return result;
         };
-        FENode.prototype.DoApplyTemplateWithError = function (error) {
-            return false;
-        };
+        FENode.prototype.DoApplyTemplateWithError = function (error) { return false; };
         FENode.prototype.FinishApplyTemplateWithError = function (uie, error) {
             if (!uie || error.Message)
                 return false;
@@ -2456,9 +2387,7 @@ var Fayde;
             this.TemplateApplied = new nullstone.Event();
             this.BindingValidationError = new nullstone.Event();
         }
-        FrameworkElement.prototype.CreateNode = function () {
-            return new FENode(this);
-        };
+        FrameworkElement.prototype.CreateNode = function () { return new FENode(this); };
         FrameworkElement.prototype.IsInheritable = function (propd) {
             if (propd === FrameworkElement.FlowDirectionProperty)
                 return true;
@@ -2466,20 +2395,17 @@ var Fayde;
                 return true;
             return _super.prototype.IsInheritable.call(this, propd);
         };
-        FrameworkElement.prototype.OnApplyTemplate = function () {
-        };
+        FrameworkElement.prototype.OnApplyTemplate = function () { };
         FrameworkElement.prototype.OnBindingValidationError = function (args) {
             this.BindingValidationError.raise(this, args);
         };
-        FrameworkElement.prototype.UpdateLayout = function () {
-            this.XamlNode.UpdateLayout();
-        };
+        FrameworkElement.prototype.UpdateLayout = function () { this.XamlNode.UpdateLayout(); };
         FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnly("ActualHeight", function () { return Number; }, FrameworkElement);
         FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", function () { return Number; }, FrameworkElement);
-        FrameworkElement.CursorProperty = DependencyProperty.Register("Cursor", function () { return new Fayde.Enum(Fayde.CursorType); }, FrameworkElement, 0 /* Default */);
+        FrameworkElement.CursorProperty = DependencyProperty.Register("Cursor", function () { return new Fayde.Enum(Fayde.CursorType); }, FrameworkElement, Fayde.CursorType.Default);
         FrameworkElement.FlowDirectionProperty = Fayde.InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
         FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () { return Length; }, FrameworkElement, NaN);
-        FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", function () { return new Fayde.Enum(Fayde.HorizontalAlignment); }, FrameworkElement, 3 /* Stretch */);
+        FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", function () { return new Fayde.Enum(Fayde.HorizontalAlignment); }, FrameworkElement, Fayde.HorizontalAlignment.Stretch);
         FrameworkElement.LanguageProperty = Fayde.InheritableOwner.LanguageProperty.ExtendTo(FrameworkElement);
         FrameworkElement.MarginProperty = DependencyProperty.RegisterCore("Margin", function () { return Thickness; }, FrameworkElement);
         FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
@@ -2487,7 +2413,7 @@ var Fayde;
         FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, FrameworkElement, 0.0);
         FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, FrameworkElement, 0.0);
         FrameworkElement.StyleProperty = DependencyProperty.Register("Style", function () { return Fayde.Style; }, FrameworkElement, undefined, function (dobj, args) { return Fayde.Providers.LocalStyleBroker.Set(dobj, args.NewValue); });
-        FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", function () { return new Fayde.Enum(Fayde.VerticalAlignment); }, FrameworkElement, 3 /* Stretch */);
+        FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", function () { return new Fayde.Enum(Fayde.VerticalAlignment); }, FrameworkElement, Fayde.VerticalAlignment.Stretch);
         FrameworkElement.WidthProperty = DependencyProperty.Register("Width", function () { return Length; }, FrameworkElement, NaN);
         FrameworkElement.ResourcesProperty = DependencyProperty.Register("Resources", function () { return Fayde.ResourceDictionary; }, FrameworkElement);
         FrameworkElement.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () { return Function; }, FrameworkElement);
@@ -2621,7 +2547,7 @@ var Fayde;
             };
             IsEnabledStore.prototype.GetValuePrecedence = function (storage) {
                 if (storage.InheritedValue === false)
-                    return 0 /* IsEnabled */;
+                    return Providers.PropertyPrecedence.IsEnabled;
                 return _super.prototype.GetValuePrecedence.call(this, storage);
             };
             IsEnabledStore.prototype.SetLocalValue = function (storage, newValue) {
@@ -2629,7 +2555,7 @@ var Fayde;
                 storage.Local = newValue;
                 if (oldValue === newValue || storage.InheritedValue === false)
                     return;
-                this.OnPropertyChanged(storage, 1 /* LocalValue */, oldValue, newValue);
+                this.OnPropertyChanged(storage, Providers.PropertyPrecedence.LocalValue, oldValue, newValue);
             };
             IsEnabledStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
                 var args = _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
@@ -2640,7 +2566,7 @@ var Fayde;
                 return {
                     OwnerNode: dobj.XamlNode,
                     Property: propd,
-                    Precedence: 6 /* DefaultValue */,
+                    Precedence: Providers.PropertyPrecedence.DefaultValue,
                     InheritedValue: true,
                     Animations: undefined,
                     Local: undefined,
@@ -2660,7 +2586,7 @@ var Fayde;
                 }
                 if (oldInherited === newInherited)
                     return;
-                this.OnPropertyChanged(storage, 0 /* IsEnabled */, oldInherited, newInherited);
+                this.OnPropertyChanged(storage, Providers.PropertyPrecedence.IsEnabled, oldInherited, newInherited);
             };
             IsEnabledStore.EmitInheritedChanged = function (cn, value) {
                 var propd = Fayde.Controls.Control.IsEnabledProperty;
@@ -2702,28 +2628,28 @@ var Fayde;
             }
             Keyboard.RefreshModifiers = function (e) {
                 if (e.Shift)
-                    Keyboard.Modifiers |= 4 /* Shift */;
+                    Keyboard.Modifiers |= ModifierKeys.Shift;
                 else
-                    Keyboard.Modifiers &= ~4 /* Shift */;
+                    Keyboard.Modifiers &= ~ModifierKeys.Shift;
                 if (e.Ctrl)
-                    Keyboard.Modifiers |= 2 /* Control */;
+                    Keyboard.Modifiers |= ModifierKeys.Control;
                 else
-                    Keyboard.Modifiers &= ~2 /* Control */;
+                    Keyboard.Modifiers &= ~ModifierKeys.Control;
                 if (e.Alt)
-                    Keyboard.Modifiers |= 1 /* Alt */;
+                    Keyboard.Modifiers |= ModifierKeys.Alt;
                 else
-                    Keyboard.Modifiers &= ~1 /* Alt */;
+                    Keyboard.Modifiers &= ~ModifierKeys.Alt;
             };
             Keyboard.HasControl = function () {
-                return (Keyboard.Modifiers & 2 /* Control */) === 2 /* Control */;
+                return (Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control;
             };
             Keyboard.HasAlt = function () {
-                return (Keyboard.Modifiers & 1 /* Alt */) === 1 /* Alt */;
+                return (Keyboard.Modifiers & ModifierKeys.Alt) === ModifierKeys.Alt;
             };
             Keyboard.HasShift = function () {
-                return (Keyboard.Modifiers & 4 /* Shift */) === 4 /* Shift */;
+                return (Keyboard.Modifiers & ModifierKeys.Shift) === ModifierKeys.Shift;
             };
-            Keyboard.Modifiers = 0 /* None */;
+            Keyboard.Modifiers = ModifierKeys.None;
             return Keyboard;
         })();
         Input.Keyboard = Keyboard;
@@ -2771,9 +2697,7 @@ var Fayde;
                 //TODO: Deployment Loaded Event (Async)
                 return true;
             };
-            ControlNode.prototype.GetDefaultVisualTree = function () {
-                return undefined;
-            };
+            ControlNode.prototype.GetDefaultVisualTree = function () { return undefined; };
             ControlNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
                 _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
                 if (!newIsAttached)
@@ -2793,9 +2717,7 @@ var Fayde;
                 this.LayoutUpdater.invalidateMeasure();
             };
             Object.defineProperty(ControlNode.prototype, "IsEnabled", {
-                get: function () {
-                    return this.XObject.IsEnabled;
-                },
+                get: function () { return this.XObject.IsEnabled; },
                 set: function (value) {
                     Fayde.Providers.IsEnabledStore.EmitInheritedChanged(this, value);
                     this.OnIsEnabledChanged(undefined, value);
@@ -2816,9 +2738,7 @@ var Fayde;
             ControlNode.prototype.Focus = function (recurse) {
                 return Fayde.Surface.Focus(this.XObject, recurse);
             };
-            ControlNode.prototype.CanCaptureMouse = function () {
-                return this.XObject.IsEnabled;
-            };
+            ControlNode.prototype.CanCaptureMouse = function () { return this.XObject.IsEnabled; };
             return ControlNode;
         })(Fayde.FENode);
         Controls.ControlNode = ControlNode;
@@ -2845,21 +2765,15 @@ var Fayde;
                 Fayde.UIReaction(Control.HorizontalContentAlignmentProperty, function (upd, nv, ov) { return upd.invalidateArrange(); }, false, true, this);
                 Fayde.UIReaction(Control.VerticalContentAlignmentProperty, function (upd, nv, ov) { return upd.invalidateArrange(); }, false, true, this);
             }
-            Control.prototype.CreateNode = function () {
-                return new ControlNode(this);
-            };
-            Control.prototype.CreateLayoutUpdater = function () {
-                return new minerva.controls.control.ControlUpdater();
-            };
+            Control.prototype.CreateNode = function () { return new ControlNode(this); };
+            Control.prototype.CreateLayoutUpdater = function () { return new minerva.controls.control.ControlUpdater(); };
             Control.prototype.IsInheritable = function (propd) {
                 if (ControlInheritedProperties.indexOf(propd) > -1)
                     return true;
                 return _super.prototype.IsInheritable.call(this, propd);
             };
             Object.defineProperty(Control.prototype, "IsFocused", {
-                get: function () {
-                    return this.XamlNode.IsFocused;
-                },
+                get: function () { return this.XamlNode.IsFocused; },
                 enumerable: true,
                 configurable: true
             });
@@ -2884,8 +2798,7 @@ var Fayde;
             Control.prototype.GetDefaultStyle = function () {
                 return undefined;
             };
-            Control.prototype.OnIsEnabledChanged = function (e) {
-            };
+            Control.prototype.OnIsEnabledChanged = function (e) { };
             Control.prototype.OnGotFocus = function (e) {
                 this.XamlNode.IsFocused = true;
                 this.UpdateValidationState();
@@ -2945,14 +2858,14 @@ var Fayde;
             Control.FontStyleProperty = Fayde.InheritableOwner.FontStyleProperty.ExtendTo(Control);
             Control.FontWeightProperty = Fayde.InheritableOwner.FontWeightProperty.ExtendTo(Control);
             Control.ForegroundProperty = Fayde.InheritableOwner.ForegroundProperty.ExtendTo(Control);
-            Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () { return new Fayde.Enum(Fayde.HorizontalAlignment); }, Control, 1 /* Center */);
+            Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () { return new Fayde.Enum(Fayde.HorizontalAlignment); }, Control, Fayde.HorizontalAlignment.Center);
             Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", function () { return Boolean; }, Control, true);
             Control.IsTabStopProperty = DependencyProperty.Register("IsTabStop", function () { return Boolean; }, Control, true);
             Control.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () { return Thickness; }, Control);
             Control.TabIndexProperty = DependencyProperty.Register("TabIndex", function () { return Number; }, Control);
-            Control.TabNavigationProperty = DependencyProperty.Register("TabNavigation", function () { return new Fayde.Enum(Fayde.Input.KeyboardNavigationMode); }, Control, 5 /* Local */);
+            Control.TabNavigationProperty = DependencyProperty.Register("TabNavigation", function () { return new Fayde.Enum(Fayde.Input.KeyboardNavigationMode); }, Control, Fayde.Input.KeyboardNavigationMode.Local);
             Control.TemplateProperty = DependencyProperty.Register("Template", function () { return Controls.ControlTemplate; }, Control, undefined, function (d, args) { return d.XamlNode.OnTemplateChanged(args.OldValue, args.NewValue); });
-            Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () { return new Fayde.Enum(Fayde.VerticalAlignment); }, Control, 1 /* Center */);
+            Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () { return new Fayde.Enum(Fayde.VerticalAlignment); }, Control, Fayde.VerticalAlignment.Center);
             return Control;
         })(Fayde.FrameworkElement);
         Controls.Control = Control;
@@ -3045,7 +2958,8 @@ var Fayde;
                 var newUri;
                 if (args.NewValue instanceof Fayde.Uri) {
                     newUri = args.NewValue;
-                    Fayde.Markup.Resolve(newUri).then(function (m) { return _this._OnLoadedUri(m); }, function (err) { return _this._OnErroredUri(err, newUri); });
+                    Fayde.Markup.Resolve(newUri)
+                        .then(function (m) { return _this._OnLoadedUri(m); }, function (err) { return _this._OnErroredUri(err, newUri); });
                 }
                 this.OnContentUriChanged(oldUri, newUri);
             };
@@ -3172,7 +3086,7 @@ var Fayde;
                     var _this = this;
                     _super.prototype.OnMouseEnter.call(this, e);
                     this.UpdateVisualState();
-                    if (this.ClickMode !== 2 /* Hover */ || !this.IsEnabled)
+                    if (this.ClickMode !== Controls.ClickMode.Hover || !this.IsEnabled)
                         return;
                     this._DoWithSuspend(function () {
                         _this.SetCurrentValue(ButtonBase.IsPressedProperty, true);
@@ -3183,7 +3097,7 @@ var Fayde;
                     var _this = this;
                     _super.prototype.OnMouseLeave.call(this, e);
                     this.UpdateVisualState();
-                    if (this.ClickMode !== 2 /* Hover */ || !this.IsEnabled)
+                    if (this.ClickMode !== Controls.ClickMode.Hover || !this.IsEnabled)
                         return;
                     this._DoWithSuspend(function () {
                         _this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
@@ -3192,7 +3106,7 @@ var Fayde;
                 ButtonBase.prototype.OnMouseMove = function (e) {
                     _super.prototype.OnMouseMove.call(this, e);
                     this._MousePosition = e.GetPosition(this);
-                    if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== 2 /* Hover */ && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
+                    if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== Controls.ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
                         this.SetCurrentValue(ButtonBase.IsPressedProperty, this._IsValidPosition(this._MousePosition));
                     }
                 };
@@ -3203,7 +3117,7 @@ var Fayde;
                     if (!this.IsEnabled)
                         return;
                     var clickMode = this.ClickMode;
-                    if (clickMode === 2 /* Hover */)
+                    if (clickMode === Controls.ClickMode.Hover)
                         return;
                     e.Handled = true;
                     this._DoWithSuspend(function () {
@@ -3212,7 +3126,7 @@ var Fayde;
                         if (_this._IsMouseCaptured)
                             _this.SetCurrentValue(ButtonBase.IsPressedProperty, true);
                     });
-                    if (clickMode === 1 /* Press */)
+                    if (clickMode === Controls.ClickMode.Press)
                         this.OnClick();
                 };
                 ButtonBase.prototype.OnMouseLeftButtonUp = function (e) {
@@ -3221,10 +3135,10 @@ var Fayde;
                     if (!this.IsEnabled)
                         return;
                     var clickMode = this.ClickMode;
-                    if (clickMode === 2 /* Hover */)
+                    if (clickMode === Controls.ClickMode.Hover)
                         return;
                     e.Handled = true;
-                    if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === 0 /* Release */)
+                    if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === Controls.ClickMode.Release)
                         this.OnClick();
                     if (!this._IsSpaceKeyDown) {
                         this._ReleaseMouseCaptureInternal();
@@ -3240,7 +3154,7 @@ var Fayde;
                     var _this = this;
                     _super.prototype.OnLostFocus.call(this, e);
                     this.SetCurrentValue(ButtonBase.IsFocusedProperty, false);
-                    if (this.ClickMode === 2 /* Hover */)
+                    if (this.ClickMode === Controls.ClickMode.Hover)
                         return;
                     this._DoWithSuspend(function () {
                         _this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
@@ -3266,7 +3180,7 @@ var Fayde;
                         if (e.Device.Capture(_this))
                             _this.SetCurrentValue(ButtonBase.IsPressedProperty, true);
                     });
-                    if (this.ClickMode === 1 /* Press */)
+                    if (this.ClickMode === Controls.ClickMode.Press)
                         this.OnClick();
                 };
                 ButtonBase.prototype.OnTouchUp = function (e) {
@@ -3274,7 +3188,7 @@ var Fayde;
                     if (!this.IsEnabled)
                         return;
                     e.Handled = true;
-                    if (this.IsPressed && this.ClickMode === 0 /* Release */)
+                    if (this.IsPressed && this.ClickMode === Controls.ClickMode.Release)
                         this.OnClick();
                     e.Device.ReleaseCapture(this);
                     this.SetCurrentValue(ButtonBase.IsPressedProperty, false);
@@ -3322,7 +3236,8 @@ var Fayde;
                     this._IsMouseCaptured = false;
                 };
                 ButtonBase.prototype._IsValidPosition = function (pos) {
-                    return pos.x >= 0.0 && pos.x <= this.ActualWidth && pos.y >= 0.0 && pos.y <= this.ActualHeight;
+                    return pos.x >= 0.0 && pos.x <= this.ActualWidth
+                        && pos.y >= 0.0 && pos.y <= this.ActualHeight;
                 };
                 ButtonBase.prototype.OnCommandChanged = function (args) {
                     var cmd = Fayde.Input.ICommand_.as(args.OldValue);
@@ -3342,7 +3257,7 @@ var Fayde;
                     if (cmd)
                         this.IsEnabled = cmd.CanExecute(args.NewValue);
                 };
-                ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return new Fayde.Enum(Controls.ClickMode); }, ButtonBase, 0 /* Release */);
+                ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return new Fayde.Enum(Controls.ClickMode); }, ButtonBase, Controls.ClickMode.Release);
                 ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { return d.OnIsPressedChanged(args); });
                 ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, ButtonBase, false);
                 ButtonBase.CommandProperty = DependencyProperty.RegisterCore("Command", function () { return Fayde.Input.ICommand_; }, ButtonBase, undefined, function (d, args) { return d.OnCommandChanged(args); });
@@ -3543,7 +3458,7 @@ var Fayde;
                 return storage.Local;
             };
             ImmutableStore.prototype.GetValuePrecedence = function (storage) {
-                return 1 /* LocalValue */;
+                return Providers.PropertyPrecedence.LocalValue;
             };
             ImmutableStore.prototype.SetLocalValue = function (storage, newValue) {
                 console.warn("Trying to set value for immutable property.");
@@ -3554,10 +3469,8 @@ var Fayde;
             ImmutableStore.prototype.ListenToChanged = function (target, propd, func, closure) {
                 return {
                     Property: propd,
-                    OnPropertyChanged: function (sender, args) {
-                    },
-                    Detach: function () {
-                    }
+                    OnPropertyChanged: function (sender, args) { },
+                    Detach: function () { }
                 };
             };
             ImmutableStore.prototype.Clone = function (dobj, sourceStorage) {
@@ -3649,18 +3562,10 @@ var Fayde;
                 var error = new BError();
                 this.XamlNode.SetSubtreeNode(coll.XamlNode, error);
             }
-            Panel.prototype.CreateNode = function () {
-                return new PanelNode(this);
-            };
-            Panel.prototype.CreateLayoutUpdater = function () {
-                return new minerva.controls.panel.PanelUpdater();
-            };
-            Panel.GetZIndex = function (uie) {
-                return uie.GetValue(Panel.ZIndexProperty);
-            };
-            Panel.SetZIndex = function (uie, value) {
-                uie.SetValue(Panel.ZIndexProperty, value);
-            };
+            Panel.prototype.CreateNode = function () { return new PanelNode(this); };
+            Panel.prototype.CreateLayoutUpdater = function () { return new minerva.controls.panel.PanelUpdater(); };
+            Panel.GetZIndex = function (uie) { return uie.GetValue(Panel.ZIndexProperty); };
+            Panel.SetZIndex = function (uie, value) { uie.SetValue(Panel.ZIndexProperty, value); };
             Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Fayde.Media.Brush; }, Panel);
             Panel.ChildrenProperty = DependencyProperty.RegisterImmutable("Children", function () { return PanelChildrenCollection; }, Panel);
             Panel.ZIndexProperty = DependencyProperty.RegisterAttached("ZIndex", function () { return Number; }, Panel, 0);
@@ -3690,21 +3595,11 @@ var Fayde;
             function Canvas() {
                 _super.apply(this, arguments);
             }
-            Canvas.prototype.CreateLayoutUpdater = function () {
-                return new minerva.controls.canvas.CanvasUpdater();
-            };
-            Canvas.GetTop = function (d) {
-                return d.GetValue(Canvas.TopProperty);
-            };
-            Canvas.SetTop = function (d, value) {
-                d.SetValue(Canvas.TopProperty, value);
-            };
-            Canvas.GetLeft = function (d) {
-                return d.GetValue(Canvas.LeftProperty);
-            };
-            Canvas.SetLeft = function (d, value) {
-                d.SetValue(Canvas.LeftProperty, value);
-            };
+            Canvas.prototype.CreateLayoutUpdater = function () { return new minerva.controls.canvas.CanvasUpdater(); };
+            Canvas.GetTop = function (d) { return d.GetValue(Canvas.TopProperty); };
+            Canvas.SetTop = function (d, value) { d.SetValue(Canvas.TopProperty, value); };
+            Canvas.GetLeft = function (d) { return d.GetValue(Canvas.LeftProperty); };
+            Canvas.SetLeft = function (d, value) { d.SetValue(Canvas.LeftProperty, value); };
             Canvas.TopProperty = DependencyProperty.RegisterAttached("Top", function () { return Number; }, Canvas, 0.0);
             Canvas.LeftProperty = DependencyProperty.RegisterAttached("Left", function () { return Number; }, Canvas, 0.0);
             return Canvas;
@@ -3845,17 +3740,17 @@ var Fayde;
             var s = o.toString();
             var cd = new ColumnDefinition();
             if (s.toLowerCase() === "auto") {
-                cd.Width = new Controls.GridLength(0, 0 /* Auto */);
+                cd.Width = new Controls.GridLength(0, GridUnitType.Auto);
                 return cd;
             }
             if (s === "*") {
-                cd.Width = new Controls.GridLength(1, 2 /* Star */);
+                cd.Width = new Controls.GridLength(1, GridUnitType.Star);
                 return cd;
             }
             var v = parseFloat(s);
             if (isNaN(v))
                 throw new XamlParseException("Invalid ColumnDefinition: '" + s + "'.");
-            cd.Width = new Controls.GridLength(v, s[s.length - 1] === "*" ? 2 /* Star */ : 1 /* Pixel */);
+            cd.Width = new Controls.GridLength(v, s[s.length - 1] === "*" ? GridUnitType.Star : GridUnitType.Pixel);
             return cd;
         }
         nullstone.registerTypeConverter(ColumnDefinition, ConvertColumnDefinition);
@@ -3933,22 +3828,14 @@ var Fayde;
                 coll.ItemsChanged.on(this._OnItemsUpdated, this);
                 this._ItemContainersManager = new Controls.Internal.ItemContainersManager(this);
             }
-            ItemsControl.prototype.CreateNode = function () {
-                return new ItemsControlNode(this);
-            };
+            ItemsControl.prototype.CreateNode = function () { return new ItemsControlNode(this); };
             Object.defineProperty(ItemsControl.prototype, "IsItemsControl", {
-                get: function () {
-                    return true;
-                },
+                get: function () { return true; },
                 enumerable: true,
                 configurable: true
             });
-            ItemsControl.GetIsItemsHost = function (d) {
-                return d.GetValue(ItemsControl.IsItemsHostProperty) === true;
-            };
-            ItemsControl.SetIsItemsHost = function (d, value) {
-                d.SetValue(ItemsControl.IsItemsHostProperty, value === true);
-            };
+            ItemsControl.GetIsItemsHost = function (d) { return d.GetValue(ItemsControl.IsItemsHostProperty) === true; };
+            ItemsControl.SetIsItemsHost = function (d, value) { d.SetValue(ItemsControl.IsItemsHostProperty, value === true); };
             ItemsControl.prototype.OnDisplayMemberPathChanged = function (e) {
                 for (var en = this.ItemContainersManager.GetEnumerator(); en.moveNext();) {
                     this.UpdateContainerTemplate(en.current, en.CurrentItem);
@@ -3961,6 +3848,7 @@ var Fayde;
                     nc.CollectionChanged.off(this._OnItemsSourceUpdated, this);
                 var items = this.Items;
                 var resetargs = Fayde.Collections.CollectionChangedEventArgs.Reset(items.ToArray());
+                //Reset old
                 try {
                     this._SuspendItemsChanged = true;
                     items.Clear();
@@ -3993,9 +3881,7 @@ var Fayde;
                 }
             };
             Object.defineProperty(ItemsControl.prototype, "ItemContainersManager", {
-                get: function () {
-                    return this._ItemContainersManager;
-                },
+                get: function () { return this._ItemContainersManager; },
                 enumerable: true,
                 configurable: true
             });
@@ -4016,12 +3902,8 @@ var Fayde;
                         cc.Content = null;
                 }
             };
-            ItemsControl.prototype.GetContainerForItem = function () {
-                return new Controls.ContentPresenter();
-            };
-            ItemsControl.prototype.IsItemItsOwnContainer = function (item) {
-                return item instanceof Fayde.UIElement;
-            };
+            ItemsControl.prototype.GetContainerForItem = function () { return new Controls.ContentPresenter(); };
+            ItemsControl.prototype.IsItemItsOwnContainer = function (item) { return item instanceof Fayde.UIElement; };
             ItemsControl.prototype._OnItemsUpdated = function (sender, e) {
                 if (this._SuspendItemsChanged)
                     return;
@@ -4034,20 +3916,20 @@ var Fayde;
                 try {
                     this._SuspendItemsChanged = true;
                     switch (e.Action) {
-                        case 1 /* Add */:
+                        case Fayde.Collections.CollectionChangedAction.Add:
                             for (var i = 0, len = e.NewItems.length; i < len; i++) {
                                 items.Insert(e.NewStartingIndex + i, e.NewItems[i]);
                             }
                             break;
-                        case 2 /* Remove */:
+                        case Fayde.Collections.CollectionChangedAction.Remove:
                             for (var i = 0, len = e.OldItems.length; i < len; i++) {
                                 items.RemoveAt(e.OldStartingIndex);
                             }
                             break;
-                        case 3 /* Replace */:
+                        case Fayde.Collections.CollectionChangedAction.Replace:
                             items.SetValueAt(e.NewStartingIndex, e.NewItems[0]);
                             break;
-                        case 4 /* Reset */:
+                        case Fayde.Collections.CollectionChangedAction.Reset:
                             items.Clear();
                             break;
                     }
@@ -4059,17 +3941,17 @@ var Fayde;
             };
             ItemsControl.prototype.OnItemsChanged = function (e) {
                 switch (e.Action) {
-                    case 1 /* Add */:
+                    case Fayde.Collections.CollectionChangedAction.Add:
                         this.OnItemsAdded(e.NewStartingIndex, e.NewItems);
                         break;
-                    case 2 /* Remove */:
+                    case Fayde.Collections.CollectionChangedAction.Remove:
                         this.OnItemsRemoved(e.OldStartingIndex, e.OldItems);
                         break;
-                    case 3 /* Replace */:
+                    case Fayde.Collections.CollectionChangedAction.Replace:
                         this.OnItemsRemoved(e.NewStartingIndex, e.OldItems);
                         this.OnItemsAdded(e.NewStartingIndex, e.NewItems);
                         break;
-                    case 4 /* Reset */:
+                    case Fayde.Collections.CollectionChangedAction.Reset:
                         this.OnItemsRemoved(0, e.OldItems);
                         break;
                 }
@@ -4220,7 +4102,7 @@ var Fayde;
                 };
                 Selector.prototype._OnSelectionModeChanged = function (args) {
                     this._Selection.Mode = args.NewValue;
-                    if (args.NewValue !== 0 /* Single */)
+                    if (args.NewValue !== Controls.SelectionMode.Single)
                         return;
                     var selIndex = this.SelectedIndex;
                     if (selIndex === -1)
@@ -4240,7 +4122,7 @@ var Fayde;
                     _super.prototype.OnItemsChanged.call(this, e);
                     var item;
                     switch (e.Action) {
-                        case 1 /* Add */:
+                        case Fayde.Collections.CollectionChangedAction.Add:
                             var lbi;
                             if (e.NewItems[0] instanceof Controls.ListBoxItem)
                                 lbi = e.NewItems[0];
@@ -4251,7 +4133,7 @@ var Fayde;
                                 this._Selection.Select(this.SelectedItem);
                             }
                             break;
-                        case 4 /* Reset */:
+                        case Fayde.Collections.CollectionChangedAction.Reset:
                             var o;
                             var icv = Fayde.Data.ICollectionView_.as(this.ItemsSource);
                             if (icv && this.SynchronizeWithCurrentItem)
@@ -4263,14 +4145,14 @@ var Fayde;
                             else
                                 this._Selection.ClearSelection();
                             break;
-                        case 2 /* Remove */:
+                        case Fayde.Collections.CollectionChangedAction.Remove:
                             item = e.OldItems[0];
                             if (this.SelectedItems.Contains(item))
                                 this._Selection.Unselect(item);
                             else if (e.OldStartingIndex <= this.SelectedIndex)
                                 this._Selection.Select(this.SelectedItem);
                             break;
-                        case 3 /* Replace */:
+                        case Fayde.Collections.CollectionChangedAction.Replace:
                             item = e.OldItems[0];
                             this._Selection.Unselect(item);
                             break;
@@ -4295,8 +4177,7 @@ var Fayde;
                         this._Selection.ClearSelection();
                     }
                 };
-                Selector.prototype.OnItemContainerStyleChanged = function (oldStyle, newStyle) {
-                };
+                Selector.prototype.OnItemContainerStyleChanged = function (oldStyle, newStyle) { };
                 Selector.prototype.ClearContainerForItem = function (element, item) {
                     _super.prototype.ClearContainerForItem.call(this, element, item);
                     var lbi = element;
@@ -4386,8 +4267,7 @@ var Fayde;
                     this.OnSelectionChanged(args);
                     this.SelectionChanged.raise(this, args);
                 };
-                Selector.prototype.OnSelectionChanged = function (args) {
-                };
+                Selector.prototype.OnSelectionChanged = function (args) { };
                 Selector.prototype.NotifyListItemClicked = function (lbi) {
                     this._Selection.Select(this.ItemContainersManager.ItemFromContainer(lbi));
                 };
@@ -4397,10 +4277,8 @@ var Fayde;
                         lbi.Focus();
                     }
                 };
-                Selector.prototype.NotifyListItemGotFocus = function (lbi) {
-                };
-                Selector.prototype.NotifyListItemLostFocus = function (lbi) {
-                };
+                Selector.prototype.NotifyListItemGotFocus = function (lbi) { };
+                Selector.prototype.NotifyListItemLostFocus = function (lbi) { };
                 Selector.IsSynchronizedWithCurrentItemProperty = DependencyProperty.Register("IsSynchronizedWithCurrentItem", function () { return Boolean; }, Selector, null, function (d, args) { return d._OnIsSynchronizedWithCurrentItemChanged(args); });
                 Selector.SelectedIndexProperty = DependencyProperty.Register("SelectedIndex", function () { return Number; }, Selector, -1, function (d, args) { return d._OnSelectedIndexChanged(args); });
                 Selector.SelectedItemProperty = DependencyProperty.Register("SelectedItem", function () { return Object; }, Selector, undefined, function (d, args) { return d._OnSelectedItemChanged(args); });
@@ -4425,7 +4303,9 @@ var Fayde;
             lastId++;
             uri = uri || "http://gen/" + lastId.toString();
             var xm = new XamlMarkup(uri);
-            var root = (typeof obj === "string") ? xm.loadRoot(obj) : obj;
+            var root = (typeof obj === "string")
+                ? xm.loadRoot(obj)
+                : obj;
             if (!root.isDefaultNamespace(Fayde.XMLNS))
                 throw new XamlParseException("Invalid default namespace. [" + root.lookupNamespaceURI(null) + "]");
             xm.setRoot(root);
@@ -4451,9 +4331,7 @@ var Fayde;
                 _super.call(this, xobj);
             }
             Object.defineProperty(ContentPresenterNode.prototype, "ContentRoot", {
-                get: function () {
-                    return this._ContentRoot;
-                },
+                get: function () { return this._ContentRoot; },
                 enumerable: true,
                 configurable: true
             });
@@ -4550,9 +4428,7 @@ var Fayde;
             function ContentPresenter() {
                 _super.apply(this, arguments);
             }
-            ContentPresenter.prototype.CreateNode = function () {
-                return new ContentPresenterNode(this);
-            };
+            ContentPresenter.prototype.CreateNode = function () { return new ContentPresenterNode(this); };
             ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentPresenter, undefined, function (d, args) { return d.XamlNode._ContentChanged(args); });
             ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return Fayde.DataTemplate; }, ContentPresenter, undefined, function (d, args) { return d.XamlNode._ContentTemplateChanged(); });
             return ContentPresenter;
@@ -4635,12 +4511,8 @@ var Fayde;
                     this.Opened = new nullstone.Event();
                     this.Closed = new nullstone.Event();
                 }
-                Popup.prototype.CreateNode = function () {
-                    return new PopupNode(this);
-                };
-                Popup.prototype.CreateLayoutUpdater = function () {
-                    return new PopupUpdater();
-                };
+                Popup.prototype.CreateNode = function () { return new PopupNode(this); };
+                Popup.prototype.CreateLayoutUpdater = function () { return new PopupUpdater(); };
                 Popup.prototype.WatchOutsideClick = function (callback, closure) {
                     this.XamlNode.ClickedOutside.on(callback, closure);
                     this.XamlNode.EnsureCatcher();
@@ -4714,20 +4586,13 @@ var Fayde;
                 return updater;
             };
             Object.defineProperty(ScrollContentPresenter.prototype, "ScrollOwner", {
-                get: function () {
-                    return this._ScrollData.scrollOwner;
-                },
-                set: function (value) {
-                    this._ScrollData.scrollOwner = value;
-                },
+                get: function () { return this._ScrollData.scrollOwner; },
+                set: function (value) { this._ScrollData.scrollOwner = value; },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(ScrollContentPresenter.prototype, "CanHorizontallyScroll", {
-                get: function () {
-                    return this._ScrollData.canHorizontallyScroll;
-                    ;
-                },
+                get: function () { return this._ScrollData.canHorizontallyScroll; ; },
                 set: function (value) {
                     var sd = this._ScrollData;
                     if (sd.canHorizontallyScroll !== value) {
@@ -4739,9 +4604,7 @@ var Fayde;
                 configurable: true
             });
             Object.defineProperty(ScrollContentPresenter.prototype, "CanVerticallyScroll", {
-                get: function () {
-                    return this._ScrollData.canVerticallyScroll;
-                },
+                get: function () { return this._ScrollData.canVerticallyScroll; },
                 set: function (value) {
                     var sd = this._ScrollData;
                     if (sd.canVerticallyScroll !== value) {
@@ -4753,83 +4616,47 @@ var Fayde;
                 configurable: true
             });
             Object.defineProperty(ScrollContentPresenter.prototype, "ExtentWidth", {
-                get: function () {
-                    return this._ScrollData.extentWidth;
-                },
+                get: function () { return this._ScrollData.extentWidth; },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(ScrollContentPresenter.prototype, "ExtentHeight", {
-                get: function () {
-                    return this._ScrollData.extentHeight;
-                },
+                get: function () { return this._ScrollData.extentHeight; },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(ScrollContentPresenter.prototype, "ViewportWidth", {
-                get: function () {
-                    return this._ScrollData.viewportWidth;
-                },
+                get: function () { return this._ScrollData.viewportWidth; },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(ScrollContentPresenter.prototype, "ViewportHeight", {
-                get: function () {
-                    return this._ScrollData.viewportHeight;
-                },
+                get: function () { return this._ScrollData.viewportHeight; },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(ScrollContentPresenter.prototype, "HorizontalOffset", {
-                get: function () {
-                    return this._ScrollData.offsetX;
-                },
+                get: function () { return this._ScrollData.offsetX; },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(ScrollContentPresenter.prototype, "VerticalOffset", {
-                get: function () {
-                    return this._ScrollData.offsetY;
-                },
+                get: function () { return this._ScrollData.offsetY; },
                 enumerable: true,
                 configurable: true
             });
-            ScrollContentPresenter.prototype.LineUp = function () {
-                return this.SetVerticalOffset(this._ScrollData.offsetY - 16);
-            };
-            ScrollContentPresenter.prototype.LineDown = function () {
-                return this.SetVerticalOffset(this._ScrollData.offsetY + 16);
-            };
-            ScrollContentPresenter.prototype.LineLeft = function () {
-                return this.SetHorizontalOffset(this._ScrollData.offsetX - 16);
-            };
-            ScrollContentPresenter.prototype.LineRight = function () {
-                return this.SetHorizontalOffset(this._ScrollData.offsetX + 16);
-            };
-            ScrollContentPresenter.prototype.MouseWheelUp = function () {
-                return this.SetVerticalOffset(this._ScrollData.offsetY - 48);
-            };
-            ScrollContentPresenter.prototype.MouseWheelDown = function () {
-                return this.SetVerticalOffset(this._ScrollData.offsetY + 48);
-            };
-            ScrollContentPresenter.prototype.MouseWheelLeft = function () {
-                return this.SetHorizontalOffset(this._ScrollData.offsetX - 48);
-            };
-            ScrollContentPresenter.prototype.MouseWheelRight = function () {
-                return this.SetHorizontalOffset(this._ScrollData.offsetX + 48);
-            };
-            ScrollContentPresenter.prototype.PageUp = function () {
-                return this.SetVerticalOffset(this._ScrollData.offsetY - this._ScrollData.viewportHeight);
-            };
-            ScrollContentPresenter.prototype.PageDown = function () {
-                return this.SetVerticalOffset(this._ScrollData.offsetY + this._ScrollData.viewportHeight);
-            };
-            ScrollContentPresenter.prototype.PageLeft = function () {
-                return this.SetHorizontalOffset(this._ScrollData.offsetX - this._ScrollData.viewportWidth);
-            };
-            ScrollContentPresenter.prototype.PageRight = function () {
-                return this.SetHorizontalOffset(this._ScrollData.offsetX + this._ScrollData.viewportWidth);
-            };
+            ScrollContentPresenter.prototype.LineUp = function () { return this.SetVerticalOffset(this._ScrollData.offsetY - 16); };
+            ScrollContentPresenter.prototype.LineDown = function () { return this.SetVerticalOffset(this._ScrollData.offsetY + 16); };
+            ScrollContentPresenter.prototype.LineLeft = function () { return this.SetHorizontalOffset(this._ScrollData.offsetX - 16); };
+            ScrollContentPresenter.prototype.LineRight = function () { return this.SetHorizontalOffset(this._ScrollData.offsetX + 16); };
+            ScrollContentPresenter.prototype.MouseWheelUp = function () { return this.SetVerticalOffset(this._ScrollData.offsetY - 48); };
+            ScrollContentPresenter.prototype.MouseWheelDown = function () { return this.SetVerticalOffset(this._ScrollData.offsetY + 48); };
+            ScrollContentPresenter.prototype.MouseWheelLeft = function () { return this.SetHorizontalOffset(this._ScrollData.offsetX - 48); };
+            ScrollContentPresenter.prototype.MouseWheelRight = function () { return this.SetHorizontalOffset(this._ScrollData.offsetX + 48); };
+            ScrollContentPresenter.prototype.PageUp = function () { return this.SetVerticalOffset(this._ScrollData.offsetY - this._ScrollData.viewportHeight); };
+            ScrollContentPresenter.prototype.PageDown = function () { return this.SetVerticalOffset(this._ScrollData.offsetY + this._ScrollData.viewportHeight); };
+            ScrollContentPresenter.prototype.PageLeft = function () { return this.SetHorizontalOffset(this._ScrollData.offsetX - this._ScrollData.viewportWidth); };
+            ScrollContentPresenter.prototype.PageRight = function () { return this.SetHorizontalOffset(this._ScrollData.offsetX + this._ScrollData.viewportWidth); };
             ScrollContentPresenter.prototype.MakeVisible = function (uie, viewport) {
                 var vis = new minerva.Rect();
                 if (minerva.Rect.isEmpty(viewport) || !uie || uie === this || !this.XamlNode.IsAncestorOf(uie.XamlNode))
@@ -4904,8 +4731,8 @@ var Fayde;
                 }
                 if (!info)
                     info = this;
-                info.CanHorizontallyScroll = sv.HorizontalScrollBarVisibility !== 0 /* Disabled */;
-                info.CanVerticallyScroll = sv.VerticalScrollBarVisibility !== 0 /* Disabled */;
+                info.CanHorizontallyScroll = sv.HorizontalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
+                info.CanVerticallyScroll = sv.VerticalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
                 info.ScrollOwner = sv;
                 sv.ScrollInfo = info;
                 sv.InvalidateScrollInfo();
@@ -4943,10 +4770,8 @@ var Fayde;
                     this.ValueChanged = new Fayde.RoutedPropertyChangedEvent();
                     this._Coercer = new Controls.Internal.RangeCoercer(this, function (val) { return _this.SetCurrentValue(RangeBase.MaximumProperty, val); }, function (val) { return _this.SetCurrentValue(RangeBase.ValueProperty, val); });
                 }
-                RangeBase.prototype.OnMinimumChanged = function (oldMin, newMin) {
-                };
-                RangeBase.prototype.OnMaximumChanged = function (oldMax, newMax) {
-                };
+                RangeBase.prototype.OnMinimumChanged = function (oldMin, newMin) { };
+                RangeBase.prototype.OnMaximumChanged = function (oldMax, newMax) { };
                 RangeBase.prototype.OnValueChanged = function (oldVal, newVal) {
                     this.ValueChanged.raise(this, new Fayde.RoutedPropertyChangedEventArgs(oldVal, newVal));
                 };
@@ -4992,7 +4817,7 @@ var Fayde;
                     this._MousePosition = null;
                     this._IntervalID = null;
                     this._NewInterval = null;
-                    this.ClickMode = 1 /* Press */;
+                    this.ClickMode = Controls.ClickMode.Press;
                     this.DefaultStyleKey = RepeatButton;
                 }
                 RepeatButton.prototype.OnApplyTemplate = function () {
@@ -5015,7 +4840,7 @@ var Fayde;
                     this._UpdateRepeatState();
                 };
                 RepeatButton.prototype.OnKeyDown = function (e) {
-                    if (e.Key === 9 /* Space */ && this.ClickMode !== 2 /* Hover */) {
+                    if (e.Key === Fayde.Input.Key.Space && this.ClickMode !== Controls.ClickMode.Hover) {
                         this._KeyboardCausingRepeat = true;
                         this._UpdateRepeatState();
                     }
@@ -5023,7 +4848,7 @@ var Fayde;
                 };
                 RepeatButton.prototype.OnKeyUp = function (e) {
                     _super.prototype.OnKeyUp.call(this, e);
-                    if (e.Key === 9 /* Space */ && this.ClickMode !== 2 /* Hover */) {
+                    if (e.Key === Fayde.Input.Key.Space && this.ClickMode !== Controls.ClickMode.Hover) {
                         this._KeyboardCausingRepeat = false;
                         this._UpdateRepeatState();
                     }
@@ -5031,7 +4856,7 @@ var Fayde;
                 };
                 RepeatButton.prototype.OnLostFocus = function (e) {
                     _super.prototype.OnLostFocus.call(this, e);
-                    if (this.ClickMode !== 2 /* Hover */) {
+                    if (this.ClickMode !== Controls.ClickMode.Hover) {
                         this._KeyboardCausingRepeat = false;
                         this._MouseCausingRepeat = false;
                         this._UpdateRepeatState();
@@ -5039,7 +4864,7 @@ var Fayde;
                 };
                 RepeatButton.prototype.OnMouseEnter = function (e) {
                     _super.prototype.OnMouseEnter.call(this, e);
-                    if (this.ClickMode === 2 /* Hover */) {
+                    if (this.ClickMode === Controls.ClickMode.Hover) {
                         this._MouseCausingRepeat = true;
                         this._UpdateRepeatState();
                     }
@@ -5048,7 +4873,7 @@ var Fayde;
                 };
                 RepeatButton.prototype.OnMouseLeave = function (e) {
                     _super.prototype.OnMouseLeave.call(this, e);
-                    if (this.ClickMode === 2 /* Hover */) {
+                    if (this.ClickMode === Controls.ClickMode.Hover) {
                         this._MouseCausingRepeat = false;
                         this._UpdateRepeatState();
                     }
@@ -5058,7 +4883,7 @@ var Fayde;
                     if (e.Handled)
                         return;
                     _super.prototype.OnMouseLeftButtonDown.call(this, e);
-                    if (this.ClickMode !== 2 /* Hover */) {
+                    if (this.ClickMode !== Controls.ClickMode.Hover) {
                         this._MouseCausingRepeat = true;
                         this._UpdateRepeatState();
                     }
@@ -5067,7 +4892,7 @@ var Fayde;
                     if (e.Handled)
                         return;
                     _super.prototype.OnMouseLeftButtonUp.call(this, e);
-                    if (this.ClickMode !== 2 /* Hover */) {
+                    if (this.ClickMode !== Controls.ClickMode.Hover) {
                         this._MouseCausingRepeat = false;
                         this._UpdateRepeatState();
                     }
@@ -5403,7 +5228,7 @@ var Fayde;
                     var min = this.Minimum;
                     var diff = max - min;
                     var trackLength = this._GetTrackLength();
-                    var isHorizontal = this.Orientation === 0 /* Horizontal */;
+                    var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
                     if (this.$VerticalThumb && !isHorizontal) {
                         change = num * e.VerticalChange / (trackLength - this.$VerticalThumb.ActualHeight) * diff;
                     }
@@ -5415,19 +5240,19 @@ var Fayde;
                         var num1 = Math.min(max, Math.max(min, this._DragValue));
                         if (num1 !== this.Value) {
                             this.Value = num1;
-                            this._RaiseScroll(5 /* ThumbTrack */);
+                            this._RaiseScroll(Primitives.ScrollEventType.ThumbTrack);
                         }
                     }
                 };
                 ScrollBar.prototype._OnThumbDragCompleted = function (sender, e) {
-                    this._RaiseScroll(8 /* EndScroll */);
+                    this._RaiseScroll(Primitives.ScrollEventType.EndScroll);
                 };
                 ScrollBar.prototype._SmallDecrement = function (sender, e) {
                     var curValue = this.Value;
                     var num = Math.max(curValue - this.SmallChange, this.Minimum);
                     if (curValue !== num) {
                         this.SetCurrentValue(Primitives.RangeBase.ValueProperty, num);
-                        this._RaiseScroll(0 /* SmallDecrement */);
+                        this._RaiseScroll(Primitives.ScrollEventType.SmallDecrement);
                     }
                 };
                 ScrollBar.prototype._SmallIncrement = function (sender, e) {
@@ -5435,7 +5260,7 @@ var Fayde;
                     var num = Math.min(curValue + this.SmallChange, this.Maximum);
                     if (curValue !== num) {
                         this.SetCurrentValue(Primitives.RangeBase.ValueProperty, num);
-                        this._RaiseScroll(1 /* SmallIncrement */);
+                        this._RaiseScroll(Primitives.ScrollEventType.SmallIncrement);
                     }
                 };
                 ScrollBar.prototype._LargeDecrement = function (sender, e) {
@@ -5443,7 +5268,7 @@ var Fayde;
                     var num = Math.max(curValue - this.LargeChange, this.Minimum);
                     if (curValue !== num) {
                         this.SetCurrentValue(Primitives.RangeBase.ValueProperty, num);
-                        this._RaiseScroll(2 /* LargeDecrement */);
+                        this._RaiseScroll(Primitives.ScrollEventType.LargeDecrement);
                     }
                 };
                 ScrollBar.prototype._LargeIncrement = function (sender, e) {
@@ -5451,19 +5276,19 @@ var Fayde;
                     var num = Math.min(curValue + this.LargeChange, this.Maximum);
                     if (curValue !== num) {
                         this.SetCurrentValue(Primitives.RangeBase.ValueProperty, num);
-                        this._RaiseScroll(3 /* LargeIncrement */);
+                        this._RaiseScroll(Primitives.ScrollEventType.LargeIncrement);
                     }
                 };
                 ScrollBar.prototype._HandleSizeChanged = function (sender, e) {
                     this._UpdateTrackLayout();
                 };
                 ScrollBar.prototype._OnOrientationChanged = function () {
-                    var isHorizontal = this.Orientation === 0 /* Horizontal */;
+                    var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
                     if (this.$HorizontalTemplate) {
-                        this.$HorizontalTemplate.Visibility = isHorizontal ? 0 /* Visible */ : 1 /* Collapsed */;
+                        this.$HorizontalTemplate.Visibility = isHorizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
                     }
                     if (this.$VerticalTemplate) {
-                        this.$VerticalTemplate.Visibility = isHorizontal ? 1 /* Collapsed */ : 0 /* Visible */;
+                        this.$VerticalTemplate.Visibility = isHorizontal ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
                     }
                     this._UpdateTrackLayout();
                 };
@@ -5474,7 +5299,7 @@ var Fayde;
                     var val = this.Value;
                     var multiplier = (val - min) / (max - min);
                     var thumbSize = this._UpdateThumbSize(trackLength);
-                    var isHorizontal = this.Orientation === 0 /* Horizontal */;
+                    var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
                     if (isHorizontal && this.$HorizontalLargeDecrease && this.$HorizontalThumb) {
                         this.$HorizontalLargeDecrease.Width = Math.max(0, multiplier * (trackLength - thumbSize));
                     }
@@ -5486,7 +5311,7 @@ var Fayde;
                     var result = Number.NaN;
                     var hideThumb = trackLength <= 0;
                     if (trackLength > 0) {
-                        var isHorizontal = this.Orientation === 0 /* Horizontal */;
+                        var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
                         var max = this.Maximum;
                         var min = this.Minimum;
                         if (isHorizontal && this.$HorizontalThumb) {
@@ -5496,7 +5321,7 @@ var Fayde;
                                 hideThumb = true;
                             }
                             else {
-                                this.$HorizontalThumb.Visibility = 0 /* Visible */;
+                                this.$HorizontalThumb.Visibility = Fayde.Visibility.Visible;
                                 this.$HorizontalThumb.Width = result;
                             }
                         }
@@ -5507,24 +5332,24 @@ var Fayde;
                                 hideThumb = true;
                             }
                             else {
-                                this.$VerticalThumb.Visibility = 0 /* Visible */;
+                                this.$VerticalThumb.Visibility = Fayde.Visibility.Visible;
                                 this.$VerticalThumb.Height = result;
                             }
                         }
                     }
                     if (hideThumb) {
                         if (this.$HorizontalThumb) {
-                            this.$HorizontalThumb.Visibility = 1 /* Collapsed */;
+                            this.$HorizontalThumb.Visibility = Fayde.Visibility.Collapsed;
                         }
                         if (this.$VerticalThumb) {
-                            this.$VerticalThumb.Visibility = 1 /* Collapsed */;
+                            this.$VerticalThumb.Visibility = Fayde.Visibility.Collapsed;
                         }
                     }
                     return result;
                 };
                 ScrollBar.prototype._GetTrackLength = function () {
                     var actual = NaN;
-                    if (this.Orientation === 0 /* Horizontal */) {
+                    if (this.Orientation === Fayde.Orientation.Horizontal) {
                         actual = this.ActualWidth;
                         if (this.$HorizontalSmallDecrease) {
                             var thickness = this.$HorizontalSmallDecrease.Margin;
@@ -5557,7 +5382,7 @@ var Fayde;
                     args.OriginalSource = this;
                     this.Scroll.raise(this, args);
                 };
-                ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Fayde.Enum(Fayde.Orientation); }, ScrollBar, 0 /* Horizontal */, function (d, args) { return d._OnOrientationChanged(); });
+                ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Fayde.Enum(Fayde.Orientation); }, ScrollBar, Fayde.Orientation.Horizontal, function (d, args) { return d._OnOrientationChanged(); });
                 ScrollBar.ViewportSizeProperty = DependencyProperty.Register("ViewportSize", function () { return Number; }, ScrollBar, 0, function (d, args) { return d._UpdateTrackLayout(); });
                 return ScrollBar;
             })(Primitives.RangeBase);
@@ -5593,8 +5418,8 @@ var Fayde;
                     sv.XamlNode.LayoutUpdater.invalidateMeasure();
                     var scrollInfo = sv.ScrollInfo;
                     if (scrollInfo) {
-                        scrollInfo.CanHorizontallyScroll = sv.HorizontalScrollBarVisibility !== 0 /* Disabled */;
-                        scrollInfo.CanVerticallyScroll = sv.VerticalScrollBarVisibility !== 0 /* Disabled */;
+                        scrollInfo.CanHorizontallyScroll = sv.HorizontalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
+                        scrollInfo.CanVerticallyScroll = sv.VerticalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
                     }
                     sv._UpdateScrollBarVisibility();
                     return;
@@ -5606,47 +5431,29 @@ var Fayde;
                     return;
                 }
             };
-            ScrollViewer.GetHorizontalScrollBarVisibility = function (d) {
-                return d.GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty);
-            };
-            ScrollViewer.SetHorizontalScrollBarVisibility = function (d, value) {
-                d.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value);
-            };
+            ScrollViewer.GetHorizontalScrollBarVisibility = function (d) { return d.GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty); };
+            ScrollViewer.SetHorizontalScrollBarVisibility = function (d, value) { d.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value); };
             Object.defineProperty(ScrollViewer.prototype, "HorizontalScrollBarVisibility", {
-                get: function () {
-                    return this.GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty);
-                },
-                set: function (value) {
-                    this.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value);
-                },
+                get: function () { return this.GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty); },
+                set: function (value) { this.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value); },
                 enumerable: true,
                 configurable: true
             });
-            ScrollViewer.GetVerticalScrollBarVisibility = function (d) {
-                return d.GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty);
-            };
-            ScrollViewer.SetVerticalScrollBarVisibility = function (d, value) {
-                d.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value);
-            };
+            ScrollViewer.GetVerticalScrollBarVisibility = function (d) { return d.GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty); };
+            ScrollViewer.SetVerticalScrollBarVisibility = function (d, value) { d.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value); };
             Object.defineProperty(ScrollViewer.prototype, "VerticalScrollBarVisibility", {
-                get: function () {
-                    return this.GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty);
-                },
-                set: function (value) {
-                    this.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value);
-                },
+                get: function () { return this.GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty); },
+                set: function (value) { this.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(ScrollViewer.prototype, "ScrollInfo", {
-                get: function () {
-                    return this._ScrollInfo;
-                },
+                get: function () { return this._ScrollInfo; },
                 set: function (value) {
                     this._ScrollInfo = value;
                     if (value) {
-                        value.CanHorizontallyScroll = this.HorizontalScrollBarVisibility !== 0 /* Disabled */;
-                        value.CanVerticallyScroll = this.VerticalScrollBarVisibility !== 0 /* Disabled */;
+                        value.CanHorizontallyScroll = this.HorizontalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
+                        value.CanVerticallyScroll = this.VerticalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
                     }
                 },
                 enumerable: true,
@@ -5659,8 +5466,8 @@ var Fayde;
                     this.SetCurrentValue(ScrollViewer.ExtentHeightProperty, scrollInfo.ExtentHeight);
                     this.SetCurrentValue(ScrollViewer.ViewportWidthProperty, scrollInfo.ViewportWidth);
                     this.SetCurrentValue(ScrollViewer.ViewportHeightProperty, scrollInfo.ViewportHeight);
-                    this._UpdateScrollBar(0 /* Horizontal */, scrollInfo.HorizontalOffset);
-                    this._UpdateScrollBar(1 /* Vertical */, scrollInfo.VerticalOffset);
+                    this._UpdateScrollBar(Fayde.Orientation.Horizontal, scrollInfo.HorizontalOffset);
+                    this._UpdateScrollBar(Fayde.Orientation.Vertical, scrollInfo.VerticalOffset);
                     this._UpdateScrollBarVisibility();
                 }
                 var lu = this.XamlNode.LayoutUpdater;
@@ -5678,36 +5485,36 @@ var Fayde;
             ScrollViewer.prototype._UpdateScrollBarVisibility = function () {
                 var lu = this.XamlNode.LayoutUpdater;
                 var scrollInfo = this.ScrollInfo;
-                var horizontalVisibility = 0 /* Visible */;
+                var horizontalVisibility = Fayde.Visibility.Visible;
                 var hsbv = this.HorizontalScrollBarVisibility;
                 switch (hsbv) {
-                    case 3 /* Visible */:
+                    case Controls.ScrollBarVisibility.Visible:
                         break;
-                    case 0 /* Disabled */:
-                    case 2 /* Hidden */:
-                        horizontalVisibility = 1 /* Collapsed */;
+                    case Controls.ScrollBarVisibility.Disabled:
+                    case Controls.ScrollBarVisibility.Hidden:
+                        horizontalVisibility = Fayde.Visibility.Collapsed;
                         break;
-                    case 1 /* Auto */:
+                    case Controls.ScrollBarVisibility.Auto:
                     default:
-                        horizontalVisibility = (!scrollInfo || scrollInfo.ExtentWidth <= scrollInfo.ViewportWidth) ? 1 /* Collapsed */ : 0 /* Visible */;
+                        horizontalVisibility = (!scrollInfo || scrollInfo.ExtentWidth <= scrollInfo.ViewportWidth) ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
                         break;
                 }
                 if (horizontalVisibility !== this.ComputedHorizontalScrollBarVisibility) {
                     this.SetCurrentValue(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, horizontalVisibility);
                     lu.invalidateMeasure();
                 }
-                var verticalVisibility = 0 /* Visible */;
+                var verticalVisibility = Fayde.Visibility.Visible;
                 var vsbv = this.VerticalScrollBarVisibility;
                 switch (vsbv) {
-                    case 3 /* Visible */:
+                    case Controls.ScrollBarVisibility.Visible:
                         break;
-                    case 0 /* Disabled */:
-                    case 2 /* Hidden */:
-                        verticalVisibility = 1 /* Collapsed */;
+                    case Controls.ScrollBarVisibility.Disabled:
+                    case Controls.ScrollBarVisibility.Hidden:
+                        verticalVisibility = Fayde.Visibility.Collapsed;
                         break;
-                    case 1 /* Auto */:
+                    case Controls.ScrollBarVisibility.Auto:
                     default:
-                        verticalVisibility = (!scrollInfo || scrollInfo.ExtentHeight <= scrollInfo.ViewportHeight) ? 1 /* Collapsed */ : 0 /* Visible */;
+                        verticalVisibility = (!scrollInfo || scrollInfo.ExtentHeight <= scrollInfo.ViewportHeight) ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
                         break;
                 }
                 if (verticalVisibility !== this.ComputedVerticalScrollBarVisibility) {
@@ -5718,7 +5525,7 @@ var Fayde;
             ScrollViewer.prototype._UpdateScrollBar = function (orientation, value) {
                 var propd;
                 var sb;
-                if (orientation === 0 /* Horizontal */) {
+                if (orientation === Fayde.Orientation.Horizontal) {
                     propd = ScrollViewer.HorizontalOffsetProperty;
                     sb = this.$HorizontalScrollBar;
                 }
@@ -5740,11 +5547,11 @@ var Fayde;
                 this.$ScrollContentPresenter = this.GetTemplateChild("ScrollContentPresenter", Controls.ScrollContentPresenter);
                 this.$HorizontalScrollBar = this.GetTemplateChild("HorizontalScrollBar", Controls.Primitives.ScrollBar);
                 if (this.$HorizontalScrollBar) {
-                    this.$HorizontalScrollBar.Scroll.on(function (sender, e) { return _this._HandleScroll(0 /* Horizontal */, e); }, this);
+                    this.$HorizontalScrollBar.Scroll.on(function (sender, e) { return _this._HandleScroll(Fayde.Orientation.Horizontal, e); }, this);
                 }
                 this.$VerticalScrollBar = this.GetTemplateChild("VerticalScrollBar", Controls.Primitives.ScrollBar);
                 if (this.$VerticalScrollBar) {
-                    this.$VerticalScrollBar.Scroll.on(function (sender, e) { return _this._HandleScroll(1 /* Vertical */, e); }, this);
+                    this.$VerticalScrollBar.Scroll.on(function (sender, e) { return _this._HandleScroll(Fayde.Orientation.Vertical, e); }, this);
                 }
                 this._UpdateScrollBarVisibility();
             };
@@ -5807,107 +5614,85 @@ var Fayde;
                     return;
                 if (this.$TemplatedParentHandlesScrolling)
                     return;
-                var orientation = 1 /* Vertical */;
-                var scrollEventType = 5 /* ThumbTrack */;
+                var orientation = Fayde.Orientation.Vertical;
+                var scrollEventType = Controls.Primitives.ScrollEventType.ThumbTrack;
+                //TODO: FlowDirection
+                //var flowDirection = this.FlowDirection === Fayde.FlowDirection.RightToLeft;
                 switch (e.Key) {
-                    case 10 /* PageUp */:
-                        scrollEventType = 2 /* LargeDecrement */;
+                    case Fayde.Input.Key.PageUp:
+                        scrollEventType = Controls.Primitives.ScrollEventType.LargeDecrement;
                         break;
-                    case 11 /* PageDown */:
-                        scrollEventType = 3 /* LargeIncrement */;
+                    case Fayde.Input.Key.PageDown:
+                        scrollEventType = Controls.Primitives.ScrollEventType.LargeIncrement;
                         break;
-                    case 12 /* End */:
+                    case Fayde.Input.Key.End:
                         if (!e.Modifiers.Ctrl)
-                            orientation = 0 /* Horizontal */;
-                        scrollEventType = 7 /* Last */;
+                            orientation = Fayde.Orientation.Horizontal;
+                        scrollEventType = Controls.Primitives.ScrollEventType.Last;
                         break;
-                    case 13 /* Home */:
+                    case Fayde.Input.Key.Home:
                         if (!e.Modifiers.Ctrl)
-                            orientation = 0 /* Horizontal */;
-                        scrollEventType = 6 /* First */;
+                            orientation = Fayde.Orientation.Horizontal;
+                        scrollEventType = Controls.Primitives.ScrollEventType.First;
                         break;
-                    case 14 /* Left */:
-                        orientation = 0 /* Horizontal */;
-                        scrollEventType = 0 /* SmallDecrement */;
-                    case 15 /* Up */:
-                        scrollEventType = 0 /* SmallDecrement */;
+                    case Fayde.Input.Key.Left:
+                        orientation = Fayde.Orientation.Horizontal;
+                        scrollEventType = Controls.Primitives.ScrollEventType.SmallDecrement;
+                    case Fayde.Input.Key.Up:
+                        scrollEventType = Controls.Primitives.ScrollEventType.SmallDecrement;
                         break;
-                    case 16 /* Right */:
-                        orientation = 0 /* Horizontal */;
-                        scrollEventType = 1 /* SmallIncrement */;
-                    case 17 /* Down */:
-                        scrollEventType = 1 /* SmallIncrement */;
+                    case Fayde.Input.Key.Right:
+                        orientation = Fayde.Orientation.Horizontal;
+                        scrollEventType = Controls.Primitives.ScrollEventType.SmallIncrement;
+                    case Fayde.Input.Key.Down:
+                        scrollEventType = Controls.Primitives.ScrollEventType.SmallIncrement;
                         break;
                 }
-                if (scrollEventType !== 5 /* ThumbTrack */)
+                if (scrollEventType !== Controls.Primitives.ScrollEventType.ThumbTrack)
                     e.Handled = !!this._HandleScroll(orientation, new Controls.Primitives.ScrollEventArgs(scrollEventType, 0));
             };
             ScrollViewer.prototype.ScrollInDirection = function (key) {
                 switch (key) {
-                    case 10 /* PageUp */:
+                    case Fayde.Input.Key.PageUp:
                         this.PageUp();
                         break;
-                    case 11 /* PageDown */:
+                    case Fayde.Input.Key.PageDown:
                         this.PageDown();
                         break;
-                    case 12 /* End */:
+                    case Fayde.Input.Key.End:
                         this.PageEnd();
                         break;
-                    case 13 /* Home */:
+                    case Fayde.Input.Key.Home:
                         this.PageHome();
                         break;
-                    case 14 /* Left */:
+                    case Fayde.Input.Key.Left:
                         this.LineLeft();
                         break;
-                    case 15 /* Up */:
+                    case Fayde.Input.Key.Up:
                         this.LineUp();
                         break;
-                    case 16 /* Right */:
+                    case Fayde.Input.Key.Right:
                         this.LineRight();
                         break;
-                    case 17 /* Down */:
+                    case Fayde.Input.Key.Down:
                         this.LineDown();
                         break;
                 }
             };
-            ScrollViewer.prototype.ScrollToHorizontalOffset = function (offset) {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(4 /* ThumbPosition */, offset));
-            };
-            ScrollViewer.prototype.ScrollToVerticalOffset = function (offset) {
-                this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(4 /* ThumbPosition */, offset));
-            };
-            ScrollViewer.prototype.LineUp = function () {
-                this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(0 /* SmallDecrement */, 0));
-            };
-            ScrollViewer.prototype.LineDown = function () {
-                this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(1 /* SmallIncrement */, 0));
-            };
-            ScrollViewer.prototype.LineLeft = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(0 /* SmallDecrement */, 0));
-            };
-            ScrollViewer.prototype.LineRight = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(1 /* SmallIncrement */, 0));
-            };
-            ScrollViewer.prototype.PageHome = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(6 /* First */, 0));
-            };
-            ScrollViewer.prototype.PageEnd = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(7 /* Last */, 0));
-            };
-            ScrollViewer.prototype.PageUp = function () {
-                this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(2 /* LargeDecrement */, 0));
-            };
-            ScrollViewer.prototype.PageDown = function () {
-                this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(3 /* LargeIncrement */, 0));
-            };
-            ScrollViewer.prototype.PageLeft = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(2 /* LargeDecrement */, 0));
-            };
-            ScrollViewer.prototype.PageRight = function () {
-                this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(3 /* LargeIncrement */, 0));
-            };
+            ScrollViewer.prototype.ScrollToHorizontalOffset = function (offset) { this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.ThumbPosition, offset)); };
+            ScrollViewer.prototype.ScrollToVerticalOffset = function (offset) { this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.ThumbPosition, offset)); };
+            ScrollViewer.prototype.LineUp = function () { this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.SmallDecrement, 0)); };
+            ScrollViewer.prototype.LineDown = function () { this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.SmallIncrement, 0)); };
+            ScrollViewer.prototype.LineLeft = function () { this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.SmallDecrement, 0)); };
+            ScrollViewer.prototype.LineRight = function () { this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.SmallIncrement, 0)); };
+            ScrollViewer.prototype.PageHome = function () { this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.First, 0)); };
+            ScrollViewer.prototype.PageEnd = function () { this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.Last, 0)); };
+            ScrollViewer.prototype.PageUp = function () { this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.LargeDecrement, 0)); };
+            ScrollViewer.prototype.PageDown = function () { this._HandleVerticalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.LargeIncrement, 0)); };
+            ScrollViewer.prototype.PageLeft = function () { this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.LargeDecrement, 0)); };
+            ScrollViewer.prototype.PageRight = function () { this._HandleHorizontalScroll(new Controls.Primitives.ScrollEventArgs(Controls.Primitives.ScrollEventType.LargeIncrement, 0)); };
             ScrollViewer.prototype._HandleScroll = function (orientation, e) {
-                if (orientation !== 0 /* Horizontal */)
+                if (orientation !== Fayde.Orientation.Horizontal)
                     return this._HandleVerticalScroll(e);
                 return this._HandleHorizontalScroll(e);
             };
@@ -5918,22 +5703,22 @@ var Fayde;
                 var offset = scrollInfo.HorizontalOffset;
                 var newValue = offset;
                 switch (e.ScrollEventType) {
-                    case 0 /* SmallDecrement */:
+                    case Controls.Primitives.ScrollEventType.SmallDecrement:
                         return scrollInfo.LineLeft();
-                    case 1 /* SmallIncrement */:
+                    case Controls.Primitives.ScrollEventType.SmallIncrement:
                         return scrollInfo.LineRight();
-                    case 2 /* LargeDecrement */:
+                    case Controls.Primitives.ScrollEventType.LargeDecrement:
                         return scrollInfo.PageLeft();
-                    case 3 /* LargeIncrement */:
+                    case Controls.Primitives.ScrollEventType.LargeIncrement:
                         return scrollInfo.PageRight();
-                    case 4 /* ThumbPosition */:
-                    case 5 /* ThumbTrack */:
+                    case Controls.Primitives.ScrollEventType.ThumbPosition:
+                    case Controls.Primitives.ScrollEventType.ThumbTrack:
                         newValue = e.Value;
                         break;
-                    case 6 /* First */:
+                    case Controls.Primitives.ScrollEventType.First:
                         newValue = Number.NEGATIVE_INFINITY;
                         break;
-                    case 7 /* Last */:
+                    case Controls.Primitives.ScrollEventType.Last:
                         newValue = Number.POSITIVE_INFINITY;
                         break;
                 }
@@ -5951,25 +5736,25 @@ var Fayde;
                 var offset = scrollInfo.VerticalOffset;
                 var newValue = offset;
                 switch (e.ScrollEventType) {
-                    case 0 /* SmallDecrement */:
+                    case Controls.Primitives.ScrollEventType.SmallDecrement:
                         return scrollInfo.LineUp();
-                    case 1 /* SmallIncrement */:
+                    case Controls.Primitives.ScrollEventType.SmallIncrement:
                         return scrollInfo.LineDown();
                         break;
-                    case 2 /* LargeDecrement */:
+                    case Controls.Primitives.ScrollEventType.LargeDecrement:
                         return scrollInfo.PageUp();
                         break;
-                    case 3 /* LargeIncrement */:
+                    case Controls.Primitives.ScrollEventType.LargeIncrement:
                         return scrollInfo.PageDown();
                         break;
-                    case 4 /* ThumbPosition */:
-                    case 5 /* ThumbTrack */:
+                    case Controls.Primitives.ScrollEventType.ThumbPosition:
+                    case Controls.Primitives.ScrollEventType.ThumbTrack:
                         newValue = e.Value;
                         break;
-                    case 6 /* First */:
+                    case Controls.Primitives.ScrollEventType.First:
                         newValue = Number.NEGATIVE_INFINITY;
                         break;
-                    case 7 /* Last */:
+                    case Controls.Primitives.ScrollEventType.Last:
                         newValue = Number.POSITIVE_INFINITY;
                         break;
                 }
@@ -5979,8 +5764,8 @@ var Fayde;
                     return false;
                 return scrollInfo.SetVerticalOffset(newValue);
             };
-            ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return new Fayde.Enum(Controls.ScrollBarVisibility); }, ScrollViewer, 0 /* Disabled */, ScrollViewer._ScrollBarVisibilityChanged);
-            ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return new Fayde.Enum(Controls.ScrollBarVisibility); }, ScrollViewer, 0 /* Disabled */, ScrollViewer._ScrollBarVisibilityChanged);
+            ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return new Fayde.Enum(Controls.ScrollBarVisibility); }, ScrollViewer, Controls.ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
+            ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return new Fayde.Enum(Controls.ScrollBarVisibility); }, ScrollViewer, Controls.ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
             ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", function () { return new Fayde.Enum(Fayde.Visibility); }, ScrollViewer);
             ScrollViewer.ComputedVerticalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedVerticalScrollBarVisibility", function () { return new Fayde.Enum(Fayde.Visibility); }, ScrollViewer);
             ScrollViewer.HorizontalOffsetProperty = DependencyProperty.RegisterReadOnlyCore("HorizontalOffset", function () { return Number; }, ScrollViewer);
@@ -6135,18 +5920,18 @@ var Fayde;
                     return;
                 e.Handled = true;
                 var key = e.Key;
-                if (this.FlowDirection === 1 /* RightToLeft */) {
-                    if (key === 14 /* Left */)
-                        key = 16 /* Right */;
-                    else if (key === 16 /* Right */)
-                        key = 14 /* Left */;
+                if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
+                    if (key === Fayde.Input.Key.Left)
+                        key = Fayde.Input.Key.Right;
+                    else if (key === Fayde.Input.Key.Right)
+                        key = Fayde.Input.Key.Left;
                 }
                 switch (key) {
-                    case 8 /* Escape */:
+                    case Fayde.Input.Key.Escape:
                         this.IsDropDownOpen = false;
                         break;
-                    case 3 /* Enter */:
-                    case 9 /* Space */:
+                    case Fayde.Input.Key.Enter:
+                    case Fayde.Input.Key.Space:
                         if (this.IsDropDownOpen && this._FocusedIndex !== this.SelectedIndex) {
                             this.SelectedIndex = this._FocusedIndex;
                             this.IsDropDownOpen = false;
@@ -6155,8 +5940,8 @@ var Fayde;
                             this.IsDropDownOpen = true;
                         }
                         break;
-                    case 16 /* Right */:
-                    case 17 /* Down */:
+                    case Fayde.Input.Key.Right:
+                    case Fayde.Input.Key.Down:
                         if (this.IsDropDownOpen) {
                             if (this._FocusedIndex < (this.Items.Count - 1)) {
                                 this._FocusedIndex++;
@@ -6167,8 +5952,8 @@ var Fayde;
                             this.SelectedIndex = Math.min(this.SelectedIndex + 1, this.Items.Count - 1);
                         }
                         break;
-                    case 14 /* Left */:
-                    case 15 /* Up */:
+                    case Fayde.Input.Key.Left:
+                    case Fayde.Input.Key.Up:
                         if (this.IsDropDownOpen) {
                             if (this._FocusedIndex > 0) {
                                 this._FocusedIndex--;
@@ -6200,12 +5985,8 @@ var Fayde;
                 if (!this.IsDropDownOpen)
                     this._UpdateDisplayedItem(this.SelectedItem);
             };
-            ComboBox.prototype._OnToggleChecked = function (sender, e) {
-                this.IsDropDownOpen = true;
-            };
-            ComboBox.prototype._OnToggleUnchecked = function (sender, e) {
-                this.IsDropDownOpen = false;
-            };
+            ComboBox.prototype._OnToggleChecked = function (sender, e) { this.IsDropDownOpen = true; };
+            ComboBox.prototype._OnToggleUnchecked = function (sender, e) { this.IsDropDownOpen = false; };
             ComboBox.prototype._PopupClickedOutside = function () {
                 this.IsDropDownOpen = false;
             };
@@ -6281,7 +6062,7 @@ var Fayde;
                 var bottomRight = new Point(offset.x + child.ActualWidth, offset.y + child.ActualHeight);
                 var topLeft = xform.Transform(offset);
                 bottomRight = xform.Transform(bottomRight);
-                var isRightToLeft = (this.FlowDirection === 1 /* RightToLeft */);
+                var isRightToLeft = (this.FlowDirection === Fayde.FlowDirection.RightToLeft);
                 if (isRightToLeft) {
                     var left = bottomRight.x;
                     bottomRight.x = topLeft.x;
@@ -6347,9 +6128,7 @@ var Fayde;
                 this.DefaultStyleKey = ListBoxItem;
             }
             Object.defineProperty(ListBoxItem.prototype, "ParentSelector", {
-                get: function () {
-                    return this._ParentSelector;
-                },
+                get: function () { return this._ParentSelector; },
                 set: function (value) {
                     if (this._ParentSelector === value)
                         return;
@@ -6484,7 +6263,8 @@ var Fayde;
             var oactor = Markup.Internal.createObjectActor(pactor);
             var ractor = Markup.Internal.createResourcesActor(active, resources);
             var last;
-            var parser = xm.createParser().setNamespaces(Fayde.XMLNS, Fayde.XMLNSX);
+            var parser = xm.createParser()
+                .setNamespaces(Fayde.XMLNS, Fayde.XMLNSX);
             var parse = {
                 resolveType: function (uri, name) {
                     if (!Fayde.TypeManager.resolveType(uri, name, oresolve))
@@ -6593,9 +6373,12 @@ var Fayde;
                         }
                     }
                 }
-                return (ownerType) ? DependencyProperty.GetDependencyProperty(ownerType, name) : null;
+                return (ownerType)
+                    ? DependencyProperty.GetDependencyProperty(ownerType, name)
+                    : null;
             }
-            parser.on(parse).parse(xm.root);
+            parser.on(parse)
+                .parse(xm.root);
             if (last instanceof Fayde.XamlObject) {
                 last.XamlNode.NameScope = namescope;
             }
@@ -6731,7 +6514,8 @@ var Fayde;
             }
             Page.GetAsync = function (initiator, url) {
                 return nullstone.async.create(function (resolve, reject) {
-                    Fayde.Markup.Resolve(url).then(function (xm) {
+                    Fayde.Markup.Resolve(url)
+                        .then(function (xm) {
                         TimelineProfile.Parse(true, "Page");
                         var page = Fayde.Markup.Load(initiator.App, xm);
                         TimelineProfile.Parse(false, "Page");
@@ -6756,7 +6540,12 @@ var Fayde;
     var Controls;
     (function (Controls) {
         function createErrorDoc(error) {
-            var safe = (error || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+            var safe = (error || '').toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
             var xaml = '<Page xmlns="' + Fayde.XMLNS + '" xmlns:x="' + Fayde.XMLNSX + '" Title="Error">';
             xaml += '<TextBlock Text="' + safe + '" />';
             xaml += '</Page>';
@@ -6818,7 +6607,7 @@ var Fayde;
                 if (fragment[0] === "#")
                     fragment = fragment.substr(1);
                 TimelineProfile.Navigate(true, fragment);
-                var targetUri = new Fayde.Uri(fragment, 2 /* Relative */);
+                var targetUri = new Fayde.Uri(fragment, nullstone.UriKind.Relative);
                 var target = undefined;
                 if (this.RouteMapper) {
                     this._CurrentRoute = this.RouteMapper.MapUri(targetUri);
@@ -6832,7 +6621,8 @@ var Fayde;
                         throw new InvalidOperationException("Uri could not be mapped." + targetUri.toString());
                     target = mapped.toString();
                 }
-                Controls.Page.GetAsync(this, target).then(function (page) { return _this._HandleSuccess(page); }, function (err) { return _this._HandleError(err); });
+                Controls.Page.GetAsync(this, target)
+                    .then(function (page) { return _this._HandleSuccess(page); }, function (err) { return _this._HandleError(err); });
             };
             Frame.prototype._HandleSuccess = function (page) {
                 this._SetPage(page);
@@ -6921,36 +6711,16 @@ var Fayde;
                 var rowdefs = Grid.RowDefinitionsProperty.Initialize(this);
                 Fayde.ReactTo(rowdefs, this, function (obj) { return _this.XamlNode.RowDefinitionsChanged(obj.item, obj.index, obj.add); });
             }
-            Grid.prototype.CreateNode = function () {
-                return new GridNode(this);
-            };
-            Grid.prototype.CreateLayoutUpdater = function () {
-                return new minerva.controls.grid.GridUpdater();
-            };
-            Grid.GetColumn = function (d) {
-                return d.GetValue(Grid.ColumnProperty);
-            };
-            Grid.SetColumn = function (d, value) {
-                d.SetValue(Grid.ColumnProperty, value);
-            };
-            Grid.GetColumnSpan = function (d) {
-                return d.GetValue(Grid.ColumnSpanProperty);
-            };
-            Grid.SetColumnSpan = function (d, value) {
-                d.SetValue(Grid.ColumnSpanProperty, value);
-            };
-            Grid.GetRow = function (d) {
-                return d.GetValue(Grid.RowProperty);
-            };
-            Grid.SetRow = function (d, value) {
-                d.SetValue(Grid.RowProperty, value);
-            };
-            Grid.GetRowSpan = function (d) {
-                return d.GetValue(Grid.RowSpanProperty);
-            };
-            Grid.SetRowSpan = function (d, value) {
-                d.SetValue(Grid.RowSpanProperty, value);
-            };
+            Grid.prototype.CreateNode = function () { return new GridNode(this); };
+            Grid.prototype.CreateLayoutUpdater = function () { return new minerva.controls.grid.GridUpdater(); };
+            Grid.GetColumn = function (d) { return d.GetValue(Grid.ColumnProperty); };
+            Grid.SetColumn = function (d, value) { d.SetValue(Grid.ColumnProperty, value); };
+            Grid.GetColumnSpan = function (d) { return d.GetValue(Grid.ColumnSpanProperty); };
+            Grid.SetColumnSpan = function (d, value) { d.SetValue(Grid.ColumnSpanProperty, value); };
+            Grid.GetRow = function (d) { return d.GetValue(Grid.RowProperty); };
+            Grid.SetRow = function (d, value) { d.SetValue(Grid.RowProperty, value); };
+            Grid.GetRowSpan = function (d) { return d.GetValue(Grid.RowSpanProperty); };
+            Grid.SetRowSpan = function (d, value) { d.SetValue(Grid.RowSpanProperty, value); };
             Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () { return Number; }, Grid, 0);
             Grid.ColumnSpanProperty = DependencyProperty.RegisterAttached("ColumnSpan", function () { return Number; }, Grid, 1);
             Grid.RowProperty = DependencyProperty.RegisterAttached("Row", function () { return Number; }, Grid, 0);
@@ -6981,7 +6751,7 @@ var Fayde;
         var GridLength = (function () {
             function GridLength(value, unitType) {
                 this.Value = value == null ? 0 : value;
-                this.Type = unitType || 0 /* Auto */;
+                this.Type = unitType || GridUnitType.Auto;
             }
             GridLength.Equals = function (gl1, gl2) {
                 return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
@@ -6998,10 +6768,10 @@ var Fayde;
                 return val;
             if (!val || val.toLowerCase() === "auto")
                 return new GridLength();
-            var type = 1 /* Pixel */;
+            var type = GridUnitType.Pixel;
             if (val[val.length - 1] === "*") {
                 val = val.substr(0, val.length - 1);
-                type = 2 /* Star */;
+                type = GridUnitType.Star;
             }
             var v = parseFloat(val);
             if (isNaN(v))
@@ -7021,10 +6791,8 @@ var Fayde;
                 _super.call(this);
                 this.DefaultStyleKey = HeaderedContentControl;
             }
-            HeaderedContentControl.prototype.OnHeaderChanged = function (oldHeader, newHeader) {
-            };
-            HeaderedContentControl.prototype.OnHeaderTemplateChanged = function (oldHeaderTemplate, newHeaderTemplate) {
-            };
+            HeaderedContentControl.prototype.OnHeaderChanged = function (oldHeader, newHeader) { };
+            HeaderedContentControl.prototype.OnHeaderTemplateChanged = function (oldHeaderTemplate, newHeaderTemplate) { };
             HeaderedContentControl.HeaderProperty = DependencyProperty.Register("Header", function () { return Object; }, HeaderedContentControl, undefined, function (d, args) { return d.OnHeaderChanged(args.OldValue, args.NewValue); });
             HeaderedContentControl.HeaderTemplateProperty = DependencyProperty.Register("HeaderTemplate", function () { return Fayde.DataTemplate; }, HeaderedContentControl, undefined, function (d, args) { return d.OnHeaderTemplateChanged(args.OldValue, args.NewValue); });
             return HeaderedContentControl;
@@ -7179,7 +6947,7 @@ var Fayde;
             };
             Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return Fayde.Media.Imaging.ImageSource; }, Image, undefined, undefined, Image._SourceCoercer);
             // http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
-            Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Fayde.Enum(Fayde.Media.Stretch); }, Image, 2 /* Uniform */);
+            Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Fayde.Enum(Fayde.Media.Stretch); }, Image, Fayde.Media.Stretch.Uniform);
             return Image;
         })(Fayde.FrameworkElement);
         Controls.Image = Image;
@@ -7330,18 +7098,14 @@ var Fayde;
                     get: function () {
                         var dobj = this.Owner;
                         if (dobj instanceof Fayde.DependencyObject)
-                            return Controls.VirtualizingPanel.GetVirtualizationMode(dobj) === 1 /* Recycling */;
+                            return Controls.VirtualizingPanel.GetVirtualizationMode(dobj) === Controls.VirtualizationMode.Recycling;
                         return false;
                     },
                     enumerable: true,
                     configurable: true
                 });
-                ItemContainersManager.prototype.IndexFromContainer = function (container) {
-                    return this._Containers.indexOf(container);
-                };
-                ItemContainersManager.prototype.ContainerFromIndex = function (index) {
-                    return this._Containers[index];
-                };
+                ItemContainersManager.prototype.IndexFromContainer = function (container) { return this._Containers.indexOf(container); };
+                ItemContainersManager.prototype.ContainerFromIndex = function (index) { return this._Containers[index]; };
                 ItemContainersManager.prototype.ItemFromContainer = function (container) {
                     var index = this._Containers.indexOf(container);
                     if (index < 0)
@@ -7403,9 +7167,7 @@ var Fayde;
                         CurrentItem: undefined,
                         CurrentIndex: index - 1,
                         GenerateIndex: -1,
-                        Generate: function () {
-                            return false;
-                        }
+                        Generate: function () { return false; }
                     };
                     var ic = this.Owner;
                     var icm = this;
@@ -7492,23 +7254,17 @@ var Fayde;
                     this.PreCoercedVal = this.RequestedVal = this.InitialVal = Range.Value;
                 }
                 Object.defineProperty(RangeCoercer.prototype, "Minimum", {
-                    get: function () {
-                        return this.Range.Minimum;
-                    },
+                    get: function () { return this.Range.Minimum; },
                     enumerable: true,
                     configurable: true
                 });
                 Object.defineProperty(RangeCoercer.prototype, "Maximum", {
-                    get: function () {
-                        return this.Range.Maximum;
-                    },
+                    get: function () { return this.Range.Maximum; },
                     enumerable: true,
                     configurable: true
                 });
                 Object.defineProperty(RangeCoercer.prototype, "Value", {
-                    get: function () {
-                        return this.Range.Value;
-                    },
+                    get: function () { return this.Range.Value; },
                     enumerable: true,
                     configurable: true
                 });
@@ -7787,8 +7543,8 @@ var Fayde;
         (function (Internal) {
             (function (TextBoxEmitChangedType) {
                 TextBoxEmitChangedType[TextBoxEmitChangedType["NOTHING"] = 0] = "NOTHING";
-                TextBoxEmitChangedType[TextBoxEmitChangedType["SELECTION"] = 1 << 0] = "SELECTION";
-                TextBoxEmitChangedType[TextBoxEmitChangedType["TEXT"] = 1 << 1] = "TEXT";
+                TextBoxEmitChangedType[TextBoxEmitChangedType["SELECTION"] = 1] = "SELECTION";
+                TextBoxEmitChangedType[TextBoxEmitChangedType["TEXT"] = 2] = "TEXT";
             })(Internal.TextBoxEmitChangedType || (Internal.TextBoxEmitChangedType = {}));
             var TextBoxEmitChangedType = Internal.TextBoxEmitChangedType;
             var MAX_UNDO_COUNT = 10;
@@ -7801,7 +7557,7 @@ var Fayde;
                     this.maxLength = 0;
                     this.acceptsReturn = false;
                     this.$$batch = 0;
-                    this.$$emit = 0 /* NOTHING */;
+                    this.$$emit = TextBoxEmitChangedType.NOTHING;
                     this.$$syncing = false;
                     this.$$undo = [];
                     this.$$redo = [];
@@ -7908,7 +7664,7 @@ var Fayde;
                     this.$syncEmit();
                 };
                 TextProxy.prototype.begin = function () {
-                    this.$$emit = 0 /* NOTHING */;
+                    this.$$emit = TextBoxEmitChangedType.NOTHING;
                     this.$$batch++;
                 };
                 TextProxy.prototype.end = function () {
@@ -7917,7 +7673,7 @@ var Fayde;
                 };
                 TextProxy.prototype.beginSelect = function (cursor) {
                     this.$$batch++;
-                    this.$$emit = 0 /* NOTHING */;
+                    this.$$emit = TextBoxEmitChangedType.NOTHING;
                     this.SyncSelectionStart(cursor);
                     this.SyncSelectionLength(0);
                     this.$$batch--;
@@ -7926,7 +7682,7 @@ var Fayde;
                 TextProxy.prototype.adjustSelection = function (cursor) {
                     var anchor = this.selAnchor;
                     this.$$batch++;
-                    this.$$emit = 0 /* NOTHING */;
+                    this.$$emit = TextBoxEmitChangedType.NOTHING;
                     this.SyncSelectionStart(Math.min(anchor, cursor));
                     this.SyncSelectionLength(Math.abs(cursor - anchor));
                     this.selAnchor = anchor;
@@ -8007,7 +7763,7 @@ var Fayde;
                 };
                 TextProxy.prototype.$syncEmit = function (syncText) {
                     syncText = syncText !== false;
-                    if (this.$$batch !== 0 || this.$$emit === 0 /* NOTHING */)
+                    if (this.$$batch !== 0 || this.$$emit === TextBoxEmitChangedType.NOTHING)
                         return;
                     if (syncText && (this.$$emit & TextBoxEmitChangedType.TEXT))
                         this.$syncText();
@@ -8020,7 +7776,7 @@ var Fayde;
                         Incite(this, { type: 'selection' });
                     }
                     */
-                    this.$$emit = 0 /* NOTHING */;
+                    this.$$emit = TextBoxEmitChangedType.NOTHING;
                 };
                 TextProxy.prototype.$syncText = function () {
                     this.$$syncing = true;
@@ -8279,9 +8035,7 @@ var Fayde;
                 _super.call(this, xobj);
             }
             Object.defineProperty(ItemsPresenterNode.prototype, "ElementRoot", {
-                get: function () {
-                    return this._ElementRoot;
-                },
+                get: function () { return this._ElementRoot; },
                 enumerable: true,
                 configurable: true
             });
@@ -8312,9 +8066,7 @@ var Fayde;
             function ItemsPresenter() {
                 _super.apply(this, arguments);
             }
-            ItemsPresenter.prototype.CreateNode = function () {
-                return new ItemsPresenterNode(this);
-            };
+            ItemsPresenter.prototype.CreateNode = function () { return new ItemsPresenterNode(this); };
             Object.defineProperty(ItemsPresenter.prototype, "ItemsControl", {
                 get: function () {
                     return this.TemplateOwner instanceof Controls.ItemsControl ? this.TemplateOwner : null;
@@ -8517,7 +8269,9 @@ var Fayde;
                     lbiro.width = Math.abs(ptl.x - pbr.x);
                     lbiro.height = Math.abs(ptl.y - pbr.y);
                 }
-                return this._GetIsVerticalOrientation() ? ihro.y <= lbiro.y && minerva.Rect.getBottom(ihro) >= minerva.Rect.getBottom(lbiro) : ihro.x <= lbiro.x && minerva.Rect.getRight(ihro) >= minerva.Rect.getRight(lbiro);
+                return this._GetIsVerticalOrientation()
+                    ? ihro.y <= lbiro.y && minerva.Rect.getBottom(ihro) >= minerva.Rect.getBottom(lbiro)
+                    : ihro.x <= lbiro.x && minerva.Rect.getRight(ihro) >= minerva.Rect.getRight(lbiro);
             };
             ListBox.prototype._GetFirstItemOnCurrentPage = function (startingIndex, forward) {
                 var delta = forward ? 1 : -1;
@@ -8550,9 +8304,9 @@ var Fayde;
                     return;
                 var newFocusedIndex = -1;
                 switch (args.Key) {
-                    case 9 /* Space */:
-                    case 3 /* Enter */:
-                        if (3 /* Enter */ !== args.Key || Fayde.Input.KeyboardNavigation.GetAcceptsReturn(this)) {
+                    case Fayde.Input.Key.Space:
+                    case Fayde.Input.Key.Enter:
+                        if (Fayde.Input.Key.Enter !== args.Key || Fayde.Input.KeyboardNavigation.GetAcceptsReturn(this)) {
                             if (!Fayde.Input.Keyboard.HasAlt()) {
                                 var focusedEl = Fayde.Surface.GetFocusedElement(this);
                                 var lbi;
@@ -8570,48 +8324,48 @@ var Fayde;
                             }
                         }
                         break;
-                    case 13 /* Home */:
+                    case Fayde.Input.Key.Home:
                         newFocusedIndex = 0;
                         break;
-                    case 12 /* End */:
+                    case Fayde.Input.Key.End:
                         newFocusedIndex = this.Items.Count - 1;
                         break;
-                    case 10 /* PageUp */:
+                    case Fayde.Input.Key.PageUp:
                         newFocusedIndex = this._NavigateByPage(false);
                         break;
-                    case 11 /* PageDown */:
+                    case Fayde.Input.Key.PageDown:
                         newFocusedIndex = this._NavigateByPage(true);
                         break;
-                    case 14 /* Left */:
+                    case Fayde.Input.Key.Left:
                         if (this._GetIsVerticalOrientation()) {
-                            this._ScrollInDirection(14 /* Left */);
+                            this._ScrollInDirection(Fayde.Input.Key.Left);
                         }
                         else {
                             newFocusedIndex = this._FocusedIndex - 1;
                         }
                         break;
-                    case 15 /* Up */:
+                    case Fayde.Input.Key.Up:
                         if (this._GetIsVerticalOrientation()) {
                             newFocusedIndex = this._FocusedIndex - 1;
                         }
                         else {
-                            this._ScrollInDirection(15 /* Up */);
+                            this._ScrollInDirection(Fayde.Input.Key.Up);
                         }
                         break;
-                    case 16 /* Right */:
+                    case Fayde.Input.Key.Right:
                         if (this._GetIsVerticalOrientation()) {
-                            this._ScrollInDirection(16 /* Right */);
+                            this._ScrollInDirection(Fayde.Input.Key.Right);
                         }
                         else {
                             newFocusedIndex = this._FocusedIndex + 1;
                         }
                         break;
-                    case 17 /* Down */:
+                    case Fayde.Input.Key.Down:
                         if (this._GetIsVerticalOrientation()) {
                             newFocusedIndex = this._FocusedIndex + 1;
                         }
                         else {
-                            this._ScrollInDirection(17 /* Down */);
+                            this._ScrollInDirection(Fayde.Input.Key.Down);
                         }
                         break;
                 }
@@ -8636,9 +8390,9 @@ var Fayde;
                     return true;
                 var p = presenter.Panel;
                 if (p instanceof Controls.StackPanel)
-                    return p.Orientation === 1 /* Vertical */;
+                    return p.Orientation === Fayde.Orientation.Vertical;
                 if (p instanceof Controls.VirtualizingStackPanel)
-                    return p.Orientation === 1 /* Vertical */;
+                    return p.Orientation === Fayde.Orientation.Vertical;
                 return true;
             };
             ListBox.prototype.IsItemItsOwnContainer = function (item) {
@@ -8906,7 +8660,7 @@ var Fayde;
                 this.PlatformKeyCode = keyCode;
                 this.Key = key;
                 if (this.Key == null)
-                    this.Key = 255 /* Unknown */;
+                    this.Key = Key.Unknown;
                 this.Char = c;
             }
             return KeyEventArgs;
@@ -8957,8 +8711,8 @@ var Fayde;
             Object.defineProperty(TextBoxBase.prototype, "Cursor", {
                 get: function () {
                     var cursor = this.GetValue(Fayde.FrameworkElement.CursorProperty);
-                    if (cursor === 0 /* Default */)
-                        return 2 /* IBeam */;
+                    if (cursor === Fayde.CursorType.Default)
+                        return Fayde.CursorType.IBeam;
                     return cursor;
                 },
                 enumerable: true,
@@ -9034,9 +8788,9 @@ var Fayde;
             };
             TextBoxBase.prototype.OnKeyDown = function (args) {
                 switch (args.Key) {
-                    case 4 /* Shift */:
-                    case 5 /* Ctrl */:
-                    case 6 /* Alt */:
+                    case Key.Shift: //shift
+                    case Key.Ctrl: //ctrl
+                    case Key.Alt:
                         return;
                 }
                 var isReadOnly = this.IsReadOnly;
@@ -9044,12 +8798,12 @@ var Fayde;
                 var proxy = this.$Proxy;
                 proxy.begin();
                 switch (args.Key) {
-                    case 1 /* Back */:
+                    case Key.Back:
                         if (isReadOnly)
                             break;
                         handled = this._KeyDownBackSpace(args.Modifiers);
                         break;
-                    case 19 /* Delete */:
+                    case Key.Delete:
                         if (isReadOnly)
                             break;
                         if (args.Modifiers.Shift) {
@@ -9060,7 +8814,7 @@ var Fayde;
                             handled = this._KeyDownDelete(args.Modifiers);
                         }
                         break;
-                    case 18 /* Insert */:
+                    case Key.Insert:
                         if (args.Modifiers.Shift) {
                             //Shift+Insert => Paste
                             handled = true;
@@ -9070,44 +8824,44 @@ var Fayde;
                             handled = true;
                         }
                         break;
-                    case 11 /* PageDown */:
+                    case Key.PageDown:
                         handled = this._KeyDownPageDown(args.Modifiers);
                         break;
-                    case 10 /* PageUp */:
+                    case Key.PageUp:
                         handled = this._KeyDownPageUp(args.Modifiers);
                         break;
-                    case 13 /* Home */:
+                    case Key.Home:
                         handled = this._KeyDownHome(args.Modifiers);
                         break;
-                    case 12 /* End */:
+                    case Key.End:
                         handled = this._KeyDownEnd(args.Modifiers);
                         break;
-                    case 14 /* Left */:
+                    case Key.Left:
                         handled = this._KeyDownLeft(args.Modifiers);
                         break;
-                    case 16 /* Right */:
+                    case Key.Right:
                         handled = this._KeyDownRight(args.Modifiers);
                         break;
-                    case 17 /* Down */:
+                    case Key.Down:
                         handled = this._KeyDownDown(args.Modifiers);
                         break;
-                    case 15 /* Up */:
+                    case Key.Up:
                         handled = this._KeyDownUp(args.Modifiers);
                         break;
                     default:
                         if (args.Modifiers.Ctrl) {
                             switch (args.Key) {
-                                case 30 /* A */:
+                                case Key.A:
                                     //Ctrl+A => Select All
                                     handled = true;
                                     proxy.selectAll();
                                     break;
-                                case 32 /* C */:
+                                case Key.C:
                                     //Ctrl+C => Copy
                                     //TODO: Copy to clipboard
                                     handled = true;
                                     break;
-                                case 53 /* X */:
+                                case Key.X:
                                     //Ctrl+X => Cut
                                     if (isReadOnly)
                                         break;
@@ -9115,14 +8869,14 @@ var Fayde;
                                     //TODO: Clear text
                                     handled = true;
                                     break;
-                                case 54 /* Y */:
+                                case Key.Y:
                                     //Ctrl+Y => Redo
                                     if (!isReadOnly) {
                                         handled = true;
                                         proxy.redo();
                                     }
                                     break;
-                                case 55 /* Z */:
+                                case Key.Z:
                                     //Ctrl+Z => Undo
                                     if (!isReadOnly) {
                                         handled = true;
@@ -9147,7 +8901,7 @@ var Fayde;
                     return;
                 var proxy = this.$Proxy;
                 proxy.begin();
-                if (args.Key === 3 /* Enter */ && this.AcceptsReturn === true) {
+                if (args.Key === Key.Enter && this.AcceptsReturn === true) {
                     proxy.enterText('\n');
                     args.Handled = true;
                 }
@@ -9533,7 +9287,7 @@ var Fayde;
                 Overlay.prototype.InitBindings = function () {
                     this.SetBinding(Overlay.VisualViewModelProperty, new Fayde.Data.Binding("OverlayDataContext"));
                     var binding = new Fayde.Data.Binding("IsOpen");
-                    binding.Mode = 1 /* TwoWay */;
+                    binding.Mode = Fayde.Data.BindingMode.TwoWay;
                     this.SetBinding(Overlay.IsOpenProperty, binding);
                     this.SetBinding(Overlay.ClosedCommandProperty, new Fayde.Data.Binding("ClosedCommand"));
                 };
@@ -9790,41 +9544,39 @@ var Fayde;
                     this._SelectedItem = null;
                     this._IsUpdating = false;
                     this._AnchorIndex = -1;
-                    this.Mode = 0 /* Single */;
+                    this.Mode = Controls.SelectionMode.Single;
                     this._Owner = owner;
                     this._Owner.SelectedItems.CollectionChanged.on(this._HandleOwnerSelectionChanged, this);
                 }
                 Object.defineProperty(SelectorSelection.prototype, "IsUpdating", {
-                    get: function () {
-                        return this._IsUpdating;
-                    },
+                    get: function () { return this._IsUpdating; },
                     enumerable: true,
                     configurable: true
                 });
                 SelectorSelection.prototype._HandleOwnerSelectionChanged = function (sender, e) {
                     if (this._IsUpdating)
                         return;
-                    if (this.Mode === 0 /* Single */)
+                    if (this.Mode === Controls.SelectionMode.Single)
                         throw new InvalidOperationException("SelectedItems cannot be modified directly when in Single select mode");
                     try {
                         var items = this._SelectedItems;
                         this._IsUpdating = true;
                         switch (e.Action) {
-                            case 1 /* Add */:
+                            case Fayde.Collections.CollectionChangedAction.Add:
                                 if (items.indexOf(e.NewItems[0]) < 0)
                                     this.AddToSelected(e.NewItems[0]);
                                 break;
-                            case 2 /* Remove */:
+                            case Fayde.Collections.CollectionChangedAction.Remove:
                                 if (items.indexOf(e.OldItems[0]) > -1)
                                     this.RemoveFromSelected(e.OldItems[0]);
                                 break;
-                            case 3 /* Replace */:
+                            case Fayde.Collections.CollectionChangedAction.Replace:
                                 if (items.indexOf(e.OldItems[0]) > -1)
                                     this.RemoveFromSelected(e.OldItems[0]);
                                 if (items.indexOf(e.NewItems[0]) < 0)
                                     this.AddToSelected(e.NewItems[0]);
                                 break;
-                            case 4 /* Reset */:
+                            case Fayde.Collections.CollectionChangedAction.Reset:
                                 var ownerItems = this._Owner.SelectedItems;
                                 var item;
                                 var enumerator = ownerItems.getEnumerator();
@@ -9889,11 +9641,11 @@ var Fayde;
                     try {
                         this._IsUpdating = true;
                         switch (this.Mode) {
-                            case 0 /* Single */:
+                            case Controls.SelectionMode.Single:
                                 return this._SelectSingle(item, selIndex);
-                            case 2 /* Extended */:
+                            case Controls.SelectionMode.Extended:
                                 return this._SelectExtended(item, selIndex);
-                            case 1 /* Multiple */:
+                            case Controls.SelectionMode.Multiple:
                                 return this._SelectMultiple(item, selIndex);
                             default:
                                 throw new NotSupportedException("SelectionMode " + this.Mode + " is not supported.");
@@ -9945,7 +9697,7 @@ var Fayde;
                 SelectorSelection.prototype.SelectAll = function (items) {
                     try {
                         this._IsUpdating = true;
-                        if (this.Mode === 0 /* Single */)
+                        if (this.Mode === Controls.SelectionMode.Single)
                             throw new NotSupportedException("Cannot call SelectAll when in Single select mode");
                         var selectedItems = this._SelectedItems;
                         var select = except(items, selectedItems);
@@ -10294,17 +10046,17 @@ var Fayde;
             var s = o.toString();
             var rd = new RowDefinition();
             if (s.toLowerCase() === "auto") {
-                rd.Height = new Controls.GridLength(0, 0 /* Auto */);
+                rd.Height = new Controls.GridLength(0, GridUnitType.Auto);
                 return rd;
             }
             if (s === "*") {
-                rd.Height = new Controls.GridLength(1, 2 /* Star */);
+                rd.Height = new Controls.GridLength(1, GridUnitType.Star);
                 return rd;
             }
             var v = parseFloat(s);
             if (isNaN(v))
                 throw new XamlParseException("Invalid RowDefinition: '" + s + "'.");
-            rd.Height = new Controls.GridLength(v, s[s.length - 1] === "*" ? 2 /* Star */ : 1 /* Pixel */);
+            rd.Height = new Controls.GridLength(v, s[s.length - 1] === "*" ? GridUnitType.Star : GridUnitType.Pixel);
             return rd;
         }
         nullstone.registerTypeConverter(RowDefinition, ConvertRowDefinition);
@@ -10381,32 +10133,20 @@ var Fayde;
                     this.$HorizontalThumb.DragDelta.on(this._OnThumbDragDelta, this);
                 }
                 if (this.$HorizontalLargeDecrease != null) {
-                    this.$HorizontalLargeDecrease.Click.on(function (sender, e) {
-                        this.Focus();
-                        this.Value -= this.LargeChange;
-                    }, this);
+                    this.$HorizontalLargeDecrease.Click.on(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
                 }
                 if (this.$HorizontalLargeIncrease != null) {
-                    this.$HorizontalLargeIncrease.Click.on(function (sender, e) {
-                        this.Focus();
-                        this.Value += this.LargeChange;
-                    }, this);
+                    this.$HorizontalLargeIncrease.Click.on(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
                 }
                 if (this.$VerticalThumb != null) {
                     this.$VerticalThumb.DragStarted.on(this._OnThumbDragStarted, this);
                     this.$VerticalThumb.DragDelta.on(this._OnThumbDragDelta, this);
                 }
                 if (this.$VerticalLargeDecrease != null) {
-                    this.$VerticalLargeDecrease.Click.on(function (sender, e) {
-                        this.Focus();
-                        this.Value -= this.LargeChange;
-                    }, this);
+                    this.$VerticalLargeDecrease.Click.on(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
                 }
                 if (this.$VerticalLargeIncrease != null) {
-                    this.$VerticalLargeIncrease.Click.on(function (sender, e) {
-                        this.Focus();
-                        this.Value += this.LargeChange;
-                    }, this);
+                    this.$VerticalLargeIncrease.Click.on(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
                 }
                 this._OnOrientationChanged();
                 this.UpdateVisualState(false);
@@ -10431,18 +10171,18 @@ var Fayde;
                 this._UpdateTrackLayout();
             };
             Slider.prototype._OnOrientationChanged = function () {
-                var isHorizontal = this.Orientation === 0 /* Horizontal */;
+                var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
                 if (this.$HorizontalTemplate != null)
-                    this.$HorizontalTemplate.Visibility = isHorizontal ? 0 /* Visible */ : 1 /* Collapsed */;
+                    this.$HorizontalTemplate.Visibility = isHorizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
                 if (this.$VerticalTemplate != null)
-                    this.$VerticalTemplate.Visibility = !isHorizontal ? 0 /* Visible */ : 1 /* Collapsed */;
+                    this.$VerticalTemplate.Visibility = !isHorizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
                 this._UpdateTrackLayout();
             };
             Slider.prototype._UpdateTrackLayout = function () {
                 var max = this.Maximum;
                 var min = this.Minimum;
                 var val = this.Value;
-                var isHorizontal = this.Orientation === 0 /* Horizontal */;
+                var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
                 var temp = isHorizontal ? this.$HorizontalTemplate : this.$VerticalTemplate;
                 if (!(temp instanceof Controls.Grid))
                     return;
@@ -10457,8 +10197,8 @@ var Fayde;
                     largeIncrease = this.$HorizontalLargeIncrease;
                     thumb = this.$HorizontalThumb;
                     if (coldefs && coldefs.Count === 3) {
-                        coldefs.GetValueAt(0).Width = new Controls.GridLength(1, isReversed ? 2 /* Star */ : 0 /* Auto */);
-                        coldefs.GetValueAt(2).Width = new Controls.GridLength(1, isReversed ? 0 /* Auto */ : 2 /* Star */);
+                        coldefs.GetValueAt(0).Width = new Controls.GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
+                        coldefs.GetValueAt(2).Width = new Controls.GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
                         if (largeDecrease != null)
                             Controls.Grid.SetColumn(largeDecrease, isReversed ? 2 : 0);
                         if (largeIncrease != null)
@@ -10471,8 +10211,8 @@ var Fayde;
                     largeIncrease = this.$VerticalLargeIncrease;
                     thumb = this.$VerticalThumb;
                     if (rowdefs && rowdefs.Count === 3) {
-                        rowdefs.GetValueAt(0).Height = new Controls.GridLength(1, isReversed ? 0 /* Auto */ : 2 /* Star */);
-                        rowdefs.GetValueAt(2).Height = new Controls.GridLength(1, isReversed ? 2 /* Star */ : 0 /* Auto */);
+                        rowdefs.GetValueAt(0).Height = new Controls.GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+                        rowdefs.GetValueAt(2).Height = new Controls.GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
                         if (largeDecrease != null)
                             Controls.Grid.SetRow(largeDecrease, isReversed ? 0 : 2);
                         if (largeIncrease != null)
@@ -10495,7 +10235,7 @@ var Fayde;
             };
             Slider.prototype._OnThumbDragDelta = function (sender, e) {
                 var offset = 0;
-                var isHorizontal = this.Orientation === 0 /* Horizontal */;
+                var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
                 if (isHorizontal && this.$HorizontalThumb != null) {
                     offset = e.HorizontalChange / (this.ActualWidth - this.$HorizontalThumb.ActualWidth) * (this.Maximum - this.Minimum);
                 }
@@ -10511,13 +10251,15 @@ var Fayde;
             };
             Slider.prototype.OnMouseEnter = function (e) {
                 _super.prototype.OnMouseEnter.call(this, e);
-                if ((this.Orientation === 0 /* Horizontal */ && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) || (this.Orientation === 1 /* Vertical */ && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+                if ((this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
+                    (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
                     this.UpdateVisualState();
                 }
             };
             Slider.prototype.OnMouseLeave = function (e) {
                 _super.prototype.OnMouseLeave.call(this, e);
-                if ((this.Orientation === 0 /* Horizontal */ && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) || (this.Orientation === 1 /* Vertical */ && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+                if ((this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
+                    (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
                     this.UpdateVisualState();
                 }
             };
@@ -10540,18 +10282,18 @@ var Fayde;
                 if (!this.IsEnabled)
                     return;
                 switch (e.Key) {
-                    case 14 /* Left */:
-                    case 17 /* Down */:
+                    case Fayde.Input.Key.Left:
+                    case Fayde.Input.Key.Down:
                         this.Value += (this.IsDirectionReversed ? this.SmallChange : -this.SmallChange);
                         break;
-                    case 16 /* Right */:
-                    case 15 /* Up */:
+                    case Fayde.Input.Key.Right:
+                    case Fayde.Input.Key.Up:
                         this.Value += (this.IsDirectionReversed ? -this.SmallChange : this.SmallChange);
                         break;
-                    case 13 /* Home */:
+                    case Fayde.Input.Key.Home:
                         this.Value = this.Minimum;
                         break;
-                    case 12 /* End */:
+                    case Fayde.Input.Key.End:
                         this.Value = this.Maximum;
                         break;
                 }
@@ -10566,7 +10308,7 @@ var Fayde;
             };
             Slider.IsDirectionReversedProperty = DependencyProperty.RegisterCore("IsDirectionReversed", function () { return Boolean; }, Slider, false, function (d, args) { return d._UpdateTrackLayout(); });
             Slider.IsFocusedProperty = DependencyProperty.RegisterReadOnlyCore("IsFocused", function () { return Boolean; }, Slider, false, function (d, args) { return d.UpdateVisualState(); });
-            Slider.OrientationProperty = DependencyProperty.RegisterCore("Orientation", function () { return new Fayde.Enum(Fayde.Orientation); }, Slider, 0 /* Horizontal */, function (d, args) { return d._OnOrientationChanged(); });
+            Slider.OrientationProperty = DependencyProperty.RegisterCore("Orientation", function () { return new Fayde.Enum(Fayde.Orientation); }, Slider, Fayde.Orientation.Horizontal, function (d, args) { return d._OnOrientationChanged(); });
             return Slider;
         })(Controls.Primitives.RangeBase);
         Controls.Slider = Slider;
@@ -10588,7 +10330,7 @@ var Fayde;
             StackPanel.prototype.CreateLayoutUpdater = function () {
                 return new minerva.controls.stackpanel.StackPanelUpdater();
             };
-            StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Fayde.Enum(Fayde.Orientation); }, StackPanel, 1 /* Vertical */);
+            StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Fayde.Enum(Fayde.Orientation); }, StackPanel, Fayde.Orientation.Vertical);
             return StackPanel;
         })(Controls.Panel);
         Controls.StackPanel = StackPanel;
@@ -10714,11 +10456,11 @@ var Fayde;
             TextBlock.TextDecorationsProperty = Fayde.InheritableOwner.TextDecorationsProperty.ExtendTo(TextBlock);
             TextBlock.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBlock, "", function (d, args) { return d.XamlNode.TextChanged(args); });
             TextBlock.InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", function () { return Fayde.Documents.InlineCollection; }, TextBlock);
-            TextBlock.LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", function () { return new Fayde.Enum(Fayde.LineStackingStrategy); }, TextBlock, 0 /* MaxHeight */);
+            TextBlock.LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", function () { return new Fayde.Enum(Fayde.LineStackingStrategy); }, TextBlock, Fayde.LineStackingStrategy.MaxHeight);
             TextBlock.LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", function () { return Number; }, TextBlock, NaN);
-            TextBlock.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Fayde.Enum(Fayde.TextAlignment); }, TextBlock, 0 /* Left */);
-            TextBlock.TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", function () { return new Fayde.Enum(Controls.TextTrimming); }, TextBlock, 0 /* None */);
-            TextBlock.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Fayde.Enum(Controls.TextWrapping); }, TextBlock, 0 /* NoWrap */);
+            TextBlock.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Fayde.Enum(Fayde.TextAlignment); }, TextBlock, Fayde.TextAlignment.Left);
+            TextBlock.TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", function () { return new Fayde.Enum(Controls.TextTrimming); }, TextBlock, Controls.TextTrimming.None);
+            TextBlock.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Fayde.Enum(Controls.TextWrapping); }, TextBlock, Controls.TextWrapping.NoWrap);
             return TextBlock;
         })(Fayde.FrameworkElement);
         Controls.TextBlock = TextBlock;
@@ -10754,7 +10496,7 @@ var Fayde;
             }
             TextBox.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
-                var vis = (this.TextWrapping === 1 /* Wrap */) ? 0 /* Disabled */ : this.HorizontalScrollBarVisibility;
+                var vis = (this.TextWrapping === Controls.TextWrapping.Wrap) ? Controls.ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
                 this.$ContentProxy.setHorizontalScrollBar(vis);
                 this.$ContentProxy.setVerticalScrollBar(this.VerticalScrollBarVisibility);
             };
@@ -10799,10 +10541,10 @@ var Fayde;
             TextBox.AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", function () { return Boolean; }, TextBox, false);
             TextBox.IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", function () { return Boolean; }, TextBox, false);
             TextBox.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBox);
-            TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return new Fayde.Enum(Fayde.TextAlignment); }, TextBox, 0 /* Left */);
-            TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return new Fayde.Enum(Controls.TextWrapping); }, TextBox, 0 /* NoWrap */);
-            TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", function () { return new Fayde.Enum(Controls.ScrollBarVisibility); }, TextBox, 2 /* Hidden */);
-            TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", function () { return new Fayde.Enum(Controls.ScrollBarVisibility); }, TextBox, 2 /* Hidden */);
+            TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return new Fayde.Enum(Fayde.TextAlignment); }, TextBox, Fayde.TextAlignment.Left);
+            TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return new Fayde.Enum(Controls.TextWrapping); }, TextBox, Controls.TextWrapping.NoWrap);
+            TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", function () { return new Fayde.Enum(Controls.ScrollBarVisibility); }, TextBox, Controls.ScrollBarVisibility.Hidden);
+            TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", function () { return new Fayde.Enum(Controls.ScrollBarVisibility); }, TextBox, Controls.ScrollBarVisibility.Hidden);
             return TextBox;
         })(Controls.TextBoxBase);
         Controls.TextBox = TextBox;
@@ -10819,12 +10561,12 @@ var Fayde;
             }, false);
             Fayde.DPReaction(TextBox.TextAlignmentProperty, function (tb, ov, nv) { return tb.$View.setTextAlignment(nv); }, false);
             Fayde.DPReaction(TextBox.TextWrappingProperty, function (tb, ov, nv) {
-                var vis = (nv === 1 /* Wrap */) ? 0 /* Disabled */ : tb.HorizontalScrollBarVisibility;
+                var vis = (nv === Controls.TextWrapping.Wrap) ? Controls.ScrollBarVisibility.Disabled : tb.HorizontalScrollBarVisibility;
                 tb.$ContentProxy.setHorizontalScrollBar(vis);
                 tb.$View.setTextWrapping(nv);
             }, false);
             Fayde.DPReaction(TextBox.HorizontalScrollBarVisibilityProperty, function (tb, ov, nv) {
-                var vis = (tb.TextWrapping === 1 /* Wrap */) ? 0 /* Disabled */ : tb.HorizontalScrollBarVisibility;
+                var vis = (tb.TextWrapping === Controls.TextWrapping.Wrap) ? Controls.ScrollBarVisibility.Disabled : tb.HorizontalScrollBarVisibility;
                 tb.$ContentProxy.setHorizontalScrollBar(vis);
             }, false);
             Fayde.DPReaction(TextBox.VerticalScrollBarVisibilityProperty, function (tb, ov, nv) {
@@ -10856,9 +10598,7 @@ var Fayde;
                 this.DefaultStyleKey = ToolTip;
             }
             Object.defineProperty(ToolTip.prototype, "TooltipParent", {
-                get: function () {
-                    return this._TooltipParent;
-                },
+                get: function () { return this._TooltipParent; },
                 set: function (value) {
                     if (this._TooltipParentDCListener)
                         this._TooltipParentDCListener.Detach();
@@ -10940,7 +10680,7 @@ var Fayde;
                 var target = (this.PlacementTargetOverride || this.PlacementTarget);
                 var targetBounds = new minerva.Rect();
                 var point = Controls.ToolTipService.MousePosition;
-                if (mode !== 2 /* Mouse */) {
+                if (mode !== Controls.PlacementMode.Mouse) {
                     point = new Point();
                     try {
                         if (target != null) {
@@ -10955,20 +10695,22 @@ var Fayde;
                         return;
                     }
                 }
+                //TODO: Handle FlowDirection
+                //Move based on PlacementMode
                 switch (mode) {
-                    case 4 /* Top */:
+                    case Controls.PlacementMode.Top:
                         point.y = targetBounds.y - this.ActualHeight;
                         break;
-                    case 0 /* Bottom */:
+                    case Controls.PlacementMode.Bottom:
                         point.y = targetBounds.y + targetBounds.height;
                         break;
-                    case 3 /* Left */:
+                    case Controls.PlacementMode.Left:
                         point.x = targetBounds.x - this.ActualWidth;
                         break;
-                    case 1 /* Right */:
+                    case Controls.PlacementMode.Right:
                         point.x = targetBounds.x + targetBounds.width;
                         break;
-                    case 2 /* Mouse */:
+                    case Controls.PlacementMode.Mouse:
                         point.y += new Controls.TextBox().FontSize; // FIXME: Just a guess, it's about right.
                         break;
                     default:
@@ -10977,13 +10719,13 @@ var Fayde;
                 //Constrain X
                 var rootWidth = root.ActualWidth;
                 if ((point.x + this.ActualWidth) > rootWidth) {
-                    if (mode === 1 /* Right */)
+                    if (mode === Controls.PlacementMode.Right)
                         point.x = targetBounds.x - this.ActualWidth;
                     else
                         point.x = rootWidth - this.ActualWidth;
                 }
                 else if (point.x < 0) {
-                    if (mode === 3 /* Left */)
+                    if (mode === Controls.PlacementMode.Left)
                         point.x = targetBounds.x + targetBounds.width;
                     else
                         point.x = 0;
@@ -10991,13 +10733,13 @@ var Fayde;
                 //Constrain Y
                 var rootHeight = root.ActualHeight;
                 if ((point.y + this.ActualHeight) > rootHeight) {
-                    if (mode === 0 /* Bottom */)
+                    if (mode === Controls.PlacementMode.Bottom)
                         point.y = targetBounds.y - this.ActualHeight;
                     else
                         point.y = rootHeight - this.ActualHeight;
                 }
                 else if (point.y < 0) {
-                    if (mode === 4 /* Top */)
+                    if (mode === Controls.PlacementMode.Top)
                         point.y = targetBounds.y + targetBounds.height;
                     else
                         point.y = 0;
@@ -11014,7 +10756,7 @@ var Fayde;
             ToolTip.HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", function () { return Number; }, ToolTip, 0, function (d, args) { return d.OnHorizontalOffsetChanged(args); });
             ToolTip.VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", function () { return Number; }, ToolTip, 0, function (d, args) { return d.OnVerticalOffsetChanged(args); });
             ToolTip.IsOpenProperty = DependencyProperty.Register("IsOpen", function () { return Boolean; }, ToolTip, false, function (d, args) { return d.OnIsOpenChanged(args); });
-            ToolTip.PlacementProperty = DependencyProperty.Register("Placement", function () { return new Fayde.Enum(Controls.PlacementMode); }, ToolTip, 2 /* Mouse */);
+            ToolTip.PlacementProperty = DependencyProperty.Register("Placement", function () { return new Fayde.Enum(Controls.PlacementMode); }, ToolTip, Controls.PlacementMode.Mouse);
             ToolTip.PlacementTargetProperty = DependencyProperty.Register("PlacementTarget", function () { return Fayde.UIElement; }, ToolTip);
             return ToolTip;
         })(Controls.ContentControl);
@@ -11077,24 +10819,12 @@ var Fayde;
         var ToolTipService = (function () {
             function ToolTipService() {
             }
-            ToolTipService.GetToolTip = function (dobj) {
-                return dobj.GetValue(ToolTipService.ToolTipProperty);
-            };
-            ToolTipService.SetToolTip = function (dobj, value) {
-                dobj.SetValue(ToolTipService.ToolTipProperty, value);
-            };
-            ToolTipService.GetPlacement = function (dobj) {
-                return dobj.GetValue(ToolTipService.PlacementProperty);
-            };
-            ToolTipService.SetPlacement = function (dobj, value) {
-                dobj.SetValue(ToolTipService.PlacementProperty, value);
-            };
-            ToolTipService.GetPlacementTarget = function (dobj) {
-                return dobj.GetValue(ToolTipService.PlacementTargetProperty);
-            };
-            ToolTipService.SetPlacementTarget = function (dobj, value) {
-                dobj.SetValue(ToolTipService.PlacementTargetProperty, value);
-            };
+            ToolTipService.GetToolTip = function (dobj) { return dobj.GetValue(ToolTipService.ToolTipProperty); };
+            ToolTipService.SetToolTip = function (dobj, value) { dobj.SetValue(ToolTipService.ToolTipProperty, value); };
+            ToolTipService.GetPlacement = function (dobj) { return dobj.GetValue(ToolTipService.PlacementProperty); };
+            ToolTipService.SetPlacement = function (dobj, value) { dobj.SetValue(ToolTipService.PlacementProperty, value); };
+            ToolTipService.GetPlacementTarget = function (dobj) { return dobj.GetValue(ToolTipService.PlacementTargetProperty); };
+            ToolTipService.SetPlacementTarget = function (dobj, value) { dobj.SetValue(ToolTipService.PlacementTargetProperty, value); };
             Object.defineProperty(ToolTipService, "MousePosition", {
                 get: function () {
                     return slave.MousePosition;
@@ -11269,19 +10999,19 @@ var Fayde;
         })();
         var slave = new ToolTipServiceSlave();
         var specialKeys = [
-            6 /* Alt */,
-            1 /* Back */,
-            19 /* Delete */,
-            17 /* Down */,
-            12 /* End */,
-            13 /* Home */,
-            18 /* Insert */,
-            14 /* Left */,
-            11 /* PageDown */,
-            10 /* PageUp */,
-            16 /* Right */,
-            9 /* Space */,
-            15 /* Up */
+            Fayde.Input.Key.Alt,
+            Fayde.Input.Key.Back,
+            Fayde.Input.Key.Delete,
+            Fayde.Input.Key.Down,
+            Fayde.Input.Key.End,
+            Fayde.Input.Key.Home,
+            Fayde.Input.Key.Insert,
+            Fayde.Input.Key.Left,
+            Fayde.Input.Key.PageDown,
+            Fayde.Input.Key.PageUp,
+            Fayde.Input.Key.Right,
+            Fayde.Input.Key.Space,
+            Fayde.Input.Key.Up
         ];
         function isSpecialKey(key) {
             return specialKeys.indexOf(key) > -1;
@@ -11304,18 +11034,10 @@ var Fayde;
             function VirtualizingPanel() {
                 _super.apply(this, arguments);
             }
-            VirtualizingPanel.GetVirtualizationMode = function (d) {
-                return d.GetValue(VirtualizingPanel.VirtualizationModeProperty);
-            };
-            VirtualizingPanel.SetVirtualizationMode = function (d, value) {
-                d.SetValue(VirtualizingPanel.VirtualizationModeProperty, value);
-            };
-            VirtualizingPanel.GetIsVirtualizing = function (d) {
-                return d.GetValue(VirtualizingPanel.IsVirtualizingProperty);
-            };
-            VirtualizingPanel.SetIsVirtualizing = function (d, value) {
-                d.SetValue(VirtualizingPanel.IsVirtualizingProperty, value);
-            };
+            VirtualizingPanel.GetVirtualizationMode = function (d) { return d.GetValue(VirtualizingPanel.VirtualizationModeProperty); };
+            VirtualizingPanel.SetVirtualizationMode = function (d, value) { d.SetValue(VirtualizingPanel.VirtualizationModeProperty, value); };
+            VirtualizingPanel.GetIsVirtualizing = function (d) { return d.GetValue(VirtualizingPanel.IsVirtualizingProperty); };
+            VirtualizingPanel.SetIsVirtualizing = function (d, value) { d.SetValue(VirtualizingPanel.IsVirtualizingProperty, value); };
             Object.defineProperty(VirtualizingPanel.prototype, "ItemsControl", {
                 get: function () {
                     var presenter = Controls.ItemsPresenter.Get(this);
@@ -11330,7 +11052,7 @@ var Fayde;
             VirtualizingPanel.prototype.OnItemsRemoved = function (index, oldItems) {
                 this.XamlNode.LayoutUpdater.invalidateMeasure();
             };
-            VirtualizingPanel.VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", function () { return new Fayde.Enum(VirtualizationMode); }, VirtualizingPanel, 1 /* Recycling */);
+            VirtualizingPanel.VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", function () { return new Fayde.Enum(VirtualizationMode); }, VirtualizingPanel, VirtualizationMode.Recycling);
             VirtualizingPanel.IsVirtualizingProperty = DependencyProperty.RegisterAttached("IsVirtualizing", function () { return Boolean; }, VirtualizingPanel, false);
             return VirtualizingPanel;
         })(Controls.Panel);
@@ -11440,49 +11162,49 @@ var Fayde;
             });
             VirtualizingStackPanel.prototype.LineUp = function () {
                 var sd = this._ScrollData;
-                if (this.Orientation === 0 /* Horizontal */)
+                if (this.Orientation === Fayde.Orientation.Horizontal)
                     return this.SetVerticalOffset(sd.offsetY - LineDelta);
                 return this.SetVerticalOffset(sd.offsetY - 1);
             };
             VirtualizingStackPanel.prototype.LineDown = function () {
                 var sd = this._ScrollData;
-                if (this.Orientation === 0 /* Horizontal */)
+                if (this.Orientation === Fayde.Orientation.Horizontal)
                     return this.SetVerticalOffset(sd.offsetY + LineDelta);
                 return this.SetVerticalOffset(sd.offsetY + 1);
             };
             VirtualizingStackPanel.prototype.LineLeft = function () {
                 var sd = this._ScrollData;
-                if (this.Orientation === 1 /* Vertical */)
+                if (this.Orientation === Fayde.Orientation.Vertical)
                     return this.SetHorizontalOffset(sd.offsetX - LineDelta);
                 return this.SetHorizontalOffset(sd.offsetX - 1);
             };
             VirtualizingStackPanel.prototype.LineRight = function () {
                 var sd = this._ScrollData;
-                if (this.Orientation === 1 /* Vertical */)
+                if (this.Orientation === Fayde.Orientation.Vertical)
                     return this.SetHorizontalOffset(sd.offsetX + LineDelta);
                 return this.SetHorizontalOffset(sd.offsetX + 1);
             };
             VirtualizingStackPanel.prototype.MouseWheelUp = function () {
                 var sd = this._ScrollData;
-                if (this.Orientation === 0 /* Horizontal */)
+                if (this.Orientation === Fayde.Orientation.Horizontal)
                     return this.SetVerticalOffset(sd.offsetY - LineDelta * Wheelitude);
                 return this.SetVerticalOffset(sd.offsetY - Wheelitude);
             };
             VirtualizingStackPanel.prototype.MouseWheelDown = function () {
                 var sd = this._ScrollData;
-                if (this.Orientation === 0 /* Horizontal */)
+                if (this.Orientation === Fayde.Orientation.Horizontal)
                     return this.SetVerticalOffset(sd.offsetY + LineDelta * Wheelitude);
                 return this.SetVerticalOffset(sd.offsetY + Wheelitude);
             };
             VirtualizingStackPanel.prototype.MouseWheelLeft = function () {
                 var sd = this._ScrollData;
-                if (this.Orientation === 1 /* Vertical */)
+                if (this.Orientation === Fayde.Orientation.Vertical)
                     return this.SetHorizontalOffset(sd.offsetX - LineDelta * Wheelitude);
                 return this.SetHorizontalOffset(sd.offsetX - Wheelitude);
             };
             VirtualizingStackPanel.prototype.MouseWheelRight = function () {
                 var sd = this._ScrollData;
-                if (this.Orientation === 1 /* Vertical */)
+                if (this.Orientation === Fayde.Orientation.Vertical)
                     return this.SetHorizontalOffset(sd.offsetX + LineDelta * Wheelitude);
                 return this.SetHorizontalOffset(sd.offsetX + Wheelitude);
             };
@@ -11506,7 +11228,7 @@ var Fayde;
                 var exposed = new minerva.Rect();
                 var sd = this._ScrollData;
                 var uin = uie.XamlNode;
-                var isVertical = this.Orientation === 1 /* Vertical */;
+                var isVertical = this.Orientation === Fayde.Orientation.Vertical;
                 var enumerator = this.Children.getEnumerator();
                 while (enumerator.moveNext()) {
                     var child = enumerator.current;
@@ -11545,7 +11267,7 @@ var Fayde;
                 if (sd.offsetX === offset)
                     return false;
                 sd.offsetX = offset;
-                if (this.Orientation === 0 /* Horizontal */)
+                if (this.Orientation === Fayde.Orientation.Horizontal)
                     this.XamlNode.LayoutUpdater.invalidateMeasure();
                 else
                     this.XamlNode.LayoutUpdater.invalidateArrange();
@@ -11563,7 +11285,7 @@ var Fayde;
                 if (sd.offsetY === offset)
                     return false;
                 sd.offsetY = offset;
-                if (this.Orientation === 1 /* Vertical */)
+                if (this.Orientation === Fayde.Orientation.Vertical)
                     this.XamlNode.LayoutUpdater.invalidateMeasure();
                 else
                     this.XamlNode.LayoutUpdater.invalidateArrange();
@@ -11574,7 +11296,7 @@ var Fayde;
             };
             VirtualizingStackPanel.prototype.OnItemsAdded = function (index, newItems) {
                 _super.prototype.OnItemsAdded.call(this, index, newItems);
-                var isHorizontal = this.Orientation === 0 /* Horizontal */;
+                var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
                 var offset = isHorizontal ? this.HorizontalOffset : this.VerticalOffset;
                 if (index <= offset)
                     isHorizontal ? this.SetHorizontalOffset(offset + newItems.length) : this.SetVerticalOffset(offset + newItems.length);
@@ -11595,7 +11317,7 @@ var Fayde;
                             children.Remove(container);
                     }
                 }
-                var isHorizontal = this.Orientation === 0 /* Horizontal */;
+                var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
                 var offset = isHorizontal ? this.HorizontalOffset : this.VerticalOffset;
                 var numBeforeOffset = Math.min(offset, index + oldItems.length) - index;
                 if (numBeforeOffset > 0)
@@ -11604,7 +11326,7 @@ var Fayde;
                 if (scrollOwner)
                     scrollOwner.InvalidateScrollInfo();
             };
-            VirtualizingStackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Fayde.Enum(Fayde.Orientation); }, VirtualizingStackPanel, 1 /* Vertical */);
+            VirtualizingStackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Fayde.Enum(Fayde.Orientation); }, VirtualizingStackPanel, Fayde.Orientation.Vertical);
             return VirtualizingStackPanel;
         })(Controls.VirtualizingPanel);
         Controls.VirtualizingStackPanel = VirtualizingStackPanel;
@@ -11759,10 +11481,10 @@ var Fayde;
         var StyleIndex = Providers.StyleIndex;
         (function (StyleMask) {
             StyleMask[StyleMask["None"] = 0] = "None";
-            StyleMask[StyleMask["VisualTree"] = 1 << 0 /* VisualTree */] = "VisualTree";
-            StyleMask[StyleMask["ApplicationResources"] = 1 << 1 /* ApplicationResources */] = "ApplicationResources";
-            StyleMask[StyleMask["Theme"] = 1 << 2 /* Theme */] = "Theme";
-            StyleMask[StyleMask["All"] = StyleMask.VisualTree | StyleMask.ApplicationResources | StyleMask.Theme] = "All";
+            StyleMask[StyleMask["VisualTree"] = 1] = "VisualTree";
+            StyleMask[StyleMask["ApplicationResources"] = 2] = "ApplicationResources";
+            StyleMask[StyleMask["Theme"] = 4] = "Theme";
+            StyleMask[StyleMask["All"] = 7] = "All";
         })(Providers.StyleMask || (Providers.StyleMask = {}));
         var StyleMask = Providers.StyleMask;
         var ImplicitStyleBroker = (function () {
@@ -11773,7 +11495,7 @@ var Fayde;
                     styles = getImplicitStyles(fe, mask);
                 if (styles) {
                     var error = new BError();
-                    var len = 3 /* Count */;
+                    var len = StyleIndex.Count;
                     for (var i = 0; i < len; i++) {
                         var style = styles[i];
                         if (!style)
@@ -11793,16 +11515,16 @@ var Fayde;
                 var oldStyles = fe.XamlNode._ImplicitStyles;
                 var newStyles = [null, null, null];
                 if (oldStyles) {
-                    newStyles[2 /* Theme */] = oldStyles[2 /* Theme */];
-                    newStyles[1 /* ApplicationResources */] = oldStyles[1 /* ApplicationResources */];
-                    newStyles[0 /* VisualTree */] = oldStyles[0 /* VisualTree */];
+                    newStyles[StyleIndex.Theme] = oldStyles[StyleIndex.Theme];
+                    newStyles[StyleIndex.ApplicationResources] = oldStyles[StyleIndex.ApplicationResources];
+                    newStyles[StyleIndex.VisualTree] = oldStyles[StyleIndex.VisualTree];
                 }
                 if (mask & StyleMask.Theme)
-                    newStyles[2 /* Theme */] = styles[2 /* Theme */];
+                    newStyles[StyleIndex.Theme] = styles[StyleIndex.Theme];
                 if (mask & StyleMask.ApplicationResources)
-                    newStyles[1 /* ApplicationResources */] = styles[1 /* ApplicationResources */];
+                    newStyles[StyleIndex.ApplicationResources] = styles[StyleIndex.ApplicationResources];
                 if (mask & StyleMask.VisualTree)
-                    newStyles[0 /* VisualTree */] = styles[0 /* VisualTree */];
+                    newStyles[StyleIndex.VisualTree] = styles[StyleIndex.VisualTree];
                 ImplicitStyleBroker.ApplyStyles(fe, mask, styles);
             };
             ImplicitStyleBroker.Clear = function (fe, mask) {
@@ -11813,11 +11535,11 @@ var Fayde;
                 var newStyles = oldStyles.slice(0);
                 //TODO: Do we need a deep copy?
                 if (mask & StyleMask.Theme)
-                    newStyles[2 /* Theme */] = null;
+                    newStyles[StyleIndex.Theme] = null;
                 if (mask & StyleMask.ApplicationResources)
-                    newStyles[1 /* ApplicationResources */] = null;
+                    newStyles[StyleIndex.ApplicationResources] = null;
                 if (mask & StyleMask.VisualTree)
-                    newStyles[0 /* VisualTree */] = null;
+                    newStyles[StyleIndex.VisualTree] = null;
                 ImplicitStyleBroker.ApplyStyles(fe, holder._StyleMask & ~mask, newStyles);
             };
             ImplicitStyleBroker.ApplyStyles = function (fe, mask, styles) {
@@ -11825,7 +11547,7 @@ var Fayde;
                 var oldStyles = holder._ImplicitStyles;
                 var isChanged = !oldStyles || mask !== holder._StyleMask;
                 if (!isChanged) {
-                    for (var i = 0; i < 3 /* Count */; i++) {
+                    for (var i = 0; i < StyleIndex.Count; i++) {
                         if (styles[i] !== oldStyles[i]) {
                             isChanged = true;
                             break;
@@ -11844,15 +11566,15 @@ var Fayde;
         function getImplicitStyles(fe, mask) {
             var styles = [];
             if ((mask & StyleMask.Theme) != 0) {
-                styles[2 /* Theme */] = getThemeStyle(fe);
+                styles[StyleIndex.Theme] = getThemeStyle(fe);
             }
             if ((mask & StyleMask.ApplicationResources) != 0) {
                 var app = Fayde.Application.Current;
                 if (app)
-                    styles[1 /* ApplicationResources */] = getAppResourcesStyle(app, fe);
+                    styles[StyleIndex.ApplicationResources] = getAppResourcesStyle(app, fe);
             }
             if ((mask & StyleMask.VisualTree) != 0)
-                styles[0 /* VisualTree */] = getVisualTreeStyle(fe);
+                styles[StyleIndex.VisualTree] = getVisualTreeStyle(fe);
             return styles;
         }
         function getThemeStyle(fe) {
@@ -12191,16 +11913,12 @@ var Fayde;
             this._IsCancelable = isCancelable;
         }
         Object.defineProperty(RoutedPropertyChangingEventArgs.prototype, "IsCancellable", {
-            get: function () {
-                return this._IsCancelable;
-            },
+            get: function () { return this._IsCancelable; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(RoutedPropertyChangingEventArgs.prototype, "Cancel", {
-            get: function () {
-                return this._Cancel;
-            },
+            get: function () { return this._Cancel; },
             set: function (value) {
                 if (this._IsCancelable)
                     this._Cancel = value;
@@ -12410,8 +12128,7 @@ var Fayde;
         function TriggerAction() {
             _super.apply(this, arguments);
         }
-        TriggerAction.prototype.Fire = function () {
-        };
+        TriggerAction.prototype.Fire = function () { };
         return TriggerAction;
     })(Fayde.DependencyObject);
     Fayde.TriggerAction = TriggerAction;
@@ -12436,10 +12153,8 @@ var Fayde;
         function TriggerBase() {
             _super.apply(this, arguments);
         }
-        TriggerBase.prototype.Attach = function (target) {
-        };
-        TriggerBase.prototype.Detach = function (target) {
-        };
+        TriggerBase.prototype.Attach = function (target) { };
+        TriggerBase.prototype.Detach = function (target) { };
         return TriggerBase;
     })(Fayde.DependencyObject);
     Fayde.TriggerBase = TriggerBase;
@@ -12630,7 +12345,8 @@ var Fayde;
             return 0;
         };
         VisualTreeHelper.FindElementsInHostCoordinates = function (pos, uie) {
-            return minerva.findElementsInHostSpace(pos, uie.XamlNode.LayoutUpdater).map(function (upd) { return upd.getAttachedValue("$node").XObject; });
+            return minerva.findElementsInHostSpace(pos, uie.XamlNode.LayoutUpdater)
+                .map(function (upd) { return upd.getAttachedValue("$node").XObject; });
         };
         VisualTreeHelper.__Debug = function (ui, func) {
             var uin;
@@ -12703,7 +12419,7 @@ var Fayde;
                 return "";
             var uie = uin.XObject;
             var str = "(";
-            if (uie.Visibility === 0 /* Visible */)
+            if (uie.Visibility === Fayde.Visibility.Visible)
                 str += "Visible";
             else
                 str += "Collapsed";
@@ -12853,7 +12569,7 @@ var Fayde;
     //TODO: Remove this after adjusting TabNavigationWalker
     function DeepTreeWalker(topNode, direction) {
         var last = undefined;
-        var dir = 0 /* Logical */;
+        var dir = VisualTreeDirection.Logical;
         var walkList = [topNode];
         if (direction)
             dir = direction;
@@ -12901,9 +12617,9 @@ var Fayde;
         while (uin) {
             if (uin instanceof Fayde.Controls.ControlNode)
                 return uin.XObject.TabNavigation;
-            return 5 /* Local */;
+            return Fayde.Input.KeyboardNavigationMode.Local;
         }
-        return 5 /* Local */;
+        return Fayde.Input.KeyboardNavigationMode.Local;
     }
     function getActiveNavigationMode(uin) {
         while (uin) {
@@ -12911,7 +12627,7 @@ var Fayde;
                 return uin.XObject.TabNavigation;
             uin = uin.VisualParentNode;
         }
-        return 5 /* Local */;
+        return Fayde.Input.KeyboardNavigationMode.Local;
     }
     function walkChildren(root, cur, forwards) {
         var walker = new TabNavigationWalker(root, cur, forwards);
@@ -12945,7 +12661,7 @@ var Fayde;
                 if (this._TabSorted[i] === this._Current)
                     curIndex = i;
             }
-            if (curIndex !== -1 && getActiveNavigationMode(this._Root) === 1 /* Once */) {
+            if (curIndex !== -1 && getActiveNavigationMode(this._Root) === Fayde.Input.KeyboardNavigationMode.Once) {
                 if (!this._Forwards && this._Root instanceof Fayde.Controls.ControlNode)
                     return this._Root.TabTo();
                 return false;
@@ -12953,7 +12669,7 @@ var Fayde;
             var len = this._TabSorted.length;
             if (len > 0) {
                 for (var j = 0; j < len; j++) {
-                    if ((j + curIndex + 1) === len && getActiveNavigationMode(this._Root) !== 2 /* Cycle */)
+                    if ((j + curIndex + 1) === len && getActiveNavigationMode(this._Root) !== Fayde.Input.KeyboardNavigationMode.Cycle)
                         break;
                     childNode = this._TabSorted[(j + curIndex + 1) % len];
                     childIsControl = childNode instanceof Fayde.Controls.ControlNode;
@@ -12977,14 +12693,15 @@ var Fayde;
             var focused = false;
             var cur = uin;
             var root = uin;
-            if ((root.VisualParentNode && getParentNavigationMode(root.VisualParentNode) === 1 /* Once */) || (!forwards && root && root.VisualParentNode)) {
+            if ((root.VisualParentNode && getParentNavigationMode(root.VisualParentNode) === Fayde.Input.KeyboardNavigationMode.Once)
+                || (!forwards && root && root.VisualParentNode)) {
                 while (root = root.VisualParentNode)
                     if (root instanceof Fayde.Controls.ControlNode || !root.VisualParentNode)
                         break;
             }
             do {
                 focused = focused || walkChildren(root, cur, forwards);
-                if (!focused && getActiveNavigationMode(root) === 2 /* Cycle */)
+                if (!focused && getActiveNavigationMode(root) === Fayde.Input.KeyboardNavigationMode.Cycle)
                     return true;
                 cur = root;
                 root = root.VisualParentNode;
@@ -13171,8 +12888,7 @@ var Fayde;
                     Fayde.Media,
                     Fayde.Controls.Primitives,
                     Fayde.Shapes,
-                    window
-                ];
+                    window];
             }
             var len = lookupNamespaces.length;
             for (var i = 0; i < len; i++) {
@@ -13351,16 +13067,12 @@ var Fayde;
                 return propd;
             };
             Object.defineProperty(PropertyPath.prototype, "Path", {
-                get: function () {
-                    return this._Path;
-                },
+                get: function () { return this._Path; },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(PropertyPath.prototype, "ExpandedPath", {
-                get: function () {
-                    return this._ExpandedPath;
-                },
+                get: function () { return this._ExpandedPath; },
                 enumerable: true,
                 configurable: true
             });
@@ -13376,16 +13088,12 @@ var Fayde;
                 configurable: true
             });
             Object.defineProperty(PropertyPath.prototype, "HasDependencyProperty", {
-                get: function () {
-                    return this._Propd != null;
-                },
+                get: function () { return this._Propd != null; },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(PropertyPath.prototype, "DependencyProperty", {
-                get: function () {
-                    return this._Propd;
-                },
+                get: function () { return this._Propd; },
                 enumerable: true,
                 configurable: true
             });
@@ -13479,7 +13187,7 @@ var Fayde;
                 this.Path = path;
             }
             PropertyPathParser.prototype.Step = function (data) {
-                var type = 0 /* None */;
+                var type = PropertyNodeType.None;
                 var path = this.Path;
                 if (path.length === 0) {
                     data.typeName = null;
@@ -13489,7 +13197,7 @@ var Fayde;
                 }
                 var end = 0;
                 if (path.charAt(0) === '(') {
-                    type = 1 /* AttachedProperty */;
+                    type = PropertyNodeType.AttachedProperty;
                     end = path.indexOf(')');
                     if (end === -1)
                         throw new ArgumentException("Invalid property path. Attached property is missing the closing bracket");
@@ -13526,7 +13234,7 @@ var Fayde;
                     path = path.substr(end + 1);
                 }
                 else if (path.charAt(0) === '[') {
-                    type = 2 /* Indexed */;
+                    type = PropertyNodeType.Indexed;
                     end = path.indexOf(']');
                     data.typeName = null;
                     data.propertyName = null;
@@ -13536,7 +13244,7 @@ var Fayde;
                         path = path.substr(1);
                 }
                 else {
-                    type = 3 /* Property */;
+                    type = PropertyNodeType.Property;
                     end = indexOfAny(path, ['.', '[']);
                     if (end === -1) {
                         data.propertyName = path;
@@ -13599,17 +13307,17 @@ var Fayde;
                     };
                     var type;
                     var parser = new Data.PropertyPathParser(path);
-                    while ((type = parser.Step(data)) !== 0 /* None */) {
+                    while ((type = parser.Step(data)) !== Data.PropertyNodeType.None) {
                         var isViewProperty = false;
                         //boolean isViewProperty = CollectionViewProperties.Any (prop => prop.Name == propertyName);
                         //          static readonly PropertyInfo[] CollectionViewProperties = typeof (ICollectionView).GetProperties ();
                         var node = lastCVNode = new CollectionViewNode(bindDirectlyToSource, isViewProperty);
                         switch (type) {
-                            case 1 /* AttachedProperty */:
-                            case 3 /* Property */:
+                            case Data.PropertyNodeType.AttachedProperty:
+                            case Data.PropertyNodeType.Property:
                                 node.Next = new StandardPropertyPathNode(data.typeName, data.propertyName);
                                 break;
-                            case 2 /* Indexed */:
+                            case Data.PropertyNodeType.Indexed:
                                 node.Next = new IndexedPropertyPathNode(data.index);
                                 break;
                             default:
@@ -14031,13 +13739,13 @@ var Fayde;
             };
             RelativeSource.prototype.Find = function (target) {
                 switch (this.Mode) {
-                    case 1 /* Self */:
+                    case Data.RelativeSourceMode.Self:
                         return target;
-                    case 0 /* TemplatedParent */:
+                    case Data.RelativeSourceMode.TemplatedParent:
                         return target.TemplateOwner;
-                    case 2 /* FindAncestor */:
+                    case Data.RelativeSourceMode.FindAncestor:
                         return findAncestor(target, this);
-                    case 3 /* ItemsControlParent */:
+                    case Data.RelativeSourceMode.ItemsControlParent:
                         return findItemsControlAncestor(target, this);
                 }
             };
@@ -14404,9 +14112,7 @@ var Fayde;
             function Run() {
                 _super.apply(this, arguments);
             }
-            Run.prototype._SerializeText = function () {
-                return this.Text;
-            };
+            Run.prototype._SerializeText = function () { return this.Text; };
             Run.prototype.IsInheritable = function (propd) {
                 if (propd === Run.FlowDirectionProperty)
                     return true;
@@ -14553,7 +14259,8 @@ var Fayde;
             var _this = this;
             if (!this._IsLoaded)
                 return;
-            Fayde.ThemeManager.LoadAsync(args.NewValue).then(function () { return _this._ApplyTheme(); }, function (err) { return console.error("Could not load theme.", err); });
+            Fayde.ThemeManager.LoadAsync(args.NewValue)
+                .then(function () { return _this._ApplyTheme(); }, function (err) { return console.error("Could not load theme.", err); });
         };
         Application.prototype._ApplyTheme = function () {
             for (var walker = this.MainSurface.walkLayers(); walker.step();) {
@@ -14633,7 +14340,8 @@ var Fayde;
         };
         Application.GetAsync = function (url) {
             return nullstone.async.create(function (resolve, reject) {
-                Fayde.Markup.Resolve(url).then(function (appm) {
+                Fayde.Markup.Resolve(url)
+                    .then(function (appm) {
                     TimelineProfile.Parse(true, "App");
                     var app = Fayde.Markup.Load(null, appm);
                     TimelineProfile.Parse(false, "App");
@@ -14674,9 +14382,14 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     var requestAnimFrame = (function () {
-        return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-            window.setTimeout(callback, 1000 / 200);
-        };
+        return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function (callback) {
+                window.setTimeout(callback, 1000 / 200);
+            };
     })();
     var ClockTimer = (function () {
         function ClockTimer() {
@@ -14864,7 +14577,7 @@ var Fayde;
                 var walker = Fayde.DeepTreeWalker(ctrlNode);
                 var uin;
                 while (uin = walker.Step()) {
-                    if (uin.XObject.Visibility !== 0 /* Visible */) {
+                    if (uin.XObject.Visibility !== Fayde.Visibility.Visible) {
                         walker.SkipBranch();
                         continue;
                     }
@@ -14966,9 +14679,8 @@ var Fayde;
     (function (Engine) {
         var InputManager = (function () {
             function InputManager(surface) {
-                this._Cursor = 0 /* Default */;
-                this.SetCursor = function (cursor) {
-                };
+                this._Cursor = Fayde.CursorType.Default;
+                this.SetCursor = function (cursor) { };
                 this._CurrentPos = null;
                 this._EmittingMouseEvent = false;
                 this._InputList = [];
@@ -14986,15 +14698,11 @@ var Fayde;
                 });
             }
             Object.defineProperty(InputManager.prototype, "FocusedNode", {
-                get: function () {
-                    return this._Focus.Node;
-                },
+                get: function () { return this._Focus.Node; },
                 enumerable: true,
                 configurable: true
             });
-            InputManager.prototype.Focus = function (node, recurse) {
-                return this._Focus.Focus(node, recurse);
-            };
+            InputManager.prototype.Focus = function (node, recurse) { return this._Focus.Focus(node, recurse); };
             InputManager.prototype.Register = function (canvas) {
                 var _this = this;
                 this.SetCursor = function (cursor) { return canvas.style.cursor = Fayde.CursorTypeMappings[Fayde.CursorType[_this._Cursor = cursor]]; };
@@ -15019,7 +14727,7 @@ var Fayde;
                 var focusToRoot = this._Focus.GetFocusToRoot();
                 if (focusToRoot)
                     this._EmitKeyDown(focusToRoot, args);
-                if (!args.Handled && args.Key === 2 /* Tab */) {
+                if (!args.Handled && args.Key === Fayde.Input.Key.Tab) {
                     if (!this._Focus.TabFocus(args.Modifiers.Shift))
                         this._Focus.FocusAnyLayer(this._Surface.walkLayers(true));
                     args.Handled = true;
@@ -15041,14 +14749,14 @@ var Fayde;
             };
             InputManager.prototype.HandleMousePress = function (button, pos) {
                 this.SetIsUserInitiatedEvent(true);
-                var handled = this.HandleMouseEvent(2 /* MouseDown */, button, pos);
+                var handled = this.HandleMouseEvent(Fayde.Input.MouseInputType.MouseDown, button, pos);
                 this.UpdateCursorFromInputList();
                 this.SetIsUserInitiatedEvent(false);
                 return handled;
             };
             InputManager.prototype.HandleMouseRelease = function (button, pos) {
                 this.SetIsUserInitiatedEvent(true);
-                this.HandleMouseEvent(1 /* MouseUp */, button, pos);
+                this.HandleMouseEvent(Fayde.Input.MouseInputType.MouseUp, button, pos);
                 this.UpdateCursorFromInputList();
                 this.SetIsUserInitiatedEvent(false);
                 if (this._Captured)
@@ -15065,11 +14773,11 @@ var Fayde;
                 var indices = { Index1: -1, Index2: -1 };
                 findFirstCommonElement(this._InputList, newInputList, indices);
                 if (emitLeave === undefined || emitLeave === true)
-                    this._EmitMouseList(3 /* MouseLeave */, button, pos, delta, this._InputList, indices.Index1);
+                    this._EmitMouseList(Fayde.Input.MouseInputType.MouseLeave, button, pos, delta, this._InputList, indices.Index1);
                 if (emitEnter === undefined || emitEnter === true)
-                    this._EmitMouseList(4 /* MouseEnter */, button, pos, delta, newInputList, indices.Index2);
+                    this._EmitMouseList(Fayde.Input.MouseInputType.MouseEnter, button, pos, delta, newInputList, indices.Index2);
                 var handled = false;
-                if (type !== 0 /* NoOp */)
+                if (type !== Fayde.Input.MouseInputType.NoOp)
                     handled = this._EmitMouseList(type, button, pos, delta, this._Captured ? this._CapturedInputList : newInputList);
                 this._InputList = newInputList;
                 if (this._Surface.HitTestCallback)
@@ -15097,11 +14805,11 @@ var Fayde;
                     return true;
                 for (var i = 0; i < endIndex; i++) {
                     node = list[i];
-                    if (type === 3 /* MouseLeave */)
+                    if (type === Fayde.Input.MouseInputType.MouseLeave)
                         args.Source = node.XObject;
                     if (node._EmitMouseEvent(type, isL, isR, args))
                         handled = true;
-                    if (type === 3 /* MouseLeave */)
+                    if (type === Fayde.Input.MouseInputType.MouseLeave)
                         args = this._MouseInterop.CreateEventArgs(type, pos, delta);
                 }
                 return handled;
@@ -15110,12 +14818,12 @@ var Fayde;
                 return this._Surface.hitTest(pos).map(function (upd) { return upd.getAttachedValue("$node"); });
             };
             InputManager.prototype.UpdateCursorFromInputList = function () {
-                var newCursor = 0 /* Default */;
+                var newCursor = Fayde.CursorType.Default;
                 var list = this._Captured ? this._CapturedInputList : this._InputList;
                 var len = list.length;
                 for (var i = 0; i < len; i++) {
                     newCursor = list[i].XObject.Cursor;
-                    if (newCursor !== 0 /* Default */)
+                    if (newCursor !== Fayde.CursorType.Default)
                         break;
                 }
                 this.SetCursor(newCursor);
@@ -15152,7 +14860,7 @@ var Fayde;
                 this._PendingReleaseCapture = false;
                 oldCaptured._EmitLostMouseCapture(this._CurrentPos);
                 //force "MouseEnter" on any new elements
-                this.HandleMouseEvent(0 /* NoOp */, null, this._CurrentPos, undefined, false, true);
+                this.HandleMouseEvent(Fayde.Input.MouseInputType.NoOp, null, this._CurrentPos, undefined, false, true);
             };
             return InputManager;
         })();
@@ -15182,7 +14890,7 @@ var Fayde;
             Inspection.TryHandle = function (type, isLeftButton, isRightButton, args, htlist) {
                 if (!Fayde.IsInspectionOn)
                     return false;
-                if (type !== 2 /* MouseDown */)
+                if (type !== Fayde.Input.MouseInputType.MouseDown)
                     return false;
                 if (!isRightButton)
                     return false;
@@ -15407,7 +15115,8 @@ var Fayde;
             if (!reqUri)
                 return nullstone.async.resolve(this);
             return nullstone.async.create(function (resolve, reject) {
-                Fayde.Markup.Resolve(reqUri).then(function (md) {
+                Fayde.Markup.Resolve(reqUri)
+                    .then(function (md) {
                     var rd = Fayde.Markup.Load(null, md);
                     if (!(rd instanceof Fayde.ResourceDictionary))
                         reject(new Error("Theme root must be a ResourceDictionary."));
@@ -15547,7 +15256,8 @@ var Fayde;
             var _this = this;
             var theme = this.Get(name);
             return nullstone.async.create(function (resolve, reject) {
-                theme.LoadAsync().then(function () {
+                theme.LoadAsync()
+                    .then(function () {
                     _this.$$active = theme;
                     resolve(theme);
                 }, reject);
@@ -15626,14 +15336,14 @@ var Fayde;
                 });
                 var binding = this.ParentBinding;
                 var path = binding.Path.Path;
-                if ((!path || path === ".") && binding.Mode === 1 /* TwoWay */)
+                if ((!path || path === ".") && binding.Mode === Data.BindingMode.TwoWay)
                     throw new ArgumentException("TwoWay bindings require a non-empty Path.");
-                if (binding.Mode === 1 /* TwoWay */ && (owner instanceof Fayde.Controls.TextBox || owner instanceof Fayde.Controls.PasswordBox))
+                if (binding.Mode === Data.BindingMode.TwoWay && (owner instanceof Fayde.Controls.TextBox || owner instanceof Fayde.Controls.PasswordBox))
                     this._TwoWayLostFocusElement = owner;
                 this._IsDataContextBound = !binding.ElementName && !binding.Source && !binding.RelativeSource;
                 var bindsToView = propd === Fayde.DependencyObject.DataContextProperty || propd.GetTargetType() === nullstone.IEnumerable_ || propd.GetTargetType() === Data.ICollectionView_;
                 var walker = this.PropertyPathWalker = new Data.PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this._IsDataContextBound);
-                if (binding.Mode !== 2 /* OneTime */)
+                if (binding.Mode !== Data.BindingMode.OneTime)
                     walker.Listen(this);
             };
             BindingExpressionBase.prototype.OnAttached = function (element) {
@@ -15650,7 +15360,7 @@ var Fayde;
                 this.PropertyPathWalker.Update(source);
                 if (this._TwoWayLostFocusElement)
                     this._TwoWayLostFocusElement.LostFocus.on(this._TargetLostFocus, this);
-                if (this.ParentBinding.Mode === 1 /* TwoWay */ && this.Property.IsCustom) {
+                if (this.ParentBinding.Mode === Data.BindingMode.TwoWay && this.Property.IsCustom) {
                     this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
                 }
             };
@@ -15748,7 +15458,7 @@ var Fayde;
                 }
             };
             BindingExpressionBase.prototype._TargetLostFocus = function (sender, e) {
-                if (this.ParentBinding.UpdateSourceTrigger === 3 /* Explicit */)
+                if (this.ParentBinding.UpdateSourceTrigger === Data.UpdateSourceTrigger.Explicit)
                     return;
                 this._UpdateSourceObject();
             };
@@ -15756,14 +15466,14 @@ var Fayde;
                 if (this.IsUpdating)
                     return false;
                 if (!this._TwoWayLostFocusElement)
-                    return this.ParentBinding.UpdateSourceTrigger !== 3 /* Explicit */;
-                return this.ParentBinding.UpdateSourceTrigger === 1 /* PropertyChanged */;
+                    return this.ParentBinding.UpdateSourceTrigger !== Data.UpdateSourceTrigger.Explicit;
+                return this.ParentBinding.UpdateSourceTrigger === Data.UpdateSourceTrigger.PropertyChanged;
             };
             BindingExpressionBase.prototype._UpdateSourceObject = function (value) {
                 if (value === undefined)
                     value = this.Target.GetValue(this.Property);
                 var binding = this.ParentBinding;
-                if (binding.Mode !== 1 /* TwoWay */)
+                if (binding.Mode !== Data.BindingMode.TwoWay)
                     return;
                 var dataError = null;
                 var exception;
@@ -15810,7 +15520,7 @@ var Fayde;
                     Fayde.Data.DataContextCounter++;
                 try {
                     this.PropertyPathWalker.Update(newDataContext);
-                    if (this.ParentBinding.Mode === 2 /* OneTime */)
+                    if (this.ParentBinding.Mode === Data.BindingMode.OneTime)
                         this.Refresh();
                 }
                 catch (err) {
@@ -16003,9 +15713,7 @@ var Fayde;
         DeferredValueExpression.prototype.GetValue = function (propd) {
             return undefined;
         };
-        DeferredValueExpression.prototype.toString = function () {
-            return "DeferredValueExpression";
-        };
+        DeferredValueExpression.prototype.toString = function () { return "DeferredValueExpression"; };
         return DeferredValueExpression;
     })(Fayde.Expression);
     Fayde.DeferredValueExpression = DeferredValueExpression;
@@ -16228,13 +15936,13 @@ var Fayde;
         var InteractionHelper;
         (function (InteractionHelper) {
             function GetLogicalKey(flowDirection, key) {
-                if (flowDirection !== 1 /* RightToLeft */)
+                if (flowDirection !== Fayde.FlowDirection.RightToLeft)
                     return key;
                 switch (key) {
-                    case 14 /* Left */:
-                        return 16 /* Right */;
-                    case 16 /* Right */:
-                        return 14 /* Left */;
+                    case Input.Key.Left:
+                        return Input.Key.Right;
+                    case Input.Key.Right:
+                        return Input.Key.Left;
                     default:
                         return key;
                 }
@@ -16262,92 +15970,92 @@ var Fayde;
         }
         Input.CreateKeyInterop = CreateKeyInterop;
         var keyFromKeyCode = [];
-        keyFromKeyCode[8] = 1 /* Back */;
-        keyFromKeyCode[9] = 2 /* Tab */;
-        keyFromKeyCode[13] = 3 /* Enter */;
-        keyFromKeyCode[16] = 4 /* Shift */;
-        keyFromKeyCode[17] = 5 /* Ctrl */;
-        keyFromKeyCode[18] = 6 /* Alt */;
+        keyFromKeyCode[8] = Input.Key.Back;
+        keyFromKeyCode[9] = Input.Key.Tab;
+        keyFromKeyCode[13] = Input.Key.Enter;
+        keyFromKeyCode[16] = Input.Key.Shift;
+        keyFromKeyCode[17] = Input.Key.Ctrl;
+        keyFromKeyCode[18] = Input.Key.Alt;
         //keyFromKeyCode[19] = Key.Pause/Break;
-        keyFromKeyCode[20] = 7 /* CapsLock */;
-        keyFromKeyCode[27] = 8 /* Escape */;
-        keyFromKeyCode[32] = 9 /* Space */;
-        keyFromKeyCode[33] = 10 /* PageUp */;
-        keyFromKeyCode[34] = 11 /* PageDown */;
-        keyFromKeyCode[35] = 12 /* End */;
-        keyFromKeyCode[36] = 13 /* Home */;
-        keyFromKeyCode[37] = 14 /* Left */;
-        keyFromKeyCode[38] = 15 /* Up */;
-        keyFromKeyCode[39] = 16 /* Right */;
-        keyFromKeyCode[40] = 17 /* Down */;
-        keyFromKeyCode[45] = 18 /* Insert */;
-        keyFromKeyCode[46] = 19 /* Delete */;
-        keyFromKeyCode[48] = 20 /* D0 */;
-        keyFromKeyCode[49] = 21 /* D1 */;
-        keyFromKeyCode[50] = 22 /* D2 */;
-        keyFromKeyCode[51] = 23 /* D3 */;
-        keyFromKeyCode[52] = 24 /* D4 */;
-        keyFromKeyCode[53] = 25 /* D5 */;
-        keyFromKeyCode[54] = 26 /* D6 */;
-        keyFromKeyCode[55] = 27 /* D7 */;
-        keyFromKeyCode[56] = 28 /* D8 */;
-        keyFromKeyCode[57] = 29 /* D9 */;
+        keyFromKeyCode[20] = Input.Key.CapsLock;
+        keyFromKeyCode[27] = Input.Key.Escape;
+        keyFromKeyCode[32] = Input.Key.Space;
+        keyFromKeyCode[33] = Input.Key.PageUp;
+        keyFromKeyCode[34] = Input.Key.PageDown;
+        keyFromKeyCode[35] = Input.Key.End;
+        keyFromKeyCode[36] = Input.Key.Home;
+        keyFromKeyCode[37] = Input.Key.Left;
+        keyFromKeyCode[38] = Input.Key.Up;
+        keyFromKeyCode[39] = Input.Key.Right;
+        keyFromKeyCode[40] = Input.Key.Down;
+        keyFromKeyCode[45] = Input.Key.Insert;
+        keyFromKeyCode[46] = Input.Key.Delete;
+        keyFromKeyCode[48] = Input.Key.D0;
+        keyFromKeyCode[49] = Input.Key.D1;
+        keyFromKeyCode[50] = Input.Key.D2;
+        keyFromKeyCode[51] = Input.Key.D3;
+        keyFromKeyCode[52] = Input.Key.D4;
+        keyFromKeyCode[53] = Input.Key.D5;
+        keyFromKeyCode[54] = Input.Key.D6;
+        keyFromKeyCode[55] = Input.Key.D7;
+        keyFromKeyCode[56] = Input.Key.D8;
+        keyFromKeyCode[57] = Input.Key.D9;
         //keyFromKeyCode[59] = Key.Semicolon/Colon;
         //keyFromKeyCode[61] = Key.Equals/Plus;
-        keyFromKeyCode[65] = 30 /* A */;
-        keyFromKeyCode[66] = 31 /* B */;
-        keyFromKeyCode[67] = 32 /* C */;
-        keyFromKeyCode[68] = 33 /* D */;
-        keyFromKeyCode[69] = 34 /* E */;
-        keyFromKeyCode[70] = 35 /* F */;
-        keyFromKeyCode[71] = 36 /* G */;
-        keyFromKeyCode[72] = 37 /* H */;
-        keyFromKeyCode[73] = 38 /* I */;
-        keyFromKeyCode[74] = 39 /* J */;
-        keyFromKeyCode[75] = 40 /* K */;
-        keyFromKeyCode[76] = 41 /* L */;
-        keyFromKeyCode[77] = 42 /* M */;
-        keyFromKeyCode[78] = 43 /* N */;
-        keyFromKeyCode[79] = 44 /* O */;
-        keyFromKeyCode[80] = 45 /* P */;
-        keyFromKeyCode[81] = 46 /* Q */;
-        keyFromKeyCode[82] = 47 /* R */;
-        keyFromKeyCode[83] = 48 /* S */;
-        keyFromKeyCode[84] = 49 /* T */;
-        keyFromKeyCode[85] = 50 /* U */;
-        keyFromKeyCode[86] = 51 /* V */;
-        keyFromKeyCode[87] = 52 /* W */;
-        keyFromKeyCode[88] = 53 /* X */;
-        keyFromKeyCode[89] = 54 /* Y */;
-        keyFromKeyCode[90] = 55 /* Z */;
+        keyFromKeyCode[65] = Input.Key.A;
+        keyFromKeyCode[66] = Input.Key.B;
+        keyFromKeyCode[67] = Input.Key.C;
+        keyFromKeyCode[68] = Input.Key.D;
+        keyFromKeyCode[69] = Input.Key.E;
+        keyFromKeyCode[70] = Input.Key.F;
+        keyFromKeyCode[71] = Input.Key.G;
+        keyFromKeyCode[72] = Input.Key.H;
+        keyFromKeyCode[73] = Input.Key.I;
+        keyFromKeyCode[74] = Input.Key.J;
+        keyFromKeyCode[75] = Input.Key.K;
+        keyFromKeyCode[76] = Input.Key.L;
+        keyFromKeyCode[77] = Input.Key.M;
+        keyFromKeyCode[78] = Input.Key.N;
+        keyFromKeyCode[79] = Input.Key.O;
+        keyFromKeyCode[80] = Input.Key.P;
+        keyFromKeyCode[81] = Input.Key.Q;
+        keyFromKeyCode[82] = Input.Key.R;
+        keyFromKeyCode[83] = Input.Key.S;
+        keyFromKeyCode[84] = Input.Key.T;
+        keyFromKeyCode[85] = Input.Key.U;
+        keyFromKeyCode[86] = Input.Key.V;
+        keyFromKeyCode[87] = Input.Key.W;
+        keyFromKeyCode[88] = Input.Key.X;
+        keyFromKeyCode[89] = Input.Key.Y;
+        keyFromKeyCode[90] = Input.Key.Z;
         //keyFromKeyCode[91] = Key.Window;
-        keyFromKeyCode[96] = 68 /* NumPad0 */;
-        keyFromKeyCode[97] = 69 /* NumPad1 */;
-        keyFromKeyCode[98] = 70 /* NumPad2 */;
-        keyFromKeyCode[99] = 71 /* NumPad3 */;
-        keyFromKeyCode[100] = 72 /* NumPad4 */;
-        keyFromKeyCode[101] = 73 /* NumPad5 */;
-        keyFromKeyCode[102] = 74 /* NumPad6 */;
-        keyFromKeyCode[103] = 75 /* NumPad7 */;
-        keyFromKeyCode[104] = 76 /* NumPad8 */;
-        keyFromKeyCode[105] = 77 /* NumPad9 */;
-        keyFromKeyCode[106] = 78 /* Multiply */;
-        keyFromKeyCode[107] = 79 /* Add */;
-        keyFromKeyCode[109] = 80 /* Subtract */;
-        keyFromKeyCode[110] = 81 /* Decimal */;
-        keyFromKeyCode[111] = 82 /* Divide */;
-        keyFromKeyCode[112] = 56 /* F1 */;
-        keyFromKeyCode[113] = 57 /* F2 */;
-        keyFromKeyCode[114] = 58 /* F3 */;
-        keyFromKeyCode[115] = 59 /* F4 */;
-        keyFromKeyCode[116] = 60 /* F5 */;
-        keyFromKeyCode[117] = 61 /* F6 */;
-        keyFromKeyCode[118] = 62 /* F7 */;
-        keyFromKeyCode[119] = 63 /* F8 */;
-        keyFromKeyCode[120] = 64 /* F9 */;
-        keyFromKeyCode[121] = 65 /* F10 */;
-        keyFromKeyCode[122] = 66 /* F11 */;
-        keyFromKeyCode[123] = 67 /* F12 */;
+        keyFromKeyCode[96] = Input.Key.NumPad0;
+        keyFromKeyCode[97] = Input.Key.NumPad1;
+        keyFromKeyCode[98] = Input.Key.NumPad2;
+        keyFromKeyCode[99] = Input.Key.NumPad3;
+        keyFromKeyCode[100] = Input.Key.NumPad4;
+        keyFromKeyCode[101] = Input.Key.NumPad5;
+        keyFromKeyCode[102] = Input.Key.NumPad6;
+        keyFromKeyCode[103] = Input.Key.NumPad7;
+        keyFromKeyCode[104] = Input.Key.NumPad8;
+        keyFromKeyCode[105] = Input.Key.NumPad9;
+        keyFromKeyCode[106] = Input.Key.Multiply;
+        keyFromKeyCode[107] = Input.Key.Add;
+        keyFromKeyCode[109] = Input.Key.Subtract;
+        keyFromKeyCode[110] = Input.Key.Decimal;
+        keyFromKeyCode[111] = Input.Key.Divide;
+        keyFromKeyCode[112] = Input.Key.F1;
+        keyFromKeyCode[113] = Input.Key.F2;
+        keyFromKeyCode[114] = Input.Key.F3;
+        keyFromKeyCode[115] = Input.Key.F4;
+        keyFromKeyCode[116] = Input.Key.F5;
+        keyFromKeyCode[117] = Input.Key.F6;
+        keyFromKeyCode[118] = Input.Key.F7;
+        keyFromKeyCode[119] = Input.Key.F8;
+        keyFromKeyCode[120] = Input.Key.F9;
+        keyFromKeyCode[121] = Input.Key.F10;
+        keyFromKeyCode[122] = Input.Key.F11;
+        keyFromKeyCode[123] = Input.Key.F12;
         var KeyInterop = (function () {
             function KeyInterop() {
             }
@@ -16374,12 +16082,8 @@ var Fayde;
                     }
                 };
             };
-            KeyInterop.prototype.CreateArgsPress = function (e) {
-                return undefined;
-            };
-            KeyInterop.prototype.CreateArgsDown = function (e) {
-                return undefined;
-            };
+            KeyInterop.prototype.CreateArgsPress = function (e) { return undefined; };
+            KeyInterop.prototype.CreateArgsDown = function (e) { return undefined; };
             return KeyInterop;
         })();
         var udkie = [];
@@ -16392,7 +16096,7 @@ var Fayde;
         udkie[94] = 54;
         udkie[38] = 55;
         udkie[42] = 56;
-        udkie[34] = 255 /* Unknown */;
+        udkie[34] = Input.Key.Unknown;
         var IEKeyInterop = (function (_super) {
             __extends(IEKeyInterop, _super);
             function IEKeyInterop() {
@@ -16411,12 +16115,12 @@ var Fayde;
                 if (unshifted)
                     keyCode = unshifted;
                 var args = new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e["char"]);
-                if (args.Key === 255 /* Unknown */ && e.key) {
+                if (args.Key === Input.Key.Unknown && e.key) {
                     args.Char = e.key;
                     var code = args.Char.toUpperCase().charCodeAt(0);
                     args.Key = keyFromKeyCode[code];
                     if (args.Key == null)
-                        args.Key = 255 /* Unknown */;
+                        args.Key = Input.Key.Unknown;
                 }
                 return args;
             };
@@ -16433,20 +16137,20 @@ var Fayde;
             return IEKeyInterop;
         })(KeyInterop);
         var sknet = [];
-        sknet[8] = 1 /* Back */;
-        sknet[9] = 2 /* Tab */;
-        sknet[20] = 7 /* CapsLock */;
-        sknet[27] = 8 /* Escape */;
-        sknet[33] = 10 /* PageUp */;
-        sknet[34] = 11 /* PageDown */;
-        sknet[35] = 12 /* End */;
-        sknet[36] = 13 /* Home */;
-        sknet[37] = 14 /* Left */;
-        sknet[38] = 15 /* Up */;
-        sknet[39] = 16 /* Right */;
-        sknet[40] = 17 /* Down */;
-        sknet[45] = 18 /* Insert */;
-        sknet[46] = 19 /* Delete */;
+        sknet[8] = Input.Key.Back;
+        sknet[9] = Input.Key.Tab;
+        sknet[20] = Input.Key.CapsLock;
+        sknet[27] = Input.Key.Escape;
+        sknet[33] = Input.Key.PageUp;
+        sknet[34] = Input.Key.PageDown;
+        sknet[35] = Input.Key.End;
+        sknet[36] = Input.Key.Home;
+        sknet[37] = Input.Key.Left;
+        sknet[38] = Input.Key.Up;
+        sknet[39] = Input.Key.Right;
+        sknet[40] = Input.Key.Down;
+        sknet[45] = Input.Key.Insert;
+        sknet[46] = Input.Key.Delete;
         var udknet = [];
         udknet[41] = 48;
         udknet[33] = 49;
@@ -16457,7 +16161,7 @@ var Fayde;
         udknet[94] = 54;
         udknet[38] = 55;
         udknet[42] = 56;
-        udknet[34] = 255 /* Unknown */;
+        udknet[34] = Input.Key.Unknown;
         var NetscapeKeyInterop = (function (_super) {
             __extends(NetscapeKeyInterop, _super);
             function NetscapeKeyInterop() {
@@ -16475,7 +16179,7 @@ var Fayde;
                     keyCode = unshifted;
                 var args = new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], String.fromCharCode(e.which || e.keyCode));
                 if (args.Char === "'")
-                    args.Key = 255 /* Unknown */;
+                    args.Key = Input.Key.Unknown;
                 return args;
             };
             NetscapeKeyInterop.prototype.CreateArgsDown = function (e) {
@@ -16501,42 +16205,18 @@ var Fayde;
         var KeyboardNavigation = (function () {
             function KeyboardNavigation() {
             }
-            KeyboardNavigation.GetAcceptsReturn = function (d) {
-                return d.GetValue(KeyboardNavigation.AcceptsReturnProperty);
-            };
-            KeyboardNavigation.SetAcceptsReturn = function (d, value) {
-                d.SetValue(KeyboardNavigation.AcceptsReturnProperty, value);
-            };
-            KeyboardNavigation.GetControlTabNavigation = function (d) {
-                return d.GetValue(KeyboardNavigation.ControlTabNavigationProperty);
-            };
-            KeyboardNavigation.SetControlTabNavigation = function (d, value) {
-                d.SetValue(KeyboardNavigation.ControlTabNavigationProperty, value);
-            };
-            KeyboardNavigation.GetDirectionalNavigation = function (d) {
-                return d.GetValue(KeyboardNavigation.DirectionalNavigationProperty);
-            };
-            KeyboardNavigation.SetDirectionalNavigation = function (d, value) {
-                d.SetValue(KeyboardNavigation.DirectionalNavigationProperty, value);
-            };
-            KeyboardNavigation.GetIsTabStop = function (d) {
-                return d.GetValue(KeyboardNavigation.IsTabStopProperty);
-            };
-            KeyboardNavigation.SetIsTabStop = function (d, value) {
-                d.SetValue(KeyboardNavigation.IsTabStopProperty, value);
-            };
-            KeyboardNavigation.GetTabIndex = function (d) {
-                return d.GetValue(KeyboardNavigation.TabIndexProperty);
-            };
-            KeyboardNavigation.SetTabIndex = function (d, value) {
-                d.SetValue(KeyboardNavigation.TabIndexProperty, value);
-            };
-            KeyboardNavigation.GetTabNavigation = function (d) {
-                return d.GetValue(KeyboardNavigation.TabNavigationProperty);
-            };
-            KeyboardNavigation.SetTabNavigation = function (d, value) {
-                d.SetValue(KeyboardNavigation.TabNavigationProperty, value);
-            };
+            KeyboardNavigation.GetAcceptsReturn = function (d) { return d.GetValue(KeyboardNavigation.AcceptsReturnProperty); };
+            KeyboardNavigation.SetAcceptsReturn = function (d, value) { d.SetValue(KeyboardNavigation.AcceptsReturnProperty, value); };
+            KeyboardNavigation.GetControlTabNavigation = function (d) { return d.GetValue(KeyboardNavigation.ControlTabNavigationProperty); };
+            KeyboardNavigation.SetControlTabNavigation = function (d, value) { d.SetValue(KeyboardNavigation.ControlTabNavigationProperty, value); };
+            KeyboardNavigation.GetDirectionalNavigation = function (d) { return d.GetValue(KeyboardNavigation.DirectionalNavigationProperty); };
+            KeyboardNavigation.SetDirectionalNavigation = function (d, value) { d.SetValue(KeyboardNavigation.DirectionalNavigationProperty, value); };
+            KeyboardNavigation.GetIsTabStop = function (d) { return d.GetValue(KeyboardNavigation.IsTabStopProperty); };
+            KeyboardNavigation.SetIsTabStop = function (d, value) { d.SetValue(KeyboardNavigation.IsTabStopProperty, value); };
+            KeyboardNavigation.GetTabIndex = function (d) { return d.GetValue(KeyboardNavigation.TabIndexProperty); };
+            KeyboardNavigation.SetTabIndex = function (d, value) { d.SetValue(KeyboardNavigation.TabIndexProperty, value); };
+            KeyboardNavigation.GetTabNavigation = function (d) { return d.GetValue(KeyboardNavigation.TabNavigationProperty); };
+            KeyboardNavigation.SetTabNavigation = function (d, value) { d.SetValue(KeyboardNavigation.TabNavigationProperty, value); };
             KeyboardNavigation.AcceptsReturnProperty = DependencyProperty.RegisterAttached("AcceptsReturn", function () { return Boolean; }, KeyboardNavigation);
             KeyboardNavigation.ControlTabNavigationProperty = DependencyProperty.RegisterAttached("ControlTabNavigation", function () { return new Fayde.Enum(Input.KeyboardNavigationMode); }, KeyboardNavigation);
             KeyboardNavigation.DirectionalNavigationProperty = DependencyProperty.RegisterAttached("DirectionalNavigation", function () { return new Fayde.Enum(Input.KeyboardNavigationMode); }, KeyboardNavigation);
@@ -16686,12 +16366,12 @@ var Fayde;
             MouseInterop.prototype._HandleOut = function (evt) {
                 Input.Keyboard.RefreshModifiers(createModifiers(evt));
                 var pos = this._GetMousePosition(evt);
-                this._Input.HandleMouseEvent(3 /* MouseLeave */, null, pos);
+                this._Input.HandleMouseEvent(MouseInputType.MouseLeave, null, pos);
             };
             MouseInterop.prototype._HandleMove = function (evt) {
                 Input.Keyboard.RefreshModifiers(createModifiers(evt));
                 var pos = this._GetMousePosition(evt);
-                this._Input.HandleMouseEvent(5 /* MouseMove */, null, pos);
+                this._Input.HandleMouseEvent(MouseInputType.MouseMove, null, pos);
                 this._Input.UpdateCursorFromInputList();
             };
             MouseInterop.prototype._HandleWheel = function (evt) {
@@ -16704,22 +16384,22 @@ var Fayde;
                 if (evt.preventDefault)
                     evt.preventDefault();
                 evt.returnValue = false;
-                this._Input.HandleMouseEvent(6 /* MouseWheel */, null, this._GetMousePosition(evt), delta);
+                this._Input.HandleMouseEvent(MouseInputType.MouseWheel, null, this._GetMousePosition(evt), delta);
                 this._Input.UpdateCursorFromInputList();
             };
             MouseInterop.prototype.CreateEventArgs = function (type, pos, delta) {
                 switch (type) {
-                    case 1 /* MouseUp */:
+                    case MouseInputType.MouseUp:
                         return new Fayde.Input.MouseButtonEventArgs(pos);
-                    case 2 /* MouseDown */:
+                    case MouseInputType.MouseDown:
                         return new Fayde.Input.MouseButtonEventArgs(pos);
-                    case 3 /* MouseLeave */:
+                    case MouseInputType.MouseLeave:
                         return new Fayde.Input.MouseEventArgs(pos);
-                    case 4 /* MouseEnter */:
+                    case MouseInputType.MouseEnter:
                         return new Fayde.Input.MouseEventArgs(pos);
-                    case 5 /* MouseMove */:
+                    case MouseInputType.MouseMove:
                         return new Fayde.Input.MouseEventArgs(pos);
-                    case 6 /* MouseWheel */:
+                    case MouseInputType.MouseWheel:
                         return new Fayde.Input.MouseWheelEventArgs(pos, delta);
                 }
             };
@@ -16807,7 +16487,7 @@ var Fayde;
                     this._Captured = null;
                     this._CapturedInputList = null;
                     Object.defineProperty(this, "Device", { value: this.CreateTouchDevice(), writable: false });
-                    this._FinishReleaseCaptureFunc = function () { return touchHandler.HandleTouches(0 /* NoOp */, [_this], false, true); };
+                    this._FinishReleaseCaptureFunc = function () { return touchHandler.HandleTouches(Input.TouchInputType.NoOp, [_this], false, true); };
                 }
                 ActiveTouchBase.prototype.Capture = function (uie) {
                     var uin = uie.XamlNode;
@@ -16852,11 +16532,11 @@ var Fayde;
                     var indices = { Index1: -1, Index2: -1 };
                     findFirstCommonElement(this.InputList, newInputList, indices);
                     if (emitLeave !== false)
-                        this._EmitList(5 /* TouchLeave */, this.InputList, indices.Index1);
+                        this._EmitList(Input.TouchInputType.TouchLeave, this.InputList, indices.Index1);
                     if (emitEnter !== false)
-                        this._EmitList(4 /* TouchEnter */, newInputList, indices.Index2);
+                        this._EmitList(Input.TouchInputType.TouchEnter, newInputList, indices.Index2);
                     var handled = false;
-                    if (type !== 0 /* NoOp */)
+                    if (type !== Input.TouchInputType.NoOp)
                         handled = this._EmitList(type, this._Captured ? this._CapturedInputList : newInputList);
                     this.InputList = newInputList;
                     if (this._PendingCapture)
@@ -16878,11 +16558,11 @@ var Fayde;
                         args.Source = node.XObject;
                     for (var i = 0; i < endIndex; i++) {
                         node = list[i];
-                        if (type === 5 /* TouchLeave */)
+                        if (type === Input.TouchInputType.TouchLeave)
                             args.Source = node.XObject;
                         if (node._EmitTouchEvent(type, args))
                             handled = true;
-                        if (type === 5 /* TouchLeave */)
+                        if (type === Input.TouchInputType.TouchLeave)
                             args = new Input.TouchEventArgs(this.Device);
                     }
                     return handled;
@@ -17028,27 +16708,27 @@ var Fayde;
                     var newTouches = this.TouchArrayFromList(e.changedTouches);
                     this.ActiveTouches = this.ActiveTouches.concat(newTouches);
                     this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(1 /* TouchDown */, newTouches);
+                    this.HandleTouches(Input.TouchInputType.TouchDown, newTouches);
                     this.Input.SetIsUserInitiatedEvent(false);
                 };
                 NonPointerTouchInterop.prototype._HandleTouchEnd = function (e) {
                     var oldTouches = this.TouchArrayFromList(e.changedTouches);
                     this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(2 /* TouchUp */, oldTouches);
+                    this.HandleTouches(Input.TouchInputType.TouchUp, oldTouches);
                     this.Input.SetIsUserInitiatedEvent(false);
                     removeFromArray(this.ActiveTouches, oldTouches);
                 };
                 NonPointerTouchInterop.prototype._HandleTouchMove = function (e) {
                     var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(3 /* TouchMove */, touches);
+                    this.HandleTouches(Input.TouchInputType.TouchMove, touches);
                 };
                 NonPointerTouchInterop.prototype._HandleTouchEnter = function (e) {
                     var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(4 /* TouchEnter */, touches);
+                    this.HandleTouches(Input.TouchInputType.TouchEnter, touches);
                 };
                 NonPointerTouchInterop.prototype._HandleTouchLeave = function (e) {
                     var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(5 /* TouchLeave */, touches);
+                    this.HandleTouches(Input.TouchInputType.TouchLeave, touches);
                 };
                 NonPointerTouchInterop.prototype.TouchArrayFromList = function (list) {
                     var len = list.length;
@@ -17120,9 +16800,7 @@ var Fayde;
                     _super.prototype.Register.call(this, input, canvas);
                     canvas.style.msTouchAction = "none";
                     canvas.style.touchAction = "none";
-                    canvas.addEventListener("selectstart", function (e) {
-                        e.preventDefault();
-                    });
+                    canvas.addEventListener("selectstart", function (e) { e.preventDefault(); });
                     if (navigator.msPointerEnabled) {
                         canvas.addEventListener("MSPointerDown", function (e) { return _this._HandlePointerDown(window.event ? window.event : e); });
                         canvas.addEventListener("MSPointerUp", function (e) { return _this._HandlePointerUp(window.event ? window.event : e); });
@@ -17145,7 +16823,7 @@ var Fayde;
                     Fayde.Engine.Inspection.Kill();
                     var cur = this.GetActiveTouch(e);
                     this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(1 /* TouchDown */, [cur]);
+                    this.HandleTouches(Input.TouchInputType.TouchDown, [cur]);
                     this.Input.SetIsUserInitiatedEvent(false);
                 };
                 PointerTouchInterop.prototype._HandlePointerUp = function (e) {
@@ -17153,7 +16831,7 @@ var Fayde;
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(2 /* TouchUp */, [cur]);
+                    this.HandleTouches(Input.TouchInputType.TouchUp, [cur]);
                     this.Input.SetIsUserInitiatedEvent(false);
                     var index = this.ActiveTouches.indexOf(cur);
                     if (index > -1)
@@ -17163,19 +16841,19 @@ var Fayde;
                     if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(3 /* TouchMove */, [cur]);
+                    this.HandleTouches(Input.TouchInputType.TouchMove, [cur]);
                 };
                 PointerTouchInterop.prototype._HandlePointerEnter = function (e) {
                     if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(4 /* TouchEnter */, [cur]);
+                    this.HandleTouches(Input.TouchInputType.TouchEnter, [cur]);
                 };
                 PointerTouchInterop.prototype._HandlePointerLeave = function (e) {
                     if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
                         return;
                     var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(5 /* TouchLeave */, [cur]);
+                    this.HandleTouches(Input.TouchInputType.TouchLeave, [cur]);
                 };
                 PointerTouchInterop.prototype.GetActiveTouch = function (e) {
                     var existing = this.FindTouchInList(e.pointerId);
@@ -17224,8 +16902,7 @@ var Fayde;
         var DummyTouchInterop = (function () {
             function DummyTouchInterop() {
             }
-            DummyTouchInterop.prototype.Register = function (input, canvas) {
-            };
+            DummyTouchInterop.prototype.Register = function (input, canvas) { };
             return DummyTouchInterop;
         })();
     })(Input = Fayde.Input || (Fayde.Input = {}));
@@ -17306,26 +16983,21 @@ var TimeSpan = (function () {
             seconds = args[3] || 0;
             milliseconds = args[4] || 0;
         }
-        this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute) + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
+        this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute)
+            + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
     }
     Object.defineProperty(TimeSpan, "Zero", {
-        get: function () {
-            return new TimeSpan();
-        },
+        get: function () { return new TimeSpan(); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(TimeSpan, "MinValue", {
-        get: function () {
-            return new TimeSpan(Number.MIN_VALUE);
-        },
+        get: function () { return new TimeSpan(Number.MIN_VALUE); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(TimeSpan, "MaxValue", {
-        get: function () {
-            return new TimeSpan(Number.MAX_VALUE);
-        },
+        get: function () { return new TimeSpan(Number.MAX_VALUE); },
         enumerable: true,
         configurable: true
     });
@@ -17390,44 +17062,32 @@ var TimeSpan = (function () {
         configurable: true
     });
     Object.defineProperty(TimeSpan.prototype, "Ticks", {
-        get: function () {
-            return this._Ticks;
-        },
+        get: function () { return this._Ticks; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(TimeSpan.prototype, "TotalDays", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerDay;
-        },
+        get: function () { return this._Ticks / TimeSpan._TicksPerDay; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(TimeSpan.prototype, "TotalHours", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerHour;
-        },
+        get: function () { return this._Ticks / TimeSpan._TicksPerHour; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(TimeSpan.prototype, "TotalMinutes", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerMinute;
-        },
+        get: function () { return this._Ticks / TimeSpan._TicksPerMinute; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(TimeSpan.prototype, "TotalSeconds", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerSecond;
-        },
+        get: function () { return this._Ticks / TimeSpan._TicksPerSecond; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(TimeSpan.prototype, "TotalMilliseconds", {
-        get: function () {
-            return this._Ticks / TimeSpan._TicksPerMillisecond;
-        },
+        get: function () { return this._Ticks / TimeSpan._TicksPerMillisecond; },
         enumerable: true,
         configurable: true
     });
@@ -17551,7 +17211,7 @@ var DateTime = (function () {
         }
         this._InternalDate = null;
         var ticks = null;
-        var kind = 0 /* Unspecified */;
+        var kind = DateTimeKind.Unspecified;
         var year = 0;
         var month = 0;
         var day = 0;
@@ -17561,7 +17221,7 @@ var DateTime = (function () {
         var millisecond = 0;
         if (args.length === 1) {
             ticks = args[0];
-            kind = 2 /* Utc */;
+            kind = DateTimeKind.Utc;
         }
         else if (args.length === 3) {
             year = args[0];
@@ -17598,13 +17258,13 @@ var DateTime = (function () {
         else {
             ticks = 0;
         }
-        this._Kind = kind == null ? 0 /* Unspecified */ : kind;
+        this._Kind = kind == null ? DateTimeKind.Unspecified : kind;
         if (ticks != null) {
             this._InternalDate = new Date(ticks);
             return;
         }
         var id = this._InternalDate = new Date();
-        if (kind === 2 /* Utc */) {
+        if (kind === DateTimeKind.Utc) {
             id.setUTCFullYear(year, month - 1, day);
             id.setUTCHours(hour);
             id.setUTCMinutes(minute);
@@ -17620,30 +17280,22 @@ var DateTime = (function () {
         }
     }
     Object.defineProperty(DateTime, "MinValue", {
-        get: function () {
-            return new DateTime(-8640000000000000);
-        },
+        get: function () { return new DateTime(-8640000000000000); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DateTime, "MaxValue", {
-        get: function () {
-            return new DateTime(8640000000000000);
-        },
+        get: function () { return new DateTime(8640000000000000); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DateTime, "Now", {
-        get: function () {
-            return new DateTime(new Date().getTime());
-        },
+        get: function () { return new DateTime(new Date().getTime()); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DateTime, "Today", {
-        get: function () {
-            return DateTime.Now.Date;
-        },
+        get: function () { return DateTime.Now.Date; },
         enumerable: true,
         configurable: true
     });
@@ -17662,16 +17314,12 @@ var DateTime = (function () {
         return dt.Day;
     };
     Object.defineProperty(DateTime.prototype, "Ticks", {
-        get: function () {
-            return this._InternalDate.getTime();
-        },
+        get: function () { return this._InternalDate.getTime(); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DateTime.prototype, "Kind", {
-        get: function () {
-            return this._Kind;
-        },
+        get: function () { return this._Kind; },
         enumerable: true,
         configurable: true
     });
@@ -17681,7 +17329,7 @@ var DateTime = (function () {
             if (t <= DateTime._MinDateTicks)
                 return new DateTime(DateTime._MinDateTicks);
             var d = new Date(t);
-            if (this._Kind === 2 /* Utc */) {
+            if (this._Kind === DateTimeKind.Utc) {
                 d.setUTCHours(0);
                 d.setUTCMinutes(0);
                 d.setUTCSeconds(0);
@@ -17700,7 +17348,7 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Day", {
         get: function () {
-            if (this._Kind === 2 /* Utc */)
+            if (this._Kind === DateTimeKind.Utc)
                 return this._InternalDate.getUTCDate();
             return this._InternalDate.getDate();
         },
@@ -17709,7 +17357,7 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "DayOfWeek", {
         get: function () {
-            if (this._Kind === 2 /* Utc */)
+            if (this._Kind === DateTimeKind.Utc)
                 return this._InternalDate.getUTCDay();
             return this._InternalDate.getDay();
         },
@@ -17728,7 +17376,7 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Hour", {
         get: function () {
-            if (this._Kind === 2 /* Utc */)
+            if (this._Kind === DateTimeKind.Utc)
                 return this._InternalDate.getUTCHours();
             return this._InternalDate.getHours();
         },
@@ -17737,7 +17385,7 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Millisecond", {
         get: function () {
-            if (this._Kind === 2 /* Utc */)
+            if (this._Kind === DateTimeKind.Utc)
                 return this._InternalDate.getUTCMilliseconds();
             return this._InternalDate.getMilliseconds();
         },
@@ -17746,7 +17394,7 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Minute", {
         get: function () {
-            if (this._Kind === 2 /* Utc */)
+            if (this._Kind === DateTimeKind.Utc)
                 return this._InternalDate.getUTCMinutes();
             return this._InternalDate.getMinutes();
         },
@@ -17755,7 +17403,7 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Month", {
         get: function () {
-            if (this._Kind === 2 /* Utc */)
+            if (this._Kind === DateTimeKind.Utc)
                 return this._InternalDate.getUTCMonth() + 1;
             return this._InternalDate.getMonth() + 1;
         },
@@ -17764,7 +17412,7 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Second", {
         get: function () {
-            if (this._Kind === 2 /* Utc */)
+            if (this._Kind === DateTimeKind.Utc)
                 return this._InternalDate.getUTCSeconds();
             return this._InternalDate.getSeconds();
         },
@@ -17774,7 +17422,7 @@ var DateTime = (function () {
     Object.defineProperty(DateTime.prototype, "TimeOfDay", {
         get: function () {
             var id = this._InternalDate;
-            if (this._Kind === 2 /* Utc */)
+            if (this._Kind === DateTimeKind.Utc)
                 return new TimeSpan(0, id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds());
             return new TimeSpan(0, id.getHours(), id.getMinutes(), id.getSeconds(), id.getMilliseconds());
         },
@@ -17783,7 +17431,7 @@ var DateTime = (function () {
     });
     Object.defineProperty(DateTime.prototype, "Year", {
         get: function () {
-            if (this._Kind === 2 /* Utc */)
+            if (this._Kind === DateTimeKind.Utc)
                 return this._InternalDate.getUTCFullYear();
             return this._InternalDate.getFullYear();
         },
@@ -17836,10 +17484,10 @@ var DateTime = (function () {
         return new DateTime(this.Ticks);
     };
     DateTime.prototype.ToUniversalTime = function () {
-        if (this.Kind === 2 /* Utc */)
+        if (this.Kind === DateTimeKind.Utc)
             return new DateTime(this.Ticks);
         var id = this._InternalDate;
-        return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), 2 /* Utc */);
+        return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), DateTimeKind.Utc);
     };
     DateTime.prototype.toString = function (format) {
         if (!format)
@@ -17927,7 +17575,7 @@ var Fayde;
                 ];
                 this.AMDesignator = "AM";
                 this.Calendar = new Localization.Calendar();
-                this.CalendarWeekRule = 0 /* FirstDay */;
+                this.CalendarWeekRule = CalendarWeekRule.FirstDay;
                 this.DateSeparator = "/";
                 this.DayNames = [
                     "Sunday",
@@ -17938,7 +17586,7 @@ var Fayde;
                     "Friday",
                     "Saturday"
                 ];
-                this.FirstDayOfWeek = 0 /* Sunday */;
+                this.FirstDayOfWeek = DayOfWeek.Sunday;
                 this.FullDateTimePattern = "dddd, MMMM dd, yyyy h:mm:ss tt";
                 this.LongDatePattern = "dddd, MMMM dd, yyyy";
                 this.LongTimePattern = "h:mm:ss tt";
@@ -19283,9 +18931,7 @@ var Fayde;
                     var propName = propNames[i];
                     var backingName = "$" + propName + "$";
                     Object.defineProperty(type.prototype, propName, {
-                        get: function () {
-                            return this[backingName];
-                        },
+                        get: function () { return this[backingName]; },
                         set: function (value) {
                             this[backingName] = value;
                             this.OnPropertyChanged(propName);
@@ -19490,11 +19136,8 @@ var Fayde;
                 if (canExecute)
                     this.CanExecute = canExecute;
             }
-            RelayCommand.prototype.Execute = function (parameter) {
-            };
-            RelayCommand.prototype.CanExecute = function (parameter) {
-                return true;
-            };
+            RelayCommand.prototype.Execute = function (parameter) { };
+            RelayCommand.prototype.CanExecute = function (parameter) { return true; };
             RelayCommand.prototype.ForceCanExecuteChanged = function () {
                 this.CanExecuteChanged.raise(this, null);
             };
@@ -19983,7 +19626,9 @@ var Fayde;
         var XamlMarkup = nullstone.markup.xaml.XamlMarkup;
         function Resolve(uri) {
             return nullstone.async.create(function (resolve, reject) {
-                XamlMarkup.create(uri).loadAsync().then(function (xm) {
+                XamlMarkup.create(uri)
+                    .loadAsync()
+                    .then(function (xm) {
                     var co = collector.create();
                     return nullstone.async.many([
                         xm.resolve(Fayde.TypeManager, co.collect),
@@ -20056,6 +19701,7 @@ var Fayde;
                             return o;
                     }
                 }
+                //TODO: Search in Application.Resources
                 throw new Error("Could not resolve StaticResource: '" + key + "'.");
             };
             StaticResource.prototype.setContext = function (app, resources) {
@@ -20113,30 +19759,22 @@ var Fayde;
                     return rb;
                 };
                 Object.defineProperty(RepeatBehavior.prototype, "HasCount", {
-                    get: function () {
-                        return this._Count != null;
-                    },
+                    get: function () { return this._Count != null; },
                     enumerable: true,
                     configurable: true
                 });
                 Object.defineProperty(RepeatBehavior.prototype, "Count", {
-                    get: function () {
-                        return this._Count;
-                    },
+                    get: function () { return this._Count; },
                     enumerable: true,
                     configurable: true
                 });
                 Object.defineProperty(RepeatBehavior.prototype, "HasDuration", {
-                    get: function () {
-                        return this._Duration != null;
-                    },
+                    get: function () { return this._Duration != null; },
                     enumerable: true,
                     configurable: true
                 });
                 Object.defineProperty(RepeatBehavior.prototype, "Duration", {
-                    get: function () {
-                        return this._Duration;
-                    },
+                    get: function () { return this._Duration; },
                     enumerable: true,
                     configurable: true
                 });
@@ -20147,11 +19785,7 @@ var Fayde;
                     rb.IsForever = this.IsForever;
                     return rb;
                 };
-                RepeatBehavior.Forever = (function () {
-                    var rb = new RepeatBehavior();
-                    rb.IsForever = true;
-                    return rb;
-                })();
+                RepeatBehavior.Forever = (function () { var rb = new RepeatBehavior(); rb.IsForever = true; return rb; })();
                 return RepeatBehavior;
             })();
             Animation.RepeatBehavior = RepeatBehavior;
@@ -20228,10 +19862,10 @@ var Fayde;
                     this._HasCompleted = true;
                     var fill = this.FillBehavior;
                     switch (fill) {
-                        case 0 /* HoldEnd */:
+                        case Animation.FillBehavior.HoldEnd:
                             this.HoldEnd();
                             break;
-                        case 1 /* Stop */:
+                        case Animation.FillBehavior.Stop:
                             this.Stop();
                             break;
                     }
@@ -20342,7 +19976,7 @@ var Fayde;
                 Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
                 Timeline.RepeatBehaviorProperty = DependencyProperty.Register("RepeatBehavior", function () { return Animation.RepeatBehavior; }, Timeline);
                 Timeline.SpeedRatioProperty = DependencyProperty.Register("SpeedRatio", function () { return Number; }, Timeline, 1.0);
-                Timeline.FillBehaviorProperty = DependencyProperty.Register("FillBehavior", function () { return new Fayde.Enum(Animation.FillBehavior); }, Timeline, 0 /* HoldEnd */);
+                Timeline.FillBehaviorProperty = DependencyProperty.Register("FillBehavior", function () { return new Fayde.Enum(Animation.FillBehavior); }, Timeline, Animation.FillBehavior.HoldEnd);
                 return Timeline;
             })(Fayde.DependencyObject);
             Animation.Timeline = Timeline;
@@ -20372,12 +20006,8 @@ var Fayde;
                     _super.call(this);
                     this._IsHolding = false;
                 }
-                AnimationBase.prototype.Resolve = function (target, propd) {
-                    return true;
-                };
-                AnimationBase.prototype.HoldEnd = function () {
-                    this._IsHolding = true;
-                };
+                AnimationBase.prototype.Resolve = function (target, propd) { return true; };
+                AnimationBase.prototype.HoldEnd = function () { this._IsHolding = true; };
                 AnimationBase.prototype.Stop = function () {
                     var animStorage = this._AnimStorage;
                     if (!animStorage)
@@ -20400,12 +20030,8 @@ var Fayde;
                         return;
                     Animation.AnimationStore.ApplyCurrent(animStorage);
                 };
-                AnimationBase.prototype.GetNaturalDurationCore = function () {
-                    return Duration.Automatic;
-                };
-                AnimationBase.prototype.GetCurrentValue = function (defaultOriginalValue, defaultDestinationValue, clockData) {
-                    return undefined;
-                };
+                AnimationBase.prototype.GetNaturalDurationCore = function () { return Duration.Automatic; };
+                AnimationBase.prototype.GetCurrentValue = function (defaultOriginalValue, defaultDestinationValue, clockData) { return undefined; };
                 AnimationBase.prototype._Hookup = function (promotedValues, error) {
                     this._IsHolding = false;
                     this.Reset();
@@ -20625,12 +20251,8 @@ var Fayde;
                         ts = new TimeSpan();
                     return new Duration(ts);
                 };
-                AnimationUsingKeyFrames.prototype.AddKeyFrame = function (kf) {
-                    this.KeyFrames.Add(kf);
-                };
-                AnimationUsingKeyFrames.prototype.RemoveKeyFrame = function (kf) {
-                    this.KeyFrames.Remove(kf);
-                };
+                AnimationUsingKeyFrames.prototype.AddKeyFrame = function (kf) { this.KeyFrames.Add(kf); };
+                AnimationUsingKeyFrames.prototype.RemoveKeyFrame = function (kf) { this.KeyFrames.Remove(kf); };
                 AnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterImmutable("KeyFrames", function () { return Animation.KeyFrameCollection; }, AnimationUsingKeyFrames);
                 return AnimationUsingKeyFrames;
             })(Animation.AnimationBase);
@@ -20796,13 +20418,9 @@ var Fayde;
                 KeyFrame.prototype.CompareToTimeSpan = function (otherTs) {
                     return this._ResolvedKeyTime.CompareTo(otherTs);
                 };
-                KeyFrame.prototype.Listen = function (listener) {
-                    this._Listener = listener;
-                };
-                KeyFrame.prototype.Unlisten = function (listener) {
-                    if (this._Listener === listener)
-                        this._Listener = null;
-                };
+                KeyFrame.prototype.Listen = function (listener) { this._Listener = listener; };
+                KeyFrame.prototype.Unlisten = function (listener) { if (this._Listener === listener)
+                    this._Listener = null; };
                 KeyFrame.prototype.InvalidateKeyFrame = function () {
                     var listener = this._Listener;
                     if (listener)
@@ -20827,6 +20445,7 @@ var Fayde;
                         keyFrame._Resolved = false;
                     }
                     var keyTime;
+                    // resolve TimeSpan keyframes
                     for (i = 0; i < len; i++) {
                         keyFrame = arr[i];
                         keyTime = keyFrame.KeyTime;
@@ -20850,6 +20469,8 @@ var Fayde;
                     else {
                         totalInterpolationTime = new TimeSpan(TimeSpan._TicksPerSecond);
                     }
+                    //LOOKS USELESS: animation._TotalKeyTime = totalInterpolationTime;
+                    // use the total interpolation time to resolve percent keytime keyframes
                     for (i = 0; i < len; i++) {
                         keyFrame = arr[i];
                         keyTime = keyFrame.KeyTime;
@@ -20910,11 +20531,13 @@ var Fayde;
                     }
                     var keyFrame;
                     var valuePropd;
+                    // Crawl forward to figure out what segment to use (this assumes the list is sorted)
                     for (i = 0; i < sortedList.length; i++) {
                         keyFrame = sortedList[i];
                         if (keyFrame.CompareToTimeSpan(t) >= 0 || (i + 1) >= sortedList.length)
                             break;
                     }
+                    // Crawl backward to find first non-null frame
                     for (; i >= 0; i--) {
                         keyFrame = sortedList[i];
                         valuePropd = DependencyProperty.GetDependencyProperty(keyFrame.constructor, "Value");
@@ -20923,6 +20546,7 @@ var Fayde;
                             break;
                         }
                     }
+                    // Crawl backward some more to find first non-null prev frame
                     for (i--; i >= 0; i--) {
                         keyFrame = sortedList[i];
                         valuePropd = DependencyProperty.GetDependencyProperty(keyFrame.constructor, "Value");
@@ -21369,12 +20993,14 @@ var Fayde;
                 EasingFunctionBase.prototype.Ease = function (normalizedTime) {
                     var easingMode = this.EasingMode;
                     switch (easingMode) {
-                        case 1 /* EaseIn */:
+                        case Animation.EasingMode.EaseIn:
                             return this.EaseInCore(normalizedTime);
-                        case 0 /* EaseOut */:
+                        case Animation.EasingMode.EaseOut:
                             return this.EaseInCore(1.0 - normalizedTime);
-                        case 2 /* EaseInOut */:
-                            return normalizedTime <= 0.5 ? this.EaseInCore(normalizedTime * 2) * 0.5 : 1.0 - this.EaseInCore(((1.0 - normalizedTime) * 2) * 0.5);
+                        case Animation.EasingMode.EaseInOut:
+                            return normalizedTime <= 0.5 ?
+                                this.EaseInCore(normalizedTime * 2) * 0.5 :
+                                1.0 - this.EaseInCore(((1.0 - normalizedTime) * 2) * 0.5);
                         default:
                             return 0.0;
                     }
@@ -21602,12 +21228,8 @@ var Fayde;
                 };
                 KeySpline.PRECISION_LEVEL = 4;
                 KeySpline.TOTAL_COUNT = Math.pow(2, KeySpline.PRECISION_LEVEL);
-                KeySpline.ControlPoint1Property = DependencyProperty.RegisterCore("ControlPoint1", function () {
-                    return Point;
-                }, KeySpline, undefined, function (d, args) { return d.InvalidateControlPoints(); });
-                KeySpline.ControlPoint2Property = DependencyProperty.RegisterCore("ControlPoint2", function () {
-                    return Point;
-                }, KeySpline, undefined, function (d, args) { return d.InvalidateControlPoints(); });
+                KeySpline.ControlPoint1Property = DependencyProperty.RegisterCore("ControlPoint1", function () { return Point; }, KeySpline, undefined, function (d, args) { return d.InvalidateControlPoints(); });
+                KeySpline.ControlPoint2Property = DependencyProperty.RegisterCore("ControlPoint2", function () { return Point; }, KeySpline, undefined, function (d, args) { return d.InvalidateControlPoints(); });
                 return KeySpline;
             })(Fayde.DependencyObject);
             Animation.KeySpline = KeySpline;
@@ -22270,7 +21892,10 @@ var Color = (function () {
         return c;
     };
     Color.prototype.Equals = function (other) {
-        return this.R === other.R && this.G === other.G && this.B === other.B && this.A === other.A;
+        return this.R === other.R
+            && this.G === other.G
+            && this.B === other.B
+            && this.A === other.A;
     };
     Color.prototype.toString = function () {
         return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
@@ -22504,7 +22129,10 @@ var Fayde;
                     var t = top < 1.0 ? 1.0 : Math.ceil(top);
                     var r = right < 1.0 ? 1.0 : Math.ceil(right);
                     var b = bottom < 1.0 ? 1.0 : Math.ceil(bottom);
-                    var changed = thickness.left !== l || thickness.top !== t || thickness.right !== r || thickness.bottom !== b;
+                    var changed = thickness.left !== l
+                        || thickness.top !== t
+                        || thickness.right !== r
+                        || thickness.bottom !== b;
                     thickness.left = l;
                     thickness.top = t;
                     thickness.right = r;
@@ -22750,7 +22378,7 @@ var Fayde;
                 if (transform != null)
                     ctx.restore();
             };
-            GeometryGroup.FillRulleProperty = DependencyProperty.Register("FillRule", function () { return new Fayde.Enum(Fayde.Shapes.FillRule); }, GeometryGroup, 0 /* EvenOdd */);
+            GeometryGroup.FillRulleProperty = DependencyProperty.Register("FillRule", function () { return new Fayde.Enum(Fayde.Shapes.FillRule); }, GeometryGroup, Fayde.Shapes.FillRule.EvenOdd);
             GeometryGroup.ChildrenProperty = DependencyProperty.RegisterImmutable("Children", function () { return Media.GeometryCollection; }, GeometryGroup);
             return GeometryGroup;
         })(Media.Geometry);
@@ -22776,31 +22404,28 @@ var Fayde;
             GradientBrush.prototype.CreateBrush = function (ctx, bounds) {
                 var spread = this.SpreadMethod;
                 switch (spread) {
-                    case 0 /* Pad */:
+                    case Media.GradientSpreadMethod.Pad:
                     default:
                         return this._CreatePad(ctx, bounds);
-                    case 2 /* Repeat */:
+                    case Media.GradientSpreadMethod.Repeat:
                         return this._CreateRepeat(ctx, bounds);
-                    case 1 /* Reflect */:
+                    case Media.GradientSpreadMethod.Reflect:
                         return this._CreateReflect(ctx, bounds);
                 }
             };
-            GradientBrush.prototype._CreatePad = function (ctx, bounds) {
-            };
-            GradientBrush.prototype._CreateRepeat = function (ctx, bounds) {
-            };
-            GradientBrush.prototype._CreateReflect = function (ctx, bounds) {
-            };
+            GradientBrush.prototype._CreatePad = function (ctx, bounds) { };
+            GradientBrush.prototype._CreateRepeat = function (ctx, bounds) { };
+            GradientBrush.prototype._CreateReflect = function (ctx, bounds) { };
             GradientBrush.prototype._GetMappingModeTransform = function (bounds) {
                 if (!bounds)
                     return mat3.identity();
-                if (this.MappingMode === 0 /* Absolute */)
+                if (this.MappingMode === Media.BrushMappingMode.Absolute)
                     return mat3.identity();
                 return mat3.createScale(bounds.width, bounds.height);
             };
             GradientBrush.GradientStopsProperty = DependencyProperty.RegisterImmutable("GradientStops", function () { return Media.GradientStopCollection; }, GradientBrush);
-            GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return new Fayde.Enum(Media.BrushMappingMode); }, GradientBrush, 1 /* RelativeToBoundingBox */, function (d, args) { return d.InvalidateBrush(); });
-            GradientBrush.SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", function () { return new Fayde.Enum(Media.GradientSpreadMethod); }, GradientBrush, 0 /* Pad */, function (d, args) { return d.InvalidateBrush(); });
+            GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return new Fayde.Enum(Media.BrushMappingMode); }, GradientBrush, Media.BrushMappingMode.RelativeToBoundingBox, function (d, args) { return d.InvalidateBrush(); });
+            GradientBrush.SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", function () { return new Fayde.Enum(Media.GradientSpreadMethod); }, GradientBrush, Media.GradientSpreadMethod.Pad, function (d, args) { return d.InvalidateBrush(); });
             return GradientBrush;
         })(Media.Brush);
         Media.GradientBrush = GradientBrush;
@@ -23165,42 +22790,42 @@ var Fayde;
                 sx = 1.0;
             if (height === 0)
                 sy = 1.0;
-            if (stretch === 1 /* Fill */) {
+            if (stretch === Media.Stretch.Fill) {
                 return mat3.createScale(sx, sy);
             }
             var scale = 1.0;
             var dx = 0.0;
             var dy = 0.0;
             switch (stretch) {
-                case 2 /* Uniform */:
+                case Media.Stretch.Uniform:
                     scale = sx < sy ? sx : sy;
                     break;
-                case 3 /* UniformToFill */:
+                case Media.Stretch.UniformToFill:
                     scale = sx < sy ? sy : sx;
                     break;
-                case 0 /* None */:
+                case Media.Stretch.None:
                     break;
             }
             switch (alignX) {
-                case 0 /* Left */:
+                case Media.AlignmentX.Left:
                     dx = 0.0;
                     break;
-                case 1 /* Center */:
+                case Media.AlignmentX.Center:
                     dx = (width - (scale * sw)) / 2;
                     break;
-                case 2 /* Right */:
+                case Media.AlignmentX.Right:
                 default:
                     dx = width - (scale * sw);
                     break;
             }
             switch (alignY) {
-                case 0 /* Top */:
+                case Media.AlignmentY.Top:
                     dy = 0.0;
                     break;
-                case 1 /* Center */:
+                case Media.AlignmentY.Center:
                     dy = (height - (scale * sh)) / 2;
                     break;
-                case 2 /* Bottom */:
+                case Media.AlignmentY.Bottom:
                 default:
                     dy = height - (scale * sh);
                     break;
@@ -23225,14 +22850,11 @@ var Fayde;
                 this.DrawTile(tmpCtx, bounds);
                 return ctx.createPattern(tmpCanvas, "no-repeat");
             };
-            TileBrush.prototype.GetTileExtents = function () {
-                return undefined;
-            };
-            TileBrush.prototype.DrawTile = function (canvasCtx, bounds) {
-            };
-            TileBrush.AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", function () { return new Fayde.Enum(Media.AlignmentX); }, TileBrush, 1 /* Center */, function (d, args) { return d.InvalidateBrush(); });
-            TileBrush.AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", function () { return new Fayde.Enum(Media.AlignmentY); }, TileBrush, 1 /* Center */, function (d, args) { return d.InvalidateBrush(); });
-            TileBrush.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Fayde.Enum(Media.Stretch); }, TileBrush, 1 /* Fill */, function (d, args) { return d.InvalidateBrush(); });
+            TileBrush.prototype.GetTileExtents = function () { return undefined; };
+            TileBrush.prototype.DrawTile = function (canvasCtx, bounds) { };
+            TileBrush.AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", function () { return new Fayde.Enum(Media.AlignmentX); }, TileBrush, Media.AlignmentX.Center, function (d, args) { return d.InvalidateBrush(); });
+            TileBrush.AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", function () { return new Fayde.Enum(Media.AlignmentY); }, TileBrush, Media.AlignmentY.Center, function (d, args) { return d.InvalidateBrush(); });
+            TileBrush.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Fayde.Enum(Media.Stretch); }, TileBrush, Media.Stretch.Fill, function (d, args) { return d.InvalidateBrush(); });
             return TileBrush;
         })(Media.Brush);
         Media.TileBrush = TileBrush;
@@ -23284,12 +22906,8 @@ var Fayde;
                         newSrc.Listen(this);
                     this.InvalidateBrush();
                 };
-                ImageBrush.prototype.OnImageErrored = function (source, e) {
-                    this.ImageFailed.raise(this, null);
-                };
-                ImageBrush.prototype.OnImageLoaded = function (source, e) {
-                    this.ImageOpened.raise(this, null);
-                };
+                ImageBrush.prototype.OnImageErrored = function (source, e) { this.ImageFailed.raise(this, null); };
+                ImageBrush.prototype.OnImageLoaded = function (source, e) { this.ImageOpened.raise(this, null); };
                 ImageBrush.prototype.ImageChanged = function (source) {
                     this.InvalidateBrush();
                 };
@@ -23418,68 +23036,38 @@ var Fayde;
                 configurable: true
             });
             Object.defineProperty(Matrix.prototype, "M11", {
-                get: function () {
-                    return this._Raw[0];
-                },
-                set: function (val) {
-                    this._Raw[0] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[0]; },
+                set: function (val) { this._Raw[0] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix.prototype, "M12", {
-                get: function () {
-                    return this._Raw[1];
-                },
-                set: function (val) {
-                    this._Raw[1] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[1]; },
+                set: function (val) { this._Raw[1] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix.prototype, "M21", {
-                get: function () {
-                    return this._Raw[3];
-                },
-                set: function (val) {
-                    this._Raw[3] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[3]; },
+                set: function (val) { this._Raw[3] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix.prototype, "M22", {
-                get: function () {
-                    return this._Raw[4];
-                },
-                set: function (val) {
-                    this._Raw[4] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[4]; },
+                set: function (val) { this._Raw[4] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix.prototype, "OffsetX", {
-                get: function () {
-                    return this._Raw[2];
-                },
-                set: function (val) {
-                    this._Raw[2] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[2]; },
+                set: function (val) { this._Raw[2] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix.prototype, "OffsetY", {
-                get: function () {
-                    return this._Raw[5];
-                },
-                set: function (val) {
-                    this._Raw[5] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[5]; },
+                set: function (val) { this._Raw[5] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
@@ -23528,178 +23116,98 @@ var Fayde;
                 return r;
             };
             Object.defineProperty(Matrix3D.prototype, "M11", {
-                get: function () {
-                    return this._Raw[0];
-                },
-                set: function (val) {
-                    this._Raw[0] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[0]; },
+                set: function (val) { this._Raw[0] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M12", {
-                get: function () {
-                    return this._Raw[1];
-                },
-                set: function (val) {
-                    this._Raw[1] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[1]; },
+                set: function (val) { this._Raw[1] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M13", {
-                get: function () {
-                    return this._Raw[2];
-                },
-                set: function (val) {
-                    this._Raw[2] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[2]; },
+                set: function (val) { this._Raw[2] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M14", {
-                get: function () {
-                    return this._Raw[3];
-                },
-                set: function (val) {
-                    this._Raw[3] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[3]; },
+                set: function (val) { this._Raw[3] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M21", {
-                get: function () {
-                    return this._Raw[4];
-                },
-                set: function (val) {
-                    this._Raw[4] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[4]; },
+                set: function (val) { this._Raw[4] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M22", {
-                get: function () {
-                    return this._Raw[5];
-                },
-                set: function (val) {
-                    this._Raw[5] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[5]; },
+                set: function (val) { this._Raw[5] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M23", {
-                get: function () {
-                    return this._Raw[6];
-                },
-                set: function (val) {
-                    this._Raw[6] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[6]; },
+                set: function (val) { this._Raw[6] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M24", {
-                get: function () {
-                    return this._Raw[7];
-                },
-                set: function (val) {
-                    this._Raw[7] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[7]; },
+                set: function (val) { this._Raw[7] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M31", {
-                get: function () {
-                    return this._Raw[8];
-                },
-                set: function (val) {
-                    this._Raw[8] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[8]; },
+                set: function (val) { this._Raw[8] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M32", {
-                get: function () {
-                    return this._Raw[9];
-                },
-                set: function (val) {
-                    this._Raw[9] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[9]; },
+                set: function (val) { this._Raw[9] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M33", {
-                get: function () {
-                    return this._Raw[10];
-                },
-                set: function (val) {
-                    this._Raw[10] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[10]; },
+                set: function (val) { this._Raw[10] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M34", {
-                get: function () {
-                    return this._Raw[11];
-                },
-                set: function (val) {
-                    this._Raw[11] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[11]; },
+                set: function (val) { this._Raw[11] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "OffsetX", {
-                get: function () {
-                    return this._Raw[12];
-                },
-                set: function (val) {
-                    this._Raw[12] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[12]; },
+                set: function (val) { this._Raw[12] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "OffsetY", {
-                get: function () {
-                    return this._Raw[13];
-                },
-                set: function (val) {
-                    this._Raw[13] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[13]; },
+                set: function (val) { this._Raw[13] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "OffsetZ", {
-                get: function () {
-                    return this._Raw[14];
-                },
-                set: function (val) {
-                    this._Raw[14] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[14]; },
+                set: function (val) { this._Raw[14] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Matrix3D.prototype, "M44", {
-                get: function () {
-                    return this._Raw[15];
-                },
-                set: function (val) {
-                    this._Raw[15] = val;
-                    this._OnChanged();
-                },
+                get: function () { return this._Raw[15]; },
+                set: function (val) { this._Raw[15] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
@@ -23815,9 +23323,7 @@ var Fayde;
             function Matrix3DProjection() {
                 _super.apply(this, arguments);
             }
-            Matrix3DProjection.prototype.CreateProjectionMatrix = function () {
-                return this.ProjectionMatrix;
-            };
+            Matrix3DProjection.prototype.CreateProjectionMatrix = function () { return this.ProjectionMatrix; };
             Matrix3DProjection.ProjectionMatrixProperty = DependencyProperty.Register("ProjectionMatrix", function () { return Media.Matrix3D; }, Matrix3DProjection, undefined, function (d, args) { return d.InvalidateProjection(); });
             return Matrix3DProjection;
         })(Media.Projection);
@@ -23883,7 +23389,7 @@ var Fayde;
                 var cp = new Point();
                 var cp1, cp2, cp3;
                 var start = new Point();
-                var fillRule = 0 /* EvenOdd */;
+                var fillRule = Fayde.Shapes.FillRule.EvenOdd;
                 var cbz = false; // last figure is a cubic bezier curve
                 var qbz = false; // last figure is a quadratic bezier curve
                 var cbzp = new Point(); // points needed to create "smooth" beziers
@@ -23901,9 +23407,9 @@ var Fayde;
                         case 'F':
                             c = this.str.charAt(this.index);
                             if (c === '0')
-                                fillRule = 0 /* EvenOdd */;
+                                fillRule = Fayde.Shapes.FillRule.EvenOdd;
                             else if (c === '1')
-                                fillRule = 1 /* NonZero */;
+                                fillRule = Fayde.Shapes.FillRule.NonZero;
                             else
                                 return null;
                             this.index++;
@@ -24107,9 +23613,9 @@ var Fayde;
                                     break;
                                 var angle = this.ParseDouble();
                                 var is_large = this.ParseDouble() !== 0;
-                                var sweep = 0 /* Counterclockwise */;
+                                var sweep = minerva.SweepDirection.Counterclockwise;
                                 if (this.ParseDouble() !== 0)
-                                    sweep = 1 /* Clockwise */;
+                                    sweep = minerva.SweepDirection.Clockwise;
                                 if ((cp2 = this.ParsePoint()) == null)
                                     break;
                                 if (relative) {
@@ -24373,7 +23879,7 @@ var Fayde;
                 this._OverridePath = null; //Any change in PathFigures invalidates a path override
                 this.InvalidateGeometry();
             };
-            PathGeometry.FillRuleProperty = DependencyProperty.Register("FillRule", function () { return new Fayde.Enum(Fayde.Shapes.FillRule); }, PathGeometry, 0 /* EvenOdd */, function (d, args) { return d.InvalidateGeometry(); });
+            PathGeometry.FillRuleProperty = DependencyProperty.Register("FillRule", function () { return new Fayde.Enum(Fayde.Shapes.FillRule); }, PathGeometry, Fayde.Shapes.FillRule.EvenOdd, function (d, args) { return d.InvalidateGeometry(); });
             PathGeometry.FiguresProperty = DependencyProperty.RegisterImmutable("Figures", function () { return Media.PathFigureCollection; }, PathGeometry);
             return PathGeometry;
         })(Media.Geometry);
@@ -24493,7 +23999,7 @@ var Fayde;
             ArcSegment.PointProperty = DependencyProperty.Register("Point", function () { return Point; }, ArcSegment, undefined, function (d, args) { return Fayde.Incite(d); });
             ArcSegment.RotationAngleProperty = DependencyProperty.Register("RotationAngle", function () { return Number; }, ArcSegment, 0.0, function (d, args) { return Fayde.Incite(d); });
             ArcSegment.SizeProperty = DependencyProperty.Register("Size", function () { return minerva.Size; }, ArcSegment, undefined, function (d, args) { return Fayde.Incite(d); });
-            ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () { return new Fayde.Enum(Fayde.Shapes.SweepDirection); }, ArcSegment, 0 /* Counterclockwise */, function (d, args) { return Fayde.Incite(d); });
+            ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () { return new Fayde.Enum(Fayde.Shapes.SweepDirection); }, ArcSegment, Fayde.Shapes.SweepDirection.Counterclockwise, function (d, args) { return Fayde.Incite(d); });
             return ArcSegment;
         })(Media.PathSegment);
         Media.ArcSegment = ArcSegment;
@@ -24857,12 +24363,8 @@ var Fayde;
         var TextOptions = (function () {
             function TextOptions() {
             }
-            TextOptions.GetTextHintingMode = function (d) {
-                return d.GetValue(TextOptions.TextHintingModeProperty);
-            };
-            TextOptions.SetTextHintingMode = function (d, value) {
-                d.SetValue(TextOptions.TextHintingModeProperty, value);
-            };
+            TextOptions.GetTextHintingMode = function (d) { return d.GetValue(TextOptions.TextHintingModeProperty); };
+            TextOptions.SetTextHintingMode = function (d, value) { d.SetValue(TextOptions.TextHintingModeProperty, value); };
             TextOptions.TextHintingModeProperty = DependencyProperty.RegisterAttached("TextHintingMode", function () { return new Fayde.Enum(Media.TextHintingMode); }, TextOptions);
             return TextOptions;
         })();
@@ -25204,6 +24706,7 @@ var Fayde;
                             storyboard.Begin();
                         }
                         catch (err) {
+                            //clear storyboards on error
                             for (var j = 0; j <= i; j++) {
                                 if (newStoryboards[j] != null)
                                     res.Set(newStoryboards[j]._ID, undefined);
@@ -25268,18 +24771,10 @@ var Fayde;
                 function VisualStateManager() {
                     _super.apply(this, arguments);
                 }
-                VisualStateManager.GetVisualStateGroups = function (d) {
-                    return d.GetValue(VisualStateManager.VisualStateGroupsProperty);
-                };
-                VisualStateManager.SetVisualStateGroups = function (d, value) {
-                    d.SetValue(VisualStateManager.VisualStateGroupsProperty, value);
-                };
-                VisualStateManager.GetCustomVisualStateManager = function (d) {
-                    return d.GetValue(VisualStateManager.CustomVisualStateManagerProperty);
-                };
-                VisualStateManager.SetCustomVisualStateManager = function (d, value) {
-                    d.SetValue(VisualStateManager.CustomVisualStateManagerProperty, value);
-                };
+                VisualStateManager.GetVisualStateGroups = function (d) { return d.GetValue(VisualStateManager.VisualStateGroupsProperty); };
+                VisualStateManager.SetVisualStateGroups = function (d, value) { d.SetValue(VisualStateManager.VisualStateGroupsProperty, value); };
+                VisualStateManager.GetCustomVisualStateManager = function (d) { return d.GetValue(VisualStateManager.CustomVisualStateManagerProperty); };
+                VisualStateManager.SetCustomVisualStateManager = function (d, value) { d.SetValue(VisualStateManager.CustomVisualStateManagerProperty, value); };
                 VisualStateManager.GoToState = function (control, stateName, useTransitions) {
                     if (!control)
                         throw new ArgumentException("control");
@@ -25460,11 +24955,14 @@ var Fayde;
                 var currentAnimations = flattenTimelines(group.CurrentStoryboards);
                 var transitionAnimations = flattenTimelines([transition != null ? transition.Storyboard : null]);
                 var newStateAnimations = flattenTimelines([state.Storyboard]);
+                // Remove any animations that the transition already animates.
+                // There is no need to create an interstitial animation if one already exists.
                 for (var i = 0, len = transitionAnimations.length; i < len; i++) {
                     removeTuple(transitionAnimations[i], currentAnimations);
                     removeTuple(transitionAnimations[i], newStateAnimations);
                 }
                 var tuple;
+                // Generate the "to" animations
                 for (var i = 0, len = newStateAnimations.length; i < len; i++) {
                     // The new "To" Animation -- the root is passed as a reference point for name lookup.
                     tuple = newStateAnimations[i];
@@ -25478,6 +24976,7 @@ var Fayde;
                     }
                     removeTuple(tuple, currentAnimations);
                 }
+                // Generate the "from" animations
                 for (var i = 0, len = currentAnimations.length; i < len; i++) {
                     tuple = currentAnimations[i];
                     var fromAnimation = tuple.timeline.GenerateFrom();
@@ -25574,19 +25073,13 @@ var Fayde;
                     this.ExplicitStoryboardCompleted = true;
                 }
                 Object.defineProperty(VisualTransition.prototype, "GeneratedDuration", {
-                    get: function () {
-                        return this._GeneratedDuration;
-                    },
-                    set: function (value) {
-                        this._GeneratedDuration = nullstone.convertAnyToType(value, Duration);
-                    },
+                    get: function () { return this._GeneratedDuration; },
+                    set: function (value) { this._GeneratedDuration = nullstone.convertAnyToType(value, Duration); },
                     enumerable: true,
                     configurable: true
                 });
                 Object.defineProperty(VisualTransition.prototype, "IsDefault", {
-                    get: function () {
-                        return this.From == null && this.To == null;
-                    },
+                    get: function () { return this.From == null && this.To == null; },
                     enumerable: true,
                     configurable: true
                 });
@@ -25923,7 +25416,7 @@ var DurationType;
 })(DurationType || (DurationType = {}));
 var Duration = (function () {
     function Duration(ts) {
-        this._Type = 2 /* TimeSpan */;
+        this._Type = DurationType.TimeSpan;
         this._TimeSpan = ts;
     }
     Duration.prototype.Clone = function () {
@@ -25933,58 +25426,40 @@ var Duration = (function () {
         return dur;
     };
     Object.defineProperty(Duration.prototype, "Type", {
-        get: function () {
-            return this._Type;
-        },
+        get: function () { return this._Type; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Duration.prototype, "TimeSpan", {
         get: function () {
-            if (this._Type === 2 /* TimeSpan */)
+            if (this._Type === DurationType.TimeSpan)
                 return this._TimeSpan;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Duration.prototype, "HasTimeSpan", {
-        get: function () {
-            return this._Type === 2 /* TimeSpan */;
-        },
+        get: function () { return this._Type === DurationType.TimeSpan; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Duration.prototype, "IsForever", {
-        get: function () {
-            return this._Type === 1 /* Forever */;
-        },
+        get: function () { return this._Type === DurationType.Forever; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Duration.prototype, "IsAutomatic", {
-        get: function () {
-            return this._Type === 0 /* Automatic */;
-        },
+        get: function () { return this._Type === DurationType.Automatic; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Duration.prototype, "IsZero", {
-        get: function () {
-            return this._Type === 2 /* TimeSpan */ && this._TimeSpan.Ticks === 0;
-        },
+        get: function () { return this._Type === DurationType.TimeSpan && this._TimeSpan.Ticks === 0; },
         enumerable: true,
         configurable: true
     });
-    Duration.Automatic = (function () {
-        var d = new Duration();
-        d._Type = 0 /* Automatic */;
-        return d;
-    })();
-    Duration.Forever = (function () {
-        var d = new Duration();
-        d._Type = 1 /* Forever */;
-        return d;
-    })();
+    Duration.Automatic = (function () { var d = new Duration(); d._Type = DurationType.Automatic; return d; })();
+    Duration.Forever = (function () { var d = new Duration(); d._Type = DurationType.Forever; return d; })();
     return Duration;
 })();
 Fayde.CoreLibrary.addPrimitive(Duration);
@@ -26041,44 +25516,32 @@ var KeyTime = (function () {
         return kt;
     };
     Object.defineProperty(KeyTime.prototype, "IsPaced", {
-        get: function () {
-            return this._IsPaced;
-        },
+        get: function () { return this._IsPaced; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(KeyTime.prototype, "IsUniform", {
-        get: function () {
-            return this._IsUniform;
-        },
+        get: function () { return this._IsUniform; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(KeyTime.prototype, "HasTimeSpan", {
-        get: function () {
-            return this._TimeSpan != null;
-        },
+        get: function () { return this._TimeSpan != null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(KeyTime.prototype, "TimeSpan", {
-        get: function () {
-            return this._TimeSpan;
-        },
+        get: function () { return this._TimeSpan; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(KeyTime.prototype, "HasPercent", {
-        get: function () {
-            return this._Percent != null;
-        },
+        get: function () { return this._Percent != null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(KeyTime.prototype, "Percent", {
-        get: function () {
-            return this._Percent;
-        },
+        get: function () { return this._Percent; },
         enumerable: true,
         configurable: true
     });
@@ -26255,12 +25718,14 @@ var Fayde;
         }
         function resolveApp() {
             perfex.phases.start('ResolveApp');
-            Fayde.Application.GetAsync(url).then(resolveTheme, finishError);
+            Fayde.Application.GetAsync(url)
+                .then(resolveTheme, finishError);
         }
         function resolveTheme(res) {
             perfex.phases.start('ResolveTheme');
             app = Fayde.Application.Current = res;
-            Fayde.ThemeManager.LoadAsync(app.ThemeName).then(startApp, finishError);
+            Fayde.ThemeManager.LoadAsync(app.ThemeName)
+                .then(startApp, finishError);
         }
         function finishError(err) {
             console.error("An error occurred retrieving the application.", err);
@@ -26301,7 +25766,7 @@ var Fayde;
         onComplete(json);
     }
     var libs;
-    (function (_libs) {
+    (function (libs_1) {
         function configure(json) {
             var libs = [];
             for (var libName in json) {
@@ -26311,7 +25776,7 @@ var Fayde;
                 setupLibraryConfig(libs[i]);
             }
         }
-        _libs.configure = configure;
+        libs_1.configure = configure;
         function getLibConfig(libName, libJson) {
             return {
                 name: libName,
@@ -26357,7 +25822,8 @@ var Fayde;
         }
         debug.configure = configure;
         function toBoolean(val) {
-            return val === "true" || val === true;
+            return val === "true"
+                || val === true;
         }
     })(debug || (debug = {}));
 })(Fayde || (Fayde = {}));
@@ -26428,7 +25894,9 @@ var StringEx;
                 matches[_i - 1] = arguments[_i];
             }
             var i = parseInt(matches[0]);
-            return typeof items[i] != 'undefined' ? items[i] : match;
+            return typeof items[i] != 'undefined'
+                ? items[i]
+                : match;
         });
     }
     StringEx.Format = Format;
@@ -26530,16 +25998,16 @@ var Fayde;
             };
             Shape.FillProperty = DependencyProperty.Register("Fill", function () { return Fayde.Media.Brush; }, Shape);
             //http://msdn.microsoft.com/en-us/library/system.windows.shapes.shape.stretch(v=vs.95).aspx
-            Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Fayde.Enum(Fayde.Media.Stretch); }, Shape, 0 /* None */);
+            Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Fayde.Enum(Fayde.Media.Stretch); }, Shape, Fayde.Media.Stretch.None);
             Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () { return Fayde.Media.Brush; }, Shape);
             Shape.StrokeThicknessProperty = DependencyProperty.RegisterFull("StrokeThickness", function () { return Number; }, Shape, 1.0, undefined, strokeThicknessCoercer);
             Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () { return Shapes.DoubleCollection; }, Shape);
-            Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () { return new Fayde.Enum(Shapes.PenLineCap); }, Shape, 0 /* Flat */);
+            Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () { return new Fayde.Enum(Shapes.PenLineCap); }, Shape, Shapes.PenLineCap.Flat);
             Shape.StrokeDashOffsetProperty = DependencyProperty.Register("StrokeDashOffset", function () { return Number; }, Shape, 0.0);
-            Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () { return new Fayde.Enum(Shapes.PenLineCap); }, Shape, 0 /* Flat */);
-            Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () { return new Fayde.Enum(Shapes.PenLineJoin); }, Shape, 0 /* Miter */);
+            Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () { return new Fayde.Enum(Shapes.PenLineCap); }, Shape, Shapes.PenLineCap.Flat);
+            Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () { return new Fayde.Enum(Shapes.PenLineJoin); }, Shape, Shapes.PenLineJoin.Miter);
             Shape.StrokeMiterLimitProperty = DependencyProperty.Register("StrokeMiterLimit", function () { return Number; }, Shape, 10.0);
-            Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () { return new Fayde.Enum(Shapes.PenLineCap); }, Shape, 0 /* Flat */);
+            Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () { return new Fayde.Enum(Shapes.PenLineCap); }, Shape, Shapes.PenLineCap.Flat);
             return Shape;
         })(Fayde.FrameworkElement);
         Shapes.Shape = Shape;
@@ -26579,7 +26047,7 @@ var Fayde;
             __extends(Ellipse, _super);
             function Ellipse() {
                 _super.call(this);
-                this.Stretch = 1 /* Fill */;
+                this.Stretch = Fayde.Media.Stretch.Fill;
             }
             Ellipse.prototype.CreateLayoutUpdater = function () {
                 return new EllipseUpdater();
@@ -26632,9 +26100,7 @@ var Fayde;
             function Path() {
                 _super.apply(this, arguments);
             }
-            Path.prototype.CreateLayoutUpdater = function () {
-                return new PathUpdater();
-            };
+            Path.prototype.CreateLayoutUpdater = function () { return new PathUpdater(); };
             Path._DataCoercer = function (dobj, propd, value) {
                 if (typeof value === "string")
                     return Fayde.Media.ParseGeometry(value);
@@ -26772,7 +26238,7 @@ var Fayde;
                     value = Shapes.PointCollection.FromArray(value);
                 return value;
             };
-            Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Fayde.Enum(Shapes.FillRule); }, Polygon, 0 /* EvenOdd */);
+            Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Fayde.Enum(Shapes.FillRule); }, Polygon, Shapes.FillRule.EvenOdd);
             Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return Shapes.PointCollection; }, Polygon, undefined, undefined, Polygon._PointsCoercer);
             return Polygon;
         })(Shapes.Shape);
@@ -26810,7 +26276,7 @@ var Fayde;
                     value = Shapes.PointCollection.FromArray(value);
                 return value;
             };
-            Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Fayde.Enum(Shapes.FillRule); }, Polyline, 0 /* EvenOdd */);
+            Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Fayde.Enum(Shapes.FillRule); }, Polyline, Shapes.FillRule.EvenOdd);
             Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return Shapes.PointCollection; }, Polyline, undefined, undefined, Polyline._PointsCoercer);
             return Polyline;
         })(Shapes.Shape);
@@ -26836,7 +26302,7 @@ var Fayde;
             __extends(Rectangle, _super);
             function Rectangle() {
                 _super.call(this);
-                this.Stretch = 1 /* Fill */;
+                this.Stretch = Fayde.Media.Stretch.Fill;
             }
             Rectangle.prototype.CreateLayoutUpdater = function () {
                 return new RectangleUpdater();
@@ -26957,19 +26423,19 @@ var Fayde;
                 Validation.AddError(fe, error);
                 Validation.RemoveError(fe, oldError);
                 if (binding.NotifyOnValidationError) {
-                    raiseBindingValidationError(fe, new Validation.ValidationErrorEventArgs(1 /* Removed */, oldError));
-                    raiseBindingValidationError(fe, new Validation.ValidationErrorEventArgs(0 /* Added */, error));
+                    raiseBindingValidationError(fe, new Validation.ValidationErrorEventArgs(Validation.ValidationErrorEventAction.Removed, oldError));
+                    raiseBindingValidationError(fe, new Validation.ValidationErrorEventArgs(Validation.ValidationErrorEventAction.Added, error));
                 }
             }
             else if (oldError) {
                 Validation.RemoveError(fe, oldError);
                 if (binding.NotifyOnValidationError)
-                    raiseBindingValidationError(fe, new Validation.ValidationErrorEventArgs(1 /* Removed */, oldError));
+                    raiseBindingValidationError(fe, new Validation.ValidationErrorEventArgs(Validation.ValidationErrorEventAction.Removed, oldError));
             }
             else if (error) {
                 Validation.AddError(fe, error);
                 if (binding.NotifyOnValidationError)
-                    raiseBindingValidationError(fe, new Validation.ValidationErrorEventArgs(0 /* Added */, error));
+                    raiseBindingValidationError(fe, new Validation.ValidationErrorEventArgs(Validation.ValidationErrorEventAction.Added, error));
             }
         }
         Validation.Emit = Emit;
@@ -26987,7 +26453,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     var Validation;
-    (function (_Validation) {
+    (function (Validation_1) {
         var ObservableCollection = Fayde.Collections.ObservableCollection;
         var ReadOnlyObservableCollection = Fayde.Collections.ReadOnlyObservableCollection;
         var Validation = (function (_super) {
@@ -26998,8 +26464,8 @@ var Fayde;
             return Validation;
         })(Fayde.DependencyObject);
         Fayde.CoreLibrary.add(Validation, "Validation");
-        _Validation.HasErrorProperty = DependencyProperty.RegisterAttached("HasError", function () { return Boolean; }, Validation);
-        _Validation.ErrorsProperty = DependencyProperty.RegisterAttached("Errors", function () { return ReadOnlyObservableCollection; }, Validation);
+        Validation_1.HasErrorProperty = DependencyProperty.RegisterAttached("HasError", function () { return Boolean; }, Validation);
+        Validation_1.ErrorsProperty = DependencyProperty.RegisterAttached("Errors", function () { return ReadOnlyObservableCollection; }, Validation);
         var ErrorsCoreProperty = DependencyProperty.RegisterAttached("ErrorsCore", function () { return ObservableCollection; }, Validation);
         function GetErrorsCore(dobj) {
             if (!dobj)
@@ -27014,22 +26480,22 @@ var Fayde;
         function GetErrors(dobj) {
             if (!dobj)
                 throw new ArgumentNullException("element");
-            var result = dobj.GetValue(_Validation.ErrorsProperty);
+            var result = dobj.GetValue(Validation_1.ErrorsProperty);
             if (result == null) {
                 result = new ReadOnlyObservableCollection(GetErrorsCore(dobj));
-                dobj.SetValue(_Validation.ErrorsProperty, result);
+                dobj.SetValue(Validation_1.ErrorsProperty, result);
             }
             return result;
         }
-        _Validation.GetErrors = GetErrors;
+        Validation_1.GetErrors = GetErrors;
         function GetHasError(dobj) {
             if (dobj == null)
                 throw new ArgumentNullException("element");
-            return dobj.GetValue(_Validation.HasErrorProperty) === true;
+            return dobj.GetValue(Validation_1.HasErrorProperty) === true;
         }
-        _Validation.GetHasError = GetHasError;
+        Validation_1.GetHasError = GetHasError;
         function SetHasError(dobj, value) {
-            dobj.SetValue(_Validation.HasErrorProperty, value === true);
+            dobj.SetValue(Validation_1.HasErrorProperty, value === true);
         }
         function AddError(element, error) {
             var errors = GetErrorsCore(element);
@@ -27040,7 +26506,7 @@ var Fayde;
             if (element instanceof Fayde.Controls.Control)
                 element.UpdateValidationState(false);
         }
-        _Validation.AddError = AddError;
+        Validation_1.AddError = AddError;
         function RemoveError(element, error) {
             var errors = GetErrorsCore(element);
             GetErrors(element); //ensure Validation.Errors gets created
@@ -27052,7 +26518,7 @@ var Fayde;
                 }
             }
         }
-        _Validation.RemoveError = RemoveError;
+        Validation_1.RemoveError = RemoveError;
     })(Validation = Fayde.Validation || (Fayde.Validation = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -27139,24 +26605,40 @@ var Fayde;
     }
     Fayde.sexify = sexify;
     function sexyflags(flags) {
-        var all = Object.keys(minerva.DirtyFlags).map(function (i) { return parseInt(i); }).filter(function (key) { return !isNaN(key); }).filter(isPowerOf2).sort(function (a, b) { return (a === b) ? 0 : (a < b ? -1 : 1); }).reverse();
+        var all = Object.keys(minerva.DirtyFlags)
+            .map(function (i) { return parseInt(i); })
+            .filter(function (key) { return !isNaN(key); })
+            .filter(isPowerOf2)
+            .sort(function (a, b) { return (a === b) ? 0 : (a < b ? -1 : 1); })
+            .reverse();
         var remaining = flags;
-        return all.filter(function (cur) {
+        return all
+            .filter(function (cur) {
             if ((remaining & cur) === 0)
                 return false;
             remaining &= ~cur;
             return true;
-        }).map(function (cur) { return minerva.DirtyFlags[cur]; }).join("|");
+        })
+            .map(function (cur) { return minerva.DirtyFlags[cur]; })
+            .join("|");
     }
     function sexyuiflags(flags) {
-        var all = Object.keys(minerva.UIFlags).map(function (i) { return parseInt(i); }).filter(function (key) { return !isNaN(key); }).filter(isPowerOf2).sort(function (a, b) { return (a === b) ? 0 : (a < b ? -1 : 1); }).reverse();
+        var all = Object.keys(minerva.UIFlags)
+            .map(function (i) { return parseInt(i); })
+            .filter(function (key) { return !isNaN(key); })
+            .filter(isPowerOf2)
+            .sort(function (a, b) { return (a === b) ? 0 : (a < b ? -1 : 1); })
+            .reverse();
         var remaining = flags;
-        return all.filter(function (cur) {
+        return all
+            .filter(function (cur) {
             if ((remaining & cur) === 0)
                 return false;
             remaining &= ~cur;
             return true;
-        }).map(function (cur) { return minerva.UIFlags[cur]; }).join("|");
+        })
+            .map(function (cur) { return minerva.UIFlags[cur]; })
+            .join("|");
     }
     function isPowerOf2(num) {
         var y = Math.log2(num);
