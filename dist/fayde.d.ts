@@ -1907,8 +1907,8 @@ declare module Fayde.Controls.Internal {
 declare module Fayde.Controls.Internal {
     enum TextBoxEmitChangedType {
         NOTHING = 0,
-        SELECTION,
-        TEXT,
+        SELECTION = 1,
+        TEXT = 2,
     }
     class TextProxy implements Text.ITextOwner {
         selAnchor: number;
@@ -2697,10 +2697,10 @@ declare module Fayde.Providers {
     }
     enum StyleMask {
         None = 0,
-        VisualTree,
-        ApplicationResources,
-        Theme,
-        All,
+        VisualTree = 1,
+        ApplicationResources = 2,
+        Theme = 4,
+        All = 7,
     }
     interface IImplicitStyleHolder {
         _ImplicitStyles: Style[];
@@ -3591,6 +3591,9 @@ declare module Fayde.Input {
         constructor(absolutePos: Point, delta: number);
     }
 }
+interface MSPointerEvent {
+    MSPOINTER_TYPE_MOUSE: string;
+}
 declare module Fayde.Input {
     enum MouseInputType {
         NoOp = 0,
@@ -3617,38 +3620,17 @@ declare module Fayde.Input {
     }
 }
 interface Touch {
-    identifier: number;
-    target: EventTarget;
-    screenX: number;
-    screenY: number;
-    clientX: number;
-    clientY: number;
-    pageX: number;
-    pageY: number;
     radiusX: number;
     radiusY: number;
     rotationAngle: number;
     force: number;
 }
 interface TouchList {
-    length: number;
-    item(index: number): Touch;
     identifiedTouch(identifier: number): Touch;
 }
 interface TouchEvent extends UIEvent {
-    touches: TouchList;
-    targetTouches: TouchList;
-    changedTouches: TouchList;
-    altKey: boolean;
-    metaKey: boolean;
-    ctrlKey: boolean;
-    shiftKey: boolean;
     initTouchEvent(type: string, canBubble: boolean, cancelable: boolean, view: any, detail: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, touches: TouchList, targetTouches: TouchList, changedTouches: TouchList): any;
 }
-declare var TouchEvent: {
-    prototype: TouchEvent;
-    new (): TouchEvent;
-};
 declare module Fayde.Input.TouchInternal {
     interface ITouchHandler {
         HandleTouches(type: Input.TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
