@@ -172,7 +172,7 @@ declare module Fayde {
     class XamlObject implements Providers.IIsPropertyInheritable {
         private static _LastID;
         private _ID;
-        XamlNode: XamlNode;
+        XamlNode: Fayde.XamlNode;
         TemplateOwner: DependencyObject;
         App: Application;
         constructor();
@@ -263,12 +263,12 @@ declare module Fayde.Providers {
         static Instance: PropertyStore;
         GetValue(storage: IPropertyStorage): any;
         GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
-        SetLocalValue(storage: IPropertyStorage, newValue: any): void;
+        SetLocalValue(storage: Providers.IPropertyStorage, newValue: any): void;
         SetLocalStyleValue(storage: IPropertyStorage, newValue: any): void;
         SetImplicitStyle(storage: IPropertyStorage, newValue: any): void;
-        ClearValue(storage: IPropertyStorage): void;
+        ClearValue(storage: Providers.IPropertyStorage): void;
         OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
-        ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender: any, args: IDependencyPropertyChangedEventArgs) => void, closure: any): IPropertyChangedListener;
+        ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void, closure: any): Providers.IPropertyChangedListener;
         CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IPropertyStorage;
         Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
     }
@@ -482,8 +482,8 @@ declare module Fayde {
         _EmitFocusChange(type: string): void;
         private _EmitLostFocus();
         private _EmitGotFocus();
-        _EmitKeyDown(args: Input.KeyEventArgs): void;
-        _EmitKeyUp(args: Input.KeyEventArgs): void;
+        _EmitKeyDown(args: Fayde.Input.KeyEventArgs): void;
+        _EmitKeyUp(args: Fayde.Input.KeyEventArgs): void;
         _EmitLostMouseCapture(pos: Point): void;
         _EmitMouseEvent(type: Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs): boolean;
         _EmitTouchEvent(type: Input.TouchInputType, args: Input.TouchEventArgs): boolean;
@@ -587,10 +587,10 @@ declare module Fayde.Providers {
         static Instance: ResourcesStore;
         GetValue(storage: IPropertyStorage): ResourceDictionary;
         GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
-        SetLocalValue(storage: IPropertyStorage, newValue: number): void;
+        SetLocalValue(storage: Providers.IPropertyStorage, newValue: number): void;
         SetLocalStyleValue(storage: IPropertyStorage, newValue: any): void;
         SetImplicitStyle(storage: IPropertyStorage, newValue: any): void;
-        ClearValue(storage: IPropertyStorage, notifyListeners?: boolean): void;
+        ClearValue(storage: Providers.IPropertyStorage, notifyListeners?: boolean): void;
     }
 }
 declare module Fayde.Providers {
@@ -598,10 +598,10 @@ declare module Fayde.Providers {
         static Instance: ActualSizeStore;
         GetValue(storage: IPropertyStorage): number;
         GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
-        SetLocalValue(storage: IPropertyStorage, newValue: number): void;
+        SetLocalValue(storage: Providers.IPropertyStorage, newValue: number): void;
         SetLocalStyleValue(storage: IPropertyStorage, newValue: any): void;
         SetImplicitStyle(storage: IPropertyStorage, newValue: any): void;
-        ClearValue(storage: IPropertyStorage, notifyListeners?: boolean): void;
+        ClearValue(storage: Providers.IPropertyStorage, notifyListeners?: boolean): void;
     }
 }
 declare module Fayde {
@@ -743,7 +743,7 @@ declare module Fayde.Input {
     }
     class Keyboard {
         static Modifiers: ModifierKeys;
-        static RefreshModifiers(e: IModifiersOn): void;
+        static RefreshModifiers(e: Fayde.Input.IModifiersOn): void;
         static HasControl(): boolean;
         static HasAlt(): boolean;
         static HasShift(): boolean;
@@ -962,7 +962,7 @@ declare module Fayde.Controls {
 }
 declare module Fayde {
     class XamlObjectCollection<T extends XamlObject> extends XamlObject implements nullstone.ICollection<T> {
-        _ht: T[];
+        _ht: Array<T>;
         AttachTo(xobj: XamlObject): void;
         Count: number;
         GetRange(startIndex: number, endIndex: number): T[];
@@ -993,9 +993,9 @@ declare module Fayde.Providers {
         static Instance: ImmutableStore;
         GetValue(storage: IPropertyStorage): any;
         GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
-        SetLocalValue(storage: IPropertyStorage, newValue: any): void;
-        ClearValue(storage: IPropertyStorage): void;
-        ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender: any, args: IDependencyPropertyChangedEventArgs) => void, closure: any): IPropertyChangedListener;
+        SetLocalValue(storage: Providers.IPropertyStorage, newValue: any): void;
+        ClearValue(storage: Providers.IPropertyStorage): void;
+        ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void, closure: any): Providers.IPropertyChangedListener;
         Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
     }
 }
@@ -1289,7 +1289,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls.Primitives {
-    class RangeBase extends Control {
+    class RangeBase extends Controls.Control {
         static MinimumProperty: DependencyProperty;
         static MaximumProperty: DependencyProperty;
         static LargeChangeProperty: DependencyProperty;
@@ -1907,8 +1907,8 @@ declare module Fayde.Controls.Internal {
 declare module Fayde.Controls.Internal {
     enum TextBoxEmitChangedType {
         NOTHING = 0,
-        SELECTION,
-        TEXT,
+        SELECTION = 1,
+        TEXT = 2,
     }
     class TextProxy implements Text.ITextOwner {
         selAnchor: number;
@@ -2697,10 +2697,10 @@ declare module Fayde.Providers {
     }
     enum StyleMask {
         None = 0,
-        VisualTree,
-        ApplicationResources,
-        Theme,
-        All,
+        VisualTree = 1,
+        ApplicationResources = 2,
+        Theme = 4,
+        All = 7,
     }
     interface IImplicitStyleHolder {
         _ImplicitStyles: Style[];
@@ -2726,7 +2726,7 @@ declare module Fayde.Providers {
 }
 declare module Fayde {
     interface IResourcable {
-        Resources: ResourceDictionary;
+        Resources: Fayde.ResourceDictionary;
     }
     class ResourceDictionaryCollection extends XamlObjectCollection<ResourceDictionary> {
         Get(key: any): any;
@@ -2930,7 +2930,7 @@ declare module Fayde.Data {
         Mode: BindingMode;
         NotifyOnValidationError: boolean;
         RelativeSource: RelativeSource;
-        Path: PropertyPath;
+        Path: Data.PropertyPath;
         Source: any;
         UpdateSourceTrigger: UpdateSourceTrigger;
         ValidatesOnExceptions: boolean;
@@ -2938,7 +2938,7 @@ declare module Fayde.Data {
         ValidatesOnNotifyDataErrors: boolean;
         constructor();
         constructor(path: string);
-        constructor(path: PropertyPath);
+        constructor(path: Data.PropertyPath);
         constructor(binding: Binding);
         init(val: string): void;
         transmute(os: any[]): any;
@@ -3258,8 +3258,8 @@ declare module Fayde {
     class ClockTimer {
         private _Listeners;
         private _LastTime;
-        RegisterTimer(listener: ITimerListener): void;
-        UnregisterTimer(listener: ITimerListener): void;
+        RegisterTimer(listener: Fayde.ITimerListener): void;
+        UnregisterTimer(listener: Fayde.ITimerListener): void;
         private _DoTick();
         private _RequestAnimationTick();
     }
@@ -3322,7 +3322,7 @@ declare module Fayde.Engine {
         GetFocusToRoot(): UINode[];
         OnNodeDetached(node: UINode): void;
         TabFocus(isShift: boolean): boolean;
-        Focus(ctrlNode: Controls.ControlNode, recurse?: boolean): boolean;
+        Focus(ctrlNode: Fayde.Controls.ControlNode, recurse?: boolean): boolean;
         private _FocusNode(uin?);
         EmitChanges(): void;
         EmitChangesAsync(): void;
@@ -3365,8 +3365,8 @@ declare module Fayde.Engine {
         private _EmitMouseList(type, button, pos, delta, list, endIndex?);
         HitTestPoint(pos: Point): UINode[];
         UpdateCursorFromInputList(): void;
-        SetMouseCapture(uin: UINode): boolean;
-        ReleaseMouseCapture(uin: UINode): void;
+        SetMouseCapture(uin: Fayde.UINode): boolean;
+        ReleaseMouseCapture(uin: Fayde.UINode): void;
         private _PerformCapture(uin);
         private _PerformReleaseCapture();
     }
@@ -3383,7 +3383,7 @@ declare module Fayde {
         App: Application;
         private $$root;
         private $$inputMgr;
-        HitTestCallback: (inputList: UINode[]) => void;
+        HitTestCallback: (inputList: Fayde.UINode[]) => void;
         constructor(app: Application);
         init(canvas: HTMLCanvasElement): void;
         Attach(uie: UIElement, root?: boolean): void;
@@ -3397,8 +3397,8 @@ declare module Fayde {
         static Focus(uie: Controls.Control, recurse?: boolean): boolean;
         static GetFocusedElement(uie: UIElement): UIElement;
         static RemoveFocusFrom(uie: UIElement): boolean;
-        static SetMouseCapture(uin: UINode): boolean;
-        static ReleaseMouseCapture(uin: UINode): void;
+        static SetMouseCapture(uin: Fayde.UINode): boolean;
+        static ReleaseMouseCapture(uin: Fayde.UINode): void;
         private $$handleResize(evt);
         private $$stretchCanvas();
     }
@@ -3441,7 +3441,7 @@ declare module Fayde {
 }
 declare module Fayde.Data {
     class BindingExpressionBase extends Expression implements IPropertyPathWalkerListener {
-        ParentBinding: Binding;
+        ParentBinding: Data.Binding;
         Target: DependencyObject;
         Property: DependencyProperty;
         private PropertyPathWalker;
@@ -3455,7 +3455,7 @@ declare module Fayde.Data {
         DataItem: any;
         private _Cached;
         private _CachedValue;
-        constructor(binding: Binding);
+        constructor(binding: Data.Binding);
         private _IsSealed;
         Seal(owner: DependencyObject, prop: any): void;
         OnAttached(element: DependencyObject): void;
@@ -3484,7 +3484,7 @@ declare module Fayde.Data {
 }
 declare module Fayde.Data {
     class BindingExpression extends BindingExpressionBase {
-        constructor(binding: Binding);
+        constructor(binding: Data.Binding);
     }
 }
 declare module Fayde {
@@ -3591,6 +3591,9 @@ declare module Fayde.Input {
         constructor(absolutePos: Point, delta: number);
     }
 }
+interface MSPointerEvent {
+    MSPOINTER_TYPE_MOUSE: string;
+}
 declare module Fayde.Input {
     enum MouseInputType {
         NoOp = 0,
@@ -3603,7 +3606,7 @@ declare module Fayde.Input {
     }
     interface IMouseInterop {
         RegisterEvents(input: Engine.InputManager, canvas: HTMLCanvasElement): any;
-        CreateEventArgs(type: MouseInputType, pos: Point, delta: number): MouseEventArgs;
+        CreateEventArgs(type: MouseInputType, pos: Point, delta: number): Fayde.Input.MouseEventArgs;
         IsLeftButton(button: number): boolean;
         IsRightButton(button: number): boolean;
     }
@@ -3617,46 +3620,25 @@ declare module Fayde.Input {
     }
 }
 interface Touch {
-    identifier: number;
-    target: EventTarget;
-    screenX: number;
-    screenY: number;
-    clientX: number;
-    clientY: number;
-    pageX: number;
-    pageY: number;
     radiusX: number;
     radiusY: number;
     rotationAngle: number;
     force: number;
 }
 interface TouchList {
-    length: number;
-    item(index: number): Touch;
     identifiedTouch(identifier: number): Touch;
 }
 interface TouchEvent extends UIEvent {
-    touches: TouchList;
-    targetTouches: TouchList;
-    changedTouches: TouchList;
-    altKey: boolean;
-    metaKey: boolean;
-    ctrlKey: boolean;
-    shiftKey: boolean;
     initTouchEvent(type: string, canBubble: boolean, cancelable: boolean, view: any, detail: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, touches: TouchList, targetTouches: TouchList, changedTouches: TouchList): any;
 }
-declare var TouchEvent: {
-    new (): TouchEvent;
-    prototype: TouchEvent;
-};
 declare module Fayde.Input.TouchInternal {
     interface ITouchHandler {
-        HandleTouches(type: TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+        HandleTouches(type: Input.TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
     }
     class ActiveTouchBase {
         Identifier: number;
         Position: Point;
-        Device: ITouchDevice;
+        Device: Input.ITouchDevice;
         InputList: UINode[];
         private _IsEmitting;
         private _PendingCapture;
@@ -3669,7 +3651,7 @@ declare module Fayde.Input.TouchInternal {
         ReleaseCapture(uie: UIElement): void;
         private _PerformCapture(uin);
         private _PerformReleaseCapture();
-        Emit(type: TouchInputType, newInputList: UINode[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+        Emit(type: Input.TouchInputType, newInputList: UINode[], emitLeave?: boolean, emitEnter?: boolean): boolean;
         private _EmitList(type, list, endIndex?);
         GetTouchPoint(relativeTo: UIElement): TouchPoint;
         CreateTouchPoint(p: Point): TouchPoint;
@@ -3681,14 +3663,14 @@ declare module Fayde.Input.TouchInternal {
         left: number;
         top: number;
     }
-    class TouchInteropBase implements ITouchInterop, ITouchHandler {
+    class TouchInteropBase implements Fayde.Input.ITouchInterop, ITouchHandler {
         Input: Engine.InputManager;
         CanvasOffset: IOffset;
         ActiveTouches: ActiveTouchBase[];
         CoordinateOffset: IOffset;
         Register(input: Engine.InputManager, canvas: HTMLCanvasElement): void;
         private _CalcOffset(canvas);
-        HandleTouches(type: TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+        HandleTouches(type: Input.TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
     }
 }
 declare module Fayde.Input.TouchInternal {
@@ -4032,17 +4014,17 @@ declare module Fayde.Navigation {
     class Route {
         View: Uri;
         HashParams: {
-            [x: string]: string;
+            [key: string]: string;
         };
         DataContext: any;
         constructor(view: Uri, hashParams: {
-            [x: string]: string;
+            [key: string]: string;
         }, dataContext: any);
     }
 }
 declare module Fayde.MVVM {
     interface IViewModelProvider {
-        ResolveViewModel(route: Navigation.Route): any;
+        ResolveViewModel(route: Fayde.Navigation.Route): any;
     }
     var IViewModelProvider_: nullstone.Interface<IViewModelProvider>;
 }
@@ -4251,7 +4233,7 @@ declare module Fayde.Media.Animation {
 declare module Fayde.Media.Animation {
     class BeginStoryboard extends TriggerAction {
         static StoryboardProperty: DependencyProperty;
-        Storyboard: Storyboard;
+        Storyboard: Animation.Storyboard;
         Fire(): void;
     }
 }
@@ -4601,7 +4583,7 @@ declare module Fayde.Media.Animation {
 declare module Fayde.Media {
     class Brush extends DependencyObject implements minerva.IBrush {
         static TransformProperty: DependencyProperty;
-        Transform: Transform;
+        Transform: Media.Transform;
         private _CachedBounds;
         private _CachedBrush;
         constructor();
@@ -5445,7 +5427,7 @@ declare module Fayde.Navigation {
         static RouteMappingsProperty: ImmutableDependencyProperty<XamlObjectCollection<RouteMapping>>;
         static ViewModelProviderProperty: DependencyProperty;
         RouteMappings: XamlObjectCollection<RouteMapping>;
-        ViewModelProvider: MVVM.IViewModelProvider;
+        ViewModelProvider: Fayde.MVVM.IViewModelProvider;
         constructor();
         MapUri(uri: Uri): Route;
     }
