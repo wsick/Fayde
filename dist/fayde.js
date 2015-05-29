@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.21';
+    Fayde.Version = '0.16.22';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -24183,14 +24183,19 @@ var Fayde;
                 var temp = '';
                 while (this.index < this.len) {
                     var code = this.str.charCodeAt(this.index);
-                    var c = String.fromCharCode(code);
-                    //0-9, ., E, e
+                    var c = this.str[this.index];
+                    //0-9, ., E, e, E-, e-
                     if (code >= 48 && code <= 57)
                         temp += c;
                     else if (code === 46)
                         temp += c;
-                    else if (c === 'E' || c === 'e')
+                    else if (c === 'E' || c === 'e') {
                         temp += c;
+                        if (this.str[this.index + 1] === '-') {
+                            temp += '-';
+                            this.index++;
+                        }
+                    }
                     else
                         break;
                     this.index++;
