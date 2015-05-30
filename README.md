@@ -31,6 +31,7 @@ Install the Fayde application generator for yeoman.  Then use yeoman to generate
     > git clone git://github.com/BSick7/Fayde
     > cd Fayde
     > npm install
+    > grunt lib:reset
 
 #### Run automated tests
 
