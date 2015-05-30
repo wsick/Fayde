@@ -1,50 +1,52 @@
 <Application
         xmlns="http://schemas.wsick.com/fayde"
         xmlns:x="http://schemas.wsick.com/fayde/x"
-		xmlns:vsm="http://schemas.wsick.com/fayde"
+        xmlns:vsm="http://schemas.wsick.com/fayde"
         xmlns:vms="ViewModels"
         ThemeName="Metro">
-  <Application.Resources>
-    <Style TargetType="TextBox" x:Key="InOutText">
-      <Setter Property="IsReadOnly" Value="True"/>
-      <Setter Property="IsTabStop" Value="True"/>
-      <Setter Property="Background" Value="Transparent"/>
-	  
-      <Setter Property="Template">
-        <Setter.Value>
-          <ControlTemplate TargetType="TextBox">
-            <Border x:Name="MyBorder" HorizontalAlignment="Stretch"
-					VerticalAlignment="Stretch">
-              <Grid x:Name="ContentElement" Background="Orange" VerticalAlignment="Center"/>
-              <vsm:VisualStateManager.VisualStateGroups>
-                <vsm:VisualStateGroup x:Name="CommonStates">
-                  <vsm:VisualState x:Name="Normal">
-                    <Storyboard>
-                      <ColorAnimation Storyboard.TargetName="ContentElement" 
-									  Storyboard.TargetProperty="(Control.Background).Color" To="Red"
-									  Duration="0:0:0.25"/>
-                    </Storyboard>
-                  </vsm:VisualState>
-                  <vsm:VisualState x:Name="MouseOver">
-                    <Storyboard>
-                      <ColorAnimation Storyboard.TargetName="ContentElement" 
-									  Storyboard.TargetProperty="(Control.Background).Color" To="Blue"
-									  Duration="0:0:0.25"/>
-                    </Storyboard>
-                  </vsm:VisualState>
-                </vsm:VisualStateGroup>
-              </vsm:VisualStateManager.VisualStateGroups>
-            </Border>
-          </ControlTemplate>
-        </Setter.Value>
-      </Setter>
-    </Style>
-  </Application.Resources>
-	
-  <Grid x:Name="LayoutRoot">
-	<Border>
-	  <TextBox Text="abcdefgh" MinWidth="100"
-			   VerticalAlignment="Center" Style="{StaticResource InOutText}"/>
-	</Border>
-  </Grid>
+    <Application.Resources>
+        <Style TargetType="TextBox" x:Key="InOutText">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="IsTabStop" Value="True"/>
+            <Setter Property="Background" Value="Transparent"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="MyBorder" HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch">
+                            <Grid x:Name="ContentElement" Background="Orange" VerticalAlignment="Center"/>
+                            <vsm:VisualStateManager.VisualStateGroups>
+                                <vsm:VisualStateGroup x:Name="CommonStates">
+                                    <vsm:VisualState x:Name="Normal">
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="ContentElement"
+                                                            Storyboard.TargetProperty="(Panel.Background).Color"
+                                                            To="Red"
+                                                            Duration="0:0:0.25"/>
+                                        </Storyboard>
+                                    </vsm:VisualState>
+                                    <vsm:VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="ContentElement"
+                                                            Storyboard.TargetProperty="(Panel.Background).Color"
+                                                            To="Blue"
+                                                            Duration="0:0:0.25"/>
+                                        </Storyboard>
+                                    </vsm:VisualState>
+                                </vsm:VisualStateGroup>
+                            </vsm:VisualStateManager.VisualStateGroups>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Application.Resources>
+
+    <Grid x:Name="LayoutRoot">
+        <Border>
+            <TextBox Text="abcdefgh" MinWidth="100"
+                     VerticalAlignment="Center" Style="{StaticResource InOutText}"/>
+        </Border>
+    </Grid>
 </Application>
