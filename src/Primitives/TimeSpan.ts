@@ -152,7 +152,14 @@ nullstone.registerTypeConverter(TimeSpan, (val: any): TimeSpan => {
     if (val instanceof TimeSpan)
         return <TimeSpan>val;
     if (val instanceof Duration)
-        return (<Duration>val).TimeSpan;
+    {
+	var duration = <Duration>val;
+	if (duration.HasTimeSpan)
+            return new TimeSpan(duration.TimeSpan.Ticks);
+	else
+            throw new Exception("Cannot convert " + duration.IsForever ? "Forever" : "Automatic",
+				+ " duration to TimeSpan");
+    }
     if (typeof val === "number")
         return new TimeSpan(<number>val);
     val = val.toString();
