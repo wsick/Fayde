@@ -3591,9 +3591,6 @@ declare module Fayde.Input {
         constructor(absolutePos: Point, delta: number);
     }
 }
-interface MSPointerEvent {
-    MSPOINTER_TYPE_MOUSE: string;
-}
 declare module Fayde.Input {
     enum MouseInputType {
         NoOp = 0,

@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.23';
+    Fayde.Version = '0.16.24';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -16817,7 +16817,7 @@ var Fayde;
                     }
                 };
                 PointerTouchInterop.prototype._HandlePointerDown = function (e) {
-                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
+                    if (e.pointerType !== "touch")
                         return;
                     e.preventDefault();
                     Fayde.Engine.Inspection.Kill();
@@ -16827,7 +16827,7 @@ var Fayde;
                     this.Input.SetIsUserInitiatedEvent(false);
                 };
                 PointerTouchInterop.prototype._HandlePointerUp = function (e) {
-                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
+                    if (e.pointerType !== "touch")
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.Input.SetIsUserInitiatedEvent(true);
@@ -16838,19 +16838,19 @@ var Fayde;
                         this.ActiveTouches.splice(index, 1);
                 };
                 PointerTouchInterop.prototype._HandlePointerMove = function (e) {
-                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
+                    if (e.pointerType !== "touch")
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.HandleTouches(Input.TouchInputType.TouchMove, [cur]);
                 };
                 PointerTouchInterop.prototype._HandlePointerEnter = function (e) {
-                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
+                    if (e.pointerType !== "touch")
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.HandleTouches(Input.TouchInputType.TouchEnter, [cur]);
                 };
                 PointerTouchInterop.prototype._HandlePointerLeave = function (e) {
-                    if (e.pointerType === (e.MSPOINTER_TYPE_MOUSE || "mouse"))
+                    if (e.pointerType !== "touch")
                         return;
                     var cur = this.GetActiveTouch(e);
                     this.HandleTouches(Input.TouchInputType.TouchLeave, [cur]);
