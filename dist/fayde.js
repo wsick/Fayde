@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.24';
+    Fayde.Version = '0.16.25';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -21898,7 +21898,11 @@ var Color = (function () {
             && this.A === other.A;
     };
     Color.prototype.toString = function () {
-        return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
+        var r = Math.round(this.R) || 0;
+        var g = Math.round(this.G) || 0;
+        var b = Math.round(this.B) || 0;
+        var a = this.A || 0;
+        return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
     };
     Color.prototype.ToHexStringNoAlpha = function () {
         return "#" + this.R.toString(16) + this.G.toString(16) + this.B.toString(16);
