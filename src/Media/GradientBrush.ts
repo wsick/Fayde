@@ -22,16 +22,16 @@ module Fayde.Media {
             switch (spread) {
                 case GradientSpreadMethod.Pad:
                 default:
-                    return this._CreatePad(ctx, bounds);
+                    return this.CreatePad(ctx, bounds);
                 case GradientSpreadMethod.Repeat:
-                    return this._CreateRepeat(ctx, bounds);
+                    return this.CreateRepeat(ctx, bounds);
                 case GradientSpreadMethod.Reflect:
-                    return this._CreateReflect(ctx, bounds);
+                    return this.CreateReflect(ctx, bounds);
             }
         }
-        _CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
-        _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
-        _CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
+        CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
+        CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
+        CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
 
         _GetMappingModeTransform(bounds: minerva.Rect): number[] {
             if (!bounds)

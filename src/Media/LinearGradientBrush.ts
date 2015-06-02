@@ -7,7 +7,7 @@ module Fayde.Media {
         StartPoint: Point;
         EndPoint: Point;
 
-        _CreatePad (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+        CreatePad (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;
@@ -20,7 +20,7 @@ module Fayde.Media {
             return grd;
         }
 
-        _CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+        CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;
@@ -46,10 +46,11 @@ module Fayde.Media {
             return grd;
         }
 
-        _CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+        CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;
+            //TODO: Implement
         }
 
         private _GetPointData (bounds: minerva.Rect) {
