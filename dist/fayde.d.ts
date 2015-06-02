@@ -4888,23 +4888,6 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media {
-    interface ICoordinates {
-        x: number;
-        y: number;
-    }
-    class GradientMetrics {
-        static Calculate(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect): void;
-        private static E(dir, first, last, bounds);
-        private static W(dir, first, last, bounds);
-        private static S(dir, first, last, bounds);
-        private static N(dir, first, last, bounds);
-        private static NW(dir, first, last, bounds);
-        private static SW(dir, first, last, bounds);
-        private static NE(dir, first, last, bounds);
-        private static SE(dir, first, last, bounds);
-    }
-}
-declare module Fayde.Media {
     class GradientStop extends DependencyObject {
         static ColorProperty: DependencyProperty;
         static OffsetProperty: DependencyProperty;
@@ -5011,6 +4994,15 @@ declare module Fayde.Media {
         CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
         private _GetPointData(bounds);
         toString(): string;
+    }
+}
+declare module Fayde.Media {
+    interface ICoordinates {
+        x: number;
+        y: number;
+    }
+    module LinearGradientMetrics {
+        function Calculate(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect): void;
     }
 }
 declare module Fayde.Media {

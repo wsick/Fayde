@@ -4,31 +4,31 @@ module Fayde.Media {
         y: number;
     }
 
-    export class GradientMetrics {
-        static Calculate (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
+    export module LinearGradientMetrics {
+        export function Calculate (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
             if (dir.y === 0) {
                 if (dir.x < 0)
-                    GradientMetrics.W(dir, first, last, bounds);
-                else
-                    GradientMetrics.E(dir, first, last, bounds);
+                    W(dir, first, last, bounds);
+                else if (dir.x !== 0)
+                    E(dir, first, last, bounds);
             } else if (dir.x === 0) {
                 if (dir.y < 0)
-                    GradientMetrics.N(dir, first, last, bounds);
-                else
-                    GradientMetrics.S(dir, first, last, bounds);
+                    N(dir, first, last, bounds);
+                else if (dir.y !== 0)
+                    S(dir, first, last, bounds);
             } else if (dir.x < 0 && dir.y < 0) { // e\s
-                GradientMetrics.NW(dir, first, last, bounds);
+                NW(dir, first, last, bounds);
             } else if (dir.x < 0 && dir.y > 0) { // e/s
-                GradientMetrics.SW(dir, first, last, bounds);
+                SW(dir, first, last, bounds);
             } else if (dir.x > 0 && dir.y < 0) { // s/e
-                GradientMetrics.NE(dir, first, last, bounds);
+                NE(dir, first, last, bounds);
             } else if (dir.x > 0 && dir.y > 0) { // s\e
-                GradientMetrics.SE(dir, first, last, bounds);
+                SE(dir, first, last, bounds);
             }
         }
 
         //+x,0y
-        private static E (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
+        function E (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
             var maxX = bounds.x + bounds.width;
             while (first.x >= bounds.x)
                 first.x -= dir.x;
@@ -37,7 +37,7 @@ module Fayde.Media {
         }
 
         //-x,0y
-        private static W (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
+        function W (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
             var maxX = bounds.x + bounds.width;
             while (first.x <= maxX)
                 first.x -= dir.x;
@@ -46,7 +46,7 @@ module Fayde.Media {
         }
 
         //0x,+y
-        private static S (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
+        function S (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
             var maxY = bounds.y + bounds.height;
             while (first.y >= bounds.y)
                 first.y -= dir.y;
@@ -55,7 +55,7 @@ module Fayde.Media {
         }
 
         //0x,-y
-        private static N (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
+        function N (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
             var maxY = bounds.y + bounds.height;
             while (first.y <= maxY)
                 first.y -= dir.y;
@@ -64,7 +64,7 @@ module Fayde.Media {
         }
 
         //-x,-y
-        private static NW (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
+        function NW (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
             var maxX = bounds.x + bounds.width;
             var maxY = bounds.y + bounds.height;
             while (first.x <= maxX && first.y <= maxY) {
@@ -79,7 +79,7 @@ module Fayde.Media {
         }
 
         //-x,+y
-        private static SW (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
+        function SW (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
             var maxX = bounds.x + bounds.width;
             var maxY = bounds.y + bounds.height;
             while (first.x <= maxX && first.y >= bounds.y) {
@@ -93,7 +93,7 @@ module Fayde.Media {
         }
 
         //+x,-y
-        private static NE (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
+        function NE (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
             var maxX = bounds.x + bounds.width;
             var maxY = bounds.y + bounds.height;
             while (first.x >= bounds.x && first.y <= maxY) {
@@ -107,7 +107,7 @@ module Fayde.Media {
         }
 
         //+x,+y
-        private static SE (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
+        function SE (dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect) {
             var maxX = bounds.x + bounds.width;
             var maxY = bounds.y + bounds.height;
             while (first.x >= bounds.x && first.y >= bounds.y) {

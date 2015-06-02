@@ -12,9 +12,8 @@ module Fayde.Media {
             var start = data.start;
             var end = data.end;
             var grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
-            var enumerator = this.GradientStops.getEnumerator();
-            while (enumerator.moveNext()) {
-                var stop: GradientStop = enumerator.current;
+            for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
+                var stop: GradientStop = en.current;
                 grd.addColorStop(stop.Offset, stop.Color.toString());
             }
             return grd;
@@ -28,16 +27,15 @@ module Fayde.Media {
             var first = {x: start.x, y: start.y};
             var last = {x: end.x, y: end.y};
 
-            GradientMetrics.Calculate(dir, first, last, bounds);
+            LinearGradientMetrics.Calculate(dir, first, last, bounds);
 
             var grd = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
 
             var steps = (last.x - first.x) / dir.x;
             var curOffset = 0.0;
             for (var i = 0; i < steps; i++) {
-                var enumerator = this.GradientStops.getEnumerator();
-                while (enumerator.moveNext()) {
-                    var stop: GradientStop = enumerator.current;
+                for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
+                    var stop: GradientStop = en.current;
                     grd.addColorStop(curOffset + (stop.Offset / steps), stop.Color.toString());
                 }
 
