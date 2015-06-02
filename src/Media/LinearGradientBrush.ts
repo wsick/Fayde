@@ -8,6 +8,10 @@ module Fayde.Media {
         EndPoint: Point;
 
         CreatePad (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+
+
+
+
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;
@@ -54,17 +58,20 @@ module Fayde.Media {
         }
 
         private _GetPointData (bounds: minerva.Rect) {
-            var transform = this._GetMappingModeTransform(bounds);
+            var start = this.StartPoint;
+            start = !start ? new Point(0.0, 0.0) : start.Clone();
+            var end = this.EndPoint;
+            end = !end ? new Point(0.0, 0.0) : end.Clone();
 
-            var sp = this.StartPoint;
-            var ep = this.EndPoint;
-
-            var s = mat3.transformVec2(transform, vec2.create(sp.x, sp.y));
-            var e = mat3.transformVec2(transform, vec2.create(ep.x, ep.y));
-
+            if (this.MappingMode === BrushMappingMode.RelativeToBoundingBox) {
+                start.x *= bounds.width;
+                start.y *= bounds.height;
+                end.x *= bounds.width;
+                end.y *= bounds.height;
+            }
             return {
-                start: new Point(s[0], s[1]),
-                end: new Point(e[0], e[1])
+                start: start,
+                end: end
             };
         }
 

@@ -32,14 +32,6 @@ module Fayde.Media {
         CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
         CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
         CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) { }
-
-        _GetMappingModeTransform(bounds: minerva.Rect): number[] {
-            if (!bounds)
-                return mat3.identity();
-            if (this.MappingMode === BrushMappingMode.Absolute)
-                return mat3.identity();
-            return mat3.createScale(bounds.width, bounds.height);
-        }
     }
     Fayde.CoreLibrary.add(GradientBrush);
     Markup.Content(GradientBrush, GradientBrush.GradientStopsProperty);
