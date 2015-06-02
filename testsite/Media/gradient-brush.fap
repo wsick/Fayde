@@ -20,7 +20,7 @@
         <TextBlock Grid.Column="2" Text="Radial" HorizontalAlignment="Center" />
 
         <TextBlock Grid.Row="1" Grid.Column="0" Text="Pad" />
-        <Grid Grid.Row="1" Grid.Column="1">
+        <Grid Grid.Row="1" Grid.Column="1" Margin="4">
             <Grid.Background>
                 <LinearGradientBrush SpreadMethod="Pad" EndPoint="1,0">
                     <GradientStop Offset="0.0" Color="Red" />
@@ -32,7 +32,7 @@
                 </LinearGradientBrush>
             </Grid.Background>
         </Grid>
-        <Grid Grid.Row="1" Grid.Column="2">
+        <Grid Grid.Row="1" Grid.Column="2" Margin="4">
             <Grid.Background>
                 <RadialGradientBrush SpreadMethod="Pad">
                     <GradientStop Offset="0.0" Color="Red" />
@@ -47,7 +47,7 @@
 
 
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Reflect" />
-        <Grid Grid.Row="2" Grid.Column="1">
+        <Grid Grid.Row="2" Grid.Column="1" Margin="4">
             <Grid.Background>
                 <LinearGradientBrush SpreadMethod="Reflect" EndPoint="1,0">
                     <GradientStop Offset="0.0" Color="Red" />
@@ -59,7 +59,7 @@
                 </LinearGradientBrush>
             </Grid.Background>
         </Grid>
-        <Grid Grid.Row="2" Grid.Column="2">
+        <Grid Grid.Row="2" Grid.Column="2" Margin="4">
             <Grid.Background>
                 <RadialGradientBrush SpreadMethod="Reflect">
                     <GradientStop Offset="0.0" Color="Red" />
@@ -74,7 +74,7 @@
 
 
         <TextBlock Grid.Row="3" Grid.Column="0" Text="Repeat" />
-        <Grid Grid.Row="3" Grid.Column="1">
+        <Grid Grid.Row="3" Grid.Column="1" Margin="4">
             <Grid.Background>
                 <LinearGradientBrush SpreadMethod="Repeat" EndPoint="1,0">
                     <GradientStop Offset="0.0" Color="Red" />
@@ -86,7 +86,7 @@
                 </LinearGradientBrush>
             </Grid.Background>
         </Grid>
-        <Grid Grid.Row="3" Grid.Column="2">
+        <Grid Grid.Row="3" Grid.Column="2" Margin="4">
             <Grid.Background>
                 <RadialGradientBrush SpreadMethod="Repeat">
                     <GradientStop Offset="0.0" Color="Red" />
