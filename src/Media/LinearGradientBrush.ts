@@ -8,10 +8,6 @@ module Fayde.Media {
         EndPoint: Point;
 
         CreatePad (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
-
-
-
-
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;
