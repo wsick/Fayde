@@ -57,7 +57,7 @@ module Fayde.Media {
             var start = this.StartPoint;
             start = !start ? new Point(0.0, 0.0) : start.Clone();
             var end = this.EndPoint;
-            end = !end ? new Point(0.0, 0.0) : end.Clone();
+            end = !end ? new Point(1.0, 1.0) : end.Clone();
 
             if (this.MappingMode !== BrushMappingMode.Absolute) {
                 start.x *= bounds.width;
