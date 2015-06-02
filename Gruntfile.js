@@ -150,7 +150,7 @@ module.exports = function (grunt) {
                 dest: dirs.test.build,
                 options: {
                     target: 'es5',
-                    basePath: dirs.test.root,
+                    rootDir: dirs.test.root,
                     module: 'amd',
                     sourceMap: true
                 }
@@ -163,7 +163,7 @@ module.exports = function (grunt) {
                 ].concat(unify.typings()),
                 dest: dirs.testsite.build,
                 options: {
-                    basePath: dirs.testsite.root,
+                    rootDir: dirs.testsite.root,
                     target: 'es5',
                     module: 'amd'
                 }
@@ -177,7 +177,7 @@ module.exports = function (grunt) {
                 dest: '<%= dirs.stress.build %>',
                 options: {
                     target: 'es5',
-                    basePath: dirs.stress.root,
+                    rootDir: dirs.stress.root,
                     module: 'amd',
                     sourceMap: true
                 }

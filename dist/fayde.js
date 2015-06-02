@@ -22410,23 +22410,16 @@ var Fayde;
                 switch (spread) {
                     case Media.GradientSpreadMethod.Pad:
                     default:
-                        return this._CreatePad(ctx, bounds);
+                        return this.CreatePad(ctx, bounds);
                     case Media.GradientSpreadMethod.Repeat:
-                        return this._CreateRepeat(ctx, bounds);
+                        return this.CreateRepeat(ctx, bounds);
                     case Media.GradientSpreadMethod.Reflect:
-                        return this._CreateReflect(ctx, bounds);
+                        return this.CreateReflect(ctx, bounds);
                 }
             };
-            GradientBrush.prototype._CreatePad = function (ctx, bounds) { };
-            GradientBrush.prototype._CreateRepeat = function (ctx, bounds) { };
-            GradientBrush.prototype._CreateReflect = function (ctx, bounds) { };
-            GradientBrush.prototype._GetMappingModeTransform = function (bounds) {
-                if (!bounds)
-                    return mat3.identity();
-                if (this.MappingMode === Media.BrushMappingMode.Absolute)
-                    return mat3.identity();
-                return mat3.createScale(bounds.width, bounds.height);
-            };
+            GradientBrush.prototype.CreatePad = function (ctx, bounds) { };
+            GradientBrush.prototype.CreateRepeat = function (ctx, bounds) { };
+            GradientBrush.prototype.CreateReflect = function (ctx, bounds) { };
             GradientBrush.GradientStopsProperty = DependencyProperty.RegisterImmutable("GradientStops", function () { return Media.GradientStopCollection; }, GradientBrush);
             GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return new Fayde.Enum(Media.BrushMappingMode); }, GradientBrush, Media.BrushMappingMode.RelativeToBoundingBox, function (d, args) { return d.InvalidateBrush(); });
             GradientBrush.SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", function () { return new Fayde.Enum(Media.GradientSpreadMethod); }, GradientBrush, Media.GradientSpreadMethod.Pad, function (d, args) { return d.InvalidateBrush(); });
@@ -22959,7 +22952,7 @@ var Fayde;
             function LinearGradientBrush() {
                 _super.apply(this, arguments);
             }
-            LinearGradientBrush.prototype._CreatePad = function (ctx, bounds) {
+            LinearGradientBrush.prototype.CreatePad = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
                 var start = data.start;
                 var end = data.end;
@@ -22971,7 +22964,7 @@ var Fayde;
                 }
                 return grd;
             };
-            LinearGradientBrush.prototype._CreateRepeat = function (ctx, bounds) {
+            LinearGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
                 var start = data.start;
                 var end = data.end;
@@ -22992,20 +22985,26 @@ var Fayde;
                 }
                 return grd;
             };
-            LinearGradientBrush.prototype._CreateReflect = function (ctx, bounds) {
+            LinearGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
                 var start = data.start;
                 var end = data.end;
+                //TODO: Implement
             };
             LinearGradientBrush.prototype._GetPointData = function (bounds) {
-                var transform = this._GetMappingModeTransform(bounds);
-                var sp = this.StartPoint;
-                var ep = this.EndPoint;
-                var s = mat3.transformVec2(transform, vec2.create(sp.x, sp.y));
-                var e = mat3.transformVec2(transform, vec2.create(ep.x, ep.y));
+                var start = this.StartPoint;
+                start = !start ? new Point(0.0, 0.0) : start.Clone();
+                var end = this.EndPoint;
+                end = !end ? new Point(1.0, 1.0) : end.Clone();
+                if (this.MappingMode !== Media.BrushMappingMode.Absolute) {
+                    start.x *= bounds.width;
+                    start.y *= bounds.height;
+                    end.x *= bounds.width;
+                    end.y *= bounds.height;
+                }
                 return {
-                    start: new Point(s[0], s[1]),
-                    end: new Point(e[0], e[1])
+                    start: start,
+                    end: end
                 };
             };
             LinearGradientBrush.prototype.toString = function () {
@@ -24257,14 +24256,51 @@ var Fayde;
 (function (Fayde) {
     var Media;
     (function (Media) {
+        var tmpCanvas = document.createElement('canvas');
+        var tmpCtx = tmpCanvas.getContext('2d');
         var RadialGradientBrush = (function (_super) {
             __extends(RadialGradientBrush, _super);
             function RadialGradientBrush() {
                 _super.apply(this, arguments);
             }
-            RadialGradientBrush.prototype.CreateBrush = function (ctx, bounds) {
+            RadialGradientBrush.prototype.CreatePad = function (ctx, bounds) {
+                var pdata = this._GetPointData(bounds);
                 //TODO: Implement
-                return undefined;
+                return "";
+            };
+            RadialGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
+                //TODO: Implement
+                return "";
+            };
+            RadialGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
+                //TODO: Implement
+                return "";
+            };
+            RadialGradientBrush.prototype._GetPointData = function (bounds) {
+                var center = this.Center;
+                center = !center ? new Point(0.5, 0.5) : center.Clone();
+                var origin = this.GradientOrigin;
+                origin = !origin ? new Point(0.5, 0.5) : origin.Clone();
+                var rx = this.RadiusX;
+                if (rx == null)
+                    rx = 0.5;
+                var ry = this.RadiusY;
+                if (ry == null)
+                    ry = 0.5;
+                if (this.MappingMode !== Media.BrushMappingMode.Absolute) {
+                    center.x *= bounds.width;
+                    center.y *= bounds.height;
+                    origin.x *= bounds.width;
+                    origin.y *= bounds.height;
+                    rx *= bounds.width;
+                    ry *= bounds.height;
+                }
+                return {
+                    center: center,
+                    origin: origin,
+                    radiusX: rx,
+                    radiusY: ry
+                };
             };
             RadialGradientBrush.CenterProperty = DependencyProperty.RegisterCore("Center", function () { return Point; }, RadialGradientBrush, undefined, function (d, args) { return d.InvalidateBrush(); });
             RadialGradientBrush.GradientOriginProperty = DependencyProperty.RegisterCore("GradientOrigin", function () { return Point; }, RadialGradientBrush, undefined, function (d, args) { return d.InvalidateBrush(); });

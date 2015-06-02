@@ -9,7 +9,7 @@ module Fayde.Media {
     }
 
     var tmpCanvas: HTMLCanvasElement = document.createElement('canvas');
-    var tmpCtx: CanvasRenderingContext2D = tmpCanvas.getContext('2d');
+    var tmpCtx: CanvasRenderingContext2D = <CanvasRenderingContext2D>tmpCanvas.getContext('2d');
 
     export class RadialGradientBrush extends GradientBrush {
         static CenterProperty = DependencyProperty.RegisterCore("Center", () => Point, RadialGradientBrush, undefined, (d: RadialGradientBrush, args) => d.InvalidateBrush());
@@ -24,15 +24,17 @@ module Fayde.Media {
         CreatePad (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var pdata = this._GetPointData(bounds);
             //TODO: Implement
-
+            return "";
         }
 
         CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             //TODO: Implement
+            return "";
         }
 
         CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             //TODO: Implement
+            return "";
         }
 
         private _GetPointData (bounds: minerva.Rect): IRadialPointData {

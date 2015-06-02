@@ -4882,10 +4882,9 @@ declare module Fayde.Media {
         SpreadMethod: GradientSpreadMethod;
         constructor();
         CreateBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any;
-        _CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
-        _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
-        _CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
-        _GetMappingModeTransform(bounds: minerva.Rect): number[];
+        CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
+        CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
+        CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
     }
 }
 declare module Fayde.Media {
@@ -5007,9 +5006,9 @@ declare module Fayde.Media {
         static EndPointProperty: DependencyProperty;
         StartPoint: Point;
         EndPoint: Point;
-        _CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
-        _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
-        _CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
+        CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
+        CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
+        CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
         private _GetPointData(bounds);
         toString(): string;
     }
@@ -5232,7 +5231,10 @@ declare module Fayde.Media {
         GradientOrigin: Point;
         RadiusX: number;
         RadiusY: number;
-        CreateBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any;
+        CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): string;
+        CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): string;
+        CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): string;
+        private _GetPointData(bounds);
     }
 }
 declare module Fayde.Media {
