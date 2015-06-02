@@ -63,7 +63,7 @@ module Fayde.Media {
             var end = this.EndPoint;
             end = !end ? new Point(0.0, 0.0) : end.Clone();
 
-            if (this.MappingMode === BrushMappingMode.RelativeToBoundingBox) {
+            if (this.MappingMode !== BrushMappingMode.Absolute) {
                 start.x *= bounds.width;
                 start.y *= bounds.height;
                 end.x *= bounds.width;
