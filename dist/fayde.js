@@ -24347,7 +24347,7 @@ var Fayde;
                 tmpCtx.save();
                 tmpCtx.scale(data.sx, data.sy);
                 tmpCtx.fillStyle = grd;
-                tmpCtx.fillRect(0, 0, data.r1 * 2, data.r1 * 2);
+                tmpCtx.fillRect(0, 0, data.side, data.side);
                 var pattern = ctx.createPattern(tmpCanvas, "no-repeat");
                 tmpCtx.restore();
                 return pattern;
@@ -24359,6 +24359,8 @@ var Fayde;
             RadialGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
                 //TODO: Implement
                 return "";
+            };
+            RadialGradientBrush.prototype.CreateInterpolated = function (ctx, interpolator) {
             };
             RadialGradientBrush.prototype._GetPointData = function (bounds) {
                 var center = this.Center;
@@ -24379,15 +24381,17 @@ var Fayde;
                     rx *= bounds.width;
                     ry *= bounds.height;
                 }
-                var rad = Math.max(rx, ry), sx = rx / rad, sy = ry / rad;
+                var rad = Math.max(rx, ry);
+                var side = Math.max(bounds.width, bounds.height), sx = bounds.width / side, sy = bounds.height / side;
                 return {
-                    x0: center.x / sx,
-                    y0: center.y / sy,
-                    x1: origin.x / sx,
-                    y1: origin.y / sy,
+                    x0: origin.x / sx,
+                    y0: origin.y / sy,
+                    x1: center.x / sx,
+                    y1: center.y / sy,
                     r1: rad,
-                    sx: sx,
-                    sy: sy,
+                    side: side,
+                    sx: bounds.width / side,
+                    sy: bounds.height / side,
                     balanced: Math.abs(rx - ry) < epsilon
                 };
             };

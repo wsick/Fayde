@@ -5229,6 +5229,12 @@ declare module Fayde.Media {
         CreateProjectionMatrix3D(): Matrix3D;
     }
 }
+declare module Fayde.Media.RadialGradient {
+    interface IInterpolator {
+        step(): boolean;
+        interpolate(offset: number): number;
+    }
+}
 declare module Fayde.Media {
     class RadialGradientBrush extends GradientBrush {
         static CenterProperty: DependencyProperty;
@@ -5242,6 +5248,7 @@ declare module Fayde.Media {
         CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any;
         CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): string;
         CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): string;
+        private CreateInterpolated(ctx, interpolator);
         private _GetPointData(bounds);
     }
 }

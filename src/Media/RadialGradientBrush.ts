@@ -9,6 +9,7 @@ module Fayde.Media {
         r1: number;
         sx: number;
         sy: number;
+        side: number;
         balanced: boolean;
     }
 
@@ -42,7 +43,7 @@ module Fayde.Media {
             tmpCtx.save();
             tmpCtx.scale(data.sx, data.sy);
             tmpCtx.fillStyle = grd;
-            tmpCtx.fillRect(0, 0, data.r1 * 2, data.r1 * 2);
+            tmpCtx.fillRect(0, 0, data.side, data.side);
             var pattern = ctx.createPattern(tmpCanvas, "no-repeat");
             tmpCtx.restore();
             return pattern;
@@ -56,6 +57,10 @@ module Fayde.Media {
         CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             //TODO: Implement
             return "";
+        }
+
+        private CreateInterpolated (ctx: CanvasRenderingContext2D, interpolator: RadialGradient.IInterpolator) {
+
         }
 
         private _GetPointData (bounds: minerva.Rect): IRadialPointData {
@@ -79,17 +84,19 @@ module Fayde.Media {
                 ry *= bounds.height;
             }
 
-            var rad = Math.max(rx, ry),
-                sx = rx / rad,
-                sy = ry / rad;
+            var rad = Math.max(rx, ry);
+            var side = Math.max(bounds.width, bounds.height),
+                sx = bounds.width / side,
+                sy = bounds.height / side;
             return {
-                x0: center.x / sx,
-                y0: center.y / sy,
-                x1: origin.x / sx,
-                y1: origin.y / sy,
+                x0: origin.x / sx,
+                y0: origin.y / sy,
+                x1: center.x / sx,
+                y1: center.y / sy,
                 r1: rad,
-                sx: sx,
-                sy: sy,
+                side: side,
+                sx: bounds.width / side,
+                sy: bounds.height / side,
                 balanced: Math.abs(rx - ry) < epsilon
             };
         }
