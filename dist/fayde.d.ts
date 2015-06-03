@@ -5239,7 +5239,7 @@ declare module Fayde.Media {
         GradientOrigin: Point;
         RadiusX: number;
         RadiusY: number;
-        CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): string;
+        CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any;
         CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): string;
         CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): string;
         private _GetPointData(bounds);

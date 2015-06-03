@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript">
+        function load() {
+            var origin = { x: 50, y: 50 };
+            var center = { x: 80, y: 80 };
+            var rx = 200;
+            var ry = 200;
+            var bounds = { x: 100, y: 50, w: 300, h: 200 };
+
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext('2d');
+
+            canvas.width = 500;
+            canvas.height = 500;
+
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            var grd = createRadialGradient(ctx, origin, center, rx, ry, bounds, "Repeat");
+
+            ctx.fillStyle = grd;
+            ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+        }
+
+        function createRadialGradient(ctx, origin, center, rx, ry, bounds, type) {
+            var stops = [
+                {offset: 0.2, color: "#000000"},
+                {offset: 1.0, color: "#FFFFFF"}
+            ];
+
+            var grd = ctx.createRadialGradient(50, 50, 100, 100, 100, 0);
+            var grd = ctx.createRadialGradient(origin.x + bounds.x, origin.y + bounds.y, 0, center.x + bounds.x, center.y + bounds.y, 150);
+            for (var i = 0; i < stops.length; i++) {
+                var stop = stops[i];
+                grd.addColorStop(stop.offset, stop.color);
+            }
+            return grd;
+        }
+    </script>
+</head>
+<body onload="load();">
+    <canvas id="canvas">
+
+    </canvas>
+</body>
+</html>

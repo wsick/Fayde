@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.25';
+    Fayde.Version = '0.16.26';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -24327,15 +24327,30 @@ var Fayde;
     (function (Media) {
         var tmpCanvas = document.createElement('canvas');
         var tmpCtx = tmpCanvas.getContext('2d');
+        var epsilon = 1E-10;
         var RadialGradientBrush = (function (_super) {
             __extends(RadialGradientBrush, _super);
             function RadialGradientBrush() {
                 _super.apply(this, arguments);
             }
             RadialGradientBrush.prototype.CreatePad = function (ctx, bounds) {
-                var pdata = this._GetPointData(bounds);
-                //TODO: Implement
-                return "";
+                var data = this._GetPointData(bounds);
+                var grd = (!data.balanced ? tmpCtx : ctx).createRadialGradient(data.x0, data.y0, 0, data.x1, data.y1, data.r1);
+                for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
+                    var stop = en.current;
+                    grd.addColorStop(stop.Offset, stop.Color.toString());
+                }
+                if (data.balanced)
+                    return grd;
+                tmpCanvas.width = bounds.width;
+                tmpCanvas.height = bounds.height;
+                tmpCtx.save();
+                tmpCtx.scale(data.sx, data.sy);
+                tmpCtx.fillStyle = grd;
+                tmpCtx.fillRect(0, 0, data.r1 * 2, data.r1 * 2);
+                var pattern = ctx.createPattern(tmpCanvas, "no-repeat");
+                tmpCtx.restore();
+                return pattern;
             };
             RadialGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
                 //TODO: Implement
@@ -24364,11 +24379,16 @@ var Fayde;
                     rx *= bounds.width;
                     ry *= bounds.height;
                 }
+                var rad = Math.max(rx, ry), sx = rx / rad, sy = ry / rad;
                 return {
-                    center: center,
-                    origin: origin,
-                    radiusX: rx,
-                    radiusY: ry
+                    x0: center.x / sx,
+                    y0: center.y / sy,
+                    x1: origin.x / sx,
+                    y1: origin.y / sy,
+                    r1: rad,
+                    sx: sx,
+                    sy: sy,
+                    balanced: Math.abs(rx - ry) < epsilon
                 };
             };
             RadialGradientBrush.CenterProperty = DependencyProperty.RegisterCore("Center", function () { return Point; }, RadialGradientBrush, undefined, function (d, args) { return d.InvalidateBrush(); });

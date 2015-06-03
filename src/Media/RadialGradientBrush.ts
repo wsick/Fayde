@@ -2,14 +2,19 @@
 
 module Fayde.Media {
     interface IRadialPointData {
-        center: Point;
-        origin: Point;
-        radiusX: number;
-        radiusY: number;
+        x0: number;
+        y0: number;
+        x1: number;
+        y1: number;
+        r1: number;
+        sx: number;
+        sy: number;
+        balanced: boolean;
     }
 
     var tmpCanvas: HTMLCanvasElement = document.createElement('canvas');
     var tmpCtx: CanvasRenderingContext2D = <CanvasRenderingContext2D>tmpCanvas.getContext('2d');
+    var epsilon = 1E-10;
 
     export class RadialGradientBrush extends GradientBrush {
         static CenterProperty = DependencyProperty.RegisterCore("Center", () => Point, RadialGradientBrush, undefined, (d: RadialGradientBrush, args) => d.InvalidateBrush());
@@ -21,10 +26,26 @@ module Fayde.Media {
         RadiusX: number;
         RadiusY: number;
 
-        CreatePad (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
-            var pdata = this._GetPointData(bounds);
-            //TODO: Implement
-            return "";
+        CreatePad (ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any {
+            var data = this._GetPointData(bounds);
+            var grd = (!data.balanced ? tmpCtx : ctx).createRadialGradient(data.x0, data.y0, 0, data.x1, data.y1, data.r1);
+            for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
+                var stop: GradientStop = en.current;
+                grd.addColorStop(stop.Offset, stop.Color.toString());
+            }
+            if (data.balanced)
+                return grd;
+
+            tmpCanvas.width = bounds.width;
+            tmpCanvas.height = bounds.height;
+
+            tmpCtx.save();
+            tmpCtx.scale(data.sx, data.sy);
+            tmpCtx.fillStyle = grd;
+            tmpCtx.fillRect(0, 0, data.r1 * 2, data.r1 * 2);
+            var pattern = ctx.createPattern(tmpCanvas, "no-repeat");
+            tmpCtx.restore();
+            return pattern;
         }
 
         CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
@@ -58,11 +79,18 @@ module Fayde.Media {
                 ry *= bounds.height;
             }
 
+            var rad = Math.max(rx, ry),
+                sx = rx / rad,
+                sy = ry / rad;
             return {
-                center: center,
-                origin: origin,
-                radiusX: rx,
-                radiusY: ry
+                x0: center.x / sx,
+                y0: center.y / sy,
+                x1: origin.x / sx,
+                y1: origin.y / sy,
+                r1: rad,
+                sx: sx,
+                sy: sy,
+                balanced: Math.abs(rx - ry) < epsilon
             };
         }
     }
