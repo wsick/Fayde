@@ -9,9 +9,7 @@ module Fayde.Media {
 
         CreatePad (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
-            var start = data.start;
-            var end = data.end;
-            var grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+            var grd = ctx.createLinearGradient(data.start.x, data.start.y, data.end.x, data.end.y);
             for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
                 var stop: GradientStop = en.current;
                 grd.addColorStop(stop.Offset, stop.Color.toString());
@@ -19,25 +17,28 @@ module Fayde.Media {
             return grd;
         }
 
-        CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any {
+        CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
-            var interpolator = LinearGradient.createRepeatInterpolator(data.start, data.end, bounds);
+            return this.CreateInterpolated(ctx, LinearGradient.createRepeatInterpolator(data.start, data.end, bounds));
+        }
+
+        CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+            var data = this._GetPointData(bounds);
+            return this.CreateInterpolated(ctx, LinearGradient.createReflectInterpolator(data.start, data.end, bounds));
+        }
+
+        private CreateInterpolated (ctx: CanvasRenderingContext2D, interpolator: LinearGradient.IInterpolator) {
             var grd = ctx.createLinearGradient(interpolator.x0, interpolator.y0, interpolator.x1, interpolator.y1);
             var allStops = this.GradientStops.getPaddedEnumerable();
             for (; interpolator.step();) {
                 for (var en = allStops.getEnumerator(); en.moveNext();) {
                     var stop = en.current;
-                    grd.addColorStop(interpolator.interpolate(stop.Offset), stop.Color.toString());
+                    var offset = interpolator.interpolate(stop.Offset);
+                    if (offset >= 0 && offset <= 1)
+                        grd.addColorStop(offset, stop.Color.toString());
                 }
             }
             return grd;
-        }
-
-        CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
-            var data = this._GetPointData(bounds);
-            var start = data.start;
-            var end = data.end;
-            //TODO: Implement
         }
 
         private _GetPointData (bounds: minerva.Rect) {

@@ -22848,6 +22848,64 @@ var Fayde;
     (function (Media) {
         var LinearGradient;
         (function (LinearGradient) {
+            function createRepeatInterpolator(start, end, bounds) {
+                var first = { x: start.x, y: start.y };
+                var last = { x: end.x, y: end.y };
+                var dir = { x: end.x - start.x, y: end.y - start.y };
+                LinearGradient.calcMetrics(dir, first, last, bounds);
+                var numSteps = (last.x - first.x) / dir.x;
+                var stepSize = 1.0 / numSteps;
+                var cur = -stepSize;
+                return {
+                    x0: first.x,
+                    y0: first.y,
+                    x1: last.x,
+                    y1: last.y,
+                    step: function () {
+                        cur += stepSize;
+                        return cur < 1;
+                    },
+                    interpolate: function (offset) {
+                        return cur + (offset / numSteps);
+                    }
+                };
+            }
+            LinearGradient.createRepeatInterpolator = createRepeatInterpolator;
+            function createReflectInterpolator(start, end, bounds) {
+                var first = { x: start.x, y: start.y };
+                var last = { x: end.x, y: end.y };
+                var dir = { x: end.x - start.x, y: end.y - start.y };
+                LinearGradient.calcMetrics(dir, first, last, bounds);
+                var numSteps = (last.x - first.x) / dir.x;
+                var stepSize = 1.0 / numSteps;
+                var cur = -stepSize;
+                var inverted = Math.round((start.x - first.x) / dir.x) % 2 === 0;
+                return {
+                    x0: first.x,
+                    y0: first.y,
+                    x1: last.x,
+                    y1: last.y,
+                    step: function () {
+                        inverted = !inverted;
+                        cur += stepSize;
+                        return cur < 1;
+                    },
+                    interpolate: function (offset) {
+                        var norm = offset / numSteps;
+                        return !inverted ? cur + norm : cur + (stepSize - norm);
+                    }
+                };
+            }
+            LinearGradient.createReflectInterpolator = createReflectInterpolator;
+        })(LinearGradient = Media.LinearGradient || (Media.LinearGradient = {}));
+    })(Media = Fayde.Media || (Fayde.Media = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Media;
+    (function (Media) {
+        var LinearGradient;
+        (function (LinearGradient) {
             function calcMetrics(dir, first, last, bounds) {
                 if (dir.y === 0) {
                     if (dir.x < 0)
@@ -22962,38 +23020,6 @@ var Fayde;
         })(LinearGradient = Media.LinearGradient || (Media.LinearGradient = {}));
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Media;
-    (function (Media) {
-        var LinearGradient;
-        (function (LinearGradient) {
-            function createRepeatInterpolator(start, end, bounds) {
-                var first = { x: start.x, y: start.y };
-                var last = { x: end.x, y: end.y };
-                var dir = { x: end.x - start.x, y: end.y - start.y };
-                LinearGradient.calcMetrics(dir, first, last, bounds);
-                var numSteps = (last.x - first.x) / dir.x;
-                var stepSize = 1.0 / numSteps;
-                var cur = -stepSize;
-                return {
-                    x0: first.x,
-                    y0: first.y,
-                    x1: last.x,
-                    y1: last.y,
-                    step: function () {
-                        cur += stepSize;
-                        return cur < 1;
-                    },
-                    interpolate: function (offset) {
-                        return cur + (offset / numSteps);
-                    }
-                };
-            }
-            LinearGradient.createRepeatInterpolator = createRepeatInterpolator;
-        })(LinearGradient = Media.LinearGradient || (Media.LinearGradient = {}));
-    })(Media = Fayde.Media || (Fayde.Media = {}));
-})(Fayde || (Fayde = {}));
 /// <reference path="GradientBrush.ts" />
 var Fayde;
 (function (Fayde) {
@@ -23006,9 +23032,7 @@ var Fayde;
             }
             LinearGradientBrush.prototype.CreatePad = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
-                var start = data.start;
-                var end = data.end;
-                var grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+                var grd = ctx.createLinearGradient(data.start.x, data.start.y, data.end.x, data.end.y);
                 for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
                     var stop = en.current;
                     grd.addColorStop(stop.Offset, stop.Color.toString());
@@ -23017,22 +23041,24 @@ var Fayde;
             };
             LinearGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
-                var interpolator = Media.LinearGradient.createRepeatInterpolator(data.start, data.end, bounds);
+                return this.CreateInterpolated(ctx, Media.LinearGradient.createRepeatInterpolator(data.start, data.end, bounds));
+            };
+            LinearGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
+                var data = this._GetPointData(bounds);
+                return this.CreateInterpolated(ctx, Media.LinearGradient.createReflectInterpolator(data.start, data.end, bounds));
+            };
+            LinearGradientBrush.prototype.CreateInterpolated = function (ctx, interpolator) {
                 var grd = ctx.createLinearGradient(interpolator.x0, interpolator.y0, interpolator.x1, interpolator.y1);
                 var allStops = this.GradientStops.getPaddedEnumerable();
                 for (; interpolator.step();) {
                     for (var en = allStops.getEnumerator(); en.moveNext();) {
                         var stop = en.current;
-                        grd.addColorStop(interpolator.interpolate(stop.Offset), stop.Color.toString());
+                        var offset = interpolator.interpolate(stop.Offset);
+                        if (offset >= 0 && offset <= 1)
+                            grd.addColorStop(offset, stop.Color.toString());
                     }
                 }
                 return grd;
-            };
-            LinearGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
-                var data = this._GetPointData(bounds);
-                var start = data.start;
-                var end = data.end;
-                //TODO: Implement
             };
             LinearGradientBrush.prototype._GetPointData = function (bounds) {
                 var start = this.StartPoint;

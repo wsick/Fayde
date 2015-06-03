@@ -4989,13 +4989,6 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media.LinearGradient {
-    interface ICoordinates {
-        x: number;
-        y: number;
-    }
-    function calcMetrics(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect): void;
-}
-declare module Fayde.Media.LinearGradient {
     interface IInterpolator {
         x0: number;
         y0: number;
@@ -5005,6 +4998,14 @@ declare module Fayde.Media.LinearGradient {
         interpolate(offset: number): number;
     }
     function createRepeatInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
+    function createReflectInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
+}
+declare module Fayde.Media.LinearGradient {
+    interface ICoordinates {
+        x: number;
+        y: number;
+    }
+    function calcMetrics(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect): void;
 }
 declare module Fayde.Media {
     class LinearGradientBrush extends GradientBrush {
@@ -5013,8 +5014,9 @@ declare module Fayde.Media {
         StartPoint: Point;
         EndPoint: Point;
         CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
-        CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any;
-        CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
+        CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
+        CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
+        private CreateInterpolated(ctx, interpolator);
         private _GetPointData(bounds);
         toString(): string;
     }
