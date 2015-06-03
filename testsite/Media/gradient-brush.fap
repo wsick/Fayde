@@ -1,0 +1,102 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    ThemeName="Metro">
+    <Grid x:Name="LayoutRoot" ShowGridLines="true">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="200" />
+            <RowDefinition Height="200" />
+            <RowDefinition Height="200" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="300" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Column="0" Text="Spread Method" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="1" Text="Linear" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="2" Text="Radial" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Pad" VerticalAlignment="Center" />
+        <Grid Grid.Row="1" Grid.Column="1" Margin="4">
+            <Grid.Background>
+                <LinearGradientBrush SpreadMethod="Pad" StartPoint="0.25,0" EndPoint="0.75,0">
+                    <GradientStop Offset="0.2" Color="Red" />
+                    <GradientStop Offset="0.3" Color="Orange" />
+                    <GradientStop Offset="0.4" Color="Yellow" />
+                    <GradientStop Offset="0.5" Color="Green" />
+                    <GradientStop Offset="0.6" Color="Blue" />
+                    <GradientStop Offset="0.7" Color="Purple" />
+                </LinearGradientBrush>
+            </Grid.Background>
+        </Grid>
+        <Grid Grid.Row="1" Grid.Column="2" Margin="4">
+            <Grid.Background>
+                <RadialGradientBrush SpreadMethod="Pad">
+                    <GradientStop Offset="0.2" Color="Red" />
+                    <GradientStop Offset="0.3" Color="Orange" />
+                    <GradientStop Offset="0.4" Color="Yellow" />
+                    <GradientStop Offset="0.5" Color="Green" />
+                    <GradientStop Offset="0.6" Color="Blue" />
+                    <GradientStop Offset="0.7" Color="Purple" />
+                </RadialGradientBrush>
+            </Grid.Background>
+        </Grid>
+
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Repeat" VerticalAlignment="Center" />
+        <Grid Grid.Row="2" Grid.Column="1" Margin="4">
+            <Grid.Background>
+                <LinearGradientBrush SpreadMethod="Repeat" StartPoint="0.25,0" EndPoint="0.75,0">
+                    <GradientStop Offset="0.2" Color="Red" />
+                    <GradientStop Offset="0.3" Color="Orange" />
+                    <GradientStop Offset="0.4" Color="Yellow" />
+                    <GradientStop Offset="0.5" Color="Green" />
+                    <GradientStop Offset="0.6" Color="Blue" />
+                    <GradientStop Offset="0.7" Color="Purple" />
+                </LinearGradientBrush>
+            </Grid.Background>
+        </Grid>
+        <Grid Grid.Row="2" Grid.Column="2" Margin="4">
+            <Grid.Background>
+                <RadialGradientBrush SpreadMethod="Repeat">
+                    <GradientStop Offset="0.2" Color="Red" />
+                    <GradientStop Offset="0.3" Color="Orange" />
+                    <GradientStop Offset="0.4" Color="Yellow" />
+                    <GradientStop Offset="0.5" Color="Green" />
+                    <GradientStop Offset="0.6" Color="Blue" />
+                    <GradientStop Offset="0.7" Color="Purple" />
+                </RadialGradientBrush>
+            </Grid.Background>
+        </Grid>
+
+
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Reflect" VerticalAlignment="Center" />
+        <Grid Grid.Row="3" Grid.Column="1" Margin="4">
+            <Grid.Background>
+                <LinearGradientBrush SpreadMethod="Reflect" StartPoint="0.25,0" EndPoint="0.75,0">
+                    <GradientStop Offset="0.2" Color="Red" />
+                    <GradientStop Offset="0.3" Color="Orange" />
+                    <GradientStop Offset="0.4" Color="Yellow" />
+                    <GradientStop Offset="0.5" Color="Green" />
+                    <GradientStop Offset="0.6" Color="Blue" />
+                    <GradientStop Offset="0.7" Color="Purple" />
+                </LinearGradientBrush>
+            </Grid.Background>
+        </Grid>
+        <Grid Grid.Row="3" Grid.Column="2" Margin="4">
+            <Grid.Background>
+                <RadialGradientBrush SpreadMethod="Reflect">
+                    <GradientStop Offset="0.2" Color="Red" />
+                    <GradientStop Offset="0.3" Color="Orange" />
+                    <GradientStop Offset="0.4" Color="Yellow" />
+                    <GradientStop Offset="0.5" Color="Green" />
+                    <GradientStop Offset="0.6" Color="Blue" />
+                    <GradientStop Offset="0.7" Color="Purple" />
+                </RadialGradientBrush>
+            </Grid.Background>
+        </Grid>
+    </Grid>
+</Application>

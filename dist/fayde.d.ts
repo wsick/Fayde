@@ -4882,31 +4882,17 @@ declare module Fayde.Media {
         SpreadMethod: GradientSpreadMethod;
         constructor();
         CreateBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any;
-        _CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
-        _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
-        _CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
-        _GetMappingModeTransform(bounds: minerva.Rect): number[];
+        CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
+        CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
+        CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
     }
 }
 declare module Fayde.Media {
-    interface ICoordinates {
-        x: number;
-        y: number;
+    interface IGradientStop {
+        Color: Color;
+        Offset: number;
     }
-    class GradientMetrics {
-        static Calculate(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect): void;
-        private static E(dir, first, last, bounds);
-        private static W(dir, first, last, bounds);
-        private static S(dir, first, last, bounds);
-        private static N(dir, first, last, bounds);
-        private static NW(dir, first, last, bounds);
-        private static SW(dir, first, last, bounds);
-        private static NE(dir, first, last, bounds);
-        private static SE(dir, first, last, bounds);
-    }
-}
-declare module Fayde.Media {
-    class GradientStop extends DependencyObject {
+    class GradientStop extends DependencyObject implements IGradientStop {
         static ColorProperty: DependencyProperty;
         static OffsetProperty: DependencyProperty;
         Color: Color;
@@ -4916,6 +4902,7 @@ declare module Fayde.Media {
     class GradientStopCollection extends XamlObjectCollection<GradientStop> {
         AddingToCollection(value: GradientStop, error: BError): boolean;
         RemovedFromCollection(value: GradientStop, isValueSafe: boolean): boolean;
+        getPaddedEnumerable(): nullstone.IEnumerable<IGradientStop>;
     }
 }
 declare module Fayde.Media.Imaging {
@@ -5001,15 +4988,35 @@ declare module Fayde.Media {
         _Build(): minerva.path.Path;
     }
 }
+declare module Fayde.Media.LinearGradient {
+    interface IInterpolator {
+        x0: number;
+        y0: number;
+        x1: number;
+        y1: number;
+        step(): boolean;
+        interpolate(offset: number): number;
+    }
+    function createRepeatInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
+    function createReflectInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
+}
+declare module Fayde.Media.LinearGradient {
+    interface ICoordinates {
+        x: number;
+        y: number;
+    }
+    function calcMetrics(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect): void;
+}
 declare module Fayde.Media {
     class LinearGradientBrush extends GradientBrush {
         static StartPointProperty: DependencyProperty;
         static EndPointProperty: DependencyProperty;
         StartPoint: Point;
         EndPoint: Point;
-        _CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
-        _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
-        _CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
+        CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
+        CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
+        CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasGradient;
+        private CreateInterpolated(ctx, interpolator);
         private _GetPointData(bounds);
         toString(): string;
     }
@@ -5232,7 +5239,10 @@ declare module Fayde.Media {
         GradientOrigin: Point;
         RadiusX: number;
         RadiusY: number;
-        CreateBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any;
+        CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): string;
+        CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): string;
+        CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): string;
+        private _GetPointData(bounds);
     }
 }
 declare module Fayde.Media {

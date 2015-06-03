@@ -7,63 +7,55 @@ module Fayde.Media {
         StartPoint: Point;
         EndPoint: Point;
 
-        _CreatePad (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+        CreatePad (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
-            var start = data.start;
-            var end = data.end;
-            var grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
-            var enumerator = this.GradientStops.getEnumerator();
-            while (enumerator.moveNext()) {
-                var stop: GradientStop = enumerator.current;
+            var grd = ctx.createLinearGradient(data.start.x, data.start.y, data.end.x, data.end.y);
+            for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
+                var stop: GradientStop = en.current;
                 grd.addColorStop(stop.Offset, stop.Color.toString());
             }
             return grd;
         }
 
-        _CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+        CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
-            var start = data.start;
-            var end = data.end;
-            var dir = {x: end.x - start.x, y: end.y - start.y};
-            var first = {x: start.x, y: start.y};
-            var last = {x: end.x, y: end.y};
+            return this.CreateInterpolated(ctx, LinearGradient.createRepeatInterpolator(data.start, data.end, bounds));
+        }
 
-            GradientMetrics.Calculate(dir, first, last, bounds);
+        CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+            var data = this._GetPointData(bounds);
+            return this.CreateInterpolated(ctx, LinearGradient.createReflectInterpolator(data.start, data.end, bounds));
+        }
 
-            var grd = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
-
-            var steps = (last.x - first.x) / dir.x;
-            var curOffset = 0.0;
-            for (var i = 0; i < steps; i++) {
-                var enumerator = this.GradientStops.getEnumerator();
-                while (enumerator.moveNext()) {
-                    var stop: GradientStop = enumerator.current;
-                    grd.addColorStop(curOffset + (stop.Offset / steps), stop.Color.toString());
+        private CreateInterpolated (ctx: CanvasRenderingContext2D, interpolator: LinearGradient.IInterpolator) {
+            var grd = ctx.createLinearGradient(interpolator.x0, interpolator.y0, interpolator.x1, interpolator.y1);
+            var allStops = this.GradientStops.getPaddedEnumerable();
+            for (; interpolator.step();) {
+                for (var en = allStops.getEnumerator(); en.moveNext();) {
+                    var stop = en.current;
+                    var offset = interpolator.interpolate(stop.Offset);
+                    if (offset >= 0 && offset <= 1)
+                        grd.addColorStop(offset, stop.Color.toString());
                 }
-
-                curOffset += (1.0 / steps);
             }
             return grd;
         }
 
-        _CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
-            var data = this._GetPointData(bounds);
-            var start = data.start;
-            var end = data.end;
-        }
-
         private _GetPointData (bounds: minerva.Rect) {
-            var transform = this._GetMappingModeTransform(bounds);
+            var start = this.StartPoint;
+            start = !start ? new Point(0.0, 0.0) : start.Clone();
+            var end = this.EndPoint;
+            end = !end ? new Point(1.0, 1.0) : end.Clone();
 
-            var sp = this.StartPoint;
-            var ep = this.EndPoint;
-
-            var s = mat3.transformVec2(transform, vec2.create(sp.x, sp.y));
-            var e = mat3.transformVec2(transform, vec2.create(ep.x, ep.y));
-
+            if (this.MappingMode !== BrushMappingMode.Absolute) {
+                start.x *= bounds.width;
+                start.y *= bounds.height;
+                end.x *= bounds.width;
+                end.y *= bounds.height;
+            }
             return {
-                start: new Point(s[0], s[1]),
-                end: new Point(e[0], e[1])
+                start: start,
+                end: end
             };
         }
 
