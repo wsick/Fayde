@@ -5251,8 +5251,8 @@ declare module Fayde.Media.RadialGradient {
         step(): boolean;
         interpolate(offset: number): number;
     }
-    function createRepeatInterpolator(data: IRadialPointData): IInterpolator;
-    function createReflectInterpolator(data: IRadialPointData): IInterpolator;
+    function createRepeatInterpolator(data: IRadialPointData, bounds: minerva.Rect): IInterpolator;
+    function createReflectInterpolator(data: IRadialPointData, bounds: minerva.Rect): IInterpolator;
 }
 declare module Fayde.Media {
     class RadialGradientBrush extends GradientBrush {

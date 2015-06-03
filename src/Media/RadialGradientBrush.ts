@@ -27,17 +27,20 @@ module Fayde.Media {
 
         CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
-            var grd = this.CreateInterpolated(ctx, RadialGradient.createRepeatInterpolator(data));
+            var grd = this.CreateInterpolated(ctx, RadialGradient.createRepeatInterpolator(data, bounds));
             return this.CreatePattern(ctx, grd, data, bounds);
         }
 
         CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
-            var grd = this.CreateInterpolated(ctx, RadialGradient.createReflectInterpolator(data));
+            var grd = this.CreateInterpolated(ctx, RadialGradient.createReflectInterpolator(data, bounds));
             return this.CreatePattern(ctx, grd, data, bounds);
         }
 
         private CreatePattern (ctx: CanvasRenderingContext2D, grd: CanvasGradient, data: RadialGradient.IRadialPointData, bounds: minerva.Rect) {
+            //NOTE:
+            //  This will return the CanvasGradient if bounds are square
+            //  Otherwise, it will create a CanvasPattern by scaling square coordinate space into bounds
             if (data.balanced)
                 return grd;
 
@@ -68,6 +71,9 @@ module Fayde.Media {
         }
 
         private _GetPointData (bounds: minerva.Rect): RadialGradient.IRadialPointData {
+            //NOTE:
+            //  This function will translate relative coordinates to absolute coordinates
+            //  It will then map non-square metrics into square coordinate space
             var center = this.Center;
             center = !center ? new Point(0.5, 0.5) : center.Clone();
             var origin = this.GradientOrigin;

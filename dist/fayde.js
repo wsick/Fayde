@@ -24326,40 +24326,69 @@ var Fayde;
     (function (Media) {
         var RadialGradient;
         (function (RadialGradient) {
-            function createRepeatInterpolator(data) {
+            function createRepeatInterpolator(data, bounds) {
+                var numSteps = getNumRings(data.x0, data.y0, data.r1, bounds);
+                var rad = numSteps * data.r1;
+                var stepSize = 1.0 / numSteps;
+                var cur = -stepSize;
+                var dx = numSteps * (data.x1 - data.x0);
+                var dy = numSteps * (data.y1 - data.y0);
                 return {
                     x0: data.x0,
                     y0: data.y0,
-                    x1: data.x1,
-                    y1: data.y1,
-                    r1: data.r1,
+                    x1: data.x0 + dx,
+                    y1: data.y0 + dy,
+                    r1: rad,
                     balanced: data.balanced,
                     step: function () {
-                        return false;
+                        cur += stepSize;
+                        return cur < 1;
                     },
                     interpolate: function (offset) {
-                        return offset;
+                        return cur + (offset / numSteps);
                     }
                 };
             }
             RadialGradient.createRepeatInterpolator = createRepeatInterpolator;
-            function createReflectInterpolator(data) {
+            function createReflectInterpolator(data, bounds) {
+                var numSteps = getNumRings(data.x0, data.y0, data.r1, bounds);
+                var rad = numSteps * data.r1;
+                var stepSize = 1.0 / numSteps;
+                var cur = -stepSize;
+                var inverted = numSteps % 2 === 1;
+                var dx = numSteps * (data.x1 - data.x0);
+                var dy = numSteps * (data.y1 - data.y0);
                 return {
                     x0: data.x0,
                     y0: data.y0,
-                    x1: data.x1,
-                    y1: data.y1,
-                    r1: data.r1,
+                    x1: data.x0 + dx,
+                    y1: data.y0 + dy,
+                    r1: rad,
                     balanced: data.balanced,
                     step: function () {
-                        return false;
+                        inverted = !inverted;
+                        cur += stepSize;
+                        return cur < 1;
                     },
                     interpolate: function (offset) {
-                        return offset;
+                        var norm = offset / numSteps;
+                        return !inverted ? cur + norm : cur + (stepSize - norm);
                     }
                 };
             }
             RadialGradient.createReflectInterpolator = createReflectInterpolator;
+            function getNumRings(cx, cy, radius, bounds) {
+                var nw = getLen(cx, cy, bounds.x, bounds.y);
+                var ne = getLen(cx, cy, bounds.x + bounds.width, bounds.y);
+                var se = getLen(cx, cy, bounds.x + bounds.width, bounds.y + bounds.height);
+                var sw = getLen(cx, cy, bounds.x, bounds.y + bounds.height);
+                return Math.ceil(Math.max(nw, ne, se, sw) / radius);
+            }
+            function getLen(x0, y0, x1, y1) {
+                var xp = x1 - x0;
+                var yp = y1 - y0;
+                return Math.sqrt((xp * xp) + (yp * yp));
+            }
         })(RadialGradient = Media.RadialGradient || (Media.RadialGradient = {}));
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
@@ -24387,15 +24416,18 @@ var Fayde;
             };
             RadialGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
-                var grd = this.CreateInterpolated(ctx, Media.RadialGradient.createRepeatInterpolator(data));
+                var grd = this.CreateInterpolated(ctx, Media.RadialGradient.createRepeatInterpolator(data, bounds));
                 return this.CreatePattern(ctx, grd, data, bounds);
             };
             RadialGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
-                var grd = this.CreateInterpolated(ctx, Media.RadialGradient.createReflectInterpolator(data));
+                var grd = this.CreateInterpolated(ctx, Media.RadialGradient.createReflectInterpolator(data, bounds));
                 return this.CreatePattern(ctx, grd, data, bounds);
             };
             RadialGradientBrush.prototype.CreatePattern = function (ctx, grd, data, bounds) {
+                //NOTE:
+                //  This will return the CanvasGradient if bounds are square
+                //  Otherwise, it will create a CanvasPattern by scaling square coordinate space into bounds
                 if (data.balanced)
                     return grd;
                 tmpCanvas.width = bounds.width;
@@ -24422,6 +24454,9 @@ var Fayde;
                 return grd;
             };
             RadialGradientBrush.prototype._GetPointData = function (bounds) {
+                //NOTE:
+                //  This function will translate relative coordinates to absolute coordinates
+                //  It will then map non-square metrics into square coordinate space
                 var center = this.Center;
                 center = !center ? new Point(0.5, 0.5) : center.Clone();
                 var origin = this.GradientOrigin;
