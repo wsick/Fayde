@@ -19,27 +19,16 @@ module Fayde.Media {
             return grd;
         }
 
-        CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+        CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any {
             var data = this._GetPointData(bounds);
-            var start = data.start;
-            var end = data.end;
-            var dir = {x: end.x - start.x, y: end.y - start.y};
-            var first = {x: start.x, y: start.y};
-            var last = {x: end.x, y: end.y};
-
-            LinearGradientMetrics.Calculate(dir, first, last, bounds);
-
-            var grd = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
-
-            var steps = (last.x - first.x) / dir.x;
-            var curOffset = 0.0;
-            for (var i = 0; i < steps; i++) {
-                for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
-                    var stop: GradientStop = en.current;
-                    grd.addColorStop(curOffset + (stop.Offset / steps), stop.Color.toString());
+            var interpolator = LinearGradient.createRepeatInterpolator(data.start, data.end, bounds);
+            var grd = ctx.createLinearGradient(interpolator.x0, interpolator.y0, interpolator.x1, interpolator.y1);
+            var allStops = this.GradientStops.getPaddedEnumerable();
+            for (; interpolator.step();) {
+                for (var en = allStops.getEnumerator(); en.moveNext();) {
+                    var stop = en.current;
+                    grd.addColorStop(interpolator.interpolate(stop.Offset), stop.Color.toString());
                 }
-
-                curOffset += (1.0 / steps);
             }
             return grd;
         }

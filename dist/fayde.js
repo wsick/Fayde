@@ -22469,6 +22469,28 @@ var Fayde;
                 Fayde.UnreactTo(value, this);
                 Fayde.Incite(this);
             };
+            GradientStopCollection.prototype.getPaddedEnumerable = function () {
+                var minOffset = Number.MAX_VALUE;
+                var min = null;
+                var maxOffset = Number.MIN_VALUE;
+                var max = null;
+                for (var en = this.getEnumerator(); en.moveNext();) {
+                    if (en.current.Offset < minOffset) {
+                        min = en.current;
+                        minOffset = en.current.Offset;
+                    }
+                    if (en.current.Offset > maxOffset) {
+                        max = en.current;
+                        maxOffset = en.current.Offset;
+                    }
+                }
+                var arr = this._ht.slice(0);
+                if (!!min)
+                    arr.unshift({ Offset: 0, Color: min.Color });
+                if (!!max)
+                    arr.push({ Offset: 1, Color: max.Color });
+                return nullstone.IEnumerable_.fromArray(arr);
+            };
             return GradientStopCollection;
         })(Fayde.XamlObjectCollection);
         Media.GradientStopCollection = GradientStopCollection;
@@ -22820,91 +22842,13 @@ var Fayde;
         Fayde.CoreLibrary.add(LineGeometry);
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
-/// <reference path="GradientBrush.ts" />
 var Fayde;
 (function (Fayde) {
     var Media;
     (function (Media) {
-        var LinearGradientBrush = (function (_super) {
-            __extends(LinearGradientBrush, _super);
-            function LinearGradientBrush() {
-                _super.apply(this, arguments);
-            }
-            LinearGradientBrush.prototype.CreatePad = function (ctx, bounds) {
-                var data = this._GetPointData(bounds);
-                var start = data.start;
-                var end = data.end;
-                var grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
-                for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
-                    var stop = en.current;
-                    grd.addColorStop(stop.Offset, stop.Color.toString());
-                }
-                return grd;
-            };
-            LinearGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
-                var data = this._GetPointData(bounds);
-                var start = data.start;
-                var end = data.end;
-                var dir = { x: end.x - start.x, y: end.y - start.y };
-                var first = { x: start.x, y: start.y };
-                var last = { x: end.x, y: end.y };
-                Media.LinearGradientMetrics.Calculate(dir, first, last, bounds);
-                var grd = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
-                var steps = (last.x - first.x) / dir.x;
-                var curOffset = 0.0;
-                for (var i = 0; i < steps; i++) {
-                    for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
-                        var stop = en.current;
-                        grd.addColorStop(curOffset + (stop.Offset / steps), stop.Color.toString());
-                    }
-                    curOffset += (1.0 / steps);
-                }
-                return grd;
-            };
-            LinearGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
-                var data = this._GetPointData(bounds);
-                var start = data.start;
-                var end = data.end;
-                //TODO: Implement
-            };
-            LinearGradientBrush.prototype._GetPointData = function (bounds) {
-                var start = this.StartPoint;
-                start = !start ? new Point(0.0, 0.0) : start.Clone();
-                var end = this.EndPoint;
-                end = !end ? new Point(1.0, 1.0) : end.Clone();
-                if (this.MappingMode !== Media.BrushMappingMode.Absolute) {
-                    start.x *= bounds.width;
-                    start.y *= bounds.height;
-                    end.x *= bounds.width;
-                    end.y *= bounds.height;
-                }
-                return {
-                    start: start,
-                    end: end
-                };
-            };
-            LinearGradientBrush.prototype.toString = function () {
-                var ser = [];
-                for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
-                    ser.push(en.current.toString());
-                }
-                return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";
-            };
-            LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () { return Point; }, LinearGradientBrush, undefined, function (d, args) { return d.InvalidateBrush(); });
-            LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterCore("EndPoint", function () { return Point; }, LinearGradientBrush, undefined, function (d, args) { return d.InvalidateBrush(); });
-            return LinearGradientBrush;
-        })(Media.GradientBrush);
-        Media.LinearGradientBrush = LinearGradientBrush;
-        Fayde.CoreLibrary.add(LinearGradientBrush);
-    })(Media = Fayde.Media || (Fayde.Media = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Media;
-    (function (Media) {
-        var LinearGradientMetrics;
-        (function (LinearGradientMetrics) {
-            function Calculate(dir, first, last, bounds) {
+        var LinearGradient;
+        (function (LinearGradient) {
+            function calcMetrics(dir, first, last, bounds) {
                 if (dir.y === 0) {
                     if (dir.x < 0)
                         W(dir, first, last, bounds);
@@ -22930,7 +22874,7 @@ var Fayde;
                     SE(dir, first, last, bounds);
                 }
             }
-            LinearGradientMetrics.Calculate = Calculate;
+            LinearGradient.calcMetrics = calcMetrics;
             //+x,0y
             function E(dir, first, last, bounds) {
                 var maxX = bounds.x + bounds.width;
@@ -23015,7 +22959,110 @@ var Fayde;
                     last.y += dir.y;
                 }
             }
-        })(LinearGradientMetrics = Media.LinearGradientMetrics || (Media.LinearGradientMetrics = {}));
+        })(LinearGradient = Media.LinearGradient || (Media.LinearGradient = {}));
+    })(Media = Fayde.Media || (Fayde.Media = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Media;
+    (function (Media) {
+        var LinearGradient;
+        (function (LinearGradient) {
+            function createRepeatInterpolator(start, end, bounds) {
+                var first = { x: start.x, y: start.y };
+                var last = { x: end.x, y: end.y };
+                var dir = { x: end.x - start.x, y: end.y - start.y };
+                LinearGradient.calcMetrics(dir, first, last, bounds);
+                var numSteps = (last.x - first.x) / dir.x;
+                var stepSize = 1.0 / numSteps;
+                var cur = -stepSize;
+                return {
+                    x0: first.x,
+                    y0: first.y,
+                    x1: last.x,
+                    y1: last.y,
+                    step: function () {
+                        cur += stepSize;
+                        return cur < 1;
+                    },
+                    interpolate: function (offset) {
+                        return cur + (offset / numSteps);
+                    }
+                };
+            }
+            LinearGradient.createRepeatInterpolator = createRepeatInterpolator;
+        })(LinearGradient = Media.LinearGradient || (Media.LinearGradient = {}));
+    })(Media = Fayde.Media || (Fayde.Media = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="GradientBrush.ts" />
+var Fayde;
+(function (Fayde) {
+    var Media;
+    (function (Media) {
+        var LinearGradientBrush = (function (_super) {
+            __extends(LinearGradientBrush, _super);
+            function LinearGradientBrush() {
+                _super.apply(this, arguments);
+            }
+            LinearGradientBrush.prototype.CreatePad = function (ctx, bounds) {
+                var data = this._GetPointData(bounds);
+                var start = data.start;
+                var end = data.end;
+                var grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+                for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
+                    var stop = en.current;
+                    grd.addColorStop(stop.Offset, stop.Color.toString());
+                }
+                return grd;
+            };
+            LinearGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
+                var data = this._GetPointData(bounds);
+                var interpolator = Media.LinearGradient.createRepeatInterpolator(data.start, data.end, bounds);
+                var grd = ctx.createLinearGradient(interpolator.x0, interpolator.y0, interpolator.x1, interpolator.y1);
+                var allStops = this.GradientStops.getPaddedEnumerable();
+                for (; interpolator.step();) {
+                    for (var en = allStops.getEnumerator(); en.moveNext();) {
+                        var stop = en.current;
+                        grd.addColorStop(interpolator.interpolate(stop.Offset), stop.Color.toString());
+                    }
+                }
+                return grd;
+            };
+            LinearGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
+                var data = this._GetPointData(bounds);
+                var start = data.start;
+                var end = data.end;
+                //TODO: Implement
+            };
+            LinearGradientBrush.prototype._GetPointData = function (bounds) {
+                var start = this.StartPoint;
+                start = !start ? new Point(0.0, 0.0) : start.Clone();
+                var end = this.EndPoint;
+                end = !end ? new Point(1.0, 1.0) : end.Clone();
+                if (this.MappingMode !== Media.BrushMappingMode.Absolute) {
+                    start.x *= bounds.width;
+                    start.y *= bounds.height;
+                    end.x *= bounds.width;
+                    end.y *= bounds.height;
+                }
+                return {
+                    start: start,
+                    end: end
+                };
+            };
+            LinearGradientBrush.prototype.toString = function () {
+                var ser = [];
+                for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
+                    ser.push(en.current.toString());
+                }
+                return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";
+            };
+            LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () { return Point; }, LinearGradientBrush, undefined, function (d, args) { return d.InvalidateBrush(); });
+            LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterCore("EndPoint", function () { return Point; }, LinearGradientBrush, undefined, function (d, args) { return d.InvalidateBrush(); });
+            return LinearGradientBrush;
+        })(Media.GradientBrush);
+        Media.LinearGradientBrush = LinearGradientBrush;
+        Fayde.CoreLibrary.add(LinearGradientBrush);
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
