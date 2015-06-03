@@ -1,5 +1,6 @@
 module runner {
     var testModules = [
+        ".build/tests/MatrixTests",
         ".build/tests/PrimitivesTests",
         ".build/tests/FormatTests",
         ".build/tests/TypeConverterTests",
