@@ -24320,6 +24320,37 @@ var Fayde;
         Fayde.CoreLibrary.add(PlaneProjection);
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Media;
+    (function (Media) {
+        var RadialGradient;
+        (function (RadialGradient) {
+            function createRepeatInterpolator() {
+                return {
+                    step: function () {
+                        return false;
+                    },
+                    interpolate: function (offset) {
+                        return offset;
+                    }
+                };
+            }
+            RadialGradient.createRepeatInterpolator = createRepeatInterpolator;
+            function createReflectInterpolator() {
+                return {
+                    step: function () {
+                        return false;
+                    },
+                    interpolate: function (offset) {
+                        return offset;
+                    }
+                };
+            }
+            RadialGradient.createReflectInterpolator = createReflectInterpolator;
+        })(RadialGradient = Media.RadialGradient || (Media.RadialGradient = {}));
+    })(Media = Fayde.Media || (Fayde.Media = {}));
+})(Fayde || (Fayde = {}));
 /// <reference path="GradientBrush.ts" />
 var Fayde;
 (function (Fayde) {
@@ -24340,6 +24371,21 @@ var Fayde;
                     var stop = en.current;
                     grd.addColorStop(stop.Offset, stop.Color.toString());
                 }
+                return this.CreatePattern(ctx, grd, data, bounds);
+            };
+            RadialGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
+                var data = this._GetPointData(bounds);
+                var interpolator = Media.RadialGradient.createRepeatInterpolator();
+                //TODO: Implement
+                return "";
+            };
+            RadialGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
+                var data = this._GetPointData(bounds);
+                var interpolator = Media.RadialGradient.createReflectInterpolator();
+                //TODO: Implement
+                return "";
+            };
+            RadialGradientBrush.prototype.CreatePattern = function (ctx, grd, data, bounds) {
                 if (data.balanced)
                     return grd;
                 tmpCanvas.width = bounds.width;
@@ -24351,16 +24397,6 @@ var Fayde;
                 var pattern = ctx.createPattern(tmpCanvas, "no-repeat");
                 tmpCtx.restore();
                 return pattern;
-            };
-            RadialGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
-                //TODO: Implement
-                return "";
-            };
-            RadialGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
-                //TODO: Implement
-                return "";
-            };
-            RadialGradientBrush.prototype.CreateInterpolated = function (ctx, interpolator) {
             };
             RadialGradientBrush.prototype._GetPointData = function (bounds) {
                 var center = this.Center;

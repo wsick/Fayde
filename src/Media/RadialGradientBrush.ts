@@ -34,6 +34,24 @@ module Fayde.Media {
                 var stop: GradientStop = en.current;
                 grd.addColorStop(stop.Offset, stop.Color.toString());
             }
+            return this.CreatePattern(ctx, grd, data, bounds);
+        }
+
+        CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+            var data = this._GetPointData(bounds);
+            var interpolator = RadialGradient.createRepeatInterpolator();
+            //TODO: Implement
+            return "";
+        }
+
+        CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
+            var data = this._GetPointData(bounds);
+            var interpolator = RadialGradient.createReflectInterpolator();
+            //TODO: Implement
+            return "";
+        }
+
+        private CreatePattern (ctx: CanvasRenderingContext2D, grd: CanvasGradient, data: IRadialPointData, bounds: minerva.Rect) {
             if (data.balanced)
                 return grd;
 
@@ -47,20 +65,6 @@ module Fayde.Media {
             var pattern = ctx.createPattern(tmpCanvas, "no-repeat");
             tmpCtx.restore();
             return pattern;
-        }
-
-        CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
-            //TODO: Implement
-            return "";
-        }
-
-        CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
-            //TODO: Implement
-            return "";
-        }
-
-        private CreateInterpolated (ctx: CanvasRenderingContext2D, interpolator: RadialGradient.IInterpolator) {
-
         }
 
         private _GetPointData (bounds: minerva.Rect): IRadialPointData {
