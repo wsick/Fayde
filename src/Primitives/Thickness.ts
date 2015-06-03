@@ -22,7 +22,7 @@ nullstone.registerTypeConverter(Thickness, (val: any): Thickness => {
         var t = <Thickness>val;
         return new Thickness(t.left, t.top, t.right, t.bottom);
     }
-    var tokens = val.toString().split(",");
+    var tokens = val.toString().split(/[ ,]/);
     var left, top, right, bottom;
     if (tokens.length === 1) {
         left = top = right = bottom = parseFloat(tokens[0]);

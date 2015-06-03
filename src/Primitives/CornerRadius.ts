@@ -10,7 +10,7 @@ nullstone.registerTypeConverter(CornerRadius, (val: any): CornerRadius => {
         return new CornerRadius();
     if (typeof val === "number")
         return new CornerRadius(val, val, val, val);
-    var tokens = val.toString().split(",");
+    var tokens = val.toString().split(/[ ,]/);
     var topLeft, topRight, bottomRight, bottomLeft;
     if (tokens.length === 1) {
         topLeft = topRight = bottomRight = bottomLeft = parseFloat(tokens[0]);
