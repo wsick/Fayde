@@ -5230,6 +5230,15 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media.RadialGradient {
+    interface IExtender {
+        x0: number;
+        y0: number;
+        r0: number;
+        x1: number;
+        y1: number;
+        r1: number;
+        step(): boolean;
+    }
     interface IRadialPointData {
         x0: number;
         y0: number;
@@ -5241,18 +5250,7 @@ declare module Fayde.Media.RadialGradient {
         side: number;
         balanced: boolean;
     }
-    interface IInterpolator {
-        x0: number;
-        y0: number;
-        x1: number;
-        y1: number;
-        r1: number;
-        balanced: boolean;
-        step(): boolean;
-        interpolate(offset: number): number;
-    }
-    function createRepeatInterpolator(data: IRadialPointData, bounds: minerva.Rect): IInterpolator;
-    function createReflectInterpolator(data: IRadialPointData, bounds: minerva.Rect): IInterpolator;
+    function createExtender(data: IRadialPointData, bounds: minerva.Rect): IExtender;
 }
 declare module Fayde.Media {
     class RadialGradientBrush extends GradientBrush {
@@ -5267,8 +5265,8 @@ declare module Fayde.Media {
         CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): any;
         CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasPattern;
         CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): CanvasPattern;
-        private CreatePattern(ctx, grd, data, bounds);
-        private CreateInterpolated(ctx, interpolator);
+        private CreateInterpolated(data, bounds, reflect);
+        private FitPattern(ctx, fill, data, bounds);
         private _GetPointData(bounds);
     }
 }

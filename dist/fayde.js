@@ -24326,69 +24326,40 @@ var Fayde;
     (function (Media) {
         var RadialGradient;
         (function (RadialGradient) {
-            function createRepeatInterpolator(data, bounds) {
-                var numSteps = getNumRings(data.x0, data.y0, data.r1, bounds);
-                var rad = numSteps * data.r1;
-                var stepSize = 1.0 / numSteps;
-                var cur = -stepSize;
-                var dx = numSteps * (data.x1 - data.x0);
-                var dy = numSteps * (data.y1 - data.y0);
-                return {
-                    x0: data.x0,
-                    y0: data.y0,
-                    x1: data.x0 + dx,
-                    y1: data.y0 + dy,
-                    r1: rad,
-                    balanced: data.balanced,
+            function createExtender(data, bounds) {
+                var started = false;
+                var x0 = data.x0;
+                var y0 = data.y0;
+                var r0 = 0;
+                var x1 = data.x1;
+                var y1 = data.y1;
+                var r1 = data.r1;
+                var dx = x1 - x0;
+                var dy = y1 - y0;
+                var rstep = r1;
+                var ext = {
+                    x0: x0,
+                    y0: y0,
+                    r0: r0,
+                    x1: x1,
+                    y1: y1,
+                    r1: r1,
                     step: function () {
-                        cur += stepSize;
-                        return cur < 1;
-                    },
-                    interpolate: function (offset) {
-                        return cur + (offset / numSteps);
+                        if (!started) {
+                            started = true;
+                            return true;
+                        }
+                        ext.r0 += rstep;
+                        ext.r1 += rstep;
+                        ext.x1 += dx;
+                        ext.y1 += dy;
+                        //TEMPORARY
+                        return ext.r1 < 400;
                     }
                 };
+                return ext;
             }
-            RadialGradient.createRepeatInterpolator = createRepeatInterpolator;
-            function createReflectInterpolator(data, bounds) {
-                var numSteps = getNumRings(data.x0, data.y0, data.r1, bounds);
-                var rad = numSteps * data.r1;
-                var stepSize = 1.0 / numSteps;
-                var cur = -stepSize;
-                var inverted = numSteps % 2 === 1;
-                var dx = numSteps * (data.x1 - data.x0);
-                var dy = numSteps * (data.y1 - data.y0);
-                return {
-                    x0: data.x0,
-                    y0: data.y0,
-                    x1: data.x0 + dx,
-                    y1: data.y0 + dy,
-                    r1: rad,
-                    balanced: data.balanced,
-                    step: function () {
-                        inverted = !inverted;
-                        cur += stepSize;
-                        return cur < 1;
-                    },
-                    interpolate: function (offset) {
-                        var norm = offset / numSteps;
-                        return !inverted ? cur + norm : cur + (stepSize - norm);
-                    }
-                };
-            }
-            RadialGradient.createReflectInterpolator = createReflectInterpolator;
-            function getNumRings(cx, cy, radius, bounds) {
-                var nw = getLen(cx, cy, bounds.x, bounds.y);
-                var ne = getLen(cx, cy, bounds.x + bounds.width, bounds.y);
-                var se = getLen(cx, cy, bounds.x + bounds.width, bounds.y + bounds.height);
-                var sw = getLen(cx, cy, bounds.x, bounds.y + bounds.height);
-                return Math.ceil(Math.max(nw, ne, se, sw) / radius);
-            }
-            function getLen(x0, y0, x1, y1) {
-                var xp = x1 - x0;
-                var yp = y1 - y0;
-                return Math.sqrt((xp * xp) + (yp * yp));
-            }
+            RadialGradient.createExtender = createExtender;
         })(RadialGradient = Media.RadialGradient || (Media.RadialGradient = {}));
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
@@ -24412,46 +24383,57 @@ var Fayde;
                     var stop = en.current;
                     grd.addColorStop(stop.Offset, stop.Color.toString());
                 }
-                return this.CreatePattern(ctx, grd, data, bounds);
+                return this.FitPattern(ctx, grd, data, bounds);
             };
             RadialGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
-                var grd = this.CreateInterpolated(ctx, Media.RadialGradient.createRepeatInterpolator(data, bounds));
-                return this.CreatePattern(ctx, grd, data, bounds);
+                var pattern = this.CreateInterpolated(data, bounds, false);
+                return this.FitPattern(ctx, pattern, data, bounds);
             };
             RadialGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
-                var grd = this.CreateInterpolated(ctx, Media.RadialGradient.createReflectInterpolator(data, bounds));
-                return this.CreatePattern(ctx, grd, data, bounds);
+                var pattern = this.CreateInterpolated(data, bounds, true);
+                return this.FitPattern(ctx, pattern, data, bounds);
             };
-            RadialGradientBrush.prototype.CreatePattern = function (ctx, grd, data, bounds) {
+            RadialGradientBrush.prototype.CreateInterpolated = function (data, bounds, reflect) {
+                tmpCanvas.height = tmpCanvas.width = data.side;
+                tmpCtx.save();
+                tmpCtx.globalCompositeOperation = "destination-over";
+                var inverted = false;
+                var allStops = this.GradientStops.getPaddedEnumerable();
+                for (var extender = Media.RadialGradient.createExtender(data, bounds); extender.step(); inverted = !inverted) {
+                    var grd = tmpCtx.createRadialGradient(extender.x0, extender.y0, extender.r0, extender.x1, extender.y1, extender.r1);
+                    for (var en = allStops.getEnumerator(); en.moveNext();) {
+                        var offset = en.current.Offset;
+                        if (reflect && inverted)
+                            offset = 1 - offset;
+                        grd.addColorStop(offset, en.current.Color.toString());
+                    }
+                    tmpCtx.fillStyle = grd;
+                    tmpCtx.beginPath();
+                    tmpCtx.arc(extender.x1, extender.y1, extender.r1, 0, 2 * Math.PI, false);
+                    tmpCtx.closePath();
+                    tmpCtx.fill();
+                }
+                var pattern = tmpCtx.createPattern(tmpCanvas, "no-repeat");
+                tmpCtx.restore();
+                return pattern;
+            };
+            RadialGradientBrush.prototype.FitPattern = function (ctx, fill, data, bounds) {
                 //NOTE:
                 //  This will return the CanvasGradient if bounds are square
                 //  Otherwise, it will create a CanvasPattern by scaling square coordinate space into bounds
                 if (data.balanced)
-                    return grd;
+                    return fill;
                 tmpCanvas.width = bounds.width;
                 tmpCanvas.height = bounds.height;
                 tmpCtx.save();
                 tmpCtx.scale(data.sx, data.sy);
-                tmpCtx.fillStyle = grd;
+                tmpCtx.fillStyle = fill;
                 tmpCtx.fillRect(0, 0, data.side, data.side);
                 var pattern = ctx.createPattern(tmpCanvas, "no-repeat");
                 tmpCtx.restore();
                 return pattern;
-            };
-            RadialGradientBrush.prototype.CreateInterpolated = function (ctx, interpolator) {
-                var grd = (!interpolator.balanced ? tmpCtx : ctx).createRadialGradient(interpolator.x0, interpolator.y0, 0, interpolator.x1, interpolator.y1, interpolator.r1);
-                var allStops = this.GradientStops.getPaddedEnumerable();
-                for (; interpolator.step();) {
-                    for (var en = allStops.getEnumerator(); en.moveNext();) {
-                        var stop = en.current;
-                        var offset = interpolator.interpolate(stop.Offset);
-                        if (offset >= 0 && offset <= 1)
-                            grd.addColorStop(offset, stop.Color.toString());
-                    }
-                }
-                return grd;
             };
             RadialGradientBrush.prototype._GetPointData = function (bounds) {
                 //NOTE:

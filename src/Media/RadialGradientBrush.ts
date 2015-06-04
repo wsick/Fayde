@@ -22,52 +22,65 @@ module Fayde.Media {
                 var stop: GradientStop = en.current;
                 grd.addColorStop(stop.Offset, stop.Color.toString());
             }
-            return this.CreatePattern(ctx, grd, data, bounds);
+            return this.FitPattern(ctx, grd, data, bounds);
         }
 
         CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
-            var grd = this.CreateInterpolated(ctx, RadialGradient.createRepeatInterpolator(data, bounds));
-            return this.CreatePattern(ctx, grd, data, bounds);
+            var pattern = this.CreateInterpolated(data, bounds, false);
+            return this.FitPattern(ctx, pattern, data, bounds);
         }
 
         CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
-            var grd = this.CreateInterpolated(ctx, RadialGradient.createReflectInterpolator(data, bounds));
-            return this.CreatePattern(ctx, grd, data, bounds);
+            var pattern = this.CreateInterpolated(data, bounds, true);
+            return this.FitPattern(ctx, pattern, data, bounds);
         }
 
-        private CreatePattern (ctx: CanvasRenderingContext2D, grd: CanvasGradient, data: RadialGradient.IRadialPointData, bounds: minerva.Rect) {
+        private CreateInterpolated (data: RadialGradient.IRadialPointData, bounds: minerva.Rect, reflect: boolean): CanvasPattern {
+            tmpCanvas.height = tmpCanvas.width = data.side;
+            tmpCtx.save();
+            tmpCtx.globalCompositeOperation = "destination-over";
+
+            var inverted = false;
+            var allStops = this.GradientStops.getPaddedEnumerable();
+            for (var extender = RadialGradient.createExtender(data, bounds); extender.step(); inverted = !inverted) {
+                let grd = tmpCtx.createRadialGradient(extender.x0, extender.y0, extender.r0, extender.x1, extender.y1, extender.r1);
+                for (var en = allStops.getEnumerator(); en.moveNext();) {
+                    var offset = en.current.Offset;
+                    if (reflect && inverted)
+                        offset = 1 - offset;
+                    grd.addColorStop(offset, en.current.Color.toString());
+                }
+                tmpCtx.fillStyle = grd;
+                tmpCtx.beginPath();
+                tmpCtx.arc(extender.x1, extender.y1, extender.r1, 0, 2 * Math.PI, false);
+                tmpCtx.closePath();
+                tmpCtx.fill();
+            }
+
+            var pattern = tmpCtx.createPattern(tmpCanvas, "no-repeat");
+            tmpCtx.restore();
+            return pattern;
+        }
+
+        private FitPattern (ctx: CanvasRenderingContext2D, fill: CanvasGradient | CanvasPattern, data: RadialGradient.IRadialPointData, bounds: minerva.Rect): CanvasPattern {
             //NOTE:
             //  This will return the CanvasGradient if bounds are square
             //  Otherwise, it will create a CanvasPattern by scaling square coordinate space into bounds
             if (data.balanced)
-                return grd;
+                return fill;
 
             tmpCanvas.width = bounds.width;
             tmpCanvas.height = bounds.height;
 
             tmpCtx.save();
             tmpCtx.scale(data.sx, data.sy);
-            tmpCtx.fillStyle = grd;
+            tmpCtx.fillStyle = fill;
             tmpCtx.fillRect(0, 0, data.side, data.side);
             var pattern = ctx.createPattern(tmpCanvas, "no-repeat");
             tmpCtx.restore();
             return pattern;
-        }
-
-        private CreateInterpolated (ctx: CanvasRenderingContext2D, interpolator: RadialGradient.IInterpolator): CanvasGradient {
-            var grd = (!interpolator.balanced ? tmpCtx : ctx).createRadialGradient(interpolator.x0, interpolator.y0, 0, interpolator.x1, interpolator.y1, interpolator.r1);
-            var allStops = this.GradientStops.getPaddedEnumerable();
-            for (; interpolator.step();) {
-                for (var en = allStops.getEnumerator(); en.moveNext();) {
-                    var stop = en.current;
-                    var offset = interpolator.interpolate(stop.Offset);
-                    if (offset >= 0 && offset <= 1)
-                        grd.addColorStop(offset, stop.Color.toString());
-                }
-            }
-            return grd;
         }
 
         private _GetPointData (bounds: minerva.Rect): RadialGradient.IRadialPointData {
