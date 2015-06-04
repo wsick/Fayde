@@ -27,25 +27,26 @@ module Fayde.Media {
 
         CreateRepeat (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
-            var pattern = this.CreateInterpolated(data, bounds, false);
-            return this.FitPattern(ctx, pattern, data, bounds);
+            return this.CreateInterpolated(data, bounds, false);
         }
 
         CreateReflect (ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var data = this._GetPointData(bounds);
-            var pattern = this.CreateInterpolated(data, bounds, true);
-            return this.FitPattern(ctx, pattern, data, bounds);
+            return this.CreateInterpolated(data, bounds, true);
         }
 
         private CreateInterpolated (data: RadialGradient.IRadialPointData, bounds: minerva.Rect, reflect: boolean): CanvasPattern {
-            tmpCanvas.height = tmpCanvas.width = data.side;
+            tmpCanvas.width = bounds.width;
+            tmpCanvas.height = bounds.height;
             tmpCtx.save();
+            if (!data.balanced)
+                tmpCtx.scale(data.sx, data.sy);
             tmpCtx.globalCompositeOperation = "destination-over";
 
             var inverted = false;
             var allStops = this.GradientStops.getPaddedEnumerable();
             for (var extender = RadialGradient.createExtender(data, bounds); extender.step(); inverted = !inverted) {
-                let grd = tmpCtx.createRadialGradient(extender.x0, extender.y0, extender.r0, extender.x1, extender.y1, extender.r1);
+                var grd = extender.createGradient(tmpCtx);
                 for (var en = allStops.getEnumerator(); en.moveNext();) {
                     var offset = en.current.Offset;
                     if (reflect && inverted)

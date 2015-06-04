@@ -5238,6 +5238,7 @@ declare module Fayde.Media.RadialGradient {
         y1: number;
         r1: number;
         step(): boolean;
+        createGradient(ctx: CanvasRenderingContext2D): CanvasGradient;
     }
     interface IRadialPointData {
         x0: number;

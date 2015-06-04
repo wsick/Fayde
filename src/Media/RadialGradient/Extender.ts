@@ -7,6 +7,7 @@ module Fayde.Media.RadialGradient {
         y1: number;
         r1: number;
         step(): boolean;
+        createGradient(ctx: CanvasRenderingContext2D): CanvasGradient;
     }
     export interface IRadialPointData {
         x0: number;
@@ -21,40 +22,54 @@ module Fayde.Media.RadialGradient {
     }
     export function createExtender (data: IRadialPointData, bounds: minerva.Rect): IExtender {
         var started = false;
-
-        var x0 = data.x0;
-        var y0 = data.y0;
-        var r0 = 0;
-        var x1 = data.x1;
-        var y1 = data.y1;
-        var r1 = data.r1;
-
-        var dx = x1 - x0;
-        var dy = y1 - y0;
-
-        var rstep = r1;
+        var dx = data.x1 - data.x0;
+        var dy = data.y1 - data.y0;
+        var rstep = data.r1;
+        var reached = false;
 
         var ext = {
-            x0: x0,
-            y0: y0,
-            r0: r0,
-            x1: x1,
-            y1: y1,
-            r1: r1,
+            x0: data.x0,
+            y0: data.y0,
+            r0: 0,
+            x1: data.x1,
+            y1: data.y1,
+            r1: data.r1,
             step (): boolean {
                 if (!started) {
                     started = true;
                     return true;
                 }
+
+                ext.x0 = ext.x1;
+                ext.y0 = ext.y1;
                 ext.r0 += rstep;
                 ext.r1 += rstep;
                 ext.x1 += dx;
                 ext.y1 += dy;
 
-                //TEMPORARY
-                return ext.r1 < 400;
+                if (reached)
+                    return false;
+                reached = exceedBounds(ext.x1, ext.y1, ext.r1, bounds);
+                return true;
+            },
+            createGradient (ctx: CanvasRenderingContext2D): CanvasGradient {
+                return ctx.createRadialGradient(ext.x0, ext.y0, ext.r0, ext.x1, ext.y1, ext.r1);
             }
         };
         return ext;
+    }
+
+    function exceedBounds(cx: number, cy: number, radius: number, bounds: minerva.Rect) {
+        var ne = len(cx, cy, bounds.x, bounds.y);
+        var nw = len(cx, cy, bounds.x + bounds.width, bounds.y);
+        var sw = len(cx, cy, bounds.x + bounds.width, bounds.y + bounds.height);
+        var se = len(cx, cy, bounds.x, bounds.y + bounds.height);
+        return Math.max(ne, nw, sw, se) < radius;
+    }
+
+    function len (x1: number, y1: number, x2: number, y2: number): number {
+        var dx = x2 - x1;
+        var dy = y2 - y1;
+        return Math.sqrt((dx * dx) + (dy * dy));
     }
 }

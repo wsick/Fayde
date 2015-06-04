@@ -24328,38 +24328,52 @@ var Fayde;
         (function (RadialGradient) {
             function createExtender(data, bounds) {
                 var started = false;
-                var x0 = data.x0;
-                var y0 = data.y0;
-                var r0 = 0;
-                var x1 = data.x1;
-                var y1 = data.y1;
-                var r1 = data.r1;
-                var dx = x1 - x0;
-                var dy = y1 - y0;
-                var rstep = r1;
+                var dx = data.x1 - data.x0;
+                var dy = data.y1 - data.y0;
+                var rstep = data.r1;
+                var reached = false;
                 var ext = {
-                    x0: x0,
-                    y0: y0,
-                    r0: r0,
-                    x1: x1,
-                    y1: y1,
-                    r1: r1,
+                    x0: data.x0,
+                    y0: data.y0,
+                    r0: 0,
+                    x1: data.x1,
+                    y1: data.y1,
+                    r1: data.r1,
                     step: function () {
                         if (!started) {
                             started = true;
                             return true;
                         }
+                        ext.x0 = ext.x1;
+                        ext.y0 = ext.y1;
                         ext.r0 += rstep;
                         ext.r1 += rstep;
                         ext.x1 += dx;
                         ext.y1 += dy;
-                        //TEMPORARY
-                        return ext.r1 < 400;
+                        if (reached)
+                            return false;
+                        reached = exceedBounds(ext.x1, ext.y1, ext.r1, bounds);
+                        return true;
+                    },
+                    createGradient: function (ctx) {
+                        return ctx.createRadialGradient(ext.x0, ext.y0, ext.r0, ext.x1, ext.y1, ext.r1);
                     }
                 };
                 return ext;
             }
             RadialGradient.createExtender = createExtender;
+            function exceedBounds(cx, cy, radius, bounds) {
+                var ne = len(cx, cy, bounds.x, bounds.y);
+                var nw = len(cx, cy, bounds.x + bounds.width, bounds.y);
+                var sw = len(cx, cy, bounds.x + bounds.width, bounds.y + bounds.height);
+                var se = len(cx, cy, bounds.x, bounds.y + bounds.height);
+                return Math.max(ne, nw, sw, se) < radius;
+            }
+            function len(x1, y1, x2, y2) {
+                var dx = x2 - x1;
+                var dy = y2 - y1;
+                return Math.sqrt((dx * dx) + (dy * dy));
+            }
         })(RadialGradient = Media.RadialGradient || (Media.RadialGradient = {}));
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
@@ -24387,22 +24401,23 @@ var Fayde;
             };
             RadialGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
-                var pattern = this.CreateInterpolated(data, bounds, false);
-                return this.FitPattern(ctx, pattern, data, bounds);
+                return this.CreateInterpolated(data, bounds, false);
             };
             RadialGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
-                var pattern = this.CreateInterpolated(data, bounds, true);
-                return this.FitPattern(ctx, pattern, data, bounds);
+                return this.CreateInterpolated(data, bounds, true);
             };
             RadialGradientBrush.prototype.CreateInterpolated = function (data, bounds, reflect) {
-                tmpCanvas.height = tmpCanvas.width = data.side;
+                tmpCanvas.width = bounds.width;
+                tmpCanvas.height = bounds.height;
                 tmpCtx.save();
+                if (!data.balanced)
+                    tmpCtx.scale(data.sx, data.sy);
                 tmpCtx.globalCompositeOperation = "destination-over";
                 var inverted = false;
                 var allStops = this.GradientStops.getPaddedEnumerable();
                 for (var extender = Media.RadialGradient.createExtender(data, bounds); extender.step(); inverted = !inverted) {
-                    var grd = tmpCtx.createRadialGradient(extender.x0, extender.y0, extender.r0, extender.x1, extender.y1, extender.r1);
+                    var grd = extender.createGradient(tmpCtx);
                     for (var en = allStops.getEnumerator(); en.moveNext();) {
                         var offset = en.current.Offset;
                         if (reflect && inverted)
