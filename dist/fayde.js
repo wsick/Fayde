@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.25';
+    Fayde.Version = '0.16.26';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -24320,6 +24320,63 @@ var Fayde;
         Fayde.CoreLibrary.add(PlaneProjection);
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Media;
+    (function (Media) {
+        var RadialGradient;
+        (function (RadialGradient) {
+            function createExtender(data, bounds) {
+                var started = false;
+                var dx = data.x1 - data.x0;
+                var dy = data.y1 - data.y0;
+                var rstep = data.r1;
+                var reached = false;
+                var ext = {
+                    x0: data.x0,
+                    y0: data.y0,
+                    r0: 0,
+                    x1: data.x1,
+                    y1: data.y1,
+                    r1: data.r1,
+                    step: function () {
+                        if (!started) {
+                            started = true;
+                            return true;
+                        }
+                        ext.x0 = ext.x1;
+                        ext.y0 = ext.y1;
+                        ext.r0 += rstep;
+                        ext.r1 += rstep;
+                        ext.x1 += dx;
+                        ext.y1 += dy;
+                        if (reached)
+                            return false;
+                        reached = exceedBounds(ext.x1, ext.y1, ext.r1, bounds);
+                        return true;
+                    },
+                    createGradient: function (ctx) {
+                        return ctx.createRadialGradient(ext.x0, ext.y0, ext.r0, ext.x1, ext.y1, ext.r1);
+                    }
+                };
+                return ext;
+            }
+            RadialGradient.createExtender = createExtender;
+            function exceedBounds(cx, cy, radius, bounds) {
+                var ne = len(cx, cy, bounds.x, bounds.y);
+                var nw = len(cx, cy, bounds.x + bounds.width, bounds.y);
+                var sw = len(cx, cy, bounds.x + bounds.width, bounds.y + bounds.height);
+                var se = len(cx, cy, bounds.x, bounds.y + bounds.height);
+                return Math.max(ne, nw, sw, se) < radius;
+            }
+            function len(x1, y1, x2, y2) {
+                var dx = x2 - x1;
+                var dy = y2 - y1;
+                return Math.sqrt((dx * dx) + (dy * dy));
+            }
+        })(RadialGradient = Media.RadialGradient || (Media.RadialGradient = {}));
+    })(Media = Fayde.Media || (Fayde.Media = {}));
+})(Fayde || (Fayde = {}));
 /// <reference path="GradientBrush.ts" />
 var Fayde;
 (function (Fayde) {
@@ -24327,25 +24384,76 @@ var Fayde;
     (function (Media) {
         var tmpCanvas = document.createElement('canvas');
         var tmpCtx = tmpCanvas.getContext('2d');
+        var epsilon = 1E-10;
         var RadialGradientBrush = (function (_super) {
             __extends(RadialGradientBrush, _super);
             function RadialGradientBrush() {
                 _super.apply(this, arguments);
             }
             RadialGradientBrush.prototype.CreatePad = function (ctx, bounds) {
-                var pdata = this._GetPointData(bounds);
-                //TODO: Implement
-                return "";
+                var data = this._GetPointData(bounds);
+                var grd = (!data.balanced ? tmpCtx : ctx).createRadialGradient(data.x0, data.y0, 0, data.x1, data.y1, data.r1);
+                for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
+                    var stop = en.current;
+                    grd.addColorStop(stop.Offset, stop.Color.toString());
+                }
+                return this.FitPattern(ctx, grd, data, bounds);
             };
             RadialGradientBrush.prototype.CreateRepeat = function (ctx, bounds) {
-                //TODO: Implement
-                return "";
+                var data = this._GetPointData(bounds);
+                return this.CreateInterpolated(data, bounds, false);
             };
             RadialGradientBrush.prototype.CreateReflect = function (ctx, bounds) {
-                //TODO: Implement
-                return "";
+                var data = this._GetPointData(bounds);
+                return this.CreateInterpolated(data, bounds, true);
+            };
+            RadialGradientBrush.prototype.CreateInterpolated = function (data, bounds, reflect) {
+                tmpCanvas.width = bounds.width;
+                tmpCanvas.height = bounds.height;
+                tmpCtx.save();
+                if (!data.balanced)
+                    tmpCtx.scale(data.sx, data.sy);
+                tmpCtx.globalCompositeOperation = "destination-over";
+                var inverted = false;
+                var allStops = this.GradientStops.getPaddedEnumerable();
+                for (var extender = Media.RadialGradient.createExtender(data, bounds); extender.step(); inverted = !inverted) {
+                    var grd = extender.createGradient(tmpCtx);
+                    for (var en = allStops.getEnumerator(); en.moveNext();) {
+                        var offset = en.current.Offset;
+                        if (reflect && inverted)
+                            offset = 1 - offset;
+                        grd.addColorStop(offset, en.current.Color.toString());
+                    }
+                    tmpCtx.fillStyle = grd;
+                    tmpCtx.beginPath();
+                    tmpCtx.arc(extender.x1, extender.y1, extender.r1, 0, 2 * Math.PI, false);
+                    tmpCtx.closePath();
+                    tmpCtx.fill();
+                }
+                var pattern = tmpCtx.createPattern(tmpCanvas, "no-repeat");
+                tmpCtx.restore();
+                return pattern;
+            };
+            RadialGradientBrush.prototype.FitPattern = function (ctx, fill, data, bounds) {
+                //NOTE:
+                //  This will return the CanvasGradient if bounds are square
+                //  Otherwise, it will create a CanvasPattern by scaling square coordinate space into bounds
+                if (data.balanced)
+                    return fill;
+                tmpCanvas.width = bounds.width;
+                tmpCanvas.height = bounds.height;
+                tmpCtx.save();
+                tmpCtx.scale(data.sx, data.sy);
+                tmpCtx.fillStyle = fill;
+                tmpCtx.fillRect(0, 0, data.side, data.side);
+                var pattern = ctx.createPattern(tmpCanvas, "no-repeat");
+                tmpCtx.restore();
+                return pattern;
             };
             RadialGradientBrush.prototype._GetPointData = function (bounds) {
+                //NOTE:
+                //  This function will translate relative coordinates to absolute coordinates
+                //  It will then map non-square metrics into square coordinate space
                 var center = this.Center;
                 center = !center ? new Point(0.5, 0.5) : center.Clone();
                 var origin = this.GradientOrigin;
@@ -24364,11 +24472,18 @@ var Fayde;
                     rx *= bounds.width;
                     ry *= bounds.height;
                 }
+                var rad = Math.max(rx, ry);
+                var side = Math.max(bounds.width, bounds.height), sx = bounds.width / side, sy = bounds.height / side;
                 return {
-                    center: center,
-                    origin: origin,
-                    radiusX: rx,
-                    radiusY: ry
+                    x0: origin.x / sx,
+                    y0: origin.y / sy,
+                    x1: center.x / sx,
+                    y1: center.y / sy,
+                    r1: rad,
+                    side: side,
+                    sx: bounds.width / side,
+                    sy: bounds.height / side,
+                    balanced: Math.abs(rx - ry) < epsilon
                 };
             };
             RadialGradientBrush.CenterProperty = DependencyProperty.RegisterCore("Center", function () { return Point; }, RadialGradientBrush, undefined, function (d, args) { return d.InvalidateBrush(); });

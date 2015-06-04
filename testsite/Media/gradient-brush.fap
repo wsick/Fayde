@@ -34,7 +34,7 @@
         </Grid>
         <Grid Grid.Row="1" Grid.Column="2" Margin="4">
             <Grid.Background>
-                <RadialGradientBrush SpreadMethod="Pad">
+                <RadialGradientBrush SpreadMethod="Pad" RadiusX="0.2" RadiusY="0.2" GradientOrigin="0.4,0.4">
                     <GradientStop Offset="0.2" Color="Red" />
                     <GradientStop Offset="0.3" Color="Orange" />
                     <GradientStop Offset="0.4" Color="Yellow" />
@@ -61,7 +61,7 @@
         </Grid>
         <Grid Grid.Row="2" Grid.Column="2" Margin="4">
             <Grid.Background>
-                <RadialGradientBrush SpreadMethod="Repeat">
+                <RadialGradientBrush SpreadMethod="Repeat" RadiusX="0.2" RadiusY="0.2" GradientOrigin="0.4,0.4">
                     <GradientStop Offset="0.2" Color="Red" />
                     <GradientStop Offset="0.3" Color="Orange" />
                     <GradientStop Offset="0.4" Color="Yellow" />
@@ -88,7 +88,7 @@
         </Grid>
         <Grid Grid.Row="3" Grid.Column="2" Margin="4">
             <Grid.Background>
-                <RadialGradientBrush SpreadMethod="Reflect">
+                <RadialGradientBrush SpreadMethod="Reflect" RadiusX="0.2" RadiusY="0.2" GradientOrigin="0.4,0.4">
                     <GradientStop Offset="0.2" Color="Red" />
                     <GradientStop Offset="0.3" Color="Orange" />
                     <GradientStop Offset="0.4" Color="Yellow" />
