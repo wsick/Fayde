@@ -23120,20 +23120,20 @@ var Fayde;
                 configurable: true
             });
             Object.defineProperty(Matrix.prototype, "M21", {
+                get: function () { return this._Raw[2]; },
+                set: function (val) { this._Raw[2] = val; this._OnChanged(); },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Matrix.prototype, "M22", {
                 get: function () { return this._Raw[3]; },
                 set: function (val) { this._Raw[3] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Matrix.prototype, "M22", {
+            Object.defineProperty(Matrix.prototype, "OffsetX", {
                 get: function () { return this._Raw[4]; },
                 set: function (val) { this._Raw[4] = val; this._OnChanged(); },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(Matrix.prototype, "OffsetX", {
-                get: function () { return this._Raw[2]; },
-                set: function (val) { this._Raw[2] = val; this._OnChanged(); },
                 enumerable: true,
                 configurable: true
             });
