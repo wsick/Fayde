@@ -11,7 +11,7 @@ nullstone.registerTypeConverter(Rect, (val: any): any => {
     if (val instanceof Rect)
         return val;
 
-    var tokens = val.toString().split(/ *,? */);
+    var tokens = val.toString().split(/\s*,?\s*/);
     if (tokens.length === 4) {
         return new Rect(parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2]), parseFloat(tokens[3]));
     }
