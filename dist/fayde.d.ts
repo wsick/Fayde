@@ -5547,6 +5547,9 @@ declare class Thickness extends minerva.Thickness {
     Clone(): Thickness;
     toString(): string;
 }
+declare module Fayde {
+    function splitCommaList(str: string): string[];
+}
 declare class BError {
     static Argument: number;
     static InvalidOperation: number;
