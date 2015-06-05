@@ -82,6 +82,12 @@ export function load() {
         strictEqual(t.top, 2, "Full (Top)");
         strictEqual(t.right, 4, "Full (Right)");
         strictEqual(t.bottom, 6, "Full (Bottom)");
+
+        t = <Thickness>nullstone.convertAnyToType("10.2,12.2,14.2,16.2", Thickness);
+        strictEqual(t.left, 10.2, "Full (Left)");
+        strictEqual(t.top, 12.2, "Full (Top)");
+        strictEqual(t.right, 14.2, "Full (Right)");
+        strictEqual(t.bottom, 16.2, "Full (Bottom)");
     });
 
     test("CornerRadius", () => {
@@ -108,6 +114,12 @@ export function load() {
         strictEqual(cr.topRight, 2, "Full (TopRight)");
         strictEqual(cr.bottomRight, 4, "Full (BottomRight)");
         strictEqual(cr.bottomLeft, 6, "Full (BottomLeft)");
+
+        cr = <CornerRadius>nullstone.convertAnyToType("10.2,12.2,14.2,16.2", CornerRadius);
+        strictEqual(cr.topLeft, 10.2, "Full (TopLeft)");
+        strictEqual(cr.topRight, 12.2, "Full (TopRight)");
+        strictEqual(cr.bottomRight, 14.2, "Full (BottomRight)");
+        strictEqual(cr.bottomLeft, 16.2, "Full (BottomLeft)");
     });
 
     test("Point", () => {
@@ -115,13 +127,35 @@ export function load() {
         strictEqual(p.x, 1, "Point.X");
         strictEqual(p.y, 3, "Point.Y");
 
-        var p = <Point>nullstone.convertAnyToType("1 3", Point);
+        p = <Point>nullstone.convertAnyToType("1 3", Point);
         strictEqual(p.x, 1, "Point.X");
         strictEqual(p.y, 3, "Point.Y");
 
-        var p = <Point>nullstone.convertAnyToType("1  3", Point);
+        p = <Point>nullstone.convertAnyToType("1  3", Point);
         strictEqual(p.x, 1, "Point.X");
         strictEqual(p.y, 3, "Point.Y");
+
+        p = <Point>nullstone.convertAnyToType("122.5,113.1254", Point);
+        strictEqual(p.x, 122.5, "Point.X");
+        strictEqual(p.y, 113.1254, "Point.Y");
+    });
+
+    test("Size", () => {
+        var size = <Size>nullstone.convertAnyToType("1, 3", Size);
+        strictEqual(size.width, 1);
+        strictEqual(size.height, 3);
+
+        size = <Size>nullstone.convertAnyToType("1 3", Size);
+        strictEqual(size.width, 1);
+        strictEqual(size.height, 3);
+
+        size = <Size>nullstone.convertAnyToType("1  3", Size);
+        strictEqual(size.width, 1);
+        strictEqual(size.height, 3);
+
+        size = <Size>nullstone.convertAnyToType("11.2,13.2", Size);
+        strictEqual(size.width, 11.2);
+        strictEqual(size.height, 13.2);
     });
 
     test("Rect", () => {
@@ -143,11 +177,11 @@ export function load() {
         strictEqual(r.width, 5, "Rect.X");
         strictEqual(r.height, 7, "Rect.Y");
 
-        var r = <Rect>nullstone.convertAnyToType("1  3  5  7", Rect);
-        strictEqual(r.x, 1, "Rect.X");
-        strictEqual(r.y, 3, "Rect.Y");
-        strictEqual(r.width, 5, "Rect.X");
-        strictEqual(r.height, 7, "Rect.Y");
+        var r = <Rect>nullstone.convertAnyToType("11.2,13.2,15.2,17.2", Rect);
+        strictEqual(r.x, 11.2, "Rect.X");
+        strictEqual(r.y, 13.2, "Rect.Y");
+        strictEqual(r.width, 15.2, "Rect.X");
+        strictEqual(r.height, 17.2, "Rect.Y");
     });
 
     test("Length", () => {
