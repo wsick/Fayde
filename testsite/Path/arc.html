@@ -2,7 +2,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    <script src="/Fayde/Fayde.js"></script>
+    <script src="../lib/nullstone/dist/nullstone.js"></script>
+    <script src="../lib/minerva/dist/minerva.js"></script>
+    <script src="../lib/Fayde/dist/Fayde.js"></script>
     <script src="util.js"></script>
     <script type="text/javascript">
         var config = {
@@ -24,13 +26,13 @@
         function go() {
             var ra = arc.random(config);
 
-            var path = new Fayde.Path.RawPath();
-            path.Arc(ra.x, ra.y, ra.r, ra.sa, ra.ea, ra.cc);
+            var path = new minerva.path.Path();
+            path.arc(ra.x, ra.y, ra.r, ra.sa, ra.ea, ra.cc);
 
             var strokePars = randomStrokeParameters();
 
             ctx.clearRect(0, 0, config.w, config.h);
-            path.Draw(ctx);
+            path.draw(ctx);
             pathStroke(ctx, "rgb(0,0,0)", strokePars);
 
             drawStartPoint(ctx, ra.x + ra.r * Math.cos(ra.sa), ra.y + ra.r * Math.sin(ra.sa));

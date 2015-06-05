@@ -66,7 +66,7 @@ function drawGuideLine(ctx, x1, y1, x2, y2, num) {
 }
 
 function drawBoundingBox(path, pars) {
-    var r = path.CalculateBounds(pars);
+    var r = path.calcBounds(pars);
     ctx.lineWidth = 1;
     ctx.strokeStyle = "rgb(255,0,0)";
     ctx.strokeRect(r.X, r.Y, r.Width, r.Height);
@@ -88,24 +88,24 @@ var multipath = (function () {
         switch (randomInt(0, 3)) {
             case 0:
                 var qb = quadbezier.random(config);
-                path.QuadraticBezier(qb.cpx, qb.cpy, qb.x, qb.y);
+                path.quadraticBezier(qb.cpx, qb.cpy, qb.x, qb.y);
                 break;
             case 1:
                 var cb = cubicbezier.random(config);
-                path.CubicBezier(cb.cp1x, cb.cp1y, cb.cp2x, cb.cp2y, cb.x, cb.y);
+                path.cubicBezier(cb.cp1x, cb.cp1y, cb.cp2x, cb.cp2y, cb.x, cb.y);
                 break;
             case 2:
                 var l = randomPoint(0, config.w, 0, config.h);
-                path.Line(l.x, l.y);
+                path.line(l.x, l.y);
                 break;
         }
     }
 
     return {
         random: function (config) {
-            var path = new Fayde.Path.RawPath();
+            var path = new minerva.path.Path();
             var s = randomPoint(0, config.w, 0, config.h);
-            path.Move(s.x, s.y);
+            path.move(s.x, s.y);
 
             var count = randomInt(3, 7);
             for (var i = 0; i < count; i++) {

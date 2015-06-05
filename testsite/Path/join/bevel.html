@@ -2,7 +2,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    <script src="/Fayde/Fayde.js"></script>
+    <script src="../../lib/nullstone/dist/nullstone.js"></script>
+    <script src="../../lib/minerva/dist/minerva.js"></script>
+    <script src="../../lib/Fayde/dist/Fayde.js"></script>
     <script src="../util.js"></script>
     <script type="text/javascript">
         var config = {
@@ -47,12 +49,12 @@
         }
 
         function triangle(ctx, sx, sy, dx, dy) {
-            var path = new Fayde.Path.RawPath();
-            path.Move(sx, sy);
-            path.Line(sx + dx, sy + dy);
-            path.Line(sx + dx + dx, sy);
+            var path = new minerva.path.Path();
+            path.move(sx, sy);
+            path.line(sx + dx, sy + dy);
+            path.line(sx + dx + dx, sy);
             var pars = bevelstroke(30);
-            path.Draw(ctx);
+            path.draw(ctx);
             pathStroke(ctx, "rgb(0,0,0)", pars);
             drawPoint(ctx, sx + dx, sy + dy, "red");
         }
