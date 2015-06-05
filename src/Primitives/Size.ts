@@ -12,7 +12,7 @@ nullstone.registerTypeConverter(Size, (val: any): Size => {
         return <Size>val;
     if (val instanceof minerva.Size)
         return new Size(val.width, val.height);
-    var tokens = val.toString().split(",");
+    var tokens = val.toString().split(/\s*,?\s*/);
     if (tokens.length === 2) {
         var w = parseFloat(tokens[0]);
         var h = parseFloat(tokens[1]);

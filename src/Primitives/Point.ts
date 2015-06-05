@@ -18,7 +18,7 @@ nullstone.registerTypeConverter(Point, (val: any): Point => {
         return <Point>val;
     if (val instanceof minerva.Point)
         return new Point(val.x, val.y);
-    var tokens = val.toString().split(",");
+    var tokens = val.toString().split(/\s*,?\s*/);
     if (tokens.length === 2) {
         var x = parseFloat(tokens[0]);
         var y = parseFloat(tokens[1]);

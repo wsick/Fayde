@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.27';
+    Fayde.Version = '0.16.28';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -10788,7 +10788,7 @@ nullstone.registerTypeConverter(Point, function (val) {
         return val;
     if (val instanceof minerva.Point)
         return new Point(val.x, val.y);
-    var tokens = val.toString().split(",");
+    var tokens = val.toString().split(/\s*,?\s*/);
     if (tokens.length === 2) {
         var x = parseFloat(tokens[0]);
         var y = parseFloat(tokens[1]);
@@ -25624,7 +25624,7 @@ nullstone.registerTypeConverter(CornerRadius, function (val) {
         return new CornerRadius();
     if (typeof val === "number")
         return new CornerRadius(val, val, val, val);
-    var tokens = val.toString().split(",");
+    var tokens = val.toString().split(/\s*,?\s*/);
     var topLeft, topRight, bottomRight, bottomLeft;
     if (tokens.length === 1) {
         topLeft = topRight = bottomRight = bottomLeft = parseFloat(tokens[0]);
@@ -25815,7 +25815,7 @@ nullstone.registerTypeConverter(Rect, function (val) {
         return new Rect();
     if (val instanceof Rect)
         return val;
-    var tokens = val.toString().split(",");
+    var tokens = val.toString().split(/\s*,?\s*/);
     if (tokens.length === 4) {
         return new Rect(parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2]), parseFloat(tokens[3]));
     }
@@ -25839,7 +25839,7 @@ nullstone.registerTypeConverter(Size, function (val) {
         return val;
     if (val instanceof minerva.Size)
         return new Size(val.width, val.height);
-    var tokens = val.toString().split(",");
+    var tokens = val.toString().split(/\s*,?\s*/);
     if (tokens.length === 2) {
         var w = parseFloat(tokens[0]);
         var h = parseFloat(tokens[1]);
@@ -25874,7 +25874,7 @@ nullstone.registerTypeConverter(Thickness, function (val) {
         var t = val;
         return new Thickness(t.left, t.top, t.right, t.bottom);
     }
-    var tokens = val.toString().split(",");
+    var tokens = val.toString().split(/\s*,?\s*/);
     var left, top, right, bottom;
     if (tokens.length === 1) {
         left = top = right = bottom = parseFloat(tokens[0]);
