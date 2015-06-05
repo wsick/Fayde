@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.26';
+    Fayde.Version = '0.16.27';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -17151,6 +17151,14 @@ Fayde.CoreLibrary.addPrimitive(TimeSpan);
 nullstone.registerTypeConverter(TimeSpan, function (val) {
     if (val instanceof TimeSpan)
         return val;
+    if (val instanceof Duration) {
+        var duration = val;
+        if (duration.HasTimeSpan)
+            return new TimeSpan(duration.TimeSpan.Ticks);
+        else
+            throw new Exception("Cannot convert " + duration.IsForever ? "Forever" : "Automatic" +
+                +" duration to TimeSpan");
+    }
     if (typeof val === "number")
         return new TimeSpan(val);
     val = val.toString();
