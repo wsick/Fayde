@@ -45,6 +45,11 @@ export function load() {
 
         ts = <TimeSpan>nullstone.convertAnyToType("1000", TimeSpan);
         strictEqual(ts.Ticks, 1000, "Ticks (String)");
+
+        var its = TimeSpan.FromHours(10);
+        ts = <TimeSpan>nullstone.convertAnyToType(new Duration(its), TimeSpan);
+        strictEqual(ts.Ticks, TimeSpan._TicksPerHour * 10, "Ticks (Duration TimeSpan)");
+        notStrictEqual(ts, its, "Type converter should clone duration timespan.");
     });
 
     test("Thickness", () => {
