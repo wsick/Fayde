@@ -1,0 +1,33 @@
+<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    ThemeName="Metro">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="100" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="300" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Text="None" />
+        <Path Grid.Row="0" Grid.Column="1" Margin="5"
+            Stretch="None" Stroke="Black" StrokeThickness="3"
+            Data="M 60 0 L 120 0 L 180 60 L 180 120 L 120 180 L 60 180 L 0 120 L 0 60 Z" />
+        <TextBlock Grid.Row="1" Text="Fill" />
+        <Path Grid.Row="1" Grid.Column="1" Margin="5"
+            Stretch="Fill" Stroke="Black" StrokeThickness="3"
+            Data="M 60 0 L 120 0 L 180 60 L 180 120 L 120 180 L 60 180 L 0 120 L 0 60 Z" />
+        <TextBlock Grid.Row="2" Text="Uniform" />
+        <Path Grid.Row="2" Grid.Column="1" Margin="5"
+            Stretch="Uniform" Stroke="Black" StrokeThickness="3"
+            Data="M 60 0 L 120 0 L 180 60 L 180 120 L 120 180 L 60 180 L 0 120 L 0 60 Z" />
+        <TextBlock Grid.Row="3" Text="UniformToFill" />
+        <Path Grid.Row="3" Grid.Column="1" Margin="5"
+            Stretch="UniformToFill" Stroke="Black" StrokeThickness="3"
+            Data="M 60 0 L 120 0 L 180 60 L 180 120 L 120 180 L 60 180 L 0 120 L 0 60 Z" />
+    </Grid>
+</Application>
