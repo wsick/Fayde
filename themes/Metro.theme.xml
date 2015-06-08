@@ -1837,8 +1837,8 @@
                                         <DoubleAnimation Storyboard.TargetProperty="(UIElement.Opacity)"
                                                          Storyboard.TargetName="MouseOverRectangle" To="1"
                                                          Duration="0:0:0.1"/>
-                                        <ColorAnimation Storyboard.TargetName="ContentPresenterWrapperColor"
-                                                        Storyboard.TargetProperty="Color" To="{StaticResource Gray2}"
+                                        <ColorAnimation Storyboard.TargetName="contentControl"
+                                                        Storyboard.TargetProperty="(Control.Foreground).Color" To="{StaticResource Gray2}"
                                                         Duration="0"/>
                                         <DoubleAnimation Storyboard.TargetProperty="(UIElement.Opacity)"
                                                          Storyboard.TargetName="grid" To="1" Duration="0:0:0.1"/>
@@ -1976,11 +1976,7 @@
                                 </Grid>
                             </Border>
                         </Grid>
-                        <ContentControl Grid.Column="1">
-                            <ContentControl.Foreground>
-                                <SolidColorBrush x:Name="ContentPresenterWrapperColor"
-                                                 Color="{StaticResource BlackColor}"/>
-                            </ContentControl.Foreground>
+                        <ContentControl x:Name="contentControl" Grid.Column="1" Foreground="{TemplateBinding Foreground}">
                             <ContentPresenter x:Name="contentPresenter"
                                               ContentTemplate="{TemplateBinding ContentTemplate}"
                                               Content="{TemplateBinding Content}"
