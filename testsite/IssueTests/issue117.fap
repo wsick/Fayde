@@ -6,6 +6,8 @@
         ThemeName="Metro">
     <Application.Resources>
         <Style TargetType="Button" x:Key="LightStyle">
+            <Setter Property="Width" Value="150" />
+            <Setter Property="Height" Value="150" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -38,7 +40,7 @@
                                 </vsm:VisualStateGroup>
                             </vsm:VisualStateManager.VisualStateGroups>
 
-                            <Grid Width="150" Height="150">
+                            <Grid>
                                 <Ellipse Height="150" Width="150" HorizontalAlignment="Right">
                                     <Ellipse.Fill>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -202,6 +204,8 @@
     </Application.Resources>
 
     <Grid x:Name="LayoutRoot">
-        <Button Style="{StaticResource LightStyle}"/>
+        <Button x:Name="LightButton" Style="{StaticResource LightStyle}"
+                Margin="200, 200"
+                HorizontalAlignment="Left" VerticalAlignment="Top" />
     </Grid>
 </Application>
