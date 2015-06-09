@@ -74,4 +74,27 @@ export function load () {
 
         ok(mat3.equal(tg.Value._Raw, mat3.create([Math.SQRT1_2, Math.SQRT1_2, -Math.SQRT1_2, Math.SQRT1_2, -Math.SQRT1_2 * 10, Math.SQRT1_2 * 30])));
     });
+
+    test("TransformGroup #2", () => {
+        var grp = new Fayde.Media.TransformGroup();
+        grp.Children.Add(new Fayde.Media.ScaleTransform());
+        grp.Children.Add(new Fayde.Media.SkewTransform());
+
+        var rotate = new Fayde.Media.RotateTransform();
+        rotate.Angle = -125.73500000000001;
+        grp.Children.Add(rotate);
+
+        var translate = new Fayde.Media.TranslateTransform();
+        translate.X = 7.2898730908178564;
+        translate.Y = -0.1325903170362821;
+        grp.Children.Add(translate);
+
+        var val = grp.Value;
+        equal(val.M11, -0.584037184715271);
+        equal(val.M12, -0.81172692775726318);
+        equal(val.M21, 0.81172692775726318);
+        equal(val.M22, -0.584037184715271);
+        equal(val.OffsetX, 7.2898731231689453);
+        equal(val.OffsetY, -0.13259032368659973);
+    });
 }
