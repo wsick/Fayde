@@ -10,6 +10,7 @@
             <RowDefinition Height="100"/>
             <RowDefinition Height="100"/>
             <RowDefinition Height="100"/>
+            <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100"/>
@@ -35,7 +36,12 @@
         <Path Grid.Row="4" Grid.Column="1" Margin="5"
               Stretch="UniformToFill" Stroke="Black" StrokeThickness="3"
               Data="M -60 0 L 0 0 L 60 60 L 60 120 L 0 180 L -60 180 L -120 120 L -120 60 Z"/>
+        <TextBlock Grid.Row="5" Text="Fill To Size" />
+        <Path x:Name="pathFillSmall" Grid.Row="5" Grid.Column="1" Margin="5"
+              Width="50" Height="50"
+              Stretch="Fill" Stroke="Black" StrokeThickness="3"
+              Data="M -60 0 L 0 0 L 60 60 L 60 120 L 0 180 L -60 180 L -120 120 L -120 60 Z" />
 
-        <Image Grid.Column="2" Grid.Row="1" Grid.RowSpan="4" Source="Shapes/expected-path-stretch.png" />
+        <Image Grid.Column="2" Grid.Row="1" Grid.RowSpan="5" Source="Shapes/expected-path-stretch.png" />
     </Grid>
 </Application>
