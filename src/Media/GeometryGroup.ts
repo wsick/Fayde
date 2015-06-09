@@ -34,7 +34,7 @@ module Fayde.Media {
             var transform = this.Transform;
             if (transform != null) {
                 ctx.save();
-                ctx.transformMatrix(transform.Value._Raw);
+                ctx.apply(transform.Value._Raw);
             }
             var enumerator = this.Children.getEnumerator();
             while (enumerator.moveNext()) {
