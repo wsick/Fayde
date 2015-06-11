@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.31';
+    Fayde.Version = '0.16.32';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -22216,7 +22216,7 @@ var Fayde;
                 var transform = this.Transform;
                 if (transform != null) {
                     raw.save();
-                    ctx.transformMatrix(transform.Value._Raw);
+                    ctx.apply(transform.Value._Raw);
                 }
                 this._Path.draw(raw);
                 if (transform != null)
@@ -22381,7 +22381,7 @@ var Fayde;
                 var transform = this.Transform;
                 if (transform != null) {
                     ctx.save();
-                    ctx.transformMatrix(transform.Value._Raw);
+                    ctx.apply(transform.Value._Raw);
                 }
                 var enumerator = this.Children.getEnumerator();
                 while (enumerator.moveNext()) {
@@ -23079,6 +23079,10 @@ var Fayde;
                     end.x *= bounds.width;
                     end.y *= bounds.height;
                 }
+                start.x += bounds.x;
+                start.y += bounds.y;
+                end.x += bounds.x;
+                end.y += bounds.y;
                 return {
                     start: start,
                     end: end
@@ -24480,6 +24484,10 @@ var Fayde;
                     rx *= bounds.width;
                     ry *= bounds.height;
                 }
+                center.x += bounds.x;
+                center.y += bounds.y;
+                origin.x += bounds.x;
+                origin.y += bounds.y;
                 var rad = Math.max(rx, ry);
                 var side = Math.max(bounds.width, bounds.height), sx = bounds.width / side, sy = bounds.height / side;
                 return {

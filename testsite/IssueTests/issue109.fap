@@ -155,14 +155,6 @@
                                       Data="F1 M72.551291,11.547777 C72.481308,11.488819 83.665941,11.734761 90.030663,13.313476 L90.123281,22.02957 C84.489409,20.748453 78.404819,20.089309 72.906123,20.093606 67.403882,20.097906 60.771905,20.823555 54.362028,22.451452 L54.414704,13.642125 C61.911611,11.838762 72.567634,11.561545 72.551291,11.547777 z"
                                       Height="9.529" RenderTransformOrigin="0.5,0.5" Margin="52.633,0,66.155,2.384"
                                       VerticalAlignment="Bottom">
-                                    <Path.Fill>
-                                        <LinearGradientBrush EndPoint="0,0" StartPoint="1,0">
-                                            <GradientStop Color="#FF938E8E" Offset="0"/>
-                                            <GradientStop Color="LightGray" Offset="0.139"/>
-                                            <GradientStop Color="#FFCACACA" Offset="0.868"/>
-                                            <GradientStop Color="#FF938E8E" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Path.Fill>
                                     <Path.RenderTransform>
                                         <TransformGroup>
                                             <ScaleTransform/>
@@ -171,6 +163,14 @@
                                             <TranslateTransform X="7.3142779141860217" Y="-0.14608523592449529"/>
                                         </TransformGroup>
                                     </Path.RenderTransform>
+                                    <Path.Fill>
+                                        <LinearGradientBrush EndPoint="0,0" StartPoint="1,0">
+                                            <GradientStop Color="#FF938E8E" Offset="0"/>
+                                            <GradientStop Color="LightGray" Offset="0.139"/>
+                                            <GradientStop Color="#FFCACACA" Offset="0.868"/>
+                                            <GradientStop Color="#FF938E8E" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
                                 </Path>
                                 <Path x:Name="MetalReflection3" Stretch="Fill"
                                       Data="F1 M72.817867,11.499552 C78.584606,11.592788 83.665941,11.734761 90.030663,13.313476 L90.123281,22.02957 C84.489409,20.748453 79.315223,20.093606 72.906123,20.093606 65.906423,20.093606 60.780418,20.605079 54.370541,22.232976 L54.442711,13.502591 C61.939618,11.699228 70.182233,11.456939 72.817867,11.499552 z"

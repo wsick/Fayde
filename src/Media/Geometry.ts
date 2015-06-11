@@ -43,7 +43,7 @@ module Fayde.Media {
             var transform = this.Transform;
             if (transform != null) {
                 raw.save();
-                ctx.transformMatrix(transform.Value._Raw);
+                ctx.apply(transform.Value._Raw);
             }
             this._Path.draw(raw);
             if (transform != null)
