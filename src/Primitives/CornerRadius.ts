@@ -8,6 +8,8 @@ Fayde.CoreLibrary.addPrimitive(CornerRadius);
 nullstone.registerTypeConverter(CornerRadius, (val: any): CornerRadius => {
     if (!val)
         return new CornerRadius();
+    if (val instanceof CornerRadius)
+	return <CornerRadius>val;
     if (typeof val === "number")
         return new CornerRadius(val, val, val, val);
     var tokens = Fayde.splitCommaList(val.toString());

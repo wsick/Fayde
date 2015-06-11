@@ -35,6 +35,8 @@ class Duration implements ICloneable {
 }
 Fayde.CoreLibrary.addPrimitive(Duration);
 nullstone.registerTypeConverter(Duration, (val: any): Duration => {
+    if (val instanceof Duration)
+	return <Duration>val;
     if (!val || val.toString().toLowerCase() === "automatic")
         return Duration.Automatic;
     if (val.toString().toLowerCase() === "forever")
