@@ -108,6 +108,11 @@ module Fayde.Media {
                 ry *= bounds.height;
             }
 
+            center.x += bounds.x;
+            center.y += bounds.y;
+            origin.x += bounds.x;
+            origin.y += bounds.y;
+
             var rad = Math.max(rx, ry);
             var side = Math.max(bounds.width, bounds.height),
                 sx = bounds.width / side,
