@@ -23079,6 +23079,10 @@ var Fayde;
                     end.x *= bounds.width;
                     end.y *= bounds.height;
                 }
+                start.x += bounds.x;
+                start.y += bounds.y;
+                end.x += bounds.x;
+                end.y += bounds.y;
                 return {
                     start: start,
                     end: end
