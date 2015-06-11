@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.32';
+    Fayde.Version = '0.16.33';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -25630,6 +25630,8 @@ Fayde.CoreLibrary.addPrimitive(CornerRadius);
 nullstone.registerTypeConverter(CornerRadius, function (val) {
     if (!val)
         return new CornerRadius();
+    if (val instanceof CornerRadius)
+        return val;
     if (typeof val === "number")
         return new CornerRadius(val, val, val, val);
     var tokens = Fayde.splitCommaList(val.toString());
@@ -25704,6 +25706,8 @@ var Duration = (function () {
 })();
 Fayde.CoreLibrary.addPrimitive(Duration);
 nullstone.registerTypeConverter(Duration, function (val) {
+    if (val instanceof Duration)
+        return val;
     if (!val || val.toString().toLowerCase() === "automatic")
         return Duration.Automatic;
     if (val.toString().toLowerCase() === "forever")
