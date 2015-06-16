@@ -25952,17 +25952,31 @@ var BError = (function () {
 var Fayde;
 (function (Fayde) {
     function Bootstrap(onLoaded) {
-        var url = document.body.getAttribute("fayde-app");
-        if (!url) {
+        var root = findAppRoot();
+        if (!root) {
             console.warn("No application specified.");
             return;
         }
-        var canvas = document.getElementsByTagName("canvas")[0];
-        if (!canvas)
-            document.body.appendChild(canvas = document.createElement("canvas"));
+        var url = root.getAttribute("fayde-app");
+        var canvas;
+        if (root instanceof HTMLCanvasElement) {
+            canvas = root;
+        }
+        else {
+            root.appendChild(canvas = document.createElement("canvas"));
+        }
         bootstrap(url, canvas, onLoaded);
     }
     Fayde.Bootstrap = Bootstrap;
+    function findAppRoot() {
+        var nodes = document.querySelectorAll("[fayde-app]");
+        for (var i = 0, len = nodes.length; i < nodes.length; i++) {
+            var node = nodes[i];
+            if (typeof node.getAttribute === "function" && node.getAttribute("fayde-app"))
+                return node;
+        }
+        return undefined;
+    }
     function bootstrap(url, canvas, onLoaded) {
         var app;
         function run() {

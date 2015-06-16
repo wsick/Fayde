@@ -1,16 +1,30 @@
 module Fayde {
     export function Bootstrap (onLoaded?: (app: Application) => any) {
-        var url = document.body.getAttribute("fayde-app");
-        if (!url) {
+        var root = findAppRoot();
+        if (!root) {
             console.warn("No application specified.");
             return;
         }
-
-        var canvas: HTMLCanvasElement = document.getElementsByTagName("canvas")[0];
-        if (!canvas)
-            document.body.appendChild(canvas = document.createElement("canvas"));
-
+        
+        var url = root.getAttribute("fayde-app");
+        let canvas: HTMLCanvasElement;
+        if (root instanceof HTMLCanvasElement) {
+            canvas = <HTMLCanvasElement>root;
+        } else {
+            root.appendChild(canvas = document.createElement("canvas"));
+        }
+        
         bootstrap(url, canvas, onLoaded);
+    }
+    
+    function findAppRoot (): Element {
+        var nodes = document.querySelectorAll("[fayde-app]");
+        for (var i = 0, len = nodes.length; i < nodes.length; i++) {
+            let node = <Element>nodes[i];
+            if (typeof node.getAttribute === "function" && node.getAttribute("fayde-app"))
+                return node;
+        }
+        return undefined;
     }
 
     function bootstrap (url: string, canvas: HTMLCanvasElement, onLoaded: (app: Application) => any) {
