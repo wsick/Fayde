@@ -5,7 +5,13 @@
     <Application.Resources>
     </Application.Resources>
     <Grid x:Name="LayoutRoot">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
         <TextBlock TextWrapping="Wrap" Text="This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. ">
         </TextBlock>
+        <TextBox Grid.Row="1" TextWrapping="Wrap" Text="This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. This is a huge wall of text with wrapping. ">
+        </TextBox>
     </Grid>
 </Application>
