@@ -25,7 +25,11 @@ module Fayde.Data {
         }
 
         transmute (os: any[]): any {
-            this.Mode = Enum.fromAny(RelativeSourceMode, this.Mode);
+            if (this.Mode == null && typeof this.AncestorType === "function") {
+                this.Mode = RelativeSourceMode.FindAncestor;
+            } else {
+                this.Mode = Enum.fromAny(RelativeSourceMode, this.Mode);
+            }
             this.AncestorLevel = parseInt(<any>this.AncestorLevel) || 1;
             Object.freeze(this);
             return this;

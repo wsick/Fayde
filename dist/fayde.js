@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.36';
+    Fayde.Version = '0.16.37';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -13729,7 +13729,12 @@ var Fayde;
                     this.AncestorType = resolver(this.AncestorType);
             };
             RelativeSource.prototype.transmute = function (os) {
-                this.Mode = Fayde.Enum.fromAny(Data.RelativeSourceMode, this.Mode);
+                if (this.Mode == null && typeof this.AncestorType === "function") {
+                    this.Mode = Data.RelativeSourceMode.FindAncestor;
+                }
+                else {
+                    this.Mode = Fayde.Enum.fromAny(Data.RelativeSourceMode, this.Mode);
+                }
                 this.AncestorLevel = parseInt(this.AncestorLevel) || 1;
                 Object.freeze(this);
                 return this;

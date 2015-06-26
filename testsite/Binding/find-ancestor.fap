@@ -4,6 +4,9 @@
     ThemeName="Metro">
     <StackPanel Tag="StackPanel Tag">
         <TextBlock Text="Parent Tag: " />
-        <TextBlock Text="{Binding Path=Tag, RelativeSource={RelativeSource FindAncestor, AncestorType=StackPanel}}" />
+        <TextBlock Text="{Binding Path=Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}" Height="20" />
+        <TextBlock Text="{Binding Path=Tag, RelativeSource={RelativeSource Self, AncestorType=StackPanel}}" Height="20" />
+        <TextBlock Text="{Binding Path=Tag, RelativeSource={RelativeSource TemplatedParent, AncestorType=StackPanel}}" Height="20" />
+        <TextBlock Text="{Binding Path=Tag, RelativeSource={RelativeSource FindAncestor, AncestorType=StackPanel}}" Height="20" />
     </StackPanel>
 </Application>
