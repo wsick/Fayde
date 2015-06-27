@@ -54,7 +54,9 @@ module Fayde.Controls {
         OnIsAttachedChanged(newIsAttached: boolean) {
             super.OnIsAttachedChanged(newIsAttached);
             if (!newIsAttached)
-                Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
+                Media.VSM.VisualStateManager.Deactivate(this.XObject, this.TemplateRoot);
+            else
+                Media.VSM.VisualStateManager.Activate(this.XObject, this.TemplateRoot);
         }
 
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
