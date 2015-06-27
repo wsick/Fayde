@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.37';
+    Fayde.Version = '0.16.38';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -2701,7 +2701,9 @@ var Fayde;
             ControlNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
                 _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
                 if (!newIsAttached)
-                    Fayde.Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
+                    Fayde.Media.VSM.VisualStateManager.Deactivate(this.XObject, this.TemplateRoot);
+                else
+                    Fayde.Media.VSM.VisualStateManager.Activate(this.XObject, this.TemplateRoot);
             };
             ControlNode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
                 _super.prototype.OnParentChanged.call(this, oldParentNode, newParentNode);
@@ -24979,6 +24981,16 @@ var Fayde;
                     }
                     this._CurrentStoryboards = [];
                 };
+                VisualStateGroup.prototype.Deactivate = function () {
+                    for (var en = nullstone.IEnumerator_.fromArray(this._CurrentStoryboards); en.moveNext();) {
+                        en.current && en.current.Pause();
+                    }
+                };
+                VisualStateGroup.prototype.Activate = function () {
+                    for (var en = nullstone.IEnumerator_.fromArray(this._CurrentStoryboards); en.moveNext();) {
+                        en.current && en.current.Resume();
+                    }
+                };
                 VisualStateGroup.prototype.RaiseCurrentStateChanging = function (element, oldState, newState, control) {
                     this.CurrentStateChanging.raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
                 };
@@ -25104,6 +25116,26 @@ var Fayde;
                     var enumerator = groups.getEnumerator();
                     while (enumerator.moveNext()) {
                         enumerator.current.StopCurrentStoryboards(root);
+                    }
+                };
+                VisualStateManager.Deactivate = function (control, root) {
+                    if (!root)
+                        return false;
+                    var groups = VisualStateManager.GetVisualStateGroups(root);
+                    if (!groups)
+                        return false;
+                    for (var en = groups.getEnumerator(); en.moveNext();) {
+                        en.current.Deactivate();
+                    }
+                };
+                VisualStateManager.Activate = function (control, root) {
+                    if (!root)
+                        return false;
+                    var groups = VisualStateManager.GetVisualStateGroups(root);
+                    if (!groups)
+                        return false;
+                    for (var en = groups.getEnumerator(); en.moveNext();) {
+                        en.current.Activate();
                     }
                 };
                 VisualStateManager._GetTemplateRoot = function (control) {

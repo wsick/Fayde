@@ -5400,6 +5400,8 @@ declare module Fayde.Media.VSM {
         GetState(stateName: string): VisualState;
         StartNewThenStopOld(element: FrameworkElement, newStoryboards: Animation.Storyboard[]): void;
         StopCurrentStoryboards(element: FrameworkElement): void;
+        Deactivate(): void;
+        Activate(): void;
         RaiseCurrentStateChanging(element: FrameworkElement, oldState: VisualState, newState: VisualState, control: Controls.Control): void;
         RaiseCurrentStateChanged(element: FrameworkElement, oldState: VisualState, newState: VisualState, control: Controls.Control): void;
     }
@@ -5425,6 +5427,8 @@ declare module Fayde.Media.VSM {
         GoToStateCore(control: Controls.Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: boolean): boolean;
         private static GoToStateInternal(control, element, group, state, useTransitions);
         static DestroyStoryboards(control: Controls.Control, root: FrameworkElement): boolean;
+        static Deactivate(control: Controls.Control, root: FrameworkElement): boolean;
+        static Activate(control: Controls.Control, root: FrameworkElement): boolean;
         private static _GetTemplateRoot(control);
         static GetGroup(control: Controls.Control, name: string): VisualStateGroup;
         private static _TryGetState(groups, stateName, data);

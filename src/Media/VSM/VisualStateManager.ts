@@ -113,6 +113,28 @@ module Fayde.Media.VSM {
             }
         }
 
+        static Deactivate (control: Controls.Control, root: FrameworkElement) {
+            if (!root)
+                return false;
+            var groups = VisualStateManager.GetVisualStateGroups(root);
+            if (!groups)
+                return false;
+            for (var en = groups.getEnumerator(); en.moveNext();) {
+                en.current.Deactivate();
+            }
+        }
+
+        static Activate (control: Controls.Control, root: FrameworkElement) {
+            if (!root)
+                return false;
+            var groups = VisualStateManager.GetVisualStateGroups(root);
+            if (!groups)
+                return false;
+            for (var en = groups.getEnumerator(); en.moveNext();) {
+                en.current.Activate();
+            }
+        }
+
         private static _GetTemplateRoot(control: Controls.Control): FrameworkElement {
             if (control instanceof Controls.UserControl)
                 return (<Controls.UserControl>control).XamlNode.TemplateRoot;

@@ -88,6 +88,18 @@ module Fayde.Media.VSM {
             this._CurrentStoryboards = [];
         }
 
+        Deactivate () {
+            for (var en = nullstone.IEnumerator_.fromArray(this._CurrentStoryboards); en.moveNext();) {
+                en.current && en.current.Pause();
+            }
+        }
+
+        Activate () {
+            for (var en = nullstone.IEnumerator_.fromArray(this._CurrentStoryboards); en.moveNext();) {
+                en.current && en.current.Resume();
+            }
+        }
+
         RaiseCurrentStateChanging(element: FrameworkElement, oldState: VisualState, newState: VisualState, control: Controls.Control) {
             this.CurrentStateChanging.raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
         }
