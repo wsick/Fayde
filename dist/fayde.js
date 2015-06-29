@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.38';
+    Fayde.Version = '0.16.39';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -17238,6 +17238,10 @@ var DateTime = (function () {
             ticks = args[0];
             kind = DateTimeKind.Utc;
         }
+        else if (args.length === 2) {
+            ticks = args[0];
+            kind = args[1] || 0;
+        }
         else if (args.length === 3) {
             year = args[0];
             month = args[1];
@@ -17305,7 +17309,7 @@ var DateTime = (function () {
         configurable: true
     });
     Object.defineProperty(DateTime, "Now", {
-        get: function () { return new DateTime(new Date().getTime()); },
+        get: function () { return new DateTime(new Date().getTime(), DateTimeKind.Local); },
         enumerable: true,
         configurable: true
     });
@@ -17356,7 +17360,7 @@ var DateTime = (function () {
                 d.setSeconds(0);
                 d.setMilliseconds(0);
             }
-            return new DateTime(d.getTime());
+            return new DateTime(d.getTime(), this._Kind);
         },
         enumerable: true,
         configurable: true
