@@ -2,13 +2,17 @@ export function load() {
     QUnit.module("Primitives Tests");
 
     test("DateTime", () => {
-        var d: DateTime;
+        var d:DateTime;
 
         d = new DateTime();
         strictEqual(d.Ticks, 0, "ctor1");
 
         d = new DateTime(1000);
         strictEqual(d.Ticks, 1000, "ctor2 ticks");
+
+        d = new DateTime(1000, DateTimeKind.Local);
+        strictEqual(d.Ticks, 1000, "ctor3 ticks");
+        strictEqual(d.Kind, DateTimeKind.Local, "ctor3 kind");
 
         d = new DateTime(2000, 1, 2);
         strictEqual(d.Year, 2000, "ctor4 year");
@@ -81,4 +85,13 @@ export function load() {
         strictEqual(DateTime.DaysInMonth(2014, 12), 31);
     });
 
+    test("DateTime: statics", () => {
+        var now = DateTime.Now;
+        strictEqual(now.Day, new Date().getDate(), "Now day should match local day");
+        strictEqual(now.Kind, DateTimeKind.Local, "Now should be DateTimeKind.Local");
+
+        var today = DateTime.Today;
+        strictEqual(today.Day, new Date().getDate(), "Today day should match local day");
+        strictEqual(today.Kind, DateTimeKind.Local, "Today should be DateTimeKind.Local");
+    });
 }

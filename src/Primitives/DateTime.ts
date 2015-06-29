@@ -24,7 +24,7 @@ class DateTime {
 
     static get MinValue() { return new DateTime(-8640000000000000); }
     static get MaxValue() { return new DateTime(8640000000000000); }
-    static get Now(): DateTime { return new DateTime(new Date().getTime()); }
+    static get Now(): DateTime { return new DateTime(new Date().getTime(), DateTimeKind.Local); }
     static get Today(): DateTime { return DateTime.Now.Date; }
     static Compare(dt1: DateTime, dt2: DateTime): number {
         var t1 = dt1._InternalDate.getTime();
@@ -47,6 +47,7 @@ class DateTime {
 
     constructor();
     constructor(ticks: number);
+    constructor(ticks: number, kind: DateTimeKind);
     constructor(year: number, month: number, day: number);
     constructor(year: number, month: number, day: number, hour: number, minute: number, second: number);
     constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number);
@@ -65,6 +66,9 @@ class DateTime {
         if (args.length === 1) { //Ticks
             ticks = args[0];
             kind = DateTimeKind.Utc;
+        } else if (args.length === 2) { //Ticks,Kind
+            ticks = args[0];
+            kind = args[1] || 0;
         } else if (args.length === 3) { //Year,Month,Day
             year = args[0];
             month = args[1];
@@ -136,7 +140,7 @@ class DateTime {
             d.setSeconds(0);
             d.setMilliseconds(0);
         }
-        return new DateTime(d.getTime());
+        return new DateTime(d.getTime(), this._Kind);
     }
     get Day(): number {
         if (this._Kind === DateTimeKind.Utc)
