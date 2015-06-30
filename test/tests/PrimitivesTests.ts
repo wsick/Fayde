@@ -6,9 +6,11 @@ export function load() {
 
         d = new DateTime();
         strictEqual(d.Ticks, 0, "ctor1");
+        strictEqual(d.Kind, DateTimeKind.Unspecified, "ctor1 kind");
 
         d = new DateTime(1000);
         strictEqual(d.Ticks, 1000, "ctor2 ticks");
+        strictEqual(d.Kind, DateTimeKind.Unspecified, "ctor2 kind");
 
         d = new DateTime(1000, DateTimeKind.Local);
         strictEqual(d.Ticks, 1000, "ctor3 ticks");

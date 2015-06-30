@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.39';
+    Fayde.Version = '0.16.40';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -17236,11 +17236,10 @@ var DateTime = (function () {
         var millisecond = 0;
         if (args.length === 1) {
             ticks = args[0];
-            kind = DateTimeKind.Utc;
         }
         else if (args.length === 2) {
             ticks = args[0];
-            kind = args[1] || 0;
+            kind = args[1];
         }
         else if (args.length === 3) {
             year = args[0];
@@ -17277,13 +17276,13 @@ var DateTime = (function () {
         else {
             ticks = 0;
         }
-        this._Kind = kind == null ? DateTimeKind.Unspecified : kind;
+        this._Kind = kind || DateTimeKind.Unspecified;
         if (ticks != null) {
             this._InternalDate = new Date(ticks);
             return;
         }
         var id = this._InternalDate = new Date();
-        if (kind === DateTimeKind.Utc) {
+        if (this._Kind === DateTimeKind.Utc) {
             id.setUTCFullYear(year, month - 1, day);
             id.setUTCHours(hour);
             id.setUTCMinutes(minute);
@@ -17386,7 +17385,7 @@ var DateTime = (function () {
     Object.defineProperty(DateTime.prototype, "DayOfYear", {
         get: function () {
             var dt = this.Date;
-            var base = new DateTime(dt.Year, 1, 1);
+            var base = new DateTime(dt.Year, 1, 1, 0, 0, 0, 0, this.Kind);
             var diff = new TimeSpan(dt.Ticks - base.Ticks);
             return Math.floor(diff.TotalDays);
         },
@@ -17458,7 +17457,7 @@ var DateTime = (function () {
         configurable: true
     });
     DateTime.prototype.Add = function (value) {
-        return new DateTime(this.Ticks + value.Ticks);
+        return new DateTime(this.Ticks + value.Ticks, this.Kind);
     };
     DateTime.prototype.AddYears = function (value) {
         if (value < -10000 || value > 10000)
@@ -17470,7 +17469,7 @@ var DateTime = (function () {
         var ticks = dte.setMonth(dte.getMonth() + value);
         if (isNaN(ticks))
             throw new ArgumentOutOfRangeException("Date out of range.");
-        return new DateTime(ticks);
+        return new DateTime(ticks, this.Kind);
     };
     DateTime.prototype.AddDays = function (value) {
         return this.AddTicks(value * TimeSpan._TicksPerDay);
@@ -17491,20 +17490,20 @@ var DateTime = (function () {
         var ticks = this.Ticks + value;
         if (DateTime._MinDateTicks > ticks || DateTime._MaxDateTicks < ticks)
             throw new ArgumentOutOfRangeException("Date out of range.");
-        return new DateTime(ticks);
+        return new DateTime(ticks, this.Kind);
     };
     DateTime.prototype.Subtract = function (value) {
         if (value instanceof DateTime) {
             return new TimeSpan(this.Ticks - value.Ticks);
         }
         else if (value instanceof TimeSpan) {
-            return new DateTime(this.Ticks - value.Ticks);
+            return new DateTime(this.Ticks - value.Ticks, this.Kind);
         }
-        return new DateTime(this.Ticks);
+        return new DateTime(this.Ticks, this.Kind);
     };
     DateTime.prototype.ToUniversalTime = function () {
         if (this.Kind === DateTimeKind.Utc)
-            return new DateTime(this.Ticks);
+            return new DateTime(this.Ticks, DateTimeKind.Utc);
         var id = this._InternalDate;
         return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), DateTimeKind.Utc);
     };

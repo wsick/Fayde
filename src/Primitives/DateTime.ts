@@ -65,10 +65,9 @@ class DateTime {
 
         if (args.length === 1) { //Ticks
             ticks = args[0];
-            kind = DateTimeKind.Utc;
         } else if (args.length === 2) { //Ticks,Kind
             ticks = args[0];
-            kind = args[1] || 0;
+            kind = args[1];
         } else if (args.length === 3) { //Year,Month,Day
             year = args[0];
             month = args[1];
@@ -101,13 +100,13 @@ class DateTime {
             ticks = 0;
         }
 
-        this._Kind = kind == null ? DateTimeKind.Unspecified : kind;
+        this._Kind = kind || DateTimeKind.Unspecified;
         if (ticks != null) {
             this._InternalDate = new Date(ticks);
             return;
         }
         var id = this._InternalDate = new Date();
-        if (kind === DateTimeKind.Utc) {
+        if (this._Kind === DateTimeKind.Utc) {
             id.setUTCFullYear(year, month - 1, day);
             id.setUTCHours(hour);
             id.setUTCMinutes(minute);
@@ -154,7 +153,7 @@ class DateTime {
     }
     get DayOfYear(): number {
         var dt = this.Date;
-        var base = new DateTime(dt.Year, 1, 1);
+        var base = new DateTime(dt.Year, 1, 1, 0, 0, 0, 0, this.Kind);
         var diff = new TimeSpan(dt.Ticks - base.Ticks);
         return Math.floor(diff.TotalDays);
     }
@@ -196,7 +195,7 @@ class DateTime {
     }
 
     Add(value: TimeSpan): DateTime {
-        return new DateTime(this.Ticks + value.Ticks);
+        return new DateTime(this.Ticks + value.Ticks, this.Kind);
     }
 
     AddYears(value: number): DateTime {
@@ -209,7 +208,7 @@ class DateTime {
         var ticks = dte.setMonth(dte.getMonth() + value);
         if (isNaN(ticks))
             throw new ArgumentOutOfRangeException("Date out of range.");
-        return new DateTime(ticks);
+        return new DateTime(ticks, this.Kind);
     }
     AddDays(value: number): DateTime {
         return this.AddTicks(value * TimeSpan._TicksPerDay);
@@ -230,23 +229,23 @@ class DateTime {
         var ticks = this.Ticks + value;
         if (DateTime._MinDateTicks > ticks || DateTime._MaxDateTicks < ticks)
             throw new ArgumentOutOfRangeException("Date out of range.");
-        return new DateTime(ticks);
+        return new DateTime(ticks, this.Kind);
     }
 
     Subtract(value: DateTime): TimeSpan;
     Subtract(value: TimeSpan): DateTime;
     Subtract(value: any): any {
         if (value instanceof DateTime) {
-            return new TimeSpan(this.Ticks - (<DateTime>value).Ticks);
+            return new TimeSpan(this.Ticks - value.Ticks);
         } else if (value instanceof TimeSpan) {
-            return new DateTime(this.Ticks - (<TimeSpan>value).Ticks);
+            return new DateTime(this.Ticks - value.Ticks, this.Kind);
         }
-        return new DateTime(this.Ticks);
+        return new DateTime(this.Ticks, this.Kind);
     }
 
     ToUniversalTime(): DateTime {
         if (this.Kind === DateTimeKind.Utc)
-            return new DateTime(this.Ticks);
+            return new DateTime(this.Ticks, DateTimeKind.Utc);
         var id = this._InternalDate;
         return new DateTime(id.getUTCFullYear(), id.getUTCMonth() + 1, id.getUTCDate(), id.getUTCHours(), id.getUTCMinutes(), id.getUTCSeconds(), id.getUTCMilliseconds(), DateTimeKind.Utc);
     }
