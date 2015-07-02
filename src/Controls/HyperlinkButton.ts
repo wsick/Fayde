@@ -1,9 +1,11 @@
 /// <reference path="Primitives/ButtonBase.ts" />
 
 module Fayde.Controls {
+    type Target = string|Frame;
+
     export class HyperlinkButton extends Primitives.ButtonBase {
-        static NavigateUriProperty: DependencyProperty = DependencyProperty.Register("NavigateUri", () => Uri, HyperlinkButton);
-        static TargetNameProperty: DependencyProperty = DependencyProperty.Register("TargetName", () => String, HyperlinkButton);
+        static NavigateUriProperty = DependencyProperty.Register("NavigateUri", () => Uri, HyperlinkButton);
+        static TargetNameProperty = DependencyProperty.Register("TargetName", () => String, HyperlinkButton);
         NavigateUri: Uri;
         TargetName: string;
 
@@ -19,8 +21,7 @@ module Fayde.Controls {
 
         OnClick () {
             super.OnClick();
-            if (this.NavigateUri != null)
-                this._Navigate();
+            this._Navigate();
         }
 
         /*
@@ -37,32 +38,42 @@ module Fayde.Controls {
          */
 
         private _Navigate () {
+            var navUri = this._GetNavigateLink();
+            if (!navUri)
+                return;
+
+            var targetUie = this._FindTarget();
+            if (targetUie instanceof Frame)
+                window.location.hash = navUri;
+            else if (!targetUie)
+                window.location.href = navUri;
+            else
+                launchDummyLink(this.TargetName, navUri);
+        }
+
+        private _GetNavigateLink (): string {
+            var uri = this.NavigateUri;
+            if (!uri)
+                return "";
+            return uri.toString() || "";
+        }
+
+        private _FindTarget (): Target {
             var targetName = this.TargetName;
-            switch ((targetName || "").toLowerCase()) {
+            var lower = (targetName || "").toLowerCase();
+            switch (lower) {
                 case "_blank":
                 case "_media":
                 case "_search":
-                    launchDummyLink(targetName.toLowerCase(), this.NavigateUri);
-                    return;
+                    return lower;
                 case "_parent":
                 case "_self":
                 case "_top":
+                case "":
+                    return VisualTreeHelper.GetParentOfType(this, Frame);
                 default:
-                    break;
+                    return this.FindName(targetName, true);
             }
-
-            var targetUie = this._FindTargetElement();
-            if (targetUie instanceof Frame)
-                window.location.hash = this.NavigateUri.toString();
-            else
-                window.location.href = this.NavigateUri.toString();
-        }
-
-        private _FindTargetElement () {
-            var targetName = this.TargetName;
-            if (!targetName)
-                return VisualTreeHelper.GetParentOfType(this, Fayde.Controls.Frame);
-            return this.FindName(targetName, true);
         }
     }
     Fayde.CoreLibrary.add(HyperlinkButton);
@@ -75,9 +86,9 @@ module Fayde.Controls {
         {GroupName: "FocusStates", Name: "Focused"});
 
     var dummyLink: HTMLAnchorElement;
-    function launchDummyLink (target: string, navigateUri: Uri) {
+    function launchDummyLink (target: string, navigateUri: string) {
         dummyLink = dummyLink || document.createElement('a');
-        dummyLink.href = navigateUri.toString();
+        dummyLink.href = navigateUri;
         dummyLink.target = target;
         dummyLink.click();
     }
