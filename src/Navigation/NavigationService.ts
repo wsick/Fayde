@@ -4,7 +4,7 @@ module Fayde.Navigation {
         Hash: string;
         LocationChanged = new nullstone.Event();
 
-        constructor () {
+        constructor() {
             this.Href = window.location.href;
             this.Hash = window.location.hash;
             if (this.Href[this.Href.length - 1] === '#')
@@ -16,11 +16,16 @@ module Fayde.Navigation {
             window.onhashchange = () => this._HandleFragmentChange();
         }
 
-        get CurrentUri (): Uri {
+        get CurrentUri(): Uri {
             return new Uri(this.Href + "#" + this.Hash);
         }
 
-        private _HandleFragmentChange () {
+        Navigate(uri: Uri): boolean {
+            window.location.hash = uri.toString();
+            return true;
+        }
+
+        private _HandleFragmentChange() {
             this.Hash = window.location.hash;
             if (this.Hash) {
                 this.Hash = this.Hash.substr(1);

@@ -10,6 +10,7 @@ module Fayde {
         MainSurface: Surface;
         Loaded = new nullstone.Event();
         Address: Uri = null;
+        AllowNavigation = true;
         private _IsRunning: boolean = false;
         private _IsLoaded = false;
         private _Storyboards: ITimeline[] = [];

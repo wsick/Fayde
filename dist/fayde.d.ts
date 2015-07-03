@@ -1602,7 +1602,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class Frame extends ContentControl {
+    class Frame extends ContentControl implements Navigation.INavigate {
         static IsDeepLinkedProperty: DependencyProperty;
         static CurrentSourceProperty: DependencyProperty;
         static SourceProperty: DependencyProperty;
@@ -1621,7 +1621,7 @@ declare module Fayde.Controls {
         constructor();
         GoToStates(gotoFunc: (state: string) => boolean): void;
         GoToStateLoading(gotoFunc: (state: string) => boolean): boolean;
-        Navigate(uri: Uri): void;
+        Navigate(uri: Uri): boolean;
         GoForward(): void;
         GoBackward(): void;
         StopLoading(): void;
@@ -1695,7 +1695,6 @@ declare module Fayde.Controls {
         constructor();
         OnApplyTemplate(): void;
         OnClick(): void;
-        private _Navigate();
     }
 }
 declare module Fayde.Media {
@@ -3222,6 +3221,7 @@ declare module Fayde {
         MainSurface: Surface;
         Loaded: nullstone.Event<{}>;
         Address: Uri;
+        AllowNavigation: boolean;
         private _IsRunning;
         private _IsLoaded;
         private _Storyboards;
@@ -5451,12 +5451,22 @@ declare module Fayde.Media.VSM {
     }
 }
 declare module Fayde.Navigation {
+    interface INavigate {
+        Navigate(source: Uri): boolean;
+    }
+    var INavigate_: nullstone.Interface<INavigate>;
+}
+declare module Fayde.Navigation {
+    function Navigate(source: DependencyObject, targetName: string, navigateUri: Uri): void;
+}
+declare module Fayde.Navigation {
     class NavigationService {
         Href: string;
         Hash: string;
         LocationChanged: nullstone.Event<{}>;
         constructor();
         CurrentUri: Uri;
+        Navigate(uri: Uri): boolean;
         private _HandleFragmentChange();
     }
 }

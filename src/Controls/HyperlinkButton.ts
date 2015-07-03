@@ -9,19 +9,21 @@ module Fayde.Controls {
         NavigateUri: Uri;
         TargetName: string;
 
-        constructor () {
+        constructor() {
             super();
             this.DefaultStyleKey = HyperlinkButton;
         }
 
-        OnApplyTemplate () {
+        OnApplyTemplate() {
             super.OnApplyTemplate();
             this.UpdateVisualState(false);
         }
 
-        OnClick () {
+        OnClick() {
             super.OnClick();
-            this._Navigate();
+            var navUri = this.NavigateUri;
+            if (navUri)
+                Navigation.Navigate(this, this.TargetName, navUri);
         }
 
         /*
@@ -36,45 +38,6 @@ module Fayde.Controls {
          return destination;
          }
          */
-
-        private _Navigate () {
-            var navUri = this._GetNavigateLink();
-            if (!navUri)
-                return;
-
-            var targetUie = this._FindTarget();
-            if (targetUie instanceof Frame)
-                window.location.hash = navUri;
-            else if (!targetUie)
-                window.location.href = navUri;
-            else
-                launchDummyLink(this.TargetName, navUri);
-        }
-
-        private _GetNavigateLink (): string {
-            var uri = this.NavigateUri;
-            if (!uri)
-                return "";
-            return uri.toString() || "";
-        }
-
-        private _FindTarget (): Target {
-            var targetName = this.TargetName;
-            var lower = (targetName || "").toLowerCase();
-            switch (lower) {
-                case "_blank":
-                case "_media":
-                case "_search":
-                    return lower;
-                case "_parent":
-                case "_self":
-                case "_top":
-                case "":
-                    return VisualTreeHelper.GetParentOfType(this, Frame);
-                default:
-                    return this.FindName(targetName, true);
-            }
-        }
     }
     Fayde.CoreLibrary.add(HyperlinkButton);
     TemplateVisualStates(HyperlinkButton,
@@ -84,12 +47,4 @@ module Fayde.Controls {
         {GroupName: "CommonStates", Name: "Disabled"},
         {GroupName: "FocusStates", Name: "Unfocused"},
         {GroupName: "FocusStates", Name: "Focused"});
-
-    var dummyLink: HTMLAnchorElement;
-    function launchDummyLink (target: string, navigateUri: string) {
-        dummyLink = dummyLink || document.createElement('a');
-        dummyLink.href = navigateUri;
-        dummyLink.target = target;
-        dummyLink.click();
-    }
 }
