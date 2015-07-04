@@ -1,6 +1,6 @@
 {
   "name": "fayde",
-  "version": "0.16.40",
+  "version": "0.16.41",
   "main": "dist/fayde.js",
   "homepage": "http://fayde.wsick.com",
   "authors": [
@@ -20,7 +20,7 @@
   ],
   "dependencies": {
     "minerva": "~0.4.22",
-    "nullstone": "~0.3.9",
+    "nullstone": "~0.3.14",
     "requirejs": "~2.1.15",
     "requirejs-text": "~2.0.12",
     "perfex": "~0.1.0"

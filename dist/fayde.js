@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.40';
+    Fayde.Version = '0.16.41';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -6535,8 +6535,16 @@ var Fayde;
         Fayde.CoreLibrary.add(Page);
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        Navigation.INavigate_ = new nullstone.Interface("INavigate");
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
 /// <reference path="ContentControl.ts" />
 /// <reference path="Page.ts" />
+/// <reference path="../Navigation/INavigate.ts" />
 var Fayde;
 (function (Fayde) {
     var Controls;
@@ -6580,7 +6588,7 @@ var Fayde;
                 return gotoFunc(this.IsLoading ? "Loading" : "Idle");
             };
             Frame.prototype.Navigate = function (uri) {
-                this._LoadContent(uri);
+                return this._NavService.Navigate(uri);
             };
             Frame.prototype.GoForward = function () {
                 //TODO: Implement
@@ -6661,6 +6669,7 @@ var Fayde;
         })(Controls.ContentControl);
         Controls.Frame = Frame;
         Fayde.CoreLibrary.add(Frame);
+        nullstone.addTypeInterfaces(Frame, Fayde.Navigation.INavigate_);
         Controls.TemplateVisualStates(Frame, { GroupName: "LoadingStates", Name: "Idle" }, { GroupName: "LoadingStates", Name: "Loading" });
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
@@ -6820,39 +6829,9 @@ var Fayde;
             };
             HyperlinkButton.prototype.OnClick = function () {
                 _super.prototype.OnClick.call(this);
-                if (this.NavigateUri != null)
-                    this._Navigate();
-            };
-            /*
-            private _GetAbsoluteUri(): Uri {
-                var destination = this.NavigateUri;
-                if (!destination.IsAbsoluteUri) {
-                    var original = destination.OriginalString;
-                    if (original && original.charAt(0) !== '/')
-                        throw new NotSupportedException();
-                    destination = new Uri(App.Current.GetHost().GetSource(), destination);
-                }
-                return destination;
-            }
-            */
-            HyperlinkButton.prototype._Navigate = function () {
-                var targetName = this.TargetName;
-                var targetUie;
-                if (!targetName) {
-                    targetUie = Fayde.VisualTreeHelper.GetParentOfType(this, Fayde.Controls.Frame);
-                }
-                else {
-                    targetUie = this.FindName(targetName, true);
-                }
-                if (!targetUie) {
-                    window.location.href = this.NavigateUri.toString();
-                }
-                else if (targetUie instanceof Controls.Frame) {
-                    window.location.hash = this.NavigateUri.toString();
-                }
-                else {
-                    window.open(this.NavigateUri.toString(), targetName);
-                }
+                var navUri = this.NavigateUri;
+                if (navUri)
+                    Fayde.Navigation.Navigate(this, this.TargetName, navUri);
             };
             HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Fayde.Uri; }, HyperlinkButton);
             HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton);
@@ -14251,6 +14230,7 @@ var Fayde;
             _super.call(this);
             this.Loaded = new nullstone.Event();
             this.Address = null;
+            this.AllowNavigation = true;
             this._IsRunning = false;
             this._IsLoaded = false;
             this._Storyboards = [];
@@ -25376,6 +25356,109 @@ var Fayde;
 (function (Fayde) {
     var Navigation;
     (function (Navigation) {
+        function Navigate(source, targetName, navigateUri) {
+            if (!isExternalTarget(targetName)) {
+                if (tryInternalNavigate(source, navigateUri, targetName))
+                    return;
+                if (!isUriValidForExternalNav(navigateUri))
+                    throw new NotSupportedException("Navigation Failed");
+            }
+            var app = source.App;
+            if (!app || !app.AllowNavigation)
+                throw new InvalidOperationException("Navigation is now allowed.");
+            var absoluteUri = getAbsoluteUri(navigateUri, app);
+            if (!absoluteUri.isAbsoluteUri)
+                throw new InvalidOperationException("Navigation Failed [" + absoluteUri.toString() + "]");
+            launchDummyLink(targetName || "_self", absoluteUri.originalString);
+        }
+        Navigation.Navigate = Navigate;
+        function isExternalTarget(targetName) {
+            switch (targetName.toLowerCase()) {
+                case "_blank":
+                case "_media":
+                case "_search":
+                case "_parent":
+                case "_self":
+                case "_top":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        function tryInternalNavigate(source, navigateUri, targetName) {
+            var lastSubtree = source;
+            for (var en = walkUp(source); en.moveNext();) {
+                var cur = en.current;
+                if (cur && (Navigation.INavigate_.is(cur) || !Fayde.VisualTreeHelper.GetParent(cur))) {
+                    var navigator = findNavigator(cur, lastSubtree, targetName);
+                    if (navigator)
+                        return navigator.Navigate(navigateUri);
+                    lastSubtree = cur;
+                }
+            }
+            return false;
+        }
+        function findNavigator(root, lastSubtree, targetName) {
+            if (!root || root === lastSubtree)
+                return null;
+            var nav = Navigation.INavigate_.as(root);
+            if (nav && (!targetName || targetName === root.Name))
+                return nav;
+            if (root instanceof Fayde.Controls.Primitives.Popup) {
+                return findNavigator(root.Child, lastSubtree, targetName);
+            }
+            else {
+                for (var i = 0, len = Fayde.VisualTreeHelper.GetChildrenCount(root); i < len; i++) {
+                    var navigator = findNavigator(Fayde.VisualTreeHelper.GetChild(root, i), lastSubtree, targetName);
+                    if (navigator)
+                        return navigator;
+                }
+            }
+            return null;
+        }
+        function walkUp(xobj) {
+            var e = {
+                current: xobj,
+                moveNext: function () {
+                    if (!e.current)
+                        return false;
+                    e.current = e.current.VisualParent || e.current.Parent;
+                    return !!e.current;
+                }
+            };
+            return e;
+        }
+        function isUriValidForExternalNav(navigateUri) {
+            if (!navigateUri.isAbsoluteUri) {
+                if (!!navigateUri.originalString && navigateUri.originalString[0] !== "/")
+                    return false;
+            }
+            return true;
+        }
+        function getAbsoluteUri(navigateUri, app) {
+            var relativeUri = navigateUri;
+            if (!relativeUri.isAbsoluteUri) {
+                if (!!relativeUri.originalString && relativeUri.originalString[0] !== "/")
+                    throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_PageRelativeUri");
+                if (!app)
+                    throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_NoApplication");
+                relativeUri = new Fayde.Uri(app.Address, relativeUri);
+            }
+            return relativeUri;
+        }
+        var dummyLink;
+        function launchDummyLink(target, navigateUri) {
+            dummyLink = dummyLink || document.createElement('a');
+            dummyLink.href = navigateUri;
+            dummyLink.target = target;
+            dummyLink.click();
+        }
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
         var NavigationService = (function () {
             function NavigationService() {
                 var _this = this;
@@ -25397,6 +25480,10 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+            NavigationService.prototype.Navigate = function (uri) {
+                window.location.hash = uri.toString();
+                return true;
+            };
             NavigationService.prototype._HandleFragmentChange = function () {
                 this.Hash = window.location.hash;
                 if (this.Hash) {

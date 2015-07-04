@@ -1,8 +1,9 @@
 /// <reference path="ContentControl.ts" />
 /// <reference path="Page.ts" />
+/// <reference path="../Navigation/INavigate.ts" />
 
 module Fayde.Controls {
-    function createErrorDoc (error: any): nullstone.markup.xaml.XamlMarkup {
+    function createErrorDoc(error: any): nullstone.markup.xaml.XamlMarkup {
         var safe = (error || '').toString()
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
@@ -15,11 +16,11 @@ module Fayde.Controls {
         return Markup.CreateXaml(xaml, Fayde.XMLNS + "/frame/error");
     }
 
-    function getErrorPage (app: Application, error: string): Page {
+    function getErrorPage(app: Application, error: string): Page {
         return Markup.Load<Page>(app, createErrorDoc(error));
     }
 
-    export class Frame extends ContentControl {
+    export class Frame extends ContentControl implements Navigation.INavigate {
         static IsDeepLinkedProperty = DependencyProperty.Register("IsDeepLinked", () => Boolean, Frame, true);
         static CurrentSourceProperty = DependencyProperty.RegisterReadOnly("CurrentSource", () => Uri, Frame);
         static SourceProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
@@ -36,7 +37,7 @@ module Fayde.Controls {
         private _NavService = new Navigation.NavigationService();
         private _CurrentRoute: Fayde.Navigation.Route = undefined;
 
-        OnIsLoadingChanged (oldIsLoading: boolean, newIsLoading: boolean) {
+        OnIsLoadingChanged(oldIsLoading: boolean, newIsLoading: boolean) {
             this.UpdateVisualState();
         }
 
@@ -46,48 +47,48 @@ module Fayde.Controls {
         //NavigationStopped = new MulticastEvent();
         //FragmentNavigation = new MulticastEvent();
 
-        constructor () {
+        constructor() {
             super();
             this.DefaultStyleKey = Frame;
             this.Loaded.on(this._FrameLoaded, this);
         }
 
-        GoToStates (gotoFunc: (state: string) => boolean) {
+        GoToStates(gotoFunc: (state: string) => boolean) {
             this.GoToStateLoading(gotoFunc);
         }
 
-        GoToStateLoading (gotoFunc: (state: string) => boolean): boolean {
+        GoToStateLoading(gotoFunc: (state: string) => boolean): boolean {
             return gotoFunc(this.IsLoading ? "Loading" : "Idle");
         }
 
-        Navigate (uri: Uri) {
-            this._LoadContent(uri);
+        Navigate(uri: Uri): boolean {
+            return this._NavService.Navigate(uri);
         }
 
-        GoForward () {
+        GoForward() {
             //TODO: Implement
         }
 
-        GoBackward () {
+        GoBackward() {
             //TODO: Implement
         }
 
-        StopLoading () {
+        StopLoading() {
             //TODO: Implement
         }
 
-        private _FrameLoaded (sender, e: RoutedEventArgs) {
+        private _FrameLoaded(sender, e: RoutedEventArgs) {
             if (this.IsDeepLinked) {
                 this._NavService.LocationChanged.on(this._HandleDeepLink, this);
                 this._HandleDeepLink();
             }
         }
 
-        private _HandleDeepLink () {
+        private _HandleDeepLink() {
             this._LoadContent(this._NavService.CurrentUri);
         }
 
-        private _LoadContent (source: Uri) {
+        private _LoadContent(source: Uri) {
             this.SetCurrentValue(Frame.CurrentSourceProperty, source);
             this.StopLoading();
             this.SetCurrentValue(Frame.IsLoadingProperty, true);
@@ -117,20 +118,20 @@ module Fayde.Controls {
                     err => this._HandleError(err));
         }
 
-        private _HandleSuccess (page: Page) {
+        private _HandleSuccess(page: Page) {
             this._SetPage(page);
             this.SetCurrentValue(Frame.IsLoadingProperty, false);
             TimelineProfile.Navigate(false);
             TimelineProfile.IsNextLayoutPassProfiled = true;
         }
 
-        private _HandleError (error: any) {
+        private _HandleError(error: any) {
             this._SetPage(getErrorPage(this.App, error));
             this.SetCurrentValue(Frame.IsLoadingProperty, false);
             TimelineProfile.Navigate(false);
         }
 
-        private _SetPage (page: Page) {
+        private _SetPage(page: Page) {
             document.title = page.Title;
             this.Content = page;
             if (this._CurrentRoute)
@@ -139,7 +140,7 @@ module Fayde.Controls {
                 page.DataContext = this.DataContext;
         }
 
-        private SourcePropertyChanged (args: IDependencyPropertyChangedEventArgs) {
+        private SourcePropertyChanged(args: IDependencyPropertyChangedEventArgs) {
             //TODO: Ignore in design mode
             if (true)//if loaded and not updating source from nav service
                 this.Navigate(args.NewValue);
@@ -148,6 +149,7 @@ module Fayde.Controls {
         }
     }
     Fayde.CoreLibrary.add(Frame);
+    nullstone.addTypeInterfaces(Frame, Navigation.INavigate_);
     TemplateVisualStates(Frame,
         {GroupName: "LoadingStates", Name: "Idle"},
         {GroupName: "LoadingStates", Name: "Loading"});

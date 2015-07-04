@@ -2,6 +2,11 @@
       xmlns:x="http://schemas.wsick.com/fayde/x"
       Title="Fayde | Page 1">
     <Grid x:Name="LayoutRoot">
-        <TextBlock Text="Page 1"></TextBlock>
+        <StackPanel>
+            <TextBlock Text="Page 1"></TextBlock>
+            <HyperlinkButton TargetName="ContentFrame" NavigateUri="/page2" Content="Go to Page 2 (TargetName=ContentFrame)"></HyperlinkButton>
+            <HyperlinkButton TargetName="_self" NavigateUri="/page2" Content="Go to Page 2 (TargetName=_self)"></HyperlinkButton>
+            <HyperlinkButton TargetName="_blank" NavigateUri="/page2" Content="Go to Page 2 (TargetName=_blank)"></HyperlinkButton>
+        </StackPanel>
     </Grid>
 </Page>
