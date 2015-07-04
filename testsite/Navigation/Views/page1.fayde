@@ -3,5 +3,6 @@
       Title="Fayde | Page 1">
     <Grid x:Name="LayoutRoot">
         <TextBlock Text="Page 1"></TextBlock>
+        <HyperlinkButton></HyperlinkButton>
     </Grid>
 </Page>

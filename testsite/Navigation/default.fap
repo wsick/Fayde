@@ -1,19 +1,30 @@
 ﻿<Application
         xmlns="http://schemas.wsick.com/fayde"
         xmlns:x="http://schemas.wsick.com/fayde/x"
+        xmlns:nav="Navigation"
         ThemeName="Metro">
     <Application.Resources>
     </Application.Resources>
     <Grid x:Name="LayoutRoot">
+        <Grid.DataContext>
+            <nav:NavigationViewModel />
+        </Grid.DataContext>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <HyperlinkButton NavigateUri="" TargetName="ContentFrame">Home</HyperlinkButton>
-            <HyperlinkButton NavigateUri="/page1" TargetName="ContentFrame">Page 1</HyperlinkButton>
-            <HyperlinkButton NavigateUri="/page2" TargetName="ContentFrame">Page 2</HyperlinkButton>
-        </StackPanel>
+        <ItemsControl ItemsSource="{Binding Links}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <HyperlinkButton NavigateUri="{Binding Uri}" Content="{Binding Name}" TargetName="ContentFrame" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
         <Frame x:Name="ContentFrame" Grid.Row="1">
             <Frame.UriMapper>
                 <UriMapper>
