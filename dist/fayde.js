@@ -25373,7 +25373,7 @@ var Fayde;
         }
         Navigation.Navigate = Navigate;
         function isExternalTarget(targetName) {
-            switch (targetName) {
+            switch (targetName.toLowerCase()) {
                 case "_blank":
                 case "_media":
                 case "_search":
