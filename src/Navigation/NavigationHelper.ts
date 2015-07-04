@@ -90,7 +90,7 @@ module Fayde.Navigation {
                 throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_PageRelativeUri");
             if (!app)
                 throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_NoApplication");
-            relativeUri = new Uri(window.location.href + relativeUri.toString());
+            relativeUri = new Uri(app.Address, relativeUri);
         }
         return relativeUri;
     }

@@ -25442,7 +25442,7 @@ var Fayde;
                     throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_PageRelativeUri");
                 if (!app)
                     throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_NoApplication");
-                relativeUri = new Fayde.Uri(window.location.href + relativeUri.toString());
+                relativeUri = new Fayde.Uri(app.Address, relativeUri);
             }
             return relativeUri;
         }
