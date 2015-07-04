@@ -1601,6 +1601,12 @@ declare module Fayde.Controls {
         static GetAsync(initiator: DependencyObject, url: string): nullstone.async.IAsyncRequest<Page>;
     }
 }
+declare module Fayde.Navigation {
+    interface INavigate {
+        Navigate(source: Uri): boolean;
+    }
+    var INavigate_: nullstone.Interface<INavigate>;
+}
 declare module Fayde.Controls {
     class Frame extends ContentControl implements Navigation.INavigate {
         static IsDeepLinkedProperty: DependencyProperty;
@@ -5449,12 +5455,6 @@ declare module Fayde.Media.VSM {
         GeneratedEasingFunction: Animation.EasingFunctionBase;
         IsDefault: boolean;
     }
-}
-declare module Fayde.Navigation {
-    interface INavigate {
-        Navigate(source: Uri): boolean;
-    }
-    var INavigate_: nullstone.Interface<INavigate>;
 }
 declare module Fayde.Navigation {
     function Navigate(source: DependencyObject, targetName: string, navigateUri: Uri): void;

@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.39';
+    Fayde.Version = '0.16.40';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -6535,8 +6535,16 @@ var Fayde;
         Fayde.CoreLibrary.add(Page);
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        Navigation.INavigate_ = new nullstone.Interface("INavigate");
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
 /// <reference path="ContentControl.ts" />
 /// <reference path="Page.ts" />
+/// <reference path="../Navigation/INavigate.ts" />
 var Fayde;
 (function (Fayde) {
     var Controls;
@@ -25343,13 +25351,6 @@ var Fayde;
             Fayde.CoreLibrary.add(VisualTransition);
         })(VSM = Media.VSM || (Media.VSM = {}));
     })(Media = Fayde.Media || (Fayde.Media = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        Navigation.INavigate_ = new nullstone.Interface("INavigate");
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {

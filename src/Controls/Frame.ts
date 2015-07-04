@@ -1,5 +1,6 @@
 /// <reference path="ContentControl.ts" />
 /// <reference path="Page.ts" />
+/// <reference path="../Navigation/INavigate.ts" />
 
 module Fayde.Controls {
     function createErrorDoc(error: any): nullstone.markup.xaml.XamlMarkup {
