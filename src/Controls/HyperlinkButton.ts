@@ -25,19 +25,6 @@ module Fayde.Controls {
             if (navUri)
                 Navigation.Navigate(this, this.TargetName, navUri);
         }
-
-        /*
-         private _GetAbsoluteUri(): Uri {
-         var destination = this.NavigateUri;
-         if (!destination.IsAbsoluteUri) {
-         var original = destination.OriginalString;
-         if (original && original.charAt(0) !== '/')
-         throw new NotSupportedException();
-         destination = new Uri(App.Current.GetHost().GetSource(), destination);
-         }
-         return destination;
-         }
-         */
     }
     Fayde.CoreLibrary.add(HyperlinkButton);
     TemplateVisualStates(HyperlinkButton,
