@@ -16,6 +16,8 @@ module Fayde.Navigation {
     }
 
     function isExternalTarget(targetName: string): boolean {
+        if (!targetName)
+            return false;
         switch (targetName.toLowerCase()) {
             case "_blank":
             case "_media":

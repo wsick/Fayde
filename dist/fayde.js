@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.42';
+    Fayde.Version = '0.16.43';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -25390,6 +25390,8 @@ var Fayde;
         }
         Navigation.Navigate = Navigate;
         function isExternalTarget(targetName) {
+            if (!targetName)
+                return false;
             switch (targetName.toLowerCase()) {
                 case "_blank":
                 case "_media":
