@@ -2,7 +2,7 @@ export function load() {
     QUnit.module("Primitives Tests");
 
     test("DateTime", () => {
-        var d:DateTime;
+        var d: DateTime;
 
         d = new DateTime();
         strictEqual(d.Ticks, 0, "ctor1");
@@ -10,6 +10,10 @@ export function load() {
 
         d = new DateTime(1000);
         strictEqual(d.Ticks, 1000, "ctor2 ticks");
+        strictEqual(d.Kind, DateTimeKind.Unspecified, "ctor2 kind");
+
+        d = new DateTime(new Date(500));
+        strictEqual(d.Ticks, 500, "ctor2 ticks");
         strictEqual(d.Kind, DateTimeKind.Unspecified, "ctor2 kind");
 
         d = new DateTime(1000, DateTimeKind.Local);
@@ -95,5 +99,21 @@ export function load() {
         var today = DateTime.Today;
         strictEqual(today.Day, new Date().getDate(), "Today day should match local day");
         strictEqual(today.Kind, DateTimeKind.Local, "Today should be DateTimeKind.Local");
+    });
+
+    test("DateTime: converter", () => {
+        var now = DateTime.Now;
+        var dt1 = nullstone.convertAnyToType(now, DateTime);
+        strictEqual(dt1.Ticks, now.Ticks);
+
+        var dt = new Date();
+        dt1 = nullstone.convertAnyToType(dt, DateTime);
+        strictEqual(dt1.Ticks, dt.getTime());
+
+        dt1 = nullstone.convertAnyToType("Wed, 09 Aug 1995 00:00:00 GMT", DateTime);
+        strictEqual(dt1.Ticks, 807926400000);
+
+        dt1 = nullstone.convertAnyToType(1000, DateTime);
+        strictEqual(dt1.Ticks, 1000);
     });
 }
