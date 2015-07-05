@@ -5,7 +5,7 @@ module Fayde.Controls {
 
     export class HyperlinkButton extends Primitives.ButtonBase {
         static NavigateUriProperty = DependencyProperty.Register("NavigateUri", () => Uri, HyperlinkButton);
-        static TargetNameProperty = DependencyProperty.Register("TargetName", () => String, HyperlinkButton);
+        static TargetNameProperty = DependencyProperty.Register("TargetName", () => String, HyperlinkButton, "_self");
         NavigateUri: Uri;
         TargetName: string;
 
