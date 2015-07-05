@@ -151,5 +151,6 @@
     <Grid>
         <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="#/Home" TargetName="ContentFrame" Content="home" 
                          HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <HyperlinkButton NavigateUri="http://wsick.github.io/Fayde/" Width="500" Height="20" Content="Fayde"/>
     </Grid>
 </Application>
