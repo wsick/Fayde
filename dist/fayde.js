@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.41';
+    Fayde.Version = '0.16.42';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -17215,7 +17215,13 @@ var DateTime = (function () {
         var second = 0;
         var millisecond = 0;
         if (args.length === 1) {
-            ticks = args[0];
+            var arg0 = args[0];
+            if (arg0 instanceof Date) {
+                ticks = arg0.getTime();
+            }
+            else {
+                ticks = args[0];
+            }
         }
         else if (args.length === 2) {
             ticks = args[0];
@@ -17500,6 +17506,17 @@ var DateTime = (function () {
     return DateTime;
 })();
 Fayde.CoreLibrary.addPrimitive(DateTime);
+nullstone.registerTypeConverter(DateTime, function (value) {
+    if (value instanceof DateTime)
+        return value;
+    if (value instanceof Date)
+        return new DateTime(value);
+    if (typeof value === "string")
+        return new DateTime(Date.parse(value));
+    if (typeof value === "number")
+        return new DateTime(value);
+    throw new Exception("Cannot parse DateTime value '" + value + "'");
+});
 /// <reference path="../Primitives/DateTime.ts" />
 var Fayde;
 (function (Fayde) {

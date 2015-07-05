@@ -46,6 +46,7 @@ class DateTime {
     private _Kind: DateTimeKind;
 
     constructor();
+    constructor(dt: Date);
     constructor(ticks: number);
     constructor(ticks: number, kind: DateTimeKind);
     constructor(year: number, month: number, day: number);
@@ -64,7 +65,12 @@ class DateTime {
         var millisecond = 0;
 
         if (args.length === 1) { //Ticks
-            ticks = args[0];
+            var arg0 = args[0];
+            if (arg0 instanceof Date) {
+                ticks = arg0.getTime();
+            } else {
+                ticks = args[0];
+            }
         } else if (args.length === 2) { //Ticks,Kind
             ticks = args[0];
             kind = args[1];
@@ -260,3 +266,14 @@ class DateTime {
     }
 }
 Fayde.CoreLibrary.addPrimitive(DateTime);
+nullstone.registerTypeConverter(DateTime, (value: any): any => {
+    if (value instanceof DateTime)
+        return value;
+    if (value instanceof Date)
+        return new DateTime(value);
+    if (typeof value === "string")
+        return new DateTime(Date.parse(value));
+    if (typeof value === "number")
+        return new DateTime(value);
+    throw new Exception("Cannot parse DateTime value '" + value + "'");
+});

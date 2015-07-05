@@ -3802,6 +3802,7 @@ declare class DateTime {
     private _InternalDate;
     private _Kind;
     constructor();
+    constructor(dt: Date);
     constructor(ticks: number);
     constructor(ticks: number, kind: DateTimeKind);
     constructor(year: number, month: number, day: number);
