@@ -148,9 +148,10 @@
             </Setter>
         </Style>
     </Application.Resources>
-    <Grid>
-        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="#/Home" TargetName="ContentFrame" Content="home" 
+    <StackPanel>
+        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="http://wsick.github.io/Fayde/" Content="Fayde (no TargetName)" 
                          HorizontalAlignment="Left" VerticalAlignment="Top" />
-        <HyperlinkButton NavigateUri="http://wsick.github.io/Fayde/" Width="500" Height="20" Content="Fayde"/>
-    </Grid>
+        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="http://wsick.github.io/Fayde/" Content="Fayde (TargetName=_blank)" TargetName="_blank" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="http://wsick.github.io/Fayde/" Content="Fayde (TargetName=_top)" TargetName="_top" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+    </StackPanel>
 </Application>

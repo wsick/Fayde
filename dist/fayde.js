@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.41';
+    Fayde.Version = '1.1.0';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -6834,7 +6834,7 @@ var Fayde;
                     Fayde.Navigation.Navigate(this, this.TargetName, navUri);
             };
             HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Fayde.Uri; }, HyperlinkButton);
-            HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton);
+            HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton, "_self");
             return HyperlinkButton;
         })(Controls.Primitives.ButtonBase);
         Controls.HyperlinkButton = HyperlinkButton;
