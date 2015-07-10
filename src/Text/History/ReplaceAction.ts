@@ -17,13 +17,13 @@ module Fayde.Text.History {
         }
 
         Undo (bo: ITextOwner) {
-            bo.text = TextBuffer.Cut(bo.text, this.Start, this.Inserted.length);
-            bo.text = Text.TextBuffer.Insert(bo.text, this.Start, this.Deleted);
+            bo.text = Buffer.cut(bo.text, this.Start, this.Inserted.length);
+            bo.text = Buffer.insert(bo.text, this.Start, this.Deleted);
         }
 
         Redo (bo: ITextOwner): number {
-            bo.text = TextBuffer.Cut(bo.text, this.Start, this.Length);
-            bo.text = TextBuffer.Insert(bo.text, this.Start, this.Inserted);
+            bo.text = Buffer.cut(bo.text, this.Start, this.Length);
+            bo.text = Buffer.insert(bo.text, this.Start, this.Inserted);
             return this.Start + this.Inserted.length;
         }
     }

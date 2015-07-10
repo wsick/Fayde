@@ -13,11 +13,11 @@ module Fayde.Text.History {
         }
 
         Undo (bo: ITextOwner) {
-            bo.text = TextBuffer.Insert(bo.text, this.Start, this.Text);
+            bo.text = Buffer.insert(bo.text, this.Start, this.Text);
         }
 
         Redo (bo: ITextOwner): number {
-            bo.text = TextBuffer.Cut(bo.text, this.Start, this.Text.length);
+            bo.text = Buffer.cut(bo.text, this.Start, this.Text.length);
             return this.Start;
         }
     }

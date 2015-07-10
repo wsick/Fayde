@@ -51,10 +51,10 @@ module Fayde.Controls.Internal {
 
             if (length > 0) {
                 this.$$history.replace(anchor, cursor, this.text, start, length, newText);
-                this.text = Text.TextBuffer.Replace(this.text, start, length, newText);
+                this.text = Text.Buffer.replace(this.text, start, length, newText);
             } else {
                 this.$$history.enter(anchor, cursor, start, newText);
-                this.text = Text.TextBuffer.Insert(this.text, start, newText);
+                this.text = Text.Buffer.insert(this.text, start, newText);
             }
 
             this.$$emit |= TextBoxEmitChangedType.TEXT;
@@ -69,7 +69,7 @@ module Fayde.Controls.Internal {
                 return false;
 
             this.$$history.delete(this.selAnchor, this.selCursor, this.text, start, length);
-            this.text = Text.TextBuffer.Cut(this.text, start, length);
+            this.text = Text.Buffer.cut(this.text, start, length);
 
             this.$$emit |= TextBoxEmitChangedType.TEXT;
 
@@ -216,7 +216,7 @@ module Fayde.Controls.Internal {
             if (!this.$$syncing) {
                 if (this.text.length > 0) {
                     this.$$history.replace(this.selAnchor, this.selCursor, this.text, 0, this.text.length, text);
-                    this.text = Text.TextBuffer.Replace(this.text, 0, this.text.length, text);
+                    this.text = Text.Buffer.replace(this.text, 0, this.text.length, text);
                 } else {
                     this.$$history.insert(this.selAnchor, this.selCursor, 0, text);
                     this.text = text + this.text;

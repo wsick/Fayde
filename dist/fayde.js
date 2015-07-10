@@ -7562,11 +7562,11 @@ var Fayde;
                         return false;
                     if (length > 0) {
                         this.$$history.replace(anchor, cursor, this.text, start, length, newText);
-                        this.text = Fayde.Text.TextBuffer.Replace(this.text, start, length, newText);
+                        this.text = Fayde.Text.Buffer.replace(this.text, start, length, newText);
                     }
                     else {
                         this.$$history.enter(anchor, cursor, start, newText);
-                        this.text = Fayde.Text.TextBuffer.Insert(this.text, start, newText);
+                        this.text = Fayde.Text.Buffer.insert(this.text, start, newText);
                     }
                     this.$$emit |= TextBoxEmitChangedType.TEXT;
                     cursor = start + 1;
@@ -7577,7 +7577,7 @@ var Fayde;
                     if (length <= 0)
                         return false;
                     this.$$history.delete(this.selAnchor, this.selCursor, this.text, start, length);
-                    this.text = Fayde.Text.TextBuffer.Cut(this.text, start, length);
+                    this.text = Fayde.Text.Buffer.cut(this.text, start, length);
                     this.$$emit |= TextBoxEmitChangedType.TEXT;
                     return this.setAnchorCursor(start, start);
                 };
@@ -7694,7 +7694,7 @@ var Fayde;
                     if (!this.$$syncing) {
                         if (this.text.length > 0) {
                             this.$$history.replace(this.selAnchor, this.selCursor, this.text, 0, this.text.length, text);
-                            this.text = Fayde.Text.TextBuffer.Replace(this.text, 0, this.text.length, text);
+                            this.text = Fayde.Text.Buffer.replace(this.text, 0, this.text.length, text);
                         }
                         else {
                             this.$$history.insert(this.selAnchor, this.selCursor, 0, text);
@@ -26695,6 +26695,33 @@ var Fayde;
 (function (Fayde) {
     var Text;
     (function (Text) {
+        var Buffer;
+        (function (Buffer) {
+            function cut(text, start, len) {
+                if (!text)
+                    return "";
+                return text.slice(0, start) + text.slice(start + len);
+            }
+            Buffer.cut = cut;
+            function insert(text, index, str) {
+                if (!text)
+                    return str;
+                return [text.slice(0, index), str, text.slice(index)].join('');
+            }
+            Buffer.insert = insert;
+            function replace(text, start, len, str) {
+                if (!text)
+                    return str;
+                return [text.slice(0, start), str, text.slice(start + len)].join('');
+            }
+            Buffer.replace = replace;
+        })(Buffer = Text.Buffer || (Text.Buffer = {}));
+    })(Text = Fayde.Text || (Fayde.Text = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Text;
+    (function (Text) {
         var History;
         (function (History) {
             var DeleteAction = (function () {
@@ -26705,10 +26732,10 @@ var Fayde;
                     this.Text = buffer.substr(start, length);
                 }
                 DeleteAction.prototype.Undo = function (bo) {
-                    bo.text = Text.TextBuffer.Insert(bo.text, this.Start, this.Text);
+                    bo.text = Text.Buffer.insert(bo.text, this.Start, this.Text);
                 };
                 DeleteAction.prototype.Redo = function (bo) {
-                    bo.text = Text.TextBuffer.Cut(bo.text, this.Start, this.Text.length);
+                    bo.text = Text.Buffer.cut(bo.text, this.Start, this.Text.length);
                     return this.Start;
                 };
                 return DeleteAction;
@@ -26732,10 +26759,10 @@ var Fayde;
                     this.IsGrowable = isAtomic !== true;
                 }
                 InsertAction.prototype.Undo = function (bo) {
-                    bo.text = Text.TextBuffer.Cut(bo.text, this.Start, this.Text.length);
+                    bo.text = Text.Buffer.cut(bo.text, this.Start, this.Text.length);
                 };
                 InsertAction.prototype.Redo = function (bo) {
-                    bo.text = Text.TextBuffer.Insert(bo.text, this.Start, this.Text);
+                    bo.text = Text.Buffer.insert(bo.text, this.Start, this.Text);
                     return this.Start + this.Text.length;
                 };
                 InsertAction.prototype.Insert = function (start, text) {
@@ -26766,12 +26793,12 @@ var Fayde;
                     this.Inserted = inserted;
                 }
                 ReplaceAction.prototype.Undo = function (bo) {
-                    bo.text = Text.TextBuffer.Cut(bo.text, this.Start, this.Inserted.length);
-                    bo.text = Text.TextBuffer.Insert(bo.text, this.Start, this.Deleted);
+                    bo.text = Text.Buffer.cut(bo.text, this.Start, this.Inserted.length);
+                    bo.text = Text.Buffer.insert(bo.text, this.Start, this.Deleted);
                 };
                 ReplaceAction.prototype.Redo = function (bo) {
-                    bo.text = Text.TextBuffer.Cut(bo.text, this.Start, this.Length);
-                    bo.text = Text.TextBuffer.Insert(bo.text, this.Start, this.Inserted);
+                    bo.text = Text.Buffer.cut(bo.text, this.Start, this.Length);
+                    bo.text = Text.Buffer.insert(bo.text, this.Start, this.Inserted);
                     return this.Start + this.Inserted.length;
                 };
                 return ReplaceAction;
@@ -26849,33 +26876,6 @@ var Fayde;
             })();
             History.Tracker = Tracker;
         })(History = Text.History || (Text.History = {}));
-    })(Text = Fayde.Text || (Fayde.Text = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Text;
-    (function (Text) {
-        var TextBuffer;
-        (function (TextBuffer) {
-            function Cut(text, start, len) {
-                if (!text)
-                    return "";
-                return text.slice(0, start) + text.slice(start + len);
-            }
-            TextBuffer.Cut = Cut;
-            function Insert(text, index, str) {
-                if (!text)
-                    return str;
-                return [text.slice(0, index), str, text.slice(index)].join('');
-            }
-            TextBuffer.Insert = Insert;
-            function Replace(text, start, len, str) {
-                if (!text)
-                    return str;
-                return [text.slice(0, start), str, text.slice(start + len)].join('');
-            }
-            TextBuffer.Replace = Replace;
-        })(TextBuffer = Text.TextBuffer || (Text.TextBuffer = {}));
     })(Text = Fayde.Text || (Fayde.Text = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;

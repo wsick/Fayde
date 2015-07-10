@@ -5750,6 +5750,11 @@ declare module Fayde.Shapes {
         constructor();
     }
 }
+declare module Fayde.Text.Buffer {
+    function cut(text: string, start: number, len: number): string;
+    function insert(text: string, index: number, str: string): string;
+    function replace(text: string, start: number, len: number, str: string): string;
+}
 declare module Fayde.Text.History {
     class DeleteAction implements IAction {
         SelectionAnchor: number;
@@ -5816,11 +5821,6 @@ declare module Fayde.Text {
     interface ITextOwner {
         text: string;
     }
-}
-declare module Fayde.Text.TextBuffer {
-    function Cut(text: string, start: number, len: number): string;
-    function Insert(text: string, index: number, str: string): string;
-    function Replace(text: string, start: number, len: number, str: string): string;
 }
 declare module Fayde.Validation {
     function Emit(fe: FrameworkElement, binding: Data.Binding, oldError: ValidationError, error: ValidationError): void;
