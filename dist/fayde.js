@@ -7565,7 +7565,7 @@ var Fayde;
                         this.text = Fayde.Text.TextBuffer.Replace(this.text, start, length, newText);
                     }
                     else {
-                        this.$$history.insert(anchor, cursor, start, newText);
+                        this.$$history.enter(anchor, cursor, start, newText);
                         this.text = Fayde.Text.TextBuffer.Insert(this.text, start, newText);
                     }
                     this.$$emit |= TextBoxEmitChangedType.TEXT;
@@ -26823,12 +26823,15 @@ var Fayde;
                         this.$$undo.shift();
                     return action.Redo(bufferholder);
                 };
-                Tracker.prototype.insert = function (anchor, cursor, start, newText) {
+                Tracker.prototype.enter = function (anchor, cursor, start, newText) {
                     var action = this.$$undo[this.$$undo.length - 1];
                     if (!(action instanceof History.InsertAction) || !action.Insert(start, newText))
-                        return this.$doAction(new History.InsertAction(anchor, cursor, start, newText));
+                        return this.insert(anchor, cursor, start, newText);
                     if (this.$$redo.length > 0)
                         this.$$redo = [];
+                };
+                Tracker.prototype.insert = function (anchor, cursor, start, newText) {
+                    this.$doAction(new History.InsertAction(anchor, cursor, start, newText));
                 };
                 Tracker.prototype.replace = function (anchor, cursor, text, start, length, newText) {
                     this.$doAction(new History.ReplaceAction(anchor, cursor, text, start, length, newText));

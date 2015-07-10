@@ -5805,6 +5805,7 @@ declare module Fayde.Text.History {
         canRedo: boolean;
         undo(bufferholder: ITextOwner): IAction;
         redo(bufferholder: ITextOwner): number;
+        enter(anchor: number, cursor: number, start: number, newText: string): void;
         insert(anchor: number, cursor: number, start: number, newText: string): void;
         replace(anchor: number, cursor: number, text: string, start: number, length: number, newText: string): void;
         delete(anchor: number, cursor: number, text: string, start: number, length: number): void;
