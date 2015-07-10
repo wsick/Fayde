@@ -53,7 +53,7 @@ module Fayde.Controls.Internal {
                 this.$$history.replace(anchor, cursor, this.text, start, length, newText);
                 this.text = Text.TextBuffer.Replace(this.text, start, length, newText);
             } else {
-                this.$$history.insert(anchor, cursor, start, newText);
+                this.$$history.enter(anchor, cursor, start, newText);
                 this.text = Text.TextBuffer.Insert(this.text, start, newText);
             }
 

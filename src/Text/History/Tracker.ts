@@ -39,13 +39,17 @@ module Fayde.Text.History {
             return action.Redo(bufferholder);
         }
 
-        insert (anchor: number, cursor: number, start: number, newText: string) {
+        enter (anchor: number, cursor: number, start: number, newText: string) {
             var action = <InsertAction>this.$$undo[this.$$undo.length - 1];
 
             if (!(action instanceof InsertAction) || !action.Insert(start, newText))
-                return this.$doAction(new InsertAction(anchor, cursor, start, newText));
+                return this.insert(anchor, cursor, start, newText);
             if (this.$$redo.length > 0)
                 this.$$redo = [];
+        }
+
+        insert (anchor: number, cursor: number, start: number, newText: string) {
+            this.$doAction(new InsertAction(anchor, cursor, start, newText));
         }
 
         replace (anchor: number, cursor: number, text: string, start: number, length: number, newText: string) {
