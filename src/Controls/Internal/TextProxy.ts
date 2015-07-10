@@ -19,7 +19,7 @@ module Fayde.Controls.Internal {
         private $$syncing: boolean = false;
         private $$eventsMask: TextBoxEmitChangedType;
 
-        private $$history = new HistoryTracker(MAX_UNDO_COUNT);
+        private $$history = new Text.History.Tracker(MAX_UNDO_COUNT);
 
         SyncSelectionStart: (value: number) => void;
         SyncSelectionLength: (value: number) => void;
@@ -50,7 +50,7 @@ module Fayde.Controls.Internal {
                 return false;
 
             if (length > 0) {
-                this.$$history.doAction(new Text.TextBoxUndoActionReplace(anchor, cursor, this.text, start, length, newText));
+                this.$$history.replace(anchor, cursor, this.text, start, length, newText);
                 this.text = Text.TextBuffer.Replace(this.text, start, length, newText);
             } else {
                 this.$$history.insert(anchor, cursor, start, newText);
@@ -68,9 +68,9 @@ module Fayde.Controls.Internal {
             if (length <= 0)
                 return false;
 
-            this.$$history.doAction(new Text.TextBoxUndoActionDelete(this.selAnchor, this.selCursor, this.text, start, length));
-
+            this.$$history.delete(this.selAnchor, this.selCursor, this.text, start, length);
             this.text = Text.TextBuffer.Cut(this.text, start, length);
+
             this.$$emit |= TextBoxEmitChangedType.TEXT;
 
             return this.setAnchorCursor(start, start);
@@ -214,16 +214,13 @@ module Fayde.Controls.Internal {
         setText (value: string) {
             var text = value || "";
             if (!this.$$syncing) {
-                var action: Text.ITextBoxUndoAction;
                 if (this.text.length > 0) {
-                    action = new Text.TextBoxUndoActionReplace(this.selAnchor, this.selCursor, this.text, 0, this.text.length, text);
+                    this.$$history.replace(this.selAnchor, this.selCursor, this.text, 0, this.text.length, text);
                     this.text = Text.TextBuffer.Replace(this.text, 0, this.text.length, text);
                 } else {
-                    action = new Text.TextBoxUndoActionInsert(this.selAnchor, this.selCursor, 0, text);
+                    this.$$history.insert(this.selAnchor, this.selCursor, 0, text);
                     this.text = text + this.text;
                 }
-
-                this.$$history.doAction(action);
 
                 this.$$emit |= TextBoxEmitChangedType.TEXT;
                 this.clearSelection(0);

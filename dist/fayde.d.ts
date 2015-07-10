@@ -1793,20 +1793,6 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls.Internal {
-    class HistoryTracker {
-        private $$undo;
-        private $$redo;
-        private $$maxUndoCount;
-        constructor(maxUndoCount: number);
-        canUndo: boolean;
-        canRedo: boolean;
-        insert(anchor: number, cursor: number, start: number, newText: string): void;
-        doAction(action: Text.ITextBoxUndoAction): void;
-        undo(bufferholder: Text.ITextOwner): Text.ITextBoxUndoAction;
-        redo(bufferholder: Text.ITextOwner): number;
-    }
-}
-declare module Fayde.Controls.Internal {
     interface IItemContainersOwner {
         PrepareContainerForItem(container: UIElement, item: any): any;
         ClearContainerForItem(container: UIElement, item: any): any;
@@ -5764,17 +5750,8 @@ declare module Fayde.Shapes {
         constructor();
     }
 }
-declare module Fayde.Text {
-    interface ITextBoxUndoAction {
-        SelectionAnchor: number;
-        SelectionCursor: number;
-        Undo(bufferholder: ITextOwner): any;
-        Redo(bufferholder: ITextOwner): number;
-    }
-    interface ITextOwner {
-        text: string;
-    }
-    class TextBoxUndoActionDelete implements ITextBoxUndoAction {
+declare module Fayde.Text.History {
+    class DeleteAction implements IAction {
         SelectionAnchor: number;
         SelectionCursor: number;
         Start: number;
@@ -5783,7 +5760,17 @@ declare module Fayde.Text {
         Undo(bo: ITextOwner): void;
         Redo(bo: ITextOwner): number;
     }
-    class TextBoxUndoActionInsert implements ITextBoxUndoAction {
+}
+declare module Fayde.Text.History {
+    interface IAction {
+        SelectionAnchor: number;
+        SelectionCursor: number;
+        Undo(bufferholder: ITextOwner): any;
+        Redo(bufferholder: ITextOwner): number;
+    }
+}
+declare module Fayde.Text.History {
+    class InsertAction implements IAction {
         SelectionAnchor: number;
         SelectionCursor: number;
         Start: number;
@@ -5794,7 +5781,9 @@ declare module Fayde.Text {
         Redo(bo: ITextOwner): number;
         Insert(start: number, text: string): boolean;
     }
-    class TextBoxUndoActionReplace implements ITextBoxUndoAction {
+}
+declare module Fayde.Text.History {
+    class ReplaceAction implements IAction {
         SelectionAnchor: number;
         SelectionCursor: number;
         Start: number;
@@ -5805,11 +5794,32 @@ declare module Fayde.Text {
         Undo(bo: ITextOwner): void;
         Redo(bo: ITextOwner): number;
     }
-    class TextBuffer {
-        static Cut(text: string, start: number, len: number): string;
-        static Insert(text: string, index: number, str: string): string;
-        static Replace(text: string, start: number, len: number, str: string): string;
+}
+declare module Fayde.Text.History {
+    class Tracker {
+        private $$undo;
+        private $$redo;
+        private $$maxUndoCount;
+        constructor(maxUndoCount: number);
+        canUndo: boolean;
+        canRedo: boolean;
+        undo(bufferholder: ITextOwner): IAction;
+        redo(bufferholder: ITextOwner): number;
+        insert(anchor: number, cursor: number, start: number, newText: string): void;
+        replace(anchor: number, cursor: number, text: string, start: number, length: number, newText: string): void;
+        delete(anchor: number, cursor: number, text: string, start: number, length: number): void;
+        private $doAction(action);
     }
+}
+declare module Fayde.Text {
+    interface ITextOwner {
+        text: string;
+    }
+}
+declare module Fayde.Text.TextBuffer {
+    function Cut(text: string, start: number, len: number): string;
+    function Insert(text: string, index: number, str: string): string;
+    function Replace(text: string, start: number, len: number, str: string): string;
 }
 declare module Fayde.Validation {
     function Emit(fe: FrameworkElement, binding: Data.Binding, oldError: ValidationError, error: ValidationError): void;
