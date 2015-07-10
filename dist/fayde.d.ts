@@ -1793,6 +1793,20 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls.Internal {
+    class HistoryTracker {
+        private $$undo;
+        private $$redo;
+        private $$maxUndoCount;
+        constructor(maxUndoCount: number);
+        canUndo: boolean;
+        canRedo: boolean;
+        insert(anchor: number, cursor: number, start: number, newText: string): void;
+        doAction(action: Text.ITextBoxUndoAction): void;
+        undo(bufferholder: Text.ITextOwner): Text.ITextBoxUndoAction;
+        redo(bufferholder: Text.ITextOwner): number;
+    }
+}
+declare module Fayde.Controls.Internal {
     interface IItemContainersOwner {
         PrepareContainerForItem(container: UIElement, item: any): any;
         ClearContainerForItem(container: UIElement, item: any): any;
@@ -1926,8 +1940,7 @@ declare module Fayde.Controls.Internal {
         private $$emit;
         private $$syncing;
         private $$eventsMask;
-        private $$undo;
-        private $$redo;
+        private $$history;
         SyncSelectionStart: (value: number) => void;
         SyncSelectionLength: (value: number) => void;
         SyncText: (value: string) => void;
@@ -1935,8 +1948,6 @@ declare module Fayde.Controls.Internal {
         setAnchorCursor(anchor: number, cursor: number): boolean;
         enterText(newText: string): boolean;
         removeText(start: number, length: number): boolean;
-        canUndo: boolean;
-        canRedo: boolean;
         undo(): void;
         redo(): void;
         begin(): void;

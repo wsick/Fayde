@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.43';
+    Fayde.Version = '0.16.41';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -7068,6 +7068,68 @@ var Fayde;
     (function (Controls) {
         var Internal;
         (function (Internal) {
+            var HistoryTracker = (function () {
+                function HistoryTracker(maxUndoCount) {
+                    this.$$undo = [];
+                    this.$$redo = [];
+                    this.$$maxUndoCount = maxUndoCount;
+                }
+                Object.defineProperty(HistoryTracker.prototype, "canUndo", {
+                    get: function () {
+                        return this.$$undo.length > 0;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(HistoryTracker.prototype, "canRedo", {
+                    get: function () {
+                        return this.$$redo.length > 0;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                HistoryTracker.prototype.insert = function (anchor, cursor, start, newText) {
+                    var action = this.$$undo[this.$$undo.length - 1];
+                    if (!(action instanceof Fayde.Text.TextBoxUndoActionInsert) || !action.Insert(start, newText))
+                        return this.doAction(new Fayde.Text.TextBoxUndoActionInsert(anchor, cursor, start, newText));
+                    if (this.$$redo.length > 0)
+                        this.$$redo = [];
+                };
+                HistoryTracker.prototype.doAction = function (action) {
+                    this.$$undo.push(action);
+                    if (this.$$undo.length > this.$$maxUndoCount)
+                        this.$$undo.shift();
+                    this.$$redo = [];
+                };
+                HistoryTracker.prototype.undo = function (bufferholder) {
+                    if (this.$$undo.length < 1)
+                        return null;
+                    var action = this.$$undo.pop();
+                    if (this.$$redo.push(action) > this.$$maxUndoCount)
+                        this.$$redo.shift();
+                    action.Undo(bufferholder);
+                    return action;
+                };
+                HistoryTracker.prototype.redo = function (bufferholder) {
+                    if (this.$$redo.length < 1)
+                        return;
+                    var action = this.$$redo.pop();
+                    if (this.$$undo.push(action) > this.$$maxUndoCount)
+                        this.$$undo.shift();
+                    return action.Redo(bufferholder);
+                };
+                return HistoryTracker;
+            })();
+            Internal.HistoryTracker = HistoryTracker;
+        })(Internal = Controls.Internal || (Controls.Internal = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var Internal;
+        (function (Internal) {
             var ItemContainersManager = (function () {
                 function ItemContainersManager(Owner) {
                     this.Owner = Owner;
@@ -7540,8 +7602,7 @@ var Fayde;
                     this.$$batch = 0;
                     this.$$emit = TextBoxEmitChangedType.NOTHING;
                     this.$$syncing = false;
-                    this.$$undo = [];
-                    this.$$redo = [];
+                    this.$$history = new Internal.HistoryTracker(MAX_UNDO_COUNT);
                     this.$$eventsMask = eventsMask;
                 }
                 TextProxy.prototype.setAnchorCursor = function (anchor, cursor) {
@@ -7562,23 +7623,11 @@ var Fayde;
                     if ((this.maxLength > 0 && this.text.length >= this.maxLength) || (newText === '\r') && !this.acceptsReturn)
                         return false;
                     if (length > 0) {
-                        this.$$undo.push(new Fayde.Text.TextBoxUndoActionReplace(anchor, cursor, this.text, start, length, newText));
-                        this.$$redo = [];
+                        this.$$history.doAction(new Fayde.Text.TextBoxUndoActionReplace(anchor, cursor, this.text, start, length, newText));
                         this.text = Fayde.Text.TextBuffer.Replace(this.text, start, length, newText);
                     }
                     else {
-                        var ins = null;
-                        var action = this.$$undo[this.$$undo.length - 1];
-                        if (action instanceof Fayde.Text.TextBoxUndoActionInsert) {
-                            ins = action;
-                            if (!ins.Insert(start, newText))
-                                ins = null;
-                        }
-                        if (!ins) {
-                            ins = new Fayde.Text.TextBoxUndoActionInsert(anchor, cursor, start, newText);
-                            this.$$undo.push(ins);
-                        }
-                        this.$$redo = [];
+                        this.$$history.insert(anchor, cursor, start, newText);
                         this.text = Fayde.Text.TextBuffer.Insert(this.text, start, newText);
                     }
                     this.$$emit |= TextBoxEmitChangedType.TEXT;
@@ -7589,33 +7638,15 @@ var Fayde;
                 TextProxy.prototype.removeText = function (start, length) {
                     if (length <= 0)
                         return false;
-                    this.$$undo.push(new Fayde.Text.TextBoxUndoActionDelete(this.selAnchor, this.selCursor, this.text, start, length));
-                    this.$$redo = [];
+                    this.$$history.doAction(new Fayde.Text.TextBoxUndoActionDelete(this.selAnchor, this.selCursor, this.text, start, length));
                     this.text = Fayde.Text.TextBuffer.Cut(this.text, start, length);
                     this.$$emit |= TextBoxEmitChangedType.TEXT;
                     return this.setAnchorCursor(start, start);
                 };
-                Object.defineProperty(TextProxy.prototype, "canUndo", {
-                    get: function () {
-                        return this.$$undo.length > 0;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(TextProxy.prototype, "canRedo", {
-                    get: function () {
-                        return this.$$redo.length > 0;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
                 TextProxy.prototype.undo = function () {
-                    if (this.$$undo.length < 1)
+                    var action = this.$$history.undo(this);
+                    if (!action)
                         return;
-                    var action = this.$$undo.pop();
-                    if (this.$$redo.push(action) > MAX_UNDO_COUNT)
-                        this.$$redo.shift();
-                    action.Undo(this);
                     var anchor = action.SelectionAnchor;
                     var cursor = action.SelectionCursor;
                     this.$$batch++;
@@ -7628,12 +7659,9 @@ var Fayde;
                     this.$syncEmit();
                 };
                 TextProxy.prototype.redo = function () {
-                    if (this.$$redo.length < 1)
+                    var anchor = this.$$history.redo(this);
+                    if (anchor == null)
                         return;
-                    var action = this.$$redo.pop();
-                    if (this.$$undo.push(action) > MAX_UNDO_COUNT)
-                        this.$$undo.shift();
-                    var anchor = action.Redo(this);
                     var cursor = anchor;
                     this.$$batch++;
                     this.SyncSelectionStart(Math.min(anchor, cursor));
@@ -7735,8 +7763,7 @@ var Fayde;
                             action = new Fayde.Text.TextBoxUndoActionInsert(this.selAnchor, this.selCursor, 0, text);
                             this.text = text + this.text;
                         }
-                        this.$$undo.push(action);
-                        this.$$redo = [];
+                        this.$$history.doAction(action);
                         this.$$emit |= TextBoxEmitChangedType.TEXT;
                         this.clearSelection(0);
                         this.$syncEmit(false);
@@ -7749,14 +7776,14 @@ var Fayde;
                     if (syncText && (this.$$emit & TextBoxEmitChangedType.TEXT))
                         this.$syncText();
                     /*
-                    this.$$emit &= this.$$eventsMask;
-                    if (this.$$emit & TextBoxEmitChangedType.TEXT) {
-                        Incite(this, { type: 'text' });
-                    }
-                    if (this.$$emit & TextBoxEmitChangedType.SELECTION) {
-                        Incite(this, { type: 'selection' });
-                    }
-                    */
+                     this.$$emit &= this.$$eventsMask;
+                     if (this.$$emit & TextBoxEmitChangedType.TEXT) {
+                     Incite(this, { type: 'text' });
+                     }
+                     if (this.$$emit & TextBoxEmitChangedType.SELECTION) {
+                     Incite(this, { type: 'selection' });
+                     }
+                     */
                     this.$$emit = TextBoxEmitChangedType.NOTHING;
                 };
                 TextProxy.prototype.$syncText = function () {
