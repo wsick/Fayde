@@ -23,6 +23,6 @@ export function load () {
             assert.strictEqual(proxy.text, "test-" + i.toString());
         }
         proxy.undo();
-        assert.strictEqual(proxy.text, "test-1", "Consecutive undo attempts after max should not change text.");
+        assert.strictEqual(proxy.text, "test-0", "Consecutive undo attempts after max should not change text.");
     });
 }
