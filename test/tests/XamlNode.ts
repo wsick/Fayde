@@ -5,7 +5,7 @@
 //Test AttachTo/Detach
 
 export function load() {
-    QUnit.module("XamlNode Tests");
+    QUnit.module("XamlNode");
 
     test("AttachTo & Detach", () => {
         var root = new Fayde.XamlObject();

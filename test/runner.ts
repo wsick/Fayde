@@ -1,22 +1,22 @@
 module runner {
     var testModules = [
-        ".build/tests/MatrixTests",
-        ".build/tests/PrimitivesTests",
-        ".build/tests/FormatTests",
-        ".build/tests/TypeConverterTests",
-        ".build/tests/MarkupExpressionTests",
-        ".build/tests/XamlNodeTests",
-        ".build/tests/ProviderTests",
-        ".build/tests/DependencyPropertyTests",
-        ".build/tests/DataTemplateTests",
-        ".build/tests/TransformTests",
-        ".build/tests/TimelineTests",
-        ".build/tests/ItemContainersManagerTests",
-        ".build/tests/BindingTests",
-        ".build/tests/UriMapperTests",
-        ".build/tests/DeepObservableCollectionTests",
+        ".build/tests/Matrix",
+        ".build/tests/Primitives",
+        ".build/tests/Format",
+        ".build/tests/TypeConverter",
+        ".build/tests/MarkupExpression",
+        ".build/tests/XamlNode",
+        ".build/tests/Provider",
+        ".build/tests/DependencyProperty",
+        ".build/tests/DataTemplate",
+        ".build/tests/Transform",
+        ".build/tests/Timeline",
+        ".build/tests/ItemContainersManager",
+        ".build/tests/Binding",
+        ".build/tests/UriMapper",
+        ".build/tests/DeepObservableCollection",
 
-        ".build/tests/RouteMapperTests",
+        ".build/tests/RouteMapper",
 
         ".build/tests/Markup/Basic",
         ".build/tests/Markup/Controls",
@@ -24,7 +24,9 @@ module runner {
         ".build/tests/Markup/Resources",
         ".build/tests/Markup/Media",
 
-        ".build/tests/MVVM/AutoModel"
+        ".build/tests/MVVM/AutoModel",
+
+        ".build/tests/Text/Proxy"
     ];
 
     Fayde.LoadConfigJson((config, err) => {

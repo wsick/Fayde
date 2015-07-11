@@ -1910,50 +1910,6 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls.Internal {
-    enum TextBoxEmitChangedType {
-        NOTHING = 0,
-        SELECTION = 1,
-        TEXT = 2,
-    }
-    class TextProxy implements Text.ITextOwner {
-        selAnchor: number;
-        selCursor: number;
-        selText: string;
-        text: string;
-        maxLength: number;
-        acceptsReturn: boolean;
-        private $$batch;
-        private $$emit;
-        private $$syncing;
-        private $$eventsMask;
-        private $$undo;
-        private $$redo;
-        SyncSelectionStart: (value: number) => void;
-        SyncSelectionLength: (value: number) => void;
-        SyncText: (value: string) => void;
-        constructor(eventsMask: TextBoxEmitChangedType);
-        setAnchorCursor(anchor: number, cursor: number): boolean;
-        enterText(newText: string): boolean;
-        removeText(start: number, length: number): boolean;
-        canUndo: boolean;
-        canRedo: boolean;
-        undo(): void;
-        redo(): void;
-        begin(): void;
-        end(): void;
-        beginSelect(cursor: number): void;
-        adjustSelection(cursor: number): void;
-        selectAll(): void;
-        clearSelection(start: number): void;
-        select(start: number, length: number): boolean;
-        setSelectionStart(value: number): void;
-        setSelectionLength(value: number): void;
-        setText(value: string): void;
-        private $syncEmit(syncText?);
-        private $syncText();
-    }
-}
-declare module Fayde.Controls.Internal {
     class VirtualizingPanelContainerOwner implements minerva.IVirtualizingContainerOwner {
         private $$panel;
         constructor($$panel: VirtualizingPanel);
@@ -2174,10 +2130,10 @@ declare module Fayde.Controls {
         IsReadOnly: boolean;
         AcceptsReturn: boolean;
         $ContentProxy: Internal.TextBoxContentProxy;
-        $Proxy: Internal.TextProxy;
+        $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
-        constructor(eventsMask: Internal.TextBoxEmitChangedType);
+        constructor(eventsMask: Text.EmitChangedType);
         private _SyncFont();
         CreateView(): Internal.TextBoxView;
         Cursor: CursorType;
@@ -5753,17 +5709,13 @@ declare module Fayde.Shapes {
         constructor();
     }
 }
-declare module Fayde.Text {
-    interface ITextBoxUndoAction {
-        SelectionAnchor: number;
-        SelectionCursor: number;
-        Undo(bufferholder: ITextOwner): any;
-        Redo(bufferholder: ITextOwner): number;
-    }
-    interface ITextOwner {
-        text: string;
-    }
-    class TextBoxUndoActionDelete implements ITextBoxUndoAction {
+declare module Fayde.Text.Buffer {
+    function cut(text: string, start: number, len: number): string;
+    function insert(text: string, index: number, str: string): string;
+    function replace(text: string, start: number, len: number, str: string): string;
+}
+declare module Fayde.Text.History {
+    class DeleteAction implements IAction {
         SelectionAnchor: number;
         SelectionCursor: number;
         Start: number;
@@ -5772,7 +5724,17 @@ declare module Fayde.Text {
         Undo(bo: ITextOwner): void;
         Redo(bo: ITextOwner): number;
     }
-    class TextBoxUndoActionInsert implements ITextBoxUndoAction {
+}
+declare module Fayde.Text.History {
+    interface IAction {
+        SelectionAnchor: number;
+        SelectionCursor: number;
+        Undo(bufferholder: ITextOwner): any;
+        Redo(bufferholder: ITextOwner): number;
+    }
+}
+declare module Fayde.Text.History {
+    class InsertAction implements IAction {
         SelectionAnchor: number;
         SelectionCursor: number;
         Start: number;
@@ -5783,7 +5745,9 @@ declare module Fayde.Text {
         Redo(bo: ITextOwner): number;
         Insert(start: number, text: string): boolean;
     }
-    class TextBoxUndoActionReplace implements ITextBoxUndoAction {
+}
+declare module Fayde.Text.History {
+    class ReplaceAction implements IAction {
         SelectionAnchor: number;
         SelectionCursor: number;
         Start: number;
@@ -5794,10 +5758,68 @@ declare module Fayde.Text {
         Undo(bo: ITextOwner): void;
         Redo(bo: ITextOwner): number;
     }
-    class TextBuffer {
-        static Cut(text: string, start: number, len: number): string;
-        static Insert(text: string, index: number, str: string): string;
-        static Replace(text: string, start: number, len: number, str: string): string;
+}
+declare module Fayde.Text.History {
+    class Tracker {
+        private $$undo;
+        private $$redo;
+        private $$maxUndoCount;
+        constructor(maxUndoCount: number);
+        canUndo: boolean;
+        canRedo: boolean;
+        undo(bufferholder: ITextOwner): IAction;
+        redo(bufferholder: ITextOwner): number;
+        enter(anchor: number, cursor: number, start: number, newText: string): void;
+        insert(anchor: number, cursor: number, start: number, newText: string): void;
+        replace(anchor: number, cursor: number, text: string, start: number, length: number, newText: string): void;
+        delete(anchor: number, cursor: number, text: string, start: number, length: number): void;
+        private $doAction(action);
+    }
+}
+declare module Fayde.Text {
+    interface ITextOwner {
+        text: string;
+    }
+}
+declare module Fayde.Text {
+    enum EmitChangedType {
+        NOTHING = 0,
+        SELECTION = 1,
+        TEXT = 2,
+    }
+    class Proxy implements ITextOwner {
+        selAnchor: number;
+        selCursor: number;
+        selText: string;
+        text: string;
+        maxLength: number;
+        acceptsReturn: boolean;
+        private $$batch;
+        private $$emit;
+        private $$syncing;
+        private $$eventsMask;
+        private $$history;
+        SyncSelectionStart: (value: number) => void;
+        SyncSelectionLength: (value: number) => void;
+        SyncText: (value: string) => void;
+        constructor(eventsMask: EmitChangedType, maxUndoCount: number);
+        setAnchorCursor(anchor: number, cursor: number): boolean;
+        enterText(newText: string): boolean;
+        removeText(start: number, length: number): boolean;
+        undo(): void;
+        redo(): void;
+        begin(): void;
+        end(): void;
+        beginSelect(cursor: number): void;
+        adjustSelection(cursor: number): void;
+        selectAll(): void;
+        clearSelection(start: number): void;
+        select(start: number, length: number): boolean;
+        setSelectionStart(value: number): void;
+        setSelectionLength(value: number): void;
+        setText(value: string): void;
+        private $syncEmit(syncText?);
+        private $syncText();
     }
 }
 declare module Fayde.Validation {

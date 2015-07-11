@@ -3,6 +3,7 @@
 
 module Fayde.Controls {
     var Key = Input.Key;
+    var MAX_UNDO_COUNT = 10;
     export class TextBoxBase extends Control {
         static CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBoxBase);
         static SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBoxBase);
@@ -26,16 +27,16 @@ module Fayde.Controls {
         AcceptsReturn = false;
 
         $ContentProxy = new Internal.TextBoxContentProxy();
-        $Proxy: Internal.TextProxy;
+        $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
 
-        constructor (eventsMask: Internal.TextBoxEmitChangedType) {
+        constructor (eventsMask: Text.EmitChangedType) {
             super();
             var view = this.$View = this.CreateView();
             view.MouseLeftButtonDown.on((s, e) => this.OnMouseLeftButtonDown(e), this);
             view.MouseLeftButtonUp.on((s, e) => this.OnMouseLeftButtonUp(e), this);
-            this.$Proxy = new Internal.TextProxy(eventsMask);
+            this.$Proxy = new Text.Proxy(eventsMask, MAX_UNDO_COUNT);
 
             this._SyncFont();
         }

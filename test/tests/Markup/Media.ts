@@ -1,7 +1,7 @@
 import TestControl = require('../../mocks/TestControl');
 
 export function load () {
-    QUnit.module("Markup Load Tests");
+    QUnit.module("Markup/Media");
 
     test("VisualStateManager", () => {
         var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"

@@ -3,7 +3,7 @@ import GridLength = Fayde.Controls.GridLength;
 import GridUnitType = minerva.controls.grid.GridUnitType;
 
 export function load () {
-    QUnit.module("Markup Load Tests");
+    QUnit.module("Markup/Controls");
 
     var nsdecl = 'xmlns="' + Fayde.XMLNS + '" xmlns:x="' + Fayde.XMLNSX + '"';
 

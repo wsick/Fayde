@@ -1,5 +1,5 @@
 export function load () {
-    QUnit.module("Transform Tests");
+    QUnit.module("Transform");
 
     function typedToArray (typed) {
         var arr = [];

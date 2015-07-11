@@ -1,12 +1,11 @@
-module Fayde.Controls.Internal {
-    export enum TextBoxEmitChangedType {
+module Fayde.Text {
+    export enum EmitChangedType {
         NOTHING = 0,
         SELECTION = 1 << 0,
         TEXT = 1 << 1,
     }
 
-    var MAX_UNDO_COUNT = 10;
-    export class TextProxy implements Text.ITextOwner {
+    export class Proxy implements ITextOwner {
         selAnchor: number = 0;
         selCursor: number = 0;
         selText: string = "";
@@ -15,19 +14,25 @@ module Fayde.Controls.Internal {
         acceptsReturn: boolean = false;
 
         private $$batch: number = 0;
-        private $$emit = TextBoxEmitChangedType.NOTHING;
+        private $$emit = EmitChangedType.NOTHING;
         private $$syncing: boolean = false;
-        private $$eventsMask: TextBoxEmitChangedType;
+        private $$eventsMask: EmitChangedType;
 
-        private $$undo: Text.ITextBoxUndoAction[] = [];
-        private $$redo: Text.ITextBoxUndoAction[] = [];
+        private $$history: Text.History.Tracker;
 
         SyncSelectionStart: (value: number) => void;
         SyncSelectionLength: (value: number) => void;
         SyncText: (value: string) => void;
 
-        constructor (eventsMask: TextBoxEmitChangedType) {
+        constructor (eventsMask: EmitChangedType, maxUndoCount: number) {
             this.$$eventsMask = eventsMask;
+            this.$$history = new Text.History.Tracker(maxUndoCount);
+            this.SyncSelectionStart = (value: number) => {
+            };
+            this.SyncSelectionLength = (value: number) => {
+            };
+            this.SyncText = (value: string) => {
+            };
         }
 
         setAnchorCursor (anchor: number, cursor: number): boolean {
@@ -37,7 +42,7 @@ module Fayde.Controls.Internal {
             this.SyncSelectionLength(Math.abs(cursor - anchor));
             this.selAnchor = anchor;
             this.selCursor = cursor;
-            this.$$emit |= TextBoxEmitChangedType.SELECTION;
+            this.$$emit |= EmitChangedType.SELECTION;
             return true;
         }
 
@@ -51,29 +56,14 @@ module Fayde.Controls.Internal {
                 return false;
 
             if (length > 0) {
-                this.$$undo.push(new Text.TextBoxUndoActionReplace(anchor, cursor, this.text, start, length, newText));
-                this.$$redo = [];
-
-                this.text = Text.TextBuffer.Replace(this.text, start, length, newText);
+                this.$$history.replace(anchor, cursor, this.text, start, length, newText);
+                this.text = Text.Buffer.replace(this.text, start, length, newText);
             } else {
-                var ins: Text.TextBoxUndoActionInsert = null;
-                var action = this.$$undo[this.$$undo.length - 1];
-                if (action instanceof Text.TextBoxUndoActionInsert) {
-                    ins = <Text.TextBoxUndoActionInsert>action;
-                    if (!ins.Insert(start, newText))
-                        ins = null;
-                }
-
-                if (!ins) {
-                    ins = new Text.TextBoxUndoActionInsert(anchor, cursor, start, newText);
-                    this.$$undo.push(ins);
-                }
-                this.$$redo = [];
-
-                this.text = Text.TextBuffer.Insert(this.text, start, newText);
+                this.$$history.enter(anchor, cursor, start, newText);
+                this.text = Text.Buffer.insert(this.text, start, newText);
             }
 
-            this.$$emit |= TextBoxEmitChangedType.TEXT;
+            this.$$emit |= EmitChangedType.TEXT;
             cursor = start + 1;
             anchor = cursor;
 
@@ -84,32 +74,18 @@ module Fayde.Controls.Internal {
             if (length <= 0)
                 return false;
 
-            this.$$undo.push(new Text.TextBoxUndoActionDelete(this.selAnchor, this.selCursor, this.text, start, length));
-            this.$$redo = [];
+            this.$$history.delete(this.selAnchor, this.selCursor, this.text, start, length);
+            this.text = Text.Buffer.cut(this.text, start, length);
 
-            this.text = Text.TextBuffer.Cut(this.text, start, length);
-            this.$$emit |= TextBoxEmitChangedType.TEXT;
+            this.$$emit |= EmitChangedType.TEXT;
 
             return this.setAnchorCursor(start, start);
         }
 
-        get canUndo (): boolean {
-            return this.$$undo.length > 0;
-        }
-
-        get canRedo (): boolean {
-            return this.$$redo.length > 0;
-        }
-
         undo () {
-            if (this.$$undo.length < 1)
+            var action = this.$$history.undo(this);
+            if (!action)
                 return;
-
-            var action = this.$$undo.pop();
-            if (this.$$redo.push(action) > MAX_UNDO_COUNT)
-                this.$$redo.shift();
-
-            action.Undo(this);
 
             var anchor = action.SelectionAnchor;
             var cursor = action.SelectionCursor;
@@ -117,7 +93,7 @@ module Fayde.Controls.Internal {
             this.$$batch++;
             this.SyncSelectionStart(Math.min(anchor, cursor));
             this.SyncSelectionLength(Math.abs(cursor - anchor));
-            this.$$emit = TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION;
+            this.$$emit = EmitChangedType.TEXT | EmitChangedType.SELECTION;
             this.selAnchor = anchor;
             this.selCursor = cursor;
             this.$$batch--;
@@ -126,20 +102,15 @@ module Fayde.Controls.Internal {
         }
 
         redo () {
-            if (this.$$redo.length < 1)
+            var anchor = this.$$history.redo(this);
+            if (anchor == null)
                 return;
-
-            var action = this.$$redo.pop();
-            if (this.$$undo.push(action) > MAX_UNDO_COUNT)
-                this.$$undo.shift();
-
-            var anchor = action.Redo(this);
             var cursor = anchor;
 
             this.$$batch++;
             this.SyncSelectionStart(Math.min(anchor, cursor));
             this.SyncSelectionLength(Math.abs(cursor - anchor));
-            this.$$emit = TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION;
+            this.$$emit = EmitChangedType.TEXT | EmitChangedType.SELECTION;
             this.selAnchor = anchor;
             this.selCursor = cursor;
             this.$$batch--;
@@ -148,7 +119,7 @@ module Fayde.Controls.Internal {
         }
 
         begin () {
-            this.$$emit = TextBoxEmitChangedType.NOTHING;
+            this.$$emit = EmitChangedType.NOTHING;
             this.$$batch++;
         }
 
@@ -159,7 +130,7 @@ module Fayde.Controls.Internal {
 
         beginSelect (cursor: number) {
             this.$$batch++;
-            this.$$emit = TextBoxEmitChangedType.NOTHING;
+            this.$$emit = EmitChangedType.NOTHING;
             this.SyncSelectionStart(cursor);
             this.SyncSelectionLength(0);
             this.$$batch--;
@@ -171,7 +142,7 @@ module Fayde.Controls.Internal {
             var anchor = this.selAnchor;
 
             this.$$batch++;
-            this.$$emit = TextBoxEmitChangedType.NOTHING;
+            this.$$emit = EmitChangedType.NOTHING;
             this.SyncSelectionStart(Math.min(anchor, cursor));
             this.SyncSelectionLength(Math.abs(cursor - anchor));
             this.selAnchor = anchor;
@@ -225,7 +196,7 @@ module Fayde.Controls.Internal {
             this.selCursor = start + length;
             this.selAnchor = start;
 
-            this.$$emit |= TextBoxEmitChangedType.SELECTION;
+            this.$$emit |= EmitChangedType.SELECTION;
             this.$syncEmit();
         }
 
@@ -242,26 +213,22 @@ module Fayde.Controls.Internal {
 
             this.selCursor = start + length;
             this.selAnchor = start;
-            this.$$emit |= TextBoxEmitChangedType.SELECTION;
+            this.$$emit |= EmitChangedType.SELECTION;
             this.$syncEmit();
         }
 
         setText (value: string) {
             var text = value || "";
             if (!this.$$syncing) {
-                var action: Text.ITextBoxUndoAction;
                 if (this.text.length > 0) {
-                    action = new Text.TextBoxUndoActionReplace(this.selAnchor, this.selCursor, this.text, 0, this.text.length, text);
-                    this.text = Text.TextBuffer.Replace(this.text, 0, this.text.length, text);
+                    this.$$history.replace(this.selAnchor, this.selCursor, this.text, 0, this.text.length, text);
+                    this.text = Text.Buffer.replace(this.text, 0, this.text.length, text);
                 } else {
-                    action = new Text.TextBoxUndoActionInsert(this.selAnchor, this.selCursor, 0, text);
+                    this.$$history.insert(this.selAnchor, this.selCursor, 0, text);
                     this.text = text + this.text;
                 }
 
-                this.$$undo.push(action);
-                this.$$redo = [];
-
-                this.$$emit |= TextBoxEmitChangedType.TEXT;
+                this.$$emit |= EmitChangedType.TEXT;
                 this.clearSelection(0);
 
                 this.$syncEmit(false);
@@ -271,23 +238,23 @@ module Fayde.Controls.Internal {
         private $syncEmit (syncText?: boolean) {
             syncText = syncText !== false;
 
-            if (this.$$batch !== 0 || this.$$emit === TextBoxEmitChangedType.NOTHING)
+            if (this.$$batch !== 0 || this.$$emit === EmitChangedType.NOTHING)
                 return;
 
-            if (syncText && (this.$$emit & TextBoxEmitChangedType.TEXT))
+            if (syncText && (this.$$emit & EmitChangedType.TEXT))
                 this.$syncText();
 
             /*
-            this.$$emit &= this.$$eventsMask;
-            if (this.$$emit & TextBoxEmitChangedType.TEXT) {
-                Incite(this, { type: 'text' });
-            }
-            if (this.$$emit & TextBoxEmitChangedType.SELECTION) {
-                Incite(this, { type: 'selection' });
-            }
-            */
+             this.$$emit &= this.$$eventsMask;
+             if (this.$$emit & TextBoxEmitChangedType.TEXT) {
+             Incite(this, { type: 'text' });
+             }
+             if (this.$$emit & TextBoxEmitChangedType.SELECTION) {
+             Incite(this, { type: 'selection' });
+             }
+             */
 
-            this.$$emit = TextBoxEmitChangedType.NOTHING;
+            this.$$emit = EmitChangedType.NOTHING;
         }
 
         private $syncText () {

@@ -1,5 +1,5 @@
 export function load() {
-    QUnit.module("Timeline Tests");
+    QUnit.module("Timeline");
 
     test("Storyboard Natural Duration", () => {
         var storyboard = new Fayde.Media.Animation.Storyboard();

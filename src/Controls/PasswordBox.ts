@@ -8,7 +8,7 @@ module Fayde.Controls {
         Password: string;
 
         constructor () {
-            super(Internal.TextBoxEmitChangedType.TEXT);
+            super(Text.EmitChangedType.TEXT);
             this.DefaultStyleKey = PasswordBox;
 
             var proxy = this.$Proxy;

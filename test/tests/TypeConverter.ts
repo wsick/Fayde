@@ -2,7 +2,7 @@ import GridLength = Fayde.Controls.GridLength;
 import GridUnitType = minerva.controls.grid.GridUnitType;
 
 export function load() {
-    QUnit.module("Type Converter Tests");
+    QUnit.module("TypeConverter");
 
     test("Color", () => {
         strictEqual(<Color>nullstone.convertAnyToType(undefined, Color), undefined, "undefined");

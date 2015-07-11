@@ -1,5 +1,5 @@
 export function load() {
-    QUnit.module("Matrix Tests");
+    QUnit.module("Matrix");
 
     test("Matrix to Raw mapping", () => {
         var m: Fayde.Media.Matrix;

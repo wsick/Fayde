@@ -1,5 +1,5 @@
 export function load() {
-    QUnit.module("Binding Tests");
+    QUnit.module("Binding");
 
     test("BindingExpression with Source", () => {
         var binding = new Fayde.Data.Binding("Value");

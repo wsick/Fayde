@@ -4,7 +4,7 @@ import Uri = nullstone.Uri;
 import UriKind = nullstone.UriKind;
 
 export function load () {
-    QUnit.module("Route Mapper");
+    QUnit.module("RoutMapper");
 
     test("MapUri", () => {
         var mapper = new Fayde.Navigation.RouteMapper();
