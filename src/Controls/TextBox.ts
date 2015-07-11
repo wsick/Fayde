@@ -18,7 +18,7 @@ module Fayde.Controls {
         VerticalScrollBarVisibility: ScrollBarVisibility;
 
         constructor () {
-            super(Internal.TextBoxEmitChangedType.TEXT | Internal.TextBoxEmitChangedType.SELECTION);
+            super(Text.EmitChangedType.TEXT | Text.EmitChangedType.SELECTION);
             this.DefaultStyleKey = TextBox;
 
             var proxy = this.$Proxy;

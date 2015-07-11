@@ -27,16 +27,16 @@ module Fayde.Controls {
         AcceptsReturn = false;
 
         $ContentProxy = new Internal.TextBoxContentProxy();
-        $Proxy: Internal.TextProxy;
+        $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
 
-        constructor (eventsMask: Internal.TextBoxEmitChangedType) {
+        constructor (eventsMask: Text.EmitChangedType) {
             super();
             var view = this.$View = this.CreateView();
             view.MouseLeftButtonDown.on((s, e) => this.OnMouseLeftButtonDown(e), this);
             view.MouseLeftButtonUp.on((s, e) => this.OnMouseLeftButtonUp(e), this);
-            this.$Proxy = new Internal.TextProxy(eventsMask, MAX_UNDO_COUNT);
+            this.$Proxy = new Text.Proxy(eventsMask, MAX_UNDO_COUNT);
 
             this._SyncFont();
         }

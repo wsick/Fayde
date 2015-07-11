@@ -7522,228 +7522,6 @@ var Fayde;
     (function (Controls) {
         var Internal;
         (function (Internal) {
-            (function (TextBoxEmitChangedType) {
-                TextBoxEmitChangedType[TextBoxEmitChangedType["NOTHING"] = 0] = "NOTHING";
-                TextBoxEmitChangedType[TextBoxEmitChangedType["SELECTION"] = 1] = "SELECTION";
-                TextBoxEmitChangedType[TextBoxEmitChangedType["TEXT"] = 2] = "TEXT";
-            })(Internal.TextBoxEmitChangedType || (Internal.TextBoxEmitChangedType = {}));
-            var TextBoxEmitChangedType = Internal.TextBoxEmitChangedType;
-            var TextProxy = (function () {
-                function TextProxy(eventsMask, maxUndoCount) {
-                    this.selAnchor = 0;
-                    this.selCursor = 0;
-                    this.selText = "";
-                    this.text = "";
-                    this.maxLength = 0;
-                    this.acceptsReturn = false;
-                    this.$$batch = 0;
-                    this.$$emit = TextBoxEmitChangedType.NOTHING;
-                    this.$$syncing = false;
-                    this.$$eventsMask = eventsMask;
-                    this.$$history = new Fayde.Text.History.Tracker(maxUndoCount);
-                    this.SyncSelectionStart = function (value) {
-                    };
-                    this.SyncSelectionLength = function (value) {
-                    };
-                    this.SyncText = function (value) {
-                    };
-                }
-                TextProxy.prototype.setAnchorCursor = function (anchor, cursor) {
-                    if (this.selAnchor === anchor && this.selCursor === cursor)
-                        return false;
-                    this.SyncSelectionStart(Math.min(anchor, cursor));
-                    this.SyncSelectionLength(Math.abs(cursor - anchor));
-                    this.selAnchor = anchor;
-                    this.selCursor = cursor;
-                    this.$$emit |= TextBoxEmitChangedType.SELECTION;
-                    return true;
-                };
-                TextProxy.prototype.enterText = function (newText) {
-                    var anchor = this.selAnchor;
-                    var cursor = this.selCursor;
-                    var length = Math.abs(cursor - anchor);
-                    var start = Math.min(anchor, cursor);
-                    if ((this.maxLength > 0 && this.text.length >= this.maxLength) || (newText === '\r') && !this.acceptsReturn)
-                        return false;
-                    if (length > 0) {
-                        this.$$history.replace(anchor, cursor, this.text, start, length, newText);
-                        this.text = Fayde.Text.Buffer.replace(this.text, start, length, newText);
-                    }
-                    else {
-                        this.$$history.enter(anchor, cursor, start, newText);
-                        this.text = Fayde.Text.Buffer.insert(this.text, start, newText);
-                    }
-                    this.$$emit |= TextBoxEmitChangedType.TEXT;
-                    cursor = start + 1;
-                    anchor = cursor;
-                    return this.setAnchorCursor(anchor, cursor);
-                };
-                TextProxy.prototype.removeText = function (start, length) {
-                    if (length <= 0)
-                        return false;
-                    this.$$history.delete(this.selAnchor, this.selCursor, this.text, start, length);
-                    this.text = Fayde.Text.Buffer.cut(this.text, start, length);
-                    this.$$emit |= TextBoxEmitChangedType.TEXT;
-                    return this.setAnchorCursor(start, start);
-                };
-                TextProxy.prototype.undo = function () {
-                    var action = this.$$history.undo(this);
-                    if (!action)
-                        return;
-                    var anchor = action.SelectionAnchor;
-                    var cursor = action.SelectionCursor;
-                    this.$$batch++;
-                    this.SyncSelectionStart(Math.min(anchor, cursor));
-                    this.SyncSelectionLength(Math.abs(cursor - anchor));
-                    this.$$emit = TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION;
-                    this.selAnchor = anchor;
-                    this.selCursor = cursor;
-                    this.$$batch--;
-                    this.$syncEmit();
-                };
-                TextProxy.prototype.redo = function () {
-                    var anchor = this.$$history.redo(this);
-                    if (anchor == null)
-                        return;
-                    var cursor = anchor;
-                    this.$$batch++;
-                    this.SyncSelectionStart(Math.min(anchor, cursor));
-                    this.SyncSelectionLength(Math.abs(cursor - anchor));
-                    this.$$emit = TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION;
-                    this.selAnchor = anchor;
-                    this.selCursor = cursor;
-                    this.$$batch--;
-                    this.$syncEmit();
-                };
-                TextProxy.prototype.begin = function () {
-                    this.$$emit = TextBoxEmitChangedType.NOTHING;
-                    this.$$batch++;
-                };
-                TextProxy.prototype.end = function () {
-                    this.$$batch--;
-                    this.$syncEmit();
-                };
-                TextProxy.prototype.beginSelect = function (cursor) {
-                    this.$$batch++;
-                    this.$$emit = TextBoxEmitChangedType.NOTHING;
-                    this.SyncSelectionStart(cursor);
-                    this.SyncSelectionLength(0);
-                    this.$$batch--;
-                    this.$syncEmit();
-                };
-                TextProxy.prototype.adjustSelection = function (cursor) {
-                    var anchor = this.selAnchor;
-                    this.$$batch++;
-                    this.$$emit = TextBoxEmitChangedType.NOTHING;
-                    this.SyncSelectionStart(Math.min(anchor, cursor));
-                    this.SyncSelectionLength(Math.abs(cursor - anchor));
-                    this.selAnchor = anchor;
-                    this.selCursor = cursor;
-                    this.$$batch--;
-                    this.$syncEmit();
-                };
-                TextProxy.prototype.selectAll = function () {
-                    this.select(0, this.text.length);
-                };
-                TextProxy.prototype.clearSelection = function (start) {
-                    this.$$batch++;
-                    this.SyncSelectionStart(start);
-                    this.SyncSelectionLength(0);
-                    this.$$batch--;
-                };
-                TextProxy.prototype.select = function (start, length) {
-                    start = Math.min(Math.max(0, start), this.text.length);
-                    length = Math.min(Math.max(0, length), this.text.length - start);
-                    this.$$batch++;
-                    this.SyncSelectionStart(start);
-                    this.SyncSelectionLength(length);
-                    this.$$batch--;
-                    this.$syncEmit();
-                    return true;
-                };
-                TextProxy.prototype.setSelectionStart = function (value) {
-                    var length = Math.abs(this.selCursor - this.selAnchor);
-                    var start = value;
-                    if (start > this.text.length) {
-                        this.SyncSelectionStart(this.text.length);
-                        return;
-                    }
-                    if (start + length > this.text.length) {
-                        this.$$batch++;
-                        length = this.text.length - start;
-                        this.SyncSelectionLength(length);
-                        this.$$batch--;
-                    }
-                    var changed = (this.selAnchor !== start);
-                    this.selCursor = start + length;
-                    this.selAnchor = start;
-                    this.$$emit |= TextBoxEmitChangedType.SELECTION;
-                    this.$syncEmit();
-                };
-                TextProxy.prototype.setSelectionLength = function (value) {
-                    var start = Math.min(this.selAnchor, this.selCursor);
-                    var length = value;
-                    if (start + length > this.text.length) {
-                        length = this.text.length - start;
-                        this.SyncSelectionLength(length);
-                        return;
-                    }
-                    var changed = (this.selCursor !== (start + length));
-                    this.selCursor = start + length;
-                    this.selAnchor = start;
-                    this.$$emit |= TextBoxEmitChangedType.SELECTION;
-                    this.$syncEmit();
-                };
-                TextProxy.prototype.setText = function (value) {
-                    var text = value || "";
-                    if (!this.$$syncing) {
-                        if (this.text.length > 0) {
-                            this.$$history.replace(this.selAnchor, this.selCursor, this.text, 0, this.text.length, text);
-                            this.text = Fayde.Text.Buffer.replace(this.text, 0, this.text.length, text);
-                        }
-                        else {
-                            this.$$history.insert(this.selAnchor, this.selCursor, 0, text);
-                            this.text = text + this.text;
-                        }
-                        this.$$emit |= TextBoxEmitChangedType.TEXT;
-                        this.clearSelection(0);
-                        this.$syncEmit(false);
-                    }
-                };
-                TextProxy.prototype.$syncEmit = function (syncText) {
-                    syncText = syncText !== false;
-                    if (this.$$batch !== 0 || this.$$emit === TextBoxEmitChangedType.NOTHING)
-                        return;
-                    if (syncText && (this.$$emit & TextBoxEmitChangedType.TEXT))
-                        this.$syncText();
-                    /*
-                     this.$$emit &= this.$$eventsMask;
-                     if (this.$$emit & TextBoxEmitChangedType.TEXT) {
-                     Incite(this, { type: 'text' });
-                     }
-                     if (this.$$emit & TextBoxEmitChangedType.SELECTION) {
-                     Incite(this, { type: 'selection' });
-                     }
-                     */
-                    this.$$emit = TextBoxEmitChangedType.NOTHING;
-                };
-                TextProxy.prototype.$syncText = function () {
-                    this.$$syncing = true;
-                    this.SyncText(this.text);
-                    this.$$syncing = false;
-                };
-                return TextProxy;
-            })();
-            Internal.TextProxy = TextProxy;
-        })(Internal = Controls.Internal || (Controls.Internal = {}));
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Controls;
-    (function (Controls) {
-        var Internal;
-        (function (Internal) {
             var NO_GENERATOR = {
                 current: undefined,
                 generate: function () {
@@ -8639,7 +8417,7 @@ var Fayde;
                 var view = this.$View = this.CreateView();
                 view.MouseLeftButtonDown.on(function (s, e) { return _this.OnMouseLeftButtonDown(e); }, this);
                 view.MouseLeftButtonUp.on(function (s, e) { return _this.OnMouseLeftButtonUp(e); }, this);
-                this.$Proxy = new Controls.Internal.TextProxy(eventsMask, MAX_UNDO_COUNT);
+                this.$Proxy = new Fayde.Text.Proxy(eventsMask, MAX_UNDO_COUNT);
                 this._SyncFont();
             }
             TextBoxBase.prototype._SyncFont = function () {
@@ -9071,7 +8849,7 @@ var Fayde;
             __extends(PasswordBox, _super);
             function PasswordBox() {
                 var _this = this;
-                _super.call(this, Controls.Internal.TextBoxEmitChangedType.TEXT);
+                _super.call(this, Fayde.Text.EmitChangedType.TEXT);
                 this.DefaultStyleKey = PasswordBox;
                 var proxy = this.$Proxy;
                 proxy.SyncSelectionStart = function (value) { return _this.SetCurrentValue(PasswordBox.SelectionStartProperty, value); };
@@ -10436,7 +10214,7 @@ var Fayde;
             __extends(TextBox, _super);
             function TextBox() {
                 var _this = this;
-                _super.call(this, Controls.Internal.TextBoxEmitChangedType.TEXT | Controls.Internal.TextBoxEmitChangedType.SELECTION);
+                _super.call(this, Fayde.Text.EmitChangedType.TEXT | Fayde.Text.EmitChangedType.SELECTION);
                 this.DefaultStyleKey = TextBox;
                 var proxy = this.$Proxy;
                 proxy.SyncSelectionStart = function (value) { return _this.SetCurrentValue(TextBox.SelectionStartProperty, value); };
@@ -26882,6 +26660,225 @@ var Fayde;
             })();
             History.Tracker = Tracker;
         })(History = Text.History || (Text.History = {}));
+    })(Text = Fayde.Text || (Fayde.Text = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Text;
+    (function (Text) {
+        (function (EmitChangedType) {
+            EmitChangedType[EmitChangedType["NOTHING"] = 0] = "NOTHING";
+            EmitChangedType[EmitChangedType["SELECTION"] = 1] = "SELECTION";
+            EmitChangedType[EmitChangedType["TEXT"] = 2] = "TEXT";
+        })(Text.EmitChangedType || (Text.EmitChangedType = {}));
+        var EmitChangedType = Text.EmitChangedType;
+        var Proxy = (function () {
+            function Proxy(eventsMask, maxUndoCount) {
+                this.selAnchor = 0;
+                this.selCursor = 0;
+                this.selText = "";
+                this.text = "";
+                this.maxLength = 0;
+                this.acceptsReturn = false;
+                this.$$batch = 0;
+                this.$$emit = EmitChangedType.NOTHING;
+                this.$$syncing = false;
+                this.$$eventsMask = eventsMask;
+                this.$$history = new Text.History.Tracker(maxUndoCount);
+                this.SyncSelectionStart = function (value) {
+                };
+                this.SyncSelectionLength = function (value) {
+                };
+                this.SyncText = function (value) {
+                };
+            }
+            Proxy.prototype.setAnchorCursor = function (anchor, cursor) {
+                if (this.selAnchor === anchor && this.selCursor === cursor)
+                    return false;
+                this.SyncSelectionStart(Math.min(anchor, cursor));
+                this.SyncSelectionLength(Math.abs(cursor - anchor));
+                this.selAnchor = anchor;
+                this.selCursor = cursor;
+                this.$$emit |= EmitChangedType.SELECTION;
+                return true;
+            };
+            Proxy.prototype.enterText = function (newText) {
+                var anchor = this.selAnchor;
+                var cursor = this.selCursor;
+                var length = Math.abs(cursor - anchor);
+                var start = Math.min(anchor, cursor);
+                if ((this.maxLength > 0 && this.text.length >= this.maxLength) || (newText === '\r') && !this.acceptsReturn)
+                    return false;
+                if (length > 0) {
+                    this.$$history.replace(anchor, cursor, this.text, start, length, newText);
+                    this.text = Text.Buffer.replace(this.text, start, length, newText);
+                }
+                else {
+                    this.$$history.enter(anchor, cursor, start, newText);
+                    this.text = Text.Buffer.insert(this.text, start, newText);
+                }
+                this.$$emit |= EmitChangedType.TEXT;
+                cursor = start + 1;
+                anchor = cursor;
+                return this.setAnchorCursor(anchor, cursor);
+            };
+            Proxy.prototype.removeText = function (start, length) {
+                if (length <= 0)
+                    return false;
+                this.$$history.delete(this.selAnchor, this.selCursor, this.text, start, length);
+                this.text = Text.Buffer.cut(this.text, start, length);
+                this.$$emit |= EmitChangedType.TEXT;
+                return this.setAnchorCursor(start, start);
+            };
+            Proxy.prototype.undo = function () {
+                var action = this.$$history.undo(this);
+                if (!action)
+                    return;
+                var anchor = action.SelectionAnchor;
+                var cursor = action.SelectionCursor;
+                this.$$batch++;
+                this.SyncSelectionStart(Math.min(anchor, cursor));
+                this.SyncSelectionLength(Math.abs(cursor - anchor));
+                this.$$emit = EmitChangedType.TEXT | EmitChangedType.SELECTION;
+                this.selAnchor = anchor;
+                this.selCursor = cursor;
+                this.$$batch--;
+                this.$syncEmit();
+            };
+            Proxy.prototype.redo = function () {
+                var anchor = this.$$history.redo(this);
+                if (anchor == null)
+                    return;
+                var cursor = anchor;
+                this.$$batch++;
+                this.SyncSelectionStart(Math.min(anchor, cursor));
+                this.SyncSelectionLength(Math.abs(cursor - anchor));
+                this.$$emit = EmitChangedType.TEXT | EmitChangedType.SELECTION;
+                this.selAnchor = anchor;
+                this.selCursor = cursor;
+                this.$$batch--;
+                this.$syncEmit();
+            };
+            Proxy.prototype.begin = function () {
+                this.$$emit = EmitChangedType.NOTHING;
+                this.$$batch++;
+            };
+            Proxy.prototype.end = function () {
+                this.$$batch--;
+                this.$syncEmit();
+            };
+            Proxy.prototype.beginSelect = function (cursor) {
+                this.$$batch++;
+                this.$$emit = EmitChangedType.NOTHING;
+                this.SyncSelectionStart(cursor);
+                this.SyncSelectionLength(0);
+                this.$$batch--;
+                this.$syncEmit();
+            };
+            Proxy.prototype.adjustSelection = function (cursor) {
+                var anchor = this.selAnchor;
+                this.$$batch++;
+                this.$$emit = EmitChangedType.NOTHING;
+                this.SyncSelectionStart(Math.min(anchor, cursor));
+                this.SyncSelectionLength(Math.abs(cursor - anchor));
+                this.selAnchor = anchor;
+                this.selCursor = cursor;
+                this.$$batch--;
+                this.$syncEmit();
+            };
+            Proxy.prototype.selectAll = function () {
+                this.select(0, this.text.length);
+            };
+            Proxy.prototype.clearSelection = function (start) {
+                this.$$batch++;
+                this.SyncSelectionStart(start);
+                this.SyncSelectionLength(0);
+                this.$$batch--;
+            };
+            Proxy.prototype.select = function (start, length) {
+                start = Math.min(Math.max(0, start), this.text.length);
+                length = Math.min(Math.max(0, length), this.text.length - start);
+                this.$$batch++;
+                this.SyncSelectionStart(start);
+                this.SyncSelectionLength(length);
+                this.$$batch--;
+                this.$syncEmit();
+                return true;
+            };
+            Proxy.prototype.setSelectionStart = function (value) {
+                var length = Math.abs(this.selCursor - this.selAnchor);
+                var start = value;
+                if (start > this.text.length) {
+                    this.SyncSelectionStart(this.text.length);
+                    return;
+                }
+                if (start + length > this.text.length) {
+                    this.$$batch++;
+                    length = this.text.length - start;
+                    this.SyncSelectionLength(length);
+                    this.$$batch--;
+                }
+                var changed = (this.selAnchor !== start);
+                this.selCursor = start + length;
+                this.selAnchor = start;
+                this.$$emit |= EmitChangedType.SELECTION;
+                this.$syncEmit();
+            };
+            Proxy.prototype.setSelectionLength = function (value) {
+                var start = Math.min(this.selAnchor, this.selCursor);
+                var length = value;
+                if (start + length > this.text.length) {
+                    length = this.text.length - start;
+                    this.SyncSelectionLength(length);
+                    return;
+                }
+                var changed = (this.selCursor !== (start + length));
+                this.selCursor = start + length;
+                this.selAnchor = start;
+                this.$$emit |= EmitChangedType.SELECTION;
+                this.$syncEmit();
+            };
+            Proxy.prototype.setText = function (value) {
+                var text = value || "";
+                if (!this.$$syncing) {
+                    if (this.text.length > 0) {
+                        this.$$history.replace(this.selAnchor, this.selCursor, this.text, 0, this.text.length, text);
+                        this.text = Text.Buffer.replace(this.text, 0, this.text.length, text);
+                    }
+                    else {
+                        this.$$history.insert(this.selAnchor, this.selCursor, 0, text);
+                        this.text = text + this.text;
+                    }
+                    this.$$emit |= EmitChangedType.TEXT;
+                    this.clearSelection(0);
+                    this.$syncEmit(false);
+                }
+            };
+            Proxy.prototype.$syncEmit = function (syncText) {
+                syncText = syncText !== false;
+                if (this.$$batch !== 0 || this.$$emit === EmitChangedType.NOTHING)
+                    return;
+                if (syncText && (this.$$emit & EmitChangedType.TEXT))
+                    this.$syncText();
+                /*
+                 this.$$emit &= this.$$eventsMask;
+                 if (this.$$emit & TextBoxEmitChangedType.TEXT) {
+                 Incite(this, { type: 'text' });
+                 }
+                 if (this.$$emit & TextBoxEmitChangedType.SELECTION) {
+                 Incite(this, { type: 'selection' });
+                 }
+                 */
+                this.$$emit = EmitChangedType.NOTHING;
+            };
+            Proxy.prototype.$syncText = function () {
+                this.$$syncing = true;
+                this.SyncText(this.text);
+                this.$$syncing = false;
+            };
+            return Proxy;
+        })();
+        Text.Proxy = Proxy;
     })(Text = Fayde.Text || (Fayde.Text = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
