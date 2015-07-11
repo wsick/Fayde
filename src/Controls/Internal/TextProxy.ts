@@ -28,6 +28,12 @@ module Fayde.Controls.Internal {
 
         constructor (eventsMask: TextBoxEmitChangedType) {
             this.$$eventsMask = eventsMask;
+            this.SyncSelectionStart = (value: number) => {
+            };
+            this.SyncSelectionLength = (value: number) => {
+            };
+            this.SyncText = (value: string) => {
+            };
         }
 
         setAnchorCursor (anchor: number, cursor: number): boolean {
@@ -278,14 +284,14 @@ module Fayde.Controls.Internal {
                 this.$syncText();
 
             /*
-            this.$$emit &= this.$$eventsMask;
-            if (this.$$emit & TextBoxEmitChangedType.TEXT) {
-                Incite(this, { type: 'text' });
-            }
-            if (this.$$emit & TextBoxEmitChangedType.SELECTION) {
-                Incite(this, { type: 'selection' });
-            }
-            */
+             this.$$emit &= this.$$eventsMask;
+             if (this.$$emit & TextBoxEmitChangedType.TEXT) {
+             Incite(this, { type: 'text' });
+             }
+             if (this.$$emit & TextBoxEmitChangedType.SELECTION) {
+             Incite(this, { type: 'selection' });
+             }
+             */
 
             this.$$emit = TextBoxEmitChangedType.NOTHING;
         }

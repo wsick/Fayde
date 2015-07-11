@@ -36,7 +36,7 @@ interface IUserEntity extends IUser, IEntity {
 }
 
 export function load () {
-    QUnit.module("MVVM:AutoModel Tests");
+    QUnit.module("MVVM/AutoModel");
 
     QUnit.test("Initial", (assert) => {
         var person = new Person();

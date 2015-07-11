@@ -7543,6 +7543,12 @@ var Fayde;
                     this.$$undo = [];
                     this.$$redo = [];
                     this.$$eventsMask = eventsMask;
+                    this.SyncSelectionStart = function (value) {
+                    };
+                    this.SyncSelectionLength = function (value) {
+                    };
+                    this.SyncText = function (value) {
+                    };
                 }
                 TextProxy.prototype.setAnchorCursor = function (anchor, cursor) {
                     if (this.selAnchor === anchor && this.selCursor === cursor)
@@ -7749,14 +7755,14 @@ var Fayde;
                     if (syncText && (this.$$emit & TextBoxEmitChangedType.TEXT))
                         this.$syncText();
                     /*
-                    this.$$emit &= this.$$eventsMask;
-                    if (this.$$emit & TextBoxEmitChangedType.TEXT) {
-                        Incite(this, { type: 'text' });
-                    }
-                    if (this.$$emit & TextBoxEmitChangedType.SELECTION) {
-                        Incite(this, { type: 'selection' });
-                    }
-                    */
+                     this.$$emit &= this.$$eventsMask;
+                     if (this.$$emit & TextBoxEmitChangedType.TEXT) {
+                     Incite(this, { type: 'text' });
+                     }
+                     if (this.$$emit & TextBoxEmitChangedType.SELECTION) {
+                     Incite(this, { type: 'selection' });
+                     }
+                     */
                     this.$$emit = TextBoxEmitChangedType.NOTHING;
                 };
                 TextProxy.prototype.$syncText = function () {
