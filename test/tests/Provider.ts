@@ -4,7 +4,7 @@ import ResourceDictionary = Fayde.ResourceDictionary;
 import Font = minerva.Font;
 
 export function load () {
-    QUnit.module("Provider Tests");
+    QUnit.module("Provider");
 
     var Mock1Property = DependencyProperty.Register("Mock1", () => String, Fayde.DependencyObject);
     var Mock2Property = DependencyProperty.Register("Mock2", () => String, Fayde.DependencyObject, "Default");

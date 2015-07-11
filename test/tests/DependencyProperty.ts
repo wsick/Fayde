@@ -1,5 +1,5 @@
 export function load() {
-    QUnit.module("Dependency Property Tests");
+    QUnit.module("DependencyProperty");
 
     function coercer(dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any): any {
         if (value < 0)

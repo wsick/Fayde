@@ -1,7 +1,7 @@
 import TestControl = require('../../mocks/TestControl');
 
 export function load () {
-    QUnit.module("Markup Load Tests");
+    QUnit.module("Markup/Basic");
 
     test("Valid XAML Document", () => {
         try {

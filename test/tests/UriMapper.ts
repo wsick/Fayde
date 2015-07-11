@@ -1,5 +1,5 @@
 export function load() {
-    QUnit.module("Uri Mapper");
+    QUnit.module("UriMapper");
 
     test("MapUri", () => {
         var mapper = new Fayde.Navigation.UriMapper();

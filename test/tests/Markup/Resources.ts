@@ -1,5 +1,5 @@
 export function load () {
-    QUnit.module("Markup Load Tests");
+    QUnit.module("Markup/Resources");
 
     var nsdecl = "xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\"";
 

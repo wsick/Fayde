@@ -1,5 +1,5 @@
 export function load() {
-    QUnit.module("Primitives Tests");
+    QUnit.module("Primitives");
 
     test("DateTime", () => {
         var d: DateTime;

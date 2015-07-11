@@ -1,7 +1,7 @@
 ﻿import Format = Fayde.Localization.Format;
 
 export function load() {
-    QUnit.module("Format Tests");
+    QUnit.module("Format");
 
     function ft(format: string, num: number, expected: string) {
         strictEqual(Format(format, num), expected);

@@ -1,5 +1,5 @@
 export function load() {
-    QUnit.module("DataTemplate Tests");
+    QUnit.module("DataTemplate");
 
     test("Basic Load", () => {
         var xaml = "<DataTemplate xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"

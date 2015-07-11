@@ -1,7 +1,7 @@
 import TestConverter = require('../mocks/TestConverter');
 
 export function load () {
-    QUnit.module("Markup Expression Tests");
+    QUnit.module("MarkupExpression");
 
     test("x:Null", () => {
         var xaml = "<Border xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Tag=\"{x:Null}\"></Border>";
