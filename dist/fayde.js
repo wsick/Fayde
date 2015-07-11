@@ -7528,9 +7528,8 @@ var Fayde;
                 TextBoxEmitChangedType[TextBoxEmitChangedType["TEXT"] = 2] = "TEXT";
             })(Internal.TextBoxEmitChangedType || (Internal.TextBoxEmitChangedType = {}));
             var TextBoxEmitChangedType = Internal.TextBoxEmitChangedType;
-            var MAX_UNDO_COUNT = 10;
             var TextProxy = (function () {
-                function TextProxy(eventsMask) {
+                function TextProxy(eventsMask, maxUndoCount) {
                     this.selAnchor = 0;
                     this.selCursor = 0;
                     this.selText = "";
@@ -7543,6 +7542,7 @@ var Fayde;
                     this.$$undo = [];
                     this.$$redo = [];
                     this.$$eventsMask = eventsMask;
+                    this.$$maxUndoCount = maxUndoCount;
                     this.SyncSelectionStart = function (value) {
                     };
                     this.SyncSelectionLength = function (value) {
@@ -7619,7 +7619,7 @@ var Fayde;
                     if (this.$$undo.length < 1)
                         return;
                     var action = this.$$undo.pop();
-                    if (this.$$redo.push(action) > MAX_UNDO_COUNT)
+                    if (this.$$redo.push(action) > this.$$maxUndoCount)
                         this.$$redo.shift();
                     action.Undo(this);
                     var anchor = action.SelectionAnchor;
@@ -7637,7 +7637,7 @@ var Fayde;
                     if (this.$$redo.length < 1)
                         return;
                     var action = this.$$redo.pop();
-                    if (this.$$undo.push(action) > MAX_UNDO_COUNT)
+                    if (this.$$undo.push(action) > this.$$maxUndoCount)
                         this.$$undo.shift();
                     var anchor = action.Redo(this);
                     var cursor = anchor;
@@ -8663,6 +8663,7 @@ var Fayde;
     var Controls;
     (function (Controls) {
         var Key = Fayde.Input.Key;
+        var MAX_UNDO_COUNT = 10;
         var TextBoxBase = (function (_super) {
             __extends(TextBoxBase, _super);
             function TextBoxBase(eventsMask) {
@@ -8676,7 +8677,7 @@ var Fayde;
                 var view = this.$View = this.CreateView();
                 view.MouseLeftButtonDown.on(function (s, e) { return _this.OnMouseLeftButtonDown(e); }, this);
                 view.MouseLeftButtonUp.on(function (s, e) { return _this.OnMouseLeftButtonUp(e); }, this);
-                this.$Proxy = new Controls.Internal.TextProxy(eventsMask);
+                this.$Proxy = new Controls.Internal.TextProxy(eventsMask, MAX_UNDO_COUNT);
                 this._SyncFont();
             }
             TextBoxBase.prototype._SyncFont = function () {

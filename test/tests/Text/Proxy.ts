@@ -2,7 +2,7 @@ export function load () {
     QUnit.module("Text/Proxy");
 
     test("Undo + Redo", (assert) => {
-        var proxy = new Fayde.Controls.Internal.TextProxy(Fayde.Controls.Internal.TextBoxEmitChangedType.TEXT);
+        var proxy = new Fayde.Controls.Internal.TextProxy(Fayde.Controls.Internal.TextBoxEmitChangedType.TEXT, 10);
         proxy.setText("test1");
         assert.strictEqual(proxy.text, "test1");
         proxy.undo();
@@ -12,16 +12,17 @@ export function load () {
     });
 
     test("Undo limit", (assert) => {
-        var proxy = new Fayde.Controls.Internal.TextProxy(Fayde.Controls.Internal.TextBoxEmitChangedType.TEXT);
+        var maxUndo = 3;
+        var proxy = new Fayde.Controls.Internal.TextProxy(Fayde.Controls.Internal.TextBoxEmitChangedType.TEXT, maxUndo);
 
-        for (var i = 1; i <= 11; i++) {
+        for (var i = 0; i < (maxUndo + 1); i++) {
             proxy.setText("test-" + i.toString());
         }
-        for (var i = 10; i > 0; i--) {
+        for (var i = maxUndo - 1; i >= 0; i--) {
             proxy.undo();
             assert.strictEqual(proxy.text, "test-" + i.toString());
         }
         proxy.undo();
-        assert.strictEqual(proxy.text, "test-1");
+        assert.strictEqual(proxy.text, "test-1", "Consecutive undo attempts after max should not change text.");
     });
 }

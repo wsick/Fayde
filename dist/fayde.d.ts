@@ -1928,10 +1928,11 @@ declare module Fayde.Controls.Internal {
         private $$eventsMask;
         private $$undo;
         private $$redo;
+        private $$maxUndoCount;
         SyncSelectionStart: (value: number) => void;
         SyncSelectionLength: (value: number) => void;
         SyncText: (value: string) => void;
-        constructor(eventsMask: TextBoxEmitChangedType);
+        constructor(eventsMask: TextBoxEmitChangedType, maxUndoCount: number);
         setAnchorCursor(anchor: number, cursor: number): boolean;
         enterText(newText: string): boolean;
         removeText(start: number, length: number): boolean;

@@ -5,7 +5,6 @@ module Fayde.Controls.Internal {
         TEXT = 1 << 1,
     }
 
-    var MAX_UNDO_COUNT = 10;
     export class TextProxy implements Text.ITextOwner {
         selAnchor: number = 0;
         selCursor: number = 0;
@@ -21,13 +20,15 @@ module Fayde.Controls.Internal {
 
         private $$undo: Text.ITextBoxUndoAction[] = [];
         private $$redo: Text.ITextBoxUndoAction[] = [];
+        private $$maxUndoCount: number;
 
         SyncSelectionStart: (value: number) => void;
         SyncSelectionLength: (value: number) => void;
         SyncText: (value: string) => void;
 
-        constructor (eventsMask: TextBoxEmitChangedType) {
+        constructor (eventsMask: TextBoxEmitChangedType, maxUndoCount: number) {
             this.$$eventsMask = eventsMask;
+            this.$$maxUndoCount = maxUndoCount;
             this.SyncSelectionStart = (value: number) => {
             };
             this.SyncSelectionLength = (value: number) => {
@@ -112,7 +113,7 @@ module Fayde.Controls.Internal {
                 return;
 
             var action = this.$$undo.pop();
-            if (this.$$redo.push(action) > MAX_UNDO_COUNT)
+            if (this.$$redo.push(action) > this.$$maxUndoCount)
                 this.$$redo.shift();
 
             action.Undo(this);
@@ -136,7 +137,7 @@ module Fayde.Controls.Internal {
                 return;
 
             var action = this.$$redo.pop();
-            if (this.$$undo.push(action) > MAX_UNDO_COUNT)
+            if (this.$$undo.push(action) > this.$$maxUndoCount)
                 this.$$undo.shift();
 
             var anchor = action.Redo(this);
