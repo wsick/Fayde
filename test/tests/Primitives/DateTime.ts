@@ -1,7 +1,7 @@
 export function load() {
-    QUnit.module("Primitives");
+    QUnit.module("Primitives/DateTime");
 
-    test("DateTime", () => {
+    test("ctor", () => {
         var d: DateTime;
 
         d = new DateTime();
@@ -70,7 +70,7 @@ export function load() {
         strictEqual(DateTime.Compare(d, new DateTime(2014, 7, 3)), 0);
     });
 
-    test("DateTime: DaysInMonth", () => {
+    test("DaysInMonth", () => {
         strictEqual(DateTime.DaysInMonth(2014, 1), 31);
 
         strictEqual(DateTime.DaysInMonth(2012, 2), 29);
@@ -91,7 +91,7 @@ export function load() {
         strictEqual(DateTime.DaysInMonth(2014, 12), 31);
     });
 
-    test("DateTime: statics", () => {
+    test("~statics", () => {
         var now = DateTime.Now;
         strictEqual(now.Day, new Date().getDate(), "Now day should match local day");
         strictEqual(now.Kind, DateTimeKind.Local, "Now should be DateTimeKind.Local");
@@ -101,7 +101,7 @@ export function load() {
         strictEqual(today.Kind, DateTimeKind.Local, "Today should be DateTimeKind.Local");
     });
 
-    test("DateTime: converter", () => {
+    test("~converter", () => {
         var now = DateTime.Now;
         var dt1 = nullstone.convertAnyToType(now, DateTime);
         strictEqual(dt1.Ticks, now.Ticks);
@@ -115,5 +115,10 @@ export function load() {
 
         dt1 = nullstone.convertAnyToType(1000, DateTime);
         strictEqual(dt1.Ticks, 1000);
+    });
+
+    test("AddDays", () => {
+        var day = new DateTime(2015, 11, 1);
+        strictEqual(day.AddDays(1).Day, 2);
     });
 }

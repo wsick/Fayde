@@ -26,6 +26,6 @@
     "perfex": "~0.1.0"
   },
   "devDependencies": {
-    "qunit": "~1.15.0"
+    "qunit": "~1.18.0"
   }
 }

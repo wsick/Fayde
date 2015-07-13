@@ -1,7 +1,6 @@
 module runner {
     var testModules = [
         ".build/tests/Matrix",
-        ".build/tests/Primitives",
         ".build/tests/Format",
         ".build/tests/TypeConverter",
         ".build/tests/MarkupExpression",
@@ -25,6 +24,8 @@ module runner {
         ".build/tests/Markup/Media",
 
         ".build/tests/MVVM/AutoModel",
+
+        ".build/tests/Primitives/DateTime",
 
         ".build/tests/Text/Proxy"
     ];
