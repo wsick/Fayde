@@ -19,11 +19,11 @@ enum DateTimeKind {
 Fayde.CoreLibrary.addEnum(DateTimeKind, "DateTimeKind");
 
 class DateTime {
-    private static _MinDateTicks: number = -8640000000000000;
-    private static _MaxDateTicks: number = 8640000000000000;
+    private static MAX_TICKS = 8640000000000000;
+    private static MIN_TICKS = -8640000000000000;
 
-    static get MinValue() { return new DateTime(-8640000000000000); }
-    static get MaxValue() { return new DateTime(8640000000000000); }
+    static get MinValue() { return new DateTime(DateTime.MIN_TICKS); }
+    static get MaxValue() { return new DateTime(DateTime.MAX_TICKS); }
     static get Now(): DateTime { return new DateTime(new Date().getTime(), DateTimeKind.Local); }
     static get Today(): DateTime { return DateTime.Now.Date; }
     static Compare(dt1: DateTime, dt2: DateTime): number {
@@ -113,6 +113,9 @@ class DateTime {
         }
 
         this._Kind = kind || DateTimeKind.Unspecified;
+        if (isNaN(ticks) || ticks < DateTime.MIN_TICKS || ticks > DateTime.MAX_TICKS) {
+            throw new Error("DateTime is out of range.");
+        }
         if (ticks != null) {
             this._InternalDate = new Date(ticks);
             return;
@@ -137,21 +140,19 @@ class DateTime {
     get Kind(): DateTimeKind { return this._Kind; }
     get Date(): DateTime {
         var t = this._InternalDate.getTime();
-        if (t <= DateTime._MinDateTicks)
-            return new DateTime(DateTime._MinDateTicks);
-        var d = new Date(t);
+        var newid = new Date(t);
         if (this._Kind === DateTimeKind.Utc) {
-            d.setUTCHours(0);
-            d.setUTCMinutes(0);
-            d.setUTCSeconds(0);
-            d.setUTCMilliseconds(0);
+            newid.setUTCHours(0);
+            newid.setUTCMinutes(0);
+            newid.setUTCSeconds(0);
+            newid.setUTCMilliseconds(0);
         } else {
-            d.setHours(0);
-            d.setMinutes(0);
-            d.setSeconds(0);
-            d.setMilliseconds(0);
+            newid.setHours(0);
+            newid.setMinutes(0);
+            newid.setSeconds(0);
+            newid.setMilliseconds(0);
         }
-        return new DateTime(d.getTime(), this._Kind);
+        return new DateTime(newid.getTime(), this._Kind);
     }
     get Day(): number {
         if (this._Kind === DateTimeKind.Utc)
@@ -206,42 +207,66 @@ class DateTime {
         return this._InternalDate.getFullYear();
     }
 
-    Add(value: TimeSpan): DateTime {
-        return new DateTime(this.Ticks + value.Ticks, this.Kind);
+    AddYears(years: number): DateTime {
+        var newid = new Date(this._InternalDate.getTime());
+        var wyears = Math.floor(years);
+        if (isNaN(wyears)) {
+            throw new ArgumentOutOfRangeException("years");
+        }
+        if (this.Kind === DateTimeKind.Utc) {
+            newid.setUTCFullYear(newid.getUTCFullYear() + wyears);
+        } else {
+            newid.setFullYear(newid.getFullYear() + wyears);
+        }
+        return new DateTime(newid, this.Kind);
     }
-
-    AddYears(value: number): DateTime {
-        if (value < -10000 || value > 10000)
-            throw new ArgumentOutOfRangeException("Invalid number of years.");
-        return this.AddMonths(value * 12);
-    }
-    AddMonths(value: number): DateTime {
-        var dte = new Date(this.Ticks);
-        var ticks = dte.setMonth(dte.getMonth() + value);
-        if (isNaN(ticks))
-            throw new ArgumentOutOfRangeException("Date out of range.");
-        return new DateTime(ticks, this.Kind);
+    AddMonths(months: number): DateTime {
+        var newid = new Date(this._InternalDate.getTime());
+        var wmonths = Math.floor(months);
+        if (isNaN(wmonths)) {
+            throw new ArgumentOutOfRangeException("months");
+        }
+        if (this.Kind === DateTimeKind.Utc) {
+            newid.setUTCMonth(newid.getUTCMonth() + wmonths);
+        } else {
+            newid.setMonth(newid.getMonth() + wmonths);
+        }
+        return new DateTime(newid, this.Kind);
     }
     AddDays(value: number): DateTime {
-        return this.AddTicks(value * TimeSpan._TicksPerDay);
+        return this.Add(TimeSpan.FromDays(value));
     }
     AddHours(value: number): DateTime {
-        return this.AddTicks(value * TimeSpan._TicksPerHour);
+        return this.Add(TimeSpan.FromHours(value));
     }
     AddMinutes(value: number): DateTime {
-        return this.AddTicks(value * TimeSpan._TicksPerMinute);
+        return this.Add(TimeSpan.FromMinutes(value));
     }
     AddSeconds(value: number): DateTime {
-        return this.AddTicks(value * TimeSpan._TicksPerSecond);
+        return this.Add(TimeSpan.FromSeconds(value));
     }
     AddMilliseconds(value: number): DateTime {
-        return this.AddTicks(value * TimeSpan._TicksPerMillisecond);
+        return this.Add(TimeSpan.FromMilliseconds(value));
+    }
+    Add(value: TimeSpan): DateTime {
+        var newid = new Date(this._InternalDate.getTime());
+        if (this.Kind === DateTimeKind.Utc) {
+            newid.setUTCDate(newid.getUTCDate() + value.Days);
+            newid.setUTCHours(newid.getUTCHours() + value.Hours);
+            newid.setUTCMinutes(newid.getUTCMinutes() + value.Minutes);
+            newid.setUTCSeconds(newid.getUTCSeconds() + value.Seconds);
+            newid.setUTCMilliseconds(newid.getUTCMilliseconds() + value.Milliseconds);
+        } else {
+            newid.setDate(newid.getDate() + value.Days);
+            newid.setHours(newid.getHours() + value.Hours);
+            newid.setMinutes(newid.getMinutes() + value.Minutes);
+            newid.setSeconds(newid.getSeconds() + value.Seconds);
+            newid.setMilliseconds(newid.getMilliseconds() + value.Milliseconds);
+        }
+        return new DateTime(newid, this.Kind);
     }
     AddTicks(value: number): DateTime {
-        var ticks = this.Ticks + value;
-        if (DateTime._MinDateTicks > ticks || DateTime._MaxDateTicks < ticks)
-            throw new ArgumentOutOfRangeException("Date out of range.");
-        return new DateTime(ticks, this.Kind);
+        return new DateTime(this.Ticks + value, this.Kind);
     }
 
     Subtract(value: DateTime): TimeSpan;

@@ -65,9 +65,7 @@ export function load() {
         strictEqual(utc.Hour, expectedHour, "ToUniversalTime Hour");
 
         var d1 = DateTime.MinValue;
-        var d2 = d1.Date;
-        strictEqual(d1.Kind, d2.Kind);
-        ok(!isNaN(d2.Ticks));
+        throws(() => d1.Date, undefined, "Should throw when exceeding lower bounds of Date.");
 
         d = new DateTime(2014, 2, 3);
         d = d.AddMonths(5);
@@ -121,15 +119,47 @@ export function load() {
         strictEqual(dt1.Ticks, 1000);
     });
 
+    test("AddYears", () => {
+        var dt = new DateTime(2015, 11, 1, 1, 0, 0, 0, DateTimeKind.Local);
+        var dt2 = dt.AddYears(8);
+        strictEqual(dt2.Year, 2023);
+        strictEqual(dt2.Month, 11);
+        strictEqual(dt2.Day, 1);
+    });
+    test("AddMonths", () => {
+        var dt = new DateTime(2015, 11, 1, 1, 0, 0, 0, DateTimeKind.Local);
+        var dt2 = dt.AddMonths(1);
+        strictEqual(dt2.Year, 2015);
+        strictEqual(dt2.Month, 12);
+        strictEqual(dt2.Day, 1);
+
+        dt = new DateTime(2015, 7, 14, 1, 0, 0, 0, DateTimeKind.Local);
+        dt2 = dt.AddMonths(48);
+        strictEqual(dt2.Year, 2019);
+        strictEqual(dt2.Month, 7);
+        strictEqual(dt2.Day, 14);
+    });
     test("AddDays", () => {
         var dt = new DateTime(2015, 11, 1);
-        strictEqual(dt.AddDays(1).Day, 2);
+        var dt2 = dt.AddDays(1);
+        strictEqual(dt2.Day, 2);
+
+        dt = new DateTime(2015, 7, 14);
+        dt2 = dt.AddDays(1);
+        strictEqual(dt2.Day, 15);
     });
     test("AddHours", () => {
         var dt = new DateTime(2015, 11, 1, 1, 0, 0, 0, DateTimeKind.Local);
         var dt2 = dt.AddHours(1);
+        strictEqual(dt2.Month, 11);
         strictEqual(dt2.Day, 1);
         strictEqual(dt2.Hour, 2);
+
+        dt = new DateTime(2015, 7, 14, 0, 0, 0, 0, DateTimeKind.Local);
+        dt2 = dt.AddHours(1);
+        strictEqual(dt2.Month, 7);
+        strictEqual(dt2.Day, 14);
+        strictEqual(dt2.Hour, 1);
     });
     test("AddMinutes", () => {
         var dt = new DateTime(2015, 11, 1, 1, 59, 0, 0, DateTimeKind.Local);
@@ -137,6 +167,13 @@ export function load() {
         strictEqual(dt2.Day, 1);
         strictEqual(dt2.Hour, 2);
         strictEqual(dt2.Minute, 0);
+
+        dt = new DateTime(2015, 7, 14, 0, 0, 0, 0, DateTimeKind.Local);
+        dt2 = dt.AddMinutes(1);
+        strictEqual(dt2.Month, 7);
+        strictEqual(dt2.Day, 14);
+        strictEqual(dt2.Hour, 0);
+        strictEqual(dt2.Minute, 1);
     });
     test("AddSeconds", () => {
         var dt = new DateTime(2015, 11, 1, 1, 59, 59, 0, DateTimeKind.Local);
@@ -145,6 +182,14 @@ export function load() {
         strictEqual(dt2.Hour, 2);
         strictEqual(dt2.Minute, 0);
         strictEqual(dt2.Second, 0);
+
+        dt = new DateTime(2015, 7, 14, 0, 0, 0, 0, DateTimeKind.Local);
+        dt2 = dt.AddSeconds(1);
+        strictEqual(dt2.Month, 7);
+        strictEqual(dt2.Day, 14);
+        strictEqual(dt2.Hour, 0);
+        strictEqual(dt2.Minute, 0);
+        strictEqual(dt2.Second, 1);
     });
     test("AddMilliseconds", () => {
         var dt = new DateTime(2015, 11, 1, 1, 59, 59, 999, DateTimeKind.Local);
@@ -154,5 +199,14 @@ export function load() {
         strictEqual(dt2.Minute, 0);
         strictEqual(dt2.Second, 0);
         strictEqual(dt2.Millisecond, 0);
+
+        dt = new DateTime(2015, 7, 14, 0, 0, 0, 0, DateTimeKind.Local);
+        dt2 = dt.AddMilliseconds(1);
+        strictEqual(dt2.Month, 7);
+        strictEqual(dt2.Day, 14);
+        strictEqual(dt2.Hour, 0);
+        strictEqual(dt2.Minute, 0);
+        strictEqual(dt2.Second, 0);
+        strictEqual(dt2.Millisecond, 1);
     });
 }
