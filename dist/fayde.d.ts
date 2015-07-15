@@ -3747,8 +3747,8 @@ declare enum DateTimeKind {
     Utc = 2,
 }
 declare class DateTime {
-    private static _MinDateTicks;
-    private static _MaxDateTicks;
+    private static MAX_TICKS;
+    private static MIN_TICKS;
     static MinValue: DateTime;
     static MaxValue: DateTime;
     static Now: DateTime;
@@ -3759,6 +3759,7 @@ declare class DateTime {
     private _Kind;
     constructor();
     constructor(dt: Date);
+    constructor(dt: Date, kind: DateTimeKind);
     constructor(ticks: number);
     constructor(ticks: number, kind: DateTimeKind);
     constructor(year: number, month: number, day: number);
@@ -3778,14 +3779,14 @@ declare class DateTime {
     Second: number;
     TimeOfDay: TimeSpan;
     Year: number;
-    Add(value: TimeSpan): DateTime;
-    AddYears(value: number): DateTime;
-    AddMonths(value: number): DateTime;
+    AddYears(years: number): DateTime;
+    AddMonths(months: number): DateTime;
     AddDays(value: number): DateTime;
     AddHours(value: number): DateTime;
     AddMinutes(value: number): DateTime;
     AddSeconds(value: number): DateTime;
     AddMilliseconds(value: number): DateTime;
+    Add(value: TimeSpan): DateTime;
     AddTicks(value: number): DateTime;
     Subtract(value: DateTime): TimeSpan;
     Subtract(value: TimeSpan): DateTime;
