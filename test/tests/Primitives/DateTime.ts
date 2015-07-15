@@ -122,7 +122,37 @@ export function load() {
     });
 
     test("AddDays", () => {
-        var day = new DateTime(2015, 11, 1);
-        strictEqual(day.AddDays(1).Day, 2);
+        var dt = new DateTime(2015, 11, 1);
+        strictEqual(dt.AddDays(1).Day, 2);
+    });
+    test("AddHours", () => {
+        var dt = new DateTime(2015, 11, 1, 1, 0, 0, 0, DateTimeKind.Local);
+        var dt2 = dt.AddHours(1);
+        strictEqual(dt2.Day, 1);
+        strictEqual(dt2.Hour, 2);
+    });
+    test("AddMinutes", () => {
+        var dt = new DateTime(2015, 11, 1, 1, 59, 0, 0, DateTimeKind.Local);
+        var dt2 = dt.AddMinutes(1);
+        strictEqual(dt2.Day, 1);
+        strictEqual(dt2.Hour, 2);
+        strictEqual(dt2.Minute, 0);
+    });
+    test("AddSeconds", () => {
+        var dt = new DateTime(2015, 11, 1, 1, 59, 59, 0, DateTimeKind.Local);
+        var dt2 = dt.AddSeconds(1);
+        strictEqual(dt2.Day, 1);
+        strictEqual(dt2.Hour, 2);
+        strictEqual(dt2.Minute, 0);
+        strictEqual(dt2.Second, 0);
+    });
+    test("AddMilliseconds", () => {
+        var dt = new DateTime(2015, 11, 1, 1, 59, 59, 999, DateTimeKind.Local);
+        var dt2 = dt.AddMilliseconds(1);
+        strictEqual(dt2.Day, 1);
+        strictEqual(dt2.Hour, 2);
+        strictEqual(dt2.Minute, 0);
+        strictEqual(dt2.Second, 0);
+        strictEqual(dt2.Millisecond, 0);
     });
 }
