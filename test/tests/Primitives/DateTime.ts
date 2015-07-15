@@ -1,4 +1,4 @@
-export function load() {
+export function load () {
     QUnit.module("Primitives/DateTime");
 
     test("ctor", () => {
@@ -55,21 +55,31 @@ export function load() {
         strictEqual(d.Second, 45, "ctor7 second");
         strictEqual(d.Millisecond, 500, "ctor7 millisecond");
         strictEqual(d.Kind, DateTimeKind.Utc, "ctor7 kind");
+    });
 
-        d = new DateTime(2014, 7, 14, 6, 12, 0, 0, DateTimeKind.Local);
+    test("~min/max", () => {
+        var dt = DateTime.MinValue;
+        throws(() => {
+            var d = dt.AddSeconds(-1);
+            console.log(d.Ticks);
+        }, undefined, "Should throw when exceeding lower bounds of Date.");
+
+        dt = DateTime.MaxValue;
+        throws(() => {
+            var d = dt.AddSeconds(1);
+            console.log(d.Ticks);
+        }, undefined, "Should throw when exceeding upper bounds of Date.");
+    });
+
+    test("ToUniversalTime", () => {
+        var dt = new DateTime(2014, 7, 14, 6, 12, 0, 0, DateTimeKind.Local);
+        //6 is very intentional - Month representation for Date is zero-indexed
         var localHourDiff = new Date(2014, 6, 14, 12).getTimezoneOffset() / 60;
-        var utc = d.ToUniversalTime();
+        var utc = dt.ToUniversalTime();
         var expectedHour = 6 + localHourDiff;
         if (expectedHour < 0) expectedHour += 24;
         else if (expectedHour > 24) expectedHour -= 24;
         strictEqual(utc.Hour, expectedHour, "ToUniversalTime Hour");
-
-        var d1 = DateTime.MinValue;
-        throws(() => d1.Date, undefined, "Should throw when exceeding lower bounds of Date.");
-
-        d = new DateTime(2014, 2, 3);
-        d = d.AddMonths(5);
-        strictEqual(DateTime.Compare(d, new DateTime(2014, 7, 3)), 0);
     });
 
     test("DaysInMonth", () => {
