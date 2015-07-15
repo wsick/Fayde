@@ -9,12 +9,16 @@ export function load() {
         strictEqual(d.Kind, DateTimeKind.Unspecified, "ctor1 kind");
 
         d = new DateTime(1000);
-        strictEqual(d.Ticks, 1000, "ctor2 ticks");
-        strictEqual(d.Kind, DateTimeKind.Unspecified, "ctor2 kind");
+        strictEqual(d.Ticks, 1000, "ctor1 ticks");
+        strictEqual(d.Kind, DateTimeKind.Unspecified, "ctor1 kind");
 
         d = new DateTime(new Date(500));
+        strictEqual(d.Ticks, 500, "ctor1 ticks");
+        strictEqual(d.Kind, DateTimeKind.Unspecified, "ctor1 kind");
+
+        d = new DateTime(new Date(500), DateTimeKind.Local);
         strictEqual(d.Ticks, 500, "ctor2 ticks");
-        strictEqual(d.Kind, DateTimeKind.Unspecified, "ctor2 kind");
+        strictEqual(d.Kind, DateTimeKind.Local, "ctor2 kind");
 
         d = new DateTime(1000, DateTimeKind.Local);
         strictEqual(d.Ticks, 1000, "ctor3 ticks");

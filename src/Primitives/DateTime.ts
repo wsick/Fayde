@@ -47,6 +47,7 @@ class DateTime {
 
     constructor();
     constructor(dt: Date);
+    constructor(dt: Date, kind: DateTimeKind);
     constructor(ticks: number);
     constructor(ticks: number, kind: DateTimeKind);
     constructor(year: number, month: number, day: number);
@@ -72,7 +73,12 @@ class DateTime {
                 ticks = args[0];
             }
         } else if (args.length === 2) { //Ticks,Kind
-            ticks = args[0];
+            var arg0 = args[0];
+            if (arg0 instanceof Date) {
+                ticks = arg0.getTime();
+            } else {
+                ticks = args[0];
+            }
             kind = args[1];
         } else if (args.length === 3) { //Year,Month,Day
             year = args[0];

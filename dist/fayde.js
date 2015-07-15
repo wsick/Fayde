@@ -16971,7 +16971,13 @@ var DateTime = (function () {
             }
         }
         else if (args.length === 2) {
-            ticks = args[0];
+            var arg0 = args[0];
+            if (arg0 instanceof Date) {
+                ticks = arg0.getTime();
+            }
+            else {
+                ticks = args[0];
+            }
             kind = args[1];
         }
         else if (args.length === 3) {
