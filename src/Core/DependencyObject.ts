@@ -206,6 +206,10 @@ module Fayde {
                 darr[id] = storage.Property.Store.Clone(this, storage);
             }
         }
+
+        ListenToChanged (propd: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void, closure?: any): Providers.IPropertyChangedListener {
+            return propd.Store.ListenToChanged(this, propd, func, closure);
+        }
     }
     Fayde.CoreLibrary.add(DependencyObject);
 

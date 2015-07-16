@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.46';
+    Fayde.Version = '0.16.47';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -1492,6 +1492,9 @@ var Fayde;
                 var storage = sarr[id];
                 darr[id] = storage.Property.Store.Clone(this, storage);
             }
+        };
+        DependencyObject.prototype.ListenToChanged = function (propd, func, closure) {
+            return propd.Store.ListenToChanged(this, propd, func, closure);
         };
         DependencyObject.DataContextProperty = DependencyProperty.Register("DataContext", function () { return Object; }, DependencyObject);
         return DependencyObject;

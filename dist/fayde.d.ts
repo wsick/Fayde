@@ -328,6 +328,7 @@ declare module Fayde {
         HasValueOrExpression(propd: DependencyProperty): boolean;
         SetBinding(propd: DependencyProperty, binding: Data.Binding): Data.BindingExpressionBase;
         CloneCore(source: DependencyObject): void;
+        ListenToChanged(propd: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void, closure?: any): Providers.IPropertyChangedListener;
     }
 }
 declare module Fayde {
