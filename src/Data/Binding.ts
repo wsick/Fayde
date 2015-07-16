@@ -23,8 +23,7 @@ module Fayde.Data {
         ValidatesOnNotifyDataErrors: boolean = true;
 
         constructor ();
-        constructor (path: string);
-        constructor (path: Data.PropertyPath);
+        constructor (path: string|Data.PropertyPath);
         constructor (binding: Binding);
         constructor (obj?: any) {
             if (obj instanceof Binding) {
@@ -79,6 +78,27 @@ module Fayde.Data {
 
         Clone () {
             return new Binding(this);
+        }
+
+        static fromData (data: IBindingData): Binding {
+            var binding = new Binding(data.Path);
+            binding.StringFormat = data.StringFormat;
+            binding.FallbackValue = data.FallbackValue;
+            binding.TargetNullValue = data.TargetNullValue;
+            binding.BindsDirectlyToSource = data.BindsDirectlyToSource;
+            binding.Converter = data.Converter;
+            binding.ConverterParameter = data.ConverterParameter;
+            binding.ConverterCulture = data.ConverterCulture;
+            binding.ElementName = data.ElementName;
+            binding.Mode = data.Mode;
+            binding.NotifyOnValidationError = data.NotifyOnValidationError;
+            binding.RelativeSource = data.RelativeSource;
+            binding.Source = data.Source;
+            binding.UpdateSourceTrigger = data.UpdateSourceTrigger;
+            binding.ValidatesOnExceptions = data.ValidatesOnExceptions;
+            binding.ValidatesOnDataErrors = data.ValidatesOnDataErrors;
+            binding.ValidatesOnNotifyDataErrors = data.ValidatesOnNotifyDataErrors;
+            return binding;
         }
     }
     Fayde.CoreLibrary.add(Binding);

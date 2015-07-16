@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.45';
+    Fayde.Version = '0.16.46';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -12508,6 +12508,26 @@ var Fayde;
             };
             Binding.prototype.Clone = function () {
                 return new Binding(this);
+            };
+            Binding.fromData = function (data) {
+                var binding = new Binding(data.Path);
+                binding.StringFormat = data.StringFormat;
+                binding.FallbackValue = data.FallbackValue;
+                binding.TargetNullValue = data.TargetNullValue;
+                binding.BindsDirectlyToSource = data.BindsDirectlyToSource;
+                binding.Converter = data.Converter;
+                binding.ConverterParameter = data.ConverterParameter;
+                binding.ConverterCulture = data.ConverterCulture;
+                binding.ElementName = data.ElementName;
+                binding.Mode = data.Mode;
+                binding.NotifyOnValidationError = data.NotifyOnValidationError;
+                binding.RelativeSource = data.RelativeSource;
+                binding.Source = data.Source;
+                binding.UpdateSourceTrigger = data.UpdateSourceTrigger;
+                binding.ValidatesOnExceptions = data.ValidatesOnExceptions;
+                binding.ValidatesOnDataErrors = data.ValidatesOnDataErrors;
+                binding.ValidatesOnNotifyDataErrors = data.ValidatesOnNotifyDataErrors;
+                return binding;
             };
             return Binding;
         })();

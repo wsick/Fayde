@@ -2898,13 +2898,13 @@ declare module Fayde.Data {
         ValidatesOnDataErrors: boolean;
         ValidatesOnNotifyDataErrors: boolean;
         constructor();
-        constructor(path: string);
-        constructor(path: Data.PropertyPath);
+        constructor(path: string | Data.PropertyPath);
         constructor(binding: Binding);
         init(val: string): void;
         transmute(os: any[]): any;
         private $$coerce();
         Clone(): Binding;
+        static fromData(data: IBindingData): Binding;
     }
 }
 declare module Fayde.Data {
@@ -2938,6 +2938,27 @@ declare module Fayde.Data {
         Default = 0,
         PropertyChanged = 1,
         Explicit = 3,
+    }
+}
+declare module Fayde.Data {
+    interface IBindingData {
+        Path: string | Data.PropertyPath;
+        StringFormat?: string;
+        FallbackValue?: any;
+        TargetNullValue?: any;
+        BindsDirectlyToSource?: boolean;
+        Converter?: IValueConverter;
+        ConverterParameter?: any;
+        ConverterCulture?: any;
+        ElementName?: string;
+        Mode?: BindingMode;
+        NotifyOnValidationError?: boolean;
+        RelativeSource?: RelativeSource;
+        Source?: any;
+        UpdateSourceTrigger?: UpdateSourceTrigger;
+        ValidatesOnExceptions?: boolean;
+        ValidatesOnDataErrors?: boolean;
+        ValidatesOnNotifyDataErrors?: boolean;
     }
 }
 declare module Fayde.Data {
