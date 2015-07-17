@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.47';
+    Fayde.Version = '0.16.48';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -22481,12 +22481,14 @@ var Fayde;
                     _super.prototype._OnLoad.call(this, e);
                     this.ImageOpened.raise(this, null);
                 };
-                BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Fayde.Uri; }, BitmapImage, undefined, function (d, args) { return d._UriSourceChanged(args); }, undefined, true);
+                BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Fayde.Uri; }, BitmapImage, undefined, function (bi, args) { return bi._UriSourceChanged(args); }, undefined, true);
                 return BitmapImage;
             })(Imaging.BitmapSource);
             Imaging.BitmapImage = BitmapImage;
             Fayde.CoreLibrary.add(BitmapImage);
             nullstone.registerTypeConverter(Imaging.ImageSource, function (val) {
+                if (!val)
+                    return null;
                 var bi = new BitmapImage();
                 bi.UriSource = nullstone.convertAnyToType(val, Fayde.Uri);
                 return bi;
