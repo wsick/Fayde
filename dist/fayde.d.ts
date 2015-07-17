@@ -12,7 +12,10 @@ declare module Fayde {
     var Uri: typeof nullstone.Uri;
     interface Uri extends nullstone.Uri {
     }
-    var TypeManager: nullstone.TypeManager;
+    class ResourceTypeManager extends nullstone.TypeManager {
+        resolveResource(uri: Uri): string;
+    }
+    var TypeManager: ResourceTypeManager;
     var CoreLibrary: nullstone.ILibrary;
     var XLibrary: nullstone.ILibrary;
     function RegisterType(type: Function, uri: string, name?: string): void;

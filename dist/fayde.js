@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.49';
+    Fayde.Version = '0.16.50';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -50,6 +50,12 @@ if (!Function.prototype.bind) {
         };
     }
 })(window);
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var Fayde;
 (function (Fayde) {
     Fayde.XMLNS = "http://schemas.wsick.com/fayde";
@@ -57,7 +63,32 @@ var Fayde;
     Fayde.XMLNSINTERNAL = "http://schemas.wsick.com/fayde/internal";
     Fayde.Enum = nullstone.Enum;
     Fayde.Uri = nullstone.Uri;
-    Fayde.TypeManager = new nullstone.TypeManager(Fayde.XMLNS, Fayde.XMLNSX);
+    var ResourceTypeManager = (function (_super) {
+        __extends(ResourceTypeManager, _super);
+        function ResourceTypeManager() {
+            _super.apply(this, arguments);
+        }
+        ResourceTypeManager.prototype.resolveResource = function (uri) {
+            if (uri.scheme === "lib") {
+                var res = uri.resource;
+                var full = uri.toString();
+                var base = full.replace(res, "");
+                var lib = this.resolveLibrary(base);
+                if (!lib)
+                    throw new Error("Could not find library when resolving resource [" + full + "].");
+                return joinPaths(lib.basePath, res);
+            }
+            return uri.toString();
+        };
+        return ResourceTypeManager;
+    })(nullstone.TypeManager);
+    Fayde.ResourceTypeManager = ResourceTypeManager;
+    Fayde.TypeManager = new ResourceTypeManager(Fayde.XMLNS, Fayde.XMLNSX);
+    function joinPaths(base, rel) {
+        if (base[base.length - 1] !== "/")
+            base += "/";
+        return base + (rel[0] === "/" ? rel.substr(1) : rel);
+    }
     Fayde.CoreLibrary = Fayde.TypeManager.resolveLibrary(Fayde.XMLNS);
     Fayde.CoreLibrary.$$module = Fayde;
     Fayde.XLibrary = Fayde.TypeManager.resolveLibrary(Fayde.XMLNSX);
@@ -269,12 +300,6 @@ var Fayde;
     })(Collections = Fayde.Collections || (Fayde.Collections = {}));
 })(Fayde || (Fayde = {}));
 /// <reference path="ObservableCollection.ts" />
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var Fayde;
 (function (Fayde) {
     var Collections;
@@ -25993,6 +26018,7 @@ var Fayde;
             return {
                 name: libName,
                 path: libJson.path,
+                base: libJson.base,
                 deps: libJson.deps,
                 exports: libJson.exports,
                 useMin: libJson.useMin
@@ -26005,6 +26031,8 @@ var Fayde;
             var library = Fayde.TypeManager.resolveLibrary(uri.toString());
             if (!!lib.path)
                 library.sourcePath = lib.path;
+            if (!!lib.base)
+                library.basePath = lib.base;
             if (!!lib.exports)
                 library.exports = lib.exports;
             if (!!lib.deps)

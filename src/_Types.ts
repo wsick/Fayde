@@ -12,7 +12,27 @@ module Fayde {
     export interface Uri extends nullstone.Uri {
     }
 
-    export var TypeManager = new nullstone.TypeManager(XMLNS, XMLNSX);
+    export class ResourceTypeManager extends nullstone.TypeManager {
+        resolveResource (uri: Uri): string {
+            if (uri.scheme === "lib") {
+                var res = uri.resource;
+                var full = uri.toString();
+                var base = full.replace(res, "");
+                var lib = this.resolveLibrary(base);
+                if (!lib)
+                    throw new Error(`Could not find library when resolving resource [${full}].`);
+                return joinPaths(lib.basePath, res);
+            }
+            return uri.toString();
+        }
+    }
+    export var TypeManager = new ResourceTypeManager(XMLNS, XMLNSX);
+
+    function joinPaths (base: string, rel: string): string {
+        if (base[base.length - 1] !== "/")
+            base += "/";
+        return base + (rel[0] === "/" ? rel.substr(1) : rel);
+    }
 
     export var CoreLibrary = TypeManager.resolveLibrary(XMLNS);
     (<any>CoreLibrary).$$module = Fayde;
