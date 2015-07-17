@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.51';
+    Fayde.Version = '0.16.52';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
