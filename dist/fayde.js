@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.50';
+    Fayde.Version = '0.16.51';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -22437,9 +22437,9 @@ var Fayde;
                         listener.ImageChanged(this);
                 };
                 BitmapSource.prototype.UriSourceChanged = function (oldValue, newValue) {
-                    if (!this._Image)
+                    if (!this._Image || !newValue)
                         this.ResetImage();
-                    this._Image.src = newValue.toString();
+                    this._Image.src = Fayde.TypeManager.resolveResource(newValue);
                     var listener = this._Listener;
                     if (listener)
                         listener.ImageChanged(this);
