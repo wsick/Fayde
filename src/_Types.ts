@@ -21,7 +21,7 @@ module Fayde {
                 var lib = this.resolveLibrary(base);
                 if (!lib)
                     throw new Error(`Could not find library when resolving resource [${full}].`);
-                return joinPaths(lib.basePath, res);
+                return joinPaths(lib.basePath, res.length > 1 ? res.substr(1) : "");
             }
             return uri.toString();
         }
