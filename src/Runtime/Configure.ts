@@ -28,6 +28,7 @@ module Fayde {
         interface ILibraryConfig {
             name: string;
             path: string;
+            base: string;
             deps: string[];
             exports: string
             useMin: boolean;
@@ -48,6 +49,7 @@ module Fayde {
             return {
                 name: libName,
                 path: libJson.path,
+                base: libJson.base,
                 deps: libJson.deps,
                 exports: libJson.exports,
                 useMin: libJson.useMin
@@ -61,6 +63,8 @@ module Fayde {
             var library = Fayde.TypeManager.resolveLibrary(uri.toString());
             if (!!lib.path)
                 library.sourcePath = lib.path;
+            if (!!lib.base)
+                library.basePath = lib.base;
             if (!!lib.exports)
                 library.exports = lib.exports;
             if (!!lib.deps)

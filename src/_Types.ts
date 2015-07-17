@@ -21,11 +21,11 @@ module Fayde {
 
     export function RegisterType (type: Function, uri: string, name?: string) {
         name = name || nullstone.getTypeName(type);
-        TypeManager.add(uri, name, type)
+        TypeManager.add(uri, name, type);
     }
 
     export function RegisterEnum (enu: any, uri: string, name: string) {
-        TypeManager.addEnum(uri, name, enu)
+        TypeManager.addEnum(uri, name, enu);
     }
 
     export var IType_ = new nullstone.Interface("IType");
