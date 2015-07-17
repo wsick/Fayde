@@ -34,6 +34,8 @@ module Fayde.Media.Imaging {
     nullstone.registerTypeConverter(ImageSource, (val: any): ImageSource => {
         if (!val)
             return null;
+        if (val instanceof ImageSource)
+            return val;
         var bi = new BitmapImage();
         bi.UriSource = nullstone.convertAnyToType(val, Uri);
         return bi;

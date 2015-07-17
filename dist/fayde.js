@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.48';
+    Fayde.Version = '0.16.49';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -22489,6 +22489,8 @@ var Fayde;
             nullstone.registerTypeConverter(Imaging.ImageSource, function (val) {
                 if (!val)
                     return null;
+                if (val instanceof Imaging.ImageSource)
+                    return val;
                 var bi = new BitmapImage();
                 bi.UriSource = nullstone.convertAnyToType(val, Fayde.Uri);
                 return bi;
