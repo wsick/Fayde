@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.Version = '0.16.52';
+    Fayde.Version = '0.16.53';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -22488,6 +22488,7 @@ var Fayde;
                     _super.call(this);
                     this.ImageFailed = new nullstone.Event();
                     this.ImageOpened = new nullstone.Event();
+                    this._BackingBuffer = null;
                     if (uri)
                         this.UriSource = uri;
                 }
@@ -22506,6 +22507,10 @@ var Fayde;
                     _super.prototype._OnLoad.call(this, e);
                     this.ImageOpened.raise(this, null);
                 };
+                BitmapImage.prototype.SetSource = function (buffer) {
+                    this._BackingBuffer = buffer;
+                    this.UriSource = Imaging.encodeImage(buffer);
+                };
                 BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Fayde.Uri; }, BitmapImage, undefined, function (bi, args) { return bi._UriSourceChanged(args); }, undefined, true);
                 return BitmapImage;
             })(Imaging.BitmapSource);
@@ -22516,6 +22521,11 @@ var Fayde;
                     return null;
                 if (val instanceof Imaging.ImageSource)
                     return val;
+                if (val instanceof ArrayBuffer) {
+                    var bi = new BitmapImage();
+                    bi.SetSource(val);
+                    return bi;
+                }
                 var bi = new BitmapImage();
                 bi.UriSource = nullstone.convertAnyToType(val, Fayde.Uri);
                 return bi;
@@ -22662,6 +22672,52 @@ var Fayde;
             })(Media.TileBrush);
             Imaging.ImageBrush = ImageBrush;
             Fayde.CoreLibrary.add(ImageBrush);
+        })(Imaging = Media.Imaging || (Media.Imaging = {}));
+    })(Media = Fayde.Media || (Fayde.Media = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Media;
+    (function (Media) {
+        var Imaging;
+        (function (Imaging) {
+            function encodeImage(buffer) {
+                var bytes = new Uint8Array(buffer);
+                var data = convertToBase64(bytes);
+                var type = getImageType(bytes);
+                return new Fayde.Uri("data:" + type + ";base64," + data);
+            }
+            Imaging.encodeImage = encodeImage;
+            function getImageType(bytes) {
+                if (isJpg(bytes))
+                    return "image/jpeg";
+                if (isPng(bytes))
+                    return "image/png";
+                return "image/jpeg";
+            }
+            function convertToBase64(bytes) {
+                var arr = [];
+                for (var i = 0; i < bytes.byteLength; i++) {
+                    arr.push(String.fromCharCode(bytes[i]));
+                }
+                return window.btoa(arr.join(''));
+            }
+            function isJpg(bytes) {
+                return bytes[0] === 0xFF
+                    && bytes[1] === 0xD8
+                    && bytes[bytes.length - 2] === 0xFF
+                    && bytes[bytes.length - 1] === 0xD9;
+            }
+            function isPng(bytes) {
+                return bytes[0] === 0x89
+                    && bytes[1] === 0x50
+                    && bytes[2] === 0x4E
+                    && bytes[3] === 0x47
+                    && bytes[4] === 0x0D
+                    && bytes[5] === 0x0A
+                    && bytes[6] === 0x1A
+                    && bytes[7] === 0x0A;
+            }
         })(Imaging = Media.Imaging || (Media.Imaging = {}));
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));

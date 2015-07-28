@@ -7,26 +7,35 @@ module Fayde.Media.Imaging {
         ImageFailed = new nullstone.Event();
         ImageOpened = new nullstone.Event();
 
-        constructor(uri?: Uri) {
+        private _BackingBuffer: ArrayBuffer = null;
+
+        constructor (uri?: Uri) {
             super();
             if (uri)
                 this.UriSource = uri;
         }
 
-        private _UriSourceChanged(args: IDependencyPropertyChangedEventArgs) {
+        private _UriSourceChanged (args: IDependencyPropertyChangedEventArgs) {
             var uri: Uri = args.NewValue;
             if (Uri.isNullOrEmpty(uri))
                 this.ResetImage();
             else
                 this.UriSourceChanged(args.OldValue, uri);
         }
-        _OnErrored(e: Event) {
+
+        _OnErrored (e: Event) {
             super._OnErrored(e);
             this.ImageFailed.raise(this, null);
         }
-        _OnLoad(e: Event) {
+
+        _OnLoad (e: Event) {
             super._OnLoad(e);
             this.ImageOpened.raise(this, null);
+        }
+
+        SetSource (buffer: ArrayBuffer) {
+            this._BackingBuffer = buffer;
+            this.UriSource = encodeImage(buffer);
         }
     }
     Fayde.CoreLibrary.add(BitmapImage);
@@ -36,6 +45,11 @@ module Fayde.Media.Imaging {
             return null;
         if (val instanceof ImageSource)
             return val;
+        if (val instanceof ArrayBuffer) {
+            var bi = new BitmapImage();
+            bi.SetSource(val);
+            return bi;
+        }
         var bi = new BitmapImage();
         bi.UriSource = nullstone.convertAnyToType(val, Uri);
         return bi;

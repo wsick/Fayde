@@ -1,0 +1,12 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:media="Media"
+    ThemeName="Metro">
+    <Grid x:Name="LayoutRoot">
+        <Grid.DataContext>
+            <media:ImageSetSourceViewModel />
+        </Grid.DataContext>
+        <Image x:Name="TestImage" Source="{Binding SomeBuffer}" />
+    </Grid>
+</Application>
