@@ -1,0 +1,15 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:media="Media"
+    ThemeName="Metro">
+    <Grid x:Name="LayoutRoot">
+        <Grid.DataContext>
+            <media:ImageSetSourceViewModel />
+        </Grid.DataContext>
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Image Source="{Binding SomeBuffer}" Width="200" Height="200" />
+            <Image Source="{Binding AnotherBuffer}" Margin="20,0,0,0" Width="20" Height="20" />
+        </StackPanel>
+    </Grid>
+</Application>

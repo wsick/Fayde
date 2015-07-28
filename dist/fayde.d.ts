@@ -4934,10 +4934,12 @@ declare module Fayde.Media.Imaging {
         UriSource: Uri;
         ImageFailed: nullstone.Event<{}>;
         ImageOpened: nullstone.Event<{}>;
+        private _BackingBuffer;
         constructor(uri?: Uri);
         private _UriSourceChanged(args);
         _OnErrored(e: Event): void;
         _OnLoad(e: Event): void;
+        SetSource(buffer: ArrayBuffer): void;
     }
 }
 declare module Fayde.Media {
@@ -4968,6 +4970,9 @@ declare module Fayde.Media.Imaging {
         OnImageLoaded(source: BitmapSource, e: Event): void;
         ImageChanged(source: BitmapSource): void;
     }
+}
+declare module Fayde.Media.Imaging {
+    function encodeImage(buffer: ArrayBuffer): Uri;
 }
 declare module Fayde.Media {
     class LineGeometry extends Geometry {
