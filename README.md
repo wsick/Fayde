@@ -8,36 +8,52 @@ Inspired by Silverlight; XAML engine using Javascript and rendering to the HTML5
 
 Please check out the [wiki](https://github.com/wsick/Fayde/wiki) for more information.
 
-## Dependencies
+Dependencies
+=======
 
 * nodejs
-* grunt
+* gulp
 * bower
 * yeoman (used for scaffolding new applications)
 
-## How to use
+How to use
+=======
 
 Install the Fayde application generator for yeoman.  Then use yeoman to generate a new application.
 
-    > npm install -g generator-fayde
-    > mkdir <project directory name>
-    > cd <project directory name>
-    > yo fayde
+    $ npm install -g generator-fayde
+    $ mkdir <project directory name>
+    $ cd <project directory name>
+    $ yo fayde
 
+Contributing
+=======
 
-## Contributing
+### Prerequisites
 
-#### Set up your development
-    
-    > git clone git://github.com/BSick7/Fayde
-    > cd Fayde
-    > npm install
-    > grunt lib:reset
+```
+$ npm install -g gulp
+$ npm install -g bower
+$ npm install -g fayde-unify
+```
 
-#### Run automated tests
+### Setup
 
-    > grunt test
+```
+$ git clone git@github.com:wsick/fayde.git
+$ cd fayde
+$ npm install
+$ gulp reset # cleans bower libs, bower installs, then symlinks to test and stress bootstrappers
+```
 
-#### Run test site (smoke tests)
+### Unit Tests
 
-    > grunt testsite
+```
+$ gulp test
+```
+
+### Stress Tests
+Launches default browser with runnable stress tests.
+```
+$ gulp stress
+```
