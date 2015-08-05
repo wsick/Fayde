@@ -5,8 +5,8 @@ var fs = require('fs'),
     meta = {
         name: name,
         ports: {
-            testsite: 8080,
-            stress: 8081
+            testsite: 7001,
+            stress: 7002
         },
         files: {
             src: [
