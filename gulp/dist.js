@@ -7,7 +7,7 @@ var gulp = require('gulp'),
 
 module.exports = function (meta) {
     gulp.task('dist-build', function () {
-        return gulp.src(meta.buildfiles)
+        return gulp.src(meta.files.src)
             .pipe(sourcemaps.init())
             .pipe(ts({
                 target: 'ES5',
