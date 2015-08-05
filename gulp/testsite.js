@@ -33,5 +33,6 @@ module.exports = function (meta) {
         });
 
         gulp.watch('testsite/**/*.ts', ['testsite-build']);
+        gulp.watch('testsite/.build/**/*', connect.reload);
     });
 };

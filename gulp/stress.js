@@ -33,5 +33,6 @@ module.exports = function (meta) {
         });
 
         gulp.watch('stress/**/*.ts', ['stress-build']);
+        gulp.watch('stress/.build/**/*', connect.reload);
     });
 };
