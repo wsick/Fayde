@@ -4,10 +4,6 @@ var fs = require('fs'),
     name = 'fayde',
     meta = {
         name: name,
-        ports: {
-            testsite: 7001,
-            stress: 7002
-        },
         files: {
             src: [
                 'typings/*.d.ts',
@@ -32,15 +28,20 @@ var fs = require('fs'),
         },
         scaffolds: [
             {
-                name: 'test'
+                name: 'test',
+                symdirs: ['dist', 'src', 'themes']
             },
             {
                 name: 'testsite',
-                ignore: "lib/qunit"
+                ignore: 'lib/qunit',
+                port: 7001,
+                symdirs: ['dist', 'src', 'themes']
             },
             {
                 name: 'stress',
-                ignore: "lib/qunit"
+                ignore: 'lib/qunit',
+                port: 7002,
+                symdirs: ['dist', 'src', 'themes']
             }
         ]
     };

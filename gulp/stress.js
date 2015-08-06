@@ -5,6 +5,12 @@ var gulp = require('gulp'),
     open = require('gulp-open');
 
 module.exports = function (meta) {
+    var scaffold = meta.scaffolds.filter(function (scaffold) {
+        return scaffold.name === 'stress';
+    })[0];
+    if (!scaffold)
+        return;
+
     gulp.task('stress-build', function () {
         return gulp.src(meta.files.stress)
             .pipe(sourcemaps.init())
@@ -21,7 +27,7 @@ module.exports = function (meta) {
 
     gulp.task('stress', ['default', 'stress-build'], function () {
         var options = {
-            url: 'http://localhost:' + meta.ports.stress.toString()
+            url: 'http://localhost:' + scaffold.port.toString()
         };
         gulp.src('stress/index.html')
             .pipe(open('', options));
@@ -29,7 +35,7 @@ module.exports = function (meta) {
         connect.server({
             livereload: true,
             root: ['stress', 'stress/.build'],
-            port: meta.ports.stress
+            port: scaffold.port
         });
 
         gulp.watch('stress/**/*.ts', ['stress-build']);

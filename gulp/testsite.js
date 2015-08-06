@@ -5,6 +5,12 @@ var gulp = require('gulp'),
     open = require('gulp-open');
 
 module.exports = function (meta) {
+    var scaffold = meta.scaffolds.filter(function (scaffold) {
+        return scaffold.name === 'testsite';
+    })[0];
+    if (!scaffold)
+        return;
+
     gulp.task('testsite-build', function () {
         return gulp.src(meta.files.stress)
             .pipe(sourcemaps.init())
@@ -21,7 +27,7 @@ module.exports = function (meta) {
 
     gulp.task('testsite', ['default', 'testsite-build'], function () {
         var options = {
-            url: 'http://localhost:' + meta.ports.testsite.toString()
+            url: 'http://localhost:' + scaffold.port.toString()
         };
         gulp.src('testsite/index.html')
             .pipe(open('', options));
@@ -29,7 +35,7 @@ module.exports = function (meta) {
         connect.server({
             livereload: true,
             root: ['testsite', 'testsite/.build'],
-            port: meta.ports.testsite
+            port: scaffold.port
         });
 
         gulp.watch('testsite/**/*.ts', ['testsite-build']);

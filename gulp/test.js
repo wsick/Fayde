@@ -5,6 +5,12 @@ var gulp = require('gulp'),
     runSequence = require('run-sequence').use(gulp);
 
 module.exports = function (meta) {
+    var scaffold = meta.scaffolds.filter(function (scaffold) {
+        return scaffold.name === 'test';
+    })[0];
+    if (!scaffold)
+        return;
+
     gulp.task('test-build', function () {
         return gulp.src(meta.files.test)
             .pipe(sourcemaps.init())

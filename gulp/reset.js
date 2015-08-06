@@ -19,25 +19,23 @@ module.exports = function (meta) {
             .pipe(gulp.dest('lib'));
     });
 
-    function createSymlinkTask(name, ignore) {
-        gulp.task('symlink-' + name, function () {
-            var srcs = glob.sync("lib/*", !ignore ? undefined : {ignore: ignore});
+    function createSymlinkTask(scaffold) {
+        gulp.task('symlink-' + scaffold.name, function () {
+            var srcs = glob.sync("lib/*", !scaffold.ignore ? undefined : {ignore: scaffold.ignore});
             var dests = srcs.map(function (src) {
                 return path.join(name, 'lib', path.basename(src));
             });
-            srcs.push('./dist');
-            dests.push(path.join(name, 'lib', meta.name, 'dist'));
 
-            srcs.push('./src');
-            dests.push(path.join(name, 'lib', meta.name, 'src'));
+            for (var i = 0, dirs = scaffold.symdirs || []; i < dirs.length; i++) {
+                srcs.push('./' + dirs[i]);
+                dests.push(path.join(scaffold.name, 'lib', meta.name, dirs[i]));
+            }
 
             return gulp.src(srcs).pipe(symlink.relative(dests, {force: true}));
         });
     }
 
-    meta.scaffolds.forEach(function (scaffold) {
-        createSymlinkTask(scaffold.name, scaffold.ignore);
-    });
+    meta.scaffolds.forEach(createSymlinkTask);
     gulp.task('reset', function () {
         return runSequence('clean', 'update-libs', meta.scaffolds.map(function (scaffold) {
             return 'symlink-' + scaffold.name;
