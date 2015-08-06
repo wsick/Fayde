@@ -29,7 +29,20 @@ var fs = require('fs'),
                 '!stress/lib/**/*.ts',
                 'dist/' + name + '.d.ts'
             ].concat(allTypings)
-        }
+        },
+        scaffolds: [
+            {
+                name: 'test'
+            },
+            {
+                name: 'testsite',
+                ignore: "lib/qunit"
+            },
+            {
+                name: 'stress',
+                ignore: "lib/qunit"
+            }
+        ]
     };
 
 fs.readdirSync('./gulp')

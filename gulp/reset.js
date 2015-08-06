@@ -8,12 +8,10 @@ var gulp = require('gulp'),
 
 module.exports = function (meta) {
     gulp.task('clean', function (cb) {
-        del([
-            './lib',
-            './test/lib',
-            './testsite/lib',
-            './stress/lib'
-        ], cb);
+        var dirs = ['./lib'].concat(meta.scaffolds.map(function (sc) {
+            return './' + sc.name + '/lib';
+        }));
+        del(dirs, cb);
     });
 
     gulp.task('update-libs', function () {
@@ -21,49 +19,28 @@ module.exports = function (meta) {
             .pipe(gulp.dest('lib'));
     });
 
-    gulp.task('symlink-testlibs', function () {
-        var srcs = glob.sync("lib/*");
-        var dests = srcs.map(function (src) {
-            return path.join('test', 'lib', path.basename(src));
+    function createSymlinkTask(name, ignore) {
+        gulp.task('symlink-' + name, function () {
+            var srcs = glob.sync("lib/*", !ignore ? undefined : {ignore: ignore});
+            var dests = srcs.map(function (src) {
+                return path.join(name, 'lib', path.basename(src));
+            });
+            srcs.push('./dist');
+            dests.push(path.join(name, 'lib', meta.name, 'dist'));
+
+            srcs.push('./src');
+            dests.push(path.join(name, 'lib', meta.name, 'src'));
+
+            return gulp.src(srcs).pipe(symlink.relative(dests, {force: true}));
         });
-        srcs.push('./dist');
-        dests.push(path.join('test', 'lib', meta.name, 'dist'));
+    }
 
-        srcs.push('./src');
-        dests.push(path.join('test', 'lib', meta.name, 'src'));
-
-        return gulp.src(srcs).pipe(symlink.relative(dests, {force: true}));
+    meta.scaffolds.forEach(function (scaffold) {
+        createSymlinkTask(scaffold.name, scaffold.ignore);
     });
-
-    gulp.task('symlink-testsitelibs', function () {
-        var srcs = glob.sync("lib/*", {ignore: "lib/qunit"});
-        var dests = srcs.map(function (src) {
-            return path.join('testsite', 'lib', path.basename(src));
-        });
-        srcs.push('./dist');
-        dests.push(path.join('testsite', 'lib', meta.name, 'dist'));
-
-        srcs.push('./src');
-        dests.push(path.join('testsite', 'lib', meta.name, 'src'));
-
-        return gulp.src(srcs).pipe(symlink.relative(dests, {force: true}));
-    });
-
-    gulp.task('symlink-stresslibs', function () {
-        var srcs = glob.sync("lib/*", {ignore: "lib/qunit"});
-        var dests = srcs.map(function (src) {
-            return path.join('stress', 'lib', path.basename(src));
-        });
-        srcs.push('./dist');
-        dests.push(path.join('stress', 'lib', meta.name, 'dist'));
-
-        srcs.push('./src');
-        dests.push(path.join('stress', 'lib', meta.name, 'src'));
-
-        return gulp.src(srcs).pipe(symlink.relative(dests, {force: true}));
-    });
-
     gulp.task('reset', function () {
-        return runSequence('clean', 'update-libs', 'symlink-testlibs', 'symlink-testsitelibs', 'symlink-stresslibs');
+        return runSequence('clean', 'update-libs', meta.scaffolds.map(function (scaffold) {
+            return 'symlink-' + scaffold.name;
+        }));
     });
 };
