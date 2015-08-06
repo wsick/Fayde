@@ -23,7 +23,7 @@ module.exports = function (meta) {
         gulp.task('symlink-' + scaffold.name, function () {
             var srcs = glob.sync("lib/*", !scaffold.ignore ? undefined : {ignore: scaffold.ignore});
             var dests = srcs.map(function (src) {
-                return path.join(name, 'lib', path.basename(src));
+                return path.join(scaffold.name, 'lib', path.basename(src));
             });
 
             for (var i = 0, dirs = scaffold.symdirs || []; i < dirs.length; i++) {
