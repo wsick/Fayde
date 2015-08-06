@@ -11,6 +11,7 @@ module.exports = function (meta) {
         del([
             './lib',
             './test/lib',
+            './testsite/lib',
             './stress/lib'
         ], cb);
     });
@@ -34,6 +35,20 @@ module.exports = function (meta) {
         return gulp.src(srcs).pipe(symlink.relative(dests, {force: true}));
     });
 
+    gulp.task('symlink-testsitelibs', function () {
+        var srcs = glob.sync("lib/*", {ignore: "lib/qunit"});
+        var dests = srcs.map(function (src) {
+            return path.join('testsite', 'lib', path.basename(src));
+        });
+        srcs.push('./dist');
+        dests.push(path.join('testsite', 'lib', meta.name, 'dist'));
+
+        srcs.push('./src');
+        dests.push(path.join('testsite', 'lib', meta.name, 'src'));
+
+        return gulp.src(srcs).pipe(symlink.relative(dests, {force: true}));
+    });
+
     gulp.task('symlink-stresslibs', function () {
         var srcs = glob.sync("lib/*", {ignore: "lib/qunit"});
         var dests = srcs.map(function (src) {
@@ -49,6 +64,6 @@ module.exports = function (meta) {
     });
 
     gulp.task('reset', function () {
-        return runSequence('clean', 'update-libs', 'symlink-testlibs', 'symlink-stresslibs');
+        return runSequence('clean', 'update-libs', 'symlink-testlibs', 'symlink-testsitelibs', 'symlink-stresslibs');
     });
 };
