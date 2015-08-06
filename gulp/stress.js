@@ -12,7 +12,7 @@ module.exports = function (meta) {
         return;
 
     gulp.task('stress-build', function () {
-        return gulp.src(meta.files.stress)
+        return gulp.src(scaffold.src)
             .pipe(sourcemaps.init())
             .pipe(ts({
                 target: 'ES5',

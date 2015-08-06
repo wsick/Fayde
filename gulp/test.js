@@ -12,7 +12,7 @@ module.exports = function (meta) {
         return;
 
     gulp.task('test-build', function () {
-        return gulp.src(meta.files.test)
+        return gulp.src(scaffold.src)
             .pipe(sourcemaps.init())
             .pipe(ts({
                 module: 'amd',
