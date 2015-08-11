@@ -27,8 +27,8 @@ module.exports = function (meta) {
             });
 
             for (var i = 0, dirs = scaffold.symdirs || []; i < dirs.length; i++) {
-                srcs.push('./' + dirs[i]);
-                dests.push(path.join(scaffold.name, 'lib', meta.name, dirs[i]));
+                srcs.push(path.resolve('./' + dirs[i]));
+                dests.push(path.resolve(path.join(scaffold.name, 'lib', meta.name, dirs[i])));
             }
 
             return gulp.src(srcs).pipe(symlink.relative(dests, {force: true}));
