@@ -1,4 +1,6 @@
-var fs = require('fs'),
+var gulp = require('gulp'),
+    taskListing = require('gulp-task-listing'),
+    fs = require('fs'),
     typings = require('bower-typings'),
     allTypings = typings(),
     name = 'fayde',
@@ -49,6 +51,8 @@ var fs = require('fs'),
             }
         ]
     };
+
+gulp.task('help', taskListing);
 
 fs.readdirSync('./gulp')
     .forEach(function (file) {
