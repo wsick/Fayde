@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.16.54';
+    Fayde.version = '0.16.55';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -7862,9 +7862,11 @@ var Fayde;
                     return;
                 var proxy = this.$Proxy;
                 proxy.begin();
-                if (args.Key === Key.Enter && this.AcceptsReturn === true) {
-                    proxy.enterText('\n');
-                    args.Handled = true;
+                if (args.Key === Key.Enter) {
+                    if (this.AcceptsReturn === true) {
+                        proxy.enterText('\n');
+                        args.Handled = true;
+                    }
                 }
                 else if (args.Char != null && !args.Modifiers.Ctrl && !args.Modifiers.Alt) {
                     proxy.enterText(args.Char);
