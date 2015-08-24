@@ -3,6 +3,10 @@ var gulp = require('gulp'),
     versionts = require('version-ts');
 
 module.exports = function (meta) {
+    gulp.task('version', function () {
+        return versionts.apply();
+    });
+
     gulp.task('bump', function () {
         return gulp.src(['./bower.json', './package.json'])
             .pipe(bump())
