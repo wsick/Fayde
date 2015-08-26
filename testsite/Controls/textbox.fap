@@ -7,6 +7,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <TextBox Grid.Row="0" Margin="5" Text="Enter Text here!" Background="Yellow" />
@@ -15,6 +16,16 @@
             <TextBlock Margin="5" Text="{Binding ElementName=BigTextBox, Path=SelectionStart}" />
             <TextBlock Margin="5" Text="{Binding ElementName=BigTextBox, Path=SelectionLength}" />
         </StackPanel>
-        <TextBox x:Name="BigTextBox" Grid.Row="3" Margin="5" Text="Enter Text here!" AcceptsReturn="True" TextWrapping="Wrap" />
+
+        <StackPanel Grid.Row="3" Margin="5" >
+            <TextBox x:Name="SelectionText0" Margin="0,5" Text="Unchanged" SelectionOnFocus="Unchanged" />
+            <TextBox x:Name="SelectionText1" Margin="0,5" Text="SelectAll" SelectionOnFocus="SelectAll" />
+            <TextBox x:Name="SelectionText2" Margin="0,5" Text="CaretToBeginning" SelectionOnFocus="CaretToBeginning" />
+            <TextBox x:Name="SelectionText3" Margin="0,5" Text="CaretToEnd" SelectionOnFocus="CaretToEnd" />
+            <TextBox x:Name="SelectionText4" Margin="0,5" Text="Default" SelectionOnFocus="Default" />
+            <TextBox x:Name="SelectionText5" Margin="0,5" Text="DefaultSelectAll" SelectionOnFocus="DefaultSelectAll" />
+        </StackPanel>
+        
+        <TextBox x:Name="BigTextBox" Grid.Row="4" Margin="5" Text="Enter Text here!" AcceptsReturn="True" TextWrapping="Wrap" />
     </Grid>
 </Application>
