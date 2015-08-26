@@ -912,6 +912,14 @@ declare module Fayde.Controls {
         Paused = 6,
         Stopped = 7,
     }
+    enum SelectionOnFocus {
+        Unchanged = 0,
+        SelectAll = 1,
+        CaretToBeginning = 2,
+        CaretToEnd = 3,
+        Default = 4,
+        DefaultSelectAll = 5,
+    }
 }
 declare module Fayde.Controls.Primitives {
     class ButtonBase extends ContentControl {
@@ -1838,7 +1846,21 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class MediaElement extends FrameworkElement {
+    import VideoUpdater = minerva.controls.video.VideoUpdater;
+    class MediaElement extends FrameworkElement implements Media.Videos.IVideoChangedListener {
+        CreateLayoutUpdater(): VideoUpdater;
+        private static _SourceCoercer(d, propd, value);
+        static SourceProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        Source: Media.Videos.VideoSource;
+        Stretch: Media.Stretch;
+        VideoOpened: nullstone.Event<{}>;
+        VideoFailed: nullstone.Event<{}>;
+        OnVideoErrored(source: Media.Videos.VideoSourceBase, e: Event): void;
+        OnVideoLoaded(source: Media.Videos.VideoSourceBase, e: Event): void;
+        VideoChanged(source: Media.Videos.VideoSourceBase): void;
+        Play(): void;
+        Pause(): void;
     }
 }
 declare module Fayde {
@@ -1954,6 +1976,7 @@ declare module Fayde.Controls {
         static SelectionStartProperty: DependencyProperty;
         static BaselineOffsetProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
+        static SelectionOnFocusProperty: DependencyProperty;
         CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
@@ -1961,6 +1984,7 @@ declare module Fayde.Controls {
         SelectionStart: number;
         BaselineOffset: number;
         MaxLength: number;
+        SelectionOnFocus: SelectionOnFocus;
         private _Selecting;
         private _Captured;
         IsReadOnly: boolean;
@@ -1969,10 +1993,12 @@ declare module Fayde.Controls {
         $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
+        private static _SelectionOnFocusCoercer(d, propd, value);
         constructor(eventsMask: Text.EmitChangedType);
         private _SyncFont();
         CreateView(): Internal.TextBoxView;
         Cursor: CursorType;
+        private selectBasedonSelectionMode();
         OnApplyTemplate(): void;
         OnLostFocus(e: RoutedEventArgs): void;
         OnGotFocus(e: RoutedEventArgs): void;
@@ -5638,25 +5664,6 @@ declare module Fayde.Media.Effects {
         PreRender(ctx: minerva.core.render.RenderContext): void;
     }
 }
-declare module Fayde.Media.LinearGradient {
-    interface IInterpolator {
-        x0: number;
-        y0: number;
-        x1: number;
-        y1: number;
-        step(): boolean;
-        interpolate(offset: number): number;
-    }
-    function createRepeatInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
-    function createReflectInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
-}
-declare module Fayde.Media.LinearGradient {
-    interface ICoordinates {
-        x: number;
-        y: number;
-    }
-    function calcMetrics(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect): void;
-}
 declare module Fayde.Media.Imaging {
     class ImageSource extends DependencyObject implements minerva.controls.image.IImageSource {
         pixelWidth: number;
@@ -5722,6 +5729,25 @@ declare module Fayde.Media.Imaging {
 }
 declare module Fayde.Media.Imaging {
     function encodeImage(buffer: ArrayBuffer): Uri;
+}
+declare module Fayde.Media.LinearGradient {
+    interface IInterpolator {
+        x0: number;
+        y0: number;
+        x1: number;
+        y1: number;
+        step(): boolean;
+        interpolate(offset: number): number;
+    }
+    function createRepeatInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
+    function createReflectInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
+}
+declare module Fayde.Media.LinearGradient {
+    interface ICoordinates {
+        x: number;
+        y: number;
+    }
+    function calcMetrics(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect): void;
 }
 declare module Fayde.Media.RadialGradient {
     interface IExtender {
@@ -5823,6 +5849,49 @@ declare module Fayde.Media.VSM {
         ExplicitStoryboardCompleted: boolean;
         GeneratedEasingFunction: Animation.EasingFunctionBase;
         IsDefault: boolean;
+    }
+}
+declare module Fayde.Media.Videos {
+    interface IVideoChangedListener {
+        OnVideoErrored(source: VideoSourceBase, e: Event): any;
+        OnVideoLoaded(source: VideoSourceBase, e: Event): any;
+        VideoChanged(source: VideoSourceBase): any;
+    }
+    class VideoSourceBase extends DependencyObject implements minerva.controls.video.IVideoSource {
+        static PixelWidthProperty: DependencyProperty;
+        static PixelHeightProperty: DependencyProperty;
+        PixelWidth: number;
+        PixelHeight: number;
+        private _Listener;
+        private _Video;
+        private _VideoUpdater;
+        pixelWidth: number;
+        pixelHeight: number;
+        video: HTMLVideoElement;
+        lock(): void;
+        unlock(): void;
+        Play(): void;
+        Pause(): void;
+        SetUpdater(updater: minerva.controls.video.VideoUpdater): void;
+        ResetVideo(): void;
+        UriSourceChanged(oldValue: Uri, newValue: Uri): void;
+        private draw(v, u);
+        Listen(listener: IVideoChangedListener): void;
+        Unlisten(listener: IVideoChangedListener): void;
+        _OnErrored(e: Event): void;
+        _OnLoad(e: Event): void;
+    }
+}
+declare module Fayde.Media.Videos {
+    class VideoSource extends VideoSourceBase {
+        static UriSourceProperty: DependencyProperty;
+        UriSource: Uri;
+        VideoFailed: nullstone.Event<{}>;
+        VideoOpened: nullstone.Event<{}>;
+        constructor(uri?: Uri);
+        private _UriSourceChanged(args);
+        _OnErrored(e: Event): void;
+        _OnLoad(e: Event): void;
     }
 }
 declare module Fayde.Text.History {

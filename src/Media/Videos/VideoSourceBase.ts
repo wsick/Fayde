@@ -2,7 +2,6 @@
 /// <reference path="../../Controls/Canvas.ts"/>
 
 module Fayde.Media.Videos {
-    import Canvas = Fayde.Controls.Canvas;
 
     export interface IVideoChangedListener {
         OnVideoErrored(source: VideoSourceBase, e: Event);
@@ -46,7 +45,7 @@ module Fayde.Media.Videos {
 
         Play() {
             this._Video.play();
-            this.draw();
+            this.draw(this._Video, this._VideoUpdater);
         }
 
         Pause() {
@@ -61,7 +60,6 @@ module Fayde.Media.Videos {
             this._Video = <HTMLVideoElement>document.createElement("VIDEO");
             this._Video.onerror = (e) => this._OnErrored(e);
             this._Video.onload = (e) => this._OnLoad(e);
-
             this.PixelWidth = 0;
             this.PixelHeight = 0;
             var listener = this._Listener;
@@ -77,9 +75,11 @@ module Fayde.Media.Videos {
             if (listener) listener.VideoChanged(this);
         }
 
-        private draw(timestamp) {
-            if (this._Video.paused || this._Video.ended);
-            window.requestAnimationFrame(this.draw);
+        private draw(v, u) {
+            if (v.paused || v.ended) return false;
+            u.preRender();
+            setTimeout(this.draw, 20, v, u);
+            return true;
         }
 
         Listen(listener: IVideoChangedListener) {
