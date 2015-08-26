@@ -77,10 +77,9 @@ module Fayde.Media.Videos {
             if (listener) listener.VideoChanged(this);
         }
 
-        private draw() {
-            if (this._Video.paused || this._Video.ended) return false;
+        private draw(timestamp) {
+            if (this._Video.paused || this._Video.ended);
             window.requestAnimationFrame(this.draw);
-            return true;
         }
 
         Listen(listener: IVideoChangedListener) {
