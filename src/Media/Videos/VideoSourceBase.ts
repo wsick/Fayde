@@ -1,6 +1,9 @@
 ﻿/// <reference path="../../Core/DependencyObject.ts"/>
+/// <reference path="../../Controls/Canvas.ts"/>
 
 module Fayde.Media.Videos {
+    import Canvas = Fayde.Controls.Canvas;
+
     export interface IVideoChangedListener {
         OnVideoErrored(source: VideoSourceBase, e: Event);
         OnVideoLoaded(source: VideoSourceBase, e: Event);
@@ -21,6 +24,7 @@ module Fayde.Media.Videos {
 
         private _Listener: IVideoChangedListener = null;
         private _Video: HTMLVideoElement;
+        private _VideoUpdater: minerva.controls.video.VideoUpdater;
 
         get pixelWidth(): number {
             return this.GetValue(VideoSourceBase.PixelWidthProperty);
@@ -40,10 +44,24 @@ module Fayde.Media.Videos {
         unlock() {
         }
 
+        Play() {
+            this._Video.play();
+            this.draw();
+        }
+
+        Pause() {
+            this._Video.pause();
+        }
+
+        SetUpdater(updater: minerva.controls.video.VideoUpdater) {
+            this._VideoUpdater = updater;
+        }
+
         ResetVideo() {
-            this._Video = new HTMLVideoElement();
+            this._Video = <HTMLVideoElement>document.createElement("VIDEO");
             this._Video.onerror = (e) => this._OnErrored(e);
             this._Video.onload = (e) => this._OnLoad(e);
+
             this.PixelWidth = 0;
             this.PixelHeight = 0;
             var listener = this._Listener;
@@ -53,9 +71,16 @@ module Fayde.Media.Videos {
         UriSourceChanged(oldValue: Uri, newValue: Uri) {
             if (!this._Video || !newValue)
                 this.ResetVideo();
-            this._Video.src = TypeManager.resolveResource(newValue);
             var listener = this._Listener;
+            this._Video.src = TypeManager.resolveResource(newValue);
+            this._Video.load();
             if (listener) listener.VideoChanged(this);
+        }
+
+        private draw() {
+            if (this._Video.paused || this._Video.ended) return false;
+            window.requestAnimationFrame(this.draw);
+            return true;
         }
 
         Listen(listener: IVideoChangedListener) {

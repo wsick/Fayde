@@ -7529,6 +7529,12 @@ var Fayde;
                 lu.invalidateMeasure();
                 lu.invalidate();
             };
+            MediaElement.prototype.Play = function () {
+                this.Source.Play();
+            };
+            MediaElement.prototype.Pause = function () {
+                this.Source.Pause();
+            };
             MediaElement.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return Fayde.Media.Videos.VideoSource; }, MediaElement, undefined, undefined, MediaElement._SourceCoercer);
             MediaElement.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Fayde.Enum(Fayde.Media.Stretch); }, MediaElement, Fayde.Media.Stretch.Uniform);
             return MediaElement;
@@ -7539,6 +7545,7 @@ var Fayde;
             if (ov instanceof Fayde.Media.Videos.VideoSource)
                 ov.Unlisten(video);
             if (nv instanceof Fayde.Media.Videos.VideoSource) {
+                nv.SetUpdater(upd);
                 nv.Listen(video);
             }
             else {
@@ -26641,6 +26648,7 @@ var Fayde;
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
 /// <reference path="../../Core/DependencyObject.ts"/>
+/// <reference path="../../Controls/Canvas.ts"/>
 var Fayde;
 (function (Fayde) {
     var Media;
@@ -26683,9 +26691,19 @@ var Fayde;
                 };
                 VideoSourceBase.prototype.unlock = function () {
                 };
+                VideoSourceBase.prototype.Play = function () {
+                    this._Video.play();
+                    this.draw();
+                };
+                VideoSourceBase.prototype.Pause = function () {
+                    this._Video.pause();
+                };
+                VideoSourceBase.prototype.SetUpdater = function (updater) {
+                    this._VideoUpdater = updater;
+                };
                 VideoSourceBase.prototype.ResetVideo = function () {
                     var _this = this;
-                    this._Video = new HTMLVideoElement();
+                    this._Video = document.createElement("VIDEO");
                     this._Video.onerror = function (e) { return _this._OnErrored(e); };
                     this._Video.onload = function (e) { return _this._OnLoad(e); };
                     this.PixelWidth = 0;
@@ -26697,10 +26715,17 @@ var Fayde;
                 VideoSourceBase.prototype.UriSourceChanged = function (oldValue, newValue) {
                     if (!this._Video || !newValue)
                         this.ResetVideo();
-                    this._Video.src = Fayde.TypeManager.resolveResource(newValue);
                     var listener = this._Listener;
+                    this._Video.src = Fayde.TypeManager.resolveResource(newValue);
+                    this._Video.load();
                     if (listener)
                         listener.VideoChanged(this);
+                };
+                VideoSourceBase.prototype.draw = function () {
+                    if (this._Video.paused || this._Video.ended)
+                        return false;
+                    window.requestAnimationFrame(this.draw);
+                    return true;
                 };
                 VideoSourceBase.prototype.Listen = function (listener) {
                     this._Listener = listener;

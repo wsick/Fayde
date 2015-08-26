@@ -1,0 +1,38 @@
+﻿<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        xmlns:c="videos"
+        ThemeName="Metro">
+    <Grid x:Name="LayoutRoot">
+        <Grid.DataContext>
+            <c:MediaControlViewModel />
+        </Grid.DataContext>
+        <Border BorderThickness="1"
+                Margin="40"
+                BorderBrush="#FF000000">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <MediaElement Source="http://localhost:7001/videos/test_movie.mp4"
+                              Grid.Row="0"
+                              x:Name="Video"/>
+
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Grid.Row="1">
+                    
+                    <Button Content="Play"
+                            Command="{Binding Path=Play}" 
+                            CommandParameter="{Binding ElementName=Video}"/>
+
+                    <Button Content="Pause"
+                            Command="{Binding Path=Pause}"
+                            CommandParameter="{Binding ElementName=Video}"/>
+
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Application>
