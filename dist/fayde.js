@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.16.55';
+    Fayde.version = '0.16.56';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -7493,19 +7493,65 @@ var Fayde;
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
 /// <reference path="../Core/FrameworkElement.ts" />
+/// <reference path="../Media/Enums.ts"/>
 var Fayde;
 (function (Fayde) {
     var Controls;
     (function (Controls) {
+        var VideoUpdater = minerva.controls.video.VideoUpdater;
         var MediaElement = (function (_super) {
             __extends(MediaElement, _super);
             function MediaElement() {
                 _super.apply(this, arguments);
+                this.VideoOpened = new nullstone.Event();
+                this.VideoFailed = new nullstone.Event();
             }
+            MediaElement.prototype.CreateLayoutUpdater = function () {
+                return new VideoUpdater();
+            };
+            MediaElement._SourceCoercer = function (d, propd, value) {
+                if (typeof value === "string")
+                    return new Fayde.Media.Videos.VideoSource(new Fayde.Uri(value));
+                if (value instanceof Fayde.Uri)
+                    return new Fayde.Media.Videos.VideoSource(value);
+                return value;
+            };
+            MediaElement.prototype.OnVideoErrored = function (source, e) {
+                this.VideoFailed.raise(this, null);
+            };
+            MediaElement.prototype.OnVideoLoaded = function (source, e) {
+                this.VideoOpened.raise(this, null);
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.invalidateMeasure();
+            };
+            MediaElement.prototype.VideoChanged = function (source) {
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.invalidateMeasure();
+                lu.invalidate();
+            };
+            MediaElement.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return Fayde.Media.Videos.VideoSource; }, MediaElement, undefined, undefined, MediaElement._SourceCoercer);
+            MediaElement.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Fayde.Enum(Fayde.Media.Stretch); }, MediaElement, Fayde.Media.Stretch.Uniform);
             return MediaElement;
         })(Fayde.FrameworkElement);
         Controls.MediaElement = MediaElement;
         Fayde.CoreLibrary.add(MediaElement);
+        Fayde.UIReaction(MediaElement.SourceProperty, function (upd, ov, nv, video) {
+            if (ov instanceof Fayde.Media.Videos.VideoSource)
+                ov.Unlisten(video);
+            if (nv instanceof Fayde.Media.Videos.VideoSource) {
+                nv.Listen(video);
+            }
+            else {
+                upd.updateBounds();
+                upd.invalidate();
+            }
+            upd.invalidateMeasure();
+            upd.invalidateMetrics();
+        }, false);
+        Fayde.UIReaction(MediaElement.StretchProperty, function (upd, ov, nv) {
+            upd.invalidateMeasure();
+            upd.invalidateMetrics();
+        }, false);
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -26592,6 +26638,138 @@ var Fayde;
             Fayde.Markup.Content(VisualTransition, VisualTransition.StoryboardProperty);
             Fayde.CoreLibrary.add(VisualTransition);
         })(VSM = Media.VSM || (Media.VSM = {}));
+    })(Media = Fayde.Media || (Fayde.Media = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../../Core/DependencyObject.ts"/>
+var Fayde;
+(function (Fayde) {
+    var Media;
+    (function (Media) {
+        var Videos;
+        (function (Videos) {
+            function intGreaterThanZeroValidator(instance, propd, value) {
+                if (typeof value !== "number")
+                    return false;
+                return value > 0;
+            }
+            var VideoSourceBase = (function (_super) {
+                __extends(VideoSourceBase, _super);
+                function VideoSourceBase() {
+                    _super.apply(this, arguments);
+                    this._Listener = null;
+                }
+                Object.defineProperty(VideoSourceBase.prototype, "pixelWidth", {
+                    get: function () {
+                        return this.GetValue(VideoSourceBase.PixelWidthProperty);
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(VideoSourceBase.prototype, "pixelHeight", {
+                    get: function () {
+                        return this.GetValue(VideoSourceBase.PixelHeightProperty);
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(VideoSourceBase.prototype, "video", {
+                    get: function () {
+                        return this._Video;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                VideoSourceBase.prototype.lock = function () {
+                };
+                VideoSourceBase.prototype.unlock = function () {
+                };
+                VideoSourceBase.prototype.ResetVideo = function () {
+                    var _this = this;
+                    this._Video = new HTMLVideoElement();
+                    this._Video.onerror = function (e) { return _this._OnErrored(e); };
+                    this._Video.onload = function (e) { return _this._OnLoad(e); };
+                    this.PixelWidth = 0;
+                    this.PixelHeight = 0;
+                    var listener = this._Listener;
+                    if (listener)
+                        listener.VideoChanged(this);
+                };
+                VideoSourceBase.prototype.UriSourceChanged = function (oldValue, newValue) {
+                    if (!this._Video || !newValue)
+                        this.ResetVideo();
+                    this._Video.src = Fayde.TypeManager.resolveResource(newValue);
+                    var listener = this._Listener;
+                    if (listener)
+                        listener.VideoChanged(this);
+                };
+                VideoSourceBase.prototype.Listen = function (listener) {
+                    this._Listener = listener;
+                };
+                VideoSourceBase.prototype.Unlisten = function (listener) {
+                    if (this._Listener === listener)
+                        this._Listener = null;
+                };
+                VideoSourceBase.prototype._OnErrored = function (e) {
+                    console.info("Failed to load: " + this._Video.src.toString());
+                    var listener = this._Listener;
+                    if (listener)
+                        listener.OnVideoErrored(this, e);
+                };
+                VideoSourceBase.prototype._OnLoad = function (e) {
+                    this.PixelWidth = this._Video.videoWidth;
+                    this.PixelHeight = this._Video.videoHeight;
+                    var listener = this._Listener;
+                    if (listener) {
+                        listener.OnVideoLoaded(this, e);
+                        listener.VideoChanged(this);
+                    }
+                };
+                VideoSourceBase.PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", function () { return Number; }, VideoSourceBase, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
+                VideoSourceBase.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () { return Number; }, VideoSourceBase, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
+                return VideoSourceBase;
+            })(Fayde.DependencyObject);
+            Videos.VideoSourceBase = VideoSourceBase;
+            Fayde.CoreLibrary.add(VideoSourceBase);
+        })(Videos = Media.Videos || (Media.Videos = {}));
+    })(Media = Fayde.Media || (Fayde.Media = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="VideoSourceBase.ts"/>
+var Fayde;
+(function (Fayde) {
+    var Media;
+    (function (Media) {
+        var Videos;
+        (function (Videos) {
+            var VideoSource = (function (_super) {
+                __extends(VideoSource, _super);
+                function VideoSource(uri) {
+                    _super.call(this);
+                    this.VideoFailed = new nullstone.Event();
+                    this.VideoOpened = new nullstone.Event();
+                    if (uri)
+                        this.UriSource = uri;
+                }
+                VideoSource.prototype._UriSourceChanged = function (args) {
+                    var uri = args.NewValue;
+                    if (Fayde.Uri.isNullOrEmpty(uri))
+                        this.ResetVideo();
+                    else
+                        this.UriSourceChanged(args.OldValue, uri);
+                };
+                VideoSource.prototype._OnErrored = function (e) {
+                    _super.prototype._OnErrored.call(this, e);
+                    this.VideoFailed.raise(this, null);
+                };
+                VideoSource.prototype._OnLoad = function (e) {
+                    _super.prototype._OnLoad.call(this, e);
+                    this.VideoOpened.raise(this, null);
+                };
+                VideoSource.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Fayde.Uri; }, VideoSource, undefined, function (bi, args) { return bi._UriSourceChanged(args); }, undefined, true);
+                return VideoSource;
+            })(Videos.VideoSourceBase);
+            Videos.VideoSource = VideoSource;
+            Fayde.CoreLibrary.add(VideoSource);
+        })(Videos = Media.Videos || (Media.Videos = {}));
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
