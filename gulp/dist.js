@@ -3,22 +3,28 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     uglify = require('gulp-uglify'),
     rename = require('gulp-rename'),
-    runSequence = require('run-sequence');
+    runSequence = require('run-sequence'),
+    merge = require('merge2');
 
 module.exports = function (meta) {
     gulp.task('dist-build', function () {
-        return gulp.src(meta.src)
+        var tsResult = gulp.src(meta.src)
             .pipe(sourcemaps.init())
             .pipe(ts({
                 target: 'ES5',
                 out: meta.name + '.js',
                 declaration: true,
                 removeComments: true
-            }))
-            .pipe(uglify())
-            .pipe(rename(meta.name + '.min.js'))
-            .pipe(sourcemaps.write('./'))
-            .pipe(gulp.dest('dist'));
+            }));
+
+        return merge([
+            tsResult.dts.pipe(gulp.dest('./dist')),
+            tsResult.js
+                .pipe(uglify())
+                .pipe(rename(meta.name + '.min.js'))
+                .pipe(sourcemaps.write('./'))
+                .pipe(gulp.dest('dist'))
+        ]);
     });
 
     gulp.task('dist', function (callback) {
