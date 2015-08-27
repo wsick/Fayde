@@ -5638,25 +5638,6 @@ declare module Fayde.Media.Effects {
         PreRender(ctx: minerva.core.render.RenderContext): void;
     }
 }
-declare module Fayde.Media.LinearGradient {
-    interface IInterpolator {
-        x0: number;
-        y0: number;
-        x1: number;
-        y1: number;
-        step(): boolean;
-        interpolate(offset: number): number;
-    }
-    function createRepeatInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
-    function createReflectInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
-}
-declare module Fayde.Media.LinearGradient {
-    interface ICoordinates {
-        x: number;
-        y: number;
-    }
-    function calcMetrics(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect): void;
-}
 declare module Fayde.Media.Imaging {
     class ImageSource extends DependencyObject implements minerva.controls.image.IImageSource {
         pixelWidth: number;
@@ -5722,6 +5703,25 @@ declare module Fayde.Media.Imaging {
 }
 declare module Fayde.Media.Imaging {
     function encodeImage(buffer: ArrayBuffer): Uri;
+}
+declare module Fayde.Media.LinearGradient {
+    interface IInterpolator {
+        x0: number;
+        y0: number;
+        x1: number;
+        y1: number;
+        step(): boolean;
+        interpolate(offset: number): number;
+    }
+    function createRepeatInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
+    function createReflectInterpolator(start: Point, end: Point, bounds: minerva.Rect): IInterpolator;
+}
+declare module Fayde.Media.LinearGradient {
+    interface ICoordinates {
+        x: number;
+        y: number;
+    }
+    function calcMetrics(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: minerva.Rect): void;
 }
 declare module Fayde.Media.RadialGradient {
     interface IExtender {
