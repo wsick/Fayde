@@ -5,7 +5,7 @@ module Fayde.Media.Videos {
         static UriSourceProperty = DependencyProperty.RegisterFull("UriSource", () => Uri, VideoSource, undefined, (bi: VideoSource, args) => bi._UriSourceChanged(args), undefined, true);
         UriSource: Uri;
         VideoFailed = new nullstone.Event();
-        VideoOpened = new nullstone.Event();
+        VideoOpened = new nullstone.Event(); //TODO: Connect
 
         constructor(uri?: Uri) {
             super();
@@ -16,21 +16,23 @@ module Fayde.Media.Videos {
         private _UriSourceChanged(args: IDependencyPropertyChangedEventArgs) {
             var uri: Uri = args.NewValue;
             if (Uri.isNullOrEmpty(uri))
-                this.ResetVideo();
+                this.reset();
             else
-                this.UriSourceChanged(args.OldValue, uri);
+                this.OnUriSourceChanged(args.OldValue, uri);
         }
 
-        protected _OnErrored(e: Event) {
-            super._OnErrored(e);
+        protected OnUriSourceChanged(oldValue: Uri, newValue: Uri) {
+            if (!this.$element || !newValue)
+                this.reset();
+            this.$element.src = TypeManager.resolveResource(newValue);
+            this.$element.load();
+            this.onVideoChanged();
+        }
+
+        protected onVideoErrored(e: ErrorEvent) {
+            super.onVideoErrored(e);
             this.VideoFailed.raise(this, null);
         }
-
-        protected _OnLoad(e: Event) {
-            super._OnLoad(e);
-            this.VideoOpened.raise(this, null);
-        }
     }
-
     Fayde.CoreLibrary.add(VideoSource);
 }
