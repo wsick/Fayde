@@ -1,3 +1,7 @@
+var Fayde;
+(function (Fayde) {
+    Fayde.version = '0.16.56';
+})(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
         return Object.prototype.toString.call(arg) === '[object Array]';

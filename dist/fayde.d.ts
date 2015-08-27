@@ -1,4 +1,7 @@
 declare module Fayde {
+    var version: string;
+}
+declare module Fayde {
     var XMLNS: string;
     var XMLNSX: string;
     var XMLNSINTERNAL: string;

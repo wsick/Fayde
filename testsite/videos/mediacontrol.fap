@@ -15,6 +15,7 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
+                
                 <MediaElement Source="http://localhost:7001/videos/test_movie.mp4"
                               Grid.Row="0"
                               x:Name="Video"/>
