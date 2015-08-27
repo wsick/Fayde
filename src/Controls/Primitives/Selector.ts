@@ -2,13 +2,13 @@
 
 module Fayde.Controls.Primitives {
     export class Selector extends ItemsControl {
-        static IsSynchronizedWithCurrentItemProperty = DependencyProperty.Register("IsSynchronizedWithCurrentItem", () => Boolean, Selector, null, (d, args) => (<Selector>d)._OnIsSynchronizedWithCurrentItemChanged(args));
-        static SelectedIndexProperty = DependencyProperty.Register("SelectedIndex", () => Number, Selector, -1, (d, args) => (<Selector>d)._OnSelectedIndexChanged(args));
-        static SelectedItemProperty = DependencyProperty.Register("SelectedItem", () => Object, Selector, undefined, (d, args) => (<Selector>d)._OnSelectedItemChanged(args));
-        static SelectedValueProperty = DependencyProperty.Register("SelectedValue", () => Object, Selector, undefined, (d, args) => (<Selector>d)._OnSelectedValueChanged(args));
-        static SelectedValuePathProperty = DependencyProperty.Register("SelectedValuePath", () => String, Selector, "", (d, args) => (<Selector>d)._OnSelectedValuePathChanged(args));
+        static IsSynchronizedWithCurrentItemProperty = DependencyProperty.Register("IsSynchronizedWithCurrentItem", () => Boolean, Selector, null, (d: Selector, args) => d._OnIsSynchronizedWithCurrentItemChanged(args));
+        static SelectedIndexProperty = DependencyProperty.Register("SelectedIndex", () => Number, Selector, -1, (d: Selector, args) => d._OnSelectedIndexChanged(args));
+        static SelectedItemProperty = DependencyProperty.Register("SelectedItem", () => Object, Selector, undefined, (d: Selector, args) => d._OnSelectedItemChanged(args));
+        static SelectedValueProperty = DependencyProperty.Register("SelectedValue", () => Object, Selector, undefined, (d: Selector, args) => d._OnSelectedValueChanged(args));
+        static SelectedValuePathProperty = DependencyProperty.Register("SelectedValuePath", () => String, Selector, "", (d: Selector, args) => d._OnSelectedValuePathChanged(args));
         static IsSelectionActiveProperty = DependencyProperty.RegisterReadOnlyCore("IsSelectionActive", () => Boolean, Selector);
-        static SelectionModeProperty = DependencyProperty.Register("SelectionMode", () => new Enum(SelectionMode), Selector, undefined, (d, args) => (<Selector>d)._OnSelectionModeChanged(args));
+        static SelectionModeProperty = DependencyProperty.Register("SelectionMode", () => new Enum(SelectionMode), Selector, undefined, (d: Selector, args) => d._OnSelectionModeChanged(args));
         IsSynchronizedWithCurrentItem: boolean;
         SelectedIndex: number;
         SelectedItem: any;
