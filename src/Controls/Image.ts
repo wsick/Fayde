@@ -3,7 +3,7 @@
 
 module Fayde.Controls {
     import ImageUpdater = minerva.controls.image.ImageUpdater;
-    export class Image extends FrameworkElement implements Media.Imaging.IImageChangedListener {
+    export class Image extends FrameworkElement {
         CreateLayoutUpdater() {
             return new ImageUpdater();
         }
