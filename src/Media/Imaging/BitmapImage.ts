@@ -2,38 +2,41 @@
 
 module Fayde.Media.Imaging {
     export class BitmapImage extends BitmapSource {
-        static UriSourceProperty = DependencyProperty.RegisterFull("UriSource", () => Uri, BitmapImage, undefined, (bi: BitmapImage, args) => bi._UriSourceChanged(args), undefined, true);
+        static UriSourceProperty = DependencyProperty.RegisterFull("UriSource", () => Uri, BitmapImage, undefined, (bi: BitmapImage, args) => bi.OnUriSourceChanged(args.OldValue, args.NewValue), undefined, true);
         UriSource: Uri;
         ImageFailed = new nullstone.Event();
         ImageOpened = new nullstone.Event();
 
         private _BackingBuffer: ArrayBuffer = null;
 
-        constructor (uri?: Uri) {
+        constructor(uri?: Uri) {
             super();
             if (uri)
                 this.UriSource = uri;
         }
 
-        private _UriSourceChanged (args: IDependencyPropertyChangedEventArgs) {
-            var uri: Uri = args.NewValue;
-            if (Uri.isNullOrEmpty(uri))
-                this.ResetImage();
-            else
-                this.UriSourceChanged(args.OldValue, uri);
+        protected OnUriSourceChanged(oldValue: Uri, newValue: Uri) {
+            if (Uri.isNullOrEmpty(newValue)) {
+                this.reset();
+            } else {
+                if (!this.$element || !newValue)
+                    this.reset();
+                this.$element.src = TypeManager.resolveResource(newValue);
+                this.onImageChanged();
+            }
         }
 
-        protected _OnErrored (e: Event) {
-            super._OnErrored(e);
+        protected onImageErrored(e: ErrorEvent) {
+            super.onImageErrored(e);
             this.ImageFailed.raise(this, null);
         }
 
-        protected _OnLoad (e: Event) {
-            super._OnLoad(e);
+        protected onImageLoaded() {
+            super.onImageLoaded();
             this.ImageOpened.raise(this, null);
         }
 
-        SetSource (buffer: ArrayBuffer) {
+        SetSource(buffer: ArrayBuffer) {
             this._BackingBuffer = buffer;
             this.UriSource = encodeImage(buffer);
         }

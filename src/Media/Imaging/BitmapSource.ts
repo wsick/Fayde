@@ -1,90 +1,59 @@
 /// <reference path="ImageSource.ts"/>
 
 module Fayde.Media.Imaging {
-    declare var Info;
-
-    export interface IImageChangedListener {
-        OnImageErrored(source: BitmapSource, e: Event);
-        OnImageLoaded(source: BitmapSource, e: Event);
-        ImageChanged(source: BitmapSource);
-    }
-
-    function intGreaterThanZeroValidator (instance: DependencyObject, propd: DependencyProperty, value: any) {
-        if (typeof value !== "number")
-            return false;
-        return value > 0;
+    export interface IBitmapSourceWatcher {
+        onErrored(source: BitmapSource, error: Error);
+        onLoaded(source: BitmapSource);
+        onChanged(source: BitmapSource);
     }
 
     export class BitmapSource extends ImageSource {
-        static PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", () => Number, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
-        static PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", () => Number, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
-        PixelWidth: number;
-        PixelHeight: number;
+        protected $element: HTMLImageElement;
+        private $watchers: IBitmapSourceWatcher[] = [];
 
-        private _Listener: IImageChangedListener = null;
-        private _Image: HTMLImageElement;
-
-        get pixelWidth (): number {
-            return this.GetValue(BitmapSource.PixelWidthProperty);
+        createElement(): HTMLMediaElement|HTMLImageElement {
+            return new Image();
         }
 
-        get pixelHeight (): number {
-            return this.GetValue(BitmapSource.PixelHeightProperty);
+        reset() {
+            super.reset();
+            this.$element.onerror = (e: ErrorEvent) => this.onImageErrored(e);
+            this.$element.onload = (e) => {
+                this.onImageLoaded();
+                this.onImageChanged();
+            };
+            this.onImageChanged();
         }
 
-        get isEmpty (): boolean {
-            return !this._Image;
+        watch(watcher: IBitmapSourceWatcher): nullstone.IDisposable {
+            var watchers = this.$watchers;
+            watchers.push(watcher);
+            return {
+                dispose() {
+                    var index = watchers.indexOf(watcher);
+                    if (index > -1)
+                        watchers.splice(index, 1);
+                }
+            }
         }
 
-        draw (ctx: CanvasRenderingContext2D) {
-            ctx.drawImage(this._Image, 0, 0);
+        protected onImageLoaded() {
+            this.setMetrics(this.$element.naturalWidth, this.$element.naturalHeight);
+            for (var i = 0, watchers = this.$watchers; i < watchers.length; i++) {
+                watchers[i].onLoaded(this);
+            }
         }
 
-        createPattern (ctx: CanvasRenderingContext2D): CanvasPattern {
-            ctx.rect(0, 0, this.pixelWidth, this.pixelHeight);
-            return ctx.createPattern(this._Image, "no-repeat");
+        protected onImageErrored(e: ErrorEvent) {
+            console.warn("Failed to load: " + this.$element.src.toString());
+            for (var i = 0, watchers = this.$watchers; i < watchers.length; i++) {
+                watchers[i].onErrored(this, e.error);
+            }
         }
 
-        ResetImage () {
-            this._Image = new Image();
-            this._Image.onerror = (e) => this._OnErrored(e);
-            this._Image.onload = (e) => this._OnLoad(e);
-            this.PixelWidth = 0;
-            this.PixelHeight = 0;
-            var listener = this._Listener;
-            if (listener) listener.ImageChanged(this);
-        }
-
-        UriSourceChanged (oldValue: Uri, newValue: Uri) {
-            if (!this._Image || !newValue)
-                this.ResetImage();
-            this._Image.src = TypeManager.resolveResource(newValue);
-            var listener = this._Listener;
-            if (listener) listener.ImageChanged(this);
-        }
-
-        Listen (listener: IImageChangedListener) {
-            this._Listener = listener;
-        }
-
-        Unlisten (listener: IImageChangedListener) {
-            if (this._Listener === listener) this._Listener = null;
-        }
-
-        protected _OnErrored (e: Event) {
-            console.info("Failed to load: " + this._Image.src.toString());
-            var listener = this._Listener;
-            if (listener)
-                listener.OnImageErrored(this, e);
-        }
-
-        protected _OnLoad (e: Event) {
-            this.PixelWidth = this._Image.naturalWidth;
-            this.PixelHeight = this._Image.naturalHeight;
-            var listener = this._Listener;
-            if (listener) {
-                listener.OnImageLoaded(this, e);
-                listener.ImageChanged(this);
+        protected onImageChanged() {
+            for (var i = 0, watchers = this.$watchers; i < watchers.length; i++) {
+                watchers[i].onChanged(this);
             }
         }
     }
