@@ -1,7 +1,3 @@
-var Fayde;
-(function (Fayde) {
-    Fayde.version = '0.16.56';
-})(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
         return Object.prototype.toString.call(arg) === '[object Array]';
@@ -3054,16 +3050,6 @@ var Fayde;
         })(Controls.MediaElementState || (Controls.MediaElementState = {}));
         var MediaElementState = Controls.MediaElementState;
         Fayde.CoreLibrary.addEnum(MediaElementState, "MediaElementState");
-        (function (SelectionOnFocus) {
-            SelectionOnFocus[SelectionOnFocus["Unchanged"] = 0] = "Unchanged";
-            SelectionOnFocus[SelectionOnFocus["SelectAll"] = 1] = "SelectAll";
-            SelectionOnFocus[SelectionOnFocus["CaretToBeginning"] = 2] = "CaretToBeginning";
-            SelectionOnFocus[SelectionOnFocus["CaretToEnd"] = 3] = "CaretToEnd";
-            SelectionOnFocus[SelectionOnFocus["Default"] = 4] = "Default";
-            SelectionOnFocus[SelectionOnFocus["DefaultSelectAll"] = 5] = "DefaultSelectAll";
-        })(Controls.SelectionOnFocus || (Controls.SelectionOnFocus = {}));
-        var SelectionOnFocus = Controls.SelectionOnFocus;
-        Fayde.CoreLibrary.addEnum(SelectionOnFocus, "SelectionOnFocus");
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
 /// <reference path="../ContentControl.ts" />
@@ -7727,11 +7713,6 @@ var Fayde;
                 this.$Proxy = new Fayde.Text.Proxy(eventsMask, MAX_UNDO_COUNT);
                 this._SyncFont();
             }
-            TextBoxBase._SelectionOnFocusCoercer = function (d, propd, value) {
-                if (typeof value === "string")
-                    return nullstone.convertStringToEnum(value, Controls.SelectionOnFocus);
-                return value;
-            };
             TextBoxBase.prototype._SyncFont = function () {
                 var _this = this;
                 var view = this.$View;
@@ -7758,31 +7739,6 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
-            TextBoxBase.prototype.selectBasedonSelectionMode = function () {
-                var proxy = this.$Proxy;
-                var anchor = proxy.selAnchor;
-                var cursor = proxy.selCursor;
-                switch (this.SelectionOnFocus) {
-                    case Controls.SelectionOnFocus.Unchanged:
-                        break;
-                    case Controls.SelectionOnFocus.SelectAll:
-                        proxy.selectAll();
-                        break;
-                    case Controls.SelectionOnFocus.CaretToBeginning:
-                        cursor = this.$Advancer.CursorLineBegin(cursor);
-                        proxy.setAnchorCursor(cursor, cursor);
-                        break;
-                    case Controls.SelectionOnFocus.CaretToEnd:
-                        cursor = this.$Advancer.CursorLineEnd(cursor);
-                        proxy.setAnchorCursor(cursor, cursor);
-                        break;
-                    case Controls.SelectionOnFocus.DefaultSelectAll:
-                        proxy.selectAll();
-                        break;
-                    default:
-                        break;
-                }
-            };
             TextBoxBase.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
                 this.$ContentProxy.setElement(this.GetTemplateChild("ContentElement", Fayde.FrameworkElement), this.$View);
@@ -7794,7 +7750,6 @@ var Fayde;
             TextBoxBase.prototype.OnGotFocus = function (e) {
                 _super.prototype.OnGotFocus.call(this, e);
                 this.$View.setIsFocused(true);
-                this.selectBasedonSelectionMode();
             };
             TextBoxBase.prototype.OnMouseLeftButtonDown = function (e) {
                 if (e.Handled)
@@ -8132,7 +8087,6 @@ var Fayde;
             TextBoxBase.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () { return Number; }, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
             TextBoxBase.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () { return Number; }, TextBoxBase);
             TextBoxBase.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () { return Number; }, TextBoxBase, 0, undefined, undefined, undefined, positiveIntValidator);
-            TextBoxBase.SelectionOnFocusProperty = DependencyProperty.RegisterFull("SelectionOnFocus", function () { return Controls.SelectionOnFocus; }, TextBoxBase, Controls.SelectionOnFocus.Default, undefined, TextBoxBase._SelectionOnFocusCoercer);
             return TextBoxBase;
         })(Controls.Control);
         Controls.TextBoxBase = TextBoxBase;

@@ -1,7 +1,4 @@
 declare module Fayde {
-    var version: string;
-}
-declare module Fayde {
     var XMLNS: string;
     var XMLNSX: string;
     var XMLNSINTERNAL: string;
@@ -911,14 +908,6 @@ declare module Fayde.Controls {
         Playing = 5,
         Paused = 6,
         Stopped = 7,
-    }
-    enum SelectionOnFocus {
-        Unchanged = 0,
-        SelectAll = 1,
-        CaretToBeginning = 2,
-        CaretToEnd = 3,
-        Default = 4,
-        DefaultSelectAll = 5,
     }
 }
 declare module Fayde.Controls.Primitives {
@@ -1976,7 +1965,6 @@ declare module Fayde.Controls {
         static SelectionStartProperty: DependencyProperty;
         static BaselineOffsetProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
-        static SelectionOnFocusProperty: DependencyProperty;
         CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
@@ -1984,7 +1972,6 @@ declare module Fayde.Controls {
         SelectionStart: number;
         BaselineOffset: number;
         MaxLength: number;
-        SelectionOnFocus: SelectionOnFocus;
         private _Selecting;
         private _Captured;
         IsReadOnly: boolean;
@@ -1993,12 +1980,10 @@ declare module Fayde.Controls {
         $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
-        private static _SelectionOnFocusCoercer(d, propd, value);
         constructor(eventsMask: Text.EmitChangedType);
         private _SyncFont();
         CreateView(): Internal.TextBoxView;
         Cursor: CursorType;
-        private selectBasedonSelectionMode();
         OnApplyTemplate(): void;
         OnLostFocus(e: RoutedEventArgs): void;
         OnGotFocus(e: RoutedEventArgs): void;
