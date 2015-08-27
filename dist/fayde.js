@@ -1,7 +1,3 @@
-var Fayde;
-(function (Fayde) {
-    Fayde.version = '0.16.56';
-})(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
         return Object.prototype.toString.call(arg) === '[object Array]';
@@ -7555,7 +7551,6 @@ var Fayde;
             if (ov instanceof Fayde.Media.Videos.VideoSource)
                 ov.Unlisten(video);
             if (nv instanceof Fayde.Media.Videos.VideoSource) {
-                nv.SetUpdater(upd);
                 nv.Listen(video);
             }
             else {
@@ -19430,310 +19425,6 @@ var Fayde;
     }
     Fayde.splitCommaList = splitCommaList;
 })(Fayde || (Fayde = {}));
-var BError = (function () {
-    function BError() {
-    }
-    BError.prototype.ThrowException = function () {
-        var ex;
-        switch (this.Number) {
-            case BError.Attach:
-                ex = new AttachException(this.Message, this.Data);
-                break;
-            case BError.Argument:
-                ex = new ArgumentException(this.Message);
-                break;
-            case BError.InvalidOperation:
-                ex = new InvalidOperationException(this.Message);
-                break;
-            case BError.XamlParse:
-                ex = new XamlParseException(this.Message);
-                break;
-            default:
-                ex = new Exception(this.Message);
-                break;
-        }
-        throw ex;
-    };
-    BError.Argument = 2;
-    BError.InvalidOperation = 3;
-    BError.XamlParse = 5;
-    BError.Attach = 6;
-    return BError;
-})();
-var Fayde;
-(function (Fayde) {
-    function Bootstrap(onLoaded) {
-        var url = document.body.getAttribute("fayde-app");
-        if (!url) {
-            console.warn("No application specified.");
-            return;
-        }
-        var canvas = document.getElementsByTagName("canvas")[0];
-        if (!canvas)
-            document.body.appendChild(canvas = document.createElement("canvas"));
-        bootstrap(url, canvas, onLoaded);
-    }
-    Fayde.Bootstrap = Bootstrap;
-    function bootstrap(url, canvas, onLoaded) {
-        var app;
-        function run() {
-            perfex.phases.start('ResolveConfig');
-            Fayde.LoadConfigJson(function (config, err) {
-                if (err)
-                    console.warn('Could not load fayde configuration file.', err);
-                resolveApp();
-            });
-        }
-        function resolveApp() {
-            perfex.phases.start('ResolveApp');
-            Fayde.Application.GetAsync(url)
-                .then(resolveTheme, finishError);
-        }
-        function resolveTheme(res) {
-            perfex.phases.start('ResolveTheme');
-            app = Fayde.Application.Current = res;
-            Fayde.ThemeManager.LoadAsync(app.ThemeName)
-                .then(startApp, finishError);
-        }
-        function finishError(err) {
-            console.error("An error occurred retrieving the application.", err);
-        }
-        function startApp() {
-            perfex.phases.start('StartApp');
-            app.Attach(canvas);
-            app.Start();
-            loaded();
-        }
-        function loaded() {
-            onLoaded && onLoaded(app);
-            perfex.phases.start('Running');
-        }
-        run();
-    }
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var jsonFile = 'fayde.json';
-    function LoadConfigJson(onComplete) {
-        require(['text!' + jsonFile], function (jsontext) { return configure(jsontext, onComplete); }, function (err) { return onComplete(err); });
-    }
-    Fayde.LoadConfigJson = LoadConfigJson;
-    function configure(jsontext, onComplete) {
-        var json;
-        try {
-            json = JSON.parse(jsontext);
-        }
-        catch (err) {
-            return onComplete(null, err);
-        }
-        if (json) {
-            libs.configure(json.libs || {});
-            themes.configure(json.themes || {});
-            debug.configure(json.debug || {});
-        }
-        onComplete(json);
-    }
-    var libs;
-    (function (libs_1) {
-        function configure(json) {
-            var libs = [];
-            for (var libName in json) {
-                libs.push(getLibConfig(libName, json[libName]));
-            }
-            for (var i = 0; i < libs.length; i++) {
-                setupLibraryConfig(libs[i]);
-            }
-        }
-        libs_1.configure = configure;
-        function getLibConfig(libName, libJson) {
-            return {
-                name: libName,
-                path: libJson.path,
-                base: libJson.base,
-                deps: libJson.deps,
-                exports: libJson.exports,
-                useMin: libJson.useMin
-            };
-        }
-        function setupLibraryConfig(lib) {
-            var uri = new Fayde.Uri(lib.name);
-            if (uri.scheme !== "http")
-                uri = new Fayde.Uri("lib://" + lib.name);
-            var library = Fayde.TypeManager.resolveLibrary(uri.toString());
-            if (!!lib.path)
-                library.sourcePath = lib.path;
-            if (!!lib.base)
-                library.basePath = lib.base;
-            if (!!lib.exports)
-                library.exports = lib.exports;
-            if (!!lib.deps)
-                library.deps = lib.deps;
-            library.useMin = (lib.useMin === true);
-            library.$configModule();
-        }
-    })(libs || (libs = {}));
-    var themes;
-    (function (themes) {
-        function configure(json) {
-            for (var libName in json) {
-                var co = json[libName];
-                var path = co === "none" ? null : (co.path ? co.path : undefined);
-                Fayde.ThemeConfig.Set(libName, path);
-            }
-        }
-        themes.configure = configure;
-    })(themes || (themes = {}));
-    var debug;
-    (function (debug) {
-        function configure(json) {
-            if (toBoolean(json.warnMissingThemes))
-                Fayde.Theme.WarnMissing = true;
-            if (toBoolean(json.warnBrokenPath))
-                Fayde.Data.WarnBrokenPath = true;
-        }
-        debug.configure = configure;
-        function toBoolean(val) {
-            return val === "true"
-                || val === true;
-        }
-    })(debug || (debug = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Render;
-    (function (Render) {
-        Render.Debug = false;
-        Render.DebugIndent = 0;
-    })(Render = Fayde.Render || (Fayde.Render = {}));
-    var Layout;
-    (function (Layout) {
-        Layout.Debug = false;
-        Layout.DebugIndent = 0;
-    })(Layout = Fayde.Layout || (Fayde.Layout = {}));
-    var Media;
-    (function (Media) {
-        var Animation;
-        (function (Animation) {
-            Animation.Log = false;
-            Animation.LogApply = false;
-        })(Animation = Media.Animation || (Media.Animation = {}));
-        var VSM;
-        (function (VSM) {
-            VSM.Debug = false;
-        })(VSM = Media.VSM || (Media.VSM = {}));
-    })(Media = Fayde.Media || (Fayde.Media = {}));
-    var Data;
-    (function (Data) {
-        Data.Debug = false;
-        Data.IsCounterEnabled = false;
-        Data.DataContextCounter = 0;
-    })(Data = Fayde.Data || (Fayde.Data = {}));
-    Fayde.IsInspectionOn = false;
-})(Fayde || (Fayde = {}));
-var NumberEx;
-(function (NumberEx) {
-    var epsilon = 1.192093E-07;
-    var adjustment = 10;
-    function AreClose(val1, val2) {
-        if (val1 === val2)
-            return true;
-        var softdiff = (Math.abs(val1) + Math.abs(val2) + adjustment) * epsilon;
-        var diff = val1 - val2;
-        return -softdiff < diff && diff < softdiff;
-    }
-    NumberEx.AreClose = AreClose;
-    function IsLessThanClose(val1, val2) {
-        return val1 > val2 || !AreClose(val1, val2);
-    }
-    NumberEx.IsLessThanClose = IsLessThanClose;
-    function IsGreaterThanClose(val1, val2) {
-        return val1 > val2 || !AreClose(val1, val2);
-    }
-    NumberEx.IsGreaterThanClose = IsGreaterThanClose;
-})(NumberEx || (NumberEx = {}));
-var StringEx;
-(function (StringEx) {
-    function Format(format) {
-        var items = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            items[_i - 1] = arguments[_i];
-        }
-        var args = arguments;
-        return format.replace(/{(\d+)}/g, function (match) {
-            var matches = [];
-            for (var _i = 1; _i < arguments.length; _i++) {
-                matches[_i - 1] = arguments[_i];
-            }
-            var i = parseInt(matches[0]);
-            return typeof items[i] != 'undefined'
-                ? items[i]
-                : match;
-        });
-    }
-    StringEx.Format = Format;
-})(StringEx || (StringEx = {}));
-var TimelineProfile = (function () {
-    function TimelineProfile() {
-    }
-    TimelineProfile.Parse = function (isStart, name) {
-        if (!isStart)
-            return TimelineProfile._FinishEvent("Parse", name);
-        TimelineProfile._Events.push({
-            Type: "Parse",
-            Name: name,
-            Time: new Date().valueOf()
-        });
-    };
-    TimelineProfile.Navigate = function (isStart, name) {
-        if (!isStart)
-            return TimelineProfile._FinishEvent("Navigate", name);
-        TimelineProfile._Events.push({
-            Type: "Navigate",
-            Name: name,
-            Time: new Date().valueOf(),
-        });
-    };
-    TimelineProfile.LayoutPass = function (isStart) {
-        if (!TimelineProfile.IsNextLayoutPassProfiled)
-            return;
-        if (!isStart) {
-            TimelineProfile.IsNextLayoutPassProfiled = false;
-            return TimelineProfile._FinishEvent("LayoutPass");
-        }
-        TimelineProfile._Events.push({
-            Type: "LayoutPass",
-            Name: "",
-            Time: new Date().valueOf(),
-        });
-    };
-    TimelineProfile._FinishEvent = function (type, name) {
-        var evts = TimelineProfile._Events;
-        var len = evts.length;
-        var evt;
-        for (var i = len - 1; i >= 0; i--) {
-            evt = evts[i];
-            if (evt.Type === type && (!name || evt.Name === name)) {
-                evts.splice(i, 1);
-                break;
-            }
-            evt = null;
-        }
-        if (!evt)
-            return;
-        TimelineProfile.Groups.push({
-            Type: evt.Type,
-            Data: evt.Name,
-            Start: evt.Time - TimelineProfile.TimelineStart,
-            Length: new Date().valueOf() - evt.Time
-        });
-    };
-    TimelineProfile._Events = [];
-    TimelineProfile.Groups = [];
-    TimelineProfile.TimelineStart = 0;
-    TimelineProfile.IsNextLayoutPassProfiled = true;
-    return TimelineProfile;
-})();
-TimelineProfile.TimelineStart = new Date().valueOf();
 /// <reference path="../Core/XamlObjectCollection.ts" />
 var Fayde;
 (function (Fayde) {
@@ -20088,6 +19779,310 @@ var Fayde;
         })(reactions || (reactions = {}));
     })(Shapes = Fayde.Shapes || (Fayde.Shapes = {}));
 })(Fayde || (Fayde = {}));
+var BError = (function () {
+    function BError() {
+    }
+    BError.prototype.ThrowException = function () {
+        var ex;
+        switch (this.Number) {
+            case BError.Attach:
+                ex = new AttachException(this.Message, this.Data);
+                break;
+            case BError.Argument:
+                ex = new ArgumentException(this.Message);
+                break;
+            case BError.InvalidOperation:
+                ex = new InvalidOperationException(this.Message);
+                break;
+            case BError.XamlParse:
+                ex = new XamlParseException(this.Message);
+                break;
+            default:
+                ex = new Exception(this.Message);
+                break;
+        }
+        throw ex;
+    };
+    BError.Argument = 2;
+    BError.InvalidOperation = 3;
+    BError.XamlParse = 5;
+    BError.Attach = 6;
+    return BError;
+})();
+var Fayde;
+(function (Fayde) {
+    function Bootstrap(onLoaded) {
+        var url = document.body.getAttribute("fayde-app");
+        if (!url) {
+            console.warn("No application specified.");
+            return;
+        }
+        var canvas = document.getElementsByTagName("canvas")[0];
+        if (!canvas)
+            document.body.appendChild(canvas = document.createElement("canvas"));
+        bootstrap(url, canvas, onLoaded);
+    }
+    Fayde.Bootstrap = Bootstrap;
+    function bootstrap(url, canvas, onLoaded) {
+        var app;
+        function run() {
+            perfex.phases.start('ResolveConfig');
+            Fayde.LoadConfigJson(function (config, err) {
+                if (err)
+                    console.warn('Could not load fayde configuration file.', err);
+                resolveApp();
+            });
+        }
+        function resolveApp() {
+            perfex.phases.start('ResolveApp');
+            Fayde.Application.GetAsync(url)
+                .then(resolveTheme, finishError);
+        }
+        function resolveTheme(res) {
+            perfex.phases.start('ResolveTheme');
+            app = Fayde.Application.Current = res;
+            Fayde.ThemeManager.LoadAsync(app.ThemeName)
+                .then(startApp, finishError);
+        }
+        function finishError(err) {
+            console.error("An error occurred retrieving the application.", err);
+        }
+        function startApp() {
+            perfex.phases.start('StartApp');
+            app.Attach(canvas);
+            app.Start();
+            loaded();
+        }
+        function loaded() {
+            onLoaded && onLoaded(app);
+            perfex.phases.start('Running');
+        }
+        run();
+    }
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var jsonFile = 'fayde.json';
+    function LoadConfigJson(onComplete) {
+        require(['text!' + jsonFile], function (jsontext) { return configure(jsontext, onComplete); }, function (err) { return onComplete(err); });
+    }
+    Fayde.LoadConfigJson = LoadConfigJson;
+    function configure(jsontext, onComplete) {
+        var json;
+        try {
+            json = JSON.parse(jsontext);
+        }
+        catch (err) {
+            return onComplete(null, err);
+        }
+        if (json) {
+            libs.configure(json.libs || {});
+            themes.configure(json.themes || {});
+            debug.configure(json.debug || {});
+        }
+        onComplete(json);
+    }
+    var libs;
+    (function (libs_1) {
+        function configure(json) {
+            var libs = [];
+            for (var libName in json) {
+                libs.push(getLibConfig(libName, json[libName]));
+            }
+            for (var i = 0; i < libs.length; i++) {
+                setupLibraryConfig(libs[i]);
+            }
+        }
+        libs_1.configure = configure;
+        function getLibConfig(libName, libJson) {
+            return {
+                name: libName,
+                path: libJson.path,
+                base: libJson.base,
+                deps: libJson.deps,
+                exports: libJson.exports,
+                useMin: libJson.useMin
+            };
+        }
+        function setupLibraryConfig(lib) {
+            var uri = new Fayde.Uri(lib.name);
+            if (uri.scheme !== "http")
+                uri = new Fayde.Uri("lib://" + lib.name);
+            var library = Fayde.TypeManager.resolveLibrary(uri.toString());
+            if (!!lib.path)
+                library.sourcePath = lib.path;
+            if (!!lib.base)
+                library.basePath = lib.base;
+            if (!!lib.exports)
+                library.exports = lib.exports;
+            if (!!lib.deps)
+                library.deps = lib.deps;
+            library.useMin = (lib.useMin === true);
+            library.$configModule();
+        }
+    })(libs || (libs = {}));
+    var themes;
+    (function (themes) {
+        function configure(json) {
+            for (var libName in json) {
+                var co = json[libName];
+                var path = co === "none" ? null : (co.path ? co.path : undefined);
+                Fayde.ThemeConfig.Set(libName, path);
+            }
+        }
+        themes.configure = configure;
+    })(themes || (themes = {}));
+    var debug;
+    (function (debug) {
+        function configure(json) {
+            if (toBoolean(json.warnMissingThemes))
+                Fayde.Theme.WarnMissing = true;
+            if (toBoolean(json.warnBrokenPath))
+                Fayde.Data.WarnBrokenPath = true;
+        }
+        debug.configure = configure;
+        function toBoolean(val) {
+            return val === "true"
+                || val === true;
+        }
+    })(debug || (debug = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Render;
+    (function (Render) {
+        Render.Debug = false;
+        Render.DebugIndent = 0;
+    })(Render = Fayde.Render || (Fayde.Render = {}));
+    var Layout;
+    (function (Layout) {
+        Layout.Debug = false;
+        Layout.DebugIndent = 0;
+    })(Layout = Fayde.Layout || (Fayde.Layout = {}));
+    var Media;
+    (function (Media) {
+        var Animation;
+        (function (Animation) {
+            Animation.Log = false;
+            Animation.LogApply = false;
+        })(Animation = Media.Animation || (Media.Animation = {}));
+        var VSM;
+        (function (VSM) {
+            VSM.Debug = false;
+        })(VSM = Media.VSM || (Media.VSM = {}));
+    })(Media = Fayde.Media || (Fayde.Media = {}));
+    var Data;
+    (function (Data) {
+        Data.Debug = false;
+        Data.IsCounterEnabled = false;
+        Data.DataContextCounter = 0;
+    })(Data = Fayde.Data || (Fayde.Data = {}));
+    Fayde.IsInspectionOn = false;
+})(Fayde || (Fayde = {}));
+var NumberEx;
+(function (NumberEx) {
+    var epsilon = 1.192093E-07;
+    var adjustment = 10;
+    function AreClose(val1, val2) {
+        if (val1 === val2)
+            return true;
+        var softdiff = (Math.abs(val1) + Math.abs(val2) + adjustment) * epsilon;
+        var diff = val1 - val2;
+        return -softdiff < diff && diff < softdiff;
+    }
+    NumberEx.AreClose = AreClose;
+    function IsLessThanClose(val1, val2) {
+        return val1 > val2 || !AreClose(val1, val2);
+    }
+    NumberEx.IsLessThanClose = IsLessThanClose;
+    function IsGreaterThanClose(val1, val2) {
+        return val1 > val2 || !AreClose(val1, val2);
+    }
+    NumberEx.IsGreaterThanClose = IsGreaterThanClose;
+})(NumberEx || (NumberEx = {}));
+var StringEx;
+(function (StringEx) {
+    function Format(format) {
+        var items = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            items[_i - 1] = arguments[_i];
+        }
+        var args = arguments;
+        return format.replace(/{(\d+)}/g, function (match) {
+            var matches = [];
+            for (var _i = 1; _i < arguments.length; _i++) {
+                matches[_i - 1] = arguments[_i];
+            }
+            var i = parseInt(matches[0]);
+            return typeof items[i] != 'undefined'
+                ? items[i]
+                : match;
+        });
+    }
+    StringEx.Format = Format;
+})(StringEx || (StringEx = {}));
+var TimelineProfile = (function () {
+    function TimelineProfile() {
+    }
+    TimelineProfile.Parse = function (isStart, name) {
+        if (!isStart)
+            return TimelineProfile._FinishEvent("Parse", name);
+        TimelineProfile._Events.push({
+            Type: "Parse",
+            Name: name,
+            Time: new Date().valueOf()
+        });
+    };
+    TimelineProfile.Navigate = function (isStart, name) {
+        if (!isStart)
+            return TimelineProfile._FinishEvent("Navigate", name);
+        TimelineProfile._Events.push({
+            Type: "Navigate",
+            Name: name,
+            Time: new Date().valueOf(),
+        });
+    };
+    TimelineProfile.LayoutPass = function (isStart) {
+        if (!TimelineProfile.IsNextLayoutPassProfiled)
+            return;
+        if (!isStart) {
+            TimelineProfile.IsNextLayoutPassProfiled = false;
+            return TimelineProfile._FinishEvent("LayoutPass");
+        }
+        TimelineProfile._Events.push({
+            Type: "LayoutPass",
+            Name: "",
+            Time: new Date().valueOf(),
+        });
+    };
+    TimelineProfile._FinishEvent = function (type, name) {
+        var evts = TimelineProfile._Events;
+        var len = evts.length;
+        var evt;
+        for (var i = len - 1; i >= 0; i--) {
+            evt = evts[i];
+            if (evt.Type === type && (!name || evt.Name === name)) {
+                evts.splice(i, 1);
+                break;
+            }
+            evt = null;
+        }
+        if (!evt)
+            return;
+        TimelineProfile.Groups.push({
+            Type: evt.Type,
+            Data: evt.Name,
+            Start: evt.Time - TimelineProfile.TimelineStart,
+            Length: new Date().valueOf() - evt.Time
+        });
+    };
+    TimelineProfile._Events = [];
+    TimelineProfile.Groups = [];
+    TimelineProfile.TimelineStart = 0;
+    TimelineProfile.IsNextLayoutPassProfiled = true;
+    return TimelineProfile;
+})();
+TimelineProfile.TimelineStart = new Date().valueOf();
 var Fayde;
 (function (Fayde) {
     var Text;
@@ -26734,15 +26729,15 @@ var Fayde;
                 };
                 VideoSourceBase.prototype.unlock = function () {
                 };
+                VideoSourceBase.prototype.getIsPlaying = function () {
+                    var video = this._Video;
+                    return !!video && !video.paused && !video.ended;
+                };
                 VideoSourceBase.prototype.Play = function () {
                     this._Video.play();
-                    this.draw(this._Video, this._VideoUpdater);
                 };
                 VideoSourceBase.prototype.Pause = function () {
                     this._Video.pause();
-                };
-                VideoSourceBase.prototype.SetUpdater = function (updater) {
-                    this._VideoUpdater = updater;
                 };
                 VideoSourceBase.prototype.ResetVideo = function () {
                     var _this = this;
@@ -26763,13 +26758,6 @@ var Fayde;
                     this._Video.load();
                     if (listener)
                         listener.VideoChanged(this);
-                };
-                VideoSourceBase.prototype.draw = function (v, u) {
-                    if (v.paused || v.ended)
-                        return false;
-                    u.preRender();
-                    setTimeout(this.draw, 20, v, u);
-                    return true;
                 };
                 VideoSourceBase.prototype.Listen = function (listener) {
                     this._Listener = listener;

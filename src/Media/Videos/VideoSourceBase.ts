@@ -23,7 +23,6 @@ module Fayde.Media.Videos {
 
         private _Listener: IVideoChangedListener = null;
         private _Video: HTMLVideoElement;
-        private _VideoUpdater: minerva.controls.video.VideoUpdater;
 
         get pixelWidth(): number {
             return this.GetValue(VideoSourceBase.PixelWidthProperty);
@@ -43,17 +42,17 @@ module Fayde.Media.Videos {
         unlock() {
         }
 
+        getIsPlaying(): boolean {
+            var video = this._Video;
+            return !!video && !video.paused && !video.ended;
+        }
+
         Play() {
             this._Video.play();
-            this.draw(this._Video, this._VideoUpdater);
         }
 
         Pause() {
             this._Video.pause();
-        }
-
-        SetUpdater(updater: minerva.controls.video.VideoUpdater) {
-            this._VideoUpdater = updater;
         }
 
         ResetVideo() {
@@ -73,13 +72,6 @@ module Fayde.Media.Videos {
             this._Video.src = TypeManager.resolveResource(newValue);
             this._Video.load();
             if (listener) listener.VideoChanged(this);
-        }
-
-        private draw(v, u) {
-            if (v.paused || v.ended) return false;
-            u.preRender();
-            setTimeout(this.draw, 20, v, u);
-            return true;
         }
 
         Listen(listener: IVideoChangedListener) {

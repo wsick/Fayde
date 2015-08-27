@@ -56,7 +56,6 @@ module Fayde.Controls {
         if (ov instanceof Media.Videos.VideoSource)
             (<Media.Videos.VideoSource>ov).Unlisten(video);
         if (nv instanceof Media.Videos.VideoSource) {
-            (<Media.Videos.VideoSourceBase>nv).SetUpdater(upd);
             (<Media.Videos.VideoSource>nv).Listen(video);
         } else {
             upd.updateBounds();
