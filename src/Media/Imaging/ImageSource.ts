@@ -2,21 +2,23 @@
 
 module Fayde.Media.Imaging {
     export class ImageSource extends DependencyObject implements minerva.controls.image.IImageSource {
-        get pixelWidth (): number {
+        get pixelWidth(): number {
             return 0;
         }
 
-        get pixelHeight (): number {
+        get pixelHeight(): number {
             return 0;
         }
 
-        lock () {
+        get isEmpty(): boolean {
+            return true;
         }
 
-        unlock () {
+        draw(ctx: CanvasRenderingContext2D) {
+
         }
 
-        get image (): HTMLImageElement {
+        createPattern(ctx: CanvasRenderingContext2D): CanvasPattern {
             return undefined;
         }
     }

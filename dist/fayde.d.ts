@@ -5653,9 +5653,9 @@ declare module Fayde.Media.Imaging {
     class ImageSource extends DependencyObject implements minerva.controls.image.IImageSource {
         pixelWidth: number;
         pixelHeight: number;
-        lock(): void;
-        unlock(): void;
-        image: HTMLImageElement;
+        isEmpty: boolean;
+        draw(ctx: CanvasRenderingContext2D): void;
+        createPattern(ctx: CanvasRenderingContext2D): CanvasPattern;
     }
 }
 declare module Fayde.Media.Imaging {
@@ -5673,13 +5673,15 @@ declare module Fayde.Media.Imaging {
         private _Image;
         pixelWidth: number;
         pixelHeight: number;
-        image: HTMLImageElement;
+        isEmpty: boolean;
+        draw(ctx: CanvasRenderingContext2D): void;
+        createPattern(ctx: CanvasRenderingContext2D): CanvasPattern;
         ResetImage(): void;
         UriSourceChanged(oldValue: Uri, newValue: Uri): void;
         Listen(listener: IImageChangedListener): void;
         Unlisten(listener: IImageChangedListener): void;
-        _OnErrored(e: Event): void;
-        _OnLoad(e: Event): void;
+        protected _OnErrored(e: Event): void;
+        protected _OnLoad(e: Event): void;
     }
 }
 declare module Fayde.Media.Imaging {
@@ -5691,8 +5693,8 @@ declare module Fayde.Media.Imaging {
         private _BackingBuffer;
         constructor(uri?: Uri);
         private _UriSourceChanged(args);
-        _OnErrored(e: Event): void;
-        _OnLoad(e: Event): void;
+        protected _OnErrored(e: Event): void;
+        protected _OnLoad(e: Event): void;
         SetSource(buffer: ArrayBuffer): void;
     }
 }
@@ -5851,9 +5853,9 @@ declare module Fayde.Media.Videos {
         private _Video;
         pixelWidth: number;
         pixelHeight: number;
-        video: HTMLVideoElement;
-        lock(): void;
-        unlock(): void;
+        isEmpty: boolean;
+        draw(ctx: CanvasRenderingContext2D): void;
+        createPattern(ctx: CanvasRenderingContext2D): CanvasPattern;
         getIsPlaying(): boolean;
         Play(): void;
         Pause(): void;
@@ -5861,9 +5863,9 @@ declare module Fayde.Media.Videos {
         UriSourceChanged(oldValue: Uri, newValue: Uri): void;
         Listen(listener: IVideoChangedListener): void;
         Unlisten(listener: IVideoChangedListener): void;
-        _OnErrored(e: Event): void;
+        protected _OnErrored(e: Event): void;
         private _OnCanPlay(e);
-        _OnLoad(e: Event): void;
+        protected _OnLoad(e: Event): void;
     }
 }
 declare module Fayde.Media.Videos {
@@ -5874,8 +5876,8 @@ declare module Fayde.Media.Videos {
         VideoOpened: nullstone.Event<{}>;
         constructor(uri?: Uri);
         private _UriSourceChanged(args);
-        _OnErrored(e: Event): void;
-        _OnLoad(e: Event): void;
+        protected _OnErrored(e: Event): void;
+        protected _OnLoad(e: Event): void;
     }
 }
 declare module Fayde.Text.History {

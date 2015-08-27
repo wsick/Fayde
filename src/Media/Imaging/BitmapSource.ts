@@ -32,10 +32,18 @@ module Fayde.Media.Imaging {
             return this.GetValue(BitmapSource.PixelHeightProperty);
         }
 
-        get image (): HTMLImageElement {
-            return this._Image;
+        get isEmpty (): boolean {
+            return !this._Image;
         }
 
+        draw (ctx: CanvasRenderingContext2D) {
+            ctx.drawImage(this._Image, 0, 0);
+        }
+
+        createPattern (ctx: CanvasRenderingContext2D): CanvasPattern {
+            ctx.rect(0, 0, this.pixelWidth, this.pixelHeight);
+            return ctx.createPattern(this._Image, "no-repeat");
+        }
 
         ResetImage () {
             this._Image = new Image();
@@ -63,14 +71,14 @@ module Fayde.Media.Imaging {
             if (this._Listener === listener) this._Listener = null;
         }
 
-        _OnErrored (e: Event) {
+        protected _OnErrored (e: Event) {
             console.info("Failed to load: " + this._Image.src.toString());
             var listener = this._Listener;
             if (listener)
                 listener.OnImageErrored(this, e);
         }
 
-        _OnLoad (e: Event) {
+        protected _OnLoad (e: Event) {
             this.PixelWidth = this._Image.naturalWidth;
             this.PixelHeight = this._Image.naturalHeight;
             var listener = this._Listener;

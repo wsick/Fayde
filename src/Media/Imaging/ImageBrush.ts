@@ -16,7 +16,7 @@ module Fayde.Media.Imaging {
 
         setupBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var source = this.ImageSource;
-            if (source && source.image)
+            if (source && !source.isEmpty)
                 super.setupBrush(ctx, bounds);
         }
         GetTileExtents(): minerva.Rect {
@@ -25,8 +25,7 @@ module Fayde.Media.Imaging {
         }
         DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: minerva.Rect) {
             var source = this.ImageSource;
-            canvasCtx.rect(0, 0, source.pixelWidth, source.pixelHeight);
-            canvasCtx.fillStyle = canvasCtx.createPattern(source.image, "no-repeat");
+            canvasCtx.fillStyle = source.createPattern(canvasCtx);
             canvasCtx.fill();
         }
         private _ImageSourceChanged(args: IDependencyPropertyChangedEventArgs) {

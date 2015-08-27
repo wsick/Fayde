@@ -25652,17 +25652,18 @@ var Fayde;
                     enumerable: true,
                     configurable: true
                 });
-                ImageSource.prototype.lock = function () {
-                };
-                ImageSource.prototype.unlock = function () {
-                };
-                Object.defineProperty(ImageSource.prototype, "image", {
+                Object.defineProperty(ImageSource.prototype, "isEmpty", {
                     get: function () {
-                        return undefined;
+                        return true;
                     },
                     enumerable: true,
                     configurable: true
                 });
+                ImageSource.prototype.draw = function (ctx) {
+                };
+                ImageSource.prototype.createPattern = function (ctx) {
+                    return undefined;
+                };
                 return ImageSource;
             })(Fayde.DependencyObject);
             Imaging.ImageSource = ImageSource;
@@ -25702,13 +25703,20 @@ var Fayde;
                     enumerable: true,
                     configurable: true
                 });
-                Object.defineProperty(BitmapSource.prototype, "image", {
+                Object.defineProperty(BitmapSource.prototype, "isEmpty", {
                     get: function () {
-                        return this._Image;
+                        return !this._Image;
                     },
                     enumerable: true,
                     configurable: true
                 });
+                BitmapSource.prototype.draw = function (ctx) {
+                    ctx.drawImage(this._Image, 0, 0);
+                };
+                BitmapSource.prototype.createPattern = function (ctx) {
+                    ctx.rect(0, 0, this.pixelWidth, this.pixelHeight);
+                    return ctx.createPattern(this._Image, "no-repeat");
+                };
                 BitmapSource.prototype.ResetImage = function () {
                     var _this = this;
                     this._Image = new Image();
@@ -25840,7 +25848,7 @@ var Fayde;
                 };
                 ImageBrush.prototype.setupBrush = function (ctx, bounds) {
                     var source = this.ImageSource;
-                    if (source && source.image)
+                    if (source && !source.isEmpty)
                         _super.prototype.setupBrush.call(this, ctx, bounds);
                 };
                 ImageBrush.prototype.GetTileExtents = function () {
@@ -25849,8 +25857,7 @@ var Fayde;
                 };
                 ImageBrush.prototype.DrawTile = function (canvasCtx, bounds) {
                     var source = this.ImageSource;
-                    canvasCtx.rect(0, 0, source.pixelWidth, source.pixelHeight);
-                    canvasCtx.fillStyle = canvasCtx.createPattern(source.image, "no-repeat");
+                    canvasCtx.fillStyle = source.createPattern(canvasCtx);
                     canvasCtx.fill();
                 };
                 ImageBrush.prototype._ImageSourceChanged = function (args) {
@@ -26676,16 +26683,19 @@ var Fayde;
                     enumerable: true,
                     configurable: true
                 });
-                Object.defineProperty(VideoSourceBase.prototype, "video", {
+                Object.defineProperty(VideoSourceBase.prototype, "isEmpty", {
                     get: function () {
-                        return this._Video;
+                        return !this._Video;
                     },
                     enumerable: true,
                     configurable: true
                 });
-                VideoSourceBase.prototype.lock = function () {
+                VideoSourceBase.prototype.draw = function (ctx) {
+                    ctx.drawImage(this._Video, 0, 0);
                 };
-                VideoSourceBase.prototype.unlock = function () {
+                VideoSourceBase.prototype.createPattern = function (ctx) {
+                    ctx.rect(0, 0, this.pixelWidth, this.pixelHeight);
+                    return ctx.createPattern(this._Video, "no-repeat");
                 };
                 VideoSourceBase.prototype.getIsPlaying = function () {
                     var video = this._Video;

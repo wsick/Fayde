@@ -23,12 +23,12 @@ module Fayde.Media.Imaging {
                 this.UriSourceChanged(args.OldValue, uri);
         }
 
-        _OnErrored (e: Event) {
+        protected _OnErrored (e: Event) {
             super._OnErrored(e);
             this.ImageFailed.raise(this, null);
         }
 
-        _OnLoad (e: Event) {
+        protected _OnLoad (e: Event) {
             super._OnLoad(e);
             this.ImageOpened.raise(this, null);
         }

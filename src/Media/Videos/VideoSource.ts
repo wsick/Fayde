@@ -21,12 +21,12 @@ module Fayde.Media.Videos {
                 this.UriSourceChanged(args.OldValue, uri);
         }
 
-        _OnErrored(e: Event) {
+        protected _OnErrored(e: Event) {
             super._OnErrored(e);
             this.VideoFailed.raise(this, null);
         }
 
-        _OnLoad(e: Event) {
+        protected _OnLoad(e: Event) {
             super._OnLoad(e);
             this.VideoOpened.raise(this, null);
         }

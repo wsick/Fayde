@@ -32,14 +32,17 @@ module Fayde.Media.Videos {
             return this.GetValue(VideoSourceBase.PixelHeightProperty);
         }
 
-        get video(): HTMLVideoElement {
-            return this._Video;
+        get isEmpty(): boolean {
+            return !this._Video;
         }
 
-        lock() {
+        draw(ctx: CanvasRenderingContext2D) {
+            ctx.drawImage(this._Video, 0, 0);
         }
 
-        unlock() {
+        createPattern(ctx: CanvasRenderingContext2D): CanvasPattern {
+            ctx.rect(0, 0, this.pixelWidth, this.pixelHeight);
+            return ctx.createPattern(this._Video, "no-repeat");
         }
 
         getIsPlaying(): boolean {
@@ -83,7 +86,7 @@ module Fayde.Media.Videos {
             if (this._Listener === listener) this._Listener = null;
         }
 
-        _OnErrored(e: Event) {
+        protected _OnErrored(e: Event) {
             console.info("Failed to load: " + this._Video.src.toString());
             var listener = this._Listener;
             if (listener)
@@ -95,7 +98,7 @@ module Fayde.Media.Videos {
             this.PixelHeight = this._Video.videoHeight;
         }
 
-        _OnLoad(e: Event) {
+        protected _OnLoad(e: Event) {
             this.PixelWidth = this._Video.videoWidth;
             this.PixelHeight = this._Video.videoHeight;
             var listener = this._Listener;
