@@ -58,6 +58,7 @@ module Fayde.Media.Videos {
         ResetVideo() {
             this._Video = <HTMLVideoElement>document.createElement("VIDEO");
             this._Video.onerror = (e) => this._OnErrored(e);
+            this._Video.oncanplay = (e) => this._OnCanPlay(e);
             this._Video.onload = (e) => this._OnLoad(e);
             this.PixelWidth = 0;
             this.PixelHeight = 0;
@@ -87,6 +88,11 @@ module Fayde.Media.Videos {
             var listener = this._Listener;
             if (listener)
                 listener.OnVideoErrored(this, e);
+        }
+
+        private _OnCanPlay(e: Event) {
+            this.PixelWidth = this._Video.videoWidth;
+            this.PixelHeight = this._Video.videoHeight;
         }
 
         _OnLoad(e: Event) {
