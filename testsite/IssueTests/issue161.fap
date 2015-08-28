@@ -1,0 +1,15 @@
+<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        xmlns:vsm="http://schemas.wsick.com/fayde"
+        xmlns:local="IssueTests"
+        ThemeName="Metro">
+    <Application.Resources>
+    </Application.Resources>
+    <Grid>
+        <Grid.DataContext>
+            <local:TextViewModel />
+        </Grid.DataContext>
+        <TextBox Height="20" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="{EventBinding OnTextChanged}" />
+    </Grid>
+</Application>

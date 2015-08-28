@@ -2173,6 +2173,7 @@ declare module Fayde.Controls {
         TextWrapping: TextWrapping;
         HorizontalScrollBarVisibility: ScrollBarVisibility;
         VerticalScrollBarVisibility: ScrollBarVisibility;
+        TextChanged: RoutedEvent<RoutedEventArgs>;
         constructor();
         OnApplyTemplate(): void;
         DisplayText: string;
