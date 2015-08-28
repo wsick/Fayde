@@ -1,7 +1,4 @@
 declare module Fayde {
-    var version: string;
-}
-declare module Fayde {
     var XMLNS: string;
     var XMLNSX: string;
     var XMLNSINTERNAL: string;
@@ -912,14 +909,6 @@ declare module Fayde.Controls {
         Paused = 6,
         Stopped = 7,
     }
-    enum SelectionOnFocus {
-        Unchanged = 0,
-        SelectAll = 1,
-        CaretToBeginning = 2,
-        CaretToEnd = 3,
-        Default = 4,
-        DefaultSelectAll = 5,
-    }
 }
 declare module Fayde.Controls.Primitives {
     class ButtonBase extends ContentControl {
@@ -1748,7 +1737,7 @@ declare module Fayde.Media {
 }
 declare module Fayde.Controls {
     import ImageUpdater = minerva.controls.image.ImageUpdater;
-    class Image extends FrameworkElement implements Media.Imaging.IImageChangedListener {
+    class Image extends FrameworkElement {
         CreateLayoutUpdater(): ImageUpdater;
         private static _SourceCoercer(d, propd, value);
         static SourceProperty: DependencyProperty;
@@ -1757,9 +1746,11 @@ declare module Fayde.Controls {
         Stretch: Media.Stretch;
         ImageOpened: nullstone.Event<{}>;
         ImageFailed: nullstone.Event<{}>;
-        OnImageErrored(source: Media.Imaging.BitmapSource, e: Event): void;
-        OnImageLoaded(source: Media.Imaging.BitmapSource, e: Event): void;
-        ImageChanged(source: Media.Imaging.BitmapSource): void;
+        private $watcher;
+        OnImageErrored(source: Media.Imaging.BitmapSource, error: Error): void;
+        OnImageLoaded(source: Media.Imaging.BitmapSource): void;
+        OnImageChanged(source: Media.Imaging.BitmapSource): void;
+        OnSourceChanged(oldSource: Media.Imaging.ImageSource, newSource: Media.Imaging.ImageSource): void;
     }
 }
 declare module Fayde.Controls {
@@ -1847,7 +1838,7 @@ declare module Fayde.Controls {
 }
 declare module Fayde.Controls {
     import VideoUpdater = minerva.controls.video.VideoUpdater;
-    class MediaElement extends FrameworkElement implements Media.Videos.IVideoChangedListener {
+    class MediaElement extends FrameworkElement {
         CreateLayoutUpdater(): VideoUpdater;
         private static _SourceCoercer(d, propd, value);
         static SourceProperty: DependencyProperty;
@@ -1856,9 +1847,11 @@ declare module Fayde.Controls {
         Stretch: Media.Stretch;
         VideoOpened: nullstone.Event<{}>;
         VideoFailed: nullstone.Event<{}>;
-        OnVideoErrored(source: Media.Videos.VideoSourceBase, e: Event): void;
-        OnVideoLoaded(source: Media.Videos.VideoSourceBase, e: Event): void;
-        VideoChanged(source: Media.Videos.VideoSourceBase): void;
+        private $watcher;
+        OnSourceChanged(oldSource: Media.Videos.VideoSourceBase, newSource: Media.Videos.VideoSourceBase): void;
+        OnVideoErrored(source: Media.Videos.VideoSourceBase, error: Error): void;
+        OnVideoCanPlay(source: Media.Videos.VideoSourceBase): void;
+        OnVideoChanged(source: Media.Videos.VideoSourceBase): void;
         Play(): void;
         Pause(): void;
     }
@@ -1976,7 +1969,6 @@ declare module Fayde.Controls {
         static SelectionStartProperty: DependencyProperty;
         static BaselineOffsetProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
-        static SelectionOnFocusProperty: DependencyProperty;
         CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
@@ -1984,7 +1976,6 @@ declare module Fayde.Controls {
         SelectionStart: number;
         BaselineOffset: number;
         MaxLength: number;
-        SelectionOnFocus: SelectionOnFocus;
         private _Selecting;
         private _Captured;
         IsReadOnly: boolean;
@@ -1993,12 +1984,10 @@ declare module Fayde.Controls {
         $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
-        private static _SelectionOnFocusCoercer(d, propd, value);
         constructor(eventsMask: Text.EmitChangedType);
         private _SyncFont();
         CreateView(): Internal.TextBoxView;
         Cursor: CursorType;
-        private selectBasedonSelectionMode();
         OnApplyTemplate(): void;
         OnLostFocus(e: RoutedEventArgs): void;
         OnGotFocus(e: RoutedEventArgs): void;
@@ -5674,35 +5663,37 @@ declare module Fayde.Media.Effects {
 }
 declare module Fayde.Media.Imaging {
     class ImageSource extends DependencyObject implements minerva.controls.image.IImageSource {
-        pixelWidth: number;
-        pixelHeight: number;
-        lock(): void;
-        unlock(): void;
-        image: HTMLImageElement;
-    }
-}
-declare module Fayde.Media.Imaging {
-    interface IImageChangedListener {
-        OnImageErrored(source: BitmapSource, e: Event): any;
-        OnImageLoaded(source: BitmapSource, e: Event): any;
-        ImageChanged(source: BitmapSource): any;
-    }
-    class BitmapSource extends ImageSource {
         static PixelWidthProperty: DependencyProperty;
         static PixelHeightProperty: DependencyProperty;
         PixelWidth: number;
         PixelHeight: number;
-        private _Listener;
-        private _Image;
+        protected $element: HTMLMediaElement | HTMLImageElement;
+        constructor();
         pixelWidth: number;
         pixelHeight: number;
-        image: HTMLImageElement;
-        ResetImage(): void;
-        UriSourceChanged(oldValue: Uri, newValue: Uri): void;
-        Listen(listener: IImageChangedListener): void;
-        Unlisten(listener: IImageChangedListener): void;
-        _OnErrored(e: Event): void;
-        _OnLoad(e: Event): void;
+        isEmpty: boolean;
+        draw(ctx: CanvasRenderingContext2D): void;
+        createPattern(ctx: CanvasRenderingContext2D): CanvasPattern;
+        reset(): void;
+        createElement(): HTMLMediaElement | HTMLImageElement;
+        protected setMetrics(pixelWidth: number, pixelHeight: number): void;
+    }
+}
+declare module Fayde.Media.Imaging {
+    interface IBitmapSourceWatcher {
+        onErrored(source: BitmapSource, error: Error): any;
+        onLoaded(source: BitmapSource): any;
+        onChanged(source: BitmapSource): any;
+    }
+    class BitmapSource extends ImageSource {
+        protected $element: HTMLImageElement;
+        private $watchers;
+        createElement(): HTMLMediaElement | HTMLImageElement;
+        reset(): void;
+        watch(watcher: IBitmapSourceWatcher): nullstone.IDisposable;
+        protected onImageLoaded(): void;
+        protected onImageErrored(e: ErrorEvent): void;
+        protected onImageChanged(): void;
     }
 }
 declare module Fayde.Media.Imaging {
@@ -5713,26 +5704,27 @@ declare module Fayde.Media.Imaging {
         ImageOpened: nullstone.Event<{}>;
         private _BackingBuffer;
         constructor(uri?: Uri);
-        private _UriSourceChanged(args);
-        _OnErrored(e: Event): void;
-        _OnLoad(e: Event): void;
+        protected OnUriSourceChanged(oldValue: Uri, newValue: Uri): void;
+        protected onImageErrored(e: ErrorEvent): void;
+        protected onImageLoaded(): void;
         SetSource(buffer: ArrayBuffer): void;
     }
 }
 declare module Fayde.Media.Imaging {
-    class ImageBrush extends TileBrush implements IImageChangedListener {
+    class ImageBrush extends TileBrush {
         private static _SourceCoercer(d, propd, value);
         static ImageSourceProperty: DependencyProperty;
         ImageSource: ImageSource;
         ImageFailed: nullstone.Event<{}>;
         ImageOpened: nullstone.Event<{}>;
+        private $watcher;
         setupBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
         GetTileExtents(): minerva.Rect;
         DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
         private _ImageSourceChanged(args);
-        OnImageErrored(source: BitmapSource, e: Event): void;
-        OnImageLoaded(source: BitmapSource, e: Event): void;
-        ImageChanged(source: BitmapSource): void;
+        OnImageErrored(source: BitmapSource, error: Error): void;
+        OnImageLoaded(source: BitmapSource): void;
+        OnImageChanged(source: BitmapSource): void;
     }
 }
 declare module Fayde.Media.Imaging {
@@ -5860,33 +5852,23 @@ declare module Fayde.Media.VSM {
     }
 }
 declare module Fayde.Media.Videos {
-    interface IVideoChangedListener {
-        OnVideoErrored(source: VideoSourceBase, e: Event): any;
-        OnVideoLoaded(source: VideoSourceBase, e: Event): any;
-        VideoChanged(source: VideoSourceBase): any;
+    interface IVideoSourceWatcher {
+        onErrored(source: VideoSourceBase, error: Error): any;
+        onCanPlay(source: VideoSourceBase): any;
+        onChanged(source: VideoSourceBase): any;
     }
-    class VideoSourceBase extends DependencyObject implements minerva.controls.video.IVideoSource {
-        static PixelWidthProperty: DependencyProperty;
-        static PixelHeightProperty: DependencyProperty;
-        PixelWidth: number;
-        PixelHeight: number;
-        private _Listener;
-        private _Video;
-        pixelWidth: number;
-        pixelHeight: number;
-        video: HTMLVideoElement;
-        lock(): void;
-        unlock(): void;
+    class VideoSourceBase extends Imaging.ImageSource implements minerva.controls.video.IVideoSource {
+        protected $element: HTMLVideoElement;
+        private $watchers;
+        createElement(): HTMLVideoElement;
+        reset(): void;
+        watch(watcher: IVideoSourceWatcher): nullstone.IDisposable;
         getIsPlaying(): boolean;
         Play(): void;
         Pause(): void;
-        ResetVideo(): void;
-        UriSourceChanged(oldValue: Uri, newValue: Uri): void;
-        Listen(listener: IVideoChangedListener): void;
-        Unlisten(listener: IVideoChangedListener): void;
-        _OnErrored(e: Event): void;
-        private _OnCanPlay(e);
-        _OnLoad(e: Event): void;
+        protected onVideoErrored(e: ErrorEvent): void;
+        protected onVideoCanPlay(): void;
+        protected onVideoChanged(): void;
     }
 }
 declare module Fayde.Media.Videos {
@@ -5897,8 +5879,8 @@ declare module Fayde.Media.Videos {
         VideoOpened: nullstone.Event<{}>;
         constructor(uri?: Uri);
         private _UriSourceChanged(args);
-        _OnErrored(e: Event): void;
-        _OnLoad(e: Event): void;
+        protected OnUriSourceChanged(oldValue: Uri, newValue: Uri): void;
+        protected onVideoErrored(e: ErrorEvent): void;
     }
 }
 declare module Fayde.Text.History {

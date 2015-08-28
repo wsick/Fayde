@@ -3,6 +3,6 @@
     xmlns:x="http://schemas.wsick.com/fayde/x"
     ThemeName="Metro">
     <Grid>
-        <MediaElement Source="Media/test_movie.mp4" />
+        <MediaElement Source="videos/test_movie.mp4" />
     </Grid>
 </Application>

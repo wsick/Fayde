@@ -13,7 +13,6 @@ module Fayde.Controls {
         static SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
         static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBoxBase);
         static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBoxBase, 0, undefined, undefined, undefined, positiveIntValidator);
-        static SelectionOnFocusProperty = DependencyProperty.RegisterFull("SelectionOnFocus", () => SelectionOnFocus, TextBoxBase, SelectionOnFocus.Default, undefined, TextBoxBase._SelectionOnFocusCoercer);
 
         CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
@@ -22,7 +21,6 @@ module Fayde.Controls {
         SelectionStart: number;
         BaselineOffset: number;
         MaxLength: number;
-        SelectionOnFocus: SelectionOnFocus;
 
         private _Selecting: boolean = false;
         private _Captured: boolean = false;
@@ -34,12 +32,6 @@ module Fayde.Controls {
         $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
-
-        private static _SelectionOnFocusCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
-            if (typeof value === "string")
-                return nullstone.convertStringToEnum(value, SelectionOnFocus);
-            return value;
-        }
 
         constructor (eventsMask: Text.EmitChangedType) {
             super();
@@ -75,38 +67,6 @@ module Fayde.Controls {
             return cursor;
         }
 
-        private selectBasedonSelectionMode() {
-            var proxy = this.$Proxy;
-            var anchor = proxy.selAnchor;
-            var cursor = proxy.selCursor;
-            
-            switch (this.SelectionOnFocus) {
-                case SelectionOnFocus.Unchanged: // 0
-                    break;
-
-                case SelectionOnFocus.SelectAll: // 1
-                    proxy.selectAll();
-                    break;
-
-                case SelectionOnFocus.CaretToBeginning: // 2
-                    cursor = this.$Advancer.CursorLineBegin(cursor);
-                    proxy.setAnchorCursor(cursor, cursor);
-                    break;
-
-                case SelectionOnFocus.CaretToEnd: // 3
-                    cursor = this.$Advancer.CursorLineEnd(cursor);
-                    proxy.setAnchorCursor(cursor, cursor);
-                    break;
-
-                case SelectionOnFocus.DefaultSelectAll: // 5
-                    proxy.selectAll();
-                    break;
-
-                default: // SelectionOnFocus.Default (4)
-                    break;
-            }
-        }
-
         OnApplyTemplate () {
             super.OnApplyTemplate();
             this.$ContentProxy.setElement(<FrameworkElement>this.GetTemplateChild("ContentElement", FrameworkElement), this.$View);
@@ -120,7 +80,6 @@ module Fayde.Controls {
         OnGotFocus (e: RoutedEventArgs) {
             super.OnGotFocus(e);
             this.$View.setIsFocused(true);
-            this.selectBasedonSelectionMode();
         }
 
         OnMouseLeftButtonDown (e: Input.MouseButtonEventArgs) {

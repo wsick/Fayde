@@ -4,7 +4,7 @@
 module Fayde.Controls {
     import VideoUpdater = minerva.controls.video.VideoUpdater;
 
-    export class MediaElement extends FrameworkElement implements Media.Videos.IVideoChangedListener {
+    export class MediaElement extends FrameworkElement {
         CreateLayoutUpdater() {
             return new VideoUpdater();
         }
@@ -25,17 +25,33 @@ module Fayde.Controls {
         VideoOpened = new nullstone.Event();
         VideoFailed = new nullstone.Event();
 
-        OnVideoErrored(source: Media.Videos.VideoSourceBase, e: Event) {
+        private $watcher: nullstone.IDisposable = null;
+
+        OnSourceChanged(oldSource: Media.Videos.VideoSourceBase, newSource: Media.Videos.VideoSourceBase) {
+            if (this.$watcher) {
+                this.$watcher.dispose();
+                this.$watcher = null;
+            }
+            if (newSource instanceof Media.Videos.VideoSourceBase) {
+                this.$watcher = newSource.watch({
+                    onErrored: (source, error) => this.OnVideoErrored(source, error),
+                    onCanPlay: (source) => this.OnVideoCanPlay(source),
+                    onChanged: (source) => this.OnVideoChanged(source)
+                });
+            }
+        }
+
+        OnVideoErrored(source: Media.Videos.VideoSourceBase, error: Error) {
             this.VideoFailed.raise(this, null);
         }
 
-        OnVideoLoaded(source: Media.Videos.VideoSourceBase, e: Event) {
+        OnVideoCanPlay(source: Media.Videos.VideoSourceBase) {
             this.VideoOpened.raise(this, null);
             var lu = this.XamlNode.LayoutUpdater;
             lu.invalidateMeasure();
         }
 
-        VideoChanged(source: Media.Videos.VideoSourceBase) {
+        OnVideoChanged(source: Media.Videos.VideoSourceBase) {
             var lu = this.XamlNode.LayoutUpdater;
             lu.invalidateMeasure();
             lu.invalidate();
@@ -53,11 +69,8 @@ module Fayde.Controls {
     Fayde.CoreLibrary.add(MediaElement);
 
     UIReaction<Media.Videos.VideoSource>(MediaElement.SourceProperty, (upd: VideoUpdater, ov, nv, video?: MediaElement) => {
-        if (ov instanceof Media.Videos.VideoSource)
-            (<Media.Videos.VideoSource>ov).Unlisten(video);
-        if (nv instanceof Media.Videos.VideoSource) {
-            (<Media.Videos.VideoSource>nv).Listen(video);
-        } else {
+        video.OnSourceChanged(ov, nv);
+        if (!nv) {
             upd.updateBounds();
             upd.invalidate();
         }
