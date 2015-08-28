@@ -1769,7 +1769,16 @@
                                                          Storyboard.TargetName="fillColor"/>
                                     </Storyboard>
                                 </VisualState>
-                                <VisualState x:Name="SelectedUnfocused"/>
+                                <VisualState x:Name="SelectedUnfocused">
+                                    <Storyboard>
+                                        <ColorAnimation Duration="0" To="{StaticResource HoverForegroundColor}"
+                                                        Storyboard.TargetProperty="(Control.Foreground).(SolidColorBrush.Color)"
+                                                        Storyboard.TargetName="contentControl"/>
+                                        <DoubleAnimation Duration="0" To="1"
+                                                         Storyboard.TargetProperty="(UIElement.Opacity)"
+                                                         Storyboard.TargetName="fillColor"/>
+                                    </Storyboard>
+                                </VisualState>
                             </VisualStateGroup>
                             <VisualStateGroup x:Name="FocusStates">
                                 <VisualState x:Name="Focused">
