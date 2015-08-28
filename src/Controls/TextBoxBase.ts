@@ -329,9 +329,12 @@ module Fayde.Controls {
         }
 
         private copyText(text: string): void {
+            this.special_copy = <HTMLDivElement>document.getElementById("special_copy");
             if (!this.special_copy) {
                 this.special_copy = document.createElement("div");
                 this.special_copy.id = "special_copy";
+                this.special_copy.setAttribute("style", "position: absolute; left=-1000; top=-1000;");
+                document.body.appendChild(this.special_copy);
             }
 
             this.special_copy.innerText = text;
@@ -351,9 +354,12 @@ module Fayde.Controls {
         }
 
         private pasteText(callback: any) {
+            this.special_copy = <HTMLDivElement>document.getElementById("special_copy");
             if (!this.special_copy) {
                 this.special_copy = document.createElement("div");
                 this.special_copy.id = "special_copy";
+                this.special_copy.setAttribute("style", "position: absolute; left=-1000; top=-1000;");
+                document.body.appendChild(this.special_copy);
                 this.special_copy.addEventListener("keyup", function() {
                     if (!this.callback) return;
                     this.pastedText = document.getElementById("special_copy").innerText;

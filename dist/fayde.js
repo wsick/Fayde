@@ -7721,6 +7721,10 @@ var Fayde;
                 this.IsReadOnly = false;
                 this.AcceptsReturn = false;
                 this.$ContentProxy = new Controls.Internal.TextBoxContentProxy();
+                this.special_copy = null;
+                this.saveSelection = false;
+                this.callback = false;
+                this.pastedText = "";
                 var view = this.$View = this.CreateView();
                 view.MouseLeftButtonDown.on(function (s, e) { return _this.OnMouseLeftButtonDown(e); }, this);
                 view.MouseLeftButtonUp.on(function (s, e) { return _this.OnMouseLeftButtonUp(e); }, this);
@@ -7915,15 +7919,22 @@ var Fayde;
                         if (args.Modifiers.Ctrl) {
                             switch (args.Key) {
                                 case Key.A:
+                                    if (isReadOnly)
+                                        break;
                                     handled = true;
                                     proxy.selectAll();
                                     break;
                                 case Key.C:
+                                    if (isReadOnly)
+                                        break;
+                                    this.copyText(this.$Proxy.text);
                                     handled = true;
                                     break;
                                 case Key.X:
                                     if (isReadOnly)
                                         break;
+                                    this.copyText(this.$Proxy.text);
+                                    this.$Proxy.text = "";
                                     handled = true;
                                     break;
                                 case Key.Y:
@@ -7932,11 +7943,18 @@ var Fayde;
                                         proxy.redo();
                                     }
                                     break;
+                                case Key.V:
+                                    if (isReadOnly)
+                                        break;
+                                    this.pasteText(function (pasted_text) {
+                                        this.$Proxy.text = pasted_text;
+                                    });
+                                    break;
                                 case Key.Z:
-                                    if (!isReadOnly) {
-                                        handled = true;
-                                        proxy.undo();
-                                    }
+                                    if (isReadOnly)
+                                        break;
+                                    handled = true;
+                                    proxy.undo();
                                     break;
                             }
                         }
@@ -7948,6 +7966,72 @@ var Fayde;
                 proxy.end();
                 if (!args.Handled && !isReadOnly)
                     this.PostOnKeyDown(args);
+            };
+            TextBoxBase.prototype.getPastedText = function () {
+                return this.pastedText;
+            };
+            TextBoxBase.prototype.restoreSelection = function () {
+                if (!this.saveSelection)
+                    return;
+                window.getSelection().removeAllRanges();
+                for (var i = 0; i < this.saveSelection.length; i++) {
+                    window.getSelection().addRange(this.saveSelection[i]);
+                }
+                this.saveSelection = false;
+            };
+            TextBoxBase.prototype.copyText = function (text) {
+                this.special_copy = document.getElementById("special_copy");
+                if (!this.special_copy) {
+                    this.special_copy = document.createElement("div");
+                    this.special_copy.id = "special_copy";
+                    this.special_copy.setAttribute("style", "position: absolute; left=-1000; top=-1000;");
+                    document.body.appendChild(this.special_copy);
+                }
+                this.special_copy.innerText = text;
+                if (document.createRange) {
+                    var rng = document.createRange();
+                    rng.selectNodeContents(this.special_copy);
+                    this.saveSelection = [];
+                    var selection = window.getSelection();
+                    for (var i = 0; i < selection.rangeCount; i++) {
+                        this.saveSelection[i] = selection.getRangeAt(i);
+                    }
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(rng);
+                    setTimeout(this.restoreSelection.bind(this), 100);
+                }
+            };
+            TextBoxBase.prototype.pasteText = function (callback) {
+                this.special_copy = document.getElementById("special_copy");
+                if (!this.special_copy) {
+                    this.special_copy = document.createElement("div");
+                    this.special_copy.id = "special_copy";
+                    this.special_copy.setAttribute("style", "position: absolute; left=-1000; top=-1000;");
+                    document.body.appendChild(this.special_copy);
+                    this.special_copy.addEventListener("keyup", function () {
+                        if (!this.callback)
+                            return;
+                        this.pastedText = document.getElementById("special_copy").innerText;
+                        this.callback.call(null, this.pastedText);
+                        this.callback = false;
+                        this.pastedText = false;
+                        setTimeout(this.restoreSelection.bind(this), 100);
+                    }.bind(this));
+                }
+                this.special_copy.innerText = "";
+                if (document.createRange) {
+                    var rng = document.createRange();
+                    rng.selectNodeContents(this.special_copy);
+                    this.saveSelection = [];
+                    var selection = window.getSelection();
+                    for (var i = 0; i < selection.rangeCount; i++) {
+                        this.saveSelection[i] = selection.getRangeAt(i);
+                    }
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(rng);
+                    this.special_copy.focus();
+                    this.callback = callback;
+                }
             };
             TextBoxBase.prototype.PostOnKeyDown = function (args) {
                 if (args.Handled)

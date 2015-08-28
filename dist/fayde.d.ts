@@ -2009,6 +2009,14 @@ declare module Fayde.Controls {
         OnTouchUp(e: Input.TouchEventArgs): void;
         OnTouchMove(e: Input.TouchEventArgs): void;
         OnKeyDown(args: Input.KeyEventArgs): void;
+        private special_copy;
+        private saveSelection;
+        private callback;
+        private pastedText;
+        private getPastedText();
+        private restoreSelection();
+        private copyText(text);
+        private pasteText(callback);
         PostOnKeyDown(args: Input.KeyEventArgs): void;
         private _KeyDownBackSpace(modifiers);
         private _KeyDownDelete(modifiers);
