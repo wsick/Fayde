@@ -254,20 +254,25 @@ module Fayde.Controls {
                         switch (args.Key) {
                             case Key.A:
                                 //Ctrl+A => Select All
+                                if (isReadOnly)
+                                    break;
                                 handled = true;
                                 proxy.selectAll();
                                 break;
                             case Key.C:
                                 //Ctrl+C => Copy
                                 //TODO: Copy to clipboard
+                                if (isReadOnly)
+                                    break;
+                                this.copyText(this.$Proxy.text);
                                 handled = true;
                                 break;
                             case Key.X:
                                 //Ctrl+X => Cut
                                 if (isReadOnly)
                                     break;
-                                //TODO: Copy to clipboard
-                                //TODO: Clear text
+                                this.copyText(this.$Proxy.text);
+                                this.$Proxy.text = "";
                                 handled = true;
                                 break;
                             case Key.Y:
@@ -277,12 +282,19 @@ module Fayde.Controls {
                                     proxy.redo();
                                 }
                                 break;
+                            case Key.V:
+                                if (isReadOnly)
+                                    break;
+                                this.pasteText(function(pasted_text) {
+                                    this.$Proxy.text = pasted_text;
+                                });
+                                break;
                             case Key.Z:
                                 //Ctrl+Z => Undo
-                                if (!isReadOnly) {
-                                    handled = true;
-                                    proxy.undo();
-                                }
+                                if (isReadOnly)
+                                    break;
+                                handled = true;
+                                proxy.undo();
                                 break;
                         }
                     }
@@ -296,6 +308,75 @@ module Fayde.Controls {
 
             if (!args.Handled && !isReadOnly)
                 this.PostOnKeyDown(args);
+        }
+
+        private special_copy: HTMLDivElement = null;
+        private saveSelection: any = false;
+        private callback: any = false;
+        private pastedText: string = "";
+
+        private getPastedText() {
+            return this.pastedText;
+        }
+
+        private restoreSelection() {
+            if (!this.saveSelection) return;
+            window.getSelection().removeAllRanges();
+            for (var i = 0; i < this.saveSelection.length; i++) {
+                window.getSelection().addRange(this.saveSelection[i]);
+            }
+            this.saveSelection = false;
+        }
+
+        private copyText(text: string): void {
+            if (!this.special_copy) {
+                this.special_copy = document.createElement("div");
+                this.special_copy.id = "special_copy";
+            }
+
+            this.special_copy.innerText = text;
+
+            if (document.createRange) {
+                var rng = document.createRange();
+                rng.selectNodeContents(this.special_copy);
+                this.saveSelection = [];
+                var selection = window.getSelection();
+                for (var i = 0; i < selection.rangeCount; i++) {
+                    this.saveSelection[i] = selection.getRangeAt(i);
+                }
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(rng);
+                setTimeout(this.restoreSelection.bind(this), 100);
+            }
+        }
+
+        private pasteText(callback: any) {
+            if (!this.special_copy) {
+                this.special_copy = document.createElement("div");
+                this.special_copy.id = "special_copy";
+                this.special_copy.addEventListener("keyup", function() {
+                    if (!this.callback) return;
+                    this.pastedText = document.getElementById("special_copy").innerText;
+                    this.callback.call(null, this.pastedText);
+                    this.callback = false;
+                    this.pastedText = false;
+                    setTimeout(this.restoreSelection.bind(this), 100);
+                }.bind(this));
+            }
+            this.special_copy.innerText = "";
+            if (document.createRange) {
+                var rng = document.createRange();
+                rng.selectNodeContents(this.special_copy);
+                this.saveSelection = [];
+                var selection = window.getSelection();
+                for (var i = 0; i < selection.rangeCount; i++) {
+                    this.saveSelection[i] = selection.getRangeAt(i);
+                }
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(rng);
+                this.special_copy.focus();
+                this.callback = callback;
+            }
         }
 
         PostOnKeyDown (args: Input.KeyEventArgs) {
