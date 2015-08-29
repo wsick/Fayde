@@ -235,6 +235,13 @@ module Fayde.Text {
             }
         }
 
+        getSelectedText() {
+            var start = Math.min(this.selAnchor, this.selCursor);
+            var len = (Math.max(this.selAnchor, this.selCursor) - start);
+            if (len <=  0) return "";
+            return this.text.substr(start, len);
+        }
+
         private $syncEmit (syncText?: boolean) {
             syncText = syncText !== false;
 

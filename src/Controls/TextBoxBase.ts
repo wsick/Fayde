@@ -224,16 +224,16 @@ module Fayde.Controls {
                                 //TODO: Copy to clipboard
                                 if (isReadOnly)
                                     break;
-                                this.$CPHelper.CopyText(this.$Proxy.selText);
+                                
+                                this.$CPHelper.CopyText(this.$Proxy.getSelectedText());
                                 handled = true;
                                 break;
                             case Key.X:
                                 //Ctrl+X => Cut
                                 if (isReadOnly)
                                     break;
-                                this.$CPHelper.CopyText(this.$Proxy.selText);
-                                //this.$Proxy.text = "";
-                                this.$Proxy.removeText(this.$Proxy.selAnchor, this.$Proxy.selCursor);
+                                this.$CPHelper.CopyText(this.$Proxy.getSelectedText());
+                                proxy.removeText(this.$Proxy.selAnchor, this.$Proxy.selCursor);
                                 handled = true;
                                 break;
                             case Key.Y:
@@ -248,7 +248,10 @@ module Fayde.Controls {
                                     break;
                                 this.$CPHelper.PasteText(function(pastedText) {
                                     this.$Proxy.enterText(pastedText);
-                                });
+                                    var cursor = proxy.selCursor;
+                                    cursor = cursor + pastedText.length - 1;
+                                    this.$Proxy.setAnchorCursor(cursor, cursor);
+                                }.bind(this));
                                 break;
                             case Key.Z:
                                 //Ctrl+Z => Undo

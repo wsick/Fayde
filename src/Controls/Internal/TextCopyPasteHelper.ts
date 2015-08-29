@@ -8,12 +8,16 @@
         }
 
         private createElement(text: string): HTMLDivElement {
+            (<any>document.body).scroll = "no";
+            document.documentElement.style.overflow = "hidden";
             var div = document.createElement("div");
             div.id = "special_copy";
-            div.setAttribute("style", "position: absolute; left=-1000px; top=-1000px;");
-            div.contentEditable = "true";
+            div.style.left = "-1000px";
+            div.style.top = "-1000px";
+            div.style.position = "absolute";
             div.textContent = text;
             document.body.appendChild(div);
+            div.contentEditable = "true";
             return div;
         }
 
@@ -28,14 +32,17 @@
         }
 
         CopyText(text: string): void {
+            var win = <any>window;
 
-            if (window.clipboardData) { // internet explorer
-                window.clipboardData.setData("Text", text);
+            if (win.clipboardData) { // internet explorer
+                var res = win.clipboardData.setData("Text", text);
+                if (!res)
+                    alert("Your browser do not allow copy to the clipboard");
             } else {
                 var div = this.createElement(text);
                 this.selectContent(div);
 
-                if (window.netscape && netscape.security) {
+                if (win.netscape && netscape.security) {
                     netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
                 }
 
