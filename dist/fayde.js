@@ -7733,14 +7733,11 @@ var Fayde;
                 this.IsReadOnly = false;
                 this.AcceptsReturn = false;
                 this.$ContentProxy = new Controls.Internal.TextBoxContentProxy();
-                this.special_copy = null;
-                this.saveSelection = false;
-                this.callback = false;
-                this.pastedText = "";
                 var view = this.$View = this.CreateView();
                 view.MouseLeftButtonDown.on(function (s, e) { return _this.OnMouseLeftButtonDown(e); }, this);
                 view.MouseLeftButtonUp.on(function (s, e) { return _this.OnMouseLeftButtonUp(e); }, this);
                 this.$Proxy = new Fayde.Text.Proxy(eventsMask, MAX_UNDO_COUNT);
+                this.$CPHelper = new Controls.Internal.TextCopyPasteHelper();
                 this._SyncFont();
             }
             TextBoxBase.prototype._SyncFont = function () {
@@ -7908,14 +7905,14 @@ var Fayde;
                                 case Key.C:
                                     if (isReadOnly)
                                         break;
-                                    this.copyText(this.$Proxy.text);
+                                    this.$CPHelper.CopyText(this.$Proxy.selText);
                                     handled = true;
                                     break;
                                 case Key.X:
                                     if (isReadOnly)
                                         break;
-                                    this.copyText(this.$Proxy.text);
-                                    this.$Proxy.text = "";
+                                    this.$CPHelper.CopyText(this.$Proxy.selText);
+                                    this.$Proxy.removeText(this.$Proxy.selAnchor, this.$Proxy.selCursor);
                                     handled = true;
                                     break;
                                 case Key.Y:
@@ -7927,8 +7924,8 @@ var Fayde;
                                 case Key.V:
                                     if (isReadOnly)
                                         break;
-                                    this.pasteText(function (pasted_text) {
-                                        this.$Proxy.text = pasted_text;
+                                    this.$CPHelper.PasteText(function (pastedText) {
+                                        this.$Proxy.enterText(pastedText);
                                     });
                                     break;
                                 case Key.Z:
@@ -7947,72 +7944,6 @@ var Fayde;
                 proxy.end();
                 if (!args.Handled && !isReadOnly)
                     this.PostOnKeyDown(args);
-            };
-            TextBoxBase.prototype.getPastedText = function () {
-                return this.pastedText;
-            };
-            TextBoxBase.prototype.restoreSelection = function () {
-                if (!this.saveSelection)
-                    return;
-                window.getSelection().removeAllRanges();
-                for (var i = 0; i < this.saveSelection.length; i++) {
-                    window.getSelection().addRange(this.saveSelection[i]);
-                }
-                this.saveSelection = false;
-            };
-            TextBoxBase.prototype.copyText = function (text) {
-                this.special_copy = document.getElementById("special_copy");
-                if (!this.special_copy) {
-                    this.special_copy = document.createElement("div");
-                    this.special_copy.id = "special_copy";
-                    this.special_copy.setAttribute("style", "position: absolute; left=-1000; top=-1000;");
-                    document.body.appendChild(this.special_copy);
-                }
-                this.special_copy.innerText = text;
-                if (document.createRange) {
-                    var rng = document.createRange();
-                    rng.selectNodeContents(this.special_copy);
-                    this.saveSelection = [];
-                    var selection = window.getSelection();
-                    for (var i = 0; i < selection.rangeCount; i++) {
-                        this.saveSelection[i] = selection.getRangeAt(i);
-                    }
-                    window.getSelection().removeAllRanges();
-                    window.getSelection().addRange(rng);
-                    setTimeout(this.restoreSelection.bind(this), 100);
-                }
-            };
-            TextBoxBase.prototype.pasteText = function (callback) {
-                this.special_copy = document.getElementById("special_copy");
-                if (!this.special_copy) {
-                    this.special_copy = document.createElement("div");
-                    this.special_copy.id = "special_copy";
-                    this.special_copy.setAttribute("style", "position: absolute; left=-1000; top=-1000;");
-                    document.body.appendChild(this.special_copy);
-                    this.special_copy.addEventListener("keyup", function () {
-                        if (!this.callback)
-                            return;
-                        this.pastedText = document.getElementById("special_copy").innerText;
-                        this.callback.call(null, this.pastedText);
-                        this.callback = false;
-                        this.pastedText = false;
-                        setTimeout(this.restoreSelection.bind(this), 100);
-                    }.bind(this));
-                }
-                this.special_copy.innerText = "";
-                if (document.createRange) {
-                    var rng = document.createRange();
-                    rng.selectNodeContents(this.special_copy);
-                    this.saveSelection = [];
-                    var selection = window.getSelection();
-                    for (var i = 0; i < selection.rangeCount; i++) {
-                        this.saveSelection[i] = selection.getRangeAt(i);
-                    }
-                    window.getSelection().removeAllRanges();
-                    window.getSelection().addRange(rng);
-                    this.special_copy.focus();
-                    this.callback = callback;
-                }
             };
             TextBoxBase.prototype.PostOnKeyDown = function (args) {
                 if (args.Handled)
@@ -16260,396 +16191,6 @@ var Fayde;
         Fayde.CoreLibrary.add(StaticResource);
     })(Markup = Fayde.Markup || (Fayde.Markup = {}));
 })(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        function Navigate(source, targetName, navigateUri) {
-            if (!isExternalTarget(targetName)) {
-                if (tryInternalNavigate(source, navigateUri, targetName))
-                    return;
-                if (!isUriValidForExternalNav(navigateUri))
-                    throw new NotSupportedException("Navigation Failed");
-            }
-            var app = source.App;
-            if (!app || !app.AllowNavigation)
-                throw new InvalidOperationException("Navigation is now allowed.");
-            var absoluteUri = getAbsoluteUri(navigateUri, app);
-            if (!absoluteUri.isAbsoluteUri)
-                throw new InvalidOperationException("Navigation Failed [" + absoluteUri.toString() + "]");
-            launchDummyLink(targetName || "_self", absoluteUri.originalString);
-        }
-        Navigation.Navigate = Navigate;
-        function isExternalTarget(targetName) {
-            if (!targetName)
-                return false;
-            switch (targetName.toLowerCase()) {
-                case "_blank":
-                case "_media":
-                case "_search":
-                case "_parent":
-                case "_self":
-                case "_top":
-                    return true;
-                default:
-                    return false;
-            }
-        }
-        function tryInternalNavigate(source, navigateUri, targetName) {
-            var lastSubtree = source;
-            for (var en = walkUp(source); en.moveNext();) {
-                var cur = en.current;
-                if (cur && (Navigation.INavigate_.is(cur) || !Fayde.VisualTreeHelper.GetParent(cur))) {
-                    var navigator = findNavigator(cur, lastSubtree, targetName);
-                    if (navigator)
-                        return navigator.Navigate(navigateUri);
-                    lastSubtree = cur;
-                }
-            }
-            return false;
-        }
-        function findNavigator(root, lastSubtree, targetName) {
-            if (!root || root === lastSubtree)
-                return null;
-            var nav = Navigation.INavigate_.as(root);
-            if (nav && (!targetName || targetName === root.Name))
-                return nav;
-            if (root instanceof Fayde.Controls.Primitives.Popup) {
-                return findNavigator(root.Child, lastSubtree, targetName);
-            }
-            else {
-                for (var i = 0, len = Fayde.VisualTreeHelper.GetChildrenCount(root); i < len; i++) {
-                    var navigator = findNavigator(Fayde.VisualTreeHelper.GetChild(root, i), lastSubtree, targetName);
-                    if (navigator)
-                        return navigator;
-                }
-            }
-            return null;
-        }
-        function walkUp(xobj) {
-            var e = {
-                current: xobj,
-                moveNext: function () {
-                    if (!e.current)
-                        return false;
-                    e.current = e.current.VisualParent || e.current.Parent;
-                    return !!e.current;
-                }
-            };
-            return e;
-        }
-        function isUriValidForExternalNav(navigateUri) {
-            if (!navigateUri.isAbsoluteUri) {
-                if (!!navigateUri.originalString && navigateUri.originalString[0] !== "/")
-                    return false;
-            }
-            return true;
-        }
-        function getAbsoluteUri(navigateUri, app) {
-            var relativeUri = navigateUri;
-            if (!relativeUri.isAbsoluteUri) {
-                if (!!relativeUri.originalString && relativeUri.originalString[0] !== "/")
-                    throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_PageRelativeUri");
-                if (!app)
-                    throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_NoApplication");
-                relativeUri = new Fayde.Uri(app.Address, relativeUri);
-            }
-            return relativeUri;
-        }
-        var dummyLink;
-        function launchDummyLink(target, navigateUri) {
-            dummyLink = dummyLink || document.createElement('a');
-            dummyLink.href = navigateUri;
-            dummyLink.target = target;
-            dummyLink.click();
-        }
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        var NavigationService = (function () {
-            function NavigationService() {
-                var _this = this;
-                this.LocationChanged = new nullstone.Event();
-                this.Href = window.location.href;
-                this.Hash = window.location.hash;
-                if (this.Href[this.Href.length - 1] === '#')
-                    this.Hash = "#";
-                if (this.Hash) {
-                    this.Hash = this.Hash.substr(1);
-                    this.Href = this.Href.substring(0, this.Href.indexOf('#'));
-                }
-                window.onhashchange = function () { return _this._HandleFragmentChange(); };
-            }
-            Object.defineProperty(NavigationService.prototype, "CurrentUri", {
-                get: function () {
-                    return new Fayde.Uri(this.Href + "#" + this.Hash);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            NavigationService.prototype.Navigate = function (uri) {
-                window.location.hash = uri.toString();
-                return true;
-            };
-            NavigationService.prototype._HandleFragmentChange = function () {
-                this.Hash = window.location.hash;
-                if (this.Hash) {
-                    this.Hash = this.Hash.substr(1);
-                }
-                this.LocationChanged.raise(this, null);
-            };
-            return NavigationService;
-        })();
-        Navigation.NavigationService = NavigationService;
-        Fayde.CoreLibrary.add(NavigationService);
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="../Core/DependencyObject.ts" />
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        var RouteMapper = (function (_super) {
-            __extends(RouteMapper, _super);
-            function RouteMapper() {
-                _super.call(this);
-                RouteMapper.RouteMappingsProperty.Initialize(this);
-            }
-            RouteMapper.prototype.MapUri = function (uri) {
-                var mapped;
-                for (var en = this.RouteMappings.getEnumerator(); en.moveNext();) {
-                    mapped = en.current.MapUri(uri);
-                    if (mapped) {
-                        var vm = this.ViewModelProvider ? this.ViewModelProvider.ResolveViewModel(mapped) : null;
-                        mapped.DataContext = vm;
-                        return mapped;
-                    }
-                }
-                return undefined;
-            };
-            RouteMapper.RouteMappingsProperty = DependencyProperty.RegisterImmutable("RouteMappings", function () { return Fayde.XamlObjectCollection; }, RouteMapper);
-            RouteMapper.ViewModelProviderProperty = DependencyProperty.Register("ViewModelProvider", function () { return Fayde.MVVM.IViewModelProvider_; }, RouteMapper);
-            return RouteMapper;
-        })(Fayde.DependencyObject);
-        Navigation.RouteMapper = RouteMapper;
-        Fayde.CoreLibrary.add(RouteMapper);
-        Fayde.Markup.Content(RouteMapper, RouteMapper.RouteMappingsProperty);
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="../Core/DependencyObject.ts" />
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        var RouteMapping = (function (_super) {
-            __extends(RouteMapping, _super);
-            function RouteMapping() {
-                _super.apply(this, arguments);
-            }
-            RouteMapping.prototype.MapUri = function (uri) {
-                var matcher = createUriMatcher(this.Uri.toString(), uri.toString());
-                var result = matcher.Match();
-                if (!result)
-                    return undefined;
-                if (!this.View)
-                    throw new InvalidOperationException("RouteMapping must have a view. (" + this.Uri.toString() + ")");
-                var hashParams = {};
-                for (var i = 0; i < result.length; i++) {
-                    var key = result[i].Identifier;
-                    var value = result[i].Value;
-                    hashParams[key] = value;
-                }
-                return new Navigation.Route(this.View, hashParams, null);
-            };
-            RouteMapping.ViewProperty = DependencyProperty.Register("View", function () { return Fayde.Uri; }, RouteMapping);
-            RouteMapping.UriProperty = DependencyProperty.Register("Uri", function () { return Fayde.Uri; }, RouteMapping);
-            return RouteMapping;
-        })(Fayde.DependencyObject);
-        Navigation.RouteMapping = RouteMapping;
-        Fayde.CoreLibrary.add(RouteMapping);
-        function createUriMatcher(matchTemplate, actual) {
-            var i = 0;
-            var j = 0;
-            function collectTokenInfo() {
-                var tokenInfo = {
-                    Identifier: null,
-                    Terminator: null,
-                    Value: null
-                };
-                var index = matchTemplate.indexOf('}', i);
-                if (index < 0)
-                    throw new InvalidOperationException("Invalid Uri format. '{' needs a closing '}'.");
-                var len = index - i + 1;
-                tokenInfo.Identifier = matchTemplate.substr(i + 1, len - 2);
-                if (!tokenInfo.Identifier)
-                    throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
-                i += len;
-                tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
-                return tokenInfo;
-            }
-            function findTokenValue(tokenInfo) {
-                if (tokenInfo.Terminator === '\0') {
-                    tokenInfo.Value = actual.substr(j);
-                    if (tokenInfo.Value)
-                        j += tokenInfo.Value.length;
-                    return tokenInfo;
-                }
-                tokenInfo.Value = "";
-                while (j < actual.length) {
-                    if (actual[j] == tokenInfo.Terminator)
-                        return;
-                    tokenInfo.Value += actual[j];
-                    j++;
-                }
-            }
-            return {
-                Match: function () {
-                    var tokens = [];
-                    if (matchTemplate.length === 0) {
-                        if (actual.length === 0)
-                            return tokens;
-                        return null;
-                    }
-                    while (i < matchTemplate.length && j < actual.length) {
-                        if (matchTemplate[i] === "{") {
-                            tokens.push(findTokenValue(collectTokenInfo()));
-                            continue;
-                        }
-                        if (matchTemplate[i] !== actual[i])
-                            return null;
-                        i++;
-                        j++;
-                    }
-                    return tokens;
-                }
-            };
-        }
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="../Core/DependencyObject.ts" />
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        var UriMapper = (function (_super) {
-            __extends(UriMapper, _super);
-            function UriMapper() {
-                _super.call(this);
-                UriMapper.UriMappingsProperty.Initialize(this);
-            }
-            UriMapper.prototype.MapUri = function (uri) {
-                var enumerator = this.UriMappings.getEnumerator();
-                var mapped;
-                while (enumerator.moveNext()) {
-                    mapped = enumerator.current.MapUri(uri);
-                    if (mapped)
-                        return mapped;
-                }
-                return uri;
-            };
-            UriMapper.UriMappingsProperty = DependencyProperty.RegisterImmutable("UriMappings", function () { return Fayde.XamlObjectCollection; }, UriMapper);
-            return UriMapper;
-        })(Fayde.DependencyObject);
-        Navigation.UriMapper = UriMapper;
-        Fayde.CoreLibrary.add(UriMapper);
-        Fayde.Markup.Content(UriMapper, UriMapper.UriMappingsProperty);
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="../Core/DependencyObject.ts" />
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        var UriMapping = (function (_super) {
-            __extends(UriMapping, _super);
-            function UriMapping() {
-                _super.apply(this, arguments);
-            }
-            UriMapping.prototype.MapUri = function (uri) {
-                var matcher = createUriMatcher(this.Uri.toString(), this.MappedUri.toString(), uri.toString());
-                var result = matcher.Match();
-                if (!result)
-                    return undefined;
-                return new Fayde.Uri(result);
-            };
-            UriMapping.MappedUriProperty = DependencyProperty.Register("MappedUri", function () { return Fayde.Uri; }, UriMapping);
-            UriMapping.UriProperty = DependencyProperty.Register("Uri", function () { return Fayde.Uri; }, UriMapping);
-            return UriMapping;
-        })(Fayde.DependencyObject);
-        Navigation.UriMapping = UriMapping;
-        Fayde.CoreLibrary.add(UriMapping);
-        function createUriMatcher(matchTemplate, outputTemplate, actual) {
-            var i = 0;
-            var j = 0;
-            function collectTokenInfo() {
-                var tokenInfo = {
-                    Identifier: null,
-                    Terminator: null,
-                    Value: null
-                };
-                var index = matchTemplate.indexOf('}', i);
-                if (index < 0)
-                    throw new InvalidOperationException("Invalid Uri format. '{' needs a closing '}'.");
-                var len = index - i + 1;
-                tokenInfo.Identifier = matchTemplate.substr(i + 1, len - 2);
-                if (!tokenInfo.Identifier)
-                    throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
-                i += len;
-                tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
-                return tokenInfo;
-            }
-            function findTokenValue(tokenInfo) {
-                if (tokenInfo.Terminator === '\0') {
-                    tokenInfo.Value = actual.substr(j);
-                    if (tokenInfo.Value)
-                        j += tokenInfo.Value.length;
-                    return tokenInfo;
-                }
-                tokenInfo.Value = "";
-                while (j < actual.length) {
-                    if (actual[j] == tokenInfo.Terminator)
-                        return;
-                    tokenInfo.Value += actual[j];
-                    j++;
-                }
-            }
-            function buildMappedUri(tokens) {
-                var cur = outputTemplate;
-                var len = tokens.length;
-                var token;
-                for (var a = 0; a < len; a++) {
-                    token = tokens[a];
-                    cur = cur.replace("{" + token.Identifier + "}", token.Value);
-                }
-                return cur;
-            }
-            return {
-                Match: function () {
-                    var tokens = [];
-                    if (matchTemplate.length === 0) {
-                        if (actual.length === 0)
-                            return buildMappedUri(tokens);
-                        return null;
-                    }
-                    while (i < matchTemplate.length && j < actual.length) {
-                        if (matchTemplate[i] === "{") {
-                            tokens.push(findTokenValue(collectTokenInfo()));
-                            continue;
-                        }
-                        if (matchTemplate[i] !== actual[i])
-                            return null;
-                        i++;
-                        j++;
-                    }
-                    return buildMappedUri(tokens);
-                }
-            };
-        }
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
-})(Fayde || (Fayde = {}));
 /// <reference path="../Core/DependencyObject.ts" />
 var Fayde;
 (function (Fayde) {
@@ -18945,6 +18486,396 @@ var Fayde;
         Fayde.Markup.Content(TransformGroup, TransformGroup.ChildrenProperty);
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        function Navigate(source, targetName, navigateUri) {
+            if (!isExternalTarget(targetName)) {
+                if (tryInternalNavigate(source, navigateUri, targetName))
+                    return;
+                if (!isUriValidForExternalNav(navigateUri))
+                    throw new NotSupportedException("Navigation Failed");
+            }
+            var app = source.App;
+            if (!app || !app.AllowNavigation)
+                throw new InvalidOperationException("Navigation is now allowed.");
+            var absoluteUri = getAbsoluteUri(navigateUri, app);
+            if (!absoluteUri.isAbsoluteUri)
+                throw new InvalidOperationException("Navigation Failed [" + absoluteUri.toString() + "]");
+            launchDummyLink(targetName || "_self", absoluteUri.originalString);
+        }
+        Navigation.Navigate = Navigate;
+        function isExternalTarget(targetName) {
+            if (!targetName)
+                return false;
+            switch (targetName.toLowerCase()) {
+                case "_blank":
+                case "_media":
+                case "_search":
+                case "_parent":
+                case "_self":
+                case "_top":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        function tryInternalNavigate(source, navigateUri, targetName) {
+            var lastSubtree = source;
+            for (var en = walkUp(source); en.moveNext();) {
+                var cur = en.current;
+                if (cur && (Navigation.INavigate_.is(cur) || !Fayde.VisualTreeHelper.GetParent(cur))) {
+                    var navigator = findNavigator(cur, lastSubtree, targetName);
+                    if (navigator)
+                        return navigator.Navigate(navigateUri);
+                    lastSubtree = cur;
+                }
+            }
+            return false;
+        }
+        function findNavigator(root, lastSubtree, targetName) {
+            if (!root || root === lastSubtree)
+                return null;
+            var nav = Navigation.INavigate_.as(root);
+            if (nav && (!targetName || targetName === root.Name))
+                return nav;
+            if (root instanceof Fayde.Controls.Primitives.Popup) {
+                return findNavigator(root.Child, lastSubtree, targetName);
+            }
+            else {
+                for (var i = 0, len = Fayde.VisualTreeHelper.GetChildrenCount(root); i < len; i++) {
+                    var navigator = findNavigator(Fayde.VisualTreeHelper.GetChild(root, i), lastSubtree, targetName);
+                    if (navigator)
+                        return navigator;
+                }
+            }
+            return null;
+        }
+        function walkUp(xobj) {
+            var e = {
+                current: xobj,
+                moveNext: function () {
+                    if (!e.current)
+                        return false;
+                    e.current = e.current.VisualParent || e.current.Parent;
+                    return !!e.current;
+                }
+            };
+            return e;
+        }
+        function isUriValidForExternalNav(navigateUri) {
+            if (!navigateUri.isAbsoluteUri) {
+                if (!!navigateUri.originalString && navigateUri.originalString[0] !== "/")
+                    return false;
+            }
+            return true;
+        }
+        function getAbsoluteUri(navigateUri, app) {
+            var relativeUri = navigateUri;
+            if (!relativeUri.isAbsoluteUri) {
+                if (!!relativeUri.originalString && relativeUri.originalString[0] !== "/")
+                    throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_PageRelativeUri");
+                if (!app)
+                    throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_NoApplication");
+                relativeUri = new Fayde.Uri(app.Address, relativeUri);
+            }
+            return relativeUri;
+        }
+        var dummyLink;
+        function launchDummyLink(target, navigateUri) {
+            dummyLink = dummyLink || document.createElement('a');
+            dummyLink.href = navigateUri;
+            dummyLink.target = target;
+            dummyLink.click();
+        }
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        var NavigationService = (function () {
+            function NavigationService() {
+                var _this = this;
+                this.LocationChanged = new nullstone.Event();
+                this.Href = window.location.href;
+                this.Hash = window.location.hash;
+                if (this.Href[this.Href.length - 1] === '#')
+                    this.Hash = "#";
+                if (this.Hash) {
+                    this.Hash = this.Hash.substr(1);
+                    this.Href = this.Href.substring(0, this.Href.indexOf('#'));
+                }
+                window.onhashchange = function () { return _this._HandleFragmentChange(); };
+            }
+            Object.defineProperty(NavigationService.prototype, "CurrentUri", {
+                get: function () {
+                    return new Fayde.Uri(this.Href + "#" + this.Hash);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            NavigationService.prototype.Navigate = function (uri) {
+                window.location.hash = uri.toString();
+                return true;
+            };
+            NavigationService.prototype._HandleFragmentChange = function () {
+                this.Hash = window.location.hash;
+                if (this.Hash) {
+                    this.Hash = this.Hash.substr(1);
+                }
+                this.LocationChanged.raise(this, null);
+            };
+            return NavigationService;
+        })();
+        Navigation.NavigationService = NavigationService;
+        Fayde.CoreLibrary.add(NavigationService);
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../Core/DependencyObject.ts" />
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        var RouteMapper = (function (_super) {
+            __extends(RouteMapper, _super);
+            function RouteMapper() {
+                _super.call(this);
+                RouteMapper.RouteMappingsProperty.Initialize(this);
+            }
+            RouteMapper.prototype.MapUri = function (uri) {
+                var mapped;
+                for (var en = this.RouteMappings.getEnumerator(); en.moveNext();) {
+                    mapped = en.current.MapUri(uri);
+                    if (mapped) {
+                        var vm = this.ViewModelProvider ? this.ViewModelProvider.ResolveViewModel(mapped) : null;
+                        mapped.DataContext = vm;
+                        return mapped;
+                    }
+                }
+                return undefined;
+            };
+            RouteMapper.RouteMappingsProperty = DependencyProperty.RegisterImmutable("RouteMappings", function () { return Fayde.XamlObjectCollection; }, RouteMapper);
+            RouteMapper.ViewModelProviderProperty = DependencyProperty.Register("ViewModelProvider", function () { return Fayde.MVVM.IViewModelProvider_; }, RouteMapper);
+            return RouteMapper;
+        })(Fayde.DependencyObject);
+        Navigation.RouteMapper = RouteMapper;
+        Fayde.CoreLibrary.add(RouteMapper);
+        Fayde.Markup.Content(RouteMapper, RouteMapper.RouteMappingsProperty);
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../Core/DependencyObject.ts" />
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        var RouteMapping = (function (_super) {
+            __extends(RouteMapping, _super);
+            function RouteMapping() {
+                _super.apply(this, arguments);
+            }
+            RouteMapping.prototype.MapUri = function (uri) {
+                var matcher = createUriMatcher(this.Uri.toString(), uri.toString());
+                var result = matcher.Match();
+                if (!result)
+                    return undefined;
+                if (!this.View)
+                    throw new InvalidOperationException("RouteMapping must have a view. (" + this.Uri.toString() + ")");
+                var hashParams = {};
+                for (var i = 0; i < result.length; i++) {
+                    var key = result[i].Identifier;
+                    var value = result[i].Value;
+                    hashParams[key] = value;
+                }
+                return new Navigation.Route(this.View, hashParams, null);
+            };
+            RouteMapping.ViewProperty = DependencyProperty.Register("View", function () { return Fayde.Uri; }, RouteMapping);
+            RouteMapping.UriProperty = DependencyProperty.Register("Uri", function () { return Fayde.Uri; }, RouteMapping);
+            return RouteMapping;
+        })(Fayde.DependencyObject);
+        Navigation.RouteMapping = RouteMapping;
+        Fayde.CoreLibrary.add(RouteMapping);
+        function createUriMatcher(matchTemplate, actual) {
+            var i = 0;
+            var j = 0;
+            function collectTokenInfo() {
+                var tokenInfo = {
+                    Identifier: null,
+                    Terminator: null,
+                    Value: null
+                };
+                var index = matchTemplate.indexOf('}', i);
+                if (index < 0)
+                    throw new InvalidOperationException("Invalid Uri format. '{' needs a closing '}'.");
+                var len = index - i + 1;
+                tokenInfo.Identifier = matchTemplate.substr(i + 1, len - 2);
+                if (!tokenInfo.Identifier)
+                    throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
+                i += len;
+                tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
+                return tokenInfo;
+            }
+            function findTokenValue(tokenInfo) {
+                if (tokenInfo.Terminator === '\0') {
+                    tokenInfo.Value = actual.substr(j);
+                    if (tokenInfo.Value)
+                        j += tokenInfo.Value.length;
+                    return tokenInfo;
+                }
+                tokenInfo.Value = "";
+                while (j < actual.length) {
+                    if (actual[j] == tokenInfo.Terminator)
+                        return;
+                    tokenInfo.Value += actual[j];
+                    j++;
+                }
+            }
+            return {
+                Match: function () {
+                    var tokens = [];
+                    if (matchTemplate.length === 0) {
+                        if (actual.length === 0)
+                            return tokens;
+                        return null;
+                    }
+                    while (i < matchTemplate.length && j < actual.length) {
+                        if (matchTemplate[i] === "{") {
+                            tokens.push(findTokenValue(collectTokenInfo()));
+                            continue;
+                        }
+                        if (matchTemplate[i] !== actual[i])
+                            return null;
+                        i++;
+                        j++;
+                    }
+                    return tokens;
+                }
+            };
+        }
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../Core/DependencyObject.ts" />
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        var UriMapper = (function (_super) {
+            __extends(UriMapper, _super);
+            function UriMapper() {
+                _super.call(this);
+                UriMapper.UriMappingsProperty.Initialize(this);
+            }
+            UriMapper.prototype.MapUri = function (uri) {
+                var enumerator = this.UriMappings.getEnumerator();
+                var mapped;
+                while (enumerator.moveNext()) {
+                    mapped = enumerator.current.MapUri(uri);
+                    if (mapped)
+                        return mapped;
+                }
+                return uri;
+            };
+            UriMapper.UriMappingsProperty = DependencyProperty.RegisterImmutable("UriMappings", function () { return Fayde.XamlObjectCollection; }, UriMapper);
+            return UriMapper;
+        })(Fayde.DependencyObject);
+        Navigation.UriMapper = UriMapper;
+        Fayde.CoreLibrary.add(UriMapper);
+        Fayde.Markup.Content(UriMapper, UriMapper.UriMappingsProperty);
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../Core/DependencyObject.ts" />
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        var UriMapping = (function (_super) {
+            __extends(UriMapping, _super);
+            function UriMapping() {
+                _super.apply(this, arguments);
+            }
+            UriMapping.prototype.MapUri = function (uri) {
+                var matcher = createUriMatcher(this.Uri.toString(), this.MappedUri.toString(), uri.toString());
+                var result = matcher.Match();
+                if (!result)
+                    return undefined;
+                return new Fayde.Uri(result);
+            };
+            UriMapping.MappedUriProperty = DependencyProperty.Register("MappedUri", function () { return Fayde.Uri; }, UriMapping);
+            UriMapping.UriProperty = DependencyProperty.Register("Uri", function () { return Fayde.Uri; }, UriMapping);
+            return UriMapping;
+        })(Fayde.DependencyObject);
+        Navigation.UriMapping = UriMapping;
+        Fayde.CoreLibrary.add(UriMapping);
+        function createUriMatcher(matchTemplate, outputTemplate, actual) {
+            var i = 0;
+            var j = 0;
+            function collectTokenInfo() {
+                var tokenInfo = {
+                    Identifier: null,
+                    Terminator: null,
+                    Value: null
+                };
+                var index = matchTemplate.indexOf('}', i);
+                if (index < 0)
+                    throw new InvalidOperationException("Invalid Uri format. '{' needs a closing '}'.");
+                var len = index - i + 1;
+                tokenInfo.Identifier = matchTemplate.substr(i + 1, len - 2);
+                if (!tokenInfo.Identifier)
+                    throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
+                i += len;
+                tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
+                return tokenInfo;
+            }
+            function findTokenValue(tokenInfo) {
+                if (tokenInfo.Terminator === '\0') {
+                    tokenInfo.Value = actual.substr(j);
+                    if (tokenInfo.Value)
+                        j += tokenInfo.Value.length;
+                    return tokenInfo;
+                }
+                tokenInfo.Value = "";
+                while (j < actual.length) {
+                    if (actual[j] == tokenInfo.Terminator)
+                        return;
+                    tokenInfo.Value += actual[j];
+                    j++;
+                }
+            }
+            function buildMappedUri(tokens) {
+                var cur = outputTemplate;
+                var len = tokens.length;
+                var token;
+                for (var a = 0; a < len; a++) {
+                    token = tokens[a];
+                    cur = cur.replace("{" + token.Identifier + "}", token.Value);
+                }
+                return cur;
+            }
+            return {
+                Match: function () {
+                    var tokens = [];
+                    if (matchTemplate.length === 0) {
+                        if (actual.length === 0)
+                            return buildMappedUri(tokens);
+                        return null;
+                    }
+                    while (i < matchTemplate.length && j < actual.length) {
+                        if (matchTemplate[i] === "{") {
+                            tokens.push(findTokenValue(collectTokenInfo()));
+                            continue;
+                        }
+                        if (matchTemplate[i] !== actual[i])
+                            return null;
+                        i++;
+                        j++;
+                    }
+                    return buildMappedUri(tokens);
+                }
+            };
+        }
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
 var Color = (function () {
     function Color() {
         this.R = 0;
@@ -21086,6 +21017,84 @@ var Fayde;
             })(Fayde.FrameworkElement);
             Internal.TextBoxView = TextBoxView;
             Fayde.RegisterType(TextBoxView, Fayde.XMLNSINTERNAL);
+        })(Internal = Controls.Internal || (Controls.Internal = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var Internal;
+        (function (Internal) {
+            var TextCopyPasteHelper = (function () {
+                function TextCopyPasteHelper() {
+                    this.callback = false;
+                    this.pastedText = "";
+                }
+                TextCopyPasteHelper.prototype.GetPastedText = function () {
+                    return this.pastedText;
+                };
+                TextCopyPasteHelper.prototype.createElement = function (text) {
+                    var div = document.createElement("div");
+                    div.id = "special_copy";
+                    div.setAttribute("style", "position: absolute; left=-1000px; top=-1000px;");
+                    div.contentEditable = "true";
+                    div.textContent = text;
+                    document.body.appendChild(div);
+                    return div;
+                };
+                TextCopyPasteHelper.prototype.selectContent = function (element) {
+                    var rangeToSelect = document.createRange();
+                    rangeToSelect.selectNodeContents(element);
+                    var selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(rangeToSelect);
+                };
+                TextCopyPasteHelper.prototype.CopyText = function (text) {
+                    if (window.clipboardData) {
+                        window.clipboardData.setData("Text", text);
+                    }
+                    else {
+                        var div = this.createElement(text);
+                        this.selectContent(div);
+                        if (window.netscape && netscape.security) {
+                            netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+                        }
+                        if (!document.execCommand("copy", false, null))
+                            alert("Your browser does not allow copy to the clipboard. This feature will not function");
+                        document.body.removeChild(div);
+                    }
+                };
+                TextCopyPasteHelper.prototype.PasteText = function (callback) {
+                    var div = this.createElement("");
+                    this.callback = callback;
+                    div.addEventListener("keyup", function () {
+                        if (!this.callback)
+                            return;
+                        var div = document.getElementById("special_copy");
+                        this.pastedText = div.textContent;
+                        this.callback.call(null, this.pastedText);
+                        this.callback = false;
+                        this.pastedText = false;
+                        document.body.removeChild(div);
+                    }.bind(this));
+                    if (document.createRange) {
+                        var rng = document.createRange();
+                        rng.selectNodeContents(div);
+                        var saveSelection = [];
+                        var selection = window.getSelection();
+                        for (var i = 0; i < selection.rangeCount; i++) {
+                            saveSelection[i] = selection.getRangeAt(i);
+                        }
+                        window.getSelection().removeAllRanges();
+                        window.getSelection().addRange(rng);
+                        div.focus();
+                        this.callback = callback;
+                    }
+                };
+                return TextCopyPasteHelper;
+            })();
+            Internal.TextCopyPasteHelper = TextCopyPasteHelper;
         })(Internal = Controls.Internal || (Controls.Internal = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));

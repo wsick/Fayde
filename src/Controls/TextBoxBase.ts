@@ -32,6 +32,7 @@ module Fayde.Controls {
         $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
+        $CPHelper: Internal.TextCopyPasteHelper;
 
         constructor (eventsMask: Text.EmitChangedType) {
             super();
@@ -39,7 +40,7 @@ module Fayde.Controls {
             view.MouseLeftButtonDown.on((s, e) => this.OnMouseLeftButtonDown(e), this);
             view.MouseLeftButtonUp.on((s, e) => this.OnMouseLeftButtonUp(e), this);
             this.$Proxy = new Text.Proxy(eventsMask, MAX_UNDO_COUNT);
-
+            this.$CPHelper = new Internal.TextCopyPasteHelper();
             this._SyncFont();
         }
 
@@ -223,15 +224,16 @@ module Fayde.Controls {
                                 //TODO: Copy to clipboard
                                 if (isReadOnly)
                                     break;
-                                this.copyText(this.$Proxy.text);
+                                this.$CPHelper.CopyText(this.$Proxy.selText);
                                 handled = true;
                                 break;
                             case Key.X:
                                 //Ctrl+X => Cut
                                 if (isReadOnly)
                                     break;
-                                this.copyText(this.$Proxy.text);
-                                this.$Proxy.text = "";
+                                this.$CPHelper.CopyText(this.$Proxy.selText);
+                                //this.$Proxy.text = "";
+                                this.$Proxy.removeText(this.$Proxy.selAnchor, this.$Proxy.selCursor);
                                 handled = true;
                                 break;
                             case Key.Y:
@@ -244,8 +246,8 @@ module Fayde.Controls {
                             case Key.V:
                                 if (isReadOnly)
                                     break;
-                                this.pasteText(function(pasted_text) {
-                                    this.$Proxy.text = pasted_text;
+                                this.$CPHelper.PasteText(function(pastedText) {
+                                    this.$Proxy.enterText(pastedText);
                                 });
                                 break;
                             case Key.Z:
@@ -267,81 +269,6 @@ module Fayde.Controls {
 
             if (!args.Handled && !isReadOnly)
                 this.PostOnKeyDown(args);
-        }
-
-        private special_copy: HTMLDivElement = null;
-        private saveSelection: any = false;
-        private callback: any = false;
-        private pastedText: string = "";
-
-        private getPastedText() {
-            return this.pastedText;
-        }
-
-        private restoreSelection() {
-            if (!this.saveSelection) return;
-            window.getSelection().removeAllRanges();
-            for (var i = 0; i < this.saveSelection.length; i++) {
-                window.getSelection().addRange(this.saveSelection[i]);
-            }
-            this.saveSelection = false;
-        }
-
-        private copyText(text: string): void {
-            this.special_copy = <HTMLDivElement>document.getElementById("special_copy");
-            if (!this.special_copy) {
-                this.special_copy = document.createElement("div");
-                this.special_copy.id = "special_copy";
-                this.special_copy.setAttribute("style", "position: absolute; left=-1000; top=-1000;");
-                document.body.appendChild(this.special_copy);
-            }
-
-            this.special_copy.innerText = text;
-
-            if (document.createRange) {
-                var rng = document.createRange();
-                rng.selectNodeContents(this.special_copy);
-                this.saveSelection = [];
-                var selection = window.getSelection();
-                for (var i = 0; i < selection.rangeCount; i++) {
-                    this.saveSelection[i] = selection.getRangeAt(i);
-                }
-                window.getSelection().removeAllRanges();
-                window.getSelection().addRange(rng);
-                setTimeout(this.restoreSelection.bind(this), 100);
-            }
-        }
-
-        private pasteText(callback: any) {
-            this.special_copy = <HTMLDivElement>document.getElementById("special_copy");
-            if (!this.special_copy) {
-                this.special_copy = document.createElement("div");
-                this.special_copy.id = "special_copy";
-                this.special_copy.setAttribute("style", "position: absolute; left=-1000; top=-1000;");
-                document.body.appendChild(this.special_copy);
-                this.special_copy.addEventListener("keyup", function() {
-                    if (!this.callback) return;
-                    this.pastedText = document.getElementById("special_copy").innerText;
-                    this.callback.call(null, this.pastedText);
-                    this.callback = false;
-                    this.pastedText = false;
-                    setTimeout(this.restoreSelection.bind(this), 100);
-                }.bind(this));
-            }
-            this.special_copy.innerText = "";
-            if (document.createRange) {
-                var rng = document.createRange();
-                rng.selectNodeContents(this.special_copy);
-                this.saveSelection = [];
-                var selection = window.getSelection();
-                for (var i = 0; i < selection.rangeCount; i++) {
-                    this.saveSelection[i] = selection.getRangeAt(i);
-                }
-                window.getSelection().removeAllRanges();
-                window.getSelection().addRange(rng);
-                this.special_copy.focus();
-                this.callback = callback;
-            }
         }
 
         PostOnKeyDown (args: Input.KeyEventArgs) {
