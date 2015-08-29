@@ -8,14 +8,14 @@
     </Application.Resources>
 
     <StackPanel x:Name="LayoutRoot">
-        <Border BorderWidth="1" BorderBrush="Black">
-            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="250" TextTrimming="WordEllipsis">TextTrimming WordEllipsis has been turned on for this text block.</TextBlock>
+        <Border BorderThickness="1" BorderBrush="Black" Width="250">
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" TextTrimming="WordEllipsis">TextTrimming WordEllipsis has been turned on for this text block.</TextBlock>
         </Border>
-        <Border BorderWidth="1" BorderBrush="Black">
-            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="250" TextTrimming="CharacterEllipsis">TextTrimming CharacterEllipsis has been turned on for this text block.</TextBlock>
+        <Border BorderThickness="1" BorderBrush="Black" Width="250">
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis">TextTrimming CharacterEllipsis has been turned on for this text block.</TextBlock>
         </Border>
-        <Border BorderWidth="1" BorderBrush="Black">
-            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="150" TextTrimming="CharacterEllipsis">
+        <Border BorderThickness="1" BorderBrush="Black" Width="150">
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis">
 TextTrimming CharacterEllipsis has been
 turned on for this text block with new lines to
 test edge cases.</TextBlock>
