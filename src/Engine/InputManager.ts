@@ -58,7 +58,7 @@ module Fayde.Engine {
         }
 
         SetIsUserInitiatedEvent(value: boolean) {
-            this._Focus.EmitChanges()
+            this._Focus.EmitChanges();
             this._State.IsFirstUserInitiated = this._State.IsFirstUserInitiated || value;
             this._State.IsUserInitiated = value;
         }

@@ -1742,7 +1742,7 @@ declare module Fayde.Media {
 }
 declare module Fayde.Controls {
     import ImageUpdater = minerva.controls.image.ImageUpdater;
-    class Image extends FrameworkElement implements Media.Imaging.IImageChangedListener {
+    class Image extends FrameworkElement {
         CreateLayoutUpdater(): ImageUpdater;
         private static _SourceCoercer(d, propd, value);
         static SourceProperty: DependencyProperty;
@@ -1751,9 +1751,11 @@ declare module Fayde.Controls {
         Stretch: Media.Stretch;
         ImageOpened: nullstone.Event<{}>;
         ImageFailed: nullstone.Event<{}>;
-        OnImageErrored(source: Media.Imaging.BitmapSource, e: Event): void;
-        OnImageLoaded(source: Media.Imaging.BitmapSource, e: Event): void;
-        ImageChanged(source: Media.Imaging.BitmapSource): void;
+        private $watcher;
+        OnImageErrored(source: Media.Imaging.BitmapSource, error: Error): void;
+        OnImageLoaded(source: Media.Imaging.BitmapSource): void;
+        OnImageChanged(source: Media.Imaging.BitmapSource): void;
+        OnSourceChanged(oldSource: Media.Imaging.ImageSource, newSource: Media.Imaging.ImageSource): void;
     }
 }
 declare module Fayde.Controls {
@@ -1840,7 +1842,23 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
+    import VideoUpdater = minerva.controls.video.VideoUpdater;
     class MediaElement extends FrameworkElement {
+        CreateLayoutUpdater(): VideoUpdater;
+        private static _SourceCoercer(d, propd, value);
+        static SourceProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        Source: Media.Videos.VideoSource;
+        Stretch: Media.Stretch;
+        VideoOpened: nullstone.Event<{}>;
+        VideoFailed: nullstone.Event<{}>;
+        private $watcher;
+        OnSourceChanged(oldSource: Media.Videos.VideoSourceBase, newSource: Media.Videos.VideoSourceBase): void;
+        OnVideoErrored(source: Media.Videos.VideoSourceBase, error: Error): void;
+        OnVideoCanPlay(source: Media.Videos.VideoSourceBase): void;
+        OnVideoChanged(source: Media.Videos.VideoSourceBase): void;
+        Play(): void;
+        Pause(): void;
     }
 }
 declare module Fayde {
@@ -1971,6 +1989,7 @@ declare module Fayde.Controls {
         $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
+        $CPHelper: Internal.TextCopyPasteHelper;
         constructor(eventsMask: Text.EmitChangedType);
         private _SyncFont();
         CreateView(): Internal.TextBoxView;
@@ -2293,6 +2312,134 @@ declare module Fayde.Controls {
         OnItemsRemoved(index: number, oldItems: any[]): void;
     }
 }
+declare module Fayde.Data {
+    var WarnBrokenPath: boolean;
+    class Binding implements nullstone.markup.IMarkupExtension, ICloneable {
+        StringFormat: string;
+        FallbackValue: any;
+        TargetNullValue: any;
+        BindsDirectlyToSource: boolean;
+        Converter: IValueConverter;
+        ConverterParameter: any;
+        ConverterCulture: any;
+        ElementName: string;
+        Mode: BindingMode;
+        NotifyOnValidationError: boolean;
+        RelativeSource: RelativeSource;
+        Path: Data.PropertyPath;
+        Source: any;
+        UpdateSourceTrigger: UpdateSourceTrigger;
+        ValidatesOnExceptions: boolean;
+        ValidatesOnDataErrors: boolean;
+        ValidatesOnNotifyDataErrors: boolean;
+        constructor();
+        constructor(path: string | Data.PropertyPath);
+        constructor(binding: Binding);
+        init(val: string): void;
+        transmute(os: any[]): any;
+        private $$coerce();
+        Clone(): Binding;
+        static fromData(data: IBindingData): Binding;
+    }
+}
+declare module Fayde.Data {
+    class CollectionViewSource extends DependencyObject {
+        static SourceProperty: DependencyProperty;
+        static ViewProperty: DependencyProperty;
+        Source: any;
+        View: ICollectionView;
+    }
+}
+declare module Fayde.Data {
+    class DataErrorsChangedEventArgs implements nullstone.IEventArgs {
+        PropertyName: string;
+        constructor(propertyName: string);
+    }
+}
+declare module Fayde.Data {
+    enum RelativeSourceMode {
+        TemplatedParent = 0,
+        Self = 1,
+        FindAncestor = 2,
+        ItemsControlParent = 3,
+    }
+    enum BindingMode {
+        OneWay = 0,
+        TwoWay = 1,
+        OneTime = 2,
+        OneWayToSource = 3,
+    }
+    enum UpdateSourceTrigger {
+        Default = 0,
+        PropertyChanged = 1,
+        Explicit = 3,
+    }
+}
+declare module Fayde.Data {
+    interface IBindingData {
+        Path: string | Data.PropertyPath;
+        StringFormat?: string;
+        FallbackValue?: any;
+        TargetNullValue?: any;
+        BindsDirectlyToSource?: boolean;
+        Converter?: IValueConverter;
+        ConverterParameter?: any;
+        ConverterCulture?: any;
+        ElementName?: string;
+        Mode?: BindingMode;
+        NotifyOnValidationError?: boolean;
+        RelativeSource?: RelativeSource;
+        Source?: any;
+        UpdateSourceTrigger?: UpdateSourceTrigger;
+        ValidatesOnExceptions?: boolean;
+        ValidatesOnDataErrors?: boolean;
+        ValidatesOnNotifyDataErrors?: boolean;
+    }
+}
+declare module Fayde.Data {
+    interface ICollectionView extends nullstone.IEnumerable<any> {
+        CurrentChanged: nullstone.Event<nullstone.IEventArgs>;
+        CurrentItem: any;
+        MoveCurrentTo(item: any): boolean;
+    }
+    var ICollectionView_: nullstone.Interface<ICollectionView>;
+}
+declare module Fayde.Data {
+    interface IDataErrorInfo {
+        Error: string;
+        GetError(propertyName: string): string;
+    }
+    var IDataErrorInfo_: nullstone.Interface<IDataErrorInfo>;
+}
+declare module Fayde.Data {
+    interface INotifyDataErrorInfo {
+        ErrorsChanged: nullstone.Event<DataErrorsChangedEventArgs>;
+        GetErrors(propertyName: string): nullstone.IEnumerable<any>;
+        HasErrors: boolean;
+    }
+    var INotifyDataErrorInfo_: nullstone.Interface<INotifyDataErrorInfo>;
+}
+declare module Fayde.Data {
+    interface IValueConverter {
+        Convert(value: any, targetType: IType, parameter: any, culture: any): any;
+        ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any;
+    }
+    var IValueConverter_: nullstone.Interface<IValueConverter>;
+}
+declare module Fayde.Data {
+    class RelativeSource implements nullstone.markup.IMarkupExtension, ICloneable {
+        Mode: RelativeSourceMode;
+        AncestorLevel: number;
+        AncestorType: Function;
+        constructor();
+        constructor(rs: RelativeSource);
+        init(val: string): void;
+        resolveTypeFields(resolver: (full: string) => any): void;
+        transmute(os: any[]): any;
+        Clone(): RelativeSource;
+        Find(target: XamlObject): XamlObject;
+    }
+}
 interface ICloneable {
     Clone(): any;
 }
@@ -2532,134 +2679,6 @@ declare module Fayde {
         constructor(root: UINode, cur: UINode, forwards: boolean);
         FocusChild(): boolean;
         static Focus(uin: UINode, forwards?: boolean): boolean;
-    }
-}
-declare module Fayde.Data {
-    var WarnBrokenPath: boolean;
-    class Binding implements nullstone.markup.IMarkupExtension, ICloneable {
-        StringFormat: string;
-        FallbackValue: any;
-        TargetNullValue: any;
-        BindsDirectlyToSource: boolean;
-        Converter: IValueConverter;
-        ConverterParameter: any;
-        ConverterCulture: any;
-        ElementName: string;
-        Mode: BindingMode;
-        NotifyOnValidationError: boolean;
-        RelativeSource: RelativeSource;
-        Path: Data.PropertyPath;
-        Source: any;
-        UpdateSourceTrigger: UpdateSourceTrigger;
-        ValidatesOnExceptions: boolean;
-        ValidatesOnDataErrors: boolean;
-        ValidatesOnNotifyDataErrors: boolean;
-        constructor();
-        constructor(path: string | Data.PropertyPath);
-        constructor(binding: Binding);
-        init(val: string): void;
-        transmute(os: any[]): any;
-        private $$coerce();
-        Clone(): Binding;
-        static fromData(data: IBindingData): Binding;
-    }
-}
-declare module Fayde.Data {
-    class CollectionViewSource extends DependencyObject {
-        static SourceProperty: DependencyProperty;
-        static ViewProperty: DependencyProperty;
-        Source: any;
-        View: ICollectionView;
-    }
-}
-declare module Fayde.Data {
-    class DataErrorsChangedEventArgs implements nullstone.IEventArgs {
-        PropertyName: string;
-        constructor(propertyName: string);
-    }
-}
-declare module Fayde.Data {
-    enum RelativeSourceMode {
-        TemplatedParent = 0,
-        Self = 1,
-        FindAncestor = 2,
-        ItemsControlParent = 3,
-    }
-    enum BindingMode {
-        OneWay = 0,
-        TwoWay = 1,
-        OneTime = 2,
-        OneWayToSource = 3,
-    }
-    enum UpdateSourceTrigger {
-        Default = 0,
-        PropertyChanged = 1,
-        Explicit = 3,
-    }
-}
-declare module Fayde.Data {
-    interface IBindingData {
-        Path: string | Data.PropertyPath;
-        StringFormat?: string;
-        FallbackValue?: any;
-        TargetNullValue?: any;
-        BindsDirectlyToSource?: boolean;
-        Converter?: IValueConverter;
-        ConverterParameter?: any;
-        ConverterCulture?: any;
-        ElementName?: string;
-        Mode?: BindingMode;
-        NotifyOnValidationError?: boolean;
-        RelativeSource?: RelativeSource;
-        Source?: any;
-        UpdateSourceTrigger?: UpdateSourceTrigger;
-        ValidatesOnExceptions?: boolean;
-        ValidatesOnDataErrors?: boolean;
-        ValidatesOnNotifyDataErrors?: boolean;
-    }
-}
-declare module Fayde.Data {
-    interface ICollectionView extends nullstone.IEnumerable<any> {
-        CurrentChanged: nullstone.Event<nullstone.IEventArgs>;
-        CurrentItem: any;
-        MoveCurrentTo(item: any): boolean;
-    }
-    var ICollectionView_: nullstone.Interface<ICollectionView>;
-}
-declare module Fayde.Data {
-    interface IDataErrorInfo {
-        Error: string;
-        GetError(propertyName: string): string;
-    }
-    var IDataErrorInfo_: nullstone.Interface<IDataErrorInfo>;
-}
-declare module Fayde.Data {
-    interface INotifyDataErrorInfo {
-        ErrorsChanged: nullstone.Event<DataErrorsChangedEventArgs>;
-        GetErrors(propertyName: string): nullstone.IEnumerable<any>;
-        HasErrors: boolean;
-    }
-    var INotifyDataErrorInfo_: nullstone.Interface<INotifyDataErrorInfo>;
-}
-declare module Fayde.Data {
-    interface IValueConverter {
-        Convert(value: any, targetType: IType, parameter: any, culture: any): any;
-        ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any;
-    }
-    var IValueConverter_: nullstone.Interface<IValueConverter>;
-}
-declare module Fayde.Data {
-    class RelativeSource implements nullstone.markup.IMarkupExtension, ICloneable {
-        Mode: RelativeSourceMode;
-        AncestorLevel: number;
-        AncestorType: Function;
-        constructor();
-        constructor(rs: RelativeSource);
-        init(val: string): void;
-        resolveTypeFields(resolver: (full: string) => any): void;
-        transmute(os: any[]): any;
-        Clone(): RelativeSource;
-        Find(target: XamlObject): XamlObject;
     }
 }
 declare module Fayde.Documents {
@@ -4561,6 +4580,7 @@ declare module Fayde.Text {
         setSelectionStart(value: number): void;
         setSelectionLength(value: number): void;
         setText(value: string): void;
+        getSelectedText(): string;
         private $syncEmit(syncText?);
         private $syncText();
     }
@@ -4759,6 +4779,17 @@ declare module Fayde.Controls.Internal {
     }
 }
 declare module Fayde.Controls.Internal {
+    class TextCopyPasteHelper {
+        private callback;
+        private pastedText;
+        GetPastedText(): string;
+        private createElement(text);
+        private selectContent(element);
+        CopyText(text: string): void;
+        PasteText(callback: any): void;
+    }
+}
+declare module Fayde.Controls.Internal {
     class VirtualizingPanelContainerOwner implements minerva.IVirtualizingContainerOwner {
         private $$panel;
         constructor($$panel: VirtualizingPanel);
@@ -4913,42 +4944,6 @@ declare module Fayde.Controls.Primitives {
         UpdateCollectionView(item: any): boolean;
     }
 }
-declare module Fayde.Providers {
-    enum StyleIndex {
-        VisualTree = 0,
-        ApplicationResources = 1,
-        Theme = 2,
-        Count = 3,
-    }
-    enum StyleMask {
-        None = 0,
-        VisualTree = 1,
-        ApplicationResources = 2,
-        Theme = 4,
-        All = 7,
-    }
-    interface IImplicitStyleHolder {
-        _ImplicitStyles: Style[];
-        _StyleMask: number;
-    }
-    class ImplicitStyleBroker {
-        static Set(fe: FrameworkElement, mask: StyleMask, styles?: Style[]): void;
-        private static SetImpl(fe, mask, styles);
-        static Clear(fe: FrameworkElement, mask: StyleMask): void;
-        private static ApplyStyles(fe, mask, styles);
-    }
-}
-declare module Fayde.Providers {
-    interface IStyleHolder {
-        _LocalStyle: Style;
-    }
-    class LocalStyleBroker {
-        static Set(fe: FrameworkElement, newStyle: Style): void;
-    }
-}
-declare module Fayde.Providers {
-    function SwapStyles(fe: FrameworkElement, oldWalker: IStyleWalker, newWalker: IStyleWalker, isImplicit: boolean): void;
-}
 declare module Fayde.Data {
     interface IOutValue {
         Value: any;
@@ -5029,6 +5024,42 @@ declare module Fayde.Data {
         ValueChanged(node: IPropertyPathNode): void;
         GetContext(): any;
     }
+}
+declare module Fayde.Providers {
+    enum StyleIndex {
+        VisualTree = 0,
+        ApplicationResources = 1,
+        Theme = 2,
+        Count = 3,
+    }
+    enum StyleMask {
+        None = 0,
+        VisualTree = 1,
+        ApplicationResources = 2,
+        Theme = 4,
+        All = 7,
+    }
+    interface IImplicitStyleHolder {
+        _ImplicitStyles: Style[];
+        _StyleMask: number;
+    }
+    class ImplicitStyleBroker {
+        static Set(fe: FrameworkElement, mask: StyleMask, styles?: Style[]): void;
+        private static SetImpl(fe, mask, styles);
+        static Clear(fe: FrameworkElement, mask: StyleMask): void;
+        private static ApplyStyles(fe, mask, styles);
+    }
+}
+declare module Fayde.Providers {
+    interface IStyleHolder {
+        _LocalStyle: Style;
+    }
+    class LocalStyleBroker {
+        static Set(fe: FrameworkElement, newStyle: Style): void;
+    }
+}
+declare module Fayde.Providers {
+    function SwapStyles(fe: FrameworkElement, oldWalker: IStyleWalker, newWalker: IStyleWalker, isImplicit: boolean): void;
 }
 declare module Fayde.Input.TouchInternal {
     interface ITouchHandler {
@@ -5643,35 +5674,37 @@ declare module Fayde.Media.Effects {
 }
 declare module Fayde.Media.Imaging {
     class ImageSource extends DependencyObject implements minerva.controls.image.IImageSource {
-        pixelWidth: number;
-        pixelHeight: number;
-        lock(): void;
-        unlock(): void;
-        image: HTMLImageElement;
-    }
-}
-declare module Fayde.Media.Imaging {
-    interface IImageChangedListener {
-        OnImageErrored(source: BitmapSource, e: Event): any;
-        OnImageLoaded(source: BitmapSource, e: Event): any;
-        ImageChanged(source: BitmapSource): any;
-    }
-    class BitmapSource extends ImageSource {
         static PixelWidthProperty: DependencyProperty;
         static PixelHeightProperty: DependencyProperty;
         PixelWidth: number;
         PixelHeight: number;
-        private _Listener;
-        private _Image;
+        protected $element: HTMLMediaElement | HTMLImageElement;
+        constructor();
         pixelWidth: number;
         pixelHeight: number;
-        image: HTMLImageElement;
-        ResetImage(): void;
-        UriSourceChanged(oldValue: Uri, newValue: Uri): void;
-        Listen(listener: IImageChangedListener): void;
-        Unlisten(listener: IImageChangedListener): void;
-        _OnErrored(e: Event): void;
-        _OnLoad(e: Event): void;
+        isEmpty: boolean;
+        draw(ctx: CanvasRenderingContext2D): void;
+        createPattern(ctx: CanvasRenderingContext2D): CanvasPattern;
+        reset(): void;
+        createElement(): HTMLMediaElement | HTMLImageElement;
+        protected setMetrics(pixelWidth: number, pixelHeight: number): void;
+    }
+}
+declare module Fayde.Media.Imaging {
+    interface IBitmapSourceWatcher {
+        onErrored(source: BitmapSource, error: Error): any;
+        onLoaded(source: BitmapSource): any;
+        onChanged(source: BitmapSource): any;
+    }
+    class BitmapSource extends ImageSource {
+        protected $element: HTMLImageElement;
+        private $watchers;
+        createElement(): HTMLMediaElement | HTMLImageElement;
+        reset(): void;
+        watch(watcher: IBitmapSourceWatcher): nullstone.IDisposable;
+        protected onImageLoaded(): void;
+        protected onImageErrored(e: ErrorEvent): void;
+        protected onImageChanged(): void;
     }
 }
 declare module Fayde.Media.Imaging {
@@ -5682,26 +5715,27 @@ declare module Fayde.Media.Imaging {
         ImageOpened: nullstone.Event<{}>;
         private _BackingBuffer;
         constructor(uri?: Uri);
-        private _UriSourceChanged(args);
-        _OnErrored(e: Event): void;
-        _OnLoad(e: Event): void;
+        protected OnUriSourceChanged(oldValue: Uri, newValue: Uri): void;
+        protected onImageErrored(e: ErrorEvent): void;
+        protected onImageLoaded(): void;
         SetSource(buffer: ArrayBuffer): void;
     }
 }
 declare module Fayde.Media.Imaging {
-    class ImageBrush extends TileBrush implements IImageChangedListener {
+    class ImageBrush extends TileBrush {
         private static _SourceCoercer(d, propd, value);
         static ImageSourceProperty: DependencyProperty;
         ImageSource: ImageSource;
         ImageFailed: nullstone.Event<{}>;
         ImageOpened: nullstone.Event<{}>;
+        private $watcher;
         setupBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
         GetTileExtents(): minerva.Rect;
         DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
         private _ImageSourceChanged(args);
-        OnImageErrored(source: BitmapSource, e: Event): void;
-        OnImageLoaded(source: BitmapSource, e: Event): void;
-        ImageChanged(source: BitmapSource): void;
+        OnImageErrored(source: BitmapSource, error: Error): void;
+        OnImageLoaded(source: BitmapSource): void;
+        OnImageChanged(source: BitmapSource): void;
     }
 }
 declare module Fayde.Media.Imaging {
@@ -5826,6 +5860,38 @@ declare module Fayde.Media.VSM {
         ExplicitStoryboardCompleted: boolean;
         GeneratedEasingFunction: Animation.EasingFunctionBase;
         IsDefault: boolean;
+    }
+}
+declare module Fayde.Media.Videos {
+    interface IVideoSourceWatcher {
+        onErrored(source: VideoSourceBase, error: Error): any;
+        onCanPlay(source: VideoSourceBase): any;
+        onChanged(source: VideoSourceBase): any;
+    }
+    class VideoSourceBase extends Imaging.ImageSource implements minerva.controls.video.IVideoSource {
+        protected $element: HTMLVideoElement;
+        private $watchers;
+        createElement(): HTMLVideoElement;
+        reset(): void;
+        watch(watcher: IVideoSourceWatcher): nullstone.IDisposable;
+        getIsPlaying(): boolean;
+        Play(): void;
+        Pause(): void;
+        protected onVideoErrored(e: ErrorEvent): void;
+        protected onVideoCanPlay(): void;
+        protected onVideoChanged(): void;
+    }
+}
+declare module Fayde.Media.Videos {
+    class VideoSource extends VideoSourceBase {
+        static UriSourceProperty: DependencyProperty;
+        UriSource: Uri;
+        VideoFailed: nullstone.Event<{}>;
+        VideoOpened: nullstone.Event<{}>;
+        constructor(uri?: Uri);
+        private _UriSourceChanged(args);
+        protected OnUriSourceChanged(oldValue: Uri, newValue: Uri): void;
+        protected onVideoErrored(e: ErrorEvent): void;
     }
 }
 declare module Fayde.Text.History {
