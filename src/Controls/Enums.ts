@@ -17,6 +17,8 @@ module Fayde.Controls {
 
     export enum TextTrimming {
         None = 0,
+        WordEllipsis = 1,
+        CharacterEllipsis = 2,
     }
     Fayde.CoreLibrary.addEnum(TextTrimming, "TextTrimming");
 

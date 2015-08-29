@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.16.56';
+    Fayde.version = '0.16.58';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -3018,6 +3018,8 @@ var Fayde;
         Fayde.CoreLibrary.addEnum(ScrollBarVisibility, "ScrollBarVisibility");
         (function (TextTrimming) {
             TextTrimming[TextTrimming["None"] = 0] = "None";
+            TextTrimming[TextTrimming["WordEllipsis"] = 1] = "WordEllipsis";
+            TextTrimming[TextTrimming["CharacterEllipsis"] = 2] = "CharacterEllipsis";
         })(Controls.TextTrimming || (Controls.TextTrimming = {}));
         var TextTrimming = Controls.TextTrimming;
         Fayde.CoreLibrary.addEnum(TextTrimming, "TextTrimming");
@@ -8876,11 +8878,17 @@ var Fayde;
             function TextBox() {
                 var _this = this;
                 _super.call(this, Fayde.Text.EmitChangedType.TEXT | Fayde.Text.EmitChangedType.SELECTION);
+                this.TextChanged = new Fayde.RoutedEvent();
                 this.DefaultStyleKey = TextBox;
                 var proxy = this.$Proxy;
                 proxy.SyncSelectionStart = function (value) { return _this.SetCurrentValue(TextBox.SelectionStartProperty, value); };
                 proxy.SyncSelectionLength = function (value) { return _this.SetCurrentValue(TextBox.SelectionLengthProperty, value); };
-                proxy.SyncText = function (value) { return _this.SetCurrentValue(TextBox.TextProperty, value); };
+                proxy.SyncText = function (value) {
+                    _this.SetCurrentValue(TextBox.TextProperty, value);
+                    var args = new Fayde.RoutedEventArgs();
+                    args.Source = _this;
+                    _this.TextChanged.raise(_this, args);
+                };
                 this.$Advancer = new Controls.Internal.TextBoxCursorAdvancer(this.$Proxy);
             }
             TextBox.prototype.OnApplyTemplate = function () {

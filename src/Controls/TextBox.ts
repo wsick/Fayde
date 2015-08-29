@@ -17,6 +17,8 @@ module Fayde.Controls {
         HorizontalScrollBarVisibility: ScrollBarVisibility;
         VerticalScrollBarVisibility: ScrollBarVisibility;
 
+        TextChanged = new RoutedEvent<RoutedEventArgs>();
+
         constructor () {
             super(Text.EmitChangedType.TEXT | Text.EmitChangedType.SELECTION);
             this.DefaultStyleKey = TextBox;
@@ -24,7 +26,12 @@ module Fayde.Controls {
             var proxy = this.$Proxy;
             proxy.SyncSelectionStart = (value) => this.SetCurrentValue(TextBox.SelectionStartProperty, value);
             proxy.SyncSelectionLength = (value) => this.SetCurrentValue(TextBox.SelectionLengthProperty, value);
-            proxy.SyncText = (value) => this.SetCurrentValue(TextBox.TextProperty, value);
+            proxy.SyncText = (value) => {
+                this.SetCurrentValue(TextBox.TextProperty, value);
+                var args = new RoutedEventArgs();
+                args.Source = this;
+                this.TextChanged.raise(this, args);
+            };
             this.$Advancer = new Internal.TextBoxCursorAdvancer(this.$Proxy);
         }
 
