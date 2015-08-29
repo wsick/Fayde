@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.16.57';
+    Fayde.version = '0.16.58';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -3018,6 +3018,8 @@ var Fayde;
         Fayde.CoreLibrary.addEnum(ScrollBarVisibility, "ScrollBarVisibility");
         (function (TextTrimming) {
             TextTrimming[TextTrimming["None"] = 0] = "None";
+            TextTrimming[TextTrimming["WordEllipsis"] = 1] = "WordEllipsis";
+            TextTrimming[TextTrimming["CharacterEllipsis"] = 2] = "CharacterEllipsis";
         })(Controls.TextTrimming || (Controls.TextTrimming = {}));
         var TextTrimming = Controls.TextTrimming;
         Fayde.CoreLibrary.addEnum(TextTrimming, "TextTrimming");

@@ -1,0 +1,24 @@
+<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        xmlns:vsm="http://schemas.wsick.com/fayde"
+        xmlns:vms="ViewModels"
+        ThemeName="Metro">
+    <Application.Resources>
+    </Application.Resources>
+
+    <StackPanel x:Name="LayoutRoot">
+        <Border BorderThickness="1" BorderBrush="Black" Width="250">
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" TextTrimming="WordEllipsis">TextTrimming WordEllipsis has been turned on for this text block.</TextBlock>
+        </Border>
+        <Border BorderThickness="1" BorderBrush="Black" Width="250">
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis">TextTrimming CharacterEllipsis has been turned on for this text block.</TextBlock>
+        </Border>
+        <Border BorderThickness="1" BorderBrush="Black" Width="150">
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis">
+TextTrimming CharacterEllipsis has been
+turned on for this text block with new lines to
+test edge cases.</TextBlock>
+        </Border>
+    </StackPanel>
+</Application>
