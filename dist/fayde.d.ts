@@ -886,6 +886,8 @@ declare module Fayde.Controls {
     }
     enum TextTrimming {
         None = 0,
+        WordEllipsis = 1,
+        CharacterEllipsis = 2,
     }
     enum ClickMode {
         Release = 0,
