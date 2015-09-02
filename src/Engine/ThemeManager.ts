@@ -8,7 +8,7 @@ module Fayde {
 
         constructor() {
             Fayde.TypeManager.libResolver.libraryCreated.on(this.$$onLibraryCreated, this);
-            this.$$libthemerepos.push(new LibraryThemeRepo(new Uri(Fayde.XMLNS)));
+            this.$$libthemerepos.push(new LibraryThemeRepo(Fayde.CoreLibrary));
         }
 
         private $$onLibraryCreated(sender: any, args: nullstone.ILibraryCreatedEventArgs) {
