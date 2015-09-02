@@ -5,18 +5,20 @@ module Fayde {
         App: Application;
         private $$root: UIElement = null;
         private $$inputMgr: Engine.InputManager;
+        private $$zoom: number = 1;
 
         HitTestCallback: (inputList: Fayde.UINode[]) => void;
 
-        constructor (app: Application) {
+        constructor(app: Application) {
             super();
             Object.defineProperty(this, "App", {value: app, writable: false});
             this.$$inputMgr = new Engine.InputManager(this);
         }
 
-        init (canvas: HTMLCanvasElement) {
+        init(canvas: HTMLCanvasElement) {
             super.init(canvas);
 
+            this.$$updateZoom();
             this.$$stretchCanvas();
             (<any>document.body).onresize = (e) => this.$$handleResize(window.event ? <any>window.event : e);
             window.onresize = (e) => this.$$handleResize(window.event ? <any>window.event : e);
@@ -24,7 +26,7 @@ module Fayde {
             this.$$inputMgr.Register(canvas);
         }
 
-        Attach (uie: UIElement, root?: boolean) {
+        Attach(uie: UIElement, root?: boolean) {
             if (root === true) {
                 if (!(uie instanceof UIElement))
                     throw new Exception("Unsupported top level element.");
@@ -35,32 +37,32 @@ module Fayde {
             this.attachLayer(uie.XamlNode.LayoutUpdater, root);
         }
 
-        attachLayer (layer: minerva.core.Updater, root?: boolean) {
+        attachLayer(layer: minerva.core.Updater, root?: boolean) {
             super.attachLayer(layer, root);
             var node = <UINode>layer.getAttachedValue("$node");
             node.SetIsLoaded(true);
             node.SetIsAttached(true);
         }
 
-        Detach (uie: UIElement) {
+        Detach(uie: UIElement) {
             this.detachLayer(uie.XamlNode.LayoutUpdater);
         }
 
-        detachLayer (layer: minerva.core.Updater) {
+        detachLayer(layer: minerva.core.Updater) {
             var node = <UINode>layer.getAttachedValue("$node");
             node.SetIsLoaded(false);
             node.SetIsAttached(false);
             super.detachLayer(layer);
         }
 
-        updateLayout (): boolean {
+        updateLayout(): boolean {
             var updated = super.updateLayout();
             if (updated)
                 this.$$onLayoutUpdated();
             return updated;
         }
 
-        private $$onLayoutUpdated () {
+        private $$onLayoutUpdated() {
             for (var walker = this.walkLayers(); walker.step();) {
                 for (var subwalker = walker.current.walkDeep(); subwalker.step();) {
                     var upd = subwalker.current;
@@ -71,11 +73,11 @@ module Fayde {
             }
         }
 
-        Focus (node: Controls.ControlNode, recurse?: boolean): boolean {
+        Focus(node: Controls.ControlNode, recurse?: boolean): boolean {
             return this.$$inputMgr.Focus(node, recurse);
         }
 
-        static HasFocus (uie: UIElement): boolean {
+        static HasFocus(uie: UIElement): boolean {
             var uin = uie.XamlNode;
             var surface = <Surface>uin.LayoutUpdater.tree.surface;
             if (!surface)
@@ -89,7 +91,7 @@ module Fayde {
             return false;
         }
 
-        static Focus (uie: Controls.Control, recurse?: boolean): boolean {
+        static Focus(uie: Controls.Control, recurse?: boolean): boolean {
             var uin = uie.XamlNode;
             var surface = <Surface>uin.LayoutUpdater.tree.surface;
             if (!surface)
@@ -97,7 +99,7 @@ module Fayde {
             return surface.$$inputMgr.Focus(uin, recurse);
         }
 
-        static GetFocusedElement (uie: UIElement): UIElement {
+        static GetFocusedElement(uie: UIElement): UIElement {
             var uin = uie.XamlNode;
             var surface = <Surface>uin.LayoutUpdater.tree.surface;
             if (!surface)
@@ -106,7 +108,7 @@ module Fayde {
             return curNode.XObject;
         }
 
-        static RemoveFocusFrom (uie: UIElement): boolean {
+        static RemoveFocusFrom(uie: UIElement): boolean {
             var node = uie.XamlNode;
             var surface = <Surface>node.LayoutUpdater.tree.surface;
             if (!surface)
@@ -115,31 +117,52 @@ module Fayde {
             return true;
         }
 
-        static SetMouseCapture (uin: Fayde.UINode): boolean {
+        static SetMouseCapture(uin: Fayde.UINode): boolean {
             var surface = <Surface>uin.LayoutUpdater.tree.surface;
             if (!surface)
                 return false;
             return surface.$$inputMgr.SetMouseCapture(uin);
         }
 
-        static ReleaseMouseCapture (uin: Fayde.UINode) {
+        static ReleaseMouseCapture(uin: Fayde.UINode) {
             var surface = <Surface>uin.LayoutUpdater.tree.surface;
             if (!surface)
                 return;
             surface.$$inputMgr.ReleaseMouseCapture(uin);
         }
 
-        private $$handleResize (evt) {
+        private $$handleResize(evt?: any) {
             if (resizeTimeout)
                 clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
+                this.$$updateZoom();
                 this.$$stretchCanvas();
                 resizeTimeout = null;
             }, 15);
         }
 
-        private $$stretchCanvas () {
-            this.resize(window.innerWidth, window.innerHeight);
+        private $$stretchCanvas() {
+            this.resize(Math.round(window.innerWidth * this.$$zoom), Math.round(window.innerHeight * this.$$zoom));
+        }
+
+        private $$updateZoom() {
+            var oldZoom = this.$$zoom;
+            var newZoom = minerva.zoom.calc();
+            if (oldZoom === newZoom)
+                return;
+            this.$$zoom = newZoom;
+            this.onZoomChanged(oldZoom, newZoom);
+        }
+
+        protected onZoomChanged(oldZoom: number, newZoom: number) {
+            this.App.SetCurrentValue(Application.ZoomFactorProperty, newZoom);
+            this.$$setScrollbars(newZoom > 1);
+            this.updateDpiRatio();
+        }
+
+        private $$setScrollbars(show: boolean) {
+            var style = document.body.style;
+            style.overflowY = style.overflowX = show === true ? "" : "hidden";
         }
     }
 }
