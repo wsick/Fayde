@@ -6,20 +6,20 @@ module Fayde {
     class ThemeManagerImpl implements IThemeManager {
         private $$libthemerepos: LibraryThemeRepo[] = [];
 
-        constructor () {
+        constructor() {
             Fayde.TypeManager.libResolver.libraryCreated.on(this.$$onLibraryCreated, this);
             this.$$libthemerepos.push(new LibraryThemeRepo(new Uri(Fayde.XMLNS)));
         }
 
-        private $$onLibraryCreated (sender: any, args: nullstone.ILibraryCreatedEventArgs) {
-            this.$$libthemerepos.push(new LibraryThemeRepo(args.library.uri));
+        private $$onLibraryCreated(sender: any, args: nullstone.ILibraryCreatedEventArgs) {
+            this.$$libthemerepos.push(new LibraryThemeRepo(args.library));
         }
 
-        LoadAsync (themeName: string): nullstone.async.IAsyncRequest<any> {
-            return nullstone.async.many(this.$$libthemerepos.map(repo => repo.ChangeActive(themeName)));
+        LoadAsync(themeName: string): nullstone.async.IAsyncRequest<any> {
+            return nullstone.async.many(this.$$libthemerepos.filter(repo => repo.IsLoaded).map(repo => repo.ChangeActive(themeName)));
         }
 
-        FindStyle (defaultStyleKey: any): Style {
+        FindStyle(defaultStyleKey: any): Style {
             if (!defaultStyleKey)
                 return null;
             var uri = defaultStyleKey.$$uri;
@@ -31,7 +31,7 @@ module Fayde {
             return null;
         }
 
-        private $$findRepo (uri: string): LibraryThemeRepo {
+        private $$findRepo(uri: string): LibraryThemeRepo {
             for (var i = 0, repos = this.$$libthemerepos; i < repos.length; i++) {
                 var repo = repos[i];
                 if (repo.Uri.toString() === uri)
@@ -42,27 +42,34 @@ module Fayde {
     }
 
     class LibraryThemeRepo {
+        private $$library: nullstone.ILibrary;
         private $$themes = {};
         private $$active: Theme;
 
-        Uri: Uri;
+        get Uri(): Uri {
+            return this.$$library.uri;
+        }
 
-        get Active (): Theme {
+        get IsLoaded(): boolean {
+            return this.$$library.isLoaded;
+        }
+
+        get Active(): Theme {
             return this.$$active;
         }
 
-        constructor (uri: Uri) {
-            Object.defineProperty(this, "Uri", {value: uri, writable: false});
+        constructor(library: nullstone.ILibrary) {
+            Object.defineProperty(this, "$$library", {value: library, writable: false});
         }
 
-        Get (name: string): Theme {
+        Get(name: string): Theme {
             var theme = this.$$themes[name];
             if (!theme)
                 theme = this.$$themes[name] = new Theme(name, this.Uri);
             return theme;
         }
 
-        ChangeActive (name: string): nullstone.async.IAsyncRequest<Theme> {
+        ChangeActive(name: string): nullstone.async.IAsyncRequest<Theme> {
             var theme = this.Get(name);
             return nullstone.async.create((resolve, reject) => {
                 theme.LoadAsync()
