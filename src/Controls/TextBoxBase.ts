@@ -1,5 +1,6 @@
 /// <reference path="Control.ts" />
 /// <reference path="../Input/KeyEventArgs.ts" />
+/// <reference path="Enums.ts"/>
 
 module Fayde.Controls {
     var Key = Input.Key;
@@ -12,6 +13,7 @@ module Fayde.Controls {
         static SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
         static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBoxBase);
         static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBoxBase, 0, undefined, undefined, undefined, positiveIntValidator);
+
         CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
@@ -30,6 +32,7 @@ module Fayde.Controls {
         $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
+        $CPHelper: Internal.TextCopyPasteHelper;
 
         constructor (eventsMask: Text.EmitChangedType) {
             super();
@@ -37,7 +40,7 @@ module Fayde.Controls {
             view.MouseLeftButtonDown.on((s, e) => this.OnMouseLeftButtonDown(e), this);
             view.MouseLeftButtonUp.on((s, e) => this.OnMouseLeftButtonUp(e), this);
             this.$Proxy = new Text.Proxy(eventsMask, MAX_UNDO_COUNT);
-
+            this.$CPHelper = new Internal.TextCopyPasteHelper();
             this._SyncFont();
         }
 
@@ -211,20 +214,27 @@ module Fayde.Controls {
                         switch (args.Key) {
                             case Key.A:
                                 //Ctrl+A => Select All
+                                if (isReadOnly)
+                                    break;
                                 handled = true;
                                 proxy.selectAll();
                                 break;
                             case Key.C:
                                 //Ctrl+C => Copy
                                 //TODO: Copy to clipboard
+                                if (isReadOnly)
+                                    break;
+                                
+                                this.$CPHelper.CopyText(this.$Proxy.getSelectedText());
+								
                                 handled = true;
                                 break;
                             case Key.X:
                                 //Ctrl+X => Cut
                                 if (isReadOnly)
                                     break;
-                                //TODO: Copy to clipboard
-                                //TODO: Clear text
+                                this.$CPHelper.CopyText(this.$Proxy.getSelectedText());
+                                proxy.removeText(this.$Proxy.selAnchor, this.$Proxy.selCursor);
                                 handled = true;
                                 break;
                             case Key.Y:
@@ -234,12 +244,22 @@ module Fayde.Controls {
                                     proxy.redo();
                                 }
                                 break;
+                            case Key.V:
+                                if (isReadOnly)
+                                    break;
+                                this.$CPHelper.PasteText(function(pastedText) {
+                                    this.$Proxy.enterText(pastedText);
+                                    var cursor = proxy.selCursor;
+                                    cursor = cursor + pastedText.length - 1;
+                                    this.$Proxy.setAnchorCursor(cursor, cursor);
+                                }.bind(this));
+                                break;
                             case Key.Z:
                                 //Ctrl+Z => Undo
-                                if (!isReadOnly) {
-                                    handled = true;
-                                    proxy.undo();
-                                }
+                                if (isReadOnly)
+                                    break;
+                                handled = true;
+                                proxy.undo();
                                 break;
                         }
                     }

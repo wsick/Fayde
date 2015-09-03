@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.wsick.com/fayde/x"
     ThemeName="Metro">
     <StackPanel>
-        <MediaElement Source="Media/test_movie.mp4" />
-        <MediaElement Source="Media/test_movie.mp4" />
+        <MediaElement Source="videos/test_movie.mp4" />
+        <MediaElement Source="videos/test_movie.mp4" />
     </StackPanel>
 </Application>
