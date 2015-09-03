@@ -12,6 +12,12 @@ module Fayde {
     export interface Uri extends nullstone.Uri {
     }
 
+    class ThemedLibraryResolver extends nullstone.LibraryResolver {
+        createLibrary (uri: string): nullstone.ILibrary {
+            return new ThemedLibrary(uri);
+        }
+    }
+
     export class ResourceTypeManager extends nullstone.TypeManager {
         resolveResource (uri: Uri): string {
             if (uri.scheme === "lib") {
