@@ -3,7 +3,7 @@
         private callback: any = false;
         private pastedText: string = "";
 
-        GetPastedText(): string {
+		GetPastedText(): string {
             return this.pastedText;
         }
 

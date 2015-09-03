@@ -226,6 +226,7 @@ module Fayde.Controls {
                                     break;
                                 
                                 this.$CPHelper.CopyText(this.$Proxy.getSelectedText());
+								
                                 handled = true;
                                 break;
                             case Key.X:
