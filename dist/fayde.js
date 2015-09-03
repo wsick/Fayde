@@ -9413,6 +9413,77 @@ var Fayde;
         }
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
+var Fyade;
+(function (Fyade) {
+    var Controls;
+    (function (Controls) {
+        var Control = Fayde.Controls.Control;
+        var Media = Fayde.Media;
+        var MediaElement = Fayde.Controls.MediaElement;
+        var Uri = Fayde.Uri;
+        var Enum = Fayde.Enum;
+        var Button = Fayde.Controls.Button;
+        var ProgressBar = Fayde.Controls.ProgressBar;
+        var DpReaction = Fayde.DPReaction;
+        var Video = (function (_super) {
+            __extends(Video, _super);
+            function Video() {
+                _super.call(this);
+                this.DefaultStyleKey = Video;
+            }
+            Video._SourceCoercer = function (d, propd, value) {
+                if (typeof value === "string")
+                    return new Media.Videos.VideoSource(new Uri(value));
+                if (value instanceof Uri)
+                    return new Media.Videos.VideoSource(value);
+                return value;
+            };
+            Video.prototype.OnApplyTemplate = function () {
+                var _this = this;
+                _super.prototype.OnApplyTemplate.call(this);
+                this.Media = this.GetTemplateChild("PARTVideo", MediaElement);
+                this.PlayButton = this.GetTemplateChild("PARTPlayButton", Button);
+                this.PauseButton = this.GetTemplateChild("PARTPauseButton", Button);
+                this.PlayProgress = this.GetTemplateChild("PARTPlayProgress", ProgressBar);
+                this.BufferProgress = this.GetTemplateChild("PARTBufferProgress", ProgressBar);
+                if (this.PlayButton)
+                    this.PlayButton.Command = new Fayde.MVVM.RelayCommand(function (par) { return _this.PlayClicked(par); });
+                if (this.PauseButton)
+                    this.PauseButton.Command = new Fayde.MVVM.RelayCommand(function (par) { return _this.PauseClicked(par); });
+            };
+            Video.prototype.OnMouseEnter = function (e) {
+                _super.prototype.OnMouseEnter.call(this, e);
+                this.UpdateVisualState();
+            };
+            Video.prototype.OnMouseLeave = function (e) {
+                _super.prototype.OnMouseLeave.call(this, e);
+                this.UpdateVisualState();
+            };
+            Video.prototype.PlayClicked = function (par) {
+                this.Media.Play();
+            };
+            Video.prototype.PauseClicked = function (par) {
+                this.Media.Pause();
+            };
+            Video.prototype.SetSource = function (value) {
+                this.Source = value;
+            };
+            Video.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return Media.Videos.VideoSource; }, Video, undefined, undefined, Video._SourceCoercer);
+            Video.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Media.Stretch); }, Video, Media.Stretch.Uniform);
+            return Video;
+        })(Control);
+        Controls.Video = Video;
+        Fayde.CoreLibrary.add(Video);
+        Fayde.Controls.TemplateVisualStates(Video, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" });
+        Fayde.Controls.TemplateParts(Video, { Name: "PARTMedia", Type: MediaElement }, { Name: "PARTPlayButton", Type: Button }, { Name: "PARTPauseButton", Type: Button }, { Name: "PARTPlayProgress", Type: ProgressBar }, { Name: "PARTBufferProgress", Type: ProgressBar });
+        DpReaction(Video.SourceProperty, function (vid, ov, nv) {
+            vid.SetSource(nv);
+        }, false);
+        DpReaction(Video.StretchProperty, function (vid, ov, nv) {
+            vid.Stretch = nv;
+        }, false);
+    })(Controls = Fyade.Controls || (Fyade.Controls = {}));
+})(Fyade || (Fyade = {}));
 /// <reference path="Panel.ts" />
 var Fayde;
 (function (Fayde) {
@@ -9732,266 +9803,6 @@ var Fayde;
             Fayde.UIReaction(VirtualizingStackPanel.OrientationProperty, function (upd, ov, nv) { return upd.invalidateMeasure(); }, false);
         })(reactions || (reactions = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Data;
-    (function (Data) {
-        var convert = nullstone.convertAnyToType;
-        Data.WarnBrokenPath = false;
-        var Binding = (function () {
-            function Binding(obj) {
-                this.BindsDirectlyToSource = false;
-                this.NotifyOnValidationError = false;
-                this.ValidatesOnExceptions = false;
-                this.ValidatesOnDataErrors = false;
-                this.ValidatesOnNotifyDataErrors = true;
-                if (obj instanceof Binding) {
-                    var binding = obj;
-                    this.StringFormat = binding.StringFormat;
-                    this.FallbackValue = binding.FallbackValue;
-                    this.TargetNullValue = binding.TargetNullValue;
-                    this.BindsDirectlyToSource = binding.BindsDirectlyToSource;
-                    this.Converter = binding.Converter;
-                    this.ConverterParameter = binding.ConverterParameter;
-                    this.ConverterCulture = binding.ConverterCulture;
-                    this.ElementName = binding.ElementName;
-                    this.Mode = binding.Mode;
-                    this.NotifyOnValidationError = binding.NotifyOnValidationError;
-                    this.RelativeSource = binding.RelativeSource ? binding.RelativeSource.Clone() : null;
-                    this.Path = binding.Path;
-                    this.Source = binding.Source;
-                    this.UpdateSourceTrigger = binding.UpdateSourceTrigger;
-                    this.ValidatesOnExceptions = binding.ValidatesOnExceptions;
-                    this.ValidatesOnDataErrors = binding.ValidatesOnDataErrors;
-                    this.ValidatesOnNotifyDataErrors = binding.ValidatesOnNotifyDataErrors;
-                }
-                else if (typeof obj === "string") {
-                    this.Path = new Data.PropertyPath(obj);
-                }
-                else if (obj instanceof Data.PropertyPath) {
-                    this.Path = obj;
-                }
-                else {
-                    this.Path = new Data.PropertyPath("");
-                }
-            }
-            Binding.prototype.init = function (val) {
-                this.Path = new Data.PropertyPath(val);
-            };
-            Binding.prototype.transmute = function (os) {
-                this.$$coerce();
-                Object.freeze(this);
-                return new Data.BindingExpression(this);
-            };
-            Binding.prototype.$$coerce = function () {
-                this.StringFormat = this.StringFormat ? this.StringFormat.toString() : undefined;
-                this.BindsDirectlyToSource = convert(this.BindsDirectlyToSource, Boolean) || false;
-                this.Mode = Fayde.Enum.fromAny(Data.BindingMode, this.Mode);
-                this.NotifyOnValidationError = convert(this.NotifyOnValidationError, Boolean) || false;
-                this.Path = convert(this.Path, Data.PropertyPath);
-                this.UpdateSourceTrigger = Fayde.Enum.fromAny(Data.UpdateSourceTrigger, this.UpdateSourceTrigger);
-                this.ValidatesOnExceptions = convert(this.ValidatesOnExceptions, Boolean) || false;
-                this.ValidatesOnDataErrors = convert(this.ValidatesOnDataErrors, Boolean) || false;
-                this.ValidatesOnNotifyDataErrors = convert(this.ValidatesOnNotifyDataErrors, Boolean) !== false;
-            };
-            Binding.prototype.Clone = function () {
-                return new Binding(this);
-            };
-            Binding.fromData = function (data) {
-                var binding = new Binding(data.Path);
-                binding.StringFormat = data.StringFormat;
-                binding.FallbackValue = data.FallbackValue;
-                binding.TargetNullValue = data.TargetNullValue;
-                binding.BindsDirectlyToSource = data.BindsDirectlyToSource;
-                binding.Converter = data.Converter;
-                binding.ConverterParameter = data.ConverterParameter;
-                binding.ConverterCulture = data.ConverterCulture;
-                binding.ElementName = data.ElementName;
-                binding.Mode = data.Mode;
-                binding.NotifyOnValidationError = data.NotifyOnValidationError;
-                binding.RelativeSource = data.RelativeSource;
-                binding.Source = data.Source;
-                binding.UpdateSourceTrigger = data.UpdateSourceTrigger;
-                binding.ValidatesOnExceptions = data.ValidatesOnExceptions;
-                binding.ValidatesOnDataErrors = data.ValidatesOnDataErrors;
-                binding.ValidatesOnNotifyDataErrors = data.ValidatesOnNotifyDataErrors;
-                return binding;
-            };
-            return Binding;
-        })();
-        Data.Binding = Binding;
-        Fayde.CoreLibrary.add(Binding);
-    })(Data = Fayde.Data || (Fayde.Data = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="../Core/DependencyObject.ts" />
-var Fayde;
-(function (Fayde) {
-    var Data;
-    (function (Data) {
-        var CollectionViewSource = (function (_super) {
-            __extends(CollectionViewSource, _super);
-            function CollectionViewSource() {
-                _super.apply(this, arguments);
-            }
-            CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return Object; }, CollectionViewSource);
-            CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return Data.ICollectionView_; }, CollectionViewSource);
-            return CollectionViewSource;
-        })(Fayde.DependencyObject);
-        Data.CollectionViewSource = CollectionViewSource;
-    })(Data = Fayde.Data || (Fayde.Data = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Data;
-    (function (Data) {
-        var DataErrorsChangedEventArgs = (function () {
-            function DataErrorsChangedEventArgs(propertyName) {
-                this.PropertyName = propertyName;
-                Object.freeze(this);
-            }
-            return DataErrorsChangedEventArgs;
-        })();
-        Data.DataErrorsChangedEventArgs = DataErrorsChangedEventArgs;
-    })(Data = Fayde.Data || (Fayde.Data = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Data;
-    (function (Data) {
-        (function (RelativeSourceMode) {
-            RelativeSourceMode[RelativeSourceMode["TemplatedParent"] = 0] = "TemplatedParent";
-            RelativeSourceMode[RelativeSourceMode["Self"] = 1] = "Self";
-            RelativeSourceMode[RelativeSourceMode["FindAncestor"] = 2] = "FindAncestor";
-            RelativeSourceMode[RelativeSourceMode["ItemsControlParent"] = 3] = "ItemsControlParent";
-        })(Data.RelativeSourceMode || (Data.RelativeSourceMode = {}));
-        var RelativeSourceMode = Data.RelativeSourceMode;
-        Fayde.CoreLibrary.addEnum(RelativeSourceMode, "RelativeSourceMode");
-        (function (BindingMode) {
-            BindingMode[BindingMode["OneWay"] = 0] = "OneWay";
-            BindingMode[BindingMode["TwoWay"] = 1] = "TwoWay";
-            BindingMode[BindingMode["OneTime"] = 2] = "OneTime";
-            BindingMode[BindingMode["OneWayToSource"] = 3] = "OneWayToSource";
-        })(Data.BindingMode || (Data.BindingMode = {}));
-        var BindingMode = Data.BindingMode;
-        Fayde.CoreLibrary.addEnum(BindingMode, "BindingMode");
-        (function (UpdateSourceTrigger) {
-            UpdateSourceTrigger[UpdateSourceTrigger["Default"] = 0] = "Default";
-            UpdateSourceTrigger[UpdateSourceTrigger["PropertyChanged"] = 1] = "PropertyChanged";
-            UpdateSourceTrigger[UpdateSourceTrigger["Explicit"] = 3] = "Explicit";
-        })(Data.UpdateSourceTrigger || (Data.UpdateSourceTrigger = {}));
-        var UpdateSourceTrigger = Data.UpdateSourceTrigger;
-        Fayde.CoreLibrary.addEnum(UpdateSourceTrigger, "UpdateSourceTrigger");
-    })(Data = Fayde.Data || (Fayde.Data = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Data;
-    (function (Data) {
-        Data.ICollectionView_ = new nullstone.Interface("ICollectionView");
-    })(Data = Fayde.Data || (Fayde.Data = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Data;
-    (function (Data) {
-        Data.IDataErrorInfo_ = new nullstone.Interface("IDataErrorInfo");
-    })(Data = Fayde.Data || (Fayde.Data = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Data;
-    (function (Data) {
-        Data.INotifyDataErrorInfo_ = new nullstone.Interface("INotifyDataErrorInfo");
-    })(Data = Fayde.Data || (Fayde.Data = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Data;
-    (function (Data) {
-        Data.IValueConverter_ = new nullstone.Interface("IValueConverter");
-    })(Data = Fayde.Data || (Fayde.Data = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Data;
-    (function (Data) {
-        var RelativeSource = (function () {
-            function RelativeSource(obj) {
-                this.AncestorType = null;
-                if (obj instanceof RelativeSource) {
-                    var rs = obj;
-                    this.Mode = rs.Mode;
-                    this.AncestorLevel = rs.AncestorLevel;
-                    this.AncestorType = rs.AncestorType;
-                }
-            }
-            RelativeSource.prototype.init = function (val) {
-                this.Mode = Data.RelativeSourceMode[val];
-            };
-            RelativeSource.prototype.resolveTypeFields = function (resolver) {
-                if (typeof this.AncestorType === "string")
-                    this.AncestorType = resolver(this.AncestorType);
-            };
-            RelativeSource.prototype.transmute = function (os) {
-                if (this.Mode == null && typeof this.AncestorType === "function") {
-                    this.Mode = Data.RelativeSourceMode.FindAncestor;
-                }
-                else {
-                    this.Mode = Fayde.Enum.fromAny(Data.RelativeSourceMode, this.Mode);
-                }
-                this.AncestorLevel = parseInt(this.AncestorLevel) || 1;
-                Object.freeze(this);
-                return this;
-            };
-            RelativeSource.prototype.Clone = function () {
-                return new RelativeSource(this);
-            };
-            RelativeSource.prototype.Find = function (target) {
-                switch (this.Mode) {
-                    case Data.RelativeSourceMode.Self:
-                        return target;
-                    case Data.RelativeSourceMode.TemplatedParent:
-                        return target.TemplateOwner;
-                    case Data.RelativeSourceMode.FindAncestor:
-                        return findAncestor(target, this);
-                    case Data.RelativeSourceMode.ItemsControlParent:
-                        return findItemsControlAncestor(target, this);
-                }
-            };
-            return RelativeSource;
-        })();
-        Data.RelativeSource = RelativeSource;
-        Fayde.CoreLibrary.add(RelativeSource);
-        function findAncestor(target, relSource) {
-            if (!(target instanceof Fayde.DependencyObject))
-                return;
-            var ancestorType = relSource.AncestorType;
-            if (typeof ancestorType !== "function") {
-                console.warn("RelativeSourceMode.FindAncestor with no AncestorType specified.");
-                return;
-            }
-            var ancestorLevel = relSource.AncestorLevel;
-            if (isNaN(ancestorLevel)) {
-                console.warn("RelativeSourceMode.FindAncestor with no AncestorLevel specified.");
-                return;
-            }
-            for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
-                if (parent instanceof ancestorType && --ancestorLevel < 1)
-                    return parent;
-            }
-        }
-        function findItemsControlAncestor(target, relSource) {
-            if (!(target instanceof Fayde.DependencyObject))
-                return;
-            var ancestorLevel = relSource.AncestorLevel;
-            ancestorLevel = ancestorLevel || 1;
-            for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
-                if (!!parent.IsItemsControl && --ancestorLevel < 1)
-                    return parent;
-            }
-        }
-    })(Data = Fayde.Data || (Fayde.Data = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -11583,6 +11394,266 @@ var Fayde;
         Documents.Underline = Underline;
         Fayde.CoreLibrary.add(Underline);
     })(Documents = Fayde.Documents || (Fayde.Documents = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Data;
+    (function (Data) {
+        var convert = nullstone.convertAnyToType;
+        Data.WarnBrokenPath = false;
+        var Binding = (function () {
+            function Binding(obj) {
+                this.BindsDirectlyToSource = false;
+                this.NotifyOnValidationError = false;
+                this.ValidatesOnExceptions = false;
+                this.ValidatesOnDataErrors = false;
+                this.ValidatesOnNotifyDataErrors = true;
+                if (obj instanceof Binding) {
+                    var binding = obj;
+                    this.StringFormat = binding.StringFormat;
+                    this.FallbackValue = binding.FallbackValue;
+                    this.TargetNullValue = binding.TargetNullValue;
+                    this.BindsDirectlyToSource = binding.BindsDirectlyToSource;
+                    this.Converter = binding.Converter;
+                    this.ConverterParameter = binding.ConverterParameter;
+                    this.ConverterCulture = binding.ConverterCulture;
+                    this.ElementName = binding.ElementName;
+                    this.Mode = binding.Mode;
+                    this.NotifyOnValidationError = binding.NotifyOnValidationError;
+                    this.RelativeSource = binding.RelativeSource ? binding.RelativeSource.Clone() : null;
+                    this.Path = binding.Path;
+                    this.Source = binding.Source;
+                    this.UpdateSourceTrigger = binding.UpdateSourceTrigger;
+                    this.ValidatesOnExceptions = binding.ValidatesOnExceptions;
+                    this.ValidatesOnDataErrors = binding.ValidatesOnDataErrors;
+                    this.ValidatesOnNotifyDataErrors = binding.ValidatesOnNotifyDataErrors;
+                }
+                else if (typeof obj === "string") {
+                    this.Path = new Data.PropertyPath(obj);
+                }
+                else if (obj instanceof Data.PropertyPath) {
+                    this.Path = obj;
+                }
+                else {
+                    this.Path = new Data.PropertyPath("");
+                }
+            }
+            Binding.prototype.init = function (val) {
+                this.Path = new Data.PropertyPath(val);
+            };
+            Binding.prototype.transmute = function (os) {
+                this.$$coerce();
+                Object.freeze(this);
+                return new Data.BindingExpression(this);
+            };
+            Binding.prototype.$$coerce = function () {
+                this.StringFormat = this.StringFormat ? this.StringFormat.toString() : undefined;
+                this.BindsDirectlyToSource = convert(this.BindsDirectlyToSource, Boolean) || false;
+                this.Mode = Fayde.Enum.fromAny(Data.BindingMode, this.Mode);
+                this.NotifyOnValidationError = convert(this.NotifyOnValidationError, Boolean) || false;
+                this.Path = convert(this.Path, Data.PropertyPath);
+                this.UpdateSourceTrigger = Fayde.Enum.fromAny(Data.UpdateSourceTrigger, this.UpdateSourceTrigger);
+                this.ValidatesOnExceptions = convert(this.ValidatesOnExceptions, Boolean) || false;
+                this.ValidatesOnDataErrors = convert(this.ValidatesOnDataErrors, Boolean) || false;
+                this.ValidatesOnNotifyDataErrors = convert(this.ValidatesOnNotifyDataErrors, Boolean) !== false;
+            };
+            Binding.prototype.Clone = function () {
+                return new Binding(this);
+            };
+            Binding.fromData = function (data) {
+                var binding = new Binding(data.Path);
+                binding.StringFormat = data.StringFormat;
+                binding.FallbackValue = data.FallbackValue;
+                binding.TargetNullValue = data.TargetNullValue;
+                binding.BindsDirectlyToSource = data.BindsDirectlyToSource;
+                binding.Converter = data.Converter;
+                binding.ConverterParameter = data.ConverterParameter;
+                binding.ConverterCulture = data.ConverterCulture;
+                binding.ElementName = data.ElementName;
+                binding.Mode = data.Mode;
+                binding.NotifyOnValidationError = data.NotifyOnValidationError;
+                binding.RelativeSource = data.RelativeSource;
+                binding.Source = data.Source;
+                binding.UpdateSourceTrigger = data.UpdateSourceTrigger;
+                binding.ValidatesOnExceptions = data.ValidatesOnExceptions;
+                binding.ValidatesOnDataErrors = data.ValidatesOnDataErrors;
+                binding.ValidatesOnNotifyDataErrors = data.ValidatesOnNotifyDataErrors;
+                return binding;
+            };
+            return Binding;
+        })();
+        Data.Binding = Binding;
+        Fayde.CoreLibrary.add(Binding);
+    })(Data = Fayde.Data || (Fayde.Data = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../Core/DependencyObject.ts" />
+var Fayde;
+(function (Fayde) {
+    var Data;
+    (function (Data) {
+        var CollectionViewSource = (function (_super) {
+            __extends(CollectionViewSource, _super);
+            function CollectionViewSource() {
+                _super.apply(this, arguments);
+            }
+            CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return Object; }, CollectionViewSource);
+            CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return Data.ICollectionView_; }, CollectionViewSource);
+            return CollectionViewSource;
+        })(Fayde.DependencyObject);
+        Data.CollectionViewSource = CollectionViewSource;
+    })(Data = Fayde.Data || (Fayde.Data = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Data;
+    (function (Data) {
+        var DataErrorsChangedEventArgs = (function () {
+            function DataErrorsChangedEventArgs(propertyName) {
+                this.PropertyName = propertyName;
+                Object.freeze(this);
+            }
+            return DataErrorsChangedEventArgs;
+        })();
+        Data.DataErrorsChangedEventArgs = DataErrorsChangedEventArgs;
+    })(Data = Fayde.Data || (Fayde.Data = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Data;
+    (function (Data) {
+        (function (RelativeSourceMode) {
+            RelativeSourceMode[RelativeSourceMode["TemplatedParent"] = 0] = "TemplatedParent";
+            RelativeSourceMode[RelativeSourceMode["Self"] = 1] = "Self";
+            RelativeSourceMode[RelativeSourceMode["FindAncestor"] = 2] = "FindAncestor";
+            RelativeSourceMode[RelativeSourceMode["ItemsControlParent"] = 3] = "ItemsControlParent";
+        })(Data.RelativeSourceMode || (Data.RelativeSourceMode = {}));
+        var RelativeSourceMode = Data.RelativeSourceMode;
+        Fayde.CoreLibrary.addEnum(RelativeSourceMode, "RelativeSourceMode");
+        (function (BindingMode) {
+            BindingMode[BindingMode["OneWay"] = 0] = "OneWay";
+            BindingMode[BindingMode["TwoWay"] = 1] = "TwoWay";
+            BindingMode[BindingMode["OneTime"] = 2] = "OneTime";
+            BindingMode[BindingMode["OneWayToSource"] = 3] = "OneWayToSource";
+        })(Data.BindingMode || (Data.BindingMode = {}));
+        var BindingMode = Data.BindingMode;
+        Fayde.CoreLibrary.addEnum(BindingMode, "BindingMode");
+        (function (UpdateSourceTrigger) {
+            UpdateSourceTrigger[UpdateSourceTrigger["Default"] = 0] = "Default";
+            UpdateSourceTrigger[UpdateSourceTrigger["PropertyChanged"] = 1] = "PropertyChanged";
+            UpdateSourceTrigger[UpdateSourceTrigger["Explicit"] = 3] = "Explicit";
+        })(Data.UpdateSourceTrigger || (Data.UpdateSourceTrigger = {}));
+        var UpdateSourceTrigger = Data.UpdateSourceTrigger;
+        Fayde.CoreLibrary.addEnum(UpdateSourceTrigger, "UpdateSourceTrigger");
+    })(Data = Fayde.Data || (Fayde.Data = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Data;
+    (function (Data) {
+        Data.ICollectionView_ = new nullstone.Interface("ICollectionView");
+    })(Data = Fayde.Data || (Fayde.Data = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Data;
+    (function (Data) {
+        Data.IDataErrorInfo_ = new nullstone.Interface("IDataErrorInfo");
+    })(Data = Fayde.Data || (Fayde.Data = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Data;
+    (function (Data) {
+        Data.INotifyDataErrorInfo_ = new nullstone.Interface("INotifyDataErrorInfo");
+    })(Data = Fayde.Data || (Fayde.Data = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Data;
+    (function (Data) {
+        Data.IValueConverter_ = new nullstone.Interface("IValueConverter");
+    })(Data = Fayde.Data || (Fayde.Data = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Data;
+    (function (Data) {
+        var RelativeSource = (function () {
+            function RelativeSource(obj) {
+                this.AncestorType = null;
+                if (obj instanceof RelativeSource) {
+                    var rs = obj;
+                    this.Mode = rs.Mode;
+                    this.AncestorLevel = rs.AncestorLevel;
+                    this.AncestorType = rs.AncestorType;
+                }
+            }
+            RelativeSource.prototype.init = function (val) {
+                this.Mode = Data.RelativeSourceMode[val];
+            };
+            RelativeSource.prototype.resolveTypeFields = function (resolver) {
+                if (typeof this.AncestorType === "string")
+                    this.AncestorType = resolver(this.AncestorType);
+            };
+            RelativeSource.prototype.transmute = function (os) {
+                if (this.Mode == null && typeof this.AncestorType === "function") {
+                    this.Mode = Data.RelativeSourceMode.FindAncestor;
+                }
+                else {
+                    this.Mode = Fayde.Enum.fromAny(Data.RelativeSourceMode, this.Mode);
+                }
+                this.AncestorLevel = parseInt(this.AncestorLevel) || 1;
+                Object.freeze(this);
+                return this;
+            };
+            RelativeSource.prototype.Clone = function () {
+                return new RelativeSource(this);
+            };
+            RelativeSource.prototype.Find = function (target) {
+                switch (this.Mode) {
+                    case Data.RelativeSourceMode.Self:
+                        return target;
+                    case Data.RelativeSourceMode.TemplatedParent:
+                        return target.TemplateOwner;
+                    case Data.RelativeSourceMode.FindAncestor:
+                        return findAncestor(target, this);
+                    case Data.RelativeSourceMode.ItemsControlParent:
+                        return findItemsControlAncestor(target, this);
+                }
+            };
+            return RelativeSource;
+        })();
+        Data.RelativeSource = RelativeSource;
+        Fayde.CoreLibrary.add(RelativeSource);
+        function findAncestor(target, relSource) {
+            if (!(target instanceof Fayde.DependencyObject))
+                return;
+            var ancestorType = relSource.AncestorType;
+            if (typeof ancestorType !== "function") {
+                console.warn("RelativeSourceMode.FindAncestor with no AncestorType specified.");
+                return;
+            }
+            var ancestorLevel = relSource.AncestorLevel;
+            if (isNaN(ancestorLevel)) {
+                console.warn("RelativeSourceMode.FindAncestor with no AncestorLevel specified.");
+                return;
+            }
+            for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
+                if (parent instanceof ancestorType && --ancestorLevel < 1)
+                    return parent;
+            }
+        }
+        function findItemsControlAncestor(target, relSource) {
+            if (!(target instanceof Fayde.DependencyObject))
+                return;
+            var ancestorLevel = relSource.AncestorLevel;
+            ancestorLevel = ancestorLevel || 1;
+            for (var parent = Fayde.VisualTreeHelper.GetParent(target); parent != null; parent = Fayde.VisualTreeHelper.GetParent(parent)) {
+                if (!!parent.IsItemsControl && --ancestorLevel < 1)
+                    return parent;
+            }
+        }
+    })(Data = Fayde.Data || (Fayde.Data = {}));
 })(Fayde || (Fayde = {}));
 /// <reference path="../Core/DependencyObject.ts" />
 var Fayde;
@@ -16202,6 +16273,396 @@ var Fayde;
         Fayde.CoreLibrary.add(StaticResource);
     })(Markup = Fayde.Markup || (Fayde.Markup = {}));
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        function Navigate(source, targetName, navigateUri) {
+            if (!isExternalTarget(targetName)) {
+                if (tryInternalNavigate(source, navigateUri, targetName))
+                    return;
+                if (!isUriValidForExternalNav(navigateUri))
+                    throw new NotSupportedException("Navigation Failed");
+            }
+            var app = source.App;
+            if (!app || !app.AllowNavigation)
+                throw new InvalidOperationException("Navigation is now allowed.");
+            var absoluteUri = getAbsoluteUri(navigateUri, app);
+            if (!absoluteUri.isAbsoluteUri)
+                throw new InvalidOperationException("Navigation Failed [" + absoluteUri.toString() + "]");
+            launchDummyLink(targetName || "_self", absoluteUri.originalString);
+        }
+        Navigation.Navigate = Navigate;
+        function isExternalTarget(targetName) {
+            if (!targetName)
+                return false;
+            switch (targetName.toLowerCase()) {
+                case "_blank":
+                case "_media":
+                case "_search":
+                case "_parent":
+                case "_self":
+                case "_top":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        function tryInternalNavigate(source, navigateUri, targetName) {
+            var lastSubtree = source;
+            for (var en = walkUp(source); en.moveNext();) {
+                var cur = en.current;
+                if (cur && (Navigation.INavigate_.is(cur) || !Fayde.VisualTreeHelper.GetParent(cur))) {
+                    var navigator = findNavigator(cur, lastSubtree, targetName);
+                    if (navigator)
+                        return navigator.Navigate(navigateUri);
+                    lastSubtree = cur;
+                }
+            }
+            return false;
+        }
+        function findNavigator(root, lastSubtree, targetName) {
+            if (!root || root === lastSubtree)
+                return null;
+            var nav = Navigation.INavigate_.as(root);
+            if (nav && (!targetName || targetName === root.Name))
+                return nav;
+            if (root instanceof Fayde.Controls.Primitives.Popup) {
+                return findNavigator(root.Child, lastSubtree, targetName);
+            }
+            else {
+                for (var i = 0, len = Fayde.VisualTreeHelper.GetChildrenCount(root); i < len; i++) {
+                    var navigator = findNavigator(Fayde.VisualTreeHelper.GetChild(root, i), lastSubtree, targetName);
+                    if (navigator)
+                        return navigator;
+                }
+            }
+            return null;
+        }
+        function walkUp(xobj) {
+            var e = {
+                current: xobj,
+                moveNext: function () {
+                    if (!e.current)
+                        return false;
+                    e.current = e.current.VisualParent || e.current.Parent;
+                    return !!e.current;
+                }
+            };
+            return e;
+        }
+        function isUriValidForExternalNav(navigateUri) {
+            if (!navigateUri.isAbsoluteUri) {
+                if (!!navigateUri.originalString && navigateUri.originalString[0] !== "/")
+                    return false;
+            }
+            return true;
+        }
+        function getAbsoluteUri(navigateUri, app) {
+            var relativeUri = navigateUri;
+            if (!relativeUri.isAbsoluteUri) {
+                if (!!relativeUri.originalString && relativeUri.originalString[0] !== "/")
+                    throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_PageRelativeUri");
+                if (!app)
+                    throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_NoApplication");
+                relativeUri = new Fayde.Uri(app.Address, relativeUri);
+            }
+            return relativeUri;
+        }
+        var dummyLink;
+        function launchDummyLink(target, navigateUri) {
+            dummyLink = dummyLink || document.createElement('a');
+            dummyLink.href = navigateUri;
+            dummyLink.target = target;
+            dummyLink.click();
+        }
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        var NavigationService = (function () {
+            function NavigationService() {
+                var _this = this;
+                this.LocationChanged = new nullstone.Event();
+                this.Href = window.location.href;
+                this.Hash = window.location.hash;
+                if (this.Href[this.Href.length - 1] === '#')
+                    this.Hash = "#";
+                if (this.Hash) {
+                    this.Hash = this.Hash.substr(1);
+                    this.Href = this.Href.substring(0, this.Href.indexOf('#'));
+                }
+                window.onhashchange = function () { return _this._HandleFragmentChange(); };
+            }
+            Object.defineProperty(NavigationService.prototype, "CurrentUri", {
+                get: function () {
+                    return new Fayde.Uri(this.Href + "#" + this.Hash);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            NavigationService.prototype.Navigate = function (uri) {
+                window.location.hash = uri.toString();
+                return true;
+            };
+            NavigationService.prototype._HandleFragmentChange = function () {
+                this.Hash = window.location.hash;
+                if (this.Hash) {
+                    this.Hash = this.Hash.substr(1);
+                }
+                this.LocationChanged.raise(this, null);
+            };
+            return NavigationService;
+        })();
+        Navigation.NavigationService = NavigationService;
+        Fayde.CoreLibrary.add(NavigationService);
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../Core/DependencyObject.ts" />
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        var RouteMapper = (function (_super) {
+            __extends(RouteMapper, _super);
+            function RouteMapper() {
+                _super.call(this);
+                RouteMapper.RouteMappingsProperty.Initialize(this);
+            }
+            RouteMapper.prototype.MapUri = function (uri) {
+                var mapped;
+                for (var en = this.RouteMappings.getEnumerator(); en.moveNext();) {
+                    mapped = en.current.MapUri(uri);
+                    if (mapped) {
+                        var vm = this.ViewModelProvider ? this.ViewModelProvider.ResolveViewModel(mapped) : null;
+                        mapped.DataContext = vm;
+                        return mapped;
+                    }
+                }
+                return undefined;
+            };
+            RouteMapper.RouteMappingsProperty = DependencyProperty.RegisterImmutable("RouteMappings", function () { return Fayde.XamlObjectCollection; }, RouteMapper);
+            RouteMapper.ViewModelProviderProperty = DependencyProperty.Register("ViewModelProvider", function () { return Fayde.MVVM.IViewModelProvider_; }, RouteMapper);
+            return RouteMapper;
+        })(Fayde.DependencyObject);
+        Navigation.RouteMapper = RouteMapper;
+        Fayde.CoreLibrary.add(RouteMapper);
+        Fayde.Markup.Content(RouteMapper, RouteMapper.RouteMappingsProperty);
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../Core/DependencyObject.ts" />
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        var RouteMapping = (function (_super) {
+            __extends(RouteMapping, _super);
+            function RouteMapping() {
+                _super.apply(this, arguments);
+            }
+            RouteMapping.prototype.MapUri = function (uri) {
+                var matcher = createUriMatcher(this.Uri.toString(), uri.toString());
+                var result = matcher.Match();
+                if (!result)
+                    return undefined;
+                if (!this.View)
+                    throw new InvalidOperationException("RouteMapping must have a view. (" + this.Uri.toString() + ")");
+                var hashParams = {};
+                for (var i = 0; i < result.length; i++) {
+                    var key = result[i].Identifier;
+                    var value = result[i].Value;
+                    hashParams[key] = value;
+                }
+                return new Navigation.Route(this.View, hashParams, null);
+            };
+            RouteMapping.ViewProperty = DependencyProperty.Register("View", function () { return Fayde.Uri; }, RouteMapping);
+            RouteMapping.UriProperty = DependencyProperty.Register("Uri", function () { return Fayde.Uri; }, RouteMapping);
+            return RouteMapping;
+        })(Fayde.DependencyObject);
+        Navigation.RouteMapping = RouteMapping;
+        Fayde.CoreLibrary.add(RouteMapping);
+        function createUriMatcher(matchTemplate, actual) {
+            var i = 0;
+            var j = 0;
+            function collectTokenInfo() {
+                var tokenInfo = {
+                    Identifier: null,
+                    Terminator: null,
+                    Value: null
+                };
+                var index = matchTemplate.indexOf('}', i);
+                if (index < 0)
+                    throw new InvalidOperationException("Invalid Uri format. '{' needs a closing '}'.");
+                var len = index - i + 1;
+                tokenInfo.Identifier = matchTemplate.substr(i + 1, len - 2);
+                if (!tokenInfo.Identifier)
+                    throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
+                i += len;
+                tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
+                return tokenInfo;
+            }
+            function findTokenValue(tokenInfo) {
+                if (tokenInfo.Terminator === '\0') {
+                    tokenInfo.Value = actual.substr(j);
+                    if (tokenInfo.Value)
+                        j += tokenInfo.Value.length;
+                    return tokenInfo;
+                }
+                tokenInfo.Value = "";
+                while (j < actual.length) {
+                    if (actual[j] == tokenInfo.Terminator)
+                        return;
+                    tokenInfo.Value += actual[j];
+                    j++;
+                }
+            }
+            return {
+                Match: function () {
+                    var tokens = [];
+                    if (matchTemplate.length === 0) {
+                        if (actual.length === 0)
+                            return tokens;
+                        return null;
+                    }
+                    while (i < matchTemplate.length && j < actual.length) {
+                        if (matchTemplate[i] === "{") {
+                            tokens.push(findTokenValue(collectTokenInfo()));
+                            continue;
+                        }
+                        if (matchTemplate[i] !== actual[i])
+                            return null;
+                        i++;
+                        j++;
+                    }
+                    return tokens;
+                }
+            };
+        }
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../Core/DependencyObject.ts" />
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        var UriMapper = (function (_super) {
+            __extends(UriMapper, _super);
+            function UriMapper() {
+                _super.call(this);
+                UriMapper.UriMappingsProperty.Initialize(this);
+            }
+            UriMapper.prototype.MapUri = function (uri) {
+                var enumerator = this.UriMappings.getEnumerator();
+                var mapped;
+                while (enumerator.moveNext()) {
+                    mapped = enumerator.current.MapUri(uri);
+                    if (mapped)
+                        return mapped;
+                }
+                return uri;
+            };
+            UriMapper.UriMappingsProperty = DependencyProperty.RegisterImmutable("UriMappings", function () { return Fayde.XamlObjectCollection; }, UriMapper);
+            return UriMapper;
+        })(Fayde.DependencyObject);
+        Navigation.UriMapper = UriMapper;
+        Fayde.CoreLibrary.add(UriMapper);
+        Fayde.Markup.Content(UriMapper, UriMapper.UriMappingsProperty);
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../Core/DependencyObject.ts" />
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        var UriMapping = (function (_super) {
+            __extends(UriMapping, _super);
+            function UriMapping() {
+                _super.apply(this, arguments);
+            }
+            UriMapping.prototype.MapUri = function (uri) {
+                var matcher = createUriMatcher(this.Uri.toString(), this.MappedUri.toString(), uri.toString());
+                var result = matcher.Match();
+                if (!result)
+                    return undefined;
+                return new Fayde.Uri(result);
+            };
+            UriMapping.MappedUriProperty = DependencyProperty.Register("MappedUri", function () { return Fayde.Uri; }, UriMapping);
+            UriMapping.UriProperty = DependencyProperty.Register("Uri", function () { return Fayde.Uri; }, UriMapping);
+            return UriMapping;
+        })(Fayde.DependencyObject);
+        Navigation.UriMapping = UriMapping;
+        Fayde.CoreLibrary.add(UriMapping);
+        function createUriMatcher(matchTemplate, outputTemplate, actual) {
+            var i = 0;
+            var j = 0;
+            function collectTokenInfo() {
+                var tokenInfo = {
+                    Identifier: null,
+                    Terminator: null,
+                    Value: null
+                };
+                var index = matchTemplate.indexOf('}', i);
+                if (index < 0)
+                    throw new InvalidOperationException("Invalid Uri format. '{' needs a closing '}'.");
+                var len = index - i + 1;
+                tokenInfo.Identifier = matchTemplate.substr(i + 1, len - 2);
+                if (!tokenInfo.Identifier)
+                    throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
+                i += len;
+                tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
+                return tokenInfo;
+            }
+            function findTokenValue(tokenInfo) {
+                if (tokenInfo.Terminator === '\0') {
+                    tokenInfo.Value = actual.substr(j);
+                    if (tokenInfo.Value)
+                        j += tokenInfo.Value.length;
+                    return tokenInfo;
+                }
+                tokenInfo.Value = "";
+                while (j < actual.length) {
+                    if (actual[j] == tokenInfo.Terminator)
+                        return;
+                    tokenInfo.Value += actual[j];
+                    j++;
+                }
+            }
+            function buildMappedUri(tokens) {
+                var cur = outputTemplate;
+                var len = tokens.length;
+                var token;
+                for (var a = 0; a < len; a++) {
+                    token = tokens[a];
+                    cur = cur.replace("{" + token.Identifier + "}", token.Value);
+                }
+                return cur;
+            }
+            return {
+                Match: function () {
+                    var tokens = [];
+                    if (matchTemplate.length === 0) {
+                        if (actual.length === 0)
+                            return buildMappedUri(tokens);
+                        return null;
+                    }
+                    while (i < matchTemplate.length && j < actual.length) {
+                        if (matchTemplate[i] === "{") {
+                            tokens.push(findTokenValue(collectTokenInfo()));
+                            continue;
+                        }
+                        if (matchTemplate[i] !== actual[i])
+                            return null;
+                        i++;
+                        j++;
+                    }
+                    return buildMappedUri(tokens);
+                }
+            };
+        }
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
 /// <reference path="../Core/DependencyObject.ts" />
 var Fayde;
 (function (Fayde) {
@@ -18496,396 +18957,6 @@ var Fayde;
         Fayde.CoreLibrary.add(TransformGroup);
         Fayde.Markup.Content(TransformGroup, TransformGroup.ChildrenProperty);
     })(Media = Fayde.Media || (Fayde.Media = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        function Navigate(source, targetName, navigateUri) {
-            if (!isExternalTarget(targetName)) {
-                if (tryInternalNavigate(source, navigateUri, targetName))
-                    return;
-                if (!isUriValidForExternalNav(navigateUri))
-                    throw new NotSupportedException("Navigation Failed");
-            }
-            var app = source.App;
-            if (!app || !app.AllowNavigation)
-                throw new InvalidOperationException("Navigation is now allowed.");
-            var absoluteUri = getAbsoluteUri(navigateUri, app);
-            if (!absoluteUri.isAbsoluteUri)
-                throw new InvalidOperationException("Navigation Failed [" + absoluteUri.toString() + "]");
-            launchDummyLink(targetName || "_self", absoluteUri.originalString);
-        }
-        Navigation.Navigate = Navigate;
-        function isExternalTarget(targetName) {
-            if (!targetName)
-                return false;
-            switch (targetName.toLowerCase()) {
-                case "_blank":
-                case "_media":
-                case "_search":
-                case "_parent":
-                case "_self":
-                case "_top":
-                    return true;
-                default:
-                    return false;
-            }
-        }
-        function tryInternalNavigate(source, navigateUri, targetName) {
-            var lastSubtree = source;
-            for (var en = walkUp(source); en.moveNext();) {
-                var cur = en.current;
-                if (cur && (Navigation.INavigate_.is(cur) || !Fayde.VisualTreeHelper.GetParent(cur))) {
-                    var navigator = findNavigator(cur, lastSubtree, targetName);
-                    if (navigator)
-                        return navigator.Navigate(navigateUri);
-                    lastSubtree = cur;
-                }
-            }
-            return false;
-        }
-        function findNavigator(root, lastSubtree, targetName) {
-            if (!root || root === lastSubtree)
-                return null;
-            var nav = Navigation.INavigate_.as(root);
-            if (nav && (!targetName || targetName === root.Name))
-                return nav;
-            if (root instanceof Fayde.Controls.Primitives.Popup) {
-                return findNavigator(root.Child, lastSubtree, targetName);
-            }
-            else {
-                for (var i = 0, len = Fayde.VisualTreeHelper.GetChildrenCount(root); i < len; i++) {
-                    var navigator = findNavigator(Fayde.VisualTreeHelper.GetChild(root, i), lastSubtree, targetName);
-                    if (navigator)
-                        return navigator;
-                }
-            }
-            return null;
-        }
-        function walkUp(xobj) {
-            var e = {
-                current: xobj,
-                moveNext: function () {
-                    if (!e.current)
-                        return false;
-                    e.current = e.current.VisualParent || e.current.Parent;
-                    return !!e.current;
-                }
-            };
-            return e;
-        }
-        function isUriValidForExternalNav(navigateUri) {
-            if (!navigateUri.isAbsoluteUri) {
-                if (!!navigateUri.originalString && navigateUri.originalString[0] !== "/")
-                    return false;
-            }
-            return true;
-        }
-        function getAbsoluteUri(navigateUri, app) {
-            var relativeUri = navigateUri;
-            if (!relativeUri.isAbsoluteUri) {
-                if (!!relativeUri.originalString && relativeUri.originalString[0] !== "/")
-                    throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_PageRelativeUri");
-                if (!app)
-                    throw new NotSupportedException("HyperlinkButton_GetAbsoluteUri_NoApplication");
-                relativeUri = new Fayde.Uri(app.Address, relativeUri);
-            }
-            return relativeUri;
-        }
-        var dummyLink;
-        function launchDummyLink(target, navigateUri) {
-            dummyLink = dummyLink || document.createElement('a');
-            dummyLink.href = navigateUri;
-            dummyLink.target = target;
-            dummyLink.click();
-        }
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        var NavigationService = (function () {
-            function NavigationService() {
-                var _this = this;
-                this.LocationChanged = new nullstone.Event();
-                this.Href = window.location.href;
-                this.Hash = window.location.hash;
-                if (this.Href[this.Href.length - 1] === '#')
-                    this.Hash = "#";
-                if (this.Hash) {
-                    this.Hash = this.Hash.substr(1);
-                    this.Href = this.Href.substring(0, this.Href.indexOf('#'));
-                }
-                window.onhashchange = function () { return _this._HandleFragmentChange(); };
-            }
-            Object.defineProperty(NavigationService.prototype, "CurrentUri", {
-                get: function () {
-                    return new Fayde.Uri(this.Href + "#" + this.Hash);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            NavigationService.prototype.Navigate = function (uri) {
-                window.location.hash = uri.toString();
-                return true;
-            };
-            NavigationService.prototype._HandleFragmentChange = function () {
-                this.Hash = window.location.hash;
-                if (this.Hash) {
-                    this.Hash = this.Hash.substr(1);
-                }
-                this.LocationChanged.raise(this, null);
-            };
-            return NavigationService;
-        })();
-        Navigation.NavigationService = NavigationService;
-        Fayde.CoreLibrary.add(NavigationService);
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="../Core/DependencyObject.ts" />
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        var RouteMapper = (function (_super) {
-            __extends(RouteMapper, _super);
-            function RouteMapper() {
-                _super.call(this);
-                RouteMapper.RouteMappingsProperty.Initialize(this);
-            }
-            RouteMapper.prototype.MapUri = function (uri) {
-                var mapped;
-                for (var en = this.RouteMappings.getEnumerator(); en.moveNext();) {
-                    mapped = en.current.MapUri(uri);
-                    if (mapped) {
-                        var vm = this.ViewModelProvider ? this.ViewModelProvider.ResolveViewModel(mapped) : null;
-                        mapped.DataContext = vm;
-                        return mapped;
-                    }
-                }
-                return undefined;
-            };
-            RouteMapper.RouteMappingsProperty = DependencyProperty.RegisterImmutable("RouteMappings", function () { return Fayde.XamlObjectCollection; }, RouteMapper);
-            RouteMapper.ViewModelProviderProperty = DependencyProperty.Register("ViewModelProvider", function () { return Fayde.MVVM.IViewModelProvider_; }, RouteMapper);
-            return RouteMapper;
-        })(Fayde.DependencyObject);
-        Navigation.RouteMapper = RouteMapper;
-        Fayde.CoreLibrary.add(RouteMapper);
-        Fayde.Markup.Content(RouteMapper, RouteMapper.RouteMappingsProperty);
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="../Core/DependencyObject.ts" />
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        var RouteMapping = (function (_super) {
-            __extends(RouteMapping, _super);
-            function RouteMapping() {
-                _super.apply(this, arguments);
-            }
-            RouteMapping.prototype.MapUri = function (uri) {
-                var matcher = createUriMatcher(this.Uri.toString(), uri.toString());
-                var result = matcher.Match();
-                if (!result)
-                    return undefined;
-                if (!this.View)
-                    throw new InvalidOperationException("RouteMapping must have a view. (" + this.Uri.toString() + ")");
-                var hashParams = {};
-                for (var i = 0; i < result.length; i++) {
-                    var key = result[i].Identifier;
-                    var value = result[i].Value;
-                    hashParams[key] = value;
-                }
-                return new Navigation.Route(this.View, hashParams, null);
-            };
-            RouteMapping.ViewProperty = DependencyProperty.Register("View", function () { return Fayde.Uri; }, RouteMapping);
-            RouteMapping.UriProperty = DependencyProperty.Register("Uri", function () { return Fayde.Uri; }, RouteMapping);
-            return RouteMapping;
-        })(Fayde.DependencyObject);
-        Navigation.RouteMapping = RouteMapping;
-        Fayde.CoreLibrary.add(RouteMapping);
-        function createUriMatcher(matchTemplate, actual) {
-            var i = 0;
-            var j = 0;
-            function collectTokenInfo() {
-                var tokenInfo = {
-                    Identifier: null,
-                    Terminator: null,
-                    Value: null
-                };
-                var index = matchTemplate.indexOf('}', i);
-                if (index < 0)
-                    throw new InvalidOperationException("Invalid Uri format. '{' needs a closing '}'.");
-                var len = index - i + 1;
-                tokenInfo.Identifier = matchTemplate.substr(i + 1, len - 2);
-                if (!tokenInfo.Identifier)
-                    throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
-                i += len;
-                tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
-                return tokenInfo;
-            }
-            function findTokenValue(tokenInfo) {
-                if (tokenInfo.Terminator === '\0') {
-                    tokenInfo.Value = actual.substr(j);
-                    if (tokenInfo.Value)
-                        j += tokenInfo.Value.length;
-                    return tokenInfo;
-                }
-                tokenInfo.Value = "";
-                while (j < actual.length) {
-                    if (actual[j] == tokenInfo.Terminator)
-                        return;
-                    tokenInfo.Value += actual[j];
-                    j++;
-                }
-            }
-            return {
-                Match: function () {
-                    var tokens = [];
-                    if (matchTemplate.length === 0) {
-                        if (actual.length === 0)
-                            return tokens;
-                        return null;
-                    }
-                    while (i < matchTemplate.length && j < actual.length) {
-                        if (matchTemplate[i] === "{") {
-                            tokens.push(findTokenValue(collectTokenInfo()));
-                            continue;
-                        }
-                        if (matchTemplate[i] !== actual[i])
-                            return null;
-                        i++;
-                        j++;
-                    }
-                    return tokens;
-                }
-            };
-        }
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="../Core/DependencyObject.ts" />
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        var UriMapper = (function (_super) {
-            __extends(UriMapper, _super);
-            function UriMapper() {
-                _super.call(this);
-                UriMapper.UriMappingsProperty.Initialize(this);
-            }
-            UriMapper.prototype.MapUri = function (uri) {
-                var enumerator = this.UriMappings.getEnumerator();
-                var mapped;
-                while (enumerator.moveNext()) {
-                    mapped = enumerator.current.MapUri(uri);
-                    if (mapped)
-                        return mapped;
-                }
-                return uri;
-            };
-            UriMapper.UriMappingsProperty = DependencyProperty.RegisterImmutable("UriMappings", function () { return Fayde.XamlObjectCollection; }, UriMapper);
-            return UriMapper;
-        })(Fayde.DependencyObject);
-        Navigation.UriMapper = UriMapper;
-        Fayde.CoreLibrary.add(UriMapper);
-        Fayde.Markup.Content(UriMapper, UriMapper.UriMappingsProperty);
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
-})(Fayde || (Fayde = {}));
-/// <reference path="../Core/DependencyObject.ts" />
-var Fayde;
-(function (Fayde) {
-    var Navigation;
-    (function (Navigation) {
-        var UriMapping = (function (_super) {
-            __extends(UriMapping, _super);
-            function UriMapping() {
-                _super.apply(this, arguments);
-            }
-            UriMapping.prototype.MapUri = function (uri) {
-                var matcher = createUriMatcher(this.Uri.toString(), this.MappedUri.toString(), uri.toString());
-                var result = matcher.Match();
-                if (!result)
-                    return undefined;
-                return new Fayde.Uri(result);
-            };
-            UriMapping.MappedUriProperty = DependencyProperty.Register("MappedUri", function () { return Fayde.Uri; }, UriMapping);
-            UriMapping.UriProperty = DependencyProperty.Register("Uri", function () { return Fayde.Uri; }, UriMapping);
-            return UriMapping;
-        })(Fayde.DependencyObject);
-        Navigation.UriMapping = UriMapping;
-        Fayde.CoreLibrary.add(UriMapping);
-        function createUriMatcher(matchTemplate, outputTemplate, actual) {
-            var i = 0;
-            var j = 0;
-            function collectTokenInfo() {
-                var tokenInfo = {
-                    Identifier: null,
-                    Terminator: null,
-                    Value: null
-                };
-                var index = matchTemplate.indexOf('}', i);
-                if (index < 0)
-                    throw new InvalidOperationException("Invalid Uri format. '{' needs a closing '}'.");
-                var len = index - i + 1;
-                tokenInfo.Identifier = matchTemplate.substr(i + 1, len - 2);
-                if (!tokenInfo.Identifier)
-                    throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
-                i += len;
-                tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
-                return tokenInfo;
-            }
-            function findTokenValue(tokenInfo) {
-                if (tokenInfo.Terminator === '\0') {
-                    tokenInfo.Value = actual.substr(j);
-                    if (tokenInfo.Value)
-                        j += tokenInfo.Value.length;
-                    return tokenInfo;
-                }
-                tokenInfo.Value = "";
-                while (j < actual.length) {
-                    if (actual[j] == tokenInfo.Terminator)
-                        return;
-                    tokenInfo.Value += actual[j];
-                    j++;
-                }
-            }
-            function buildMappedUri(tokens) {
-                var cur = outputTemplate;
-                var len = tokens.length;
-                var token;
-                for (var a = 0; a < len; a++) {
-                    token = tokens[a];
-                    cur = cur.replace("{" + token.Identifier + "}", token.Value);
-                }
-                return cur;
-            }
-            return {
-                Match: function () {
-                    var tokens = [];
-                    if (matchTemplate.length === 0) {
-                        if (actual.length === 0)
-                            return buildMappedUri(tokens);
-                        return null;
-                    }
-                    while (i < matchTemplate.length && j < actual.length) {
-                        if (matchTemplate[i] === "{") {
-                            tokens.push(findTokenValue(collectTokenInfo()));
-                            continue;
-                        }
-                        if (matchTemplate[i] !== actual[i])
-                            return null;
-                        i++;
-                        j++;
-                    }
-                    return buildMappedUri(tokens);
-                }
-            };
-        }
-    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
 })(Fayde || (Fayde = {}));
 var Color = (function () {
     function Color() {
@@ -21849,6 +21920,224 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    var Providers;
+    (function (Providers) {
+        (function (StyleIndex) {
+            StyleIndex[StyleIndex["VisualTree"] = 0] = "VisualTree";
+            StyleIndex[StyleIndex["ApplicationResources"] = 1] = "ApplicationResources";
+            StyleIndex[StyleIndex["Theme"] = 2] = "Theme";
+            StyleIndex[StyleIndex["Count"] = 3] = "Count";
+        })(Providers.StyleIndex || (Providers.StyleIndex = {}));
+        var StyleIndex = Providers.StyleIndex;
+        (function (StyleMask) {
+            StyleMask[StyleMask["None"] = 0] = "None";
+            StyleMask[StyleMask["VisualTree"] = 1] = "VisualTree";
+            StyleMask[StyleMask["ApplicationResources"] = 2] = "ApplicationResources";
+            StyleMask[StyleMask["Theme"] = 4] = "Theme";
+            StyleMask[StyleMask["All"] = 7] = "All";
+        })(Providers.StyleMask || (Providers.StyleMask = {}));
+        var StyleMask = Providers.StyleMask;
+        var ImplicitStyleBroker = (function () {
+            function ImplicitStyleBroker() {
+            }
+            ImplicitStyleBroker.Set = function (fe, mask, styles) {
+                if (!styles)
+                    styles = getImplicitStyles(fe, mask);
+                if (styles) {
+                    var error = new BError();
+                    var len = StyleIndex.Count;
+                    for (var i = 0; i < len; i++) {
+                        var style = styles[i];
+                        if (!style)
+                            continue;
+                        if (!style.Validate(fe, error)) {
+                            error.ThrowException();
+                            return;
+                        }
+                    }
+                }
+                ImplicitStyleBroker.SetImpl(fe, mask, styles);
+            };
+            ImplicitStyleBroker.SetImpl = function (fe, mask, styles) {
+                if (!styles)
+                    return;
+                var oldStyles = fe.XamlNode._ImplicitStyles;
+                var newStyles = [null, null, null];
+                if (oldStyles) {
+                    newStyles[StyleIndex.Theme] = oldStyles[StyleIndex.Theme];
+                    newStyles[StyleIndex.ApplicationResources] = oldStyles[StyleIndex.ApplicationResources];
+                    newStyles[StyleIndex.VisualTree] = oldStyles[StyleIndex.VisualTree];
+                }
+                if (mask & StyleMask.Theme)
+                    newStyles[StyleIndex.Theme] = styles[StyleIndex.Theme];
+                if (mask & StyleMask.ApplicationResources)
+                    newStyles[StyleIndex.ApplicationResources] = styles[StyleIndex.ApplicationResources];
+                if (mask & StyleMask.VisualTree)
+                    newStyles[StyleIndex.VisualTree] = styles[StyleIndex.VisualTree];
+                ImplicitStyleBroker.ApplyStyles(fe, mask, styles);
+            };
+            ImplicitStyleBroker.Clear = function (fe, mask) {
+                var holder = fe.XamlNode;
+                var oldStyles = holder._ImplicitStyles;
+                if (!oldStyles)
+                    return;
+                var newStyles = oldStyles.slice(0);
+                if (mask & StyleMask.Theme)
+                    newStyles[StyleIndex.Theme] = null;
+                if (mask & StyleMask.ApplicationResources)
+                    newStyles[StyleIndex.ApplicationResources] = null;
+                if (mask & StyleMask.VisualTree)
+                    newStyles[StyleIndex.VisualTree] = null;
+                ImplicitStyleBroker.ApplyStyles(fe, holder._StyleMask & ~mask, newStyles);
+            };
+            ImplicitStyleBroker.ApplyStyles = function (fe, mask, styles) {
+                var holder = fe.XamlNode;
+                var oldStyles = holder._ImplicitStyles;
+                var isChanged = !oldStyles || mask !== holder._StyleMask;
+                if (!isChanged) {
+                    for (var i = 0; i < StyleIndex.Count; i++) {
+                        if (styles[i] !== oldStyles[i]) {
+                            isChanged = true;
+                            break;
+                        }
+                    }
+                }
+                if (!isChanged)
+                    return;
+                Providers.SwapStyles(fe, Fayde.MultipleStylesWalker(oldStyles), Fayde.MultipleStylesWalker(styles), true);
+                holder._ImplicitStyles = styles;
+                holder._StyleMask = mask;
+            };
+            return ImplicitStyleBroker;
+        })();
+        Providers.ImplicitStyleBroker = ImplicitStyleBroker;
+        function getImplicitStyles(fe, mask) {
+            var styles = [];
+            if ((mask & StyleMask.Theme) != 0) {
+                styles[StyleIndex.Theme] = getThemeStyle(fe);
+            }
+            if ((mask & StyleMask.ApplicationResources) != 0) {
+                var app = Fayde.Application.Current;
+                if (app)
+                    styles[StyleIndex.ApplicationResources] = getAppResourcesStyle(app, fe);
+            }
+            if ((mask & StyleMask.VisualTree) != 0)
+                styles[StyleIndex.VisualTree] = getVisualTreeStyle(fe);
+            return styles;
+        }
+        function getThemeStyle(fe) {
+            if (fe instanceof Fayde.Controls.Control) {
+                var style = fe.GetDefaultStyle();
+                if (style)
+                    return style;
+            }
+            return Fayde.ThemeManager.FindStyle(fe.DefaultStyleKey);
+        }
+        function getAppResourcesStyle(app, fe) {
+            return app.Resources.Get(fe.DefaultStyleKey);
+        }
+        function getVisualTreeStyle(fe) {
+            var key = fe.DefaultStyleKey;
+            var cur = fe;
+            var isControl = cur instanceof Fayde.Controls.Control;
+            var curNode = fe.XamlNode;
+            var rd;
+            while (curNode) {
+                cur = curNode.XObject;
+                if (cur.TemplateOwner && !fe.TemplateOwner) {
+                    cur = cur.TemplateOwner;
+                    curNode = cur.XamlNode;
+                    continue;
+                }
+                if (!isControl && cur === fe.TemplateOwner)
+                    break;
+                rd = cur.Resources;
+                if (rd) {
+                    var style = rd.Get(key);
+                    if (style)
+                        return style;
+                }
+                curNode = curNode.VisualParentNode;
+            }
+            return undefined;
+        }
+    })(Providers = Fayde.Providers || (Fayde.Providers = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Providers;
+    (function (Providers) {
+        var LocalStyleBroker = (function () {
+            function LocalStyleBroker() {
+            }
+            LocalStyleBroker.Set = function (fe, newStyle) {
+                var holder = fe.XamlNode;
+                if (newStyle)
+                    newStyle.Seal();
+                Providers.SwapStyles(fe, Fayde.SingleStyleWalker(holder._LocalStyle), Fayde.SingleStyleWalker(newStyle), false);
+                holder._LocalStyle = newStyle;
+            };
+            return LocalStyleBroker;
+        })();
+        Providers.LocalStyleBroker = LocalStyleBroker;
+    })(Providers = Fayde.Providers || (Fayde.Providers = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Providers;
+    (function (Providers) {
+        function SwapStyles(fe, oldWalker, newWalker, isImplicit) {
+            var arr = fe._PropertyStorage;
+            var oldSetter = oldWalker.Step();
+            var newSetter = newWalker.Step();
+            var storage;
+            var value;
+            var propd;
+            while (oldSetter || newSetter) {
+                if (oldSetter && newSetter) {
+                    switch (Fayde.Setter.Compare(oldSetter, newSetter)) {
+                        case 0:
+                            value = newSetter.ConvertedValue;
+                            propd = newSetter.Property;
+                            oldSetter = oldWalker.Step();
+                            newSetter = newWalker.Step();
+                            break;
+                        case -1:
+                            value = undefined;
+                            propd = oldSetter.Property;
+                            oldSetter = oldWalker.Step();
+                            break;
+                        case 1:
+                            value = newSetter.ConvertedValue;
+                            propd = newSetter.Property;
+                            newSetter = newWalker.Step();
+                            break;
+                    }
+                }
+                else if (newSetter) {
+                    value = newSetter.ConvertedValue;
+                    propd = newSetter.Property;
+                    newSetter = newWalker.Step();
+                }
+                else {
+                    value = undefined;
+                    propd = oldSetter.Property;
+                    oldSetter = oldWalker.Step();
+                }
+                storage = arr[propd._ID];
+                if (!storage)
+                    storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
+                if (isImplicit)
+                    propd.Store.SetImplicitStyle(storage, value);
+                else
+                    propd.Store.SetLocalStyleValue(storage, value);
+            }
+        }
+        Providers.SwapStyles = SwapStyles;
+    })(Providers = Fayde.Providers || (Fayde.Providers = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     var Data;
     (function (Data) {
         var lookupNamespaces;
@@ -22670,224 +22959,6 @@ var Fayde;
             return IndexedPropertyPathNode;
         })(PropertyPathNode);
     })(Data = Fayde.Data || (Fayde.Data = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Providers;
-    (function (Providers) {
-        (function (StyleIndex) {
-            StyleIndex[StyleIndex["VisualTree"] = 0] = "VisualTree";
-            StyleIndex[StyleIndex["ApplicationResources"] = 1] = "ApplicationResources";
-            StyleIndex[StyleIndex["Theme"] = 2] = "Theme";
-            StyleIndex[StyleIndex["Count"] = 3] = "Count";
-        })(Providers.StyleIndex || (Providers.StyleIndex = {}));
-        var StyleIndex = Providers.StyleIndex;
-        (function (StyleMask) {
-            StyleMask[StyleMask["None"] = 0] = "None";
-            StyleMask[StyleMask["VisualTree"] = 1] = "VisualTree";
-            StyleMask[StyleMask["ApplicationResources"] = 2] = "ApplicationResources";
-            StyleMask[StyleMask["Theme"] = 4] = "Theme";
-            StyleMask[StyleMask["All"] = 7] = "All";
-        })(Providers.StyleMask || (Providers.StyleMask = {}));
-        var StyleMask = Providers.StyleMask;
-        var ImplicitStyleBroker = (function () {
-            function ImplicitStyleBroker() {
-            }
-            ImplicitStyleBroker.Set = function (fe, mask, styles) {
-                if (!styles)
-                    styles = getImplicitStyles(fe, mask);
-                if (styles) {
-                    var error = new BError();
-                    var len = StyleIndex.Count;
-                    for (var i = 0; i < len; i++) {
-                        var style = styles[i];
-                        if (!style)
-                            continue;
-                        if (!style.Validate(fe, error)) {
-                            error.ThrowException();
-                            return;
-                        }
-                    }
-                }
-                ImplicitStyleBroker.SetImpl(fe, mask, styles);
-            };
-            ImplicitStyleBroker.SetImpl = function (fe, mask, styles) {
-                if (!styles)
-                    return;
-                var oldStyles = fe.XamlNode._ImplicitStyles;
-                var newStyles = [null, null, null];
-                if (oldStyles) {
-                    newStyles[StyleIndex.Theme] = oldStyles[StyleIndex.Theme];
-                    newStyles[StyleIndex.ApplicationResources] = oldStyles[StyleIndex.ApplicationResources];
-                    newStyles[StyleIndex.VisualTree] = oldStyles[StyleIndex.VisualTree];
-                }
-                if (mask & StyleMask.Theme)
-                    newStyles[StyleIndex.Theme] = styles[StyleIndex.Theme];
-                if (mask & StyleMask.ApplicationResources)
-                    newStyles[StyleIndex.ApplicationResources] = styles[StyleIndex.ApplicationResources];
-                if (mask & StyleMask.VisualTree)
-                    newStyles[StyleIndex.VisualTree] = styles[StyleIndex.VisualTree];
-                ImplicitStyleBroker.ApplyStyles(fe, mask, styles);
-            };
-            ImplicitStyleBroker.Clear = function (fe, mask) {
-                var holder = fe.XamlNode;
-                var oldStyles = holder._ImplicitStyles;
-                if (!oldStyles)
-                    return;
-                var newStyles = oldStyles.slice(0);
-                if (mask & StyleMask.Theme)
-                    newStyles[StyleIndex.Theme] = null;
-                if (mask & StyleMask.ApplicationResources)
-                    newStyles[StyleIndex.ApplicationResources] = null;
-                if (mask & StyleMask.VisualTree)
-                    newStyles[StyleIndex.VisualTree] = null;
-                ImplicitStyleBroker.ApplyStyles(fe, holder._StyleMask & ~mask, newStyles);
-            };
-            ImplicitStyleBroker.ApplyStyles = function (fe, mask, styles) {
-                var holder = fe.XamlNode;
-                var oldStyles = holder._ImplicitStyles;
-                var isChanged = !oldStyles || mask !== holder._StyleMask;
-                if (!isChanged) {
-                    for (var i = 0; i < StyleIndex.Count; i++) {
-                        if (styles[i] !== oldStyles[i]) {
-                            isChanged = true;
-                            break;
-                        }
-                    }
-                }
-                if (!isChanged)
-                    return;
-                Providers.SwapStyles(fe, Fayde.MultipleStylesWalker(oldStyles), Fayde.MultipleStylesWalker(styles), true);
-                holder._ImplicitStyles = styles;
-                holder._StyleMask = mask;
-            };
-            return ImplicitStyleBroker;
-        })();
-        Providers.ImplicitStyleBroker = ImplicitStyleBroker;
-        function getImplicitStyles(fe, mask) {
-            var styles = [];
-            if ((mask & StyleMask.Theme) != 0) {
-                styles[StyleIndex.Theme] = getThemeStyle(fe);
-            }
-            if ((mask & StyleMask.ApplicationResources) != 0) {
-                var app = Fayde.Application.Current;
-                if (app)
-                    styles[StyleIndex.ApplicationResources] = getAppResourcesStyle(app, fe);
-            }
-            if ((mask & StyleMask.VisualTree) != 0)
-                styles[StyleIndex.VisualTree] = getVisualTreeStyle(fe);
-            return styles;
-        }
-        function getThemeStyle(fe) {
-            if (fe instanceof Fayde.Controls.Control) {
-                var style = fe.GetDefaultStyle();
-                if (style)
-                    return style;
-            }
-            return Fayde.ThemeManager.FindStyle(fe.DefaultStyleKey);
-        }
-        function getAppResourcesStyle(app, fe) {
-            return app.Resources.Get(fe.DefaultStyleKey);
-        }
-        function getVisualTreeStyle(fe) {
-            var key = fe.DefaultStyleKey;
-            var cur = fe;
-            var isControl = cur instanceof Fayde.Controls.Control;
-            var curNode = fe.XamlNode;
-            var rd;
-            while (curNode) {
-                cur = curNode.XObject;
-                if (cur.TemplateOwner && !fe.TemplateOwner) {
-                    cur = cur.TemplateOwner;
-                    curNode = cur.XamlNode;
-                    continue;
-                }
-                if (!isControl && cur === fe.TemplateOwner)
-                    break;
-                rd = cur.Resources;
-                if (rd) {
-                    var style = rd.Get(key);
-                    if (style)
-                        return style;
-                }
-                curNode = curNode.VisualParentNode;
-            }
-            return undefined;
-        }
-    })(Providers = Fayde.Providers || (Fayde.Providers = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Providers;
-    (function (Providers) {
-        var LocalStyleBroker = (function () {
-            function LocalStyleBroker() {
-            }
-            LocalStyleBroker.Set = function (fe, newStyle) {
-                var holder = fe.XamlNode;
-                if (newStyle)
-                    newStyle.Seal();
-                Providers.SwapStyles(fe, Fayde.SingleStyleWalker(holder._LocalStyle), Fayde.SingleStyleWalker(newStyle), false);
-                holder._LocalStyle = newStyle;
-            };
-            return LocalStyleBroker;
-        })();
-        Providers.LocalStyleBroker = LocalStyleBroker;
-    })(Providers = Fayde.Providers || (Fayde.Providers = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Providers;
-    (function (Providers) {
-        function SwapStyles(fe, oldWalker, newWalker, isImplicit) {
-            var arr = fe._PropertyStorage;
-            var oldSetter = oldWalker.Step();
-            var newSetter = newWalker.Step();
-            var storage;
-            var value;
-            var propd;
-            while (oldSetter || newSetter) {
-                if (oldSetter && newSetter) {
-                    switch (Fayde.Setter.Compare(oldSetter, newSetter)) {
-                        case 0:
-                            value = newSetter.ConvertedValue;
-                            propd = newSetter.Property;
-                            oldSetter = oldWalker.Step();
-                            newSetter = newWalker.Step();
-                            break;
-                        case -1:
-                            value = undefined;
-                            propd = oldSetter.Property;
-                            oldSetter = oldWalker.Step();
-                            break;
-                        case 1:
-                            value = newSetter.ConvertedValue;
-                            propd = newSetter.Property;
-                            newSetter = newWalker.Step();
-                            break;
-                    }
-                }
-                else if (newSetter) {
-                    value = newSetter.ConvertedValue;
-                    propd = newSetter.Property;
-                    newSetter = newWalker.Step();
-                }
-                else {
-                    value = undefined;
-                    propd = oldSetter.Property;
-                    oldSetter = oldWalker.Step();
-                }
-                storage = arr[propd._ID];
-                if (!storage)
-                    storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
-                if (isImplicit)
-                    propd.Store.SetImplicitStyle(storage, value);
-                else
-                    propd.Store.SetLocalStyleValue(storage, value);
-            }
-        }
-        Providers.SwapStyles = SwapStyles;
-    })(Providers = Fayde.Providers || (Fayde.Providers = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -26833,6 +26904,12 @@ var Fayde;
                 };
                 VideoSourceBase.prototype.Pause = function () {
                     this.$element.pause();
+                };
+                VideoSourceBase.prototype.GetBuffered = function () {
+                    return this.$element.buffered;
+                };
+                VideoSourceBase.prototype.GetProgress = function () {
+                    return this.$element.played;
                 };
                 VideoSourceBase.prototype.onVideoErrored = function (e) {
                     console.info("Failed to load: " + this.$element.src.toString());

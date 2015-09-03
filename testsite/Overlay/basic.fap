@@ -7,8 +7,8 @@
             <ToggleButton x:Name="Overlay1Toggle" Content="Open Overlay" />
             <Overlay IsOpen="{Binding ElementName=Overlay1Toggle, Path=IsChecked, Mode=TwoWay}">
                 <Overlay.Visual>
-                    <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="Yellow"
-                            Width="300" Height="300">
+                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="Yellow"
+                            Height="300">
                         <TextBlock Text="Hi! I am an overlay." />
                     </Border>
                 </Overlay.Visual>

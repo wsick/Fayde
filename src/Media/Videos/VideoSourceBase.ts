@@ -49,6 +49,14 @@ module Fayde.Media.Videos {
             this.$element.pause();
         }
 
+        GetBuffered(): TimeRanges {
+            return this.$element.buffered;
+        }
+
+        GetProgress(): TimeRanges {
+            return this.$element.played;
+        }
+
         protected onVideoErrored(e: ErrorEvent) {
             console.info("Failed to load: " + this.$element.src.toString());
             for (var i = 0, watchers = this.$watchers; i < watchers.length; i++) {
