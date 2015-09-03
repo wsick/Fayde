@@ -1,3 +1,5 @@
+/// <reference path="./Engine/ThemedLibraryResolver" />
+
 module Fayde {
     export var XMLNS = "http://schemas.wsick.com/fayde";
     export var XMLNSX = "http://schemas.wsick.com/fayde/x";
@@ -12,13 +14,9 @@ module Fayde {
     export interface Uri extends nullstone.Uri {
     }
 
-    class ThemedLibraryResolver extends nullstone.LibraryResolver {
-        createLibrary (uri: string): nullstone.ILibrary {
-            return new ThemedLibrary(uri);
-        }
-    }
-
     export class ResourceTypeManager extends nullstone.TypeManager {
+        libResolver = new ThemedLibraryResolver();
+
         resolveResource (uri: Uri): string {
             if (uri.scheme === "lib") {
                 var res = uri.resource;
