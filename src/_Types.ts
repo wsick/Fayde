@@ -15,7 +15,9 @@ module Fayde {
     }
 
     export class ResourceTypeManager extends nullstone.TypeManager {
-        libResolver = new ThemedLibraryResolver();
+        createLibResolver (): nullstone.ILibraryResolver {
+            return new ThemedLibraryResolver();
+        }
 
         resolveResource (uri: Uri): string {
             if (uri.scheme === "lib") {
