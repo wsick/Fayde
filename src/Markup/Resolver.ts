@@ -5,8 +5,10 @@ module Fayde.Markup {
     export function Resolve (uri: Uri);
     export function Resolve (uri: any): nullstone.async.IAsyncRequest<XamlMarkup> {
         return nullstone.async.create((resolve, reject) => {
-            XamlMarkup.create(uri)
-                .loadAsync()
+            var xm = XamlMarkup.create(uri);
+            if (xm.isLoaded)
+                return resolve(xm);
+            xm.loadAsync()
                 .then(xm => {
                     var co = collector.create();
                     return nullstone.async.many([
