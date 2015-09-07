@@ -4,6 +4,8 @@ module Fayde {
         LibraryUri: Uri;
         Resources: ResourceDictionary = null;
 
+        private $$loaded = false;
+
         static WarnMissing = false;
 
         constructor (name: string, libUri: Uri) {
@@ -13,11 +15,12 @@ module Fayde {
 
         LoadAsync (): nullstone.async.IAsyncRequest<Theme> {
             var reqUri = ThemeConfig.GetRequestUri(this.LibraryUri, this.Name);
-            if (!reqUri)
+            if (!reqUri || this.$$loaded)
                 return nullstone.async.resolve(this);
             return nullstone.async.create((resolve, reject) => {
                 Markup.Resolve(reqUri)
                     .then(md => {
+                        this.$$loaded = true;
                         var rd = Markup.Load<ResourceDictionary>(null, md);
                         if (!(rd instanceof ResourceDictionary))
                             reject(new Error("Theme root must be a ResourceDictionary."));
