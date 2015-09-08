@@ -22,7 +22,7 @@ module Fayde {
         Resources: ResourceDictionary;
         ThemeName: string;
 
-        private OnThemeNameChanged (args: DependencyPropertyChangedEventArgs) {
+        private OnThemeNameChanged(args: DependencyPropertyChangedEventArgs) {
             if (!this._IsLoaded)
                 return;
             ThemeManager.LoadAsync(args.NewValue)
@@ -30,7 +30,7 @@ module Fayde {
                     err => console.error("Could not load theme.", err));
         }
 
-        private _ApplyTheme () {
+        private _ApplyTheme() {
             for (var walker = this.MainSurface.walkLayers(); walker.step();) {
                 for (var subwalker = walker.current.walkDeep(); subwalker.step();) {
                     var node = subwalker.current.getAttachedValue("$node");
@@ -41,11 +41,11 @@ module Fayde {
 
         Resized = new RoutedEvent<SizeChangedEventArgs>();
 
-        OnResized (oldSize: minerva.Size, newSize: minerva.Size) {
+        OnResized(oldSize: minerva.Size, newSize: minerva.Size) {
             this.Resized.raise(this, new SizeChangedEventArgs(oldSize, newSize));
         }
 
-        constructor () {
+        constructor() {
             super();
             this.XamlNode.NameScope = new NameScope(true);
             var rd = Application.ResourcesProperty.Initialize(this);
@@ -53,23 +53,23 @@ module Fayde {
             this.Address = new Uri(document.URL);
         }
 
-        get RootVisual (): UIElement {
+        get RootVisual(): UIElement {
             for (var walker = this.MainSurface.walkLayers(); walker.step();) {
                 var node = walker.current.getAttachedValue("$node");
                 return node.XObject;
             }
         }
 
-        $$SetRootVisual (value: UIElement) {
+        $$SetRootVisual(value: UIElement) {
             this._RootVisual = value;
         }
 
-        Attach (canvas: HTMLCanvasElement) {
+        Attach(canvas: HTMLCanvasElement) {
             this.MainSurface.init(canvas);
             this.MainSurface.Attach(this._RootVisual, true);
         }
 
-        Start () {
+        Start() {
             this.Update();
             this.Render();
             this._ClockTimer.RegisterTimer(this);
@@ -77,17 +77,17 @@ module Fayde {
             this.Loaded.raiseAsync(this, null);
         }
 
-        OnTicked (lastTime: number, nowTime: number) {
+        OnTicked(lastTime: number, nowTime: number) {
             this.ProcessStoryboards(lastTime, nowTime);
             this.Update();
             this.Render();
         }
 
-        private StopEngine () {
+        private StopEngine() {
             this._ClockTimer.UnregisterTimer(this);
         }
 
-        private ProcessStoryboards (lastTime: number, nowTime: number) {
+        private ProcessStoryboards(lastTime: number, nowTime: number) {
             perfex.timer.start('StoryboardsProcess', this);
             for (var i = 0, sbs = this._Storyboards; i < sbs.length; i++) {
                 sbs[i].Update(nowTime);
@@ -95,7 +95,7 @@ module Fayde {
             perfex.timer.stop();
         }
 
-        private Update () {
+        private Update() {
             if (this._IsRunning)
                 return;
             this._IsRunning = true;
@@ -105,46 +105,41 @@ module Fayde {
             this._IsRunning = false;
         }
 
-        private Render () {
+        private Render() {
             perfex.timer.start('Render', this);
             this.MainSurface.render();
             perfex.timer.stop();
         }
 
-        RegisterStoryboard (storyboard: ITimeline) {
+        RegisterStoryboard(storyboard: ITimeline) {
             var sbs = this._Storyboards;
             var index = sbs.indexOf(storyboard);
             if (index === -1)
                 sbs.push(storyboard);
         }
 
-        UnregisterStoryboard (storyboard: ITimeline) {
+        UnregisterStoryboard(storyboard: ITimeline) {
             var sbs = this._Storyboards;
             var index = sbs.indexOf(storyboard);
             if (index !== -1)
                 sbs.splice(index, 1);
         }
 
-        static GetAsync (url: string): nullstone.async.IAsyncRequest<Application> {
-            return nullstone.async.create((resolve, reject) => {
-                Markup.Resolve(url)
-                    .then(appm => {
-                        TimelineProfile.Parse(true, "App");
-                        var app = Markup.Load<Application>(null, appm);
-                        TimelineProfile.Parse(false, "App");
-                        if (!(app instanceof Application))
-                            reject("Markup must be an Application.");
-                        else
-                            resolve(app);
-                    }, reject);
-            });
+        static GetAsync(url: string): Promise<Application> {
+            return Markup.Resolve(url)
+                .then(appm => {
+                    TimelineProfile.Parse(true, "App");
+                    var app = Markup.Load<Application>(null, appm);
+                    TimelineProfile.Parse(false, "App");
+                    if (!(app instanceof Application))
+                        throw new Error("Markup must be an Application.");
+                    return app;
+                });
         }
 
-        Resolve (): nullstone.async.IAsyncRequest<Application> {
-            return nullstone.async.create((resolve, reject) => {
-                //TODO: Resolve theme
-                resolve(this);
-            });
+        Resolve(): Promise<Application> {
+            return Promise.resolve(this);
+            //TODO: Resolve theme
 
             /*
              var d = defer<Application>();

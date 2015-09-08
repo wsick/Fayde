@@ -6,25 +6,22 @@ module Fayde {
     export class ThemedLibrary extends nullstone.Library {
         private $$themes: IThemesHash = {};
         private $$activeTheme: Theme = null;
-        private $$activeThemeName: string;
+        private $$activeThemeName: string = null;
 
         get activeTheme(): Theme {
             return this.$$activeTheme;
         }
 
-        loadAsync(): nullstone.async.IAsyncRequest<nullstone.Library> {
-            return nullstone.async.create((resolve, reject) => {
-                super.loadAsync()
-                    .then(() => this.ensureThemeLoaded()
-                        .then(() => resolve(this), reject));
-            })
+        loadAsync(): Promise<nullstone.Library> {
+            return super.loadAsync()
+                .tap(() => this.ensureThemeLoaded());
         }
 
-        protected ensureThemeLoaded(): nullstone.async.IAsyncRequest<Theme> {
+        protected ensureThemeLoaded(): Promise<Theme> {
             if (this.$$activeTheme)
-                return nullstone.async.resolve(this.$$activeTheme);
+                return Promise.resolve(this.$$activeTheme);
             if (!this.$$activeThemeName)
-                return nullstone.async.resolve(null);
+                return Promise.resolve(null);
             return this.changeActiveTheme(this.$$activeThemeName);
         }
 
@@ -35,16 +32,11 @@ module Fayde {
             return theme;
         }
 
-        changeActiveTheme(name: string): nullstone.async.IAsyncRequest<Theme> {
+        changeActiveTheme(name: string): Promise<Theme> {
             this.$$activeThemeName = name;
             var theme = this.getTheme(name);
-            return nullstone.async.create((resolve, reject) => {
-                theme.LoadAsync()
-                    .then(() => {
-                        this.$$activeTheme = theme;
-                        resolve(theme);
-                    }, reject);
-            });
+            return theme.LoadAsync()
+                .then(() => this.$$activeTheme = theme);
         }
     }
 }

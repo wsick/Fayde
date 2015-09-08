@@ -1,10 +1,11 @@
 module Fayde {
     export interface IThemeManager {
-        LoadAsync (themeName: string): nullstone.async.IAsyncRequest<any>;
+        LoadAsync(themeName: string): Promise<any>;
         FindStyle(defaultStyleKey: any): Style;
     }
     class ThemeManagerImpl implements IThemeManager {
         private $$libs: ThemedLibrary[] = [];
+        private $$activeThemeName: string = null;
 
         constructor() {
             Fayde.TypeManager.libResolver.libraryCreated.on(this.$$onLibraryCreated, this);
@@ -12,11 +13,14 @@ module Fayde {
         }
 
         private $$onLibraryCreated(sender: any, args: nullstone.ILibraryCreatedEventArgs) {
-            this.$$libs.push(<ThemedLibrary>args.library);
+            var tlib = <ThemedLibrary>args.library;
+            (<any>tlib).$$activeThemeName = this.$$activeThemeName;
+            this.$$libs.push(tlib);
         }
 
-        LoadAsync(themeName: string): nullstone.async.IAsyncRequest<any> {
-            return nullstone.async.many(this.$$libs.filter(lib => lib.isLoaded).map(lib => lib.changeActiveTheme(themeName)));
+        LoadAsync(themeName: string): Promise<any> {
+            this.$$activeThemeName = themeName;
+            return Promise.all(this.$$libs.filter(lib => lib.isLoaded).map(lib => lib.changeActiveTheme(themeName)));
         }
 
         FindStyle(defaultStyleKey: any): Style {

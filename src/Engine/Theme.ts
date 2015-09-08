@@ -8,33 +8,33 @@ module Fayde {
 
         static WarnMissing = false;
 
-        constructor (name: string, libUri: Uri) {
+        constructor(name: string, libUri: Uri) {
             this.Name = name;
             this.LibraryUri = libUri;
         }
 
-        LoadAsync (): nullstone.async.IAsyncRequest<Theme> {
+        LoadAsync(): Promise<Theme> {
             var reqUri = ThemeConfig.GetRequestUri(this.LibraryUri, this.Name);
             if (!reqUri || this.$$loaded)
-                return nullstone.async.resolve(this);
-            return nullstone.async.create((resolve, reject) => {
-                Markup.Resolve(reqUri)
+                return Promise.resolve(this);
+            return new Promise((resolve, reject) => {
+                return Markup.Resolve(reqUri, this.LibraryUri)
                     .then(md => {
                         this.$$loaded = true;
                         var rd = Markup.Load<ResourceDictionary>(null, md);
                         if (!(rd instanceof ResourceDictionary))
-                            reject(new Error("Theme root must be a ResourceDictionary."));
+                            throw new Error("Theme root must be a ResourceDictionary.");
                         Object.defineProperty(this, "Resources", {value: rd, writable: false});
-                        resolve(this);
+                        resolve(md);
                     }, () => {
                         if (Theme.WarnMissing)
                             console.warn("Failed to load Theme. [" + this.LibraryUri + "][" + this.Name + "]");
-                        resolve(this);
+                        resolve(null);
                     });
-            });
+            }).then(md => this);
         }
 
-        GetImplicitStyle (type: any): Style {
+        GetImplicitStyle(type: any): Style {
             var rd = this.Resources;
             if (!rd)
                 return undefined;
