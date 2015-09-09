@@ -4,17 +4,13 @@ module Fayde.Markup {
     export function Resolve(uri: string|Uri): Promise<XamlMarkup>;
     export function Resolve(uri: string|Uri, excludeUri: string|Uri): Promise<XamlMarkup>;
     export function Resolve(uri: any, excludeUri?: string|Uri): Promise<XamlMarkup> {
-        var xm = XamlMarkup.create(uri);
-        if (xm.isLoaded) {
-            return Promise.resolve(xm);
-        }
-        return xm.loadAsync()
-            .then(xm => {
+        return Retrieve(uri)
+            .tap(xm => {
                 var co = collector.create(excludeUri);
                 return Promise.all([
                     xm.resolve(Fayde.TypeManager, co.collect, co.exclude),
                     co.resolve()
-                ]).then(res => xm);
+                ]);
             });
     }
 

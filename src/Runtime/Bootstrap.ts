@@ -1,5 +1,7 @@
 module Fayde {
-    export function Bootstrap (onLoaded?: (app: Application) => any) {
+    import XamlMarkup = nullstone.markup.xaml.XamlMarkup;
+
+    export function Bootstrap(onLoaded?: (app: Application) => any) {
         var url = document.body.getAttribute("fayde-app");
         if (!url) {
             console.warn("No application specified.");
@@ -13,47 +15,58 @@ module Fayde {
         bootstrap(url, canvas, onLoaded);
     }
 
-    function bootstrap (url: string, canvas: HTMLCanvasElement, onLoaded: (app: Application) => any) {
+    function bootstrap(url: string, canvas: HTMLCanvasElement, onLoaded: (app: Application) => any) {
         var app: Application;
 
-        function run () {
+        function resolveConfig(): Promise<void> {
             perfex.phases.start('ResolveConfig');
-            Fayde.LoadConfigJson((config, err) => {
-                if (err)
-                    console.warn('Could not load fayde configuration file.', err);
-                resolveApp();
+            return new Promise<void>((resolve, reject) => {
+                Fayde.LoadConfigJson((config, err) => {
+                    if (err)
+                        console.warn('Could not load fayde configuration file.', err);
+                    resolve();
+                });
             });
         }
 
-        function resolveApp () {
-            perfex.phases.start('ResolveApp');
-            Application.GetAsync(url)
-                .then(resolveTheme, finishError);
+        function getApp(): Promise<XamlMarkup> {
+            perfex.phases.start('RetrieveApp');
+            return Markup.Retrieve(url);
         }
 
-        function resolveTheme (res) {
+        function resolveTheme(markup: XamlMarkup): Promise<XamlMarkup> {
             perfex.phases.start('ResolveTheme');
-            app = Application.Current = res;
-            ThemeManager.LoadAsync(app.ThemeName)
-                .then(startApp, finishError);
+            var root = <Element>markup.root;
+            var themeName = root.getAttribute("ThemeName");
+            return ThemeManager.LoadAsync(themeName);
         }
 
-        function finishError (err: any) {
+        function resolveApp() {
+            perfex.phases.start('ResolveApp');
+            return Application.GetAsync(url)
+                .then(result => Application.Current = app = result);
+        }
+
+        function finishError(err: any) {
             console.error("An error occurred retrieving the application.", err);
         }
 
-        function startApp () {
+        function startApp() {
             perfex.phases.start('StartApp');
             app.Attach(canvas);
             app.Start();
             loaded();
         }
 
-        function loaded () {
+        function loaded() {
             onLoaded && onLoaded(app);
             perfex.phases.start('Running');
         }
 
-        run();
+        resolveConfig()
+            .then(getApp, finishError)
+            .then(resolveTheme, finishError)
+            .then(resolveApp, finishError)
+            .then(startApp, finishError);
     }
 }

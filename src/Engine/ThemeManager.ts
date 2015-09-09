@@ -18,7 +18,9 @@ module Fayde {
             this.$$libs.push(tlib);
         }
 
-        LoadAsync(themeName: string): Promise<any> {
+        LoadAsync(themeName?: string): Promise<any> {
+            if (!themeName)
+                themeName = this.$$activeThemeName;
             this.$$activeThemeName = themeName;
             return Promise.all(this.$$libs.filter(lib => lib.isLoaded).map(lib => lib.changeActiveTheme(themeName)));
         }

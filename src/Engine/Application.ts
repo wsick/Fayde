@@ -136,25 +136,6 @@ module Fayde {
                     return app;
                 });
         }
-
-        Resolve(): Promise<Application> {
-            return Promise.resolve(this);
-            //TODO: Resolve theme
-
-            /*
-             var d = defer<Application>();
-
-             var lib = Library.Get("lib:Fayde");
-             lib.Resolve({ThemeName: this.ThemeName || "Default", Resolving: []})
-             .success(lib => {
-             this._CoreLibrary = lib;
-             d.resolve(this);
-             })
-             .error(d.reject);
-
-             return d.request;
-             */
-        }
     }
     Fayde.CoreLibrary.add(Application);
 }
