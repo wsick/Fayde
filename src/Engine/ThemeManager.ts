@@ -1,76 +1,55 @@
 module Fayde {
     export interface IThemeManager {
-        LoadAsync (themeName: string): nullstone.async.IAsyncRequest<any>;
+        LoadAsync(themeName: string): Promise<any>;
         FindStyle(defaultStyleKey: any): Style;
     }
+
+    export var DEFAULT_THEME_NAME = "Metro";
+
     class ThemeManagerImpl implements IThemeManager {
-        private $$libthemerepos: LibraryThemeRepo[] = [];
+        private $$libs: ThemedLibrary[] = [];
+        private $$activeThemeName: string = null;
 
-        constructor () {
+        constructor() {
             Fayde.TypeManager.libResolver.libraryCreated.on(this.$$onLibraryCreated, this);
-            this.$$libthemerepos.push(new LibraryThemeRepo(new Uri(Fayde.XMLNS)));
+            this.$$libs.push(<ThemedLibrary><any>Fayde.CoreLibrary);
         }
 
-        private $$onLibraryCreated (sender: any, args: nullstone.ILibraryCreatedEventArgs) {
-            this.$$libthemerepos.push(new LibraryThemeRepo(args.library.uri));
+        private $$onLibraryCreated(sender: any, args: nullstone.ILibraryCreatedEventArgs) {
+            var tlib = <ThemedLibrary>args.library;
+            (<any>tlib).$$activeThemeName = this.$$activeThemeName;
+            this.$$libs.push(tlib);
         }
 
-        LoadAsync (themeName: string): nullstone.async.IAsyncRequest<any> {
-            return nullstone.async.many(this.$$libthemerepos.map(repo => repo.ChangeActive(themeName)));
+        LoadAsync(themeName?: string): Promise<any> {
+            if (!themeName)
+                themeName = this.$$activeThemeName;
+            this.$$activeThemeName = themeName;
+            this.$$libs.forEach(lib => lib.setThemeName(themeName));
+            return Promise.all(this.$$libs
+                .filter(lib => lib.isLoaded)
+                .map(lib => lib.loadActiveTheme()));
         }
 
-        FindStyle (defaultStyleKey: any): Style {
+        FindStyle(defaultStyleKey: any): Style {
             if (!defaultStyleKey)
                 return null;
             var uri = defaultStyleKey.$$uri;
             if (uri) {
-                var repo = this.$$findRepo(uri);
-                if (repo)
-                    return repo.Active.GetImplicitStyle(defaultStyleKey);
+                var lib = this.$$findLib(uri);
+                if (lib && lib.activeTheme)
+                    return lib.activeTheme.GetImplicitStyle(defaultStyleKey);
             }
             return null;
         }
 
-        private $$findRepo (uri: string): LibraryThemeRepo {
-            for (var i = 0, repos = this.$$libthemerepos; i < repos.length; i++) {
-                var repo = repos[i];
-                if (repo.Uri.toString() === uri)
-                    return repo;
+        private $$findLib(uri: string): ThemedLibrary {
+            for (var i = 0, libs = this.$$libs; i < libs.length; i++) {
+                var lib = libs[i];
+                if (lib.uri.toString() === uri)
+                    return lib;
             }
 
-        }
-    }
-
-    class LibraryThemeRepo {
-        private $$themes = {};
-        private $$active: Theme;
-
-        Uri: Uri;
-
-        get Active (): Theme {
-            return this.$$active;
-        }
-
-        constructor (uri: Uri) {
-            Object.defineProperty(this, "Uri", {value: uri, writable: false});
-        }
-
-        Get (name: string): Theme {
-            var theme = this.$$themes[name];
-            if (!theme)
-                theme = this.$$themes[name] = new Theme(name, this.Uri);
-            return theme;
-        }
-
-        ChangeActive (name: string): nullstone.async.IAsyncRequest<Theme> {
-            var theme = this.Get(name);
-            return nullstone.async.create((resolve, reject) => {
-                theme.LoadAsync()
-                    .then(() => {
-                        this.$$active = theme;
-                        resolve(theme);
-                    }, reject);
-            });
         }
     }
 
