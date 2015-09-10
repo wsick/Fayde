@@ -22,7 +22,7 @@ module Fayde {
                 return Promise.resolve(this.$$activeTheme);
             if (!this.$$activeThemeName)
                 return Promise.resolve(null);
-            return this.changeActiveTheme(this.$$activeThemeName);
+            return this.loadActiveTheme();
         }
 
         getTheme(name: string): Theme {
@@ -32,8 +32,11 @@ module Fayde {
             return theme;
         }
 
-        changeActiveTheme(name: string): Promise<Theme> {
+        setThemeName(name: string) {
             this.$$activeThemeName = name;
+        }
+
+        loadActiveTheme(): Promise<Theme> {
             var theme = this.getTheme(name);
             return theme.LoadAsync()
                 .then(() => this.$$activeTheme = theme);

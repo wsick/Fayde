@@ -25,7 +25,10 @@ module Fayde {
             if (!themeName)
                 themeName = this.$$activeThemeName;
             this.$$activeThemeName = themeName;
-            return Promise.all(this.$$libs.filter(lib => lib.isLoaded).map(lib => lib.changeActiveTheme(themeName)));
+            this.$$libs.forEach(lib => lib.setThemeName(themeName));
+            return Promise.all(this.$$libs
+                .filter(lib => lib.isLoaded)
+                .map(lib => lib.loadActiveTheme()));
         }
 
         FindStyle(defaultStyleKey: any): Style {
