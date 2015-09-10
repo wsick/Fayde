@@ -12,13 +12,17 @@ module Fayde {
             return this.$$activeTheme;
         }
 
+        get isActiveThemeInvalid(): boolean {
+            return !this.$$activeTheme || this.$$activeTheme.Name !== this.$$activeThemeName;
+        }
+
         loadAsync(): Promise<nullstone.Library> {
             return super.loadAsync()
                 .tap(() => this.ensureThemeLoaded());
         }
 
         protected ensureThemeLoaded(): Promise<Theme> {
-            if (this.$$activeTheme)
+            if (!this.isActiveThemeInvalid)
                 return Promise.resolve(this.$$activeTheme);
             if (!this.$$activeThemeName)
                 return Promise.resolve(null);
