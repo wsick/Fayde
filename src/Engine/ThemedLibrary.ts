@@ -17,8 +17,19 @@ module Fayde {
         }
 
         loadAsync(): Promise<nullstone.Library> {
-            return super.loadAsync()
+            return Promise.resolve(this)
+                .tap(lib => Promise.all([
+                    super.loadAsync(),
+                    this.retrieveTheme()
+                ]))
                 .tap(() => this.ensureThemeLoaded());
+        }
+
+        protected retrieveTheme(): Promise<string> {
+            if (this.isActiveThemeInvalid || !this.$$activeThemeName)
+                return Promise.resolve(null);
+            var theme = this.getTheme(this.$$activeThemeName);
+            return theme.RetrieveAsync();
         }
 
         protected ensureThemeLoaded(): Promise<Theme> {
