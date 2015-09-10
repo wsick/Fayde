@@ -37,7 +37,7 @@ module Fayde {
         function resolveTheme(markup: XamlMarkup): Promise<XamlMarkup> {
             perfex.phases.start('ResolveTheme');
             var root = <Element>markup.root;
-            var themeName = root.getAttribute("ThemeName");
+            var themeName = root.getAttribute("ThemeName") || DEFAULT_THEME_NAME;
             return ThemeManager.LoadAsync(themeName);
         }
 

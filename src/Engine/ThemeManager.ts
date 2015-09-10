@@ -3,6 +3,9 @@ module Fayde {
         LoadAsync(themeName: string): Promise<any>;
         FindStyle(defaultStyleKey: any): Style;
     }
+
+    export var DEFAULT_THEME_NAME = "Metro";
+
     class ThemeManagerImpl implements IThemeManager {
         private $$libs: ThemedLibrary[] = [];
         private $$activeThemeName: string = null;
