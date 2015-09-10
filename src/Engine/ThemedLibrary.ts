@@ -37,7 +37,7 @@ module Fayde {
         }
 
         loadActiveTheme(): Promise<Theme> {
-            var theme = this.getTheme(name);
+            var theme = this.getTheme(this.$$activeThemeName);
             return theme.LoadAsync()
                 .then(() => this.$$activeTheme = theme);
         }
