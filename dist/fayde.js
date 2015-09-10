@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.16.58';
+    Fayde.version = '0.17.0';
 })(Fayde || (Fayde = {}));
 if (!Array.isArray) {
     Array.isArray = function (arg) {
@@ -55,6 +55,87 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Fayde;
 (function (Fayde) {
+    var ThemedLibrary = (function (_super) {
+        __extends(ThemedLibrary, _super);
+        function ThemedLibrary() {
+            _super.apply(this, arguments);
+            this.$$themes = {};
+            this.$$activeTheme = null;
+            this.$$activeThemeName = null;
+        }
+        Object.defineProperty(ThemedLibrary.prototype, "activeTheme", {
+            get: function () {
+                return this.$$activeTheme;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ThemedLibrary.prototype, "isActiveThemeInvalid", {
+            get: function () {
+                return !this.$$activeTheme || this.$$activeTheme.Name !== this.$$activeThemeName;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ThemedLibrary.prototype.loadAsync = function () {
+            var _this = this;
+            return Promise.resolve(this)
+                .tap(function (lib) { return Promise.all([
+                _super.prototype.loadAsync.call(_this),
+                _this.retrieveTheme()
+            ]); })
+                .tap(function () { return _this.ensureThemeLoaded(); });
+        };
+        ThemedLibrary.prototype.retrieveTheme = function () {
+            if (this.isActiveThemeInvalid || !this.$$activeThemeName)
+                return Promise.resolve(null);
+            var theme = this.getTheme(this.$$activeThemeName);
+            return theme.RetrieveAsync();
+        };
+        ThemedLibrary.prototype.ensureThemeLoaded = function () {
+            if (!this.isActiveThemeInvalid)
+                return Promise.resolve(this.$$activeTheme);
+            if (!this.$$activeThemeName)
+                return Promise.resolve(null);
+            return this.loadActiveTheme();
+        };
+        ThemedLibrary.prototype.getTheme = function (name) {
+            var theme = this.$$themes[name];
+            if (!theme)
+                theme = this.$$themes[name] = new Fayde.Theme(name, this.uri);
+            return theme;
+        };
+        ThemedLibrary.prototype.setThemeName = function (name) {
+            this.$$activeThemeName = name;
+        };
+        ThemedLibrary.prototype.loadActiveTheme = function () {
+            var _this = this;
+            var theme = this.getTheme(this.$$activeThemeName);
+            return theme.LoadAsync()
+                .then(function () { return _this.$$activeTheme = theme; });
+        };
+        return ThemedLibrary;
+    })(nullstone.Library);
+    Fayde.ThemedLibrary = ThemedLibrary;
+})(Fayde || (Fayde = {}));
+/// <reference path="./ThemedLibrary" />
+var Fayde;
+(function (Fayde) {
+    var ThemedLibraryResolver = (function (_super) {
+        __extends(ThemedLibraryResolver, _super);
+        function ThemedLibraryResolver() {
+            _super.apply(this, arguments);
+        }
+        ThemedLibraryResolver.prototype.createLibrary = function (uri) {
+            return new Fayde.ThemedLibrary(uri);
+        };
+        return ThemedLibraryResolver;
+    })(nullstone.LibraryResolver);
+    Fayde.ThemedLibraryResolver = ThemedLibraryResolver;
+})(Fayde || (Fayde = {}));
+/// <reference path="./Engine/ThemedLibraryResolver" />
+var Fayde;
+(function (Fayde) {
     Fayde.XMLNS = "http://schemas.wsick.com/fayde";
     Fayde.XMLNSX = "http://schemas.wsick.com/fayde/x";
     Fayde.XMLNSINTERNAL = "http://schemas.wsick.com/fayde/internal";
@@ -65,6 +146,9 @@ var Fayde;
         function ResourceTypeManager() {
             _super.apply(this, arguments);
         }
+        ResourceTypeManager.prototype.createLibResolver = function () {
+            return new Fayde.ThemedLibraryResolver();
+        };
         ResourceTypeManager.prototype.resolveResource = function (uri) {
             if (uri.scheme === "lib") {
                 var res = uri.resource;
@@ -88,8 +172,10 @@ var Fayde;
     }
     Fayde.CoreLibrary = Fayde.TypeManager.resolveLibrary(Fayde.XMLNS);
     Fayde.CoreLibrary.$$module = Fayde;
+    Fayde.CoreLibrary.$$loaded = true;
     Fayde.XLibrary = Fayde.TypeManager.resolveLibrary(Fayde.XMLNSX);
     Fayde.XLibrary.$$module = Fayde;
+    Fayde.XLibrary.$$loaded = true;
     function RegisterType(type, uri, name) {
         name = name || nullstone.getTypeName(type);
         Fayde.TypeManager.add(uri, name, type);
@@ -6489,17 +6575,14 @@ var Fayde;
                 this.DefaultStyleKey = Page;
             }
             Page.GetAsync = function (initiator, url) {
-                return nullstone.async.create(function (resolve, reject) {
-                    Fayde.Markup.Resolve(url)
-                        .then(function (xm) {
-                        TimelineProfile.Parse(true, "Page");
-                        var page = Fayde.Markup.Load(initiator.App, xm);
-                        TimelineProfile.Parse(false, "Page");
-                        if (!(page instanceof Controls.Page))
-                            reject("Markup must be a Page.");
-                        else
-                            resolve(page);
-                    }, reject);
+                return Fayde.Markup.Resolve(url)
+                    .then(function (xm) {
+                    TimelineProfile.Parse(true, "Page");
+                    var page = Fayde.Markup.Load(initiator.App, xm);
+                    TimelineProfile.Parse(false, "Page");
+                    if (!(page instanceof Controls.Page))
+                        throw new Error("Markup must be a Page.");
+                    return page;
                 });
             };
             Page.TitleProperty = DependencyProperty.Register("Title", function () { return String; }, Page);
@@ -11596,23 +11679,14 @@ var Fayde;
                 sbs.splice(index, 1);
         };
         Application.GetAsync = function (url) {
-            return nullstone.async.create(function (resolve, reject) {
-                Fayde.Markup.Resolve(url)
-                    .then(function (appm) {
-                    TimelineProfile.Parse(true, "App");
-                    var app = Fayde.Markup.Load(null, appm);
-                    TimelineProfile.Parse(false, "App");
-                    if (!(app instanceof Application))
-                        reject("Markup must be an Application.");
-                    else
-                        resolve(app);
-                }, reject);
-            });
-        };
-        Application.prototype.Resolve = function () {
-            var _this = this;
-            return nullstone.async.create(function (resolve, reject) {
-                resolve(_this);
+            return Fayde.Markup.Resolve(url)
+                .then(function (appm) {
+                TimelineProfile.Parse(true, "App");
+                var app = Fayde.Markup.Load(null, appm);
+                TimelineProfile.Parse(false, "App");
+                if (!(app instanceof Application))
+                    throw new Error("Markup must be an Application.");
+                return app;
             });
         };
         Application.ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", function () { return Fayde.ResourceDictionary; }, Application);
@@ -12347,25 +12421,39 @@ var Fayde;
     var Theme = (function () {
         function Theme(name, libUri) {
             this.Resources = null;
+            this.$$loaded = false;
+            this.$$retrieved = false;
             this.Name = name;
             this.LibraryUri = libUri;
         }
-        Theme.prototype.LoadAsync = function () {
+        Theme.prototype.RetrieveAsync = function () {
             var _this = this;
             var reqUri = Fayde.ThemeConfig.GetRequestUri(this.LibraryUri, this.Name);
-            if (!reqUri)
-                return nullstone.async.resolve(this);
-            return nullstone.async.create(function (resolve, reject) {
-                Fayde.Markup.Resolve(reqUri)
+            if (!reqUri || this.$$retrieved)
+                return Promise.resolve(reqUri);
+            return Fayde.Markup.Retrieve(reqUri)
+                .then(function () {
+                _this.$$retrieved = true;
+                return reqUri;
+            });
+        };
+        Theme.prototype.LoadAsync = function () {
+            var _this = this;
+            if (this.$$loaded)
+                return Promise.resolve(this);
+            return new Promise(function (resolve, reject) {
+                _this.RetrieveAsync()
+                    .then(function (reqUri) { return Fayde.Markup.Resolve(reqUri, _this.LibraryUri); })
                     .then(function (md) {
+                    _this.$$loaded = true;
                     var rd = Fayde.Markup.Load(null, md);
                     if (!(rd instanceof Fayde.ResourceDictionary))
-                        reject(new Error("Theme root must be a ResourceDictionary."));
+                        throw new Error("Theme root must be a ResourceDictionary.");
                     Object.defineProperty(_this, "Resources", { value: rd, writable: false });
                     resolve(_this);
-                }, function () {
+                }, function (err) {
                     if (Theme.WarnMissing)
-                        console.warn("Failed to load Theme. [" + _this.LibraryUri + "][" + _this.Name + "]");
+                        console.warn("Failed to load Theme. [" + _this.LibraryUri + "][" + _this.Name + "]", err);
                     resolve(_this);
                 });
             });
@@ -12435,72 +12523,52 @@ var Fayde;
             return rv;
         }
         OverrideRequestUri(new Fayde.Uri(Fayde.XMLNS), "lib/fayde/themes/<themename>.theme.xml");
+        Set(Fayde.XMLNSX, "none");
     })(ThemeConfig = Fayde.ThemeConfig || (Fayde.ThemeConfig = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    Fayde.DEFAULT_THEME_NAME = "Metro";
     var ThemeManagerImpl = (function () {
         function ThemeManagerImpl() {
-            this.$$libthemerepos = [];
+            this.$$libs = [];
+            this.$$activeThemeName = null;
             Fayde.TypeManager.libResolver.libraryCreated.on(this.$$onLibraryCreated, this);
-            this.$$libthemerepos.push(new LibraryThemeRepo(new Fayde.Uri(Fayde.XMLNS)));
+            this.$$libs.push(Fayde.CoreLibrary);
         }
         ThemeManagerImpl.prototype.$$onLibraryCreated = function (sender, args) {
-            this.$$libthemerepos.push(new LibraryThemeRepo(args.library.uri));
+            var tlib = args.library;
+            tlib.$$activeThemeName = this.$$activeThemeName;
+            this.$$libs.push(tlib);
         };
         ThemeManagerImpl.prototype.LoadAsync = function (themeName) {
-            return nullstone.async.many(this.$$libthemerepos.map(function (repo) { return repo.ChangeActive(themeName); }));
+            if (!themeName)
+                themeName = this.$$activeThemeName;
+            this.$$activeThemeName = themeName;
+            this.$$libs.forEach(function (lib) { return lib.setThemeName(themeName); });
+            return Promise.all(this.$$libs
+                .filter(function (lib) { return lib.isLoaded; })
+                .map(function (lib) { return lib.loadActiveTheme(); }));
         };
         ThemeManagerImpl.prototype.FindStyle = function (defaultStyleKey) {
             if (!defaultStyleKey)
                 return null;
             var uri = defaultStyleKey.$$uri;
             if (uri) {
-                var repo = this.$$findRepo(uri);
-                if (repo)
-                    return repo.Active.GetImplicitStyle(defaultStyleKey);
+                var lib = this.$$findLib(uri);
+                if (lib && lib.activeTheme)
+                    return lib.activeTheme.GetImplicitStyle(defaultStyleKey);
             }
             return null;
         };
-        ThemeManagerImpl.prototype.$$findRepo = function (uri) {
-            for (var i = 0, repos = this.$$libthemerepos; i < repos.length; i++) {
-                var repo = repos[i];
-                if (repo.Uri.toString() === uri)
-                    return repo;
+        ThemeManagerImpl.prototype.$$findLib = function (uri) {
+            for (var i = 0, libs = this.$$libs; i < libs.length; i++) {
+                var lib = libs[i];
+                if (lib.uri.toString() === uri)
+                    return lib;
             }
         };
         return ThemeManagerImpl;
-    })();
-    var LibraryThemeRepo = (function () {
-        function LibraryThemeRepo(uri) {
-            this.$$themes = {};
-            Object.defineProperty(this, "Uri", { value: uri, writable: false });
-        }
-        Object.defineProperty(LibraryThemeRepo.prototype, "Active", {
-            get: function () {
-                return this.$$active;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        LibraryThemeRepo.prototype.Get = function (name) {
-            var theme = this.$$themes[name];
-            if (!theme)
-                theme = this.$$themes[name] = new Fayde.Theme(name, this.Uri);
-            return theme;
-        };
-        LibraryThemeRepo.prototype.ChangeActive = function (name) {
-            var _this = this;
-            var theme = this.Get(name);
-            return nullstone.async.create(function (resolve, reject) {
-                theme.LoadAsync()
-                    .then(function () {
-                    _this.$$active = theme;
-                    resolve(theme);
-                }, reject);
-            });
-        };
-        return LibraryThemeRepo;
     })();
     Fayde.ThemeManager = new ThemeManagerImpl();
 })(Fayde || (Fayde = {}));
@@ -16019,37 +16087,53 @@ var Fayde;
 (function (Fayde) {
     var Markup;
     (function (Markup) {
-        var XamlMarkup = nullstone.markup.xaml.XamlMarkup;
-        function Resolve(uri) {
-            return nullstone.async.create(function (resolve, reject) {
-                XamlMarkup.create(uri)
-                    .loadAsync()
-                    .then(function (xm) {
-                    var co = collector.create();
-                    return nullstone.async.many([
-                        xm.resolve(Fayde.TypeManager, co.collect),
-                        co.resolve()
-                    ]).then(function () { return resolve(xm); }, reject);
-                }, reject);
+        function Resolve(uri, excludeUri) {
+            return Markup.Retrieve(uri)
+                .tap(function (xm) {
+                var co = collector.create(excludeUri);
+                return Promise.all([
+                    xm.resolve(Fayde.TypeManager, co.collect, co.exclude),
+                    co.resolve()
+                ]);
             });
         }
         Markup.Resolve = Resolve;
         var collector;
         (function (collector) {
-            function create() {
+            function create(excludeUri) {
                 var rduris = [];
-                return {
+                var coll = {
                     collect: function (ownerUri, ownerName, propName, val) {
                         if (ownerUri === Fayde.XMLNS && ownerName === "ResourceDictionary" && propName === "Source")
                             rduris.push(val);
                     },
+                    exclude: function (uri, name) {
+                        return false;
+                    },
                     resolve: function () {
-                        return nullstone.async.many(rduris.map(Resolve));
+                        return Promise.all(rduris.map(Resolve));
                     }
                 };
+                if (!!excludeUri)
+                    coll.exclude = function (uri, name) { return excludeUri.toString() === uri; };
+                return coll;
             }
             collector.create = create;
         })(collector || (collector = {}));
+    })(Markup = Fayde.Markup || (Fayde.Markup = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Markup;
+    (function (Markup) {
+        var XamlMarkup = nullstone.markup.xaml.XamlMarkup;
+        function Retrieve(uri) {
+            var xm = XamlMarkup.create(uri);
+            if (xm.isLoaded)
+                return Promise.resolve(xm);
+            return xm.loadAsync();
+        }
+        Markup.Retrieve = Retrieve;
     })(Markup = Fayde.Markup || (Fayde.Markup = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -19388,24 +19472,30 @@ var Fayde;
     Fayde.Bootstrap = Bootstrap;
     function bootstrap(url, canvas, onLoaded) {
         var app;
-        function run() {
+        function resolveConfig() {
             perfex.phases.start('ResolveConfig');
-            Fayde.LoadConfigJson(function (config, err) {
-                if (err)
-                    console.warn('Could not load fayde configuration file.', err);
-                resolveApp();
+            return new Promise(function (resolve, reject) {
+                Fayde.LoadConfigJson(function (config, err) {
+                    if (err)
+                        console.warn('Could not load fayde configuration file.', err);
+                    resolve();
+                });
             });
+        }
+        function getApp() {
+            perfex.phases.start('RetrieveApp');
+            return Fayde.Markup.Retrieve(url);
+        }
+        function resolveTheme(markup) {
+            perfex.phases.start('ResolveTheme');
+            var root = markup.root;
+            var themeName = root.getAttribute("ThemeName") || Fayde.DEFAULT_THEME_NAME;
+            return Fayde.ThemeManager.LoadAsync(themeName);
         }
         function resolveApp() {
             perfex.phases.start('ResolveApp');
-            Fayde.Application.GetAsync(url)
-                .then(resolveTheme, finishError);
-        }
-        function resolveTheme(res) {
-            perfex.phases.start('ResolveTheme');
-            app = Fayde.Application.Current = res;
-            Fayde.ThemeManager.LoadAsync(app.ThemeName)
-                .then(startApp, finishError);
+            return Fayde.Application.GetAsync(url)
+                .then(function (result) { return Fayde.Application.Current = app = result; });
         }
         function finishError(err) {
             console.error("An error occurred retrieving the application.", err);
@@ -19420,7 +19510,11 @@ var Fayde;
             onLoaded && onLoaded(app);
             perfex.phases.start('Running');
         }
-        run();
+        resolveConfig()
+            .then(getApp, finishError)
+            .then(resolveTheme, finishError)
+            .then(resolveApp, finishError)
+            .then(startApp, finishError);
     }
 })(Fayde || (Fayde = {}));
 var Fayde;

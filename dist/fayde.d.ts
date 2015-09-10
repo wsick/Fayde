@@ -2,6 +2,26 @@ declare module Fayde {
     var version: string;
 }
 declare module Fayde {
+    class ThemedLibrary extends nullstone.Library {
+        private $$themes;
+        private $$activeTheme;
+        private $$activeThemeName;
+        activeTheme: Theme;
+        isActiveThemeInvalid: boolean;
+        loadAsync(): Promise<nullstone.Library>;
+        protected retrieveTheme(): Promise<string>;
+        protected ensureThemeLoaded(): Promise<Theme>;
+        getTheme(name: string): Theme;
+        setThemeName(name: string): void;
+        loadActiveTheme(): Promise<Theme>;
+    }
+}
+declare module Fayde {
+    class ThemedLibraryResolver extends nullstone.LibraryResolver {
+        createLibrary(uri: string): nullstone.ILibrary;
+    }
+}
+declare module Fayde {
     var XMLNS: string;
     var XMLNSX: string;
     var XMLNSINTERNAL: string;
@@ -13,6 +33,7 @@ declare module Fayde {
     interface Uri extends nullstone.Uri {
     }
     class ResourceTypeManager extends nullstone.TypeManager {
+        createLibResolver(): nullstone.ILibraryResolver;
         resolveResource(uri: Uri): string;
     }
     var TypeManager: ResourceTypeManager;
@@ -1604,7 +1625,7 @@ declare module Fayde.Controls {
         static TitleProperty: DependencyProperty;
         Title: string;
         constructor();
-        static GetAsync(initiator: DependencyObject, url: string): nullstone.async.IAsyncRequest<Page>;
+        static GetAsync(initiator: DependencyObject, url: string): Promise<Page>;
     }
 }
 declare module Fayde.Navigation {
@@ -2806,8 +2827,7 @@ declare module Fayde {
         private Render();
         RegisterStoryboard(storyboard: ITimeline): void;
         UnregisterStoryboard(storyboard: ITimeline): void;
-        static GetAsync(url: string): nullstone.async.IAsyncRequest<Application>;
-        Resolve(): nullstone.async.IAsyncRequest<Application>;
+        static GetAsync(url: string): Promise<Application>;
     }
 }
 declare module Fayde {
@@ -2967,9 +2987,12 @@ declare module Fayde {
         Name: string;
         LibraryUri: Uri;
         Resources: ResourceDictionary;
+        private $$loaded;
+        private $$retrieved;
         static WarnMissing: boolean;
         constructor(name: string, libUri: Uri);
-        LoadAsync(): nullstone.async.IAsyncRequest<Theme>;
+        RetrieveAsync(): Promise<string>;
+        LoadAsync(): Promise<Theme>;
         GetImplicitStyle(type: any): Style;
     }
 }
@@ -2982,9 +3005,10 @@ declare module Fayde {
 }
 declare module Fayde {
     interface IThemeManager {
-        LoadAsync(themeName: string): nullstone.async.IAsyncRequest<any>;
+        LoadAsync(themeName: string): Promise<any>;
         FindStyle(defaultStyleKey: any): Style;
     }
+    var DEFAULT_THEME_NAME: string;
     var ThemeManager: IThemeManager;
 }
 declare module Fayde {
@@ -3548,8 +3572,14 @@ declare module Fayde.Markup {
     }
 }
 declare module Fayde.Markup {
-    function Resolve(uri: string): any;
-    function Resolve(uri: Uri): any;
+    import XamlMarkup = nullstone.markup.xaml.XamlMarkup;
+    function Resolve(uri: string | Uri): Promise<XamlMarkup>;
+    function Resolve(uri: string | Uri, excludeUri: string | Uri): Promise<XamlMarkup>;
+}
+declare module Fayde.Markup {
+    import XamlMarkup = nullstone.markup.xaml.XamlMarkup;
+    function Retrieve(uri: string): Promise<XamlMarkup>;
+    function Retrieve(uri: Uri): Promise<XamlMarkup>;
 }
 declare module Fayde.Markup {
     class StaticResource implements nullstone.markup.IMarkupExtension {
