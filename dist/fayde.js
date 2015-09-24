@@ -1,12 +1,7 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.17.0';
+    Fayde.version = '0.17.1';
 })(Fayde || (Fayde = {}));
-if (!Array.isArray) {
-    Array.isArray = function (arg) {
-        return Object.prototype.toString.call(arg) === '[object Array]';
-    };
-}
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
         if (typeof this !== 'function') {
