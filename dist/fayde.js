@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.17.1';
+    Fayde.version = '0.18.0';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -11568,7 +11568,7 @@ var Fayde;
         Fayde.CoreLibrary.add(Underline);
     })(Documents = Fayde.Documents || (Fayde.Documents = {}));
 })(Fayde || (Fayde = {}));
-/// <reference path="../Core/DependencyObject.ts" />
+/// <reference path="../Core/DependencyObject" />
 var Fayde;
 (function (Fayde) {
     var Application = (function (_super) {
@@ -11589,12 +11589,14 @@ var Fayde;
             this.MainSurface = new Fayde.Surface(this);
             this.Address = new Fayde.Uri(document.URL);
         }
-        Application.prototype.OnThemeNameChanged = function (args) {
+        Application.prototype.OnThemeNameChanged = function (oldThemeName, newThemeName) {
             var _this = this;
             if (!this._IsLoaded)
                 return;
-            Fayde.ThemeManager.LoadAsync(args.NewValue)
+            Fayde.ThemeManager.LoadAsync(newThemeName)
                 .then(function () { return _this._ApplyTheme(); }, function (err) { return console.error("Could not load theme.", err); });
+        };
+        Application.prototype.OnZoomFactorChanged = function (oldZoom, newZoom) {
         };
         Application.prototype._ApplyTheme = function () {
             for (var walker = this.MainSurface.walkLayers(); walker.step();) {
@@ -11684,7 +11686,8 @@ var Fayde;
             });
         };
         Application.ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", function () { return Fayde.ResourceDictionary; }, Application);
-        Application.ThemeNameProperty = DependencyProperty.Register("ThemeName", function () { return String; }, Application, "Default", function (d, args) { return d.OnThemeNameChanged(args); });
+        Application.ThemeNameProperty = DependencyProperty.Register("ThemeName", function () { return String; }, Application, "Default", function (d, args) { return d.OnThemeNameChanged(args.OldValue, args.NewValue); });
+        Application.ZoomFactorProperty = DependencyProperty.RegisterReadOnly("ZoomFactor", function () { return Number; }, Application, 1.0, function (d, args) { return d.OnZoomFactorChanged(args.OldValue, args.NewValue); });
         return Application;
     })(Fayde.DependencyObject);
     Fayde.Application = Application;
@@ -12291,12 +12294,14 @@ var Fayde;
         function Surface(app) {
             _super.call(this);
             this.$$root = null;
+            this.$$zoom = 1;
             Object.defineProperty(this, "App", { value: app, writable: false });
             this.$$inputMgr = new Fayde.Engine.InputManager(this);
         }
         Surface.prototype.init = function (canvas) {
             var _this = this;
             _super.prototype.init.call(this, canvas);
+            this.$$updateZoom();
             this.$$stretchCanvas();
             document.body.onresize = function (e) { return _this.$$handleResize(window.event ? window.event : e); };
             window.onresize = function (e) { return _this.$$handleResize(window.event ? window.event : e); };
@@ -12399,12 +12404,30 @@ var Fayde;
             if (resizeTimeout)
                 clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(function () {
+                _this.$$updateZoom();
                 _this.$$stretchCanvas();
                 resizeTimeout = null;
             }, 15);
         };
         Surface.prototype.$$stretchCanvas = function () {
-            this.resize(window.innerWidth, window.innerHeight);
+            this.resize(Math.round(window.innerWidth * this.$$zoom), Math.round(window.innerHeight * this.$$zoom));
+        };
+        Surface.prototype.$$updateZoom = function () {
+            var oldZoom = this.$$zoom;
+            var newZoom = minerva.zoom.calc();
+            if (oldZoom === newZoom)
+                return;
+            this.$$zoom = newZoom;
+            this.onZoomChanged(oldZoom, newZoom);
+        };
+        Surface.prototype.onZoomChanged = function (oldZoom, newZoom) {
+            this.App.SetCurrentValue(Fayde.Application.ZoomFactorProperty, newZoom);
+            this.$$setScrollbars(newZoom > 1);
+            this.updateDpiRatio();
+        };
+        Surface.prototype.$$setScrollbars = function (show) {
+            var style = document.body.style;
+            style.overflowY = style.overflowX = show === true ? "" : "hidden";
         };
         return Surface;
     })(minerva.engine.Surface);

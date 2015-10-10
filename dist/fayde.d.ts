@@ -2809,9 +2809,12 @@ declare module Fayde {
         private _RootVisual;
         static ResourcesProperty: ImmutableDependencyProperty<ResourceDictionary>;
         static ThemeNameProperty: DependencyProperty;
+        static ZoomFactorProperty: DependencyProperty;
         Resources: ResourceDictionary;
         ThemeName: string;
-        private OnThemeNameChanged(args);
+        ZoomFactor: number;
+        private OnThemeNameChanged(oldThemeName, newThemeName);
+        private OnZoomFactorChanged(oldZoom, newZoom);
         private _ApplyTheme();
         Resized: RoutedEvent<SizeChangedEventArgs>;
         OnResized(oldSize: minerva.Size, newSize: minerva.Size): void;
@@ -2962,6 +2965,7 @@ declare module Fayde {
         App: Application;
         private $$root;
         private $$inputMgr;
+        private $$zoom;
         HitTestCallback: (inputList: Fayde.UINode[]) => void;
         constructor(app: Application);
         init(canvas: HTMLCanvasElement): void;
@@ -2978,8 +2982,11 @@ declare module Fayde {
         static RemoveFocusFrom(uie: UIElement): boolean;
         static SetMouseCapture(uin: Fayde.UINode): boolean;
         static ReleaseMouseCapture(uin: Fayde.UINode): void;
-        private $$handleResize(evt);
+        private $$handleResize(evt?);
         private $$stretchCanvas();
+        private $$updateZoom();
+        protected onZoomChanged(oldZoom: number, newZoom: number): void;
+        private $$setScrollbars(show);
     }
 }
 declare module Fayde {

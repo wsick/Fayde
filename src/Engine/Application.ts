@@ -1,4 +1,4 @@
-/// <reference path="../Core/DependencyObject.ts" />
+/// <reference path="../Core/DependencyObject" />
 
 interface ITimeline {
     Update(nowTime: number);
@@ -18,16 +18,21 @@ module Fayde {
         private _RootVisual: UIElement = null;
 
         static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, Application);
-        static ThemeNameProperty = DependencyProperty.Register("ThemeName", () => String, Application, "Default", (d: Application, args) => d.OnThemeNameChanged(args));
+        static ThemeNameProperty = DependencyProperty.Register("ThemeName", () => String, Application, "Default", (d: Application, args) => d.OnThemeNameChanged(args.OldValue, args.NewValue));
+        static ZoomFactorProperty = DependencyProperty.RegisterReadOnly("ZoomFactor", () => Number, Application, 1.0, (d: Application, args) => d.OnZoomFactorChanged(args.OldValue, args.NewValue));
         Resources: ResourceDictionary;
         ThemeName: string;
+        ZoomFactor: number;
 
-        private OnThemeNameChanged(args: DependencyPropertyChangedEventArgs) {
+        private OnThemeNameChanged(oldThemeName: string, newThemeName: string) {
             if (!this._IsLoaded)
                 return;
-            ThemeManager.LoadAsync(args.NewValue)
+            ThemeManager.LoadAsync(newThemeName)
                 .then(() => this._ApplyTheme(),
                     err => console.error("Could not load theme.", err));
+        }
+
+        private OnZoomFactorChanged(oldZoom: number, newZoom: number) {
         }
 
         private _ApplyTheme() {
