@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.18.0';
+    Fayde.version = '0.19.0';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -822,6 +822,251 @@ var Fayde;
     Fayde.XamlObject = XamlObject;
     Fayde.CoreLibrary.add(XamlObject);
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Providers;
+    (function (Providers) {
+        (function (PropertyPrecedence) {
+            PropertyPrecedence[PropertyPrecedence["IsEnabled"] = 0] = "IsEnabled";
+            PropertyPrecedence[PropertyPrecedence["LocalValue"] = 1] = "LocalValue";
+            PropertyPrecedence[PropertyPrecedence["LocalStyle"] = 2] = "LocalStyle";
+            PropertyPrecedence[PropertyPrecedence["ImplicitStyle"] = 3] = "ImplicitStyle";
+            PropertyPrecedence[PropertyPrecedence["Inherited"] = 4] = "Inherited";
+            PropertyPrecedence[PropertyPrecedence["InheritedDataContext"] = 5] = "InheritedDataContext";
+            PropertyPrecedence[PropertyPrecedence["DefaultValue"] = 6] = "DefaultValue";
+            PropertyPrecedence[PropertyPrecedence["Lowest"] = 6] = "Lowest";
+            PropertyPrecedence[PropertyPrecedence["Highest"] = 0] = "Highest";
+            PropertyPrecedence[PropertyPrecedence["Count"] = 7] = "Count";
+        })(Providers.PropertyPrecedence || (Providers.PropertyPrecedence = {}));
+        var PropertyPrecedence = Providers.PropertyPrecedence;
+        function GetStorage(dobj, propd) {
+            var arr = dobj._PropertyStorage;
+            var storage = arr[propd._ID];
+            if (!storage)
+                arr[propd._ID] = storage = propd.Store.CreateStorage(dobj, propd);
+            return storage;
+        }
+        Providers.GetStorage = GetStorage;
+        var PropertyStore = (function () {
+            function PropertyStore() {
+            }
+            PropertyStore.prototype.GetValue = function (storage) {
+                var val;
+                if ((val = storage.Local) !== undefined)
+                    return val;
+                if ((val = storage.LocalStyleValue) !== undefined)
+                    return val;
+                if ((val = storage.ImplicitStyleValue) !== undefined)
+                    return val;
+                return storage.Property.DefaultValue;
+            };
+            PropertyStore.prototype.GetValuePrecedence = function (storage) {
+                if (storage.Local !== undefined)
+                    return PropertyPrecedence.LocalValue;
+                if (storage.LocalStyleValue !== undefined)
+                    return PropertyPrecedence.LocalStyle;
+                if (storage.ImplicitStyleValue !== undefined)
+                    return PropertyPrecedence.ImplicitStyle;
+                return PropertyPrecedence.DefaultValue;
+            };
+            PropertyStore.prototype.SetLocalValue = function (storage, newValue) {
+                if (newValue === undefined || newValue === DependencyProperty.UnsetValue) {
+                    this.ClearValue(storage);
+                    return;
+                }
+                var propd = storage.Property;
+                if (newValue && propd.GetTargetType() === String) {
+                    if (typeof newValue !== "string")
+                        newValue = newValue.toString();
+                }
+                var isValidOut = { IsValid: false };
+                newValue = propd.ValidateSetValue(storage.OwnerNode.XObject, newValue, isValidOut);
+                if (!isValidOut.IsValid)
+                    return;
+                var precDiff = storage.Precedence - PropertyPrecedence.LocalValue;
+                if (!propd.AlwaysChange && precDiff < 0) {
+                    storage.Local = newValue;
+                    return;
+                }
+                var oldValue = undefined;
+                if (precDiff > 0)
+                    oldValue = this.GetValue(storage);
+                else
+                    oldValue = storage.Local;
+                storage.Local = newValue;
+                this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldValue, newValue);
+            };
+            PropertyStore.prototype.SetLocalStyleValue = function (storage, newValue) {
+                var precDiff = storage.Precedence - PropertyPrecedence.LocalStyle;
+                if (precDiff < 0) {
+                    storage.LocalStyleValue = newValue;
+                    return;
+                }
+                var oldValue = undefined;
+                if (precDiff > 0)
+                    oldValue = this.GetValue(storage);
+                else
+                    oldValue = storage.LocalStyleValue;
+                storage.LocalStyleValue = newValue;
+                this.OnPropertyChanged(storage, PropertyPrecedence.LocalStyle, oldValue, newValue);
+            };
+            PropertyStore.prototype.SetImplicitStyle = function (storage, newValue) {
+                var precDiff = storage.Precedence - PropertyPrecedence.ImplicitStyle;
+                if (precDiff < 0) {
+                    storage.ImplicitStyleValue = newValue;
+                    return;
+                }
+                var oldValue = undefined;
+                if (precDiff > 0)
+                    oldValue = this.GetValue(storage);
+                else
+                    oldValue = storage.ImplicitStyleValue;
+                storage.ImplicitStyleValue = newValue;
+                this.OnPropertyChanged(storage, PropertyPrecedence.ImplicitStyle, oldValue, newValue);
+            };
+            PropertyStore.prototype.ClearValue = function (storage) {
+                var oldLocal = storage.Local;
+                if (oldLocal === undefined)
+                    return;
+                storage.Local = undefined;
+                this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldLocal, undefined);
+            };
+            PropertyStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
+                var propd = storage.Property;
+                if (newValue === undefined) {
+                    effectivePrecedence = this.GetValuePrecedence(storage);
+                    newValue = this.GetValue(storage);
+                }
+                storage.Precedence = effectivePrecedence;
+                if (!propd.AlwaysChange && oldValue === newValue)
+                    return undefined;
+                if (!storage.Property.IsCustom) {
+                    if (oldValue instanceof Fayde.XamlObject)
+                        oldValue.XamlNode.Detach();
+                    if (newValue instanceof Fayde.XamlObject) {
+                        var error = new BError();
+                        if (!newValue.XamlNode.AttachTo(storage.OwnerNode, error))
+                            error.ThrowException();
+                    }
+                }
+                var args = {
+                    Property: propd,
+                    OldValue: oldValue,
+                    NewValue: newValue
+                };
+                var sender = storage.OwnerNode.XObject;
+                if (propd.ChangedCallback)
+                    propd.ChangedCallback(sender, args);
+                var listeners = storage.PropListeners;
+                if (listeners) {
+                    var len = listeners.length;
+                    for (var i = 0; i < len; i++) {
+                        listeners[i].OnPropertyChanged(sender, args);
+                    }
+                }
+                return args;
+            };
+            PropertyStore.prototype.ListenToChanged = function (target, propd, func, closure) {
+                var storage = GetStorage(target, propd);
+                var listeners = storage.PropListeners;
+                if (!listeners)
+                    listeners = storage.PropListeners = [];
+                var listener = {
+                    Detach: function () {
+                        var index = listeners.indexOf(listener);
+                        if (index > -1)
+                            listeners.splice(index, 1);
+                    },
+                    Property: propd,
+                    OnPropertyChanged: function (sender, args) { func.call(closure, sender, args); }
+                };
+                listeners.push(listener);
+                return listener;
+            };
+            PropertyStore.prototype.CreateStorage = function (dobj, propd) {
+                return {
+                    OwnerNode: dobj.XamlNode,
+                    Property: propd,
+                    Precedence: PropertyPrecedence.DefaultValue,
+                    Animations: undefined,
+                    Local: undefined,
+                    LocalStyleValue: undefined,
+                    ImplicitStyleValue: undefined,
+                    PropListeners: undefined,
+                };
+            };
+            PropertyStore.prototype.Clone = function (dobj, sourceStorage) {
+                var newStorage = this.CreateStorage(dobj, sourceStorage.Property);
+                newStorage.Precedence = sourceStorage.Precedence;
+                newStorage.Local = Fayde.Clone(sourceStorage.Local);
+                var anims = newStorage.Animations = sourceStorage.Animations;
+                if (anims) {
+                    for (var i = 0; i < anims.length; i++) {
+                        anims[i].PropStorage = newStorage;
+                    }
+                }
+                return newStorage;
+            };
+            return PropertyStore;
+        })();
+        Providers.PropertyStore = PropertyStore;
+        PropertyStore.Instance = new PropertyStore();
+    })(Providers = Fayde.Providers || (Fayde.Providers = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="PropertyStore.ts" />
+var Fayde;
+(function (Fayde) {
+    var Providers;
+    (function (Providers) {
+        var ImmutableStore = (function (_super) {
+            __extends(ImmutableStore, _super);
+            function ImmutableStore() {
+                _super.apply(this, arguments);
+            }
+            ImmutableStore.prototype.GetValue = function (storage) {
+                return storage.Local;
+            };
+            ImmutableStore.prototype.GetValuePrecedence = function (storage) {
+                return Providers.PropertyPrecedence.LocalValue;
+            };
+            ImmutableStore.prototype.SetLocalValue = function (storage, newValue) {
+                console.warn("Trying to set value for immutable property.");
+            };
+            ImmutableStore.prototype.ClearValue = function (storage) {
+                console.warn("Trying to clear value for immutable property.");
+            };
+            ImmutableStore.prototype.ListenToChanged = function (target, propd, func, closure) {
+                return {
+                    Property: propd,
+                    OnPropertyChanged: function (sender, args) { },
+                    Detach: function () { }
+                };
+            };
+            ImmutableStore.prototype.Clone = function (dobj, sourceStorage) {
+                if (sourceStorage.Local instanceof Fayde.XamlObjectCollection) {
+                    var newStorage = Providers.GetStorage(dobj, sourceStorage.Property);
+                    var newColl = newStorage.Local;
+                    newColl.CloneCore(sourceStorage.Local);
+                    var anims = newStorage.Animations = sourceStorage.Animations;
+                    if (anims) {
+                        for (var i = 0; i < anims.length; i++) {
+                            anims[i].PropStorage = newStorage;
+                        }
+                    }
+                    return newStorage;
+                }
+                else {
+                    console.warn("Cloning Immutable improperly");
+                    return _super.prototype.Clone.call(this, dobj, sourceStorage);
+                }
+            };
+            return ImmutableStore;
+        })(Providers.PropertyStore);
+        Providers.ImmutableStore = ImmutableStore;
+        ImmutableStore.Instance = new ImmutableStore();
+    })(Providers = Fayde.Providers || (Fayde.Providers = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="Providers/ImmutableStore.ts" />
 var DependencyProperty = (function () {
     function DependencyProperty() {
         this.IsReadOnly = false;
@@ -1057,197 +1302,6 @@ var ImmutableDependencyProperty = (function (_super) {
     };
     return ImmutableDependencyProperty;
 })(DependencyProperty);
-var Fayde;
-(function (Fayde) {
-    var Providers;
-    (function (Providers) {
-        (function (PropertyPrecedence) {
-            PropertyPrecedence[PropertyPrecedence["IsEnabled"] = 0] = "IsEnabled";
-            PropertyPrecedence[PropertyPrecedence["LocalValue"] = 1] = "LocalValue";
-            PropertyPrecedence[PropertyPrecedence["LocalStyle"] = 2] = "LocalStyle";
-            PropertyPrecedence[PropertyPrecedence["ImplicitStyle"] = 3] = "ImplicitStyle";
-            PropertyPrecedence[PropertyPrecedence["Inherited"] = 4] = "Inherited";
-            PropertyPrecedence[PropertyPrecedence["InheritedDataContext"] = 5] = "InheritedDataContext";
-            PropertyPrecedence[PropertyPrecedence["DefaultValue"] = 6] = "DefaultValue";
-            PropertyPrecedence[PropertyPrecedence["Lowest"] = 6] = "Lowest";
-            PropertyPrecedence[PropertyPrecedence["Highest"] = 0] = "Highest";
-            PropertyPrecedence[PropertyPrecedence["Count"] = 7] = "Count";
-        })(Providers.PropertyPrecedence || (Providers.PropertyPrecedence = {}));
-        var PropertyPrecedence = Providers.PropertyPrecedence;
-        function GetStorage(dobj, propd) {
-            var arr = dobj._PropertyStorage;
-            var storage = arr[propd._ID];
-            if (!storage)
-                arr[propd._ID] = storage = propd.Store.CreateStorage(dobj, propd);
-            return storage;
-        }
-        Providers.GetStorage = GetStorage;
-        var PropertyStore = (function () {
-            function PropertyStore() {
-            }
-            PropertyStore.prototype.GetValue = function (storage) {
-                var val;
-                if ((val = storage.Local) !== undefined)
-                    return val;
-                if ((val = storage.LocalStyleValue) !== undefined)
-                    return val;
-                if ((val = storage.ImplicitStyleValue) !== undefined)
-                    return val;
-                return storage.Property.DefaultValue;
-            };
-            PropertyStore.prototype.GetValuePrecedence = function (storage) {
-                if (storage.Local !== undefined)
-                    return PropertyPrecedence.LocalValue;
-                if (storage.LocalStyleValue !== undefined)
-                    return PropertyPrecedence.LocalStyle;
-                if (storage.ImplicitStyleValue !== undefined)
-                    return PropertyPrecedence.ImplicitStyle;
-                return PropertyPrecedence.DefaultValue;
-            };
-            PropertyStore.prototype.SetLocalValue = function (storage, newValue) {
-                if (newValue === undefined || newValue === DependencyProperty.UnsetValue) {
-                    this.ClearValue(storage);
-                    return;
-                }
-                var propd = storage.Property;
-                if (newValue && propd.GetTargetType() === String) {
-                    if (typeof newValue !== "string")
-                        newValue = newValue.toString();
-                }
-                var isValidOut = { IsValid: false };
-                newValue = propd.ValidateSetValue(storage.OwnerNode.XObject, newValue, isValidOut);
-                if (!isValidOut.IsValid)
-                    return;
-                var precDiff = storage.Precedence - PropertyPrecedence.LocalValue;
-                if (!propd.AlwaysChange && precDiff < 0) {
-                    storage.Local = newValue;
-                    return;
-                }
-                var oldValue = undefined;
-                if (precDiff > 0)
-                    oldValue = this.GetValue(storage);
-                else
-                    oldValue = storage.Local;
-                storage.Local = newValue;
-                this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldValue, newValue);
-            };
-            PropertyStore.prototype.SetLocalStyleValue = function (storage, newValue) {
-                var precDiff = storage.Precedence - PropertyPrecedence.LocalStyle;
-                if (precDiff < 0) {
-                    storage.LocalStyleValue = newValue;
-                    return;
-                }
-                var oldValue = undefined;
-                if (precDiff > 0)
-                    oldValue = this.GetValue(storage);
-                else
-                    oldValue = storage.LocalStyleValue;
-                storage.LocalStyleValue = newValue;
-                this.OnPropertyChanged(storage, PropertyPrecedence.LocalStyle, oldValue, newValue);
-            };
-            PropertyStore.prototype.SetImplicitStyle = function (storage, newValue) {
-                var precDiff = storage.Precedence - PropertyPrecedence.ImplicitStyle;
-                if (precDiff < 0) {
-                    storage.ImplicitStyleValue = newValue;
-                    return;
-                }
-                var oldValue = undefined;
-                if (precDiff > 0)
-                    oldValue = this.GetValue(storage);
-                else
-                    oldValue = storage.ImplicitStyleValue;
-                storage.ImplicitStyleValue = newValue;
-                this.OnPropertyChanged(storage, PropertyPrecedence.ImplicitStyle, oldValue, newValue);
-            };
-            PropertyStore.prototype.ClearValue = function (storage) {
-                var oldLocal = storage.Local;
-                if (oldLocal === undefined)
-                    return;
-                storage.Local = undefined;
-                this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldLocal, undefined);
-            };
-            PropertyStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
-                var propd = storage.Property;
-                if (newValue === undefined) {
-                    effectivePrecedence = this.GetValuePrecedence(storage);
-                    newValue = this.GetValue(storage);
-                }
-                storage.Precedence = effectivePrecedence;
-                if (!propd.AlwaysChange && oldValue === newValue)
-                    return undefined;
-                if (!storage.Property.IsCustom) {
-                    if (oldValue instanceof Fayde.XamlObject)
-                        oldValue.XamlNode.Detach();
-                    if (newValue instanceof Fayde.XamlObject) {
-                        var error = new BError();
-                        if (!newValue.XamlNode.AttachTo(storage.OwnerNode, error))
-                            error.ThrowException();
-                    }
-                }
-                var args = {
-                    Property: propd,
-                    OldValue: oldValue,
-                    NewValue: newValue
-                };
-                var sender = storage.OwnerNode.XObject;
-                if (propd.ChangedCallback)
-                    propd.ChangedCallback(sender, args);
-                var listeners = storage.PropListeners;
-                if (listeners) {
-                    var len = listeners.length;
-                    for (var i = 0; i < len; i++) {
-                        listeners[i].OnPropertyChanged(sender, args);
-                    }
-                }
-                return args;
-            };
-            PropertyStore.prototype.ListenToChanged = function (target, propd, func, closure) {
-                var storage = GetStorage(target, propd);
-                var listeners = storage.PropListeners;
-                if (!listeners)
-                    listeners = storage.PropListeners = [];
-                var listener = {
-                    Detach: function () {
-                        var index = listeners.indexOf(listener);
-                        if (index > -1)
-                            listeners.splice(index, 1);
-                    },
-                    Property: propd,
-                    OnPropertyChanged: function (sender, args) { func.call(closure, sender, args); }
-                };
-                listeners.push(listener);
-                return listener;
-            };
-            PropertyStore.prototype.CreateStorage = function (dobj, propd) {
-                return {
-                    OwnerNode: dobj.XamlNode,
-                    Property: propd,
-                    Precedence: PropertyPrecedence.DefaultValue,
-                    Animations: undefined,
-                    Local: undefined,
-                    LocalStyleValue: undefined,
-                    ImplicitStyleValue: undefined,
-                    PropListeners: undefined,
-                };
-            };
-            PropertyStore.prototype.Clone = function (dobj, sourceStorage) {
-                var newStorage = this.CreateStorage(dobj, sourceStorage.Property);
-                newStorage.Precedence = sourceStorage.Precedence;
-                newStorage.Local = Fayde.Clone(sourceStorage.Local);
-                var anims = newStorage.Animations = sourceStorage.Animations;
-                if (anims) {
-                    for (var i = 0; i < anims.length; i++) {
-                        anims[i].PropStorage = newStorage;
-                    }
-                }
-                return newStorage;
-            };
-            return PropertyStore;
-        })();
-        Providers.PropertyStore = PropertyStore;
-        PropertyStore.Instance = new PropertyStore();
-    })(Providers = Fayde.Providers || (Fayde.Providers = {}));
-})(Fayde || (Fayde = {}));
 /// <reference path="PropertyStore.ts" />
 var Fayde;
 (function (Fayde) {
@@ -3532,59 +3586,6 @@ var Fayde;
     })(Fayde.XamlObject);
     Fayde.XamlObjectCollection = XamlObjectCollection;
     nullstone.ICollection_.mark(XamlObjectCollection);
-})(Fayde || (Fayde = {}));
-/// <reference path="PropertyStore.ts" />
-var Fayde;
-(function (Fayde) {
-    var Providers;
-    (function (Providers) {
-        var ImmutableStore = (function (_super) {
-            __extends(ImmutableStore, _super);
-            function ImmutableStore() {
-                _super.apply(this, arguments);
-            }
-            ImmutableStore.prototype.GetValue = function (storage) {
-                return storage.Local;
-            };
-            ImmutableStore.prototype.GetValuePrecedence = function (storage) {
-                return Providers.PropertyPrecedence.LocalValue;
-            };
-            ImmutableStore.prototype.SetLocalValue = function (storage, newValue) {
-                console.warn("Trying to set value for immutable property.");
-            };
-            ImmutableStore.prototype.ClearValue = function (storage) {
-                console.warn("Trying to clear value for immutable property.");
-            };
-            ImmutableStore.prototype.ListenToChanged = function (target, propd, func, closure) {
-                return {
-                    Property: propd,
-                    OnPropertyChanged: function (sender, args) { },
-                    Detach: function () { }
-                };
-            };
-            ImmutableStore.prototype.Clone = function (dobj, sourceStorage) {
-                if (sourceStorage.Local instanceof Fayde.XamlObjectCollection) {
-                    var newStorage = Providers.GetStorage(dobj, sourceStorage.Property);
-                    var newColl = newStorage.Local;
-                    newColl.CloneCore(sourceStorage.Local);
-                    var anims = newStorage.Animations = sourceStorage.Animations;
-                    if (anims) {
-                        for (var i = 0; i < anims.length; i++) {
-                            anims[i].PropStorage = newStorage;
-                        }
-                    }
-                    return newStorage;
-                }
-                else {
-                    console.warn("Cloning Immutable improperly");
-                    return _super.prototype.Clone.call(this, dobj, sourceStorage);
-                }
-            };
-            return ImmutableStore;
-        })(Providers.PropertyStore);
-        Providers.ImmutableStore = ImmutableStore;
-        ImmutableStore.Instance = new ImmutableStore();
-    })(Providers = Fayde.Providers || (Fayde.Providers = {}));
 })(Fayde || (Fayde = {}));
 /// <reference path="../Core/FrameworkElement.ts" />
 /// <reference path="../Core/XamlObjectCollection.ts" />
@@ -6270,6 +6271,7 @@ var Fayde;
         Controls.TemplateVisualStates(ComboBoxItem, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "SelectionStates", Name: "Unselected" }, { GroupName: "SelectionStates", Name: "Selected" }, { GroupName: "SelectionStates", Name: "SelectedUnfocused" });
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
+/// <reference path="../Core/DependencyObject" />
 var Fayde;
 (function (Fayde) {
     var Markup;
@@ -6943,6 +6945,7 @@ var Fayde;
                 _super.apply(this, arguments);
                 this.ImageOpened = new nullstone.Event();
                 this.ImageFailed = new nullstone.Event();
+                this.$watcher = null;
             }
             Image.prototype.CreateLayoutUpdater = function () {
                 return new ImageUpdater();
@@ -6954,18 +6957,32 @@ var Fayde;
                     return new Fayde.Media.Imaging.BitmapImage(value);
                 return value;
             };
-            Image.prototype.OnImageErrored = function (source, e) {
+            Image.prototype.OnImageErrored = function (source, error) {
                 this.ImageFailed.raise(this, null);
             };
-            Image.prototype.OnImageLoaded = function (source, e) {
+            Image.prototype.OnImageLoaded = function (source) {
                 this.ImageOpened.raise(this, null);
                 var lu = this.XamlNode.LayoutUpdater;
                 lu.invalidateMeasure();
             };
-            Image.prototype.ImageChanged = function (source) {
+            Image.prototype.OnImageChanged = function (source) {
                 var lu = this.XamlNode.LayoutUpdater;
                 lu.invalidateMeasure();
                 lu.invalidate();
+            };
+            Image.prototype.OnSourceChanged = function (oldSource, newSource) {
+                var _this = this;
+                if (this.$watcher) {
+                    this.$watcher.dispose();
+                    this.$watcher = null;
+                }
+                if (newSource instanceof Fayde.Media.Imaging.BitmapSource) {
+                    this.$watcher = newSource.watch({
+                        onErrored: function (source, error) { return _this.OnImageErrored(source, error); },
+                        onLoaded: function (source) { return _this.OnImageLoaded(source); },
+                        onChanged: function (source) { return _this.OnImageChanged(source); }
+                    });
+                }
             };
             Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return Fayde.Media.Imaging.ImageSource; }, Image, undefined, undefined, Image._SourceCoercer);
             Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Fayde.Enum(Fayde.Media.Stretch); }, Image, Fayde.Media.Stretch.Uniform);
@@ -6974,12 +6991,8 @@ var Fayde;
         Controls.Image = Image;
         Fayde.CoreLibrary.add(Image);
         Fayde.UIReaction(Image.SourceProperty, function (upd, ov, nv, image) {
-            if (ov instanceof Fayde.Media.Imaging.BitmapSource)
-                ov.Unlisten(image);
-            if (nv instanceof Fayde.Media.Imaging.BitmapSource) {
-                nv.Listen(image);
-            }
-            else {
+            image.OnSourceChanged(ov, nv);
+            if (!nv) {
                 upd.updateBounds();
                 upd.invalidate();
             }
@@ -7572,19 +7585,89 @@ var Fayde;
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
 /// <reference path="../Core/FrameworkElement.ts" />
+/// <reference path="../Media/Enums.ts"/>
 var Fayde;
 (function (Fayde) {
     var Controls;
     (function (Controls) {
+        var VideoUpdater = minerva.controls.video.VideoUpdater;
         var MediaElement = (function (_super) {
             __extends(MediaElement, _super);
             function MediaElement() {
                 _super.apply(this, arguments);
+                this.VideoOpened = new nullstone.Event();
+                this.VideoFailed = new nullstone.Event();
+                this.$watcher = null;
             }
+            MediaElement.prototype.CreateLayoutUpdater = function () {
+                return new VideoUpdater();
+            };
+            MediaElement._SourceCoercer = function (d, propd, value) {
+                if (typeof value === "string")
+                    return new Fayde.Media.Videos.VideoSource(new Fayde.Uri(value));
+                if (value instanceof Fayde.Uri)
+                    return new Fayde.Media.Videos.VideoSource(value);
+                return value;
+            };
+            MediaElement.prototype.OnAutoPlayChanged = function (oldValue, newValue) {
+                var source = this.Source;
+                if (source instanceof Fayde.Media.Videos.VideoSourceBase)
+                    source.setAutoPlay(newValue);
+            };
+            MediaElement.prototype.OnSourceChanged = function (oldSource, newSource) {
+                var _this = this;
+                if (this.$watcher) {
+                    this.$watcher.dispose();
+                    this.$watcher = null;
+                }
+                if (newSource instanceof Fayde.Media.Videos.VideoSourceBase) {
+                    newSource.setAutoPlay(this.AutoPlay);
+                    this.$watcher = newSource.watch({
+                        onErrored: function (source, error) { return _this.OnVideoErrored(source, error); },
+                        onCanPlay: function (source) { return _this.OnVideoCanPlay(source); },
+                        onChanged: function (source) { return _this.OnVideoChanged(source); }
+                    });
+                }
+            };
+            MediaElement.prototype.OnVideoErrored = function (source, error) {
+                this.VideoFailed.raise(this, null);
+            };
+            MediaElement.prototype.OnVideoCanPlay = function (source) {
+                this.VideoOpened.raise(this, null);
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.invalidateMeasure();
+            };
+            MediaElement.prototype.OnVideoChanged = function (source) {
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.invalidateMeasure();
+                lu.invalidate();
+            };
+            MediaElement.prototype.Play = function () {
+                this.Source.Play();
+            };
+            MediaElement.prototype.Pause = function () {
+                this.Source.Pause();
+            };
+            MediaElement.AutoPlayProperty = DependencyProperty.Register("AutoPlay", function () { return Boolean; }, MediaElement, true, function (d, args) { return d.OnAutoPlayChanged(args.OldValue, args.NewValue); });
+            MediaElement.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return Fayde.Media.Videos.VideoSource; }, MediaElement, undefined, undefined, MediaElement._SourceCoercer);
+            MediaElement.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Fayde.Enum(Fayde.Media.Stretch); }, MediaElement, Fayde.Media.Stretch.Uniform);
             return MediaElement;
         })(Fayde.FrameworkElement);
         Controls.MediaElement = MediaElement;
         Fayde.CoreLibrary.add(MediaElement);
+        Fayde.UIReaction(MediaElement.SourceProperty, function (upd, ov, nv, video) {
+            video.OnSourceChanged(ov, nv);
+            if (!nv) {
+                upd.updateBounds();
+                upd.invalidate();
+            }
+            upd.invalidateMeasure();
+            upd.invalidateMetrics();
+        }, false);
+        Fayde.UIReaction(MediaElement.StretchProperty, function (upd, ov, nv) {
+            upd.invalidateMeasure();
+            upd.invalidateMetrics();
+        }, false);
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -7721,6 +7804,7 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 /// <reference path="Control.ts" />
 /// <reference path="../Input/KeyEventArgs.ts" />
+/// <reference path="Enums.ts"/>
 var Fayde;
 (function (Fayde) {
     var Controls;
@@ -10168,7 +10252,8 @@ var Fayde;
     Fayde.SizeChangedEventArgs = SizeChangedEventArgs;
     Fayde.CoreLibrary.add(SizeChangedEventArgs);
 })(Fayde || (Fayde = {}));
-/// <reference path="DependencyObject.ts" />
+/// <reference path="DependencyObject" />
+/// <reference path="../Markup/ContentAnnotation" />
 var Fayde;
 (function (Fayde) {
     var Style = (function (_super) {
@@ -25706,33 +25791,50 @@ var Fayde;
             var ImageSource = (function (_super) {
                 __extends(ImageSource, _super);
                 function ImageSource() {
-                    _super.apply(this, arguments);
+                    _super.call(this);
+                    this.$element = null;
                 }
                 Object.defineProperty(ImageSource.prototype, "pixelWidth", {
                     get: function () {
-                        return 0;
+                        return this.GetValue(ImageSource.PixelWidthProperty);
                     },
                     enumerable: true,
                     configurable: true
                 });
                 Object.defineProperty(ImageSource.prototype, "pixelHeight", {
                     get: function () {
-                        return 0;
+                        return this.GetValue(ImageSource.PixelHeightProperty);
                     },
                     enumerable: true,
                     configurable: true
                 });
-                ImageSource.prototype.lock = function () {
-                };
-                ImageSource.prototype.unlock = function () {
-                };
-                Object.defineProperty(ImageSource.prototype, "image", {
+                Object.defineProperty(ImageSource.prototype, "isEmpty", {
                     get: function () {
-                        return undefined;
+                        return !this.$element;
                     },
                     enumerable: true,
                     configurable: true
                 });
+                ImageSource.prototype.draw = function (ctx) {
+                    ctx.drawImage(this.$element, 0, 0);
+                };
+                ImageSource.prototype.createPattern = function (ctx) {
+                    ctx.rect(0, 0, this.pixelWidth, this.pixelHeight);
+                    return ctx.createPattern(this.$element, "no-repeat");
+                };
+                ImageSource.prototype.reset = function () {
+                    this.$element = this.createElement();
+                    this.setMetrics(0, 0);
+                };
+                ImageSource.prototype.createElement = function () {
+                    return undefined;
+                };
+                ImageSource.prototype.setMetrics = function (pixelWidth, pixelHeight) {
+                    this.SetCurrentValue(ImageSource.PixelWidthProperty, pixelWidth);
+                    this.SetCurrentValue(ImageSource.PixelHeightProperty, pixelHeight);
+                };
+                ImageSource.PixelWidthProperty = DependencyProperty.RegisterReadOnly("PixelWidth", function () { return Number; }, ImageSource, 0);
+                ImageSource.PixelHeightProperty = DependencyProperty.RegisterReadOnly("PixelHeight", function () { return Number; }, ImageSource, 0);
                 return ImageSource;
             })(Fayde.DependencyObject);
             Imaging.ImageSource = ImageSource;
@@ -25747,81 +25849,53 @@ var Fayde;
     (function (Media) {
         var Imaging;
         (function (Imaging) {
-            function intGreaterThanZeroValidator(instance, propd, value) {
-                if (typeof value !== "number")
-                    return false;
-                return value > 0;
-            }
             var BitmapSource = (function (_super) {
                 __extends(BitmapSource, _super);
                 function BitmapSource() {
                     _super.apply(this, arguments);
-                    this._Listener = null;
+                    this.$watchers = [];
                 }
-                Object.defineProperty(BitmapSource.prototype, "pixelWidth", {
-                    get: function () {
-                        return this.GetValue(BitmapSource.PixelWidthProperty);
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(BitmapSource.prototype, "pixelHeight", {
-                    get: function () {
-                        return this.GetValue(BitmapSource.PixelHeightProperty);
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(BitmapSource.prototype, "image", {
-                    get: function () {
-                        return this._Image;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                BitmapSource.prototype.ResetImage = function () {
+                BitmapSource.prototype.createElement = function () {
+                    return new Image();
+                };
+                BitmapSource.prototype.reset = function () {
                     var _this = this;
-                    this._Image = new Image();
-                    this._Image.onerror = function (e) { return _this._OnErrored(e); };
-                    this._Image.onload = function (e) { return _this._OnLoad(e); };
-                    this.PixelWidth = 0;
-                    this.PixelHeight = 0;
-                    var listener = this._Listener;
-                    if (listener)
-                        listener.ImageChanged(this);
+                    _super.prototype.reset.call(this);
+                    this.$element.onerror = function (e) { return _this.onImageErrored(e); };
+                    this.$element.onload = function (e) {
+                        _this.onImageLoaded();
+                        _this.onImageChanged();
+                    };
+                    this.onImageChanged();
                 };
-                BitmapSource.prototype.UriSourceChanged = function (oldValue, newValue) {
-                    if (!this._Image || !newValue)
-                        this.ResetImage();
-                    this._Image.src = Fayde.TypeManager.resolveResource(newValue);
-                    var listener = this._Listener;
-                    if (listener)
-                        listener.ImageChanged(this);
+                BitmapSource.prototype.watch = function (watcher) {
+                    var watchers = this.$watchers;
+                    watchers.push(watcher);
+                    return {
+                        dispose: function () {
+                            var index = watchers.indexOf(watcher);
+                            if (index > -1)
+                                watchers.splice(index, 1);
+                        }
+                    };
                 };
-                BitmapSource.prototype.Listen = function (listener) {
-                    this._Listener = listener;
-                };
-                BitmapSource.prototype.Unlisten = function (listener) {
-                    if (this._Listener === listener)
-                        this._Listener = null;
-                };
-                BitmapSource.prototype._OnErrored = function (e) {
-                    console.info("Failed to load: " + this._Image.src.toString());
-                    var listener = this._Listener;
-                    if (listener)
-                        listener.OnImageErrored(this, e);
-                };
-                BitmapSource.prototype._OnLoad = function (e) {
-                    this.PixelWidth = this._Image.naturalWidth;
-                    this.PixelHeight = this._Image.naturalHeight;
-                    var listener = this._Listener;
-                    if (listener) {
-                        listener.OnImageLoaded(this, e);
-                        listener.ImageChanged(this);
+                BitmapSource.prototype.onImageLoaded = function () {
+                    this.setMetrics(this.$element.naturalWidth, this.$element.naturalHeight);
+                    for (var i = 0, watchers = this.$watchers; i < watchers.length; i++) {
+                        watchers[i].onLoaded(this);
                     }
                 };
-                BitmapSource.PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", function () { return Number; }, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
-                BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () { return Number; }, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
+                BitmapSource.prototype.onImageErrored = function (e) {
+                    console.warn("Failed to load: " + this.$element.src.toString());
+                    for (var i = 0, watchers = this.$watchers; i < watchers.length; i++) {
+                        watchers[i].onErrored(this, e.error);
+                    }
+                };
+                BitmapSource.prototype.onImageChanged = function () {
+                    for (var i = 0, watchers = this.$watchers; i < watchers.length; i++) {
+                        watchers[i].onChanged(this);
+                    }
+                };
                 return BitmapSource;
             })(Imaging.ImageSource);
             Imaging.BitmapSource = BitmapSource;
@@ -25846,26 +25920,30 @@ var Fayde;
                     if (uri)
                         this.UriSource = uri;
                 }
-                BitmapImage.prototype._UriSourceChanged = function (args) {
-                    var uri = args.NewValue;
-                    if (Fayde.Uri.isNullOrEmpty(uri))
-                        this.ResetImage();
-                    else
-                        this.UriSourceChanged(args.OldValue, uri);
+                BitmapImage.prototype.OnUriSourceChanged = function (oldValue, newValue) {
+                    if (Fayde.Uri.isNullOrEmpty(newValue)) {
+                        this.reset();
+                    }
+                    else {
+                        if (!this.$element || !newValue)
+                            this.reset();
+                        this.$element.src = Fayde.TypeManager.resolveResource(newValue);
+                        this.onImageChanged();
+                    }
                 };
-                BitmapImage.prototype._OnErrored = function (e) {
-                    _super.prototype._OnErrored.call(this, e);
+                BitmapImage.prototype.onImageErrored = function (e) {
+                    _super.prototype.onImageErrored.call(this, e);
                     this.ImageFailed.raise(this, null);
                 };
-                BitmapImage.prototype._OnLoad = function (e) {
-                    _super.prototype._OnLoad.call(this, e);
+                BitmapImage.prototype.onImageLoaded = function () {
+                    _super.prototype.onImageLoaded.call(this);
                     this.ImageOpened.raise(this, null);
                 };
                 BitmapImage.prototype.SetSource = function (buffer) {
                     this._BackingBuffer = buffer;
                     this.UriSource = Imaging.encodeImage(buffer);
                 };
-                BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Fayde.Uri; }, BitmapImage, undefined, function (bi, args) { return bi._UriSourceChanged(args); }, undefined, true);
+                BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Fayde.Uri; }, BitmapImage, undefined, function (bi, args) { return bi.OnUriSourceChanged(args.OldValue, args.NewValue); }, undefined, true);
                 return BitmapImage;
             })(Imaging.BitmapSource);
             Imaging.BitmapImage = BitmapImage;
@@ -25900,6 +25978,7 @@ var Fayde;
                     _super.apply(this, arguments);
                     this.ImageFailed = new nullstone.Event();
                     this.ImageOpened = new nullstone.Event();
+                    this.$watcher = null;
                 }
                 ImageBrush._SourceCoercer = function (d, propd, value) {
                     if (typeof value === "string")
@@ -25910,7 +25989,7 @@ var Fayde;
                 };
                 ImageBrush.prototype.setupBrush = function (ctx, bounds) {
                     var source = this.ImageSource;
-                    if (source && source.image)
+                    if (source && !source.isEmpty)
                         _super.prototype.setupBrush.call(this, ctx, bounds);
                 };
                 ImageBrush.prototype.GetTileExtents = function () {
@@ -25919,22 +25998,31 @@ var Fayde;
                 };
                 ImageBrush.prototype.DrawTile = function (canvasCtx, bounds) {
                     var source = this.ImageSource;
-                    canvasCtx.rect(0, 0, source.pixelWidth, source.pixelHeight);
-                    canvasCtx.fillStyle = canvasCtx.createPattern(source.image, "no-repeat");
+                    canvasCtx.fillStyle = source.createPattern(canvasCtx);
                     canvasCtx.fill();
                 };
                 ImageBrush.prototype._ImageSourceChanged = function (args) {
-                    var oldSrc;
-                    if ((oldSrc = args.OldValue) && (oldSrc instanceof Imaging.BitmapSource))
-                        oldSrc.Unlisten(this);
-                    var newSrc;
-                    if ((newSrc = args.NewValue) && (newSrc instanceof Imaging.BitmapSource))
-                        newSrc.Listen(this);
+                    var _this = this;
+                    if (this.$watcher) {
+                        this.$watcher.dispose();
+                        this.$watcher = null;
+                    }
+                    if (args.NewValue instanceof Imaging.BitmapSource) {
+                        this.$watcher = args.NewValue.watch({
+                            onErrored: function (source, error) { return _this.OnImageErrored(source, error); },
+                            onLoaded: function (source) { return _this.OnImageLoaded(source); },
+                            onChanged: function (source) { return _this.OnImageChanged(source); }
+                        });
+                    }
                     this.InvalidateBrush();
                 };
-                ImageBrush.prototype.OnImageErrored = function (source, e) { this.ImageFailed.raise(this, null); };
-                ImageBrush.prototype.OnImageLoaded = function (source, e) { this.ImageOpened.raise(this, null); };
-                ImageBrush.prototype.ImageChanged = function (source) {
+                ImageBrush.prototype.OnImageErrored = function (source, error) {
+                    this.ImageFailed.raise(this, null);
+                };
+                ImageBrush.prototype.OnImageLoaded = function (source) {
+                    this.ImageOpened.raise(this, null);
+                };
+                ImageBrush.prototype.OnImageChanged = function (source) {
                     this.InvalidateBrush();
                 };
                 ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return Imaging.ImageSource; }, ImageBrush, undefined, function (d, args) { return d._ImageSourceChanged(args); }, ImageBrush._SourceCoercer);
@@ -26711,6 +26799,125 @@ var Fayde;
             Fayde.Markup.Content(VisualTransition, VisualTransition.StoryboardProperty);
             Fayde.CoreLibrary.add(VisualTransition);
         })(VSM = Media.VSM || (Media.VSM = {}));
+    })(Media = Fayde.Media || (Fayde.Media = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="../Imaging/ImageSource" />
+var Fayde;
+(function (Fayde) {
+    var Media;
+    (function (Media) {
+        var Videos;
+        (function (Videos) {
+            var VideoSourceBase = (function (_super) {
+                __extends(VideoSourceBase, _super);
+                function VideoSourceBase() {
+                    _super.apply(this, arguments);
+                    this.$watchers = [];
+                    this.$autoplay = true;
+                }
+                VideoSourceBase.prototype.createElement = function () {
+                    return document.createElement("video");
+                };
+                VideoSourceBase.prototype.reset = function () {
+                    var _this = this;
+                    _super.prototype.reset.call(this);
+                    this.setAutoPlay(this.$autoplay);
+                    this.$element.onerror = function (e) { return _this.onVideoErrored(e); };
+                    this.$element.oncanplay = function (e) { return _this.onVideoCanPlay(); };
+                    this.onVideoChanged();
+                };
+                VideoSourceBase.prototype.watch = function (watcher) {
+                    var watchers = this.$watchers;
+                    watchers.push(watcher);
+                    return {
+                        dispose: function () {
+                            var index = watchers.indexOf(watcher);
+                            if (index > -1)
+                                watchers.splice(index, 1);
+                        }
+                    };
+                };
+                VideoSourceBase.prototype.setAutoPlay = function (value) {
+                    this.$autoplay = value;
+                    if (!value)
+                        this.$element.removeAttribute("autoplay");
+                    else
+                        this.$element.setAttribute("autoplay", "autoplay");
+                };
+                VideoSourceBase.prototype.getIsPlaying = function () {
+                    var video = this.$element;
+                    return !!video && !video.paused && !video.ended;
+                };
+                VideoSourceBase.prototype.Play = function () {
+                    this.$element.play();
+                };
+                VideoSourceBase.prototype.Pause = function () {
+                    this.$element.pause();
+                };
+                VideoSourceBase.prototype.onVideoErrored = function (e) {
+                    console.info("Failed to load: " + this.$element.src.toString());
+                    for (var i = 0, watchers = this.$watchers; i < watchers.length; i++) {
+                        watchers[i].onErrored(this, e.error);
+                    }
+                };
+                VideoSourceBase.prototype.onVideoCanPlay = function () {
+                    this.setMetrics(this.$element.videoWidth, this.$element.videoHeight);
+                    for (var i = 0, watchers = this.$watchers; i < watchers.length; i++) {
+                        watchers[i].onCanPlay(this);
+                    }
+                };
+                VideoSourceBase.prototype.onVideoChanged = function () {
+                    for (var i = 0, watchers = this.$watchers; i < watchers.length; i++) {
+                        watchers[i].onChanged(this);
+                    }
+                };
+                return VideoSourceBase;
+            })(Media.Imaging.ImageSource);
+            Videos.VideoSourceBase = VideoSourceBase;
+            Fayde.CoreLibrary.add(VideoSourceBase);
+        })(Videos = Media.Videos || (Media.Videos = {}));
+    })(Media = Fayde.Media || (Fayde.Media = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="VideoSourceBase.ts"/>
+var Fayde;
+(function (Fayde) {
+    var Media;
+    (function (Media) {
+        var Videos;
+        (function (Videos) {
+            var VideoSource = (function (_super) {
+                __extends(VideoSource, _super);
+                function VideoSource(uri) {
+                    _super.call(this);
+                    this.VideoFailed = new nullstone.Event();
+                    this.VideoOpened = new nullstone.Event();
+                    if (uri)
+                        this.UriSource = uri;
+                }
+                VideoSource.prototype._UriSourceChanged = function (args) {
+                    var uri = args.NewValue;
+                    if (Fayde.Uri.isNullOrEmpty(uri))
+                        this.reset();
+                    else
+                        this.OnUriSourceChanged(args.OldValue, uri);
+                };
+                VideoSource.prototype.OnUriSourceChanged = function (oldValue, newValue) {
+                    if (!this.$element || !newValue)
+                        this.reset();
+                    this.$element.src = Fayde.TypeManager.resolveResource(newValue);
+                    this.$element.load();
+                    this.onVideoChanged();
+                };
+                VideoSource.prototype.onVideoErrored = function (e) {
+                    _super.prototype.onVideoErrored.call(this, e);
+                    this.VideoFailed.raise(this, null);
+                };
+                VideoSource.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Fayde.Uri; }, VideoSource, undefined, function (bi, args) { return bi._UriSourceChanged(args); }, undefined, true);
+                return VideoSource;
+            })(Videos.VideoSourceBase);
+            Videos.VideoSource = VideoSource;
+            Fayde.CoreLibrary.add(VideoSource);
+        })(Videos = Media.Videos || (Media.Videos = {}));
     })(Media = Fayde.Media || (Fayde.Media = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;

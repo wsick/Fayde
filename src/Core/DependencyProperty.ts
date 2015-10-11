@@ -1,3 +1,5 @@
+/// <reference path="Providers/ImmutableStore.ts" />
+
 interface IOutIsValid {
     IsValid: boolean;
 }

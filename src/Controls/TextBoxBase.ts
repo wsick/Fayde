@@ -1,5 +1,6 @@
 /// <reference path="Control.ts" />
 /// <reference path="../Input/KeyEventArgs.ts" />
+/// <reference path="Enums.ts"/>
 
 module Fayde.Controls {
     var Key = Input.Key;
@@ -12,6 +13,7 @@ module Fayde.Controls {
         static SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
         static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBoxBase);
         static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBoxBase, 0, undefined, undefined, undefined, positiveIntValidator);
+
         CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;

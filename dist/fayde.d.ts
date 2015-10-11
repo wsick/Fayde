@@ -209,48 +209,6 @@ declare module Fayde {
         IsInheritable(propd: DependencyProperty): boolean;
     }
 }
-interface IOutIsValid {
-    IsValid: boolean;
-}
-interface IType {
-}
-declare class DependencyProperty {
-    static UnsetValue: {};
-    private static _IDs;
-    private static _LastID;
-    _ID: number;
-    Name: string;
-    GetTargetType: () => IType;
-    OwnerType: any;
-    DefaultValue: any;
-    IsReadOnly: boolean;
-    IsCustom: boolean;
-    IsAttached: boolean;
-    IsInheritable: boolean;
-    IsImmutable: boolean;
-    ChangedCallback: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void;
-    AlwaysChange: boolean;
-    Store: Fayde.Providers.PropertyStore;
-    private _Coercer;
-    private _Validator;
-    static Register(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterReadOnly(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterAttached(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterReadOnlyCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterAttachedCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterImmutable<T>(name: string, getTargetType: () => IType, ownerType: any): ImmutableDependencyProperty<T>;
-    static RegisterInheritable(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterFull(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: boolean, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => boolean, isCustom?: boolean, isReadOnly?: boolean, isAttached?: boolean): DependencyProperty;
-    private FinishRegister();
-    ExtendTo(type: any): DependencyProperty;
-    ValidateSetValue(dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid): any;
-    static GetDependencyProperty(ownerType: any, name: string, noError?: boolean): DependencyProperty;
-}
-declare class ImmutableDependencyProperty<T> extends DependencyProperty {
-    IsImmutable: boolean;
-    Initialize(dobj: Fayde.DependencyObject): T;
-}
 declare module Fayde.Providers {
     enum PropertyPrecedence {
         IsEnabled = 0,
@@ -296,6 +254,59 @@ declare module Fayde.Providers {
         CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IPropertyStorage;
         Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
     }
+}
+declare module Fayde.Providers {
+    class ImmutableStore extends PropertyStore {
+        static Instance: ImmutableStore;
+        GetValue(storage: IPropertyStorage): any;
+        GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
+        SetLocalValue(storage: Providers.IPropertyStorage, newValue: any): void;
+        ClearValue(storage: Providers.IPropertyStorage): void;
+        ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void, closure: any): Providers.IPropertyChangedListener;
+        Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
+    }
+}
+interface IOutIsValid {
+    IsValid: boolean;
+}
+interface IType {
+}
+declare class DependencyProperty {
+    static UnsetValue: {};
+    private static _IDs;
+    private static _LastID;
+    _ID: number;
+    Name: string;
+    GetTargetType: () => IType;
+    OwnerType: any;
+    DefaultValue: any;
+    IsReadOnly: boolean;
+    IsCustom: boolean;
+    IsAttached: boolean;
+    IsInheritable: boolean;
+    IsImmutable: boolean;
+    ChangedCallback: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void;
+    AlwaysChange: boolean;
+    Store: Fayde.Providers.PropertyStore;
+    private _Coercer;
+    private _Validator;
+    static Register(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterReadOnly(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterAttached(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterReadOnlyCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterAttachedCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterImmutable<T>(name: string, getTargetType: () => IType, ownerType: any): ImmutableDependencyProperty<T>;
+    static RegisterInheritable(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterFull(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: boolean, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => boolean, isCustom?: boolean, isReadOnly?: boolean, isAttached?: boolean): DependencyProperty;
+    private FinishRegister();
+    ExtendTo(type: any): DependencyProperty;
+    ValidateSetValue(dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid): any;
+    static GetDependencyProperty(ownerType: any, name: string, noError?: boolean): DependencyProperty;
+}
+declare class ImmutableDependencyProperty<T> extends DependencyProperty {
+    IsImmutable: boolean;
+    Initialize(dobj: Fayde.DependencyObject): T;
 }
 declare module Fayde.Providers {
     interface IDataContextStorage extends IPropertyStorage {
@@ -1013,17 +1024,6 @@ declare module Fayde {
         _RaiseCleared(old: T[]): void;
         CloneCore(source: XamlObjectCollection<T>): void;
         ToArray(): T[];
-    }
-}
-declare module Fayde.Providers {
-    class ImmutableStore extends PropertyStore {
-        static Instance: ImmutableStore;
-        GetValue(storage: IPropertyStorage): any;
-        GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
-        SetLocalValue(storage: Providers.IPropertyStorage, newValue: any): void;
-        ClearValue(storage: Providers.IPropertyStorage): void;
-        ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void, closure: any): Providers.IPropertyChangedListener;
-        Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
     }
 }
 declare module Fayde.Controls {
@@ -1763,7 +1763,7 @@ declare module Fayde.Media {
 }
 declare module Fayde.Controls {
     import ImageUpdater = minerva.controls.image.ImageUpdater;
-    class Image extends FrameworkElement implements Media.Imaging.IImageChangedListener {
+    class Image extends FrameworkElement {
         CreateLayoutUpdater(): ImageUpdater;
         private static _SourceCoercer(d, propd, value);
         static SourceProperty: DependencyProperty;
@@ -1772,9 +1772,11 @@ declare module Fayde.Controls {
         Stretch: Media.Stretch;
         ImageOpened: nullstone.Event<{}>;
         ImageFailed: nullstone.Event<{}>;
-        OnImageErrored(source: Media.Imaging.BitmapSource, e: Event): void;
-        OnImageLoaded(source: Media.Imaging.BitmapSource, e: Event): void;
-        ImageChanged(source: Media.Imaging.BitmapSource): void;
+        private $watcher;
+        OnImageErrored(source: Media.Imaging.BitmapSource, error: Error): void;
+        OnImageLoaded(source: Media.Imaging.BitmapSource): void;
+        OnImageChanged(source: Media.Imaging.BitmapSource): void;
+        OnSourceChanged(oldSource: Media.Imaging.ImageSource, newSource: Media.Imaging.ImageSource): void;
     }
 }
 declare module Fayde.Controls {
@@ -1861,7 +1863,26 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
+    import VideoUpdater = minerva.controls.video.VideoUpdater;
     class MediaElement extends FrameworkElement {
+        CreateLayoutUpdater(): VideoUpdater;
+        private static _SourceCoercer(d, propd, value);
+        static AutoPlayProperty: DependencyProperty;
+        static SourceProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        AutoPlay: boolean;
+        Source: Media.Videos.VideoSource;
+        Stretch: Media.Stretch;
+        VideoOpened: nullstone.Event<{}>;
+        VideoFailed: nullstone.Event<{}>;
+        private $watcher;
+        protected OnAutoPlayChanged(oldValue: boolean, newValue: boolean): void;
+        OnSourceChanged(oldSource: Media.Videos.VideoSourceBase, newSource: Media.Videos.VideoSourceBase): void;
+        OnVideoErrored(source: Media.Videos.VideoSourceBase, error: Error): void;
+        OnVideoCanPlay(source: Media.Videos.VideoSourceBase): void;
+        OnVideoChanged(source: Media.Videos.VideoSourceBase): void;
+        Play(): void;
+        Pause(): void;
     }
 }
 declare module Fayde {
@@ -5680,35 +5701,37 @@ declare module Fayde.Media.Effects {
 }
 declare module Fayde.Media.Imaging {
     class ImageSource extends DependencyObject implements minerva.controls.image.IImageSource {
-        pixelWidth: number;
-        pixelHeight: number;
-        lock(): void;
-        unlock(): void;
-        image: HTMLImageElement;
-    }
-}
-declare module Fayde.Media.Imaging {
-    interface IImageChangedListener {
-        OnImageErrored(source: BitmapSource, e: Event): any;
-        OnImageLoaded(source: BitmapSource, e: Event): any;
-        ImageChanged(source: BitmapSource): any;
-    }
-    class BitmapSource extends ImageSource {
         static PixelWidthProperty: DependencyProperty;
         static PixelHeightProperty: DependencyProperty;
         PixelWidth: number;
         PixelHeight: number;
-        private _Listener;
-        private _Image;
+        protected $element: HTMLMediaElement | HTMLImageElement;
+        constructor();
         pixelWidth: number;
         pixelHeight: number;
-        image: HTMLImageElement;
-        ResetImage(): void;
-        UriSourceChanged(oldValue: Uri, newValue: Uri): void;
-        Listen(listener: IImageChangedListener): void;
-        Unlisten(listener: IImageChangedListener): void;
-        _OnErrored(e: Event): void;
-        _OnLoad(e: Event): void;
+        isEmpty: boolean;
+        draw(ctx: CanvasRenderingContext2D): void;
+        createPattern(ctx: CanvasRenderingContext2D): CanvasPattern;
+        reset(): void;
+        createElement(): HTMLMediaElement | HTMLImageElement;
+        protected setMetrics(pixelWidth: number, pixelHeight: number): void;
+    }
+}
+declare module Fayde.Media.Imaging {
+    interface IBitmapSourceWatcher {
+        onErrored(source: BitmapSource, error: Error): any;
+        onLoaded(source: BitmapSource): any;
+        onChanged(source: BitmapSource): any;
+    }
+    class BitmapSource extends ImageSource {
+        protected $element: HTMLImageElement;
+        private $watchers;
+        createElement(): HTMLMediaElement | HTMLImageElement;
+        reset(): void;
+        watch(watcher: IBitmapSourceWatcher): nullstone.IDisposable;
+        protected onImageLoaded(): void;
+        protected onImageErrored(e: ErrorEvent): void;
+        protected onImageChanged(): void;
     }
 }
 declare module Fayde.Media.Imaging {
@@ -5719,26 +5742,27 @@ declare module Fayde.Media.Imaging {
         ImageOpened: nullstone.Event<{}>;
         private _BackingBuffer;
         constructor(uri?: Uri);
-        private _UriSourceChanged(args);
-        _OnErrored(e: Event): void;
-        _OnLoad(e: Event): void;
+        protected OnUriSourceChanged(oldValue: Uri, newValue: Uri): void;
+        protected onImageErrored(e: ErrorEvent): void;
+        protected onImageLoaded(): void;
         SetSource(buffer: ArrayBuffer): void;
     }
 }
 declare module Fayde.Media.Imaging {
-    class ImageBrush extends TileBrush implements IImageChangedListener {
+    class ImageBrush extends TileBrush {
         private static _SourceCoercer(d, propd, value);
         static ImageSourceProperty: DependencyProperty;
         ImageSource: ImageSource;
         ImageFailed: nullstone.Event<{}>;
         ImageOpened: nullstone.Event<{}>;
+        private $watcher;
         setupBrush(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
         GetTileExtents(): minerva.Rect;
         DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
         private _ImageSourceChanged(args);
-        OnImageErrored(source: BitmapSource, e: Event): void;
-        OnImageLoaded(source: BitmapSource, e: Event): void;
-        ImageChanged(source: BitmapSource): void;
+        OnImageErrored(source: BitmapSource, error: Error): void;
+        OnImageLoaded(source: BitmapSource): void;
+        OnImageChanged(source: BitmapSource): void;
     }
 }
 declare module Fayde.Media.Imaging {
@@ -5863,6 +5887,40 @@ declare module Fayde.Media.VSM {
         ExplicitStoryboardCompleted: boolean;
         GeneratedEasingFunction: Animation.EasingFunctionBase;
         IsDefault: boolean;
+    }
+}
+declare module Fayde.Media.Videos {
+    interface IVideoSourceWatcher {
+        onErrored(source: VideoSourceBase, error: Error): any;
+        onCanPlay(source: VideoSourceBase): any;
+        onChanged(source: VideoSourceBase): any;
+    }
+    class VideoSourceBase extends Imaging.ImageSource implements minerva.controls.video.IVideoSource {
+        protected $element: HTMLVideoElement;
+        private $watchers;
+        private $autoplay;
+        createElement(): HTMLVideoElement;
+        reset(): void;
+        watch(watcher: IVideoSourceWatcher): nullstone.IDisposable;
+        setAutoPlay(value: boolean): void;
+        getIsPlaying(): boolean;
+        Play(): void;
+        Pause(): void;
+        protected onVideoErrored(e: ErrorEvent): void;
+        protected onVideoCanPlay(): void;
+        protected onVideoChanged(): void;
+    }
+}
+declare module Fayde.Media.Videos {
+    class VideoSource extends VideoSourceBase {
+        static UriSourceProperty: DependencyProperty;
+        UriSource: Uri;
+        VideoFailed: nullstone.Event<{}>;
+        VideoOpened: nullstone.Event<{}>;
+        constructor(uri?: Uri);
+        private _UriSourceChanged(args);
+        protected OnUriSourceChanged(oldValue: Uri, newValue: Uri): void;
+        protected onVideoErrored(e: ErrorEvent): void;
     }
 }
 declare module Fayde.Text.History {
