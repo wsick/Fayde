@@ -10,8 +10,8 @@ module Fayde.Clipboard {
         ((style: CSSStyleDeclaration) => {
             style.opacity = "0.0";
             style.position = "absolute";
-            style.left = "0";
-            style.top = "0";
+            style.left = "-300px";
+            //style.top = "-150px";
         })(div.style);
         document.body.appendChild(div);
         div.contentEditable = "true";

@@ -229,6 +229,13 @@ module Fayde.Controls {
                                 proxy.removeText(this.$Proxy.selAnchor, this.$Proxy.selCursor);
                                 handled = true;
                                 break;
+                            case Key.V:
+                                //Ctrl+V => Paste
+                                if (isReadOnly)
+                                    break;
+                                this.$Clipboard.GetTextContents((text) => proxy.paste(text));
+                                handled = true;
+                                break;
                             case Key.Y:
                                 //Ctrl+Y => Redo
                                 if (!isReadOnly) {
@@ -236,12 +243,6 @@ module Fayde.Controls {
                                     proxy.redo();
                                 }
                                 break;
-                                this.$Clipboard.GetTextContents((text) => {
-                                    this.$Proxy.text = text;
-                                    var cursor = proxy.selCursor;
-                                    cursor = cursor + text.length - 1;
-                                    this.$Proxy.setAnchorCursor(cursor, cursor);
-                                });
                             case Key.Z:
                                 //Ctrl+Z => Undo
                                 if (!isReadOnly) {
