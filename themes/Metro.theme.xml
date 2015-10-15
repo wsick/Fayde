@@ -707,9 +707,9 @@
                                              Minimum="0"
                                              Maximum="100"
                                              Value="80"/>
-                                
+
                                 <ProgressBar x:Name="PARTPlayProgress"
-                                             Foreground="Red" 
+                                             Foreground="Red"
                                              Minimum="0"
                                              Maximum="100"
                                              Value="30"

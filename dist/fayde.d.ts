@@ -2336,6 +2336,12 @@ declare module Fayde.Controls {
         OnItemsRemoved(index: number, oldItems: any[]): void;
     }
 }
+declare module Fayde.Controls {
+    class WebBrowser extends Controls.Control {
+        HTML: any;
+        constructor();
+    }
+}
 interface ICloneable {
     Clone(): any;
 }
@@ -2577,115 +2583,6 @@ declare module Fayde {
         static Focus(uin: UINode, forwards?: boolean): boolean;
     }
 }
-declare module Fayde.Documents {
-    interface ITextReactionCallback<T> {
-        (updater: minerva.text.TextUpdater, ov: T, nv: T, te?: TextElement): void;
-    }
-    function TextReaction<TValue>(propd: DependencyProperty, callback?: ITextReactionCallback<TValue>, listen?: boolean, sync?: any, instance?: any): void;
-}
-declare module Fayde.Documents {
-    class TextElementNode extends DONode {
-        XObject: TextElement;
-        constructor(xobj: TextElement, inheritedWalkProperty: string);
-        InheritedWalkProperty: string;
-        GetInheritedEnumerator(): nullstone.IEnumerator<DONode>;
-    }
-    class TextElement extends DependencyObject implements Providers.IIsPropertyInheritable {
-        XamlNode: TextElementNode;
-        TextUpdater: minerva.text.TextUpdater;
-        CreateNode(): TextElementNode;
-        constructor();
-        static FontFamilyProperty: DependencyProperty;
-        static FontSizeProperty: DependencyProperty;
-        static FontStretchProperty: DependencyProperty;
-        static FontStyleProperty: DependencyProperty;
-        static FontWeightProperty: DependencyProperty;
-        static ForegroundProperty: DependencyProperty;
-        static LanguageProperty: DependencyProperty;
-        Foreground: Media.Brush;
-        FontFamily: string;
-        FontStretch: string;
-        FontStyle: string;
-        FontWeight: FontWeight;
-        FontSize: number;
-        Language: string;
-        IsInheritable(propd: DependencyProperty): boolean;
-        _SerializeText(): string;
-        Start: number;
-        Equals(te: TextElement): boolean;
-    }
-}
-declare module Fayde.Documents {
-    class Block extends TextElement {
-    }
-}
-declare module Fayde.Documents {
-    class BlockCollection extends XamlObjectCollection<Block> {
-        _RaiseItemAdded(value: Block, index: number): void;
-        _RaiseItemRemoved(value: Block, index: number): void;
-    }
-}
-declare module Fayde.Documents {
-    class Inline extends TextElement {
-        static TextDecorationsProperty: DependencyProperty;
-        TextDecorations: TextDecorations;
-        constructor();
-        Equals(inline: Inline): boolean;
-        IsInheritable(propd: DependencyProperty): boolean;
-    }
-}
-declare module Fayde.Documents {
-    class InlineCollection extends XamlObjectCollection<Inline> {
-        _RaiseItemAdded(value: Inline, index: number): void;
-        _RaiseItemRemoved(value: Inline, index: number): void;
-    }
-}
-declare module Fayde.Documents {
-    class LineBreak extends Inline {
-    }
-}
-declare module Fayde.Documents {
-    class Paragraph extends Block {
-        CreateNode(): TextElementNode;
-        static InlinesProperty: ImmutableDependencyProperty<InlineCollection>;
-        Inlines: InlineCollection;
-        constructor();
-        InlinesChanged(inline: Inline, isAdd: boolean): void;
-    }
-}
-declare module Fayde.Documents {
-    class Run extends Inline implements Providers.IIsPropertyInheritable {
-        static FlowDirectionProperty: DependencyProperty;
-        static TextProperty: DependencyProperty;
-        FlowDirection: FlowDirection;
-        Text: string;
-        _SerializeText(): string;
-        IsInheritable(propd: DependencyProperty): boolean;
-    }
-}
-declare module Fayde.Documents {
-    class Section extends TextElement {
-        CreateNode(): TextElementNode;
-        static BlocksProperty: ImmutableDependencyProperty<BlockCollection>;
-        Blocks: BlockCollection;
-        constructor();
-        BlocksChanged(block: Block, isAdd: boolean): void;
-    }
-}
-declare module Fayde.Documents {
-    class Span extends Inline {
-        CreateNode(): TextElementNode;
-        static InlinesProperty: ImmutableDependencyProperty<InlineCollection>;
-        Inlines: InlineCollection;
-        constructor();
-        _SerializeText(): string;
-        InlinesChanged(inline: Inline, isAdd: boolean): void;
-    }
-}
-declare module Fayde.Documents {
-    class Underline extends Span {
-    }
-}
 declare module Fayde.Data {
     var WarnBrokenPath: boolean;
     class Binding implements nullstone.markup.IMarkupExtension, ICloneable {
@@ -2814,221 +2711,114 @@ declare module Fayde.Data {
         Find(target: XamlObject): XamlObject;
     }
 }
-interface ITimeline {
-    Update(nowTime: number): any;
+declare module Fayde.Documents {
+    interface ITextReactionCallback<T> {
+        (updater: minerva.text.TextUpdater, ov: T, nv: T, te?: TextElement): void;
+    }
+    function TextReaction<TValue>(propd: DependencyProperty, callback?: ITextReactionCallback<TValue>, listen?: boolean, sync?: any, instance?: any): void;
 }
-declare module Fayde {
-    class Application extends DependencyObject implements IResourcable, ITimerListener {
-        static Current: Application;
-        MainSurface: Surface;
-        Loaded: nullstone.Event<{}>;
-        Address: Uri;
-        AllowNavigation: boolean;
-        private _IsRunning;
-        private _IsLoaded;
-        private _Storyboards;
-        private _ClockTimer;
-        private _RootVisual;
-        static ResourcesProperty: ImmutableDependencyProperty<ResourceDictionary>;
-        static ThemeNameProperty: DependencyProperty;
-        Resources: ResourceDictionary;
-        ThemeName: string;
-        private OnThemeNameChanged(args);
-        private _ApplyTheme();
-        Resized: RoutedEvent<SizeChangedEventArgs>;
-        OnResized(oldSize: minerva.Size, newSize: minerva.Size): void;
+declare module Fayde.Documents {
+    class TextElementNode extends DONode {
+        XObject: TextElement;
+        constructor(xobj: TextElement, inheritedWalkProperty: string);
+        InheritedWalkProperty: string;
+        GetInheritedEnumerator(): nullstone.IEnumerator<DONode>;
+    }
+    class TextElement extends DependencyObject implements Providers.IIsPropertyInheritable {
+        XamlNode: TextElementNode;
+        TextUpdater: minerva.text.TextUpdater;
+        CreateNode(): TextElementNode;
         constructor();
-        RootVisual: UIElement;
-        $$SetRootVisual(value: UIElement): void;
-        Attach(canvas: HTMLCanvasElement): void;
-        Start(): void;
-        OnTicked(lastTime: number, nowTime: number): void;
-        private StopEngine();
-        private ProcessStoryboards(lastTime, nowTime);
-        private Update();
-        private Render();
-        RegisterStoryboard(storyboard: ITimeline): void;
-        UnregisterStoryboard(storyboard: ITimeline): void;
-        static GetAsync(url: string): nullstone.async.IAsyncRequest<Application>;
-        Resolve(): nullstone.async.IAsyncRequest<Application>;
+        static FontFamilyProperty: DependencyProperty;
+        static FontSizeProperty: DependencyProperty;
+        static FontStretchProperty: DependencyProperty;
+        static FontStyleProperty: DependencyProperty;
+        static FontWeightProperty: DependencyProperty;
+        static ForegroundProperty: DependencyProperty;
+        static LanguageProperty: DependencyProperty;
+        Foreground: Media.Brush;
+        FontFamily: string;
+        FontStretch: string;
+        FontStyle: string;
+        FontWeight: FontWeight;
+        FontSize: number;
+        Language: string;
+        IsInheritable(propd: DependencyProperty): boolean;
+        _SerializeText(): string;
+        Start: number;
+        Equals(te: TextElement): boolean;
     }
 }
-declare module Fayde {
-    interface ITimerListener {
-        OnTicked(lastTime: number, nowTime: number): any;
-    }
-    class ClockTimer {
-        private _Listeners;
-        private _LastTime;
-        RegisterTimer(listener: Fayde.ITimerListener): void;
-        UnregisterTimer(listener: Fayde.ITimerListener): void;
-        private _DoTick();
-        private _RequestAnimationTick();
+declare module Fayde.Documents {
+    class Block extends TextElement {
     }
 }
-declare class Exception {
-    Message: string;
-    constructor(message: string);
-    toString(): string;
-}
-declare class ArgumentException extends Exception {
-    constructor(message: string);
-}
-declare class ArgumentNullException extends Exception {
-    constructor(message: string);
-}
-declare class InvalidOperationException extends Exception {
-    constructor(message: string);
-}
-declare class XamlParseException extends Exception {
-    constructor(message: string);
-}
-declare class XamlMarkupParseException extends Exception {
-    constructor(message: string);
-}
-declare class NotSupportedException extends Exception {
-    constructor(message: string);
-}
-declare class IndexOutOfRangeException extends Exception {
-    constructor(index: number);
-}
-declare class ArgumentOutOfRangeException extends Exception {
-    constructor(msg: string);
-}
-declare class AttachException extends Exception {
-    Data: any;
-    constructor(message: string, data: any);
-}
-declare class InvalidJsonException extends Exception {
-    JsonText: string;
-    InnerException: Error;
-    constructor(jsonText: string, innerException: Error);
-}
-declare class TargetInvocationException extends Exception {
-    InnerException: Exception;
-    constructor(message: string, innerException: Exception);
-}
-declare class UnknownTypeException extends Exception {
-    FullTypeName: string;
-    constructor(fullTypeName: string);
-}
-declare class FormatException extends Exception {
-    constructor(message: string);
-}
-declare module Fayde.Engine {
-    class FocusManager {
-        private _State;
-        private _ChangedEvents;
-        Node: UINode;
-        constructor(state: IInputState);
-        GetFocusToRoot(): UINode[];
-        OnNodeDetached(node: UINode): void;
-        TabFocus(isShift: boolean): boolean;
-        Focus(ctrlNode: Fayde.Controls.ControlNode, recurse?: boolean): boolean;
-        private _FocusNode(uin?);
-        EmitChanges(): void;
-        EmitChangesAsync(): void;
-        private _EmitFocusList(type, list);
-        FocusAnyLayer(walker: minerva.IWalker<minerva.core.Updater>): void;
+declare module Fayde.Documents {
+    class BlockCollection extends XamlObjectCollection<Block> {
+        _RaiseItemAdded(value: Block, index: number): void;
+        _RaiseItemRemoved(value: Block, index: number): void;
     }
 }
-declare module Fayde.Engine {
-    interface IInputState {
-        IsUserInitiated: boolean;
-        IsFirstUserInitiated: boolean;
-    }
-    class InputManager {
-        private _Surface;
-        private _KeyInterop;
-        private _MouseInterop;
-        private _TouchInterop;
-        private _Focus;
-        private _State;
-        private _Cursor;
-        SetCursor: (cursor: CursorType) => void;
-        private _CurrentPos;
-        private _EmittingMouseEvent;
-        private _InputList;
-        private _Captured;
-        private _PendingCapture;
-        private _PendingReleaseCapture;
-        private _CapturedInputList;
-        FocusedNode: UINode;
-        Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
-        constructor(surface: Surface);
-        Register(canvas: HTMLCanvasElement): void;
-        OnNodeDetached(node: UINode): void;
-        SetIsUserInitiatedEvent(value: boolean): void;
-        HandleKeyDown(args: Input.KeyEventArgs): void;
-        private _EmitKeyDown(list, args, endIndex?);
-        HandleMousePress(button: number, pos: Point): boolean;
-        HandleMouseRelease(button: number, pos: Point): void;
-        HandleMouseEvent(type: Input.MouseInputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean): boolean;
-        private _EmitMouseList(type, button, pos, delta, list, endIndex?);
-        HitTestPoint(pos: Point): UINode[];
-        UpdateCursorFromInputList(): void;
-        SetMouseCapture(uin: Fayde.UINode): boolean;
-        ReleaseMouseCapture(uin: Fayde.UINode): void;
-        private _PerformCapture(uin);
-        private _PerformReleaseCapture();
+declare module Fayde.Documents {
+    class Inline extends TextElement {
+        static TextDecorationsProperty: DependencyProperty;
+        TextDecorations: TextDecorations;
+        constructor();
+        Equals(inline: Inline): boolean;
+        IsInheritable(propd: DependencyProperty): boolean;
     }
 }
-declare module Fayde.Engine {
-    class Inspection {
-        static TryHandle(type: Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs, htlist: UINode[]): boolean;
-        static Kill(): void;
+declare module Fayde.Documents {
+    class InlineCollection extends XamlObjectCollection<Inline> {
+        _RaiseItemAdded(value: Inline, index: number): void;
+        _RaiseItemRemoved(value: Inline, index: number): void;
     }
 }
-declare var resizeTimeout: number;
-declare module Fayde {
-    class Surface extends minerva.engine.Surface {
-        App: Application;
-        private $$root;
-        private $$inputMgr;
-        HitTestCallback: (inputList: Fayde.UINode[]) => void;
-        constructor(app: Application);
-        init(canvas: HTMLCanvasElement): void;
-        Attach(uie: UIElement, root?: boolean): void;
-        attachLayer(layer: minerva.core.Updater, root?: boolean): void;
-        Detach(uie: UIElement): void;
-        detachLayer(layer: minerva.core.Updater): void;
-        updateLayout(): boolean;
-        private $$onLayoutUpdated();
-        Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
-        static HasFocus(uie: UIElement): boolean;
-        static Focus(uie: Controls.Control, recurse?: boolean): boolean;
-        static GetFocusedElement(uie: UIElement): UIElement;
-        static RemoveFocusFrom(uie: UIElement): boolean;
-        static SetMouseCapture(uin: Fayde.UINode): boolean;
-        static ReleaseMouseCapture(uin: Fayde.UINode): void;
-        private $$handleResize(evt);
-        private $$stretchCanvas();
+declare module Fayde.Documents {
+    class LineBreak extends Inline {
     }
 }
-declare module Fayde {
-    class Theme {
-        Name: string;
-        LibraryUri: Uri;
-        Resources: ResourceDictionary;
-        static WarnMissing: boolean;
-        constructor(name: string, libUri: Uri);
-        LoadAsync(): nullstone.async.IAsyncRequest<Theme>;
-        GetImplicitStyle(type: any): Style;
+declare module Fayde.Documents {
+    class Paragraph extends Block {
+        CreateNode(): TextElementNode;
+        static InlinesProperty: ImmutableDependencyProperty<InlineCollection>;
+        Inlines: InlineCollection;
+        constructor();
+        InlinesChanged(inline: Inline, isAdd: boolean): void;
     }
 }
-declare module Fayde {
-    module ThemeConfig {
-        function GetRequestUri(uri: Uri, name: string): string;
-        function OverrideRequestUri(uri: Uri, templateUri: string): void;
-        function Set(libName: string, path: string): void;
+declare module Fayde.Documents {
+    class Run extends Inline implements Providers.IIsPropertyInheritable {
+        static FlowDirectionProperty: DependencyProperty;
+        static TextProperty: DependencyProperty;
+        FlowDirection: FlowDirection;
+        Text: string;
+        _SerializeText(): string;
+        IsInheritable(propd: DependencyProperty): boolean;
     }
 }
-declare module Fayde {
-    interface IThemeManager {
-        LoadAsync(themeName: string): nullstone.async.IAsyncRequest<any>;
-        FindStyle(defaultStyleKey: any): Style;
+declare module Fayde.Documents {
+    class Section extends TextElement {
+        CreateNode(): TextElementNode;
+        static BlocksProperty: ImmutableDependencyProperty<BlockCollection>;
+        Blocks: BlockCollection;
+        constructor();
+        BlocksChanged(block: Block, isAdd: boolean): void;
     }
-    var ThemeManager: IThemeManager;
+}
+declare module Fayde.Documents {
+    class Span extends Inline {
+        CreateNode(): TextElementNode;
+        static InlinesProperty: ImmutableDependencyProperty<InlineCollection>;
+        Inlines: InlineCollection;
+        constructor();
+        _SerializeText(): string;
+        InlinesChanged(inline: Inline, isAdd: boolean): void;
+    }
+}
+declare module Fayde.Documents {
+    class Underline extends Span {
+    }
 }
 declare module Fayde {
     class Expression {
@@ -3263,6 +3053,222 @@ declare module Fayde.Input {
         static Init(): void;
         static Launch(): void;
     }
+}
+interface ITimeline {
+    Update(nowTime: number): any;
+}
+declare module Fayde {
+    class Application extends DependencyObject implements IResourcable, ITimerListener {
+        static Current: Application;
+        MainSurface: Surface;
+        Loaded: nullstone.Event<{}>;
+        Address: Uri;
+        AllowNavigation: boolean;
+        private _IsRunning;
+        private _IsLoaded;
+        private _Storyboards;
+        private _ClockTimer;
+        private _RootVisual;
+        static ResourcesProperty: ImmutableDependencyProperty<ResourceDictionary>;
+        static ThemeNameProperty: DependencyProperty;
+        Resources: ResourceDictionary;
+        ThemeName: string;
+        private OnThemeNameChanged(args);
+        private _ApplyTheme();
+        Resized: RoutedEvent<SizeChangedEventArgs>;
+        OnResized(oldSize: minerva.Size, newSize: minerva.Size): void;
+        constructor();
+        RootVisual: UIElement;
+        $$SetRootVisual(value: UIElement): void;
+        Attach(canvas: HTMLCanvasElement): void;
+        Start(): void;
+        OnTicked(lastTime: number, nowTime: number): void;
+        private StopEngine();
+        private ProcessStoryboards(lastTime, nowTime);
+        private Update();
+        private Render();
+        RegisterStoryboard(storyboard: ITimeline): void;
+        UnregisterStoryboard(storyboard: ITimeline): void;
+        static GetAsync(url: string): nullstone.async.IAsyncRequest<Application>;
+        Resolve(): nullstone.async.IAsyncRequest<Application>;
+    }
+}
+declare module Fayde {
+    interface ITimerListener {
+        OnTicked(lastTime: number, nowTime: number): any;
+    }
+    class ClockTimer {
+        private _Listeners;
+        private _LastTime;
+        RegisterTimer(listener: Fayde.ITimerListener): void;
+        UnregisterTimer(listener: Fayde.ITimerListener): void;
+        private _DoTick();
+        private _RequestAnimationTick();
+    }
+}
+declare class Exception {
+    Message: string;
+    constructor(message: string);
+    toString(): string;
+}
+declare class ArgumentException extends Exception {
+    constructor(message: string);
+}
+declare class ArgumentNullException extends Exception {
+    constructor(message: string);
+}
+declare class InvalidOperationException extends Exception {
+    constructor(message: string);
+}
+declare class XamlParseException extends Exception {
+    constructor(message: string);
+}
+declare class XamlMarkupParseException extends Exception {
+    constructor(message: string);
+}
+declare class NotSupportedException extends Exception {
+    constructor(message: string);
+}
+declare class IndexOutOfRangeException extends Exception {
+    constructor(index: number);
+}
+declare class ArgumentOutOfRangeException extends Exception {
+    constructor(msg: string);
+}
+declare class AttachException extends Exception {
+    Data: any;
+    constructor(message: string, data: any);
+}
+declare class InvalidJsonException extends Exception {
+    JsonText: string;
+    InnerException: Error;
+    constructor(jsonText: string, innerException: Error);
+}
+declare class TargetInvocationException extends Exception {
+    InnerException: Exception;
+    constructor(message: string, innerException: Exception);
+}
+declare class UnknownTypeException extends Exception {
+    FullTypeName: string;
+    constructor(fullTypeName: string);
+}
+declare class FormatException extends Exception {
+    constructor(message: string);
+}
+declare module Fayde.Engine {
+    class FocusManager {
+        private _State;
+        private _ChangedEvents;
+        Node: UINode;
+        constructor(state: IInputState);
+        GetFocusToRoot(): UINode[];
+        OnNodeDetached(node: UINode): void;
+        TabFocus(isShift: boolean): boolean;
+        Focus(ctrlNode: Fayde.Controls.ControlNode, recurse?: boolean): boolean;
+        private _FocusNode(uin?);
+        EmitChanges(): void;
+        EmitChangesAsync(): void;
+        private _EmitFocusList(type, list);
+        FocusAnyLayer(walker: minerva.IWalker<minerva.core.Updater>): void;
+    }
+}
+declare module Fayde.Engine {
+    interface IInputState {
+        IsUserInitiated: boolean;
+        IsFirstUserInitiated: boolean;
+    }
+    class InputManager {
+        private _Surface;
+        private _KeyInterop;
+        private _MouseInterop;
+        private _TouchInterop;
+        private _Focus;
+        private _State;
+        private _Cursor;
+        SetCursor: (cursor: CursorType) => void;
+        private _CurrentPos;
+        private _EmittingMouseEvent;
+        private _InputList;
+        private _Captured;
+        private _PendingCapture;
+        private _PendingReleaseCapture;
+        private _CapturedInputList;
+        FocusedNode: UINode;
+        Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
+        constructor(surface: Surface);
+        Register(canvas: HTMLCanvasElement): void;
+        OnNodeDetached(node: UINode): void;
+        SetIsUserInitiatedEvent(value: boolean): void;
+        HandleKeyDown(args: Input.KeyEventArgs): void;
+        private _EmitKeyDown(list, args, endIndex?);
+        HandleMousePress(button: number, pos: Point): boolean;
+        HandleMouseRelease(button: number, pos: Point): void;
+        HandleMouseEvent(type: Input.MouseInputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean): boolean;
+        private _EmitMouseList(type, button, pos, delta, list, endIndex?);
+        HitTestPoint(pos: Point): UINode[];
+        UpdateCursorFromInputList(): void;
+        SetMouseCapture(uin: Fayde.UINode): boolean;
+        ReleaseMouseCapture(uin: Fayde.UINode): void;
+        private _PerformCapture(uin);
+        private _PerformReleaseCapture();
+    }
+}
+declare module Fayde.Engine {
+    class Inspection {
+        static TryHandle(type: Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs, htlist: UINode[]): boolean;
+        static Kill(): void;
+    }
+}
+declare var resizeTimeout: number;
+declare module Fayde {
+    class Surface extends minerva.engine.Surface {
+        App: Application;
+        private $$root;
+        private $$inputMgr;
+        HitTestCallback: (inputList: Fayde.UINode[]) => void;
+        constructor(app: Application);
+        init(canvas: HTMLCanvasElement): void;
+        Attach(uie: UIElement, root?: boolean): void;
+        attachLayer(layer: minerva.core.Updater, root?: boolean): void;
+        Detach(uie: UIElement): void;
+        detachLayer(layer: minerva.core.Updater): void;
+        updateLayout(): boolean;
+        private $$onLayoutUpdated();
+        Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
+        static HasFocus(uie: UIElement): boolean;
+        static Focus(uie: Controls.Control, recurse?: boolean): boolean;
+        static GetFocusedElement(uie: UIElement): UIElement;
+        static RemoveFocusFrom(uie: UIElement): boolean;
+        static SetMouseCapture(uin: Fayde.UINode): boolean;
+        static ReleaseMouseCapture(uin: Fayde.UINode): void;
+        private $$handleResize(evt);
+        private $$stretchCanvas();
+    }
+}
+declare module Fayde {
+    class Theme {
+        Name: string;
+        LibraryUri: Uri;
+        Resources: ResourceDictionary;
+        static WarnMissing: boolean;
+        constructor(name: string, libUri: Uri);
+        LoadAsync(): nullstone.async.IAsyncRequest<Theme>;
+        GetImplicitStyle(type: any): Style;
+    }
+}
+declare module Fayde {
+    module ThemeConfig {
+        function GetRequestUri(uri: Uri, name: string): string;
+        function OverrideRequestUri(uri: Uri, templateUri: string): void;
+        function Set(libName: string, path: string): void;
+    }
+}
+declare module Fayde {
+    interface IThemeManager {
+        LoadAsync(themeName: string): nullstone.async.IAsyncRequest<any>;
+        FindStyle(defaultStyleKey: any): Style;
+    }
+    var ThemeManager: IThemeManager;
 }
 declare class TimeSpan {
     static _TicksPerMillisecond: number;
@@ -3602,56 +3608,6 @@ declare module Fayde.Markup {
         init(val: string): void;
         transmute(os: any[]): any;
         setContext(app: Application, resources: ResourceDictionary[]): void;
-    }
-}
-declare module Fayde.Navigation {
-    function Navigate(source: DependencyObject, targetName: string, navigateUri: Uri): void;
-}
-declare module Fayde.Navigation {
-    class NavigationService {
-        Href: string;
-        Hash: string;
-        LocationChanged: nullstone.Event<{}>;
-        constructor();
-        CurrentUri: Uri;
-        Navigate(uri: Uri): boolean;
-        private _HandleFragmentChange();
-    }
-}
-declare module Fayde.Navigation {
-    class RouteMapper extends DependencyObject {
-        static RouteMappingsProperty: ImmutableDependencyProperty<XamlObjectCollection<RouteMapping>>;
-        static ViewModelProviderProperty: DependencyProperty;
-        RouteMappings: XamlObjectCollection<RouteMapping>;
-        ViewModelProvider: Fayde.MVVM.IViewModelProvider;
-        constructor();
-        MapUri(uri: Uri): Route;
-    }
-}
-declare module Fayde.Navigation {
-    class RouteMapping extends DependencyObject {
-        static ViewProperty: DependencyProperty;
-        static UriProperty: DependencyProperty;
-        View: Uri;
-        Uri: Uri;
-        MapUri(uri: Uri): Route;
-    }
-}
-declare module Fayde.Navigation {
-    class UriMapper extends DependencyObject {
-        static UriMappingsProperty: ImmutableDependencyProperty<XamlObjectCollection<UriMapping>>;
-        UriMappings: XamlObjectCollection<UriMapping>;
-        constructor();
-        MapUri(uri: Uri): Uri;
-    }
-}
-declare module Fayde.Navigation {
-    class UriMapping extends DependencyObject {
-        static MappedUriProperty: DependencyProperty;
-        static UriProperty: DependencyProperty;
-        MappedUri: Uri;
-        Uri: Uri;
-        MapUri(uri: Uri): Uri;
     }
 }
 declare module Fayde.Media {
@@ -4148,6 +4104,56 @@ declare module Fayde.Media {
         Children: TransformCollection;
         constructor();
         _BuildValue(): number[];
+    }
+}
+declare module Fayde.Navigation {
+    function Navigate(source: DependencyObject, targetName: string, navigateUri: Uri): void;
+}
+declare module Fayde.Navigation {
+    class NavigationService {
+        Href: string;
+        Hash: string;
+        LocationChanged: nullstone.Event<{}>;
+        constructor();
+        CurrentUri: Uri;
+        Navigate(uri: Uri): boolean;
+        private _HandleFragmentChange();
+    }
+}
+declare module Fayde.Navigation {
+    class RouteMapper extends DependencyObject {
+        static RouteMappingsProperty: ImmutableDependencyProperty<XamlObjectCollection<RouteMapping>>;
+        static ViewModelProviderProperty: DependencyProperty;
+        RouteMappings: XamlObjectCollection<RouteMapping>;
+        ViewModelProvider: Fayde.MVVM.IViewModelProvider;
+        constructor();
+        MapUri(uri: Uri): Route;
+    }
+}
+declare module Fayde.Navigation {
+    class RouteMapping extends DependencyObject {
+        static ViewProperty: DependencyProperty;
+        static UriProperty: DependencyProperty;
+        View: Uri;
+        Uri: Uri;
+        MapUri(uri: Uri): Route;
+    }
+}
+declare module Fayde.Navigation {
+    class UriMapper extends DependencyObject {
+        static UriMappingsProperty: ImmutableDependencyProperty<XamlObjectCollection<UriMapping>>;
+        UriMappings: XamlObjectCollection<UriMapping>;
+        constructor();
+        MapUri(uri: Uri): Uri;
+    }
+}
+declare module Fayde.Navigation {
+    class UriMapping extends DependencyObject {
+        static MappedUriProperty: DependencyProperty;
+        static UriProperty: DependencyProperty;
+        MappedUri: Uri;
+        Uri: Uri;
+        MapUri(uri: Uri): Uri;
     }
 }
 declare class Color implements ICloneable {
