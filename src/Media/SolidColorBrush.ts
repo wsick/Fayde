@@ -38,9 +38,7 @@ module Fayde.Media {
     Fayde.CoreLibrary.add(SolidColorBrush);
 
     function brushConverter(val: any): Brush {
-        if (!val)
-            return undefined;
-        if (val instanceof Brush)
+        if (!val || val instanceof Brush)
             return val;
         var scb = new SolidColorBrush();
         scb.Color = nullstone.convertAnyToType(val, Color);
