@@ -4455,57 +4455,6 @@ declare class TimelineProfile {
     static LayoutPass(isStart: boolean): void;
     private static _FinishEvent(type, name?);
 }
-declare module Fayde.Text.Buffer {
-    function cut(text: string, start: number, len: number): string;
-    function insert(text: string, index: number, str: string): string;
-    function replace(text: string, start: number, len: number, str: string): string;
-}
-declare module Fayde.Text {
-    interface ITextOwner {
-        text: string;
-    }
-}
-declare module Fayde.Text {
-    enum EmitChangedType {
-        NOTHING = 0,
-        SELECTION = 1,
-        TEXT = 2,
-    }
-    class Proxy implements ITextOwner {
-        selAnchor: number;
-        selCursor: number;
-        selText: string;
-        text: string;
-        maxLength: number;
-        acceptsReturn: boolean;
-        private $$batch;
-        private $$emit;
-        private $$syncing;
-        private $$eventsMask;
-        private $$history;
-        SyncSelectionStart: (value: number) => void;
-        SyncSelectionLength: (value: number) => void;
-        SyncText: (value: string) => void;
-        constructor(eventsMask: EmitChangedType, maxUndoCount: number);
-        setAnchorCursor(anchor: number, cursor: number): boolean;
-        enterText(newText: string): boolean;
-        removeText(start: number, length: number): boolean;
-        undo(): void;
-        redo(): void;
-        begin(): void;
-        end(): void;
-        beginSelect(cursor: number): void;
-        adjustSelection(cursor: number): void;
-        selectAll(): void;
-        clearSelection(start: number): void;
-        select(start: number, length: number): boolean;
-        setSelectionStart(value: number): void;
-        setSelectionLength(value: number): void;
-        setText(value: string): void;
-        private $syncEmit(syncText?);
-        private $syncText();
-    }
-}
 declare module Fayde.Shapes {
     class DoubleCollection extends XamlObjectCollection<XamlObject> {
     }
@@ -4621,6 +4570,57 @@ declare module Fayde.Shapes {
         RadiusX: number;
         RadiusY: number;
         constructor();
+    }
+}
+declare module Fayde.Text.Buffer {
+    function cut(text: string, start: number, len: number): string;
+    function insert(text: string, index: number, str: string): string;
+    function replace(text: string, start: number, len: number, str: string): string;
+}
+declare module Fayde.Text {
+    interface ITextOwner {
+        text: string;
+    }
+}
+declare module Fayde.Text {
+    enum EmitChangedType {
+        NOTHING = 0,
+        SELECTION = 1,
+        TEXT = 2,
+    }
+    class Proxy implements ITextOwner {
+        selAnchor: number;
+        selCursor: number;
+        selText: string;
+        text: string;
+        maxLength: number;
+        acceptsReturn: boolean;
+        private $$batch;
+        private $$emit;
+        private $$syncing;
+        private $$eventsMask;
+        private $$history;
+        SyncSelectionStart: (value: number) => void;
+        SyncSelectionLength: (value: number) => void;
+        SyncText: (value: string) => void;
+        constructor(eventsMask: EmitChangedType, maxUndoCount: number);
+        setAnchorCursor(anchor: number, cursor: number): boolean;
+        enterText(newText: string): boolean;
+        removeText(start: number, length: number): boolean;
+        undo(): void;
+        redo(): void;
+        begin(): void;
+        end(): void;
+        beginSelect(cursor: number): void;
+        adjustSelection(cursor: number): void;
+        selectAll(): void;
+        clearSelection(start: number): void;
+        select(start: number, length: number): boolean;
+        setSelectionStart(value: number): void;
+        setSelectionLength(value: number): void;
+        setText(value: string): void;
+        private $syncEmit(syncText?);
+        private $syncText();
     }
 }
 declare module Fayde.Validation {
