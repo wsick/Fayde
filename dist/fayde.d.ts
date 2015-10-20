@@ -43,6 +43,31 @@ declare module Fayde {
     function RegisterEnum(enu: any, uri: string, name: string): void;
     var IType_: nullstone.Interface<{}>;
 }
+declare module Fayde.Clipboard {
+    class BasicClipboard implements IClipboard {
+        CopyText(text: string): void;
+        GetTextContents(callback: (text: string) => void): void;
+    }
+}
+declare module Fayde.Clipboard {
+    function Create(): IClipboard;
+}
+declare module Fayde.Clipboard {
+    interface IClipboard {
+        CopyText(text: string): any;
+        GetTextContents(callback: (text: string) => void): any;
+    }
+    function memoizePlaceholder(key: string): HTMLDivElement;
+}
+declare module Fayde.Clipboard {
+    class NetscapeClipboard implements IClipboard {
+        private $$fn;
+        constructor();
+        CopyText(text: string): void;
+        GetTextContents(callback: (text: string) => void): void;
+        private $$notify;
+    }
+}
 declare module Fayde.Collections {
     enum CollectionChangedAction {
         Add = 1,
@@ -2013,6 +2038,7 @@ declare module Fayde.Controls {
         $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
+        $Clipboard: Clipboard.IClipboard;
         constructor(eventsMask: Text.EmitChangedType);
         private _SyncFont();
         CreateView(): Internal.TextBoxView;
@@ -4605,8 +4631,9 @@ declare module Fayde.Text {
         SyncText: (value: string) => void;
         constructor(eventsMask: EmitChangedType, maxUndoCount: number);
         setAnchorCursor(anchor: number, cursor: number): boolean;
-        enterText(newText: string): boolean;
+        enterText(newText: string, isPaste?: boolean): boolean;
         removeText(start: number, length: number): boolean;
+        paste(text: string): boolean;
         undo(): void;
         redo(): void;
         begin(): void;
@@ -4619,6 +4646,7 @@ declare module Fayde.Text {
         setSelectionStart(value: number): void;
         setSelectionLength(value: number): void;
         setText(value: string): void;
+        getSelectedText(): string;
         private $syncEmit(syncText?);
         private $syncText();
     }

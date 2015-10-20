@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.19.3';
+    Fayde.version = '0.19.4';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -183,6 +183,110 @@ var Fayde;
     Fayde.IType_.is = function (o) {
         return typeof o === "function";
     };
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Clipboard;
+    (function (Clipboard) {
+        var BasicClipboard = (function () {
+            function BasicClipboard() {
+            }
+            BasicClipboard.prototype.CopyText = function (text) {
+                var res = window.clipboardData.setData("Text", text);
+                if (!res)
+                    alert("Your browser do not allow copy to the clipboard.");
+            };
+            BasicClipboard.prototype.GetTextContents = function (callback) {
+                var text = window.clipboardData.getData("Text");
+                callback(text);
+            };
+            return BasicClipboard;
+        })();
+        Clipboard.BasicClipboard = BasicClipboard;
+    })(Clipboard = Fayde.Clipboard || (Fayde.Clipboard = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Clipboard;
+    (function (Clipboard) {
+        function Create() {
+            if (window.clipboardData)
+                return new Clipboard.BasicClipboard();
+            return new Clipboard.NetscapeClipboard();
+        }
+        Clipboard.Create = Create;
+    })(Clipboard = Fayde.Clipboard || (Fayde.Clipboard = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Clipboard;
+    (function (Clipboard) {
+        var cp = new nullstone.Memoizer(function (key) {
+            var div = document.createElement("div");
+            div.id = key;
+            (function (style) {
+                style.opacity = "0.0";
+                style.position = "absolute";
+                style.left = "-300px";
+            })(div.style);
+            document.body.appendChild(div);
+            div.contentEditable = "true";
+            return div;
+        });
+        function memoizePlaceholder(key) {
+            return cp.memoize(key);
+        }
+        Clipboard.memoizePlaceholder = memoizePlaceholder;
+    })(Clipboard = Fayde.Clipboard || (Fayde.Clipboard = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="BasicClipboard" />
+var Fayde;
+(function (Fayde) {
+    var Clipboard;
+    (function (Clipboard) {
+        var NetscapeClipboard = (function () {
+            function NetscapeClipboard() {
+                var _this = this;
+                this.$$fn = null;
+                this.$$notify = function (e) {
+                    if (!_this.$$fn)
+                        return;
+                    var ev = e.originalEvent || e;
+                    var dt = ev.clipboardData;
+                    _this.$$fn(dt.getData('text/plain'));
+                    _this.$$fn = null;
+                };
+                document.body.contentEditable = "true";
+                document.body.addEventListener("paste", this.$$notify);
+            }
+            NetscapeClipboard.prototype.CopyText = function (text) {
+                var div = Clipboard.memoizePlaceholder("special_copy");
+                div.textContent = text;
+                selectContent(div);
+                tryRequestPrivilege();
+                if (!document.execCommand("copy", false, null))
+                    alert("Your browser does not allow copy to the clipboard. This feature will not function");
+            };
+            NetscapeClipboard.prototype.GetTextContents = function (callback) {
+                this.$$fn = callback;
+            };
+            return NetscapeClipboard;
+        })();
+        Clipboard.NetscapeClipboard = NetscapeClipboard;
+        function selectContent(element) {
+            var rangeToSelect = document.createRange();
+            rangeToSelect.selectNodeContents(element);
+            var selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(rangeToSelect);
+        }
+        function tryRequestPrivilege() {
+            var netscape = window ? window.netscape : null;
+            if (netscape && netscape.security) {
+                netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+            }
+        }
+    })(Clipboard = Fayde.Clipboard || (Fayde.Clipboard = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -7821,6 +7925,7 @@ var Fayde;
                 this.IsReadOnly = false;
                 this.AcceptsReturn = false;
                 this.$ContentProxy = new Controls.Internal.TextBoxContentProxy();
+                this.$Clipboard = Fayde.Clipboard.Create();
                 var view = this.$View = this.CreateView();
                 view.MouseLeftButtonDown.on(function (s, e) { return _this.OnMouseLeftButtonDown(e); }, this);
                 view.MouseLeftButtonUp.on(function (s, e) { return _this.OnMouseLeftButtonUp(e); }, this);
@@ -7988,11 +8093,20 @@ var Fayde;
                                     proxy.selectAll();
                                     break;
                                 case Key.C:
+                                    this.$Clipboard.CopyText(this.$Proxy.getSelectedText());
                                     handled = true;
                                     break;
                                 case Key.X:
                                     if (isReadOnly)
                                         break;
+                                    this.$Clipboard.CopyText(this.$Proxy.getSelectedText());
+                                    proxy.removeText(this.$Proxy.selAnchor, this.$Proxy.selCursor);
+                                    handled = true;
+                                    break;
+                                case Key.V:
+                                    if (isReadOnly)
+                                        break;
+                                    this.$Clipboard.GetTextContents(function (text) { return proxy.paste(text); });
                                     handled = true;
                                     break;
                                 case Key.Y:
@@ -13469,15 +13583,22 @@ var Fayde;
                     var args = _this.CreateArgsDown(e);
                     if (args) {
                         input.HandleKeyDown(args);
-                        if (args.Handled) {
+                        if (args.Handled && _this.IsPreventable(args)) {
                             e.preventDefault();
                             return false;
                         }
                     }
                 };
             };
-            KeyInterop.prototype.CreateArgsPress = function (e) { return undefined; };
-            KeyInterop.prototype.CreateArgsDown = function (e) { return undefined; };
+            KeyInterop.prototype.CreateArgsPress = function (e) {
+                return undefined;
+            };
+            KeyInterop.prototype.CreateArgsDown = function (e) {
+                return undefined;
+            };
+            KeyInterop.prototype.IsPreventable = function (args) {
+                return true;
+            };
             return KeyInterop;
         })();
         var udkie = [];
@@ -13519,7 +13640,7 @@ var Fayde;
                 return args;
             };
             IEKeyInterop.prototype.CreateArgsDown = function (e) {
-                if (e["char"] && e.keyCode !== 8 && e.keyCode !== 9)
+                if (e["char"] && e.keyCode !== 8 && e.keyCode !== 9 && !e.ctrlKey)
                     return;
                 var modifiers = {
                     Shift: e.shiftKey,
@@ -13577,7 +13698,7 @@ var Fayde;
                 return args;
             };
             NetscapeKeyInterop.prototype.CreateArgsDown = function (e) {
-                if (sknet[e.keyCode] === undefined)
+                if (sknet[e.keyCode] === undefined && !e.ctrlKey)
                     return null;
                 var modifiers = {
                     Shift: e.shiftKey,
@@ -13585,6 +13706,12 @@ var Fayde;
                     Alt: e.altKey
                 };
                 return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
+            };
+            NetscapeKeyInterop.prototype.IsPreventable = function (args) {
+                if (args.Modifiers.Ctrl && args.Key === Input.Key.V) {
+                    return false;
+                }
+                return true;
             };
             return NetscapeKeyInterop;
         })(KeyInterop);
@@ -20259,7 +20386,7 @@ var Fayde;
                 this.$$emit |= EmitChangedType.SELECTION;
                 return true;
             };
-            Proxy.prototype.enterText = function (newText) {
+            Proxy.prototype.enterText = function (newText, isPaste) {
                 var anchor = this.selAnchor;
                 var cursor = this.selCursor;
                 var length = Math.abs(cursor - anchor);
@@ -20271,11 +20398,14 @@ var Fayde;
                     this.text = Text.Buffer.replace(this.text, start, length, newText);
                 }
                 else {
-                    this.$$history.enter(anchor, cursor, start, newText);
+                    if (!isPaste)
+                        this.$$history.enter(anchor, cursor, start, newText);
+                    else
+                        this.$$history.insert(anchor, cursor, start, newText);
                     this.text = Text.Buffer.insert(this.text, start, newText);
                 }
                 this.$$emit |= EmitChangedType.TEXT;
-                cursor = start + 1;
+                cursor = start + newText.length;
                 anchor = cursor;
                 return this.setAnchorCursor(anchor, cursor);
             };
@@ -20286,6 +20416,9 @@ var Fayde;
                 this.text = Text.Buffer.cut(this.text, start, length);
                 this.$$emit |= EmitChangedType.TEXT;
                 return this.setAnchorCursor(start, start);
+            };
+            Proxy.prototype.paste = function (text) {
+                return this.enterText(text, true);
             };
             Proxy.prototype.undo = function () {
                 var action = this.$$history.undo(this);
@@ -20410,6 +20543,13 @@ var Fayde;
                     this.clearSelection(0);
                     this.$syncEmit(false);
                 }
+            };
+            Proxy.prototype.getSelectedText = function () {
+                var start = Math.min(this.selAnchor, this.selCursor);
+                var len = (Math.max(this.selAnchor, this.selCursor) - start);
+                if (len <= 0)
+                    return "";
+                return this.text.substr(start, len);
             };
             Proxy.prototype.$syncEmit = function (syncText) {
                 syncText = syncText !== false;
