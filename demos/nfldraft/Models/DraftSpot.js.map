@@ -1,1 +1,1 @@
-{"version":3,"file":"DraftSpot.js","sourceRoot":"","sources":["../../Models/DraftSpot.ts"],"names":["DraftSpot","DraftSpot.constructor"],"mappings":";IAGA,IAAM,SAAS;QAAfA,SAAMA,SAASA;QAIfC,CAACA;QAADD,gBAACA;IAADA,CAACA,AAJD,IAIC;IACkB,AAAnB,OAAS,SAAS,CAAC"}
+{"version":3,"file":"DraftSpot.js","sourceRoot":"","sources":["../../Models/DraftSpot.ts"],"names":["DraftSpot","DraftSpot.constructor"],"mappings":";IAGA;QAAAA;QAIAC,CAACA;QAADD,gBAACA;IAADA,CAACA,AAJD,IAIC;IACkB,AAAnB,OAAS,SAAS,CAAC"}

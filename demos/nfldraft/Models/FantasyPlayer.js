@@ -36,9 +36,7 @@ define(["require", "exports", "Models/Player"], function (require, exports, Play
         Object.defineProperty(FantasyPlayer.prototype, "LastSeason", {
             get: function () {
                 if (this.Stats != undefined) {
-                    var result = this.Stats.filter(function (stat) {
-                        return stat.Year === 2012;
-                    });
+                    var result = this.Stats.filter(function (stat) { return stat.Year === 2012; });
                     if (result.length === 1)
                         return result[0];
                     else

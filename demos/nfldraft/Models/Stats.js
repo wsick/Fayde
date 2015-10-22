@@ -19,16 +19,12 @@ define(["require", "exports"], function (require, exports) {
             this.ReceivingTouchdowns = 0;
         }
         Object.defineProperty(Stats.prototype, "RushingAverage", {
-            get: function () {
-                return this.RushingYards / this.RushingAttempts;
-            },
+            get: function () { return this.RushingYards / this.RushingAttempts; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Stats.prototype, "ReceivingAverage", {
-            get: function () {
-                return this.ReceivingYards / this.Receptions;
-            },
+            get: function () { return this.ReceivingYards / this.Receptions; },
             enumerable: true,
             configurable: true
         });

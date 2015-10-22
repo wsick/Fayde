@@ -32,9 +32,7 @@ define(["require", "exports", "Models/DraftSelection", "Models/ChatMessage", "Da
             configurable: true
         });
         Object.defineProperty(DefaultViewModel.prototype, "SelectedPlayer", {
-            get: function () {
-                return this._selectedPlayer;
-            },
+            get: function () { return this._selectedPlayer; },
             set: function (value) {
                 if (value != null) {
                     this._selectedPlayer = value;
@@ -107,7 +105,7 @@ define(["require", "exports", "Models/DraftSelection", "Models/ChatMessage", "Da
             }
         };
         DefaultViewModel.prototype.ChatSubmitted = function (e) {
-            if (e.args.Key === 3 /* Enter */) {
+            if (e.args.Key === Fayde.Input.Key.Enter) {
                 var message = new ChatMessage();
                 message.FantasyTeam = this.MyTeam;
                 message.Message = e.parameter.Text;

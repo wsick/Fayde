@@ -1,14 +1,20 @@
 {
   "libs": {
     "exjs": {
-      "path": "lib/exjs/dist/ex.min",
-      "exports": "exjs"
+      "exports": "exjs",
+      "path": "lib/exjs/dist/ex.min"
+    },
+    "fayde.controls": {
+      "exports": "Fayde.Controls"
     }
   },
   "themes": {
     "exjs": "none",
     "http://schemas.wsick.com/fayde": {
-      "path": "themes/fayde/<themename>.theme.xml"
+      "path": "themes/fayde/Default.theme.xml"
+    },
+    "fayde.controls": {
+      "path": "lib/<libname>/themes/Metro.theme.xml"
     }
   },
   "debug": {
