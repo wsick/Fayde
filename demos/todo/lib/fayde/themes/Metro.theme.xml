@@ -1769,7 +1769,16 @@
                                                          Storyboard.TargetName="fillColor"/>
                                     </Storyboard>
                                 </VisualState>
-                                <VisualState x:Name="SelectedUnfocused"/>
+                                <VisualState x:Name="SelectedUnfocused">
+                                    <Storyboard>
+                                        <ColorAnimation Duration="0" To="{StaticResource HoverForegroundColor}"
+                                                        Storyboard.TargetProperty="(Control.Foreground).(SolidColorBrush.Color)"
+                                                        Storyboard.TargetName="contentControl"/>
+                                        <DoubleAnimation Duration="0" To="1"
+                                                         Storyboard.TargetProperty="(UIElement.Opacity)"
+                                                         Storyboard.TargetName="fillColor"/>
+                                    </Storyboard>
+                                </VisualState>
                             </VisualStateGroup>
                             <VisualStateGroup x:Name="FocusStates">
                                 <VisualState x:Name="Focused">
@@ -1837,8 +1846,8 @@
                                         <DoubleAnimation Storyboard.TargetProperty="(UIElement.Opacity)"
                                                          Storyboard.TargetName="MouseOverRectangle" To="1"
                                                          Duration="0:0:0.1"/>
-                                        <ColorAnimation Storyboard.TargetName="ContentPresenterWrapperColor"
-                                                        Storyboard.TargetProperty="Color" To="{StaticResource Gray2}"
+                                        <ColorAnimation Storyboard.TargetName="contentControl"
+                                                        Storyboard.TargetProperty="(Control.Foreground).Color" To="{StaticResource Gray2}"
                                                         Duration="0"/>
                                         <DoubleAnimation Storyboard.TargetProperty="(UIElement.Opacity)"
                                                          Storyboard.TargetName="grid" To="1" Duration="0:0:0.1"/>
@@ -1976,11 +1985,7 @@
                                 </Grid>
                             </Border>
                         </Grid>
-                        <ContentControl Grid.Column="1">
-                            <ContentControl.Foreground>
-                                <SolidColorBrush x:Name="ContentPresenterWrapperColor"
-                                                 Color="{StaticResource BlackColor}"/>
-                            </ContentControl.Foreground>
+                        <ContentControl x:Name="contentControl" Grid.Column="1" Foreground="{TemplateBinding Foreground}">
                             <ContentPresenter x:Name="contentPresenter"
                                               ContentTemplate="{TemplateBinding ContentTemplate}"
                                               Content="{TemplateBinding Content}"
@@ -2904,6 +2909,29 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <!--Dialog Style-->
+    <Style TargetType="Dialog" x:Key="DefaultDialogStyle">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="DarkGray" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Dialog">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}">
+                        <Border.Effect>
+                            <DropShadowEffect ShadowDepth="0" Opacity="0.2" />
+                        </Border.Effect>
+                        <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          Margin="{TemplateBinding Padding}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <!-- Implicit Styles -->
     <!-- When defining your own styles, set "based on" the same way to keep control theming -->
@@ -2930,4 +2958,5 @@
     <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}"/>
     <Style TargetType="ToolTip" BasedOn="{StaticResource DefaultToolTipStyle}"/>
     <Style TargetType="HeaderedContentControl" BasedOn="{StaticResource DefaultHeaderedContentControlStyle}"/>
+    <Style TargetType="Dialog" BasedOn="{StaticResource DefaultDialogStyle}"/>
 </ResourceDictionary>

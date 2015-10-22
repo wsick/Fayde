@@ -38,7 +38,7 @@ define(["require", "exports", "../Models/TodoItem", "../ViewModels/FilterObject"
             configurable: true
         });
         MainViewModel.prototype.AddTodo = function (e) {
-            if (e.args.Key !== 3 /* Enter */)
+            if (e.args.Key !== Fayde.Input.Key.Enter)
                 return;
             if (!this.ActiveText)
                 return;
