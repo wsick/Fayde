@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.19.5';
+    Fayde.version = '0.19.6';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -257,6 +257,7 @@ var Fayde;
                     _this.$$fn = null;
                 };
                 document.body.contentEditable = "true";
+                document.body.style.cursor = "default";
                 document.body.addEventListener("paste", this.$$notify);
             }
             NetscapeClipboard.prototype.CopyText = function (text) {
