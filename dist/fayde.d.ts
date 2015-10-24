@@ -971,6 +971,14 @@ declare module Fayde.Controls {
         Paused = 6,
         Stopped = 7,
     }
+    enum SelectionOnFocus {
+        Unchanged = 0,
+        SelectAll = 1,
+        CaretToBeginning = 2,
+        CaretToEnd = 3,
+        Default = 4,
+        DefaultSelectAll = 5,
+    }
 }
 declare module Fayde.Controls.Primitives {
     class ButtonBase extends ContentControl {
@@ -2023,6 +2031,7 @@ declare module Fayde.Controls {
         static SelectionStartProperty: DependencyProperty;
         static BaselineOffsetProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
+        static SelectionOnFocusProperty: DependencyProperty;
         CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
@@ -2030,6 +2039,7 @@ declare module Fayde.Controls {
         SelectionStart: number;
         BaselineOffset: number;
         MaxLength: number;
+        SelectionOnFocus: SelectionOnFocus;
         private _Selecting;
         private _Captured;
         IsReadOnly: boolean;
@@ -2043,6 +2053,7 @@ declare module Fayde.Controls {
         private _SyncFont();
         CreateView(): Internal.TextBoxView;
         Cursor: CursorType;
+        private selectBasedonSelectionMode();
         OnApplyTemplate(): void;
         OnLostFocus(e: RoutedEventArgs): void;
         OnGotFocus(e: RoutedEventArgs): void;

@@ -56,4 +56,15 @@ module Fayde.Controls {
         Stopped = 7
     }
     Fayde.CoreLibrary.addEnum(MediaElementState, "MediaElementState");
+
+    export enum SelectionOnFocus {
+        Unchanged = 0,          // Selcetion will not be modified
+        SelectAll = 1,          // The whole text will be selected
+        CaretToBeginning = 2,   // The caret will be moved to the start to the text
+        CaretToEnd = 3,         // The caret will be moved to the end of the text
+        Default = 4,            // The default (Nothing happens)
+        DefaultSelectAll = 5    // Default will be used when focusing the control with the mouse click. SelectAll will be use when focusing the control with the Tab key
+    }
+
+    Fayde.CoreLibrary.addEnum(SelectionOnFocus, "SelectionOnFocus");
 }
