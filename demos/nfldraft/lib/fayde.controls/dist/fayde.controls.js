@@ -2,7 +2,7 @@ var Fayde;
 (function (Fayde) {
     var Controls;
     (function (Controls) {
-        Controls.version = '0.17.5';
+        Controls.version = '0.18.0';
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -12,11 +12,10 @@ var Fayde;
         Controls.Library = Fayde.TypeManager.resolveLibrary("lib://fayde.controls");
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Fayde;
 (function (Fayde) {
@@ -381,7 +380,6 @@ var Fayde;
         Controls.DatePicker = DatePicker;
         Controls.TemplateParts(DatePicker, { Name: "MonthTextBox", Type: Controls.TextBox }, { Name: "DayTextBox", Type: Controls.TextBox }, { Name: "YearTextBox", Type: Controls.TextBox });
         Controls.TemplateVisualStates(DatePicker, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidFocused" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" });
-        //[StyleTypedProperty(Property = "CalendarStyle", StyleTargetType = typeof (Calendar))]
         function formatNumber(n, digits, fallback) {
             if (isNaN(n))
                 return fallback;
@@ -604,7 +602,7 @@ var Fayde;
                 this.ValueChanging.raise(this, e);
             };
             UpDownBase.prototype.OnValueChanged = function (e) {
-                this.ValueChanged.raise(this, e); //WTF: compiler choking without cast for some odd reason
+                this.ValueChanged.raise(this, e);
                 this.SetTextBoxText();
             };
             UpDownBase.prototype.OnIsEditableChanged = function (args) {
@@ -4509,7 +4507,6 @@ var Fayde;
                 return new Controls.tabpanel.TabPanelUpdater();
             };
             Object.defineProperty(TabPanel.prototype, "TabAlignment", {
-                //TODO: Alter TabNavigation, DirectionalNavigation
                 get: function () {
                     var tabControlParent = Fayde.VisualTreeHelper.GetParentOfType(this, Controls.TabControl);
                     if (tabControlParent != null)
@@ -4554,126 +4551,6 @@ var Fayde;
                 return TabPanelUpdater;
             })(minerva.controls.panel.PanelUpdater);
             tabpanel.TabPanelUpdater = TabPanelUpdater;
-        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Controls;
-    (function (Controls) {
-        var tabpanel;
-        (function (tabpanel) {
-            var arrange;
-            (function (arrange) {
-                var TabPanelArrangePipeDef = (function (_super) {
-                    __extends(TabPanelArrangePipeDef, _super);
-                    function TabPanelArrangePipeDef() {
-                        _super.call(this);
-                        this.addTapinAfter('doOverride', 'doVertical', arrange.tapins.doVertical)
-                            .addTapinAfter('doVertical', 'doHorizontal', arrange.tapins.doHorizontal)
-                            .removeTapin('doOverride');
-                    }
-                    return TabPanelArrangePipeDef;
-                })(minerva.controls.panel.arrange.PanelArrangePipeDef);
-                arrange.TabPanelArrangePipeDef = TabPanelArrangePipeDef;
-            })(arrange = tabpanel.arrange || (tabpanel.arrange = {}));
-        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Controls;
-    (function (Controls) {
-        var tabpanel;
-        (function (tabpanel) {
-            var arrange;
-            (function (arrange) {
-                var tapins;
-                (function (tapins) {
-                    var Point = minerva.Point;
-                    function doHorizontal(input, state, output, tree, finalRect) {
-                        if (input.tabAlignment !== Controls.Dock.Top && input.tabAlignment !== Controls.Dock.Bottom)
-                            return true;
-                        var fs = state.finalSize;
-                        var isMultiRow = input.numRows > 1;
-                        var activeRow = 0;
-                        var solution = [];
-                        var childOffset = new Point();
-                        var headersSize = tabpanel.helpers.getHeadersSize(tree);
-                        if (isMultiRow) {
-                            solution = tabpanel.helpers.calculateHeaderDistribution(tree, fs.width, headersSize);
-                            activeRow = tabpanel.helpers.getActiveRow(tree, solution, input.tabAlignment === Controls.Dock.Top);
-                            if (input.tabAlignment === Controls.Dock.Top)
-                                childOffset.y = (input.numRows - 1.0 - activeRow) * input.rowHeight;
-                            if (input.tabAlignment === Controls.Dock.Bottom && activeRow !== 0)
-                                childOffset.y = (input.numRows - activeRow) * input.rowHeight;
-                        }
-                        var cr = state.childRect;
-                        cr.x = cr.y = cr.width = cr.height = 0;
-                        cr.height = input.rowHeight;
-                        var childIndex = 0;
-                        var separatorIndex = 0;
-                        for (var walker = tree.walk(); walker.step();) {
-                            var child = walker.current;
-                            if (child.assets.visibility === minerva.Visibility.Collapsed)
-                                continue;
-                            cr.width = headersSize[childIndex];
-                            cr.height = input.rowHeight;
-                            var isLastHeaderInRow = isMultiRow && (separatorIndex < solution.length && solution[separatorIndex] === childIndex || childIndex === (input.numHeaders - 1));
-                            if (isLastHeaderInRow)
-                                cr.width = fs.width - childOffset.x;
-                            child.arrange(cr);
-                            cr.x += cr.width;
-                            if (isLastHeaderInRow) {
-                                if ((separatorIndex === activeRow && input.tabAlignment === Controls.Dock.Top) ||
-                                    (separatorIndex === activeRow - 1 && input.tabAlignment === Controls.Dock.Bottom))
-                                    childOffset.y = 0;
-                                else
-                                    childOffset.y += input.rowHeight;
-                                childOffset.x = 0;
-                                separatorIndex++;
-                            }
-                            childIndex++;
-                        }
-                        return true;
-                    }
-                    tapins.doHorizontal = doHorizontal;
-                })(tapins = arrange.tapins || (arrange.tapins = {}));
-            })(arrange = tabpanel.arrange || (tabpanel.arrange = {}));
-        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Controls;
-    (function (Controls) {
-        var tabpanel;
-        (function (tabpanel) {
-            var arrange;
-            (function (arrange) {
-                var tapins;
-                (function (tapins) {
-                    function doVertical(input, state, output, tree, finalRect) {
-                        if (input.tabAlignment !== Controls.Dock.Left && input.tabAlignment !== Controls.Dock.Right)
-                            return true;
-                        var cr = state.childRect;
-                        cr.x = cr.y = 0;
-                        cr.width = state.finalSize.width;
-                        for (var walker = tree.walk(); walker.step();) {
-                            var child = walker.current;
-                            if (child.assets.visibility === minerva.Visibility.Collapsed)
-                                continue;
-                            tabpanel.helpers.setTabItemZ(child);
-                            var sizeWithoutMargin = tabpanel.helpers.getDesiredSizeWithoutMargin(child);
-                            cr.height = sizeWithoutMargin.height;
-                            child.arrange(cr);
-                            cr.y += sizeWithoutMargin.height;
-                        }
-                        return true;
-                    }
-                    tapins.doVertical = doVertical;
-                })(tapins = arrange.tapins || (arrange.tapins = {}));
-            })(arrange = tabpanel.arrange || (tabpanel.arrange = {}));
         })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
@@ -4857,140 +4734,6 @@ var Fayde;
 (function (Fayde) {
     var Controls;
     (function (Controls) {
-        var tabpanel;
-        (function (tabpanel) {
-            var measure;
-            (function (measure) {
-                var panel = minerva.controls.panel;
-                var TabPanelMeasurePipeDef = (function (_super) {
-                    __extends(TabPanelMeasurePipeDef, _super);
-                    function TabPanelMeasurePipeDef() {
-                        _super.call(this);
-                        this.addTapinAfter('doOverride', 'doVertical', measure.tapins.doVertical)
-                            .addTapinAfter('doVertical', 'doHorizontal', measure.tapins.doHorizontal)
-                            .removeTapin('doOverride');
-                    }
-                    TabPanelMeasurePipeDef.prototype.createOutput = function () {
-                        var output = _super.prototype.createOutput.call(this);
-                        output.numRows = 1;
-                        output.numHeaders = 0;
-                        output.rowHeight = 0.0;
-                        return output;
-                    };
-                    TabPanelMeasurePipeDef.prototype.prepare = function (input, state, output) {
-                        output.numRows = input.numRows;
-                        output.numHeaders = input.numHeaders;
-                        output.rowHeight = input.rowHeight;
-                        _super.prototype.prepare.call(this, input, state, output);
-                    };
-                    TabPanelMeasurePipeDef.prototype.flush = function (input, state, output) {
-                        _super.prototype.flush.call(this, input, state, output);
-                        input.numRows = output.numRows;
-                        input.numHeaders = output.numHeaders;
-                        input.rowHeight = output.rowHeight;
-                    };
-                    return TabPanelMeasurePipeDef;
-                })(panel.measure.PanelMeasurePipeDef);
-                measure.TabPanelMeasurePipeDef = TabPanelMeasurePipeDef;
-            })(measure = tabpanel.measure || (tabpanel.measure = {}));
-        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Controls;
-    (function (Controls) {
-        var tabpanel;
-        (function (tabpanel) {
-            var measure;
-            (function (measure) {
-                var tapins;
-                (function (tapins) {
-                    function doHorizontal(input, state, output, tree, availableSize) {
-                        if (input.tabAlignment !== Controls.Dock.Top && input.tabAlignment !== Controls.Dock.Bottom)
-                            return true;
-                        var ds = output.desiredSize;
-                        ds.width = ds.height = 0;
-                        output.numRows = 1;
-                        output.numHeaders = 0;
-                        output.rowHeight = 0.0;
-                        var count = 0;
-                        var totalWidth = 0.0;
-                        var num3 = 0.0;
-                        for (var walker = tree.walk(); walker.step();) {
-                            var child = walker.current;
-                            if (child.assets.visibility === minerva.Visibility.Collapsed)
-                                break;
-                            output.numHeaders++;
-                            child.measure(state.availableSize);
-                            var sizeWithoutMargin = tabpanel.helpers.getDesiredSizeWithoutMargin(child);
-                            if (output.rowHeight < sizeWithoutMargin.height)
-                                output.rowHeight = sizeWithoutMargin.height;
-                            if (totalWidth + sizeWithoutMargin.width > availableSize.width && count > 0) {
-                                if (num3 < totalWidth)
-                                    num3 = totalWidth;
-                                totalWidth = sizeWithoutMargin.width;
-                                count = 1;
-                                output.numRows++;
-                            }
-                            else {
-                                totalWidth += sizeWithoutMargin.width;
-                                count++;
-                            }
-                        }
-                        if (num3 < totalWidth)
-                            num3 = totalWidth;
-                        ds.height = output.rowHeight * output.numRows;
-                        ds.width = !isFinite(ds.width) || isNaN(ds.width) || num3 < availableSize.width ? num3 : availableSize.width;
-                        return true;
-                    }
-                    tapins.doHorizontal = doHorizontal;
-                })(tapins = measure.tapins || (measure.tapins = {}));
-            })(measure = tabpanel.measure || (tabpanel.measure = {}));
-        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Controls;
-    (function (Controls) {
-        var tabpanel;
-        (function (tabpanel) {
-            var measure;
-            (function (measure) {
-                var tapins;
-                (function (tapins) {
-                    function doVertical(input, state, output, tree, availableSize) {
-                        if (input.tabAlignment !== Controls.Dock.Left && input.tabAlignment !== Controls.Dock.Right)
-                            return true;
-                        var ds = output.desiredSize;
-                        ds.width = ds.height = 0;
-                        output.numRows = 1;
-                        output.numHeaders = 0;
-                        output.rowHeight = 0.0;
-                        for (var walker = tree.walk(); walker.step();) {
-                            var child = walker.current;
-                            if (child.assets.visibility === minerva.Visibility.Collapsed)
-                                break;
-                            output.numHeaders++;
-                            child.measure(state.availableSize);
-                            var sizeWithoutMargin = tabpanel.helpers.getDesiredSizeWithoutMargin(child);
-                            if (ds.width < sizeWithoutMargin.width)
-                                ds.width = sizeWithoutMargin.width;
-                            ds.height += sizeWithoutMargin.height;
-                        }
-                        return true;
-                    }
-                    tapins.doVertical = doVertical;
-                })(tapins = measure.tapins || (measure.tapins = {}));
-            })(measure = tabpanel.measure || (tabpanel.measure = {}));
-        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Controls;
-    (function (Controls) {
         var FocusingInvalidControlEventArgs = (function () {
             function FocusingInvalidControlEventArgs(item, target) {
                 this.Handled = false;
@@ -5132,13 +4875,11 @@ var Fayde;
                         this._RegisteredParent.BindingValidationError.on(this.Target_BindingValidationError, this);
                 }
                 this.Loaded.off(this.ValidationSummary_Loaded, this);
-                //this._initialized = true;
             };
             ValidationSummary.prototype.ValidationSummary_Unloaded = function (sender, e) {
                 if (this._RegisteredParent != null)
                     this._RegisteredParent.BindingValidationError.off(this.Target_BindingValidationError, this);
                 this.Unloaded.off(this.ValidationSummary_Unloaded, this);
-                //this._initialized = false;
             };
             ValidationSummary.prototype.ValidationSummary_IsEnabledChanged = function (sender, e) {
                 this.UpdateCommon(true);
@@ -5553,10 +5294,6 @@ var Fayde;
                                     break;
                             }
                         }
-                        //Apply stretch direction by bounding scales.
-                        //In the uniform case, scaleX=scaleY, so this sort of clamping will maintain aspect ratio
-                        //In the uniform fill case, we have the same result too.
-                        //In the fill case, note that we change aspect ratio, but that is okay
                         switch (stretchDirection) {
                             case Controls.StretchDirection.UpOnly:
                                 if (scaleX < 1.0)
@@ -5584,37 +5321,6 @@ var Fayde;
                     return Math.abs(val) < epsilon;
                 }
             })(helpers = viewbox.helpers || (viewbox.helpers = {}));
-        })(viewbox = Controls.viewbox || (Controls.viewbox = {}));
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Controls;
-    (function (Controls) {
-        var viewbox;
-        (function (viewbox) {
-            var processdown;
-            (function (processdown) {
-                var ViewboxProcessDownPipeDef = (function (_super) {
-                    __extends(ViewboxProcessDownPipeDef, _super);
-                    function ViewboxProcessDownPipeDef() {
-                        _super.call(this);
-                        this.addTapinAfter('calcRenderXform', 'applyViewXform', tapins.applyViewXform);
-                    }
-                    return ViewboxProcessDownPipeDef;
-                })(minerva.core.processdown.ProcessDownPipeDef);
-                processdown.ViewboxProcessDownPipeDef = ViewboxProcessDownPipeDef;
-                var tapins;
-                (function (tapins) {
-                    function applyViewXform(input, state, output, vpinput, tree) {
-                        if ((input.dirtyFlags & minerva.DirtyFlags.Transform) === 0)
-                            return true;
-                        mat3.preapply(output.renderXform, input.viewXform);
-                        return true;
-                    }
-                    tapins.applyViewXform = applyViewXform;
-                })(tapins || (tapins = {}));
-            })(processdown = viewbox.processdown || (viewbox.processdown = {}));
         })(viewbox = Controls.viewbox || (Controls.viewbox = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
@@ -5676,6 +5382,126 @@ var Fayde;
     (function (Controls) {
         var wrappanel;
         (function (wrappanel) {
+            var helpers;
+            (function (helpers) {
+                function coerceChildSize(child, itemWidth, itemHeight) {
+                    var node = child.getAttachedValue("$node");
+                    var xobj = node ? node.XObject : null;
+                    if (!xobj)
+                        return;
+                    if (isNaN(child.assets.width) && !isNaN(itemWidth))
+                        xobj.Width = itemWidth;
+                    if (isNaN(child.assets.height) && !isNaN(itemHeight))
+                        xobj.Height = itemHeight;
+                }
+                helpers.coerceChildSize = coerceChildSize;
+            })(helpers = wrappanel.helpers || (wrappanel.helpers = {}));
+        })(wrappanel = Controls.wrappanel || (Controls.wrappanel = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var tabpanel;
+        (function (tabpanel) {
+            var arrange;
+            (function (arrange) {
+                var TabPanelArrangePipeDef = (function (_super) {
+                    __extends(TabPanelArrangePipeDef, _super);
+                    function TabPanelArrangePipeDef() {
+                        _super.call(this);
+                        this.addTapinAfter('doOverride', 'doVertical', arrange.tapins.doVertical)
+                            .addTapinAfter('doVertical', 'doHorizontal', arrange.tapins.doHorizontal)
+                            .removeTapin('doOverride');
+                    }
+                    return TabPanelArrangePipeDef;
+                })(minerva.controls.panel.arrange.PanelArrangePipeDef);
+                arrange.TabPanelArrangePipeDef = TabPanelArrangePipeDef;
+            })(arrange = tabpanel.arrange || (tabpanel.arrange = {}));
+        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var tabpanel;
+        (function (tabpanel) {
+            var measure;
+            (function (measure) {
+                var panel = minerva.controls.panel;
+                var TabPanelMeasurePipeDef = (function (_super) {
+                    __extends(TabPanelMeasurePipeDef, _super);
+                    function TabPanelMeasurePipeDef() {
+                        _super.call(this);
+                        this.addTapinAfter('doOverride', 'doVertical', measure.tapins.doVertical)
+                            .addTapinAfter('doVertical', 'doHorizontal', measure.tapins.doHorizontal)
+                            .removeTapin('doOverride');
+                    }
+                    TabPanelMeasurePipeDef.prototype.createOutput = function () {
+                        var output = _super.prototype.createOutput.call(this);
+                        output.numRows = 1;
+                        output.numHeaders = 0;
+                        output.rowHeight = 0.0;
+                        return output;
+                    };
+                    TabPanelMeasurePipeDef.prototype.prepare = function (input, state, output) {
+                        output.numRows = input.numRows;
+                        output.numHeaders = input.numHeaders;
+                        output.rowHeight = input.rowHeight;
+                        _super.prototype.prepare.call(this, input, state, output);
+                    };
+                    TabPanelMeasurePipeDef.prototype.flush = function (input, state, output) {
+                        _super.prototype.flush.call(this, input, state, output);
+                        input.numRows = output.numRows;
+                        input.numHeaders = output.numHeaders;
+                        input.rowHeight = output.rowHeight;
+                    };
+                    return TabPanelMeasurePipeDef;
+                })(panel.measure.PanelMeasurePipeDef);
+                measure.TabPanelMeasurePipeDef = TabPanelMeasurePipeDef;
+            })(measure = tabpanel.measure || (tabpanel.measure = {}));
+        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var viewbox;
+        (function (viewbox) {
+            var processdown;
+            (function (processdown) {
+                var ViewboxProcessDownPipeDef = (function (_super) {
+                    __extends(ViewboxProcessDownPipeDef, _super);
+                    function ViewboxProcessDownPipeDef() {
+                        _super.call(this);
+                        this.addTapinAfter('calcRenderXform', 'applyViewXform', tapins.applyViewXform);
+                    }
+                    return ViewboxProcessDownPipeDef;
+                })(minerva.core.processdown.ProcessDownPipeDef);
+                processdown.ViewboxProcessDownPipeDef = ViewboxProcessDownPipeDef;
+                var tapins;
+                (function (tapins) {
+                    function applyViewXform(input, state, output, vpinput, tree) {
+                        if ((input.dirtyFlags & minerva.DirtyFlags.Transform) === 0)
+                            return true;
+                        mat3.preapply(output.renderXform, input.viewXform);
+                        return true;
+                    }
+                    tapins.applyViewXform = applyViewXform;
+                })(tapins || (tapins = {}));
+            })(processdown = viewbox.processdown || (viewbox.processdown = {}));
+        })(viewbox = Controls.viewbox || (Controls.viewbox = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var wrappanel;
+        (function (wrappanel) {
             var arrange;
             (function (arrange) {
                 var panel = minerva.controls.panel;
@@ -5692,6 +5518,218 @@ var Fayde;
                 arrange.WrapPanelArrangePipeDef = WrapPanelArrangePipeDef;
             })(arrange = wrappanel.arrange || (wrappanel.arrange = {}));
         })(wrappanel = Controls.wrappanel || (Controls.wrappanel = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var wrappanel;
+        (function (wrappanel) {
+            var measure;
+            (function (measure) {
+                var panel = minerva.controls.panel;
+                var WrapPanelMeasurePipeDef = (function (_super) {
+                    __extends(WrapPanelMeasurePipeDef, _super);
+                    function WrapPanelMeasurePipeDef() {
+                        _super.call(this);
+                        this.addTapinAfter('doOverride', 'doHorizontal', measure.tapins.doHorizontal)
+                            .addTapinAfter('doOverride', 'doVertical', measure.tapins.doVertical)
+                            .removeTapin('doOverride');
+                    }
+                    return WrapPanelMeasurePipeDef;
+                })(panel.measure.PanelMeasurePipeDef);
+                measure.WrapPanelMeasurePipeDef = WrapPanelMeasurePipeDef;
+            })(measure = wrappanel.measure || (wrappanel.measure = {}));
+        })(wrappanel = Controls.wrappanel || (Controls.wrappanel = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var tabpanel;
+        (function (tabpanel) {
+            var arrange;
+            (function (arrange) {
+                var tapins;
+                (function (tapins) {
+                    var Point = minerva.Point;
+                    function doHorizontal(input, state, output, tree, finalRect) {
+                        if (input.tabAlignment !== Controls.Dock.Top && input.tabAlignment !== Controls.Dock.Bottom)
+                            return true;
+                        var fs = state.finalSize;
+                        var isMultiRow = input.numRows > 1;
+                        var activeRow = 0;
+                        var solution = [];
+                        var childOffset = new Point();
+                        var headersSize = tabpanel.helpers.getHeadersSize(tree);
+                        if (isMultiRow) {
+                            solution = tabpanel.helpers.calculateHeaderDistribution(tree, fs.width, headersSize);
+                            activeRow = tabpanel.helpers.getActiveRow(tree, solution, input.tabAlignment === Controls.Dock.Top);
+                            if (input.tabAlignment === Controls.Dock.Top)
+                                childOffset.y = (input.numRows - 1.0 - activeRow) * input.rowHeight;
+                            if (input.tabAlignment === Controls.Dock.Bottom && activeRow !== 0)
+                                childOffset.y = (input.numRows - activeRow) * input.rowHeight;
+                        }
+                        var cr = state.childRect;
+                        cr.x = cr.y = cr.width = cr.height = 0;
+                        cr.height = input.rowHeight;
+                        var childIndex = 0;
+                        var separatorIndex = 0;
+                        for (var walker = tree.walk(); walker.step();) {
+                            var child = walker.current;
+                            if (child.assets.visibility === minerva.Visibility.Collapsed)
+                                continue;
+                            cr.width = headersSize[childIndex];
+                            cr.height = input.rowHeight;
+                            var isLastHeaderInRow = isMultiRow && (separatorIndex < solution.length && solution[separatorIndex] === childIndex || childIndex === (input.numHeaders - 1));
+                            if (isLastHeaderInRow)
+                                cr.width = fs.width - childOffset.x;
+                            child.arrange(cr);
+                            cr.x += cr.width;
+                            if (isLastHeaderInRow) {
+                                if ((separatorIndex === activeRow && input.tabAlignment === Controls.Dock.Top) ||
+                                    (separatorIndex === activeRow - 1 && input.tabAlignment === Controls.Dock.Bottom))
+                                    childOffset.y = 0;
+                                else
+                                    childOffset.y += input.rowHeight;
+                                childOffset.x = 0;
+                                separatorIndex++;
+                            }
+                            childIndex++;
+                        }
+                        return true;
+                    }
+                    tapins.doHorizontal = doHorizontal;
+                })(tapins = arrange.tapins || (arrange.tapins = {}));
+            })(arrange = tabpanel.arrange || (tabpanel.arrange = {}));
+        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var tabpanel;
+        (function (tabpanel) {
+            var arrange;
+            (function (arrange) {
+                var tapins;
+                (function (tapins) {
+                    function doVertical(input, state, output, tree, finalRect) {
+                        if (input.tabAlignment !== Controls.Dock.Left && input.tabAlignment !== Controls.Dock.Right)
+                            return true;
+                        var cr = state.childRect;
+                        cr.x = cr.y = 0;
+                        cr.width = state.finalSize.width;
+                        for (var walker = tree.walk(); walker.step();) {
+                            var child = walker.current;
+                            if (child.assets.visibility === minerva.Visibility.Collapsed)
+                                continue;
+                            tabpanel.helpers.setTabItemZ(child);
+                            var sizeWithoutMargin = tabpanel.helpers.getDesiredSizeWithoutMargin(child);
+                            cr.height = sizeWithoutMargin.height;
+                            child.arrange(cr);
+                            cr.y += sizeWithoutMargin.height;
+                        }
+                        return true;
+                    }
+                    tapins.doVertical = doVertical;
+                })(tapins = arrange.tapins || (arrange.tapins = {}));
+            })(arrange = tabpanel.arrange || (tabpanel.arrange = {}));
+        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var tabpanel;
+        (function (tabpanel) {
+            var measure;
+            (function (measure) {
+                var tapins;
+                (function (tapins) {
+                    function doHorizontal(input, state, output, tree, availableSize) {
+                        if (input.tabAlignment !== Controls.Dock.Top && input.tabAlignment !== Controls.Dock.Bottom)
+                            return true;
+                        var ds = output.desiredSize;
+                        ds.width = ds.height = 0;
+                        output.numRows = 1;
+                        output.numHeaders = 0;
+                        output.rowHeight = 0.0;
+                        var count = 0;
+                        var totalWidth = 0.0;
+                        var num3 = 0.0;
+                        for (var walker = tree.walk(); walker.step();) {
+                            var child = walker.current;
+                            if (child.assets.visibility === minerva.Visibility.Collapsed)
+                                break;
+                            output.numHeaders++;
+                            child.measure(state.availableSize);
+                            var sizeWithoutMargin = tabpanel.helpers.getDesiredSizeWithoutMargin(child);
+                            if (output.rowHeight < sizeWithoutMargin.height)
+                                output.rowHeight = sizeWithoutMargin.height;
+                            if (totalWidth + sizeWithoutMargin.width > availableSize.width && count > 0) {
+                                if (num3 < totalWidth)
+                                    num3 = totalWidth;
+                                totalWidth = sizeWithoutMargin.width;
+                                count = 1;
+                                output.numRows++;
+                            }
+                            else {
+                                totalWidth += sizeWithoutMargin.width;
+                                count++;
+                            }
+                        }
+                        if (num3 < totalWidth)
+                            num3 = totalWidth;
+                        ds.height = output.rowHeight * output.numRows;
+                        ds.width = !isFinite(ds.width) || isNaN(ds.width) || num3 < availableSize.width ? num3 : availableSize.width;
+                        return true;
+                    }
+                    tapins.doHorizontal = doHorizontal;
+                })(tapins = measure.tapins || (measure.tapins = {}));
+            })(measure = tabpanel.measure || (tabpanel.measure = {}));
+        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
+    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Controls;
+    (function (Controls) {
+        var tabpanel;
+        (function (tabpanel) {
+            var measure;
+            (function (measure) {
+                var tapins;
+                (function (tapins) {
+                    function doVertical(input, state, output, tree, availableSize) {
+                        if (input.tabAlignment !== Controls.Dock.Left && input.tabAlignment !== Controls.Dock.Right)
+                            return true;
+                        var ds = output.desiredSize;
+                        ds.width = ds.height = 0;
+                        output.numRows = 1;
+                        output.numHeaders = 0;
+                        output.rowHeight = 0.0;
+                        for (var walker = tree.walk(); walker.step();) {
+                            var child = walker.current;
+                            if (child.assets.visibility === minerva.Visibility.Collapsed)
+                                break;
+                            output.numHeaders++;
+                            child.measure(state.availableSize);
+                            var sizeWithoutMargin = tabpanel.helpers.getDesiredSizeWithoutMargin(child);
+                            if (ds.width < sizeWithoutMargin.width)
+                                ds.width = sizeWithoutMargin.width;
+                            ds.height += sizeWithoutMargin.height;
+                        }
+                        return true;
+                    }
+                    tapins.doVertical = doVertical;
+                })(tapins = measure.tapins || (measure.tapins = {}));
+            })(measure = tabpanel.measure || (tabpanel.measure = {}));
+        })(tabpanel = Controls.tabpanel || (Controls.tabpanel = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
@@ -5718,9 +5756,9 @@ var Fayde;
                             var child = walker.current;
                             var childDesired = child.assets.desiredSize;
                             if (fs.width < (cr.x + childDesired.width)) {
-                                cr.x = 0; // reset offsetX to 0
-                                cr.y += rowHeight; //offsetY + lastrow height
-                                rowHeight = 0; //reset row spacing
+                                cr.x = 0;
+                                cr.y += rowHeight;
+                                rowHeight = 0;
                             }
                             rowHeight = Math.max(rowHeight, childDesired.height);
                             Size.copyTo(childDesired, cr);
@@ -5760,9 +5798,9 @@ var Fayde;
                             var child = walker.current;
                             var childDesired = child.assets.desiredSize;
                             if (fs.height < (cr.y + childDesired.height)) {
-                                cr.x += colWidth; //and colWidth
-                                cr.y = 0; //reset OffsetY to top
-                                colWidth = 0; //reset colWidth
+                                cr.x += colWidth;
+                                cr.y = 0;
+                                colWidth = 0;
                             }
                             colWidth = Math.max(colWidth, childDesired.width);
                             Size.copyTo(childDesired, cr);
@@ -5775,53 +5813,6 @@ var Fayde;
                     tapins.doVertical = doVertical;
                 })(tapins = arrange.tapins || (arrange.tapins = {}));
             })(arrange = wrappanel.arrange || (wrappanel.arrange = {}));
-        })(wrappanel = Controls.wrappanel || (Controls.wrappanel = {}));
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Controls;
-    (function (Controls) {
-        var wrappanel;
-        (function (wrappanel) {
-            var helpers;
-            (function (helpers) {
-                function coerceChildSize(child, itemWidth, itemHeight) {
-                    var node = child.getAttachedValue("$node");
-                    var xobj = node ? node.XObject : null;
-                    if (!xobj)
-                        return;
-                    if (isNaN(child.assets.width) && !isNaN(itemWidth))
-                        xobj.Width = itemWidth;
-                    if (isNaN(child.assets.height) && !isNaN(itemHeight))
-                        xobj.Height = itemHeight;
-                }
-                helpers.coerceChildSize = coerceChildSize;
-            })(helpers = wrappanel.helpers || (wrappanel.helpers = {}));
-        })(wrappanel = Controls.wrappanel || (Controls.wrappanel = {}));
-    })(Controls = Fayde.Controls || (Fayde.Controls = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var Controls;
-    (function (Controls) {
-        var wrappanel;
-        (function (wrappanel) {
-            var measure;
-            (function (measure) {
-                var panel = minerva.controls.panel;
-                var WrapPanelMeasurePipeDef = (function (_super) {
-                    __extends(WrapPanelMeasurePipeDef, _super);
-                    function WrapPanelMeasurePipeDef() {
-                        _super.call(this);
-                        this.addTapinAfter('doOverride', 'doHorizontal', measure.tapins.doHorizontal)
-                            .addTapinAfter('doOverride', 'doVertical', measure.tapins.doVertical)
-                            .removeTapin('doOverride');
-                    }
-                    return WrapPanelMeasurePipeDef;
-                })(panel.measure.PanelMeasurePipeDef);
-                measure.WrapPanelMeasurePipeDef = WrapPanelMeasurePipeDef;
-            })(measure = wrappanel.measure || (wrappanel.measure = {}));
         })(wrappanel = Controls.wrappanel || (Controls.wrappanel = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
@@ -5850,14 +5841,13 @@ var Fayde;
                         var offsetY = 0;
                         for (var walker = tree.walk(); walker.step();) {
                             var child = walker.current;
-                            //TODO: We should coerce width/height before measure
                             wrappanel.helpers.coerceChildSize(child, input.itemWidth, input.itemHeight);
                             child.measure(as);
                             var childDesired = child.assets.desiredSize;
                             if (as.width < (offsetX + childDesired.width)) {
-                                offsetX = 0; // reset offsetX to 0
+                                offsetX = 0;
                                 offsetY += rowHeight;
-                                rowHeight = 0; //reset row height
+                                rowHeight = 0;
                             }
                             rowHeight = Math.max(rowHeight, childDesired.height);
                             ds.height = Math.max(ds.height, offsetY + childDesired.height);
@@ -5897,14 +5887,13 @@ var Fayde;
                         var offsetY = 0;
                         for (var walker = tree.walk(); walker.step();) {
                             var child = walker.current;
-                            //TODO: We should coerce width/height before measure
                             wrappanel.helpers.coerceChildSize(child, input.itemWidth, input.itemHeight);
                             child.measure(as);
                             var childDesired = child.assets.desiredSize;
                             if (as.height < (offsetY + childDesired.height)) {
                                 offsetX += colWidth;
-                                offsetY = 0; //reset offsetY to 0
-                                colWidth = 0; //reset col spacing
+                                offsetY = 0;
+                                colWidth = 0;
                             }
                             colWidth = Math.max(colWidth, childDesired.width);
                             ds.height = Math.max(ds.height, offsetY + childDesired.height);
@@ -5919,4 +5908,5 @@ var Fayde;
         })(wrappanel = Controls.wrappanel || (Controls.wrappanel = {}));
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
+
 //# sourceMappingURL=fayde.controls.js.map

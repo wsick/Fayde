@@ -1,6 +1,6 @@
 var exjs;
 (function (exjs) {
-    exjs.version = '0.3.0';
+    exjs.version = '0.2.15';
 })(exjs || (exjs = {}));
 var exjs;
 (function (exjs) {
@@ -312,8 +312,9 @@ var exjs;
 /// <reference path="../enumerable.ts" />
 var exjs;
 (function (exjs) {
-    var Map = (function () {
-        function Map(enumerable) {
+    var Map3 = (function () {
+        function Map3(enumerable) {
+            this.size = 0;
             this._keys = [];
             this._values = [];
             var enu;
@@ -329,47 +330,42 @@ var exjs;
                 this.set(en.current[0], en.current[1]);
             }
         }
-        Object.defineProperty(Map.prototype, "size", {
-            get: function () {
-                return this._keys.length;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Map.prototype.clear = function () {
+        Map3.prototype.clear = function () {
             this._keys.length = 0;
             this._values.length = 0;
+            this.size = 0;
         };
-        Map.prototype.delete = function (key) {
+        Map3.prototype.delete = function (key) {
             var index = this._keys.indexOf(key);
             if (!(index > -1))
                 return false;
             this._keys.splice(index, 1);
             this._values.splice(index, 1);
+            this.size--;
             return true;
         };
-        Map.prototype.entries = function () {
+        Map3.prototype.entries = function () {
             var _this = this;
             return exjs.range(0, this.size).select(function (i) { return [_this._keys[i], _this._values[i]]; });
         };
-        Map.prototype.forEach = function (callbackFn, thisArg) {
+        Map3.prototype.forEach = function (callbackFn, thisArg) {
             if (thisArg == null)
                 thisArg = this;
             for (var i = 0, keys = this._keys, vals = this._values, len = keys.length; i < len; i++) {
                 callbackFn.call(thisArg, vals[i], keys[i], this);
             }
         };
-        Map.prototype.get = function (key) {
+        Map3.prototype.get = function (key) {
             var index = this._keys.indexOf(key);
             return this._values[index];
         };
-        Map.prototype.has = function (key) {
+        Map3.prototype.has = function (key) {
             return this._keys.indexOf(key) > -1;
         };
-        Map.prototype.keys = function () {
+        Map3.prototype.keys = function () {
             return this._keys.en();
         };
-        Map.prototype.set = function (key, value) {
+        Map3.prototype.set = function (key, value) {
             var index = this._keys.indexOf(key);
             if (index > -1) {
                 this._values[index] = value;
@@ -377,17 +373,18 @@ var exjs;
             else {
                 this._keys.push(key);
                 this._values.push(value);
+                this.size++;
             }
             return undefined;
         };
-        Map.prototype.values = function () {
+        Map3.prototype.values = function () {
             return this._values.en();
         };
-        return Map;
+        return Map3;
     })();
-    exjs.Map = Map;
+    exjs.Map3 = Map3;
     exjs.Enumerable.prototype.toMap = function (keySelector, valueSelector) {
-        var m = new Map();
+        var m = new Map3();
         for (var en = this.getEnumerator(); en.moveNext();) {
             m.set(keySelector(en.current), valueSelector(en.current));
         }
@@ -398,7 +395,7 @@ var exjs;
 })(exjs || (exjs = {}));
 (function (_global) {
     if (!_global.Map)
-        _global.Map = exjs.Map;
+        _global.Map = exjs.Map3;
 })(typeof window === "undefined" ? global : window);
 /// <reference path="enumerable.ts" />
 var exjs;
@@ -1463,4 +1460,4 @@ var exjs;
         exjs.List.prototype.zip = exjs.Enumerable.prototype.zip;
 })(exjs || (exjs = {}));
 
-//# sourceMappingURL=ex.js.map
+//# sourceMappingURL=ex.es3.js.map
