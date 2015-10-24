@@ -6,6 +6,7 @@ module Fayde.Clipboard {
 
         constructor() {
             document.body.contentEditable = "true";
+            document.body.style.cursor = "default";
             document.body.addEventListener("paste", this.$$notify);
         }
 
