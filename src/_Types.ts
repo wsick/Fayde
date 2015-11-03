@@ -1,3 +1,5 @@
+/// <reference path="./Engine/ThemedLibraryResolver" />
+
 module Fayde {
     export var XMLNS = "http://schemas.wsick.com/fayde";
     export var XMLNSX = "http://schemas.wsick.com/fayde/x";
@@ -13,6 +15,10 @@ module Fayde {
     }
 
     export class ResourceTypeManager extends nullstone.TypeManager {
+        createLibResolver (): nullstone.ILibraryResolver {
+            return new ThemedLibraryResolver();
+        }
+
         resolveResource (uri: Uri): string {
             if (uri.scheme === "lib") {
                 var res = uri.resource;
@@ -36,8 +42,10 @@ module Fayde {
 
     export var CoreLibrary = TypeManager.resolveLibrary(XMLNS);
     (<any>CoreLibrary).$$module = Fayde;
+    (<any>CoreLibrary).$$loaded = true;
     export var XLibrary = TypeManager.resolveLibrary(XMLNSX);
     (<any>XLibrary).$$module = Fayde;
+    (<any>XLibrary).$$loaded = true;
 
     export function RegisterType (type: Function, uri: string, name?: string) {
         name = name || nullstone.getTypeName(type);

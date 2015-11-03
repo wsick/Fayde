@@ -25,6 +25,11 @@ module.exports = function (meta) {
             .pipe(connect.reload());
     });
 
+    gulp.task('testsite-reload', function () {
+        gulp.src('testsite/*.html')
+            .pipe(connect.reload());
+    });
+
     gulp.task('testsite', ['default', 'testsite-build'], function () {
         var options = {
             url: 'http://localhost:' + scaffold.port.toString()
@@ -38,7 +43,8 @@ module.exports = function (meta) {
             port: scaffold.port
         });
 
-        gulp.watch('testsite/**/*.ts', ['testsite-build']);
-        gulp.watch('testsite/.build/**/*', connect.reload);
+        gulp.watch('testsite/!(lib)/**/*.ts', ['testsite-build']);
+        gulp.watch('testsite/.build/**/*', ['testsite-reload']);
+        gulp.watch('dist/*.js', ['testsite-reload']);
     });
 };

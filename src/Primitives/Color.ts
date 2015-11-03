@@ -232,9 +232,7 @@ class Color implements ICloneable {
 Fayde.CoreLibrary.addPrimitive(Color);
 
 nullstone.registerTypeConverter(Color, (val: any): Color => {
-    if (!val)
-        return undefined;
-    if (val instanceof Color)
+    if (!val || val instanceof Color)
         return <Color>val;
     val = val.toString();
     if (val[0] !== "#") {

@@ -46,7 +46,7 @@ module Fayde.Text {
             return true;
         }
 
-        enterText (newText: string): boolean {
+        enterText (newText: string, isPaste?: boolean): boolean {
             var anchor = this.selAnchor;
             var cursor = this.selCursor;
             var length = Math.abs(cursor - anchor);
@@ -59,12 +59,15 @@ module Fayde.Text {
                 this.$$history.replace(anchor, cursor, this.text, start, length, newText);
                 this.text = Text.Buffer.replace(this.text, start, length, newText);
             } else {
-                this.$$history.enter(anchor, cursor, start, newText);
+                if (!isPaste)
+                    this.$$history.enter(anchor, cursor, start, newText);
+                else
+                    this.$$history.insert(anchor, cursor, start, newText);
                 this.text = Text.Buffer.insert(this.text, start, newText);
             }
 
             this.$$emit |= EmitChangedType.TEXT;
-            cursor = start + 1;
+            cursor = start + newText.length;
             anchor = cursor;
 
             return this.setAnchorCursor(anchor, cursor);
@@ -80,6 +83,10 @@ module Fayde.Text {
             this.$$emit |= EmitChangedType.TEXT;
 
             return this.setAnchorCursor(start, start);
+        }
+
+        paste (text: string): boolean {
+            return this.enterText(text, true);
         }
 
         undo () {

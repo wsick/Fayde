@@ -1,3 +1,5 @@
+/// <reference path="../Core/DependencyObject" />
+
 module Fayde.Markup {
     export class FrameworkTemplate extends DependencyObject {
         private $$markup: nullstone.markup.Markup<any>;

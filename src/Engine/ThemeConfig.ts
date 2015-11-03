@@ -54,5 +54,6 @@ module Fayde {
         }
 
         OverrideRequestUri(new Uri(Fayde.XMLNS), "lib/fayde/themes/<themename>.theme.xml");
+        Set(Fayde.XMLNSX, "none");
     }
 }

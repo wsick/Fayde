@@ -123,17 +123,27 @@ module Fayde.Input {
                 var args = this.CreateArgsDown(e);
                 if (args) {
                     input.HandleKeyDown(args);
-                    if (args.Handled) {
+                    if (args.Handled && this.IsPreventable(args)) {
                         e.preventDefault();
                         return false;
                     }
                 }
             };
         }
-        CreateArgsPress(e): Fayde.Input.KeyEventArgs { return undefined; }
-        CreateArgsDown(e): Fayde.Input.KeyEventArgs { return undefined; }
+
+        CreateArgsPress(e): Fayde.Input.KeyEventArgs {
+            return undefined;
+        }
+
+        CreateArgsDown(e): Fayde.Input.KeyEventArgs {
+            return undefined;
+        }
+
+        IsPreventable(args: KeyEventArgs): boolean {
+            return true;
+        }
     }
-    
+
     var udkie = [];
     udkie[41] = 48;
     udkie[33] = 49;
@@ -146,7 +156,7 @@ module Fayde.Input {
     udkie[42] = 56;
     udkie[34] = Key.Unknown;
     class IEKeyInterop extends KeyInterop {
-        CreateArgsPress(e): Fayde.Input.KeyEventArgs {
+        CreateArgsPress(e): KeyEventArgs {
             if (!e["char"])
                 return;
 
@@ -170,7 +180,13 @@ module Fayde.Input {
             }
             return args;
         }
+<<<<<<< HEAD
         CreateArgsDown(e): Fayde.Input.KeyEventArgs {
+=======
+
+        CreateArgsDown(e): KeyEventArgs {
+            //NOTE: Ctrl+[key] does not flow through press
+>>>>>>> refs/remotes/wsick/master
             if (e["char"] && e.keyCode !== 8 && e.keyCode !== 9 && !e.ctrlKey)
                 return;
             var modifiers = {
@@ -181,7 +197,7 @@ module Fayde.Input {
             return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
         }
     }
-    
+
     var sknet = [];
     sknet[8] = Key.Back;
     sknet[9] = Key.Tab;
@@ -197,7 +213,7 @@ module Fayde.Input {
     sknet[40] = Key.Down;
     sknet[45] = Key.Insert;
     sknet[46] = Key.Delete;
-    
+
     var udknet = [];
     udknet[41] = 48;
     udknet[33] = 49;
@@ -210,7 +226,7 @@ module Fayde.Input {
     udknet[42] = 56;
     udknet[34] = Key.Unknown;
     class NetscapeKeyInterop extends KeyInterop {
-        CreateArgsPress(e): Fayde.Input.KeyEventArgs {
+        CreateArgsPress(e): KeyEventArgs {
             var modifiers = {
                 Shift: e.shiftKey,
                 Ctrl: e.ctrlKey,
@@ -227,8 +243,13 @@ module Fayde.Input {
                 args.Key = Key.Unknown;
             return args;
         }
-        CreateArgsDown(e): Fayde.Input.KeyEventArgs {
+
+        CreateArgsDown(e): KeyEventArgs {
             //only do for special keys
+<<<<<<< HEAD
+=======
+            //NOTE: Ctrl+[key] does not flow through press
+>>>>>>> refs/remotes/wsick/master
             if (sknet[e.keyCode] === undefined && !e.ctrlKey)
                 return null;
 
@@ -238,6 +259,15 @@ module Fayde.Input {
                 Alt: e.altKey
             };
             return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
+        }
+
+        IsPreventable(args: KeyEventArgs): boolean {
+            //TODO: Handle Mac keys
+            if (args.Modifiers.Ctrl && args.Key === Key.V) {
+                //Ctrl+V - don't prevent paste
+                return false;
+            }
+            return true;
         }
     }
 }

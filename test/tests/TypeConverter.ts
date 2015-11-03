@@ -6,7 +6,7 @@ export function load() {
 
     test("Color", () => {
         strictEqual(<Color>nullstone.convertAnyToType(undefined, Color), undefined, "undefined");
-        strictEqual(<Color>nullstone.convertAnyToType(null, Color), undefined, "null");
+        strictEqual(<Color>nullstone.convertAnyToType(null, Color), null, "null");
 
         var c = <Color>nullstone.convertAnyToType("White", Color);
         strictEqual(c, Color.KnownColors.White, "Known Color");
@@ -243,7 +243,7 @@ export function load() {
 
     test("Brush", () => {
         strictEqual(<Fayde.Media.SolidColorBrush>nullstone.convertAnyToType(undefined, Fayde.Media.SolidColorBrush), undefined, "undefined");
-        strictEqual(<Fayde.Media.SolidColorBrush>nullstone.convertAnyToType(null, Fayde.Media.SolidColorBrush), undefined, "null");
+        strictEqual(<Fayde.Media.SolidColorBrush>nullstone.convertAnyToType(null, Fayde.Media.SolidColorBrush), null, "null");
 
         var scb = <Fayde.Media.SolidColorBrush>nullstone.convertAnyToType("White", Fayde.Media.Brush);
         ok(scb.Color.Equals(Color.KnownColors.White), "Known Color");

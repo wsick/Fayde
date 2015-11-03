@@ -1,39 +1,43 @@
 module Fayde.Markup {
     import XamlMarkup = nullstone.markup.xaml.XamlMarkup;
 
-    export function Resolve (uri: string);
-    export function Resolve (uri: Uri);
-    export function Resolve (uri: any): nullstone.async.IAsyncRequest<XamlMarkup> {
-        return nullstone.async.create((resolve, reject) => {
-            XamlMarkup.create(uri)
-                .loadAsync()
-                .then(xm => {
-                    var co = collector.create();
-                    return nullstone.async.many([
-                        xm.resolve(Fayde.TypeManager, co.collect),
-                        co.resolve()
-                    ]).then(() => resolve(xm), reject);
-                }, reject);
-        });
+    export function Resolve(uri: string|Uri): Promise<XamlMarkup>;
+    export function Resolve(uri: string|Uri, excludeUri: string|Uri): Promise<XamlMarkup>;
+    export function Resolve(uri: any, excludeUri?: string|Uri): Promise<XamlMarkup> {
+        return Retrieve(uri)
+            .tap(xm => {
+                var co = collector.create(excludeUri);
+                return Promise.all([
+                    xm.resolve(Fayde.TypeManager, co.collect, co.exclude),
+                    co.resolve()
+                ]);
+            });
     }
 
     module collector {
         export interface ICollector {
             collect(ownerUri: string, ownerName: string, propName: string, val: any);
-            resolve(): nullstone.async.IAsyncRequest<any>;
+            exclude(uri: string, name: string): boolean;
+            resolve(): Promise<any>;
         }
 
-        export function create (): ICollector {
+        export function create(excludeUri?: Uri|string): ICollector {
             var rduris: string[] = [];
-            return {
-                collect (ownerUri: string, ownerName: string, propName: string, val: any) {
+            var coll = {
+                collect(ownerUri: string, ownerName: string, propName: string, val: any) {
                     if (ownerUri === Fayde.XMLNS && ownerName === "ResourceDictionary" && propName === "Source")
                         rduris.push(val);
                 },
-                resolve (): nullstone.async.IAsyncRequest<any> {
-                    return nullstone.async.many(rduris.map(Resolve));
+                exclude(uri: string, name: string): boolean {
+                    return false;
+                },
+                resolve(): Promise<any> {
+                    return Promise.all(rduris.map(Resolve));
                 }
             };
+            if (!!excludeUri)
+                coll.exclude = (uri, name) => excludeUri.toString() === uri;
+            return coll;
         }
     }
 }

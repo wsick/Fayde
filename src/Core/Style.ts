@@ -1,4 +1,5 @@
-/// <reference path="DependencyObject.ts" />
+/// <reference path="DependencyObject" />
+/// <reference path="../Markup/ContentAnnotation" />
 
 module Fayde {
     export class Style extends DependencyObject {

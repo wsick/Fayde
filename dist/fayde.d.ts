@@ -2,6 +2,26 @@ declare module Fayde {
     var version: string;
 }
 declare module Fayde {
+    class ThemedLibrary extends nullstone.Library {
+        private $$themes;
+        private $$activeTheme;
+        private $$activeThemeName;
+        activeTheme: Theme;
+        isActiveThemeInvalid: boolean;
+        loadAsync(): Promise<nullstone.Library>;
+        protected retrieveTheme(): Promise<string>;
+        protected ensureThemeLoaded(): Promise<Theme>;
+        getTheme(name: string): Theme;
+        setThemeName(name: string): void;
+        loadActiveTheme(): Promise<Theme>;
+    }
+}
+declare module Fayde {
+    class ThemedLibraryResolver extends nullstone.LibraryResolver {
+        createLibrary(uri: string): nullstone.ILibrary;
+    }
+}
+declare module Fayde {
     var XMLNS: string;
     var XMLNSX: string;
     var XMLNSINTERNAL: string;
@@ -13,6 +33,7 @@ declare module Fayde {
     interface Uri extends nullstone.Uri {
     }
     class ResourceTypeManager extends nullstone.TypeManager {
+        createLibResolver(): nullstone.ILibraryResolver;
         resolveResource(uri: Uri): string;
     }
     var TypeManager: ResourceTypeManager;
@@ -21,6 +42,31 @@ declare module Fayde {
     function RegisterType(type: Function, uri: string, name?: string): void;
     function RegisterEnum(enu: any, uri: string, name: string): void;
     var IType_: nullstone.Interface<{}>;
+}
+declare module Fayde.Clipboard {
+    class BasicClipboard implements IClipboard {
+        CopyText(text: string): void;
+        GetTextContents(callback: (text: string) => void): void;
+    }
+}
+declare module Fayde.Clipboard {
+    function Create(): IClipboard;
+}
+declare module Fayde.Clipboard {
+    interface IClipboard {
+        CopyText(text: string): any;
+        GetTextContents(callback: (text: string) => void): any;
+    }
+    function memoizePlaceholder(key: string): HTMLDivElement;
+}
+declare module Fayde.Clipboard {
+    class NetscapeClipboard implements IClipboard {
+        private $$fn;
+        constructor();
+        CopyText(text: string): void;
+        GetTextContents(callback: (text: string) => void): void;
+        private $$notify;
+    }
 }
 declare module Fayde.Collections {
     enum CollectionChangedAction {
@@ -188,48 +234,6 @@ declare module Fayde {
         IsInheritable(propd: DependencyProperty): boolean;
     }
 }
-interface IOutIsValid {
-    IsValid: boolean;
-}
-interface IType {
-}
-declare class DependencyProperty {
-    static UnsetValue: {};
-    private static _IDs;
-    private static _LastID;
-    _ID: number;
-    Name: string;
-    GetTargetType: () => IType;
-    OwnerType: any;
-    DefaultValue: any;
-    IsReadOnly: boolean;
-    IsCustom: boolean;
-    IsAttached: boolean;
-    IsInheritable: boolean;
-    IsImmutable: boolean;
-    ChangedCallback: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void;
-    AlwaysChange: boolean;
-    Store: Fayde.Providers.PropertyStore;
-    private _Coercer;
-    private _Validator;
-    static Register(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterReadOnly(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterAttached(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterReadOnlyCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterAttachedCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterImmutable<T>(name: string, getTargetType: () => IType, ownerType: any): ImmutableDependencyProperty<T>;
-    static RegisterInheritable(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterFull(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: boolean, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => boolean, isCustom?: boolean, isReadOnly?: boolean, isAttached?: boolean): DependencyProperty;
-    private FinishRegister();
-    ExtendTo(type: any): DependencyProperty;
-    ValidateSetValue(dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid): any;
-    static GetDependencyProperty(ownerType: any, name: string, noError?: boolean): DependencyProperty;
-}
-declare class ImmutableDependencyProperty<T> extends DependencyProperty {
-    IsImmutable: boolean;
-    Initialize(dobj: Fayde.DependencyObject): T;
-}
 declare module Fayde.Providers {
     enum PropertyPrecedence {
         IsEnabled = 0,
@@ -275,6 +279,59 @@ declare module Fayde.Providers {
         CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IPropertyStorage;
         Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
     }
+}
+declare module Fayde.Providers {
+    class ImmutableStore extends PropertyStore {
+        static Instance: ImmutableStore;
+        GetValue(storage: IPropertyStorage): any;
+        GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
+        SetLocalValue(storage: Providers.IPropertyStorage, newValue: any): void;
+        ClearValue(storage: Providers.IPropertyStorage): void;
+        ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void, closure: any): Providers.IPropertyChangedListener;
+        Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
+    }
+}
+interface IOutIsValid {
+    IsValid: boolean;
+}
+interface IType {
+}
+declare class DependencyProperty {
+    static UnsetValue: {};
+    private static _IDs;
+    private static _LastID;
+    _ID: number;
+    Name: string;
+    GetTargetType: () => IType;
+    OwnerType: any;
+    DefaultValue: any;
+    IsReadOnly: boolean;
+    IsCustom: boolean;
+    IsAttached: boolean;
+    IsInheritable: boolean;
+    IsImmutable: boolean;
+    ChangedCallback: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void;
+    AlwaysChange: boolean;
+    Store: Fayde.Providers.PropertyStore;
+    private _Coercer;
+    private _Validator;
+    static Register(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterReadOnly(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterAttached(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterReadOnlyCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterAttachedCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterImmutable<T>(name: string, getTargetType: () => IType, ownerType: any): ImmutableDependencyProperty<T>;
+    static RegisterInheritable(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterFull(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: boolean, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => boolean, isCustom?: boolean, isReadOnly?: boolean, isAttached?: boolean): DependencyProperty;
+    private FinishRegister();
+    ExtendTo(type: any): DependencyProperty;
+    ValidateSetValue(dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid): any;
+    static GetDependencyProperty(ownerType: any, name: string, noError?: boolean): DependencyProperty;
+}
+declare class ImmutableDependencyProperty<T> extends DependencyProperty {
+    IsImmutable: boolean;
+    Initialize(dobj: Fayde.DependencyObject): T;
 }
 declare module Fayde.Providers {
     interface IDataContextStorage extends IPropertyStorage {
@@ -914,6 +971,14 @@ declare module Fayde.Controls {
         Paused = 6,
         Stopped = 7,
     }
+    enum SelectionOnFocus {
+        Unchanged = 0,
+        SelectAll = 1,
+        CaretToBeginning = 2,
+        CaretToEnd = 3,
+        Default = 4,
+        DefaultSelectAll = 5,
+    }
 }
 declare module Fayde.Controls.Primitives {
     class ButtonBase extends ContentControl {
@@ -992,17 +1057,6 @@ declare module Fayde {
         _RaiseCleared(old: T[]): void;
         CloneCore(source: XamlObjectCollection<T>): void;
         ToArray(): T[];
-    }
-}
-declare module Fayde.Providers {
-    class ImmutableStore extends PropertyStore {
-        static Instance: ImmutableStore;
-        GetValue(storage: IPropertyStorage): any;
-        GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence;
-        SetLocalValue(storage: Providers.IPropertyStorage, newValue: any): void;
-        ClearValue(storage: Providers.IPropertyStorage): void;
-        ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void, closure: any): Providers.IPropertyChangedListener;
-        Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
     }
 }
 declare module Fayde.Controls {
@@ -1604,7 +1658,7 @@ declare module Fayde.Controls {
         static TitleProperty: DependencyProperty;
         Title: string;
         constructor();
-        static GetAsync(initiator: DependencyObject, url: string): nullstone.async.IAsyncRequest<Page>;
+        static GetAsync(initiator: DependencyObject, url: string): Promise<Page>;
     }
 }
 declare module Fayde.Navigation {
@@ -1846,13 +1900,24 @@ declare module Fayde.Controls {
     class MediaElement extends FrameworkElement {
         CreateLayoutUpdater(): VideoUpdater;
         private static _SourceCoercer(d, propd, value);
+<<<<<<< HEAD
         static SourceProperty: DependencyProperty;
         static StretchProperty: DependencyProperty;
+=======
+        static AutoPlayProperty: DependencyProperty;
+        static SourceProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        AutoPlay: boolean;
+>>>>>>> refs/remotes/wsick/master
         Source: Media.Videos.VideoSource;
         Stretch: Media.Stretch;
         VideoOpened: nullstone.Event<{}>;
         VideoFailed: nullstone.Event<{}>;
         private $watcher;
+<<<<<<< HEAD
+=======
+        protected OnAutoPlayChanged(oldValue: boolean, newValue: boolean): void;
+>>>>>>> refs/remotes/wsick/master
         OnSourceChanged(oldSource: Media.Videos.VideoSourceBase, newSource: Media.Videos.VideoSourceBase): void;
         OnVideoErrored(source: Media.Videos.VideoSourceBase, error: Error): void;
         OnVideoCanPlay(source: Media.Videos.VideoSourceBase): void;
@@ -1974,6 +2039,7 @@ declare module Fayde.Controls {
         static SelectionStartProperty: DependencyProperty;
         static BaselineOffsetProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
+        static SelectionOnFocusProperty: DependencyProperty;
         CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
@@ -1981,6 +2047,7 @@ declare module Fayde.Controls {
         SelectionStart: number;
         BaselineOffset: number;
         MaxLength: number;
+        SelectionOnFocus: SelectionOnFocus;
         private _Selecting;
         private _Captured;
         IsReadOnly: boolean;
@@ -1989,11 +2056,16 @@ declare module Fayde.Controls {
         $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
+<<<<<<< HEAD
         $CPHelper: Internal.TextCopyPasteHelper;
+=======
+        $Clipboard: Clipboard.IClipboard;
+>>>>>>> refs/remotes/wsick/master
         constructor(eventsMask: Text.EmitChangedType);
         private _SyncFont();
         CreateView(): Internal.TextBoxView;
         Cursor: CursorType;
+        private selectBasedonSelectionMode();
         OnApplyTemplate(): void;
         OnLostFocus(e: RoutedEventArgs): void;
         OnGotFocus(e: RoutedEventArgs): void;
@@ -2820,6 +2892,235 @@ declare module Fayde.Documents {
     class Underline extends Span {
     }
 }
+<<<<<<< HEAD
+=======
+interface ITimeline {
+    Update(nowTime: number): any;
+}
+declare module Fayde {
+    class Application extends DependencyObject implements IResourcable, ITimerListener {
+        static Current: Application;
+        MainSurface: Surface;
+        Loaded: nullstone.Event<{}>;
+        Address: Uri;
+        AllowNavigation: boolean;
+        private _IsRunning;
+        private _IsLoaded;
+        private _Storyboards;
+        private _ClockTimer;
+        private _RootVisual;
+        static ResourcesProperty: ImmutableDependencyProperty<ResourceDictionary>;
+        static ThemeNameProperty: DependencyProperty;
+        static ZoomFactorProperty: DependencyProperty;
+        Resources: ResourceDictionary;
+        ThemeName: string;
+        ZoomFactor: number;
+        private OnThemeNameChanged(oldThemeName, newThemeName);
+        private OnZoomFactorChanged(oldZoom, newZoom);
+        private _ApplyTheme();
+        Resized: RoutedEvent<SizeChangedEventArgs>;
+        OnResized(oldSize: minerva.Size, newSize: minerva.Size): void;
+        constructor();
+        RootVisual: UIElement;
+        $$SetRootVisual(value: UIElement): void;
+        Attach(canvas: HTMLCanvasElement): void;
+        Start(): void;
+        OnTicked(lastTime: number, nowTime: number): void;
+        private StopEngine();
+        private ProcessStoryboards(lastTime, nowTime);
+        private Update();
+        private Render();
+        RegisterStoryboard(storyboard: ITimeline): void;
+        UnregisterStoryboard(storyboard: ITimeline): void;
+        static GetAsync(url: string): Promise<Application>;
+    }
+}
+declare module Fayde {
+    interface ITimerListener {
+        OnTicked(lastTime: number, nowTime: number): any;
+    }
+    class ClockTimer {
+        private _Listeners;
+        private _LastTime;
+        RegisterTimer(listener: Fayde.ITimerListener): void;
+        UnregisterTimer(listener: Fayde.ITimerListener): void;
+        private _DoTick();
+        private _RequestAnimationTick();
+    }
+}
+declare class Exception {
+    Message: string;
+    constructor(message: string);
+    toString(): string;
+}
+declare class ArgumentException extends Exception {
+    constructor(message: string);
+}
+declare class ArgumentNullException extends Exception {
+    constructor(message: string);
+}
+declare class InvalidOperationException extends Exception {
+    constructor(message: string);
+}
+declare class XamlParseException extends Exception {
+    constructor(message: string);
+}
+declare class XamlMarkupParseException extends Exception {
+    constructor(message: string);
+}
+declare class NotSupportedException extends Exception {
+    constructor(message: string);
+}
+declare class IndexOutOfRangeException extends Exception {
+    constructor(index: number);
+}
+declare class ArgumentOutOfRangeException extends Exception {
+    constructor(msg: string);
+}
+declare class AttachException extends Exception {
+    Data: any;
+    constructor(message: string, data: any);
+}
+declare class InvalidJsonException extends Exception {
+    JsonText: string;
+    InnerException: Error;
+    constructor(jsonText: string, innerException: Error);
+}
+declare class TargetInvocationException extends Exception {
+    InnerException: Exception;
+    constructor(message: string, innerException: Exception);
+}
+declare class UnknownTypeException extends Exception {
+    FullTypeName: string;
+    constructor(fullTypeName: string);
+}
+declare class FormatException extends Exception {
+    constructor(message: string);
+}
+declare module Fayde.Engine {
+    class FocusManager {
+        private _State;
+        private _ChangedEvents;
+        Node: UINode;
+        constructor(state: IInputState);
+        GetFocusToRoot(): UINode[];
+        OnNodeDetached(node: UINode): void;
+        TabFocus(isShift: boolean): boolean;
+        Focus(ctrlNode: Fayde.Controls.ControlNode, recurse?: boolean): boolean;
+        private _FocusNode(uin?);
+        EmitChanges(): void;
+        EmitChangesAsync(): void;
+        private _EmitFocusList(type, list);
+        FocusAnyLayer(walker: minerva.IWalker<minerva.core.Updater>): void;
+    }
+}
+declare module Fayde.Engine {
+    interface IInputState {
+        IsUserInitiated: boolean;
+        IsFirstUserInitiated: boolean;
+    }
+    class InputManager {
+        private _Surface;
+        private _KeyInterop;
+        private _MouseInterop;
+        private _TouchInterop;
+        private _Focus;
+        private _State;
+        private _Cursor;
+        SetCursor: (cursor: CursorType) => void;
+        private _CurrentPos;
+        private _EmittingMouseEvent;
+        private _InputList;
+        private _Captured;
+        private _PendingCapture;
+        private _PendingReleaseCapture;
+        private _CapturedInputList;
+        FocusedNode: UINode;
+        Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
+        constructor(surface: Surface);
+        Register(canvas: HTMLCanvasElement): void;
+        OnNodeDetached(node: UINode): void;
+        SetIsUserInitiatedEvent(value: boolean): void;
+        HandleKeyDown(args: Input.KeyEventArgs): void;
+        private _EmitKeyDown(list, args, endIndex?);
+        HandleMousePress(button: number, pos: Point): boolean;
+        HandleMouseRelease(button: number, pos: Point): void;
+        HandleMouseEvent(type: Input.MouseInputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean): boolean;
+        private _EmitMouseList(type, button, pos, delta, list, endIndex?);
+        HitTestPoint(pos: Point): UINode[];
+        UpdateCursorFromInputList(): void;
+        SetMouseCapture(uin: Fayde.UINode): boolean;
+        ReleaseMouseCapture(uin: Fayde.UINode): void;
+        private _PerformCapture(uin);
+        private _PerformReleaseCapture();
+    }
+}
+declare module Fayde.Engine {
+    class Inspection {
+        static TryHandle(type: Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs, htlist: UINode[]): boolean;
+        static Kill(): void;
+    }
+}
+declare var resizeTimeout: number;
+declare module Fayde {
+    class Surface extends minerva.engine.Surface {
+        App: Application;
+        private $$root;
+        private $$inputMgr;
+        private $$zoom;
+        HitTestCallback: (inputList: Fayde.UINode[]) => void;
+        constructor(app: Application);
+        init(canvas: HTMLCanvasElement): void;
+        Attach(uie: UIElement, root?: boolean): void;
+        attachLayer(layer: minerva.core.Updater, root?: boolean): void;
+        Detach(uie: UIElement): void;
+        detachLayer(layer: minerva.core.Updater): void;
+        updateLayout(): boolean;
+        private $$onLayoutUpdated();
+        Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
+        static HasFocus(uie: UIElement): boolean;
+        static Focus(uie: Controls.Control, recurse?: boolean): boolean;
+        static GetFocusedElement(uie: UIElement): UIElement;
+        static RemoveFocusFrom(uie: UIElement): boolean;
+        static SetMouseCapture(uin: Fayde.UINode): boolean;
+        static ReleaseMouseCapture(uin: Fayde.UINode): void;
+        private $$handleResize(evt?);
+        private $$stretchCanvas();
+        private $$updateZoom();
+        protected onZoomChanged(oldZoom: number, newZoom: number): void;
+        private $$setScrollbars(show);
+    }
+}
+declare module Fayde {
+    class Theme {
+        Name: string;
+        LibraryUri: Uri;
+        Resources: ResourceDictionary;
+        private $$loaded;
+        private $$retrieved;
+        static WarnMissing: boolean;
+        constructor(name: string, libUri: Uri);
+        RetrieveAsync(): Promise<string>;
+        LoadAsync(): Promise<Theme>;
+        GetImplicitStyle(type: any): Style;
+    }
+}
+declare module Fayde {
+    module ThemeConfig {
+        function GetRequestUri(uri: Uri, name: string): string;
+        function OverrideRequestUri(uri: Uri, templateUri: string): void;
+        function Set(libName: string, path: string): void;
+    }
+}
+declare module Fayde {
+    interface IThemeManager {
+        LoadAsync(themeName: string): Promise<any>;
+        FindStyle(defaultStyleKey: any): Style;
+    }
+    var DEFAULT_THEME_NAME: string;
+    var ThemeManager: IThemeManager;
+}
+>>>>>>> refs/remotes/wsick/master
 declare module Fayde {
     class Expression {
         IsUpdating: boolean;
@@ -3597,8 +3898,14 @@ declare module Fayde.Markup {
     }
 }
 declare module Fayde.Markup {
-    function Resolve(uri: string): any;
-    function Resolve(uri: Uri): any;
+    import XamlMarkup = nullstone.markup.xaml.XamlMarkup;
+    function Resolve(uri: string | Uri): Promise<XamlMarkup>;
+    function Resolve(uri: string | Uri, excludeUri: string | Uri): Promise<XamlMarkup>;
+}
+declare module Fayde.Markup {
+    import XamlMarkup = nullstone.markup.xaml.XamlMarkup;
+    function Retrieve(uri: string): Promise<XamlMarkup>;
+    function Retrieve(uri: Uri): Promise<XamlMarkup>;
 }
 declare module Fayde.Markup {
     class StaticResource implements nullstone.markup.IMarkupExtension {
@@ -4596,8 +4903,9 @@ declare module Fayde.Text {
         SyncText: (value: string) => void;
         constructor(eventsMask: EmitChangedType, maxUndoCount: number);
         setAnchorCursor(anchor: number, cursor: number): boolean;
-        enterText(newText: string): boolean;
+        enterText(newText: string, isPaste?: boolean): boolean;
         removeText(start: number, length: number): boolean;
+        paste(text: string): boolean;
         undo(): void;
         redo(): void;
         begin(): void;
@@ -5901,6 +6209,7 @@ declare module Fayde.Media.Videos {
     class VideoSourceBase extends Imaging.ImageSource implements minerva.controls.video.IVideoSource {
         protected $element: HTMLVideoElement;
         private $watchers;
+<<<<<<< HEAD
         createElement(): HTMLVideoElement;
         reset(): void;
         watch(watcher: IVideoSourceWatcher): nullstone.IDisposable;
@@ -5909,6 +6218,16 @@ declare module Fayde.Media.Videos {
         Pause(): void;
         GetBuffered(): TimeRanges;
         GetProgress(): TimeRanges;
+=======
+        private $autoplay;
+        createElement(): HTMLVideoElement;
+        reset(): void;
+        watch(watcher: IVideoSourceWatcher): nullstone.IDisposable;
+        setAutoPlay(value: boolean): void;
+        getIsPlaying(): boolean;
+        Play(): void;
+        Pause(): void;
+>>>>>>> refs/remotes/wsick/master
         protected onVideoErrored(e: ErrorEvent): void;
         protected onVideoCanPlay(): void;
         protected onVideoChanged(): void;
