@@ -1,7 +1,4 @@
 declare module Fayde {
-    var version: string;
-}
-declare module Fayde {
     class ThemedLibrary extends nullstone.Library {
         private $$themes;
         private $$activeTheme;
@@ -1900,24 +1897,13 @@ declare module Fayde.Controls {
     class MediaElement extends FrameworkElement {
         CreateLayoutUpdater(): VideoUpdater;
         private static _SourceCoercer(d, propd, value);
-<<<<<<< HEAD
         static SourceProperty: DependencyProperty;
         static StretchProperty: DependencyProperty;
-=======
-        static AutoPlayProperty: DependencyProperty;
-        static SourceProperty: DependencyProperty;
-        static StretchProperty: DependencyProperty;
-        AutoPlay: boolean;
->>>>>>> refs/remotes/wsick/master
         Source: Media.Videos.VideoSource;
         Stretch: Media.Stretch;
         VideoOpened: nullstone.Event<{}>;
         VideoFailed: nullstone.Event<{}>;
         private $watcher;
-<<<<<<< HEAD
-=======
-        protected OnAutoPlayChanged(oldValue: boolean, newValue: boolean): void;
->>>>>>> refs/remotes/wsick/master
         OnSourceChanged(oldSource: Media.Videos.VideoSourceBase, newSource: Media.Videos.VideoSourceBase): void;
         OnVideoErrored(source: Media.Videos.VideoSourceBase, error: Error): void;
         OnVideoCanPlay(source: Media.Videos.VideoSourceBase): void;
@@ -2039,7 +2025,6 @@ declare module Fayde.Controls {
         static SelectionStartProperty: DependencyProperty;
         static BaselineOffsetProperty: DependencyProperty;
         static MaxLengthProperty: DependencyProperty;
-        static SelectionOnFocusProperty: DependencyProperty;
         CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
@@ -2056,11 +2041,7 @@ declare module Fayde.Controls {
         $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
-<<<<<<< HEAD
         $CPHelper: Internal.TextCopyPasteHelper;
-=======
-        $Clipboard: Clipboard.IClipboard;
->>>>>>> refs/remotes/wsick/master
         constructor(eventsMask: Text.EmitChangedType);
         private _SyncFont();
         CreateView(): Internal.TextBoxView;
@@ -2892,8 +2873,6 @@ declare module Fayde.Documents {
     class Underline extends Span {
     }
 }
-<<<<<<< HEAD
-=======
 interface ITimeline {
     Update(nowTime: number): any;
 }
@@ -3120,7 +3099,6 @@ declare module Fayde {
     var DEFAULT_THEME_NAME: string;
     var ThemeManager: IThemeManager;
 }
->>>>>>> refs/remotes/wsick/master
 declare module Fayde {
     class Expression {
         IsUpdating: boolean;
@@ -3243,12 +3221,6 @@ declare module Fayde.Input {
     }
 }
 declare module Fayde.Input {
-    interface IKeyInterop {
-        RegisterEvents(inputHandler: Engine.InputManager): any;
-    }
-    function CreateKeyInterop(): IKeyInterop;
-}
-declare module Fayde.Input {
     class KeyboardNavigation {
         static AcceptsReturnProperty: DependencyProperty;
         static GetAcceptsReturn(d: DependencyObject): boolean;
@@ -3269,6 +3241,12 @@ declare module Fayde.Input {
         static GetTabNavigation(d: DependencyObject): KeyboardNavigationMode;
         static SetTabNavigation(d: DependencyObject, value: KeyboardNavigationMode): void;
     }
+}
+declare module Fayde.Input {
+    interface IKeyInterop {
+        RegisterEvents(inputHandler: Engine.InputManager): any;
+    }
+    function CreateKeyInterop(): IKeyInterop;
 }
 declare module Fayde.Input {
     class MouseEventArgs extends RoutedEventArgs {
@@ -3354,222 +3332,6 @@ declare module Fayde.Input {
         static Init(): void;
         static Launch(): void;
     }
-}
-interface ITimeline {
-    Update(nowTime: number): any;
-}
-declare module Fayde {
-    class Application extends DependencyObject implements IResourcable, ITimerListener {
-        static Current: Application;
-        MainSurface: Surface;
-        Loaded: nullstone.Event<{}>;
-        Address: Uri;
-        AllowNavigation: boolean;
-        private _IsRunning;
-        private _IsLoaded;
-        private _Storyboards;
-        private _ClockTimer;
-        private _RootVisual;
-        static ResourcesProperty: ImmutableDependencyProperty<ResourceDictionary>;
-        static ThemeNameProperty: DependencyProperty;
-        Resources: ResourceDictionary;
-        ThemeName: string;
-        private OnThemeNameChanged(args);
-        private _ApplyTheme();
-        Resized: RoutedEvent<SizeChangedEventArgs>;
-        OnResized(oldSize: minerva.Size, newSize: minerva.Size): void;
-        constructor();
-        RootVisual: UIElement;
-        $$SetRootVisual(value: UIElement): void;
-        Attach(canvas: HTMLCanvasElement): void;
-        Start(): void;
-        OnTicked(lastTime: number, nowTime: number): void;
-        private StopEngine();
-        private ProcessStoryboards(lastTime, nowTime);
-        private Update();
-        private Render();
-        RegisterStoryboard(storyboard: ITimeline): void;
-        UnregisterStoryboard(storyboard: ITimeline): void;
-        static GetAsync(url: string): nullstone.async.IAsyncRequest<Application>;
-        Resolve(): nullstone.async.IAsyncRequest<Application>;
-    }
-}
-declare module Fayde {
-    interface ITimerListener {
-        OnTicked(lastTime: number, nowTime: number): any;
-    }
-    class ClockTimer {
-        private _Listeners;
-        private _LastTime;
-        RegisterTimer(listener: Fayde.ITimerListener): void;
-        UnregisterTimer(listener: Fayde.ITimerListener): void;
-        private _DoTick();
-        private _RequestAnimationTick();
-    }
-}
-declare class Exception {
-    Message: string;
-    constructor(message: string);
-    toString(): string;
-}
-declare class ArgumentException extends Exception {
-    constructor(message: string);
-}
-declare class ArgumentNullException extends Exception {
-    constructor(message: string);
-}
-declare class InvalidOperationException extends Exception {
-    constructor(message: string);
-}
-declare class XamlParseException extends Exception {
-    constructor(message: string);
-}
-declare class XamlMarkupParseException extends Exception {
-    constructor(message: string);
-}
-declare class NotSupportedException extends Exception {
-    constructor(message: string);
-}
-declare class IndexOutOfRangeException extends Exception {
-    constructor(index: number);
-}
-declare class ArgumentOutOfRangeException extends Exception {
-    constructor(msg: string);
-}
-declare class AttachException extends Exception {
-    Data: any;
-    constructor(message: string, data: any);
-}
-declare class InvalidJsonException extends Exception {
-    JsonText: string;
-    InnerException: Error;
-    constructor(jsonText: string, innerException: Error);
-}
-declare class TargetInvocationException extends Exception {
-    InnerException: Exception;
-    constructor(message: string, innerException: Exception);
-}
-declare class UnknownTypeException extends Exception {
-    FullTypeName: string;
-    constructor(fullTypeName: string);
-}
-declare class FormatException extends Exception {
-    constructor(message: string);
-}
-declare module Fayde.Engine {
-    class FocusManager {
-        private _State;
-        private _ChangedEvents;
-        Node: UINode;
-        constructor(state: IInputState);
-        GetFocusToRoot(): UINode[];
-        OnNodeDetached(node: UINode): void;
-        TabFocus(isShift: boolean): boolean;
-        Focus(ctrlNode: Fayde.Controls.ControlNode, recurse?: boolean): boolean;
-        private _FocusNode(uin?);
-        EmitChanges(): void;
-        EmitChangesAsync(): void;
-        private _EmitFocusList(type, list);
-        FocusAnyLayer(walker: minerva.IWalker<minerva.core.Updater>): void;
-    }
-}
-declare module Fayde.Engine {
-    interface IInputState {
-        IsUserInitiated: boolean;
-        IsFirstUserInitiated: boolean;
-    }
-    class InputManager {
-        private _Surface;
-        private _KeyInterop;
-        private _MouseInterop;
-        private _TouchInterop;
-        private _Focus;
-        private _State;
-        private _Cursor;
-        SetCursor: (cursor: CursorType) => void;
-        private _CurrentPos;
-        private _EmittingMouseEvent;
-        private _InputList;
-        private _Captured;
-        private _PendingCapture;
-        private _PendingReleaseCapture;
-        private _CapturedInputList;
-        FocusedNode: UINode;
-        Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
-        constructor(surface: Surface);
-        Register(canvas: HTMLCanvasElement): void;
-        OnNodeDetached(node: UINode): void;
-        SetIsUserInitiatedEvent(value: boolean): void;
-        HandleKeyDown(args: Input.KeyEventArgs): void;
-        private _EmitKeyDown(list, args, endIndex?);
-        HandleMousePress(button: number, pos: Point): boolean;
-        HandleMouseRelease(button: number, pos: Point): void;
-        HandleMouseEvent(type: Input.MouseInputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean): boolean;
-        private _EmitMouseList(type, button, pos, delta, list, endIndex?);
-        HitTestPoint(pos: Point): UINode[];
-        UpdateCursorFromInputList(): void;
-        SetMouseCapture(uin: Fayde.UINode): boolean;
-        ReleaseMouseCapture(uin: Fayde.UINode): void;
-        private _PerformCapture(uin);
-        private _PerformReleaseCapture();
-    }
-}
-declare module Fayde.Engine {
-    class Inspection {
-        static TryHandle(type: Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs, htlist: UINode[]): boolean;
-        static Kill(): void;
-    }
-}
-declare var resizeTimeout: number;
-declare module Fayde {
-    class Surface extends minerva.engine.Surface {
-        App: Application;
-        private $$root;
-        private $$inputMgr;
-        HitTestCallback: (inputList: Fayde.UINode[]) => void;
-        constructor(app: Application);
-        init(canvas: HTMLCanvasElement): void;
-        Attach(uie: UIElement, root?: boolean): void;
-        attachLayer(layer: minerva.core.Updater, root?: boolean): void;
-        Detach(uie: UIElement): void;
-        detachLayer(layer: minerva.core.Updater): void;
-        updateLayout(): boolean;
-        private $$onLayoutUpdated();
-        Focus(node: Controls.ControlNode, recurse?: boolean): boolean;
-        static HasFocus(uie: UIElement): boolean;
-        static Focus(uie: Controls.Control, recurse?: boolean): boolean;
-        static GetFocusedElement(uie: UIElement): UIElement;
-        static RemoveFocusFrom(uie: UIElement): boolean;
-        static SetMouseCapture(uin: Fayde.UINode): boolean;
-        static ReleaseMouseCapture(uin: Fayde.UINode): void;
-        private $$handleResize(evt);
-        private $$stretchCanvas();
-    }
-}
-declare module Fayde {
-    class Theme {
-        Name: string;
-        LibraryUri: Uri;
-        Resources: ResourceDictionary;
-        static WarnMissing: boolean;
-        constructor(name: string, libUri: Uri);
-        LoadAsync(): nullstone.async.IAsyncRequest<Theme>;
-        GetImplicitStyle(type: any): Style;
-    }
-}
-declare module Fayde {
-    module ThemeConfig {
-        function GetRequestUri(uri: Uri, name: string): string;
-        function OverrideRequestUri(uri: Uri, templateUri: string): void;
-        function Set(libName: string, path: string): void;
-    }
-}
-declare module Fayde {
-    interface IThemeManager {
-        LoadAsync(themeName: string): nullstone.async.IAsyncRequest<any>;
-        FindStyle(defaultStyleKey: any): Style;
-    }
-    var ThemeManager: IThemeManager;
 }
 declare class TimeSpan {
     static _TicksPerMillisecond: number;
@@ -3782,104 +3544,6 @@ declare module Fayde.Localization {
 }
 declare module Fayde.Localization {
 }
-declare module Fayde.MVVM {
-    interface IValidationFunc {
-        (value: any, propertyName: string, entity: any): any[];
-    }
-    interface IAutoApplier<T> {
-        Notify(...properties: string[]): IAutoApplier<T>;
-        Notify(properties: string[]): IAutoApplier<T>;
-        Validate(propertyName: string, ...validators: IValidationFunc[]): IAutoApplier<T>;
-        Finish(): T;
-    }
-    function AutoModel<T>(typeOrModel: any): IAutoApplier<T>;
-}
-declare module Fayde.MVVM {
-    function NotifyProperties(type: any, propNames: string[]): void;
-    class ObservableObject implements INotifyPropertyChanged {
-        PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
-        OnPropertyChanged(propertyName: string): void;
-    }
-}
-declare module Fayde.MVVM {
-    class ViewModelBase extends ObservableObject {
-    }
-}
-declare module Fayde.MVVM {
-    interface IDialogViewModelSettings<TAccept, TBuilder> {
-        AcceptAction?: (data: TAccept) => any;
-        CompleteAction?: (pars: IOverlayCompleteParameters) => any;
-        ViewModelBuilder?: (builder: TBuilder) => any;
-        CanOpen?: (builder: TBuilder) => boolean;
-    }
-    class DialogViewModel<TBuilder, TAccept> extends ViewModelBase {
-        IsOpen: boolean;
-        OverlayDataContext: any;
-        RequestOpenCommand: RelayCommand;
-        ClosedCommand: RelayCommand;
-        AcceptAction: (data: TAccept) => any;
-        CompleteAction: (pars: IOverlayCompleteParameters) => any;
-        ViewModelBuilder: (builder: TBuilder) => any;
-        CanOpen: (builder: TBuilder) => boolean;
-        constructor(settings?: IDialogViewModelSettings<TAccept, TBuilder>);
-        private Closed_Execute(parameter);
-        private RequestOpen_Execute(parameter);
-        private RequestOpen_CanExecute(parameter);
-    }
-}
-declare module Fayde.MVVM {
-    interface IEntity extends INotifyPropertyChanged, Data.INotifyDataErrorInfo {
-        OnPropertyChanged(propertyName: string): any;
-        AddError(propertyName: string, errorMessage: string): any;
-        RemoveError(propertyName: string, errorMessage: string): any;
-        ClearErrors(propertyName: string): any;
-    }
-    class Entity implements IEntity {
-        PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
-        OnPropertyChanged(propertyName: string): void;
-        private _Errors;
-        ErrorsChanged: nullstone.Event<Data.DataErrorsChangedEventArgs>;
-        HasErrors: boolean;
-        AddError(propertyName: string, errorMessage: string): void;
-        RemoveError(propertyName: string, errorMessage: string): void;
-        ClearErrors(propertyName: string): void;
-        GetErrors(propertyName: string): nullstone.IEnumerable<string>;
-        static ApplyTo<TIn, TOut extends IEntity>(model: TIn): TOut;
-    }
-}
-declare module Fayde.MVVM {
-    interface IOverlayCompleteParameters {
-        Result: boolean;
-        Data: any;
-    }
-}
-declare module Fayde.Navigation {
-    class Route {
-        View: Uri;
-        HashParams: {
-            [key: string]: string;
-        };
-        DataContext: any;
-        constructor(view: Uri, hashParams: {
-            [key: string]: string;
-        }, dataContext: any);
-    }
-}
-declare module Fayde.MVVM {
-    interface IViewModelProvider {
-        ResolveViewModel(route: Fayde.Navigation.Route): any;
-    }
-    var IViewModelProvider_: nullstone.Interface<IViewModelProvider>;
-}
-declare module Fayde.MVVM {
-    class RelayCommand implements Input.ICommand {
-        constructor(execute?: (parameter: any) => void, canExecute?: (parameter: any) => boolean);
-        Execute(parameter: any): void;
-        CanExecute(parameter: any): boolean;
-        CanExecuteChanged: nullstone.Event<{}>;
-        ForceCanExecuteChanged(): void;
-    }
-}
 declare module Fayde.Markup {
     interface IEventFilter {
         Filter(sender: any, e: nullstone.IEventArgs, parameter: any): boolean;
@@ -4052,15 +3716,6 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media {
-    class LineGeometry extends Geometry {
-        static StartPointProperty: DependencyProperty;
-        static EndPointProperty: DependencyProperty;
-        StartPoint: Point;
-        EndPoint: Point;
-        _Build(): minerva.path.Path;
-    }
-}
-declare module Fayde.Media {
     class LinearGradientBrush extends GradientBrush {
         static StartPointProperty: DependencyProperty;
         static EndPointProperty: DependencyProperty;
@@ -4072,6 +3727,15 @@ declare module Fayde.Media {
         private CreateInterpolated(ctx, interpolator);
         private _GetPointData(bounds);
         toString(): string;
+    }
+}
+declare module Fayde.Media {
+    class LineGeometry extends Geometry {
+        static StartPointProperty: DependencyProperty;
+        static EndPointProperty: DependencyProperty;
+        StartPoint: Point;
+        EndPoint: Point;
+        _Build(): minerva.path.Path;
     }
 }
 declare module Fayde.Media {
@@ -4411,6 +4075,104 @@ declare module Fayde.Media {
         Children: TransformCollection;
         constructor();
         _BuildValue(): number[];
+    }
+}
+declare module Fayde.MVVM {
+    interface IValidationFunc {
+        (value: any, propertyName: string, entity: any): any[];
+    }
+    interface IAutoApplier<T> {
+        Notify(...properties: string[]): IAutoApplier<T>;
+        Notify(properties: string[]): IAutoApplier<T>;
+        Validate(propertyName: string, ...validators: IValidationFunc[]): IAutoApplier<T>;
+        Finish(): T;
+    }
+    function AutoModel<T>(typeOrModel: any): IAutoApplier<T>;
+}
+declare module Fayde.MVVM {
+    function NotifyProperties(type: any, propNames: string[]): void;
+    class ObservableObject implements INotifyPropertyChanged {
+        PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
+        OnPropertyChanged(propertyName: string): void;
+    }
+}
+declare module Fayde.MVVM {
+    class ViewModelBase extends ObservableObject {
+    }
+}
+declare module Fayde.MVVM {
+    interface IDialogViewModelSettings<TAccept, TBuilder> {
+        AcceptAction?: (data: TAccept) => any;
+        CompleteAction?: (pars: IOverlayCompleteParameters) => any;
+        ViewModelBuilder?: (builder: TBuilder) => any;
+        CanOpen?: (builder: TBuilder) => boolean;
+    }
+    class DialogViewModel<TBuilder, TAccept> extends ViewModelBase {
+        IsOpen: boolean;
+        OverlayDataContext: any;
+        RequestOpenCommand: RelayCommand;
+        ClosedCommand: RelayCommand;
+        AcceptAction: (data: TAccept) => any;
+        CompleteAction: (pars: IOverlayCompleteParameters) => any;
+        ViewModelBuilder: (builder: TBuilder) => any;
+        CanOpen: (builder: TBuilder) => boolean;
+        constructor(settings?: IDialogViewModelSettings<TAccept, TBuilder>);
+        private Closed_Execute(parameter);
+        private RequestOpen_Execute(parameter);
+        private RequestOpen_CanExecute(parameter);
+    }
+}
+declare module Fayde.MVVM {
+    interface IEntity extends INotifyPropertyChanged, Data.INotifyDataErrorInfo {
+        OnPropertyChanged(propertyName: string): any;
+        AddError(propertyName: string, errorMessage: string): any;
+        RemoveError(propertyName: string, errorMessage: string): any;
+        ClearErrors(propertyName: string): any;
+    }
+    class Entity implements IEntity {
+        PropertyChanged: nullstone.Event<PropertyChangedEventArgs>;
+        OnPropertyChanged(propertyName: string): void;
+        private _Errors;
+        ErrorsChanged: nullstone.Event<Data.DataErrorsChangedEventArgs>;
+        HasErrors: boolean;
+        AddError(propertyName: string, errorMessage: string): void;
+        RemoveError(propertyName: string, errorMessage: string): void;
+        ClearErrors(propertyName: string): void;
+        GetErrors(propertyName: string): nullstone.IEnumerable<string>;
+        static ApplyTo<TIn, TOut extends IEntity>(model: TIn): TOut;
+    }
+}
+declare module Fayde.MVVM {
+    interface IOverlayCompleteParameters {
+        Result: boolean;
+        Data: any;
+    }
+}
+declare module Fayde.Navigation {
+    class Route {
+        View: Uri;
+        HashParams: {
+            [key: string]: string;
+        };
+        DataContext: any;
+        constructor(view: Uri, hashParams: {
+            [key: string]: string;
+        }, dataContext: any);
+    }
+}
+declare module Fayde.MVVM {
+    interface IViewModelProvider {
+        ResolveViewModel(route: Fayde.Navigation.Route): any;
+    }
+    var IViewModelProvider_: nullstone.Interface<IViewModelProvider>;
+}
+declare module Fayde.MVVM {
+    class RelayCommand implements Input.ICommand {
+        constructor(execute?: (parameter: any) => void, canExecute?: (parameter: any) => boolean);
+        Execute(parameter: any): void;
+        CanExecute(parameter: any): boolean;
+        CanExecuteChanged: nullstone.Event<{}>;
+        ForceCanExecuteChanged(): void;
     }
 }
 declare module Fayde.Navigation {
@@ -5508,6 +5270,39 @@ declare module Fayde.Markup.Internal {
     }
     function createResourcesActor(cur: IActiveObject, resources: ResourceDictionary[]): IResourcesActor;
 }
+declare module Fayde.Media.Effects {
+    class Effect extends DependencyObject implements minerva.IEffect {
+        static EffectMappingProperty: DependencyProperty;
+        EffectMapping: GeneralTransform;
+        PreRender(ctx: minerva.core.render.RenderContext): void;
+        PostRender(ctx: minerva.core.render.RenderContext): void;
+        GetPadding(thickness: Thickness): boolean;
+    }
+}
+declare module Fayde.Media.Effects {
+    class BlurEffect extends Effect {
+        static RadiusProperty: DependencyProperty;
+        Radius: number;
+    }
+}
+declare module Fayde.Media.Effects {
+    class DropShadowEffect extends Effect {
+        static MAX_BLUR_RADIUS: number;
+        static MAX_SHADOW_DEPTH: number;
+        static BlurRadiusProperty: DependencyProperty;
+        static ColorProperty: DependencyProperty;
+        static DirectionProperty: DependencyProperty;
+        static OpacityProperty: DependencyProperty;
+        static ShadowDepthProperty: DependencyProperty;
+        BlurRadius: number;
+        Color: Color;
+        Direction: number;
+        Opacity: number;
+        ShadowDepth: number;
+        GetPadding(thickness: Thickness): boolean;
+        PreRender(ctx: minerva.core.render.RenderContext): void;
+    }
+}
 declare module Fayde.Media.Animation {
     enum EasingMode {
         EaseOut = 0,
@@ -5977,39 +5772,6 @@ declare module Fayde.Media.Animation {
         GetNaturalDurationCore(): Duration;
     }
 }
-declare module Fayde.Media.Effects {
-    class Effect extends DependencyObject implements minerva.IEffect {
-        static EffectMappingProperty: DependencyProperty;
-        EffectMapping: GeneralTransform;
-        PreRender(ctx: minerva.core.render.RenderContext): void;
-        PostRender(ctx: minerva.core.render.RenderContext): void;
-        GetPadding(thickness: Thickness): boolean;
-    }
-}
-declare module Fayde.Media.Effects {
-    class BlurEffect extends Effect {
-        static RadiusProperty: DependencyProperty;
-        Radius: number;
-    }
-}
-declare module Fayde.Media.Effects {
-    class DropShadowEffect extends Effect {
-        static MAX_BLUR_RADIUS: number;
-        static MAX_SHADOW_DEPTH: number;
-        static BlurRadiusProperty: DependencyProperty;
-        static ColorProperty: DependencyProperty;
-        static DirectionProperty: DependencyProperty;
-        static OpacityProperty: DependencyProperty;
-        static ShadowDepthProperty: DependencyProperty;
-        BlurRadius: number;
-        Color: Color;
-        Direction: number;
-        Opacity: number;
-        ShadowDepth: number;
-        GetPadding(thickness: Thickness): boolean;
-        PreRender(ctx: minerva.core.render.RenderContext): void;
-    }
-}
 declare module Fayde.Media.Imaging {
     class ImageSource extends DependencyObject implements minerva.controls.image.IImageSource {
         static PixelWidthProperty: DependencyProperty;
@@ -6122,6 +5884,40 @@ declare module Fayde.Media.RadialGradient {
     }
     function createExtender(data: IRadialPointData, bounds: minerva.Rect): IExtender;
 }
+declare module Fayde.Media.Videos {
+    interface IVideoSourceWatcher {
+        onErrored(source: VideoSourceBase, error: Error): any;
+        onCanPlay(source: VideoSourceBase): any;
+        onChanged(source: VideoSourceBase): any;
+    }
+    class VideoSourceBase extends Imaging.ImageSource implements minerva.controls.video.IVideoSource {
+        protected $element: HTMLVideoElement;
+        private $watchers;
+        createElement(): HTMLVideoElement;
+        reset(): void;
+        watch(watcher: IVideoSourceWatcher): nullstone.IDisposable;
+        getIsPlaying(): boolean;
+        Play(): void;
+        Pause(): void;
+        GetBuffered(): TimeRanges;
+        GetProgress(): TimeRanges;
+        protected onVideoErrored(e: ErrorEvent): void;
+        protected onVideoCanPlay(): void;
+        protected onVideoChanged(): void;
+    }
+}
+declare module Fayde.Media.Videos {
+    class VideoSource extends VideoSourceBase {
+        static UriSourceProperty: DependencyProperty;
+        UriSource: Uri;
+        VideoFailed: nullstone.Event<{}>;
+        VideoOpened: nullstone.Event<{}>;
+        constructor(uri?: Uri);
+        private _UriSourceChanged(args);
+        protected OnUriSourceChanged(oldValue: Uri, newValue: Uri): void;
+        protected onVideoErrored(e: ErrorEvent): void;
+    }
+}
 declare module Fayde.Media.VSM {
     class VisualState extends DependencyObject {
         static StoryboardProperty: DependencyProperty;
@@ -6198,51 +5994,6 @@ declare module Fayde.Media.VSM {
         ExplicitStoryboardCompleted: boolean;
         GeneratedEasingFunction: Animation.EasingFunctionBase;
         IsDefault: boolean;
-    }
-}
-declare module Fayde.Media.Videos {
-    interface IVideoSourceWatcher {
-        onErrored(source: VideoSourceBase, error: Error): any;
-        onCanPlay(source: VideoSourceBase): any;
-        onChanged(source: VideoSourceBase): any;
-    }
-    class VideoSourceBase extends Imaging.ImageSource implements minerva.controls.video.IVideoSource {
-        protected $element: HTMLVideoElement;
-        private $watchers;
-<<<<<<< HEAD
-        createElement(): HTMLVideoElement;
-        reset(): void;
-        watch(watcher: IVideoSourceWatcher): nullstone.IDisposable;
-        getIsPlaying(): boolean;
-        Play(): void;
-        Pause(): void;
-        GetBuffered(): TimeRanges;
-        GetProgress(): TimeRanges;
-=======
-        private $autoplay;
-        createElement(): HTMLVideoElement;
-        reset(): void;
-        watch(watcher: IVideoSourceWatcher): nullstone.IDisposable;
-        setAutoPlay(value: boolean): void;
-        getIsPlaying(): boolean;
-        Play(): void;
-        Pause(): void;
->>>>>>> refs/remotes/wsick/master
-        protected onVideoErrored(e: ErrorEvent): void;
-        protected onVideoCanPlay(): void;
-        protected onVideoChanged(): void;
-    }
-}
-declare module Fayde.Media.Videos {
-    class VideoSource extends VideoSourceBase {
-        static UriSourceProperty: DependencyProperty;
-        UriSource: Uri;
-        VideoFailed: nullstone.Event<{}>;
-        VideoOpened: nullstone.Event<{}>;
-        constructor(uri?: Uri);
-        private _UriSourceChanged(args);
-        protected OnUriSourceChanged(oldValue: Uri, newValue: Uri): void;
-        protected onVideoErrored(e: ErrorEvent): void;
     }
 }
 declare module Fayde.Text.History {

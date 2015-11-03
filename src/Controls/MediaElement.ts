@@ -17,15 +17,10 @@ module Fayde.Controls {
             return value;
         }
 
-<<<<<<< HEAD
-        static SourceProperty = DependencyProperty.RegisterFull("Source", () => Media.Videos.VideoSource, MediaElement, undefined, undefined, MediaElement._SourceCoercer);
-        static StretchProperty = DependencyProperty.RegisterCore("Stretch", () => new Enum(Media.Stretch), MediaElement, Media.Stretch.Uniform);
-=======
         static AutoPlayProperty = DependencyProperty.Register("AutoPlay", () => Boolean, MediaElement, true, (d: MediaElement, args) => d.OnAutoPlayChanged(args.OldValue, args.NewValue));
         static SourceProperty = DependencyProperty.RegisterFull("Source", () => Media.Videos.VideoSource, MediaElement, undefined, undefined, MediaElement._SourceCoercer);
         static StretchProperty = DependencyProperty.RegisterCore("Stretch", () => new Enum(Media.Stretch), MediaElement, Media.Stretch.Uniform);
         AutoPlay: boolean;
->>>>>>> refs/remotes/wsick/master
         Source: Media.Videos.VideoSource;
         Stretch: Media.Stretch;
 
@@ -34,25 +29,19 @@ module Fayde.Controls {
 
         private $watcher: nullstone.IDisposable = null;
 
-<<<<<<< HEAD
-=======
         protected OnAutoPlayChanged(oldValue: boolean, newValue: boolean) {
             var source = this.Source;
             if (source instanceof Media.Videos.VideoSourceBase)
                 source.setAutoPlay(newValue);
         }
 
->>>>>>> refs/remotes/wsick/master
         OnSourceChanged(oldSource: Media.Videos.VideoSourceBase, newSource: Media.Videos.VideoSourceBase) {
             if (this.$watcher) {
                 this.$watcher.dispose();
                 this.$watcher = null;
             }
             if (newSource instanceof Media.Videos.VideoSourceBase) {
-<<<<<<< HEAD
-=======
                 newSource.setAutoPlay(this.AutoPlay);
->>>>>>> refs/remotes/wsick/master
                 this.$watcher = newSource.watch({
                     onErrored: (source, error) => this.OnVideoErrored(source, error),
                     onCanPlay: (source) => this.OnVideoCanPlay(source),

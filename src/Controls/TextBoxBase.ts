@@ -13,10 +13,6 @@ module Fayde.Controls {
         static SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
         static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBoxBase);
         static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBoxBase, 0, undefined, undefined, undefined, positiveIntValidator);
-<<<<<<< HEAD
-=======
-        static SelectionOnFocusProperty = DependencyProperty.Register("SelectionOnFocus", () => new Enum(SelectionOnFocus), TextBoxBase, SelectionOnFocus.Default);
->>>>>>> refs/remotes/wsick/master
 
         CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
@@ -37,11 +33,7 @@ module Fayde.Controls {
         $Proxy: Text.Proxy;
         $Advancer: Internal.ICursorAdvancer;
         $View: Internal.TextBoxView;
-<<<<<<< HEAD
-        $CPHelper: Internal.TextCopyPasteHelper;
-=======
         $Clipboard = Clipboard.Create();
->>>>>>> refs/remotes/wsick/master
 
         constructor(eventsMask: Text.EmitChangedType) {
             super();
@@ -49,10 +41,6 @@ module Fayde.Controls {
             view.MouseLeftButtonDown.on((s, e) => this.OnMouseLeftButtonDown(e), this);
             view.MouseLeftButtonUp.on((s, e) => this.OnMouseLeftButtonUp(e), this);
             this.$Proxy = new Text.Proxy(eventsMask, MAX_UNDO_COUNT);
-<<<<<<< HEAD
-            this.$CPHelper = new Internal.TextCopyPasteHelper();
-=======
->>>>>>> refs/remotes/wsick/master
             this._SyncFont();
         }
 
@@ -266,25 +254,13 @@ module Fayde.Controls {
                                 break;
                             case Key.C:
                                 //Ctrl+C => Copy
-<<<<<<< HEAD
-                                //TODO: Copy to clipboard
-                                if (isReadOnly)
-                                    break;
-                                
-                                this.$CPHelper.CopyText(this.$Proxy.getSelectedText());
-=======
                                 this.$Clipboard.CopyText(this.$Proxy.getSelectedText());
->>>>>>> refs/remotes/wsick/master
                                 handled = true;
                                 break;
                             case Key.X:
                                 //Ctrl+X => Cut
                                 if (isReadOnly)
                                     break;
-<<<<<<< HEAD
-                                this.$CPHelper.CopyText(this.$Proxy.getSelectedText());
-                                proxy.removeText(this.$Proxy.selAnchor, this.$Proxy.selCursor);
-=======
                                 this.$Clipboard.CopyText(this.$Proxy.getSelectedText());
                                 proxy.removeText(this.$Proxy.selAnchor, this.$Proxy.selCursor);
                                 handled = true;
@@ -294,7 +270,6 @@ module Fayde.Controls {
                                 if (isReadOnly)
                                     break;
                                 this.$Clipboard.GetTextContents((text) => proxy.paste(text));
->>>>>>> refs/remotes/wsick/master
                                 handled = true;
                                 break;
                             case Key.Y:

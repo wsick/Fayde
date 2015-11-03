@@ -180,13 +180,9 @@ module Fayde.Input {
             }
             return args;
         }
-<<<<<<< HEAD
-        CreateArgsDown(e): Fayde.Input.KeyEventArgs {
-=======
 
         CreateArgsDown(e): KeyEventArgs {
             //NOTE: Ctrl+[key] does not flow through press
->>>>>>> refs/remotes/wsick/master
             if (e["char"] && e.keyCode !== 8 && e.keyCode !== 9 && !e.ctrlKey)
                 return;
             var modifiers = {
@@ -246,10 +242,7 @@ module Fayde.Input {
 
         CreateArgsDown(e): KeyEventArgs {
             //only do for special keys
-<<<<<<< HEAD
-=======
             //NOTE: Ctrl+[key] does not flow through press
->>>>>>> refs/remotes/wsick/master
             if (sknet[e.keyCode] === undefined && !e.ctrlKey)
                 return null;
 

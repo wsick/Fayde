@@ -12,10 +12,7 @@ module Fayde.Media.Videos {
     export class VideoSourceBase extends Imaging.ImageSource implements minerva.controls.video.IVideoSource {
         protected $element: HTMLVideoElement;
         private $watchers: IVideoSourceWatcher[] = [];
-<<<<<<< HEAD
-=======
         private $autoplay = true;
->>>>>>> refs/remotes/wsick/master
 
         createElement(): HTMLVideoElement {
             return document.createElement("video");
@@ -23,10 +20,7 @@ module Fayde.Media.Videos {
 
         reset() {
             super.reset();
-<<<<<<< HEAD
-=======
             this.setAutoPlay(this.$autoplay);
->>>>>>> refs/remotes/wsick/master
             this.$element.onerror = (e: ErrorEvent) => this.onVideoErrored(e);
             this.$element.oncanplay = (e) => this.onVideoCanPlay();
             this.onVideoChanged();
@@ -44,8 +38,6 @@ module Fayde.Media.Videos {
             }
         }
 
-<<<<<<< HEAD
-=======
         setAutoPlay(value: boolean) {
             this.$autoplay = value;
             if (!value)
@@ -54,7 +46,6 @@ module Fayde.Media.Videos {
                 this.$element.setAttribute("autoplay", "autoplay");
         }
 
->>>>>>> refs/remotes/wsick/master
         getIsPlaying(): boolean {
             var video = this.$element;
             return !!video && !video.paused && !video.ended;
@@ -68,17 +59,6 @@ module Fayde.Media.Videos {
             this.$element.pause();
         }
 
-<<<<<<< HEAD
-        GetBuffered(): TimeRanges {
-            return this.$element.buffered;
-        }
-
-        GetProgress(): TimeRanges {
-            return this.$element.played;
-        }
-
-=======
->>>>>>> refs/remotes/wsick/master
         protected onVideoErrored(e: ErrorEvent) {
             console.info("Failed to load: " + this.$element.src.toString());
             for (var i = 0, watchers = this.$watchers; i < watchers.length; i++) {

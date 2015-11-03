@@ -19,13 +19,8 @@
     "Gruntfile.js"
   ],
   "dependencies": {
-<<<<<<< HEAD
-    "minerva": "~0.7.1",
-    "nullstone": "~0.4.3",
-=======
     "minerva": "~0.7.2",
     "nullstone": "~0.4.4",
->>>>>>> refs/remotes/wsick/master
     "requirejs": "~2.1.15",
     "requirejs-text": "~2.0.12",
     "perfex": "~0.1.0"
