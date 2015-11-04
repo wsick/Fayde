@@ -279,16 +279,6 @@ module Fayde.Controls {
                                     proxy.redo();
                                 }
                                 break;
-                            case Key.V:
-                                if (isReadOnly)
-                                    break;
-                                this.$CPHelper.PasteText(function(pastedText) {
-                                    this.$Proxy.enterText(pastedText);
-                                    var cursor = proxy.selCursor;
-                                    cursor = cursor + pastedText.length - 1;
-                                    this.$Proxy.setAnchorCursor(cursor, cursor);
-                                }.bind(this));
-                                break;
                             case Key.Z:
                                 //Ctrl+Z => Undo
                                 if (isReadOnly)
