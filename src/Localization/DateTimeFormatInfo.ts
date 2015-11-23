@@ -46,7 +46,7 @@ module Fayde.Localization {
             "Dec"
         ];
         AMDesignator: string = "AM";
-        Calendar = new Calendar();
+        Calendar: Calendar;
         CalendarWeekRule: CalendarWeekRule = CalendarWeekRule.FirstDay;
         DateSeparator: string = "/";
         DayNames: string[] = [
@@ -123,7 +123,11 @@ module Fayde.Localization {
             return eras[era];
         }
 
-        static Instance = new DateTimeFormatInfo();
+        constructor(calendar: Calendar) {
+            Object.defineProperties(this, {
+                "Calendar": {value: calendar, writable: false}
+            });
+        }
 
         static ParseRepeatPattern(format: string, pos: number, patternChar: string): number {
             var length = format.length;
@@ -133,11 +137,13 @@ module Fayde.Localization {
                 ++index;
             return index - pos;
         }
+
         static ParseNextChar(format: string, pos: number): number {
             if (pos >= format.length - 1)
                 return -1;
             return format.charCodeAt(pos + 1);
         }
+
         static ParseQuoteString(format: string, pos: number, result: string[]): number {
             var length = format.length;
             var num = pos;
@@ -160,6 +166,7 @@ module Fayde.Localization {
                 return pos - num;
             throw new FormatException("Bad quote: " + ch1);
         }
+
         static FormatDigits(sb: string[], value: number, len: number, overrideLenLimit?: boolean) {
             if (!overrideLenLimit && len > 2)
                 len = 2;
@@ -169,11 +176,13 @@ module Fayde.Localization {
                 s = "0" + s;
             sb.push(s);
         }
+
         static FormatMonth(month: number, repeat: number, info: DateTimeFormatInfo): string {
             if (repeat === 3)
                 return info.AbbreviatedMonthNames[month - 1];
             return info.MonthNames[month - 1];
         }
+
         static FormatDayOfWeek(dayOfWeek: DayOfWeek, repeat: number, info: DateTimeFormatInfo): string {
             if (repeat === 3)
                 return info.AbbreviatedDayNames[dayOfWeek];
@@ -185,18 +194,19 @@ module Fayde.Localization {
             console.warn("Hebrew not implemented");
             return digits.toString();
         }
+
         static FormatHebrewMonthName(obj: DateTime, month: number, repeat: number, info: DateTimeFormatInfo): string {
             console.warn("Hebrew not implemented");
             return DateTimeFormatInfo.FormatMonth(month, repeat, info);
-        /*
-            if (info.Calendar.IsLeapYear(info.Calendar.GetYear(obj)))
-                return info.internalGetMonthName(month, MonthNameStyles.LeapYear, repeat === 3);
-                */
+            /*
+             if (info.Calendar.IsLeapYear(info.Calendar.GetYear(obj)))
+             return info.internalGetMonthName(month, MonthNameStyles.LeapYear, repeat === 3);
+             */
             if (month >= 7)
                 ++month;
             if (repeat === 3)
-                return info.AbbreviatedMonthNames[month-1];
-            return info.MonthNames[month-1];
+                return info.AbbreviatedMonthNames[month - 1];
+            return info.MonthNames[month - 1];
         }
     }
 }
