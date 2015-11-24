@@ -642,6 +642,8 @@
         <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderBrush}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
@@ -722,7 +724,8 @@
                                     Opacity="0"/>
                             <Grid>
                                 <ScrollViewer x:Name="ContentElement" BorderThickness="0" IsTabStop="False"
-                                              Margin="4,0,2,2" VerticalAlignment="Center" Background="{x:Null}"/>
+                                              Margin="4,0,2,2" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Background="{x:Null}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
                             </Grid>
                         </Grid>
                         <Rectangle x:Name="DisabledVisualElement" Stroke="{StaticResource ControlsDisabledBrush}"
