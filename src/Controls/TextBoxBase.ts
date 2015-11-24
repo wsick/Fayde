@@ -13,7 +13,6 @@ module Fayde.Controls {
         static SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBoxBase, 0, undefined, undefined, true, positiveIntValidator);
         static BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBoxBase);
         static MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBoxBase, 0, undefined, undefined, undefined, positiveIntValidator);
-        static SelectionOnFocusProperty = DependencyProperty.Register("SelectionOnFocus", () => new Enum(SelectionOnFocus), TextBoxBase, SelectionOnFocus.Default);
 
         CaretBrush: Media.Brush;
         SelectionForeground: Media.Brush;
@@ -248,6 +247,8 @@ module Fayde.Controls {
                         switch (args.Key) {
                             case Key.A:
                                 //Ctrl+A => Select All
+                                if (isReadOnly)
+                                    break;
                                 handled = true;
                                 proxy.selectAll();
                                 break;
@@ -280,10 +281,10 @@ module Fayde.Controls {
                                 break;
                             case Key.Z:
                                 //Ctrl+Z => Undo
-                                if (!isReadOnly) {
-                                    handled = true;
-                                    proxy.undo();
-                                }
+                                if (isReadOnly)
+                                    break;
+                                handled = true;
+                                proxy.undo();
                                 break;
                         }
                     }

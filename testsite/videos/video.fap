@@ -1,0 +1,11 @@
+﻿<Application
+        xmlns="http://schemas.wsick.com/fayde"
+        xmlns:x="http://schemas.wsick.com/fayde/x"
+        xmlns:c="videos"
+        ThemeName="Metro">
+    <Grid x:Name="LayoutRoot">
+        <Video Source="http://localhost:7001/videos/test_movie.mp4"
+                Grid.Row="0"
+                x:Name="Video" />
+    </Grid>
+</Application>

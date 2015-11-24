@@ -58,6 +58,13 @@ module Fayde {
             loaded();
         }
 
+        function closeProgress() {
+            var progressId = document.body.getAttribute("fayde-progress");
+            if (progressId) {
+                document.body.removeChild(document.getElementById(progressId));
+            }
+        }
+
         function loaded() {
             onLoaded && onLoaded(app);
             perfex.phases.start('Running');
@@ -67,6 +74,7 @@ module Fayde {
             .then(getApp, finishError)
             .then(resolveTheme, finishError)
             .then(resolveApp, finishError)
-            .then(startApp, finishError);
+            .then(startApp, finishError)
+            .then(closeProgress, finishError);
     }
 }
