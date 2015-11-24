@@ -631,6 +631,171 @@
         </Setter>
     </Style>
 
+    <Style TargetType="Video" x:Key="DefaultVideoStyle">
+        <Setter Property="FontFamily" Value="{StaticResource ContentFontFamily}"/>
+        <Setter Property="FontSize" Value="{StaticResource ContentFontSize}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="MinHeight" Value="50"/>
+        <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Video">
+                    <Grid x:Name="RootElement">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="1" To="1"
+                                                         Storyboard.TargetProperty="(UIElement.Opacity)"
+                                                         Storyboard.TargetName="FocusRectangle"/>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                         Storyboard.TargetName="DisabledVisualElement" To="1"
+                                                         Duration="0"/>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="ValidationStates">
+                                <VisualState x:Name="Valid"/>
+                                <VisualState x:Name="InvalidUnfocused">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility"
+                                                                       Storyboard.TargetName="ValidationErrorElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="InvalidFocused">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility"
+                                                                       Storyboard.TargetName="ValidationErrorElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsOpen"
+                                                                       Storyboard.TargetName="validationTooltip">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="true"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <MediaElement x:Name="PARTVideo"
+                                      Source="{TemplateBinding Source}" />
+
+                        <Grid Opacity="0"
+                              x:Name="FocusRectangle"
+                              VerticalAlignment="Bottom">
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <!--TODO: add the progress and buffered values -->
+                            <!--<Grid Grid.Row="0"
+                                  Margin="0,2.5">
+                                <ProgressBar x:Name="PARTBufferProgress"
+                                             Foreground="Blue"
+                                             Minimum="0"
+                                             Maximum="100"
+                                             Value="80"/>
+
+                                <ProgressBar x:Name="PARTPlayProgress"
+                                             Foreground="Red"
+                                             Minimum="0"
+                                             Maximum="100"
+                                             Value="30"
+                                             Background="Transparent"/>
+                            </Grid>-->
+
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        Grid.Row="1"
+                                        Margin="0,0,0,2.5">
+
+                                <Button x:Name="PARTPlayButton"
+                                        Foreground="Black">
+                                    <Path Data="M0,0L384.885,191.965 769.768,383.928 384.885,576.035 0,768 0,383.928z" Stretch="Uniform" Fill="#FF000000" Width="26" Height="26" Margin="0,0,0,0" RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform>
+                                            <TransformGroup>
+                                                <TransformGroup.Children>
+                                                    <RotateTransform Angle="0" />
+                                                    <ScaleTransform ScaleX="1" ScaleY="1" />
+                                                </TransformGroup.Children>
+                                            </TransformGroup>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                </Button>
+                                <Button x:Name="PARTPauseButton"
+                                        Foreground="Black"
+                                        Margin="5,0,0,0">
+                                    <Path Data="M27.270001,0L44.310001,0 44.310001,48.643002 27.270001,48.643002z M0,0L17.040001,0 17.040001,48.643002 0,48.643002z" Stretch="Uniform" Fill="#FF000000" Width="26" Height="26" Margin="0,0,0,0" RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform>
+                                            <TransformGroup>
+                                                <TransformGroup.Children>
+                                                    <RotateTransform Angle="0" />
+                                                    <ScaleTransform ScaleX="1" ScaleY="1" />
+                                                </TransformGroup.Children>
+                                            </TransformGroup>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <Rectangle x:Name="DisabledVisualElement" Stroke="{StaticResource ControlsDisabledBrush}"
+                                   Grid.RowSpan="3"
+                                   Grid.Row="0"
+                                   StrokeThickness="{TemplateBinding BorderThickness}"
+                                   Fill="{StaticResource ControlsDisabledBrush}" IsHitTestVisible="False" Opacity="0"/>
+
+                        <Border x:Name="ValidationErrorElement" BorderBrush="{StaticResource ControlsValidationBrush}"
+                                BorderThickness="1" Visibility="Collapsed"
+                                Grid.Row="0" Grid.RowSpan="3">
+                            <ToolTipService.ToolTip>
+                                <ToolTip x:Name="validationTooltip"
+                                         DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                         Placement="Right"
+                                         PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                         Template="{StaticResource ValidationToolTipTemplate}">
+                                    <ToolTip.Triggers>
+                                        <EventTrigger RoutedEvent="Canvas.Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ObjectAnimationUsingKeyFrames
+                                                            Storyboard.TargetProperty="IsHitTestVisible"
+                                                            Storyboard.TargetName="validationTooltip">
+                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="true"/>
+                                                    </ObjectAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </ToolTip.Triggers>
+                                </ToolTip>
+                            </ToolTipService.ToolTip>
+
+                            <Grid Background="Transparent" HorizontalAlignment="Right" Height="12" Margin="1,-4,-4,0"
+                                  VerticalAlignment="Top" Width="12">
+                                <Path Data="M 1,0 L6,0 A 2,2 90 0 1 8,2 L8,7 z" Fill="{StaticResource ValidationBrush5}"
+                                      Margin="1,3,0,0"/>
+                                <Path Data="M 0,0 L2,0 L 8,6 L8,8" Fill="{StaticResource WhiteColorBrush}"
+                                      Margin="1,3,0,0"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--TextBox Style-->
     <Style TargetType="TextBox" x:Key="DefaultTextBoxStyle">
         <Setter Property="FontFamily" Value="{StaticResource ContentFontFamily}"/>
@@ -2214,8 +2379,9 @@
                             <Grid x:Name="DeterminateRoot" Margin="1">
                                 <Border x:Name="ProgressBarIndicator" Background="{StaticResource BrandingBrush}"
                                         HorizontalAlignment="Left" Margin="-1">
-                                    <Rectangle x:Name="GradientFill" Opacity="0.7" Visibility="Collapsed">
-                                        <Rectangle.Fill>
+                                    <Rectangle x:Name="GradientFill" Opacity="0.7" Visibility="Visible"
+                                               Fill="{TemplateBinding Foreground}">
+                                        <!--<Rectangle.Fill>
                                             <LinearGradientBrush EndPoint="0,1" MappingMode="Absolute"
                                                                  SpreadMethod="Repeat" StartPoint="20,1">
                                                 <LinearGradientBrush.Transform>
@@ -2233,7 +2399,7 @@
                                                 <GradientStop Color="{StaticResource ProgressIndeterminateColor4}"
                                                               Offset="0.548"/>
                                             </LinearGradientBrush>
-                                        </Rectangle.Fill>
+                                        </Rectangle.Fill>-->
                                     </Rectangle>
                                 </Border>
                             </Grid>
@@ -2962,4 +3128,5 @@
     <Style TargetType="ToolTip" BasedOn="{StaticResource DefaultToolTipStyle}"/>
     <Style TargetType="HeaderedContentControl" BasedOn="{StaticResource DefaultHeaderedContentControlStyle}"/>
     <Style TargetType="Dialog" BasedOn="{StaticResource DefaultDialogStyle}"/>
+    <Style TargetType="Video" BasedOn="{StaticResource DefaultVideoStyle}" />
 </ResourceDictionary>
