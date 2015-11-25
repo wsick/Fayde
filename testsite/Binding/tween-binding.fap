@@ -1,0 +1,16 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:local="Binding"
+    ThemeName="Metro">
+    <Grid>
+        <Grid.DataContext>
+            <local:DoubleListBoxViewModel />
+        </Grid.DataContext>
+        <StackPanel>
+            <TextBlock Text="Duration" FontWeight="Bold" />
+            <Slider x:Name="Slider" Minimum="0" Maximum="100" />
+            <TextBlock Text="{TweenBinding Binding={Binding Value, ElementName=Slider}, Duration=00:00:02}" />
+        </StackPanel>
+    </Grid>
+</Application>
