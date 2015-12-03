@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.19.7';
+    Fayde.version = '0.19.8';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -3880,10 +3880,10 @@ var Fayde;
                 ToggleButton.prototype.OnToggle = function () {
                     var isChecked = this.IsChecked;
                     if (isChecked === true) {
-                        this.IsChecked = this.IsThreeState ? null : false;
+                        this.SetCurrentValue(ToggleButton.IsCheckedProperty, this.IsThreeState ? null : false);
                     }
                     else {
-                        this.IsChecked = isChecked != null;
+                        this.SetCurrentValue(ToggleButton.IsCheckedProperty, isChecked != null);
                     }
                 };
                 ToggleButton.IsCheckedProperty = DependencyProperty.RegisterCore("IsChecked", function () { return Boolean; }, ToggleButton, false, function (d, args) { return d.OnIsCheckedChanged(args); });
