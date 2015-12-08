@@ -25,7 +25,7 @@ module Fayde.Controls {
         static CurrentSourceProperty = DependencyProperty.RegisterReadOnly("CurrentSource", () => Uri, Frame);
         static SourceProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
         static UriMapperProperty = DependencyProperty.Register("UriMapper", () => Navigation.UriMapper, Frame);
-        static RouteMapperProperty = DependencyProperty.Register("RouteMapper", () => Navigation.RouteMapper, Frame);
+        static RouteMapperProperty = DependencyProperty.RegisterCore("RouteMapper", () => Navigation.RouteMapper, Frame);
         static IsLoadingProperty = DependencyProperty.RegisterReadOnly("IsLoading", () => Boolean, Frame, false, (d: Frame, args) => d.OnIsLoadingChanged(args.OldValue, args.NewValue));
         IsDeepLinked: boolean;
         CurrentSource: Uri;
