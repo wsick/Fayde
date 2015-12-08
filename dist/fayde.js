@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.19.8';
+    Fayde.version = '0.19.9';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -6821,7 +6821,7 @@ var Fayde;
             Frame.CurrentSourceProperty = DependencyProperty.RegisterReadOnly("CurrentSource", function () { return Fayde.Uri; }, Frame);
             Frame.SourceProperty = DependencyProperty.Register("Source", function () { return Fayde.Uri; }, Frame, undefined, function (d, args) { return d.SourcePropertyChanged(args); });
             Frame.UriMapperProperty = DependencyProperty.Register("UriMapper", function () { return Fayde.Navigation.UriMapper; }, Frame);
-            Frame.RouteMapperProperty = DependencyProperty.Register("RouteMapper", function () { return Fayde.Navigation.RouteMapper; }, Frame);
+            Frame.RouteMapperProperty = DependencyProperty.RegisterCore("RouteMapper", function () { return Fayde.Navigation.RouteMapper; }, Frame);
             Frame.IsLoadingProperty = DependencyProperty.RegisterReadOnly("IsLoading", function () { return Boolean; }, Frame, false, function (d, args) { return d.OnIsLoadingChanged(args.OldValue, args.NewValue); });
             return Frame;
         })(Controls.ContentControl);
