@@ -18,7 +18,8 @@ module Fayde {
         init(canvas: HTMLCanvasElement) {
             super.init(canvas);
 
-            this.$$updateZoom();
+            if (!this.$$updateZoom())
+                this.$$setScrollbars(false);
             this.$$stretchCanvas();
             (<any>document.body).onresize = (e) => this.$$handleResize(window.event ? <any>window.event : e);
             window.onresize = (e) => this.$$handleResize(window.event ? <any>window.event : e);
@@ -145,13 +146,14 @@ module Fayde {
             this.resize(Math.round(window.innerWidth * this.$$zoom), Math.round(window.innerHeight * this.$$zoom));
         }
 
-        private $$updateZoom() {
+        private $$updateZoom(): boolean {
             var oldZoom = this.$$zoom;
             var newZoom = minerva.zoom.calc();
             if (oldZoom === newZoom)
-                return;
+                return false;
             this.$$zoom = newZoom;
             this.onZoomChanged(oldZoom, newZoom);
+            return true;
         }
 
         protected onZoomChanged(oldZoom: number, newZoom: number) {
@@ -161,6 +163,7 @@ module Fayde {
         }
 
         private $$setScrollbars(show: boolean) {
+            console.log("scrollbars", show);
             var style = document.body.style;
             style.overflowY = style.overflowX = show === true ? "" : "hidden";
         }
