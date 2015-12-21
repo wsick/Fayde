@@ -3605,8 +3605,11 @@ declare module Fayde.Navigation {
     }
 }
 declare module Fayde.MVVM {
+    interface IRedirector {
+        (newUri: string | Uri): any;
+    }
     interface IViewModelProvider {
-        ResolveViewModel(route: Fayde.Navigation.Route): any;
+        ResolveViewModel(route: Fayde.Navigation.Route, redirect?: IRedirector): any;
     }
     var IViewModelProvider_: nullstone.Interface<IViewModelProvider>;
 }
@@ -4164,6 +4167,13 @@ declare module Fayde.Navigation {
         CurrentUri: Uri;
         Navigate(uri: Uri): boolean;
         private _HandleFragmentChange();
+    }
+}
+declare module Fayde.Navigation {
+    class RedirectRoute extends Route {
+        NewUri: Uri;
+        constructor(route: Route, newUri: string);
+        constructor(route: Route, newUri: Uri);
     }
 }
 declare module Fayde.Navigation {

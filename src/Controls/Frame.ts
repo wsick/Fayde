@@ -3,6 +3,7 @@
 /// <reference path="../Navigation/INavigate.ts" />
 
 module Fayde.Controls {
+    import RedirectRoute = Fayde.Navigation.RedirectRoute;
     function createErrorDoc(error: any): nullstone.markup.xaml.XamlMarkup {
         var safe = (error || '').toString()
             .replace(/&/g, '&amp;')
@@ -101,12 +102,16 @@ module Fayde.Controls {
             var targetUri = new Uri(fragment, nullstone.UriKind.Relative);
             var target: string = undefined;
             if (this.RouteMapper) {
-                this._CurrentRoute = this.RouteMapper.MapUri(targetUri);
+                var route = this.RouteMapper.MapUri(targetUri);
+                if (route instanceof Navigation.RedirectRoute) {
+                    this.Navigate(route.NewUri);
+                    return;
+                }
+                this._CurrentRoute = route;
                 if (!this._CurrentRoute)
                     throw new InvalidOperationException("Route could not be mapped." + targetUri.toString());
                 target = this._CurrentRoute.View.toString();
-            }
-            else if (this.UriMapper) {
+            } else if (this.UriMapper) {
                 var mapped = this.UriMapper.MapUri(targetUri);
                 if (!mapped)
                     throw new InvalidOperationException("Uri could not be mapped." + targetUri.toString());

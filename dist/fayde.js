@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.19.10';
+    Fayde.version = '0.19.11';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -6780,7 +6780,12 @@ var Fayde;
                 var targetUri = new Fayde.Uri(fragment, nullstone.UriKind.Relative);
                 var target = undefined;
                 if (this.RouteMapper) {
-                    this._CurrentRoute = this.RouteMapper.MapUri(targetUri);
+                    var route = this.RouteMapper.MapUri(targetUri);
+                    if (route instanceof Fayde.Navigation.RedirectRoute) {
+                        this.Navigate(route.NewUri);
+                        return;
+                    }
+                    this._CurrentRoute = route;
                     if (!this._CurrentRoute)
                         throw new InvalidOperationException("Route could not be mapped." + targetUri.toString());
                     target = this._CurrentRoute.View.toString();
@@ -18902,6 +18907,21 @@ var Fayde;
         Fayde.CoreLibrary.add(NavigationService);
     })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var Navigation;
+    (function (Navigation) {
+        var RedirectRoute = (function (_super) {
+            __extends(RedirectRoute, _super);
+            function RedirectRoute(route, newUri) {
+                _super.call(this, route.View, route.HashParams, route.DataContext);
+                this.NewUri = new Fayde.Uri(newUri);
+            }
+            return RedirectRoute;
+        })(Navigation.Route);
+        Navigation.RedirectRoute = RedirectRoute;
+    })(Navigation = Fayde.Navigation || (Fayde.Navigation = {}));
+})(Fayde || (Fayde = {}));
 /// <reference path="../Core/DependencyObject.ts" />
 var Fayde;
 (function (Fayde) {
@@ -18914,11 +18934,19 @@ var Fayde;
                 RouteMapper.RouteMappingsProperty.Initialize(this);
             }
             RouteMapper.prototype.MapUri = function (uri) {
+                var redirect = {
+                    uri: null,
+                    do: function (newUri) {
+                        redirect.uri = newUri;
+                    }
+                };
                 var mapped;
                 for (var en = this.RouteMappings.getEnumerator(); en.moveNext();) {
                     mapped = en.current.MapUri(uri);
                     if (mapped) {
-                        var vm = this.ViewModelProvider ? this.ViewModelProvider.ResolveViewModel(mapped) : null;
+                        var vm = this.ViewModelProvider ? this.ViewModelProvider.ResolveViewModel(mapped, redirect.do) : null;
+                        if (redirect.uri)
+                            return new Navigation.RedirectRoute(mapped, redirect.uri);
                         mapped.DataContext = vm;
                         return mapped;
                     }
