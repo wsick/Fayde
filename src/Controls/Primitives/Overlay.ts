@@ -174,6 +174,8 @@ module Fayde.Controls.Primitives {
         }
 
         private _DoClose (result?: boolean) {
+            if (this._IgnoreClose)
+                return;
             var upd = this.XamlNode.LayoutUpdater;
             minerva.controls.overlay.reactTo.isOpen(upd, true, false);
             if (result === undefined)
