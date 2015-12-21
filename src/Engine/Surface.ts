@@ -163,7 +163,6 @@ module Fayde {
         }
 
         private $$setScrollbars(show: boolean) {
-            console.log("scrollbars", show);
             var style = document.body.style;
             style.overflowY = style.overflowX = show === true ? "" : "hidden";
         }

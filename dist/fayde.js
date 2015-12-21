@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.19.9';
+    Fayde.version = '0.19.10';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -12538,7 +12538,8 @@ var Fayde;
         Surface.prototype.init = function (canvas) {
             var _this = this;
             _super.prototype.init.call(this, canvas);
-            this.$$updateZoom();
+            if (!this.$$updateZoom())
+                this.$$setScrollbars(false);
             this.$$stretchCanvas();
             document.body.onresize = function (e) { return _this.$$handleResize(window.event ? window.event : e); };
             window.onresize = function (e) { return _this.$$handleResize(window.event ? window.event : e); };
@@ -12653,9 +12654,10 @@ var Fayde;
             var oldZoom = this.$$zoom;
             var newZoom = minerva.zoom.calc();
             if (oldZoom === newZoom)
-                return;
+                return false;
             this.$$zoom = newZoom;
             this.onZoomChanged(oldZoom, newZoom);
+            return true;
         };
         Surface.prototype.onZoomChanged = function (oldZoom, newZoom) {
             this.App.SetCurrentValue(Fayde.Application.ZoomFactorProperty, newZoom);
@@ -21568,6 +21570,8 @@ var Fayde;
                     this.Opened.raise(this, null);
                 };
                 Overlay.prototype._DoClose = function (result) {
+                    if (this._IgnoreClose)
+                        return;
                     var upd = this.XamlNode.LayoutUpdater;
                     minerva.controls.overlay.reactTo.isOpen(upd, true, false);
                     if (result === undefined)
