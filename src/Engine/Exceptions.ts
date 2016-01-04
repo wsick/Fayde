@@ -1,8 +1,10 @@
 class Exception {
     Message: string;
+
     constructor(message: string) {
         this.Message = message;
     }
+
     toString(): string {
         var typeName = (<any>this).constructor.name;
         if (typeName)
@@ -30,8 +32,15 @@ class InvalidOperationException extends Exception {
 }
 
 class XamlParseException extends Exception {
-    constructor(message: string) {
+    Data: any;
+
+    constructor(message: string, data?: any) {
         super(message);
+        if (data) {
+            Object.defineProperties(this, {
+                "Data": {value: data, writable: false}
+            });
+        }
     }
 }
 
@@ -61,6 +70,7 @@ class ArgumentOutOfRangeException extends Exception {
 
 class AttachException extends Exception {
     Data: any;
+
     constructor(message: string, data: any) {
         super(message);
         this.Data = data;
@@ -70,6 +80,7 @@ class AttachException extends Exception {
 class InvalidJsonException extends Exception {
     JsonText: string;
     InnerException: Error;
+
     constructor(jsonText: string, innerException: Error) {
         super("Invalid json.");
         this.JsonText = jsonText;
@@ -79,6 +90,7 @@ class InvalidJsonException extends Exception {
 
 class TargetInvocationException extends Exception {
     InnerException: Exception;
+
     constructor(message: string, innerException: Exception) {
         super(message);
         this.InnerException = innerException;
@@ -87,6 +99,7 @@ class TargetInvocationException extends Exception {
 
 class UnknownTypeException extends Exception {
     FullTypeName: string;
+
     constructor(fullTypeName: string) {
         super(fullTypeName);
         this.FullTypeName = fullTypeName;

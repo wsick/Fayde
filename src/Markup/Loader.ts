@@ -5,11 +5,11 @@ module Fayde.Markup {
         private $$markup: nullstone.markup.Markup<any>;
         private $$resources: ResourceDictionary[];
 
-        Validate (): string {
+        Validate(): string {
             return "";
         }
 
-        GetVisualTree (bindingSource: DependencyObject): UIElement {
+        GetVisualTree(bindingSource: DependencyObject): UIElement {
             var uie = LoadImpl<UIElement>(this.App, this.$$markup, this.$$resources, bindingSource);
             if (!(uie instanceof UIElement))
                 throw new XamlParseException("Template root visual is not a UIElement.");
@@ -17,12 +17,12 @@ module Fayde.Markup {
         }
     }
 
-    function setTemplateRoot (ft: FrameworkTemplate, root: any) {
+    function setTemplateRoot(ft: FrameworkTemplate, root: any) {
         if (root instanceof Element)
             (<any>ft).$$markup = CreateXaml(root);
     }
 
-    function setResources (ft: FrameworkTemplate, res: ResourceDictionary[]) {
+    function setResources(ft: FrameworkTemplate, res: ResourceDictionary[]) {
         (<any>ft).$$resources = res;
     }
 
@@ -126,12 +126,18 @@ module Fayde.Markup {
             attributeEnd: (ownerType, attrName, obj) => {
                 pactor.setObject(ownerType, attrName, obj);
             },
-            error: (err) => false,
+            error: (err) => {
+                if (err instanceof nullstone.markup.xaml.SkipBranchError) {
+                    if (active.obj instanceof FrameworkTemplate)
+                        throw new XamlParseException("Templates must contain only 1 visual root and no other child elements.", err.root);
+                }
+                return false;
+            },
             end: () => {
             }
         };
 
-        function extractType (text: string): any {
+        function extractType(text: string): any {
             var prefix = <string>null;
             var name = text;
             var ind = name.indexOf(':');
@@ -145,7 +151,7 @@ module Fayde.Markup {
             return oresolve.type;
         }
 
-        function extractDP (text: string): any {
+        function extractDP(text: string): any {
             var name = text;
             var ind = name.indexOf('.');
             var ownerType: any;
