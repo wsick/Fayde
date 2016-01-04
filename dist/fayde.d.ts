@@ -2919,7 +2919,8 @@ declare class InvalidOperationException extends Exception {
     constructor(message: string);
 }
 declare class XamlParseException extends Exception {
-    constructor(message: string);
+    Data: any;
+    constructor(message: string, data?: any);
 }
 declare class XamlMarkupParseException extends Exception {
     constructor(message: string);

@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.19.11';
+    Fayde.version = '0.19.12';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -6511,7 +6511,13 @@ var Fayde;
                 attributeEnd: function (ownerType, attrName, obj) {
                     pactor.setObject(ownerType, attrName, obj);
                 },
-                error: function (err) { return false; },
+                error: function (err) {
+                    if (err instanceof nullstone.markup.xaml.SkipBranchError) {
+                        if (active.obj instanceof FrameworkTemplate)
+                            throw new XamlParseException("Templates must contain only 1 visual root and no other child elements.", err.root);
+                    }
+                    return false;
+                },
                 end: function () {
                 }
             };
@@ -12023,8 +12029,13 @@ var InvalidOperationException = (function (_super) {
 })(Exception);
 var XamlParseException = (function (_super) {
     __extends(XamlParseException, _super);
-    function XamlParseException(message) {
+    function XamlParseException(message, data) {
         _super.call(this, message);
+        if (data) {
+            Object.defineProperties(this, {
+                "Data": { value: data, writable: false }
+            });
+        }
     }
     return XamlParseException;
 })(Exception);
