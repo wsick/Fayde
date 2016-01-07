@@ -8,6 +8,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <TextBox Grid.Row="0" Margin="5" Text="Enter Text here!" Background="Yellow" />
@@ -26,6 +27,7 @@
             <TextBox x:Name="SelectionText5" Margin="0,5" Text="DefaultSelectAll" SelectionOnFocus="DefaultSelectAll" />
         </StackPanel>
         
-        <TextBox x:Name="BigTextBox" Grid.Row="4" Margin="5" Text="Enter Text here!" AcceptsReturn="True" TextWrapping="Wrap" />
+        <TextBox Grid.Row="4" Margin="5" Text="10.00" Background="White" Width="150" TextAlignment="Right" HorizontalAlignment="Left" />
+        <TextBox x:Name="BigTextBox" Grid.Row="5" Margin="5" Text="Enter Text here!" AcceptsReturn="True" TextWrapping="Wrap" VerticalContentAlignment="Top" />
     </Grid>
 </Application>
