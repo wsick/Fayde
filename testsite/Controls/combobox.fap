@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.wsick.com/fayde/x"
     ThemeName="Metro">
     <Grid>
-        <ComboBox x:Name="MyComboBox" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <ComboBox x:Name="MyComboBox" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center" Watermark="Select one...">
             <ComboBoxItem Content="Text 1" />
             <ComboBoxItem Content="Text 2" />
             <ComboBoxItem Content="Text 3" />
