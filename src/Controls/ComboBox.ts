@@ -13,9 +13,11 @@ module Fayde.Controls {
         static ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", () => Style, ComboBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
         static MaxDropDownHeightProperty = DependencyProperty.Register("MaxDropDownHeight", () => Number, ComboBox, Number.POSITIVE_INFINITY, (d, args) => (<ComboBox>d)._MaxDropDownHeightChanged(args));
         static IsSelectionActiveProperty = Primitives.Selector.IsSelectionActiveProperty;
+        static WatermarkProperty = DependencyProperty.Register("Watermark", () => String, ComboBox, "");
         IsDropDownOpen: boolean;
         ItemContainerStyle: Style;
         MaxDropDownHeight: number;
+        Watermark: String;
 
         private $ContentPresenter: ContentPresenter;
         private $Popup: Primitives.Popup;
@@ -23,6 +25,7 @@ module Fayde.Controls {
         private $DisplayedItem: ComboBoxItem = null;
         private $SelectionBoxItem: any = null;
         private $SelectionBoxItemTemplate: DataTemplate = null;
+        private $WatermarkElement: FrameworkElement;
         private _NullSelFallback: any;
         private _FocusedIndex: number = -1;
 
@@ -58,6 +61,7 @@ module Fayde.Controls {
             var selectedItem = this.SelectedItem;
             this._UpdateDisplayedItem(open && selectedItem instanceof Fayde.UIElement ? null : selectedItem);
             this.UpdateVisualState(true);
+            this._CheckWatermarkVisibility();
         }
         private _MaxDropDownHeightChanged(args: IDependencyPropertyChangedEventArgs) {
             this._UpdatePopupMaxHeight(args.NewValue);
@@ -76,6 +80,7 @@ module Fayde.Controls {
             this.$ContentPresenter = this._GetChildOfType("ContentPresenter", ContentPresenter);
             this.$Popup = this._GetChildOfType("Popup", Primitives.Popup);
             this.$DropDownToggle = this._GetChildOfType("DropDownToggle", Primitives.ToggleButton);
+            this.$WatermarkElement = <FrameworkElement>this.GetTemplateChild("WatermarkElement", FrameworkElement);
 
             if (this.$ContentPresenter != null)
                 this._NullSelFallback = this.$ContentPresenter.Content;
@@ -209,6 +214,12 @@ module Fayde.Controls {
                     break;
             }
         }
+                
+        private _CheckWatermarkVisibility() {
+            if (this.Watermark.length > 0 && this.$WatermarkElement)
+                this.$WatermarkElement.Visibility = this.$SelectionBoxItem != null ? Visibility.Collapsed : Visibility.Visible;
+        }
+        
         OnGotFocus(e: RoutedEventArgs) {
             super.OnGotFocus(e);
             this.UpdateVisualState(true);
@@ -225,6 +236,7 @@ module Fayde.Controls {
         OnSelectionChanged(e: Primitives.SelectionChangedEventArgs) {
             if (!this.IsDropDownOpen)
                 this._UpdateDisplayedItem(this.SelectedItem);
+            this._CheckWatermarkVisibility();
         }
         private _OnToggleChecked(sender, e) { this.IsDropDownOpen = true; }
         private _OnToggleUnchecked(sender, e) { this.IsDropDownOpen = false; }
@@ -363,7 +375,8 @@ module Fayde.Controls {
         { Name: "Popup", Type: Primitives.Popup },
         { Name: "ContentPresenterBorder", Type: FrameworkElement },
         { Name: "DropDownToggle", Type: Primitives.ToggleButton },
-        { Name: "ScrollViewer", Type: ScrollViewer });
+        { Name: "ScrollViewer", Type: ScrollViewer },
+        { Name: "WatermarkElement", Type: FrameworkElement });
     TemplateVisualStates(ComboBox, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },

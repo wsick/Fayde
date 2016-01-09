@@ -1003,6 +1003,7 @@
                                    Opacity="0"/>
                         <Rectangle x:Name="DisabledVisualElement" Fill="{StaticResource DisabledWhiteColorBrush}"
                                    IsHitTestVisible="false" RadiusX="3" RadiusY="3" Opacity="0"/>
+                        <TextBlock x:Name="WatermarkElement" Text="{TemplateBinding Watermark}" VerticalAlignment="Center" Margin="10,0" />
                         <Border x:Name="ValidationErrorElement" BorderBrush="{StaticResource ControlsValidationBrush}"
                                 BorderThickness="1" CornerRadius="3" Visibility="Collapsed">
                             <ToolTipService.ToolTip>
