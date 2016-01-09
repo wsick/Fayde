@@ -375,7 +375,8 @@ module Fayde.Controls {
         { Name: "Popup", Type: Primitives.Popup },
         { Name: "ContentPresenterBorder", Type: FrameworkElement },
         { Name: "DropDownToggle", Type: Primitives.ToggleButton },
-        { Name: "ScrollViewer", Type: ScrollViewer });
+        { Name: "ScrollViewer", Type: ScrollViewer },
+        { Name: "WatermarkElement", Type: FrameworkElement });
     TemplateVisualStates(ComboBox, 
         { GroupName: "CommonStates", Name: "Normal" },
         { GroupName: "CommonStates", Name: "MouseOver" },
