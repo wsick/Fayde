@@ -727,7 +727,7 @@
                                 <ScrollViewer x:Name="ContentElement" BorderThickness="0" IsTabStop="False"
                                               Margin="4,0,2,2" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Background="{x:Null}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                              VerticalScrollBarVisibility="Visible"
+                                              VerticalScrollBarVisibility="Auto"
                                               HorizontalScrollBarVisibility="Disabled"/>
                             </Grid>
                         </Grid>
