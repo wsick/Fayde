@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.19.12';
+    Fayde.version = '0.19.13';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -6001,6 +6001,7 @@ var Fayde;
                 var selectedItem = this.SelectedItem;
                 this._UpdateDisplayedItem(open && selectedItem instanceof Fayde.UIElement ? null : selectedItem);
                 this.UpdateVisualState(true);
+                this._CheckWatermarkVisibility();
             };
             ComboBox.prototype._MaxDropDownHeightChanged = function (args) {
                 this._UpdatePopupMaxHeight(args.NewValue);
@@ -6016,6 +6017,7 @@ var Fayde;
                 this.$ContentPresenter = this._GetChildOfType("ContentPresenter", Controls.ContentPresenter);
                 this.$Popup = this._GetChildOfType("Popup", Controls.Primitives.Popup);
                 this.$DropDownToggle = this._GetChildOfType("DropDownToggle", Controls.Primitives.ToggleButton);
+                this.$WatermarkElement = this.GetTemplateChild("WatermarkElement", Fayde.FrameworkElement);
                 if (this.$ContentPresenter != null)
                     this._NullSelFallback = this.$ContentPresenter.Content;
                 if (this.$Popup != null) {
@@ -6142,6 +6144,10 @@ var Fayde;
                         break;
                 }
             };
+            ComboBox.prototype._CheckWatermarkVisibility = function () {
+                if (this.Watermark.length > 0 && this.$WatermarkElement)
+                    this.$WatermarkElement.Visibility = this.$SelectionBoxItem != null ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
+            };
             ComboBox.prototype.OnGotFocus = function (e) {
                 _super.prototype.OnGotFocus.call(this, e);
                 this.UpdateVisualState(true);
@@ -6157,6 +6163,7 @@ var Fayde;
             ComboBox.prototype.OnSelectionChanged = function (e) {
                 if (!this.IsDropDownOpen)
                     this._UpdateDisplayedItem(this.SelectedItem);
+                this._CheckWatermarkVisibility();
             };
             ComboBox.prototype._OnToggleChecked = function (sender, e) { this.IsDropDownOpen = true; };
             ComboBox.prototype._OnToggleUnchecked = function (sender, e) { this.IsDropDownOpen = false; };
@@ -6279,11 +6286,12 @@ var Fayde;
             ComboBox.ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", function () { return Fayde.Style; }, ComboBox, undefined, function (d, args) { return d.OnItemContainerStyleChanged(args); });
             ComboBox.MaxDropDownHeightProperty = DependencyProperty.Register("MaxDropDownHeight", function () { return Number; }, ComboBox, Number.POSITIVE_INFINITY, function (d, args) { return d._MaxDropDownHeightChanged(args); });
             ComboBox.IsSelectionActiveProperty = Controls.Primitives.Selector.IsSelectionActiveProperty;
+            ComboBox.WatermarkProperty = DependencyProperty.Register("Watermark", function () { return String; }, ComboBox, "");
             return ComboBox;
         })(Controls.Primitives.Selector);
         Controls.ComboBox = ComboBox;
         Fayde.CoreLibrary.add(ComboBox);
-        Controls.TemplateParts(ComboBox, { Name: "ContentPresenter", Type: Controls.ContentPresenter }, { Name: "Popup", Type: Controls.Primitives.Popup }, { Name: "ContentPresenterBorder", Type: Fayde.FrameworkElement }, { Name: "DropDownToggle", Type: Controls.Primitives.ToggleButton }, { Name: "ScrollViewer", Type: Controls.ScrollViewer });
+        Controls.TemplateParts(ComboBox, { Name: "ContentPresenter", Type: Controls.ContentPresenter }, { Name: "Popup", Type: Controls.Primitives.Popup }, { Name: "ContentPresenterBorder", Type: Fayde.FrameworkElement }, { Name: "DropDownToggle", Type: Controls.Primitives.ToggleButton }, { Name: "ScrollViewer", Type: Controls.ScrollViewer }, { Name: "WatermarkElement", Type: Fayde.FrameworkElement });
         Controls.TemplateVisualStates(ComboBox, { GroupName: "CommonStates", Name: "Normal" }, { GroupName: "CommonStates", Name: "MouseOver" }, { GroupName: "CommonStates", Name: "Disabled" }, { GroupName: "FocusStates", Name: "Unfocused" }, { GroupName: "FocusStates", Name: "Focused" }, { GroupName: "FocusStates", Name: "FocusedDropDown" }, { GroupName: "ValidationStates", Name: "Valid" }, { GroupName: "ValidationStates", Name: "InvalidUnfocused" }, { GroupName: "ValidationStates", Name: "InvalidFocused" });
     })(Controls = Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
@@ -16865,6 +16873,13 @@ var Fayde;
             GradientBrush.prototype.CreatePad = function (ctx, bounds) { };
             GradientBrush.prototype.CreateRepeat = function (ctx, bounds) { };
             GradientBrush.prototype.CreateReflect = function (ctx, bounds) { };
+            GradientBrush.prototype.AddColorStop = function (grd, offset, color) {
+                if (offset < 0.0)
+                    offset = 0.0;
+                if (offset > 1.0)
+                    offset = 1.0;
+                grd.addColorStop(offset, color);
+            };
             GradientBrush.GradientStopsProperty = DependencyProperty.RegisterImmutable("GradientStops", function () { return Media.GradientStopCollection; }, GradientBrush);
             GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return new Fayde.Enum(Media.BrushMappingMode); }, GradientBrush, Media.BrushMappingMode.RelativeToBoundingBox, function (d, args) { return d.InvalidateBrush(); });
             GradientBrush.SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", function () { return new Fayde.Enum(Media.GradientSpreadMethod); }, GradientBrush, Media.GradientSpreadMethod.Pad, function (d, args) { return d.InvalidateBrush(); });
@@ -16983,7 +16998,7 @@ var Fayde;
                 var grd = ctx.createLinearGradient(data.start.x, data.start.y, data.end.x, data.end.y);
                 for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
                     var stop = en.current;
-                    grd.addColorStop(stop.Offset, stop.Color.toString());
+                    this.AddColorStop(grd, stop.Offset, stop.Color.toString());
                 }
                 return grd;
             };
@@ -17003,7 +17018,7 @@ var Fayde;
                         var stop = en.current;
                         var offset = interpolator.interpolate(stop.Offset);
                         if (offset >= 0 && offset <= 1)
-                            grd.addColorStop(offset, stop.Color.toString());
+                            this.AddColorStop(grd, offset, stop.Color.toString());
                     }
                 }
                 return grd;
@@ -18249,7 +18264,7 @@ var Fayde;
                 var grd = (!data.balanced ? tmpCtx : ctx).createRadialGradient(data.x0, data.y0, 0, data.x1, data.y1, data.r1);
                 for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
                     var stop = en.current;
-                    grd.addColorStop(stop.Offset, stop.Color.toString());
+                    this.AddColorStop(grd, stop.Offset, stop.Color.toString());
                 }
                 return this.FitPattern(ctx, grd, data, bounds);
             };
@@ -18276,7 +18291,7 @@ var Fayde;
                         var offset = en.current.Offset;
                         if (reflect && inverted)
                             offset = 1 - offset;
-                        grd.addColorStop(offset, en.current.Color.toString());
+                        this.AddColorStop(grd, offset, en.current.Color.toString());
                     }
                     tmpCtx.fillStyle = grd;
                     tmpCtx.beginPath();
@@ -19418,6 +19433,8 @@ Fayde.CoreLibrary.addPrimitive(Color);
 nullstone.registerTypeConverter(Color, function (val) {
     if (!val || val instanceof Color)
         return val;
+    if (val instanceof Fayde.Media.SolidColorBrush)
+        return val.Color;
     val = val.toString();
     if (val[0] !== "#") {
         var color = Color.KnownColors[val];

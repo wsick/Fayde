@@ -1552,15 +1552,18 @@ declare module Fayde.Controls {
         static ItemContainerStyleProperty: DependencyProperty;
         static MaxDropDownHeightProperty: DependencyProperty;
         static IsSelectionActiveProperty: DependencyProperty;
+        static WatermarkProperty: DependencyProperty;
         IsDropDownOpen: boolean;
         ItemContainerStyle: Style;
         MaxDropDownHeight: number;
+        Watermark: String;
         private $ContentPresenter;
         private $Popup;
         private $DropDownToggle;
         private $DisplayedItem;
         private $SelectionBoxItem;
         private $SelectionBoxItemTemplate;
+        private $WatermarkElement;
         private _NullSelFallback;
         private _FocusedIndex;
         constructor();
@@ -1578,6 +1581,7 @@ declare module Fayde.Controls {
         OnMouseEnter(e: Input.MouseEventArgs): void;
         OnMouseLeave(e: Input.MouseEventArgs): void;
         OnKeyDown(e: Input.KeyEventArgs): void;
+        private _CheckWatermarkVisibility();
         OnGotFocus(e: RoutedEventArgs): void;
         OnLostFocus(e: RoutedEventArgs): void;
         private _OnChildKeyDown(sender, e);
@@ -3774,6 +3778,7 @@ declare module Fayde.Media {
         CreatePad(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
         CreateRepeat(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
         CreateReflect(ctx: CanvasRenderingContext2D, bounds: minerva.Rect): void;
+        AddColorStop(grd: any, offset: number, color: string): void;
     }
 }
 declare module Fayde.Media {
