@@ -69,7 +69,7 @@ function drawBoundingBox(path, pars) {
     var r = path.calcBounds(pars);
     ctx.lineWidth = 1;
     ctx.strokeStyle = "rgb(255,0,0)";
-    ctx.strokeRect(r.X, r.Y, r.Width, r.Height);
+    ctx.strokeRect(r.x, r.y, r.width, r.height);
 }
 
 function randomInt(low, high) {
@@ -283,7 +283,7 @@ var arc = (function () {
 
 /*
 export interface IStrokeParameters {
-    thickness: number;
+    strokeThickness: number;
     join: Shapes.PenLineJoin;
     startCap: Shapes.PenLineCap;
     endCap: Shapes.PenLineCap;
@@ -292,11 +292,11 @@ export interface IStrokeParameters {
 */
 function randomStrokeParameters() {
     return {
-        thickness: randomInt(1, 35),
-        join: randomInt(0, 3),
-        startCap: randomInt(0, 3),
-        endCap: randomInt(0, 3),
-        miterLimit: 10
+        strokeThickness: randomInt(1, 35),
+        strokeLineJoin: randomInt(0, 3),
+        strokeStartLineCap: randomInt(0, 3),
+        strokeEndLineCap: randomInt(0, 3),
+        strokeMiterLimit: 10
     };
 }
 var pathStroke;
@@ -315,20 +315,20 @@ var strokeParamsToString;
     ];
     pathStroke = function (ctx, stroke, pars) {
         if (!stroke || !pars) return;
-        ctx.lineWidth = pars.thickness;
-        ctx.lineCap = caps[pars.startCap || pars.endCap || 0] || caps[0];
-        ctx.lineJoin = joins[pars.join || 0] || joins[0];
-        ctx.miterLimit = pars.miterLimit;
+        ctx.lineWidth = pars.strokeThickness;
+        ctx.lineCap = caps[pars.strokeStartLineCap || pars.strokeEndLineCap || 0] || caps[0];
+        ctx.lineJoin = joins[pars.strokeLineJoin || 0] || joins[0];
+        ctx.miterLimit = pars.strokeMiterLimit;
         ctx.strokeStyle = stroke;
         ctx.stroke();
     };
     strokeParamsToString = function (pars) {
         if (!pars) return "thickness: 0";
-        var thickness = pars.thickness;
-        var scap = caps[pars.startCap || 0] || caps[0];
-        var ecap = caps[pars.endCap || 0] || caps[0];
-        var join = joins[pars.join || 0] || joins[0];
-        var limit = pars.miterLimit;
+        var thickness = pars.strokeThickness;
+        var scap = caps[pars.strokeStartLineCap || 0] || caps[0];
+        var ecap = caps[pars.strokeEndLineCap || 0] || caps[0];
+        var join = joins[pars.strokeLineJoin || 0] || joins[0];
+        var limit = pars.strokeMiterLimit;
         return [
             ["thickness", thickness],
             ["startcap", scap],
