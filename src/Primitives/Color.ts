@@ -234,6 +234,8 @@ Fayde.CoreLibrary.addPrimitive(Color);
 nullstone.registerTypeConverter(Color, (val: any): Color => {
     if (!val || val instanceof Color)
         return <Color>val;
+    if (val instanceof (<any>Fayde).Media.SolidColorBrush)
+        return (<any>val).Color;
     val = val.toString();
     if (val[0] !== "#") {
         var color = Color.KnownColors[val];

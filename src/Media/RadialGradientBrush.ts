@@ -20,7 +20,7 @@ module Fayde.Media {
             var grd = (!data.balanced ? tmpCtx : ctx).createRadialGradient(data.x0, data.y0, 0, data.x1, data.y1, data.r1);
             for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
                 var stop: GradientStop = en.current;
-                grd.addColorStop(stop.Offset, stop.Color.toString());
+                this.AddColorStop(grd, stop.Offset, stop.Color.toString());
             }
             return this.FitPattern(ctx, grd, data, bounds);
         }
@@ -51,7 +51,7 @@ module Fayde.Media {
                     var offset = en.current.Offset;
                     if (reflect && inverted)
                         offset = 1 - offset;
-                    grd.addColorStop(offset, en.current.Color.toString());
+                    this.AddColorStop(grd, offset, en.current.Color.toString());
                 }
                 tmpCtx.fillStyle = grd;
                 tmpCtx.beginPath();
