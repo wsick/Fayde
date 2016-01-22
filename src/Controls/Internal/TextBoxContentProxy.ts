@@ -1,6 +1,7 @@
 module Fayde.Controls.Internal {
     export class TextBoxContentProxy {
         private $$element: FrameworkElement = null;
+        private $$scrollElement: FrameworkElement = null;
 
         setElement(fe: FrameworkElement, view: TextBoxView) {
             this.$$element = fe;
@@ -19,9 +20,13 @@ module Fayde.Controls.Internal {
                 console.warn("TextBox does not have a valid content element.");
             }
         }
+        
+        setScrollElement(fe: FrameworkElement){
+            this.$$scrollElement = fe;
+        }
 
         setHorizontalScrollBar(sbvis: ScrollBarVisibility) {
-            var ce = this.$$element;
+            var ce = this.$$scrollElement;
             if (!ce)
                 return;
             var ceType = (<any>ce).constructor;
@@ -32,7 +37,7 @@ module Fayde.Controls.Internal {
         }
 
         setVerticalScrollBar(sbvis: ScrollBarVisibility) {
-            var ce = this.$$element;
+            var ce = this.$$scrollElement;
             if (!ce)
                 return;
             var ceType = (<any>ce).constructor;

@@ -723,13 +723,23 @@
                         <Grid Margin="0,1,0,0">
                             <Border x:Name="ReadOnlyVisualElement" Background="{StaticResource ReadOnlyBrush}"
                                     Opacity="0"/>
-                            <Grid HorizontalAlignment="{TemplateBinding TextAlignment}">
-                                <ScrollViewer x:Name="ContentElement" BorderThickness="0" IsTabStop="False"
-                                              Margin="4,0,2,2" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Background="{x:Null}"
-                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                              VerticalScrollBarVisibility="Auto"
-                                              HorizontalScrollBarVisibility="Disabled"/>
-                            </Grid>
+                            <ScrollViewer BorderThickness="0"
+                                          x:Name="ScrollElement" 
+                                          IsTabStop="False"
+                                          Background="{x:Null}"
+                                          VerticalAlignment="Stretch" 
+                                          HorizontalAlignment="Stretch" 
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <ScrollViewer x:Name="ContentElement" 
+                                              BorderThickness="0" 
+                                              IsTabStop="False"
+                                              Margin="4,0,2,2" 
+                                              Background="{x:Null}"
+                                              HorizontalAlignment="{TemplateBinding TextAlignment}"
+                                              VerticalScrollBarVisibility="Disabled"
+                                              HorizontalScrollBarVisibility="Disabled" />
+                            </ScrollViewer>
                         </Grid>
                         <Rectangle x:Name="DisabledVisualElement" Stroke="{StaticResource ControlsDisabledBrush}"
                                    StrokeThickness="{TemplateBinding BorderThickness}"

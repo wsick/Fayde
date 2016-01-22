@@ -104,6 +104,7 @@ module Fayde.Controls {
         OnApplyTemplate() {
             super.OnApplyTemplate();
             this.$ContentProxy.setElement(<FrameworkElement>this.GetTemplateChild("ContentElement", FrameworkElement), this.$View);
+            this.$ContentProxy.setScrollElement(<FrameworkElement>this.GetTemplateChild("ScrollElement", FrameworkElement));
         }
 
         OnLostFocus(e: RoutedEventArgs) {
