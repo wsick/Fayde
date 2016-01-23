@@ -37,7 +37,12 @@ module Fayde.Localization {
         }
 
         GetDayOfWeek(time: DateTime): DayOfWeek {
-            return <DayOfWeek>Math.floor(time.Ticks / 864000000000 + 1) % 7;
+            var d = time.Day;
+            var m = time.Month;
+            var y = time.Year;
+            var t = [ 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 ];
+            y -= m < 3?1:0;
+            return <DayOfWeek>Math.floor((y + y / 4 - y / 100 + y / 400 + t[m - 1] + d) % 7);
         }
 
         IsLeapYear(year: number, era?: number): boolean {
