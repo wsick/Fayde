@@ -22,8 +22,8 @@ class DateTime {
     private static MAX_TICKS = 8640000000000000;
     private static MIN_TICKS = -8640000000000000;
 
-    static get MinValue() { return new DateTime(new Date(DateTime.MIN_TICKS)); }
-    static get MaxValue() { return new DateTime(new Date(DateTime.MAX_TICKS)); }
+    static get MinValue() { return new DateTime(DateTime.MIN_TICKS); }
+    static get MaxValue() { return new DateTime(DateTime.MAX_TICKS); }
     static get Now(): DateTime { return new DateTime(new Date().getTime(), DateTimeKind.Local); }
     static get Today(): DateTime { return DateTime.Now.Date; }
     static Compare(dt1: DateTime, dt2: DateTime): number {
