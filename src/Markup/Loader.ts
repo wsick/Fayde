@@ -126,11 +126,12 @@ module Fayde.Markup {
             attributeEnd: (ownerType, attrName, obj) => {
                 pactor.setObject(ownerType, attrName, obj);
             },
-            error: (err) => {
+            error: (err): boolean => {
                 if (err instanceof nullstone.markup.xaml.SkipBranchError) {
                     if (active.obj instanceof FrameworkTemplate)
                         throw new XamlParseException("Templates must contain only 1 visual root and no other child elements.", err.root);
                 }
+                throw new XamlParseException(`Invalid XAML in document '${xm.uri}'`, err);
                 return false;
             },
             end: () => {
