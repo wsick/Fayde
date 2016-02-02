@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.19.13';
+    Fayde.version = '0.19.14';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -6524,6 +6524,7 @@ var Fayde;
                         if (active.obj instanceof FrameworkTemplate)
                             throw new XamlParseException("Templates must contain only 1 visual root and no other child elements.", err.root);
                     }
+                    throw new XamlParseException("Invalid XAML in document '" + xm.uri + "'", err);
                     return false;
                 },
                 end: function () {

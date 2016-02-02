@@ -1,4 +1,4 @@
-## 0.19.14 (Unreleased)
+## 0.19.14 (Feb 2, 2016)
 
 SAFETY
 
