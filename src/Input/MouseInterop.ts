@@ -66,8 +66,8 @@ module Fayde.Input {
 
         private _GetMousePosition (evt): Point {
             return new Point(
-                evt.clientX + window.pageXOffset + this._CanvasOffset.left,
-                evt.clientY + window.pageYOffset + this._CanvasOffset.top);
+                evt.clientX + window.pageXOffset - this._CanvasOffset.left,
+                evt.clientY + window.pageYOffset - this._CanvasOffset.top);
         }
 
         IsLeftButton (button: number): boolean {
