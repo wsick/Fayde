@@ -1,3 +1,9 @@
+## 0.19.14 (Unreleased)
+
+SAFETY
+
+  * markup: Throw XamlParseException from xaml loader for xml parsererror. [GH-236]
+
 ## 0.19.13 (Jan 14, 2016)
 
 FEATURES
