@@ -8,7 +8,7 @@ var gulp = require('gulp'),
 
 module.exports = function (meta) {
     gulp.task('dist-build', function () {
-        var tsResult = gulp.src(meta.src)
+        var tsResult = gulp.src(meta.getSrc())
             .pipe(sourcemaps.init())
             .pipe(ts({
                 target: 'ES5',
@@ -22,7 +22,7 @@ module.exports = function (meta) {
             tsResult.js
                 .pipe(uglify())
                 .pipe(rename(meta.name + '.min.js'))
-                .pipe(sourcemaps.write('./'))
+                .pipe(sourcemaps.write('./', {sourceRoot: './src', debug: true}))
                 .pipe(gulp.dest('dist'))
         ]);
     });

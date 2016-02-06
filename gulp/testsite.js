@@ -5,23 +5,20 @@ var gulp = require('gulp'),
     open = require('gulp-open');
 
 module.exports = function (meta) {
-    var scaffold = meta.scaffolds.filter(function (scaffold) {
-        return scaffold.name === 'testsite';
-    })[0];
+    var scaffold = meta.getScaffold('testsite');
     if (!scaffold)
         return;
 
     gulp.task('testsite-build', function () {
-        return gulp.src(scaffold.src)
+        return gulp.src(scaffold.getSrc())
             .pipe(sourcemaps.init())
             .pipe(ts({
-                target: 'ES5',
                 module: 'amd',
-                outDir: 'stress/.build/',
+                target: 'ES5',
                 pathFilter: {'testsite': ''}
             }))
-            .pipe(sourcemaps.write())
-            .pipe(gulp.dest('testsite/.build/'))
+            .pipe(sourcemaps.write('./', {sourceRoot: '/', debug: true}))
+            .pipe(gulp.dest('testsite/.build'))
             .pipe(connect.reload());
     });
 
@@ -32,7 +29,7 @@ module.exports = function (meta) {
 
     gulp.task('testsite', ['default', 'testsite-build'], function () {
         var options = {
-            url: 'http://localhost:' + scaffold.port.toString()
+            url: `http://localhost:${scaffold.port}`
         };
         gulp.src('testsite/index.html')
             .pipe(open('', options));

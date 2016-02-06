@@ -40,12 +40,12 @@
     "gulp-qunit": "^1.2.1",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.5.1",
-    "gulp-symlink": "^2.1.0",
     "gulp-task-listing": "^1.0.1",
     "gulp-typescript": "2.9.0",
     "gulp-uglify": "^1.2.0",
     "merge2": "^0.3.3",
     "run-sequence": "^1.0.2",
-    "version-ts": "^0.1.1"
+    "version-ts": "^0.1.1",
+    "vinyl-fs": "^2.3.1"
   }
 }
