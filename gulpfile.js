@@ -2,7 +2,6 @@ var gulp = require('gulp'),
     taskListing = require('gulp-task-listing'),
     fs = require('fs'),
     typings = require('bower-typings'),
-    allTypings = typings(),
     name = 'fayde',
     meta = {
         name: name,
@@ -31,7 +30,7 @@ var gulp = require('gulp'),
                         'test/**/*.ts',
                         '!test/lib/**/*.ts',
                         `dist/${name}.d.ts`
-                    ].concat(allTypings);
+                    ].concat(typings());
                 }
             },
             {
@@ -45,7 +44,7 @@ var gulp = require('gulp'),
                         'testsite/**/*.ts',
                         '!testsite/lib/**/*.ts',
                         `dist/${name}.d.ts`
-                    ].concat(allTypings);
+                    ].concat(typings());
                 }
             },
             {
@@ -59,7 +58,7 @@ var gulp = require('gulp'),
                         'stress/**/*.ts',
                         '!stress/lib/**/*.ts',
                         `dist/${name}.d.ts`
-                    ].concat(allTypings);
+                    ].concat(typings());
                 }
             }
         ]
