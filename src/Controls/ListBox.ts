@@ -305,6 +305,14 @@ module Fayde.Controls {
         NotifyListItemLostFocus(lbi: ListBoxItem) {
             this._FocusedIndex = -1;
         }
+
+        OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs) {
+            super.OnItemsSourceChanged(e);
+            var tsv = this.$TemplateScrollViewer;
+            if (tsv) {
+                tsv.ScrollToVerticalOffset(0);
+            }
+        }
     }
     Fayde.CoreLibrary.add(ListBox);
     TemplateVisualStates(ListBox,
