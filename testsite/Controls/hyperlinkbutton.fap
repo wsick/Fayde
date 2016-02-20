@@ -148,8 +148,9 @@
             </Setter>
         </Style>
     </Application.Resources>
-    <Grid>
+    <StackPanel>
+        <HyperlinkButton Content="Download" Foreground="Teal" NavigateUri="/Home" TargetName="_Blank" />
         <HyperlinkButton Style="{StaticResource LinkStyle}" NavigateUri="#/Home" TargetName="ContentFrame" Content="home" 
                          HorizontalAlignment="Left" VerticalAlignment="Top" />
-    </Grid>
+    </StackPanel>
 </Application>
