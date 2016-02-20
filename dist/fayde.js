@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.19.15';
+    Fayde.version = '0.19.16';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -7708,6 +7708,13 @@ var Fayde;
             };
             ListBox.prototype.NotifyListItemLostFocus = function (lbi) {
                 this._FocusedIndex = -1;
+            };
+            ListBox.prototype.OnItemsSourceChanged = function (e) {
+                _super.prototype.OnItemsSourceChanged.call(this, e);
+                var tsv = this.$TemplateScrollViewer;
+                if (tsv) {
+                    tsv.ScrollToVerticalOffset(0);
+                }
             };
             ListBox.ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", function () { return Fayde.Style; }, ListBox, undefined, function (d, args) { return d.OnItemContainerStyleChanged(args); });
             ListBox.IsSelectionActiveProperty = Controls.Primitives.Selector.IsSelectionActiveProperty;

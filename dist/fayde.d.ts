@@ -1897,6 +1897,7 @@ declare module Fayde.Controls {
         OnLostFocus(e: RoutedEventArgs): void;
         NotifyListItemGotFocus(lbi: ListBoxItem): void;
         NotifyListItemLostFocus(lbi: ListBoxItem): void;
+        OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs): void;
     }
 }
 declare module Fayde.Controls {

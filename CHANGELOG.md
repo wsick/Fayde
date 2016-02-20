@@ -1,3 +1,15 @@
+## 0.19.16 (Feb 20, 2016)
+
+BUG FIXES
+
+  * scroll: Resetting scrolling if ItemsSource changes. [GH-247]
+
+## 0.19.15 (Feb 6, 2016)
+
+INTERNAL
+
+  * build: Building with new scaffold
+
 ## 0.19.14 (Feb 2, 2016)
 
 SAFETY
