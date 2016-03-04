@@ -26,6 +26,8 @@ module runner {
         ".build/tests/MVVM/AutoModel",
 
         ".build/tests/Primitives/DateTime",
+        
+        ".build/tests/Localization/GregorianCalendar",
 
         ".build/tests/Text/Proxy"
     ];
