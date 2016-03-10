@@ -1,3 +1,9 @@
+## 0.19.17 (Mar 10, 2016)
+
+BUG FIXES
+
+  * scroll: Fixing page down/page up scrolling crash. [GH-250]
+
 ## 0.19.16 (Feb 20, 2016)
 
 BUG FIXES
