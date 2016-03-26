@@ -1,0 +1,39 @@
+﻿<Application xmlns="http://schemas.wsick.com/fayde" xmlns:x="http://schemas.wsick.com/fayde/x" xmlns:local="ViewTemplates" ThemeName="Metro">
+    <StackPanel>
+        <StackPanel.DataContext>
+            <local:VtViewModel />
+        </StackPanel.DataContext>
+
+        <TextBlock Text="This sample demonstrates autowiring views to viewmodels by their class type." Margin="10"/>
+
+        <TextBlock Text="Manual list item template assignment:" Margin="10"/>
+        <ListBox ItemsSource="{Binding ListItems}" Background="Silver">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <StackPanel>
+            <StackPanel.Resources>
+                <DataTemplate DataType="local:VtItemViewModel">
+                    <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" />
+                </DataTemplate>
+            </StackPanel.Resources>
+            <TextBlock Text="Automatic template selection, setting template body:" Margin="10"/>
+            <ListBox ItemsSource="{Binding ListItems}" Background="Silver" />
+        </StackPanel>
+
+        <StackPanel>
+            <StackPanel.Resources>
+                <DataTemplate DataType="local:VtItemViewModel">
+                    <ContentControl ContentUri="ViewTemplates/VtItemView.fayde" />
+                </DataTemplate>
+            </StackPanel.Resources>
+            <TextBlock Text="Automatic template selection, setting template URI:" Margin="10"/>
+            <ListBox ItemsSource="{Binding ListItems}" Background="Silver" />
+        </StackPanel>
+
+    </StackPanel>
+</Application>
