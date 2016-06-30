@@ -1,6 +1,6 @@
 var Fayde;
 (function (Fayde) {
-    Fayde.version = '0.19.15';
+    Fayde.version = '0.19.17';
 })(Fayde || (Fayde = {}));
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
@@ -7422,6 +7422,7 @@ var Fayde;
 (function (Fayde) {
     var Controls;
     (function (Controls) {
+        var Rect = minerva.Rect;
         var ListBox = (function (_super) {
             __extends(ListBox, _super);
             function ListBox() {
@@ -7450,12 +7451,12 @@ var Fayde;
                     }
                     var verticalOffset = tsv.VerticalOffset;
                     var verticalDelta = 0;
-                    if (ihr.GetBottom() < lbir.GetBottom()) {
-                        verticalDelta = lbir.GetBottom() - ihr.GetBottom();
+                    if (Rect.getBottom(ihr) < Rect.getBottom(lbir)) {
+                        verticalDelta = Rect.getBottom(lbir) - Rect.getBottom(ihr);
                         verticalOffset += verticalDelta;
                     }
-                    if ((lbir.Y - verticalDelta) < ihr.Y) {
-                        verticalOffset -= ihr.Y - (lbir.Y - verticalDelta);
+                    if ((lbir.y - verticalDelta) < ihr.y) {
+                        verticalOffset -= ihr.y - (lbir.y - verticalDelta);
                     }
                     tsv.ScrollToVerticalOffset(verticalOffset);
                 }
@@ -7466,12 +7467,12 @@ var Fayde;
                     }
                     var horizontalOffset = tsv.HorizontalOffset;
                     var horizontalDelta = 0;
-                    if (ihr.GetRight() < lbir.GetRight()) {
-                        horizontalDelta = lbir.GetRight() - ihr.GetRight();
+                    if (Rect.getRight(ihr) < Rect.getRight(lbir)) {
+                        horizontalDelta = Rect.getRight(lbir) - Rect.getRight(ihr);
                         horizontalOffset += horizontalDelta;
                     }
-                    if ((ihr.X - horizontalDelta) < ihr.X) {
-                        horizontalOffset -= ihr.X - (lbir.X - horizontalDelta);
+                    if ((ihr.x - horizontalDelta) < ihr.x) {
+                        horizontalOffset -= ihr.x - (lbir.x - horizontalDelta);
                     }
                     tsv.ScrollToHorizontalOffset(horizontalOffset);
                 }
@@ -7708,6 +7709,13 @@ var Fayde;
             };
             ListBox.prototype.NotifyListItemLostFocus = function (lbi) {
                 this._FocusedIndex = -1;
+            };
+            ListBox.prototype.OnItemsSourceChanged = function (e) {
+                _super.prototype.OnItemsSourceChanged.call(this, e);
+                var tsv = this.$TemplateScrollViewer;
+                if (tsv) {
+                    tsv.ScrollToVerticalOffset(0);
+                }
             };
             ListBox.ItemContainerStyleProperty = DependencyProperty.Register("ItemContainerStyle", function () { return Fayde.Style; }, ListBox, undefined, function (d, args) { return d.OnItemContainerStyleChanged(args); });
             ListBox.IsSelectionActiveProperty = Controls.Primitives.Selector.IsSelectionActiveProperty;
