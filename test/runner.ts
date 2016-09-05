@@ -30,7 +30,7 @@ module runner {
         ".build/tests/Text/Proxy",
         
         ".build/tests/RadialGradientBrush",
-		".build/tests/LinearGradientBrush"
+        ".build/tests/LinearGradientBrush"
     ];
 
     Fayde.LoadConfigJson((config, err) => {

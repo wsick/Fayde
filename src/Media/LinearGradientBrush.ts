@@ -12,7 +12,7 @@ module Fayde.Media {
             var grd = ctx.createLinearGradient(data.start.x, data.start.y, data.end.x, data.end.y);
             for (var en = this.GradientStops.getEnumerator(); en.moveNext();) {
                 var stop: GradientStop = en.current;
-                this.AddColorStop(grd, stop.Offset, stop.Color ? stop.Color.toString() : Color.FromHex("#FF000000").toString());
+                this.AddColorStop(grd, stop.Offset, stop.Color);
             }
             return grd;
         }
@@ -35,7 +35,7 @@ module Fayde.Media {
                     var stop = en.current;
                     var offset = interpolator.interpolate(stop.Offset);
                     if (offset >= 0 && offset <= 1)
-                        this.AddColorStop(grd, offset, stop.Color.toString());
+                        this.AddColorStop(grd, offset, stop.Color);
                 }
             }
             return grd;
