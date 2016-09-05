@@ -42,26 +42,25 @@ module Fayde.Controls {
             super.OnMouseLeave(e);
             this.UpdateVisualState();
         }
-        
-        OnTouchMove(e: Input.TouchEventArgs){
-			super.OnTouchMove(e);
-			this.UpdateVisualState();
-		}
-		
-		OnTouchDown(e: Input.TouchEventArgs){
-			if (e.Handled)
+
+        OnTouchMove(e: Input.TouchEventArgs) {
+            super.OnTouchMove(e);
+            this.UpdateVisualState();
+        }
+        OnTouchDown(e: Input.TouchEventArgs) {
+            if (e.Handled)
                 return;
             e.Handled = true;
             if (!this.XamlNode.Focus(true))
                 return;
             if (this._ParentSelector != null)
                 this._ParentSelector.NotifyListItemClicked(this);
-		}
-		
-		OnTouchUp(e: Input.TouchEventArgs){
-			super.OnTouchUp(e);
+        }
+        OnTouchUp(e: Input.TouchEventArgs) {
+            super.OnTouchUp(e);
             this.UpdateVisualState();
-		}
+        }
+
         OnGotFocus(e: RoutedEventArgs) {
             super.OnGotFocus(e);
             this.UpdateVisualState();

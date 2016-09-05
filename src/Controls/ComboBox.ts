@@ -161,25 +161,23 @@ module Fayde.Controls {
             super.OnMouseLeave(e);
             this.UpdateVisualState(true);
         }
-        
-        OnTouchMove(e: Input.TouchEventArgs){
-			super.OnTouchMove(e);
+
+        OnTouchMove(e: Input.TouchEventArgs) {
+            super.OnTouchMove(e);
             this.UpdateVisualState(true);
-		}
-		
-		OnTouchDown(e: Input.TouchEventArgs){
-			super.OnTouchDown(e);
+        }
+        OnTouchDown(e: Input.TouchEventArgs) {
+            super.OnTouchDown(e);
             if (!e.Handled) {
                 e.Handled = true;
                 this.SetValueInternal(ComboBox.IsSelectionActiveProperty, true);
                 this.IsDropDownOpen = !this.IsDropDownOpen;
             }
-		}
-		
-		OnTouchLeave(e: Input.TouchEventArgs){
-			super.OnTouchLeave(e);
+        }
+        OnTouchLeave(e: Input.TouchEventArgs) {
+            super.OnTouchLeave(e);
             this.UpdateVisualState(true);
-		}
+        }
 		
         OnKeyDown(e: Input.KeyEventArgs) {
             super.OnKeyDown(e);
