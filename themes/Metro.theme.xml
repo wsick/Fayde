@@ -2859,6 +2859,7 @@
                             <VisualStateGroup x:Name="OpenStates">
                                 <VisualStateGroup.Transitions>
                                     <VisualTransition From="Open" GeneratedDuration="0:0:0.3" To="Closed"/>
+                                    <VisualTransition From="Closed" GeneratedDuration="0:0:0.3" To="Open"/>
                                 </VisualStateGroup.Transitions>
                                 <VisualState x:Name="Closed">
                                     <Storyboard>
