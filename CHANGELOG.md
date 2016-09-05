@@ -1,3 +1,9 @@
+## 0.19.18 (Unreleased)
+
+BUG FIXES
+
+  * transform: Null checks for null raw transforms in TransformGroup. ([#262](https://github.com/wsick/Fayde/pull/262))
+
 ## 0.19.17 (Mar 10, 2016)
 
 BUG FIXES
