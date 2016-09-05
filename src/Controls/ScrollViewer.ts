@@ -241,8 +241,8 @@ module Fayde.Controls {
             var origin = this._TouchOrigin;
             delta.x = pos.x - origin.x;
             delta.y = pos.y - origin.y;
-            this.ScrollToHorizontalOffset(delta.x);
-            this.ScrollToVerticalOffset(delta.y);
+            this.ScrollToHorizontalOffset(this._TouchInitialOffset.x + delta.x);
+            this.ScrollToVerticalOffset(this._TouchInitialOffset.y + delta.y);
         }
 
         OnKeyDown(e: Input.KeyEventArgs) {

@@ -12,6 +12,12 @@ module Fayde.Controls {
             if (this.ParentSelector instanceof ComboBox)
                 (<ComboBox>this.ParentSelector).IsDropDownOpen = false;
         }
+
+        OnTouchUp(e: Input.TouchEventArgs) {
+            super.OnTouchUp(e);
+            if (this.ParentSelector instanceof ComboBox)
+                (<ComboBox>this.ParentSelector).IsDropDownOpen = false;
+        }
     }
     Fayde.CoreLibrary.add(ComboBoxItem);
     TemplateVisualStates(ComboBoxItem, 
