@@ -1,4 +1,4 @@
-## 0.19.18 (Unreleased)
+## 0.19.18 (Sep 05, 2016)
 
 BUG FIXES
 
