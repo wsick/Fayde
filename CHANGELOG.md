@@ -3,6 +3,7 @@
 BUG FIXES
 
   * transform: Null checks for null raw transforms in TransformGroup. ([#262](https://github.com/wsick/Fayde/pull/262))
+  * brush: Ensuring gradient brushes do not crash with unspecified Color Stop. ([#261](https://github.com/wsick/Fayde/pull/261))
 
 ## 0.19.17 (Mar 10, 2016)
 

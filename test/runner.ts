@@ -27,7 +27,10 @@ module runner {
 
         ".build/tests/Primitives/DateTime",
 
-        ".build/tests/Text/Proxy"
+        ".build/tests/Text/Proxy",
+        
+        ".build/tests/RadialGradientBrush",
+        ".build/tests/LinearGradientBrush"
     ];
 
     Fayde.LoadConfigJson((config, err) => {
