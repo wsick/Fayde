@@ -4,6 +4,8 @@ BUG FIXES
 
   * transform: Null checks for null raw transforms in TransformGroup. ([#262](https://github.com/wsick/Fayde/pull/262))
   * brush: Ensuring gradient brushes do not crash with unspecified Color Stop. ([#261](https://github.com/wsick/Fayde/pull/261))
+  * scroll: Fixing touch-based scrolling ([#266](https://github.com/wsick/Fayde/pull/266))
+  * scroll: Adding missing touch event handlers ([#263](https://github.com/wsick/Fayde/pull/263) [#264](https://github.com/wsick/Fayde/pull/264) [#265](https://github.com/wsick/Fayde/pull/265))
 
 ## 0.19.17 (Mar 10, 2016)
 
