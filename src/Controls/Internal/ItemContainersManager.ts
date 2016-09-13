@@ -128,7 +128,7 @@ module Fayde.Controls.Internal {
                         if (generator.CurrentItem instanceof UIElement)
                             generator.Current = <UIElement>generator.CurrentItem;
                         generator.IsCurrentNew = true;
-                    } else if (cache.length > 0) {
+                    } else if (cache.length > 0  && generator.CurrentItem instanceof UIElement) {
                         generator.Current = cache.pop();
                         generator.IsCurrentNew = true;
                     } else {
