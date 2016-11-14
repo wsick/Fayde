@@ -58,22 +58,22 @@ module Fayde.Media.Animation {
                 return false;
 
             var i = list.lastIndexOf(animStorage);
-            if(i >= 0)
-            {
-                if (i === (len - 1)) {
-                    list.pop();
-                    if (len > 1) {
-                        var last = list[len - 2];
-                        if (last.IsDisabled) {
-                            last.IsDisabled = false;
-                            AnimationStore.ApplyCurrent(last);
-                            return true;
-                        }
+            if(i < 0)
+                return false;
+            
+            if (i === (len - 1)) {
+                list.pop();
+                if (len > 1) {
+                    var last = list[len - 2];
+                    if (last.IsDisabled) {
+                        last.IsDisabled = false;
+                        AnimationStore.ApplyCurrent(last);
+                        return true;
                     }
-                } else {
-                    list.splice(i, 1);
-                    list[i].StopValue = animStorage.StopValue;
                 }
+            } else {
+                list.splice(i, 1);
+                list[i].StopValue = animStorage.StopValue;
             }
             return false;
         }
