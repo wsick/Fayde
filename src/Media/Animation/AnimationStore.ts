@@ -58,6 +58,9 @@ module Fayde.Media.Animation {
                 return false;
 
             var i = list.lastIndexOf(animStorage);
+            if(i < 0)
+                return false;
+            
             if (i === (len - 1)) {
                 list.pop();
                 if (len > 1) {
