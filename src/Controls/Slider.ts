@@ -145,7 +145,7 @@ module Fayde.Controls {
 
             if (max === min)
                 return;
-            var percent = val / (max - min);
+            var percent = (val - min) / (max - min);
             if (largeDecrease != null && thumb != null) {
                 if (isHorizontal)
                     largeDecrease.Width = Math.max(0, percent * (this.ActualWidth - thumb.ActualWidth));
