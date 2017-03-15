@@ -542,7 +542,7 @@
                                 <VisualState x:Name="Normal"/>
                                 <VisualState x:Name="MouseOver">
                                     <Storyboard>
-                                        <ObjectAnimationUsingKeyFrames Duration="0"
+                                        <!--<ObjectAnimationUsingKeyFrames Duration="0"
                                                                        Storyboard.TargetProperty="Visibility"
                                                                        Storyboard.TargetName="UnderlineTextBlock">
                                             <DiscreteObjectKeyFrame KeyTime="0">
@@ -550,14 +550,14 @@
                                                     <Visibility>Visible</Visibility>
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
-                                        </ObjectAnimationUsingKeyFrames>
+                                        </ObjectAnimationUsingKeyFrames>-->
                                         <ColorAnimation Storyboard.TargetName="ContentPresenterWrapperColor"
                                                         Storyboard.TargetProperty="Color"
                                                         To="{StaticResource HighlightLightColor}" Duration="0"/>
                                     </Storyboard>
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
-                                    <Storyboard>
+                                    <!--<Storyboard>
                                         <ObjectAnimationUsingKeyFrames Duration="0"
                                                                        Storyboard.TargetProperty="Visibility"
                                                                        Storyboard.TargetName="UnderlineTextBlock">
@@ -567,7 +567,7 @@
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
                                         </ObjectAnimationUsingKeyFrames>
-                                    </Storyboard>
+                                    </Storyboard>-->
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
                                     <Storyboard>
@@ -594,20 +594,15 @@
                                 <VisualState x:Name="Unfocused"/>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
-                        <TextBlock x:Name="UnderlineTextBlock"
-                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                   Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}"
-                                   TextDecorations="Underline" Visibility="Collapsed"
-                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-                            <TextBlock.Foreground>
+                       
+                        <!--<Border x:Name="UnderlineTextBlock" Margin="2,0,2,1" BorderThickness="0,0,0,1" Visibility="Collapsed">
+                            <Border.BorderBrush>
                                 <SolidColorBrush Color="{StaticResource HighlightDarkColor}"/>
-                            </TextBlock.Foreground>
-                        </TextBlock>
-                        <TextBlock x:Name="DisabledOverlay" Foreground="{StaticResource DisabledForegroundBrush}"
-                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                   Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}"
-                                   Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                   Canvas.ZIndex="1"/>
+                            </Border.BorderBrush>
+                        </Border>-->
+                        
+                        <Border x:Name="DisabledOverlay" Background="#44AAAAAA" Visibility="Collapsed" Canvas.ZIndex="1" />
+                                   
                         <ContentControl>
                             <ContentControl.Foreground>
                                 <SolidColorBrush x:Name="ContentPresenterWrapperColor"
@@ -620,6 +615,7 @@
                                               Margin="{TemplateBinding Padding}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </ContentControl>
+                        
                         <Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
                             <Rectangle.Stroke>
                                 <SolidColorBrush Color="{StaticResource HighlightLightColor}"/>
