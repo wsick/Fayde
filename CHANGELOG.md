@@ -1,3 +1,11 @@
+## 0.19.19 (Mar 15, 2017)
+
+BUG FIXES
+
+  * Safely synchronizing Border properties with minerva.
+  * Add missing Closed visual transition to ToolTip.
+  * Safely detaching animations if animation storage is non-existent.
+
 ## 0.19.18 (Sep 05, 2016)
 
 BUG FIXES
