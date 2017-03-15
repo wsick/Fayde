@@ -34,9 +34,9 @@ module Fayde.Controls {
     UIReaction<minerva.IBrush>(Border.BorderBrushProperty, (upd, ov, nv) => {
         upd.invalidate();
     });
-    UIReaction<Thickness>(Border.BorderThicknessProperty, (upd, ov, nv) => upd.invalidateMeasure(), false, minerva.Thickness.copyTo);
-    UIReaction<Thickness>(Border.PaddingProperty, (upd, ov, nv) => upd.invalidateMeasure(), false, minerva.Thickness.copyTo);
-    UIReaction<minerva.CornerRadius>(Border.CornerRadiusProperty, (upd, ov, nv) => upd.invalidate(), false, minerva.CornerRadius.copyTo);
+    UIReaction<Thickness>(Border.BorderThicknessProperty, (upd, ov, nv) => upd.invalidateMeasure(), false, (src, dest) => !!src && !!dest && minerva.Thickness.copyTo(src, dest));
+    UIReaction<Thickness>(Border.PaddingProperty, (upd, ov, nv) => upd.invalidateMeasure(), false, (src, dest) => !!src && !!dest && minerva.Thickness.copyTo(src, dest));
+    UIReaction<minerva.CornerRadius>(Border.CornerRadiusProperty, (upd, ov, nv) => upd.invalidate(), false, (src, dest) => !!src && !!dest && minerva.CornerRadius.copyTo(src, dest));
     UIReaction<UIElement>(Border.ChildProperty, (upd, ov, nv, border?: Border) => {
         var node = border.XamlNode;
         var error = new BError();
