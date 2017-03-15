@@ -36,7 +36,7 @@ module Fayde.Localization {
     var standardFormatters: IStandardFormatter[] = [];
     standardFormatters["c"] = standardFormatters["t"] = standardFormatters["T"] = function (obj: TimeSpan): string {
         // [-][d’.’]hh’:’mm’:’ss[‘.’fffffff]
-        var info = DateTimeFormatInfo.Instance;
+        var info = getDateTimeFormat();
         var s = [
             padded(obj.Hours),
             padded(obj.Minutes),
@@ -54,7 +54,7 @@ module Fayde.Localization {
     };
     standardFormatters["g"] = function (obj: TimeSpan): string {
         // [-][d’:’]h’:’mm’:’ss[.FFFFFFF]
-        var info = DateTimeFormatInfo.Instance;
+        var info = getDateTimeFormat();
         var s = [
             Math.abs(obj.Hours),
             padded(obj.Minutes),
@@ -72,7 +72,7 @@ module Fayde.Localization {
     };
     standardFormatters["G"] = function (obj: TimeSpan): string {
         // [-]d’:’hh’:’mm’:’ss.fffffff
-        var info = DateTimeFormatInfo.Instance;
+        var info = getDateTimeFormat();
         var s = [
             Math.abs(obj.Days),
             padded(obj.Hours),
@@ -85,6 +85,10 @@ module Fayde.Localization {
             s = "-" + s;
         return s;
     };
+
+    function getDateTimeFormat(): DateTimeFormatInfo {
+        return CultureInfo.Current.DateTimeFormat;
+    }
 
     function tryCustomFormat(obj: TimeSpan, format: string): string {
         var days = Math.abs(obj.Days);
