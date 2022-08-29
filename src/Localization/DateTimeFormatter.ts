@@ -54,7 +54,7 @@ module Fayde.Localization {
         ].join("/");
     };
     standardFormatters["D"] = function (obj: DateTime): string {
-        var info = DateTimeFormatInfo.Instance;
+        var info = getDateTimeFormat();
         return [
             info.DayNames[obj.DayOfWeek],
             ", ",
@@ -90,7 +90,7 @@ module Fayde.Localization {
         ].join(" ");
     };
     standardFormatters["m"] = standardFormatters["M"] = function (obj: DateTime): string {
-        var info = DateTimeFormatInfo.Instance;
+        var info = getDateTimeFormat();
         return [
             info.MonthNames[obj.Month - 1],
             obj.Day
@@ -98,7 +98,7 @@ module Fayde.Localization {
     };
     standardFormatters["r"] = standardFormatters["R"] = function (obj: DateTime): string {
         var utc = obj.ToUniversalTime();
-        var info = DateTimeFormatInfo.Instance;
+        var info = getDateTimeFormat();
         return [
             info.AbbreviatedDayNames[utc.DayOfWeek],
             ", ",
@@ -133,7 +133,7 @@ module Fayde.Localization {
         ].join("");
     };
     standardFormatters["t"] = function (obj: DateTime): string {
-        var info = DateTimeFormatInfo.Instance;
+        var info = getDateTimeFormat();
         var hour = obj.Hour;
         var desig = info.AMDesignator;
         if (hour > 12) {
@@ -149,7 +149,7 @@ module Fayde.Localization {
         ].join("");
     };
     standardFormatters["T"] = function (obj: DateTime): string {
-        var info = DateTimeFormatInfo.Instance;
+        var info = getDateTimeFormat();
         var hour = obj.Hour;
         var desig = info.AMDesignator;
         if (hour > 12) {
@@ -183,7 +183,7 @@ module Fayde.Localization {
         ].join("");
     };
     standardFormatters["U"] = function (obj: DateTime): string {
-        var info = DateTimeFormatInfo.Instance;
+        var info = getDateTimeFormat();
         var hour = obj.Hour;
         var desig = info.AMDesignator;
         if (hour > 12) {
@@ -209,19 +209,23 @@ module Fayde.Localization {
         ].join("");
     };
     standardFormatters["y"] = standardFormatters["Y"] = function (obj: DateTime): string {
-        var info = DateTimeFormatInfo.Instance;
+        var info = getDateTimeFormat();
         return [
             info.MonthNames[obj.Month - 1],
             obj.Year
         ].join(", ");
     };
 
+    function getDateTimeFormat(): DateTimeFormatInfo {
+        return CultureInfo.Current.DateTimeFormat;
+    }
+
     function padded(num: number): string {
         return num < 10 ? "0" + num.toString() : num.toString();
     }
 
     function tryCustomFormat(obj: DateTime, format: string, offset: TimeSpan): string {
-        var info = DateTimeFormatInfo.Instance;
+        var info = getDateTimeFormat();
         var calendar = info.Calendar;
         var stringBuilder: string[] = [];
         var flag = calendar.ID === 8;
