@@ -202,8 +202,9 @@ module Fayde.Controls {
         }
         private _DisplayMemberTemplate: DataTemplate = null;
         private _GetDisplayMemberTemplate(): DataTemplate {
-            if (!this._DisplayMemberTemplate) {
-                var xm = DisplayTemplate.create(this.DisplayMemberPath || "");
+            // Only yield non-NULL template if DisplayMemberPath is set, otherwise leave it NULL for ContentPresenter to try looking up a template in resources by the data type
+            if ((!this._DisplayMemberTemplate) && (this.DisplayMemberPath) && (this.DisplayMemberPath !== "")) {
+                var xm = DisplayTemplate.create(this.DisplayMemberPath);
                 this._DisplayMemberTemplate = Markup.Load<DataTemplate>(this.App, xm);
             }
             return this._DisplayMemberTemplate;
