@@ -2095,6 +2095,7 @@
                             <Border x:Name="ContentElement" Margin="{TemplateBinding Padding}" Padding="4,0,3,2"
                                     VerticalAlignment="Center"/>
                         </Border>
+                        <TextBlock x:Name="WatermarkElement" Text="{TemplateBinding Watermark}" VerticalAlignment="Center" Margin="5,0" FontStyle="Italic" />
                         <Border x:Name="DisabledVisualElement" BorderBrush="{StaticResource ControlsDisabledBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 Background="{StaticResource ControlsDisabledBrush}" IsHitTestVisible="False"
